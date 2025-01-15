@@ -1,4 +1,5 @@
 use anyhow::Result;
+use axum::extract::Path;
 use axum::{Extension, Json};
 
 use crate::database::enums::UserOrganizationStatus;
@@ -30,9 +31,10 @@ pub struct UpdateUserRequest {
 
 pub async fn update_user(
     Extension(user): Extension<User>,
+    Path(id): Path<Uuid>,
     Json(body): Json<UpdateUserRequest>,
 ) -> Result<ApiResponse<()>, (StatusCode, &'static str)> {
-    match update_user_handler(&user.id, body).await {
+    match update_user_handler(&id, body).await {
         Ok(_) => (),
         Err(e) => {
             tracing::error!("Error getting user information: {:?}", e);
