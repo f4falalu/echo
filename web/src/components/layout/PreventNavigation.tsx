@@ -1,11 +1,10 @@
 'use client';
 
 import { useMemoizedFn, useMount } from 'ahooks';
-import { Modal } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect, useMemo } from 'react';
 import React from 'react';
-import { AppModal } from '@/components';
+import { AppModal } from '../modal/AppModal';
 
 type PreventNavigationProps = {
   isDirty: boolean;
