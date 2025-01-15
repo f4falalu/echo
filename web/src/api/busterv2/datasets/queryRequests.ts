@@ -78,28 +78,14 @@ export const prefetchGetDatasetMetadata = async (
 
 export const useCreateDataset = () => {
   const queryClient = useQueryClient();
-  const mutationFn = useMemoizedFn(() => createDataset());
-  const onSuccess = useMemoizedFn((newDataset: unknown) => {
-    queryClient.setQueryData<BusterDatasetListItem[]>(['datasets', {}], (oldData) => {
-      //   const newListItem: BusterDatasetListItem = {
-      //     ...newDataset,
-      //     name: newDataset.name,
-      //     created_at: newDataset.created_at,
-      //     updated_at: newDataset.updated_at,
-      //     definition: newDataset.definition,
-      //     owner: '',
-      //   };
-      return oldData;
-    });
-  });
-  const onError = useMemoizedFn((error: any) => {
-    console.error('Failed to create dataset:', error);
+
+  const onSuccess = useMemoizedFn(() => {
+    queryClient.invalidateQueries({ queryKey: ['datasets', {}] });
   });
 
   return useCreateReactMutation({
-    mutationFn,
-    onSuccess,
-    onError
+    mutationFn: createDataset,
+    onSuccess
   });
 };
 

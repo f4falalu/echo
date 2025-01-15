@@ -1,22 +1,12 @@
 import React, { useLayoutEffect, useMemo, useState } from 'react';
-import { Button, Select, SelectProps } from 'antd';
+import { Input, Select, SelectProps } from 'antd';
 import { useMemoizedFn, useMount } from 'ahooks';
-import { useDatasetContextSelector } from '@/context/Datasets';
 import { useDataSourceContextSelector } from '@/context/DataSources';
-import {
-  BusterDatasetListItem,
-  useCreateDataset,
-  useGetDatasets,
-  useUpdateDataset
-} from '@/api/busterv2/datasets';
+import { useCreateDataset } from '@/api/busterv2/datasets';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useRouter } from 'next/navigation';
 import { AppModal, Text } from '@/components';
-import { useAntToken } from '@/styles/useAntToken';
-import { BusterList, BusterListColumn, BusterListRow } from '@/components/list';
-import { formatDate } from '@/utils/date';
-import { timeout } from '@/utils';
 
 const headerConfig = {
   title: 'Create a dataset',
@@ -35,21 +25,22 @@ export const NewDatasetModal: React.FC<{
   const forceInitDataSourceList = useDataSourceContextSelector(
     (state) => state.forceInitDataSourceList
   );
-  const { mutateAsync: createDataset } = useCreateDataset();
-  const [creatingDataset, setCreatingDataset] = React.useState(false);
+  const { mutateAsync: createDataset, isPending: creatingDataset } = useCreateDataset();
   const [selectedDatasource, setSelectedDatasource] = React.useState<string | null>(
     datasourceId || null
   );
+  const [datasetName, setDatasetName] = React.useState<string>('');
 
-  const disableSubmit = !selectedDatasource;
+  const disableSubmit = !selectedDatasource || !datasetName;
 
   const createNewDatasetPreflight = useMemoizedFn(async () => {
-    if (creatingDataset || disableSubmit) return;
-    setCreatingDataset(true);
+    if (creatingDataset || disableSubmit || !selectedDatasource) return;
+
     beforeCreate?.();
 
     const res = await createDataset({
-      data_source_id: selectedDatasource!
+      data_source_id: selectedDatasource,
+      name: datasetName
     });
     if (res.id) {
       onChangePage({
@@ -62,16 +53,13 @@ export const NewDatasetModal: React.FC<{
         afterCreate?.();
       }, 150);
     }
-    setTimeout(() => {
-      setCreatingDataset(false);
-    }, 500);
   });
 
   const onAddDataSourceClick = useMemoizedFn(() => {
-    onClose();
+    router.push(createBusterRoute({ route: BusterRoutes.SETTINGS_DATASOURCES_ADD }));
     setTimeout(() => {
-      router.push(createBusterRoute({ route: BusterRoutes.SETTINGS_DATASOURCES_ADD }));
-    }, 350);
+      onClose();
+    }, 450);
   });
 
   useLayoutEffect(() => {
@@ -98,14 +86,18 @@ export const NewDatasetModal: React.FC<{
   return (
     <AppModal open={open} onClose={onClose} header={headerConfig} footer={footerConfig}>
       {open && (
-        <SelectDataSourceDropdown
-          setSelectedDatasource={setSelectedDatasource}
-          selectedDatasource={selectedDatasource}
-        />
-      )}
+        <div className="mt-2 flex flex-col gap-3">
+          <FormWrapper title="Dataset name">
+            <DatasetNameInput setDatasetName={setDatasetName} datasetName={datasetName} />
+          </FormWrapper>
 
-      {open && selectedDatasource && (
-        <SelectFromExistingDataset selectedDatasource={selectedDatasource} />
+          <FormWrapper title="Datasource">
+            <SelectDataSourceDropdown
+              setSelectedDatasource={setSelectedDatasource}
+              selectedDatasource={selectedDatasource}
+            />
+          </FormWrapper>
+        </div>
       )}
     </AppModal>
   );
@@ -132,6 +124,10 @@ const SelectDataSourceDropdown: React.FC<{
     return selectOptions.find((option) => option.value === selectedDatasource);
   }, [selectOptions, selectedDatasource]);
 
+  const onSelect = useMemoizedFn((value: unknown) => {
+    setSelectedDatasource(value as string);
+  });
+
   useMount(() => {
     initDataSourceList();
     router.prefetch(
@@ -149,115 +145,41 @@ const SelectDataSourceDropdown: React.FC<{
       value={selectedOption}
       placeholder="Select datasources that this term pertains to"
       popupMatchSelectWidth={true}
-      autoFocus={true}
-      onChange={(value) => {
-        setSelectedDatasource(value as unknown as string);
-      }}
+      onChange={onSelect}
     />
   );
 });
 SelectDataSourceDropdown.displayName = 'SelectDataSourceDropdown';
 
-const SelectFromExistingDataset: React.FC<{
-  selectedDatasource: string;
-}> = React.memo(({ selectedDatasource }) => {
-  const token = useAntToken();
-  const { data: importedDatasets, isFetched: isFetchedDatasets } = useGetDatasets({
-    imported: true
-  });
-  const { mutateAsync: onUpdateDataset } = useUpdateDataset();
+const DatasetNameInput: React.FC<{
+  setDatasetName: (name: string) => void;
+  datasetName: string;
+}> = React.memo(
+  ({ setDatasetName, datasetName }) => {
+    return (
+      <Input
+        autoFocus
+        defaultValue={datasetName}
+        placeholder="Enter a name for your dataset"
+        onChange={(e) => setDatasetName(e.target.value)}
+      />
+    );
+  },
+  () => true
+);
+DatasetNameInput.displayName = 'DatasetNameInput';
 
-  const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
-
-  const [submittingId, setSubmittingId] = useState<string | null>(null);
-
-  const columns: BusterListColumn[] = useMemo(() => {
-    return [
-      {
-        title: 'Name',
-        dataIndex: 'name'
-      },
-      {
-        title: 'Updated at',
-        dataIndex: 'updated_at',
-        render: (v) => formatDate({ date: v, format: 'lll' }),
-        width: 130
-      },
-      {
-        title: 'Actions',
-        dataIndex: 'actions',
-        width: 100,
-        render: (_, record: BusterDatasetListItem) => (
-          <div className="flex items-center justify-end">
-            <Button
-              loading={submittingId === record.id}
-              type="default"
-              onClick={() => onSelectDataset(record.id)}>
-              Use dataset
-            </Button>
-          </div>
-        )
-      }
-    ];
-  }, [submittingId]);
-
-  const rows: BusterListRow[] = useMemo(() => {
-    return importedDatasets.map((dataset) => ({
-      id: dataset.id,
-      data: dataset
-    }));
-  }, [importedDatasets]);
-
-  const onSelectDataset = useMemoizedFn(async (datasetId: string) => {
-    setSubmittingId(datasetId);
-    // try {
-    //   await onUpdateDataset({
-    //     id: datasetId,
-    //     name: 'test'
-    //   });
-    //   await timeout(500);
-    //   onChangePage({
-    //     route: BusterRoutes.APP_DATASETS_ID,
-    //     datasetId
-    //   });
-    // } catch (error) {
-    //   setSubmittingId(null);
-    // }
-  });
-
+const FormWrapper: React.FC<{
+  title: string;
+  children: React.ReactNode;
+}> = React.memo(({ title, children }) => {
   return (
-    <div
-      className="mt-3 flex h-[250px] w-full flex-col"
-      style={{
-        border: `0.5px solid ${token.colorBorder}`,
-        borderRadius: token.borderRadius
-      }}>
-      <div
-        className="flex"
-        style={{
-          padding: 12,
-          background: token.controlItemBgActive,
-          borderBottom: `0.5px solid ${token.colorBorder}`
-        }}>
-        <Text size="sm">Use an existing table or view as a dataset</Text>
+    <div className="grid grid-cols-[minmax(150px,auto)_1fr] gap-4">
+      <div>
+        <Text>{title}</Text>
       </div>
-      <div className="h-full w-full">
-        <BusterList
-          columns={columns}
-          rows={rows}
-          showHeader={false}
-          emptyState={
-            !isFetchedDatasets ? (
-              <div className="flex h-full w-full items-center justify-center">
-                <Text>No datasets found</Text>
-              </div>
-            ) : (
-              <></>
-            )
-          }
-        />
-      </div>
+      <div>{children}</div>
     </div>
   );
 });
-SelectFromExistingDataset.displayName = 'SelectFromExistingDataset';
+FormWrapper.displayName = 'FormWrapper';

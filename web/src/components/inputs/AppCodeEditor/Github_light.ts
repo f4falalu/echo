@@ -1,9 +1,10 @@
 import tailwind from '../../../../tailwind.config';
+import type { editor } from 'monaco-editor';
 const colors = tailwind.theme.extend.colors;
 
 const editorBackground = '#ffffff';
 
-const theme = {
+const theme: editor.IStandaloneThemeData = {
   base: 'vs',
   inherit: true,
   rules: [
@@ -336,7 +337,14 @@ const theme = {
       foreground: '032f62',
       fontStyle: 'underline',
       token: 'string.other.link'
-    }
+    },
+    {
+      foreground: '24292e',
+      token: 'string.yaml'
+    },
+    { foreground: colors.buster.primary, token: 'type' },
+    { foreground: '24292e', token: 'keyword.yaml' }, //booleans
+    { foreground: 'b31d28', token: 'number.yaml' }
   ],
   colors: {
     'editor.foreground': '#24292e',

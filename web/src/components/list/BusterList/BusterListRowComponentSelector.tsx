@@ -15,7 +15,7 @@ export const BusterListRowComponentSelector = React.forwardRef<
     selectedRowKeys?: string[];
     rows: BusterListRow[];
     style?: React.CSSProperties;
-    columnRowVariant: BusterListProps['columnRowVariant'];
+    columnRowVariant?: BusterListProps['columnRowVariant'];
   }
 >(
   (
