@@ -1,6 +1,5 @@
 import memoize from 'lodash/memoize';
-
-const isBrowser = typeof window !== 'undefined';
+import { isServer } from '@tanstack/react-query';
 
 let ctx: CanvasRenderingContext2D;
 const getCanvasContext = () => {
@@ -14,7 +13,7 @@ const getCanvasContext = () => {
 
 export const measureTextWidth = memoize(
   (text: string, font: any = {}) => {
-    if (isBrowser) {
+    if (!isServer) {
       const { fontSize, fontFamily = 'sans-serif', fontWeight, fontStyle, fontVariant } = font;
       const ctx = getCanvasContext();
       // @see https://developer.mozilla.org/zh-CN/docs/Web/CSS/font

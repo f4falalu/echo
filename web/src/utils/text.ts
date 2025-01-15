@@ -1,8 +1,6 @@
 import isNumber from 'lodash/isNumber';
 import { formatNumber } from './numbers';
 
-const isBrowser = typeof window !== 'undefined';
-
 export const inputHasText = (input: unknown): boolean => {
   if (typeof input !== 'string') {
     return false;
