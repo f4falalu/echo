@@ -1,5 +1,5 @@
 import isNumber from 'lodash/isNumber';
-import { formatNumber, shouldRoundNumber } from './numbers';
+import { formatNumber } from './numbers';
 
 const isBrowser = typeof window !== 'undefined';
 
@@ -35,15 +35,12 @@ export const removeAllSpaces = (str?: string) => {
   return str ? str.replace(/\s/g, '') : '';
 };
 
-export const makeHumanReadble = (
-  input: string | number | undefined | null,
-  key?: string
-): string => {
+export const makeHumanReadble = (input: string | number | undefined | null): string => {
   if (!input && !isNumber(input)) {
     return '';
   }
 
-  if (shouldRoundNumber(input, key)) {
+  if (isNumber(input)) {
     return formatNumber(input, {
       compact: false,
       minDecimals: 0,
