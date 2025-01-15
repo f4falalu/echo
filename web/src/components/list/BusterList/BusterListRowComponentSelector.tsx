@@ -1,5 +1,5 @@
 import React from 'react';
-import { BusterListRow, BusterListColumn } from './interfaces';
+import { BusterListRow, BusterListColumn, BusterListProps } from './interfaces';
 import { BusterListSectionComponent } from './BusterListSectionComponent';
 import { BusterListRowComponent } from './BusterListRowComponent';
 
@@ -15,6 +15,7 @@ export const BusterListRowComponentSelector = React.forwardRef<
     selectedRowKeys?: string[];
     rows: BusterListRow[];
     style?: React.CSSProperties;
+    columnRowVariant: BusterListProps['columnRowVariant'];
   }
 >(
   (
@@ -26,7 +27,8 @@ export const BusterListRowComponentSelector = React.forwardRef<
       onSelectChange,
       onSelectSectionChange,
       selectedRowKeys,
-      onContextMenuClick
+      onContextMenuClick,
+      columnRowVariant
     },
     ref
   ) => {
@@ -55,6 +57,7 @@ export const BusterListRowComponentSelector = React.forwardRef<
         checked={!!selectedRowKeys?.includes(row.id)}
         ref={ref}
         onContextMenuClick={onContextMenuClick}
+        columnRowVariant={columnRowVariant}
       />
     );
   }

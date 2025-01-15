@@ -51,7 +51,7 @@ export const ThreadControllerChart: React.FC<{
         };
       }
 
-      return isTable && !loading && !chartErrorMessage
+      return isTable && !loading && !chartErrorMessage && (selectedData?.length ?? 0) > 0
         ? {
             maxHeight: 'calc(100% - 20px)'
           }
@@ -59,7 +59,7 @@ export const ThreadControllerChart: React.FC<{
             height: '100%',
             maxHeight: '600px'
           };
-    }, [isTable, chartOnlyView, loading, chartErrorMessage]);
+    }, [isTable, chartOnlyView, loading, chartErrorMessage, selectedData?.length]);
 
     return (
       <div className={`${className} flex h-full w-full flex-col space-y-2.5 overflow-hidden`}>

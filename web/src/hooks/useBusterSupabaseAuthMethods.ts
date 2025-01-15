@@ -3,6 +3,7 @@ import { createClient } from '@/context/Supabase/server';
 import { redirect } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes/busterRoutes';
 import Cookies from 'js-cookie';
+import { QueryClient } from '@tanstack/react-query';
 
 //TODO use google one click: https://supabase.com/docs/guides/auth/social-login/auth-google#google-pre-built
 
@@ -142,6 +143,7 @@ export const useBusterSupabaseAuthMethods = () => {
     'use server';
 
     const supabase = await createClient();
+    const queryClient = new QueryClient();
 
     const { error } = await supabase.auth.signOut();
 
@@ -153,6 +155,7 @@ export const useBusterSupabaseAuthMethods = () => {
       Object.keys(Cookies.get()).forEach((cookieName) => {
         Cookies.remove(cookieName);
       });
+      queryClient.clear();
     }, 650);
 
     return redirect(

@@ -67,7 +67,8 @@ pub async fn list_assets(
                         .eq(users::id)
                         .and(dataset_permissions::dataset_id.eq(dataset_id))
                         .and(dataset_permissions::permission_type.eq("user"))
-                        .and(dataset_permissions::deleted_at.is_null())),
+                        .and(dataset_permissions::deleted_at.is_null())
+                        .and(dataset_permissions::organization_id.eq(organization_id))),
                 )
                 .inner_join(
                     users_to_organizations::table.on(users_to_organizations::user_id.eq(users::id)),
@@ -78,7 +79,6 @@ pub async fn list_assets(
                         "dataset_permissions.id IS NOT NULL",
                     ),
                 ))
-                .filter(dataset_permissions::organization_id.eq(organization_id))
                 .filter(users_to_organizations::organization_id.eq(organization_id))
                 .load::<(User, bool)>(&mut *conn)
                 .await
@@ -107,7 +107,8 @@ pub async fn list_assets(
                         .eq(permission_groups::id)
                         .and(dataset_permissions::dataset_id.eq(dataset_id))
                         .and(dataset_permissions::permission_type.eq("permission_group"))
-                        .and(dataset_permissions::deleted_at.is_null())),
+                        .and(dataset_permissions::deleted_at.is_null())
+                        .and(dataset_permissions::organization_id.eq(organization_id))),
                 )
                 .select((
                     permission_groups::all_columns,
@@ -116,7 +117,6 @@ pub async fn list_assets(
                     ),
                 ))
                 .filter(permission_groups::deleted_at.is_null())
-                .filter(dataset_permissions::organization_id.eq(organization_id))
                 .filter(permission_groups::organization_id.eq(organization_id))
                 .load::<(PermissionGroup, bool)>(&mut *conn)
                 .await
@@ -145,7 +145,8 @@ pub async fn list_assets(
                         .eq(dataset_groups::id)
                         .and(dataset_permissions::dataset_id.eq(dataset_id))
                         .and(dataset_permissions::permission_type.eq("dataset_group"))
-                        .and(dataset_permissions::deleted_at.is_null())),
+                        .and(dataset_permissions::deleted_at.is_null())
+                        .and(dataset_permissions::organization_id.eq(organization_id))),
                 )
                 .select((
                     dataset_groups::all_columns,
@@ -154,7 +155,6 @@ pub async fn list_assets(
                     ),
                 ))
                 .filter(dataset_groups::organization_id.eq(organization_id))
-                .filter(dataset_permissions::organization_id.eq(organization_id))
                 .filter(dataset_groups::deleted_at.is_null())
                 .load::<(DatasetGroup, bool)>(&mut *conn)
                 .await

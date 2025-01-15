@@ -1,7 +1,7 @@
 import React from 'react';
 import { HeaderExplanation } from '../HeaderExplanation';
 import { PermissionSearch } from '../PermissionSearch';
-import { useListPermissionUsers } from '@/api/busterv2';
+import { useDatasetListPermissionUsers } from '@/api/busterv2';
 import { useDebounceSearch } from '../useDebounceSearch';
 import { Button } from 'antd';
 import { AppMaterialIcons } from '@/components/icons';
@@ -14,7 +14,7 @@ export const PermissionUsers: React.FC<{
 }> = React.memo(({ datasetId }) => {
   const onToggleInviteModal = useAppLayoutContextSelector((x) => x.onToggleInviteModal);
   const { data: permissionUsers, isFetched: isPermissionUsersFetched } =
-    useListPermissionUsers(datasetId);
+    useDatasetListPermissionUsers(datasetId);
 
   const { searchText, handleSearchChange, filteredItems } = useDebounceSearch({
     items: permissionUsers || [],

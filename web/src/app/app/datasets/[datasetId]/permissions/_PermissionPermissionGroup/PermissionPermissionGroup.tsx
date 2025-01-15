@@ -5,18 +5,18 @@ import { useMemoizedFn } from 'ahooks';
 import { Button } from 'antd';
 import { AppMaterialIcons } from '@/components';
 import { PermissionListPermissionGroupContainer } from './PermissionListPermissionGroupContainer';
-import { useListPermissionGroups } from '@/api/busterv2/datasets';
 import { NewPermissionGroupModal } from './NewPermissionGroupModal';
 import { useDebounceSearch } from '../useDebounceSearch';
+import { useDatasetListPermissionGroups } from '@/api/busterv2';
 
 export const PermissionPermissionGroup: React.FC<{
   datasetId: string;
 }> = React.memo(({ datasetId }) => {
   const { data: permissionGroups, isFetched: isPermissionGroupsFetched } =
-    useListPermissionGroups(datasetId);
+    useDatasetListPermissionGroups(datasetId);
   const [isNewPermissionGroupModalOpen, setIsNewPermissionGroupModalOpen] = useState(false);
 
-  const { filteredItems, searchText, handleSearchChange, isPending } = useDebounceSearch({
+  const { filteredItems, searchText, handleSearchChange } = useDebounceSearch({
     items: permissionGroups || [],
     searchPredicate: (item, searchText) => item.name.toLowerCase().includes(searchText)
   });

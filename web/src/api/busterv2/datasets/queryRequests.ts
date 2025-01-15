@@ -113,7 +113,6 @@ export const useDeployDataset = () => {
     mutationFn,
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: ['datasets', {}] });
-      console.log(variables, context);
     }
   });
 };

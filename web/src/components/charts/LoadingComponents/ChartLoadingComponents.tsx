@@ -30,7 +30,9 @@ export const NoChartData: React.FC<{
   return (
     <div
       className={busterChartsTwMerge('flex h-full w-full items-center justify-center', className)}>
-      <Text className={busterChartsTwMerge()}>{noDataText}</Text>
+      <Text type="tertiary" className={busterChartsTwMerge()}>
+        {noDataText}
+      </Text>
     </div>
   );
 };

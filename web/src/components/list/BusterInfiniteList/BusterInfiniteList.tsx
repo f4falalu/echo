@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMemoizedFn, useUpdateEffect } from 'ahooks';
+import { useMemoizedFn } from 'ahooks';
 import { BusterListProps } from '../BusterList';
 import { getAllIdsInSection } from '../BusterList/helpers';
 import { useEffect, useMemo, useRef, useCallback } from 'react';
@@ -19,8 +19,8 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
   onSelectChange,
   emptyState,
   showHeader = true,
-  columnHeaderVariant,
   contextMenu,
+  columnRowVariant = 'containerized',
   showSelectAll = true,
   onScrollEnd,
   loadingNewContent,
@@ -68,9 +68,18 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
       selectedRowKeys,
       onSelectChange: onSelectChange ? onSelectChangePreflight : undefined,
       onSelectSectionChange: onSelectChange ? onSelectSectionChange : undefined,
-      onContextMenuClick: undefined
+      onContextMenuClick: undefined,
+      columnRowVariant
     };
-  }, [columns, rows, onSelectChange, onSelectSectionChange, contextMenu, selectedRowKeys]);
+  }, [
+    columns,
+    rows,
+    onSelectChange,
+    columnRowVariant,
+    onSelectSectionChange,
+    contextMenu,
+    selectedRowKeys
+  ]);
 
   // Add scroll handler
   const handleScroll = useCallback(() => {

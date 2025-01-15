@@ -1,8 +1,10 @@
 import { mainApi } from '../../buster';
-import { GetPermissionGroupResponse } from './responseInterfaces';
+import { CreatePermissionGroupResponse, GetPermissionGroupResponse } from './responseInterfaces';
 
-export const listPermissionGroups = async (): Promise<GetPermissionGroupResponse[]> => {
-  return await mainApi.get(`/permission_groups`).then((res) => res.data);
+export const listAllPermissionGroups = async (): Promise<GetPermissionGroupResponse[]> => {
+  return await mainApi
+    .get<GetPermissionGroupResponse[]>(`/permission_groups`)
+    .then((res) => res.data);
 };
 
 export const getPermissionGroup = async ({
@@ -13,7 +15,7 @@ export const getPermissionGroup = async ({
   return await mainApi.get(`/permission_groups/${id}`).then((res) => res.data);
 };
 
-export const updatePermissionGroup = async ({
+export const updatePermissionGroups = async ({
   id,
   data
 }: {
@@ -27,6 +29,12 @@ export const deletePermissionGroup = async ({ id }: { id: string }): Promise<voi
   return await mainApi.delete(`/permission_groups/${id}`).then((res) => res.data);
 };
 
-export const createPermissionGroup = async (data: { name: string }): Promise<void> => {
-  return await mainApi.post(`/permission_groups`, data).then((res) => res.data);
+export const createPermissionGroup = async ({
+  name
+}: {
+  name: string;
+}): Promise<CreatePermissionGroupResponse> => {
+  return await mainApi
+    .post<CreatePermissionGroupResponse>(`/permission_groups`, { name })
+    .then((res) => res.data);
 };
