@@ -1,4 +1,6 @@
-const theme = {
+import type { editor } from 'monaco-editor';
+
+const theme: editor.IStandaloneThemeData = {
   inherit: true,
   base: 'vs-dark',
   rules: [
@@ -339,6 +341,12 @@ const theme = {
       token: 'storage'
     }
   ],
+  colors: {
+    'editor.foreground': '#DCDCAA',
+    'editor.background': '#1E1E1E',
+    'editorCursor.foreground': '#DCDCAA',
+    'editorWhitespace.foreground': '#DCDCAA'
+  },
   encodedTokensColors: []
 };
 

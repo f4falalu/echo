@@ -16,7 +16,6 @@ export const BusterList: React.FC<BusterListProps> = ({
   onSelectChange,
   emptyState,
   showHeader = true,
-  columnHeaderVariant,
   contextMenu,
   showSelectAll = true
 }) => {

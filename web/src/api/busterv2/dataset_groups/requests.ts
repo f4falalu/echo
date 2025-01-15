@@ -1,8 +1,8 @@
 import { mainApi } from '../../buster';
-import { ListDatasetGroupsResponse } from '../datasets';
+import { DatasetGroup } from './responseInterfaces';
 
 export const listDatasetGroups = async () => {
-  return mainApi.get<ListDatasetGroupsResponse[]>(`/dataset_groups`).then((res) => res.data);
+  return mainApi.get<DatasetGroup[]>(`/dataset_groups`).then((res) => res.data);
 };
 
 export const createDatasetGroup = async (data: { name: string }) => {

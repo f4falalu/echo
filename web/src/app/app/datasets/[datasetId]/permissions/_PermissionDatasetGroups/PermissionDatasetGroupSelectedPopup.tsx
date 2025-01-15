@@ -1,7 +1,6 @@
-import { useUpdateDatasetGroups } from '@/api/busterv2';
+import { useDatasetUpdateDatasetGroups } from '@/api/busterv2';
 import { AppMaterialIcons } from '@/components';
 import { BusterListSelectedOptionPopupContainer } from '@/components/list';
-import { useCollectionsContextSelector } from '@/context/Collections';
 import { useMemoizedFn } from 'ahooks';
 import { Button, Dropdown } from 'antd';
 import { MenuProps } from 'antd/lib';
@@ -50,7 +49,7 @@ const PermissionDatasetGroupAssignButton: React.FC<{
   onSelectChange: (selectedRowKeys: string[]) => void;
   datasetId: string;
 }> = ({ selectedRowKeys, onSelectChange, datasetId }) => {
-  const { mutateAsync: updateDatasetGroups } = useUpdateDatasetGroups(datasetId);
+  const { mutateAsync: updateDatasetGroups } = useDatasetUpdateDatasetGroups(datasetId);
 
   const onAssignClick = useMemoizedFn(async (assigned: boolean) => {
     try {

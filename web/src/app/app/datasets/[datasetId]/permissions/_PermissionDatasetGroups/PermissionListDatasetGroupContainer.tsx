@@ -1,4 +1,4 @@
-import { ListDatasetGroupsResponse, useUpdateDatasetGroups } from '@/api/busterv2';
+import { ListDatasetGroupsResponse, useDatasetUpdateDatasetGroups } from '@/api/busterv2';
 import { BusterListColumn, BusterListRowItem } from '@/components/list';
 import { BusterInfiniteList } from '@/components/list/BusterInfiniteList';
 import { useMemoizedFn } from 'ahooks';
@@ -12,7 +12,7 @@ export const PermissionListDatasetGroupContainer: React.FC<{
   datasetId: string;
 }> = ({ filteredPermissionGroups, datasetId }) => {
   const { styles, cx } = useStyles();
-  const { mutateAsync: updateDatasetGroups } = useUpdateDatasetGroups(datasetId);
+  const { mutateAsync: updateDatasetGroups } = useDatasetUpdateDatasetGroups(datasetId);
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const numberOfPermissionGroups = filteredPermissionGroups.length;
 
@@ -116,7 +116,7 @@ export const PermissionListDatasetGroupContainer: React.FC<{
           showSelectAll={false}
           selectedRowKeys={selectedRowKeys}
           onSelectChange={setSelectedRowKeys}
-          emptyState={<div className="py-12">No teams found</div>}
+          emptyState={<div className="py-12">No dataset groups found</div>}
         />
       </div>
 
