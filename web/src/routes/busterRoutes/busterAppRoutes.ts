@@ -9,7 +9,6 @@ export enum BusterAppRoutes {
   APP_DASHBOARD_ID = '/app/dashboards/:dashboardId',
   APP_DASHBOARD_THREADS = '/app/dashboards/:dashboardId/metrics',
   APP_DASHBOARD_THREADS_ID = '/app/dashboards/:dashboardId/metrics/:threadId',
-
   APP_LOGS = '/app/logs',
   APP_DATASETS = '/app/datasets',
   APP_DATASETS_ID = '/app/datasets/:datasetId',
@@ -35,6 +34,14 @@ export enum BusterAppRoutes {
   SETTINGS_PREFERENCES = '/app/settings/preferences',
   SETTINGS_NOTIFICATIONS = '/app/settings/notifications',
   SETTINGS_TEAM_ID = '/app/settings/team/:teamId',
+  APP_SETTINGS_USERS = '/app/settings/users',
+  APP_SETTINGS_USERS_ID = '/app/settings/users/:userId',
+  APP_SETTINGS_DATASETS = '/app/settings/datasets',
+  APP_SETTINGS_DATASETS_ID = '/app/settings/datasets/:datasetId',
+  APP_SETTINGS_DATASET_GROUPS = '/app/settings/dataset-groups',
+  APP_SETTINGS_DATASET_GROUPS_ID = '/app/settings/dataset-groups/:datasetGroupId',
+  APP_SETTINGS_ATTRIBUTES = '/app/settings/attributes',
+  APP_SETTINGS_SECURITY = '/app/settings/security',
   NEW_USER = '/app/new-user'
 }
 
@@ -106,4 +113,23 @@ export type BusterAppRoutesWithArgs = {
     threadId: string;
   };
   [BusterAppRoutes.NEW_USER]: { route: BusterAppRoutes.NEW_USER };
+  [BusterAppRoutes.APP_SETTINGS_USERS]: { route: BusterAppRoutes.APP_SETTINGS_USERS };
+  [BusterAppRoutes.APP_SETTINGS_USERS_ID]: {
+    route: BusterAppRoutes.APP_SETTINGS_USERS_ID;
+    userId: string;
+  };
+  [BusterAppRoutes.APP_SETTINGS_DATASETS]: { route: BusterAppRoutes.APP_SETTINGS_DATASETS };
+  [BusterAppRoutes.APP_SETTINGS_DATASETS_ID]: {
+    route: BusterAppRoutes.APP_SETTINGS_DATASETS_ID;
+    datasetId: string;
+  };
+  [BusterAppRoutes.APP_SETTINGS_DATASET_GROUPS]: {
+    route: BusterAppRoutes.APP_SETTINGS_DATASET_GROUPS;
+  };
+  [BusterAppRoutes.APP_SETTINGS_DATASET_GROUPS_ID]: {
+    route: BusterAppRoutes.APP_SETTINGS_DATASET_GROUPS_ID;
+    datasetGroupId: string;
+  };
+  [BusterAppRoutes.APP_SETTINGS_ATTRIBUTES]: { route: BusterAppRoutes.APP_SETTINGS_ATTRIBUTES };
+  [BusterAppRoutes.APP_SETTINGS_SECURITY]: { route: BusterAppRoutes.APP_SETTINGS_SECURITY };
 };
