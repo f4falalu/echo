@@ -1,9 +1,4 @@
-import memoize from 'lodash/memoize';
-import isString from 'lodash/isString';
-import values from 'lodash/values';
 import isNumber from 'lodash/isNumber';
-import round from 'lodash/round';
-import max from 'lodash/max';
 import { formatNumber, shouldRoundNumber } from './numbers';
 
 const isBrowser = typeof window !== 'undefined';
@@ -78,37 +73,3 @@ export const makeHumanReadble = (
   const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
   return capitalizedWords.join(' ');
 };
-
-let ctx: CanvasRenderingContext2D;
-const getCanvasContext = () => {
-  if (!ctx) {
-    //@ts-ignore
-    ctx = document.createElement('canvas').getContext('2d');
-  }
-
-  return ctx;
-};
-
-export const measureTextWidth = memoize(
-  (text: string, font: any = {}) => {
-    if (isBrowser) {
-      const { fontSize, fontFamily = 'sans-serif', fontWeight, fontStyle, fontVariant } = font;
-      const ctx = getCanvasContext();
-      // @see https://developer.mozilla.org/zh-CN/docs/Web/CSS/font
-      ctx.font = [fontStyle, fontWeight, fontVariant, `${fontSize || 13.6}px`, fontFamily].join(
-        ' '
-      );
-      const metrics = ctx.measureText(isString(text) ? text : '');
-
-      return {
-        width: metrics.width,
-        height: metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
-      };
-    }
-    return {
-      width: 0,
-      height: 0
-    };
-  },
-  (text: string, font = {}) => [text, ...values(font)].join('')
-);
