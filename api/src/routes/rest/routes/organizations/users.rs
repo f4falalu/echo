@@ -1,6 +1,6 @@
 use anyhow::Result;
-use axum::{extract::Path, Extension, http::StatusCode};
-use diesel::{ExpressionMethods, QueryDsl, JoinOnDsl};
+use axum::{extract::Path, http::StatusCode, Extension};
+use diesel::{ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -58,7 +58,13 @@ async fn list_organization_users_handler(organization_id: Uuid) -> Result<Vec<Us
         ))
         .filter(users_to_organizations::organization_id.eq(organization_id))
         .filter(users_to_organizations::deleted_at.is_null())
-        .load::<(Uuid, String, Option<String>, UserOrganizationRole, UserOrganizationStatus)>(&mut conn)
+        .load::<(
+            Uuid,
+            String,
+            Option<String>,
+            UserOrganizationRole,
+            UserOrganizationStatus,
+        )>(&mut conn)
         .await?;
 
     Ok(users
@@ -71,4 +77,4 @@ async fn list_organization_users_handler(organization_id: Uuid) -> Result<Vec<Us
             status,
         })
         .collect())
-} 
+}
