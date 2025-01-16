@@ -779,7 +779,7 @@ async fn get_restricted_user_datasets_with_metadata(
                     dataset_permissions::permission_id
                         .eq(permission_groups_to_users::permission_group_id),
                 )
-                .filter(dataset_permissions::permission_type.eq("group"))
+                .filter(dataset_permissions::permission_type.eq("permission_group"))
                 .filter(datasets::deleted_at.is_null())
                 .filter(datasets::enabled.eq(true))
                 .select((Dataset::as_select(), DataSource::as_select()))
