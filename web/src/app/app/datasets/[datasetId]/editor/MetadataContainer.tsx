@@ -1,4 +1,3 @@
-import { BusterDataset } from '@/api/busterv2/datasets';
 import { AppCodeEditor } from '@/components/inputs/AppCodeEditor';
 import { createStyles } from 'antd-style';
 import React from 'react';
@@ -11,7 +10,12 @@ export const MetadataContainer: React.FC<{
 
   return (
     <div className={cx(styles.container, 'flex h-full w-full flex-col overflow-hidden')}>
-      <AppCodeEditor className="overflow-hidden" value={ymlFile} onChange={setYmlFile} />
+      <AppCodeEditor
+        language="yaml"
+        className="overflow-hidden"
+        value={ymlFile}
+        onChange={setYmlFile}
+      />
     </div>
   );
 });

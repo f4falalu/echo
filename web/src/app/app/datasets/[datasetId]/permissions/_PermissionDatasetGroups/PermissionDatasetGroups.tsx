@@ -1,4 +1,4 @@
-import { useListDatasetGroups } from '@/api/busterv2';
+import { useDatasetListDatasetGroups, useListDatasetGroups } from '@/api/busterv2';
 import React, { useState } from 'react';
 import { useDebounceSearch } from '../useDebounceSearch';
 import { useMemoizedFn } from 'ahooks';
@@ -12,7 +12,8 @@ import { NewDatasetGroupModal } from './NewPermissionDatasetGroupModal';
 export const PermissionDatasetGroups: React.FC<{
   datasetId: string;
 }> = React.memo(({ datasetId }) => {
-  const { data: datasetGroups, isFetched: isDatasetGroupsFetched } = useListDatasetGroups();
+  const { data: datasetGroups, isFetched: isDatasetGroupsFetched } =
+    useDatasetListDatasetGroups(datasetId);
   const [isNewDatasetGroupModalOpen, setIsNewDatasetGroupModalOpen] = useState(false);
 
   const { filteredItems, searchText, handleSearchChange } = useDebounceSearch({

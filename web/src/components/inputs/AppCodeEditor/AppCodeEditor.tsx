@@ -12,6 +12,9 @@ import { createStyles } from 'antd-style';
 import { motion } from 'framer-motion';
 import { useMemoizedFn } from 'ahooks';
 
+import './MonacoWebWorker';
+import { configureMonacoToUseYaml } from './yamlHelper';
+
 //import GithubLightTheme from 'monaco-themes/themes/Github Light.json';
 //import NightOwnTheme from 'monaco-themes/themes/Night Owl.json';
 //https://github.com/brijeshb42/monaco-ace-tokenizer
@@ -117,11 +120,16 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
     const onMountCodeEditor = useMemoizedFn(
       async (editor: editor.IStandaloneCodeEditor, monaco: typeof import('monaco-editor')) => {
         const [GithubLightTheme, NightOwlTheme] = await Promise.all([
-          (await import('./Github_light')).default,
-          (await import('./Tomorrow-Night')).default
+          (await import('./themes/github_light_theme')).default,
+          (await import('./themes/tomorrow_night_theme')).default
         ]);
-        monaco.editor.defineTheme('github-light', GithubLightTheme as any);
-        monaco.editor.defineTheme('night-owl', NightOwlTheme as any);
+
+        if (language === 'yaml') {
+          await configureMonacoToUseYaml(monaco);
+        }
+
+        monaco.editor.defineTheme('github-light', GithubLightTheme);
+        monaco.editor.defineTheme('night-owl', NightOwlTheme);
         editor.updateOptions({
           theme: useDarkMode ? 'night-owl' : 'github-light'
         });

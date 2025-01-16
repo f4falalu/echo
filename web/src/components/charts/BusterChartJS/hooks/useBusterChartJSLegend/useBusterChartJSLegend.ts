@@ -152,7 +152,6 @@ export const useBusterChartJSLegend = ({
   });
 
   const onLegendItemFocus = useMemoizedFn((item: BusterChartLegendItem) => {
-    //  console.log('onLegendItemFocus', item);
     alert('TODO');
   });
 

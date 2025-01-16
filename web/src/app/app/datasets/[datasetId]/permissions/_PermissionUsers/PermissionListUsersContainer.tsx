@@ -1,7 +1,7 @@
 import {
   ListPermissionGroupsResponse,
   ListPermissionUsersResponse,
-  useUpdatePermissionUsers
+  useDatasetUpdatePermissionUsers
 } from '@/api/busterv2/datasets';
 import { BusterUserAvatar } from '@/components';
 import { BusterListColumn, BusterListRowItem } from '@/components/list';
@@ -17,7 +17,7 @@ export const PermissionListUsersContainer: React.FC<{
   datasetId: string;
 }> = React.memo(({ filteredPermissionUsers, datasetId }) => {
   const { styles, cx } = useStyles();
-  const { mutateAsync: updatePermissionUsers } = useUpdatePermissionUsers(datasetId);
+  const { mutateAsync: updatePermissionUsers } = useDatasetUpdatePermissionUsers(datasetId);
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
   const numberOfPermissionUsers = filteredPermissionUsers.length;
@@ -123,7 +123,7 @@ export const PermissionListUsersContainer: React.FC<{
         onSelectChange={setSelectedRowKeys}
         emptyState={
           <div className="py-12">
-            <Text type="tertiary">No teams found</Text>
+            <Text type="tertiary">No users found</Text>
           </div>
         }
       />

@@ -7,7 +7,7 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 import { Menu, MenuProps } from 'antd';
 import { createStyles } from 'antd-style';
 import Link from 'next/link';
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { Text } from '@/components';
 import { SignOutButton } from './SignOutButton';
 import { useMemoizedFn } from 'ahooks';
@@ -164,6 +164,64 @@ const accountItems: MenuItem[] = [
   }
 ];
 
+const permissionsAndSecurityItems: MenuItem[] = [
+  {
+    key: BusterRoutes.APP_SETTINGS_USERS,
+    label: (
+      <Link
+        href={createBusterRoute({
+          route: BusterRoutes.APP_SETTINGS_USERS
+        })}>
+        Users
+      </Link>
+    )
+  },
+  {
+    key: BusterRoutes.APP_SETTINGS_DATASETS,
+    label: (
+      <Link
+        href={createBusterRoute({
+          route: BusterRoutes.APP_SETTINGS_DATASETS
+        })}>
+        Datasets
+      </Link>
+    )
+  },
+  {
+    key: BusterRoutes.APP_SETTINGS_DATASET_GROUPS,
+    label: (
+      <Link
+        href={createBusterRoute({
+          route: BusterRoutes.APP_SETTINGS_DATASET_GROUPS
+        })}>
+        Dataset Groups
+      </Link>
+    )
+  },
+  {
+    key: BusterRoutes.APP_SETTINGS_ATTRIBUTES,
+    label: (
+      <Link
+        href={createBusterRoute({
+          route: BusterRoutes.APP_SETTINGS_ATTRIBUTES
+        })}>
+        Attributes
+      </Link>
+    )
+  },
+  {
+    key: BusterRoutes.APP_SETTINGS_SECURITY,
+    label: (
+      <Link
+        href={createBusterRoute({
+          route: BusterRoutes.APP_SETTINGS_SECURITY
+        })}>
+        Security
+      </Link>
+    )
+  }
+];
+
 const useStyles = createStyles(({ token, css }) => {
   return {
     menuHeader: css`
@@ -181,63 +239,75 @@ const useStyles = createStyles(({ token, css }) => {
 export const AppSidebarSettings: React.FC<{
   className?: string;
   signOut: () => void;
-}> = ({ signOut }) => {
+}> = React.memo(({ signOut }) => {
+  const { styles, cx } = useStyles();
   const { openInfoMessage } = useBusterNotifications();
   const currentRoute = useAppLayoutContextSelector((s) => s.currentRoute);
-  const { styles, cx } = useStyles();
   const userTeams = useUserConfigContextSelector((state) => state.userTeams);
 
   const onAddTeam = useMemoizedFn(() => {
     openInfoMessage('Adding team is not currently supported');
   });
 
-  const teamsList: MenuItem[] = [
-    ...userTeams.map((team) => ({
-      key: createBusterRoute({
-        route: BusterRoutes.SETTINGS_TEAM_ID,
-        teamId: team.id
-      }),
-      label: (
-        <Link
-          href={createBusterRoute({
-            route: BusterRoutes.SETTINGS_TEAM_ID,
-            teamId: team.id
-          })}>
-          {team.name}
-        </Link>
-      )
-    })),
-    {
-      key: 'addteam',
-      label: (
-        <div onClick={onAddTeam} className={cx(styles.addButton, 'flex items-center space-x-1')}>
-          <AppMaterialIcons size={16} className="-ml-1" icon="add" />
-          <Text className="!text-inherit">Add team</Text>
-        </div>
-      )
-    }
-  ];
+  const teamsList: MenuItem[] = useMemo(
+    () => [
+      ...userTeams.map((team) => ({
+        key: createBusterRoute({
+          route: BusterRoutes.SETTINGS_TEAM_ID,
+          teamId: team.id
+        }),
+        label: (
+          <Link
+            href={createBusterRoute({
+              route: BusterRoutes.SETTINGS_TEAM_ID,
+              teamId: team.id
+            })}>
+            {team.name}
+          </Link>
+        )
+      })),
+      {
+        key: 'addteam',
+        label: (
+          <div onClick={onAddTeam} className={cx(styles.addButton, 'flex items-center space-x-1')}>
+            <AppMaterialIcons size={16} className="-ml-1" icon="add" />
+            <Text className="!text-inherit">Add team</Text>
+          </div>
+        )
+      }
+    ],
+    [userTeams, onAddTeam, styles.addButton, cx]
+  );
 
-  const menus = [
-    {
-      key: 'workspace',
-      label: 'Workspace',
-      icon: <AppMaterialIcons size={16} icon="apartment" />,
-      children: workSpaceItems
-    },
-    {
-      key: 'myaccount',
-      label: 'My Account',
-      icon: <AppMaterialIcons icon="account_circle" />,
-      children: accountItems
-    },
-    {
-      key: 'teams',
-      label: 'Teams',
-      icon: <AppMaterialIcons icon="groups" />,
-      children: teamsList
-    }
-  ];
+  const menus = useMemo(
+    () => [
+      {
+        key: 'myaccount',
+        label: 'Account',
+        icon: <AppMaterialIcons icon="account_circle" fill />,
+        children: accountItems
+      },
+      {
+        key: 'workspace',
+        label: 'Workspace',
+        icon: <AppMaterialIcons size={16} icon="apartment" />,
+        children: workSpaceItems
+      },
+      {
+        key: 'permissionsandsecurity',
+        label: 'Permissions & Security',
+        icon: <AppMaterialIcons size={16} icon="lock" />,
+        children: permissionsAndSecurityItems
+      }
+      // {
+      //   key: 'teams',
+      //   label: 'Teams',
+      //   icon: <AppMaterialIcons icon="groups" />,
+      //   children: teamsList
+      // }
+    ],
+    [workSpaceItems, permissionsAndSecurityItems, accountItems, teamsList]
+  );
 
   const allKeys = menus.map((menu) => menu.key);
 
@@ -264,4 +334,5 @@ export const AppSidebarSettings: React.FC<{
       <SignOutButton signOut={signOut} />
     </div>
   );
-};
+});
+AppSidebarSettings.displayName = 'AppSidebarSettings';

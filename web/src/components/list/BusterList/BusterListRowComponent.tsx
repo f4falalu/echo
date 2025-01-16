@@ -1,7 +1,7 @@
 import { useMemoizedFn } from 'ahooks';
 import get from 'lodash/get';
 import React, { useMemo } from 'react';
-import { BusterListRow, BusterListColumn, BusterListRowItem } from './interfaces';
+import { BusterListRow, BusterListColumn, BusterListRowItem, BusterListProps } from './interfaces';
 import Link from 'next/link';
 import { CheckboxColumn } from './CheckboxColumn';
 import { createStyles } from 'antd-style';
@@ -17,63 +17,60 @@ export const BusterListRowComponent = React.memo(
       onSelectChange?: (v: boolean, id: string) => void;
       onContextMenuClick?: (e: React.MouseEvent<HTMLDivElement>, id: string) => void;
       style?: React.CSSProperties;
+      columnRowVariant: BusterListProps['columnRowVariant'];
     }
-  >(({ style, row, columns, onSelectChange, checked, onContextMenuClick }, ref) => {
-    const { styles, cx } = useStyles();
-    const link = row.link;
-    // const router = useRouter();
+  >(
+    (
+      { style, columnRowVariant, row, columns, onSelectChange, checked, onContextMenuClick },
+      ref
+    ) => {
+      const { styles, cx } = useStyles();
+      const link = row.link;
 
-    const onClick = useMemoizedFn(() => {
-      // if (link) {
-      //   const isLocalLink = link.startsWith('/');
-      //   if (isLocalLink) {
-      //     router.push(link);
-      //   } else {
-      //     window.open(link, '_blank');
-      //   }
-      // }
-      row.onClick?.();
-    });
+      const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
+        onContextMenuClick?.(e, row.id);
+      });
 
-    const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
-      onContextMenuClick?.(e, row.id);
-    });
+      const onChange = useMemoizedFn((checked: boolean) => {
+        onSelectChange?.(checked, row.id);
+      });
 
-    const onChange = useMemoizedFn((checked: boolean) => {
-      onSelectChange?.(checked, row.id);
-    });
-
-    return (
-      <LinkWrapper href={link}>
-        <div
-          onClick={onClick}
-          style={style}
-          onContextMenu={onContextMenu}
-          className={cx(styles.row, 'group flex items-center', checked ? 'checked' : '', {
-            clickable: !!(link || row.onClick)
-          })}
-          ref={ref}>
-          {!!onSelectChange ? (
-            <CheckboxColumn checkStatus={checked ? 'checked' : 'unchecked'} onChange={onChange} />
-          ) : (
-            <div className="pl-2.5"></div>
-          )}
-          {columns.map((column, columnIndex) => (
-            <BusterListCellComponent
-              key={column.dataIndex}
-              data={get(row.data, column.dataIndex)}
-              row={row}
-              render={column.render}
-              isFirstCell={columnIndex === 0}
-              isLastCell={columnIndex === columns.length - 1}
-              width={column.width}
-              onSelectChange={onSelectChange}
-            />
-          ))}
-        </div>
-      </LinkWrapper>
-    );
-  }),
+      return (
+        <LinkWrapper href={link}>
+          <div
+            onClick={row.onClick}
+            style={style}
+            onContextMenu={onContextMenu}
+            className={cx(
+              styles.row,
+              'group flex items-center',
+              checked ? 'checked' : '',
+              columnRowVariant,
+              { clickable: !!(link || row.onClick) }
+            )}
+            ref={ref}>
+            {!!onSelectChange ? (
+              <CheckboxColumn checkStatus={checked ? 'checked' : 'unchecked'} onChange={onChange} />
+            ) : (
+              <div className="pl-2.5"></div>
+            )}
+            {columns.map((column, columnIndex) => (
+              <BusterListCellComponent
+                key={column.dataIndex}
+                data={get(row.data, column.dataIndex)}
+                row={row}
+                render={column.render}
+                isFirstCell={columnIndex === 0}
+                isLastCell={columnIndex === columns.length - 1}
+                width={column.width}
+                onSelectChange={onSelectChange}
+              />
+            ))}
+          </div>
+        </LinkWrapper>
+      );
+    }
+  ),
   (prevProps, nextProps) => {
     return prevProps.checked === nextProps.checked && prevProps.row.id === nextProps.row.id;
   }
@@ -149,6 +146,14 @@ export const useStyles = createStyles(({ css, token }) => ({
       background-color: ${token.colorPrimaryBg};
       &:hover {
         background-color: ${token.colorPrimaryBgHover};
+      }
+    }
+
+    &.containerized {
+      background-color: ${token.colorBgContainer};
+
+      &:last-child {
+        border-bottom: 0px;
       }
     }
   `,

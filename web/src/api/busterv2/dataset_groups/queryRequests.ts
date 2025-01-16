@@ -6,8 +6,10 @@ import {
   getDatasetGroup,
   updateDatasetGroup
 } from './requests';
+import { updateDatasetDatasetGroups } from '../datasets';
 import { useQueryClient } from '@tanstack/react-query';
 import { useMemoizedFn } from 'ahooks';
+import { LIST_DATASET_GROUPS_QUERY_KEY } from '../datasets/permissions/config';
 
 export const useListDatasetGroups = () => {
   const queryFn = useMemoizedFn(() => listDatasetGroups());
@@ -24,13 +26,9 @@ export const useDeleteDatasetGroup = () => {
     queryClient.invalidateQueries({ queryKey: ['dataset_groups'] });
     return res;
   });
-  const onSuccess = useMemoizedFn(() => {
-    queryClient.invalidateQueries({ queryKey: ['dataset_groups'] });
-  });
 
   return useCreateReactMutation({
-    mutationFn,
-    onSuccess
+    mutationFn
   });
 };
 
@@ -59,19 +57,18 @@ export const useCreateDatasetGroup = (datasetId?: string) => {
   const queryClient = useQueryClient();
   const mutationFn = useMemoizedFn(async (data: Parameters<typeof createDatasetGroup>[0]) => {
     const res = await createDatasetGroup(data);
-    queryClient.invalidateQueries({ queryKey: ['dataset_groups'] });
     if (datasetId) {
-      queryClient.invalidateQueries({ queryKey: ['dataset_groups', datasetId] });
-      queryClient.invalidateQueries({ queryKey: ['list_dataset_groups', datasetId] });
+      await updateDatasetDatasetGroups({
+        dataset_id: datasetId,
+        groups: [{ id: res.id, assigned: true }]
+      });
+      queryClient.invalidateQueries({ queryKey: [LIST_DATASET_GROUPS_QUERY_KEY, datasetId] });
+      queryClient.invalidateQueries({ queryKey: ['dataset_groups'] });
     }
     return res;
   });
-  const onSuccess = useMemoizedFn(() => {
-    queryClient.invalidateQueries({ queryKey: ['dataset_groups'] });
-  });
 
   return useCreateReactMutation({
-    mutationFn,
-    onSuccess
+    mutationFn
   });
 };

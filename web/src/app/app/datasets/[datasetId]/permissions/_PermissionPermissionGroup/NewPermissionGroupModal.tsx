@@ -1,10 +1,9 @@
-import { useCreatePermissionGroup } from '@/api/busterv2/permission_groups/queryRequests';
-import { AppModal } from '@/components';
+import { useCreatePermissionGroup } from '@/api/busterv2/permission_groups';
+import { AppModal } from '@/components/modal';
 import { useMemoizedFn } from 'ahooks';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Input, InputRef } from 'antd';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-
 interface NewPermissionGroupModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -13,7 +12,7 @@ interface NewPermissionGroupModalProps {
 
 export const NewPermissionGroupModal: React.FC<NewPermissionGroupModalProps> = React.memo(
   ({ isOpen, onClose, datasetId }) => {
-    const { mutateAsync, isPending } = useCreatePermissionGroup(datasetId);
+    const { mutateAsync, isPending } = useCreatePermissionGroup();
     const inputRef = useRef<InputRef>(null);
     const { openInfoMessage } = useBusterNotifications();
 
@@ -25,7 +24,8 @@ export const NewPermissionGroupModal: React.FC<NewPermissionGroupModalProps> = R
         return;
       }
       await mutateAsync({
-        name: inputValue
+        name: inputValue,
+        dataset_id: datasetId
       });
       onClose();
     });
@@ -61,7 +61,12 @@ export const NewPermissionGroupModal: React.FC<NewPermissionGroupModalProps> = R
 
     return (
       <AppModal open={isOpen} onClose={onClose} header={header} footer={footer}>
-        <Input ref={inputRef} placeholder="Name of permission group" />
+        <Input
+          ref={inputRef}
+          placeholder="Name of permission group"
+          autoFocus
+          onPressEnter={onCreateNewPermissionGroup}
+        />
       </AppModal>
     );
   }

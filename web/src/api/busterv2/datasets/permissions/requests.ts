@@ -7,7 +7,7 @@ import {
 } from './responseInterfaces';
 import * as config from './config';
 
-export const listPermissionGroups = async ({
+export const listIndividualDatasetPermissionGroups = async ({
   dataset_id
 }: {
   dataset_id: string;
@@ -23,7 +23,7 @@ export const listDatasetDatasetGroups = async ({
   return await mainApi.get(`/datasets/${dataset_id}/dataset_groups`).then((res) => res.data);
 };
 
-export const listPermissionUsers = async ({
+export const listDatasetPermissionUsers = async ({
   dataset_id
 }: {
   dataset_id: string;
@@ -31,7 +31,7 @@ export const listPermissionUsers = async ({
   return await mainApi.get(`/datasets/${dataset_id}/users`).then((res) => res.data);
 };
 
-export const updatePermissionUsers = async ({
+export const updateDatasetPermissionUsers = async ({
   dataset_id,
   users
 }: {
@@ -44,7 +44,7 @@ export const updatePermissionUsers = async ({
   return await mainApi.put(`/datasets/${dataset_id}/users`, users);
 };
 
-export const updatePermissionGroups = async ({
+export const updateDatasetPermissionGroups = async ({
   dataset_id,
   groups
 }: {
@@ -59,7 +59,7 @@ export const updatePermissionGroups = async ({
   return await mainApi.put(`/datasets/${dataset_id}/permission_groups`, groups);
 };
 
-export const updateDatasetGroups = async ({
+export const updateDatasetDatasetGroups = async ({
   dataset_id,
   groups
 }: {

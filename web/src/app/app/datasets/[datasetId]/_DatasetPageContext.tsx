@@ -14,7 +14,7 @@ import { useDeployDataset } from '@/api/busterv2';
 
 export const useDatasetPageContext = ({ datasetId }: { datasetId: string }) => {
   const segments = useSelectedLayoutSegment() as DatasetApps;
-  const { mutate: onUpdateDataset } = useDeployDataset();
+  const { mutate: onUpdateDataset, isPending: isDeployingDataset } = useDeployDataset();
   const { dataset, datasetData } = useIndividualDataset({ datasetId });
   const originalDatasetSQL = dataset?.data?.sql;
   const datasetYmlFile = dataset?.data?.yml_file;
@@ -27,7 +27,7 @@ export const useDatasetPageContext = ({ datasetId }: { datasetId: string }) => {
   const disablePublish = useMemo(() => {
     const originalSQL = datasetSQL || '';
     const originalYmlFile = datasetYmlFile || '';
-    return !datasetId || !sql || originalSQL === sql || !ymlFile || originalYmlFile === ymlFile;
+    return !datasetId || !sql || !ymlFile || (originalYmlFile === ymlFile && originalSQL === sql);
   }, [datasetSQL, sql, datasetId, datasetYmlFile, ymlFile]);
 
   const isChangedSQL = useMemo(() => {
@@ -40,10 +40,11 @@ export const useDatasetPageContext = ({ datasetId }: { datasetId: string }) => {
   });
 
   const onPublishDataset = useMemoizedFn(async () => {
+    if (disablePublish || !sql || !ymlFile) return;
     onUpdateDataset({
       dataset_id: datasetId!,
-      sql: sql!,
-      yml: ymlFile!
+      sql: sql,
+      yml: ymlFile
     });
   });
 
@@ -69,7 +70,8 @@ export const useDatasetPageContext = ({ datasetId }: { datasetId: string }) => {
     dataset,
     disablePublish,
     isChangedSQL,
-    datasetId
+    datasetId,
+    isDeployingDataset
   };
 };
 

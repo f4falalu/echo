@@ -17,6 +17,7 @@ export const DatasetsIndividualHeader: React.FC<{}> = React.memo(({}) => {
   const selectedApp = useDatasetPageContextSelector((state) => state.selectedApp);
   const dataset = useDatasetPageContextSelector((state) => state.dataset);
   const onPublishDataset = useDatasetPageContextSelector((state) => state.onPublishDataset);
+  const isDeployingDataset = useDatasetPageContextSelector((state) => state.isDeployingDataset);
   const resetDataset = useDatasetPageContextSelector((state) => state.resetDataset);
   const disablePublish = useDatasetPageContextSelector((state) => state.disablePublish);
   const isChangedSQL = useDatasetPageContextSelector((state) => state.isChangedSQL);
@@ -25,7 +26,6 @@ export const DatasetsIndividualHeader: React.FC<{}> = React.memo(({}) => {
   const datasetName = dataset?.data?.name;
 
   const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
-  const setOpenNewDatasetModal = useDatasetContextSelector((state) => state.setOpenNewDatasetModal);
 
   const preventNavigation = !disablePublish;
 
@@ -59,10 +59,14 @@ export const DatasetsIndividualHeader: React.FC<{}> = React.memo(({}) => {
             <Divider type="vertical" className="!h-4" />
 
             <div className="flex items-center space-x-2">
-              <Button type="text" onClick={onReset} disabled={!isChangedSQL}>
+              <Button type="text" onClick={onReset} disabled={!isChangedSQL || isDeployingDataset}>
                 Reset
               </Button>
-              <Button type="primary" disabled={disablePublish} onClick={onPublishDataset}>
+              <Button
+                type="primary"
+                disabled={disablePublish}
+                onClick={onPublishDataset}
+                loading={isDeployingDataset}>
                 Publish
               </Button>
             </div>
