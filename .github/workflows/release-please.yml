@@ -17,11 +17,6 @@ jobs:
         uses: googleapis/release-please-action@v4
         with:
           release-type: simple
-          package-name: buster
           path: .
-          changelog-path: CHANGELOG.md
-          version-file: version.txt
-          bump-minor-pre-major: true
-          skip-github-release: true
-          skip-pull-requests: true
           token: ${{ secrets.MY_RELEASE_PLEASE_TOKEN }}
+          skip-github-release: true
