@@ -43,6 +43,8 @@ jobs:
           # Debug: Check if version.txt exists
           if [ -f "version.txt" ]; then
             echo "version.txt exists"
+            echo "Current content of version.txt:"
+            cat version.txt
           else
             echo "version.txt does not exist"
           fi
@@ -58,16 +60,15 @@ jobs:
           # Export both versions for later steps
           echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-
       # Step 5: Update version.txt if version changes
       - name: Update version.txt
-        if: env.CURRENT_VERSION != env.NEW_VERSION  # Run only if the versions are different
+        if: env.CURRENT_VERSION && env.CURRENT_VERSION != env.NEW_VERSION  # Run only if version exists and versions are different
         run: |
           echo "$NEW_VERSION" > version.txt
 
       # Step 6: Commit and Push Changes
       - name: Commit and Push Changes
-        if: env.CURRENT_VERSION != env.NEW_VERSION  # Run only if the versions are different
+        if: env.CURRENT_VERSION && env.CURRENT_VERSION != env.NEW_VERSION  # Run only if version exists and versions are different
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
