@@ -46,7 +46,7 @@ export const useDatasetListPermissionGroups = (dataset_id: string) => {
   return useCreateReactQuery({
     queryKey: [PERMISSION_GROUP_QUERY_KEY, dataset_id],
     queryFn,
-    staleTime: 1000 * 5 // 5 seconds
+    enabled: !!dataset_id
   });
 };
 
@@ -81,7 +81,8 @@ export const useDatasetListDatasetGroups = (dataset_id: string) => {
 
   return useCreateReactQuery({
     queryKey: [LIST_DATASET_GROUPS_QUERY_KEY, dataset_id],
-    queryFn
+    queryFn,
+    enabled: !!dataset_id
   });
 };
 
@@ -90,7 +91,8 @@ export const useDatasetListPermissionUsers = (dataset_id: string) => {
 
   return useCreateReactQuery({
     queryKey: ['list_permission_users', dataset_id],
-    queryFn
+    queryFn,
+    enabled: !!dataset_id
   });
 };
 

@@ -119,11 +119,7 @@ export const PermissionListPermissionGroupContainer: React.FC<{
         showSelectAll={false}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
-        emptyState={
-          <div className="py-12">
-            <Text type="tertiary">No permission groups found</Text>
-          </div>
-        }
+        emptyState={<EmptyState />}
       />
     </div>
   );
@@ -180,3 +176,13 @@ const PermissionGroupAssignedCell = React.memo(
 );
 
 PermissionGroupAssignedCell.displayName = 'PermissionGroupAssignedCell';
+
+const EmptyState = React.memo(() => {
+  return (
+    <div className="py-12">
+      <Text type="tertiary">No permission groups found</Text>
+    </div>
+  );
+});
+
+EmptyState.displayName = 'EmptyState';

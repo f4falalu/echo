@@ -27,6 +27,8 @@ interface CreateQueryProps<T> extends UseQueryOptions<T> {
   useErrorNotification?: boolean;
 }
 
+export const STALE_TIME = 1000 * 10;
+
 export const useCreateReactQuery = <T>({
   queryKey,
   queryFn,
@@ -50,6 +52,7 @@ export const useCreateReactQuery = <T>({
     retry: 1,
     refetchOnWindowFocus,
     refetchOnMount,
+    staleTime: STALE_TIME,
     ...rest
   });
 

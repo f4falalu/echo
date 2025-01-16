@@ -30,7 +30,11 @@ export const PermissionsAppContainer: React.FC<{ datasetId: string }> = React.me
 
     return (
       <>
-        <PermissionAppSegments selectedApp={selectedApp} setSelectedApp={setSelectedApp} />
+        <PermissionAppSegments
+          selectedApp={selectedApp}
+          setSelectedApp={setSelectedApp}
+          datasetId={datasetId}
+        />
 
         <AnimatePresence mode="wait" initial={false}>
           <motion.div {...memoizedAnimation} key={selectedApp} className="w-full">
