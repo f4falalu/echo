@@ -1,37 +1,64 @@
+name: Update Version
+
 on:
   push:
     branches:
       - main
 
+# Add permissions configuration
 permissions:
   contents: write
   pull-requests: write
 
-name: release-please
-
 jobs:
-  release-please:
+  version-bump:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: googleapis/release-please-action@v4
-        id: release
+      # Step 1: Check out the repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.MY_RELEASE_PLEASE_TOKEN }}
-          skip-github-pull-request: true
-          release-type: simple
-          prerelease: true
-          version-file: version.txt
-      
-      - uses: actions/checkout@v4
-        if: ${{ steps.release.outputs.release_created }}
-      
-      - name: Update version and push
-        if: ${{ steps.release.outputs.release_created }}
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      # Step 3: Install Dependencies
+      - name: Install Dependencies
+        run: npm install standard-version --save-dev
+
+      # Step 4: Determine New Version
+      - name: Determine Version
+        id: get_version
         run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add .
-          git commit -m "chore: update version to ${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.MY_RELEASE_PLEASE_TOKEN }}
+          # Read the current version
+          CURRENT_VERSION=$(cat version.txt)
+          echo "Current Version: $CURRENT_VERSION"
+
+          # Get the next version using standard-version
+          NEW_VERSION=$(npx standard-version --dry-run | grep "tagging release" | awk '{print $NF}')
+          echo "New Version: $NEW_VERSION"
+
+          # Export both versions for later steps
+          echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+      # Step 5: Update version.txt if version changes
+      - name: Update version.txt
+        if: env.CURRENT_VERSION != env.NEW_VERSION  # Run only if the versions are different
+        run: |
+          echo "$NEW_VERSION" > version.txt
+
+      # Step 6: Commit and Push Changes
+      - name: Commit and Push Changes
+        if: env.CURRENT_VERSION != env.NEW_VERSION  # Run only if the versions are different
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add version.txt
+          git commit -m "chore(release): update version to $NEW_VERSION"
+          git push "https://${{ github.actor }}:${{ secrets.MY_RELEASE_PLEASE_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:main
