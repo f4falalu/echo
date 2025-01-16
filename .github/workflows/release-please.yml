@@ -1,0 +1,22 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run Release Please
+        uses: googleapis/release-please-action@v4
+        with:
+          release-type: simple
+          path: .
+          token: ${{ secrets.MY_RELEASE_PLEASE_TOKEN }}
+          skip-github-release: true
