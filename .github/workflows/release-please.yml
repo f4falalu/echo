@@ -20,5 +20,3 @@ jobs:
           token: ${{ secrets.MY_RELEASE_PLEASE_TOKEN }}
           skip-github-release: true
           path: .
-          version-file: version.txt
-          depth: 20
