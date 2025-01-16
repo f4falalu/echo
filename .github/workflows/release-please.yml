@@ -13,6 +13,9 @@ permissions:
 jobs:
   version-bump:
     runs-on: ubuntu-latest
+    
+    # Add condition to skip if last commit was a release
+    if: "!startsWith(github.event.head_commit.message, 'chore(release)')"
 
     steps:
       # Step 1: Check out the repository
