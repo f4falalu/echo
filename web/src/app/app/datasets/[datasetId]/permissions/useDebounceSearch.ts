@@ -27,12 +27,16 @@ export const useDebounceSearch = <T>({ items, searchPredicate }: UseDebounceSear
     (text: string) => {
       updateFilteredItems(text);
     },
-    { wait: 200 }
+    { wait: 150 }
   );
 
   const handleSearchChange = useMemoizedFn((text: string) => {
     setSearchText(text);
-    debouncedSearch(text);
+    if (!text) {
+      updateFilteredItems(text);
+    } else {
+      debouncedSearch(text);
+    }
   });
 
   useEffect(() => {
