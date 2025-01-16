@@ -9,7 +9,7 @@ import { getAllIdsInSection } from './helpers';
 import { BusterListHeader } from './BusterListHeader';
 import { BusterListRowComponentSelector } from './BusterListRowComponentSelector';
 
-export const BusterList: React.FC<BusterListProps> = ({
+export const BusterListReactWindow: React.FC<BusterListProps> = ({
   columns,
   rows,
   selectedRowKeys,
@@ -194,5 +194,5 @@ export const BusterList: React.FC<BusterListProps> = ({
     </div>
   );
 };
-BusterList.displayName = 'BusterList';
+BusterListReactWindow.displayName = 'BusterList';
 // Add a memoized checkbox component
