@@ -17,8 +17,10 @@ jobs:
         id: release
         with:
           token: ${{ secrets.MY_RELEASE_PLEASE_TOKEN }}
-          config-file: release-please-config.json
           skip-github-pull-request: true
+          release-type: simple
+          prerelease: true
+          version-file: version.txt
       
       - uses: actions/checkout@v4
         if: ${{ steps.release.outputs.release_created }}
