@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { CopyLinkButton } from './CopyLinkButton';
 import { Button, Divider } from 'antd';
-import { AppMaterialIcons } from '@/components';
+import { AppMaterialIcons, BackButton } from '@/components';
 import { useStyles } from './useStyles';
 import { AccessDropdown } from './AccessDropdown';
 import { useUserConfigContextSelector } from '@/context/Users';
@@ -93,9 +93,7 @@ export const ShareWithGroupAndTeam: React.FC<{
   return (
     <div className="">
       <div className="flex h-[40px] items-center justify-between space-x-1 px-3">
-        <Button type="text" icon={<AppMaterialIcons icon="chevron_left" />} onClick={goBack}>
-          Back
-        </Button>
+        <BackButton onClick={goBack} />
         <div>
           <CopyLinkButton onCopyLink={onCopyLink} />
         </div>
