@@ -87,10 +87,7 @@ export const BusterListRowComponent = React.memo(
         </LinkWrapper>
       );
     }
-  ),
-  (prevProps, nextProps) => {
-    return prevProps.checked === nextProps.checked && prevProps.row.id === nextProps.row.id;
-  }
+  )
 );
 BusterListRowComponent.displayName = 'BusterListRowComponent';
 

@@ -19,7 +19,11 @@ export const PermissionUsers: React.FC<{
   const { searchText, handleSearchChange, filteredItems } = useDebounceSearch({
     items: permissionUsers || [],
     searchPredicate: (item, searchText) => {
-      return item.name.includes(searchText);
+      const lowerCaseSearchText = searchText.toLowerCase();
+      return (
+        item.name.toLocaleLowerCase().includes(lowerCaseSearchText) ||
+        item.email.toLocaleLowerCase().includes(lowerCaseSearchText)
+      );
     }
   });
 

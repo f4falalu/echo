@@ -8,9 +8,6 @@ import { useMount } from 'ahooks';
 const headerHeight = 300;
 
 const ItemSwag = React.memo(({ index }: { index: number }) => {
-  useMount(() => {
-    console.log('useMount', index);
-  });
   return <div className="h-[48px] border bg-red-200">Swag {index}</div>;
 });
 ItemSwag.displayName = 'ItemSwag';

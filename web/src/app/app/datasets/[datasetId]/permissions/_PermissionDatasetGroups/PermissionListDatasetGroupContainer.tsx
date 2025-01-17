@@ -6,12 +6,12 @@ import { Select } from 'antd';
 import { createStyles } from 'antd-style';
 import React, { useMemo, useState } from 'react';
 import { PermissionDatasetGroupSelectedPopup } from './PermissionDatasetGroupSelectedPopup';
+import { PermissionListContainer } from '../_components';
 
 export const PermissionListDatasetGroupContainer: React.FC<{
   filteredPermissionGroups: ListDatasetGroupsResponse[];
   datasetId: string;
 }> = ({ filteredPermissionGroups, datasetId }) => {
-  const { styles, cx } = useStyles();
   const { mutateAsync: updateDatasetGroups } = useDatasetUpdateDatasetGroups(datasetId);
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const numberOfPermissionGroups = filteredPermissionGroups.length;
@@ -107,35 +107,27 @@ export const PermissionListDatasetGroupContainer: React.FC<{
   );
 
   return (
-    <>
-      <div className={cx('', styles.container)}>
-        <BusterInfiniteList
-          columns={columns}
-          rows={rows}
-          showHeader={false}
-          showSelectAll={false}
+    <PermissionListContainer
+      popupNode={
+        <PermissionDatasetGroupSelectedPopup
           selectedRowKeys={selectedRowKeys}
           onSelectChange={setSelectedRowKeys}
-          emptyState={<div className="py-12">No dataset groups found</div>}
+          datasetId={datasetId}
         />
-      </div>
-
-      <PermissionDatasetGroupSelectedPopup
+      }>
+      <BusterInfiniteList
+        columns={columns}
+        rows={rows}
+        showHeader={false}
+        showSelectAll={false}
+        useRowClickSelectChange={true}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
-        datasetId={datasetId}
+        emptyState={<div className="py-12">No dataset groups found</div>}
       />
-    </>
+    </PermissionListContainer>
   );
 };
-
-const useStyles = createStyles(({ css, token }) => ({
-  container: css`
-    border: 0.5px solid ${token.colorBorder};
-    border-radius: ${token.borderRadius}px;
-    overflow: hidden;
-  `
-}));
 
 const DatasetGroupInfoCell: React.FC<{ name: string }> = ({ name }) => {
   return <div>{name}</div>;
@@ -164,6 +156,10 @@ const DatasetGroupAssignedCell: React.FC<{
       popupMatchSelectWidth
       onSelect={(value) => {
         onSelect({ id, assigned: value });
+      }}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
       }}
     />
   );

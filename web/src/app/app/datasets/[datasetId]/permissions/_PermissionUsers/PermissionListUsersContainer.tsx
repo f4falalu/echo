@@ -11,12 +11,14 @@ import { Select } from 'antd';
 import { createStyles } from 'antd-style';
 import React, { useMemo, useState } from 'react';
 import { Text } from '@/components/text';
+import { PermissionListContainer } from '../_components';
+import { PermissionUsersSelectedPopup } from './PermissionUsersSelectedPopup';
+import { PERMISSION_USERS_OPTIONS } from './config';
 
 export const PermissionListUsersContainer: React.FC<{
   filteredPermissionUsers: ListPermissionUsersResponse[];
   datasetId: string;
 }> = React.memo(({ filteredPermissionUsers, datasetId }) => {
-  const { styles, cx } = useStyles();
   const { mutateAsync: updatePermissionUsers } = useDatasetUpdatePermissionUsers(datasetId);
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
@@ -113,7 +115,14 @@ export const PermissionListUsersContainer: React.FC<{
   );
 
   return (
-    <div className={cx(styles.container)}>
+    <PermissionListContainer
+      popupNode={
+        <PermissionUsersSelectedPopup
+          datasetId={datasetId}
+          selectedRowKeys={selectedRowKeys}
+          onSelectChange={setSelectedRowKeys}
+        />
+      }>
       <BusterInfiniteList
         columns={columns}
         rows={rows}
@@ -121,25 +130,18 @@ export const PermissionListUsersContainer: React.FC<{
         showSelectAll={false}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
+        useRowClickSelectChange={true}
         emptyState={
           <div className="py-12">
             <Text type="tertiary">No users found</Text>
           </div>
         }
       />
-    </div>
+    </PermissionListContainer>
   );
 });
 
 PermissionListUsersContainer.displayName = 'PermissionListUsersContainer';
-
-const useStyles = createStyles(({ css, token }) => ({
-  container: css`
-    border: 0.5px solid ${token.colorBorder};
-    border-radius: ${token.borderRadius}px;
-    overflow: hidden;
-  `
-}));
 
 const PermissionGroupInfoCell = React.memo(({ name, email }: { name: string; email: string }) => {
   return (
@@ -161,39 +163,23 @@ const PermissionGroupInfoCell = React.memo(({ name, email }: { name: string; ema
 });
 PermissionGroupInfoCell.displayName = 'PermissionGroupInfoCell';
 
-const options = [
-  {
-    label: 'Assigned',
-    value: true
-  },
-  {
-    label: 'Not Assigned',
-    value: false
-  }
-];
-
-const PermissionGroupAssignedCell = React.memo(
-  ({
-    id,
-    assigned,
-    onSelect
-  }: {
-    id: string;
-    assigned: boolean;
-    onSelect: (value: { id: string; assigned: boolean }) => void;
-  }) => {
-    return (
-      <Select
-        options={options}
-        defaultValue={assigned}
-        popupMatchSelectWidth
-        onSelect={(value) => {
-          onSelect({ id, assigned: value });
-        }}
-      />
-    );
-  },
-  () => true
-);
-
-PermissionGroupAssignedCell.displayName = 'PermissionGroupAssignedCell';
+const PermissionGroupAssignedCell: React.FC<{
+  id: string;
+  assigned: boolean;
+  onSelect: (value: { id: string; assigned: boolean }) => void;
+}> = ({ id, assigned, onSelect }) => {
+  return (
+    <Select
+      options={PERMISSION_USERS_OPTIONS}
+      value={assigned}
+      popupMatchSelectWidth
+      onSelect={(value) => {
+        onSelect({ id, assigned: value });
+      }}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    />
+  );
+};

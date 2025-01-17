@@ -1,12 +1,13 @@
-import { useDatasetUpdateDatasetGroups } from '@/api/buster-rest';
+import { useDatasetUpdatePermissionUsers } from '@/api/buster-rest';
 import { AppMaterialIcons } from '@/components';
 import { BusterListSelectedOptionPopupContainer } from '@/components/list';
 import { useMemoizedFn } from 'ahooks';
 import { Button, Dropdown } from 'antd';
 import { MenuProps } from 'antd/lib';
 import React, { useMemo } from 'react';
+import { PERMISSION_USERS_OPTIONS } from './config';
 
-export const PermissionDatasetGroupSelectedPopup: React.FC<{
+export const PermissionUsersSelectedPopup: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
   datasetId: string;
@@ -18,7 +19,7 @@ export const PermissionDatasetGroupSelectedPopup: React.FC<{
       selectedRowKeys={selectedRowKeys}
       onSelectChange={onSelectChange}
       buttons={[
-        <PermissionDatasetGroupAssignButton
+        <PermissionUsersAssignButton
           key="assign"
           selectedRowKeys={selectedRowKeys}
           onSelectChange={onSelectChange}
@@ -29,35 +30,24 @@ export const PermissionDatasetGroupSelectedPopup: React.FC<{
     />
   );
 });
-PermissionDatasetGroupSelectedPopup.displayName = 'PermissionDatasetGroupSelectedPopup';
+PermissionUsersSelectedPopup.displayName = 'PermissionUsersSelectedPopup';
 
-const options = [
-  {
-    label: 'Included',
-    value: true,
-    icon: <AppMaterialIcons icon="done_all" />
-  },
-  {
-    label: 'Not Included',
-    value: false,
-    icon: <AppMaterialIcons icon="remove_done" />
-  }
-];
+const options = PERMISSION_USERS_OPTIONS.map((v) => ({
+  label: v.label,
+  value: v.value,
+  icon: v.value ? <AppMaterialIcons icon="done_all" /> : <AppMaterialIcons icon="remove_done" />
+}));
 
-const PermissionDatasetGroupAssignButton: React.FC<{
+const PermissionUsersAssignButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
   datasetId: string;
 }> = ({ selectedRowKeys, onSelectChange, datasetId }) => {
-  const { mutateAsync: updateDatasetGroups } = useDatasetUpdateDatasetGroups(datasetId);
+  const { mutateAsync: updatePermissionUsers } = useDatasetUpdatePermissionUsers(datasetId);
 
   const onAssignClick = useMemoizedFn(async (assigned: boolean) => {
     try {
-      const groups: { id: string; assigned: boolean }[] = selectedRowKeys.map((v) => ({
-        id: v,
-        assigned
-      }));
-      await updateDatasetGroups(groups);
+      await updatePermissionUsers(selectedRowKeys.map((v) => ({ id: v, assigned })));
       onSelectChange([]);
     } catch (error) {
       //  openErrorMessage('Failed to delete collection');
@@ -84,7 +74,7 @@ const PermissionDatasetGroupAssignButton: React.FC<{
   return (
     <Dropdown menu={menuProps} trigger={['click']}>
       <Button icon={<AppMaterialIcons icon="done_all" />} type="default" onClick={onButtonClick}>
-        Included
+        {options[0].label}
       </Button>
     </Dropdown>
   );

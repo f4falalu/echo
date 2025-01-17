@@ -5,18 +5,17 @@ import {
 import { BusterListColumn, BusterListRowItem } from '@/components/list';
 import { useMemoizedFn } from 'ahooks';
 import { Select } from 'antd';
-import { createStyles } from 'antd-style';
 import React, { useMemo, useState } from 'react';
 import { Text } from '@/components/text';
 import { PermissionGroupSelectedPopup } from './PermissionGroupSelectedPopup';
 import { BusterInfiniteList } from '@/components/list/BusterInfiniteList';
 import { PERMISSION_GROUP_ASSIGNED_OPTIONS } from './config';
+import { PermissionListContainer } from '../_components/PermissionListContainer';
 
 export const PermissionListPermissionGroupContainer: React.FC<{
   filteredPermissionGroups: ListPermissionGroupsResponse[];
   datasetId: string;
 }> = React.memo(({ filteredPermissionGroups, datasetId }) => {
-  const { styles, cx } = useStyles();
   const { mutateAsync: updatePermissionGroups } = useDatasetUpdatePermissionGroups(datasetId);
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
@@ -113,7 +112,14 @@ export const PermissionListPermissionGroupContainer: React.FC<{
   );
 
   return (
-    <div className={cx('min-h-fit overflow-hidden', styles.container)}>
+    <PermissionListContainer
+      popupNode={
+        <PermissionGroupSelectedPopup
+          datasetId={datasetId}
+          selectedRowKeys={selectedRowKeys}
+          onSelectChange={setSelectedRowKeys}
+        />
+      }>
       <BusterInfiniteList
         columns={columns}
         rows={rows}
@@ -124,28 +130,11 @@ export const PermissionListPermissionGroupContainer: React.FC<{
         emptyState={<EmptyState />}
         useRowClickSelectChange={true}
       />
-
-      <div className="fixed bottom-0 left-0 right-0 w-full">
-        <div className="relative ml-[220px] mr-[55px]">
-          <PermissionGroupSelectedPopup
-            datasetId={datasetId}
-            selectedRowKeys={selectedRowKeys}
-            onSelectChange={setSelectedRowKeys}
-          />
-        </div>
-      </div>
-    </div>
+    </PermissionListContainer>
   );
 });
 
 PermissionListPermissionGroupContainer.displayName = 'PermissionListTeamContainer';
-
-const useStyles = createStyles(({ css, token }) => ({
-  container: css`
-    border: 0.5px solid ${token.colorBorder};
-    border-radius: ${token.borderRadius}px;
-  `
-}));
 
 const PermissionGroupInfoCell = React.memo(({ name }: { name: string }) => {
   return <div>{name}</div>;
@@ -165,7 +154,7 @@ export const PermissionGroupAssignedCell = React.memo(
     return (
       <Select
         options={PERMISSION_GROUP_ASSIGNED_OPTIONS}
-        defaultValue={assigned}
+        value={assigned}
         popupMatchSelectWidth
         onClick={(e) => {
           e.preventDefault();
