@@ -194,5 +194,5 @@ export const BusterListReactWindow: React.FC<BusterListProps> = ({
     </div>
   );
 };
-BusterListReactWindow.displayName = 'BusterList';
+BusterListReactWindow.displayName = 'BusterListReactWindow';
 // Add a memoized checkbox component

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { AppSegmented } from '@/components';
 import { PermissionApps } from './config';
 import { useMemoizedFn, useSet } from 'ahooks';
@@ -10,7 +10,7 @@ import {
   useDatasetListDatasetGroups,
   useDatasetListPermissionGroups,
   useDatasetListPermissionUsers
-} from '@/api/busterv2';
+} from '@/api/buster-rest';
 
 export const PermissionAppSegments: React.FC<{
   selectedApp: PermissionApps;
