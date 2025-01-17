@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useMemoizedFn } from 'ahooks';
 import { BusterListProps } from '../BusterList';
 import { getAllIdsInSection } from '../BusterList/helpers';
-import { WindowVirtualizer } from 'virtua';
-import { useEffect, useMemo, useRef, useCallback } from 'react';
+import { useEffect, useMemo } from 'react';
 import { BusterListHeader } from '../BusterList/BusterListHeader';
 import { BusterListRowComponentSelector } from '../BusterList/BusterListRowComponentSelector';
 
@@ -26,8 +25,10 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
   showSelectAll = true,
   onScrollEnd,
   loadingNewContent,
-  scrollEndThreshold = 200 // Default threshold of 200px
+  scrollEndThreshold = 48 // Default threshold of 200px
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
   const showEmptyState = useMemo(
     () => (!rows || rows.length === 0 || !rows.some((row) => !row.rowSection)) && !!emptyState,
     [rows, emptyState]
@@ -86,27 +87,44 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
     selectedRowKeys
   ]);
 
-  // Add scroll handler
-  const handleScroll = useCallback(() => {
-    // const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-    // const distanceToBottom = scrollHeight - scrollTop - clientHeight;
-    // console.log('distanceToBottom', distanceToBottom);
-    // if (distanceToBottom <= scrollEndThreshold) {
-    //   onScrollEnd();
-    //   console.log('onScrollEnd');
-    // }
+  useEffect(() => {
+    if (!onScrollEnd) return;
+
+    // Find the first scrollable parent element
+    const findScrollableParent = (element: HTMLElement | null): HTMLDivElement | null => {
+      while (element) {
+        const { overflowY } = window.getComputedStyle(element);
+        if (overflowY === 'auto' || overflowY === 'scroll') {
+          return element as HTMLDivElement;
+        }
+        element = element.parentElement;
+      }
+      return null;
+    };
+
+    const scrollableParent = findScrollableParent(containerRef.current?.parentElement ?? null);
+    if (!scrollableParent) return;
+
+    scrollRef.current = scrollableParent;
+
+    // Check if we've scrolled near the bottom
+    const handleScroll = () => {
+      if (!scrollRef.current) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+
+      if (distanceFromBottom <= scrollEndThreshold) {
+        onScrollEnd();
+      }
+    };
+
+    scrollableParent.addEventListener('scroll', handleScroll);
+    return () => scrollableParent.removeEventListener('scroll', handleScroll);
   }, [onScrollEnd, scrollEndThreshold]);
 
-  // Add scroll event listener
-  useEffect(() => {
-    // const container = containerRef.current;
-    // if (!container || !onScrollEnd) return;
-    // container.addEventListener('scroll', handleScroll);
-    //  return () => container.removeEventListener('scroll', handleScroll);
-  }, [handleScroll, onScrollEnd]);
-
   return (
-    <div className="infinite-list-container relative flex h-full w-full flex-col">
+    <div ref={containerRef} className="infinite-list-container relative">
       {showHeader && !showEmptyState && (
         <BusterListHeader
           columns={columns}
@@ -117,13 +135,10 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
         />
       )}
 
-      {!showEmptyState && (
-        <>
-          {rows.map((row) => (
-            <BusterListRowComponentSelector key={row.id} row={row} id={row.id} {...itemData} />
-          ))}
-        </>
-      )}
+      {!showEmptyState &&
+        rows.map((row) => (
+          <BusterListRowComponentSelector key={row.id} row={row} id={row.id} {...itemData} />
+        ))}
 
       {showEmptyState && (
         <div className="flex h-full items-center justify-center">{emptyState}</div>

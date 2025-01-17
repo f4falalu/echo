@@ -156,20 +156,17 @@ const DatasetGroupAssignedCell: React.FC<{
   id: string;
   assigned: boolean;
   onSelect: (params: { id: string; assigned: boolean }) => Promise<void>;
-}> = React.memo(
-  ({ id, assigned, onSelect }) => {
-    return (
-      <Select
-        options={options}
-        defaultValue={assigned || false}
-        popupMatchSelectWidth
-        onSelect={(value) => {
-          onSelect({ id, assigned: value });
-        }}
-      />
-    );
-  },
-  () => true
-);
+}> = React.memo(({ id, assigned, onSelect }) => {
+  return (
+    <Select
+      options={options}
+      value={assigned || false}
+      popupMatchSelectWidth
+      onSelect={(value) => {
+        onSelect({ id, assigned: value });
+      }}
+    />
+  );
+});
 
 DatasetGroupAssignedCell.displayName = 'DatasetGroupAssignedCell';
