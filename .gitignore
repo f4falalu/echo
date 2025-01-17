@@ -60,3 +60,5 @@ Cargo.lock
 
 # Node.js dependencies
 node_modules/
+
+.secrets
