@@ -7,7 +7,8 @@ import { Divider } from 'antd';
 export const SettingsPageHeader: React.FC<{
   title: string;
   description: string;
-}> = ({ title, description }) => {
+  type?: 'default' | 'alternate';
+}> = React.memo(({ title, description, type = 'default' }) => {
   return (
     <div className="flex flex-col">
       <div className="flex flex-col space-y-1.5">
@@ -18,4 +19,6 @@ export const SettingsPageHeader: React.FC<{
       <Divider className="!my-6" />
     </div>
   );
-};
+});
+
+SettingsPageHeader.displayName = 'SettingsPageHeader';
