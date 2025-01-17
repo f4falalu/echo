@@ -10,7 +10,7 @@ interface UseDebounceSearchProps<T> {
 export const useDebounceSearch = <T>({
   items,
   searchPredicate,
-  debounceTime = 180
+  debounceTime = 150
 }: UseDebounceSearchProps<T>) => {
   const [isPending, startTransition] = useTransition();
   const [searchText, setSearchText] = useState('');
@@ -32,12 +32,17 @@ export const useDebounceSearch = <T>({
     (text: string) => {
       updateFilteredItems(text);
     },
+
     { wait: debounceTime }
   );
 
   const handleSearchChange = useMemoizedFn((text: string) => {
     setSearchText(text);
-    debouncedSearch(text);
+    if (!text) {
+      updateFilteredItems(text);
+    } else {
+      debouncedSearch(text);
+    }
   });
 
   useEffect(() => {
