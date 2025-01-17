@@ -104,7 +104,7 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
 
   return (
     <div
-      className="infinite-list-container relative flex h-full w-full flex-col overflow-auto"
+      className="infinite-list-container relative flex h-full w-full flex-col"
       ref={containerRef}>
       {showHeader && !showEmptyState && (
         <BusterListHeader
@@ -117,11 +117,11 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
       )}
 
       {!showEmptyState && (
-        <div className="relative h-full w-full">
+        <>
           {rows.map((row) => (
             <BusterListRowComponentSelector key={row.id} row={row} id={row.id} {...itemData} />
           ))}
-        </div>
+        </>
       )}
 
       {showEmptyState && (

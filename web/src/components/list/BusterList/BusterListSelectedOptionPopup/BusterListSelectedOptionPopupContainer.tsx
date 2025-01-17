@@ -8,10 +8,12 @@ import { AnimatePresence, motion } from 'framer-motion';
 export const BusterListSelectedOptionPopupContainer: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
-  buttons: React.ReactNode[];
-  show: boolean;
-}> = ({ selectedRowKeys, onSelectChange, buttons = [], show }) => {
+  buttons?: React.ReactNode[];
+  show?: boolean;
+}> = ({ selectedRowKeys, onSelectChange, buttons = [], show: showProp }) => {
   const token = useAntToken();
+
+  const show = showProp ?? selectedRowKeys.length > 0;
 
   return (
     <AnimatePresence mode="wait">

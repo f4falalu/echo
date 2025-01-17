@@ -3,12 +3,13 @@ import {
   useDatasetUpdatePermissionGroups
 } from '@/api/busterv2/datasets';
 import { BusterListColumn, BusterListRowItem } from '@/components/list';
-import { BusterInfiniteList } from '@/components/list/BusterInfiniteList';
 import { useMemoizedFn } from 'ahooks';
 import { Select } from 'antd';
 import { createStyles } from 'antd-style';
 import React, { useMemo, useState } from 'react';
 import { Text } from '@/components/text';
+import { PermissionGroupSelectedPopup } from './PermissionGroupSelectedPopup';
+import { BusterInfiniteList } from '@/components/list/BusterInfiniteList';
 
 export const PermissionListPermissionGroupContainer: React.FC<{
   filteredPermissionGroups: ListPermissionGroupsResponse[];
@@ -111,7 +112,7 @@ export const PermissionListPermissionGroupContainer: React.FC<{
   );
 
   return (
-    <div className={cx('', styles.container)}>
+    <div className={cx('min-h-fit overflow-hidden', styles.container)}>
       <BusterInfiniteList
         columns={columns}
         rows={rows}
@@ -121,6 +122,15 @@ export const PermissionListPermissionGroupContainer: React.FC<{
         onSelectChange={setSelectedRowKeys}
         emptyState={<EmptyState />}
       />
+
+      <div className="fixed bottom-1 left-0 right-0 w-full">
+        <div className="relative ml-[220px] mr-[55px]">
+          <PermissionGroupSelectedPopup
+            selectedRowKeys={selectedRowKeys}
+            onSelectChange={setSelectedRowKeys}
+          />
+        </div>
+      </div>
     </div>
   );
 });
@@ -131,7 +141,6 @@ const useStyles = createStyles(({ css, token }) => ({
   container: css`
     border: 0.5px solid ${token.colorBorder};
     border-radius: ${token.borderRadius}px;
-    overflow: hidden;
   `
 }));
 

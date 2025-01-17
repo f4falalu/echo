@@ -10,7 +10,7 @@ export default async function Page({ params }: { params: { datasetId: string } }
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="m-auto flex h-full max-w-[1400px] flex-col space-y-5 overflow-y-auto px-14 pb-12 pt-12">
+      <div className="m-auto flex h-full max-w-[1400px] flex-col space-y-5 overflow-y-auto px-14 pt-12">
         <PermissionTitleCard />
         <PermissionsAppContainer datasetId={datasetId} />
       </div>
