@@ -18,10 +18,20 @@ export const BusterListRowComponent = React.memo(
       onContextMenuClick?: (e: React.MouseEvent<HTMLDivElement>, id: string) => void;
       style?: React.CSSProperties;
       columnRowVariant: BusterListProps['columnRowVariant'];
+      useRowClickSelectChange: boolean;
     }
   >(
     (
-      { style, columnRowVariant, row, columns, onSelectChange, checked, onContextMenuClick },
+      {
+        style,
+        columnRowVariant,
+        row,
+        columns,
+        onSelectChange,
+        checked,
+        onContextMenuClick,
+        useRowClickSelectChange
+      },
       ref
     ) => {
       const { styles, cx } = useStyles();
@@ -31,14 +41,21 @@ export const BusterListRowComponent = React.memo(
         onContextMenuClick?.(e, row.id);
       });
 
-      const onChange = useMemoizedFn((checked: boolean) => {
-        onSelectChange?.(checked, row.id);
+      const onChange = useMemoizedFn((newChecked: boolean) => {
+        onSelectChange?.(newChecked, row.id);
+      });
+
+      const onContainerClick = useMemoizedFn(() => {
+        if (useRowClickSelectChange) {
+          onChange(!checked);
+        }
+        row.onClick?.();
       });
 
       return (
         <LinkWrapper href={link}>
           <div
-            onClick={row.onClick}
+            onClick={onContainerClick}
             style={style}
             onContextMenu={onContextMenu}
             className={cx(
@@ -46,7 +63,7 @@ export const BusterListRowComponent = React.memo(
               'group flex items-center',
               checked ? 'checked' : '',
               columnRowVariant,
-              { clickable: !!(link || row.onClick) }
+              { clickable: !!(link || row.onClick || (onSelectChange && useRowClickSelectChange)) }
             )}
             ref={ref}>
             {!!onSelectChange ? (
@@ -124,15 +141,14 @@ export const useStyles = createStyles(({ css, token }) => ({
   row: css`
     height: ${HEIGHT_OF_ROW}px;
     min-height: ${HEIGHT_OF_ROW}px;
-
     border-bottom: 0.5px solid ${token.colorBorder};
-
-    &:hover {
-      background-color: ${token.controlItemBgHover};
-    }
 
     &.clickable {
       cursor: pointer;
+
+      &:hover {
+        background-color: ${token.controlItemBgHover};
+      }
     }
 
     .row-cell {
@@ -149,8 +165,14 @@ export const useStyles = createStyles(({ css, token }) => ({
       }
     }
 
-    &.containerized {
+    &.containerized:not(.checked) {
       background-color: ${token.colorBgContainer};
+
+      &.clickable {
+        &:hover {
+          background-color: ${token.controlItemBgHover};
+        }
+      }
 
       &:last-child {
         border-bottom: 0px;

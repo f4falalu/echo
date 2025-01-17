@@ -2,6 +2,7 @@ import React from 'react';
 import { useMemoizedFn } from 'ahooks';
 import { BusterListProps } from '../BusterList';
 import { getAllIdsInSection } from '../BusterList/helpers';
+import { WindowVirtualizer } from 'virtua';
 import { useEffect, useMemo, useRef, useCallback } from 'react';
 import { BusterListHeader } from '../BusterList/BusterListHeader';
 import { BusterListRowComponentSelector } from '../BusterList/BusterListRowComponentSelector';
@@ -19,6 +20,7 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
   onSelectChange,
   emptyState,
   showHeader = true,
+  useRowClickSelectChange = false,
   contextMenu,
   columnRowVariant = 'containerized',
   showSelectAll = true,
@@ -26,8 +28,6 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
   loadingNewContent,
   scrollEndThreshold = 200 // Default threshold of 200px
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-
   const showEmptyState = useMemo(
     () => (!rows || rows.length === 0 || !rows.some((row) => !row.rowSection)) && !!emptyState,
     [rows, emptyState]
@@ -72,12 +72,14 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
       onSelectChange: onSelectChange ? onSelectChangePreflight : undefined,
       onSelectSectionChange: onSelectChange ? onSelectSectionChange : undefined,
       onContextMenuClick: undefined,
-      columnRowVariant
+      columnRowVariant,
+      useRowClickSelectChange
     };
   }, [
     columns,
     rows,
     onSelectChange,
+    useRowClickSelectChange,
     columnRowVariant,
     onSelectSectionChange,
     contextMenu,
@@ -86,29 +88,25 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
 
   // Add scroll handler
   const handleScroll = useCallback(() => {
-    if (!containerRef.current || !onScrollEnd) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-    const distanceToBottom = scrollHeight - scrollTop - clientHeight;
-
-    if (distanceToBottom <= scrollEndThreshold) {
-      onScrollEnd();
-    }
+    // const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+    // const distanceToBottom = scrollHeight - scrollTop - clientHeight;
+    // console.log('distanceToBottom', distanceToBottom);
+    // if (distanceToBottom <= scrollEndThreshold) {
+    //   onScrollEnd();
+    //   console.log('onScrollEnd');
+    // }
   }, [onScrollEnd, scrollEndThreshold]);
 
   // Add scroll event listener
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container || !onScrollEnd) return;
-
-    container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
+    // const container = containerRef.current;
+    // if (!container || !onScrollEnd) return;
+    // container.addEventListener('scroll', handleScroll);
+    //  return () => container.removeEventListener('scroll', handleScroll);
   }, [handleScroll, onScrollEnd]);
 
   return (
-    <div
-      className="infinite-list-container relative flex h-full w-full flex-col"
-      ref={containerRef}>
+    <div className="infinite-list-container relative flex h-full w-full flex-col">
       {showHeader && !showEmptyState && (
         <BusterListHeader
           columns={columns}

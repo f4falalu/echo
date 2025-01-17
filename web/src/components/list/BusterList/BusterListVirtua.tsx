@@ -18,7 +18,8 @@ export const BusterListVirtua = React.memo(
     emptyState,
     showHeader = true,
     contextMenu,
-    showSelectAll = true
+    showSelectAll = true,
+    useRowClickSelectChange = false
   }: BusterListProps) => {
     const contextMenuRef = useRef<HTMLDivElement>(null);
     const showEmptyState = (!rows || rows.length === 0) && !!emptyState;
@@ -70,9 +71,18 @@ export const BusterListVirtua = React.memo(
         selectedRowKeys,
         onSelectChange: onSelectChange ? onSelectChangePreflight : undefined,
         onSelectSectionChange: onSelectChange ? onSelectSectionChange : undefined,
-        onContextMenuClick
+        onContextMenuClick,
+        useRowClickSelectChange
       };
-    }, [columns, rows, selectedRowKeys, onSelectChange, onSelectSectionChange, onContextMenuClick]);
+    }, [
+      columns,
+      rows,
+      useRowClickSelectChange,
+      selectedRowKeys,
+      onSelectChange,
+      onSelectSectionChange,
+      onContextMenuClick
+    ]);
 
     useEffect(() => {
       if (contextMenu && contextMenuPosition?.show) {

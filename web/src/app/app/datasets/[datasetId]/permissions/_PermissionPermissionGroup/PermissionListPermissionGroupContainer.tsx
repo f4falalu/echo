@@ -10,6 +10,7 @@ import React, { useMemo, useState } from 'react';
 import { Text } from '@/components/text';
 import { PermissionGroupSelectedPopup } from './PermissionGroupSelectedPopup';
 import { BusterInfiniteList } from '@/components/list/BusterInfiniteList';
+import { PERMISSION_GROUP_ASSIGNED_OPTIONS } from './config';
 
 export const PermissionListPermissionGroupContainer: React.FC<{
   filteredPermissionGroups: ListPermissionGroupsResponse[];
@@ -121,11 +122,13 @@ export const PermissionListPermissionGroupContainer: React.FC<{
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
         emptyState={<EmptyState />}
+        useRowClickSelectChange={true}
       />
 
-      <div className="fixed bottom-1 left-0 right-0 w-full">
+      <div className="fixed bottom-0 left-0 right-0 w-full">
         <div className="relative ml-[220px] mr-[55px]">
           <PermissionGroupSelectedPopup
+            datasetId={datasetId}
             selectedRowKeys={selectedRowKeys}
             onSelectChange={setSelectedRowKeys}
           />
@@ -149,18 +152,7 @@ const PermissionGroupInfoCell = React.memo(({ name }: { name: string }) => {
 });
 PermissionGroupInfoCell.displayName = 'PermissionGroupInfoCell';
 
-const options = [
-  {
-    label: 'Assigned',
-    value: true
-  },
-  {
-    label: 'Not Assigned',
-    value: false
-  }
-];
-
-const PermissionGroupAssignedCell = React.memo(
+export const PermissionGroupAssignedCell = React.memo(
   ({
     id,
     assigned,
@@ -172,9 +164,13 @@ const PermissionGroupAssignedCell = React.memo(
   }) => {
     return (
       <Select
-        options={options}
+        options={PERMISSION_GROUP_ASSIGNED_OPTIONS}
         defaultValue={assigned}
         popupMatchSelectWidth
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
         onSelect={(value) => {
           onSelect({ id, assigned: value });
         }}

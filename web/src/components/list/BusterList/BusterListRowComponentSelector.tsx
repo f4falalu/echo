@@ -16,6 +16,7 @@ export const BusterListRowComponentSelector = React.forwardRef<
     rows: BusterListRow[];
     style?: React.CSSProperties;
     columnRowVariant?: BusterListProps['columnRowVariant'];
+    useRowClickSelectChange: boolean;
   }
 >(
   (
@@ -28,7 +29,8 @@ export const BusterListRowComponentSelector = React.forwardRef<
       onSelectSectionChange,
       selectedRowKeys,
       onContextMenuClick,
-      columnRowVariant
+      columnRowVariant,
+      useRowClickSelectChange = false
     },
     ref
   ) => {
@@ -58,6 +60,7 @@ export const BusterListRowComponentSelector = React.forwardRef<
         ref={ref}
         onContextMenuClick={onContextMenuClick}
         columnRowVariant={columnRowVariant}
+        useRowClickSelectChange={useRowClickSelectChange}
       />
     );
   }

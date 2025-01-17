@@ -16,6 +16,7 @@ export interface BusterListProps {
   selectedRowKeys?: string[];
   contextMenu?: BusterListContextMenu;
   showSelectAll?: boolean;
+  useRowClickSelectChange?: boolean;
 }
 
 export interface BusterListColumn {
