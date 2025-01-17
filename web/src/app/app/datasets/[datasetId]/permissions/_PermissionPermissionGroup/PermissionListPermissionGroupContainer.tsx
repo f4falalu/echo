@@ -1,7 +1,7 @@
 import {
   ListPermissionGroupsResponse,
   useDatasetUpdatePermissionGroups
-} from '@/api/busterv2/datasets';
+} from '@/api/buster-rest/datasets';
 import { BusterListColumn, BusterListRowItem } from '@/components/list';
 import { useMemoizedFn } from 'ahooks';
 import { Select } from 'antd';
