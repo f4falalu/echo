@@ -71,7 +71,7 @@ export const PermissionListUserContainer: React.FC<{
     return result;
   }, [filteredUsers]);
 
-  const rows = useMemo(
+  const rows: BusterListRowItem[] = useMemo(
     () =>
       [
         {

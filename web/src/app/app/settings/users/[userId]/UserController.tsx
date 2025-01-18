@@ -21,8 +21,8 @@ export const UserController = React.memo(({ userId }: { userId: string }) => {
       <UserHeader user={user} />
       <UserSegments user={user} selectedApp={selectedApp} onSelectApp={setSelectedApp} />
       <UserDefaultAccess user={user} isAdmin={isAdmin} />
-      <UserLineageHeader className="!mt-[48px]" />
-      <UserDatasetSearch />
+      <UserLineageHeader className="!mt-[48px]" user={user} />
+      <UserDatasetSearch user={user} />
     </div>
   );
 });

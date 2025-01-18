@@ -1,13 +1,17 @@
 import React from 'react';
-import { Text, Title } from '@/components/text';
+import { HeaderExplanation } from '@/app/app/_components/PermissionComponents';
+import type { OrganizationUser } from '@/api/buster-rest';
 
-export const UserLineageHeader = React.memo(({ className = '' }: { className?: string }) => {
-  return (
-    <div className={`flex flex-col space-y-1.5 ${className}`}>
-      <Title level={4}>{`Dataset access & lineage`}</Title>
-      <Text type="secondary">{`View Blake Rouse’s access to all available datasets. Lineage is provided to show where access originates from.`}</Text>
-    </div>
-  );
-});
+export const UserLineageHeader = React.memo(
+  ({ className = '', user }: { className?: string; user: OrganizationUser }) => {
+    return (
+      <HeaderExplanation
+        className={className}
+        title={`Dataset access & lineage`}
+        description={`View ${user.name}’s access to all available datasets. Lineage is provided to show where access originates from.`}
+      />
+    );
+  }
+);
 
 UserLineageHeader.displayName = 'UserLineageHeader';

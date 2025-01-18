@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import { HeaderExplanation } from '../../HeaderExplanation';
-import { PermissionSearch } from '../../PermissionSearch';
+import { PermissionSearch, HeaderExplanation } from '@/app/app/_components/PermissionComponents';
 import { useDatasetListPermissionUsers } from '@/api/buster-rest';
 import { useDebounceSearch } from '@/hooks';
 import { Button } from 'antd';

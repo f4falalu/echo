@@ -1,6 +1,6 @@
 import React from 'react';
 import { BusterUserAvatar, Text, Title, AppMaterialIcons } from '@/components';
-import { BusterUserResponse, OrganizationUser } from '@/api';
+import { OrganizationUser } from '@/api';
 import { Button } from 'antd';
 
 export const UserHeader = React.memo(({ user }: { user: OrganizationUser }) => {

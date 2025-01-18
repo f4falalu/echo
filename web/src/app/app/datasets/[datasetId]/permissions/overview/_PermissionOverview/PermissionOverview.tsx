@@ -2,8 +2,7 @@
 
 import { useGetDatasetPermissionsOverview } from '@/api/buster-rest/datasets';
 import React from 'react';
-import { HeaderExplanation } from '../../HeaderExplanation';
-import { PermissionSearch } from '../../PermissionSearch';
+import { PermissionSearch, HeaderExplanation } from '@/app/app/_components/PermissionComponents';
 import { PermissionListUserContainer } from './PermissionListUserContainer';
 import { useDebounceSearch } from '@/hooks';
 

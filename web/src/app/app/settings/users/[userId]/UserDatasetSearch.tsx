@@ -1,22 +1,19 @@
 import React from 'react';
-import { Input } from 'antd';
 import { useDebounceSearch } from '@/hooks';
-import { InfiniteListContainer } from '@/components/list';
+import { OrganizationUser } from '@/api';
+import { PermissionSearch } from '@/app/app/_components/PermissionComponents';
+import { UserDatasetListContainer } from './UserDatasetListContainer';
 
-export const UserDatasetSearch = React.memo(() => {
+export const UserDatasetSearch = React.memo(({ user }: { user: OrganizationUser }) => {
   const { filteredItems, searchText, handleSearchChange, isPending } = useDebounceSearch({
     items: [],
-    searchPredicate: (item, searchText) => true,
-    debounceTime: 500
+    searchPredicate: (item, searchText) => true
   });
 
   return (
-    <div className="flex flex-col space-y-3">
-      <Input className="w-full max-w-[280px]" placeholder="Search datasets..." />
-
-      <InfiniteListContainer>
-        <div>TEST</div>
-      </InfiniteListContainer>
+    <div className="flex h-full flex-col space-y-3 pb-12">
+      <PermissionSearch searchText={searchText} setSearchText={handleSearchChange} />
+      <UserDatasetListContainer filteredDatasets={filteredItems} />
     </div>
   );
 });
