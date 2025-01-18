@@ -32,7 +32,6 @@ export const useDebounceSearch = <T>({
     (text: string) => {
       updateFilteredItems(text);
     },
-
     { wait: debounceTime }
   );
 

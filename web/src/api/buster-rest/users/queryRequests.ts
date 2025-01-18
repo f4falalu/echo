@@ -1,4 +1,8 @@
-import { useCreateReactMutation, useCreateReactQuery } from '@/api/createReactQuery';
+import {
+  PREFETCH_STALE_TIME,
+  useCreateReactMutation,
+  useCreateReactQuery
+} from '@/api/createReactQuery';
 import { getUser, getUser_server, updateOrganizationUser } from './requests';
 import { useMemoizedFn } from 'ahooks';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
@@ -13,7 +17,7 @@ export const useGetUser = (params: Parameters<typeof getUser>[0]) => {
   return useCreateReactQuery({
     queryKey: config.USER_QUERY_KEY_ID(params.userId),
     queryFn,
-    staleTime: 1000 * 3
+    staleTime: PREFETCH_STALE_TIME
   });
 };
 

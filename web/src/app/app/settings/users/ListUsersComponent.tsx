@@ -12,10 +12,6 @@ export const ListUsersComponent: React.FC<{
   isFetched: boolean;
 }> = ({ users, isFetched }) => {
   const { mutateAsync: updateUser } = useUpdateUser();
-  // const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
-  // const onSelectAssigned = useMemoizedFn(async (params: { id: string; assigned: boolean }) => {
-  //   await updateUser(params);
-  // });
 
   const columns: BusterListColumn[] = useMemo(
     () => [

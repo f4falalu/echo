@@ -1,6 +1,8 @@
+'use client';
+
 import React, { useState } from 'react';
-import { HeaderExplanation } from '../HeaderExplanation';
-import { PermissionSearch } from '../PermissionSearch';
+import { HeaderExplanation } from '../../HeaderExplanation';
+import { PermissionSearch } from '../../PermissionSearch';
 import { useMemoizedFn } from 'ahooks';
 import { Button } from 'antd';
 import { AppMaterialIcons } from '@/components';

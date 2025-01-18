@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { AppSegmented } from '@/components';
 import { PermissionApps } from './config';
-import { useMemoizedFn, useSet } from 'ahooks';
+import { useMemoizedFn, useMount, useSet } from 'ahooks';
 import { SegmentedValue } from 'antd/es/segmented';
 import { Divider } from 'antd';
 import {
@@ -11,12 +11,13 @@ import {
   useDatasetListPermissionGroups,
   useDatasetListPermissionUsers
 } from '@/api/buster-rest';
+import Link from 'next/link';
+import { BusterRoutes, createBusterRoute } from '@/routes';
 
 export const PermissionAppSegments: React.FC<{
-  selectedApp: PermissionApps;
-  setSelectedApp: (app: PermissionApps) => void;
   datasetId: string;
-}> = React.memo(({ selectedApp, setSelectedApp, datasetId }) => {
+  selectedApp: PermissionApps;
+}> = React.memo(({ datasetId, selectedApp }) => {
   const [prefetchedRoutes, setPrefetchedRoutes] = useSet<string>();
 
   useDatasetListDatasetGroups(prefetchedRoutes.has(PermissionApps.DATASET_GROUPS) ? datasetId : '');
@@ -24,10 +25,6 @@ export const PermissionAppSegments: React.FC<{
   useDatasetListPermissionGroups(
     prefetchedRoutes.has(PermissionApps.PERMISSION_GROUPS) ? datasetId : ''
   );
-
-  const handleSelect = useMemoizedFn((app: SegmentedValue) => {
-    setSelectedApp(app as PermissionApps);
-  });
 
   const onHoverRoute = useMemoizedFn((route: string) => {
     setPrefetchedRoutes.add(route);
@@ -38,19 +35,35 @@ export const PermissionAppSegments: React.FC<{
       [
         {
           label: 'Overview',
-          value: PermissionApps.OVERVIEW
+          value: PermissionApps.OVERVIEW,
+          link: createBusterRoute({
+            route: BusterRoutes.APP_DATASETS_ID_PERMISSIONS_OVERVIEW,
+            datasetId
+          })
         },
         {
           label: 'Permission Groups',
-          value: PermissionApps.PERMISSION_GROUPS
+          value: PermissionApps.PERMISSION_GROUPS,
+          link: createBusterRoute({
+            route: BusterRoutes.APP_DATASETS_ID_PERMISSIONS_PERMISSION_GROUPS,
+            datasetId
+          })
         },
         {
           label: 'Dataset Groups',
-          value: PermissionApps.DATASET_GROUPS
+          value: PermissionApps.DATASET_GROUPS,
+          link: createBusterRoute({
+            route: BusterRoutes.APP_DATASETS_ID_PERMISSIONS_DATASET_GROUPS,
+            datasetId
+          })
         },
         {
           label: 'Users',
-          value: PermissionApps.USERS
+          value: PermissionApps.USERS,
+          link: createBusterRoute({
+            route: BusterRoutes.APP_DATASETS_ID_PERMISSIONS_USERS,
+            datasetId
+          })
         }
       ].map((option) => ({
         ...option,
@@ -61,7 +74,7 @@ export const PermissionAppSegments: React.FC<{
 
   return (
     <div className="flex flex-col justify-center space-x-0 space-y-2">
-      <AppSegmented options={options} value={selectedApp} onChange={handleSelect} />
+      <AppSegmented options={options} value={selectedApp} />
       <Divider className="" />
     </div>
   );
@@ -73,16 +86,20 @@ const PrefetchRouteSegmentItem = React.memo(
   ({
     value,
     label,
+    link,
     onHover
   }: {
     value: PermissionApps;
     label: string;
+    link: string;
     onHover: (route: PermissionApps) => void;
   }) => {
     return (
-      <span className="" onMouseEnter={() => onHover(value)}>
-        {label}
-      </span>
+      <Link href={link}>
+        <span className="" onMouseEnter={() => onHover(value)}>
+          {label}
+        </span>
+      </Link>
     );
   }
 );

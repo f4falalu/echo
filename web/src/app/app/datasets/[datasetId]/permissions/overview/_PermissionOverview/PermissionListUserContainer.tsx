@@ -5,6 +5,7 @@ import { BusterUserAvatar, Text } from '@/components';
 import { BusterListColumn, BusterListRowItem } from '@/components/list';
 import { BusterInfiniteList } from '@/components/list/BusterInfiniteList/BusterInfiniteList';
 import { PermissionLineage } from './PermissionLineage';
+import { BusterRoutes, createBusterRoute } from '@/routes';
 
 export const PermissionListUserContainer: React.FC<{
   className?: string;
@@ -48,16 +49,19 @@ export const PermissionListUserContainer: React.FC<{
       canQueryUsers: BusterListRowItem[];
     }>(
       (acc, user) => {
+        const userRow: BusterListRowItem = {
+          id: user.id,
+          data: user,
+          link: createBusterRoute({
+            route: BusterRoutes.APP_SETTINGS_USERS_ID,
+            userId: user.id
+          })
+        };
+
         if (user.can_query) {
-          acc.canQueryUsers.push({
-            id: user.id,
-            data: user
-          });
+          acc.canQueryUsers.push(userRow);
         } else {
-          acc.cannotQueryUsers.push({
-            id: user.id,
-            data: user
-          });
+          acc.cannotQueryUsers.push(userRow);
         }
         return acc;
       },

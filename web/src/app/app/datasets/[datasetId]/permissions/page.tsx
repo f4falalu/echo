@@ -1,19 +1,8 @@
-import React from 'react';
-import { PermissionTitleCard } from './PermissionTitleCard';
-import { prefetchGetDatasetPermissionsOverview } from '@/api/buster-rest/datasets/permissions/queryRequests';
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { PermissionsAppContainer } from './PermissionsAppContainer';
+import { redirect } from 'next/navigation';
+import { BusterRoutes, createBusterRoute } from '@/routes';
 
-export default async function Page({ params }: { params: { datasetId: string } }) {
-  const datasetId = params.datasetId;
-  const queryClient = await prefetchGetDatasetPermissionsOverview(datasetId);
-
-  return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="m-auto flex h-full max-w-[1400px] flex-col space-y-5 overflow-y-auto px-14 pt-12">
-        <PermissionTitleCard />
-        <PermissionsAppContainer datasetId={datasetId} />
-      </div>
-    </HydrationBoundary>
+export default async function Page({ params: { datasetId } }: { params: { datasetId: string } }) {
+  return redirect(
+    createBusterRoute({ route: BusterRoutes.APP_DATASETS_ID_PERMISSIONS_OVERVIEW, datasetId })
   );
 }

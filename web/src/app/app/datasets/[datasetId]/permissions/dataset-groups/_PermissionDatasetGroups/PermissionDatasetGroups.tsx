@@ -1,9 +1,11 @@
+'use client';
+
 import { useDatasetListDatasetGroups } from '@/api/buster-rest';
 import React, { useState } from 'react';
 import { useDebounceSearch } from '@/hooks';
 import { useMemoizedFn } from 'ahooks';
-import { HeaderExplanation } from '../HeaderExplanation';
-import { PermissionSearch } from '../PermissionSearch';
+import { HeaderExplanation } from '../../HeaderExplanation';
+import { PermissionSearch } from '../../PermissionSearch';
 import { Button } from 'antd';
 import { AppMaterialIcons } from '@/components';
 import { PermissionListDatasetGroupContainer } from './PermissionListDatasetGroupContainer';

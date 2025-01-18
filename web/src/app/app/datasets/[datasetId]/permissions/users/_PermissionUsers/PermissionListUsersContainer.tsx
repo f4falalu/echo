@@ -8,12 +8,12 @@ import { BusterListColumn, BusterListRowItem } from '@/components/list';
 import { BusterInfiniteList } from '@/components/list/BusterInfiniteList';
 import { useMemoizedFn } from 'ahooks';
 import { Select } from 'antd';
-import { createStyles } from 'antd-style';
 import React, { useMemo, useState } from 'react';
 import { Text } from '@/components/text';
-import { PermissionListContainer } from '../_components';
+import { PermissionListContainer } from '../../_components';
 import { PermissionUsersSelectedPopup } from './PermissionUsersSelectedPopup';
 import { PERMISSION_USERS_OPTIONS } from './config';
+import { BusterRoutes, createBusterRoute } from '@/routes';
 
 export const PermissionListUsersContainer: React.FC<{
   filteredPermissionUsers: ListPermissionUsersResponse[];
@@ -66,16 +66,18 @@ export const PermissionListUsersContainer: React.FC<{
       canQueryPermissionUsers: BusterListRowItem[];
     }>(
       (acc, permissionUser) => {
+        const user: BusterListRowItem = {
+          id: permissionUser.id,
+          data: permissionUser,
+          link: createBusterRoute({
+            route: BusterRoutes.APP_SETTINGS_USERS_ID,
+            userId: permissionUser.id
+          })
+        };
         if (permissionUser.assigned) {
-          acc.canQueryPermissionUsers.push({
-            id: permissionUser.id,
-            data: permissionUser
-          });
+          acc.canQueryPermissionUsers.push(user);
         } else {
-          acc.cannotQueryPermissionUsers.push({
-            id: permissionUser.id,
-            data: permissionUser
-          });
+          acc.cannotQueryPermissionUsers.push(user);
         }
         return acc;
       },
@@ -130,12 +132,8 @@ export const PermissionListUsersContainer: React.FC<{
         showSelectAll={false}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
-        useRowClickSelectChange={true}
-        emptyState={
-          <div className="py-12">
-            <Text type="tertiary">No users found</Text>
-          </div>
-        }
+        useRowClickSelectChange={false}
+        emptyState={<EmptyState />}
       />
     </PermissionListContainer>
   );
@@ -183,3 +181,13 @@ const PermissionGroupAssignedCell: React.FC<{
     />
   );
 };
+
+const EmptyState = React.memo(() => {
+  return (
+    <div className="py-12">
+      <Text type="tertiary">No users found</Text>
+    </div>
+  );
+});
+
+EmptyState.displayName = 'EmptyState';

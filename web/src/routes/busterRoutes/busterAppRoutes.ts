@@ -14,6 +14,10 @@ export enum BusterAppRoutes {
   APP_DATASETS_ID = '/app/datasets/:datasetId',
   APP_DATASETS_ID_OVERVIEW = '/app/datasets/:datasetId/overview',
   APP_DATASETS_ID_PERMISSIONS = '/app/datasets/:datasetId/permissions',
+  APP_DATASETS_ID_PERMISSIONS_OVERVIEW = '/app/datasets/:datasetId/permissions/overview',
+  APP_DATASETS_ID_PERMISSIONS_PERMISSION_GROUPS = '/app/datasets/:datasetId/permissions/permission-groups',
+  APP_DATASETS_ID_PERMISSIONS_USERS = '/app/datasets/:datasetId/permissions/users',
+  APP_DATASETS_ID_PERMISSIONS_DATASET_GROUPS = '/app/datasets/:datasetId/permissions/dataset-groups',
   APP_DATASETS_ID_EDITOR = '/app/datasets/:datasetId/editor',
   APP_TERMS = '/app/terms',
   APP_TERMS_ID = '/app/terms/:termId',
@@ -101,6 +105,22 @@ export type BusterAppRoutesWithArgs = {
   };
   [BusterAppRoutes.APP_DATASETS_ID_PERMISSIONS]: {
     route: BusterAppRoutes.APP_DATASETS_ID_PERMISSIONS;
+    datasetId: string;
+  };
+  [BusterAppRoutes.APP_DATASETS_ID_PERMISSIONS_OVERVIEW]: {
+    route: BusterAppRoutes.APP_DATASETS_ID_PERMISSIONS_OVERVIEW;
+    datasetId: string;
+  };
+  [BusterAppRoutes.APP_DATASETS_ID_PERMISSIONS_PERMISSION_GROUPS]: {
+    route: BusterAppRoutes.APP_DATASETS_ID_PERMISSIONS_PERMISSION_GROUPS;
+    datasetId: string;
+  };
+  [BusterAppRoutes.APP_DATASETS_ID_PERMISSIONS_USERS]: {
+    route: BusterAppRoutes.APP_DATASETS_ID_PERMISSIONS_USERS;
+    datasetId: string;
+  };
+  [BusterAppRoutes.APP_DATASETS_ID_PERMISSIONS_DATASET_GROUPS]: {
+    route: BusterAppRoutes.APP_DATASETS_ID_PERMISSIONS_DATASET_GROUPS;
     datasetId: string;
   };
   [BusterAppRoutes.APP_DATASETS_ID_EDITOR]: {
