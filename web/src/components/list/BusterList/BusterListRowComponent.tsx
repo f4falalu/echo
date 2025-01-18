@@ -19,6 +19,7 @@ export const BusterListRowComponent = React.memo(
       style?: React.CSSProperties;
       columnRowVariant: BusterListProps['columnRowVariant'];
       useRowClickSelectChange: boolean;
+      rowClassName?: string;
     }
   >(
     (
@@ -30,6 +31,7 @@ export const BusterListRowComponent = React.memo(
         onSelectChange,
         checked,
         onContextMenuClick,
+        rowClassName = '',
         useRowClickSelectChange
       },
       ref
@@ -60,16 +62,18 @@ export const BusterListRowComponent = React.memo(
             onContextMenu={onContextMenu}
             className={cx(
               styles.row,
+              rowClassName,
               'group flex items-center',
               checked ? 'checked' : '',
               columnRowVariant,
+              !onSelectChange ? 'pl-3.5' : '',
               { clickable: !!(link || row.onClick || (onSelectChange && useRowClickSelectChange)) }
             )}
             ref={ref}>
             {!!onSelectChange ? (
               <CheckboxColumn checkStatus={checked ? 'checked' : 'unchecked'} onChange={onChange} />
             ) : (
-              <div className="pl-2.5"></div>
+              <></>
             )}
             {columns.map((column, columnIndex) => (
               <BusterListCellComponent

@@ -11,8 +11,6 @@ export const ListUsersComponent: React.FC<{
   users: OrganizationUser[];
   isFetched: boolean;
 }> = ({ users, isFetched }) => {
-  const { mutateAsync: updateUser } = useUpdateUser();
-
   const columns: BusterListColumn[] = useMemo(
     () => [
       {
@@ -91,10 +89,9 @@ export const ListUsersComponent: React.FC<{
         columns={columns}
         rows={rows}
         showHeader={true}
-        showSelectAll={false}
+        // onSelectChange={() => {}}
         columnRowVariant="default"
-        //  selectedRowKeys={selectedRowKeys}
-        //  onSelectChange={setSelectedRowKeys}
+        rowClassName="!pl-[30px]"
         emptyState={
           isFetched && (
             <div className="mx-[30px] flex w-full items-center justify-center">

@@ -18,7 +18,8 @@ export const BusterListReactWindow: React.FC<BusterListProps> = ({
   showHeader = true,
   contextMenu,
   showSelectAll = true,
-  useRowClickSelectChange = false
+  useRowClickSelectChange = false,
+  rowClassName = ''
 }) => {
   const contextMenuRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -159,6 +160,7 @@ export const BusterListReactWindow: React.FC<BusterListProps> = ({
           globalCheckStatus={globalCheckStatus}
           rowsLength={rows.length}
           showSelectAll={showSelectAll}
+          rowClassName={rowClassName}
         />
       )}
 

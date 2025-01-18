@@ -11,15 +11,26 @@ export const BusterListHeader: React.FC<{
   globalCheckStatus?: 'checked' | 'unchecked' | 'indeterminate';
   showSelectAll?: boolean;
   rowsLength: number;
+  rowClassName: string;
 }> = React.memo(
-  ({ columns, showSelectAll = true, onGlobalSelectChange, globalCheckStatus, rowsLength }) => {
+  ({
+    columns,
+    rowClassName,
+    showSelectAll = true,
+    onGlobalSelectChange,
+    globalCheckStatus,
+    rowsLength
+  }) => {
     const { styles, cx } = useStyles();
     const showCheckboxColumn = !!onGlobalSelectChange;
     const showGlobalCheckbox =
       globalCheckStatus === 'indeterminate' || globalCheckStatus === 'checked';
 
     return (
-      <div className={cx(styles.header, 'group')}>
+      <div
+        className={cx(styles.header, 'group', rowClassName, 'mr-[12px]', {
+          'pl-3.5': !onGlobalSelectChange
+        })}>
         {showCheckboxColumn && (
           <CheckboxColumn
             checkStatus={globalCheckStatus}
@@ -34,9 +45,7 @@ export const BusterListHeader: React.FC<{
 
         {columns.map((column, index) => (
           <div
-            className={cx('header-cell flex items-center', {
-              '!pl-[14px]': !onGlobalSelectChange
-            })}
+            className={cx('header-cell flex items-center')}
             key={column.dataIndex}
             style={{
               width: column.width || '100%',
@@ -72,9 +81,9 @@ const useStyles = createStyles(({ token, css }) => ({
       padding: 0 4px;
       height: 100%;
 
-      &:first-child {
-        padding-left: 18px;
-      }
+      // &:first-child {
+      //   padding-left: 18px;
+      // }
     }
   `
 }));

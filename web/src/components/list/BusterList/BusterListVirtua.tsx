@@ -19,7 +19,8 @@ export const BusterListVirtua = React.memo(
     showHeader = true,
     contextMenu,
     showSelectAll = true,
-    useRowClickSelectChange = false
+    useRowClickSelectChange = false,
+    rowClassName = ''
   }: BusterListProps) => {
     const contextMenuRef = useRef<HTMLDivElement>(null);
     const showEmptyState = (!rows || rows.length === 0) && !!emptyState;
@@ -110,6 +111,7 @@ export const BusterListVirtua = React.memo(
             globalCheckStatus={globalCheckStatus}
             rowsLength={rows.length}
             showSelectAll={showSelectAll}
+            rowClassName={rowClassName}
           />
         )}
 

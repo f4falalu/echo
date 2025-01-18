@@ -25,6 +25,7 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
   showSelectAll = true,
   onScrollEnd,
   loadingNewContent,
+  rowClassName = '',
   scrollEndThreshold = 48 // Default threshold of 200px
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -74,7 +75,8 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
       onSelectSectionChange: onSelectChange ? onSelectSectionChange : undefined,
       onContextMenuClick: undefined,
       columnRowVariant,
-      useRowClickSelectChange
+      useRowClickSelectChange,
+      rowClassName
     };
   }, [
     columns,
@@ -132,6 +134,7 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
           globalCheckStatus={globalCheckStatus}
           rowsLength={rows.length}
           showSelectAll={showSelectAll}
+          rowClassName={rowClassName}
         />
       )}
 
