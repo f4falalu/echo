@@ -21,7 +21,7 @@ export const PermissionOverview: React.FC<{
   return (
     <>
       <HeaderExplanation className="mb-5" />
-      <div className="flex h-full flex-col space-y-3">
+      <div className="flex h-full flex-col space-y-3 pb-12">
         <PermissionSearch searchText={searchText} setSearchText={handleSearchChange} />
         <PermissionListUserContainer filteredUsers={filteredItems} />
       </div>

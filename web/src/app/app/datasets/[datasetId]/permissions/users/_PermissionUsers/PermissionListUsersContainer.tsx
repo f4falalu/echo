@@ -4,13 +4,12 @@ import {
   useDatasetUpdatePermissionUsers
 } from '@/api/buster-rest/datasets';
 import { BusterUserAvatar } from '@/components';
-import { BusterListColumn, BusterListRowItem } from '@/components/list';
+import { BusterListColumn, BusterListRowItem, InfiniteListContainer } from '@/components/list';
 import { BusterInfiniteList } from '@/components/list/BusterInfiniteList';
 import { useMemoizedFn } from 'ahooks';
 import { Select } from 'antd';
 import React, { useMemo, useState } from 'react';
 import { Text } from '@/components/text';
-import { PermissionListContainer } from '../../_components';
 import { PermissionUsersSelectedPopup } from './PermissionUsersSelectedPopup';
 import { PERMISSION_USERS_OPTIONS } from './config';
 import { BusterRoutes, createBusterRoute } from '@/routes';
@@ -117,7 +116,7 @@ export const PermissionListUsersContainer: React.FC<{
   );
 
   return (
-    <PermissionListContainer
+    <InfiniteListContainer
       popupNode={
         <PermissionUsersSelectedPopup
           datasetId={datasetId}
@@ -135,7 +134,7 @@ export const PermissionListUsersContainer: React.FC<{
         useRowClickSelectChange={false}
         emptyState={<EmptyState />}
       />
-    </PermissionListContainer>
+    </InfiniteListContainer>
   );
 });
 

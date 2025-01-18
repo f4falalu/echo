@@ -1,7 +1,7 @@
 import { createStyles } from 'antd-style';
 import React from 'react';
 
-export const PermissionListContainer: React.FC<{
+export const InfiniteListContainer: React.FC<{
   children: React.ReactNode;
   popupNode?: React.ReactNode;
 }> = React.memo(({ children, popupNode }) => {
@@ -20,7 +20,7 @@ export const PermissionListContainer: React.FC<{
   );
 });
 
-PermissionListContainer.displayName = 'PermissionListContainer';
+InfiniteListContainer.displayName = 'InfiniteListContainer';
 
 const useStyles = createStyles(({ css, token }) => ({
   container: css`

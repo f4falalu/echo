@@ -6,6 +6,8 @@ import { UserHeader } from './UserHeader';
 import { UserSegments, UserSegmentsApps } from './UserSegments';
 import { UserDefaultAccess } from './UserDefaultAccess';
 import { useUserConfigContextSelector } from '@/context/Users';
+import { UserLineageHeader } from './UserLineageHeader';
+import { UserDatasetSearch } from './UserDatasetSearch';
 
 export const UserController = React.memo(({ userId }: { userId: string }) => {
   const { data: user } = useGetUser({ userId });
@@ -19,6 +21,8 @@ export const UserController = React.memo(({ userId }: { userId: string }) => {
       <UserHeader user={user} />
       <UserSegments user={user} selectedApp={selectedApp} onSelectApp={setSelectedApp} />
       <UserDefaultAccess user={user} isAdmin={isAdmin} />
+      <UserLineageHeader className="!mt-[48px]" />
+      <UserDatasetSearch />
     </div>
   );
 });

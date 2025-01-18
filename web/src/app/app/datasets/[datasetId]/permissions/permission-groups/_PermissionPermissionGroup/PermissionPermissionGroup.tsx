@@ -32,13 +32,13 @@ export const PermissionPermissionGroup: React.FC<{
   });
 
   return (
-    <div className="flex h-full w-full flex-col">
+    <>
       <HeaderExplanation
         className="mb-5"
         title="Dataset permissions"
         description="Manage who can build dashboards & metrics using this dataset"
       />
-      <div className="mb-12 flex h-fit flex-col space-y-3">
+      <div className="flex h-fit flex-col space-y-3 pb-12">
         <div className="flex items-center justify-between">
           <PermissionSearch
             searchText={searchText}
@@ -66,7 +66,7 @@ export const PermissionPermissionGroup: React.FC<{
         onClose={onCloseNewPermissionGroupModal}
         datasetId={datasetId}
       />
-    </div>
+    </>
   );
 });
 

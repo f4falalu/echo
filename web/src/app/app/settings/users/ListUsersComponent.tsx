@@ -89,7 +89,6 @@ export const ListUsersComponent: React.FC<{
         columns={columns}
         rows={rows}
         showHeader={true}
-        // onSelectChange={() => {}}
         columnRowVariant="default"
         rowClassName="!pl-[30px]"
         emptyState={

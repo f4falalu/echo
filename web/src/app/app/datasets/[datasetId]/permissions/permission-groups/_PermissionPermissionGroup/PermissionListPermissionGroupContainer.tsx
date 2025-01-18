@@ -8,9 +8,8 @@ import { Select } from 'antd';
 import React, { useMemo, useState } from 'react';
 import { Text } from '@/components/text';
 import { PermissionGroupSelectedPopup } from './PermissionGroupSelectedPopup';
-import { BusterInfiniteList } from '@/components/list/BusterInfiniteList';
+import { BusterInfiniteList, InfiniteListContainer } from '@/components/list';
 import { PERMISSION_GROUP_ASSIGNED_OPTIONS } from './config';
-import { PermissionListContainer } from '../../_components/PermissionListContainer';
 
 export const PermissionListPermissionGroupContainer: React.FC<{
   filteredPermissionGroups: ListPermissionGroupsResponse[];
@@ -112,7 +111,7 @@ export const PermissionListPermissionGroupContainer: React.FC<{
   );
 
   return (
-    <PermissionListContainer
+    <InfiniteListContainer
       popupNode={
         <PermissionGroupSelectedPopup
           datasetId={datasetId}
@@ -130,7 +129,7 @@ export const PermissionListPermissionGroupContainer: React.FC<{
         emptyState={<EmptyState />}
         useRowClickSelectChange={true}
       />
-    </PermissionListContainer>
+    </InfiniteListContainer>
   );
 });
 

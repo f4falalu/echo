@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useDatasetPageContextSelector } from '../_DatasetPageContext';
 import { OverviewHeader } from './OverviewHeader';
 import { OverviewData } from './OverviewData';

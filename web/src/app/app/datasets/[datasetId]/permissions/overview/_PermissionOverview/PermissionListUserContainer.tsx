@@ -1,17 +1,15 @@
 import React, { useMemo, useState } from 'react';
 import { DatasetPermissionOverviewUser } from '@/api/buster-rest/datasets';
-import { createStyles } from 'antd-style';
 import { BusterUserAvatar, Text } from '@/components';
-import { BusterListColumn, BusterListRowItem } from '@/components/list';
-import { BusterInfiniteList } from '@/components/list/BusterInfiniteList/BusterInfiniteList';
-import { PermissionLineage } from './PermissionLineage';
+import { BusterListColumn, BusterListRowItem, InfiniteListContainer } from '@/components/list';
+import { BusterInfiniteList } from '@/components/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
+import { PermissionLineageBreadcrumb } from '../../../../../_components/PermissionComponents';
 
 export const PermissionListUserContainer: React.FC<{
   className?: string;
   filteredUsers: DatasetPermissionOverviewUser[];
 }> = React.memo(({ className = '', filteredUsers }) => {
-  const { styles, cx } = useStyles();
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
   const numberOfUsers = filteredUsers.length;
@@ -30,7 +28,7 @@ export const PermissionListUserContainer: React.FC<{
         title: 'Lineage',
         dataIndex: 'lineage',
         render: (
-          lineage: DatasetPermissionOverviewUser['lineage'],
+          _: DatasetPermissionOverviewUser['lineage'],
           user: DatasetPermissionOverviewUser
         ) => {
           return <UserLineageCell user={user} />;
@@ -102,31 +100,19 @@ export const PermissionListUserContainer: React.FC<{
 
   return (
     <>
-      <div className={cx('', styles.container)}>
+      <InfiniteListContainer>
         <BusterInfiniteList
           columns={columns}
           rows={rows}
           showHeader={false}
           showSelectAll={false}
-          emptyState={
-            <div className="py-12">
-              <Text type="tertiary">No users found</Text>
-            </div>
-          }
+          emptyState={<EmptyState />}
         />
-      </div>
+      </InfiniteListContainer>
     </>
   );
 });
 PermissionListUserContainer.displayName = 'PermissionListUserContainer';
-
-const useStyles = createStyles(({ css, token }) => ({
-  container: css`
-    border: 0.5px solid ${token.colorBorder};
-    border-radius: ${token.borderRadius}px;
-    overflow: hidden;
-  `
-}));
 
 const UserInfoCell = React.memo(({ user }: { user: DatasetPermissionOverviewUser }) => {
   return (
@@ -151,8 +137,17 @@ UserInfoCell.displayName = 'UserInfoCell';
 const UserLineageCell = React.memo(({ user }: { user: DatasetPermissionOverviewUser }) => {
   return (
     <div className="flex items-center justify-end">
-      <PermissionLineage lineage={user.lineage} canQuery={user.can_query} />
+      <PermissionLineageBreadcrumb lineage={user.lineage} canQuery={user.can_query} />
     </div>
   );
 });
 UserLineageCell.displayName = 'UserLineageCell';
+
+const EmptyState = React.memo(() => {
+  return (
+    <div className="py-12">
+      <Text type="tertiary">No users found</Text>
+    </div>
+  );
+});
+EmptyState.displayName = 'EmptyState';

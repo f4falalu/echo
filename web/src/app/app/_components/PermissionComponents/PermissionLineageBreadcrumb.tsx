@@ -1,16 +1,15 @@
 import { DatasetPermissionOverviewUser } from '@/api/buster-rest/datasets';
 import { AppMaterialIcons, AppPopover } from '@/components';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { useMemoizedFn } from 'ahooks';
 import { createStyles } from 'antd-style';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 
-export const PermissionLineage: React.FC<{
+export const PermissionLineageBreadcrumb: React.FC<{
   lineage: DatasetPermissionOverviewUser['lineage'];
   canQuery: DatasetPermissionOverviewUser['can_query'];
-}> = ({ lineage, canQuery }) => {
+}> = React.memo(({ lineage, canQuery }) => {
   const { push } = useRouter();
   const hasMultipleLineage = lineage.length > 1;
 
@@ -31,7 +30,8 @@ export const PermissionLineage: React.FC<{
   }, [hasMultipleLineage, lineage, SelectedComponent]);
 
   return <LineageBreadcrumb items={items} canQuery={canQuery} />;
-};
+});
+PermissionLineageBreadcrumb.displayName = 'PermissionLineageBreadcrumb';
 
 const SelectedComponent: React.FC<{
   item: DatasetPermissionOverviewUser['lineage'][number][number];

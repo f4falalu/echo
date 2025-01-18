@@ -1,12 +1,10 @@
 import { ListDatasetGroupsResponse, useDatasetUpdateDatasetGroups } from '@/api/buster-rest';
-import { BusterListColumn, BusterListRowItem } from '@/components/list';
+import { BusterListColumn, BusterListRowItem, InfiniteListContainer } from '@/components/list';
 import { BusterInfiniteList } from '@/components/list/BusterInfiniteList';
 import { useMemoizedFn } from 'ahooks';
 import { Select } from 'antd';
-import { createStyles } from 'antd-style';
 import React, { useMemo, useState } from 'react';
 import { PermissionDatasetGroupSelectedPopup } from './PermissionDatasetGroupSelectedPopup';
-import { PermissionListContainer } from '../../_components';
 
 export const PermissionListDatasetGroupContainer: React.FC<{
   filteredPermissionGroups: ListDatasetGroupsResponse[];
@@ -107,7 +105,7 @@ export const PermissionListDatasetGroupContainer: React.FC<{
   );
 
   return (
-    <PermissionListContainer
+    <InfiniteListContainer
       popupNode={
         <PermissionDatasetGroupSelectedPopup
           selectedRowKeys={selectedRowKeys}
@@ -125,7 +123,7 @@ export const PermissionListDatasetGroupContainer: React.FC<{
         onSelectChange={setSelectedRowKeys}
         emptyState={<div className="py-12">No dataset groups found</div>}
       />
-    </PermissionListContainer>
+    </InfiniteListContainer>
   );
 };
 
