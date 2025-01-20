@@ -1,4 +1,3 @@
-import { useUpdateUser } from '@/api/buster-rest';
 import { OrganizationUser } from '@/api/buster-rest/organizations/responseInterfaces';
 import { BusterInfiniteList, BusterListColumn, BusterListRowItem } from '@/components/list';
 import { Card } from 'antd';
@@ -6,16 +5,20 @@ import React, { useMemo } from 'react';
 import { Text } from '@/components/text';
 import { OrganizationUserRoleText } from './config';
 import { BusterRoutes, createBusterRoute } from '@/routes';
+import { ListUserItem } from '../../_components/ListContent';
 
 export const ListUsersComponent: React.FC<{
   users: OrganizationUser[];
   isFetched: boolean;
-}> = ({ users, isFetched }) => {
+}> = React.memo(({ users, isFetched }) => {
   const columns: BusterListColumn[] = useMemo(
     () => [
       {
         title: 'Name',
-        dataIndex: 'name'
+        dataIndex: 'name',
+        render: (name: string, user: OrganizationUser) => {
+          return <ListUserItem name={name} email={user.email} />;
+        }
       },
       {
         title: 'Default access',
@@ -84,29 +87,26 @@ export const ListUsersComponent: React.FC<{
   );
 
   return (
-    <>
-      <BusterInfiniteList
-        columns={columns}
-        rows={rows}
-        showHeader={true}
-        columnRowVariant="default"
-        rowClassName="!pl-[30px]"
-        emptyState={
-          isFetched && (
-            <div className="mx-[30px] flex w-full items-center justify-center">
-              <Card className="w-full py-24 text-center">
-                <Text type="tertiary">No users found</Text>
-              </Card>
-            </div>
-          )
-        }
-      />
-
-      {/* <PermissionDatasetGroupSelectedPopup
-        selectedRowKeys={selectedRowKeys}
-        onSelectChange={setSelectedRowKeys}
-        datasetId={datasetId}
-      /> */}
-    </>
+    <BusterInfiniteList
+      columns={columns}
+      rows={rows}
+      showHeader={true}
+      columnRowVariant="default"
+      rowClassName="!pl-[30px]"
+      emptyState={<EmptyState isFetched={isFetched} />}
+    />
   );
-};
+});
+
+ListUsersComponent.displayName = 'ListUsersComponent';
+
+const EmptyState = React.memo(({ isFetched }: { isFetched: boolean }) => {
+  if (!isFetched) return <></>;
+  return (
+    <div className="mx-[30px] flex w-full items-center justify-center">
+      <Card className="w-full py-24 text-center">
+        <Text type="tertiary">No users found</Text>
+      </Card>
+    </div>
+  );
+});

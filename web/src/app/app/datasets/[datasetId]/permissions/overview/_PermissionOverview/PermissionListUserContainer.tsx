@@ -5,6 +5,7 @@ import { BusterListColumn, BusterListRowItem, InfiniteListContainer } from '@/co
 import { BusterInfiniteList } from '@/components/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { PermissionLineageBreadcrumb } from '../../../../../_components/PermissionComponents';
+import { ListUserItem } from '@/app/app/_components/ListContent';
 
 export const PermissionListUserContainer: React.FC<{
   className?: string;
@@ -115,22 +116,7 @@ export const PermissionListUserContainer: React.FC<{
 PermissionListUserContainer.displayName = 'PermissionListUserContainer';
 
 const UserInfoCell = React.memo(({ user }: { user: DatasetPermissionOverviewUser }) => {
-  return (
-    <div className="flex w-full items-center space-x-1.5">
-      <div className="flex items-center space-x-2">
-        <BusterUserAvatar size={18} name={user.name} />
-      </div>
-
-      <div className="flex flex-col space-y-0">
-        <Text>{user.name}</Text>
-        {user.email && (
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            {user.email}
-          </Text>
-        )}
-      </div>
-    </div>
-  );
+  return <ListUserItem name={user.name} email={user.email} />;
 });
 UserInfoCell.displayName = 'UserInfoCell';
 

@@ -50,7 +50,7 @@ export const BusterListHeader: React.FC<{
             style={{
               width: column.width || '100%',
               flex: column.width ? 'none' : 1,
-              marginRight: index === columns.length - 1 ? '24px' : undefined
+              marginRight: index === columns.length - 1 ? '' : undefined //24px
             }}>
             {column.headerRender ? (
               column.headerRender(column.title)
