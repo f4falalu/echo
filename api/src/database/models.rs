@@ -11,6 +11,11 @@ allow_columns_to_appear_in_same_group_by_clause!(
     dataset_groups::name,
     dataset_permissions::id,
     dataset_groups_permissions::id,
+    teams::id,
+    teams::name,
+    permission_groups_to_identities::permission_group_id,
+    teams_to_users::user_id,
+    teams_to_users::role
 );
 
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug)]

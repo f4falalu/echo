@@ -11,6 +11,7 @@ use crate::database::lib::get_pg_pool;
 use crate::database::models::User;
 use crate::database::schema::{dataset_permissions, datasets};
 use crate::routes::rest::ApiResponse;
+use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
 use crate::utils::user::user_info::get_user_organization_id;
 
 #[derive(Debug, Serialize)]
@@ -37,7 +38,11 @@ pub async fn list_datasets(
 
 async fn list_datasets_handler(user: User, user_id: Uuid) -> Result<Vec<DatasetInfo>> {
     let mut conn = get_pg_pool().get().await?;
-    let organization_id = get_user_organization_id(&user.id).await?;
+    let organization_id = get_user_organization_id(&user_id).await?;
+
+    if !is_user_workspace_admin_or_data_admin(&user, &organization_id).await? {
+        return Err(anyhow::anyhow!("User is not authorized to list datasets"));
+    }
 
     let datasets = match datasets::table
         .left_join(
