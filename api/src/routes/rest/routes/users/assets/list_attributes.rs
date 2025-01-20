@@ -2,13 +2,15 @@ use anyhow::Result;
 use axum::extract::Path;
 use axum::http::StatusCode;
 use axum::Extension;
-use chrono::{DateTime, Utc};
+use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl};
+use diesel_async::RunQueryDsl;
 use serde::Serialize;
 use serde_json::Value;
 use uuid::Uuid;
 
 use crate::database::lib::get_pg_pool;
 use crate::database::models::User;
+use crate::database::schema::{users, users_to_organizations};
 use crate::routes::rest::ApiResponse;
 use crate::utils::user::user_info::get_user_organization_id;
 
@@ -49,7 +51,7 @@ async fn list_attributes_handler(user: User, user_id: Uuid) -> Result<Vec<Attrib
     };
 
     let auth_user_orgnazation_id = match user.attributes.get("organization_id") {
-        Some(Value::String(id)) => id,
+        Some(Value::String(id)) => Uuid::parse_str(id).unwrap(),
         Some(_) => return Err(anyhow::anyhow!("User organization id not found")),
         None => return Err(anyhow::anyhow!("User organization id not found")),
     };
@@ -60,9 +62,29 @@ async fn list_attributes_handler(user: User, user_id: Uuid) -> Result<Vec<Attrib
         None => return Err(anyhow::anyhow!("User role not found")),
     };
 
+    if !["workspace_admin", "data_admin"].contains(&auth_user_role.as_str()) {
+        return Err(anyhow::anyhow!("User is not authorized to list attributes"));
+    };
+
+    if auth_user_orgnazation_id != user_orgnazation_id {
+        return Err(anyhow::anyhow!("User is not authorized to list attributes"));
+    }
+
+    let user_attributes = match users::table
+        .filter(users::id.eq(user_id))
+        .inner_join(users_to_organizations::table.on(users::id.eq(users_to_organizations::user_id)))
+        .filter(users_to_organizations::organization_id.eq(user_orgnazation_id))
+        .select(users::attributes)
+        .first::<Value>(&mut *conn)
+        .await
+    {
+        Ok(user) => user,
+        Err(_) => return Err(anyhow::anyhow!("User not found")),
+    };
+
     let mut attributes = Vec::new();
 
-    for (key, value) in user.attributes.as_object().unwrap() {
+    for (key, value) in user_attributes.as_object().unwrap() {
         if let Some(value_str) = value.as_str() {
             attributes.push(AttributeInfo {
                 name: key.to_string(),
