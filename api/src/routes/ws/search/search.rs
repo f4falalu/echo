@@ -162,23 +162,27 @@ pub async fn list_assets_handler(
 
     let query = format!(
         r#"
-        SELECT DISTINCT ON (content, asset_type)
-            asset_search.asset_id,
-            asset_search.content,
-            asset_search.updated_at,
-            asset_search.asset_type
-        FROM 
-            asset_search
-        INNER JOIN
-            asset_permissions
-        ON 
-            asset_search.asset_id = asset_permissions.asset_id
-        WHERE 
-            asset_search.asset_type IN ({})
-            AND (asset_permissions.identity_id = '{}')
-            AND asset_search.deleted_at IS NULL
-            AND asset_permissions.deleted_at IS NULL
-        ORDER BY asset_search.content, asset_search.asset_type, asset_search.updated_at DESC
+        WITH distinct_assets AS (
+            SELECT DISTINCT ON (content, asset_type)
+                asset_search.asset_id,
+                asset_search.content,
+                asset_search.updated_at,
+                asset_search.asset_type
+            FROM 
+                asset_search
+            INNER JOIN
+                asset_permissions
+            ON 
+                asset_search.asset_id = asset_permissions.asset_id
+            WHERE 
+                asset_search.asset_type IN ({})
+                AND (asset_permissions.identity_id = '{}')
+                AND asset_search.deleted_at IS NULL
+                AND asset_permissions.deleted_at IS NULL
+        )
+        SELECT *
+        FROM distinct_assets
+        ORDER BY updated_at DESC
         LIMIT {};
         "#,
         asset_types
