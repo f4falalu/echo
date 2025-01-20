@@ -1,14 +1,8 @@
 use anyhow::Result;
-use diesel::{ExpressionMethods, QueryDsl};
-use diesel_async::RunQueryDsl;
+use serde_json::Value;
 use uuid::Uuid;
 
-use crate::database::{
-    enums::{UserOrganizationRole, UserOrganizationStatus},
-    lib::get_pg_pool,
-    models::UserToOrganization,
-    schema::users_to_organizations,
-};
+use crate::database::models::User;
 
 /// Checks if a user has workspace admin or data admin privileges
 ///
@@ -21,19 +15,29 @@ use crate::database::{
 /// # Errors
 /// * Database connection errors
 /// * User not found errors
-pub async fn is_user_workspace_admin_or_data_admin(user_id: &Uuid) -> Result<bool> {
-    // Get database connection from pool
-    let mut conn = get_pg_pool().get().await.map_err(|e| anyhow::anyhow!(e))?;
+pub async fn is_user_workspace_admin_or_data_admin(
+    user: &User,
+    organization_id: &Uuid,
+) -> Result<bool> {
+    let user_organization_id = match user.attributes.get("organization_id") {
+        Some(Value::String(id)) => Uuid::parse_str(id).map_err(|e| anyhow::anyhow!(e))?,
+        Some(_) => return Err(anyhow::anyhow!("User organization id not found")),
+        None => return Err(anyhow::anyhow!("User organization id not found")),
+    };
 
-    // Query user's organization role
-    let user = users_to_organizations::table
-        .filter(users_to_organizations::user_id.eq(user_id))
-        .filter(users_to_organizations::status.eq(UserOrganizationStatus::Active))
-        .filter(users_to_organizations::deleted_at.is_null())
-        .first::<UserToOrganization>(&mut conn)
-        .await?;
+    let user_role = match user.attributes.get("role") {
+        Some(Value::String(role)) => role,
+        Some(_) => return Err(anyhow::anyhow!("User role not found")),
+        None => return Err(anyhow::anyhow!("User role not found")),
+    };
 
-    // Check if user has admin privileges
-    Ok(user.role == UserOrganizationRole::WorkspaceAdmin
-        || user.role == UserOrganizationRole::DataAdmin)
+    if &user_organization_id == organization_id {
+        if vec!["workspace_admin", "data_admin"].contains(&user_role.as_str()) {
+            Ok(true)
+        } else {
+            Ok(false)
+        }
+    } else {
+        Ok(false)
+    }
 }

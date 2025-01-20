@@ -3,6 +3,7 @@ use diesel::insert_into;
 use diesel_async::RunQueryDsl;
 
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use uuid::Uuid;
 
 use crate::{
@@ -82,9 +83,11 @@ async fn post_user_handler(
         Err(e) => return Err(anyhow!("Error getting user organization id: {}", e)),
     };
 
+    let new_user_id = Uuid::new_v4();
+
     let new_user = User {
-        id: Uuid::new_v4(),
-        email,
+        id: new_user_id.clone(),
+        email: email.clone(),
         name: None,
         config: serde_json::to_value(UserConfig {
             color_palettes: None,
@@ -92,6 +95,12 @@ async fn post_user_handler(
         })?,
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
+        attributes: json!({
+            "user_id": new_user_id.to_string(),
+            "organization_id": user_organization_id.to_string(),
+            "user_email": email,
+            "organization_role": role.to_string(),
+        }),
     };
 
     let user_to_organization = UserToOrganization {
