@@ -46,6 +46,7 @@ async fn list_teams_handler(user: User) -> Result<Vec<TeamInfo>> {
         .order_by(teams::created_at.desc())
         .load(&mut *conn)
         .await?;
+    
 
     Ok(teams
         .into_iter()
