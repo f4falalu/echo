@@ -23,19 +23,6 @@ pub async fn put_permission_group(
     Extension(user): Extension<User>,
     Json(request): Json<Vec<PermissionGroupUpdate>>,
 ) -> Result<ApiResponse<()>, (StatusCode, &'static str)> {
-    // Check if user is workspace admin or data admin
-    match is_user_workspace_admin_or_data_admin(&user.id).await {
-        Ok(true) => (),
-        Ok(false) => return Err((StatusCode::FORBIDDEN, "Insufficient permissions")),
-        Err(e) => {
-            tracing::error!("Error checking user permissions: {:?}", e);
-            return Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Error checking user permissions",
-            ));
-        }
-    }
-
     match put_permission_group_handler(user, request).await {
         Ok(_) => Ok(ApiResponse::NoContent),
         Err(e) => {
@@ -54,6 +41,16 @@ async fn put_permission_group_handler(
 ) -> Result<()> {
     let organization_id = get_user_organization_id(&user.id).await?;
     let now = Utc::now();
+
+    // Check if user is workspace admin or data admin
+    match is_user_workspace_admin_or_data_admin(&user, &organization_id).await {
+        Ok(true) => (),
+        Ok(false) => return Err(anyhow::anyhow!("Insufficient permissions")),
+        Err(e) => {
+            tracing::error!("Error checking user permissions: {:?}", e);
+            return Err(anyhow::anyhow!("Error checking user permissions"));
+        }
+    }
 
     // Process in chunks of 10
     let mut handles = vec![];

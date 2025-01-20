@@ -689,13 +689,16 @@ async fn create_new_users_and_add_permissions(
     let mut new_permissions_records = Vec::new();
 
     for new_user in new_users {
+        let new_user_id = Uuid::new_v4();
+
         let user = User {
-            id: Uuid::new_v4(),
-            email: new_user.user_email,
+            id: new_user_id,
+            email: new_user.user_email.clone(),
             name: None,
-            config: json!({}),
+            attributes: json!({"user_id": new_user_id.to_string(), "user_email": new_user.user_email}),
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
+            config: json!({}),
         };
 
         let permission = AssetPermission {

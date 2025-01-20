@@ -32,7 +32,12 @@ pub async fn post_dataset_group(
     Json(request): Json<PostDatasetGroupRequest>,
 ) -> Result<ApiResponse<PostDatasetGroupResponse>, (StatusCode, &'static str)> {
     // Check if user is workspace admin or data admin
-    match is_user_workspace_admin_or_data_admin(&user.id).await {
+    let organization_id = get_user_organization_id(&user.id).await.map_err(|e| {
+        tracing::error!("Error getting user organization id: {:?}", e);
+        (StatusCode::INTERNAL_SERVER_ERROR, "Error getting user organization id")
+    })?;
+
+    match is_user_workspace_admin_or_data_admin(&user, &organization_id).await {
         Ok(true) => (),
         Ok(false) => return Err((StatusCode::FORBIDDEN, "Insufficient permissions")),
         Err(e) => {

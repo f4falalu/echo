@@ -470,6 +470,7 @@ diesel::table! {
         config -> Jsonb,
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
+        attributes -> Jsonb,
     }
 }
 
