@@ -25,7 +25,7 @@ pub async fn is_user_workspace_admin_or_data_admin(
         None => return Err(anyhow::anyhow!("User organization id not found")),
     };
 
-    let user_role = match user.attributes.get("role") {
+    let user_role = match user.attributes.get("organization_role") {
         Some(Value::String(role)) => role,
         Some(_) => return Err(anyhow::anyhow!("User role not found")),
         None => return Err(anyhow::anyhow!("User role not found")),

@@ -6,6 +6,13 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
+allow_columns_to_appear_in_same_group_by_clause!(
+    dataset_groups::id,
+    dataset_groups::name,
+    dataset_permissions::id,
+    dataset_groups_permissions::id,
+);
+
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug)]
 #[diesel(belongs_to(User, foreign_key = owner_id))]
 #[diesel(table_name = api_keys)]
@@ -511,6 +518,18 @@ pub struct DatasetPermission {
     pub id: Uuid,
     pub organization_id: Uuid,
     pub dataset_id: Uuid,
+    pub permission_id: Uuid,
+    pub permission_type: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Queryable, Insertable, Debug)]
+#[diesel(table_name = dataset_groups_permissions)]
+pub struct DatasetGroupPermission {
+    pub id: Uuid,
+    pub dataset_group_id: Uuid,
     pub permission_id: Uuid,
     pub permission_type: String,
     pub created_at: DateTime<Utc>,
