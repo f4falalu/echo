@@ -1,6 +1,6 @@
 import React from 'react';
 import { AppSegmented } from '@/components/segmented';
-import { OrganizationUser } from '@/api/buster-rest';
+import type { OrganizationUser } from '@/api/buster-rest';
 import { useMemoizedFn } from 'ahooks';
 import { SegmentedValue } from 'antd/es/segmented';
 import { Divider } from 'antd';
@@ -15,10 +15,10 @@ export enum UserSegmentsApps {
 
 const options: { label: string; value: UserSegmentsApps }[] = [
   { label: 'Overview', value: UserSegmentsApps.OVERVIEW },
-  { label: 'Dataset Groups', value: UserSegmentsApps.DATASET_GROUPS, hidden: true },
-  { label: 'Datasets', value: UserSegmentsApps.DATASETS, hidden: true },
-  { label: 'Attributes', value: UserSegmentsApps.ATTRIBUTES, hidden: true },
-  { label: 'Teams', value: UserSegmentsApps.TEAMS, hidden: true }
+  { label: 'Dataset Groups', value: UserSegmentsApps.DATASET_GROUPS, hidden: false },
+  { label: 'Datasets', value: UserSegmentsApps.DATASETS, hidden: false },
+  { label: 'Attributes', value: UserSegmentsApps.ATTRIBUTES, hidden: false },
+  { label: 'Teams', value: UserSegmentsApps.TEAMS, hidden: false }
 ].filter((option) => !option.hidden);
 
 export const UserSegments: React.FC<{

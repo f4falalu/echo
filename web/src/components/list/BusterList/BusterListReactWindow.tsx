@@ -181,6 +181,7 @@ export const BusterListReactWindow: React.FC<BusterListProps> = ({
                     style={style}
                     row={rows[index]}
                     id={rows[index].id}
+                    isLastChild={index === rows.length - 1}
                     {...data}
                   />
                 )}

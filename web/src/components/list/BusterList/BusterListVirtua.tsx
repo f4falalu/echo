@@ -24,6 +24,7 @@ export const BusterListVirtua = React.memo(
   }: BusterListProps) => {
     const contextMenuRef = useRef<HTMLDivElement>(null);
     const showEmptyState = (!rows || rows.length === 0) && !!emptyState;
+    const lastChildIndex = rows.length - 1;
 
     const globalCheckStatus = useMemo(() => {
       if (!selectedRowKeys) return 'unchecked';
@@ -119,7 +120,12 @@ export const BusterListVirtua = React.memo(
           <VList>
             {rows.map((row, index) => (
               <div key={index} style={{ height: itemSize(index) }}>
-                <BusterListRowComponentSelector row={row} id={row.id} {...itemData} />
+                <BusterListRowComponentSelector
+                  row={row}
+                  id={row.id}
+                  isLastChild={index === lastChildIndex}
+                  {...itemData}
+                />
               </div>
             ))}
           </VList>

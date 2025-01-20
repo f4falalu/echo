@@ -18,6 +18,7 @@ export const BusterListRowComponentSelector = React.forwardRef<
     columnRowVariant?: BusterListProps['columnRowVariant'];
     useRowClickSelectChange: boolean;
     rowClassName?: string;
+    isLastChild: boolean;
   }
 >(
   (
@@ -26,6 +27,7 @@ export const BusterListRowComponentSelector = React.forwardRef<
       row,
       rows,
       columns,
+      isLastChild,
       onSelectChange,
       onSelectSectionChange,
       selectedRowKeys,
@@ -65,6 +67,7 @@ export const BusterListRowComponentSelector = React.forwardRef<
         onContextMenuClick={onContextMenuClick}
         columnRowVariant={columnRowVariant}
         useRowClickSelectChange={useRowClickSelectChange}
+        isLastChild={isLastChild}
       />
     );
   }

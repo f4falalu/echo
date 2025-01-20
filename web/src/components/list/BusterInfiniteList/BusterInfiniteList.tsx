@@ -30,6 +30,7 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const lastChildIndex = rows.length - 1;
   const showEmptyState = useMemo(
     () => (!rows || rows.length === 0 || !rows.some((row) => !row.rowSection)) && !!emptyState,
     [rows, emptyState]
@@ -140,8 +141,14 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
       )}
 
       {!showEmptyState &&
-        rows.map((row) => (
-          <BusterListRowComponentSelector key={row.id} row={row} id={row.id} {...itemData} />
+        rows.map((row, index) => (
+          <BusterListRowComponentSelector
+            key={row.id}
+            row={row}
+            id={row.id}
+            isLastChild={index === lastChildIndex}
+            {...itemData}
+          />
         ))}
 
       {showEmptyState && (

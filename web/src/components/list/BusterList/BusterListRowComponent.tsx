@@ -20,6 +20,7 @@ export const BusterListRowComponent = React.memo(
       columnRowVariant: BusterListProps['columnRowVariant'];
       useRowClickSelectChange: boolean;
       rowClassName?: string;
+      isLastChild: boolean;
     }
   >(
     (
@@ -32,6 +33,7 @@ export const BusterListRowComponent = React.memo(
         checked,
         onContextMenuClick,
         rowClassName = '',
+        isLastChild,
         useRowClickSelectChange
       },
       ref
@@ -66,7 +68,9 @@ export const BusterListRowComponent = React.memo(
               'group flex items-center',
               checked ? 'checked' : '',
               columnRowVariant,
+              isLastChild ? 'last-child' : '',
               !onSelectChange ? 'pl-3.5' : '',
+
               { clickable: !!(link || row.onClick || (onSelectChange && useRowClickSelectChange)) }
             )}
             ref={ref}>
@@ -175,7 +179,7 @@ export const useStyles = createStyles(({ css, token }) => ({
         }
       }
 
-      &:last-child {
+      &.last-child {
         border-bottom: 0px;
       }
     }
