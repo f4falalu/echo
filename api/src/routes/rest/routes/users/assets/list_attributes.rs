@@ -56,7 +56,7 @@ async fn list_attributes_handler(user: User, user_id: Uuid) -> Result<Vec<Attrib
         None => return Err(anyhow::anyhow!("User organization id not found")),
     };
 
-    let auth_user_role = match user.attributes.get("role") {
+    let auth_user_role = match user.attributes.get("organization_role") {
         Some(Value::String(role)) => role,
         Some(_) => return Err(anyhow::anyhow!("User role not found")),
         None => return Err(anyhow::anyhow!("User role not found")),
@@ -86,10 +86,17 @@ async fn list_attributes_handler(user: User, user_id: Uuid) -> Result<Vec<Attrib
 
     for (key, value) in user_attributes.as_object().unwrap() {
         if let Some(value_str) = value.as_str() {
+            let read_only = [
+                "organization_id",
+                "organization_role",
+                "user_id",
+                "user_email",
+            ]
+            .contains(&key.as_str());
             attributes.push(AttributeInfo {
                 name: key.to_string(),
                 value: value_str.to_string(),
-                read_only: false,
+                read_only,
             });
         }
     }
