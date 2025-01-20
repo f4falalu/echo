@@ -1,5 +1,6 @@
 import { useDebounceFn, useMemoizedFn } from 'ahooks';
 import { useEffect, useState, useTransition } from 'react';
+import isEqual from 'lodash/isEqual';
 
 interface UseDebounceSearchProps<T> {
   items: T[];
@@ -45,7 +46,9 @@ export const useDebounceSearch = <T>({
   });
 
   useEffect(() => {
-    setFilteredItems(items);
+    if (!isEqual(items, filteredItems)) {
+      setFilteredItems(items);
+    }
   }, [items]);
 
   return {

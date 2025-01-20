@@ -48,7 +48,7 @@ DatasetsHeaderOptions.displayName = 'DatasetsHeaderOptions';
 const keyToRoute = (datasetId: string, key: DatasetApps) => {
   const record: Record<DatasetApps, string> = {
     [DatasetApps.PERMISSIONS]: createBusterRoute({
-      route: BusterRoutes.APP_DATASETS_ID_PERMISSIONS,
+      route: BusterRoutes.APP_DATASETS_ID_PERMISSIONS_OVERVIEW,
       datasetId
     }),
     [DatasetApps.OVERVIEW]: createBusterRoute({

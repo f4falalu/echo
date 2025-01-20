@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { AppSegmented } from '@/components';
 import { PermissionApps } from './config';
-import { useMemoizedFn, useMount, useSet } from 'ahooks';
+import { useMemoizedFn, useSet } from 'ahooks';
 import { SegmentedValue } from 'antd/es/segmented';
 import { Divider } from 'antd';
 import {
