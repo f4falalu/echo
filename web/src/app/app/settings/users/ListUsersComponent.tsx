@@ -95,7 +95,6 @@ export const ListUsersComponent: React.FC<{
     [activeUsers, inactiveUsers]
   );
 
-  // <BusterListSelectedOptionPopupContainer />;
   return (
     <InfiniteListContainer
       showContainerBorder={false}
