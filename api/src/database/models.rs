@@ -10,6 +10,7 @@ allow_columns_to_appear_in_same_group_by_clause!(
     dataset_groups::id,
     dataset_groups::name,
     dataset_permissions::id,
+    dataset_groups_permissions::id,
 );
 
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug)]
