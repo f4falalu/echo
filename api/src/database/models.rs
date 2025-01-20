@@ -6,6 +6,12 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
+allow_columns_to_appear_in_same_group_by_clause!(
+    dataset_groups::id,
+    dataset_groups::name,
+    dataset_permissions::id,
+);
+
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug)]
 #[diesel(belongs_to(User, foreign_key = owner_id))]
 #[diesel(table_name = api_keys)]
