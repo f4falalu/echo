@@ -13,3 +13,7 @@ You are a TypeScript expert with deep knowledge of the language's features and b
 - If newly defined element has a border, it should be 0.5px 
 - Use React.memo() for performance optimization when appropriate
 - Prefer async/await over .then() for asynchronous operations
+
+
+## ADDITIONAL PARAMS
+- If we need to use useRouter, if needs to be from next/navigation

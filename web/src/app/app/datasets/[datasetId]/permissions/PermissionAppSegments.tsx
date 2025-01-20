@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AppSegmented } from '@/components';
 import { PermissionApps } from './config';
 import { useMemoizedFn, useMount, useSet } from 'ahooks';
@@ -13,12 +13,15 @@ import {
 } from '@/api/buster-rest';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
+import { useRouter } from 'next/navigation';
 
 export const PermissionAppSegments: React.FC<{
   datasetId: string;
   selectedApp: PermissionApps;
 }> = React.memo(({ datasetId, selectedApp }) => {
   const [prefetchedRoutes, setPrefetchedRoutes] = useSet<string>();
+  const router = useRouter();
+  const ref = useRef<HTMLDivElement>(null);
 
   useDatasetListDatasetGroups(prefetchedRoutes.has(PermissionApps.DATASET_GROUPS) ? datasetId : '');
   useDatasetListPermissionUsers(prefetchedRoutes.has(PermissionApps.USERS) ? datasetId : '');
@@ -72,9 +75,19 @@ export const PermissionAppSegments: React.FC<{
     []
   );
 
+  const onChange = useMemoizedFn((value: SegmentedValue) => {
+    if (typeof value === 'string') {
+      const linkRef = ref.current?.querySelector(`a[data-value="${value}"]`);
+      const href = linkRef?.getAttribute('href');
+      if (href) {
+        router.push(href);
+      }
+    }
+  });
+
   return (
-    <div className="flex flex-col justify-center space-x-0 space-y-2">
-      <AppSegmented options={options} value={selectedApp} />
+    <div ref={ref} className="flex flex-col justify-center space-x-0 space-y-2">
+      <AppSegmented options={options} value={selectedApp} onChange={onChange} />
       <Divider className="" />
     </div>
   );
@@ -95,7 +108,7 @@ const PrefetchRouteSegmentItem = React.memo(
     onHover: (route: PermissionApps) => void;
   }) => {
     return (
-      <Link href={link}>
+      <Link href={link} data-value={value}>
         <span className="" onMouseEnter={() => onHover(value)}>
           {label}
         </span>
