@@ -4,11 +4,12 @@ import React from 'react';
 export const InfiniteListContainer: React.FC<{
   children: React.ReactNode;
   popupNode?: React.ReactNode;
-}> = React.memo(({ children, popupNode }) => {
+  showContainerBorder?: boolean;
+}> = React.memo(({ children, popupNode, showContainerBorder = true }) => {
   const { styles, cx } = useStyles();
 
   return (
-    <div className={cx('overflow-hidden', styles.container)}>
+    <div className={cx('overflow-hidden', showContainerBorder && styles.container)}>
       {children}
 
       {popupNode && (

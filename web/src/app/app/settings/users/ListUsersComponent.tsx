@@ -1,16 +1,25 @@
 import { OrganizationUser } from '@/api/buster-rest/organizations/responseInterfaces';
-import { BusterInfiniteList, BusterListColumn, BusterListRowItem } from '@/components/list';
+import {
+  BusterInfiniteList,
+  BusterListColumn,
+  BusterListRowItem,
+  BusterListSelectedOptionPopupContainer,
+  InfiniteListContainer
+} from '@/components/list';
 import { Card } from 'antd';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Text } from '@/components/text';
 import { OrganizationUserRoleText } from './config';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { ListUserItem } from '../../_components/ListContent';
+import { UserListPopupContainer } from './UserListPopupContainer';
 
 export const ListUsersComponent: React.FC<{
   users: OrganizationUser[];
   isFetched: boolean;
 }> = React.memo(({ users, isFetched }) => {
+  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
+
   const columns: BusterListColumn[] = useMemo(
     () => [
       {
@@ -86,15 +95,27 @@ export const ListUsersComponent: React.FC<{
     [activeUsers, inactiveUsers]
   );
 
+  // <BusterListSelectedOptionPopupContainer />;
   return (
-    <BusterInfiniteList
-      columns={columns}
-      rows={rows}
-      showHeader={true}
-      columnRowVariant="default"
-      rowClassName="!pl-[30px]"
-      emptyState={<EmptyState isFetched={isFetched} />}
-    />
+    <InfiniteListContainer
+      showContainerBorder={false}
+      popupNode={
+        <UserListPopupContainer
+          selectedRowKeys={selectedRowKeys}
+          onSelectChange={setSelectedRowKeys}
+        />
+      }>
+      <BusterInfiniteList
+        columns={columns}
+        rows={rows}
+        showHeader={true}
+        showSelectAll={false}
+        onSelectChange={setSelectedRowKeys}
+        selectedRowKeys={selectedRowKeys}
+        columnRowVariant="default"
+        emptyState={<EmptyState isFetched={isFetched} />}
+      />
+    </InfiniteListContainer>
   );
 });
 

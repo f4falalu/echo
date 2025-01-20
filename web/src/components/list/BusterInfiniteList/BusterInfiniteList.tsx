@@ -51,11 +51,12 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
   });
 
   const onSelectChangePreflight = useMemoizedFn((v: boolean, id: string) => {
-    if (!onSelectChange || !selectedRowKeys) return;
+    if (!onSelectChange) return;
+
     if (v === false) {
-      onSelectChange(selectedRowKeys?.filter((d) => d !== id));
+      onSelectChange((selectedRowKeys || []).filter((d) => d !== id));
     } else {
-      onSelectChange(selectedRowKeys?.concat(id) || []);
+      onSelectChange((selectedRowKeys || []).concat(id));
     }
   });
 

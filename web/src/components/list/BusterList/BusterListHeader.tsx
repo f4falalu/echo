@@ -28,7 +28,7 @@ export const BusterListHeader: React.FC<{
 
     return (
       <div
-        className={cx(styles.header, 'group', rowClassName, 'mr-[12px]', {
+        className={cx(styles.header, 'group', rowClassName, 'pr-[24px]', {
           'pl-3.5': !onGlobalSelectChange
         })}>
         {showCheckboxColumn && (
@@ -49,8 +49,7 @@ export const BusterListHeader: React.FC<{
             key={column.dataIndex}
             style={{
               width: column.width || '100%',
-              flex: column.width ? 'none' : 1,
-              marginRight: index === columns.length - 1 ? '' : undefined //24px
+              flex: column.width ? 'none' : 1
             }}>
             {column.headerRender ? (
               column.headerRender(column.title)

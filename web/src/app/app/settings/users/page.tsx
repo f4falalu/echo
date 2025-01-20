@@ -1,12 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { SettingsPageHeader } from '../_SettingsPageHeader';
 import { SearchUsers } from './SearchUsers';
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
 import { useGetOrganizationUsers } from '@/api/buster-rest';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { ListUsersComponent } from './ListUsersComponent';
+import { UserListPopupContainer } from './UserListPopupContainer';
 
 export default function Page() {
   const userOrganization = useUserConfigContextSelector((x) => x.userOrganizations);

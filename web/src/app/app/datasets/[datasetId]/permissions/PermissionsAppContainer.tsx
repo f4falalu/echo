@@ -25,8 +25,6 @@ export const PermissionsAppContainer: React.FC<{
     setSelectedApp(routeToApp[currentRoute] || PermissionApps.OVERVIEW);
   }, [currentRoute]);
 
-  console.log(currentRoute, routeToApp[currentRoute]);
-
   return (
     <>
       <PermissionAppSegments selectedApp={selectedApp} datasetId={datasetId as string} />
