@@ -1,6 +1,7 @@
 import { DatasetPermissionOverviewUser } from '@/api/buster-rest/datasets';
 import { AppMaterialIcons, AppPopover } from '@/components';
 import { BusterRoutes, createBusterRoute } from '@/routes';
+import { useMemoizedFn } from 'ahooks';
 import { createStyles } from 'antd-style';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -64,9 +65,16 @@ const MultipleLineage: React.FC<{
     );
   }, [lineage]);
 
+  const onClickPreflight = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+  });
+
   return (
     <AppPopover placement="topRight" destroyTooltipOnHide trigger="click" content={Content}>
-      <div className={cx(styles.linearItem, 'cursor-pointer')}>Multiple access sources</div>
+      <div className={cx(styles.linearItem, 'cursor-pointer')} onClick={onClickPreflight}>
+        Multiple access sources
+      </div>
     </AppPopover>
   );
 };
