@@ -11,6 +11,7 @@ use crate::database::lib::get_pg_pool;
 use crate::database::models::User;
 use crate::database::schema::{dataset_groups, dataset_groups_permissions, dataset_permissions};
 use crate::routes::rest::ApiResponse;
+use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
 use crate::utils::user::user_info::get_user_organization_id;
 
 #[derive(Debug, Serialize)]
@@ -39,16 +40,20 @@ pub async fn list_dataset_groups(
     Ok(ApiResponse::JsonData(dataset_groups))
 }
 
-async fn list_dataset_groups_handler(user: User, id: Uuid) -> Result<Vec<DatasetGroupInfo>> {
+async fn list_dataset_groups_handler(user: User, user_id: Uuid) -> Result<Vec<DatasetGroupInfo>> {
     let mut conn = get_pg_pool().get().await?;
-    let organization_id = get_user_organization_id(&user.id).await?;
+    let organization_id = get_user_organization_id(&user_id).await?;
+
+    if !is_user_workspace_admin_or_data_admin(&user, &organization_id).await? {
+        return Err(anyhow::anyhow!("User is not authorized to list dataset groups"));
+    }
 
     let groups = dataset_groups::table
         .left_join(
             dataset_groups_permissions::table.on(dataset_groups_permissions::dataset_group_id
                 .eq(dataset_groups::id)
                 .and(dataset_groups_permissions::permission_type.eq("user"))
-                .and(dataset_groups_permissions::permission_id.eq(id))
+                .and(dataset_groups_permissions::permission_id.eq(user_id))
                 .and(dataset_groups_permissions::deleted_at.is_null())),
         )
         .left_join(

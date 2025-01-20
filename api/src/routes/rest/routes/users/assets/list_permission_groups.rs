@@ -11,6 +11,7 @@ use crate::database::lib::get_pg_pool;
 use crate::database::models::{PermissionGroup, User};
 use crate::database::schema::permission_groups;
 use crate::routes::rest::ApiResponse;
+use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
 use crate::utils::user::user_info::get_user_organization_id;
 
 #[derive(Debug, Serialize)]
@@ -42,6 +43,10 @@ pub async fn list_permission_groups(
 async fn list_permission_groups_handler(user: User) -> Result<Vec<PermissionGroupInfo>> {
     let mut conn = get_pg_pool().get().await?;
     let organization_id = get_user_organization_id(&user.id).await?;
+
+    if !is_user_workspace_admin_or_data_admin(&user, &organization_id).await? {
+        return Err(anyhow::anyhow!("User is not authorized to list permission groups"));
+    }
 
     let groups: Vec<PermissionGroup> = permission_groups::table
         .filter(permission_groups::organization_id.eq(organization_id))

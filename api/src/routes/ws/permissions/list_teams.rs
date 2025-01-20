@@ -51,14 +51,6 @@ pub struct TeamPermissionInfo {
     pub team_role: Option<TeamToUserRole>,
 }
 
-allow_columns_to_appear_in_same_group_by_clause!(
-    teams::id,
-    teams::name,
-    permission_groups_to_identities::permission_group_id,
-    teams_to_users::user_id,
-    teams_to_users::role,
-);
-
 pub async fn list_teams(user: &User, req: ListTeamPermissionsRequest) -> Result<()> {
     let page = req.page.unwrap_or(0);
     let page_size = req.page_size.unwrap_or(25);

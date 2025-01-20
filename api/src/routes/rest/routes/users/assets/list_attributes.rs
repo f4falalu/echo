@@ -12,6 +12,7 @@ use crate::database::lib::get_pg_pool;
 use crate::database::models::User;
 use crate::database::schema::{users, users_to_organizations};
 use crate::routes::rest::ApiResponse;
+use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
 use crate::utils::user::user_info::get_user_organization_id;
 
 #[derive(Debug, Serialize)]
@@ -42,14 +43,13 @@ pub async fn list_attributes(
 async fn list_attributes_handler(user: User, user_id: Uuid) -> Result<Vec<AttributeInfo>> {
     let mut conn = get_pg_pool().get().await?;
 
-    let user_orgnazation_id = match get_user_organization_id(&user_id).await {
-        Ok(id) => id,
-        Err(e) => {
-            tracing::error!("Error getting user organization id: {:?}", e);
-            return Err(anyhow::anyhow!("Error getting user organization id"));
-        }
-    };
+    let organization_id = get_user_organization_id(&user_id).await?;
 
+    if !is_user_workspace_admin_or_data_admin(&user, &organization_id).await? {
+        return Err(anyhow::anyhow!(
+            "User is not authorized to list dataset groups"
+        ));
+    }
     let auth_user_orgnazation_id = match user.attributes.get("organization_id") {
         Some(Value::String(id)) => Uuid::parse_str(id).unwrap(),
         Some(_) => return Err(anyhow::anyhow!("User organization id not found")),
@@ -66,14 +66,14 @@ async fn list_attributes_handler(user: User, user_id: Uuid) -> Result<Vec<Attrib
         return Err(anyhow::anyhow!("User is not authorized to list attributes"));
     };
 
-    if auth_user_orgnazation_id != user_orgnazation_id {
+    if auth_user_orgnazation_id != organization_id {
         return Err(anyhow::anyhow!("User is not authorized to list attributes"));
     }
 
     let user_attributes = match users::table
         .filter(users::id.eq(user_id))
         .inner_join(users_to_organizations::table.on(users::id.eq(users_to_organizations::user_id)))
-        .filter(users_to_organizations::organization_id.eq(user_orgnazation_id))
+        .filter(users_to_organizations::organization_id.eq(organization_id))
         .select(users::attributes)
         .first::<Value>(&mut *conn)
         .await
