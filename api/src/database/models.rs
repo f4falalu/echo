@@ -523,3 +523,15 @@ pub struct DatasetPermission {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
 }
+
+#[derive(Queryable, Insertable, Debug)]
+#[diesel(table_name = dataset_groups_permissions)]
+pub struct DatasetGroupPermission {
+    pub id: Uuid,
+    pub dataset_group_id: Uuid,
+    pub permission_id: Uuid,
+    pub permission_type: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+}
