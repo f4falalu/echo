@@ -2,7 +2,7 @@ import React from 'react';
 import { useDebounceSearch } from '@/hooks';
 import { OrganizationUser } from '@/api';
 import { PermissionSearch } from '@/app/app/_components/PermissionComponents';
-import { UserDatasetListContainer } from './UserDatasetListContainer';
+import { UserDatasetListContainer } from '../dataset-groups/UserDatasetListContainer';
 
 export const UserDatasetSearch = React.memo(({ user }: { user: OrganizationUser }) => {
   const { filteredItems, searchText, handleSearchChange, isPending } = useDebounceSearch({

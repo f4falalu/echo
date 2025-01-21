@@ -1,30 +1,25 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useGetUser } from '@/api/buster-rest';
-import { UserHeader } from './UserHeader';
-import { UserSegments, UserSegmentsApps } from './UserSegments';
 import { UserDefaultAccess } from './UserDefaultAccess';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { UserLineageHeader } from './UserLineageHeader';
 import { UserDatasetSearch } from './UserDatasetSearch';
 
-export const UserController = React.memo(({ userId }: { userId: string }) => {
+export const UserOverviewController = React.memo(({ userId }: { userId: string }) => {
   const { data: user } = useGetUser({ userId });
   const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
-  const [selectedApp, setSelectedApp] = useState<UserSegmentsApps>(UserSegmentsApps.OVERVIEW);
 
   if (!user) return null;
 
   return (
-    <div className="flex flex-col space-y-5">
-      <UserHeader user={user} />
-      <UserSegments userId={userId} selectedApp={selectedApp} onSelectApp={setSelectedApp} />
+    <>
       <UserDefaultAccess user={user} isAdmin={isAdmin} />
       <UserLineageHeader className="!mt-[48px]" user={user} />
       <UserDatasetSearch user={user} />
-    </div>
+    </>
   );
 });
 
-UserController.displayName = 'UserController';
+UserOverviewController.displayName = 'UserController';
