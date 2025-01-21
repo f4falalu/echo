@@ -4,7 +4,6 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
 import { createStyles } from 'antd-style';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 
 export const PermissionLineageBreadcrumb: React.FC<{
@@ -20,7 +19,7 @@ export const PermissionLineageBreadcrumb: React.FC<{
     }
 
     if (hasMultipleLineage) {
-      return [<MultipleLineage key={'multiple-lineage'} lineage={lineage} />];
+      return [<MultipleLineage key={'multiple-lineage'} lineage={lineage} canQuery={canQuery} />];
     }
 
     const firstItem = lineage[0];
@@ -55,7 +54,8 @@ const SelectedComponent: React.FC<{
 
 const MultipleLineage: React.FC<{
   lineage: DatasetPermissionOverviewUser['lineage'];
-}> = ({ lineage }) => {
+  canQuery: DatasetPermissionOverviewUser['can_query'];
+}> = ({ lineage, canQuery }) => {
   const { styles, cx } = useStyles();
   const Content = useMemo(() => {
     return (
@@ -65,7 +65,7 @@ const MultipleLineage: React.FC<{
             return <SelectedComponent key={index} item={v} />;
           });
 
-          return <LineageBreadcrumb key={lineageindex} items={items} canQuery={true} />;
+          return <LineageBreadcrumb key={lineageindex} items={items} canQuery={canQuery} />;
         })}
       </div>
     );
@@ -78,7 +78,7 @@ const MultipleLineage: React.FC<{
 
   return (
     <AppPopover placement="topRight" destroyTooltipOnHide trigger="click" content={Content}>
-      <div className={cx(styles.linearItem, 'cursor-pointer')} onClick={onClickPreflight}>
+      <div className={cx(styles.linearItem, 'clickable')} onClick={onClickPreflight}>
         Multiple access sources
       </div>
     </AppPopover>
@@ -99,7 +99,7 @@ const DatasetLineageItem: React.FC<LineageItemProps> = ({ name, id }) => {
   const { styles, cx } = useStyles();
   return (
     <Link href={createBusterRoute({ route: BusterRoutes.APP_DATASETS_ID, datasetId: id })}>
-      <div className={cx(styles.linearItem)}>{name}</div>
+      <div className={cx(styles.linearItem, 'clickable')}>{name}</div>
     </Link>
   );
 };
@@ -158,12 +158,15 @@ const useStyles = createStyles(({ token, css }) => ({
   `,
   linearItem: css`
     color: ${token.colorTextSecondary};
-    cursor: pointer;
     padding: 4px 6px;
     border-radius: 4px;
-    &:hover {
-      color: ${token.colorText};
-      background-color: ${token.colorFillSecondary};
+
+    &.clickable {
+      cursor: pointer;
+      &:hover {
+        color: ${token.colorText};
+        background-color: ${token.colorFillSecondary};
+      }
     }
   `,
   canQueryTag: css`
