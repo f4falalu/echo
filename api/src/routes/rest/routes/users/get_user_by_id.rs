@@ -359,7 +359,6 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
     let (id, email, name) = user;
 
     let mut datasets = Vec::new();
-    let mut processed_dataset_ids = std::collections::HashSet::new();
 
     match role {
         UserOrganizationRole::WorkspaceAdmin | UserOrganizationRole::DataAdmin | UserOrganizationRole::Querier => {
@@ -415,6 +414,8 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
         },
         UserOrganizationRole::RestrictedQuerier => {
             // Process datasets with access first
+            let mut processed_dataset_ids = std::collections::HashSet::new();
+
             // Add datasets with direct access
             for (dataset_id, dataset_name) in direct_datasets {
                 processed_dataset_ids.insert(dataset_id);
@@ -435,7 +436,7 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
                 datasets.push(DatasetInfo {
                     id: dataset_id,
                     name: dataset_name,
-                    can_query: true,
+                    can_query: true,  // They have direct access
                     lineage,
                 });
             }
@@ -475,7 +476,7 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
                 datasets.push(DatasetInfo {
                     id: dataset_id,
                     name: dataset_name,
-                    can_query: true,
+                    can_query: true,  // They have permission group access
                     lineage,
                 });
             }
@@ -515,7 +516,7 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
                 datasets.push(DatasetInfo {
                     id: dataset_id,
                     name: dataset_name,
-                    can_query: true,
+                    can_query: true,  // They have dataset group access
                     lineage,
                 });
             }
@@ -567,7 +568,7 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
                 datasets.push(DatasetInfo {
                     id: dataset_id,
                     name: dataset_name,
-                    can_query: true,
+                    can_query: true,  // They have permission group to dataset group access
                     lineage,
                 });
             }
@@ -580,7 +581,7 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
                 datasets.push(DatasetInfo {
                     id: dataset_id,
                     name: dataset_name,
-                    can_query: false,
+                    can_query: false,  // No access path found
                     lineage: vec![vec![
                         DatasetLineage {
                             id: Some(id),
