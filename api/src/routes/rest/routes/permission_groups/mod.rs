@@ -1,8 +1,9 @@
-pub mod delete_permission_group;
-pub mod get_permission_group;
-pub mod list_permission_groups;
-pub mod post_permission_group;
-pub mod put_permission_group;
+mod assets;
+mod delete_permission_group;
+mod get_permission_group;
+mod list_permission_groups;
+mod post_permission_group;
+mod put_permission_group;
 
 use axum::{
     middleware,
@@ -25,5 +26,6 @@ pub fn router() -> Router {
         .route("/:permission_group_id", get(get_permission_group))
         .route("/:permission_group_id", delete(delete_permission_group))
         .route("/", put(put_permission_group))
+        .nest("/:permission_group_id", assets::router())
         .route_layer(middleware::from_fn(auth))
 }
