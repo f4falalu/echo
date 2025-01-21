@@ -558,3 +558,15 @@ pub struct DatasetGroupPermission {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
 }
+
+#[derive(Queryable, Insertable, Associations, Debug)]
+#[diesel(belongs_to(Dataset, foreign_key = dataset_id))]
+#[diesel(belongs_to(DatasetGroup, foreign_key = dataset_group_id))]
+#[diesel(table_name = datasets_to_dataset_groups)]
+pub struct DatasetToDatasetGroup {
+    pub dataset_id: Uuid,
+    pub dataset_group_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+}

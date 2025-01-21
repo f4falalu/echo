@@ -260,6 +260,8 @@ diesel::table! {
         dataset_id -> Uuid,
         dataset_group_id -> Uuid,
         created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+        deleted_at -> Nullable<Timestamptz>,
     }
 }
 
