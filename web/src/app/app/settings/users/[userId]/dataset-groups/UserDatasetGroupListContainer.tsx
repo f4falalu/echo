@@ -1,4 +1,6 @@
 import {
+  BusterUserDatasetGroup,
+  useUpdateUserDatasetGroups,
   useUpdateUserPermissionGroups,
   useUpdateUserTeams,
   type BusterUserPermissionGroup
@@ -14,18 +16,18 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
 import React, { useMemo, useState } from 'react';
 
-export const UserPermissionGroupsListContainer: React.FC<{
-  filteredPermissionGroups: BusterUserPermissionGroup[];
+export const UserDatasetGroupListContainer: React.FC<{
+  filteredDatasetGroups: BusterUserDatasetGroup[];
   userId: string;
-}> = React.memo(({ filteredPermissionGroups, userId }) => {
+}> = React.memo(({ filteredDatasetGroups, userId }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
-  const { mutateAsync: updateUserPermissionGroups } = useUpdateUserPermissionGroups({
+  const { mutateAsync: updateUserDatasetGroups } = useUpdateUserDatasetGroups({
     userId: userId
   });
-  const numberOfPermissionGroups = filteredPermissionGroups.length;
+  const numberOfDatasetGroups = filteredDatasetGroups.length;
 
   const onSelectAssigned = useMemoizedFn(async (params: { id: string; assigned: boolean }) => {
-    await updateUserPermissionGroups([params]);
+    await updateUserDatasetGroups([params]);
   });
 
   const columns: BusterListColumn[] = useMemo(
@@ -59,20 +61,20 @@ export const UserPermissionGroupsListContainer: React.FC<{
     const result: {
       cannotQueryPermissionUsers: BusterListRowItem[];
       canQueryPermissionUsers: BusterListRowItem[];
-    } = filteredPermissionGroups.reduce<{
+    } = filteredDatasetGroups.reduce<{
       cannotQueryPermissionUsers: BusterListRowItem[];
       canQueryPermissionUsers: BusterListRowItem[];
     }>(
-      (acc, permissionUser) => {
+      (acc, datasetGroup) => {
         const user: BusterListRowItem = {
-          id: permissionUser.id,
-          data: permissionUser,
+          id: datasetGroup.id,
+          data: datasetGroup,
           link: createBusterRoute({
             route: BusterRoutes.APP_SETTINGS_USERS_ID,
-            userId: permissionUser.id
+            userId: datasetGroup.id
           })
         };
-        if (permissionUser.assigned) {
+        if (datasetGroup.assigned) {
           acc.canQueryPermissionUsers.push(user);
         } else {
           acc.cannotQueryPermissionUsers.push(user);
@@ -85,7 +87,7 @@ export const UserPermissionGroupsListContainer: React.FC<{
       }
     );
     return result;
-  }, [filteredPermissionGroups]);
+  }, [filteredDatasetGroups]);
 
   const rows = useMemo(
     () =>
@@ -111,7 +113,7 @@ export const UserPermissionGroupsListContainer: React.FC<{
         },
         ...cannotQueryPermissionUsers
       ].filter((row) => !(row as any).hidden),
-    [canQueryPermissionUsers, cannotQueryPermissionUsers, numberOfPermissionGroups]
+    [canQueryPermissionUsers, cannotQueryPermissionUsers, numberOfDatasetGroups]
   );
 
   return (
@@ -138,4 +140,4 @@ export const UserPermissionGroupsListContainer: React.FC<{
   );
 });
 
-UserPermissionGroupsListContainer.displayName = 'UserPermissionGroupsListContainer';
+UserDatasetGroupListContainer.displayName = 'UserDatasetGroupListContainer';

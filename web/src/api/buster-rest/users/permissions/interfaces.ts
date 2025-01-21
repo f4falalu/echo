@@ -1,13 +1,15 @@
 export interface BusterUserDatasetGroup {
   id: string;
   name: string;
-  user_id: string;
+  permission_count: number;
+  assigned: boolean;
 }
 
 export interface BusterUserDataset {
   id: string;
   name: string;
   user_id: string;
+  assigned: boolean;
 }
 
 export interface BusterUserAttribute {

@@ -39,8 +39,6 @@ export const UserPermissionGroupsController: React.FC<{ userId: string }> = ({ u
     );
   }, []);
 
-  console.log('permissionGroups', permissionGroups);
-
   return (
     <>
       <PermissionSearchAndListWrapper
