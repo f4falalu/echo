@@ -4,11 +4,22 @@ import {
   createPermissionGroup,
   deletePermissionGroup,
   listAllPermissionGroups,
-  updatePermissionGroups
+  updatePermissionGroups,
+  getPermissionGroupUsers,
+  getPermissionGroupDatasets,
+  getPermissionGroupDatasetGroups,
+  updatePermissionGroupUsers,
+  updatePermissionGroupDatasets,
+  updatePermissionGroupDatasetGroups
 } from './requests';
 import { useMemoizedFn } from 'ahooks';
 import { useQueryClient } from '@tanstack/react-query';
-import { GetPermissionGroupResponse } from './responseInterfaces';
+import {
+  GetPermissionGroupDatasetGroupsResponse,
+  GetPermissionGroupDatasetsResponse,
+  GetPermissionGroupResponse,
+  GetPermissionGroupUsersResponse
+} from './responseInterfaces';
 import isEmpty from 'lodash/isEmpty';
 import { PERMISSION_GROUP_QUERY_KEY } from './config';
 import { ListPermissionGroupsResponse, updateDatasetPermissionGroups } from '../datasets';
@@ -101,5 +112,97 @@ export const useUpdatePermissionGroup = () => {
     onSuccess: (data, varaiables, context) => {
       // TODO update the permission group in the dataset
     }
+  });
+};
+
+export const useGetPermissionGroupUsers = (permissionGroupId: string) => {
+  const queryFn = useMemoizedFn(() => getPermissionGroupUsers({ id: permissionGroupId }));
+  return useCreateReactQuery({
+    queryKey: ['permission_group', permissionGroupId, 'users'],
+    queryFn
+  });
+};
+
+export const useGetPermissionGroupDatasets = (permissionGroupId: string) => {
+  const queryFn = useMemoizedFn(() => getPermissionGroupDatasets({ id: permissionGroupId }));
+  return useCreateReactQuery({
+    queryKey: ['permission_group', permissionGroupId, 'datasets'],
+    queryFn
+  });
+};
+
+export const useGetPermissionGroupDatasetGroups = (permissionGroupId: string) => {
+  const queryFn = useMemoizedFn(() => getPermissionGroupDatasetGroups({ id: permissionGroupId }));
+  return useCreateReactQuery({
+    queryKey: ['permission_group', permissionGroupId, 'dataset_groups'],
+    queryFn
+  });
+};
+
+export const useUpdatePermissionGroupUsers = (permissionGroupId: string) => {
+  const queryClient = useQueryClient();
+  const mutationFn = useMemoizedFn((data: { id: string; assigned: boolean }[]) => {
+    queryClient.setQueryData(
+      ['permission_group', permissionGroupId, 'users'],
+      (oldData: GetPermissionGroupUsersResponse[]) => {
+        return oldData.map((user) => {
+          const userToUpdate = data.find((d) => d.id === user.id);
+          if (userToUpdate) {
+            return { ...user, assigned: userToUpdate.assigned };
+          }
+          return user;
+        });
+      }
+    );
+
+    return updatePermissionGroupUsers({ id: permissionGroupId, data });
+  });
+  return useCreateReactMutation({
+    mutationFn
+  });
+};
+
+export const useUpdatePermissionGroupDatasets = (permissionGroupId: string) => {
+  const queryClient = useQueryClient();
+  const mutationFn = useMemoizedFn((data: { id: string; assigned: boolean }[]) => {
+    queryClient.setQueryData(
+      ['permission_group', permissionGroupId, 'datasets'],
+      (oldData: GetPermissionGroupDatasetsResponse[]) => {
+        return oldData.map((dataset) => {
+          const datasetToUpdate = data.find((d) => d.id === dataset.id);
+          if (datasetToUpdate) {
+            return { ...dataset, assigned: datasetToUpdate.assigned };
+          }
+          return dataset;
+        });
+      }
+    );
+
+    return updatePermissionGroupDatasets({ id: permissionGroupId, data });
+  });
+  return useCreateReactMutation({
+    mutationFn
+  });
+};
+
+export const useUpdatePermissionGroupDatasetGroups = (permissionGroupId: string) => {
+  const queryClient = useQueryClient();
+  const mutationFn = useMemoizedFn((data: { id: string; assigned: boolean }[]) => {
+    queryClient.setQueryData(
+      ['permission_group', permissionGroupId, 'dataset_groups'],
+      (oldData: GetPermissionGroupDatasetGroupsResponse[]) => {
+        return oldData.map((datasetGroup) => {
+          const datasetGroupToUpdate = data.find((d) => d.id === datasetGroup.id);
+          if (datasetGroupToUpdate) {
+            return { ...datasetGroup, assigned: datasetGroupToUpdate.assigned };
+          }
+          return datasetGroup;
+        });
+      }
+    );
+    return updatePermissionGroupDatasetGroups({ id: permissionGroupId, data });
+  });
+  return useCreateReactMutation({
+    mutationFn
   });
 };

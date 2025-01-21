@@ -1,5 +1,11 @@
 import { mainApi } from '../instances';
-import { CreatePermissionGroupResponse, GetPermissionGroupResponse } from './responseInterfaces';
+import {
+  CreatePermissionGroupResponse,
+  GetPermissionGroupDatasetGroupsResponse,
+  GetPermissionGroupDatasetsResponse,
+  GetPermissionGroupResponse,
+  GetPermissionGroupUsersResponse
+} from './responseInterfaces';
 
 export const listAllPermissionGroups = async (): Promise<GetPermissionGroupResponse[]> => {
   return await mainApi
@@ -37,4 +43,58 @@ export const createPermissionGroup = async ({
   return await mainApi
     .post<CreatePermissionGroupResponse>(`/permission_groups`, { name })
     .then((res) => res.data);
+};
+
+export const getPermissionGroupUsers = async ({
+  id
+}: {
+  id: string;
+}): Promise<GetPermissionGroupUsersResponse> => {
+  return await mainApi.get(`/permission_groups/${id}/users`).then((res) => res.data);
+};
+
+export const getPermissionGroupDatasets = async ({
+  id
+}: {
+  id: string;
+}): Promise<GetPermissionGroupDatasetsResponse> => {
+  return await mainApi.get(`/permission_groups/${id}/datasets`).then((res) => res.data);
+};
+
+export const getPermissionGroupDatasetGroups = async ({
+  id
+}: {
+  id: string;
+}): Promise<GetPermissionGroupDatasetGroupsResponse> => {
+  return await mainApi.get(`/permission_groups/${id}/dataset_groups`).then((res) => res.data);
+};
+
+export const updatePermissionGroupUsers = async ({
+  id,
+  data
+}: {
+  id: string;
+  data: { id: string; assigned: boolean }[];
+}): Promise<void> => {
+  return await mainApi.put(`/permission_groups/${id}/users`, data).then((res) => res.data);
+};
+
+export const updatePermissionGroupDatasets = async ({
+  id,
+  data
+}: {
+  id: string;
+  data: { id: string; assigned: boolean }[];
+}): Promise<void> => {
+  return await mainApi.put(`/permission_groups/${id}/datasets`, data).then((res) => res.data);
+};
+
+export const updatePermissionGroupDatasetGroups = async ({
+  id,
+  data
+}: {
+  id: string;
+  data: { id: string; assigned: boolean }[];
+}): Promise<void> => {
+  return await mainApi.put(`/permission_groups/${id}/dataset_groups`, data).then((res) => res.data);
 };

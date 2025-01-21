@@ -9,3 +9,18 @@ export interface GetPermissionGroupResponse {
 }
 
 export interface CreatePermissionGroupResponse extends GetPermissionGroupResponse {}
+
+export interface GetPermissionGroupUsersResponse {
+  id: string;
+  assigned: boolean;
+}
+
+export interface GetPermissionGroupDatasetsResponse {
+  id: string;
+  assigned: boolean;
+}
+
+export interface GetPermissionGroupDatasetGroupsResponse {
+  id: string;
+  assigned: boolean;
+}
