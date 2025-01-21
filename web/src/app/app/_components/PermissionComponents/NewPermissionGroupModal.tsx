@@ -10,11 +10,12 @@ interface NewPermissionGroupModalProps {
   isOpen: boolean;
   onClose: () => void;
   datasetId: string | null;
+  userId?: string;
 }
 
 export const NewPermissionGroupModal: React.FC<NewPermissionGroupModalProps> = React.memo(
-  ({ isOpen, onClose, datasetId: datasetIdProp }) => {
-    const { mutateAsync, isPending } = useCreatePermissionGroup();
+  ({ isOpen, onClose, datasetId: datasetIdProp, userId }) => {
+    const { mutateAsync, isPending } = useCreatePermissionGroup(userId);
     const inputRef = useRef<InputRef>(null);
     const [datasetId, setDatasetId] = useState<string | null>(datasetIdProp);
     const { openInfoMessage } = useBusterNotifications();

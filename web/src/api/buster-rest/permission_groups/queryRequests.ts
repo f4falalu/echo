@@ -12,6 +12,7 @@ import { GetPermissionGroupResponse } from './responseInterfaces';
 import isEmpty from 'lodash/isEmpty';
 import { PERMISSION_GROUP_QUERY_KEY } from './config';
 import { ListPermissionGroupsResponse, updateDatasetPermissionGroups } from '../datasets';
+import { USER_PERMISSIONS_PERMISSION_GROUPS_QUERY_KEY } from '../users/permissions/config';
 
 export const useListAllPermissionGroups = () => {
   return useCreateReactQuery({
@@ -20,7 +21,7 @@ export const useListAllPermissionGroups = () => {
   });
 };
 
-export const useCreatePermissionGroup = () => {
+export const useCreatePermissionGroup = (userId?: string) => {
   const queryClient = useQueryClient();
 
   const mutationFn = useMemoizedFn(
@@ -57,6 +58,12 @@ export const useCreatePermissionGroup = () => {
             return [...oldData, newItem];
           }
         );
+      }
+
+      if (userId) {
+        queryClient.invalidateQueries({
+          queryKey: USER_PERMISSIONS_PERMISSION_GROUPS_QUERY_KEY(userId)
+        });
       }
 
       return res;

@@ -56,6 +56,7 @@ export const UserPermissionGroupsController: React.FC<{ userId: string }> = ({ u
         isOpen={isNewPermissionGroupModalOpen}
         onClose={onCloseNewPermissionGroupModal}
         datasetId={null}
+        userId={userId}
       />
     </>
   );

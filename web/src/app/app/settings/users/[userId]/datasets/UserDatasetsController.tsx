@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  useGetDatasetGroup,
-  useGetUserDatasetGroups,
-  useGetUserDatasets,
-  useGetUserPermissionGroups
-} from '@/api/buster-rest';
+import { useGetUserDatasets } from '@/api/buster-rest';
 import { useDebounceSearch } from '@/hooks';
 import {
   NewPermissionGroupModal,
@@ -16,6 +11,7 @@ import { UserDatasetsListContainer } from './UserDatasetsListContainer';
 import { Button } from 'antd';
 import { useMemoizedFn } from 'ahooks';
 import { AppMaterialIcons } from '@/components/icons';
+import { NewDatasetModal } from '@appComponents/NewDatasetModal';
 
 export const UserDatasetsController: React.FC<{ userId: string }> = ({ userId }) => {
   const { data: datasets } = useGetUserDatasets({ userId });
@@ -51,11 +47,7 @@ export const UserDatasetsController: React.FC<{ userId: string }> = ({ userId })
         <UserDatasetsListContainer filteredDatasets={filteredItems} userId={userId} />
       </PermissionSearchAndListWrapper>
 
-      <NewPermissionGroupModal
-        isOpen={isNewDatasetModalOpen}
-        onClose={onCloseNewDatasetModal}
-        datasetId={null}
-      />
+      <NewDatasetModal open={isNewDatasetModalOpen} onClose={onCloseNewDatasetModal} />
     </>
   );
 };

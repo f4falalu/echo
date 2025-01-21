@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from 'antd';
 import { Text, Title } from '@/components/text';
 import { AppMaterialIcons } from '@/components/icons';
-import { NewDatasetModal } from '../../datasets/_NewDatasetModal';
+import { NewDatasetModal } from '@appComponents/NewDatasetModal';
 
 export const NoDatasets: React.FC<{ onClose: () => void }> = React.memo(({ onClose }) => {
   const [openNewDatasetModal, setOpenNewDatasetModal] = useState(false);

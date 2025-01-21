@@ -5,9 +5,7 @@ import React, { useImperativeHandle, useLayoutEffect } from 'react';
 import { WhiteListBlock } from '../WhiteListBlock';
 import { DatasourceCreateCredentials } from '@/api/buster-socket/datasources/interface';
 import { DataSource } from '@/api/buster-rest';
-import Link from 'next/link';
-import { BusterRoutes, createBusterRoute } from '@/routes';
-import { NewDatasetModal } from '@/app/app/datasets/_NewDatasetModal';
+import { NewDatasetModal } from '@appComponents/NewDatasetModal';
 
 const layout = {
   labelCol: { span: 7, offset: 0 },
@@ -176,7 +174,6 @@ const SubmitButtons: React.FC<{
           open={openDatasetModal}
           onClose={() => setOpenDatasetModal(false)}
           datasourceId={datasourceId}
-          //  beforeCreate={() => setOpenDatasetModal(false)}
         />
       )}
     </>
