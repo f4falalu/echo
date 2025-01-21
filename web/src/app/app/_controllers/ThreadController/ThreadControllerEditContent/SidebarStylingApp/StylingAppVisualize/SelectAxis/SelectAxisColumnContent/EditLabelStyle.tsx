@@ -28,11 +28,8 @@ export const EditLabelStyle: React.FC<{
     const filteredOptions = enabledOptions.map((option) => ColumnTypeIcon[option]);
     return filteredOptions.map((option) => ({
       value: option.value,
-      label: (
-        <AppTooltip mouseEnterDelay={0.75} className={cx(styles.icon)} title={option.tooltip}>
-          {option.icon}
-        </AppTooltip>
-      )
+      tooltip: option.tooltip,
+      icon: option.icon
     }));
   }, [enabledOptions]);
 

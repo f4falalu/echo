@@ -3,7 +3,6 @@ import {
   BusterInfiniteList,
   BusterListColumn,
   BusterListRowItem,
-  BusterListSelectedOptionPopupContainer,
   InfiniteListContainer
 } from '@/components/list';
 import { Card } from 'antd';
@@ -130,3 +129,5 @@ const EmptyState = React.memo(({ isFetched }: { isFetched: boolean }) => {
     </div>
   );
 });
+
+EmptyState.displayName = 'EmptyState';

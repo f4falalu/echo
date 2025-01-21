@@ -24,14 +24,11 @@ export const DatasetsHeaderOptions: React.FC<{
     [isAdmin]
   );
 
-  const options: SegmentedProps['options'] = useMemo(
+  const options = useMemo(
     () =>
       optionsItems.map((key) => ({
-        label: (
-          <Link prefetch href={keyToRoute(datasetId!, key)}>
-            {DataSetAppText[key as DatasetApps]}
-          </Link>
-        ),
+        label: DataSetAppText[key as DatasetApps],
+        link: keyToRoute(datasetId!, key),
         value: key
       })),
     [datasetId, optionsItems]

@@ -71,46 +71,12 @@ export const PermissionAppSegments: React.FC<{
     [datasetId]
   );
 
-  const onChange = useMemoizedFn((value: SegmentedValue) => {
-    // if (typeof value === 'string') {
-    //   const linkRef = ref.current?.querySelector(`a[data-value="${value}"]`);
-    //   const href = linkRef?.getAttribute('href');
-    //   if (href) {
-    //     router.push(href);
-    //   }
-    // }
-  });
-
   return (
     <div ref={ref} className="flex flex-col justify-center space-x-0 space-y-2">
-      <AppSegmented options={options} value={selectedApp} onChange={onChange} />
+      <AppSegmented options={options} value={selectedApp} />
       <Divider className="" />
     </div>
   );
 });
 
 PermissionAppSegments.displayName = 'PermissionAppSegments';
-
-// const PrefetchRouteSegmentItem = React.memo(
-//   ({
-//     value,
-//     label,
-//     link,
-//     onHover
-//   }: {
-//     value: PermissionApps;
-//     label: string;
-//     link: string;
-//     onHover: (route: PermissionApps) => void;
-//   }) => {
-//     return (
-//       <Link href={link} data-value={value}>
-//         <span className="" onMouseEnter={() => onHover(value)}>
-//           {label}
-//         </span>
-//       </Link>
-//     );
-//   }
-// );
-
-// PrefetchRouteSegmentItem.displayName = 'PrefetchRouteSegmentItem';

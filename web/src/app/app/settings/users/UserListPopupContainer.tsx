@@ -27,3 +27,5 @@ const PermissionGroupAssignButton: React.FC<{
 }> = React.memo(({ selectedRowKeys, onSelectChange }) => {
   return <div>PermissionGroupAssignButton</div>;
 });
+
+PermissionGroupAssignButton.displayName = 'PermissionGroupAssignButton';

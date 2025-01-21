@@ -94,7 +94,7 @@ export const EditLineStyle: React.FC<{
       <LabelAndInput label="Line settings">
         <div className="flex justify-end">
           <AppSegmented
-            options={shownOptions as SegmentedProps['options']}
+            options={shownOptions}
             block={false}
             bordered={false}
             value={selectedOption}

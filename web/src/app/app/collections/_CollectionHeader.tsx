@@ -102,7 +102,7 @@ export const CollectionHeader: React.FC<{}> = React.memo(() => {
 });
 CollectionHeader.displayName = 'CollectionHeader';
 
-const filters: SegmentedLabeledOption<SegmentedValue>[] = [
+const filters = [
   {
     label: 'All',
     value: JSON.stringify({})

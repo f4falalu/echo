@@ -59,11 +59,7 @@ export const EditContentTopApp: React.FC<{
       .map((option) => {
         return {
           value: option.name,
-          label: (
-            <AppTooltip title={option.name}>
-              <span>{option.name}</span>
-            </AppTooltip>
-          )
+          label: option.name
         };
       })
       .filter((v) => {

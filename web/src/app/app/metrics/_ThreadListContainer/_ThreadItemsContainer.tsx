@@ -203,6 +203,7 @@ const EmptyState: React.FC<{
 
   return <MetricsEmptyState openNewCollectionModal={openNewCollectionModal} type={type} />;
 });
+EmptyState.displayName = 'EmptyState';
 
 const MetricsEmptyState: React.FC<{
   openNewCollectionModal: () => void;
