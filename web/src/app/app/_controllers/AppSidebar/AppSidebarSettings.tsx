@@ -72,11 +72,11 @@ const workSpaceItems: MenuItem[] = [
     )
   },
   {
-    key: BusterRoutes.SETTINGS_DATASETS,
+    key: BusterRoutes.APP_DATASETS,
     label: (
       <Link
         href={createBusterRoute({
-          route: BusterRoutes.SETTINGS_DATASETS
+          route: BusterRoutes.APP_DATASETS
         })}>
         Datasets
       </Link>
@@ -177,11 +177,11 @@ const permissionsAndSecurityItems: MenuItem[] = [
     )
   },
   {
-    key: BusterRoutes.APP_SETTINGS_DATASETS,
+    key: BusterRoutes.APP_DATASETS,
     label: (
       <Link
         href={createBusterRoute({
-          route: BusterRoutes.APP_SETTINGS_DATASETS
+          route: BusterRoutes.APP_DATASETS
         })}>
         Datasets
       </Link>

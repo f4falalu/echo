@@ -15,7 +15,7 @@ export const PermissionLineageBreadcrumb: React.FC<{
 
   const items: React.ReactNode[] = useMemo(() => {
     if (hasNoLineage) {
-      return [<UserLineageItem name="Default access" id="default-access" />];
+      return [<UserLineageItem key="default-access" name="Default access" id="default-access" />];
     }
 
     if (hasMultipleLineage) {
