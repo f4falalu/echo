@@ -19,7 +19,7 @@ export interface DatasetPermissionOverviewUser {
   lineage: {
     name: string;
     id: string;
-    type: 'user' | 'datasets' | 'permissionGroups';
+    type: 'user' | 'datasets' | 'permissionGroups' | 'datasetGroups';
   }[][];
 }
 

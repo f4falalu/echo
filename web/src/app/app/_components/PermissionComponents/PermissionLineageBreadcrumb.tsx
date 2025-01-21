@@ -48,6 +48,8 @@ const SelectedComponent: React.FC<{
       return <DatasetLineageItem name={item.name} id={item.id} />;
     case 'permissionGroups':
       return <PermissionGroupLineageItem name={item.name} id={item.id} />;
+    case 'datasetGroups':
+      return <DatasetGroupLineageItem name={item.name} id={item.id} />;
   }
 };
 
@@ -107,6 +109,11 @@ const PermissionGroupLineageItem: React.FC<LineageItemProps> = ({ name, id }) =>
   return <div className={cx(styles.linearItem)}>{name}</div>;
 };
 
+const DatasetGroupLineageItem: React.FC<LineageItemProps> = ({ name, id }) => {
+  const { styles, cx } = useStyles();
+  return <div className={cx(styles.linearItem)}>{name}</div>;
+};
+
 const CanQueryTag: React.FC<{
   canQuery: boolean;
 }> = ({ canQuery }) => {
@@ -132,7 +139,7 @@ const LineageBreadcrumb: React.FC<{
   const allItems = [...items, <CanQueryTag key="can-query" canQuery={canQuery} />];
 
   return (
-    <div className={cx(styles.linearContainer, 'flex space-x-0')}>
+    <div className={cx(styles.linearContainer, 'flex justify-end space-x-0')}>
       {allItems.map((item, index) => {
         return (
           <div key={index} className="flex items-center space-x-0">
