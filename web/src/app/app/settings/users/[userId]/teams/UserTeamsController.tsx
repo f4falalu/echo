@@ -2,15 +2,13 @@
 
 import { useGetUserTeams } from '@/api/buster-rest';
 import { useDebounceSearch } from '@/hooks';
-import {
-  NewPermissionGroupModal,
-  PermissionSearchAndListWrapper
-} from '@appComponents/PermissionComponents';
+import { PermissionSearchAndListWrapper } from '@appComponents/PermissionComponents';
 import React, { useMemo, useState } from 'react';
 import { Button } from 'antd';
 import { useMemoizedFn } from 'ahooks';
 import { AppMaterialIcons } from '@/components/icons';
 import { UserTeamsListContainer } from './UserTeamsListContainer';
+import { NewTeamModal } from '@appComponents/NewTeamModal';
 
 export const UserTeamsController: React.FC<{ userId: string }> = ({ userId }) => {
   const { data: teams } = useGetUserTeams({ userId });
@@ -46,11 +44,7 @@ export const UserTeamsController: React.FC<{ userId: string }> = ({ userId }) =>
         <UserTeamsListContainer filteredTeams={filteredItems} userId={userId} />
       </PermissionSearchAndListWrapper>
 
-      <NewPermissionGroupModal
-        isOpen={isNewTeamModalOpen}
-        onClose={onCloseNewTeamModal}
-        datasetId={null}
-      />
+      <NewTeamModal isOpen={isNewTeamModalOpen} onClose={onCloseNewTeamModal} />
     </>
   );
 };
