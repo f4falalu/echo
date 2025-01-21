@@ -2,7 +2,6 @@ use anyhow::Result;
 use axum::extract::Path;
 use axum::http::StatusCode;
 use axum::Extension;
-use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use serde::Serialize;
@@ -60,7 +59,7 @@ async fn list_permission_groups_handler(user: User, user_id: Uuid) -> Result<Vec
                 permission_groups_to_identities::permission_group_id
                     .eq(permission_groups::id)
                     .and(permission_groups_to_identities::deleted_at.is_null())
-                    .and(permission_groups_to_identities::identity_id.eq(user.id))
+                    .and(permission_groups_to_identities::identity_id.eq(user_id))
                     .and(permission_groups_to_identities::identity_type.eq(IdentityType::User)),
             ),
         )
@@ -75,17 +74,15 @@ async fn list_permission_groups_handler(user: User, user_id: Uuid) -> Result<Vec
             permission_groups::id,
             permission_groups::name,
             diesel::dsl::sql::<diesel::sql_types::BigInt>(
-                "COALESCE(count(dataset_permissions.id), 0)",
+                "COALESCE(count(DISTINCT dataset_permissions.id), 0)",
             ),
             diesel::dsl::sql::<diesel::sql_types::Bool>(
-                "permission_groups_to_identities.identity_id IS NOT NULL",
+                "bool_or(permission_groups_to_identities.identity_id IS NOT NULL)",
             ),
         ))
         .group_by((
             permission_groups::id,
             permission_groups::name,
-            dataset_permissions::id,
-            permission_groups_to_identities::identity_id,
         ))
         .filter(permission_groups::organization_id.eq(organization_id))
         .filter(permission_groups::deleted_at.is_null())
