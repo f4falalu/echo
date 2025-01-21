@@ -7,9 +7,12 @@ use diesel_async::RunQueryDsl;
 use serde::Serialize;
 use uuid::Uuid;
 
+use crate::database::enums::IdentityType;
 use crate::database::lib::get_pg_pool;
-use crate::database::models::{PermissionGroup, User};
-use crate::database::schema::permission_groups;
+use crate::database::models::User;
+use crate::database::schema::{
+    dataset_permissions, permission_groups, permission_groups_to_identities,
+};
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
 use crate::utils::user::user_info::get_user_organization_id;
@@ -18,9 +21,8 @@ use crate::utils::user::user_info::get_user_organization_id;
 pub struct PermissionGroupInfo {
     pub id: Uuid,
     pub name: String,
-    pub organization_id: Uuid,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub dataset_count: i64,
+    pub assigned: bool,
 }
 
 pub async fn list_permission_groups(
@@ -45,24 +47,59 @@ async fn list_permission_groups_handler(user: User) -> Result<Vec<PermissionGrou
     let organization_id = get_user_organization_id(&user.id).await?;
 
     if !is_user_workspace_admin_or_data_admin(&user, &organization_id).await? {
-        return Err(anyhow::anyhow!("User is not authorized to list permission groups"));
+        return Err(anyhow::anyhow!(
+            "User is not authorized to list permission groups"
+        ));
     }
 
-    let groups: Vec<PermissionGroup> = permission_groups::table
+    let groups = permission_groups::table
+        .left_join(
+            permission_groups_to_identities::table.on(
+                permission_groups_to_identities::permission_group_id
+                    .eq(permission_groups::id)
+                    .and(permission_groups_to_identities::deleted_at.is_null())
+                    .and(permission_groups_to_identities::identity_id.eq(user.id))
+                    .and(permission_groups_to_identities::identity_type.eq(IdentityType::User)),
+            ),
+        )
+        .left_join(
+            dataset_permissions::table.on(dataset_permissions::permission_id
+                .eq(permission_groups::id)
+                .and(dataset_permissions::permission_type.eq("permission_group"))
+                .and(dataset_permissions::deleted_at.is_null())
+                .and(dataset_permissions::organization_id.eq(organization_id))),
+        )
+        .select((
+            permission_groups::id,
+            permission_groups::name,
+            diesel::dsl::sql::<diesel::sql_types::BigInt>(
+                "COALESCE(count(dataset_permissions.id), 0)",
+            ),
+            diesel::dsl::sql::<diesel::sql_types::Bool>(
+                "permission_groups_to_identities.identity_id IS NOT NULL",
+            ),
+        ))
+        .group_by((
+            permission_groups::id,
+            permission_groups::name,
+            dataset_permissions::id,
+            permission_groups_to_identities::identity_id,
+        ))
         .filter(permission_groups::organization_id.eq(organization_id))
         .filter(permission_groups::deleted_at.is_null())
         .order_by(permission_groups::created_at.desc())
-        .load(&mut *conn)
+        .load::<(Uuid, String, i64, bool)>(&mut *conn)
         .await?;
 
     Ok(groups
         .into_iter()
-        .map(|group| PermissionGroupInfo {
-            id: group.id,
-            name: group.name,
-            organization_id: group.organization_id,
-            created_at: group.created_at,
-            updated_at: group.updated_at,
-        })
+        .map(
+            |(id, name, dataset_count, assigned)| PermissionGroupInfo {
+                id,
+                name,
+                dataset_count,
+                assigned,
+            },
+        )
         .collect())
 }

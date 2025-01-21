@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use diesel::{
-    alias, allow_columns_to_appear_in_same_group_by_clause,
+    alias,
     dsl::sql,
     sql_types::{Array, BigInt, Text, Uuid as DieselUuid},
     BoolExpressionMethods, ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl,
@@ -159,14 +159,6 @@ async fn list_all_users(
     let mut conn = get_pg_pool().get().await?;
 
     let team_pgi = alias!(permission_groups_to_identities as team_pgi);
-
-    allow_columns_to_appear_in_same_group_by_clause!(
-        users::id,
-        users::name,
-        users::email,
-        users_to_organizations::role,
-        permission_groups_to_identities::permission_group_id
-    );
 
     let user_permissions: Vec<(Uuid, Option<String>, String, i64, i64, UserOrganizationRole)> = match users::table
         .left_join(teams_to_users::table.on(users::id.eq(teams_to_users::user_id).and(teams_to_users::deleted_at.is_null())))

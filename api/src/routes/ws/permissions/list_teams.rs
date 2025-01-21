@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use diesel::{
-    allow_columns_to_appear_in_same_group_by_clause, dsl::sql, sql_types::BigInt,
+    dsl::sql, sql_types::BigInt,
     BoolExpressionMethods, ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl,
 };
 use diesel_async::RunQueryDsl;

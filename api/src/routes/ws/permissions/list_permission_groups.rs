@@ -1,6 +1,5 @@
 use anyhow::{anyhow, Result};
 use diesel::{
-    allow_columns_to_appear_in_same_group_by_clause,
     dsl::sql,
     sql_types::{Array, BigInt, Text, Uuid as DieselUuid},
     BoolExpressionMethods, ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl,
@@ -64,12 +63,6 @@ pub struct PermissionGroupInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub belongs_to: Option<bool>,
 }
-
-allow_columns_to_appear_in_same_group_by_clause!(
-    permission_groups::id,
-    permission_groups::name,
-    permission_groups_to_identities::identity_id,
-);
 
 pub async fn list_permission_groups(user: &User, req: ListPermissionGroupsRequest) -> Result<()> {
     let permission_groups =
