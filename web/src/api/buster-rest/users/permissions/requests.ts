@@ -72,3 +72,10 @@ export const updateUserDatasetGroups = async (
 ) => {
   return mainApi.put(`/users/${userId}/dataset_groups`, datasetGroups).then(({ data }) => data);
 };
+
+export const updateUserDatasets = async (
+  userId: string,
+  datasets: { id: string; assigned: boolean }[]
+) => {
+  return mainApi.put(`/users/${userId}/datasets`, datasets).then(({ data }) => data);
+};

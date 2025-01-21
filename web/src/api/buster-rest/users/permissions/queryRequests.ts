@@ -17,11 +17,13 @@ import {
   getUserPermissionGroups_server,
   updateUserDatasetGroups,
   updateUserPermissionGroups,
-  updateUserTeams
+  updateUserTeams,
+  updateUserDatasets
 } from './requests';
 import { useMemoizedFn } from 'ahooks';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import {
+  BusterUserDataset,
   BusterUserDatasetGroup,
   BusterUserPermissionGroup,
   BusterUserTeamListItem
@@ -189,4 +191,23 @@ export const useUpdateUserDatasetGroups = ({ userId }: { userId: string }) => {
   return useCreateReactMutation({
     mutationFn
   });
+};
+
+export const useUpdateUserDatasets = ({ userId }: { userId: string }) => {
+  const queryClient = useQueryClient();
+  const mutationFn = useMemoizedFn(async (datasets: Parameters<typeof updateUserDatasets>[1]) => {
+    queryClient.setQueryData(
+      config.USER_PERMISSIONS_DATASETS_QUERY_KEY(userId),
+      (oldData: BusterUserDataset[]) => {
+        return oldData.map((oldDataset) => {
+          const updatedDataset = datasets.find((d) => d.id === oldDataset.id);
+          if (updatedDataset) return { ...oldDataset, assigned: updatedDataset.assigned };
+          return oldDataset;
+        });
+      }
+    );
+    const result = await updateUserDatasets(userId, datasets);
+    return result;
+  });
+  return useCreateReactMutation({ mutationFn });
 };

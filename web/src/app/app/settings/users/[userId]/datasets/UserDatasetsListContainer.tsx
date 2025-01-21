@@ -1,10 +1,9 @@
 import {
   BusterUserDataset,
-  BusterUserDatasetGroup,
-  useUpdateUserDatasetGroups,
+  useUpdateUserDatasets,
   type BusterUserPermissionGroup
 } from '@/api/buster-rest';
-import { PermissionAssignedCell } from '@/app/app/_components/PermissionComponents';
+import { PermissionAssignedCell } from '@appComponents/PermissionComponents';
 import {
   BusterInfiniteList,
   BusterListColumn,
@@ -21,12 +20,12 @@ export const UserDatasetsListContainer: React.FC<{
   userId: string;
 }> = React.memo(({ filteredDatasets, userId }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
-  const { mutateAsync: updateUserDatasetGroups } = useUpdateUserDatasetGroups({
+  const { mutateAsync: updateUserDatasets } = useUpdateUserDatasets({
     userId: userId
   });
 
   const onSelectAssigned = useMemoizedFn(async (params: { id: string; assigned: boolean }) => {
-    await updateUserDatasetGroups([params]);
+    await updateUserDatasets([params]);
   });
 
   const columns: BusterListColumn[] = useMemo(
