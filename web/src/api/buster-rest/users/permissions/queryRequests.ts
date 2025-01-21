@@ -21,7 +21,11 @@ import {
 } from './requests';
 import { useMemoizedFn } from 'ahooks';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
-import { BusterUserPermissionGroup } from './interfaces';
+import {
+  BusterUserDatasetGroup,
+  BusterUserPermissionGroup,
+  BusterUserTeamListItem
+} from './interfaces';
 
 export const useGetUserDatasetGroups = ({ userId }: { userId: string }) => {
   const queryFn = useMemoizedFn(async () => getUserDatasetGroups({ userId }));
@@ -122,8 +126,16 @@ export const prefetchGetUserPermissionGroups = async (
 export const useUpdateUserTeams = ({ userId }: { userId: string }) => {
   const queryClient = useQueryClient();
   const mutationFn = useMemoizedFn(async (teams: Parameters<typeof updateUserTeams>[1]) => {
-    //    queryClient.setQueryData(config.USER_PERMISSIONS_TEAMS_QUERY_KEY(userId), teams);
-
+    queryClient.setQueryData(
+      config.USER_PERMISSIONS_TEAMS_QUERY_KEY(userId),
+      (oldData: BusterUserTeamListItem[]) => {
+        return oldData.map((oldTeam) => {
+          const updatedTeam = teams.find((t) => t.id === oldTeam.id);
+          if (updatedTeam) return { ...oldTeam, role: updatedTeam.role };
+          return oldTeam;
+        });
+      }
+    );
     const result = await updateUserTeams(userId, teams);
 
     return result;
@@ -157,8 +169,19 @@ export const useUpdateUserPermissionGroups = ({ userId }: { userId: string }) =>
 };
 
 export const useUpdateUserDatasetGroups = ({ userId }: { userId: string }) => {
+  const queryClient = useQueryClient();
   const mutationFn = useMemoizedFn(
     async (datasetGroups: Parameters<typeof updateUserDatasetGroups>[1]) => {
+      queryClient.setQueryData(
+        config.USER_PERMISSIONS_DATASET_GROUPS_QUERY_KEY(userId),
+        (oldData: BusterUserDatasetGroup[]) => {
+          return oldData.map((oldGroup) => {
+            const updatedGroup = datasetGroups.find((pg) => pg.id === oldGroup.id);
+            if (updatedGroup) return { ...oldGroup, assigned: updatedGroup.assigned };
+            return oldGroup;
+          });
+        }
+      );
       const result = await updateUserDatasetGroups(userId, datasetGroups);
       return result;
     }

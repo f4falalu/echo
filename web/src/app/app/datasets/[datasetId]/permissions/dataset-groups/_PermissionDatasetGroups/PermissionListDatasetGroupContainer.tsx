@@ -1,5 +1,10 @@
 import { ListDatasetGroupsResponse, useDatasetUpdateDatasetGroups } from '@/api/buster-rest';
-import { BusterListColumn, BusterListRowItem, InfiniteListContainer } from '@/components/list';
+import {
+  BusterListColumn,
+  BusterListRowItem,
+  EmptyStateList,
+  InfiniteListContainer
+} from '@/components/list';
 import { BusterInfiniteList } from '@/components/list/BusterInfiniteList';
 import { useMemoizedFn } from 'ahooks';
 import React, { useMemo, useState } from 'react';
@@ -119,7 +124,7 @@ export const PermissionListDatasetGroupContainer: React.FC<{
         useRowClickSelectChange={true}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
-        emptyState={<div className="py-12">No dataset groups found</div>}
+        emptyState={<EmptyStateList text="No dataset groups found" />}
       />
     </InfiniteListContainer>
   );

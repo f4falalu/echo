@@ -4,12 +4,6 @@ export interface ListPermissionGroupsResponse {
   assigned: boolean;
 }
 
-export interface ListDatasetGroupsResponse {
-  id: string;
-  name: string;
-  assigned: boolean;
-}
-
 export interface ListPermissionUsersResponse {
   id: string;
   name: string;

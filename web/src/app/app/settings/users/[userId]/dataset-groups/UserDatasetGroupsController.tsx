@@ -32,8 +32,6 @@ export const UserDatasetGroupsController: React.FC<{ userId: string }> = ({ user
     setIsNewDatasetGroupModalOpen(true);
   });
 
-  console.log(datasetGroups);
-
   const NewDatasetGroupButton: React.ReactNode = useMemo(() => {
     return (
       <Button

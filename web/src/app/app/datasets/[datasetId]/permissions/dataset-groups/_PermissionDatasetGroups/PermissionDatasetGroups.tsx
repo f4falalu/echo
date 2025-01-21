@@ -5,7 +5,6 @@ import React, { useState } from 'react';
 import { useDebounceSearch } from '@/hooks';
 import { useMemoizedFn } from 'ahooks';
 import {
-  PermissionSearch,
   PermissionSearchAndListWrapper,
   HeaderExplanation
 } from '@/app/app/_components/PermissionComponents';
@@ -59,7 +58,7 @@ export const PermissionDatasetGroups: React.FC<{
         )}>
         {isDatasetGroupsFetched && (
           <PermissionListDatasetGroupContainer
-            filteredPermissionGroups={filteredItems}
+            filteredDatasetGroups={filteredItems}
             datasetId={datasetId}
           />
         )}

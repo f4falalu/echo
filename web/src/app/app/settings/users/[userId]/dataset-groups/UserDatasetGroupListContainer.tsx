@@ -10,6 +10,7 @@ import {
   BusterInfiniteList,
   BusterListColumn,
   BusterListRowItem,
+  EmptyStateList,
   InfiniteListContainer
 } from '@/components/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
@@ -134,7 +135,7 @@ export const UserDatasetGroupListContainer: React.FC<{
         useRowClickSelectChange={true}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
-        emptyState={<div className="py-12">No dataset groups found</div>}
+        emptyState={<EmptyStateList text="No dataset groups found" />}
       />
     </InfiniteListContainer>
   );
