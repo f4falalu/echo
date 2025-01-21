@@ -66,6 +66,7 @@ async fn put_dataset_groups_handler(
                         dataset_group_id: group.id,
                         permission_id: user_id,
                         permission_type: "user".to_string(),
+                        organization_id: organization_id,
                         deleted_at: None,
                         created_at: chrono::Utc::now(),
                         updated_at: chrono::Utc::now(),
@@ -80,7 +81,10 @@ async fn put_dataset_groups_handler(
                         dataset_groups_permissions::permission_type,
                     ))
                     .do_update()
-                    .set(dataset_groups_permissions::deleted_at.eq(None::<chrono::DateTime<chrono::Utc>>))
+                    .set(
+                        dataset_groups_permissions::deleted_at
+                            .eq(None::<chrono::DateTime<chrono::Utc>>),
+                    )
                     .execute(&mut *conn)
                     .await?;
             }
