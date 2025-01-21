@@ -5,6 +5,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Input, InputRef, Select } from 'antd';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useGetDatasets } from '@/api';
+import { SelectedDatasetInput } from './SelectDatasetInput';
 interface NewPermissionGroupModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -85,24 +86,3 @@ export const NewPermissionGroupModal: React.FC<NewPermissionGroupModalProps> = R
 );
 
 NewPermissionGroupModal.displayName = 'NewPermissionGroupModal';
-
-const SelectedDatasetInput: React.FC<{
-  onSetDatasetId: (datasetId: string) => void;
-}> = React.memo(({ onSetDatasetId }) => {
-  const { data: datasets, isFetched } = useGetDatasets();
-
-  return (
-    <Select
-      placeholder="Select a dataset"
-      loading={!isFetched}
-      className="w-full"
-      onChange={onSetDatasetId}
-      options={datasets?.map((dataset) => ({
-        label: dataset.name,
-        value: dataset.id
-      }))}
-    />
-  );
-});
-
-SelectedDatasetInput.displayName = 'SelectedDatasetInput';

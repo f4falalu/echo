@@ -11,7 +11,7 @@ import {
 import { Button } from 'antd';
 import { AppMaterialIcons } from '@/components';
 import { PermissionListDatasetGroupContainer } from './PermissionListDatasetGroupContainer';
-import { NewDatasetGroupModal } from './NewPermissionDatasetGroupModal';
+import { NewDatasetGroupModal } from '@appComponents/PermissionComponents';
 
 export const PermissionDatasetGroups: React.FC<{
   datasetId: string;

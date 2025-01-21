@@ -1,13 +1,9 @@
 'use client';
 
-import {
-  useGetDatasetGroup,
-  useGetUserDatasetGroups,
-  useGetUserPermissionGroups
-} from '@/api/buster-rest';
+import { useGetUserDatasetGroups } from '@/api/buster-rest';
 import { useDebounceSearch } from '@/hooks';
 import {
-  NewPermissionGroupModal,
+  NewDatasetGroupModal,
   PermissionSearchAndListWrapper
 } from '@appComponents/PermissionComponents';
 import React, { useMemo, useState } from 'react';
@@ -53,10 +49,11 @@ export const UserDatasetGroupsController: React.FC<{ userId: string }> = ({ user
         <UserDatasetGroupListContainer filteredDatasetGroups={filteredItems} userId={userId} />
       </PermissionSearchAndListWrapper>
 
-      <NewPermissionGroupModal
+      <NewDatasetGroupModal
         isOpen={isNewDatasetGroupModalOpen}
         onClose={onCloseNewDatasetGroupModal}
         datasetId={null}
+        userId={userId}
       />
     </>
   );

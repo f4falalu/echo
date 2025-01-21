@@ -1,21 +1,30 @@
 import { AppModal } from '@/components';
 import { useMemoizedFn } from 'ahooks';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Input, InputRef } from 'antd';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useCreateDatasetGroup } from '@/api/buster-rest/dataset_groups';
+import { SelectedDatasetInput } from './SelectDatasetInput';
 
 interface NewDatasetGroupModalProps {
   isOpen: boolean;
   onClose: () => void;
-  datasetId: string;
+  datasetId: string | null;
+  userId?: string;
 }
 
 export const NewDatasetGroupModal: React.FC<NewDatasetGroupModalProps> = React.memo(
-  ({ isOpen, onClose, datasetId }) => {
-    const { mutateAsync, isPending } = useCreateDatasetGroup(datasetId);
+  ({ isOpen, onClose, datasetId: datasetIdProp, userId }) => {
+    const [datasetId, setDatasetId] = useState<string | null>(datasetIdProp);
+
+    const { mutateAsync, isPending } = useCreateDatasetGroup(datasetId || undefined, userId);
     const inputRef = useRef<InputRef>(null);
     const { openInfoMessage } = useBusterNotifications();
+
+    const onSetDatasetId = useMemoizedFn((datasetId: string) => {
+      setDatasetId(datasetId);
+      inputRef.current?.focus();
+    });
 
     const onCreateNewDatasetGroup = useMemoizedFn(async () => {
       const inputValue = inputRef.current?.input?.value;
@@ -46,13 +55,14 @@ export const NewDatasetGroupModal: React.FC<NewDatasetGroupModalProps> = React.m
         primaryButton: {
           text: 'Create dataset group',
           onClick: onCreateNewDatasetGroup,
-          loading: isPending
+          loading: isPending,
+          disabled: !datasetId
         }
       };
-    }, [isPending]);
+    }, [isPending, datasetId]);
 
     useEffect(() => {
-      if (isOpen) {
+      if (isOpen && datasetIdProp) {
         setTimeout(() => {
           inputRef.current?.focus();
         }, 100);
@@ -61,7 +71,12 @@ export const NewDatasetGroupModal: React.FC<NewDatasetGroupModalProps> = React.m
 
     return (
       <AppModal open={isOpen} onClose={onClose} header={header} footer={footer}>
-        <Input ref={inputRef} placeholder="Name of dataset group" />
+        <div className="flex flex-col gap-2.5">
+          {isOpen && datasetIdProp === null && (
+            <SelectedDatasetInput onSetDatasetId={onSetDatasetId} />
+          )}
+          <Input ref={inputRef} placeholder="Name of dataset group" />
+        </div>
       </AppModal>
     );
   }
