@@ -204,12 +204,19 @@ pub async fn get_dataset_overview(
     let users = users
         .into_iter()
         .map(|(id, email, role, name)| {
-            let can_query = matches!(
-                role,
-                UserOrganizationRole::WorkspaceAdmin
-                    | UserOrganizationRole::DataAdmin
-                    | UserOrganizationRole::Querier
-            );
+            let can_query = match role {
+                UserOrganizationRole::WorkspaceAdmin | UserOrganizationRole::DataAdmin | UserOrganizationRole::Querier => true,
+                UserOrganizationRole::RestrictedQuerier => {
+                    // Check if user has any valid access path
+                    let has_direct_access = datasets_query.iter().any(|(_, _, user_id)| *user_id == id);
+                    let has_permission_group_access = permission_groups_query.iter().any(|(_, _, user_id)| *user_id == id);
+                    let has_dataset_group_access = dataset_groups_query.iter().any(|(_, _, user_id)| *user_id == id);
+                    let has_permission_group_dataset_group_access = permission_group_dataset_groups_query.iter().any(|(_, _, _, _, user_id)| *user_id == id);
+
+                    has_direct_access || has_permission_group_access || has_dataset_group_access || has_permission_group_dataset_group_access
+                },
+                UserOrganizationRole::Viewer => false,
+            };
 
             let mut lineage = vec![];
 
