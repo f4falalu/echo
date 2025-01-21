@@ -24,9 +24,9 @@ pub struct DatasetGroupInfo {
 
 pub async fn list_dataset_groups(
     Extension(user): Extension<User>,
-    Path(id): Path<Uuid>,
+    Path(user_id): Path<Uuid>,
 ) -> Result<ApiResponse<Vec<DatasetGroupInfo>>, (StatusCode, &'static str)> {
-    let dataset_groups = match list_dataset_groups_handler(user, id).await {
+    let dataset_groups = match list_dataset_groups_handler(user, user_id).await {
         Ok(groups) => groups,
         Err(e) => {
             tracing::error!("Error listing dataset groups: {:?}", e);

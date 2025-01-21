@@ -24,9 +24,9 @@ pub struct AttributeInfo {
 
 pub async fn list_attributes(
     Extension(user): Extension<User>,
-    Path(id): Path<Uuid>,
+    Path(user_id): Path<Uuid>,
 ) -> Result<ApiResponse<Vec<AttributeInfo>>, (StatusCode, &'static str)> {
-    let attributes = match list_attributes_handler(user, id).await {
+    let attributes = match list_attributes_handler(user, user_id).await {
         Ok(attrs) => attrs,
         Err(e) => {
             tracing::error!("Error listing attributes: {:?}", e);

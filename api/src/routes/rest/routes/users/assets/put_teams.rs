@@ -4,7 +4,7 @@ use axum::http::StatusCode;
 use axum::{Extension, Json};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use tokio::spawn;
 use uuid::Uuid;
 
@@ -15,7 +15,7 @@ use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
 use crate::utils::user::user_info::get_user_organization_id;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TeamAssignment {
     pub id: Uuid,
     pub assigned: bool,
@@ -23,10 +23,10 @@ pub struct TeamAssignment {
 
 pub async fn put_teams(
     Extension(user): Extension<User>,
-    Path(id): Path<Uuid>,
+    Path(user_id): Path<Uuid>,
     Json(assignments): Json<Vec<TeamAssignment>>,
 ) -> Result<ApiResponse<()>, (StatusCode, &'static str)> {
-    match put_teams_handler(user, id, assignments).await {
+    match put_teams_handler(user, user_id, assignments).await {
         Ok(_) => Ok(ApiResponse::NoContent),
         Err(e) => {
             tracing::error!("Error listing teams: {:?}", e);

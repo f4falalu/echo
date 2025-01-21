@@ -23,9 +23,9 @@ pub struct DatasetInfo {
 
 pub async fn list_datasets(
     Extension(user): Extension<User>,
-    Path(id): Path<Uuid>,
+    Path(user_id): Path<Uuid>,
 ) -> Result<ApiResponse<Vec<DatasetInfo>>, (StatusCode, &'static str)> {
-    let datasets = match list_datasets_handler(user, id).await {
+    let datasets = match list_datasets_handler(user, user_id).await {
         Ok(datasets) => datasets,
         Err(e) => {
             tracing::error!("Error listing datasets: {:?}", e);

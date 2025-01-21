@@ -28,9 +28,9 @@ pub struct UserResponse {
 
 pub async fn get_user_by_id(
     Extension(user): Extension<User>,
-    Path(id): Path<Uuid>,
+    Path(user_id): Path<Uuid>,
 ) -> Result<ApiResponse<UserResponse>, (StatusCode, &'static str)> {
-    let user_info = match get_user_information(&id).await {
+    let user_info = match get_user_information(&user_id).await {
         Ok(user_info) => user_info,
         Err(e) => {
             tracing::error!("Error getting user information: {:?}", e);

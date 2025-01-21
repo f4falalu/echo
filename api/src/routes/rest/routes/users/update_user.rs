@@ -33,10 +33,10 @@ pub struct UpdateUserRequest {
 
 pub async fn update_user(
     Extension(user): Extension<User>,
-    Path(id): Path<Uuid>,
+    Path(user_id): Path<Uuid>,
     Json(body): Json<UpdateUserRequest>,
 ) -> Result<ApiResponse<()>, (StatusCode, &'static str)> {
-    match update_user_handler(&user, &id, body).await {
+    match update_user_handler(&user, &user_id, body).await {
         Ok(_) => (),
         Err(e) => {
             tracing::error!("Error getting user information: {:?}", e);

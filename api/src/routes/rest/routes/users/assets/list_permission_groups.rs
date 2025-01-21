@@ -1,4 +1,5 @@
 use anyhow::Result;
+use axum::extract::Path;
 use axum::http::StatusCode;
 use axum::Extension;
 use chrono::{DateTime, Utc};
@@ -27,8 +28,9 @@ pub struct PermissionGroupInfo {
 
 pub async fn list_permission_groups(
     Extension(user): Extension<User>,
+    Path(user_id): Path<Uuid>,
 ) -> Result<ApiResponse<Vec<PermissionGroupInfo>>, (StatusCode, &'static str)> {
-    let permission_groups = match list_permission_groups_handler(user).await {
+    let permission_groups = match list_permission_groups_handler(user, user_id).await {
         Ok(groups) => groups,
         Err(e) => {
             tracing::error!("Error listing permission groups: {:?}", e);
@@ -42,7 +44,7 @@ pub async fn list_permission_groups(
     Ok(ApiResponse::JsonData(permission_groups))
 }
 
-async fn list_permission_groups_handler(user: User) -> Result<Vec<PermissionGroupInfo>> {
+async fn list_permission_groups_handler(user: User, user_id: Uuid) -> Result<Vec<PermissionGroupInfo>> {
     let mut conn = get_pg_pool().get().await?;
     let organization_id = get_user_organization_id(&user.id).await?;
 

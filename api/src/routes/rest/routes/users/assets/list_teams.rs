@@ -24,9 +24,9 @@ pub struct TeamInfo {
 
 pub async fn list_teams(
     Extension(user): Extension<User>,
-    Path(id): Path<Uuid>,
+    Path(user_id): Path<Uuid>,
 ) -> Result<ApiResponse<Vec<TeamInfo>>, (StatusCode, &'static str)> {
-    let teams = match list_teams_handler(user, id).await {
+    let teams = match list_teams_handler(user, user_id).await {
         Ok(teams) => teams,
         Err(e) => {
             tracing::error!("Error listing teams: {:?}", e);
