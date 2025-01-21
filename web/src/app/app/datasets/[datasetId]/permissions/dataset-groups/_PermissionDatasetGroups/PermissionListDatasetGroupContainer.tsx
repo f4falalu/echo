@@ -2,17 +2,17 @@ import { ListDatasetGroupsResponse, useDatasetUpdateDatasetGroups } from '@/api/
 import { BusterListColumn, BusterListRowItem, InfiniteListContainer } from '@/components/list';
 import { BusterInfiniteList } from '@/components/list/BusterInfiniteList';
 import { useMemoizedFn } from 'ahooks';
-import { Select } from 'antd';
 import React, { useMemo, useState } from 'react';
 import { PermissionDatasetGroupSelectedPopup } from './PermissionDatasetGroupSelectedPopup';
+import { PermissionAssignedCell } from '@appComponents/PermissionComponents';
 
 export const PermissionListDatasetGroupContainer: React.FC<{
-  filteredPermissionGroups: ListDatasetGroupsResponse[];
+  filteredDatasetGroups: ListDatasetGroupsResponse[];
   datasetId: string;
-}> = ({ filteredPermissionGroups, datasetId }) => {
+}> = ({ filteredDatasetGroups, datasetId }) => {
   const { mutateAsync: updateDatasetGroups } = useDatasetUpdateDatasetGroups(datasetId);
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
-  const numberOfPermissionGroups = filteredPermissionGroups.length;
+  const numberOfDatasetGroups = filteredDatasetGroups.length;
 
   const onSelectAssigned = useMemoizedFn(async (params: { id: string; assigned: boolean }) => {
     await updateDatasetGroups([params]);
@@ -23,10 +23,7 @@ export const PermissionListDatasetGroupContainer: React.FC<{
       {
         title: 'Name',
         dataIndex: 'name',
-        width: 270,
-        render: (name: string) => {
-          return <DatasetGroupInfoCell name={name} />;
-        }
+        width: 270
       },
       {
         title: 'Assigned',
@@ -34,9 +31,10 @@ export const PermissionListDatasetGroupContainer: React.FC<{
         render: (assigned: boolean, datasetGroup: ListDatasetGroupsResponse) => {
           return (
             <div className="flex justify-end">
-              <DatasetGroupAssignedCell
+              <PermissionAssignedCell
                 id={datasetGroup.id}
                 assigned={assigned}
+                text="assigned"
                 onSelect={onSelectAssigned}
               />
             </div>
@@ -51,20 +49,20 @@ export const PermissionListDatasetGroupContainer: React.FC<{
     const result: {
       cannotQueryPermissionGroups: BusterListRowItem[];
       canQueryPermissionGroups: BusterListRowItem[];
-    } = filteredPermissionGroups.reduce<{
+    } = filteredDatasetGroups.reduce<{
       cannotQueryPermissionGroups: BusterListRowItem[];
       canQueryPermissionGroups: BusterListRowItem[];
     }>(
-      (acc, permissionGroup) => {
-        if (permissionGroup.assigned) {
+      (acc, datasetGroup) => {
+        if (datasetGroup.assigned) {
           acc.canQueryPermissionGroups.push({
-            id: permissionGroup.id,
-            data: permissionGroup
+            id: datasetGroup.id,
+            data: datasetGroup
           });
         } else {
           acc.cannotQueryPermissionGroups.push({
-            id: permissionGroup.id,
-            data: permissionGroup
+            id: datasetGroup.id,
+            data: datasetGroup
           });
         }
         return acc;
@@ -75,7 +73,7 @@ export const PermissionListDatasetGroupContainer: React.FC<{
       }
     );
     return result;
-  }, [filteredPermissionGroups]);
+  }, [filteredDatasetGroups]);
 
   const rows = useMemo(
     () =>
@@ -101,7 +99,7 @@ export const PermissionListDatasetGroupContainer: React.FC<{
         },
         ...cannotQueryPermissionGroups
       ].filter((row) => !(row as any).hidden),
-    [canQueryPermissionGroups, cannotQueryPermissionGroups, numberOfPermissionGroups]
+    [canQueryPermissionGroups, cannotQueryPermissionGroups, numberOfDatasetGroups]
   );
 
   return (
@@ -126,41 +124,3 @@ export const PermissionListDatasetGroupContainer: React.FC<{
     </InfiniteListContainer>
   );
 };
-
-const DatasetGroupInfoCell: React.FC<{ name: string }> = ({ name }) => {
-  return <div>{name}</div>;
-};
-
-const options = [
-  {
-    label: 'Included',
-    value: true
-  },
-  {
-    label: 'Not Included',
-    value: false
-  }
-];
-
-const DatasetGroupAssignedCell: React.FC<{
-  id: string;
-  assigned: boolean;
-  onSelect: (params: { id: string; assigned: boolean }) => Promise<void>;
-}> = React.memo(({ id, assigned, onSelect }) => {
-  return (
-    <Select
-      options={options}
-      value={assigned || false}
-      popupMatchSelectWidth
-      onSelect={(value) => {
-        onSelect({ id, assigned: value });
-      }}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
-    />
-  );
-});
-
-DatasetGroupAssignedCell.displayName = 'DatasetGroupAssignedCell';

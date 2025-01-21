@@ -1,10 +1,10 @@
 import { BusterListSelectedOptionPopupContainer } from '@/components/list';
 import { Button, Dropdown, MenuProps } from 'antd';
 import React, { useMemo } from 'react';
-import { PERMISSION_GROUP_ASSIGNED_OPTIONS } from './config';
 import { useMemoizedFn } from 'ahooks';
 import { useDatasetUpdatePermissionGroups } from '@/api/buster-rest';
 import { AppMaterialIcons } from '@/components/icons';
+import { PERMISSION_OPTIONS_ASSIGNED } from '@/app/app/_components/PermissionComponents';
 
 export const PermissionGroupSelectedPopup: React.FC<{
   selectedRowKeys: string[];
@@ -53,7 +53,7 @@ const PermissionGroupAssignButton: React.FC<{
 
   const menu: MenuProps = useMemo(() => {
     return {
-      items: PERMISSION_GROUP_ASSIGNED_OPTIONS.map((option) => ({
+      items: PERMISSION_OPTIONS_ASSIGNED.map((option) => ({
         label: option.label,
         key: option.value ? 'true' : 'false',
         icon: option.value ? (

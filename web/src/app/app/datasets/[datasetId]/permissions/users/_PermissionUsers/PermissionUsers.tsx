@@ -1,7 +1,11 @@
 'use client';
 
 import React from 'react';
-import { PermissionSearch, HeaderExplanation } from '@/app/app/_components/PermissionComponents';
+import {
+  PermissionSearch,
+  PermissionSearchAndListWrapper,
+  HeaderExplanation
+} from '@/app/app/_components/PermissionComponents';
 import { useDatasetListPermissionUsers } from '@/api/buster-rest';
 import { useDebounceSearch } from '@/hooks';
 import { Button } from 'antd';
@@ -39,28 +43,29 @@ export const PermissionUsers: React.FC<{
         title="Dataset users"
         description="Manage who can build dashboards & metrics using this dataset"
       />
-      <div className="flex h-full flex-col space-y-3 pb-12">
-        <div className="flex items-center justify-between">
-          <PermissionSearch
-            searchText={searchText}
-            setSearchText={handleSearchChange}
-            placeholder="Search by permission group"
-          />
 
-          <Button
-            type="default"
-            icon={<AppMaterialIcons icon="add" />}
-            onClick={openInviteUserModal}>
-            Invite user
-          </Button>
-        </div>
+      <PermissionSearchAndListWrapper
+        searchText={searchText}
+        handleSearchChange={handleSearchChange}
+        searchPlaceholder="Search by permission group"
+        searchChildren={React.useMemo(
+          () => (
+            <Button
+              type="default"
+              icon={<AppMaterialIcons icon="add" />}
+              onClick={openInviteUserModal}>
+              Invite user
+            </Button>
+          ),
+          [openInviteUserModal]
+        )}>
         {isPermissionUsersFetched && (
           <PermissionListUsersContainer
             filteredPermissionUsers={filteredItems}
             datasetId={datasetId}
           />
         )}
-      </div>
+      </PermissionSearchAndListWrapper>
     </>
   );
 });

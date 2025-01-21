@@ -1,12 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { PermissionSearch, HeaderExplanation } from '@/app/app/_components/PermissionComponents';
 import { useMemoizedFn } from 'ahooks';
 import { Button } from 'antd';
 import { AppMaterialIcons } from '@/components';
 import { PermissionListPermissionGroupContainer } from './PermissionListPermissionGroupContainer';
-import { NewPermissionGroupModal } from './NewPermissionGroupModal';
+import {
+  PermissionSearchAndListWrapper,
+  HeaderExplanation,
+  NewPermissionGroupModal
+} from '@appComponents/PermissionComponents';
 import { useDebounceSearch } from '@/hooks';
 import { useDatasetListPermissionGroups } from '@/api/buster-rest';
 
@@ -37,28 +40,28 @@ export const PermissionPermissionGroup: React.FC<{
         title="Dataset permissions"
         description="Manage who can build dashboards & metrics using this dataset"
       />
-      <div className="flex h-fit flex-col space-y-3 pb-12">
-        <div className="flex items-center justify-between">
-          <PermissionSearch
-            searchText={searchText}
-            setSearchText={handleSearchChange}
-            placeholder="Search by permission group"
-          />
-
-          <Button
-            type="default"
-            icon={<AppMaterialIcons icon="add" />}
-            onClick={onOpenNewPermissionGroupModal}>
-            New permission group
-          </Button>
-        </div>
+      <PermissionSearchAndListWrapper
+        searchText={searchText}
+        handleSearchChange={handleSearchChange}
+        searchPlaceholder="Search by permission group"
+        searchChildren={React.useMemo(
+          () => (
+            <Button
+              type="default"
+              icon={<AppMaterialIcons icon="add" />}
+              onClick={onOpenNewPermissionGroupModal}>
+              New permission group
+            </Button>
+          ),
+          [onOpenNewPermissionGroupModal]
+        )}>
         {isPermissionGroupsFetched && (
           <PermissionListPermissionGroupContainer
             filteredPermissionGroups={filteredItems}
             datasetId={datasetId}
           />
         )}
-      </div>
+      </PermissionSearchAndListWrapper>
 
       <NewPermissionGroupModal
         isOpen={isNewPermissionGroupModalOpen}

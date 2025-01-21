@@ -14,7 +14,7 @@ export default async function Layout({
   const queryClient = await prefetchGetUser(params.userId);
 
   return (
-    <div className="flex flex-col space-y-5 px-12 py-12">
+    <div className="flex h-full flex-col space-y-5 overflow-y-auto px-12 py-12">
       <UsersBackButton />
       <HydrationBoundary state={dehydrate(queryClient)}>
         {<LayoutHeaderAndSegment userId={params.userId}>{children}</LayoutHeaderAndSegment>}

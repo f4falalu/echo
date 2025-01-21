@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDebounceSearch } from '@/hooks';
 import { OrganizationUser } from '@/api';
-import { PermissionSearch } from '@/app/app/_components/PermissionComponents';
+import { PermissionSearchAndListWrapper } from '@/app/app/_components/PermissionComponents';
 import { UserDatasetListContainer } from '../dataset-groups/UserDatasetListContainer';
 
 export const UserDatasetSearch = React.memo(({ user }: { user: OrganizationUser }) => {
@@ -11,10 +11,12 @@ export const UserDatasetSearch = React.memo(({ user }: { user: OrganizationUser 
   });
 
   return (
-    <div className="flex h-full flex-col space-y-3 pb-12">
-      <PermissionSearch searchText={searchText} setSearchText={handleSearchChange} />
+    <PermissionSearchAndListWrapper
+      searchText={searchText}
+      handleSearchChange={handleSearchChange}
+      searchPlaceholder="Search by dataset name">
       <UserDatasetListContainer filteredDatasets={filteredItems} />
-    </div>
+    </PermissionSearchAndListWrapper>
   );
 });
 

@@ -24,6 +24,7 @@ export interface BusterUserTeamListItem {
 
 export interface BusterUserPermissionGroup {
   id: string;
+  dataset_count: number;
+  assigned: boolean;
   name: string;
-  user_id: string;
 }

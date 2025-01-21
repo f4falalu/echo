@@ -4,12 +4,11 @@ import {
 } from '@/api/buster-rest/datasets';
 import { BusterListColumn, BusterListRowItem } from '@/components/list';
 import { useMemoizedFn } from 'ahooks';
-import { Select } from 'antd';
 import React, { useMemo, useState } from 'react';
 import { Text } from '@/components/text';
 import { PermissionGroupSelectedPopup } from './PermissionGroupSelectedPopup';
 import { BusterInfiniteList, InfiniteListContainer } from '@/components/list';
-import { PERMISSION_GROUP_ASSIGNED_OPTIONS } from './config';
+import { PermissionAssignedCell } from '@/app/app/_components/PermissionComponents';
 
 export const PermissionListPermissionGroupContainer: React.FC<{
   filteredPermissionGroups: ListPermissionGroupsResponse[];
@@ -29,10 +28,7 @@ export const PermissionListPermissionGroupContainer: React.FC<{
       {
         title: 'Name',
         dataIndex: 'name',
-        width: 270,
-        render: (name: string) => {
-          return <PermissionGroupInfoCell name={name} />;
-        }
+        width: 270
       },
       {
         title: 'Assigned',
@@ -40,9 +36,10 @@ export const PermissionListPermissionGroupContainer: React.FC<{
         render: (assigned: boolean, permissionGroup: ListPermissionGroupsResponse) => {
           return (
             <div className="flex justify-end">
-              <PermissionGroupAssignedCell
+              <PermissionAssignedCell
                 id={permissionGroup.id}
                 assigned={assigned}
+                text="assigned"
                 onSelect={onSelectAssigned}
               />
             </div>
@@ -134,41 +131,6 @@ export const PermissionListPermissionGroupContainer: React.FC<{
 });
 
 PermissionListPermissionGroupContainer.displayName = 'PermissionListTeamContainer';
-
-const PermissionGroupInfoCell = React.memo(({ name }: { name: string }) => {
-  return <div>{name}</div>;
-});
-PermissionGroupInfoCell.displayName = 'PermissionGroupInfoCell';
-
-export const PermissionGroupAssignedCell = React.memo(
-  ({
-    id,
-    assigned,
-    onSelect
-  }: {
-    id: string;
-    assigned: boolean;
-    onSelect: (value: { id: string; assigned: boolean }) => void;
-  }) => {
-    return (
-      <Select
-        options={PERMISSION_GROUP_ASSIGNED_OPTIONS}
-        value={assigned}
-        popupMatchSelectWidth
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-        onSelect={(value) => {
-          onSelect({ id, assigned: value });
-        }}
-      />
-    );
-  },
-  () => true
-);
-
-PermissionGroupAssignedCell.displayName = 'PermissionGroupAssignedCell';
 
 const EmptyState = React.memo(() => {
   return (

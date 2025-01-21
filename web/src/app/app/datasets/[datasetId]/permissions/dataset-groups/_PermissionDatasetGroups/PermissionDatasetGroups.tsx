@@ -4,7 +4,11 @@ import { useDatasetListDatasetGroups } from '@/api/buster-rest';
 import React, { useState } from 'react';
 import { useDebounceSearch } from '@/hooks';
 import { useMemoizedFn } from 'ahooks';
-import { PermissionSearch, HeaderExplanation } from '@/app/app/_components/PermissionComponents';
+import {
+  PermissionSearch,
+  PermissionSearchAndListWrapper,
+  HeaderExplanation
+} from '@/app/app/_components/PermissionComponents';
 import { Button } from 'antd';
 import { AppMaterialIcons } from '@/components';
 import { PermissionListDatasetGroupContainer } from './PermissionListDatasetGroupContainer';
@@ -37,28 +41,29 @@ export const PermissionDatasetGroups: React.FC<{
         title="Dataset groups"
         description="Manage who can build dashboards & metrics using this dataset"
       />
-      <div className="flex h-full flex-col space-y-3 pb-12">
-        <div className="flex items-center justify-between">
-          <PermissionSearch
-            searchText={searchText}
-            setSearchText={handleSearchChange}
-            placeholder="Search by permission group"
-          />
 
-          <Button
-            type="default"
-            icon={<AppMaterialIcons icon="add" />}
-            onClick={onOpenNewDatasetGroupModal}>
-            New dataset group
-          </Button>
-        </div>
+      <PermissionSearchAndListWrapper
+        searchText={searchText}
+        handleSearchChange={handleSearchChange}
+        searchPlaceholder="Search by permission group"
+        searchChildren={React.useMemo(
+          () => (
+            <Button
+              type="default"
+              icon={<AppMaterialIcons icon="add" />}
+              onClick={onOpenNewDatasetGroupModal}>
+              New dataset group
+            </Button>
+          ),
+          [onOpenNewDatasetGroupModal]
+        )}>
         {isDatasetGroupsFetched && (
           <PermissionListDatasetGroupContainer
             filteredPermissionGroups={filteredItems}
             datasetId={datasetId}
           />
         )}
-      </div>
+      </PermissionSearchAndListWrapper>
 
       <NewDatasetGroupModal
         isOpen={isNewDatasetGroupModalOpen}

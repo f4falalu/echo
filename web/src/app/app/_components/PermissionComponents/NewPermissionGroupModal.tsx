@@ -1,24 +1,31 @@
 import { useCreatePermissionGroup } from '@/api/buster-rest/permission_groups';
 import { AppModal } from '@/components/modal';
 import { useMemoizedFn } from 'ahooks';
-import React, { useEffect, useMemo, useRef } from 'react';
-import { Input, InputRef } from 'antd';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Input, InputRef, Select } from 'antd';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { useGetDatasets } from '@/api';
 interface NewPermissionGroupModalProps {
   isOpen: boolean;
   onClose: () => void;
-  datasetId: string;
+  datasetId: string | null;
 }
 
 export const NewPermissionGroupModal: React.FC<NewPermissionGroupModalProps> = React.memo(
-  ({ isOpen, onClose, datasetId }) => {
+  ({ isOpen, onClose, datasetId: datasetIdProp }) => {
     const { mutateAsync, isPending } = useCreatePermissionGroup();
     const inputRef = useRef<InputRef>(null);
+    const [datasetId, setDatasetId] = useState<string | null>(datasetIdProp);
     const { openInfoMessage } = useBusterNotifications();
+
+    const onSetDatasetId = useMemoizedFn((datasetId: string) => {
+      setDatasetId(datasetId);
+      inputRef.current?.focus();
+    });
 
     const onCreateNewPermissionGroup = useMemoizedFn(async () => {
       const inputValue = inputRef.current?.input?.value;
-      if (!inputValue) {
+      if (!inputValue || !datasetId) {
         openInfoMessage('Please enter a name for the permission group');
         inputRef.current?.focus();
         return;
@@ -46,13 +53,14 @@ export const NewPermissionGroupModal: React.FC<NewPermissionGroupModalProps> = R
         primaryButton: {
           text: 'Create permission group',
           onClick: onCreateNewPermissionGroup,
-          loading: isPending
+          loading: isPending,
+          disabled: !datasetId
         }
       };
-    }, [isPending]);
+    }, [isPending, datasetId]);
 
     useEffect(() => {
-      if (isOpen) {
+      if (isOpen && datasetIdProp) {
         setTimeout(() => {
           inputRef.current?.focus();
         }, 100);
@@ -61,15 +69,40 @@ export const NewPermissionGroupModal: React.FC<NewPermissionGroupModalProps> = R
 
     return (
       <AppModal open={isOpen} onClose={onClose} header={header} footer={footer}>
-        <Input
-          ref={inputRef}
-          placeholder="Name of permission group"
-          autoFocus
-          onPressEnter={onCreateNewPermissionGroup}
-        />
+        <div className="flex flex-col gap-2.5">
+          {isOpen && datasetIdProp === null && (
+            <SelectedDatasetInput onSetDatasetId={onSetDatasetId} />
+          )}
+          <Input
+            ref={inputRef}
+            placeholder="Name of permission group"
+            onPressEnter={onCreateNewPermissionGroup}
+          />
+        </div>
       </AppModal>
     );
   }
 );
 
 NewPermissionGroupModal.displayName = 'NewPermissionGroupModal';
+
+const SelectedDatasetInput: React.FC<{
+  onSetDatasetId: (datasetId: string) => void;
+}> = React.memo(({ onSetDatasetId }) => {
+  const { data: datasets, isFetched } = useGetDatasets();
+
+  return (
+    <Select
+      placeholder="Select a dataset"
+      loading={!isFetched}
+      className="w-full"
+      onChange={onSetDatasetId}
+      options={datasets?.map((dataset) => ({
+        label: dataset.name,
+        value: dataset.id
+      }))}
+    />
+  );
+});
+
+SelectedDatasetInput.displayName = 'SelectedDatasetInput';

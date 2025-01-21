@@ -42,7 +42,7 @@ DatasetLineageCell.displayName = 'DatasetLineageCell';
 const EmptyState = React.memo(() => {
   return (
     <div className="py-12">
-      <Text type="tertiary">No datasets found</Text>
+      <Text type="tertiary">TODO: No datasets found</Text>
     </div>
   );
 });
