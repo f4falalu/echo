@@ -1,4 +1,5 @@
 import {
+  BusterUserDataset,
   BusterUserDatasetGroup,
   useUpdateUserDatasetGroups,
   type BusterUserPermissionGroup
@@ -15,15 +16,14 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
 import React, { useMemo, useState } from 'react';
 
-export const UserDatasetGroupListContainer: React.FC<{
-  filteredDatasetGroups: BusterUserDatasetGroup[];
+export const UserDatasetsListContainer: React.FC<{
+  filteredDatasets: BusterUserDataset[];
   userId: string;
-}> = React.memo(({ filteredDatasetGroups, userId }) => {
+}> = React.memo(({ filteredDatasets, userId }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const { mutateAsync: updateUserDatasetGroups } = useUpdateUserDatasetGroups({
     userId: userId
   });
-  const numberOfDatasetGroups = filteredDatasetGroups.length;
 
   const onSelectAssigned = useMemoizedFn(async (params: { id: string; assigned: boolean }) => {
     await updateUserDatasetGroups([params]);
@@ -60,20 +60,20 @@ export const UserDatasetGroupListContainer: React.FC<{
     const result: {
       cannotQueryPermissionUsers: BusterListRowItem[];
       canQueryPermissionUsers: BusterListRowItem[];
-    } = filteredDatasetGroups.reduce<{
+    } = filteredDatasets.reduce<{
       cannotQueryPermissionUsers: BusterListRowItem[];
       canQueryPermissionUsers: BusterListRowItem[];
     }>(
-      (acc, datasetGroup) => {
+      (acc, dataset) => {
         const user: BusterListRowItem = {
-          id: datasetGroup.id,
-          data: datasetGroup,
+          id: dataset.id,
+          data: dataset,
           link: createBusterRoute({
             route: BusterRoutes.APP_SETTINGS_USERS_ID,
-            userId: datasetGroup.id
+            userId: dataset.id
           })
         };
-        if (datasetGroup.assigned) {
+        if (dataset.assigned) {
           acc.canQueryPermissionUsers.push(user);
         } else {
           acc.cannotQueryPermissionUsers.push(user);
@@ -86,7 +86,7 @@ export const UserDatasetGroupListContainer: React.FC<{
       }
     );
     return result;
-  }, [filteredDatasetGroups]);
+  }, [filteredDatasets]);
 
   const rows = useMemo(
     () =>
@@ -112,7 +112,7 @@ export const UserDatasetGroupListContainer: React.FC<{
         },
         ...cannotQueryPermissionUsers
       ].filter((row) => !(row as any).hidden),
-    [canQueryPermissionUsers, cannotQueryPermissionUsers, numberOfDatasetGroups]
+    [canQueryPermissionUsers, cannotQueryPermissionUsers]
   );
 
   return (
@@ -133,10 +133,10 @@ export const UserDatasetGroupListContainer: React.FC<{
         useRowClickSelectChange={true}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
-        emptyState={<EmptyStateList text="No dataset groups found" />}
+        emptyState={<EmptyStateList text="No datasets found" />}
       />
     </InfiniteListContainer>
   );
 });
 
-UserDatasetGroupListContainer.displayName = 'UserDatasetGroupListContainer';
+UserDatasetsListContainer.displayName = 'UserDatasetsListContainer';

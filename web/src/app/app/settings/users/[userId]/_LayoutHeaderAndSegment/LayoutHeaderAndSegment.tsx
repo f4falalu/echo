@@ -12,7 +12,9 @@ export const LayoutHeaderAndSegment = React.memo(
     const { data: user } = useGetUser({ userId });
     const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
     const currentRoute = useAppLayoutContextSelector((x) => x.currentRoute);
-    const [selectedApp, setSelectedApp] = useState<UserSegmentsApps>(UserSegmentsApps.OVERVIEW);
+    const [selectedApp, setSelectedApp] = useState<UserSegmentsApps>(
+      SegmentToApp[currentRoute as keyof typeof SegmentToApp] || UserSegmentsApps.OVERVIEW
+    );
 
     useLayoutEffect(() => {
       if (currentRoute && currentRoute in SegmentToApp) {

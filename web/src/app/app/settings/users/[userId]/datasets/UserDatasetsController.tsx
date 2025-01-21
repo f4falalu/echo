@@ -1,27 +1,61 @@
 'use client';
 
-import { Card } from 'antd';
-import { createStyles } from 'antd-style';
+import {
+  useGetDatasetGroup,
+  useGetUserDatasetGroups,
+  useGetUserDatasets,
+  useGetUserPermissionGroups
+} from '@/api/buster-rest';
+import { useDebounceSearch } from '@/hooks';
+import {
+  NewPermissionGroupModal,
+  PermissionSearchAndListWrapper
+} from '@appComponents/PermissionComponents';
+import React, { useMemo, useState } from 'react';
+import { UserDatasetsListContainer } from './UserDatasetsListContainer';
+import { Button } from 'antd';
+import { useMemoizedFn } from 'ahooks';
+import { AppMaterialIcons } from '@/components/icons';
 
-const useStyles = createStyles(({ token }) => ({
-  container: {
-    border: `0.5px solid ${token.colorBorder}`,
-    borderRadius: token.borderRadius,
-    padding: token.padding
-  }
-}));
+export const UserDatasetsController: React.FC<{ userId: string }> = ({ userId }) => {
+  const { data: datasets } = useGetUserDatasets({ userId });
+  const [isNewDatasetModalOpen, setIsNewDatasetModalOpen] = useState(false);
+  const { filteredItems, searchText, handleSearchChange } = useDebounceSearch({
+    items: datasets || [],
+    searchPredicate: (item, searchText) => item.name.toLowerCase().includes(searchText)
+  });
 
-interface UserDatasetsControllerProps {
-  userId: string;
-}
+  const onCloseNewDatasetModal = useMemoizedFn(() => {
+    setIsNewDatasetModalOpen(false);
+  });
 
-export function UserDatasetsController({ userId }: UserDatasetsControllerProps) {
-  const { styles } = useStyles();
+  const onOpenNewDatasetModal = useMemoizedFn(() => {
+    setIsNewDatasetModalOpen(true);
+  });
+
+  const NewDatasetButton: React.ReactNode = useMemo(() => {
+    return (
+      <Button type="default" icon={<AppMaterialIcons icon="add" />} onClick={onOpenNewDatasetModal}>
+        New dataset
+      </Button>
+    );
+  }, []);
 
   return (
-    <Card className={styles.container}>
-      <h1>Datasets</h1>
-      {/* TODO: Add datasets list component */}
-    </Card>
+    <>
+      <PermissionSearchAndListWrapper
+        searchText={searchText}
+        handleSearchChange={handleSearchChange}
+        searchPlaceholder="Search by dataset group"
+        searchChildren={NewDatasetButton}>
+        <UserDatasetsListContainer filteredDatasets={filteredItems} userId={userId} />
+      </PermissionSearchAndListWrapper>
+
+      <NewPermissionGroupModal
+        isOpen={isNewDatasetModalOpen}
+        onClose={onCloseNewDatasetModal}
+        datasetId={null}
+      />
+    </>
   );
-}
+};
