@@ -15,9 +15,9 @@ export interface BusterUserDataset {
 }
 
 export interface BusterUserAttribute {
-  id: string;
   name: string;
-  user_id: string;
+  value: string | number | boolean;
+  read_only: boolean;
 }
 
 export interface BusterUserTeamListItem {

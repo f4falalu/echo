@@ -66,7 +66,8 @@ export const UserSegments: React.FC<{
         {
           label: 'Attributes',
           value: UserSegmentsApps.ATTRIBUTES,
-          link: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_USERS_ID_ATTRIBUTES, userId })
+          link: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_USERS_ID_ATTRIBUTES, userId }),
+          hide: true
         },
         {
           label: 'Teams',

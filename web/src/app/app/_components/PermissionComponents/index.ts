@@ -5,3 +5,4 @@ export * from './PermissionSearchAndListWrapper';
 export * from './NewPermissionGroupModal';
 export * from './PermissionAssignedCell';
 export * from './PermissionAssignedButton';
+export * from './PermissionAssignTeamRole';
