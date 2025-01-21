@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { AppSegmented } from '@/components/segmented';
-import type { OrganizationUser } from '@/api/buster-rest';
 import { useMemoizedFn } from 'ahooks';
 import { SegmentedValue } from 'antd/es/segmented';
 import { Divider } from 'antd';
+import { createBusterRoute, BusterRoutes } from '@/routes';
 
 export enum UserSegmentsApps {
   OVERVIEW = 'Overview',
@@ -13,22 +13,47 @@ export enum UserSegmentsApps {
   TEAMS = 'Teams'
 }
 
-const options: { label: string; value: UserSegmentsApps }[] = [
-  { label: 'Overview', value: UserSegmentsApps.OVERVIEW },
-  { label: 'Dataset Groups', value: UserSegmentsApps.DATASET_GROUPS, hidden: false },
-  { label: 'Datasets', value: UserSegmentsApps.DATASETS, hidden: false },
-  { label: 'Attributes', value: UserSegmentsApps.ATTRIBUTES, hidden: false },
-  { label: 'Teams', value: UserSegmentsApps.TEAMS, hidden: false }
-].filter((option) => !option.hidden);
-
 export const UserSegments: React.FC<{
   selectedApp: UserSegmentsApps;
   onSelectApp: (app: UserSegmentsApps) => void;
-  user: OrganizationUser;
-}> = ({ selectedApp, onSelectApp, user }) => {
+  userId: string;
+}> = React.memo(({ selectedApp, onSelectApp, userId }) => {
   const onChange = useMemoizedFn((value: SegmentedValue) => {
     onSelectApp(value as UserSegmentsApps);
   });
+  const options = useMemo(
+    () => [
+      {
+        label: 'Overview',
+        value: UserSegmentsApps.OVERVIEW,
+        link: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_USERS_ID, userId })
+      },
+      {
+        label: 'Dataset Groups',
+        value: UserSegmentsApps.DATASET_GROUPS,
+        link: createBusterRoute({
+          route: BusterRoutes.APP_SETTINGS_USERS_ID_DATASET_GROUPS,
+          userId
+        })
+      },
+      {
+        label: 'Datasets',
+        value: UserSegmentsApps.DATASETS,
+        link: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_USERS_ID_DATASETS, userId })
+      },
+      {
+        label: 'Attributes',
+        value: UserSegmentsApps.ATTRIBUTES,
+        link: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_USERS_ID_ATTRIBUTES, userId })
+      },
+      {
+        label: 'Teams',
+        value: UserSegmentsApps.TEAMS,
+        link: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_USERS_ID_TEAMS, userId })
+      }
+    ],
+    [userId]
+  );
 
   return (
     <div className="flex flex-col space-y-2">
@@ -36,4 +61,6 @@ export const UserSegments: React.FC<{
       <Divider />
     </div>
   );
-};
+});
+
+UserSegments.displayName = 'UserSegments';

@@ -1,5 +1,13 @@
 import { UserAttributesController } from './UserAttributesController';
+import { prefetchGetUserAttributes } from '@/api/buster-rest/users';
+import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 
-export default function Page({ params }: { params: { userId: string } }) {
-  return <UserAttributesController userId={params.userId} />;
+export default async function Page({ params: { userId } }: { params: { userId: string } }) {
+  const queryClient = await prefetchGetUserAttributes(userId);
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <UserAttributesController userId={userId} />
+    </HydrationBoundary>
+  );
 }

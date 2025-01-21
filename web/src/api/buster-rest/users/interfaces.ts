@@ -86,9 +86,3 @@ export interface BusterUserListItem {
   name: string;
   role: null;
 }
-
-export interface BusterUserTeamListItem {
-  id: string;
-  name: string;
-  user_id: string;
-}

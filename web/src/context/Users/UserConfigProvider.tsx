@@ -3,7 +3,7 @@ import React, { PropsWithChildren, useRef, useState } from 'react';
 import { useBusterWebSocket } from '../BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
 import { useFavoriteProvider } from './useFavoriteProvider';
-import { getUserInfo } from '@/api/buster-rest/users/requests';
+import { getMyUserInfo } from '@/api/buster-rest/users';
 import { useSupabaseContext } from '../Supabase';
 import {
   ContextSelector,
@@ -79,7 +79,7 @@ export const useUserConfigProvider = ({ userInfo }: { userInfo: BusterUserRespon
   );
 
   const updateUserInfo = useMemoizedFn(async () => {
-    const res = await getUserInfo({ jwtToken: accessToken });
+    const res = await getMyUserInfo({ jwtToken: accessToken });
     if (res) {
       setUserResponse(res);
     }

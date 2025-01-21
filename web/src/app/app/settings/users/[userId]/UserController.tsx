@@ -19,7 +19,7 @@ export const UserController = React.memo(({ userId }: { userId: string }) => {
   return (
     <div className="flex flex-col space-y-5">
       <UserHeader user={user} />
-      <UserSegments user={user} selectedApp={selectedApp} onSelectApp={setSelectedApp} />
+      <UserSegments userId={userId} selectedApp={selectedApp} onSelectApp={setSelectedApp} />
       <UserDefaultAccess user={user} isAdmin={isAdmin} />
       <UserLineageHeader className="!mt-[48px]" user={user} />
       <UserDatasetSearch user={user} />
