@@ -1,4 +1,8 @@
-import type { BusterUserPermissionGroup } from '@/api/buster-rest';
+import {
+  useUpdateUserPermissionGroups,
+  useUpdateUserTeams,
+  type BusterUserPermissionGroup
+} from '@/api/buster-rest';
 import { PermissionAssignedCell } from '@/app/app/_components/PermissionComponents';
 import {
   BusterInfiniteList,
@@ -12,11 +16,20 @@ import React, { useMemo, useState } from 'react';
 
 export const UserPermissionGroupsListContainer: React.FC<{
   filteredPermissionGroups: BusterUserPermissionGroup[];
-}> = React.memo(({ filteredPermissionGroups }) => {
+  userId: string;
+}> = React.memo(({ filteredPermissionGroups, userId }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
+  const { mutateAsync: updateUserPermissionGroups } = useUpdateUserPermissionGroups({
+    userId: userId
+  });
   const numberOfPermissionGroups = filteredPermissionGroups.length;
 
-  const onSelectAssigned = useMemoizedFn(async (params: { id: string; assigned: boolean }) => {});
+  const onSelectAssigned = useMemoizedFn(async (params: { id: string; assigned: boolean }) => {
+    console.log('userId', userId);
+    console.log('permissionGroupId', params.id);
+    console.log('assigned', params.assigned);
+    const result = await updateUserPermissionGroups([params]);
+  });
 
   const columns: BusterListColumn[] = useMemo(
     () => [

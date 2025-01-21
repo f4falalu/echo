@@ -7,6 +7,7 @@ import {
   BusterUserDatasetGroup,
   BusterUserPermissionGroup
 } from './interfaces';
+import { TeamRole } from '../interfaces';
 
 export const getUserDatasetGroups = async ({ userId }: { userId: string }) => {
   return mainApi
@@ -50,4 +51,24 @@ export const getUserPermissionGroups = async ({ userId }: { userId: string }) =>
 
 export const getUserPermissionGroups_server = async ({ userId }: { userId: string }) => {
   return serverFetch<BusterUserPermissionGroup[]>(`/users/${userId}/permission_groups`);
+};
+
+export const updateUserTeams = async (userId: string, teams: { id: string; role: TeamRole }[]) => {
+  return mainApi.put(`/users/${userId}/teams`, teams).then(({ data }) => data);
+};
+
+export const updateUserPermissionGroups = async (
+  userId: string,
+  permissionGroups: { id: string; assigned: boolean }[]
+) => {
+  return mainApi
+    .put(`/users/${userId}/permission_groups`, permissionGroups)
+    .then(({ data }) => data);
+};
+
+export const updateUserDatasetGroups = async (
+  userId: string,
+  datasetGroups: { id: string; assigned: boolean }[]
+) => {
+  return mainApi.put(`/users/${userId}/dataset_groups`, datasetGroups).then(({ data }) => data);
 };

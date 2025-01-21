@@ -39,6 +39,8 @@ export const UserPermissionGroupsController: React.FC<{ userId: string }> = ({ u
     );
   }, []);
 
+  console.log('permissionGroups', permissionGroups);
+
   return (
     <>
       <PermissionSearchAndListWrapper
@@ -46,7 +48,10 @@ export const UserPermissionGroupsController: React.FC<{ userId: string }> = ({ u
         handleSearchChange={handleSearchChange}
         searchPlaceholder="Search by permission group"
         searchChildren={NewPermissionGroupButton}>
-        <UserPermissionGroupsListContainer filteredPermissionGroups={filteredItems} />
+        <UserPermissionGroupsListContainer
+          filteredPermissionGroups={filteredItems}
+          userId={userId}
+        />
       </PermissionSearchAndListWrapper>
 
       <NewPermissionGroupModal
