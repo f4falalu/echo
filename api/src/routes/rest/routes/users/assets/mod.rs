@@ -1,4 +1,7 @@
-use axum::{routing::get, routing::put, Router};
+use axum::{
+    routing::{get, put},
+    Router,
+};
 
 pub mod list_attributes;
 pub mod list_dataset_groups;
@@ -20,5 +23,5 @@ pub fn router() -> Router {
             get(list_permission_groups::list_permission_groups),
         )
         .route("/teams", get(list_teams::list_teams))
-        .route("/teams", put(put_teams::put_teams))
+        // .route("/teams", put(put_teams::put_teams))
 }

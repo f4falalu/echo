@@ -10,7 +10,7 @@ use uuid::Uuid;
 
 use crate::database::lib::get_pg_pool;
 use crate::database::models::User;
-use crate::database::schema::{teams_to_users};
+use crate::database::schema::teams_to_users;
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
 use crate::utils::user::user_info::get_user_organization_id;
@@ -27,14 +27,12 @@ pub async fn put_teams(
     Json(assignments): Json<Vec<TeamAssignment>>,
 ) -> Result<ApiResponse<()>, (StatusCode, &'static str)> {
     match put_teams_handler(user, id, assignments).await {
-        Ok(_) => (),
+        Ok(_) => Ok(ApiResponse::NoContent),
         Err(e) => {
             tracing::error!("Error listing teams: {:?}", e);
             return Err((StatusCode::INTERNAL_SERVER_ERROR, "Error listing teams"));
         }
-    };
-
-    Ok(ApiResponse::NoContent)
+    }
 }
 
 async fn put_teams_handler(
