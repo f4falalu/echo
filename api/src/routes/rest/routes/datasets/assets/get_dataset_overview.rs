@@ -7,12 +7,15 @@ use serde::Serialize;
 use uuid::Uuid;
 
 use crate::database::enums::IdentityType;
-use crate::database::schema::{datasets, permission_groups, permission_groups_to_identities};
+use crate::database::schema::{
+    dataset_groups, dataset_groups_permissions, dataset_permissions, datasets, permission_groups,
+    permission_groups_to_identities,
+};
 use crate::database::{
     enums::{UserOrganizationRole, UserOrganizationStatus},
     lib::get_pg_pool,
     models::User,
-    schema::{dataset_permissions, users, users_to_organizations},
+    schema::{users, users_to_organizations},
 };
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
@@ -89,6 +92,7 @@ pub async fn get_dataset_overview(
 
     let user_ids = users.iter().map(|(id, _, _, _)| *id).collect::<Vec<_>>();
 
+    // Direct dataset access
     let datasets_query: Vec<(Uuid, String, Uuid)> = dataset_permissions::table
         .inner_join(datasets::table.on(dataset_permissions::dataset_id.eq(datasets::id)))
         .filter(dataset_permissions::dataset_id.eq(dataset_id))
@@ -107,6 +111,7 @@ pub async fn get_dataset_overview(
             (StatusCode::INTERNAL_SERVER_ERROR, "Database error")
         })?;
 
+    // Permission group access
     let permission_groups_query: Vec<(Uuid, String, Uuid)> = permission_groups_to_identities::table
         .inner_join(
             permission_groups::table
@@ -134,20 +139,77 @@ pub async fn get_dataset_overview(
             (StatusCode::INTERNAL_SERVER_ERROR, "Database error")
         })?;
 
-    println!("datasets_query: {:?}", datasets_query);
-    println!("permission_groups_query: {:?}", permission_groups_query);
+    // Dataset group access
+    let dataset_groups_query: Vec<(Uuid, String, Uuid)> = dataset_groups_permissions::table
+        .inner_join(dataset_groups::table.on(dataset_groups_permissions::dataset_group_id.eq(dataset_groups::id)))
+        .inner_join(
+            dataset_permissions::table.on(dataset_permissions::permission_id.eq(dataset_groups::id)
+                .and(dataset_permissions::permission_type.eq("dataset_group"))),
+        )
+        .filter(dataset_permissions::dataset_id.eq(dataset_id))
+        .filter(dataset_groups_permissions::permission_type.eq("user"))
+        .filter(dataset_groups_permissions::deleted_at.is_null())
+        .filter(dataset_groups_permissions::permission_id.eq_any(&user_ids))
+        .select((
+            dataset_groups::id,
+            dataset_groups::name,
+            dataset_groups_permissions::permission_id,
+        ))
+        .load::<(Uuid, String, Uuid)>(&mut conn)
+        .await
+        .map_err(|e| {
+            tracing::error!("Error getting dataset groups: {:?}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Database error")
+        })?;
 
-    // TODO: will need to add dataset groups here when we turn them on.
+    // Permission group to dataset group access
+    let permission_group_dataset_groups_query: Vec<(Uuid, String, Uuid, String, Uuid)> = permission_groups_to_identities::table
+        .inner_join(
+            permission_groups::table
+                .on(permission_groups_to_identities::permission_group_id.eq(permission_groups::id)),
+        )
+        .inner_join(
+            dataset_groups_permissions::table.on(permission_groups::id.eq(dataset_groups_permissions::permission_id)
+                .and(dataset_groups_permissions::permission_type.eq("permission_group"))),
+        )
+        .inner_join(
+            dataset_groups::table.on(dataset_groups_permissions::dataset_group_id.eq(dataset_groups::id)),
+        )
+        .inner_join(
+            dataset_permissions::table.on(dataset_permissions::permission_id.eq(dataset_groups::id)
+                .and(dataset_permissions::permission_type.eq("dataset_group"))),
+        )
+        .filter(dataset_permissions::dataset_id.eq(dataset_id))
+        .filter(permission_groups_to_identities::identity_id.eq_any(&user_ids))
+        .filter(permission_groups_to_identities::identity_type.eq(IdentityType::User))
+        .filter(permission_groups_to_identities::deleted_at.is_null())
+        .filter(dataset_groups_permissions::deleted_at.is_null())
+        .filter(permission_groups::deleted_at.is_null())
+        .filter(dataset_groups::deleted_at.is_null())
+        .filter(dataset_permissions::deleted_at.is_null())
+        .select((
+            permission_groups::id,
+            permission_groups::name,
+            dataset_groups::id,
+            dataset_groups::name,
+            permission_groups_to_identities::identity_id,
+        ))
+        .load::<(Uuid, String, Uuid, String, Uuid)>(&mut conn)
+        .await
+        .map_err(|e| {
+            tracing::error!("Error getting permission group dataset groups: {:?}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Database error")
+        })?;
 
     let users = users
         .into_iter()
         .map(|(id, email, role, name)| {
-            let can_query = match role {
-                UserOrganizationRole::WorkspaceAdmin => true,
-                UserOrganizationRole::DataAdmin => true,
-                UserOrganizationRole::Querier => true,
-                _ => false,
-            };
+            let can_query = matches!(
+                role,
+                UserOrganizationRole::WorkspaceAdmin
+                    | UserOrganizationRole::DataAdmin
+                    | UserOrganizationRole::Querier
+            );
 
             let mut lineage = vec![];
             let mut org_lineage = vec![UserPermissionLineage {
@@ -233,13 +295,64 @@ pub async fn get_dataset_overview(
                 ]);
             }
 
-            return UserOverviewItem {
+            // Add dataset group lineage
+            if let Some((group_id, group_name, _)) = dataset_groups_query
+                .iter()
+                .find(|(_, _, user_id)| *user_id == id)
+            {
+                lineage.push(vec![
+                    UserPermissionLineage {
+                        id: None,
+                        type_: String::from("datasetGroups"),
+                        name: Some(String::from("Dataset Groups")),
+                    },
+                    UserPermissionLineage {
+                        id: Some(*group_id),
+                        type_: String::from("datasetGroups"),
+                        name: Some(group_name.clone()),
+                    },
+                ]);
+            }
+
+            // Add permission group to dataset group lineage
+            if let Some((perm_group_id, perm_group_name, dataset_group_id, dataset_group_name, _)) = 
+                permission_group_dataset_groups_query
+                    .iter()
+                    .find(|(_, _, _, _, user_id)| *user_id == id)
+            {
+                lineage.push(vec![
+                    UserPermissionLineage {
+                        id: None,
+                        type_: String::from("permissionGroups"),
+                        name: Some(String::from("Permission Groups")),
+                    },
+                    UserPermissionLineage {
+                        id: Some(*perm_group_id),
+                        type_: String::from("permissionGroups"),
+                        name: Some(perm_group_name.clone()),
+                    },
+                ]);
+                lineage.push(vec![
+                    UserPermissionLineage {
+                        id: None,
+                        type_: String::from("datasetGroups"),
+                        name: Some(String::from("Dataset Groups")),
+                    },
+                    UserPermissionLineage {
+                        id: Some(*dataset_group_id),
+                        type_: String::from("datasetGroups"),
+                        name: Some(dataset_group_name.clone()),
+                    },
+                ]);
+            }
+
+            UserOverviewItem {
                 id,
                 name: name.unwrap_or(email.clone()),
+                email,
                 can_query,
                 lineage,
-                email,
-            };
+            }
         })
         .collect();
 
