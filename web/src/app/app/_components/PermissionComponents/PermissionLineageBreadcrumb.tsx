@@ -11,11 +11,15 @@ export const PermissionLineageBreadcrumb: React.FC<{
   lineage: DatasetPermissionOverviewUser['lineage'];
   canQuery: DatasetPermissionOverviewUser['can_query'];
 }> = React.memo(({ lineage, canQuery }) => {
-  const { push } = useRouter();
   const hasMultipleLineage = lineage.length > 1;
+  const hasNoLineage = lineage.length === 0;
 
   const items: React.ReactNode[] = useMemo(() => {
-    if (!hasMultipleLineage) {
+    if (hasNoLineage) {
+      return [<UserLineageItem name="Default access" id="default-access" />];
+    }
+
+    if (hasMultipleLineage) {
       return [<MultipleLineage key={'multiple-lineage'} lineage={lineage} />];
     }
 
@@ -28,7 +32,7 @@ export const PermissionLineageBreadcrumb: React.FC<{
         </React.Fragment>
       );
     });
-  }, [hasMultipleLineage, lineage, SelectedComponent]);
+  }, [hasMultipleLineage, hasNoLineage, lineage, SelectedComponent]);
 
   return <LineageBreadcrumb items={items} canQuery={canQuery} />;
 });

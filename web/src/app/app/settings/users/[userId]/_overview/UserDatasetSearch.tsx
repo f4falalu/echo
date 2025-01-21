@@ -5,9 +5,11 @@ import { PermissionSearchAndListWrapper } from '@/app/app/_components/Permission
 import { UserDatasetListContainer } from './UserDatasetListContainer';
 
 export const UserDatasetSearch = React.memo(({ user }: { user: OrganizationUser }) => {
-  const { filteredItems, searchText, handleSearchChange, isPending } = useDebounceSearch({
-    items: [],
-    searchPredicate: (item, searchText) => true
+  const { datasets } = user;
+  const { filteredItems, searchText, handleSearchChange } = useDebounceSearch({
+    items: datasets,
+    searchPredicate: (item, searchText) =>
+      item.name.toLowerCase().includes(searchText.toLowerCase())
   });
 
   return (
