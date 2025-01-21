@@ -1,8 +1,4 @@
-import {
-  BusterUserDatasetGroup,
-  useUpdateUserDatasetGroups,
-  type BusterUserPermissionGroup
-} from '@/api/buster-rest';
+import { BusterUserDatasetGroup, useUpdateUserDatasetGroups } from '@/api/buster-rest';
 import { PermissionAssignedCell } from '@/app/app/_components/PermissionComponents';
 import {
   BusterInfiniteList,
@@ -14,6 +10,9 @@ import {
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
 import React, { useMemo, useState } from 'react';
+import { UserDatasetGroupSelectedPopup } from './UserDatasetGroupSelectedPopup';
+import pluralize from 'pluralize';
+import { Text } from '@/components/text';
 
 export const UserDatasetGroupListContainer: React.FC<{
   filteredDatasetGroups: BusterUserDatasetGroup[];
@@ -33,21 +32,23 @@ export const UserDatasetGroupListContainer: React.FC<{
     () => [
       {
         title: 'Name',
-        dataIndex: 'name',
-        width: 270
+        dataIndex: 'name'
       },
       {
         title: 'Assigned',
         dataIndex: 'assigned',
-        render: (assigned: boolean, permissionGroup: BusterUserPermissionGroup) => {
+        width: 130 + 85,
+        render: (assigned: boolean, permissionGroup: BusterUserDatasetGroup) => {
+          const { permission_count } = permissionGroup;
           return (
             <div className="flex justify-end">
               <PermissionAssignedCell
                 id={permissionGroup.id}
                 assigned={assigned}
                 text="assigned"
-                onSelect={onSelectAssigned}
-              />
+                onSelect={onSelectAssigned}>
+                <Text type="secondary">{`${permission_count} ${pluralize('datasets', permission_count)}`}</Text>
+              </PermissionAssignedCell>
             </div>
           );
         }
@@ -117,20 +118,19 @@ export const UserDatasetGroupListContainer: React.FC<{
 
   return (
     <InfiniteListContainer
-    // popupNode={
-    //   <PermissionDatasetGroupSelectedPopup
-    //     selectedRowKeys={selectedRowKeys}
-    //     onSelectChange={setSelectedRowKeys}
-    //     datasetId={datasetId}
-    //   />
-    // }
-    >
+      popupNode={
+        <UserDatasetGroupSelectedPopup
+          selectedRowKeys={selectedRowKeys}
+          onSelectChange={setSelectedRowKeys}
+          userId={userId}
+        />
+      }>
       <BusterInfiniteList
         columns={columns}
         rows={rows}
         showHeader={false}
         showSelectAll={false}
-        useRowClickSelectChange={true}
+        useRowClickSelectChange={false}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
         emptyState={<EmptyStateList text="No dataset groups found" />}

@@ -1,7 +1,6 @@
 import {
   BusterUserTeamListItem,
   TeamRole,
-  useUpdateUserDatasets,
   useUpdateUserTeams,
   type BusterUserPermissionGroup
 } from '@/api/buster-rest';
@@ -16,6 +15,9 @@ import {
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn, useWhyDidYouUpdate } from 'ahooks';
 import React, { useMemo, useState } from 'react';
+import { UserTeamsSelectedPopup } from './UserTeamsSelectedPopup';
+import pluralize from 'pluralize';
+import { Text } from '@/components/text';
 
 export const UserTeamsListContainer: React.FC<{
   filteredTeams: BusterUserTeamListItem[];
@@ -34,20 +36,19 @@ export const UserTeamsListContainer: React.FC<{
     () => [
       {
         title: 'Name',
-        dataIndex: 'name',
-        width: 270
+        dataIndex: 'name'
       },
       {
         title: 'Role',
         dataIndex: 'assigned',
+        width: 285,
         render: (assigned: boolean, permissionGroup: BusterUserTeamListItem) => {
+          const { user_count, id, role } = permissionGroup;
           return (
             <div className="flex justify-end">
-              <PermissionAssignTeamRole
-                role={permissionGroup.role}
-                id={permissionGroup.id}
-                onRoleChange={onRoleChange}
-              />
+              <PermissionAssignTeamRole role={role} id={id} onRoleChange={onRoleChange}>
+                <Text type="secondary">{`${user_count} ${pluralize('users', user_count)}`}</Text>
+              </PermissionAssignTeamRole>
             </div>
           );
         }
@@ -132,20 +133,19 @@ export const UserTeamsListContainer: React.FC<{
 
   return (
     <InfiniteListContainer
-    // popupNode={
-    //   <PermissionDatasetGroupSelectedPopup
-    //     selectedRowKeys={selectedRowKeys}
-    //     onSelectChange={setSelectedRowKeys}
-    //     datasetId={datasetId}
-    //   />
-    // }
-    >
+      popupNode={
+        <UserTeamsSelectedPopup
+          selectedRowKeys={selectedRowKeys}
+          onSelectChange={setSelectedRowKeys}
+          userId={userId}
+        />
+      }>
       <BusterInfiniteList
         columns={columns}
         rows={rows}
         showHeader={false}
         showSelectAll={false}
-        useRowClickSelectChange={true}
+        useRowClickSelectChange={false}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
         emptyState={<EmptyStateList text="No datasets found" />}

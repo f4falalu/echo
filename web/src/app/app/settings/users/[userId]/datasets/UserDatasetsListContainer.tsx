@@ -14,6 +14,8 @@ import {
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
 import React, { useMemo, useState } from 'react';
+import { UserDatasetsSelectedPopup } from './UserDatasetsSelectedPopup';
+import pluralize from 'pluralize';
 
 export const UserDatasetsListContainer: React.FC<{
   filteredDatasets: BusterUserDataset[];
@@ -32,12 +34,12 @@ export const UserDatasetsListContainer: React.FC<{
     () => [
       {
         title: 'Name',
-        dataIndex: 'name',
-        width: 270
+        dataIndex: 'name'
       },
       {
         title: 'Assigned',
         dataIndex: 'assigned',
+        width: 130,
         render: (assigned: boolean, permissionGroup: BusterUserPermissionGroup) => {
           return (
             <div className="flex justify-end">
@@ -116,20 +118,19 @@ export const UserDatasetsListContainer: React.FC<{
 
   return (
     <InfiniteListContainer
-    // popupNode={
-    //   <PermissionDatasetGroupSelectedPopup
-    //     selectedRowKeys={selectedRowKeys}
-    //     onSelectChange={setSelectedRowKeys}
-    //     datasetId={datasetId}
-    //   />
-    // }
-    >
+      popupNode={
+        <UserDatasetsSelectedPopup
+          selectedRowKeys={selectedRowKeys}
+          onSelectChange={setSelectedRowKeys}
+          userId={userId}
+        />
+      }>
       <BusterInfiniteList
         columns={columns}
         rows={rows}
         showHeader={false}
         showSelectAll={false}
-        useRowClickSelectChange={true}
+        useRowClickSelectChange={false}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
         emptyState={<EmptyStateList text="No datasets found" />}

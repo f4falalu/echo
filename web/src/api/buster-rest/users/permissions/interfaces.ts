@@ -23,13 +23,13 @@ export interface BusterUserAttribute {
 export interface BusterUserTeamListItem {
   id: string;
   name: string;
-  user_id: string;
+  user_count: number;
   role: TeamRole;
 }
 
 export interface BusterUserPermissionGroup {
   id: string;
-  dataset_count: number;
   assigned: boolean;
   name: string;
+  dataset_count: number;
 }

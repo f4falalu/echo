@@ -1,28 +1,27 @@
-import { useDatasetUpdateDatasetGroups } from '@/api/buster-rest';
 import { AppMaterialIcons } from '@/components';
 import { useMemoizedFn } from 'ahooks';
 import { MenuProps, Dropdown, Button } from 'antd';
 import React, { useMemo } from 'react';
-
-const options = [
-  {
-    label: 'Included',
-    value: true,
-    icon: <AppMaterialIcons icon="done_all" />
-  },
-  {
-    label: 'Not Included',
-    value: false,
-    icon: <AppMaterialIcons icon="remove_done" />
-  }
-];
+import { PERMISSION_OPTIONS_INCLUDED, PERMISSION_OPTIONS_ASSIGNED } from './PermissionAssignedCell';
 
 export const PermissionAssignedButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
-  datasetId: string;
-}> = ({ selectedRowKeys, onSelectChange, datasetId }) => {
-  const { mutateAsync: updateDatasetGroups } = useDatasetUpdateDatasetGroups(datasetId);
+  text: 'assigned' | 'included';
+  onUpdate: (groups: { id: string; assigned: boolean }[]) => Promise<void>;
+}> = ({ selectedRowKeys, text, onUpdate, onSelectChange }) => {
+  const options = useMemo(() => {
+    const selectedOptions =
+      text === 'included' ? PERMISSION_OPTIONS_INCLUDED : PERMISSION_OPTIONS_ASSIGNED;
+    return selectedOptions.map((v) => ({
+      ...v,
+      icon: v.value ? <AppMaterialIcons icon="done_all" /> : <AppMaterialIcons icon="remove_done" />
+    }));
+  }, [text]);
+
+  const buttonText = useMemo(() => {
+    return text === 'included' ? 'Included' : 'Assigned';
+  }, [text]);
 
   const onAssignClick = useMemoizedFn(async (assigned: boolean) => {
     try {
@@ -30,7 +29,7 @@ export const PermissionAssignedButton: React.FC<{
         id: v,
         assigned
       }));
-      await updateDatasetGroups(groups);
+      await onUpdate(groups);
       onSelectChange([]);
     } catch (error) {
       //  openErrorMessage('Failed to delete collection');
@@ -57,7 +56,7 @@ export const PermissionAssignedButton: React.FC<{
   return (
     <Dropdown menu={menuProps} trigger={['click']}>
       <Button icon={<AppMaterialIcons icon="done_all" />} type="default" onClick={onButtonClick}>
-        Included
+        {buttonText}
       </Button>
     </Dropdown>
   );

@@ -14,6 +14,9 @@ import {
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
 import React, { useMemo, useState } from 'react';
+import { UserPermissionGroupSelectedPopup } from './UserPermissionGroupSelectedPopup';
+import pluralize from 'pluralize';
+import { Text } from '@/components/text';
 
 export const UserPermissionGroupsListContainer: React.FC<{
   filteredPermissionGroups: BusterUserPermissionGroup[];
@@ -33,21 +36,24 @@ export const UserPermissionGroupsListContainer: React.FC<{
     () => [
       {
         title: 'Name',
-        dataIndex: 'name',
-        width: 270
+        dataIndex: 'name'
       },
+
       {
         title: 'Assigned',
         dataIndex: 'assigned',
+        width: 130 + 145,
         render: (assigned: boolean, permissionGroup: BusterUserPermissionGroup) => {
+          const { dataset_count } = permissionGroup;
           return (
             <div className="flex justify-end">
               <PermissionAssignedCell
                 id={permissionGroup.id}
                 assigned={assigned}
                 text="assigned"
-                onSelect={onSelectAssigned}
-              />
+                onSelect={onSelectAssigned}>
+                <Text type="secondary">{`${dataset_count} ${pluralize('datasets', dataset_count)}`}</Text>
+              </PermissionAssignedCell>
             </div>
           );
         }
@@ -117,20 +123,19 @@ export const UserPermissionGroupsListContainer: React.FC<{
 
   return (
     <InfiniteListContainer
-    // popupNode={
-    //   <PermissionDatasetGroupSelectedPopup
-    //     selectedRowKeys={selectedRowKeys}
-    //     onSelectChange={setSelectedRowKeys}
-    //     datasetId={datasetId}
-    //   />
-    // }
-    >
+      popupNode={
+        <UserPermissionGroupSelectedPopup
+          selectedRowKeys={selectedRowKeys}
+          onSelectChange={setSelectedRowKeys}
+          userId={userId}
+        />
+      }>
       <BusterInfiniteList
         columns={columns}
         rows={rows}
         showHeader={false}
         showSelectAll={false}
-        useRowClickSelectChange={true}
+        useRowClickSelectChange={false}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
         emptyState={<EmptyStateList text="No permission groups found" />}

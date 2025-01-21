@@ -37,21 +37,13 @@ export const UserAttributesListContainer: React.FC<{
   );
 
   return (
-    <InfiniteListContainer
-    // popupNode={
-    //   <PermissionDatasetGroupSelectedPopup
-    //     selectedRowKeys={selectedRowKeys}
-    //     onSelectChange={setSelectedRowKeys}
-    //     datasetId={datasetId}
-    //   />
-    // }
-    >
+    <InfiniteListContainer>
       <BusterInfiniteList
         columns={columns}
         rows={rows}
         showHeader={true}
         showSelectAll={false}
-        useRowClickSelectChange={true}
+        useRowClickSelectChange={false}
         emptyState={<EmptyStateList text="No datasets found" />}
       />
     </InfiniteListContainer>

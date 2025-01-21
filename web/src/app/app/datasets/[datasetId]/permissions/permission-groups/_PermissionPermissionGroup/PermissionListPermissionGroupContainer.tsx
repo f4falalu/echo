@@ -30,6 +30,7 @@ export const PermissionListPermissionGroupContainer: React.FC<{
         dataIndex: 'name',
         width: 270
       },
+
       {
         title: 'Assigned',
         dataIndex: 'assigned',

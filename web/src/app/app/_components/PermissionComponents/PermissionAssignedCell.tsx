@@ -28,20 +28,24 @@ export const PermissionAssignedCell: React.FC<{
   text: 'assigned' | 'included';
   assigned: boolean;
   onSelect: (params: { id: string; assigned: boolean }) => Promise<void>;
-}> = React.memo(({ id, text = 'included', assigned, onSelect }) => {
+  children?: React.ReactNode;
+}> = React.memo(({ id, text = 'included', assigned, onSelect, children }) => {
   return (
-    <Select
-      options={text === 'included' ? PERMISSION_OPTIONS_INCLUDED : PERMISSION_OPTIONS_ASSIGNED}
-      value={assigned || false}
-      popupMatchSelectWidth
-      onSelect={(value) => {
-        onSelect({ id, assigned: value });
-      }}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
-    />
+    <div className="flex items-center space-x-5">
+      {children}
+      <Select
+        options={text === 'included' ? PERMISSION_OPTIONS_INCLUDED : PERMISSION_OPTIONS_ASSIGNED}
+        value={assigned || false}
+        popupMatchSelectWidth
+        onSelect={(value) => {
+          onSelect({ id, assigned: value });
+        }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+      />
+    </div>
   );
 });
 

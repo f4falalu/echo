@@ -1,14 +1,14 @@
+import { useUpdateUserPermissionGroups } from '@/api';
+import { PermissionAssignedButton } from '@/app/app/_components/PermissionComponents';
 import { BusterListSelectedOptionPopupContainer } from '@/components/list';
 import React from 'react';
-import { PermissionAssignedButton } from '@appComponents/PermissionComponents';
-import { useDatasetUpdateDatasetGroups } from '@/api/buster-rest';
 
-export const PermissionDatasetGroupSelectedPopup: React.FC<{
+export const UserPermissionGroupSelectedPopup: React.FC<{
   selectedRowKeys: string[];
+  userId: string;
   onSelectChange: (selectedRowKeys: string[]) => void;
-  datasetId: string;
-}> = React.memo(({ selectedRowKeys, onSelectChange, datasetId }) => {
-  const { mutateAsync: updateDatasetGroups } = useDatasetUpdateDatasetGroups(datasetId);
+}> = React.memo(({ selectedRowKeys, onSelectChange, userId }) => {
+  const { mutateAsync: updateUserPermissionGroups } = useUpdateUserPermissionGroups({ userId });
 
   return (
     <BusterListSelectedOptionPopupContainer
@@ -20,10 +20,11 @@ export const PermissionDatasetGroupSelectedPopup: React.FC<{
           text="assigned"
           selectedRowKeys={selectedRowKeys}
           onSelectChange={onSelectChange}
-          onUpdate={updateDatasetGroups}
+          onUpdate={updateUserPermissionGroups}
         />
       ]}
     />
   );
 });
-PermissionDatasetGroupSelectedPopup.displayName = 'PermissionDatasetGroupSelectedPopup';
+
+UserPermissionGroupSelectedPopup.displayName = 'UserPermissionGroupSelectedPopup';
