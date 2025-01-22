@@ -1,3 +1,4 @@
+import { serverFetch } from '@/api/createServerInstance';
 import { mainApi } from '../instances';
 import {
   CreatePermissionGroupResponse,
@@ -21,14 +22,18 @@ export const getPermissionGroup = async ({
   return await mainApi.get(`/permission_groups/${id}`).then((res) => res.data);
 };
 
-export const updatePermissionGroups = async ({
-  id,
-  data
+export const getPermissionGroup_server = async ({
+  id
 }: {
   id: string;
-  data: { id: string; name: string }[];
-}): Promise<void> => {
-  return await mainApi.put(`/permission_groups/${id}`, data).then((res) => res.data);
+}): Promise<GetPermissionGroupResponse> => {
+  return await serverFetch<GetPermissionGroupResponse>(`/permission_groups/${id}`);
+};
+
+export const updatePermissionGroups = async (
+  data: { id: string; name: string }[]
+): Promise<void> => {
+  return await mainApi.put(`/permission_groups`, data).then((res) => res.data);
 };
 
 export const deletePermissionGroup = async ({ id }: { id: string }): Promise<void> => {
@@ -49,8 +54,18 @@ export const getPermissionGroupUsers = async ({
   id
 }: {
   id: string;
-}): Promise<GetPermissionGroupUsersResponse> => {
-  return await mainApi.get(`/permission_groups/${id}/users`).then((res) => res.data);
+}): Promise<GetPermissionGroupUsersResponse[]> => {
+  return await mainApi
+    .get<GetPermissionGroupUsersResponse[]>(`/permission_groups/${id}/users`)
+    .then((res) => res.data);
+};
+
+export const getPermissionGroupUsers_server = async ({
+  id
+}: {
+  id: string;
+}): Promise<GetPermissionGroupUsersResponse[]> => {
+  return await serverFetch<GetPermissionGroupUsersResponse[]>(`/permission_groups/${id}/users`);
 };
 
 export const getPermissionGroupDatasets = async ({
@@ -61,12 +76,28 @@ export const getPermissionGroupDatasets = async ({
   return await mainApi.get(`/permission_groups/${id}/datasets`).then((res) => res.data);
 };
 
+export const getPermissionGroupDatasets_server = async ({
+  id
+}: {
+  id: string;
+}): Promise<GetPermissionGroupDatasetsResponse> => {
+  return await serverFetch(`/permission_groups/${id}/datasets`);
+};
+
 export const getPermissionGroupDatasetGroups = async ({
   id
 }: {
   id: string;
 }): Promise<GetPermissionGroupDatasetGroupsResponse> => {
   return await mainApi.get(`/permission_groups/${id}/dataset_groups`).then((res) => res.data);
+};
+
+export const getPermissionGroupDatasetGroups_server = async ({
+  id
+}: {
+  id: string;
+}): Promise<GetPermissionGroupDatasetGroupsResponse> => {
+  return await serverFetch(`/permission_groups/${id}/dataset_groups`);
 };
 
 export const updatePermissionGroupUsers = async ({

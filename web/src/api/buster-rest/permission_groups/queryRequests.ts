@@ -1,4 +1,8 @@
-import { useCreateReactQuery, useCreateReactMutation } from '@/api/createReactQuery';
+import {
+  useCreateReactQuery,
+  useCreateReactMutation,
+  PREFETCH_STALE_TIME
+} from '@/api/createReactQuery';
 import {
   getPermissionGroup,
   createPermissionGroup,
@@ -10,10 +14,14 @@ import {
   getPermissionGroupDatasetGroups,
   updatePermissionGroupUsers,
   updatePermissionGroupDatasets,
-  updatePermissionGroupDatasetGroups
+  updatePermissionGroupDatasetGroups,
+  getPermissionGroupUsers_server,
+  getPermissionGroupDatasets_server,
+  getPermissionGroupDatasetGroups_server,
+  getPermissionGroup_server
 } from './requests';
 import { useMemoizedFn } from 'ahooks';
-import { useQueryClient } from '@tanstack/react-query';
+import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import {
   GetPermissionGroupDatasetGroupsResponse,
   GetPermissionGroupDatasetsResponse,
@@ -100,8 +108,21 @@ export const useGetPermissionGroup = (permissionGroupId: string) => {
   const queryFn = useMemoizedFn(() => getPermissionGroup({ id: permissionGroupId }));
   return useCreateReactQuery({
     queryKey: ['permission_group', permissionGroupId],
-    queryFn
+    queryFn,
+    staleTime: PREFETCH_STALE_TIME
   });
+};
+
+export const prefetchPermissionGroup = async (
+  permissionGroupId: string,
+  queryClientProp?: QueryClient
+) => {
+  const queryClient = queryClientProp || new QueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: ['permission_group', permissionGroupId],
+    queryFn: () => getPermissionGroup_server({ id: permissionGroupId })
+  });
+  return queryClient;
 };
 
 export const useDeletePermissionGroup = () => {
@@ -133,24 +154,63 @@ export const useGetPermissionGroupUsers = (permissionGroupId: string) => {
   const queryFn = useMemoizedFn(() => getPermissionGroupUsers({ id: permissionGroupId }));
   return useCreateReactQuery({
     queryKey: ['permission_group', permissionGroupId, 'users'],
-    queryFn
+    queryFn,
+    staleTime: PREFETCH_STALE_TIME
   });
+};
+
+export const prefetchPermissionGroupUsers = async (
+  permissionGroupId: string,
+  queryClientProp?: QueryClient
+) => {
+  const queryClient = queryClientProp || new QueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: ['permission_group', permissionGroupId, 'users'],
+    queryFn: () => getPermissionGroupUsers_server({ id: permissionGroupId })
+  });
+  return queryClient;
 };
 
 export const useGetPermissionGroupDatasets = (permissionGroupId: string) => {
   const queryFn = useMemoizedFn(() => getPermissionGroupDatasets({ id: permissionGroupId }));
   return useCreateReactQuery({
     queryKey: ['permission_group', permissionGroupId, 'datasets'],
-    queryFn
+    queryFn,
+    staleTime: PREFETCH_STALE_TIME
   });
+};
+
+export const prefetchPermissionGroupDatasets = async (
+  permissionGroupId: string,
+  queryClientProp?: QueryClient
+) => {
+  const queryClient = queryClientProp || new QueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: ['permission_group', permissionGroupId, 'datasets'],
+    queryFn: () => getPermissionGroupDatasets_server({ id: permissionGroupId })
+  });
+  return queryClient;
 };
 
 export const useGetPermissionGroupDatasetGroups = (permissionGroupId: string) => {
   const queryFn = useMemoizedFn(() => getPermissionGroupDatasetGroups({ id: permissionGroupId }));
   return useCreateReactQuery({
     queryKey: ['permission_group', permissionGroupId, 'dataset_groups'],
-    queryFn
+    queryFn,
+    staleTime: PREFETCH_STALE_TIME
   });
+};
+
+export const prefetchPermissionGroupDatasetGroups = async (
+  permissionGroupId: string,
+  queryClientProp?: QueryClient
+) => {
+  const queryClient = queryClientProp || new QueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: ['permission_group', permissionGroupId, 'dataset_groups'],
+    queryFn: () => getPermissionGroupDatasetGroups_server({ id: permissionGroupId })
+  });
+  return queryClient;
 };
 
 export const useUpdatePermissionGroupUsers = (permissionGroupId: string) => {

@@ -5,13 +5,9 @@ import {
   EmptyStateList,
   InfiniteListContainer
 } from '@/components/list';
-import { Card } from 'antd';
-import React, { useMemo, useState } from 'react';
-import { Text } from '@/components/text';
+import React, { useMemo } from 'react';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { ListUserItem } from '../../_components/ListContent';
 import { GetPermissionGroupResponse } from '@/api/buster-rest';
-import { ListEmptyState } from '../../_components/Lists/ListEmptyState';
 
 export const ListPermissionGroupsComponent: React.FC<{
   permissionGroups: GetPermissionGroupResponse[];
@@ -20,7 +16,7 @@ export const ListPermissionGroupsComponent: React.FC<{
   const columns: BusterListColumn[] = useMemo(
     () => [
       {
-        title: 'Name',
+        title: 'Title',
         dataIndex: 'name'
       }
     ],

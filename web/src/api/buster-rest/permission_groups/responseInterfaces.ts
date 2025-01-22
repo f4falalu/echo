@@ -13,6 +13,8 @@ export interface CreatePermissionGroupResponse extends GetPermissionGroupRespons
 export interface GetPermissionGroupUsersResponse {
   id: string;
   assigned: boolean;
+  email: string;
+  name: string;
 }
 
 export interface GetPermissionGroupDatasetsResponse {
