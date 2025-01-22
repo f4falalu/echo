@@ -9,7 +9,7 @@ import { getAllIdsInSection } from './helpers';
 import { BusterListHeader } from './BusterListHeader';
 import { BusterListRowComponentSelector } from './BusterListRowComponentSelector';
 
-export const BusterList: React.FC<BusterListProps> = ({
+export const BusterListReactWindow: React.FC<BusterListProps> = ({
   columns,
   rows,
   selectedRowKeys,
@@ -17,7 +17,9 @@ export const BusterList: React.FC<BusterListProps> = ({
   emptyState,
   showHeader = true,
   contextMenu,
-  showSelectAll = true
+  showSelectAll = true,
+  useRowClickSelectChange = false,
+  rowClassName = ''
 }) => {
   const contextMenuRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -116,9 +118,18 @@ export const BusterList: React.FC<BusterListProps> = ({
       selectedRowKeys,
       onSelectChange: onSelectChange ? onSelectChangePreflight : undefined,
       onSelectSectionChange: onSelectChange ? onSelectSectionChange : undefined,
-      onContextMenuClick
+      onContextMenuClick,
+      useRowClickSelectChange
     };
-  }, [columns, rows, selectedRowKeys, onSelectChange, onSelectSectionChange, onContextMenuClick]);
+  }, [
+    columns,
+    rows,
+    useRowClickSelectChange,
+    selectedRowKeys,
+    onSelectChange,
+    onSelectSectionChange,
+    onContextMenuClick
+  ]);
 
   //context menu click away
   useEffect(() => {
@@ -145,10 +156,11 @@ export const BusterList: React.FC<BusterListProps> = ({
       {showHeader && !showEmptyState && (
         <BusterListHeader
           columns={columns}
-          onGlobalSelectChange={onGlobalSelectChange}
+          onGlobalSelectChange={onSelectChange ? onGlobalSelectChange : undefined}
           globalCheckStatus={globalCheckStatus}
           rowsLength={rows.length}
           showSelectAll={showSelectAll}
+          rowClassName={rowClassName}
         />
       )}
 
@@ -169,6 +181,7 @@ export const BusterList: React.FC<BusterListProps> = ({
                     style={style}
                     row={rows[index]}
                     id={rows[index].id}
+                    isLastChild={index === rows.length - 1}
                     {...data}
                   />
                 )}
@@ -194,5 +207,5 @@ export const BusterList: React.FC<BusterListProps> = ({
     </div>
   );
 };
-BusterList.displayName = 'BusterList';
+BusterListReactWindow.displayName = 'BusterListReactWindow';
 // Add a memoized checkbox component

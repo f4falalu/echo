@@ -11,7 +11,7 @@ import {
 } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { RustApiError } from './buster/errors';
+import { RustApiError } from './buster-rest/errors';
 import { useMemoizedFn } from 'ahooks';
 
 export interface BaseCreateQueryProps {
@@ -27,6 +27,8 @@ interface CreateQueryProps<T> extends UseQueryOptions<T> {
   useErrorNotification?: boolean;
 }
 
+export const PREFETCH_STALE_TIME = 1000 * 10;
+
 export const useCreateReactQuery = <T>({
   queryKey,
   queryFn,
@@ -36,6 +38,7 @@ export const useCreateReactQuery = <T>({
   refetchOnWindowFocus = false,
   refetchOnMount = true,
   useErrorNotification = true,
+  staleTime,
   ...rest
 }: CreateQueryProps<T> & BaseCreateQueryProps) => {
   const { openErrorNotification } = useBusterNotifications();
@@ -50,6 +53,7 @@ export const useCreateReactQuery = <T>({
     retry: 1,
     refetchOnWindowFocus,
     refetchOnMount,
+    staleTime,
     ...rest
   });
 

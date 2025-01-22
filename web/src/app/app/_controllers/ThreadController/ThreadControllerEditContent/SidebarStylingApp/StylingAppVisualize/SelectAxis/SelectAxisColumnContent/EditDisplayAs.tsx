@@ -1,14 +1,11 @@
-import { IBusterThreadMessageChartConfig } from '@/api/busterv2/threads/threadConfigInterfaces';
-import React, { MouseEventHandler, useMemo, useState } from 'react';
+import { IBusterThreadMessageChartConfig } from '@/api/buster-rest/threads/threadConfigInterfaces';
+import React, { MouseEventHandler, useMemo } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 import { AppMaterialIcons, AppSegmented, AppTooltip } from '@/components';
-import { Segmented, SegmentedProps } from 'antd';
 import { ChartType, ColumnSettings } from '@/components/charts/interfaces';
-import { SegmentedLabeledOption, SegmentedValue } from 'antd/es/segmented';
-import { useMemoizedFn } from 'ahooks';
 import { useEditAppSegmented } from './useEditAppSegmented';
 
-const options: SegmentedLabeledOption<SegmentedValue>[] = [
+const options = [
   {
     icon: <AppMaterialIcons icon="bar_chart" data-value="bar" />,
     value: 'bar',
@@ -61,7 +58,7 @@ export const EditDisplayAs: React.FC<{
     <LabelAndInput label="Display as">
       <div className="flex justify-end">
         <AppSegmented
-          options={options as SegmentedProps['options']}
+          options={options}
           block={false}
           bordered={false}
           value={selectedOption}

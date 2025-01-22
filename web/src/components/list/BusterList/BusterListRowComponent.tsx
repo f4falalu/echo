@@ -18,10 +18,24 @@ export const BusterListRowComponent = React.memo(
       onContextMenuClick?: (e: React.MouseEvent<HTMLDivElement>, id: string) => void;
       style?: React.CSSProperties;
       columnRowVariant: BusterListProps['columnRowVariant'];
+      useRowClickSelectChange: boolean;
+      rowClassName?: string;
+      isLastChild: boolean;
     }
   >(
     (
-      { style, columnRowVariant, row, columns, onSelectChange, checked, onContextMenuClick },
+      {
+        style,
+        columnRowVariant,
+        row,
+        columns,
+        onSelectChange,
+        checked,
+        onContextMenuClick,
+        rowClassName = '',
+        isLastChild,
+        useRowClickSelectChange
+      },
       ref
     ) => {
       const { styles, cx } = useStyles();
@@ -31,28 +45,39 @@ export const BusterListRowComponent = React.memo(
         onContextMenuClick?.(e, row.id);
       });
 
-      const onChange = useMemoizedFn((checked: boolean) => {
-        onSelectChange?.(checked, row.id);
+      const onChange = useMemoizedFn((newChecked: boolean) => {
+        onSelectChange?.(newChecked, row.id);
+      });
+
+      const onContainerClick = useMemoizedFn(() => {
+        if (useRowClickSelectChange) {
+          onChange(!checked);
+        }
+        row.onClick?.();
       });
 
       return (
         <LinkWrapper href={link}>
           <div
-            onClick={row.onClick}
+            onClick={onContainerClick}
             style={style}
             onContextMenu={onContextMenu}
             className={cx(
               styles.row,
+              rowClassName,
               'group flex items-center',
               checked ? 'checked' : '',
               columnRowVariant,
-              { clickable: !!(link || row.onClick) }
+              isLastChild ? 'last-child' : '',
+              !onSelectChange ? 'pl-3.5' : '',
+
+              { clickable: !!(link || row.onClick || (onSelectChange && useRowClickSelectChange)) }
             )}
             ref={ref}>
             {!!onSelectChange ? (
               <CheckboxColumn checkStatus={checked ? 'checked' : 'unchecked'} onChange={onChange} />
             ) : (
-              <div className="pl-2.5"></div>
+              <></>
             )}
             {columns.map((column, columnIndex) => (
               <BusterListCellComponent
@@ -70,10 +95,7 @@ export const BusterListRowComponent = React.memo(
         </LinkWrapper>
       );
     }
-  ),
-  (prevProps, nextProps) => {
-    return prevProps.checked === nextProps.checked && prevProps.row.id === nextProps.row.id;
-  }
+  )
 );
 BusterListRowComponent.displayName = 'BusterListRowComponent';
 
@@ -124,15 +146,14 @@ export const useStyles = createStyles(({ css, token }) => ({
   row: css`
     height: ${HEIGHT_OF_ROW}px;
     min-height: ${HEIGHT_OF_ROW}px;
-
     border-bottom: 0.5px solid ${token.colorBorder};
-
-    &:hover {
-      background-color: ${token.controlItemBgHover};
-    }
 
     &.clickable {
       cursor: pointer;
+
+      &:hover {
+        background-color: ${token.controlItemBgHover};
+      }
     }
 
     .row-cell {
@@ -149,10 +170,16 @@ export const useStyles = createStyles(({ css, token }) => ({
       }
     }
 
-    &.containerized {
+    &.containerized:not(.checked) {
       background-color: ${token.colorBgContainer};
 
-      &:last-child {
+      &.clickable {
+        &:hover {
+          background-color: ${token.controlItemBgHover};
+        }
+      }
+
+      &.last-child {
         border-bottom: 0px;
       }
     }

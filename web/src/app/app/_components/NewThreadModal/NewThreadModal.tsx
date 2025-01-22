@@ -6,7 +6,7 @@ import { useAntToken } from '@/styles/useAntToken';
 import { useBusterNewThreadsContextSelector } from '@/context/Threads';
 import { inputHasText } from '@/utils';
 import { useBusterSearchContextSelector } from '@/context/Search';
-import { BusterSearchResult } from '@/api/busterv2';
+import { BusterSearchResult } from '@/api/buster-rest';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { NewThreadModalDataSourceSelect } from './NewThreadModalDatasourceSelect';
 import { SuggestedPromptsContainer } from './SuggestedPromptsContainer';
@@ -14,7 +14,7 @@ import { NoDatasets } from './NoDatasets';
 import { useParams } from 'next/navigation';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
-import { useGetDatasets } from '@/api/busterv2/datasets';
+import { useGetDatasets } from '@/api/buster-rest/datasets';
 
 const themeConfig: ThemeConfig = {
   components: {

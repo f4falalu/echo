@@ -9,8 +9,8 @@ import {
   ContextSelector,
   useContextSelector
 } from '@fluentui/react-context-selector';
-import { useMemoizedFn } from 'ahooks';
-import { useDeployDataset } from '@/api/busterv2';
+import { useDebounce, useMemoizedFn } from 'ahooks';
+import { useDeployDataset } from '@/api/buster-rest';
 
 export const useDatasetPageContext = ({ datasetId }: { datasetId: string }) => {
   const segments = useSelectedLayoutSegment() as DatasetApps;
@@ -48,7 +48,7 @@ export const useDatasetPageContext = ({ datasetId }: { datasetId: string }) => {
     });
   });
 
-  const selectedApp = segments;
+  const selectedApp = useDebounce(segments, { wait: 25 });
 
   useEffect(() => {
     setSQL(originalDatasetSQL || '');

@@ -44,16 +44,16 @@ pub async fn put_permissions_handler(
     (dataset_id, permission_type): (Uuid, String),
     assignments: Vec<AssetAssignment>,
 ) -> Result<()> {
-    match is_user_workspace_admin_or_data_admin(&user.id).await {
+    let organization_id = get_user_organization_id(&user.id).await?;
+
+    match is_user_workspace_admin_or_data_admin(&user, &organization_id).await {
         Ok(true) => (),
         Ok(false) => anyhow::bail!("Insufficient permissions"),
         Err(e) => {
             tracing::error!("Error checking user permissions: {:?}", e);
-            return Err(e);
+            anyhow::bail!("Error checking user permissions");
         }
-    };
-
-    let organization_id = get_user_organization_id(&user.id).await?;
+    }
 
     let (to_assign, to_unassign): (Vec<_>, Vec<_>) =
         assignments.into_iter().partition(|a| a.assigned);

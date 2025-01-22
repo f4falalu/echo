@@ -1,9 +1,11 @@
-import { BusterOrganizationRole, BusterUserPalette, BusterUserResponse } from '@/api/busterv2';
-import React, { PropsWithChildren, useRef, useState } from 'react';
+'use client';
+
+import { BusterUserResponse } from '@/api/buster-rest';
+import React, { PropsWithChildren, useState } from 'react';
 import { useBusterWebSocket } from '../BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
 import { useFavoriteProvider } from './useFavoriteProvider';
-import { getUserInfo } from '@/api/busterv2/users/requests';
+import { getMyUserInfo } from '@/api/buster-rest/users';
 import { useSupabaseContext } from '../Supabase';
 import {
   ContextSelector,
@@ -12,6 +14,7 @@ import {
 } from '@fluentui/react-context-selector';
 import { useBusterNotifications } from '../BusterNotifications';
 import { timeout } from '@/utils';
+import { checkIfUserIsAdmin } from './helpers';
 
 export const useUserConfigProvider = ({ userInfo }: { userInfo: BusterUserResponse | null }) => {
   const busterSocket = useBusterWebSocket();
@@ -27,9 +30,8 @@ export const useUserConfigProvider = ({ userInfo }: { userInfo: BusterUserRespon
   const userRole = userOrganizations?.role;
   const isUserRegistered =
     !!userResponse && !!userResponse?.organizations?.[0]?.id && !!userResponse?.user?.name;
-  const isAdmin =
-    userRole === BusterOrganizationRole.DATA_ADMIN ||
-    userRole === BusterOrganizationRole.WORKSPACE_ADMIN;
+
+  const isAdmin = checkIfUserIsAdmin(userResponse);
 
   const inviteUsers = useMemoizedFn(async (emails: string[], team_ids?: string[]) => {
     busterSocket.emit({
@@ -79,7 +81,7 @@ export const useUserConfigProvider = ({ userInfo }: { userInfo: BusterUserRespon
   );
 
   const updateUserInfo = useMemoizedFn(async () => {
-    const res = await getUserInfo({ jwtToken: accessToken });
+    const res = await getMyUserInfo({ jwtToken: accessToken });
     if (res) {
       setUserResponse(res);
     }

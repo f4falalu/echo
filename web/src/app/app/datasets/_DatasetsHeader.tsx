@@ -5,11 +5,12 @@ import { Breadcrumb, Button } from 'antd';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { AppMaterialIcons, AppSegmented, AppTooltip } from '@/components';
-import { NewDatasetModal } from './_NewDatasetModal';
+import { NewDatasetModal } from '@appComponents/NewDatasetModal';
 import { AppContentHeader } from '../_components/AppContentHeader';
 import { useDatasetContextSelector, useIndividualDataset } from '@/context/Datasets';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useUserConfigContextSelector } from '@/context/Users';
+import { useMemoizedFn } from 'ahooks';
 
 export const DatasetHeader: React.FC<{
   datasetFilter: 'all' | 'published' | 'drafts';
@@ -45,9 +46,15 @@ export const DatasetHeader: React.FC<{
     [openedDatasetId, datasetTitle]
   );
 
-  useHotkeys('d', () => {
+  const onCloseNewDatasetModal = useMemoizedFn(() => {
+    setOpenNewDatasetModal(false);
+  });
+
+  const onOpenNewDatasetModal = useMemoizedFn(() => {
     setOpenNewDatasetModal(true);
   });
+
+  useHotkeys('d', onOpenNewDatasetModal);
 
   return (
     <>
@@ -63,7 +70,7 @@ export const DatasetHeader: React.FC<{
               <Button
                 type="default"
                 icon={<AppMaterialIcons icon="add" />}
-                onClick={() => setOpenNewDatasetModal(true)}>
+                onClick={onOpenNewDatasetModal}>
                 New Dataset
               </Button>
             </AppTooltip>
@@ -72,7 +79,11 @@ export const DatasetHeader: React.FC<{
       </AppContentHeader>
 
       {isAdmin && (
-        <NewDatasetModal open={openNewDatasetModal} onClose={() => setOpenNewDatasetModal(false)} />
+        <NewDatasetModal
+          open={openNewDatasetModal}
+          onClose={onCloseNewDatasetModal}
+          datasourceId={openedDatasetId}
+        />
       )}
     </>
   );

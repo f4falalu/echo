@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use diesel::{
-    allow_columns_to_appear_in_same_group_by_clause, dsl::sql, sql_types::BigInt,
+    dsl::sql, sql_types::BigInt,
     BoolExpressionMethods, ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl,
 };
 use diesel_async::RunQueryDsl;
@@ -50,14 +50,6 @@ pub struct TeamPermissionInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub team_role: Option<TeamToUserRole>,
 }
-
-allow_columns_to_appear_in_same_group_by_clause!(
-    teams::id,
-    teams::name,
-    permission_groups_to_identities::permission_group_id,
-    teams_to_users::user_id,
-    teams_to_users::role,
-);
 
 pub async fn list_teams(user: &User, req: ListTeamPermissionsRequest) -> Result<()> {
     let page = req.page.unwrap_or(0);

@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useMemoizedFn } from 'ahooks';
 import { BusterListProps } from '../BusterList';
 import { getAllIdsInSection } from '../BusterList/helpers';
-import { useEffect, useMemo, useRef, useCallback } from 'react';
+import { useEffect, useMemo } from 'react';
 import { BusterListHeader } from '../BusterList/BusterListHeader';
 import { BusterListRowComponentSelector } from '../BusterList/BusterListRowComponentSelector';
 
@@ -19,16 +19,22 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
   onSelectChange,
   emptyState,
   showHeader = true,
+  useRowClickSelectChange = false,
   contextMenu,
   columnRowVariant = 'containerized',
   showSelectAll = true,
   onScrollEnd,
   loadingNewContent,
-  scrollEndThreshold = 200 // Default threshold of 200px
+  rowClassName = '',
+  scrollEndThreshold = 48 // Default threshold of 200px
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const showEmptyState = (!rows || rows.length === 0) && !!emptyState;
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const lastChildIndex = rows.length - 1;
+  const showEmptyState = useMemo(
+    () => (!rows || rows.length === 0 || !rows.some((row) => !row.rowSection)) && !!emptyState,
+    [rows, emptyState]
+  );
 
   const onGlobalSelectChange = useMemoizedFn((v: boolean) => {
     onSelectChange?.(v ? rows.map((row) => row.id) : []);
@@ -46,11 +52,12 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
   });
 
   const onSelectChangePreflight = useMemoizedFn((v: boolean, id: string) => {
-    if (!onSelectChange || !selectedRowKeys) return;
+    if (!onSelectChange) return;
+
     if (v === false) {
-      onSelectChange(selectedRowKeys?.filter((d) => d !== id));
+      onSelectChange((selectedRowKeys || []).filter((d) => d !== id));
     } else {
-      onSelectChange(selectedRowKeys?.concat(id) || []);
+      onSelectChange((selectedRowKeys || []).concat(id));
     }
   });
 
@@ -69,60 +76,80 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
       onSelectChange: onSelectChange ? onSelectChangePreflight : undefined,
       onSelectSectionChange: onSelectChange ? onSelectSectionChange : undefined,
       onContextMenuClick: undefined,
-      columnRowVariant
+      columnRowVariant,
+      useRowClickSelectChange,
+      rowClassName
     };
   }, [
     columns,
     rows,
     onSelectChange,
+    useRowClickSelectChange,
     columnRowVariant,
     onSelectSectionChange,
     contextMenu,
     selectedRowKeys
   ]);
 
-  // Add scroll handler
-  const handleScroll = useCallback(() => {
-    if (!containerRef.current || !onScrollEnd) return;
+  useEffect(() => {
+    if (!onScrollEnd) return;
 
-    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-    const distanceToBottom = scrollHeight - scrollTop - clientHeight;
+    // Find the first scrollable parent element
+    const findScrollableParent = (element: HTMLElement | null): HTMLDivElement | null => {
+      while (element) {
+        const { overflowY } = window.getComputedStyle(element);
+        if (overflowY === 'auto' || overflowY === 'scroll') {
+          return element as HTMLDivElement;
+        }
+        element = element.parentElement;
+      }
+      return null;
+    };
 
-    if (distanceToBottom <= scrollEndThreshold) {
-      onScrollEnd();
-    }
+    const scrollableParent = findScrollableParent(containerRef.current?.parentElement ?? null);
+    if (!scrollableParent) return;
+
+    scrollRef.current = scrollableParent;
+
+    // Check if we've scrolled near the bottom
+    const handleScroll = () => {
+      if (!scrollRef.current) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+
+      if (distanceFromBottom <= scrollEndThreshold) {
+        onScrollEnd();
+      }
+    };
+
+    scrollableParent.addEventListener('scroll', handleScroll);
+    return () => scrollableParent.removeEventListener('scroll', handleScroll);
   }, [onScrollEnd, scrollEndThreshold]);
 
-  // Add scroll event listener
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container || !onScrollEnd) return;
-
-    container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, [handleScroll, onScrollEnd]);
-
   return (
-    <div
-      className="infinite-list-container relative flex h-full w-full flex-col overflow-auto"
-      ref={containerRef}>
+    <div ref={containerRef} className="infinite-list-container relative">
       {showHeader && !showEmptyState && (
         <BusterListHeader
           columns={columns}
-          onGlobalSelectChange={onGlobalSelectChange}
+          onGlobalSelectChange={onSelectChange ? onGlobalSelectChange : undefined}
           globalCheckStatus={globalCheckStatus}
           rowsLength={rows.length}
           showSelectAll={showSelectAll}
+          rowClassName={rowClassName}
         />
       )}
 
-      {!showEmptyState && (
-        <div className="relative h-full w-full">
-          {rows.map((row) => (
-            <BusterListRowComponentSelector key={row.id} row={row} id={row.id} {...itemData} />
-          ))}
-        </div>
-      )}
+      {!showEmptyState &&
+        rows.map((row, index) => (
+          <BusterListRowComponentSelector
+            key={row.id}
+            row={row}
+            id={row.id}
+            isLastChild={index === lastChildIndex}
+            {...itemData}
+          />
+        ))}
 
       {showEmptyState && (
         <div className="flex h-full items-center justify-center">{emptyState}</div>

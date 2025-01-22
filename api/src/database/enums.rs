@@ -45,6 +45,18 @@ pub enum UserOrganizationRole {
     Viewer,
 }
 
+impl UserOrganizationRole {
+    pub fn to_string(&self) -> &'static str {
+        match *self {
+            UserOrganizationRole::WorkspaceAdmin => "workspace_admin",
+            UserOrganizationRole::DataAdmin => "data_admin",
+            UserOrganizationRole::Querier => "querier",
+            UserOrganizationRole::RestrictedQuerier => "restricted_querier",
+            UserOrganizationRole::Viewer => "viewer",
+        }
+    }
+}
+
 #[derive(
     Serialize,
     Deserialize,

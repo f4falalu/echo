@@ -30,7 +30,19 @@ pub async fn post_dataset(
     Extension(user): Extension<User>,
     Json(request): Json<PostDatasetReq>,
 ) -> Result<ApiResponse<Dataset>, (axum::http::StatusCode, String)> {
-    match is_user_workspace_admin_or_data_admin(&user.id).await {
+    // Check if user is workspace admin or data admin
+    let organization_id = match get_user_organization_id(&user.id).await {
+        Ok(id) => id,
+        Err(e) => {
+            tracing::error!("Error getting user organization id: {:?}", e);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Error getting user organization id".to_string(),
+            ));
+        }
+    };
+
+    match is_user_workspace_admin_or_data_admin(&user, &organization_id).await {
         Ok(true) => (),
         Ok(false) => {
             return Err((

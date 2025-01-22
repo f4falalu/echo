@@ -17,58 +17,64 @@ export const BusterListSectionComponent = React.memo(
       selectedRowKeys?: string[];
       rows: BusterListRow[];
       style?: React.CSSProperties;
+      rowClassName?: string;
     }
-  >(({ rowSection, onSelectSectionChange, id, selectedRowKeys, rows, style }, ref) => {
-    const { styles, cx } = useStyles();
+  >(
+    (
+      { rowSection, onSelectSectionChange, id, selectedRowKeys, rows, style, rowClassName },
+      ref
+    ) => {
+      const { styles, cx } = useStyles();
 
-    const indexOfSection = useMemo(() => {
-      return rows.findIndex((row) => row.id === id);
-    }, [rows.length, id]);
+      const indexOfSection = useMemo(() => {
+        return rows.findIndex((row) => row.id === id);
+      }, [rows.length, id]);
 
-    const idsInSection = useMemo(() => {
-      return getAllIdsInSection(rows, id);
-    }, [rows.length, id]);
+      const idsInSection = useMemo(() => {
+        return getAllIdsInSection(rows, id);
+      }, [rows.length, id]);
 
-    const checkStatus = useMemo(() => {
-      if (!selectedRowKeys) return 'unchecked';
-      if (rowSection.disableSection) return 'unchecked';
-      if (selectedRowKeys?.length === 0) return 'unchecked';
+      const checkStatus = useMemo(() => {
+        if (!selectedRowKeys) return 'unchecked';
+        if (rowSection.disableSection) return 'unchecked';
+        if (selectedRowKeys?.length === 0) return 'unchecked';
 
-      const allIdsSelected = idsInSection.every((id) => selectedRowKeys.includes(id));
-      if (allIdsSelected) return 'checked';
-      const someIdsSelected = idsInSection.some((id) => selectedRowKeys.includes(id));
-      if (someIdsSelected) return 'indeterminate';
-      return 'unchecked';
-    }, [selectedRowKeys?.length, idsInSection, indexOfSection, rowSection]);
+        const allIdsSelected = idsInSection.every((id) => selectedRowKeys.includes(id));
+        if (allIdsSelected) return 'checked';
+        const someIdsSelected = idsInSection.some((id) => selectedRowKeys.includes(id));
+        if (someIdsSelected) return 'indeterminate';
+        return 'unchecked';
+      }, [selectedRowKeys?.length, idsInSection, indexOfSection, rowSection]);
 
-    const onChange = useMemoizedFn((checked: boolean) => {
-      onSelectSectionChange?.(checked, id);
-    });
+      const onChange = useMemoizedFn((checked: boolean) => {
+        onSelectSectionChange?.(checked, id);
+      });
 
-    return (
-      <div
-        className={cx(
-          styles.sectionRow,
-          'group flex items-center',
-          !!onSelectSectionChange && 'hoverable'
-        )}
-        style={style}
-        ref={ref}>
-        {onSelectSectionChange && <CheckboxColumn checkStatus={checkStatus} onChange={onChange} />}
-
+      return (
         <div
           className={cx(
-            'flex items-center space-x-2 pl-[4px] leading-none',
-            !onSelectSectionChange && 'ml-3.5'
-          )}>
-          <Text size="sm">{rowSection.title}</Text>
-          <Text size="sm" type="tertiary">
-            {rowSection.secondaryTitle}
-          </Text>
+            styles.sectionRow,
+            'group flex items-center',
+            !!onSelectSectionChange && 'hoverable',
+            !onSelectSectionChange && 'pl-3.5',
+            rowClassName
+          )}
+          style={style}
+          ref={ref}>
+          {onSelectSectionChange && (
+            <CheckboxColumn checkStatus={checkStatus} onChange={onChange} />
+          )}
+
+          <div className={cx('flex items-center space-x-2 leading-none', 'pl-[4px]')}>
+            <Text size="sm">{rowSection.title}</Text>
+            <Text size="sm" type="tertiary">
+              {rowSection.secondaryTitle}
+            </Text>
+          </div>
         </div>
-      </div>
-    );
-  })
+      );
+    }
+  )
 );
 BusterListSectionComponent.displayName = 'BusterListSectionComponent';
 

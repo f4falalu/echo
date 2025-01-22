@@ -11,35 +11,45 @@ export const BusterListHeader: React.FC<{
   globalCheckStatus?: 'checked' | 'unchecked' | 'indeterminate';
   showSelectAll?: boolean;
   rowsLength: number;
+  rowClassName: string;
 }> = React.memo(
-  ({ columns, showSelectAll = true, onGlobalSelectChange, globalCheckStatus, rowsLength }) => {
+  ({
+    columns,
+    rowClassName,
+    showSelectAll = true,
+    onGlobalSelectChange,
+    globalCheckStatus,
+    rowsLength
+  }) => {
     const { styles, cx } = useStyles();
     const showCheckboxColumn = !!onGlobalSelectChange;
     const showGlobalCheckbox =
       globalCheckStatus === 'indeterminate' || globalCheckStatus === 'checked';
 
     return (
-      <div className={cx(styles.header, 'group')}>
+      <div
+        className={cx(styles.header, 'group', rowClassName, 'pr-[24px]', {
+          'pl-3.5': !onGlobalSelectChange
+        })}>
         {showCheckboxColumn && (
           <CheckboxColumn
             checkStatus={globalCheckStatus}
-            onChange={(v) => onGlobalSelectChange?.(v)}
+            onChange={onGlobalSelectChange}
             className={cx({
               'opacity-100': showGlobalCheckbox,
               '!invisible': rowsLength === 0,
-              'pointer-events-none !invisible !opacity-0': !showSelectAll
+              'pointer-events-none !invisible': !showSelectAll
             })}
           />
         )}
 
         {columns.map((column, index) => (
           <div
-            className="header-cell flex items-center"
+            className={cx('header-cell flex items-center')}
             key={column.dataIndex}
             style={{
               width: column.width || '100%',
-              flex: column.width ? 'none' : 1,
-              marginRight: index === columns.length - 1 ? '24px' : undefined
+              flex: column.width ? 'none' : 1
             }}>
             {column.headerRender ? (
               column.headerRender(column.title)
@@ -70,9 +80,9 @@ const useStyles = createStyles(({ token, css }) => ({
       padding: 0 4px;
       height: 100%;
 
-      &:first-child {
-        padding-left: 18px;
-      }
+      // &:first-child {
+      //   padding-left: 18px;
+      // }
     }
   `
 }));

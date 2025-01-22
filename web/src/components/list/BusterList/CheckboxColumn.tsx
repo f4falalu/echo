@@ -10,7 +10,7 @@ export const CheckboxColumn: React.FC<{
   className?: string;
 }> = React.memo(({ checkStatus, onChange, className = '' }) => {
   const { styles, cx } = useStyles();
-  const showBox = checkStatus === 'checked' || checkStatus === 'indeterminate';
+  const showBox = checkStatus === 'checked'; //|| checkStatus === 'indeterminate';
 
   const onClickStopPropagation = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();

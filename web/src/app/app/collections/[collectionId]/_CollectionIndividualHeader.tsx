@@ -8,7 +8,6 @@ import {
   useIndividualCollection
 } from '@/context/Collections';
 import { Breadcrumb, Button, Dropdown, MenuProps } from 'antd';
-import { BreadcrumbSeperator } from '@/components';
 import Link from 'next/link';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
@@ -16,13 +15,13 @@ import { useBusterThreadsContextSelector } from '@/context/Threads';
 import { AppMaterialIcons, EditableTitle } from '@/components';
 import { FavoriteStar } from '../../_components/Lists/FavoriteStar';
 import { ShareMenu } from '../../_components/ShareMenu';
-import { BusterCollection } from '@/api/busterv2/collection';
-import { BusterShareAssetType } from '@/api/busterv2';
+import { BusterCollection } from '@/api/buster-rest/collection';
+import { BusterShareAssetType } from '@/api/buster-rest';
 import { Text } from '@/components';
-
 import { useAntToken } from '@/styles/useAntToken';
-import { measureTextWidth } from '@/utils';
 import { useMemoizedFn } from 'ahooks';
+import { BreadcrumbSeperator } from '@/components/breadcrumb';
+import { measureTextWidth } from '@/utils/canvas';
 
 export const CollectionsIndividualHeader: React.FC<{}> = () => {
   const selectedThreadId = useBusterThreadsContextSelector((x) => x.selectedThreadId);

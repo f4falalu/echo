@@ -1,3 +1,4 @@
+import { useMemoizedFn } from 'ahooks';
 import { Input } from 'antd';
 import React, { ReactNode } from 'react';
 
@@ -20,13 +21,13 @@ export const AppSearchInput: React.FC<AppSearchInputProps> = ({
   onSearch,
   ...props
 }) => {
-  const onBlurEvent = (e: React.FocusEvent<HTMLInputElement, Element>) => {
+  const onBlurEvent = useMemoizedFn((e: React.FocusEvent<HTMLInputElement, Element>) => {
     props.onBlur?.(e.target.value);
-  };
+  });
 
-  const onPressEnterEvent = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const onPressEnterEvent = useMemoizedFn((e: React.KeyboardEvent<HTMLInputElement>) => {
     props.onPressEnter && props.onPressEnter(props.value);
-  };
+  });
 
   return (
     <Input.Search
@@ -39,3 +40,5 @@ export const AppSearchInput: React.FC<AppSearchInputProps> = ({
     />
   );
 };
+
+AppSearchInput.displayName = 'AppSearchInput';
