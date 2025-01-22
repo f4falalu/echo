@@ -7,7 +7,7 @@ import {
 } from '@/components/list';
 import React, { useMemo } from 'react';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { DatasetGroup } from '@/api/buster-rest';
+import { DatasetGroup } from '@/api/buster_rest';
 
 export const ListDatasetGroupsComponent: React.FC<{
   datasetGroups: DatasetGroup[];
@@ -22,8 +22,6 @@ export const ListDatasetGroupsComponent: React.FC<{
     ],
     []
   );
-
-  console.log('datasetGroups', datasetGroups);
 
   const datasetGroupsRows: BusterListRowItem[] = useMemo(() => {
     return datasetGroups.reduce<BusterListRowItem[]>((acc, datasetGroup) => {
