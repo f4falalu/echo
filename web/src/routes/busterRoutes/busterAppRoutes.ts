@@ -29,7 +29,9 @@ export enum BusterAppRoutes {
   SETTINGS_DATASOURCES_ADD = '/app/settings/datasources/add',
   SETTINGS_INTEGRATIONS = '/app/settings/integrations',
   SETTINGS_PERMISSION_GROUPS = '/app/settings/permission-groups',
-  SETTINGS_PERMISSION_GROUPS_ID = '/app/settings/permission-groups/:permissionGroupId',
+  SETTINGS_PERMISSION_GROUPS_ID_USERS = '/app/settings/permission-groups/:permissionGroupId/users',
+  SETTINGS_PERMISSION_GROUPS_ID_DATASET_GROUPS = '/app/settings/permission-groups/:permissionGroupId/dataset-groups',
+  SETTINGS_PERMISSION_GROUPS_ID_DATASETS = '/app/settings/permission-groups/:permissionGroupId/datasets',
   SETTINGS_API_KEYS = '/app/settings/api-keys',
   SETTINGS_EMBEDS = '/app/settings/embeds',
   SETTINGS_BILLING = '/app/settings/billing',
@@ -86,8 +88,16 @@ export type BusterAppRoutesWithArgs = {
   [BusterAppRoutes.SETTINGS_PERMISSION_GROUPS]: {
     route: BusterAppRoutes.SETTINGS_PERMISSION_GROUPS;
   };
-  [BusterAppRoutes.SETTINGS_PERMISSION_GROUPS_ID]: {
-    route: BusterAppRoutes.SETTINGS_PERMISSION_GROUPS_ID;
+  [BusterAppRoutes.SETTINGS_PERMISSION_GROUPS_ID_USERS]: {
+    route: BusterAppRoutes.SETTINGS_PERMISSION_GROUPS_ID_USERS;
+    permissionGroupId: string;
+  };
+  [BusterAppRoutes.SETTINGS_PERMISSION_GROUPS_ID_DATASET_GROUPS]: {
+    route: BusterAppRoutes.SETTINGS_PERMISSION_GROUPS_ID_DATASET_GROUPS;
+    permissionGroupId: string;
+  };
+  [BusterAppRoutes.SETTINGS_PERMISSION_GROUPS_ID_DATASETS]: {
+    route: BusterAppRoutes.SETTINGS_PERMISSION_GROUPS_ID_DATASETS;
     permissionGroupId: string;
   };
   [BusterAppRoutes.SETTINGS_API_KEYS]: { route: BusterAppRoutes.SETTINGS_API_KEYS };

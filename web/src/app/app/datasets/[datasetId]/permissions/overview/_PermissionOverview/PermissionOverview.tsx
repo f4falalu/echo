@@ -13,7 +13,6 @@ export const PermissionOverview: React.FC<{
   datasetId: string;
 }> = React.memo(({ datasetId }) => {
   const { data: datasetPermissionsOverview } = useGetDatasetPermissionsOverview(datasetId);
-  console.log(datasetPermissionsOverview);
 
   const { filteredItems, searchText, handleSearchChange } = useDebounceSearch({
     items: datasetPermissionsOverview?.users || [],

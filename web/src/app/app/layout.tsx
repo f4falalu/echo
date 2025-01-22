@@ -12,8 +12,7 @@ import { ClientRedirect } from './_components/ClientRedirect';
 import { AppLayoutClient } from './layoutClient';
 
 export default async function Layout({
-  children,
-  ...rest
+  children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
