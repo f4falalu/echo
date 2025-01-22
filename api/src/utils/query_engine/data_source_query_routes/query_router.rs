@@ -8,7 +8,8 @@ use crate::{
         clients::supabase_vault::read_secret,
         query_engine::{
             credentials::{
-                BigqueryCredentials, DatabricksCredentials, MySqlCredentials, PostgresCredentials, SnowflakeCredentials, SqlServerCredentials,
+                BigqueryCredentials, DatabricksCredentials, MySqlCredentials, PostgresCredentials,
+                SnowflakeCredentials, SqlServerCredentials,
             },
             data_source_connections::{
                 get_bigquery_client::get_bigquery_client,
@@ -228,7 +229,7 @@ async fn route_to_query(
         DataSourceType::Snowflake => {
             let credentials: SnowflakeCredentials = serde_json::from_str(&credentials_string)?;
 
-            let snowflake_client = match get_snowflake_client(&credentials).await {
+            let mut snowflake_client = match get_snowflake_client(&credentials).await {
                 Ok(snowflake_client) => snowflake_client,
                 Err(e) => {
                     tracing::error!("There was an issue while establishing a connection to the parent data source: {}", e);
