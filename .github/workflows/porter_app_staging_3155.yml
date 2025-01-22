@@ -8,7 +8,6 @@ name: Deploy to staging
 jobs:
   database-deploy:
     runs-on: blacksmith-16vcpu-ubuntu-2204
-    if: contains(github.event.head_commit.modified_files, 'api/migrations/') || contains(github.event.head_commit.added_files, 'api/migrations/')
     environment: staging
     steps:
       - name: Checkout code
