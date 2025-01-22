@@ -273,23 +273,11 @@ pub async fn get_dataset_overview(
                 if let Some((dataset_id, dataset_name, _)) =
                     datasets_query.iter().find(|(_, _, user_id)| *user_id == id)
                 {
-                    let mut access_lineage = vec![UserPermissionLineage {
-                        id: Some(id),
-                        type_: String::from("user"),
-                        name: Some(String::from("Direct Access")),
-                    }];
-                    access_lineage.push(UserPermissionLineage {
-                        id: Some(id),
-                        type_: String::from("user"),
-                        name: Some(String::from("Restricted Querier")),
-                    });
-                    lineage.push(access_lineage);
-
                     lineage.push(vec![
                         UserPermissionLineage {
-                            id: None,
+                            id: Some(*dataset_id),
                             type_: String::from("datasets"),
-                            name: Some(String::from("Datasets")),
+                            name: Some(String::from("Direct Access")),
                         },
                         UserPermissionLineage {
                             id: Some(*dataset_id),
@@ -304,23 +292,11 @@ pub async fn get_dataset_overview(
                     .iter()
                     .find(|(_, _, user_id)| *user_id == id)
                 {
-                    let mut access_lineage = vec![UserPermissionLineage {
-                        id: Some(id),
-                        type_: String::from("user"),
-                        name: Some(String::from("Permission Group Access")),
-                    }];
-                    access_lineage.push(UserPermissionLineage {
-                        id: Some(id),
-                        type_: String::from("user"),
-                        name: Some(String::from("Restricted Querier")),
-                    });
-                    lineage.push(access_lineage);
-
                     lineage.push(vec![
                         UserPermissionLineage {
-                            id: None,
+                            id: Some(*group_id),
                             type_: String::from("permissionGroups"),
-                            name: Some(String::from("Permission Groups")),
+                            name: Some(String::from("Permission Group")),
                         },
                         UserPermissionLineage {
                             id: Some(*group_id),
@@ -335,23 +311,11 @@ pub async fn get_dataset_overview(
                     .iter()
                     .find(|(_, _, user_id)| *user_id == id)
                 {
-                    let mut access_lineage = vec![UserPermissionLineage {
-                        id: Some(id),
-                        type_: String::from("user"),
-                        name: Some(String::from("Dataset Group Access")),
-                    }];
-                    access_lineage.push(UserPermissionLineage {
-                        id: Some(id),
-                        type_: String::from("user"),
-                        name: Some(String::from("Restricted Querier")),
-                    });
-                    lineage.push(access_lineage);
-
                     lineage.push(vec![
                         UserPermissionLineage {
-                            id: None,
+                            id: Some(*group_id),
                             type_: String::from("datasetGroups"),
-                            name: Some(String::from("Dataset Groups")),
+                            name: Some(String::from("Dataset Group")),
                         },
                         UserPermissionLineage {
                             id: Some(*group_id),
@@ -367,35 +331,21 @@ pub async fn get_dataset_overview(
                         .iter()
                         .find(|(_, _, _, _, user_id)| *user_id == id)
                 {
-                    let mut access_lineage = vec![UserPermissionLineage {
-                        id: Some(id),
-                        type_: String::from("user"),
-                        name: Some(String::from("Permission Group Dataset Group Access")),
-                    }];
-                    access_lineage.push(UserPermissionLineage {
-                        id: Some(id),
-                        type_: String::from("user"),
-                        name: Some(String::from("Restricted Querier")),
-                    });
-                    lineage.push(access_lineage);
-
                     lineage.push(vec![
                         UserPermissionLineage {
-                            id: None,
+                            id: Some(*perm_group_id),
                             type_: String::from("permissionGroups"),
-                            name: Some(String::from("Permission Groups")),
+                            name: Some(String::from("Permission Group")),
                         },
                         UserPermissionLineage {
                             id: Some(*perm_group_id),
                             type_: String::from("permissionGroups"),
                             name: Some(perm_group_name.clone()),
                         },
-                    ]);
-                    lineage.push(vec![
                         UserPermissionLineage {
-                            id: None,
+                            id: Some(*dataset_group_id),
                             type_: String::from("datasetGroups"),
-                            name: Some(String::from("Dataset Groups")),
+                            name: Some(String::from("Dataset Group")),
                         },
                         UserPermissionLineage {
                             id: Some(*dataset_group_id),

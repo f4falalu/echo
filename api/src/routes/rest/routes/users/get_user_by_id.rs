@@ -413,31 +413,27 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
             }
         },
         UserOrganizationRole::RestrictedQuerier => {
-            // Process datasets with access first
             let mut processed_dataset_ids = std::collections::HashSet::new();
 
             // Add datasets with direct access
             for (dataset_id, dataset_name) in direct_datasets {
                 processed_dataset_ids.insert(dataset_id);
-                let mut lineage = vec![];
-                lineage.push(vec![
-                    DatasetLineage {
-                        id: Some(id),
-                        type_: String::from("user"),
-                        name: Some(String::from("Direct Access")),
-                    },
-                    DatasetLineage {
-                        id: Some(id),
-                        type_: String::from("user"),
-                        name: Some(String::from("Restricted Querier")),
-                    },
-                ]);
-
                 datasets.push(DatasetInfo {
                     id: dataset_id,
-                    name: dataset_name,
-                    can_query: true,  // They have direct access
-                    lineage,
+                    name: dataset_name.clone(),
+                    can_query: true,
+                    lineage: vec![vec![
+                        DatasetLineage {
+                            id: Some(dataset_id),
+                            type_: String::from("datasets"),
+                            name: Some(String::from("Direct Access")),
+                        },
+                        DatasetLineage {
+                            id: Some(dataset_id),
+                            type_: String::from("datasets"),
+                            name: Some(dataset_name.clone()),
+                        },
+                    ]],
                 });
             }
 
@@ -447,37 +443,22 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
                     continue;
                 }
                 processed_dataset_ids.insert(dataset_id);
-                let mut lineage = vec![];
-                lineage.push(vec![
-                    DatasetLineage {
-                        id: Some(id),
-                        type_: String::from("user"),
-                        name: Some(String::from("Permission Group Access")),
-                    },
-                    DatasetLineage {
-                        id: Some(id),
-                        type_: String::from("user"),
-                        name: Some(String::from("Restricted Querier")),
-                    },
-                ]);
-                lineage.push(vec![
-                    DatasetLineage {
-                        id: None,
-                        type_: String::from("permissionGroups"),
-                        name: Some(String::from("Permission Groups")),
-                    },
-                    DatasetLineage {
-                        id: Some(group_id),
-                        type_: String::from("permissionGroups"),
-                        name: Some(group_name),
-                    },
-                ]);
-
                 datasets.push(DatasetInfo {
                     id: dataset_id,
                     name: dataset_name,
-                    can_query: true,  // They have permission group access
-                    lineage,
+                    can_query: true,
+                    lineage: vec![vec![
+                        DatasetLineage {
+                            id: Some(group_id),
+                            type_: String::from("permissionGroups"),
+                            name: Some(String::from("Permission Group")),
+                        },
+                        DatasetLineage {
+                            id: Some(group_id),
+                            type_: String::from("permissionGroups"),
+                            name: Some(group_name),
+                        },
+                    ]],
                 });
             }
 
@@ -487,37 +468,22 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
                     continue;
                 }
                 processed_dataset_ids.insert(dataset_id);
-                let mut lineage = vec![];
-                lineage.push(vec![
-                    DatasetLineage {
-                        id: Some(id),
-                        type_: String::from("user"),
-                        name: Some(String::from("Dataset Group Access")),
-                    },
-                    DatasetLineage {
-                        id: Some(id),
-                        type_: String::from("user"),
-                        name: Some(String::from("Restricted Querier")),
-                    },
-                ]);
-                lineage.push(vec![
-                    DatasetLineage {
-                        id: None,
-                        type_: String::from("datasetGroups"),
-                        name: Some(String::from("Dataset Groups")),
-                    },
-                    DatasetLineage {
-                        id: Some(group_id),
-                        type_: String::from("datasetGroups"),
-                        name: Some(group_name),
-                    },
-                ]);
-
                 datasets.push(DatasetInfo {
                     id: dataset_id,
                     name: dataset_name,
-                    can_query: true,  // They have dataset group access
-                    lineage,
+                    can_query: true,
+                    lineage: vec![vec![
+                        DatasetLineage {
+                            id: Some(group_id),
+                            type_: String::from("datasetGroups"),
+                            name: Some(String::from("Dataset Group")),
+                        },
+                        DatasetLineage {
+                            id: Some(group_id),
+                            type_: String::from("datasetGroups"),
+                            name: Some(group_name),
+                        },
+                    ]],
                 });
             }
 
@@ -527,49 +493,32 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
                     continue;
                 }
                 processed_dataset_ids.insert(dataset_id);
-                let mut lineage = vec![];
-                lineage.push(vec![
-                    DatasetLineage {
-                        id: Some(id),
-                        type_: String::from("user"),
-                        name: Some(String::from("Permission Group Dataset Group Access")),
-                    },
-                    DatasetLineage {
-                        id: Some(id),
-                        type_: String::from("user"),
-                        name: Some(String::from("Restricted Querier")),
-                    },
-                ]);
-                lineage.push(vec![
-                    DatasetLineage {
-                        id: None,
-                        type_: String::from("permissionGroups"),
-                        name: Some(String::from("Permission Groups")),
-                    },
-                    DatasetLineage {
-                        id: Some(perm_group_id),
-                        type_: String::from("permissionGroups"),
-                        name: Some(perm_group_name),
-                    },
-                ]);
-                lineage.push(vec![
-                    DatasetLineage {
-                        id: None,
-                        type_: String::from("datasetGroups"),
-                        name: Some(String::from("Dataset Groups")),
-                    },
-                    DatasetLineage {
-                        id: Some(group_id),
-                        type_: String::from("datasetGroups"),
-                        name: Some(group_name),
-                    },
-                ]);
-
                 datasets.push(DatasetInfo {
                     id: dataset_id,
                     name: dataset_name,
-                    can_query: true,  // They have permission group to dataset group access
-                    lineage,
+                    can_query: true,
+                    lineage: vec![vec![
+                        DatasetLineage {
+                            id: Some(perm_group_id),
+                            type_: String::from("permissionGroups"),
+                            name: Some(String::from("Permission Group")),
+                        },
+                        DatasetLineage {
+                            id: Some(perm_group_id),
+                            type_: String::from("permissionGroups"),
+                            name: Some(perm_group_name),
+                        },
+                        DatasetLineage {
+                            id: Some(group_id),
+                            type_: String::from("datasetGroups"),
+                            name: Some(String::from("Dataset Group")),
+                        },
+                        DatasetLineage {
+                            id: Some(group_id),
+                            type_: String::from("datasetGroups"),
+                            name: Some(group_name),
+                        },
+                    ]],
                 });
             }
 
@@ -581,7 +530,7 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
                 datasets.push(DatasetInfo {
                     id: dataset_id,
                     name: dataset_name,
-                    can_query: false,  // No access path found
+                    can_query: false,
                     lineage: vec![vec![
                         DatasetLineage {
                             id: Some(id),
