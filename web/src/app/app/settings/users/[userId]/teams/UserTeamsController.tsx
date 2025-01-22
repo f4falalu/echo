@@ -11,7 +11,7 @@ import { UserTeamsListContainer } from './UserTeamsListContainer';
 import { NewTeamModal } from '@appComponents/NewTeamModal';
 
 export const UserTeamsController: React.FC<{ userId: string }> = ({ userId }) => {
-  const { data: teams } = useGetUserTeams({ userId });
+  const { data: teams, refetch } = useGetUserTeams({ userId });
   const [isNewTeamModalOpen, setIsNewTeamModalOpen] = useState(false);
   const { filteredItems, searchText, handleSearchChange } = useDebounceSearch({
     items: teams || [],
@@ -20,6 +20,8 @@ export const UserTeamsController: React.FC<{ userId: string }> = ({ userId }) =>
 
   const onCloseNewTeamModal = useMemoizedFn(() => {
     setIsNewTeamModalOpen(false);
+    //HACK FOR NOW
+    refetch();
   });
 
   const onOpenNewTeamModal = useMemoizedFn(() => {
