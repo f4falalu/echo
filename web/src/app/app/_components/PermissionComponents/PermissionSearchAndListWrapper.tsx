@@ -19,7 +19,7 @@ export const PermissionSearchAndListWrapper: React.FC<{
           />
           {searchChildren}
         </div>
-        {children}
+        <div className="">{children}</div>
       </div>
     );
   }
