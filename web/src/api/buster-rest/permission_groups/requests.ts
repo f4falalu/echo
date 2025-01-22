@@ -72,7 +72,7 @@ export const getPermissionGroupDatasets = async ({
   id
 }: {
   id: string;
-}): Promise<GetPermissionGroupDatasetsResponse> => {
+}): Promise<GetPermissionGroupDatasetsResponse[]> => {
   return await mainApi.get(`/permission_groups/${id}/datasets`).then((res) => res.data);
 };
 

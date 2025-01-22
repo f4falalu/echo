@@ -10,7 +10,7 @@ export const PermissionSearchAndListWrapper: React.FC<{
 }> = React.memo(
   ({ children, searchText, handleSearchChange, searchChildren, searchPlaceholder }) => {
     return (
-      <div className="flex h-full flex-col space-y-3 pb-12">
+      <div className="flex flex-col space-y-3">
         <div className="flex items-center justify-between">
           <PermissionSearch
             searchText={searchText}
@@ -19,7 +19,7 @@ export const PermissionSearchAndListWrapper: React.FC<{
           />
           {searchChildren}
         </div>
-        {children}
+        <div className="">{children}</div>
       </div>
     );
   }

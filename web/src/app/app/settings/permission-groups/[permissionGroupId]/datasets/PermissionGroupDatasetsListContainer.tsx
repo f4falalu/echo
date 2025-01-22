@@ -1,4 +1,9 @@
-import { GetPermissionGroupUsersResponse, useUpdatePermissionGroupUsers } from '@/api/buster-rest';
+import {
+  GetPermissionGroupDatasetsResponse,
+  GetPermissionGroupUsersResponse,
+  useUpdatePermissionGroupDatasets,
+  useUpdatePermissionGroupUsers
+} from '@/api/buster-rest';
 import { PermissionAssignedCell } from '@/app/app/_components/PermissionComponents';
 import {
   BusterInfiniteList,
@@ -11,28 +16,27 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
 import React, { useMemo, useState } from 'react';
 import { ListUserItem } from '@/app/app/_components/ListContent';
-import { PermissionGroupUsersSelectedPopup } from './PermissionGroupUsersSelectedPopup';
+import { PermissionGroupDatasetSelectedPopup } from './PermissionGroupDatasetSelectedPopup';
 
-export const PermissionGroupUsersListContainer: React.FC<{
-  filteredUsers: GetPermissionGroupUsersResponse[];
+export const PermissionGroupDatasetsListContainer: React.FC<{
+  filteredDatasets: GetPermissionGroupDatasetsResponse[];
   permissionGroupId: string;
-}> = React.memo(({ filteredUsers, permissionGroupId }) => {
+}> = React.memo(({ filteredDatasets, permissionGroupId }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
-  const { mutateAsync: updatePermissionGroupUsers } =
-    useUpdatePermissionGroupUsers(permissionGroupId);
+  const { mutateAsync: updatePermissionGroupDatasets } = useUpdatePermissionGroupDatasets();
 
   const onSelectAssigned = useMemoizedFn(async (params: { id: string; assigned: boolean }) => {
-    await updatePermissionGroupUsers([params]);
+    await updatePermissionGroupDatasets({
+      permissionGroupId,
+      data: [params]
+    });
   });
 
   const columns: BusterListColumn[] = useMemo(
     () => [
       {
         title: 'Name',
-        dataIndex: 'name',
-        render: (name: string, user: GetPermissionGroupUsersResponse) => {
-          return <ListUserItem name={name} email={user.email} />;
-        }
+        dataIndex: 'name'
       },
       {
         title: 'Assigned',
@@ -59,23 +63,23 @@ export const PermissionGroupUsersListContainer: React.FC<{
     const result: {
       cannotQueryPermissionUsers: BusterListRowItem[];
       canQueryPermissionUsers: BusterListRowItem[];
-    } = filteredUsers.reduce<{
+    } = filteredDatasets.reduce<{
       cannotQueryPermissionUsers: BusterListRowItem[];
       canQueryPermissionUsers: BusterListRowItem[];
     }>(
-      (acc, user) => {
-        const userItem: BusterListRowItem = {
-          id: user.id,
-          data: user,
+      (acc, dataset) => {
+        const datasetItem: BusterListRowItem = {
+          id: dataset.id,
+          data: dataset,
           link: createBusterRoute({
             route: BusterRoutes.APP_SETTINGS_USERS_ID,
-            userId: user.id
+            userId: dataset.id
           })
         };
-        if (user.assigned) {
-          acc.canQueryPermissionUsers.push(userItem);
+        if (dataset.assigned) {
+          acc.canQueryPermissionUsers.push(datasetItem);
         } else {
-          acc.cannotQueryPermissionUsers.push(userItem);
+          acc.cannotQueryPermissionUsers.push(datasetItem);
         }
         return acc;
       },
@@ -85,7 +89,7 @@ export const PermissionGroupUsersListContainer: React.FC<{
       }
     );
     return result;
-  }, [filteredUsers]);
+  }, [filteredDatasets]);
 
   const rows = useMemo(
     () =>
@@ -117,7 +121,7 @@ export const PermissionGroupUsersListContainer: React.FC<{
   return (
     <InfiniteListContainer
       popupNode={
-        <PermissionGroupUsersSelectedPopup
+        <PermissionGroupDatasetSelectedPopup
           selectedRowKeys={selectedRowKeys}
           onSelectChange={setSelectedRowKeys}
           permissionGroupId={permissionGroupId}
@@ -137,4 +141,4 @@ export const PermissionGroupUsersListContainer: React.FC<{
   );
 });
 
-PermissionGroupUsersListContainer.displayName = 'PermissionGroupUsersListContainer';
+PermissionGroupDatasetsListContainer.displayName = 'PermissionGroupUsersListContainer';
