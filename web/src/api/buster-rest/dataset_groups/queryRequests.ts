@@ -12,7 +12,6 @@ import {
   getDatasetGroupDatasets,
   getDatasetGroupPermissionGroups
 } from './requests';
-import { updateDatasetDatasetGroups } from '../datasets';
 import { useQueryClient } from '@tanstack/react-query';
 import { useMemoizedFn } from 'ahooks';
 import { LIST_DATASET_GROUPS_QUERY_KEY } from '../datasets/permissions/config';
@@ -22,6 +21,7 @@ import {
   GetDatasetGroupPermissionGroupsResponse,
   GetDatasetGroupUsersResponse
 } from './responseInterfaces';
+import { timeout } from '@/utils';
 
 export const useListDatasetGroups = () => {
   const queryFn = useMemoizedFn(() => listDatasetGroups());
@@ -66,27 +66,38 @@ export const useGetDatasetGroup = (datasetId: string) => {
 };
 
 export const useCreateDatasetGroup = (datasetId?: string, userId?: string) => {
+  const { mutateAsync: updateDatasetGroupDatasets } = useUpdateDatasetGroupDatasets();
   const queryClient = useQueryClient();
-  const mutationFn = useMemoizedFn(async (data: Parameters<typeof createDatasetGroup>[0]) => {
-    const res = await createDatasetGroup(data);
-    if (datasetId) {
-      await Promise.all([
-        updateDatasetDatasetGroups({
-          dataset_id: datasetId,
-          groups: [{ id: res.id, assigned: true }]
-        }),
-        queryClient.invalidateQueries({ queryKey: [LIST_DATASET_GROUPS_QUERY_KEY, datasetId] }),
-        queryClient.invalidateQueries({ queryKey: ['dataset_groups'] })
-      ]);
-    }
 
-    if (userId) {
-      await queryClient.invalidateQueries({
-        queryKey: USER_PERMISSIONS_DATASET_GROUPS_QUERY_KEY(userId)
-      });
+  const mutationFn = useMemoizedFn(
+    async ({
+      datasetsToAdd,
+      ...data
+    }: Parameters<typeof createDatasetGroup>[0] & { datasetsToAdd?: string[] }) => {
+      const newDatasetGroup = await createDatasetGroup(data);
+      if (newDatasetGroup?.id && datasetsToAdd?.length) {
+        await timeout(200);
+        await updateDatasetGroupDatasets({
+          datasetGroupId: newDatasetGroup.id,
+          groups: datasetsToAdd.map((datasetId) => ({ id: datasetId, assigned: true }))
+        });
+      }
+
+      if (datasetId) {
+        await queryClient.invalidateQueries({
+          queryKey: [LIST_DATASET_GROUPS_QUERY_KEY, datasetId]
+        });
+      }
+      await queryClient.invalidateQueries({ queryKey: ['dataset_groups'] });
+
+      if (userId) {
+        await queryClient.invalidateQueries({
+          queryKey: USER_PERMISSIONS_DATASET_GROUPS_QUERY_KEY(userId)
+        });
+      }
+      return newDatasetGroup;
     }
-    return res;
-  });
+  );
 
   return useCreateReactMutation({
     mutationFn
@@ -139,23 +150,31 @@ export const useUpdateDatasetGroupUsers = (datasetGroupId: string) => {
   });
 };
 
-export const useUpdateDatasetGroupDatasets = (datasetGroupId: string) => {
+export const useUpdateDatasetGroupDatasets = () => {
   const queryClient = useQueryClient();
-  const mutationFn = useMemoizedFn((data: { id: string; assigned: boolean }[]) => {
-    queryClient.setQueryData(
-      ['dataset_groups', datasetGroupId, 'datasets'],
-      (oldData: GetDatasetGroupDatasetsResponse[]) => {
-        return oldData.map((dataset) => {
-          const datasetToUpdate = data.find((d) => d.id === dataset.id);
-          if (datasetToUpdate) {
-            return { ...dataset, assigned: datasetToUpdate.assigned };
-          }
-          return dataset;
-        });
-      }
-    );
-    return updateDatasetGroupDatasets(datasetGroupId, data);
-  });
+  const mutationFn = useMemoizedFn(
+    ({
+      datasetGroupId,
+      groups
+    }: {
+      datasetGroupId: string;
+      groups: { id: string; assigned: boolean }[];
+    }) => {
+      queryClient.setQueryData(
+        ['dataset_groups', datasetGroupId, 'datasets'],
+        (oldData: GetDatasetGroupDatasetsResponse[]) => {
+          return oldData?.map((dataset) => {
+            const datasetToUpdate = groups.find((d) => d.id === dataset.id);
+            if (datasetToUpdate) {
+              return { ...dataset, assigned: datasetToUpdate.assigned };
+            }
+            return dataset;
+          });
+        }
+      );
+      return updateDatasetGroupDatasets(datasetGroupId, groups);
+    }
+  );
   return useCreateReactMutation({
     mutationFn
   });

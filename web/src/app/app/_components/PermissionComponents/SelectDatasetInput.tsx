@@ -1,22 +1,35 @@
 import { useGetDatasets } from '@/api/buster-rest';
+import { AppSelectMultiple } from '@/components';
+import { useMemoizedFn } from 'ahooks';
 import { Select } from 'antd';
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 
 export const SelectedDatasetInput: React.FC<{
-  onSetDatasetId: (datasetId: string) => void;
+  onSetDatasetId: (datasetIds: string[]) => void;
 }> = React.memo(({ onSetDatasetId }) => {
   const { data: datasets, isFetched } = useGetDatasets();
+  const [value, setValue] = useState<string[]>([]);
+
+  const onChangePreflight = useMemoizedFn((value: string[]) => {
+    setValue(value);
+    onSetDatasetId(value);
+  });
+
+  const options = useMemo(() => {
+    return datasets?.map((dataset) => ({
+      label: dataset.name,
+      value: dataset.id
+    }));
+  }, [datasets]);
 
   return (
-    <Select
+    <AppSelectMultiple
+      options={options}
+      onChange={onChangePreflight}
+      value={value}
       placeholder="Select a dataset"
       loading={!isFetched}
       className="w-full"
-      onChange={onSetDatasetId}
-      options={datasets?.map((dataset) => ({
-        label: dataset.name,
-        value: dataset.id
-      }))}
     />
   );
 });

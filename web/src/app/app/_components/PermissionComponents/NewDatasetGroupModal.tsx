@@ -14,16 +14,15 @@ interface NewDatasetGroupModalProps {
 }
 
 export const NewDatasetGroupModal: React.FC<NewDatasetGroupModalProps> = React.memo(
-  ({ isOpen, onClose, datasetId: datasetIdProp, userId }) => {
-    const [datasetId, setDatasetId] = useState<string | null>(datasetIdProp);
+  ({ isOpen, onClose, datasetId, userId }) => {
+    const [datasetsToAdd, setDatasetsToAdd] = useState<string[]>([]);
 
     const { mutateAsync, isPending } = useCreateDatasetGroup(datasetId || undefined, userId);
     const inputRef = useRef<InputRef>(null);
     const { openInfoMessage } = useBusterNotifications();
 
-    const onSetDatasetId = useMemoizedFn((datasetId: string) => {
-      setDatasetId(datasetId);
-      inputRef.current?.focus();
+    const onSetDatasetId = useMemoizedFn((datasetIds: string[]) => {
+      setDatasetsToAdd(datasetIds);
     });
 
     const onCreateNewDatasetGroup = useMemoizedFn(async () => {
@@ -34,7 +33,8 @@ export const NewDatasetGroupModal: React.FC<NewDatasetGroupModalProps> = React.m
         return;
       }
       await mutateAsync({
-        name: inputValue
+        name: inputValue,
+        datasetsToAdd
       });
       onClose();
     });
@@ -56,25 +56,15 @@ export const NewDatasetGroupModal: React.FC<NewDatasetGroupModalProps> = React.m
           text: 'Create dataset group',
           onClick: onCreateNewDatasetGroup,
           loading: isPending,
-          disabled: !datasetId
+          disabled: datasetsToAdd.length === 0
         }
       };
-    }, [isPending, datasetId]);
-
-    useEffect(() => {
-      if (isOpen && datasetIdProp) {
-        setTimeout(() => {
-          inputRef.current?.focus();
-        }, 100);
-      }
-    }, [isOpen]);
+    }, [isPending, datasetsToAdd.length, datasetId]);
 
     return (
       <AppModal open={isOpen} onClose={onClose} header={header} footer={footer}>
         <div className="flex flex-col gap-2.5">
-          {isOpen && datasetIdProp === null && (
-            <SelectedDatasetInput onSetDatasetId={onSetDatasetId} />
-          )}
+          <SelectedDatasetInput onSetDatasetId={onSetDatasetId} />
           <Input ref={inputRef} placeholder="Name of dataset group" />
         </div>
       </AppModal>

@@ -20,7 +20,7 @@ export const PermissionAssignedButton: React.FC<{
   }, [text]);
 
   const buttonText = useMemo(() => {
-    return text === 'included' ? 'Included' : 'Assigned';
+    return text === 'included' ? 'Include' : 'Assign';
   }, [text]);
 
   const onAssignClick = useMemoizedFn(async (assigned: boolean) => {
@@ -55,7 +55,7 @@ export const PermissionAssignedButton: React.FC<{
 
   return (
     <Dropdown menu={menuProps} trigger={['click']}>
-      <Button icon={<AppMaterialIcons icon="done_all" />} type="default" onClick={onButtonClick}>
+      <Button type="default" onClick={onButtonClick}>
         {buttonText}
       </Button>
     </Dropdown>
