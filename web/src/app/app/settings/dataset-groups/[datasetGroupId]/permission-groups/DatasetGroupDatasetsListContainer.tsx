@@ -1,6 +1,7 @@
 import {
+  GetDatasetGroupPermissionGroupsResponse,
   GetPermissionGroupDatasetGroupsResponse,
-  useUpdatePermissionGroupDatasetGroups
+  useUpdateDatasetGroupPermissionGroups
 } from '@/api/buster-rest';
 import { PermissionAssignedCell } from '@appComponents/PermissionComponents';
 import {
@@ -13,18 +14,18 @@ import {
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
 import React, { useMemo, useState } from 'react';
-import { PermissionGroupDatasetGroupSelectedPopup } from './PermissionGroupDatasetSelectedPopup';
+import { DatasetGroupDatasetGroupSelectedPopup } from './DatasetGroupDatasetSelectedPopup';
 
-export const PermissionGroupDatasetGroupsListContainer: React.FC<{
-  filteredDatasetGroups: GetPermissionGroupDatasetGroupsResponse[];
-  permissionGroupId: string;
-}> = React.memo(({ filteredDatasetGroups, permissionGroupId }) => {
+export const DatasetGroupDatasetGroupsListContainer: React.FC<{
+  filteredDatasetGroups: GetDatasetGroupPermissionGroupsResponse[];
+  datasetGroupId: string;
+}> = React.memo(({ filteredDatasetGroups, datasetGroupId }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
-  const { mutateAsync: updatePermissionGroupDatasetGroups } =
-    useUpdatePermissionGroupDatasetGroups(permissionGroupId);
+  const { mutateAsync: updateDatasetGroupDatasetGroups } =
+    useUpdateDatasetGroupPermissionGroups(datasetGroupId);
 
   const onSelectAssigned = useMemoizedFn(async (params: { id: string; assigned: boolean }) => {
-    await updatePermissionGroupDatasetGroups([params]);
+    await updateDatasetGroupDatasetGroups([params]);
   });
 
   const columns: BusterListColumn[] = useMemo(
@@ -113,13 +114,15 @@ export const PermissionGroupDatasetGroupsListContainer: React.FC<{
     [canQueryPermissionDatasetGroups, cannotQueryPermissionDatasetGroups]
   );
 
+  console.log(filteredDatasetGroups);
+
   return (
     <InfiniteListContainer
       popupNode={
-        <PermissionGroupDatasetGroupSelectedPopup
+        <DatasetGroupDatasetGroupSelectedPopup
           selectedRowKeys={selectedRowKeys}
           onSelectChange={setSelectedRowKeys}
-          permissionGroupId={permissionGroupId}
+          datasetGroupId={datasetGroupId}
         />
       }>
       <BusterInfiniteList
@@ -136,4 +139,4 @@ export const PermissionGroupDatasetGroupsListContainer: React.FC<{
   );
 });
 
-PermissionGroupDatasetGroupsListContainer.displayName = 'PermissionGroupDatasetGroupsListContainer';
+DatasetGroupDatasetGroupsListContainer.displayName = 'DatasetGroupDatasetGroupsListContainer';

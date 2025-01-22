@@ -9,7 +9,7 @@ import { SelectedDatasetInput } from './SelectDatasetInput';
 interface NewDatasetGroupModalProps {
   isOpen: boolean;
   onClose: () => void;
-  datasetId: string | null;
+  datasetId?: string | null;
   userId?: string;
 }
 

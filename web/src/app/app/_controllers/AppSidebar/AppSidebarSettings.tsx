@@ -186,29 +186,29 @@ const permissionsAndSecurityItems: MenuItem[] = [
         Permission Groups
       </Link>
     )
-  },
-  {
-    key: BusterRoutes.APP_SETTINGS_ATTRIBUTES,
-    label: (
-      <Link
-        href={createBusterRoute({
-          route: BusterRoutes.APP_SETTINGS_ATTRIBUTES
-        })}>
-        Attributes
-      </Link>
-    )
-  },
-  {
-    key: BusterRoutes.APP_SETTINGS_SECURITY,
-    label: (
-      <Link
-        href={createBusterRoute({
-          route: BusterRoutes.APP_SETTINGS_SECURITY
-        })}>
-        Security
-      </Link>
-    )
   }
+  // {
+  //   key: BusterRoutes.APP_SETTINGS_ATTRIBUTES,
+  //   label: (
+  //     <Link
+  //       href={createBusterRoute({
+  //         route: BusterRoutes.APP_SETTINGS_ATTRIBUTES
+  //       })}>
+  //       Attributes
+  //     </Link>
+  //   )
+  // },
+  // {
+  //   key: BusterRoutes.APP_SETTINGS_SECURITY,
+  //   label: (
+  //     <Link
+  //       href={createBusterRoute({
+  //         route: BusterRoutes.APP_SETTINGS_SECURITY
+  //       })}>
+  //       Security
+  //     </Link>
+  //   )
+  // }
 ];
 
 const useStyles = createStyles(({ token, css }) => {

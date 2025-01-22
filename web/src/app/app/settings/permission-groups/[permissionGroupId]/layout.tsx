@@ -5,10 +5,13 @@ import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 import { UsersBackButton } from './PermissionBackButton';
 import { PermissionAppSegments } from './PermissionAppSegments';
 
-export const PermissionGroupLayout: React.FC<{
+export default async function Layout({
+  children,
+  params: { permissionGroupId }
+}: {
   children: React.ReactNode;
   params: { permissionGroupId: string };
-}> = async ({ children, params: { permissionGroupId } }) => {
+}) {
   const queryClient = await prefetchPermissionGroup(permissionGroupId);
 
   return (
@@ -21,6 +24,4 @@ export const PermissionGroupLayout: React.FC<{
       </div>
     </HydrationBoundary>
   );
-};
-
-export default PermissionGroupLayout;
+}

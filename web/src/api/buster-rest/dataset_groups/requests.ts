@@ -1,3 +1,4 @@
+import { serverFetch } from '@/api/createServerInstance';
 import { mainApi } from '../instances';
 import {
   DatasetGroup,
@@ -26,10 +27,18 @@ export const getDatasetGroup = async (id: string) => {
   return mainApi.get(`/dataset_groups/${id}`).then((res) => res.data);
 };
 
+export const getDatasetGroup_server = async (id: string) => {
+  return serverFetch<DatasetGroup>(`/dataset_groups/${id}`);
+};
+
 export const getDatasetGroupUsers = async (id: string) => {
   return mainApi
     .get<GetDatasetGroupUsersResponse[]>(`/dataset_groups/${id}/users`)
     .then((res) => res.data);
+};
+
+export const getDatasetGroupUsers_server = async (id: string) => {
+  return serverFetch<GetDatasetGroupUsersResponse[]>(`/dataset_groups/${id}/users`);
 };
 
 export const getDatasetGroupDatasets = async (id: string) => {
@@ -38,10 +47,20 @@ export const getDatasetGroupDatasets = async (id: string) => {
     .then((res) => res.data);
 };
 
+export const getDatasetGroupDatasets_server = async (id: string) => {
+  return serverFetch<GetDatasetGroupDatasetsResponse[]>(`/dataset_groups/${id}/datasets`);
+};
+
 export const getDatasetGroupPermissionGroups = async (id: string) => {
   return mainApi
     .get<GetDatasetGroupPermissionGroupsResponse[]>(`/dataset_groups/${id}/permission_groups`)
     .then((res) => res.data);
+};
+
+export const getDatasetGroupPermissionGroups_server = async (id: string) => {
+  return serverFetch<GetDatasetGroupPermissionGroupsResponse[]>(
+    `/dataset_groups/${id}/permission_groups`
+  );
 };
 
 export const updateDatasetGroupUsers = async (
