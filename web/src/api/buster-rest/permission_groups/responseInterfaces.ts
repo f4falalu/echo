@@ -26,4 +26,5 @@ export interface GetPermissionGroupDatasetsResponse {
 export interface GetPermissionGroupDatasetGroupsResponse {
   id: string;
   assigned: boolean;
+  name: string;
 }
