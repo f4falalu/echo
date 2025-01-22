@@ -175,11 +175,11 @@ export const ThreadItemsContainer: React.FC<{
         onSelectChange={onSelectChange}
         selectedRowKeys={selectedRowKeys}
         emptyState={
-          !loading ? (
-            <MetricsEmptyState type={type} openNewCollectionModal={openNewCollectionModal} />
-          ) : (
-            <></>
-          )
+          <EmptyState
+            loading={loading}
+            type={type}
+            openNewCollectionModal={openNewCollectionModal}
+          />
         }
       />
 
@@ -191,6 +191,19 @@ export const ThreadItemsContainer: React.FC<{
     </div>
   );
 };
+
+const EmptyState: React.FC<{
+  loading: boolean;
+  type: 'logs' | 'threads';
+  openNewCollectionModal: () => void;
+}> = React.memo(({ loading, type, openNewCollectionModal }) => {
+  if (loading) {
+    return <></>;
+  }
+
+  return <MetricsEmptyState openNewCollectionModal={openNewCollectionModal} type={type} />;
+});
+EmptyState.displayName = 'EmptyState';
 
 const MetricsEmptyState: React.FC<{
   openNewCollectionModal: () => void;

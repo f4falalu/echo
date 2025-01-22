@@ -1,49 +1,37 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PermissionAppSegments } from './PermissionAppSegments';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useParams } from 'next/navigation';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { PermissionApps } from './config';
-import { PermissionDatasetGroups } from './_PermissionDatasetGroups';
-import { PermissionOverview } from './_PermissionOverview';
-import { PermissionPermissionGroup } from './_PermissionPermissionGroup';
-import { PermissionUsers } from './_PermissionUsers';
+import { BusterRoutes } from '@/routes';
 
-const selectedAppComponent: Record<PermissionApps, React.FC<{ datasetId: string }>> = {
-  [PermissionApps.OVERVIEW]: PermissionOverview,
-  [PermissionApps.PERMISSION_GROUPS]: PermissionPermissionGroup,
-  [PermissionApps.DATASET_GROUPS]: PermissionDatasetGroups,
-  [PermissionApps.USERS]: PermissionUsers
+const routeToApp: Record<string, PermissionApps> = {
+  [BusterRoutes.APP_DATASETS_ID_PERMISSIONS_OVERVIEW]: PermissionApps.OVERVIEW,
+  [BusterRoutes.APP_DATASETS_ID_PERMISSIONS_PERMISSION_GROUPS]: PermissionApps.PERMISSION_GROUPS,
+  [BusterRoutes.APP_DATASETS_ID_PERMISSIONS_DATASET_GROUPS]: PermissionApps.DATASET_GROUPS,
+  [BusterRoutes.APP_DATASETS_ID_PERMISSIONS_USERS]: PermissionApps.USERS
 };
 
-const memoizedAnimation = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 },
-  transition: { duration: 0.125 }
-};
-export const PermissionsAppContainer: React.FC<{ datasetId: string }> = React.memo(
-  ({ datasetId }) => {
-    const [selectedApp, setSelectedApp] = useState<PermissionApps>(PermissionApps.OVERVIEW);
+export const PermissionsAppContainer: React.FC<{
+  children: React.ReactNode;
+}> = React.memo(({ children }) => {
+  const { datasetId } = useParams();
+  const currentRoute = useAppLayoutContextSelector((x) => x.currentRoute);
+  const [selectedApp, setSelectedApp] = useState<PermissionApps>(PermissionApps.OVERVIEW);
 
-    const Component = selectedAppComponent[selectedApp];
+  useEffect(() => {
+    setSelectedApp(routeToApp[currentRoute] || PermissionApps.OVERVIEW);
+  }, [currentRoute]);
 
-    return (
-      <>
-        <PermissionAppSegments
-          selectedApp={selectedApp}
-          setSelectedApp={setSelectedApp}
-          datasetId={datasetId}
-        />
+  return (
+    <>
+      <PermissionAppSegments selectedApp={selectedApp} datasetId={datasetId as string} />
 
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div {...memoizedAnimation} key={selectedApp} className="w-full">
-            <Component datasetId={datasetId} />
-          </motion.div>
-        </AnimatePresence>
-      </>
-    );
-  }
-);
+      {children}
+    </>
+  );
+});
 
 PermissionsAppContainer.displayName = 'PermissionsAppContainer';

@@ -16,6 +16,9 @@ export const BusterListRowComponentSelector = React.forwardRef<
     rows: BusterListRow[];
     style?: React.CSSProperties;
     columnRowVariant?: BusterListProps['columnRowVariant'];
+    useRowClickSelectChange: boolean;
+    rowClassName?: string;
+    isLastChild: boolean;
   }
 >(
   (
@@ -24,11 +27,14 @@ export const BusterListRowComponentSelector = React.forwardRef<
       row,
       rows,
       columns,
+      isLastChild,
       onSelectChange,
       onSelectSectionChange,
       selectedRowKeys,
       onContextMenuClick,
-      columnRowVariant
+      columnRowVariant,
+      rowClassName,
+      useRowClickSelectChange = false
     },
     ref
   ) => {
@@ -42,6 +48,7 @@ export const BusterListRowComponentSelector = React.forwardRef<
           key={row.id}
           rows={rows}
           selectedRowKeys={selectedRowKeys}
+          rowClassName={rowClassName}
           onSelectSectionChange={onSelectSectionChange}
         />
       );
@@ -53,11 +60,14 @@ export const BusterListRowComponentSelector = React.forwardRef<
         row={row}
         columns={columns}
         key={row.id}
+        rowClassName={rowClassName}
         onSelectChange={onSelectChange}
         checked={!!selectedRowKeys?.includes(row.id)}
         ref={ref}
         onContextMenuClick={onContextMenuClick}
         columnRowVariant={columnRowVariant}
+        useRowClickSelectChange={useRowClickSelectChange}
+        isLastChild={isLastChild}
       />
     );
   }

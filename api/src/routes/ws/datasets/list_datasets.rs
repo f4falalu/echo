@@ -1,7 +1,6 @@
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use diesel::{
-    allow_columns_to_appear_in_same_group_by_clause,
     dsl::sql,
     sql_types::{Nullable, Timestamptz},
     BoolExpressionMethods, ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl,
@@ -77,20 +76,6 @@ pub struct ListDatasetObject {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub belongs_to: Option<bool>,
 }
-
-allow_columns_to_appear_in_same_group_by_clause!(
-    datasets::id,
-    datasets::name,
-    datasets::created_at,
-    datasets::updated_at,
-    datasets::enabled,
-    datasets::imported,
-    users::id,
-    users::name,
-    users::email,
-    data_sources::id,
-    data_sources::name,
-);
 
 pub async fn list_datasets(user: &User, req: ListDatasetsRequest) -> Result<()> {
     let list_dashboards_res = match list_datasets_handler(

@@ -88,7 +88,7 @@ const SelectedButton: React.FC<{
       <Text>{text}</Text>
 
       <div
-        className="ml-1"
+        className="ml-1.5"
         style={{
           borderLeft: `0.5px dashed ${token.colorBorder}`,
           height: token.controlHeight - 2

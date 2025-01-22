@@ -1,4 +1,8 @@
-import { useCreateReactMutation, useCreateReactQuery } from '@/api/createReactQuery';
+import {
+  PREFETCH_STALE_TIME,
+  useCreateReactMutation,
+  useCreateReactQuery
+} from '@/api/createReactQuery';
 import {
   createDataset,
   deployDataset,
@@ -59,7 +63,7 @@ export const useGetDatasetMetadata = (datasetId: string) => {
     queryKey: ['datasetMetadata', datasetId],
     queryFn,
     enabled: !!datasetId,
-    staleTime: 1000 * 10
+    staleTime: PREFETCH_STALE_TIME
   });
   return res;
 };

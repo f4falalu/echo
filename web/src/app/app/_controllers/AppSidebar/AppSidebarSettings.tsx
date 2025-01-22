@@ -72,28 +72,6 @@ const workSpaceItems: MenuItem[] = [
     )
   },
   {
-    key: BusterRoutes.SETTINGS_DATASETS,
-    label: (
-      <Link
-        href={createBusterRoute({
-          route: BusterRoutes.SETTINGS_DATASETS
-        })}>
-        Datasets
-      </Link>
-    )
-  },
-  {
-    key: BusterRoutes.SETTINGS_PERMISSION_GROUPS,
-    label: (
-      <Link
-        href={createBusterRoute({
-          route: BusterRoutes.SETTINGS_PERMISSION_GROUPS
-        })}>
-        Permission Groups
-      </Link>
-    )
-  },
-  {
     key: BusterRoutes.SETTINGS_API_KEYS,
     label: (
       <Link
@@ -177,11 +155,11 @@ const permissionsAndSecurityItems: MenuItem[] = [
     )
   },
   {
-    key: BusterRoutes.APP_SETTINGS_DATASETS,
+    key: BusterRoutes.APP_DATASETS,
     label: (
       <Link
         href={createBusterRoute({
-          route: BusterRoutes.APP_SETTINGS_DATASETS
+          route: BusterRoutes.APP_DATASETS
         })}>
         Datasets
       </Link>
@@ -199,27 +177,38 @@ const permissionsAndSecurityItems: MenuItem[] = [
     )
   },
   {
-    key: BusterRoutes.APP_SETTINGS_ATTRIBUTES,
+    key: BusterRoutes.SETTINGS_PERMISSION_GROUPS,
     label: (
       <Link
         href={createBusterRoute({
-          route: BusterRoutes.APP_SETTINGS_ATTRIBUTES
+          route: BusterRoutes.SETTINGS_PERMISSION_GROUPS
         })}>
-        Attributes
-      </Link>
-    )
-  },
-  {
-    key: BusterRoutes.APP_SETTINGS_SECURITY,
-    label: (
-      <Link
-        href={createBusterRoute({
-          route: BusterRoutes.APP_SETTINGS_SECURITY
-        })}>
-        Security
+        Permission Groups
       </Link>
     )
   }
+  // {
+  //   key: BusterRoutes.APP_SETTINGS_ATTRIBUTES,
+  //   label: (
+  //     <Link
+  //       href={createBusterRoute({
+  //         route: BusterRoutes.APP_SETTINGS_ATTRIBUTES
+  //       })}>
+  //       Attributes
+  //     </Link>
+  //   )
+  // },
+  // {
+  //   key: BusterRoutes.APP_SETTINGS_SECURITY,
+  //   label: (
+  //     <Link
+  //       href={createBusterRoute({
+  //         route: BusterRoutes.APP_SETTINGS_SECURITY
+  //       })}>
+  //       Security
+  //     </Link>
+  //   )
+  // }
 ];
 
 const useStyles = createStyles(({ token, css }) => {

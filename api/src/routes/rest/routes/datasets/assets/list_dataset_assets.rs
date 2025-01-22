@@ -34,7 +34,12 @@ pub async fn list_assets(
     Path((dataset_id, permission_type)): Path<(Uuid, String)>,
 ) -> Result<ApiResponse<Vec<AssetWithAssignment>>, (StatusCode, &'static str)> {
     // Check if user is workspace admin or data admin
-    match is_user_workspace_admin_or_data_admin(&user.id).await {
+    let organization_id = get_user_organization_id(&user.id).await.map_err(|e| {
+        tracing::error!("Error getting user organization id: {:?}", e);
+        (StatusCode::INTERNAL_SERVER_ERROR, "Error getting user organization id")
+    })?;
+
+    match is_user_workspace_admin_or_data_admin(&user, &organization_id).await {
         Ok(true) => (),
         Ok(false) => return Err((StatusCode::FORBIDDEN, "Insufficient permissions")),
         Err(e) => {
@@ -45,14 +50,6 @@ pub async fn list_assets(
             ));
         }
     }
-
-    let organization_id = match get_user_organization_id(&user.id).await {
-        Ok(id) => id,
-        Err(e) => {
-            tracing::error!("Error getting user organization id: {:?}", e);
-            return Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error"));
-        }
-    };
 
     let mut conn = get_pg_pool().get().await.map_err(|e| {
         tracing::error!("Error getting database connection: {:?}", e);

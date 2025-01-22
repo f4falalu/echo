@@ -1,15 +1,24 @@
-import { BackButton } from '@/components/buttons/BackButton';
-import { createBusterRoute, BusterRoutes } from '@/routes';
 import React from 'react';
+import { UsersBackButton } from './_LayoutHeaderAndSegment';
+import { prefetchGetUser } from '@/api/buster-rest';
+import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
+import { LayoutHeaderAndSegment } from './_LayoutHeaderAndSegment';
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({
+  children,
+  params
+}: {
+  children: React.ReactNode;
+  params: { userId: string };
+}) {
+  const queryClient = await prefetchGetUser(params.userId);
+
   return (
-    <div className="flex flex-col space-y-5 px-12 py-12">
-      <BackButton
-        text="Users"
-        linkUrl={createBusterRoute({ route: BusterRoutes.APP_SETTINGS_USERS })}
-      />
-      {children}
+    <div className="flex h-full flex-col space-y-5 overflow-y-auto px-12 py-12">
+      <UsersBackButton />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        {<LayoutHeaderAndSegment userId={params.userId}>{children}</LayoutHeaderAndSegment>}
+      </HydrationBoundary>
     </div>
   );
 }

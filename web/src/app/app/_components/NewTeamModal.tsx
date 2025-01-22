@@ -2,20 +2,18 @@ import { Input, InputRef } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useMemoizedFn } from 'ahooks';
 import { usePermissionsContextSelector } from '@/context/Permissions';
-import { BusterRoutes } from '@/routes';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { AppModal } from '@/components/modal';
 
 export const NewTeamModal: React.FC<{
-  open: boolean;
+  isOpen: boolean;
   onClose: () => void;
-}> = React.memo(({ open, onClose }) => {
+  userId?: string;
+}> = React.memo(({ isOpen, onClose, userId }) => {
   const inputRef = useRef<InputRef>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [creatingTeam, setCreatingTeam] = useState(false);
   const createNewTeam = usePermissionsContextSelector((x) => x.createNewTeam);
-  const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
 
   const disableSubmit = !title;
 
@@ -50,7 +48,7 @@ export const NewTeamModal: React.FC<{
   }, [creatingTeam, disableSubmit]);
 
   useEffect(() => {
-    if (open)
+    if (isOpen)
       setTimeout(() => {
         inputRef.current?.focus();
       }, 150);
@@ -58,7 +56,7 @@ export const NewTeamModal: React.FC<{
 
   return (
     <AppModal
-      open={open}
+      open={isOpen}
       onClose={onClose}
       header={{
         title: 'Create a team',

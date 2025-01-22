@@ -4,7 +4,7 @@ import { mainApi } from '../instances';
 import { serverFetch } from '../../createServerInstance';
 import { OrganizationUser } from '../organizations';
 
-export const getUserInfo = async ({
+export const getMyUserInfo = async ({
   jwtToken
 }: {
   jwtToken: string | undefined;

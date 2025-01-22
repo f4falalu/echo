@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use anyhow::{anyhow, Result};
 use diesel::{
-    alias, allow_columns_to_appear_in_same_group_by_clause,
+    alias,
     deserialize::QueryableByName,
     dsl::{count, not, sql},
     insert_into,
@@ -522,12 +522,6 @@ async fn get_user_queries_last_30_days(user_id: Arc<Uuid>) -> Result<i64> {
 
 async fn get_user_permission_groups(user_id: Arc<Uuid>) -> Result<Vec<PermissionGroupItem>> {
     let mut conn = get_pg_pool().get().await?;
-
-    allow_columns_to_appear_in_same_group_by_clause!(
-        permission_groups::id,
-        permission_groups::name,
-        permission_groups_to_identities::identity_type,
-    );
 
     let permission_groups = match permission_groups::table
         .inner_join(

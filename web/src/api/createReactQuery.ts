@@ -27,7 +27,7 @@ interface CreateQueryProps<T> extends UseQueryOptions<T> {
   useErrorNotification?: boolean;
 }
 
-export const STALE_TIME = 1000 * 10;
+export const PREFETCH_STALE_TIME = 1000 * 10;
 
 export const useCreateReactQuery = <T>({
   queryKey,
@@ -38,7 +38,7 @@ export const useCreateReactQuery = <T>({
   refetchOnWindowFocus = false,
   refetchOnMount = true,
   useErrorNotification = true,
-  staleTime = 0,
+  staleTime,
   ...rest
 }: CreateQueryProps<T> & BaseCreateQueryProps) => {
   const { openErrorNotification } = useBusterNotifications();
@@ -53,7 +53,7 @@ export const useCreateReactQuery = <T>({
     retry: 1,
     refetchOnWindowFocus,
     refetchOnMount,
-    staleTime: STALE_TIME,
+    staleTime,
     ...rest
   });
 

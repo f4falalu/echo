@@ -1,4 +1,3 @@
-import { ShareRole } from '@/api/buster-socket/threads';
 import { BusterPermissionUser } from '../permissions';
 
 export interface BusterUserPalette {
@@ -15,7 +14,8 @@ export enum BusterOrganizationRole {
 
 export enum TeamRole {
   MANAGER = 'manager',
-  MEMBER = 'member'
+  MEMBER = 'member',
+  NONE = 'none'
 }
 
 export interface BusterUserTeam {
@@ -85,10 +85,4 @@ export interface BusterUserListItem {
   id: string;
   name: string;
   role: null;
-}
-
-export interface BusterUserTeamListItem {
-  id: string;
-  name: string;
-  user_id: string;
 }

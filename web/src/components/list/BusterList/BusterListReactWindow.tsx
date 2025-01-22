@@ -17,7 +17,9 @@ export const BusterListReactWindow: React.FC<BusterListProps> = ({
   emptyState,
   showHeader = true,
   contextMenu,
-  showSelectAll = true
+  showSelectAll = true,
+  useRowClickSelectChange = false,
+  rowClassName = ''
 }) => {
   const contextMenuRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -116,9 +118,18 @@ export const BusterListReactWindow: React.FC<BusterListProps> = ({
       selectedRowKeys,
       onSelectChange: onSelectChange ? onSelectChangePreflight : undefined,
       onSelectSectionChange: onSelectChange ? onSelectSectionChange : undefined,
-      onContextMenuClick
+      onContextMenuClick,
+      useRowClickSelectChange
     };
-  }, [columns, rows, selectedRowKeys, onSelectChange, onSelectSectionChange, onContextMenuClick]);
+  }, [
+    columns,
+    rows,
+    useRowClickSelectChange,
+    selectedRowKeys,
+    onSelectChange,
+    onSelectSectionChange,
+    onContextMenuClick
+  ]);
 
   //context menu click away
   useEffect(() => {
@@ -149,6 +160,7 @@ export const BusterListReactWindow: React.FC<BusterListProps> = ({
           globalCheckStatus={globalCheckStatus}
           rowsLength={rows.length}
           showSelectAll={showSelectAll}
+          rowClassName={rowClassName}
         />
       )}
 
@@ -169,6 +181,7 @@ export const BusterListReactWindow: React.FC<BusterListProps> = ({
                     style={style}
                     row={rows[index]}
                     id={rows[index].id}
+                    isLastChild={index === rows.length - 1}
                     {...data}
                   />
                 )}

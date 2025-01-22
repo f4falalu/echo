@@ -6,6 +6,34 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
+allow_columns_to_appear_in_same_group_by_clause!(
+    dataset_groups::id,
+    dataset_groups::name,
+    dataset_permissions::id,
+    dataset_groups_permissions::id,
+    teams::id,
+    teams::name,
+    permission_groups_to_identities::permission_group_id,
+    teams_to_users::user_id,
+    teams_to_users::role,
+    permission_groups::id,
+    permission_groups::name,
+    permission_groups_to_identities::identity_id,
+    permission_groups_to_identities::identity_type,
+    users::id,
+    users::name,
+    users::email,
+    users_to_organizations::role,
+    datasets::id,
+    datasets::name,
+    datasets::created_at,
+    datasets::updated_at,
+    datasets::enabled,
+    datasets::imported,
+    data_sources::id,
+    data_sources::name,
+);
+
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug)]
 #[diesel(belongs_to(User, foreign_key = owner_id))]
 #[diesel(table_name = api_keys)]
@@ -248,6 +276,7 @@ pub struct User {
     pub config: Value,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    pub attributes: Value,
 }
 
 #[derive(
@@ -512,6 +541,31 @@ pub struct DatasetPermission {
     pub dataset_id: Uuid,
     pub permission_id: Uuid,
     pub permission_type: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Queryable, Insertable, Debug)]
+#[diesel(table_name = dataset_groups_permissions)]
+pub struct DatasetGroupPermission {
+    pub id: Uuid,
+    pub dataset_group_id: Uuid,
+    pub permission_id: Uuid,
+    pub permission_type: String,
+    pub organization_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Queryable, Insertable, Associations, Debug)]
+#[diesel(belongs_to(Dataset, foreign_key = dataset_id))]
+#[diesel(belongs_to(DatasetGroup, foreign_key = dataset_group_id))]
+#[diesel(table_name = datasets_to_dataset_groups)]
+pub struct DatasetToDatasetGroup {
+    pub dataset_id: Uuid,
+    pub dataset_group_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,

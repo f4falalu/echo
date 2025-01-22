@@ -2,7 +2,7 @@
 
 import { useSupabaseServerContext } from '@/context/Supabase/useSupabaseContext';
 import React from 'react';
-import { getUserInfo } from '@/api/buster-rest/users/requests';
+import { getMyUserInfo } from '@/api/buster-rest/users/requests';
 import { getAppSplitterLayout } from '@/components/layout/AppSplitter';
 import { useBusterSupabaseAuthMethods } from '@/hooks/useBusterSupabaseAuthMethods';
 import { createBusterRoute } from '@/routes';
@@ -12,14 +12,13 @@ import { ClientRedirect } from './_components/ClientRedirect';
 import { AppLayoutClient } from './layoutClient';
 
 export default async function Layout({
-  children,
-  ...rest
+  children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const headersList = headers();
   const supabaseContext = await useSupabaseServerContext();
-  const userInfo = await getUserInfo({ jwtToken: supabaseContext.accessToken });
+  const userInfo = await getMyUserInfo({ jwtToken: supabaseContext.accessToken });
   const defaultLayout = await getAppSplitterLayout('app-layout', ['230px', 'auto']);
   const { signOut } = useBusterSupabaseAuthMethods();
   const pathname = headersList.get('x-next-pathname') as string;

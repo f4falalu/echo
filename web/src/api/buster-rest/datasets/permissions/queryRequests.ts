@@ -1,4 +1,8 @@
-import { useCreateReactQuery, useCreateReactMutation } from '@/api/createReactQuery';
+import {
+  useCreateReactQuery,
+  useCreateReactMutation,
+  PREFETCH_STALE_TIME
+} from '@/api/createReactQuery';
 import {
   getDatasetPermissionsOverview,
   listDatasetDatasetGroups,
@@ -23,7 +27,7 @@ export const useGetDatasetPermissionsOverview = (dataset_id: string) => {
   return useCreateReactQuery({
     queryKey: ['dataset_permissions_overview', dataset_id],
     queryFn,
-    staleTime: 1000 * 10
+    staleTime: PREFETCH_STALE_TIME
   });
 };
 

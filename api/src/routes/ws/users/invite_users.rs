@@ -78,13 +78,22 @@ async fn invite_users_handler(user: &User, req: InviteUsersRequest) -> Result<()
                 last_used_color_palette: None,
             };
 
+            let new_user_id = Uuid::new_v4();
+
+            // TODO: Reevaluate the role assigned here.
             let new_user = User {
                 name: None,
                 email: email.clone(),
-                id: Uuid::new_v4(),
+                id: new_user_id.clone(),
                 config: json!(user_config),
                 created_at: Utc::now(),
                 updated_at: Utc::now(),
+                attributes: json!({
+                    "user_id": new_user_id.to_string(),
+                    "organization_id": organization.id.to_string(),
+                    "user_email": email,
+                    "organization_role": "viewer".to_string(),
+                }),
             };
 
             new_user

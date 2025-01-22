@@ -11,6 +11,7 @@ use crate::database::models::User;
 use crate::database::schema::dataset_groups;
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
+use crate::utils::user::user_info::get_user_organization_id;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct DatasetGroupUpdate {
@@ -23,7 +24,12 @@ pub async fn put_dataset_group(
     Json(request): Json<Vec<DatasetGroupUpdate>>,
 ) -> Result<ApiResponse<()>, (StatusCode, &'static str)> {
     // Check if user is workspace admin or data admin
-    match is_user_workspace_admin_or_data_admin(&user.id).await {
+    let organization_id = get_user_organization_id(&user.id).await.map_err(|e| {
+        tracing::error!("Error getting user organization id: {:?}", e);
+        (StatusCode::INTERNAL_SERVER_ERROR, "Error getting user organization id")
+    })?;
+
+    match is_user_workspace_admin_or_data_admin(&user, &organization_id).await {
         Ok(true) => (),
         Ok(false) => return Err((StatusCode::FORBIDDEN, "Insufficient permissions")),
         Err(e) => {

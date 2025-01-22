@@ -1,27 +1,32 @@
-import { useUpdateUser } from '@/api/buster-rest';
 import { OrganizationUser } from '@/api/buster-rest/organizations/responseInterfaces';
-import { BusterInfiniteList, BusterListColumn, BusterListRowItem } from '@/components/list';
+import {
+  BusterInfiniteList,
+  BusterListColumn,
+  BusterListRowItem,
+  InfiniteListContainer
+} from '@/components/list';
 import { Card } from 'antd';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Text } from '@/components/text';
 import { OrganizationUserRoleText } from './config';
 import { BusterRoutes, createBusterRoute } from '@/routes';
+import { ListUserItem } from '../../_components/ListContent';
+import { UserListPopupContainer } from './UserListPopupContainer';
 
 export const ListUsersComponent: React.FC<{
   users: OrganizationUser[];
   isFetched: boolean;
-}> = ({ users, isFetched }) => {
-  const { mutateAsync: updateUser } = useUpdateUser();
-  // const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
-  // const onSelectAssigned = useMemoizedFn(async (params: { id: string; assigned: boolean }) => {
-  //   await updateUser(params);
-  // });
+}> = React.memo(({ users, isFetched }) => {
+  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
   const columns: BusterListColumn[] = useMemo(
     () => [
       {
         title: 'Name',
-        dataIndex: 'name'
+        dataIndex: 'name',
+        render: (name: string, user: OrganizationUser) => {
+          return <ListUserItem name={name} email={user.email} />;
+        }
       },
       {
         title: 'Default access',
@@ -90,31 +95,39 @@ export const ListUsersComponent: React.FC<{
   );
 
   return (
-    <>
+    <InfiniteListContainer
+      showContainerBorder={false}
+      popupNode={
+        <UserListPopupContainer
+          selectedRowKeys={selectedRowKeys}
+          onSelectChange={setSelectedRowKeys}
+        />
+      }>
       <BusterInfiniteList
         columns={columns}
         rows={rows}
         showHeader={true}
         showSelectAll={false}
-        columnRowVariant="default"
-        //  selectedRowKeys={selectedRowKeys}
-        //  onSelectChange={setSelectedRowKeys}
-        emptyState={
-          isFetched && (
-            <div className="mx-[30px] flex w-full items-center justify-center">
-              <Card className="w-full py-24 text-center">
-                <Text type="tertiary">No users found</Text>
-              </Card>
-            </div>
-          )
-        }
-      />
-
-      {/* <PermissionDatasetGroupSelectedPopup
-        selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
-        datasetId={datasetId}
-      /> */}
-    </>
+        selectedRowKeys={selectedRowKeys}
+        columnRowVariant="default"
+        emptyState={<EmptyState isFetched={isFetched} />}
+      />
+    </InfiniteListContainer>
   );
-};
+});
+
+ListUsersComponent.displayName = 'ListUsersComponent';
+
+const EmptyState = React.memo(({ isFetched }: { isFetched: boolean }) => {
+  if (!isFetched) return <></>;
+  return (
+    <div className="mx-[30px] flex w-full items-center justify-center">
+      <Card className="w-full py-24 text-center">
+        <Text type="tertiary">No users found</Text>
+      </Card>
+    </div>
+  );
+});
+
+EmptyState.displayName = 'EmptyState';

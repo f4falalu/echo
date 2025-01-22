@@ -18,10 +18,13 @@ export const BusterListVirtua = React.memo(
     emptyState,
     showHeader = true,
     contextMenu,
-    showSelectAll = true
+    showSelectAll = true,
+    useRowClickSelectChange = false,
+    rowClassName = ''
   }: BusterListProps) => {
     const contextMenuRef = useRef<HTMLDivElement>(null);
     const showEmptyState = (!rows || rows.length === 0) && !!emptyState;
+    const lastChildIndex = rows.length - 1;
 
     const globalCheckStatus = useMemo(() => {
       if (!selectedRowKeys) return 'unchecked';
@@ -70,9 +73,18 @@ export const BusterListVirtua = React.memo(
         selectedRowKeys,
         onSelectChange: onSelectChange ? onSelectChangePreflight : undefined,
         onSelectSectionChange: onSelectChange ? onSelectSectionChange : undefined,
-        onContextMenuClick
+        onContextMenuClick,
+        useRowClickSelectChange
       };
-    }, [columns, rows, selectedRowKeys, onSelectChange, onSelectSectionChange, onContextMenuClick]);
+    }, [
+      columns,
+      rows,
+      useRowClickSelectChange,
+      selectedRowKeys,
+      onSelectChange,
+      onSelectSectionChange,
+      onContextMenuClick
+    ]);
 
     useEffect(() => {
       if (contextMenu && contextMenuPosition?.show) {
@@ -100,6 +112,7 @@ export const BusterListVirtua = React.memo(
             globalCheckStatus={globalCheckStatus}
             rowsLength={rows.length}
             showSelectAll={showSelectAll}
+            rowClassName={rowClassName}
           />
         )}
 
@@ -107,7 +120,12 @@ export const BusterListVirtua = React.memo(
           <VList>
             {rows.map((row, index) => (
               <div key={index} style={{ height: itemSize(index) }}>
-                <BusterListRowComponentSelector row={row} id={row.id} {...itemData} />
+                <BusterListRowComponentSelector
+                  row={row}
+                  id={row.id}
+                  isLastChild={index === lastChildIndex}
+                  {...itemData}
+                />
               </div>
             ))}
           </VList>

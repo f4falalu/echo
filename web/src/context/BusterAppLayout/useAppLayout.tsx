@@ -2,7 +2,7 @@
 
 import { BusterRoutesWithArgsRoute, createBusterRoute } from '@/routes/busterRoutes';
 import { pathNameToRoute } from '@/routes/helpers';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn, usePrevious } from 'ahooks';
 import { useRouter, usePathname, useSelectedLayoutSegment, useParams } from 'next/navigation';
 import React, { PropsWithChildren } from 'react';
 import {
@@ -17,6 +17,8 @@ export const useAppLayout = () => {
   const params = useParams();
   const currentSegment = useSelectedLayoutSegment();
   const currentRoute = pathNameToRoute(pathname, params);
+  const previousRoute = usePrevious(currentRoute);
+  const previousPath = usePrevious(pathname);
   const [openThreadsModal, setOpenThreadsModal] = React.useState(false);
   const [openInviteModal, setOpenInviteModal] = React.useState(false);
   const [openSupportModal, setOpenSupportModal] = React.useState(false);
@@ -51,7 +53,9 @@ export const useAppLayout = () => {
     openInviteModal,
     onChangePage,
     pathname,
+    previousPath,
     openSupportModal,
+    previousRoute,
     onToggleSupportModal
   };
 };
