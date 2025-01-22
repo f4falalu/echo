@@ -114,8 +114,6 @@ export const DatasetGroupDatasetGroupsListContainer: React.FC<{
     [canQueryPermissionDatasetGroups, cannotQueryPermissionDatasetGroups]
   );
 
-  console.log(filteredDatasetGroups);
-
   return (
     <InfiniteListContainer
       popupNode={
