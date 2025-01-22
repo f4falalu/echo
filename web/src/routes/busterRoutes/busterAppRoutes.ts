@@ -29,6 +29,7 @@ export enum BusterAppRoutes {
   SETTINGS_DATASOURCES_ADD = '/app/settings/datasources/add',
   SETTINGS_INTEGRATIONS = '/app/settings/integrations',
   SETTINGS_PERMISSION_GROUPS = '/app/settings/permission-groups',
+  SETTINGS_PERMISSION_GROUPS_ID = '/app/settings/permission-groups/:permissionGroupId',
   SETTINGS_API_KEYS = '/app/settings/api-keys',
   SETTINGS_EMBEDS = '/app/settings/embeds',
   SETTINGS_BILLING = '/app/settings/billing',
@@ -84,6 +85,10 @@ export type BusterAppRoutesWithArgs = {
   [BusterAppRoutes.SETTINGS_INTEGRATIONS]: { route: BusterAppRoutes.SETTINGS_INTEGRATIONS };
   [BusterAppRoutes.SETTINGS_PERMISSION_GROUPS]: {
     route: BusterAppRoutes.SETTINGS_PERMISSION_GROUPS;
+  };
+  [BusterAppRoutes.SETTINGS_PERMISSION_GROUPS_ID]: {
+    route: BusterAppRoutes.SETTINGS_PERMISSION_GROUPS_ID;
+    permissionGroupId: string;
   };
   [BusterAppRoutes.SETTINGS_API_KEYS]: { route: BusterAppRoutes.SETTINGS_API_KEYS };
   [BusterAppRoutes.SETTINGS_EMBEDS]: { route: BusterAppRoutes.SETTINGS_EMBEDS };

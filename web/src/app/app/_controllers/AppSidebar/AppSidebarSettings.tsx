@@ -72,28 +72,6 @@ const workSpaceItems: MenuItem[] = [
     )
   },
   {
-    key: BusterRoutes.APP_DATASETS,
-    label: (
-      <Link
-        href={createBusterRoute({
-          route: BusterRoutes.APP_DATASETS
-        })}>
-        Datasets
-      </Link>
-    )
-  },
-  {
-    key: BusterRoutes.SETTINGS_PERMISSION_GROUPS,
-    label: (
-      <Link
-        href={createBusterRoute({
-          route: BusterRoutes.SETTINGS_PERMISSION_GROUPS
-        })}>
-        Permission Groups
-      </Link>
-    )
-  },
-  {
     key: BusterRoutes.SETTINGS_API_KEYS,
     label: (
       <Link
@@ -195,6 +173,17 @@ const permissionsAndSecurityItems: MenuItem[] = [
           route: BusterRoutes.APP_SETTINGS_DATASET_GROUPS
         })}>
         Dataset Groups
+      </Link>
+    )
+  },
+  {
+    key: BusterRoutes.SETTINGS_PERMISSION_GROUPS,
+    label: (
+      <Link
+        href={createBusterRoute({
+          route: BusterRoutes.SETTINGS_PERMISSION_GROUPS
+        })}>
+        Permission Groups
       </Link>
     )
   },

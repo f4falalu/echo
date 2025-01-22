@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { SettingsEmptyState } from '../../_SettingsEmptyState';
-import { SettingsPageHeader } from '../../_SettingsPageHeader';
+import { SettingsEmptyState } from '../_SettingsEmptyState';
+import { SettingsPageHeader } from '../_SettingsPageHeader';
 
 export default function Page() {
   return (
