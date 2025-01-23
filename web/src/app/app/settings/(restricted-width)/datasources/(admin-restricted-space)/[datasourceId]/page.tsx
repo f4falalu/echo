@@ -1,5 +1,5 @@
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { HeaderContainer } from '../_HeaderContainer';
+import { HeaderContainer } from '../../_HeaderContainer';
 import { DatasourceForm } from './_DatasourceForm';
 
 export default function Page({
