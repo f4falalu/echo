@@ -193,17 +193,6 @@ export const AppSidebarSettings: React.FC<{
           )
         },
         {
-          key: BusterRoutes.SETTINGS_PERMISSIONS,
-          label: (
-            <Link
-              href={createBusterRoute({
-                route: BusterRoutes.SETTINGS_PERMISSIONS
-              })}>
-              Permissions
-            </Link>
-          )
-        },
-        {
           key: BusterRoutes.SETTINGS_STORAGE,
           label: (
             <Link
@@ -257,7 +246,8 @@ export const AppSidebarSettings: React.FC<{
               })}>
               Embedded Analytics
             </Link>
-          )
+          ),
+          hidden: !isAdmin
         },
         {
           key: BusterRoutes.SETTINGS_BILLING,
@@ -268,7 +258,8 @@ export const AppSidebarSettings: React.FC<{
               })}>
               Billing
             </Link>
-          )
+          ),
+          hidden: !isAdmin
         }
       ].filter((item) => !item.hidden),
     [isAdmin]
