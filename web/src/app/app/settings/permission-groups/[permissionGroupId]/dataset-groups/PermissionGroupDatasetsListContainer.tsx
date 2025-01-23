@@ -87,29 +87,28 @@ export const PermissionGroupDatasetGroupsListContainer: React.FC<{
   }, [filteredDatasetGroups]);
 
   const rows = useMemo(
-    () =>
-      [
-        {
-          id: 'header-assigned',
-          data: {},
-          hidden: canQueryPermissionDatasetGroups.length === 0,
-          rowSection: {
-            title: 'Assigned',
-            secondaryTitle: canQueryPermissionDatasetGroups.length.toString()
-          }
-        },
-        ...canQueryPermissionDatasetGroups,
-        {
-          id: 'header-not-assigned',
-          data: {},
-          hidden: cannotQueryPermissionDatasetGroups.length === 0,
-          rowSection: {
-            title: 'Not Assigned',
-            secondaryTitle: cannotQueryPermissionDatasetGroups.length.toString()
-          }
-        },
-        ...cannotQueryPermissionDatasetGroups
-      ].filter((row) => !(row as any).hidden),
+    () => [
+      {
+        id: 'header-assigned',
+        data: {},
+        hidden: canQueryPermissionDatasetGroups.length === 0,
+        rowSection: {
+          title: 'Assigned',
+          secondaryTitle: canQueryPermissionDatasetGroups.length.toString()
+        }
+      },
+      ...canQueryPermissionDatasetGroups,
+      {
+        id: 'header-not-assigned',
+        data: {},
+        hidden: cannotQueryPermissionDatasetGroups.length === 0,
+        rowSection: {
+          title: 'Not Assigned',
+          secondaryTitle: cannotQueryPermissionDatasetGroups.length.toString()
+        }
+      },
+      ...cannotQueryPermissionDatasetGroups
+    ],
     [canQueryPermissionDatasetGroups, cannotQueryPermissionDatasetGroups]
   );
 

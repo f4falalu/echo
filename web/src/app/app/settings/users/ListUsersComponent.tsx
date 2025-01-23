@@ -68,29 +68,28 @@ export const ListUsersComponent: React.FC<{
   }, [users]);
 
   const rows: BusterListRowItem[] = useMemo(
-    () =>
-      [
-        {
-          id: 'header-active',
-          data: {},
-          hidden: users.length === 0,
-          rowSection: {
-            title: 'Active',
-            secondaryTitle: activeUsers.length.toString()
-          }
-        },
-        ...activeUsers,
-        {
-          id: 'header-inactive',
-          data: {},
-          hidden: inactiveUsers.length === 0,
-          rowSection: {
-            title: 'Inactive',
-            secondaryTitle: inactiveUsers.length.toString()
-          }
-        },
-        ...inactiveUsers
-      ].filter((row) => !(row as any).hidden),
+    () => [
+      {
+        id: 'header-active',
+        data: {},
+        hidden: users.length === 0,
+        rowSection: {
+          title: 'Active',
+          secondaryTitle: activeUsers.length.toString()
+        }
+      },
+      ...activeUsers,
+      {
+        id: 'header-inactive',
+        data: {},
+        hidden: inactiveUsers.length === 0,
+        rowSection: {
+          title: 'Inactive',
+          secondaryTitle: inactiveUsers.length.toString()
+        }
+      },
+      ...inactiveUsers
+    ],
     [activeUsers, inactiveUsers]
   );
 

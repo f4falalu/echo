@@ -95,29 +95,28 @@ export const UserPermissionGroupsListContainer: React.FC<{
   }, [filteredPermissionGroups]);
 
   const rows = useMemo(
-    () =>
-      [
-        {
-          id: 'header-assigned',
-          data: {},
-          hidden: canQueryPermissionUsers.length === 0,
-          rowSection: {
-            title: 'Assigned',
-            secondaryTitle: canQueryPermissionUsers.length.toString()
-          }
-        },
-        ...canQueryPermissionUsers,
-        {
-          id: 'header-not-assigned',
-          data: {},
-          hidden: cannotQueryPermissionUsers.length === 0,
-          rowSection: {
-            title: 'Not Assigned',
-            secondaryTitle: cannotQueryPermissionUsers.length.toString()
-          }
-        },
-        ...cannotQueryPermissionUsers
-      ].filter((row) => !(row as any).hidden),
+    () => [
+      {
+        id: 'header-assigned',
+        data: {},
+        hidden: canQueryPermissionUsers.length === 0,
+        rowSection: {
+          title: 'Assigned',
+          secondaryTitle: canQueryPermissionUsers.length.toString()
+        }
+      },
+      ...canQueryPermissionUsers,
+      {
+        id: 'header-not-assigned',
+        data: {},
+        hidden: cannotQueryPermissionUsers.length === 0,
+        rowSection: {
+          title: 'Not Assigned',
+          secondaryTitle: cannotQueryPermissionUsers.length.toString()
+        }
+      },
+      ...cannotQueryPermissionUsers
+    ],
     [canQueryPermissionUsers, cannotQueryPermissionUsers, numberOfPermissionGroups]
   );
 

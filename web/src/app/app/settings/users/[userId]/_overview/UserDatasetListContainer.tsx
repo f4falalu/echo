@@ -3,10 +3,10 @@ import {
   BusterInfiniteList,
   BusterListColumn,
   BusterListRowItem,
+  EmptyStateList,
   InfiniteListContainer
 } from '@/components/list';
 import { OrganizationUserDataset } from '@/api/buster_rest';
-import { Text } from '@/components/text';
 import { PermissionLineageBreadcrumb } from '@appComponents/PermissionComponents';
 
 export const UserDatasetListContainer = React.memo(
@@ -91,7 +91,7 @@ export const UserDatasetListContainer = React.memo(
           }
         },
         ...disabled
-      ].filter((row) => !(row as any).hidden);
+      ].filter((row) => !row.hidden);
     }, [canQuery, cannotQuery, disabled]);
 
     return (
@@ -101,7 +101,7 @@ export const UserDatasetListContainer = React.memo(
           rows={rows}
           showHeader={false}
           showSelectAll={false}
-          emptyState={<EmptyState />}
+          emptyState={<EmptyStateList text="No datasets found" />}
         />
       </InfiniteListContainer>
     );
@@ -118,12 +118,3 @@ const DatasetLineageCell = React.memo(({ dataset }: { dataset: OrganizationUserD
   );
 });
 DatasetLineageCell.displayName = 'DatasetLineageCell';
-
-const EmptyState = React.memo(() => {
-  return (
-    <div className="py-12">
-      <Text type="tertiary">No datasets found</Text>
-    </div>
-  );
-});
-EmptyState.displayName = 'EmptyState';

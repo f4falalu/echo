@@ -95,39 +95,38 @@ export const UserTeamsListContainer: React.FC<{
   }, [filteredTeams]);
 
   const rows = useMemo(
-    () =>
-      [
-        {
-          id: 'header-manager',
-          data: {},
-          hidden: managerTeams.length === 0,
-          rowSection: {
-            title: 'Manager',
-            secondaryTitle: managerTeams.length.toString()
-          }
-        },
-        ...managerTeams,
-        {
-          id: 'header-member',
-          data: {},
-          hidden: memberTeams.length === 0,
-          rowSection: {
-            title: 'Member',
-            secondaryTitle: memberTeams.length.toString()
-          }
-        },
-        ...memberTeams,
-        {
-          id: 'header-not-assigned',
-          data: {},
-          hidden: notAMemberTeams.length === 0,
-          rowSection: {
-            title: 'Not a member',
-            secondaryTitle: notAMemberTeams.length.toString()
-          }
-        },
-        ...notAMemberTeams
-      ].filter((row) => !(row as any).hidden),
+    () => [
+      {
+        id: 'header-manager',
+        data: {},
+        hidden: managerTeams.length === 0,
+        rowSection: {
+          title: 'Manager',
+          secondaryTitle: managerTeams.length.toString()
+        }
+      },
+      ...managerTeams,
+      {
+        id: 'header-member',
+        data: {},
+        hidden: memberTeams.length === 0,
+        rowSection: {
+          title: 'Member',
+          secondaryTitle: memberTeams.length.toString()
+        }
+      },
+      ...memberTeams,
+      {
+        id: 'header-not-assigned',
+        data: {},
+        hidden: notAMemberTeams.length === 0,
+        rowSection: {
+          title: 'Not a member',
+          secondaryTitle: notAMemberTeams.length.toString()
+        }
+      },
+      ...notAMemberTeams
+    ],
     [managerTeams, memberTeams, notAMemberTeams]
   );
 
