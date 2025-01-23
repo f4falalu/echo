@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useContext, useMemo } from 'react';
-import { AppContentHeader } from '../_components/AppContentHeader';
+import { AppContentHeader } from '../../../components/layout/AppContentHeader';
 import { Breadcrumb, Button } from 'antd';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';

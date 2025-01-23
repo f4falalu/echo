@@ -16,7 +16,7 @@ import React, { useMemo, useState } from 'react';
 import { PermissionUsersSelectedPopup } from './PermissionUsersSelectedPopup';
 import { PERMISSION_USERS_OPTIONS } from './config';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { ListUserItem } from '@/app/app/_components/ListContent';
+import { ListUserItem } from '@appComponents/Lists';
 
 export const PermissionListUsersContainer: React.FC<{
   filteredPermissionUsers: ListPermissionUsersResponse[];

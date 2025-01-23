@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useContext, useEffect } from 'react';
-import { AppContent } from '../../_components/AppContent';
+import { AppContent } from '../../../../components/layout/AppContent';
 import { useTermsContextSelector, useTermsIndividual } from '@/context/Terms';
 import { Dropdown, Input, Skeleton } from 'antd';
 import { useDebounceFn, useUnmount } from 'ahooks';

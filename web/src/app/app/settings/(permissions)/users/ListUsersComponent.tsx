@@ -6,12 +6,11 @@ import {
   EmptyStateList,
   InfiniteListContainer
 } from '@/components/list';
-import { Card } from 'antd';
 import React, { useMemo, useState } from 'react';
 import { Text } from '@/components/text';
 import { OrganizationUserRoleText } from './config';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { ListUserItem } from '../../../_components/ListContent';
+import { ListUserItem } from '@appComponents/Lists';
 
 export const ListUsersComponent: React.FC<{
   users: OrganizationUser[];

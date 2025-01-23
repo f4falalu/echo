@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { AppContentHeader } from '../_components/AppContentHeader';
+import { AppContentHeader } from '../../../components/layout/AppContentHeader';
 import { Breadcrumb, Button } from 'antd';
 import { BreadcrumbProps } from 'antd/lib';
 import { BreadcrumbSeperator } from '@/components';

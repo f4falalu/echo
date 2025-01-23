@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { AppContentHeader } from '../../_components/AppContentHeader';
+import { AppContentHeader } from '../../../../components/layout/AppContentHeader';
 import { useDashboardContextSelector, useIndividualDashboard } from '@/context/Dashboards';
 import { Breadcrumb, Button, Checkbox, Dropdown, MenuProps } from 'antd';
 import { BreadcrumbSeperator } from '@/components';

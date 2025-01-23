@@ -1,4 +1,4 @@
-import { AppContentHeader } from '../_components/AppContentHeader';
+import { AppContentHeader } from '../../../components/layout/AppContentHeader';
 import { DashboardHeader } from './_DashboardHeader';
 import { DashboardListContent } from './_DashboardListContent';
 

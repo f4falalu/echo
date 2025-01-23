@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { AppContent } from '../../_components/AppContent';
+import { AppContent } from '../../../../components/layout/AppContent';
 import { Input } from 'antd';
 import {
   useDashboards,

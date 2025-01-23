@@ -1,11 +1,11 @@
 'use client';
 
 import React from 'react';
-import { AppContentHeader } from '../../_components/AppContentHeader';
+import { AppContentHeader } from '../../../../components/layout/AppContentHeader';
 import { TermIndividualHeader } from './_TermIndividualHeader';
 import { TermIndividualContent } from './_TermIndividualContent';
 import { AppSplitter } from '@/components/layout';
-import { AppContent } from '../../_components/AppContent';
+import { AppContent } from '../../../../components/layout/AppContent';
 import { useMount } from 'ahooks';
 import { TermIndividualHeaderSider } from './_TermIndividualHeaderSider';
 import { TermIndividualContentSider } from './_TermIndividualContentSider';

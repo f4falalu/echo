@@ -8,7 +8,7 @@ import { useBusterSupabaseAuthMethods } from '@/hooks/useBusterSupabaseAuthMetho
 import { createBusterRoute } from '@/routes';
 import { BusterAppRoutes } from '@/routes/busterRoutes/busterAppRoutes';
 import { headers, cookies } from 'next/headers';
-import { ClientRedirect } from './_components/ClientRedirect';
+import { ClientRedirect } from '../../components/layout/ClientRedirect';
 import { AppLayoutClient } from './layoutClient';
 
 export default async function Layout({

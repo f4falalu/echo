@@ -7,7 +7,7 @@ import {
 import { ThreadControllerChart } from './ThreadControllerChart';
 import { ChartType, ViewType } from '@/components/charts';
 import { ThreadControllerTitleAndControls } from './ThreadControllerTitleAndControls';
-import { AppContent } from '@/app/app/_components/AppContent';
+import { AppContent } from '@/components/layout';
 
 export const ThreadControllerChartContent: React.FC<
   PropsWithChildren<{

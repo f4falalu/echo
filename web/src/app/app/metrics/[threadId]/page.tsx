@@ -4,7 +4,7 @@ import {
 } from '../../_controllers/ThreadController';
 import { getAppSplitterLayout } from '@/components/layout';
 import { AppAssetCheckLayout } from '../../_layouts/AppAssetCheckLayout';
-import { AppContentHeader } from '../../_components/AppContentHeader';
+import { AppContentHeader } from '../../../../components/layout/AppContentHeader';
 
 export default async function ThreadsPage({
   params: { threadId },

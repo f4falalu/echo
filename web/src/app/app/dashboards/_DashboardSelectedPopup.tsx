@@ -6,7 +6,7 @@ import { useUserConfigContextSelector } from '@/context/Users';
 import { useCollectionsContextSelector } from '@/context/Collections';
 import { useMemoizedFn, useMount } from 'ahooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { SaveToCollectionsDropdown } from '../_components/Buttons';
+import { SaveToCollectionsDropdown } from '@appComponents/Buttons/SaveToCollectionsDropdown';
 import { useDashboardContextSelector } from '@/context/Dashboards';
 
 export const DashboardSelectedOptionPopup: React.FC<{

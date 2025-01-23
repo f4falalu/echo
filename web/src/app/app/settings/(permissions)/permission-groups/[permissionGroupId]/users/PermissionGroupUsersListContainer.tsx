@@ -10,7 +10,7 @@ import {
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
 import React, { useMemo, useState } from 'react';
-import { ListUserItem } from '@/app/app/_components/ListContent';
+import { ListUserItem } from '@appComponents/Lists';
 import { PermissionGroupUsersSelectedPopup } from './PermissionGroupUsersSelectedPopup';
 
 export const PermissionGroupUsersListContainer: React.FC<{

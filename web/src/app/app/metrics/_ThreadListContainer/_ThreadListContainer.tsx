@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { AppContent } from '../../_components/AppContent';
+import { AppContent } from '../../../../components/layout/AppContent';
 import { useBusterThreadListByFilter } from '@/context/Threads/BusterThreadsListProvider';
 import { ThreadItemsContainer } from './_ThreadItemsContainer';
 import { ThreadSidebarHeader } from './_ThreadSidebarHeader';

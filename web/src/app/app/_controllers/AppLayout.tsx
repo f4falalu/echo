@@ -13,7 +13,6 @@ import { SupportModal } from '../_components/SupportModal';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn } from 'ahooks';
 import { ThemeConfig } from 'antd/lib';
-import { TempNetworkVisibility } from './_TempNetworkVisibility';
 import { useSearchParams } from 'next/navigation';
 
 const layoutStyle = {
@@ -124,7 +123,6 @@ const AppLayoutContent: React.FC<
           <SupportModal open={openSupportModal} onClose={onCloseSupportModal} />
         </>
       )}
-      <TempNetworkVisibility />
     </ConfigProvider>
   );
 });

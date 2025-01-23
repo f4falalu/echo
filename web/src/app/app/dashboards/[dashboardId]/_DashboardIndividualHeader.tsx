@@ -2,7 +2,7 @@
 
 import React, { useContext } from 'react';
 import { DashboardIndividualHeaderPrimary } from './DashboardInvidualHeaderPrimary';
-import { AppContentHeader } from '../../_components/AppContentHeader';
+import { AppContentHeader } from '../../../../components/layout/AppContentHeader';
 import { useDashboardContextSelector, useIndividualDashboard } from '@/context/Dashboards';
 import { Text } from '@/components';
 import { Button } from 'antd';

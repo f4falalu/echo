@@ -5,7 +5,7 @@ import { Button, Divider } from 'antd';
 import { PreventNavigation } from '@/components';
 import { useDatasetContextSelector } from '@/context/Datasets';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { AppContentHeader } from '../../../_components/AppContentHeader';
+import { AppContentHeader } from '../../../../../components/layout/AppContentHeader';
 import { useMemoizedFn } from 'ahooks';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { DatasetsHeaderOptions } from './DatasetHeaderOptions';

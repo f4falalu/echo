@@ -6,7 +6,7 @@ import { SidebarMetricApp } from './SidebarMetricApp/SidebarMetricApp';
 import { SidebarStylingApp } from './SidebarStylingApp';
 import { SidebarSQLApp } from './SidebarSQLApp';
 import { EditContentTopApp } from './EditContentTopApp';
-import { AppContent } from '@/app/app/_components/AppContent';
+import { AppContent } from '@/components/layout';
 
 const SidebarApplicationsRecord: Record<
   SidebarApplications,

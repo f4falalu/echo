@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { AppContentHeader } from '../../_components/AppContentHeader';
+import { AppContentHeader } from '../../../../components/layout/AppContentHeader';
 import { TermsHeader } from '../_TermsHeader';
 
 export const TermIndividualHeader: React.FC<{

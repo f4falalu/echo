@@ -1,4 +1,4 @@
-import { AppContentHeader } from '@/app/app/_components/AppContentHeader';
+import { AppContentHeader } from '@/components/layout/AppContentHeader';
 import { ThreadControllerHeader } from '@/app/app/_controllers/ThreadController';
 import React from 'react';
 

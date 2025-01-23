@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useContext, useMemo } from 'react';
-import { AppContentHeader } from '../../_components/AppContentHeader';
+import { AppContentHeader } from '../../../../components/layout/AppContentHeader';
 import { Button, Input } from 'antd';
 import { AppMaterialIcons, AppPopoverMenu, AppSegmented, AppTooltip } from '@/components';
 import { AppTooltipShortcutPill } from '@/components/tooltip/AppTooltipShortcutPill';
