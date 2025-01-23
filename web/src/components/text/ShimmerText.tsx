@@ -53,3 +53,5 @@ export const ShimmerText: React.FC<ShimmerText2Props> = React.memo(
     );
   }
 );
+
+ShimmerText.displayName = 'ShimmerText';
