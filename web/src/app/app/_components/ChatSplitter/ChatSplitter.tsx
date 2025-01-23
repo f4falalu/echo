@@ -28,8 +28,6 @@ export const ChatSplitter: React.FC<ChatSplitterProps> = React.memo(
     const useChatSplitterProps = useChatSplitter({ defaultSelectedFile, appSplitterRef });
     const { selectedFile, hasFile } = useChatSplitterProps;
 
-    console.log('hasFile', hasFile);
-
     return (
       <ChatSplitterContextProvider useChatSplitterProps={useChatSplitterProps}>
         <AppSplitter

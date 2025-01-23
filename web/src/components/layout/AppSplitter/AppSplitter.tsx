@@ -1,7 +1,14 @@
 'use client';
 
 import { useMemoizedFn } from 'ahooks';
-import React, { useEffect, useMemo, useState, forwardRef, useImperativeHandle } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+  useRef
+} from 'react';
 import SplitPane, { Pane } from './SplitPane';
 import { createAutoSaveId } from './helper';
 import Cookies from 'js-cookie';
@@ -58,6 +65,7 @@ export const AppSplitter = React.memo(
       },
       ref
     ) => {
+      const containerRef = useRef<HTMLDivElement>(null);
       const [isDragging, setIsDragging] = useState(false);
       const [sizes, setSizes] = useState<(number | string)[]>(defaultLayout);
       const hasHidden = useMemo(() => leftHidden || rightHidden, [leftHidden, rightHidden]);
@@ -143,18 +151,27 @@ export const AppSplitter = React.memo(
 
       const animateWidth = useMemoizedFn(
         async (width: string, side: 'left' | 'right', duration = 0.25) => {
+          const { value: targetValue, unit: targetUnit } = parseWidthValue(width);
+          const container = containerRef.current;
+          if (!container) return;
+
+          const containerWidth = container.getBoundingClientRect().width;
+          let targetPercentage: number;
+
+          // Convert target width to percentage
+          if (targetUnit === 'px') {
+            targetPercentage = convertPxToPercentage(targetValue, containerWidth);
+          } else {
+            targetPercentage = targetValue;
+          }
+
           const leftPanelSize = _sizes[0];
           const rightPanelSize = _sizes[1];
           const currentSize = side === 'left' ? leftPanelSize : rightPanelSize;
-          const isNumeric = typeof leftPanelSize === 'number';
+          const otherSize = side === 'left' ? rightPanelSize : leftPanelSize;
 
-          // Convert current size to number
-          const currentSizeNumber = isNumeric
-            ? ((currentSize as number) / (Number(leftPanelSize) + Number(rightPanelSize))) * 100
-            : parseFloat(String(currentSize).replace('%', ''));
-
-          // Convert target width to number (always in percentage scale)
-          const targetSizeNumber = parseFloat(width.replace('%', ''));
+          // Calculate current percentage considering 'auto' cases
+          const currentSizeNumber = getCurrentSizePercentage(currentSize, otherSize, container);
 
           const NUMBER_OF_STEPS = 24;
           const stepDuration = (duration * 1000) / NUMBER_OF_STEPS;
@@ -165,13 +182,11 @@ export const AppSplitter = React.memo(
                 const progress = i / NUMBER_OF_STEPS;
                 const easedProgress = easeInOutCubic(progress);
                 const newSizeNumber =
-                  currentSizeNumber + (targetSizeNumber - currentSizeNumber) * easedProgress;
+                  currentSizeNumber + (targetPercentage - currentSizeNumber) * easedProgress;
 
-                // Always use percentage strings
                 const newSize = `${newSizeNumber}%`;
                 const otherSize = `${100 - newSizeNumber}%`;
 
-                // Update both sides
                 const newSizes = side === 'left' ? [newSize, otherSize] : [otherSize, newSize];
 
                 setSplitSizes(newSizes);
@@ -193,7 +208,7 @@ export const AppSplitter = React.memo(
       useImperativeHandle(ref, imperativeHandleMethods);
 
       return (
-        <div className="h-full w-full">
+        <div className="h-full w-full" ref={containerRef}>
           <SplitPane
             split={split}
             className={`${className}`}
@@ -254,10 +269,6 @@ const AppSplitterSash: React.FC<{
 );
 AppSplitterSash.displayName = 'AppSplitterSash';
 
-const easeInOutCubic = (t: number): number => {
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-};
-
 const useStyles = createStyles(({ css, token }) => ({
   splitter: css`
     background: ${token.colorPrimary};
@@ -282,3 +293,49 @@ const useStyles = createStyles(({ css, token }) => ({
     }
   `
 }));
+
+const easeInOutCubic = (t: number): number => {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+};
+
+const parseWidthValue = (width: string): { value: number; unit: 'px' | '%' } => {
+  const match = width.match(/^(\d+(?:\.\d+)?)(px|%)$/);
+  if (!match) throw new Error('Invalid width format. Must be in px or %');
+  return {
+    value: parseFloat(match[1]),
+    unit: match[2] as 'px' | '%'
+  };
+};
+
+const convertPxToPercentage = (px: number, containerWidth: number): number => {
+  return (px / containerWidth) * 100;
+};
+
+const getCurrentSizePercentage = (
+  size: string | number,
+  otherSize: string | number,
+  container: HTMLElement
+): number => {
+  if (size === 'auto') {
+    // If this side is auto, calculate based on the other side
+    const otherPercentage = getCurrentSizePercentage(otherSize, size, container);
+    return 100 - otherPercentage;
+  }
+
+  if (typeof size === 'number') {
+    return size;
+  }
+
+  // Handle percentage
+  if (size.endsWith('%')) {
+    return parseFloat(size);
+  }
+
+  // Handle pixel values
+  if (size.endsWith('px')) {
+    const pixels = parseFloat(size);
+    return convertPxToPercentage(pixels, container.getBoundingClientRect().width);
+  }
+
+  return 0;
+};

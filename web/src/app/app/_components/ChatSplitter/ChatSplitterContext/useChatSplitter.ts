@@ -21,7 +21,13 @@ export const useChatSplitter = ({ appSplitterRef, defaultSelectedFile }: UseChat
   useUpdateEffect(() => {
     if (appSplitterRef.current) {
       setSelectedFile(defaultSelectedFile);
-      appSplitterRef.current.animateWidth('50%', 'right');
+      setTimeout(() => {
+        appSplitterRef.current?.animateWidth('50%', 'right');
+      }, 1000);
+
+      //  appSplitterRef.current.animateWidth('200px', 'left');
+
+      appSplitterRef.current?.animateWidth('100px', 'right');
     }
   }, [defaultSelectedFile]);
 
