@@ -131,10 +131,6 @@ export const AppSplitter = forwardRef<
       }
     });
 
-    const easeInOutCubic = useMemoizedFn((t: number): number => {
-      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-    });
-
     const animateWidth = useMemoizedFn(
       async (width: string, side: 'left' | 'right', duration = 0.25) => {
         const leftPanelSize = _sizes[0];
@@ -239,6 +235,10 @@ const AppSplitterSash: React.FC<{
   }
 );
 AppSplitterSash.displayName = 'AppSplitterSash';
+
+const easeInOutCubic = (t: number): number => {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+};
 
 const useStyles = createStyles(({ css, token }) => ({
   splitter: css`
