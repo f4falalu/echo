@@ -1,8 +1,9 @@
 import { BusterDataset, BusterDatasetData, BusterDatasetListItem } from './responseInterfaces';
 import { mainApi } from '../instances';
 import * as config from './config';
+import { serverFetch } from '@/api/createServerInstance';
 
-export const getDatasets = async (params?: {
+interface GetDatasetsParams {
   page?: number;
   page_size?: number;
   search?: string;
@@ -11,11 +12,22 @@ export const getDatasets = async (params?: {
   enabled?: boolean;
   permission_group_id?: string;
   belongs_to?: string;
-}): Promise<BusterDatasetListItem[]> => {
+}
+
+export const getDatasets = async (params?: GetDatasetsParams): Promise<BusterDatasetListItem[]> => {
   const { page = 0, page_size = 1000, ...allParams } = params || {};
   return await mainApi
     .get<BusterDatasetListItem[]>(`/datasets`, { params: { page, page_size, ...allParams } })
     .then((res) => res.data);
+};
+
+export const getDatasets_server = async (
+  params?: GetDatasetsParams
+): Promise<BusterDatasetListItem[]> => {
+  const { page = 0, page_size = 1000, ...allParams } = params || {};
+  return await serverFetch<BusterDatasetListItem[]>(`/datasets`, {
+    params: { page, page_size, ...allParams }
+  });
 };
 
 export const getDatasetMetadata = async (datasetId: string): Promise<BusterDataset> => {
