@@ -1,5 +1,5 @@
 import { useCheckIfUserIsAdmin_server } from '../../../../../server_context/user';
-import { SettingsPageHeader } from '../../_SettingsPageHeader';
+import { SettingsPageHeader } from '../../_components/SettingsPageHeader';
 import { ApiKeysController } from './ApiKeysController';
 import { createBusterRoute, BusterRoutes } from '@/routes';
 import { redirect } from 'next/navigation';

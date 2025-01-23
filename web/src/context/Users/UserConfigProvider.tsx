@@ -26,7 +26,7 @@ export const useUserConfigProvider = ({ userInfo }: { userInfo: BusterUserRespon
 
   const user = userResponse?.user;
   const userTeams = userResponse?.teams || [];
-  const userOrganizations = userResponse?.organizations[0];
+  const userOrganizations = userResponse?.organizations?.[0];
   const userRole = userOrganizations?.role;
   const isUserRegistered =
     !!userResponse && !!userResponse?.organizations?.[0]?.id && !!userResponse?.user?.name;
