@@ -1,13 +1,17 @@
 'use client';
 
-import { AppSplitter, AppSplitterRef } from '@/components';
+import { AppSplitterRef } from '@/components';
 import { useRef, useState } from 'react';
 import { Button } from 'antd';
 import { useMemoizedFn } from 'ahooks';
+import { ChatSplitter } from '@/app/app/_components/ChatSplitter';
+import { SelectedFile } from '@/app/app/_components/ChatSplitter/interfaces';
 
 export default function Page() {
   const [toggleClose, setToggleClose] = useState(false);
   const ref = useRef<AppSplitterRef>(null);
+
+  const [defaultFile, setDefaultFile] = useState<SelectedFile | undefined>(undefined);
 
   const onToggleClick = useMemoizedFn(() => {
     if (toggleClose) {
@@ -21,18 +25,9 @@ export default function Page() {
 
   return (
     <div className="h-screen w-screen border">
-      <AppSplitter
-        ref={ref}
-        leftChildren={
-          <div className="h-full w-full bg-red-500">
-            <Button onClick={onToggleClick}>Toggle {toggleClose.toString()}</Button>
-          </div>
-        }
-        rightChildren={<div className="h-full w-full bg-blue-500">Right</div>}
-        autoSaveId="test"
-        defaultLayout={['50%', '50%']}
-        preserveSide="left"
-      />
+      <ChatSplitter chatHeaderText="Chat" defaultSelectedFile={defaultFile} />
+
+      <Button onClick={() => setDefaultFile({ id: '1', type: 'metric' })}>Set Default File</Button>
     </div>
   );
 }

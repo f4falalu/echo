@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useContext } from 'react';
+import React from 'react';
 import { ThreadControllerHeaderPrimary } from './ThreadControllerHeaderPrimary';
 import { ThreadControllerHeaderAnon } from './ThreadControllerHeaderAnon';
 import { useUserConfigContextSelector } from '@/context/Users';
