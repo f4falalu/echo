@@ -1,15 +1,19 @@
-import { OrganizationUser, useUpdateUser } from '@/api';
+import { type BusterUser, type OrganizationUser, useUpdateUser } from '@/api';
 import React from 'react';
 import { Text, Title } from '@/components/text';
 import { Card, Select } from 'antd';
 import { useMemoizedFn } from 'ahooks';
+import { AppTooltip } from '@/components';
 
 export const UserDefaultAccess: React.FC<{
   user: OrganizationUser;
   isAdmin: boolean;
+  myUser: BusterUser;
   refetchUser: () => void;
-}> = ({ user, isAdmin, refetchUser }) => {
+}> = ({ user, isAdmin, myUser, refetchUser }) => {
   const { mutateAsync, isPending } = useUpdateUser();
+
+  const userIsMe = user.id === myUser.id;
 
   const onChange = useMemoizedFn(async (value: string) => {
     await mutateAsync({ userId: user.id, role: value as OrganizationUser['role'] });
@@ -25,6 +29,7 @@ export const UserDefaultAccess: React.FC<{
         onChange={onChange}
         isLoading={isPending}
         isAdmin={isAdmin}
+        userIsMe={userIsMe}
       />
     </div>
   );
@@ -42,25 +47,38 @@ const DefaultAccessCard = React.memo(
     role,
     onChange,
     isLoading,
-    isAdmin
+    isAdmin,
+    userIsMe
   }: {
     role: OrganizationUser['role'];
     onChange: (role: OrganizationUser['role']) => void;
     isLoading: boolean;
     isAdmin: boolean;
+    userIsMe: boolean;
   }) => {
+    const isDisabled = !isAdmin || userIsMe;
+
     return (
       <Card size="small">
         <div className="flex items-center justify-between">
           <Text>Default Access</Text>
 
-          <Select
-            options={accessOptions}
-            value={role}
-            onChange={onChange}
-            loading={isLoading}
-            disabled={!isAdmin}
-          />
+          <AppTooltip
+            title={
+              isDisabled
+                ? userIsMe
+                  ? 'You cannot change your own access'
+                  : 'Only admins can change access'
+                : undefined
+            }>
+            <Select
+              options={accessOptions}
+              value={role}
+              onChange={onChange}
+              loading={isLoading}
+              disabled={isDisabled}
+            />
+          </AppTooltip>
         </div>
       </Card>
     );

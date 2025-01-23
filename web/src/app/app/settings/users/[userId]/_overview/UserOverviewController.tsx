@@ -10,12 +10,13 @@ import { UserDatasetSearch } from './UserDatasetSearch';
 export const UserOverviewController = React.memo(({ userId }: { userId: string }) => {
   const { data: user, refetch: refetchUser } = useGetUser({ userId });
   const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
+  const myUser = useUserConfigContextSelector((x) => x.user);
 
-  if (!user) return null;
+  if (!user || !myUser) return null;
 
   return (
     <>
-      <UserDefaultAccess user={user} isAdmin={isAdmin} refetchUser={refetchUser} />
+      <UserDefaultAccess user={user} myUser={myUser} isAdmin={isAdmin} refetchUser={refetchUser} />
       <UserLineageHeader className="!mt-[48px]" user={user} />
       <UserDatasetSearch user={user} />
     </>
