@@ -10,6 +10,7 @@ import { createStyles } from 'antd-style';
 // First, define the ref type
 export interface AppSplitterRef {
   setSplitSizes: (newSizes: (number | string)[]) => void;
+  animateWidth: (width: string, side: 'left' | 'right', duration?: number) => Promise<void>;
 }
 
 export const AppSplitter = forwardRef<
@@ -48,8 +49,8 @@ export const AppSplitter = forwardRef<
       leftPanelMaxSize,
       rightPanelMaxSize,
       allowResize,
-      className,
-      splitterClassName,
+      className = '',
+      splitterClassName = '',
       leftHidden,
       rightHidden,
       hideSplitter
@@ -58,7 +59,6 @@ export const AppSplitter = forwardRef<
   ) => {
     const [isDragging, setIsDragging] = useState(false);
     const [sizes, setSizes] = useState<(number | string)[]>(defaultLayout);
-    const conatinerRef = React.useRef<HTMLDivElement>(null);
     const hasHidden = useMemo(() => leftHidden || rightHidden, [leftHidden, rightHidden]);
     const _allowResize = useMemo(() => (hasHidden ? false : allowResize), [hasHidden, allowResize]);
 
@@ -122,21 +122,65 @@ export const AppSplitter = forwardRef<
       }
     }, [preserveSide]);
 
-    // Add useImperativeHandle to expose the function
-    useImperativeHandle(ref, () => ({
-      setSplitSizes: (newSizes: (number | string)[]) => {
-        setSizes(newSizes);
-        if (preserveSide) {
-          const key = createAutoSaveId(autoSaveId);
-          const sizesString =
-            preserveSide === 'left' ? [newSizes[0], 'auto'] : ['auto', newSizes[1]];
-          Cookies.set(key, JSON.stringify(sizesString), { expires: 365 });
+    const setSplitSizes = useMemoizedFn((newSizes: (number | string)[]) => {
+      setSizes(newSizes);
+      if (preserveSide) {
+        const key = createAutoSaveId(autoSaveId);
+        const sizesString = preserveSide === 'left' ? [newSizes[0], 'auto'] : ['auto', newSizes[1]];
+        Cookies.set(key, JSON.stringify(sizesString), { expires: 365 });
+      }
+    });
+
+    const easeInOutCubic = useMemoizedFn((t: number): number => {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    });
+
+    const animateWidth = useMemoizedFn(
+      async (width: string, side: 'left' | 'right', duration = 0.25) => {
+        const leftPanelSize = _sizes[0];
+        const rightPanelSize = _sizes[1];
+        const currentSize = side === 'left' ? leftPanelSize : rightPanelSize;
+        console.log(_sizes);
+
+        // Convert percentage strings to numbers
+        const currentSizeNumber = parseFloat(String(currentSize).replace('%', ''));
+        const targetSizeNumber = parseFloat(width.replace('%', ''));
+        const NUMBER_OF_STEPS = 30;
+        const stepDuration = (duration * 1000) / NUMBER_OF_STEPS;
+
+        const startTime = performance.now();
+
+        for (let i = 0; i < NUMBER_OF_STEPS + 1; i++) {
+          await new Promise((resolve) =>
+            setTimeout(() => {
+              const progress = i / NUMBER_OF_STEPS; // 0 to 1
+              const easedProgress = easeInOutCubic(progress);
+              const newSizeNumber =
+                currentSizeNumber + (targetSizeNumber - currentSizeNumber) * easedProgress;
+              const newSize = `${newSizeNumber}%`;
+
+              // Calculate the other side's size to maintain 100% total
+              const otherSize = `${100 - newSizeNumber}%`;
+
+              // Update both sides
+              const newSizes = side === 'left' ? [newSize, otherSize] : [otherSize, newSize];
+
+              setSplitSizes(newSizes);
+              resolve(true);
+            }, stepDuration)
+          );
         }
       }
+    );
+
+    // Add useImperativeHandle to expose the function
+    useImperativeHandle(ref, () => ({
+      setSplitSizes,
+      animateWidth
     }));
 
     return (
-      <div ref={conatinerRef} className="h-full w-full">
+      <div className="h-full w-full">
         <SplitPane
           split={split}
           className={`${className}`}
@@ -150,13 +194,13 @@ export const AppSplitter = forwardRef<
           sashRender={sashRender}>
           <Pane
             style={memoizedLeftPaneStyle}
-            className="flex h-full flex-col"
+            className="left-pane flex h-full flex-col"
             minSize={leftPanelMinSize}
             maxSize={leftPanelMaxSize}>
             {leftHidden ? null : leftChildren}
           </Pane>
           <Pane
-            className="flex h-full flex-col"
+            className="right-pane flex h-full flex-col"
             style={memoizedRightPaneStyle}
             minSize={rightPanelMinSize}
             maxSize={rightPanelMaxSize}>
