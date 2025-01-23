@@ -70,19 +70,19 @@ export const UserPermissionGroupsListContainer: React.FC<{
       cannotQueryPermissionUsers: BusterListRowItem[];
       canQueryPermissionUsers: BusterListRowItem[];
     }>(
-      (acc, permissionUser) => {
-        const user: BusterListRowItem = {
-          id: permissionUser.id,
-          data: permissionUser,
+      (acc, permissionGroup) => {
+        const permissionGroupItem: BusterListRowItem = {
+          id: permissionGroup.id,
+          data: permissionGroup,
           link: createBusterRoute({
-            route: BusterRoutes.APP_SETTINGS_USERS_ID,
-            userId: permissionUser.id
+            route: BusterRoutes.SETTINGS_PERMISSION_GROUPS_ID_DATASETS,
+            permissionGroupId: permissionGroup.id
           })
         };
-        if (permissionUser.assigned) {
-          acc.canQueryPermissionUsers.push(user);
+        if (permissionGroup.assigned) {
+          acc.canQueryPermissionUsers.push(permissionGroupItem);
         } else {
-          acc.cannotQueryPermissionUsers.push(user);
+          acc.cannotQueryPermissionUsers.push(permissionGroupItem);
         }
         return acc;
       },

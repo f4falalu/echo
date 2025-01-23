@@ -72,8 +72,8 @@ export const DatasetGroupDatasetsListContainer: React.FC<{
           id: dataset.id,
           data: dataset,
           link: createBusterRoute({
-            route: BusterRoutes.APP_SETTINGS_USERS_ID,
-            userId: dataset.id
+            route: BusterRoutes.APP_DATASETS_ID,
+            datasetId: dataset.id
           })
         };
         if (dataset.assigned) {

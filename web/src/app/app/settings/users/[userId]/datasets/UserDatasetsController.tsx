@@ -2,10 +2,7 @@
 
 import { useGetUserDatasets } from '@/api/buster_rest';
 import { useDebounceSearch } from '@/hooks';
-import {
-  NewPermissionGroupModal,
-  PermissionSearchAndListWrapper
-} from '@appComponents/PermissionComponents';
+import { PermissionSearchAndListWrapper } from '@appComponents/PermissionComponents';
 import React, { useMemo, useState } from 'react';
 import { UserDatasetsListContainer } from './UserDatasetsListContainer';
 import { Button } from 'antd';
