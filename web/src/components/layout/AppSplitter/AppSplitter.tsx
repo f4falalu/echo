@@ -178,11 +178,15 @@ export const AppSplitter = forwardRef<
       }
     );
 
+    const imperativeHandleMethods = useMemo(() => {
+      return () => ({
+        setSplitSizes,
+        animateWidth
+      });
+    }, [setSplitSizes, animateWidth]);
+
     // Add useImperativeHandle to expose the function
-    useImperativeHandle(ref, () => ({
-      setSplitSizes,
-      animateWidth
-    }));
+    useImperativeHandle(ref, imperativeHandleMethods);
 
     return (
       <div className="h-full w-full">
