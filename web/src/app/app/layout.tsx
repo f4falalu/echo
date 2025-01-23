@@ -26,7 +26,7 @@ export default async function Layout({
   const newUserRoute = createBusterRoute({ route: BusterAppRoutes.NEW_USER });
 
   if (
-    (!userInfo?.organizations[0]?.id || !userInfo?.user?.name) &&
+    (!userInfo?.organizations?.[0]?.id || !userInfo?.user?.name) &&
     !cookiePathname?.includes(newUserRoute) &&
     pathname !== newUserRoute &&
     supabaseContext.accessToken //added to avoid bug with anon user

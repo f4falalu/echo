@@ -67,7 +67,7 @@ export interface BusterUser {
 export interface BusterUserResponse {
   user: BusterUser;
   teams: BusterUserTeam[];
-  organizations: BusterOrganization[];
+  organizations: BusterOrganization[] | null;
 }
 
 export interface BusterOrganization {
