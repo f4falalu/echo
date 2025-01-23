@@ -6,7 +6,7 @@ import { createClient } from '../context/Supabase/server';
 
 export interface FetchConfig extends RequestInit {
   baseURL?: string;
-  params?: Record<string, string>;
+  params?: Record<string, string | number | boolean>;
 }
 
 export const serverFetch = async <T>(url: string, config: FetchConfig = {}): Promise<T> => {
@@ -17,7 +17,9 @@ export const serverFetch = async <T>(url: string, config: FetchConfig = {}): Pro
   const { baseURL = BASE_URL, params, headers = {}, method = 'GET', ...restConfig } = config;
 
   // Construct URL with query parameters
-  const queryParams = params ? `?${new URLSearchParams(params).toString()}` : '';
+  const queryParams = params
+    ? `?${new URLSearchParams(Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)])))}`
+    : '';
 
   const fullUrl = `${baseURL}${url}${queryParams}`;
 
