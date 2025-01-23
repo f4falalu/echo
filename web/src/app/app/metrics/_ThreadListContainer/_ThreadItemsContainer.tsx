@@ -241,14 +241,13 @@ const TitleCell = React.memo<{ title: string; status: BusterVerificationStatus; 
           <StatusBadgeIndicator status={status} />
         </div>
         <Text ellipsis={true}>{title}</Text>
-        <div
-          className="flex items-center opacity-0 group-hover:opacity-100"
-          onClick={onFavoriteDivClick}>
+        <div className="flex items-center" onClick={onFavoriteDivClick}>
           <FavoriteStar
             id={threadId}
             type={BusterShareAssetType.THREAD}
             iconStyle="tertiary"
             name={title}
+            className="opacity-0 group-hover:opacity-100"
           />
         </div>
       </div>
