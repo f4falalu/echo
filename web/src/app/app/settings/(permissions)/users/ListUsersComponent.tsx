@@ -11,7 +11,7 @@ import React, { useMemo, useState } from 'react';
 import { Text } from '@/components/text';
 import { OrganizationUserRoleText } from './config';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { ListUserItem } from '../../_components/ListContent';
+import { ListUserItem } from '../../../_components/ListContent';
 
 export const ListUsersComponent: React.FC<{
   users: OrganizationUser[];

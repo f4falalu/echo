@@ -12,12 +12,14 @@ export const SettingsEmptyState: React.FC<{
   buttonText?: string;
   buttonAction?: () => void;
   buttonIcon?: React.ReactNode;
+  showButton?: boolean;
 }> = ({
   title = 'This page is coming soon.',
   description = `This page isn’t built yet, but one day it will be.`,
   buttonAction,
   buttonText = 'Request support',
-  buttonIcon = <AppMaterialIcons icon="add" />
+  buttonIcon = <AppMaterialIcons icon="add" />,
+  showButton = true
 }) => {
   const { openInfoMessage } = useBusterNotifications();
 
@@ -32,18 +34,20 @@ export const SettingsEmptyState: React.FC<{
           <Text type="secondary">{description}</Text>
         </div>
 
-        <Button
-          type="default"
-          icon={buttonIcon}
-          onClick={() => {
-            if (buttonAction) {
-              buttonAction();
-            } else {
-              openInfoMessage('Requesting support is not currently supported');
-            }
-          }}>
-          {buttonText}
-        </Button>
+        {showButton && (
+          <Button
+            type="default"
+            icon={buttonIcon}
+            onClick={() => {
+              if (buttonAction) {
+                buttonAction();
+              } else {
+                openInfoMessage('Requesting support is not currently supported');
+              }
+            }}>
+            {buttonText}
+          </Button>
+        )}
       </div>
     </Card>
   );

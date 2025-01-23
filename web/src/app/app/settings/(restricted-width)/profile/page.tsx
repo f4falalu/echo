@@ -1,6 +1,6 @@
 import React from 'react';
-import { SettingsPageHeader } from '../../_SettingsPageHeader';
-import { SettingsEmptyState } from '../../_SettingsEmptyState';
+import { SettingsPageHeader } from '../../_components/SettingsPageHeader';
+import { SettingsEmptyState } from '../../_components/SettingsEmptyState';
 
 export default function LogsPage() {
   return (

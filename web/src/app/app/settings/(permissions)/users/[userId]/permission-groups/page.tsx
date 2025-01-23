@@ -1,7 +1,7 @@
 import { prefetchGetUserPermissionGroups } from '@/api/buster_rest/users';
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 import { UserPermissionGroupsController } from './UserPermissionGroupsController';
-import { useCheckIfUserIsAdmin_server } from '../../../../../../server_context/user';
+import { useCheckIfUserIsAdmin_server } from '../../../../../../../server_context/user';
 import { redirect } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 

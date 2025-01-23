@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { SettingsPageHeader } from '../_SettingsPageHeader';
+import { SettingsPageHeader } from '../../_components/SettingsPageHeader';
 import { PermissionSearch, NewDatasetGroupModal } from '@appComponents/PermissionComponents';
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
 import { useListDatasetGroups } from '@/api/buster_rest';
