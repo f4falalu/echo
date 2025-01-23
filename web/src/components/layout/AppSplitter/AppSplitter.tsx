@@ -123,10 +123,16 @@ export const AppSplitter = forwardRef<
     }, [preserveSide]);
 
     const setSplitSizes = useMemoizedFn((newSizes: (number | string)[]) => {
-      setSizes(newSizes);
+      // Convert all sizes to percentage strings
+      const percentageSizes = newSizes.map((size) =>
+        typeof size === 'number' ? `${size * 100}%` : size
+      );
+
+      setSizes(percentageSizes);
       if (preserveSide) {
         const key = createAutoSaveId(autoSaveId);
-        const sizesString = preserveSide === 'left' ? [newSizes[0], 'auto'] : ['auto', newSizes[1]];
+        const sizesString =
+          preserveSide === 'left' ? [percentageSizes[0], 'auto'] : ['auto', percentageSizes[1]];
         Cookies.set(key, JSON.stringify(sizesString), { expires: 365 });
       }
     });
@@ -136,26 +142,29 @@ export const AppSplitter = forwardRef<
         const leftPanelSize = _sizes[0];
         const rightPanelSize = _sizes[1];
         const currentSize = side === 'left' ? leftPanelSize : rightPanelSize;
-        console.log(_sizes);
+        const isNumeric = typeof leftPanelSize === 'number';
 
-        // Convert percentage strings to numbers
-        const currentSizeNumber = parseFloat(String(currentSize).replace('%', ''));
+        // Convert current size to number
+        const currentSizeNumber = isNumeric
+          ? ((currentSize as number) / (Number(leftPanelSize) + Number(rightPanelSize))) * 100
+          : parseFloat(String(currentSize).replace('%', ''));
+
+        // Convert target width to number (always in percentage scale)
         const targetSizeNumber = parseFloat(width.replace('%', ''));
-        const NUMBER_OF_STEPS = 30;
-        const stepDuration = (duration * 1000) / NUMBER_OF_STEPS;
 
-        const startTime = performance.now();
+        const NUMBER_OF_STEPS = 24;
+        const stepDuration = (duration * 1000) / NUMBER_OF_STEPS;
 
         for (let i = 0; i < NUMBER_OF_STEPS + 1; i++) {
           await new Promise((resolve) =>
             setTimeout(() => {
-              const progress = i / NUMBER_OF_STEPS; // 0 to 1
+              const progress = i / NUMBER_OF_STEPS;
               const easedProgress = easeInOutCubic(progress);
               const newSizeNumber =
                 currentSizeNumber + (targetSizeNumber - currentSizeNumber) * easedProgress;
-              const newSize = `${newSizeNumber}%`;
 
-              // Calculate the other side's size to maintain 100% total
+              // Always use percentage strings
+              const newSize = `${newSizeNumber}%`;
               const otherSize = `${100 - newSizeNumber}%`;
 
               // Update both sides
