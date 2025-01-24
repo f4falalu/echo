@@ -9,7 +9,8 @@ export const ChatContainerHeaderDropdown: React.FC<{
   const selectedFileType = useChatSplitterContextSelector((state) => state.selectedFileType);
 
   const menuItem: MenuProps['items'] = useMemo(() => {
-    if (!selectedFileType) return [] as MenuProps['items'];
+    if (!selectedFileType || !(selectedFileType in HeaderOptionsRecord))
+      return [] as MenuProps['items'];
     return HeaderOptionsRecord[selectedFileType]();
   }, [selectedFileType]);
 

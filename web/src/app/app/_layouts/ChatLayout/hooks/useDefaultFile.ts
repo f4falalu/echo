@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import { AppChatMessageFileType } from '@/components/messages/AppChatMessageContainer';
 import { ChatSplitterProps } from '../ChatLayout';
 
-export const useDefaultFile = () => {
+export const useSelectedFileByParams = () => {
   const { metricId, collectionId, datasetId, dashboardId, chatId } = useParams() as {
     metricId?: string;
     collectionId?: string;
@@ -15,15 +15,14 @@ export const useDefaultFile = () => {
     chatId?: string;
   };
 
-  const defaultFile: SelectedFile | undefined = useMemo(() => {
+  const selectedFile: SelectedFile | undefined = useMemo(() => {
     if (metricId) return { id: metricId, type: AppChatMessageFileType.Metric };
     if (collectionId) return { id: collectionId, type: AppChatMessageFileType.Collection };
     if (datasetId) return { id: datasetId, type: AppChatMessageFileType.Dataset };
     if (dashboardId) return { id: dashboardId, type: AppChatMessageFileType.Dashboard };
-    if (chatId) return { id: chatId, type: AppChatMessageFileType.Chat };
   }, [metricId, collectionId, datasetId, dashboardId, chatId]);
 
-  const defaultLayout: ChatSplitterProps['defaultShowLayout'] = useMemo(() => {
+  const selectedLayout: ChatSplitterProps['selectedLayout'] = useMemo(() => {
     const hasFileId = metricId || collectionId || datasetId || dashboardId;
 
     if (chatId) {
@@ -36,5 +35,5 @@ export const useDefaultFile = () => {
     return 'chat';
   }, [metricId, collectionId, datasetId, dashboardId, chatId]);
 
-  return { defaultFile, defaultLayout };
+  return { selectedFile, selectedLayout };
 };

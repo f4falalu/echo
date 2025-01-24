@@ -30,12 +30,5 @@ export const HeaderOptionsRecord: Record<AppChatMessageFileType, () => MenuProps
       key: 'delete',
       icon: <AppMaterialIcons icon="delete" />
     }
-  ],
-  chat: () => [
-    {
-      label: 'Delete',
-      key: 'delete',
-      icon: <AppMaterialIcons icon="delete" />
-    }
   ]
 };

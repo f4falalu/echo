@@ -1,5 +1,5 @@
 import { ThreadContentController } from '@/app/app/_controllers/ThreadController';
-import { AppAssetCheckLayout } from '@/app/app/_layouts';
+import { AppAssetCheckLayout } from '../../../../_layouts/AppAssetCheckLayout';
 import { getAppSplitterLayout } from '@/components/layout';
 import React from 'react';
 

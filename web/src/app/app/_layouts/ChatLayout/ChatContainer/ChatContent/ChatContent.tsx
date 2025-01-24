@@ -21,12 +21,10 @@ const colors = [
 export const ChatContent: React.FC<{ chatContentRef: React.RefObject<HTMLDivElement> }> = ({
   chatContentRef
 }) => {
-  const hasFile = useChatSplitterContextSelector((state) => state.hasFile);
-
   return (
     <div ref={chatContentRef} className="h-full w-full overflow-y-auto">
       <div className="mx-auto max-w-[600px]">
-        {Array.from({ length: 350 }).map((_, index) => (
+        {Array.from({ length: 150 }).map((_, index) => (
           <ChatContentItem key={index} index={index} />
         ))}
       </div>

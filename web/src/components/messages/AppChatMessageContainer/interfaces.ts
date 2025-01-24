@@ -34,8 +34,7 @@ export enum AppChatMessageFileType {
   Dataset = 'dataset',
   Collection = 'collection',
   Metric = 'metric',
-  Dashboard = 'dashboard',
-  Chat = 'chat'
+  Dashboard = 'dashboard'
 }
 
 export type AppChatMessageFile = {

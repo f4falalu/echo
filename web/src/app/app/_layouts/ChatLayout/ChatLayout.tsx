@@ -10,56 +10,52 @@ import { SelectedFile } from './interfaces';
 import { useUpdateEffect, useUpdateLayoutEffect } from 'ahooks';
 
 export interface ChatSplitterProps {
-  chatContent?: React.ReactNode;
   showChatCollapse?: boolean;
-  defaultShowLayout?: 'chat' | 'file' | 'both';
-  defaultSelectedFile?: SelectedFile;
+  selectedLayout?: 'chat' | 'file' | 'both';
+  selectedFile?: SelectedFile;
 }
 
 export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(
-  ({ defaultSelectedFile, defaultShowLayout = 'chat', chatContent }) => {
+  ({ selectedFile, selectedLayout = 'chat' }) => {
     const appSplitterRef = useRef<AppSplitterRef>(null);
-    const [isPureFile, setIsPureFile] = useState(defaultShowLayout === 'file');
+    const [isPureFile, setIsPureFile] = useState(selectedLayout === 'file');
 
     const defaultSplitterLayout = useMemo(() => {
-      if (defaultShowLayout === 'chat') return ['100%', '0%'];
-      if (defaultShowLayout === 'file') return ['0%', '100%'];
+      if (selectedLayout === 'chat') return ['100%', '0%'];
+      if (selectedLayout === 'file') return ['0%', '100%'];
       return ['325px', 'auto'];
-    }, [defaultShowLayout]);
+    }, [selectedLayout]);
 
-    const useChatSplitterProps = useChatLayout({ defaultSelectedFile });
-    const { onSetSelectedFile, selectedFile, hasFile } = useChatSplitterProps;
+    const useChatSplitterProps = useChatLayout({ selectedFile });
+    const { onSetSelectedFile, hasFile, selectedFileId } = useChatSplitterProps;
 
     useUpdateEffect(() => {
-      if (defaultSelectedFile && appSplitterRef.current) {
-        if (defaultShowLayout === 'chat') {
+      if (appSplitterRef.current) {
+        if (selectedLayout === 'chat') {
           appSplitterRef.current?.animateWidth('100%', 'left');
-        } else if (defaultShowLayout === 'file') {
+        } else if (selectedLayout === 'file') {
           appSplitterRef.current?.animateWidth('100%', 'right');
-        } else if (appSplitterRef.current.isRightClosed || appSplitterRef.current.isLeftClosed) {
+        } else if (
+          selectedLayout === 'both' &&
+          (appSplitterRef.current.isRightClosed || appSplitterRef.current.isLeftClosed)
+        ) {
           appSplitterRef.current?.animateWidth('320px', 'left');
         }
       }
 
-      if (defaultSelectedFile) onSetSelectedFile(defaultSelectedFile);
-    }, [defaultSelectedFile, defaultShowLayout]);
+      if (selectedFile) onSetSelectedFile(selectedFile);
+    }, [selectedFile, selectedLayout]);
 
     useUpdateLayoutEffect(() => {
-      if (isPureFile === true) setIsPureFile(defaultShowLayout === 'file');
-    }, [defaultShowLayout]);
+      if (isPureFile === true) setIsPureFile(selectedLayout === 'file');
+    }, [selectedLayout]);
 
     return (
       <ChatSplitterContextProvider useChatSplitterProps={useChatSplitterProps}>
         <AppSplitter
           ref={appSplitterRef}
-          leftChildren={
-            <ChatContainer
-              selectedFile={selectedFile}
-              chatContent={chatContent}
-              isPureFile={isPureFile}
-            />
-          }
-          rightChildren={<FileContainer selectedFile={selectedFile} />}
+          leftChildren={isPureFile ? null : <ChatContainer />}
+          rightChildren={!selectedFileId ? null : <FileContainer />}
           autoSaveId="chat-splitter"
           defaultLayout={defaultSplitterLayout}
           preserveSide="left"

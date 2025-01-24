@@ -1,12 +1,12 @@
 'use client';
 
-import { ChatLayout, useDefaultFile } from '@chatLayout/index';
+import { ChatLayout, useSelectedFileByParams } from '@chatLayout/index';
 import { AppChatMessageFileType } from '@/components/messages/AppChatMessageContainer';
 import { useRouter } from 'next/navigation';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 export default function Layout({}: {}) {
-  const { defaultFile, defaultLayout } = useDefaultFile();
+  const { selectedFile, selectedLayout } = useSelectedFileByParams();
   const router = useRouter();
 
   useHotkeys('m', () => {
@@ -31,7 +31,7 @@ export default function Layout({}: {}) {
 
   return (
     <div className="h-screen w-screen">
-      <ChatLayout defaultShowLayout={defaultLayout} defaultSelectedFile={defaultFile} />
+      <ChatLayout selectedLayout={selectedLayout} selectedFile={selectedFile} />
     </div>
   );
 }

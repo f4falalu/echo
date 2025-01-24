@@ -7,9 +7,8 @@ import { ChatHeaderOptions } from './ChatHeaderOptions';
 import { ChatHeaderTitle } from './ChatHeaderTitle';
 
 export const ChatHeader: React.FC<{
-  selectedFile: SelectedFile | undefined;
   showScrollOverflow: boolean;
-}> = React.memo(({ selectedFile, showScrollOverflow }) => {
+}> = React.memo(({ showScrollOverflow }) => {
   const { cx, styles } = useStyles();
   const hasFile = useChatSplitterContextSelector((state) => state.hasFile);
 

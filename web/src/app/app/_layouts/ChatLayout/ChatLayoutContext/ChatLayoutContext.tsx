@@ -7,31 +7,31 @@ import React, { PropsWithChildren, useMemo, useState } from 'react';
 import { SelectedFile } from '../interfaces';
 
 interface UseChatSplitterProps {
-  defaultSelectedFile: SelectedFile | undefined;
+  selectedFile: SelectedFile | undefined;
 }
 
-export const useChatLayout = ({ defaultSelectedFile }: UseChatSplitterProps) => {
-  const [selectedFile, setSelectedFile] =
-    useState<UseChatSplitterProps['defaultSelectedFile']>(defaultSelectedFile);
+export const useChatLayout = ({ selectedFile: selectedFileProp }: UseChatSplitterProps) => {
+  const [selectedFileId, setSelectedFileId] = useState<string | undefined>(selectedFileProp?.id);
 
-  const hasFile = !!selectedFile;
+  const hasFile = !!selectedFileId;
 
   const selectedFileTitle: string = useMemo(() => {
-    if (!selectedFile) return '';
-    return selectedFile.type;
-  }, [selectedFile]);
+    console.log('selectedFileId', selectedFileId);
+    if (!selectedFileId) return '';
+    return 'test';
+  }, [selectedFileId]);
 
-  const selectedFileType = selectedFile?.type || null;
+  const selectedFileType = selectedFileProp?.type;
 
   const onSetSelectedFile = (file: SelectedFile) => {
-    setSelectedFile(file);
+    // setSelectedFileId(file.id);
   };
 
   return {
     selectedFileTitle,
     selectedFileType,
+    selectedFileId,
     hasFile,
-    selectedFile,
     onSetSelectedFile
   };
 };
