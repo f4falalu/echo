@@ -69,7 +69,7 @@ export const FavoriteStar: React.FC<{
           icon: '!text-inherit !mt-[-2px]'
         }}
         className={cx(className, 'flex', styles.icon, iconStyle, {
-          'is-favorited opacity-100': isFavorited
+          'is-favorited opacity-100 !transition-none': isFavorited
         })}
         onClick={onFavoriteClick}
         type="text"
