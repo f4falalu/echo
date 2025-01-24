@@ -166,8 +166,13 @@ export const AppSplitter = React.memo(
             targetPercentage = targetValue;
           }
 
-          const leftPanelSize = _sizes[0];
-          const rightPanelSize = _sizes[1];
+          const bothSizesAreNumber = typeof _sizes[0] === 'number' && typeof _sizes[1] === 'number';
+          const leftPanelSize = bothSizesAreNumber
+            ? `${(Number(_sizes[0]) / (Number(_sizes[0]) + Number(_sizes[1]))) * 100}%`
+            : _sizes[0];
+          const rightPanelSize = bothSizesAreNumber
+            ? `${(Number(_sizes[1]) / (Number(_sizes[0]) + Number(_sizes[1]))) * 100}%`
+            : _sizes[1];
           const currentSize = side === 'left' ? leftPanelSize : rightPanelSize;
           const otherSize = side === 'left' ? rightPanelSize : leftPanelSize;
 

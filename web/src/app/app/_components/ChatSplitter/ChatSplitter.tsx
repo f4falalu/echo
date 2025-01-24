@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 import { AppSplitter, AppSplitterRef } from '@/components/layout/AppSplitter';
 import { AppChatMessageFileType } from '@/components/messages/AppChatMessageContainer';
 import { ChatContainer } from './ChatContainer';
@@ -18,7 +18,14 @@ export interface ChatSplitterProps {
 }
 
 export const ChatSplitter: React.FC<ChatSplitterProps> = React.memo(
-  ({ chatHeaderText, defaultShowFile = false, defaultSelectedFile }) => {
+  ({
+    chatHeaderText,
+    defaultShowFile = false,
+    defaultSelectedFile,
+    chatHeaderOptions,
+    chatContent,
+    fileHeader
+  }) => {
     const appSplitterRef = useRef<AppSplitterRef>(null);
 
     const defaultLayout = useMemo(() => {
@@ -32,7 +39,13 @@ export const ChatSplitter: React.FC<ChatSplitterProps> = React.memo(
       <ChatSplitterContextProvider useChatSplitterProps={useChatSplitterProps}>
         <AppSplitter
           ref={appSplitterRef}
-          leftChildren={<ChatContainer chatHeaderText={chatHeaderText} />}
+          leftChildren={
+            <ChatContainer
+              chatHeaderText={chatHeaderText}
+              chatHeaderOptions={chatHeaderOptions}
+              chatContent={chatContent}
+            />
+          }
           rightChildren={<FileContainer selectedFile={selectedFile} />}
           autoSaveId="chat-splitter"
           defaultLayout={defaultLayout}

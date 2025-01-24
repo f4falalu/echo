@@ -1,7 +1,10 @@
 import React from 'react';
+import type { ChatSplitterProps } from './ChatSplitter';
 
 interface ChatContainerProps {
   chatHeaderText: string;
+  chatHeaderOptions: ChatSplitterProps['chatHeaderOptions'];
+  chatContent: ChatSplitterProps['chatContent'];
 }
 
 export const ChatContainer: React.FC<ChatContainerProps> = React.memo(({ chatHeaderText }) => {
