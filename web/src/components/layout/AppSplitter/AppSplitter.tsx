@@ -174,27 +174,33 @@ export const AppSplitter = React.memo(
           // Calculate current percentage considering 'auto' cases
           const currentSizeNumber = getCurrentSizePercentage(currentSize, otherSize, container);
 
-          const NUMBER_OF_STEPS = 24;
-          const stepDuration = (duration * 1000) / NUMBER_OF_STEPS;
+          await new Promise((resolve) => {
+            const startTime = performance.now();
+            const endTime = startTime + duration * 1000;
 
-          for (let i = 0; i < NUMBER_OF_STEPS + 1; i++) {
-            await new Promise((resolve) =>
-              setTimeout(() => {
-                const progress = i / NUMBER_OF_STEPS;
-                const easedProgress = easeInOutCubic(progress);
-                const newSizeNumber =
-                  currentSizeNumber + (targetPercentage - currentSizeNumber) * easedProgress;
+            const animate = (currentTime: number) => {
+              const elapsedTime = currentTime - startTime;
+              const progress = Math.min(elapsedTime / (duration * 1000), 1);
 
-                const newSize = `${newSizeNumber}%`;
-                const otherSize = `${100 - newSizeNumber}%`;
+              const easedProgress = easeInOutCubic(progress);
+              const newSizeNumber =
+                currentSizeNumber + (targetPercentage - currentSizeNumber) * easedProgress;
 
-                const newSizes = side === 'left' ? [newSize, otherSize] : [otherSize, newSize];
+              const newSize = `${newSizeNumber}%`;
+              const otherSize = `${100 - newSizeNumber}%`;
 
-                setSplitSizes(newSizes);
+              const newSizes = side === 'left' ? [newSize, otherSize] : [otherSize, newSize];
+              setSplitSizes(newSizes);
+
+              if (currentTime < endTime) {
+                requestAnimationFrame(animate);
+              } else {
                 resolve(true);
-              }, stepDuration)
-            );
-          }
+              }
+            };
+
+            requestAnimationFrame(animate);
+          });
         }
       );
 
