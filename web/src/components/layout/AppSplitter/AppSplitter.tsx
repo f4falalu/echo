@@ -10,7 +10,7 @@ import React, {
   useRef
 } from 'react';
 import SplitPane, { Pane } from './SplitPane';
-import { createAutoSaveId } from './helper';
+import { createAutoSaveId, setAppSplitterCookie } from './helper';
 import Cookies from 'js-cookie';
 import { createStyles } from 'antd-style';
 
@@ -146,6 +146,7 @@ export const AppSplitter = React.memo(
           const sizesString =
             preserveSide === 'left' ? [percentageSizes[0], 'auto'] : ['auto', percentageSizes[1]];
           Cookies.set(key, JSON.stringify(sizesString), { expires: 365 });
+          setAppSplitterCookie(key, sizesString);
         }
       });
 

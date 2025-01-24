@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Button, Divider, Input, Result } from 'antd';
 import { User } from '@supabase/auth-js';
-import { inputHasText } from '@/utils';
+import { inputHasText, isValidEmail } from '@/utils';
 import { useKeyPress, useMemoizedFn } from 'ahooks';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
@@ -204,10 +204,10 @@ const LoginOptions: React.FC<{
     });
   });
 
-  const onSubmitClickPreflight = async (d: { email: string; password: string }) => {
+  const onSubmitClickPreflight = useMemoizedFn(async (d: { email: string; password: string }) => {
     clearAllCookies();
     onSubmitClick(d);
-  };
+  });
 
   useKeyPress(['meta.shift.b', 'shift.ctrl.b'], async () => {
     setSignUpFlow(false);
@@ -335,37 +335,15 @@ const LoginOptions: React.FC<{
       </form>
 
       <div className="pt-0">
-        <Text className="mb-1.5 flex w-full justify-center text-center" type="secondary" size="xxs">
-          {!hasUser ? `Already have an account? ` : `Don’t already have an account? `}
-          <Text
-            type="primary"
-            size="xxs"
-            className={cx('ml-1 cursor-pointer font-normal', styles.link)}
-            onClick={() => {
-              setErrorMessages([]);
-              setPassword2('');
-              setSignUpFlow(!signUpFlow);
-            }}>
-            {hasUser ? `Sign up` : `Sign in`}
-          </Text>
-        </Text>
+        <AlreadyHaveAccount
+          hasUser={hasUser}
+          setErrorMessages={setErrorMessages}
+          setPassword2={setPassword2}
+          setSignUpFlow={setSignUpFlow}
+          signUpFlow={signUpFlow}
+        />
 
-        {hasUser && (
-          <Link
-            className={cx(
-              'flex w-full cursor-pointer justify-center text-center font-normal',
-              styles.link
-            )}
-            href={
-              createBusterRoute({
-                route: BusterRoutes.AUTH_RESET_PASSWORD_EMAIL
-              }) + `?email=${email}`
-            }>
-            <Text type="primary" size="xxs">
-              Reset password
-            </Text>
-          </Link>
-        )}
+        {hasUser && <ResetPasswordLink email={email} />}
       </div>
     </>
   );
@@ -414,5 +392,65 @@ const LoginAlertMessage: React.FC<{
     <Text size="xxs" type="danger" className="">
       {message}
     </Text>
+  );
+};
+
+const AlreadyHaveAccount: React.FC<{
+  hasUser: boolean;
+  setErrorMessages: (value: string[]) => void;
+  setPassword2: (value: string) => void;
+  setSignUpFlow: (value: boolean) => void;
+  signUpFlow: boolean;
+}> = React.memo(({ hasUser, setErrorMessages, setPassword2, setSignUpFlow, signUpFlow }) => {
+  const { styles, cx } = useStyles();
+  return (
+    <>
+      <Text className="mb-1.5 flex w-full justify-center text-center" type="secondary" size="xxs">
+        {!hasUser ? `Already have an account? ` : `Don’t already have an account? `}
+        <Text
+          type="primary"
+          size="xxs"
+          className={cx('ml-1 cursor-pointer font-normal', styles.link)}
+          onClick={() => {
+            setErrorMessages([]);
+            setPassword2('');
+            setSignUpFlow(!signUpFlow);
+          }}>
+          {hasUser ? `Sign up` : `Sign in`}
+        </Text>
+      </Text>
+    </>
+  );
+});
+AlreadyHaveAccount.displayName = 'AlreadyHaveAccount';
+
+const ResetPasswordLink: React.FC<{ email: string }> = ({ email }) => {
+  const { styles, cx } = useStyles();
+
+  const scrubbedEmail = useMemo(() => {
+    if (!email || !isValidEmail(email)) return '';
+    try {
+      return encodeURIComponent(email.trim());
+    } catch (error) {
+      console.error('Error encoding email:', error);
+      return '';
+    }
+  }, [email]);
+
+  return (
+    <Link
+      className={cx(
+        'flex w-full cursor-pointer justify-center text-center font-normal',
+        styles.link
+      )}
+      href={
+        createBusterRoute({
+          route: BusterRoutes.AUTH_RESET_PASSWORD_EMAIL
+        }) + `?email=${scrubbedEmail}`
+      }>
+      <Text type="primary" size="xxs">
+        Reset password
+      </Text>
+    </Link>
   );
 };

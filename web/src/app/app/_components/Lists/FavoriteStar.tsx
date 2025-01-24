@@ -68,7 +68,9 @@ export const FavoriteStar: React.FC<{
         classNames={{
           icon: '!text-inherit !mt-[-2px]'
         }}
-        className={cx(className, 'flex', styles.icon, iconStyle, { 'is-favorited': isFavorited })}
+        className={cx(className, 'flex', styles.icon, iconStyle, {
+          'is-favorited opacity-100 !transition-none': isFavorited
+        })}
         onClick={onFavoriteClick}
         type="text"
         icon={<AppMaterialIcons icon="star" fill={isFavorited} />}
