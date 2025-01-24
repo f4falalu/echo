@@ -2,7 +2,7 @@ import { appContentHeaderHeight } from '@/components/layout/AppContentHeader';
 import { createStyles } from 'antd-style';
 import React from 'react';
 import { SelectedFile } from '../../interfaces';
-import { useChatSplitterContextSelector } from '../../ChatSplitterContext';
+import { useChatSplitterContextSelector } from '../../ChatLayoutContext';
 import { ChatHeaderOptions } from './ChatHeaderOptions';
 import { ChatHeaderTitle } from './ChatHeaderTitle';
 

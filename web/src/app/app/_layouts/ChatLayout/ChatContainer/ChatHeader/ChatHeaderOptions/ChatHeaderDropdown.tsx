@@ -1,6 +1,6 @@
 import { Dropdown, MenuProps } from 'antd';
 import React, { useMemo } from 'react';
-import { useChatSplitterContextSelector } from '../../../ChatSplitterContext';
+import { useChatSplitterContextSelector } from '../../../ChatLayoutContext';
 import { HeaderOptionsRecord } from './config';
 
 export const ChatContainerHeaderDropdown: React.FC<{

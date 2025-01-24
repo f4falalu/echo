@@ -1,6 +1,6 @@
 import { Text } from '@/components/text';
 import React from 'react';
-import { useChatSplitterContextSelector } from '../../ChatSplitterContext';
+import { useChatSplitterContextSelector } from '../../ChatLayoutContext';
 import { AnimatePresence, motion } from 'framer-motion';
 
 const animation = {

@@ -5,15 +5,12 @@ import {
 } from '@fluentui/react-context-selector';
 import React, { PropsWithChildren, useMemo, useState } from 'react';
 import { SelectedFile } from '../interfaces';
-import { useUpdateEffect } from 'ahooks';
-import type { AppSplitterRef } from '@/components/layout/AppSplitter';
 
 interface UseChatSplitterProps {
   defaultSelectedFile: SelectedFile | undefined;
-  appSplitterRef: React.RefObject<AppSplitterRef>;
 }
 
-export const useChatSplitter = ({ appSplitterRef, defaultSelectedFile }: UseChatSplitterProps) => {
+export const useChatLayout = ({ defaultSelectedFile }: UseChatSplitterProps) => {
   const [selectedFile, setSelectedFile] =
     useState<UseChatSplitterProps['defaultSelectedFile']>(defaultSelectedFile);
 
@@ -30,14 +27,6 @@ export const useChatSplitter = ({ appSplitterRef, defaultSelectedFile }: UseChat
     setSelectedFile(file);
   };
 
-  useUpdateEffect(() => {
-    if (appSplitterRef.current && appSplitterRef.current.isRightClosed) {
-      appSplitterRef.current?.animateWidth('320px', 'left');
-    }
-
-    setSelectedFile(defaultSelectedFile);
-  }, [defaultSelectedFile]);
-
   return {
     selectedFileTitle,
     selectedFileType,
@@ -47,8 +36,8 @@ export const useChatSplitter = ({ appSplitterRef, defaultSelectedFile }: UseChat
   };
 };
 
-const ChatSplitterContext = createContext<ReturnType<typeof useChatSplitter>>(
-  {} as ReturnType<typeof useChatSplitter>
+const ChatSplitterContext = createContext<ReturnType<typeof useChatLayout>>(
+  {} as ReturnType<typeof useChatLayout>
 );
 
 interface ChatSplitterContextProviderProps {}
@@ -56,7 +45,7 @@ interface ChatSplitterContextProviderProps {}
 export const ChatSplitterContextProvider: React.FC<
   PropsWithChildren<
     ChatSplitterContextProviderProps & {
-      useChatSplitterProps: ReturnType<typeof useChatSplitter>;
+      useChatSplitterProps: ReturnType<typeof useChatLayout>;
     }
   >
 > = React.memo(({ children, useChatSplitterProps }) => {
@@ -70,5 +59,5 @@ export const ChatSplitterContextProvider: React.FC<
 ChatSplitterContextProvider.displayName = 'ChatSplitterContextProvider';
 
 export const useChatSplitterContextSelector = <T,>(
-  selector: ContextSelector<ReturnType<typeof useChatSplitter>, T>
+  selector: ContextSelector<ReturnType<typeof useChatLayout>, T>
 ) => useContextSelector(ChatSplitterContext, selector);

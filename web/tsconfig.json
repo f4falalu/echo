@@ -21,7 +21,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@utils/*": ["./src/utils/*"],
-      "@appComponents/*": ["./src/app/app/_components/*"]
+      "@appComponents/*": ["./src/app/app/_components/*"],
+      "@chatLayout/*": ["./src/app/app/_layouts/ChatLayout/*"]
     },
     "target": "ES2017"
   },

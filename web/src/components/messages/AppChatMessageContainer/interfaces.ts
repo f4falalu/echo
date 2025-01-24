@@ -30,7 +30,13 @@ export type AppChatMessageThought = {
   }[];
 };
 
-export type AppChatMessageFileType = 'dataset' | 'collection' | 'metric' | 'dashboard';
+export enum AppChatMessageFileType {
+  Dataset = 'dataset',
+  Collection = 'collection',
+  Metric = 'metric',
+  Dashboard = 'dashboard',
+  Chat = 'chat'
+}
 
 export type AppChatMessageFile = {
   type: AppChatMessageFileType;
