@@ -11,7 +11,10 @@ export default function Page() {
   const [toggleClose, setToggleClose] = useState(false);
   const ref = useRef<AppSplitterRef>(null);
 
-  const [defaultFile, setDefaultFile] = useState<SelectedFile | undefined>(undefined);
+  const [defaultFile, setDefaultFile] = useState<SelectedFile | undefined>({
+    id: '1',
+    type: 'metric'
+  });
 
   const onToggleClick = useMemoizedFn(() => {
     if (toggleClose) {
@@ -25,7 +28,7 @@ export default function Page() {
 
   return (
     <div className="h-screen w-screen border">
-      <ChatSplitter chatHeaderText="Chat" defaultSelectedFile={defaultFile} />
+      <ChatSplitter defaultShowLayout="both" defaultSelectedFile={defaultFile} />
 
       <Button onClick={() => setDefaultFile({ id: '1', type: 'metric' })}>Set Default File</Button>
     </div>

@@ -1,6 +1,6 @@
 import React from 'react';
-import type { ChatSplitterProps } from './ChatSplitter';
-import { SelectedFile } from './interfaces';
+import type { ChatSplitterProps } from '../ChatSplitter';
+import { SelectedFile } from '../interfaces';
 
 interface FileContainerProps {
   selectedFile: SelectedFile | undefined;

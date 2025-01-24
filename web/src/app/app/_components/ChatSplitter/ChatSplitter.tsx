@@ -1,51 +1,44 @@
-import React, { useEffect, useImperativeHandle, useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { AppSplitter, AppSplitterRef } from '@/components/layout/AppSplitter';
-import { AppChatMessageFileType } from '@/components/messages/AppChatMessageContainer';
 import { ChatContainer } from './ChatContainer';
 import { FileContainer } from './FileContainer';
-import { useUpdateEffect } from 'ahooks';
 import { ChatSplitterContextProvider } from './ChatSplitterContext';
-import { useChatSplitter } from './ChatSplitterContext/useChatSplitter';
+import { useChatSplitter } from './ChatSplitterContext';
 import { SelectedFile } from './interfaces';
 
 export interface ChatSplitterProps {
-  chatHeaderText: string;
   chatHeaderOptions?: [];
   chatContent?: React.ReactNode;
-  fileHeader?: React.ReactNode;
-  defaultShowFile?: boolean;
+  showChatCollapse?: boolean;
+  defaultShowLayout?: 'chat' | 'file' | 'both';
   defaultSelectedFile?: SelectedFile;
 }
 
 export const ChatSplitter: React.FC<ChatSplitterProps> = React.memo(
-  ({
-    chatHeaderText,
-    defaultShowFile = false,
-    defaultSelectedFile,
-    chatHeaderOptions,
-    chatContent,
-    fileHeader
-  }) => {
+  ({ defaultSelectedFile, defaultShowLayout = 'chat', chatHeaderOptions, chatContent }) => {
     const appSplitterRef = useRef<AppSplitterRef>(null);
 
     const defaultLayout = useMemo(() => {
-      return defaultShowFile ? ['20%', '80%'] : ['100%', '0%'];
-    }, [defaultShowFile]);
+      if (defaultShowLayout === 'chat') {
+        return ['100%', '0%'];
+      }
+      if (defaultShowLayout === 'file') {
+        return ['0%', '100%'];
+      }
+      return ['325px', 'auto'];
+    }, [defaultShowLayout]);
 
-    const useChatSplitterProps = useChatSplitter({ defaultSelectedFile, appSplitterRef });
+    const useChatSplitterProps = useChatSplitter({
+      defaultSelectedFile,
+      appSplitterRef
+    });
     const { selectedFile, hasFile } = useChatSplitterProps;
 
     return (
       <ChatSplitterContextProvider useChatSplitterProps={useChatSplitterProps}>
         <AppSplitter
           ref={appSplitterRef}
-          leftChildren={
-            <ChatContainer
-              chatHeaderText={chatHeaderText}
-              chatHeaderOptions={chatHeaderOptions}
-              chatContent={chatContent}
-            />
-          }
+          leftChildren={<ChatContainer selectedFile={selectedFile} chatContent={chatContent} />}
           rightChildren={<FileContainer selectedFile={selectedFile} />}
           autoSaveId="chat-splitter"
           defaultLayout={defaultLayout}

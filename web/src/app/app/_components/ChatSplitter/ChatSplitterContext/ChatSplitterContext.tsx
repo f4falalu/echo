@@ -5,7 +5,6 @@ import {
   useContextSelector
 } from '@fluentui/react-context-selector';
 import { useChatSplitter } from './useChatSplitter';
-import { AppSplitterRef } from '@/components/layout/AppSplitter';
 
 const ChatSplitterContext = createContext<ReturnType<typeof useChatSplitter>>(
   {} as ReturnType<typeof useChatSplitter>

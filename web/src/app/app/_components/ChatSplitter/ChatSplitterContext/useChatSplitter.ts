@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { SelectedFile } from '../interfaces';
 import { useUpdateEffect } from 'ahooks';
 import type { AppSplitterRef } from '@/components/layout/AppSplitter';
@@ -14,6 +14,11 @@ export const useChatSplitter = ({ appSplitterRef, defaultSelectedFile }: UseChat
 
   const hasFile = !!selectedFile;
 
+  const selectedFileTitle: string = useMemo(() => {
+    if (!selectedFile) return '';
+    return 'This is a test';
+  }, [selectedFile]);
+
   const onSetSelectedFile = (file: SelectedFile) => {
     setSelectedFile(file);
   };
@@ -25,13 +30,12 @@ export const useChatSplitter = ({ appSplitterRef, defaultSelectedFile }: UseChat
         appSplitterRef.current?.animateWidth('50%', 'right');
       }, 1000);
 
-      //  appSplitterRef.current.animateWidth('200px', 'left');
-
       appSplitterRef.current?.animateWidth('100px', 'right');
     }
   }, [defaultSelectedFile]);
 
   return {
+    selectedFileTitle,
     hasFile,
     selectedFile,
     onSetSelectedFile
