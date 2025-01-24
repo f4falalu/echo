@@ -2,18 +2,17 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from './middleware/supabaseMiddleware';
 import { isPublicPage } from './middleware/publicPageMiddleware';
 import { BusterRoutes, createBusterRoute } from './routes';
+import { cspPolicyMiddleware } from './middleware/cspPolicyMiddleware';
+import { nextPathnameMiddleware } from './middleware/nextPathnameMiddleware';
 
 export async function middleware(request: NextRequest) {
   try {
     const [supabaseResponse, user] = await updateSession(request);
 
     const performUserCheck = !isPublicPage(request);
-    supabaseResponse.headers.set('x-next-pathname', request.nextUrl.pathname);
-    supabaseResponse.cookies.set('x-next-pathname', request.nextUrl.pathname, {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'lax'
-    });
+
+    cspPolicyMiddleware(request);
+    nextPathnameMiddleware(request, supabaseResponse);
 
     if (performUserCheck && !user && !request.nextUrl.pathname.includes('/test/')) {
       return NextResponse.redirect(
