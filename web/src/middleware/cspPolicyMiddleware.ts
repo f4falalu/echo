@@ -38,7 +38,5 @@ export const cspPolicyMiddleware = (request: NextRequest) => {
   request.headers.set('X-Content-Type-Options', 'nosniff');
   request.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-  console.log(cspHeader['Content-Security-Policy']);
-
   return request;
 };
