@@ -9,7 +9,7 @@ export const COOKIE_OPTIONS: CookieOptions = {
   maxAge: 60 * 60 * 24 * 7 // 1 week
 };
 
-export const createServerSupabaseClient = async () => {
+export const createClient = async () => {
   const cookieStore = await cookies();
 
   return createServerClient(
