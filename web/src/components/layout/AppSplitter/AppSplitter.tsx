@@ -10,7 +10,14 @@ import React, {
   useRef
 } from 'react';
 import SplitPane, { Pane } from './SplitPane';
-import { createAutoSaveId, setAppSplitterCookie } from './helper';
+import {
+  convertPxToPercentage,
+  createAutoSaveId,
+  easeInOutCubic,
+  getCurrentSizePercentage,
+  parseWidthValue,
+  setAppSplitterCookie
+} from './helper';
 import Cookies from 'js-cookie';
 import { createStyles } from 'antd-style';
 
@@ -18,6 +25,8 @@ import { createStyles } from 'antd-style';
 export interface AppSplitterRef {
   setSplitSizes: (newSizes: (number | string)[]) => void;
   animateWidth: (width: string, side: 'left' | 'right', duration?: number) => Promise<void>;
+  isLeftClosed: boolean;
+  isRightClosed: boolean;
 }
 
 export const AppSplitter = React.memo(
@@ -90,6 +99,14 @@ export const AppSplitter = React.memo(
           display: rightHidden ? 'none' : undefined
         };
       }, [rightHidden]);
+
+      const isLeftClosed = useMemo(() => {
+        return _sizes[0] === '0px' || _sizes[0] === '0%' || _sizes[0] === 0;
+      }, [_sizes]);
+
+      const isRightClosed = useMemo(() => {
+        return _sizes[1] === '0px' || _sizes[1] === '0%' || _sizes[1] === 0;
+      }, [_sizes]);
 
       const sashRender = useMemoizedFn((_: number, active: boolean) => (
         <AppSplitterSash
@@ -212,9 +229,11 @@ export const AppSplitter = React.memo(
       const imperativeHandleMethods = useMemo(() => {
         return () => ({
           setSplitSizes,
-          animateWidth
+          animateWidth,
+          isLeftClosed,
+          isRightClosed
         });
-      }, [setSplitSizes, animateWidth]);
+      }, [setSplitSizes, animateWidth, isLeftClosed, isRightClosed]);
 
       // Add useImperativeHandle to expose the function
       useImperativeHandle(ref, imperativeHandleMethods);
@@ -305,49 +324,3 @@ const useStyles = createStyles(({ css, token }) => ({
     }
   `
 }));
-
-const easeInOutCubic = (t: number): number => {
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-};
-
-const parseWidthValue = (width: string): { value: number; unit: 'px' | '%' } => {
-  const match = width.match(/^(\d+(?:\.\d+)?)(px|%)$/);
-  if (!match) throw new Error('Invalid width format. Must be in px or %');
-  return {
-    value: parseFloat(match[1]),
-    unit: match[2] as 'px' | '%'
-  };
-};
-
-const convertPxToPercentage = (px: number, containerWidth: number): number => {
-  return (px / containerWidth) * 100;
-};
-
-const getCurrentSizePercentage = (
-  size: string | number,
-  otherSize: string | number,
-  container: HTMLElement
-): number => {
-  if (size === 'auto') {
-    // If this side is auto, calculate based on the other side
-    const otherPercentage = getCurrentSizePercentage(otherSize, size, container);
-    return 100 - otherPercentage;
-  }
-
-  if (typeof size === 'number') {
-    return size;
-  }
-
-  // Handle percentage
-  if (size.endsWith('%')) {
-    return parseFloat(size);
-  }
-
-  // Handle pixel values
-  if (size.endsWith('px')) {
-    const pixels = parseFloat(size);
-    return convertPxToPercentage(pixels, container.getBoundingClientRect().width);
-  }
-
-  return 0;
-};

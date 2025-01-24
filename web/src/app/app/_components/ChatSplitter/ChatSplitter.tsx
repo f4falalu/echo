@@ -44,6 +44,7 @@ export const ChatSplitter: React.FC<ChatSplitterProps> = React.memo(
           defaultLayout={defaultLayout}
           preserveSide="left"
           rightHidden={!hasFile}
+          leftPanelMaxSize={hasFile ? 600 : undefined}
         />
       </ChatSplitterContextProvider>
     );
