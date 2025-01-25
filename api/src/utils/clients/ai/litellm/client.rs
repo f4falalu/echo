@@ -132,11 +132,16 @@ mod tests {
 
     #[tokio::test]
     async fn test_chat_completion_success() {
-        let mut server = mockito::Server::new();
+        let mut server = mockito::Server::new_async().await;
+        
+        // Create expected request body
+        let request = create_test_request();
+        let request_body = serde_json::to_string(&request).unwrap();
         
         let mock = server.mock("POST", "/chat/completions")
             .match_header("content-type", "application/json")
-            .match_header("Authorization", "Bearer test-key")
+            .match_header("authorization", "Bearer test-key")
+            .match_body(mockito::Matcher::JsonString(request_body))
             .with_status(200)
             .with_header("content-type", "application/json")
             .with_body(r#"{
@@ -165,7 +170,7 @@ mod tests {
             Some(server.url()),
         );
 
-        let response = client.chat_completion(create_test_request()).await.unwrap();
+        let response = client.chat_completion(request).await.unwrap();
         assert_eq!(response.id, "test-id");
         assert_eq!(response.choices[0].message.content, "Hello there!");
         
@@ -174,11 +179,17 @@ mod tests {
 
     #[tokio::test]
     async fn test_chat_completion_error() {
-        let mut server = mockito::Server::new();
+        let mut server = mockito::Server::new_async().await;
+        
+        let request = create_test_request();
+        let request_body = serde_json::to_string(&request).unwrap();
         
         let mock = server.mock("POST", "/chat/completions")
             .match_header("content-type", "application/json")
+            .match_header("authorization", "Bearer test-key")
+            .match_body(mockito::Matcher::JsonString(request_body))
             .with_status(400)
+            .with_header("content-type", "application/json")
             .with_body(r#"{"error": "Invalid request"}"#)
             .create();
 
@@ -187,7 +198,7 @@ mod tests {
             Some(server.url()),
         );
 
-        let result = client.chat_completion(create_test_request()).await;
+        let result = client.chat_completion(request).await;
         assert!(result.is_err());
         
         mock.assert();
@@ -195,11 +206,16 @@ mod tests {
 
     #[tokio::test]
     async fn test_stream_chat_completion() {
-        let mut server = mockito::Server::new();
+        let mut server = mockito::Server::new_async().await;
+        
+        let mut request = create_test_request();
+        request.stream = Some(true);
+        let request_body = serde_json::to_string(&request).unwrap();
         
         let mock = server.mock("POST", "/chat/completions")
             .match_header("content-type", "application/json")
-            .match_body(mockito::Matcher::JsonString(r#"{"stream":true}"#.to_string()))
+            .match_header("authorization", "Bearer test-key")
+            .match_body(mockito::Matcher::JsonString(request_body))
             .with_status(200)
             .with_header("content-type", "text/event-stream")
             .with_body(
@@ -213,9 +229,6 @@ mod tests {
             "test-key".to_string(),
             Some(server.url()),
         );
-
-        let mut request = create_test_request();
-        request.stream = Some(true);
 
         let mut stream = client.stream_chat_completion(request).await.unwrap();
         

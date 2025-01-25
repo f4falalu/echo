@@ -1,2 +1,8 @@
 - this is an axum web server
+
+## Testing Guidelines
 - all tests need to be tokio async tests
+- all unit tests should be inline with the code they are testing
+- all integration tests should be in the tests folder
+- all tests should comment the test case and the expected output
+- Makes sure to use mockito::Server::new_async() instead of mockito::Server::new()
