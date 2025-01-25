@@ -10,7 +10,7 @@ use uuid::Uuid;
 use crate::{
     database::{
         enums::{AssetPermissionRole, MessageFeedback, Verification},
-        lib::{get_pg_pool, get_sqlx_pool},
+        lib::get_pg_pool,
         models::User,
         schema::{messages, threads},
     },

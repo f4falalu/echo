@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     database::{
         enums::{AssetPermissionRole, AssetType, IdentityType},
-        lib::{get_pg_pool, get_sqlx_pool},
+        lib::get_pg_pool,
         models::{AssetPermission, Dashboard, User},
         schema::{asset_permissions, dashboards},
     },

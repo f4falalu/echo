@@ -2,7 +2,6 @@ use anyhow::{anyhow, Result};
 use chrono::Utc;
 use diesel::{insert_into, update, ExpressionMethods};
 use diesel_async::RunQueryDsl;
-use serde_json::json;
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -22,7 +21,7 @@ use crate::{
         ws_utils::{send_error_message, send_ws_message},
     },
     utils::{
-        clients::{sentry_utils::send_sentry_error, typesense},
+        clients::sentry_utils::send_sentry_error,
         query_engine::{
             credentials::get_data_source_credentials,
             import_dataset_columns::import_dataset_columns,

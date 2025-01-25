@@ -5,17 +5,15 @@ use diesel::{
 };
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::{
     database::{
-        enums::{AssetType, IdentityType, UserOrganizationRole, Verification},
-        lib::{get_pg_pool, PgPool},
-        models::{Message, User},
+        enums::{AssetType, IdentityType, Verification},
+        lib::get_pg_pool,
+        models::User,
         schema::{
-            asset_permissions, data_sources, datasets, messages, teams_to_users, threads, users,
-            users_to_organizations,
+            asset_permissions, datasets, messages, teams_to_users, threads, users,
         },
     },
     routes::ws::{

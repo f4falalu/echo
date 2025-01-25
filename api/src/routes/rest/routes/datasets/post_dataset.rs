@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use axum::{extract::Json, Extension};
-use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl};
+use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use reqwest::StatusCode;
 use serde::Deserialize;
@@ -8,10 +8,10 @@ use uuid::Uuid;
 
 use crate::{
     database::{
-        enums::{DatasetType, UserOrganizationRole},
+        enums::DatasetType,
         lib::get_pg_pool,
         models::{DataSource, Dataset, User},
-        schema::{data_sources, datasets, users_to_organizations},
+        schema::{data_sources, datasets},
     },
     routes::rest::ApiResponse,
     utils::{

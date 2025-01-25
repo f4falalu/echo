@@ -5,8 +5,8 @@ use crate::{
         models::{AssetPermission, DataSource, Dataset, DatasetColumn, UserToOrganization},
         schema::{
             asset_permissions, data_sources, dataset_columns, dataset_groups, dataset_groups_permissions,
-            dataset_permissions, datasets, datasets_to_permission_groups, messages,
-            permission_groups_to_identities, teams_to_users, terms, terms_to_datasets, threads,
+            dataset_permissions, datasets, messages,
+            permission_groups_to_identities, threads,
             users_to_organizations,
         },
     },

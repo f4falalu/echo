@@ -1,6 +1,6 @@
 use anyhow::Result;
 use axum::http::StatusCode;
-use axum::{extract::Path, Extension, Json};
+use axum::{extract::Path, Extension};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use serde::Serialize;

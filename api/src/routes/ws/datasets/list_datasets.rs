@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     database::{
         enums::{IdentityType, UserOrganizationRole},
-        lib::{get_pg_pool, PgPool},
+        lib::get_pg_pool,
         models::{User, UserToOrganization},
         schema::{
             data_sources, dataset_permissions, datasets, datasets_to_permission_groups, messages,
@@ -28,7 +28,7 @@ use crate::{
         ws_router::WsRoutes,
         ws_utils::{send_error_message, send_ws_message},
     },
-    utils::{clients::sentry_utils::send_sentry_error, user::user_info::get_user_organization_id},
+    utils::clients::sentry_utils::send_sentry_error,
 };
 
 #[derive(Deserialize, Debug, Clone)]

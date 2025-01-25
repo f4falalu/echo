@@ -9,7 +9,7 @@ use uuid::Uuid;
 use crate::{
     database::{
         enums::{AssetPermissionRole, AssetType, IdentityType},
-        lib::{get_pg_pool, get_sqlx_pool},
+        lib::get_pg_pool,
         models::{AssetPermission, Collection, User},
         schema::{asset_permissions, collections},
     },

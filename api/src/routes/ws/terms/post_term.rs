@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 use crate::{
     database::{
-        lib::{get_pg_pool, get_sqlx_pool},
+        lib::get_pg_pool,
         models::{Term, TermToDataset, User},
         schema::{terms, terms_to_datasets},
     },

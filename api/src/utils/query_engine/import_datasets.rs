@@ -287,7 +287,7 @@ async fn get_bigquery_tables_and_views(
         labels: None,
     };
 
-    let mut table_and_views_records = match bigquery_client
+    let table_and_views_records = match bigquery_client
         .job()
         .query(&project_id, query_request)
         .await

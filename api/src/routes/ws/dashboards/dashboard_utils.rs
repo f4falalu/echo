@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use anyhow::{anyhow, Result};
-use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryDsl};
+use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl};
 use diesel_async::RunQueryDsl;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -14,7 +14,7 @@ use crate::{
         enums::{AssetPermissionRole, AssetType},
         lib::get_pg_pool,
         models::{Dashboard, Message},
-        schema::{asset_permissions, dashboards, messages, teams_to_users, threads_to_dashboards, users_to_organizations},
+        schema::{asset_permissions, dashboards, messages, threads_to_dashboards, users_to_organizations},
     },
     utils::{
         clients::{sentry_utils::send_sentry_error, supabase_vault::read_secret},
