@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { useChatSplitterContextSelector } from '../../ChatLayoutContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { AppChatMessageFileType } from '@/components/messages/AppChatMessageContainer';
 
 const colors = [
   'red-200',
@@ -35,6 +36,7 @@ export const ChatContent: React.FC<{ chatContentRef: React.RefObject<HTMLDivElem
 const type = ['chat', 'dataset', 'collection', 'metric', 'dashboard'] as const;
 
 const ChatContentItem = React.memo(({ index }: { index: number }) => {
+  const onSetSelectedFile = useChatSplitterContextSelector((state) => state.onSetSelectedFile);
   const router = useRouter();
   const typeOfItem = type[index % type.length];
   const { isChat, isPureChat } = useMemo(
@@ -56,15 +58,19 @@ const ChatContentItem = React.memo(({ index }: { index: number }) => {
   }, [index, typeOfItem, isPureChat, isChat]);
 
   const onClick = () => {
-    router.push(link);
+    if (isPureChat) {
+      router.push(link);
+    } else {
+      onSetSelectedFile({ id: index.toString(), type: typeOfItem as AppChatMessageFileType });
+    }
   };
 
   return (
-    <Link href={link}>
-      <div className={`h-10 cursor-pointer hover:bg-gray-100 bg-${colors[index % 12]}`}>
-        {typeOfItem} - {index} - {isPureChat ? 'pure chat' : isChat ? 'chat' : 'file'}
-      </div>
-    </Link>
+    <div
+      className={`h-10 cursor-pointer hover:bg-gray-100 bg-${colors[index % 12]}`}
+      onClick={onClick}>
+      {typeOfItem} - {index} - {isPureChat ? 'pure chat' : isChat ? 'chat' : 'file'}
+    </div>
   );
 });
 

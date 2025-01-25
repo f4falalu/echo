@@ -22,7 +22,7 @@ export const useSelectedFileByParams = () => {
     if (dashboardId) return { id: dashboardId, type: AppChatMessageFileType.Dashboard };
   }, [metricId, collectionId, datasetId, dashboardId, chatId]);
 
-  const selectedLayout: ChatSplitterProps['selectedLayout'] = useMemo(() => {
+  const selectedLayout: ChatSplitterProps['defaultSelectedLayout'] = useMemo(() => {
     const hasFileId = metricId || collectionId || datasetId || dashboardId;
 
     if (chatId) {
@@ -35,5 +35,5 @@ export const useSelectedFileByParams = () => {
     return 'chat';
   }, [metricId, collectionId, datasetId, dashboardId, chatId]);
 
-  return { selectedFile, selectedLayout };
+  return { selectedFile, selectedLayout, chatId };
 };

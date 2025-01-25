@@ -11,23 +11,30 @@ import { useUpdateEffect, useUpdateLayoutEffect } from 'ahooks';
 
 export interface ChatSplitterProps {
   showChatCollapse?: boolean;
-  selectedLayout?: 'chat' | 'file' | 'both';
-  selectedFile?: SelectedFile;
+  defaultSelectedFile?: SelectedFile;
+  defaultSelectedLayout?: 'chat' | 'file' | 'both';
+  children?: React.ReactNode;
+  chatId: string | undefined;
 }
 
 export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(
-  ({ selectedFile, selectedLayout = 'chat' }) => {
+  ({ defaultSelectedFile, defaultSelectedLayout = 'chat', children, chatId }) => {
     const appSplitterRef = useRef<AppSplitterRef>(null);
-    const [isPureFile, setIsPureFile] = useState(selectedLayout === 'file');
+    const [isPureFile, setIsPureFile] = useState(defaultSelectedLayout === 'file');
 
     const defaultSplitterLayout = useMemo(() => {
-      if (selectedLayout === 'chat') return ['100%', '0%'];
-      if (selectedLayout === 'file') return ['0%', '100%'];
+      if (defaultSelectedLayout === 'chat') return ['100%', '0%'];
+      if (defaultSelectedLayout === 'file') return ['0%', '100%'];
       return ['325px', 'auto'];
-    }, [selectedLayout]);
+    }, [defaultSelectedLayout]);
 
-    const useChatSplitterProps = useChatLayout({ selectedFile });
-    const { onSetSelectedFile, hasFile } = useChatSplitterProps;
+    const useChatSplitterProps = useChatLayout({
+      appSplitterRef,
+      defaultSelectedFile,
+      defaultSelectedLayout,
+      chatId
+    });
+    const { onSetSelectedFile, selectedFileType, selectedLayout, hasFile } = useChatSplitterProps;
 
     useUpdateEffect(() => {
       if (appSplitterRef.current) {
@@ -40,9 +47,7 @@ export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(
           animateWidth('320px', 'left');
         }
       }
-
-      if (selectedFile) onSetSelectedFile(selectedFile);
-    }, [selectedFile, selectedLayout]);
+    }, [selectedLayout]);
 
     useUpdateLayoutEffect(() => {
       if (isPureFile === true) setIsPureFile(selectedLayout === 'file');
@@ -53,13 +58,11 @@ export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(
         <AppSplitter
           ref={appSplitterRef}
           leftChildren={isPureFile ? null : <ChatContainer />}
-          rightChildren={<FileContainer />}
+          rightChildren={<FileContainer children={children} />}
           autoSaveId="chat-splitter"
           defaultLayout={defaultSplitterLayout}
           preserveSide="left"
-          leftPanelMaxSize={hasFile ? 625 : undefined}
           leftPanelMinSize={hasFile ? 250 : undefined}
-          rightPanelMinSize={450}
         />
       </ChatSplitterContextProvider>
     );
