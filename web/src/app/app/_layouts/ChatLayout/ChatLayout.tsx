@@ -27,19 +27,17 @@ export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(
     }, [selectedLayout]);
 
     const useChatSplitterProps = useChatLayout({ selectedFile });
-    const { onSetSelectedFile, hasFile, selectedFileId } = useChatSplitterProps;
+    const { onSetSelectedFile, hasFile } = useChatSplitterProps;
 
     useUpdateEffect(() => {
       if (appSplitterRef.current) {
+        const { animateWidth, isSideClosed } = appSplitterRef.current;
         if (selectedLayout === 'chat') {
-          appSplitterRef.current?.animateWidth('100%', 'left');
+          animateWidth('100%', 'left');
         } else if (selectedLayout === 'file') {
-          appSplitterRef.current?.animateWidth('100%', 'right');
-        } else if (
-          selectedLayout === 'both' &&
-          (appSplitterRef.current.isRightClosed || appSplitterRef.current.isLeftClosed)
-        ) {
-          appSplitterRef.current?.animateWidth('320px', 'left');
+          animateWidth('100%', 'right');
+        } else if (selectedLayout === 'both' && (isSideClosed('right') || isSideClosed('left'))) {
+          animateWidth('320px', 'left');
         }
       }
 
@@ -55,11 +53,10 @@ export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(
         <AppSplitter
           ref={appSplitterRef}
           leftChildren={isPureFile ? null : <ChatContainer />}
-          rightChildren={!selectedFileId ? null : <FileContainer />}
+          rightChildren={<FileContainer />}
           autoSaveId="chat-splitter"
           defaultLayout={defaultSplitterLayout}
           preserveSide="left"
-          rightHidden={!hasFile}
           leftPanelMaxSize={hasFile ? 625 : undefined}
           leftPanelMinSize={hasFile ? 250 : undefined}
           rightPanelMinSize={450}

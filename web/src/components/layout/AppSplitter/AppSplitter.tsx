@@ -25,8 +25,7 @@ import { createStyles } from 'antd-style';
 export interface AppSplitterRef {
   setSplitSizes: (newSizes: (number | string)[]) => void;
   animateWidth: (width: string, side: 'left' | 'right', duration?: number) => Promise<void>;
-  isLeftClosed: boolean;
-  isRightClosed: boolean;
+  isSideClosed: (side: 'left' | 'right') => boolean;
 }
 
 export const AppSplitter = React.memo(
@@ -100,13 +99,12 @@ export const AppSplitter = React.memo(
         };
       }, [rightHidden]);
 
-      const isLeftClosed = useMemo(() => {
-        return _sizes[0] === '0px' || _sizes[0] === '0%' || _sizes[0] === 0;
-      }, [_sizes]);
-
-      const isRightClosed = useMemo(() => {
+      const isSideClosed = useMemoizedFn((side: 'left' | 'right') => {
+        if (side === 'left') {
+          return _sizes[0] === '0px' || _sizes[0] === '0%' || _sizes[0] === 0;
+        }
         return _sizes[1] === '0px' || _sizes[1] === '0%' || _sizes[1] === 0;
-      }, [_sizes]);
+      });
 
       const sashRender = useMemoizedFn((_: number, active: boolean) => (
         <AppSplitterSash
@@ -230,10 +228,9 @@ export const AppSplitter = React.memo(
         return () => ({
           setSplitSizes,
           animateWidth,
-          isLeftClosed,
-          isRightClosed
+          isSideClosed
         });
-      }, [setSplitSizes, animateWidth, isLeftClosed, isRightClosed]);
+      }, [setSplitSizes, animateWidth, isSideClosed]);
 
       // Add useImperativeHandle to expose the function
       useImperativeHandle(ref, imperativeHandleMethods);

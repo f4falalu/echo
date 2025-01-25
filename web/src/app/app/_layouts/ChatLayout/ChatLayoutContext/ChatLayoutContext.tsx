@@ -11,17 +11,14 @@ interface UseChatSplitterProps {
 }
 
 export const useChatLayout = ({ selectedFile: selectedFileProp }: UseChatSplitterProps) => {
-  const [selectedFileId, setSelectedFileId] = useState<string | undefined>(selectedFileProp?.id);
-
+  const selectedFileId = selectedFileProp?.id;
+  const selectedFileType = selectedFileProp?.type;
   const hasFile = !!selectedFileId;
 
   const selectedFileTitle: string = useMemo(() => {
-    console.log('selectedFileId', selectedFileId);
     if (!selectedFileId) return '';
     return 'test';
   }, [selectedFileId]);
-
-  const selectedFileType = selectedFileProp?.type;
 
   const onSetSelectedFile = (file: SelectedFile) => {
     // setSelectedFileId(file.id);
