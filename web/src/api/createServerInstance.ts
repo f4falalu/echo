@@ -2,7 +2,7 @@
 
 import { BASE_URL } from './buster_rest/instances';
 import type { RequestInit } from 'next/dist/server/web/spec-extension/request';
-import { createClient } from '../context/Supabase/server';
+import { createServerSupabaseClient } from '../context/Supabase/server';
 
 export interface FetchConfig extends RequestInit {
   baseURL?: string;
@@ -10,7 +10,7 @@ export interface FetchConfig extends RequestInit {
 }
 
 export const serverFetch = async <T>(url: string, config: FetchConfig = {}): Promise<T> => {
-  const supabase = await createClient();
+  const supabase = await createServerSupabaseClient();
   const sessionData = await supabase.auth.getSession();
   const accessToken = sessionData.data?.session?.access_token;
 
