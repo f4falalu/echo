@@ -10,3 +10,4 @@ pub mod serde_helpers;
 pub mod sharing;
 pub mod tools;
 pub mod user;
+pub mod agent;

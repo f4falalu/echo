@@ -1,4 +1,7 @@
-- this is an axum web server
+## Code Guidelines
+- Comment all code
+- Try to borrow (&) instead of copy (clone) as much as possible.
+- Use the tokio library for concurrent and async code.
 
 ## Testing Guidelines
 - all tests need to be tokio async tests
