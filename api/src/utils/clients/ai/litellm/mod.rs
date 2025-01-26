@@ -1,5 +1,5 @@
 mod types;
-// mod client;
+mod client;
 
 pub use types::*;
-// pub use client::LiteLLMClient; 
+pub use client::LiteLLMClient; 

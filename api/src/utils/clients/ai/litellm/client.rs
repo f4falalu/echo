@@ -194,9 +194,11 @@ mod tests {
 
         let response = client.chat_completion(request).await.unwrap();
         assert_eq!(response.id, "test-id");
-        let content = response.choices[0].clone().message.content.unwrap();
-        assert_eq!(content[0].clone().text, "Hello there!");
-        assert_eq!(content[0].clone().type_, "text");
+        if let Message::Assistant { content, .. } = response.choices[0].message.clone() {
+            assert_eq!(content.unwrap(), "Hello there!");
+        } else {
+            panic!("Expected assistant message");
+        }
 
         mock.assert();
     }
@@ -261,13 +263,11 @@ mod tests {
         assert_eq!(chunks.len(), 2);
         // First chunk assertions
         let first_chunk = &chunks[0].choices[0].delta;
-        assert_eq!(first_chunk.content, "Hello".to_string());
-        assert!(first_chunk.role.is_none());
-        assert!(first_chunk.tool_calls.is_none());
+        assert_eq!(first_chunk.content.as_ref().unwrap(), "Hello");
 
         // Second chunk assertions
         let second_chunk = &chunks[1].choices[0].delta;
-        assert_eq!(second_chunk.content, " world".to_string());
+        assert_eq!(second_chunk.content.as_ref().unwrap(), " world");
         assert!(second_chunk.role.is_none());
         assert!(second_chunk.tool_calls.is_none());
 
@@ -329,9 +329,15 @@ mod tests {
 
         let response = client.chat_completion(request).await.unwrap();
         assert_eq!(response.id, "test-id");
-        let tool_calls = response.choices[0].message.tool_calls.as_ref().unwrap();
-        assert_eq!(tool_calls[0].id, "call_123");
-        assert_eq!(tool_calls[0].function.name, "get_current_weather");
+        if let Message::Assistant { content, tool_calls, .. } = &response.choices[0].message {
+            assert!(content.is_none());
+            let tool_calls = tool_calls.as_ref().unwrap();
+            assert_eq!(tool_calls[0].id, "call_123");
+            assert_eq!(tool_calls[0].function.name, "get_current_weather");
+            assert_eq!(tool_calls[0].function.arguments, "{\"location\":\"Boston, MA\"}");
+        } else {
+            panic!("Expected assistant message");
+        }
 
         mock.assert();
     }
