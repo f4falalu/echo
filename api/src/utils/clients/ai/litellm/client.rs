@@ -135,13 +135,7 @@ mod tests {
     use tokio::time::timeout;
 
     fn create_test_message() -> Message {
-        Message {
-            role: "user".to_string(),
-            content: Some("Hello".to_string()),
-            name: None,
-            tool_calls: None,
-            tool_call_id: None,
-        }
+        Message::user("Hello".to_string())
     }
 
     fn create_test_request() -> ChatCompletionRequest {

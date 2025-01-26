@@ -1,6 +1,4 @@
-use crate::utils::clients::ai::litellm::{
-    ChatCompletionRequest, Content, LiteLLMClient, Message, Tool,
-};
+use crate::utils::clients::ai::litellm::{ChatCompletionRequest, LiteLLMClient, Message, Tool};
 use anyhow::Result;
 use std::collections::HashMap;
 use tokio::sync::mpsc;
@@ -74,16 +72,7 @@ impl Agent {
         let llm_message = &response.choices[0].message;
 
         // Create the initial assistant message
-        let mut message = Message {
-            role: "assistant".to_string(),
-            content: Some(vec![Content {
-                text: String::new(),
-                type_: "text".to_string(),
-            }]),
-            name: None,
-            tool_calls: llm_message.tool_calls.clone(),
-            tool_call_id: None,
-        };
+        let mut message = Message::assistant(None, llm_message.tool_calls.clone());
 
         // If the LLM wants to use tools, execute them
         if let Some(tool_calls) = &llm_message.tool_calls {
@@ -94,16 +83,7 @@ impl Agent {
                 if let Some(tool) = self.tools.get(&tool_call.function.name) {
                     let result = tool.execute(tool_call).await?;
                     // Create a message for the tool's response
-                    results.push(Message {
-                        role: "tool".to_string(),
-                        content: Some(vec![Content {
-                            text: result,
-                            type_: "text".to_string(),
-                        }]),
-                        name: None,
-                        tool_calls: None,
-                        tool_call_id: Some(tool_call.id.clone()),
-                    });
+                    results.push(Message::tool(result, tool_call.id.clone()));
                 }
             }
 
@@ -116,12 +96,9 @@ impl Agent {
         } else {
             // If no tools were called, return the final response
             message.content = if let Some(content) = &llm_message.content {
-                Some(content.clone())
+                Some(content)
             } else {
-                Some(vec![Content {
-                    text: String::new(),
-                    type_: "text".to_string(),
-                }])
+                None
             };
             Ok(message)
         }
@@ -163,16 +140,7 @@ impl Agent {
 
         // Process the stream in a separate task
         tokio::spawn(async move {
-            let mut current_message = Message {
-                role: "assistant".to_string(),
-                content: Some(vec![Content {
-                    text: String::new(),
-                    type_: "text".to_string(),
-                }]),
-                name: None,
-                tool_calls: None,
-                tool_call_id: None,
-            };
+            let mut current_message = Message::assistant(None, None);
 
             while let Some(chunk_result) = stream.recv().await {
                 match chunk_result {
@@ -408,16 +376,7 @@ mod tests {
 
         let thread = Thread {
             id: "test-thread".to_string(),
-            messages: vec![Message {
-                role: "user".to_string(),
-                content: Some(vec![Content {
-                    text: "What cities can I get weather for?".to_string(),
-                    type_: "text".to_string(),
-                }]),
-                name: None,
-                tool_calls: None,
-                tool_call_id: None,
-            }],
+            messages: vec![Message::user("What cities can I get weather for?".to_string())],
         };
 
         let result = match agent.process_thread(&thread).await {
@@ -516,16 +475,9 @@ mod tests {
 
         let thread = Thread {
             id: "test-thread".to_string(),
-            messages: vec![Message {
-                role: "user".to_string(),
-                content: Some(vec![Content {
-                    text: "What's the current weather in Salt Lake City?".to_string(),
-                    type_: "text".to_string(),
-                }]),
-                name: None,
-                tool_calls: None,
-                tool_call_id: None,
-            }],
+            messages: vec![Message::user(
+                "What's the current weather in Salt Lake City?".to_string(),
+            )],
         };
 
         let result = agent.process_thread(&thread).await.unwrap();
@@ -623,16 +575,9 @@ mod tests {
 
         let thread = Thread {
             id: "test-thread".to_string(),
-            messages: vec![Message {
-                role: "user".to_string(),
-                content: Some(vec![Content {
-                    text: "What's the weather and air quality in Salt Lake City?".to_string(),
-                    type_: "text".to_string(),
-                }]),
-                name: None,
-                tool_calls: None,
-                tool_call_id: None,
-            }],
+            messages: vec![Message::user(
+                "What's the weather and air quality in Salt Lake City?".to_string(),
+            )],
         };
 
         let result = agent.process_thread(&thread).await.unwrap();
@@ -731,16 +676,9 @@ mod tests {
 
         let thread = Thread {
             id: "test-thread".to_string(),
-            messages: vec![Message {
-                role: "user".to_string(),
-                content: Some(vec![Content {
-                    text: "What's the weather in Salt Lake City?".to_string(),
-                    type_: "text".to_string(),
-                }]),
-                name: None,
-                tool_calls: None,
-                tool_call_id: None,
-            }],
+            messages: vec![Message::user(
+                "What's the current weather in Salt Lake City?".to_string(),
+            )],
         };
 
         let mut stream = agent.stream_process_thread(&thread).await.unwrap();
