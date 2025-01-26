@@ -1,5 +1,5 @@
 use crate::utils::clients::ai::litellm::{
-    ChatCompletionRequest, Content, Function, LiteLLMClient, Message, ResponseFormat, Tool,
+    ChatCompletionRequest, Content, LiteLLMClient, Message, Tool,
 };
 use anyhow::Result;
 use std::collections::HashMap;
@@ -57,11 +57,7 @@ impl Agent {
             .iter()
             .map(|(name, tool)| Tool {
                 tool_type: "function".to_string(),
-                function: Function {
-                    name: name.clone(),
-                    description: None,
-                    parameters: tool.get_schema(),
-                },
+                function: tool.get_schema(),
             })
             .collect();
 
@@ -70,9 +66,6 @@ impl Agent {
             model: self.model.clone(),
             messages: thread.messages.clone(),
             tools: Some(tools),
-            response_format: Some(ResponseFormat {
-                type_: "text".to_string(),
-            }),
             ..Default::default()
         };
 
@@ -151,11 +144,7 @@ impl Agent {
             .iter()
             .map(|(name, tool)| Tool {
                 tool_type: "function".to_string(),
-                function: Function {
-                    name: name.clone(),
-                    description: None,
-                    parameters: tool.get_schema(),
-                },
+                function: tool.get_schema(),
             })
             .collect();
 
@@ -165,9 +154,6 @@ impl Agent {
             messages: thread.messages.clone(),
             tools: Some(tools),
             stream: Some(true),
-            response_format: Some(ResponseFormat {
-                type_: "text".to_string(),
-            }),
             ..Default::default()
         };
 
@@ -390,6 +376,7 @@ mod tests {
             "object": "chat.completion",
             "created": 1234567890,
             "model": "gpt-4",
+            "system_fingerprint": "fp_44709d6fcb",
             "choices": [{
                 "index": 0,
                 "message": {
@@ -399,12 +386,19 @@ mod tests {
                         "type": "text"
                     }]
                 },
+                "logprobs": null,
                 "finish_reason": "stop"
             }],
+            "service_tier": "default",
             "usage": {
                 "prompt_tokens": 10,
                 "completion_tokens": 20,
-                "total_tokens": 30
+                "total_tokens": 30,
+                "completion_tokens_details": {
+                    "reasoning_tokens": 0,
+                    "accepted_prediction_tokens": 0,
+                    "rejected_prediction_tokens": 0
+                }
             }
         }"#;
 
@@ -426,7 +420,19 @@ mod tests {
             }],
         };
 
-        let result = agent.process_thread(&thread).await.unwrap();
+        let result = match agent.process_thread(&thread).await {
+            Ok(result) => result,
+            Err(e) => {
+                println!("Error processing thread: {:?}", e);
+                println!("Error chain:");
+                let mut source = e.source();
+                while let Some(e) = source {
+                    println!("  Caused by: {}", e);
+                    source = e.source();
+                }
+                panic!("Test failed due to error");
+            }
+        };
         let content = result.content.unwrap();
         assert!(content[0].text.contains("Salt Lake City"));
     }

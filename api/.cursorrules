@@ -9,3 +9,4 @@
 - all integration tests should be in the tests folder
 - all tests should comment the test case and the expected output
 - Makes sure to use mockito::Server::new_async() instead of mockito::Server::new()
+- Always print out errors and results in tests so they are easier to debug

@@ -1,25 +1,41 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use serde_json::Value;
+use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ChatCompletionRequest {
     pub model: String,
     pub messages: Vec<Message>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub store: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reasoning_effort: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<HashMap<String, String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub frequency_penalty: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub logit_bias: Option<HashMap<String, i32>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_tokens: Option<u32>,
+    pub log_probs: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub top_logprobs: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_completion_tokens: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub n: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub modalities: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prediction: Option<Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub presence_penalty: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub response_format: Option<ResponseFormat>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub seed: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub service_tier: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stop: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -33,9 +49,9 @@ pub struct ChatCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_choice: Option<ToolChoice>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub parallel_tool_calls: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
-    #[serde(flatten)]
-    pub extra: Value,
 }
 
 impl Default for ChatCompletionRequest {
@@ -43,9 +59,13 @@ impl Default for ChatCompletionRequest {
         Self {
             model: String::new(),
             messages: Vec::new(),
+            store: None,
+            reasoning_effort: None,
             frequency_penalty: None,
             logit_bias: None,
-            max_tokens: None,
+            log_probs: None,
+            top_logprobs: None,
+            max_completion_tokens: None,
             n: None,
             presence_penalty: None,
             response_format: None,
@@ -57,50 +77,92 @@ impl Default for ChatCompletionRequest {
             tools: None,
             tool_choice: None,
             user: None,
-            extra: Value::Null,
+            parallel_tool_calls: None,
+            service_tier: None,
+            metadata: None,
+            modalities: None,
+            prediction: None,
         }
     }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Message {
-    pub role: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub content: Option<Vec<Content>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tool_calls: Option<Vec<ToolCall>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tool_call_id: Option<String>,
+#[serde(tag = "role")]
+#[serde(rename_all = "lowercase")]
+pub enum Message {
+    #[serde(alias = "system")]
+    Developer {
+        content: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        name: Option<String>,
+    },
+    User {
+        content: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        name: Option<String>,
+    },
+    Assistant {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        content: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        name: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        tool_calls: Option<Vec<ToolCall>>,
+    },
+    Tool {
+        content: String,
+        tool_call_id: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        name: Option<String>,
+    },
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Content {
-    pub text: String,
-    #[serde(rename = "type")]
-    pub type_: String,
+// Helper methods for Message
+// Intentionally leaving out name for now.
+impl Message {
+    pub fn system(content: impl Into<String>) -> Self {
+        Self::System {
+            content: content.into(),
+            name: None,
+        }
+    }
+
+    pub fn user(content: impl Into<String>) -> Self {
+        Self::User {
+            content: content.into(),
+            name: None,
+        }
+    }
+
+    pub fn assistant(content: impl Into<String>, tool_calls: Option<Vec<ToolCall>>) -> Self {
+        Self::Assistant {
+            content: Some(content.into()),
+            name: None,
+            tool_calls,
+        }
+    }
+
+    pub fn tool(content: impl Into<String>, tool_call_id: impl Into<String>) -> Self {
+        Self::Tool {
+            content: content.into(),
+            tool_call_id: tool_call_id.into(),
+            name: None,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ResponseFormat {
     #[serde(rename = "type")]
     pub type_: String,
+    pub json_schema: Option<Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Tool {
     #[serde(rename = "type")]
     pub tool_type: String,
-    pub function: Function,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Function {
-    pub name: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
-    pub parameters: serde_json::Value,
+    pub function: Value,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -108,13 +170,16 @@ pub struct Function {
 pub enum ToolChoice {
     None(String),
     Auto(String),
-    Function(FunctionCall),
+    Function { function: FunctionToolChoice },
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FunctionToolChoice {
+    pub name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FunctionCall {
-    #[serde(rename = "type")]
-    pub call_type: String,
     pub name: String,
     pub arguments: String,
 }
@@ -125,6 +190,37 @@ pub struct ToolCall {
     #[serde(rename = "type")]
     pub call_type: String,
     pub function: FunctionCall,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub code_interpreter: Option<CodeInterpreter>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub retrieval: Option<Retrieval>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CodeInterpreter {
+    pub input: String,
+    pub outputs: Vec<CodeInterpreterOutput>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CodeInterpreterOutput {
+    #[serde(rename = "type")]
+    pub output_type: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub image: Option<ImageOutput>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ImageOutput {
+    pub data: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Retrieval {
+    pub id: String,
+    pub metadata: serde_json::Value,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -145,6 +241,8 @@ pub struct ChatCompletionResponse {
 pub struct Choice {
     pub index: i32,
     pub message: Message,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub delta: Option<Delta>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub logprobs: Option<LogProbs>,
     pub finish_reason: Option<String>,
@@ -210,7 +308,10 @@ pub struct StreamChoice {
 pub struct Delta {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub role: Option<String>,
-    pub content: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub content: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub function_call: Option<FunctionCall>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_calls: Option<Vec<ToolCall>>,
 }
@@ -223,16 +324,7 @@ mod tests {
     fn test_chat_completion_request_serialization() {
         let request = ChatCompletionRequest {
             model: "gpt-4".to_string(),
-            messages: vec![Message {
-                role: "user".to_string(),
-                content: Some(vec![Content {
-                    text: "Hello".to_string(),
-                    type_: "text".to_string(),
-                }]),
-                name: None,
-                tool_calls: None,
-                tool_call_id: None,
-            }],
+            messages: vec![Message::user("Hello".to_string())],
             temperature: Some(0.7),
             ..Default::default()
         };
@@ -257,7 +349,7 @@ mod tests {
         let request: ChatCompletionRequest = serde_json::from_str(json).unwrap();
         assert_eq!(request.model, "gpt-4");
         assert_eq!(request.messages[0].role, "user");
-        let content = request.messages[0].clone().content.unwrap()[0].text.clone();
+        let content = request.messages[0].clone().content.unwrap().clone();
         assert_eq!(content, "Hello");
         assert_eq!(request.temperature, Some(0.7));
         assert_eq!(request.frequency_penalty, None);
@@ -269,11 +361,11 @@ mod tests {
         let json = serde_json::to_string(&none_choice).unwrap();
         assert_eq!(json, "\"none\"");
 
-        let function_choice = ToolChoice::Function(FunctionCall {
-            call_type: "function".to_string(),
-            name: "test".to_string(),
-            arguments: "{}".to_string(),
-        });
+        let function_choice = ToolChoice::Function {
+            function: FunctionToolChoice {
+                name: "test".to_string(),
+            },
+        };
         let json = serde_json::to_string(&function_choice).unwrap();
         assert!(json.contains("\"type\":\"function\""));
     }
@@ -318,8 +410,7 @@ mod tests {
         let message = &response.choices[0].message;
         assert!(message.content.is_some());
         let content = message.content.as_ref().unwrap();
-        assert_eq!(content[0].text, "Hello there!");
-        assert_eq!(content[0].type_, "text");
+        assert_eq!(content, "Hello there!");
         assert_eq!(response.usage.total_tokens, 30);
         assert!(response.usage.completion_tokens_details.is_some());
     }
@@ -345,7 +436,7 @@ mod tests {
         let chunk: ChatCompletionChunk = serde_json::from_str(json).unwrap();
         assert_eq!(chunk.id, "test-id");
         assert_eq!(chunk.system_fingerprint, Some("fp_44709d6fcb".to_string()));
-        let content = chunk.choices[0].delta.content.clone();
+        let content = chunk.choices[0].delta.content.as_ref().unwrap().clone();
         assert_eq!(content, "Hello");
     }
 
