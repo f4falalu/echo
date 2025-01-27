@@ -7,14 +7,16 @@ use crate::utils::clients::ai::litellm::ToolCall;
 mod search_files;
 mod create_files;
 mod bulk_modify_files;
-mod search_datasets;
+mod search_data_catalog;
 mod open_files;
+mod send_to_user;
 
 pub use search_files::SearchFilesTool;
 pub use create_files::CreateFilesTool;
 pub use bulk_modify_files::BulkModifyFilesTool;
-pub use search_datasets::SearchDatasetsTool;
+pub use search_data_catalog::SearchDataCatalogTool;
 pub use open_files::OpenFilesTool;
+pub use send_to_user::SendToUserTool;
 
 /// A trait that defines how tools should be implemented.
 /// Any struct that wants to be used as a tool must implement this trait.
