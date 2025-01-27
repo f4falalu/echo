@@ -149,3 +149,13 @@ export const useBusterChatIndividual = ({ chatId }: { chatId: string }) => {
     onSetSelectedAssetId
   };
 };
+
+export const useBusterChatAssetIndividual = ({
+  chatId,
+  assetId,
+  type
+}: {
+  chatId: string;
+  assetId: string;
+  type: FileType;
+}) => {};

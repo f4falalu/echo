@@ -1,6 +1,6 @@
-import type { AppChatMessageFileType } from '@/components/messages/AppChatMessageContainer';
+import type { FileType } from '@/api/buster_socket/chats';
 
 export type SelectedFile = {
   id: string;
-  type: AppChatMessageFileType;
+  type: FileType;
 };

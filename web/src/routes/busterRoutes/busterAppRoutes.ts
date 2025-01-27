@@ -12,6 +12,7 @@ export enum BusterAppRoutes {
   APP_LOGS = '/app/logs',
   APP_DATASETS = '/app/datasets',
   APP_DATASETS_ID = '/app/datasets/:datasetId',
+
   APP_DATASETS_ID_OVERVIEW = '/app/datasets/:datasetId/overview',
   APP_DATASETS_ID_PERMISSIONS_OVERVIEW = '/app/datasets/:datasetId/permissions/overview',
   APP_DATASETS_ID_PERMISSIONS_PERMISSION_GROUPS = '/app/datasets/:datasetId/permissions/permission-groups',
@@ -20,6 +21,18 @@ export enum BusterAppRoutes {
   APP_DATASETS_ID_EDITOR = '/app/datasets/:datasetId/editor',
   APP_TERMS = '/app/terms',
   APP_TERMS_ID = '/app/terms/:termId',
+
+  //NEW CHAT
+  APP_CHAT_ID = '/app/chat/:chatId',
+  APP_CHAT_ID_METRIC_ID = '/app/chat/:chatId/metric/:metricId',
+  APP_CHAT_ID_COLLECTION_ID = '/app/chat/:chatId/collection/:collectionId',
+  APP_CHAT_ID_DASHBOARD_ID = '/app/chat/:chatId/dashboard/:dashboardId',
+  APP_CHAT_ID_DATASET_ID = '/app/chat/:chatId/dataset/:datasetId',
+  APP_CHAT_ID_TERM_ID = '/app/chat/:chatId/term/:termId',
+  APP_CHAT_ID_VALUE_ID = '/app/chat/:chatId/value/:valueId',
+  APP_METRIC_ID = '/app/metric/:metricId',
+  APP_VALUE_ID = '/app/value/:valueId',
+
   SETTINGS = '/app/settings',
   SETTINGS_GENERAL = '/app/settings/general',
   SETTINGS_PERMISSIONS = '/app/settings/permissions',
@@ -193,4 +206,35 @@ export type BusterAppRoutesWithArgs = {
   };
   [BusterAppRoutes.APP_SETTINGS_ATTRIBUTES]: { route: BusterAppRoutes.APP_SETTINGS_ATTRIBUTES };
   [BusterAppRoutes.APP_SETTINGS_SECURITY]: { route: BusterAppRoutes.APP_SETTINGS_SECURITY };
+  [BusterAppRoutes.APP_CHAT_ID]: { route: BusterAppRoutes.APP_CHAT_ID; chatId: string };
+  [BusterAppRoutes.APP_CHAT_ID_METRIC_ID]: {
+    route: BusterAppRoutes.APP_CHAT_ID_METRIC_ID;
+    chatId: string;
+    metricId: string;
+  };
+  [BusterAppRoutes.APP_CHAT_ID_COLLECTION_ID]: {
+    route: BusterAppRoutes.APP_CHAT_ID_COLLECTION_ID;
+    chatId: string;
+    collectionId: string;
+  };
+  [BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID]: {
+    route: BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID;
+    chatId: string;
+    dashboardId: string;
+  };
+  [BusterAppRoutes.APP_CHAT_ID_DATASET_ID]: {
+    route: BusterAppRoutes.APP_CHAT_ID_DATASET_ID;
+    chatId: string;
+    datasetId: string;
+  };
+  [BusterAppRoutes.APP_CHAT_ID_TERM_ID]: {
+    route: BusterAppRoutes.APP_CHAT_ID_TERM_ID;
+    chatId: string;
+    termId: string;
+  };
+  [BusterAppRoutes.APP_CHAT_ID_VALUE_ID]: {
+    route: BusterAppRoutes.APP_CHAT_ID_VALUE_ID;
+    chatId: string;
+    valueId: string;
+  };
 };

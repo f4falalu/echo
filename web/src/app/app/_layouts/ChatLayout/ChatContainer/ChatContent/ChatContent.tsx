@@ -1,8 +1,7 @@
 import React, { useMemo } from 'react';
 import { useChatSplitterContextSelector } from '../../ChatLayoutContext';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { AppChatMessageFileType } from '@/components/messages/AppChatMessageContainer';
+import type { FileType } from '@/api/buster_socket/chats';
 
 const colors = [
   'red-200',
@@ -49,11 +48,11 @@ const ChatContentItem = React.memo(({ index }: { index: number }) => {
 
   const link = useMemo(() => {
     if (isPureChat) {
-      return `/test/splitter/chat/${index}`;
+      return `/app/chat/${index}`;
     } else if (isChat && typeOfItem !== 'chat') {
-      return `/test/splitter/chat/${index}/${typeOfItem}/${index}`;
+      return `/app/chat/${index}/${typeOfItem}/${index}`;
     } else {
-      return `/test/splitter/${typeOfItem}/${index}`;
+      return `/app/chat/${typeOfItem}/${index}`;
     }
   }, [index, typeOfItem, isPureChat, isChat]);
 
@@ -61,7 +60,7 @@ const ChatContentItem = React.memo(({ index }: { index: number }) => {
     if (isPureChat) {
       router.push(link);
     } else {
-      onSetSelectedFile({ id: index.toString(), type: typeOfItem as AppChatMessageFileType });
+      onSetSelectedFile({ id: index.toString(), type: typeOfItem as FileType });
     }
   };
 

@@ -39,8 +39,12 @@ export const useAppLayout = () => {
     return createBusterRoute(params);
   });
 
-  const onChangePage = useMemoizedFn((params: BusterRoutesWithArgsRoute) => {
-    push(createBusterRoute(params));
+  const onChangePage = useMemoizedFn((params: BusterRoutesWithArgsRoute | string) => {
+    if (typeof params === 'string') {
+      push(params);
+    } else {
+      push(createBusterRoute(params));
+    }
   });
 
   return {
