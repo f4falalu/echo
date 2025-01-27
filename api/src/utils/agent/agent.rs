@@ -1,9 +1,9 @@
-use crate::utils::clients::ai::litellm::{ChatCompletionRequest, LiteLLMClient, Message, Tool};
+use crate::utils::{clients::ai::litellm::{ChatCompletionRequest, LiteLLMClient, Message, Tool}, tools::ToolExecutor};
 use anyhow::Result;
 use std::collections::HashMap;
 use tokio::sync::mpsc;
 
-use super::types::{AgentThread, ToolExecutor};
+use super::types::{AgentThread};
 
 /// The Agent struct is responsible for managing conversations with the LLM
 /// and coordinating tool executions. It maintains a registry of available tools
