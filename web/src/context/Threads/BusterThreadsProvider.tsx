@@ -7,7 +7,7 @@ import {
 import { BusterNewThreadsProvider } from './BusterNewThreadsProvider';
 import { BusterThreadsListProvider } from './BusterThreadsListProvider';
 import { defaultIBusterThread } from './config';
-import { useDebounceFn, useMemoizedFn, useMount, useWhyDidYouUpdate } from 'ahooks';
+import { useDebounceFn, useMemoizedFn, useMount, useUnmount } from 'ahooks';
 import type { IBusterThread, IBusterThreadMessage } from './interfaces';
 import type { BusterThread, BusterThreadUser, BusterVerificationStatus } from '@/api/buster_rest';
 import { useBusterWebSocket } from '../BusterWebSocket';

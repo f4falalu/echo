@@ -24,6 +24,7 @@ import { BusterAssetsProvider } from './Assets/BusterAssetsProvider';
 import { BusterUserResponse } from '@/api/buster_rest/users';
 import { BusterPosthogProvider } from './Posthog/usePosthog';
 import { BusterNotificationsProvider } from './BusterNotifications';
+import { BusterChatProvider } from './Chats';
 import { RoutePrefetcher } from './RoutePrefetcher';
 import { BusterMessageDataProvider } from './MessageData';
 
@@ -66,16 +67,19 @@ export const AppProviders: React.FC<
                         <BusterCollectionsProvider>
                           <BusterMessageDataProvider>
                             <BusterDashboardProvider>
+                              {/* TODO: remove when we are ready to use chats */}
                               <BusterThreadsProvider>
                                 <BusterSQLProvider>
                                   <BusterTermsProvider>
                                     <BusterPermissionsProvider>
-                                      <AppHotKeysProvider>
-                                        <BusterPosthogProvider>
-                                          {children}
-                                          <RoutePrefetcher />
-                                        </BusterPosthogProvider>
-                                      </AppHotKeysProvider>
+                                      <BusterChatProvider>
+                                        <AppHotKeysProvider>
+                                          <BusterPosthogProvider>
+                                            {children}
+                                            <RoutePrefetcher />
+                                          </BusterPosthogProvider>
+                                        </AppHotKeysProvider>
+                                      </BusterChatProvider>
                                     </BusterPermissionsProvider>
                                   </BusterTermsProvider>
                                 </BusterSQLProvider>

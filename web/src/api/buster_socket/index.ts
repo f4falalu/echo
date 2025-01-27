@@ -18,6 +18,7 @@ import {
   OrganizationResponsesTypes,
   OrganizationsEmits
 } from './organizations';
+import { ChatEmits, ChatResponseTypes, ChatsResponses } from './chats';
 
 export type BusterSocketRequest =
   | ThreadEmits
@@ -31,7 +32,8 @@ export type BusterSocketRequest =
   | TermsEmits
   | PermissionsEmits
   | BusterSearchEmits
-  | OrganizationsEmits;
+  | OrganizationsEmits
+  | ChatEmits;
 
 export type BusterSocketResponse =
   | ThreadResponseTypes
@@ -45,7 +47,8 @@ export type BusterSocketResponse =
   | TermsResponseTypes
   | PermissionsResponseTypes
   | SearchResponseTypes
-  | OrganizationResponsesTypes;
+  | OrganizationResponsesTypes
+  | ChatResponseTypes;
 
 export type BusterSocketResponseRoute =
   | keyof typeof ThreadResponses
@@ -59,4 +62,5 @@ export type BusterSocketResponseRoute =
   | keyof typeof TermsResponses
   | keyof typeof PermissionsResponses
   | keyof typeof SearchResponses
-  | keyof typeof OrganizationResponses;
+  | keyof typeof OrganizationResponses
+  | keyof typeof ChatsResponses;

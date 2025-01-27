@@ -19,7 +19,7 @@ export type ChatUnsubscribeFromChat = BusterSocketRequestBase<'/chats/unsubscrib
 
 export type ChatGetChatAsset = BusterSocketRequestBase<
   '/chats/get/asset',
-  { id: string; type: FileType; version_id?: string }
+  { chat_id?: string; asset_id: string; type: FileType; version_id?: string }
 >;
 
 export type ChatListEmitPayload = BusterSocketRequestBase<
