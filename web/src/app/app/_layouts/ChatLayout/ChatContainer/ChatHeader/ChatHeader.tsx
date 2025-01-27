@@ -37,6 +37,6 @@ const useStyles = createStyles(({ token }) => ({
     transition: 'box-shadow 0.2s ease-in-out'
   },
   scrollIndicator: {
-    boxShadow: '0px 3px 5px 0 rgba(0, 0, 0, 0.075)'
+    boxShadow: '0px 3px 5px 0 rgba(0, 0, 0, 0.08)'
   }
 }));

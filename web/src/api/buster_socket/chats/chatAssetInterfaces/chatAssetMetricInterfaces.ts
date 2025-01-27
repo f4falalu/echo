@@ -1,0 +1,76 @@
+import type { BusterChartConfigProps } from '@/components/charts';
+
+export type BusterMetricAsset = {
+  id: string;
+  title: string;
+  description: string | null;
+  time_frame: string;
+  dataset_id: string | null;
+  dataset_name: string | null;
+  error: string | null;
+  chart_config?: BusterChartConfigProps;
+  data_metadata: {
+    column_count: number;
+    column_metadata: ColumnMetaData[];
+    row_count: number;
+  } | null;
+  status: BusterVerificationStatus;
+  evaluation_score: 'Moderate' | 'High' | 'Low';
+  evaluation_summary: string;
+  file: string; //yaml file
+  created_at: string;
+  updated_at: string;
+  sent_by_id: string;
+  sent_by_name: string;
+  sent_by_avatar_url: string | null;
+  draft_session_id: string | null; //DO WE NEED THIS?
+};
+
+enum BusterVerificationStatus {
+  notRequested = 'notRequested',
+  requested = 'requested',
+  inReview = 'inReview',
+  verified = 'verified',
+  backlogged = 'backlogged',
+  notVerified = 'notVerified'
+}
+
+type ColumnMetaData = {
+  name: string;
+  min_value: number | string;
+  max_value: number | string;
+  unique_values: number;
+  simple_type: 'text' | 'number' | 'date';
+  type:
+    | 'text'
+    | 'float'
+    | 'integer'
+    | 'date'
+    | 'float8'
+    | 'timestamp'
+    | 'timestamptz'
+    | 'bool'
+    | 'date'
+    | 'time'
+    | 'boolean'
+    | 'json'
+    | 'jsonb'
+    | 'int8'
+    | 'int4'
+    | 'int2'
+    | 'decimal'
+    | 'char'
+    | 'character varying'
+    | 'character'
+    | 'varchar'
+    | 'text'
+    | 'number'
+    | 'numeric'
+    | 'tinytext'
+    | 'mediumtext'
+    | 'longtext'
+    | 'nchar'
+    | 'nvarchat'
+    | 'ntext'
+    | 'float4';
+};

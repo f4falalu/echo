@@ -1,16 +1,14 @@
-import { DashboardConfig } from '@/api/buster_socket/dashboards/dashboardConfigInterfaces';
-import {
-  BusterThreadMessageConfig,
-  IBusterThreadMessageChartConfig
-} from '../threads/threadConfigInterfaces';
-import {
+import type { DashboardConfig } from '@/api/buster_socket/dashboards';
+import type { IBusterThreadMessageChartConfig } from '../threads/threadConfigInterfaces';
+import type {
   BusterShare,
   BusterThreadListItem,
   BusterThreadMessage,
   BusterVerificationStatus
 } from '../threads';
-import { ShareRole } from '@/api/buster_socket/threads';
-import { BusterCollectionListItem } from '../collection';
+import type { ShareRole } from '@/api/buster_socket/threads';
+import type { BusterCollectionListItem } from '../collection';
+import type { BusterChartConfigProps } from '@/components/charts';
 export interface BusterDashboardListItem {
   created_at: string;
   id: string;
@@ -60,7 +58,7 @@ export interface BusterDashboard
 }
 
 export interface BusterDashboardMetric {
-  chart_config: BusterThreadMessageConfig;
+  chart_config: BusterChartConfigProps;
   time_frame: string | null;
   name: string;
   id: string;

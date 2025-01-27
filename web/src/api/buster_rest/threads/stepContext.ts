@@ -1,10 +1,10 @@
-import {
+import type {
   BusterThought,
   BusterThreadMessage,
   BusterThreadMessageSqlEvaluation,
   BusterThreadStepProgress
 } from './interfaces';
-import { BusterThreadMessageConfig } from './threadConfigInterfaces';
+import type { BusterChartConfigProps } from '@/components/charts';
 
 export type BusterThreadStepBase = {
   thread_id: string;
@@ -20,7 +20,7 @@ export type BusterThreadStepEvent_FixingSql = {
 export type BusterThreadStepEvent_FetchingData = {
   data: null | Record<string, string | number | number>[];
   data_metadata: BusterThreadMessage['data_metadata'];
-  chart_config: BusterThreadMessageConfig;
+  chart_config: BusterChartConfigProps;
   title: string;
   description: string;
   time_frame: string;

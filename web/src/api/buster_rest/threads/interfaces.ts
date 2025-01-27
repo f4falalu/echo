@@ -1,5 +1,5 @@
-import { BusterThreadMessageConfig } from './threadConfigInterfaces';
-import { ShareRole } from '@/api/buster_socket/threads';
+import type { ShareRole } from '@/api/buster_socket/threads';
+import type { BusterChartConfigProps } from '@/components/charts';
 
 export type BusterThreadListItem = {
   id: string;
@@ -82,10 +82,9 @@ export type BusterThreadMessage = {
   time_frame: string | null; // Nullable
   title: string | null; // Nullable
   updated_at: string | null; // Nullable
-  chart_config?: BusterThreadMessageConfig;
+  chart_config?: BusterChartConfigProps;
   description: string | null; // Nullable
   status: BusterThreadListItem['status'];
-
   thoughts: {
     title: string;
     thoughts: BusterThought[];

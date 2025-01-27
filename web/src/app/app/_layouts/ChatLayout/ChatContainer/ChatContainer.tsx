@@ -1,5 +1,4 @@
 import React, { useMemo, useRef } from 'react';
-import type { ChatSplitterProps } from '../ChatLayout';
 import { ChatHeader } from './ChatHeader';
 import { ChatContent } from './ChatContent';
 import { useScroll } from 'ahooks';
@@ -12,7 +11,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = React.memo(({}) => {
 
   const showScrollOverflow = useMemo(() => {
     if (!chatContentRef.current || !scroll) return false;
-    const trigger = 50;
+    const trigger = 25;
     return scroll.top > trigger;
   }, [chatContentRef, scroll?.top]);
 

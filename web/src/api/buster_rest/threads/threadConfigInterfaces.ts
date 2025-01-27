@@ -4,8 +4,6 @@ import type {
   IColumnLabelFormat
 } from '@/components/charts';
 
-export type BusterThreadMessageConfig = BusterChartConfigProps;
-
 export type IBusterThreadMessageChartConfig = Required<
   Omit<BusterChartConfigProps, 'columnLabelFormats'>
 > & {

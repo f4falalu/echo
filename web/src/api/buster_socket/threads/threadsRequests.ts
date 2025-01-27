@@ -1,7 +1,7 @@
-import { BusterThreadMessageConfig } from '@/api/buster_rest/threads/threadConfigInterfaces';
+import { BusterChartConfigProps } from '@/components/charts';
 import { BusterSocketRequestBase } from '../baseInterfaces';
 import { ShareRequest } from '../dashboards';
-import { BusterVerificationStatus } from '@/api/buster_rest';
+import type { BusterVerificationStatus } from '@/api/buster_rest';
 
 export type ThreadListEmitPayload = BusterSocketRequestBase<
   '/threads/list',
@@ -58,7 +58,7 @@ export type ThreadUpdateMessage = BusterSocketRequestBase<
   '/threads/messages/update',
   {
     id: string; //messageid id
-    chart_config?: BusterThreadMessageConfig;
+    chart_config?: BusterChartConfigProps;
     title?: string;
     sql?: string;
     feedback?: 'negative';
