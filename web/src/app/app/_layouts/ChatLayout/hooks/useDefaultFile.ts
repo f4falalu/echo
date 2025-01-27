@@ -3,8 +3,8 @@
 import { useMemo } from 'react';
 import { SelectedFile } from '../interfaces';
 import { useParams } from 'next/navigation';
-import { AppChatMessageFileType } from '@/components/messages/AppChatMessageContainer';
 import { ChatSplitterProps } from '../ChatLayout';
+import { FileType } from '@/api/buster_socket/chats';
 
 export const useSelectedFileByParams = () => {
   const { metricId, collectionId, datasetId, dashboardId, chatId } = useParams() as {
@@ -16,10 +16,10 @@ export const useSelectedFileByParams = () => {
   };
 
   const selectedFile: SelectedFile | undefined = useMemo(() => {
-    if (metricId) return { id: metricId, type: AppChatMessageFileType.Metric };
-    if (collectionId) return { id: collectionId, type: AppChatMessageFileType.Collection };
-    if (datasetId) return { id: datasetId, type: AppChatMessageFileType.Dataset };
-    if (dashboardId) return { id: dashboardId, type: AppChatMessageFileType.Dashboard };
+    if (metricId) return { id: metricId, type: FileType.METRIC };
+    if (collectionId) return { id: collectionId, type: FileType.COLLECTION };
+    if (datasetId) return { id: datasetId, type: FileType.DATASET };
+    if (dashboardId) return { id: dashboardId, type: FileType.DASHBOARD };
   }, [metricId, collectionId, datasetId, dashboardId, chatId]);
 
   const selectedLayout: ChatSplitterProps['defaultSelectedLayout'] = useMemo(() => {

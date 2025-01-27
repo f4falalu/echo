@@ -1,12 +1,12 @@
 import { Dropdown, MenuProps } from 'antd';
 import React, { useMemo } from 'react';
-import { useChatSplitterContextSelector } from '../../../ChatLayoutContext';
 import { HeaderOptionsRecord } from './config';
+import { useChatContextSelector } from '../../../ChatContext';
 
 export const ChatContainerHeaderDropdown: React.FC<{
   children: React.ReactNode;
 }> = React.memo(({ children }) => {
-  const selectedFileType = useChatSplitterContextSelector((state) => state.selectedFileType);
+  const selectedFileType = useChatContextSelector((state) => state.selectedFileType);
 
   const menuItem: MenuProps['items'] = useMemo(() => {
     if (!selectedFileType || !(selectedFileType in HeaderOptionsRecord))

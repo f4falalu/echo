@@ -6,7 +6,6 @@ import { CollapseFileButton } from './CollapseFileButton';
 
 export const FileContainerHeader: React.FC = React.memo(() => {
   const { styles, cx } = useStyles();
-  const selectedFileType = useChatSplitterContextSelector((state) => state.selectedFileType);
   const selectedLayout = useChatSplitterContextSelector((state) => state.selectedLayout);
 
   const showCollapseButton = true;

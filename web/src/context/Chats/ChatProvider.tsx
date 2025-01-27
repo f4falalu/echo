@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState, useTransition } from 'react';
+import React, { useEffect, useRef, useTransition } from 'react';
 import {
   createContext,
   ContextSelector,
@@ -6,29 +6,17 @@ import {
 } from '@fluentui/react-context-selector';
 import { useBusterWebSocket } from '../BusterWebSocket';
 import type { BusterChatAsset, IBusterChat } from '@/api/buster_socket/chats';
-import { useMemoizedFn, useMount, useUnmount } from 'ahooks';
+import { useMemoizedFn, useUnmount } from 'ahooks';
 import type { FileType } from '@/api/buster_socket/chats';
 
 export const useBusterChat = () => {
   const busterSocket = useBusterWebSocket();
   const [isPending, startTransition] = useTransition();
   const chatsRef = useRef<Record<string, IBusterChat>>({});
-  const [seletedAssetId, setSeletedAssetId] = useState<Record<string, string | null>>({});
 
   // GETTERS
 
-  const getSelectedAssetId = useCallback(
-    (chatId: string) => {
-      return seletedAssetId[chatId] || null;
-    },
-    [seletedAssetId]
-  );
-
   // SETTERS
-
-  const onSetSelectedAssetId = useMemoizedFn((chatId: string, assetId: string | null) => {
-    setSeletedAssetId((prev) => ({ ...prev, [chatId]: assetId }));
-  });
 
   // LISTENERS
 
@@ -103,12 +91,10 @@ export const useBusterChat = () => {
   );
 
   return {
-    getSelectedAssetId,
     chats: chatsRef.current,
     unsubscribeFromChat,
     subscribeToChat,
-    getChatAsset,
-    onSetSelectedAssetId
+    getChatAsset
   };
 };
 
@@ -128,25 +114,22 @@ export const useBusterChatContextSelector = <T,>(
   selector: ContextSelector<ReturnType<typeof useBusterChat>, T>
 ) => useContextSelector(BusterChat, selector);
 
-export const useBusterChatIndividual = ({ chatId }: { chatId: string }) => {
+export const useBusterChatIndividual = ({ chatId: chatIdProp }: { chatId?: string }) => {
+  const chatId = chatIdProp || '';
   const chat = useBusterChatContextSelector((x) => x.chats[chatId]);
   const subscribeToChat = useBusterChatContextSelector((x) => x.subscribeToChat);
   const unsubscribeFromChat = useBusterChatContextSelector((x) => x.unsubscribeFromChat);
-  const selectedAssetId = useBusterChatContextSelector((x) => x.getSelectedAssetId(chatId));
-  const onSetSelectedAssetId = useBusterChatContextSelector((x) => x.onSetSelectedAssetId);
 
-  useMount(() => {
-    subscribeToChat({ chatId });
-  });
+  useEffect(() => {
+    if (chatId) subscribeToChat({ chatId });
+  }, [chatId]);
 
   useUnmount(() => {
-    unsubscribeFromChat({ chatId });
+    if (chatId) unsubscribeFromChat({ chatId });
   });
 
   return {
-    chat,
-    selectedAssetId,
-    onSetSelectedAssetId
+    chat
   };
 };
 

@@ -1,8 +1,8 @@
+import type { FileType } from '@/api/buster_socket/chats';
 import { AppMaterialIcons } from '@/components/icons';
-import type { AppChatMessageFileType } from '@/components/messages/AppChatMessageContainer';
-import { MenuProps } from 'antd';
+import type { MenuProps } from 'antd';
 
-export const HeaderOptionsRecord: Record<AppChatMessageFileType, () => MenuProps['items']> = {
+export const HeaderOptionsRecord: Record<FileType, () => MenuProps['items']> = {
   dataset: () => [
     {
       label: 'Delete',
@@ -30,5 +30,7 @@ export const HeaderOptionsRecord: Record<AppChatMessageFileType, () => MenuProps
       key: 'delete',
       icon: <AppMaterialIcons icon="delete" />
     }
-  ]
+  ],
+  term: () => [],
+  value: () => []
 };

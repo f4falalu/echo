@@ -7,7 +7,8 @@ import { FileContainer } from './FileContainer';
 import { ChatSplitterContextProvider } from './ChatLayoutContext';
 import { useChatLayout } from './ChatLayoutContext';
 import { SelectedFile } from './interfaces';
-import { useAutoSetLayout, useDefaultSplitterLayout } from './hooks';
+import { useDefaultSplitterLayout } from './hooks';
+import { ChatContextProvider, useChatContext } from './ChatContext/ChatContext';
 
 export interface ChatSplitterProps {
   showChatCollapse?: boolean;
@@ -30,20 +31,25 @@ export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(
       chatId
     });
 
-    const { hasFile, isPureChat, isPureFile } = useChatSplitterProps;
+    const useChatContextValue = useChatContext({ chatId, defaultSelectedFile });
+
+    const { isPureChat, isPureFile } = useChatSplitterProps;
+    const { hasFile } = useChatContextValue;
 
     return (
       <ChatSplitterContextProvider useChatSplitterProps={useChatSplitterProps}>
-        <AppSplitter
-          ref={appSplitterRef}
-          leftChildren={isPureFile ? null : <ChatContainer />}
-          rightChildren={<FileContainer children={children} />}
-          autoSaveId="chat-splitter"
-          defaultLayout={defaultSplitterLayout}
-          rightHidden={isPureChat}
-          preserveSide="left"
-          leftPanelMinSize={hasFile ? 225 : undefined}
-        />
+        <ChatContextProvider value={useChatContextValue}>
+          <AppSplitter
+            ref={appSplitterRef}
+            leftChildren={isPureFile ? null : <ChatContainer />}
+            rightChildren={<FileContainer children={children} />}
+            autoSaveId="chat-splitter"
+            defaultLayout={defaultSplitterLayout}
+            rightHidden={isPureChat}
+            preserveSide="left"
+            leftPanelMinSize={hasFile ? 225 : undefined}
+          />
+        </ChatContextProvider>
       </ChatSplitterContextProvider>
     );
   }

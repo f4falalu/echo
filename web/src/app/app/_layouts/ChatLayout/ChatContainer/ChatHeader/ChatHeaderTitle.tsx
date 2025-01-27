@@ -1,7 +1,7 @@
 import { Text } from '@/components/text';
 import React from 'react';
-import { useChatSplitterContextSelector } from '../../ChatLayoutContext';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useChatContextSelector } from '../../ChatContext';
 
 const animation = {
   initial: { opacity: 0 },
@@ -11,12 +11,12 @@ const animation = {
 };
 
 export const ChatHeaderTitle: React.FC<{}> = React.memo(() => {
-  const selectedFileTitle = useChatSplitterContextSelector((state) => state.selectedFileTitle);
+  const chatTitle = useChatContextSelector((state) => state.chatTitle);
 
   return (
     <AnimatePresence mode="wait" initial={false}>
-      <motion.div {...animation} key={selectedFileTitle} className="flex items-center">
-        <Text>{selectedFileTitle}</Text>
+      <motion.div {...animation} key={chatTitle} className="flex items-center">
+        <Text>{chatTitle}</Text>
       </motion.div>
     </AnimatePresence>
   );

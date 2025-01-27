@@ -237,4 +237,6 @@ export type BusterAppRoutesWithArgs = {
     chatId: string;
     valueId: string;
   };
+  [BusterAppRoutes.APP_METRIC_ID]: { route: BusterAppRoutes.APP_METRIC_ID; metricId: string };
+  [BusterAppRoutes.APP_VALUE_ID]: { route: BusterAppRoutes.APP_VALUE_ID; valueId: string };
 };

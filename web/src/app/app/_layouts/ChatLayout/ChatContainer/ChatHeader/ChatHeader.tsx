@@ -1,15 +1,15 @@
 import { appContentHeaderHeight } from '@/components/layout/AppContentHeader';
 import { createStyles } from 'antd-style';
 import React from 'react';
-import { useChatSplitterContextSelector } from '../../ChatLayoutContext';
 import { ChatHeaderOptions } from './ChatHeaderOptions';
 import { ChatHeaderTitle } from './ChatHeaderTitle';
+import { useChatContextSelector } from '../../ChatContext';
 
 export const ChatHeader: React.FC<{
   showScrollOverflow: boolean;
 }> = React.memo(({ showScrollOverflow }) => {
   const { cx, styles } = useStyles();
-  const hasFile = useChatSplitterContextSelector((state) => state.hasFile);
+  const hasFile = useChatContextSelector((state) => state.hasFile);
 
   return (
     <div

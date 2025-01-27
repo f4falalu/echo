@@ -3,7 +3,7 @@ import {
   createContext,
   useContextSelector
 } from '@fluentui/react-context-selector';
-import React, { PropsWithChildren, useMemo, useState, useTransition } from 'react';
+import React, { PropsWithChildren, useMemo, useTransition } from 'react';
 import type { SelectedFile } from '../interfaces';
 import type { ChatSplitterProps } from '../ChatLayout';
 import { useMemoizedFn } from 'ahooks';
@@ -29,14 +29,6 @@ export const useChatLayout = ({
   const [isPending, startTransition] = useTransition();
   const onChangePage = useAppLayoutContextSelector((state) => state.onChangePage);
   const selectedLayout = defaultSelectedLayout;
-  const selectedFileId = defaultSelectedFile?.id;
-  const selectedFileType = defaultSelectedFile?.type;
-  const hasFile = !!selectedFileId;
-
-  const selectedFileTitle: string = useMemo(() => {
-    if (!selectedFileId) return '';
-    return 'test';
-  }, [selectedFileId]);
 
   const animateOpenSplitter = useMemoizedFn((side: 'left' | 'right' | 'both') => {
     if (appSplitterRef.current) {
@@ -84,11 +76,7 @@ export const useChatLayout = ({
   });
 
   return {
-    selectedFileTitle,
-    selectedFileType,
     selectedLayout,
-    selectedFileId,
-    hasFile,
     isPureFile,
     isPureChat,
     onSetSelectedFile,
