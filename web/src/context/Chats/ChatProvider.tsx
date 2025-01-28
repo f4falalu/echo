@@ -5,9 +5,12 @@ import {
   useContextSelector
 } from '@fluentui/react-context-selector';
 import { useBusterWebSocket } from '../BusterWebSocket';
-import type { BusterChatAsset, IBusterChat } from '@/api/buster_socket/chats';
+import type { BusterChatAsset, BusterChat } from '@/api/buster_socket/chats';
 import { useMemoizedFn, useUnmount } from 'ahooks';
 import type { FileType } from '@/api/buster_socket/chats';
+import { MOCK_CHAT } from './MOCK_CHAT';
+import { IBusterChat } from './interfaces';
+import { chatUpgrader } from './helpers';
 
 export const useBusterChat = () => {
   const busterSocket = useBusterWebSocket();
@@ -20,12 +23,13 @@ export const useBusterChat = () => {
 
   // LISTENERS
 
-  const _onGetChat = useMemoizedFn((chat: IBusterChat) => {
-    chatsRef.current[chat.id] = chat;
+  const _onGetChat = useMemoizedFn((chat: BusterChat): IBusterChat => {
+    const upgradedChat = chatUpgrader(chat);
+    chatsRef.current[chat.id] = upgradedChat;
     startTransition(() => {
       //just used to trigger UI update
     });
-    return chat;
+    return upgradedChat;
   });
 
   const _onGetChatAsset = useMemoizedFn((asset: BusterChatAsset) => {
@@ -46,18 +50,17 @@ export const useBusterChat = () => {
   });
 
   const subscribeToChat = useMemoizedFn(({ chatId }: { chatId: string }) => {
-    return busterSocket.emitAndOnce({
-      emitEvent: {
-        route: '/chats/get',
-        payload: {
-          id: chatId
-        }
-      },
-      responseEvent: {
-        route: '/chats/get:getChat',
-        callback: _onGetChat
-      }
-    });
+    _onGetChat(MOCK_CHAT);
+    // return busterSocket.emitAndOnce({
+    //   emitEvent: {
+    //     route: '/chats/get',
+    //     payload: { id: chatId }
+    //   },
+    //   responseEvent: {
+    //     route: '/chats/get:getChat',
+    //     callback: _onGetChat
+    //   }
+    // });
   });
 
   const getChatAsset = useMemoizedFn(

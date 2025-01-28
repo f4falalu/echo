@@ -21,7 +21,7 @@ const createMockUserMessage = (
 const createMockResponseMessageText = (): BusterChatMessage_text => ({
   id: faker.string.uuid(),
   type: 'text',
-  message: faker.lorem.sentence(),
+  message: '',
   message_chunk: faker.lorem.sentence()
 });
 
