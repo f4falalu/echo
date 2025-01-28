@@ -300,11 +300,24 @@ diesel::table! {
 }
 
 diesel::table! {
+    messages (id) {
+        id -> Uuid,
+        request -> Text,
+        response -> Jsonb,
+        thread_id -> Uuid,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+        deleted_at -> Nullable<Timestamptz>,
+        created_by -> Uuid,
+    }
+}
+
+diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::MessageFeedbackEnum;
     use super::sql_types::VerificationEnum;
 
-    messages (id) {
+    messages_deprecated (id) {
         id -> Uuid,
         thread_id -> Uuid,
         sent_by -> Uuid,
@@ -479,6 +492,18 @@ diesel::table! {
 diesel::table! {
     threads (id) {
         id -> Uuid,
+        title -> Text,
+        organization_id -> Uuid,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+        deleted_at -> Nullable<Timestamptz>,
+        created_by -> Uuid,
+    }
+}
+
+diesel::table! {
+    threads_deprecated (id) {
+        id -> Uuid,
         created_by -> Uuid,
         updated_by -> Uuid,
         publicly_accessible -> Bool,
@@ -573,11 +598,13 @@ diesel::joinable!(datasets_to_dataset_groups -> dataset_groups (dataset_group_id
 diesel::joinable!(datasets_to_dataset_groups -> datasets (dataset_id));
 diesel::joinable!(datasets_to_permission_groups -> datasets (dataset_id));
 diesel::joinable!(datasets_to_permission_groups -> permission_groups (permission_group_id));
-diesel::joinable!(messages -> datasets (dataset_id));
-diesel::joinable!(messages -> threads (thread_id));
-diesel::joinable!(messages -> users (sent_by));
+diesel::joinable!(messages -> threads_deprecated (thread_id));
+diesel::joinable!(messages -> users (created_by));
+diesel::joinable!(messages_deprecated -> datasets (dataset_id));
+diesel::joinable!(messages_deprecated -> threads_deprecated (thread_id));
+diesel::joinable!(messages_deprecated -> users (sent_by));
 diesel::joinable!(messages_to_files -> dashboard_files (file_id));
-diesel::joinable!(messages_to_files -> messages (message_id));
+diesel::joinable!(messages_to_files -> messages_deprecated (message_id));
 diesel::joinable!(messages_to_files -> metric_files (file_id));
 diesel::joinable!(permission_groups -> organizations (organization_id));
 diesel::joinable!(permission_groups_to_users -> permission_groups (permission_group_id));
@@ -590,8 +617,10 @@ diesel::joinable!(terms -> organizations (organization_id));
 diesel::joinable!(terms_to_datasets -> datasets (dataset_id));
 diesel::joinable!(terms_to_datasets -> terms (term_id));
 diesel::joinable!(threads -> organizations (organization_id));
+diesel::joinable!(threads -> users (created_by));
+diesel::joinable!(threads_deprecated -> organizations (organization_id));
 diesel::joinable!(threads_to_dashboards -> dashboards (dashboard_id));
-diesel::joinable!(threads_to_dashboards -> threads (thread_id));
+diesel::joinable!(threads_to_dashboards -> threads_deprecated (thread_id));
 diesel::joinable!(threads_to_dashboards -> users (added_by));
 diesel::joinable!(user_favorites -> users (user_id));
 diesel::joinable!(users_to_organizations -> organizations (organization_id));
@@ -614,6 +643,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     datasets_to_permission_groups,
     entity_relationship,
     messages,
+    messages_deprecated,
     messages_to_files,
     metric_files,
     organizations,
@@ -626,6 +656,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     terms,
     terms_to_datasets,
     threads,
+    threads_deprecated,
     threads_to_dashboards,
     user_favorites,
     users,
