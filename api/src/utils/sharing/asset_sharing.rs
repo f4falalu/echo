@@ -24,8 +24,8 @@ use crate::{
         lib::get_pg_pool,
         models::{AssetPermission, CollectionToAsset, User},
         schema::{
-            asset_permissions, collections, collections_to_assets, dashboards, messages,
-            organizations, teams, teams_to_users, threads, user_favorites, users,
+            asset_permissions, collections, collections_to_assets, dashboards, messages_deprecated,
+            organizations, teams, teams_to_users, threads_deprecated, user_favorites, users,
         },
     },
     utils::clients::{
@@ -658,11 +658,11 @@ async fn get_asset_name(asset_id: Arc<Uuid>, asset_type: AssetType) -> Result<St
             }
         }
         AssetType::Thread => {
-            match messages::table
-                .inner_join(threads::table.on(messages::thread_id.eq(threads::id)))
-                .filter(threads::id.eq(asset_id.as_ref()))
-                .select(messages::title.nullable())
-                .order(messages::created_at.desc())
+            match messages_deprecated::table
+                .inner_join(threads_deprecated::table.on(messages_deprecated::thread_id.eq(threads_deprecated::id)))
+                .filter(threads_deprecated::id.eq(asset_id.as_ref()))
+                .select(messages_deprecated::title.nullable())
+                .order(messages_deprecated::created_at.desc())
                 .first::<Option<String>>(&mut conn)
                 .await
             {

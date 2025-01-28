@@ -292,10 +292,9 @@ pub struct User {
     AsChangeset,
     sqlx::FromRow,
 )]
-#[diesel(belongs_to(Thread))]
 #[diesel(belongs_to(User, foreign_key = sent_by))]
 #[diesel(belongs_to(Dataset))]
-#[diesel(table_name = messages)]
+#[diesel(table_name = messages_deprecated)]
 pub struct Message {
     pub id: Uuid,
     pub thread_id: Uuid,
@@ -380,8 +379,8 @@ pub struct Term {
     AsChangeset,
 )]
 #[diesel(belongs_to(User, foreign_key = created_by, foreign_key = updated_by))]
-#[diesel(table_name = threads)]
-pub struct Thread {
+#[diesel(table_name = threads_deprecated)]
+pub struct ThreadDeprecated {
     pub id: Uuid,
     pub created_by: Uuid,
     pub updated_by: Uuid,
@@ -399,7 +398,7 @@ pub struct Thread {
 }
 
 #[derive(Queryable, Insertable, Associations, Debug)]
-#[diesel(belongs_to(Thread, foreign_key = thread_id))]
+#[diesel(belongs_to(ThreadDeprecated, foreign_key = thread_id))]
 #[diesel(belongs_to(Dashboard, foreign_key = dashboard_id))]
 #[diesel(belongs_to(User, foreign_key = added_by))]
 #[diesel(table_name = threads_to_dashboards)]

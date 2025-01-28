@@ -28,7 +28,7 @@ use crate::database::{
     enums::{TeamToUserRole, UserOrganizationRole},
     models::{PermissionGroup, Team, User},
     schema::{
-        datasets_to_permission_groups, messages, permission_groups,
+        datasets_to_permission_groups, messages_deprecated, permission_groups,
         permission_groups_to_identities, teams, teams_to_users, users, users_to_organizations,
     },
 };
@@ -505,10 +505,10 @@ async fn get_user_and_org_role(user_id: Arc<Uuid>) -> Result<(User, UserToOrgani
 async fn get_user_queries_last_30_days(user_id: Arc<Uuid>) -> Result<i64> {
     let mut conn = get_pg_pool().get().await?;
 
-    let query_count = match messages::table
-        .select(count(messages::id))
-        .filter(messages::sent_by.eq(user_id.as_ref()))
-        .filter(messages::created_at.ge(Utc::now() - chrono::Duration::days(30)))
+    let query_count = match messages_deprecated::table
+        .select(count(messages_deprecated::id))
+        .filter(messages_deprecated::sent_by.eq(user_id.as_ref()))
+        .filter(messages_deprecated::created_at.ge(Utc::now() - chrono::Duration::days(30)))
         .first::<i64>(&mut conn)
         .await
     {

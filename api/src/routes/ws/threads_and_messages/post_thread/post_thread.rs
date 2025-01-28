@@ -5,8 +5,8 @@ use crate::{
         models::{AssetPermission, DataSource, Dataset, DatasetColumn, UserToOrganization},
         schema::{
             asset_permissions, data_sources, dataset_columns, dataset_groups, dataset_groups_permissions,
-            dataset_permissions, datasets, messages,
-            permission_groups_to_identities, threads,
+            dataset_permissions, datasets, messages_deprecated,
+            permission_groups_to_identities, threads_deprecated,
             users_to_organizations,
         },
     },
@@ -55,7 +55,7 @@ use uuid::Uuid;
 use crate::{
     database::{
         enums::Verification,
-        models::{Message, Thread, User},
+        models::{Message, ThreadDeprecated, User},
     },
     routes::ws::{
         ws::{WsEvent, WsResponseMessage},
@@ -1236,14 +1236,14 @@ async fn follow_up_thread(
     messages_to_upsert.push(new_message.clone());
 
     // Perform bulk upsert
-    match diesel::insert_into(messages::table)
+    match diesel::insert_into(messages_deprecated::table)
         .values(&messages_to_upsert)
-        .on_conflict(messages::id)
+        .on_conflict(messages_deprecated::id)
         .do_update()
         .set((
-            messages::draft_state.eq(excluded(messages::draft_state)),
-            messages::deleted_at.eq(excluded(messages::deleted_at)),
-            messages::updated_at.eq(Utc::now()),
+            messages_deprecated::draft_state.eq(excluded(messages_deprecated::draft_state)),
+            messages_deprecated::deleted_at.eq(excluded(messages_deprecated::deleted_at)),
+            messages_deprecated::updated_at.eq(Utc::now()),
         ))
         .execute(&mut conn)
         .await
@@ -1366,7 +1366,7 @@ async fn create_thread(
 ) -> Result<(ThreadState, Message)> {
     let message_uuid = Uuid::new_v4();
 
-    let thread = Thread {
+    let thread = ThreadDeprecated {
         id: Uuid::new_v4(),
         created_by: user.id,
         updated_by: user.id,
@@ -1422,7 +1422,7 @@ async fn create_thread(
             return Err(err);
         }
     };
-    match insert_into(threads::table)
+    match insert_into(threads_deprecated::table)
         .values(&thread_insert_body)
         .execute(&mut conn)
         .await
@@ -1474,13 +1474,13 @@ async fn create_thread(
         tokio::spawn(async move {
             let mut conn = get_pg_pool().get().await?;
 
-            match diesel::insert_into(messages::table)
+            match diesel::insert_into(messages_deprecated::table)
                 .values(&messages_to_upsert)
-                .on_conflict(messages::id)
+                .on_conflict(messages_deprecated::id)
                 .do_update()
                 .set((
-                    messages::deleted_at.eq(excluded(messages::deleted_at)),
-                    messages::updated_at.eq(Utc::now()),
+                    messages_deprecated::deleted_at.eq(excluded(messages_deprecated::deleted_at)),
+                    messages_deprecated::updated_at.eq(Utc::now()),
                 ))
                 .execute(&mut conn)
                 .await
@@ -1664,8 +1664,8 @@ async fn update_thread_and_message(
             }
         };
 
-        match update(threads::table)
-            .filter(threads::id.eq(&update_thread.id))
+        match update(threads_deprecated::table)
+            .filter(threads_deprecated::id.eq(&update_thread.id))
             .set(&update_thread)
             .execute(&mut conn)
             .await
@@ -1692,20 +1692,20 @@ async fn update_thread_and_message(
         };
 
         // Explicitly specify all fields that need to be updated
-        match diesel::update(messages::table)
-            .filter(messages::id.eq(&update_message.id))
+        match diesel::update(messages_deprecated::table)
+            .filter(messages_deprecated::id.eq(&update_message.id))
             .set((
-                messages::responses.eq(&update_message.responses),
-                messages::chart_config.eq(&update_message.chart_config),
-                messages::data_metadata.eq(&update_message.data_metadata),
-                messages::code.eq(&update_message.code),
-                messages::context.eq(&update_message.context),
-                messages::title.eq(&update_message.title),
-                messages::summary_question.eq(&update_message.summary_question),
-                messages::time_frame.eq(&update_message.time_frame),
-                messages::dataset_id.eq(&update_message.dataset_id),
-                messages::updated_at.eq(Utc::now()),
-                messages::sql_evaluation_id.eq(&update_message.sql_evaluation_id),
+                messages_deprecated::responses.eq(&update_message.responses),
+                messages_deprecated::chart_config.eq(&update_message.chart_config),
+                messages_deprecated::data_metadata.eq(&update_message.data_metadata),
+                messages_deprecated::code.eq(&update_message.code),
+                messages_deprecated::context.eq(&update_message.context),
+                messages_deprecated::title.eq(&update_message.title),
+                messages_deprecated::summary_question.eq(&update_message.summary_question),
+                messages_deprecated::time_frame.eq(&update_message.time_frame),
+                messages_deprecated::dataset_id.eq(&update_message.dataset_id),
+                messages_deprecated::updated_at.eq(Utc::now()),
+                messages_deprecated::sql_evaluation_id.eq(&update_message.sql_evaluation_id),
             ))
             .execute(&mut conn)
             .await

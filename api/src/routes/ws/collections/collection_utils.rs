@@ -16,8 +16,8 @@ use crate::{
         lib::get_pg_pool,
         models::Collection,
         schema::{
-            asset_permissions, collections, collections_to_assets, dashboards, messages,
-            teams_to_users, threads, users,
+            asset_permissions, collections, collections_to_assets, dashboards, messages_deprecated,
+            teams_to_users, threads_deprecated, users,
         },
     },
     utils::{
@@ -504,15 +504,15 @@ async fn get_thread_assets(collection_id: Arc<Uuid>) -> Result<Option<Vec<Collec
     };
 
     let thread_assets = match collections_to_assets::table
-        .inner_join(threads::table.on(collections_to_assets::asset_id.eq(threads::id)))
-        .inner_join(users::table.on(threads::created_by.eq(users::id)))
-        .inner_join(messages::table.on(threads::state_message_id.eq(messages::id.nullable())))
+        .inner_join(threads_deprecated::table.on(collections_to_assets::asset_id.eq(threads_deprecated::id)))
+        .inner_join(users::table.on(threads_deprecated::created_by.eq(users::id)))
+        .inner_join(messages_deprecated::table.on(threads_deprecated::state_message_id.eq(messages_deprecated::id.nullable())))
         .select((
-            threads::id,
-            messages::title.nullable(),
-            messages::message,
-            threads::created_at,
-            threads::updated_at,
+            threads_deprecated::id,
+            messages_deprecated::title.nullable(),
+            messages_deprecated::message,
+            threads_deprecated::created_at,
+            threads_deprecated::updated_at,
             users::name.nullable(),
             users::email,
             collections_to_assets::asset_type,

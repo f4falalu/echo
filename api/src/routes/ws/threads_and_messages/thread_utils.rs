@@ -17,10 +17,10 @@ use crate::{
     database::{
         enums::{AssetPermissionRole, AssetType, UserOrganizationRole},
         lib::{get_pg_pool, ColumnMetadata, DataMetadataJsonBody, MinMaxValue, PgPool},
-        models::{Message, Thread},
+        models::{Message, ThreadDeprecated},
         schema::{
-            asset_permissions, collections_to_assets, dashboards, data_sources, datasets, messages,
-            sql_evaluations, teams_to_users, threads, threads_to_dashboards, users,
+            asset_permissions, collections_to_assets, dashboards, data_sources, datasets, messages_deprecated,
+            sql_evaluations, teams_to_users, threads_deprecated, threads_to_dashboards, users,
             users_to_organizations,
         },
     },
@@ -59,7 +59,7 @@ pub struct DashboardNameAndId {
 #[derive(Serialize, Clone)]
 pub struct ThreadState {
     #[serde(flatten)]
-    pub thread: Thread,
+    pub thread: ThreadDeprecated,
     pub title: String,
     pub messages: Vec<MessageWithUserInfo>,
     pub dashboards: Vec<DashboardNameAndId>,
@@ -507,9 +507,9 @@ async fn is_organization_admin_or_owner(user_id: Arc<Uuid>, thread_id: Arc<Uuid>
                 .on(users_to_organizations::organization_id.eq(data_sources::organization_id)),
         )
         .inner_join(datasets::table.on(data_sources::id.eq(datasets::data_source_id)))
-        .inner_join(messages::table.on(datasets::id.nullable().eq(messages::dataset_id)))
+        .inner_join(messages_deprecated::table.on(datasets::id.nullable().eq(messages_deprecated::dataset_id)))
         .select(users_to_organizations::role)
-        .filter(messages::thread_id.eq(thread_id.as_ref()))
+        .filter(messages_deprecated::thread_id.eq(thread_id.as_ref()))
         .filter(users_to_organizations::user_id.eq(user_id.as_ref()))
         .first::<UserOrganizationRole>(&mut conn)
         .await
@@ -587,7 +587,7 @@ pub async fn get_bulk_user_thread_permission(
 async fn get_thread_and_check_permissions(
     user_id: Arc<Uuid>,
     thread_id: Arc<Uuid>,
-) -> Result<(Thread, Option<AssetPermissionRole>)> {
+) -> Result<(ThreadDeprecated, Option<AssetPermissionRole>)> {
     let thread_handler = {
         let id = Arc::clone(&thread_id);
         tokio::spawn(async move { get_thread_by_id(id).await })
@@ -622,7 +622,7 @@ async fn get_thread_and_check_permissions(
     Ok((thread, permission))
 }
 
-async fn get_thread_by_id(thread_id: Arc<Uuid>) -> Result<Thread> {
+async fn get_thread_by_id(thread_id: Arc<Uuid>) -> Result<ThreadDeprecated> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => {
@@ -631,11 +631,11 @@ async fn get_thread_by_id(thread_id: Arc<Uuid>) -> Result<Thread> {
         }
     };
 
-    let thread = match threads::table
-        .filter(threads::id.eq(thread_id.as_ref()))
-        .filter(threads::deleted_at.is_null())
-        .select(threads::all_columns)
-        .first::<Thread>(&mut conn)
+    let thread = match threads_deprecated::table
+        .filter(threads_deprecated::id.eq(thread_id.as_ref()))
+        .filter(threads_deprecated::deleted_at.is_null())
+        .select(threads_deprecated::all_columns)
+        .first::<ThreadDeprecated>(&mut conn)
         .await
     {
         Ok(threads) => threads,
@@ -662,15 +662,15 @@ async fn get_thread_messages(
         }
     };
 
-    let mut statement = messages::table
-        .inner_join(users::table.on(messages::sent_by.eq(users::id)))
-        .left_join(datasets::table.on(messages::dataset_id.eq(datasets::id.nullable())))
+    let mut statement = messages_deprecated::table
+        .inner_join(users::table.on(messages_deprecated::sent_by.eq(users::id)))
+        .left_join(datasets::table.on(messages_deprecated::dataset_id.eq(datasets::id.nullable())))
         .left_join(
             sql_evaluations::table
-                .on(messages::sql_evaluation_id.eq(sql_evaluations::id.nullable())),
+                .on(messages_deprecated::sql_evaluation_id.eq(sql_evaluations::id.nullable())),
         )
         .select((
-            messages::all_columns,
+            messages_deprecated::all_columns,
             sql_evaluations::evaluation_summary.nullable(),
             sql_evaluations::score.nullable(),
             users::name.nullable(),
@@ -678,21 +678,21 @@ async fn get_thread_messages(
             users::id,
             datasets::name.nullable(),
         ))
-        .filter(messages::thread_id.eq(thread_id.as_ref()))
-        .filter(messages::deleted_at.is_null())
-        .order(messages::created_at.asc())
+        .filter(messages_deprecated::thread_id.eq(thread_id.as_ref()))
+        .filter(messages_deprecated::deleted_at.is_null())
+        .order(messages_deprecated::created_at.asc())
         .into_boxed();
 
     if let Some(draft_session_id) = draft_session_id {
         println!("draft_session_id: {:?}", draft_session_id);
         statement = statement.filter(
-            messages::draft_session_id
+            messages_deprecated::draft_session_id
                 .eq(draft_session_id)
-                .or(messages::draft_session_id.is_null()),
+                .or(messages_deprecated::draft_session_id.is_null()),
         );
     } else {
         println!("draft_session_id is null");
-        statement = statement.filter(messages::draft_session_id.is_null());
+        statement = statement.filter(messages_deprecated::draft_session_id.is_null());
     }
 
     let message_records = match statement

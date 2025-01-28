@@ -14,7 +14,7 @@ use crate::{
         enums::{AssetPermissionRole, AssetType},
         lib::get_pg_pool,
         models::{Dashboard, Message},
-        schema::{asset_permissions, dashboards, messages, threads_to_dashboards, users_to_organizations},
+        schema::{asset_permissions, dashboards, messages_deprecated, threads_to_dashboards, users_to_organizations},
     },
     utils::{
         clients::{sentry_utils::send_sentry_error, supabase_vault::read_secret},
@@ -478,15 +478,15 @@ async fn get_dashboard_metrics(dashboard_id: Arc<Uuid>) -> Result<Vec<Metric>> {
         }
     };
 
-    let metric_records = match messages::table
+    let metric_records = match messages_deprecated::table
         .inner_join(
             threads_to_dashboards::table
-                .on(messages::thread_id.eq(threads_to_dashboards::thread_id)),
+                .on(messages_deprecated::thread_id.eq(threads_to_dashboards::thread_id)),
         )
-        .select((threads_to_dashboards::thread_id, messages::all_columns))
+        .select((threads_to_dashboards::thread_id, messages_deprecated::all_columns))
         .filter(threads_to_dashboards::dashboard_id.eq(dashboard_id.as_ref()))
-        .filter(messages::deleted_at.is_null())
-        .filter(messages::draft_session_id.is_null())
+        .filter(messages_deprecated::deleted_at.is_null())
+        .filter(messages_deprecated::draft_session_id.is_null())
         .filter(threads_to_dashboards::deleted_at.is_null())
         .load::<(Uuid, Message)>(&mut conn)
         .await

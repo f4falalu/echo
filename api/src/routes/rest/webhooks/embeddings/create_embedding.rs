@@ -1,5 +1,5 @@
 use crate::database::lib::get_pg_pool;
-use crate::database::schema::{datasets, messages};
+use crate::database::schema::{datasets, messages_deprecated};
 use crate::routes::rest::ApiResponse;
 use crate::utils::clients::sentry_utils::send_sentry_error;
 use crate::utils::clients::typesense::{
@@ -64,10 +64,10 @@ async fn update_record(table: CollectionName, record: Value) -> Result<(), anyho
 
     let organization_id = match table {
         CollectionName::Messages => {
-            match messages::table
+            match messages_deprecated::table
                 .inner_join(datasets::table)
                 .select(datasets::organization_id)
-                .filter(messages::id.eq(id))
+                .filter(messages_deprecated::id.eq(id))
                 .first::<Uuid>(&mut conn)
                 .await
             {

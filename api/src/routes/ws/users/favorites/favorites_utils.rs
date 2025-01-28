@@ -10,7 +10,7 @@ use crate::database::{
     enums::AssetType,
     lib::get_pg_pool,
     models::{User, UserFavorite},
-    schema::{collections, collections_to_assets, dashboards, messages, threads, user_favorites},
+    schema::{collections, collections_to_assets, dashboards, messages_deprecated, threads_deprecated, user_favorites},
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -168,15 +168,15 @@ async fn get_favorite_threads(thread_ids: Arc<Vec<Uuid>>) -> Result<Vec<Favorite
         Err(e) => return Err(anyhow!("Error getting connection from pool: {:?}", e)),
     };
 
-    let thread_records: Vec<(Uuid, Option<String>)> = match threads::table
-        .inner_join(messages::table.on(threads::id.eq(messages::thread_id)))
-        .select((threads::id, messages::title))
-        .filter(threads::id.eq_any(thread_ids.as_ref()))
-        .filter(threads::deleted_at.is_null())
-        .filter(messages::deleted_at.is_null())
-        .filter(messages::draft_session_id.is_null())
-        .distinct_on(threads::id)
-        .order((threads::id, messages::created_at.desc()))
+    let thread_records: Vec<(Uuid, Option<String>)> = match threads_deprecated::table
+        .inner_join(messages_deprecated::table.on(threads_deprecated::id.eq(messages_deprecated::thread_id)))
+        .select((threads_deprecated::id, messages_deprecated::title))
+        .filter(threads_deprecated::id.eq_any(thread_ids.as_ref()))
+        .filter(threads_deprecated::deleted_at.is_null())
+        .filter(messages_deprecated::deleted_at.is_null())
+        .filter(messages_deprecated::draft_session_id.is_null())
+        .distinct_on(threads_deprecated::id)
+        .order((threads_deprecated::id, messages_deprecated::created_at.desc()))
         .load::<(Uuid, Option<String>)>(&mut conn)
         .await
     {
@@ -382,24 +382,24 @@ async fn get_threads_from_collections(
         Err(e) => return Err(anyhow!("Error getting connection from pool: {:?}", e)),
     };
 
-    let threads_records: Vec<(Uuid, Uuid, Option<String>)> = match threads::table
+    let threads_records: Vec<(Uuid, Uuid, Option<String>)> = match threads_deprecated::table
         .inner_join(
-            collections_to_assets::table.on(threads::id.eq(collections_to_assets::asset_id)),
+            collections_to_assets::table.on(threads_deprecated::id.eq(collections_to_assets::asset_id)),
         )
-        .inner_join(messages::table.on(threads::id.eq(messages::thread_id)))
+        .inner_join(messages_deprecated::table.on(threads_deprecated::id.eq(messages_deprecated::thread_id)))
         .select((
             collections_to_assets::collection_id,
-            threads::id,
-            messages::title,
+            threads_deprecated::id,
+            messages_deprecated::title,
         ))
         .filter(collections_to_assets::asset_type.eq(AssetType::Thread))
         .filter(collections_to_assets::collection_id.eq_any(collection_ids))
-        .filter(threads::deleted_at.is_null())
+        .filter(threads_deprecated::deleted_at.is_null())
         .filter(collections_to_assets::deleted_at.is_null())
-        .filter(messages::deleted_at.is_null())
-        .filter(messages::draft_session_id.is_null())
-        .order((threads::id, messages::created_at.desc()))
-        .distinct_on(threads::id)
+        .filter(messages_deprecated::deleted_at.is_null())
+        .filter(messages_deprecated::draft_session_id.is_null())
+        .order((threads_deprecated::id, messages_deprecated::created_at.desc()))
+        .distinct_on(threads_deprecated::id)
         .load::<(Uuid, Uuid, Option<String>)>(&mut conn)
         .await
     {
