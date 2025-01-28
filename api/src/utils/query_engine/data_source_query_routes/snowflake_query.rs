@@ -22,7 +22,12 @@ pub async fn snowflake_query(
     mut snowflake_client: SnowflakeApi,
     query: String,
 ) -> Result<Vec<IndexMap<std::string::String, DataType>>, Error> {
-    let rows = match snowflake_client.exec(&query).await {
+    const MAX_ROWS: usize = 5_000;
+    
+    // Wrap the original query in a limit clause
+    let limited_query = format!("SELECT * FROM ({}) tmp_query LIMIT {}", query, MAX_ROWS);
+
+    let rows = match snowflake_client.exec(&limited_query).await {
         Ok(result) => match result {
             snowflake_api::QueryResult::Arrow(result) => {
                 result
