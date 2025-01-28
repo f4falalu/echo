@@ -30,10 +30,8 @@ export const useChatLayout = ({
 }: UseChatSplitterProps) => {
   const [isPending, startTransition] = useTransition();
   const onChangePage = useAppLayoutContextSelector((state) => state.onChangePage);
-  const chatContentSize = useSize(chatContentRef);
-  const selectedLayout = defaultSelectedLayout;
 
-  const chatContentWidth = chatContentSize?.width || 325;
+  const selectedLayout = defaultSelectedLayout;
 
   const animateOpenSplitter = useMemoizedFn((side: 'left' | 'right' | 'both') => {
     if (appSplitterRef.current) {
@@ -84,7 +82,6 @@ export const useChatLayout = ({
     selectedLayout,
     isPureFile,
     isPureChat,
-    chatContentWidth,
     onSetSelectedFile,
     onCollapseFileClick,
     animateOpenSplitter

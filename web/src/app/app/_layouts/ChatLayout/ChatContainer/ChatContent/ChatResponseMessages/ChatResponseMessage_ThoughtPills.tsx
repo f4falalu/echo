@@ -38,6 +38,11 @@ const pillVariants = {
   }
 };
 
+const pillPadding = 8; // 4px left + 4px right
+const pillMargin = 6; // 1.5 * 4 for gap
+const pillBorder = 1; // 0.5px * 2
+const font = '11px -apple-system, BlinkMacSystemFont, sans-serif'; // Match your app's font
+
 export const PillContainer: React.FC<{
   pills: BusterChatMessage_thought['thought_pills'];
   isCompletedStream: boolean;
@@ -49,10 +54,9 @@ export const PillContainer: React.FC<{
   const [hasDoneInitialAnimation, setHasDoneInitialAnimation] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const useAnimation = !hasDoneInitialAnimation && !isCompletedStream;
-  const chatContentWidth = useChatLayoutContextSelector((x) => x.chatContentWidth);
 
   const size = useSize(containerRef);
-  const thoughtContainerWidth = size?.width || chatContentWidth - 85;
+  const thoughtContainerWidth = size?.width;
   const debouncedWidth = useDebounce(thoughtContainerWidth, {
     wait: 150,
     leading: true
@@ -68,22 +72,18 @@ export const PillContainer: React.FC<{
     }
   );
 
-  useLayoutEffect(() => {
-    if (!pills) return;
+  const moreTextWidth = useMemo(() => {
+    return calculateTextWidth('+99 more', font) + pillPadding + pillBorder;
+  }, [font]);
 
-    const containerWidth = containerRef.current?.offsetWidth || thoughtContainerWidth;
-    console.log(containerWidth, thoughtContainerWidth, chatContentWidth);
-    const pillPadding = 8; // 4px left + 4px right
-    const pillMargin = 6; // 1.5 * 4 for gap
-    const pillBorder = 1; // 0.5px * 2
-    const font = '11px -apple-system, BlinkMacSystemFont, sans-serif'; // Match your app's font
+  useLayoutEffect(() => {
+    if (!pills || !containerRef.current) return;
+
+    const containerWidth = thoughtContainerWidth || 240;
 
     let currentLineWidth = 0;
     const visible: BusterChatMessage_thoughtPill[] = [];
     let hidden = 0;
-
-    // Calculate width needed for "+X more" pill
-    const moreTextWidth = calculateTextWidth('+99 more', font) + pillPadding + pillBorder;
 
     for (let i = 0; i < pills.length; i++) {
       const pill = pills[i];
@@ -117,9 +117,7 @@ export const PillContainer: React.FC<{
         variants={containerVariants}
         initial="hidden"
         animate={pills.length > 0 ? 'visible' : 'hidden'}
-        className={cx(
-          'flex w-full flex-wrap flex-nowrap gap-1.5 overflow-hidden border border-red-500'
-        )}>
+        className={cx('flex w-full flex-wrap flex-nowrap gap-1.5 overflow-hidden')}>
         {visiblePills.map((pill) => (
           <Pill key={pill.id} useAnimation={useAnimation} {...pill} onClick={undefined} />
         ))}
