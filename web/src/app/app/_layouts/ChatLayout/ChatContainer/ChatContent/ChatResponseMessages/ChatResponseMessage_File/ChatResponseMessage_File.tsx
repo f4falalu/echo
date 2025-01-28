@@ -140,6 +140,12 @@ const useStyles = createStyles(({ token, css }) => ({
         display: none;
       }
     }
+
+    &.file-card:has(+ .text-card) {
+      .vertical-divider.bottom-line {
+        display: none;
+      }
+    }
   `,
   fileContainer: css`
     border-radius: ${token.borderRadius}px;

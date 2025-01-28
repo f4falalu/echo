@@ -91,6 +91,11 @@ export const MOCK_CHAT: BusterChat = {
         createMockResponseMessageThought(),
         createMockResponseMessageThought(),
         createMockResponseMessageFile(),
+        createMockResponseMessageFile(),
+        createMockResponseMessageText(),
+        createMockResponseMessageText(),
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
         createMockResponseMessageFile()
       ]
     }
