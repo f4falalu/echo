@@ -17,7 +17,7 @@ const containerVariants = {
     height: 0
   },
   visible: {
-    height: '30px',
+    height: '28px',
     transition: {
       duration: duration,
       staggerChildren: 0.035,

@@ -13,7 +13,7 @@ export const ChatResponseMessage_Thought: React.FC<ChatResponseMessageProps> = R
   ({ responseMessage: responseMessageProp, isCompletedStream, isLastMessageItem }) => {
     const responseMessage = responseMessageProp as BusterChatMessage_thought;
     const { thought_title, thought_secondary_title, thought_pills, status } = responseMessage;
-    const { cx } = useStyles();
+    const { cx, styles } = useStyles();
     const hasPills = thought_pills && thought_pills.length > 0;
 
     const showLoadingIndicator =
@@ -23,9 +23,9 @@ export const ChatResponseMessage_Thought: React.FC<ChatResponseMessageProps> = R
     return (
       <AnimatePresence initial={!isCompletedStream}>
         <motion.div
-          className={cx('relative flex space-x-1.5', 'thought-card')}
+          className={cx(styles.thoughtCard, 'relative flex space-x-1.5', 'thought-card')}
           {...animationConfig}>
-          <div className="flex w-4 min-w-4 flex-col items-center pt-0.5">
+          <div className="ml-2 flex w-4 min-w-4 flex-col items-center pt-0.5">
             <StatusIndicator status={showLoadingIndicator} />
             <VerticalBar inProgress={inProgress} hasPills={hasPills} />
           </div>
@@ -49,4 +49,14 @@ export const ChatResponseMessage_Thought: React.FC<ChatResponseMessageProps> = R
 
 ChatResponseMessage_Thought.displayName = 'ChatResponseMessage_Thought';
 
-const useStyles = createStyles(({ token, css }) => ({}));
+const useStyles = createStyles(({ token, css }) => ({
+  thoughtCard: css`
+    &.thought-card:has(+ .thought-card) {
+      margin-bottom: 4px;
+    }
+
+    &.thought-card:has(+ .file-card) {
+      margin-bottom: 4px;
+    }
+  `
+}));

@@ -3,9 +3,11 @@ import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { animationConfig } from './animationConfig';
 import { ChatResponseMessageProps } from './ChatResponseMessages';
+import { createStyles } from 'antd-style';
 
 export const ChatResponseMessage_Text: React.FC<ChatResponseMessageProps> = React.memo(
   ({ responseMessage: responseMessageProp, isCompletedStream }) => {
+    const { styles, cx } = useStyles();
     const responseMessage = responseMessageProp as BusterChatMessage_text;
 
     const [textChunks, setTextChunks] = useState<string[]>([]);
@@ -30,7 +32,7 @@ export const ChatResponseMessage_Text: React.FC<ChatResponseMessageProps> = Reac
     }, [responseMessage?.message_chunk, responseMessage?.message]);
 
     return (
-      <div className="text-card">
+      <div className={cx(styles.textCard, 'text-card')}>
         {textChunks.map((chunk, index) => (
           <AnimatePresence key={index} initial={!isCompletedStream}>
             <motion.span {...animationConfig}>{chunk}</motion.span>
@@ -42,3 +44,11 @@ export const ChatResponseMessage_Text: React.FC<ChatResponseMessageProps> = Reac
 );
 
 ChatResponseMessage_Text.displayName = 'ChatResponseMessage_Text';
+
+const useStyles = createStyles(({ token, css }) => ({
+  textCard: css`
+    &.text-card:has(+ .thought-card) {
+      margin-bottom: 14px;
+    }
+  `
+}));

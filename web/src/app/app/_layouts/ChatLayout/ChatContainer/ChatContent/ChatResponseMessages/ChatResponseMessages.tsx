@@ -32,7 +32,7 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
     const lastMessageIndex = responseMessages.length - 1;
 
     return (
-      <MessageContainer className="flex w-full flex-col space-y-1 overflow-hidden">
+      <MessageContainer className="flex w-full flex-col overflow-hidden">
         {responseMessages.map((responseMessage, index) => {
           const ChatResponseMessage = ChatResponseMessageRecord[responseMessage.type];
           return (

@@ -52,7 +52,7 @@ export const busterAppStyleConfig: ThemeConfig = {
     fontSizeHeading3: 18,
     fontSizeHeading4: 15,
     fontSizeHeading5: 13,
-    lineHeight: 1.4,
+    lineHeight: 1.5,
     lineHeightHeading1: 1.3,
     lineHeightHeading2: 1.3,
     lineHeightHeading3: 1.3,

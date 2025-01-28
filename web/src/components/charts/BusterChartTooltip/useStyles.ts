@@ -26,11 +26,6 @@ export const useStyles = createStyles(({ token, css }) => ({
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    // display: -webkit-box;
-    // -webkit-line-clamp: 1;
-    // -webkit-box-orient: vertical;
-    // line-height: 1.2em;
-    // max-height: 2.4em;
     text-align: right;
   `,
   tooltipItemSeparator: css`

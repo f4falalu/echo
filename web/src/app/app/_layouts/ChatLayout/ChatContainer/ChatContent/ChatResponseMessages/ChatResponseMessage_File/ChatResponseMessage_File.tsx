@@ -146,6 +146,14 @@ const useStyles = createStyles(({ token, css }) => ({
         display: none;
       }
     }
+
+    &.file-card:has(+ .file-card) {
+      margin-bottom: 4px;
+    }
+
+    &.file-card:has(+ .text-card) {
+      margin-bottom: 14px;
+    }
   `,
   fileContainer: css`
     border-radius: ${token.borderRadius}px;
@@ -174,7 +182,7 @@ const useStyles = createStyles(({ token, css }) => ({
   verticalDivider: css`
     height: 9px;
     width: 0.5px;
-    margin-left: 8px;
+    margin-left: 16px;
     background: ${token.colorTextTertiary};
   `
 }));
