@@ -68,3 +68,13 @@ export const makeHumanReadble = (input: string | number | undefined | null): str
   const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
   return capitalizedWords.join(' ');
 };
+
+export const calculateTextWidth = (text: string, font: string): number => {
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  if (!context) return 0;
+  context.font = font;
+  const width = context.measureText(text).width;
+  canvas.remove();
+  return width;
+};

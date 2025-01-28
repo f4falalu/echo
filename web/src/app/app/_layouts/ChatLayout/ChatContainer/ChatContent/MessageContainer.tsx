@@ -9,9 +9,9 @@ export const MessageContainer: React.FC<{
   senderAvatar?: string | null;
   className?: string;
 }> = React.memo(({ children, senderName, senderId, senderAvatar, className = '' }) => {
-  const { styles, cx } = useStyles();
+  const { cx } = useStyles();
   return (
-    <div className={cx('flex space-x-2')}>
+    <div className={cx('flex w-full space-x-2')}>
       {senderName ? (
         <BusterUserAvatar size={24} name={senderName} src={senderAvatar} useToolTip={true} />
       ) : (

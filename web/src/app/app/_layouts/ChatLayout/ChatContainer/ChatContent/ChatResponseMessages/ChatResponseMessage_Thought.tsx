@@ -1,5 +1,8 @@
-import { BusterChatMessage_thought } from '@/api/buster_socket/chats';
-import React, { useMemo } from 'react';
+import {
+  BusterChatMessage_thought,
+  BusterChatMessage_thoughtPill
+} from '@/api/buster_socket/chats';
+import React, { useState } from 'react';
 import { ChatResponseMessageProps } from './ChatResponseMessages';
 import { AnimatePresence, motion } from 'framer-motion';
 import { animationConfig } from './animationConfig';
@@ -7,6 +10,9 @@ import { CircleSpinnerLoader } from '@/components/loaders/CircleSpinnerLoader';
 import { Text } from '@/components/text';
 import { createStyles } from 'antd-style';
 import { AppMaterialIcons } from '@/components';
+import { useHotkeys } from 'react-hotkeys-hook';
+import { faker } from '@faker-js/faker';
+import { PillContainer } from './ChatResponseMessage_ThoughtPills';
 
 export const ChatResponseMessage_Thought: React.FC<ChatResponseMessageProps> = React.memo(
   ({ responseMessage: responseMessageProp, isCompletedStream }) => {
@@ -15,6 +21,19 @@ export const ChatResponseMessage_Thought: React.FC<ChatResponseMessageProps> = R
     const { styles, cx } = useStyles();
     const hasPills = thought_pills && thought_pills.length > 0;
 
+    const [myPills, setMyPills] = useState(thought_pills || []);
+
+    useHotkeys('j', () => {
+      const fourRandomPills: BusterChatMessage_thoughtPill[] = Array.from({ length: 5 }, () => {
+        return {
+          text: faker.lorem.word(),
+          type: 'term',
+          id: faker.string.uuid()
+        };
+      });
+      setMyPills(fourRandomPills);
+    });
+
     return (
       <AnimatePresence initial={!isCompletedStream}>
         <motion.div className={cx(styles.container, 'flex space-x-1.5')} {...animationConfig}>
@@ -22,15 +41,17 @@ export const ChatResponseMessage_Thought: React.FC<ChatResponseMessageProps> = R
             <StatusIndicator inProgress={in_progress} />
             <VerticalBar inProgress={in_progress} hasPills={hasPills} />
           </div>
-          <div className="flex flex-col space-y-2">
-            <div className="flex items-center space-x-1.5">
-              <Text size="sm">{thought_title}</Text>
+          <div className="flex w-full flex-col space-y-2">
+            <div className="flex w-full items-center space-x-1.5 overflow-hidden">
+              <Text size="sm" className="truncate">
+                {thought_title}
+              </Text>
               <Text size="sm" type="tertiary">
                 {thought_secondary_title}
               </Text>
             </div>
 
-            <PillContainer pills={thought_pills} />
+            <PillContainer pills={myPills} />
           </div>
         </motion.div>
       </AnimatePresence>
@@ -83,27 +104,6 @@ const VerticalBar: React.FC<{ inProgress?: boolean; hasPills?: boolean }> = ({
   );
 };
 
-const PillContainer: React.FC<{ pills: BusterChatMessage_thought['thought_pills'] }> = ({
-  pills
-}) => {
-  const { styles, cx } = useStyles();
-
-  return (
-    <motion.div
-      initial={{ height: 0 }}
-      animate={{ height: 'auto' }}
-      exit={{ height: 0 }}
-      className={cx(styles.pillContainer, 'min-h-0.5')}></motion.div>
-  );
-};
-
-const ThoughtPill: React.FC<{
-  pill: NonNullable<BusterChatMessage_thought['thought_pills']>[number];
-}> = ({ pill }) => {
-  const { styles, cx } = useStyles();
-  return <div className={cx(styles.pill, '')}></div>;
-};
-
 const useStyles = createStyles(({ token, css }) => ({
   container: css`
     position: relative;
@@ -113,13 +113,6 @@ const useStyles = createStyles(({ token, css }) => ({
     height: 100%;
     background-color: ${token.colorTextPlaceholder};
   `,
-  pillContainer: css``,
-  pill: {
-    backgroundColor: token.controlItemBgActive,
-    border: `0.5px solid ${token.colorBorder}`,
-    borderRadius: token.borderRadiusLG,
-    padding: '2px 8px'
-  },
   indicatorContainer: css`
     width: 10px;
     height: 10px;
