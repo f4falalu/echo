@@ -22,6 +22,7 @@ export const useChatContext = ({
     chatId
   });
   const chatTitle = chat?.title;
+  const chatMessages = chat?.messages ?? [];
 
   //FILE
   const hasFile = !!defaultSelectedFile?.id;
@@ -30,7 +31,8 @@ export const useChatContext = ({
     hasFile,
     selectedFileId,
     chatTitle,
-    selectedFileType
+    selectedFileType,
+    chatMessages
   };
 };
 

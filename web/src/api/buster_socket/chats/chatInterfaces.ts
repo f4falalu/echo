@@ -1,6 +1,6 @@
 import type { BusterChatMessage } from './chatMessageInterfaces';
 
-export interface IBusterChat {
+export interface BusterChat {
   id: string;
   title: string;
   is_favorited: boolean;

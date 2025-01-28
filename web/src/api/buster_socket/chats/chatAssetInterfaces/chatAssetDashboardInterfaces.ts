@@ -4,7 +4,7 @@ import type { FileType } from '../config';
 
 export type BusterDashboardAsset = {
   id: string;
-  type: FileType.DASHBOARD;
+  type: 'dashboard';
   metrics: BusterDashboardMetric[];
   config: DashboardConfig;
   created_at: string;

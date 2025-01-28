@@ -1,9 +1,8 @@
 import type { BusterChartConfigProps } from '@/components/charts';
-import type { FileType } from '../config';
 
 export type BusterMetricAsset = {
   id: string;
-  type: FileType.METRIC;
+  type: 'metric';
   title: string;
   description: string | null;
   time_frame: string;

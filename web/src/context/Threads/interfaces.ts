@@ -1,5 +1,4 @@
 import {
-  BusterThought,
   BusterThread,
   BusterThreadMessage,
   IBusterThreadMessageChartConfig

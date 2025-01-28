@@ -1,6 +1,6 @@
 import type { RustApiError } from '../../buster_rest/errors';
 import type { BusterChatAsset } from './chatAssetInterfaces';
-import type { IBusterChat, BusterChatListItem } from './chatInterfaces';
+import type { BusterChat, BusterChatListItem } from './chatInterfaces';
 
 export enum ChatsResponses {
   '/chats/list:getChatsList' = '/chats/list:getChatsList',
@@ -25,7 +25,7 @@ export type Chat_unsubscribed = {
 
 export type Chat_getChat = {
   route: '/chats/get:getChat';
-  callback: (d: IBusterChat) => void;
+  callback: (d: BusterChat) => void;
   onError?: (d: unknown | RustApiError) => void;
 };
 
@@ -39,13 +39,13 @@ export type Chat_getChatAsset = {
 
 export type ChatPost_initializeChat = {
   route: '/chats/post:initializeChat';
-  callback: (d: IBusterChat) => void;
+  callback: (d: BusterChat) => void;
   onError?: (d: unknown | RustApiError) => void;
 };
 
 export type ChatPost_generatingTitle = {
   route: '/chats/post:generatingTitle';
-  callback: (d: IBusterChat) => void;
+  callback: (d: BusterChat) => void;
   onError?: (d: unknown | RustApiError) => void;
 };
 

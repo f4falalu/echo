@@ -10,6 +10,7 @@ export const ChatHeader: React.FC<{
 }> = React.memo(({ showScrollOverflow }) => {
   const { cx, styles } = useStyles();
   const hasFile = useChatContextSelector((state) => state.hasFile);
+  const chatTitle = useChatContextSelector((state) => state.chatTitle);
 
   return (
     <div
@@ -18,7 +19,7 @@ export const ChatHeader: React.FC<{
         styles.header,
         showScrollOverflow && styles.scrollIndicator
       )}>
-      {hasFile && (
+      {hasFile && chatTitle && (
         <>
           <ChatHeaderTitle />
           <ChatHeaderOptions />

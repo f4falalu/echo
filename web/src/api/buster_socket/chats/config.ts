@@ -1,8 +1,1 @@
-export enum FileType {
-  DATASET = 'dataset',
-  COLLECTION = 'collection',
-  METRIC = 'metric',
-  DASHBOARD = 'dashboard',
-  TERM = 'term',
-  VALUE = 'value'
-}
+export type FileType = 'dataset' | 'collection' | 'metric' | 'dashboard' | 'term' | 'value';
