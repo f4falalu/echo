@@ -9,6 +9,7 @@ export interface ChatResponseMessageProps {
   responseMessage: BusterChatMessageResponse;
   isCompletedStream: boolean;
   isLastMessageItem: boolean;
+  isSelectedFile: boolean;
 }
 
 const ChatResponseMessageRecord: Record<
@@ -22,11 +23,12 @@ const ChatResponseMessageRecord: Record<
 
 interface ChatResponseMessagesProps {
   responseMessages: BusterChatMessageResponse[];
+  selectedFileId: string | undefined;
   isCompletedStream: boolean;
 }
 
 export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.memo(
-  ({ responseMessages, isCompletedStream }) => {
+  ({ responseMessages, isCompletedStream, selectedFileId }) => {
     const lastMessageIndex = responseMessages.length - 1;
 
     return (
@@ -39,6 +41,7 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
               responseMessage={responseMessage}
               isCompletedStream={isCompletedStream}
               isLastMessageItem={index === lastMessageIndex}
+              isSelectedFile={responseMessage.id === selectedFileId}
             />
           );
         })}

@@ -10,16 +10,21 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { animationConfig } from '../animationConfig';
 import { useMemoizedFn } from 'ahooks';
 import { StatusIndicator } from '../StatusIndicator';
-import { formatDate } from '@/utils';
+
+import { useChatLayoutContextSelector } from '../../../../ChatLayoutContext';
 
 export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = React.memo(
-  ({ responseMessage: responseMessageProp, isCompletedStream }) => {
+  ({ responseMessage: responseMessageProp, isCompletedStream, isSelectedFile }) => {
     const { cx, styles } = useStyles();
+    const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
     const responseMessage = responseMessageProp as BusterChatMessage_file;
-    const { file_name, file_type, version_id, version_number, id, metadata = [] } = responseMessage;
+    const { file_name, file_type, version_number, id, metadata = [] } = responseMessage;
 
     const onClickCard = useMemoizedFn(() => {
-      console.log('clicked');
+      onSetSelectedFile({
+        id,
+        type: file_type
+      });
     });
 
     return (
@@ -27,13 +32,14 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
         <motion.div
           id={id}
           {...animationConfig}
-          className={cx(styles.fileCard, 'file-card flex flex-col overflow-hidden')}>
+          className={cx(styles.fileCard, 'file-card flex flex-col')}>
           <VerticalDivider className="top-line mb-0.5" />
           <div
             onClick={onClickCard}
             className={cx(
               styles.fileContainer,
-              'transition-shadow duration-300',
+              isSelectedFile && 'selected',
+              'transition duration-200',
               'flex flex-col items-center',
               'cursor-pointer overflow-hidden'
             )}>
@@ -88,10 +94,7 @@ const MetadataItem: React.FC<{ metadata: BusterChatMessage_fileMetadata }> = ({ 
 
   const timestampFormatted = useMemo(() => {
     if (!timestamp) return '';
-    return formatDate({
-      date: timestamp,
-      format: 'll'
-    });
+    return `${timestamp} seconds`;
   }, [timestamp]);
 
   return (
@@ -105,7 +108,7 @@ const MetadataItem: React.FC<{ metadata: BusterChatMessage_fileMetadata }> = ({ 
       </Text>
 
       {timestamp && (
-        <Text type="tertiary" className="truncate" size="xs">
+        <Text type="tertiary" className="whitespace-nowrap" size="xs">
           {timestampFormatted}
         </Text>
       )}
@@ -126,11 +129,9 @@ const useStyles = createStyles(({ token, css }) => ({
       }
     }
 
-    &.file-card {
-      .thought-card + & {
-        .vertical-divider.top-line {
-          display: none;
-        }
+    .thought-card + & {
+      .vertical-divider.top-line {
+        display: none;
       }
     }
 
@@ -146,12 +147,12 @@ const useStyles = createStyles(({ token, css }) => ({
 
     &:hover {
       border-color: ${token.colorTextTertiary};
-      box-shadow: ${token.boxShadowTertiary};
+      box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.15);
     }
 
     &.selected {
       border-color: black;
-      box-shadow: ${token.boxShadowTertiary};
+      box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.15);
     }
   `,
   fileHeader: css`

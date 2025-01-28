@@ -51,14 +51,17 @@ export const createMockResponseMessageThought = (): BusterChatMessage_thought =>
 };
 
 const createMockResponseMessageFile = (): BusterChatMessage_file => {
-  const randomMetadataCount = faker.number.int(3);
+  const randomMetadataCount = faker.number.int({
+    min: 1,
+    max: 3
+  });
   const randomMetadata: BusterChatMessage_fileMetadata[] = Array.from(
     { length: randomMetadataCount },
     () => {
       return {
         status: 'completed',
         message: faker.lorem.sentence(),
-        timestamp: faker.date.recent().toISOString()
+        timestamp: faker.number.int(100)
       };
     }
   );

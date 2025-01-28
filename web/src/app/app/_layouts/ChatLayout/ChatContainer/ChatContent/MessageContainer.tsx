@@ -11,13 +11,13 @@ export const MessageContainer: React.FC<{
 }> = React.memo(({ children, senderName, senderId, senderAvatar, className = '' }) => {
   const { cx } = useStyles();
   return (
-    <div className={cx('flex w-full space-x-2 overflow-hidden')}>
+    <div className={cx('flex w-full space-x-1.5 overflow-hidden')}>
       {senderName ? (
         <BusterUserAvatar size={24} name={senderName} src={senderAvatar} useToolTip={true} />
       ) : (
         <BusterAvatar size={24} />
       )}
-      <div className={className}>{children}</div>
+      <div className={cx(className, 'p-0.5')}>{children}</div>
     </div>
   );
 });

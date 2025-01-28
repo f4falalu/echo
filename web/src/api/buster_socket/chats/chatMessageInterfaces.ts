@@ -45,7 +45,7 @@ export type BusterChatMessage_thought = {
 export type BusterChatMessage_fileMetadata = {
   status: 'loading' | 'completed' | 'failed';
   message: string;
-  timestamp?: string;
+  timestamp?: number;
 };
 
 export type BusterChatMessage_file = {
