@@ -10,8 +10,6 @@ import { CircleSpinnerLoader } from '@/components/loaders/CircleSpinnerLoader';
 import { Text } from '@/components/text';
 import { createStyles } from 'antd-style';
 import { AppMaterialIcons } from '@/components';
-import { useHotkeys } from 'react-hotkeys-hook';
-import { faker } from '@faker-js/faker';
 import { PillContainer } from './ChatResponseMessage_ThoughtPills';
 
 export const ChatResponseMessage_Thought: React.FC<ChatResponseMessageProps> = React.memo(
@@ -20,19 +18,6 @@ export const ChatResponseMessage_Thought: React.FC<ChatResponseMessageProps> = R
     const { thought_title, thought_secondary_title, thought_pills, in_progress } = responseMessage;
     const { styles, cx } = useStyles();
     const hasPills = thought_pills && thought_pills.length > 0;
-
-    const [myPills, setMyPills] = useState(thought_pills || []);
-
-    useHotkeys('j', () => {
-      const fourRandomPills: BusterChatMessage_thoughtPill[] = Array.from({ length: 5 }, () => {
-        return {
-          text: faker.lorem.word(),
-          type: 'term',
-          id: faker.string.uuid()
-        };
-      });
-      setMyPills(fourRandomPills);
-    });
 
     return (
       <AnimatePresence initial={!isCompletedStream}>
@@ -51,7 +36,7 @@ export const ChatResponseMessage_Thought: React.FC<ChatResponseMessageProps> = R
               </Text>
             </div>
 
-            <PillContainer pills={myPills} />
+            <PillContainer pills={thought_pills} isCompletedStream={isCompletedStream} />
           </div>
         </motion.div>
       </AnimatePresence>

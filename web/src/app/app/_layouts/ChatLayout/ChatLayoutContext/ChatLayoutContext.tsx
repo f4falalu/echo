@@ -6,7 +6,7 @@ import {
 import React, { PropsWithChildren, useMemo, useTransition } from 'react';
 import type { SelectedFile } from '../interfaces';
 import type { ChatSplitterProps } from '../ChatLayout';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn, useSize } from 'ahooks';
 import type { AppSplitterRef } from '@/components/layout';
 import { createChatAssetRoute, createFileRoute } from './helpers';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
@@ -17,6 +17,7 @@ interface UseChatSplitterProps {
   defaultSelectedFile: SelectedFile | undefined;
   defaultSelectedLayout: ChatSplitterProps['defaultSelectedLayout'];
   appSplitterRef: React.RefObject<AppSplitterRef>;
+  chatContentRef: React.RefObject<HTMLDivElement>;
   chatId: string | undefined;
 }
 
@@ -24,11 +25,15 @@ export const useChatLayout = ({
   defaultSelectedFile,
   defaultSelectedLayout,
   appSplitterRef,
+  chatContentRef,
   chatId
 }: UseChatSplitterProps) => {
   const [isPending, startTransition] = useTransition();
   const onChangePage = useAppLayoutContextSelector((state) => state.onChangePage);
+  const chatContentSize = useSize(chatContentRef);
   const selectedLayout = defaultSelectedLayout;
+
+  const chatContentWidth = chatContentSize?.width || 325;
 
   const animateOpenSplitter = useMemoizedFn((side: 'left' | 'right' | 'both') => {
     if (appSplitterRef.current) {
@@ -79,6 +84,7 @@ export const useChatLayout = ({
     selectedLayout,
     isPureFile,
     isPureChat,
+    chatContentWidth,
     onSetSelectedFile,
     onCollapseFileClick,
     animateOpenSplitter
