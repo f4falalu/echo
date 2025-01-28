@@ -113,6 +113,21 @@ diesel::table! {
 }
 
 diesel::table! {
+    dashboard_files (id) {
+        id -> Uuid,
+        name -> Varchar,
+        file_name -> Varchar,
+        content -> Jsonb,
+        filter -> Nullable<Varchar>,
+        organization_id -> Uuid,
+        created_by -> Uuid,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+        deleted_at -> Nullable<Timestamptz>,
+    }
+}
+
+diesel::table! {
     dashboard_versions (id) {
         id -> Uuid,
         dashboard_id -> Uuid,
@@ -312,6 +327,33 @@ diesel::table! {
         draft_state -> Nullable<Jsonb>,
         summary_question -> Nullable<Text>,
         sql_evaluation_id -> Nullable<Uuid>,
+    }
+}
+
+diesel::table! {
+    messages_to_files (id) {
+        id -> Int4,
+        message_id -> Uuid,
+        file_id -> Uuid,
+        created_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    metric_files (id) {
+        id -> Uuid,
+        name -> Varchar,
+        file_name -> Varchar,
+        content -> Jsonb,
+        verification -> Nullable<Bool>,
+        evaluation_obj -> Nullable<Jsonb>,
+        evaluation_summary -> Nullable<Text>,
+        evaluation_score -> Nullable<Float8>,
+        organization_id -> Uuid,
+        created_by -> Uuid,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+        deleted_at -> Nullable<Timestamptz>,
     }
 }
 
@@ -534,6 +576,9 @@ diesel::joinable!(datasets_to_permission_groups -> permission_groups (permission
 diesel::joinable!(messages -> datasets (dataset_id));
 diesel::joinable!(messages -> threads (thread_id));
 diesel::joinable!(messages -> users (sent_by));
+diesel::joinable!(messages_to_files -> dashboard_files (file_id));
+diesel::joinable!(messages_to_files -> messages (message_id));
+diesel::joinable!(messages_to_files -> metric_files (file_id));
 diesel::joinable!(permission_groups -> organizations (organization_id));
 diesel::joinable!(permission_groups_to_users -> permission_groups (permission_group_id));
 diesel::joinable!(permission_groups_to_users -> users (user_id));
@@ -556,6 +601,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     asset_permissions,
     collections,
     collections_to_assets,
+    dashboard_files,
     dashboard_versions,
     dashboards,
     data_sources,
@@ -568,6 +614,8 @@ diesel::allow_tables_to_appear_in_same_query!(
     datasets_to_permission_groups,
     entity_relationship,
     messages,
+    messages_to_files,
+    metric_files,
     organizations,
     permission_groups,
     permission_groups_to_identities,

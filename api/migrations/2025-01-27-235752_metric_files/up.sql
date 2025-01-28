@@ -19,9 +19,3 @@ CREATE TABLE metric_files (
 CREATE INDEX metric_files_organization_id_idx ON metric_files(organization_id);
 CREATE INDEX metric_files_created_by_idx ON metric_files(created_by);
 CREATE INDEX metric_files_deleted_at_idx ON metric_files(deleted_at);
-
--- Add trigger to update updated_at timestamp
-CREATE TRIGGER set_timestamp
-    BEFORE UPDATE ON metric_files
-    FOR EACH ROW
-    EXECUTE PROCEDURE trigger_set_timestamp();

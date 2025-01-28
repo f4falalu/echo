@@ -16,9 +16,3 @@ CREATE TABLE dashboard_files (
 CREATE INDEX dashboard_files_organization_id_idx ON dashboard_files(organization_id);
 CREATE INDEX dashboard_files_created_by_idx ON dashboard_files(created_by);
 CREATE INDEX dashboard_files_deleted_at_idx ON dashboard_files(deleted_at);
-
--- Add trigger to update updated_at timestamp
-CREATE TRIGGER set_timestamp
-    BEFORE UPDATE ON dashboard_files
-    FOR EACH ROW
-    EXECUTE PROCEDURE trigger_set_timestamp();
