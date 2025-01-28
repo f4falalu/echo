@@ -193,6 +193,8 @@ const OverflowPill = React.memo(
   }
 );
 
+OverflowPill.displayName = 'OverflowPill';
+
 const useStyles = createStyles(({ token, css }) => ({
   pill: css`
     color: ${token.colorTextSecondary};

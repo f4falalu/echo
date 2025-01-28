@@ -13,7 +13,7 @@ export const ChatResponseMessage_Thought: React.FC<ChatResponseMessageProps> = R
   ({ responseMessage: responseMessageProp, isCompletedStream, isLastMessageItem }) => {
     const responseMessage = responseMessageProp as BusterChatMessage_thought;
     const { thought_title, thought_secondary_title, thought_pills, in_progress } = responseMessage;
-    const { styles, cx } = useStyles();
+    const { cx } = useStyles();
     const hasPills = thought_pills && thought_pills.length > 0;
 
     const showLoadingIndicator = in_progress ?? (isLastMessageItem && !isCompletedStream);

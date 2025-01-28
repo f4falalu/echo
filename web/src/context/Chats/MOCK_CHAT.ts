@@ -70,10 +70,22 @@ export const MOCK_CHAT: BusterChat = {
       request_message: createMockUserMessage(),
       response_messages: [
         createMockResponseMessageText(),
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
         createMockResponseMessageThought()
-        // createMockResponseMessageThought(),
-        // createMockResponseMessageThought(),
-        // createMockResponseMessageThought(),
         //  createMockResponseMessageFile(),
         // createMockResponseMessageFile()
       ]
