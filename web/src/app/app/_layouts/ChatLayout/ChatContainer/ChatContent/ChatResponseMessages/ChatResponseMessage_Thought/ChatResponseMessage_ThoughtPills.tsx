@@ -8,7 +8,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { calculateTextWidth } from '@/utils';
 import { useDebounce, useMemoizedFn, useSize } from 'ahooks';
 import { AppPopover } from '@/components';
-import { useChatLayoutContextSelector } from '../../../ChatLayoutContext';
+import { useChatLayoutContextSelector } from '../../../../ChatLayoutContext';
 
 const duration = 0.25;
 

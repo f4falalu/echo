@@ -26,7 +26,7 @@ const createMockResponseMessageText = (): BusterChatMessage_text => ({
   message_chunk: faker.lorem.sentence()
 });
 
-const createMockResponseMessageThought = (): BusterChatMessage_thought => {
+export const createMockResponseMessageThought = (): BusterChatMessage_thought => {
   const randomPillCount = faker.number.int(7);
   const fourRandomPills: BusterChatMessage_thoughtPill[] = Array.from(
     { length: randomPillCount },
@@ -45,7 +45,7 @@ const createMockResponseMessageThought = (): BusterChatMessage_thought => {
     thought_secondary_title: faker.lorem.word(),
     thought_pills: fourRandomPills,
     hidden: false,
-    in_progress: false
+    in_progress: undefined
   };
 };
 
@@ -70,12 +70,12 @@ export const MOCK_CHAT: BusterChat = {
       request_message: createMockUserMessage(),
       response_messages: [
         createMockResponseMessageText(),
-        createMockResponseMessageThought(),
+        createMockResponseMessageThought()
         // createMockResponseMessageThought(),
         // createMockResponseMessageThought(),
         // createMockResponseMessageThought(),
-        createMockResponseMessageFile(),
-        createMockResponseMessageFile()
+        //  createMockResponseMessageFile(),
+        // createMockResponseMessageFile()
       ]
     }
   ],

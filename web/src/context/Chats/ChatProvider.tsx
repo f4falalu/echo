@@ -5,12 +5,14 @@ import {
   useContextSelector
 } from '@fluentui/react-context-selector';
 import { useBusterWebSocket } from '../BusterWebSocket';
-import type { BusterChatAsset, BusterChat } from '@/api/buster_socket/chats';
+import type { BusterChatAsset, BusterChat, BusterChatMessage } from '@/api/buster_socket/chats';
 import { useMemoizedFn, useUnmount } from 'ahooks';
 import type { FileType } from '@/api/buster_socket/chats';
-import { MOCK_CHAT } from './MOCK_CHAT';
+import { createMockResponseMessageThought, MOCK_CHAT } from './MOCK_CHAT';
 import { IBusterChat } from './interfaces';
-import { chatUpgrader } from './helpers';
+import { chatMessageUpgrader, chatUpgrader } from './helpers';
+import { useHotkeys } from 'react-hotkeys-hook';
+import { fi } from '@faker-js/faker';
 
 export const useBusterChat = () => {
   const busterSocket = useBusterWebSocket();
@@ -92,6 +94,25 @@ export const useBusterChat = () => {
       });
     }
   );
+
+  useHotkeys('z', () => {
+    const chatId = Object.keys(chatsRef.current)[0];
+    if (chatId) {
+      const chat = chatsRef.current[chatId];
+      const mockMessage = createMockResponseMessageThought();
+      const newChat = { ...chat };
+      const firstMessage = {
+        ...newChat.messages[0],
+        isCompletedStream: false,
+        response_messages: [...newChat.messages[0].response_messages, mockMessage]
+      };
+      newChat.messages = [firstMessage];
+      chatsRef.current[chatId] = newChat;
+      startTransition(() => {
+        //just used to trigger UI update
+      });
+    }
+  });
 
   return {
     chats: chatsRef.current,
