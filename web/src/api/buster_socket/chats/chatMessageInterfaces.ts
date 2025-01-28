@@ -39,19 +39,20 @@ export type BusterChatMessage_thought = {
   thought_secondary_title: string;
   thought_pills?: BusterChatMessage_thoughtPill[];
   hidden?: boolean; //if left undefined, will automatically be set to false if stream has ended
-  in_progress?: boolean; //if left undefined, will automatically be set to true if the chat stream is in progress AND there is no message after it
+  status?: 'loading' | 'completed' | 'failed'; //if left undefined, will automatically be set to 'loading' if the chat stream is in progress AND there is no message after it
 };
 
 export type BusterChatMessage_fileMetadata = {
   status: 'loading' | 'completed' | 'failed';
   message: string;
-  timestamp?: number;
+  timestamp?: string;
 };
 
 export type BusterChatMessage_file = {
   id: string;
   type: 'file';
   file_type: FileType;
+  file_name: string;
   version_number: number;
   version_id: string;
   metadata?: BusterChatMessage_fileMetadata[];

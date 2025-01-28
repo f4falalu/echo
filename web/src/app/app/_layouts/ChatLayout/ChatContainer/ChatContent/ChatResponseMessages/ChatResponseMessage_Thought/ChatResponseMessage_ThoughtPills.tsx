@@ -1,9 +1,9 @@
-import {
+import type {
   BusterChatMessage_thought,
   BusterChatMessage_thoughtPill
 } from '@/api/buster_socket/chats';
 import { createStyles } from 'antd-style';
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { calculateTextWidth } from '@/utils';
 import { useDebounce, useMemoizedFn, useSize } from 'ahooks';

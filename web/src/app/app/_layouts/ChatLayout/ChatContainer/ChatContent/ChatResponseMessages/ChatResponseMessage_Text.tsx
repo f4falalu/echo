@@ -30,7 +30,7 @@ export const ChatResponseMessage_Text: React.FC<ChatResponseMessageProps> = Reac
     }, [responseMessage?.message_chunk, responseMessage?.message]);
 
     return (
-      <div>
+      <div className="text-card">
         {textChunks.map((chunk, index) => (
           <AnimatePresence key={index} initial={!isCompletedStream}>
             <motion.span {...animationConfig}>{chunk}</motion.span>
