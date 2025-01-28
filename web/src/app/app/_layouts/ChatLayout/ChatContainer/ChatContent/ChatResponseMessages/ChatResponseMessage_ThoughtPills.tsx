@@ -195,7 +195,7 @@ const OverflowPill = React.memo(
 
 const useStyles = createStyles(({ token, css }) => ({
   pill: css`
-    color: ${token.colorTextTertiary};
+    color: ${token.colorTextSecondary};
     background-color: ${token.controlItemBgActive};
     border: 0.5px solid ${token.colorBorder};
     border-radius: ${token.borderRadiusLG}px;
