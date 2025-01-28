@@ -37,7 +37,7 @@ export type BusterChatMessage_thought = {
   type: 'thought';
   thought_title: string;
   thought_secondary_title: string;
-  thought_pill?: BusterChatMessage_thoughtPill[];
+  thought_pills?: BusterChatMessage_thoughtPill[];
   hidden?: boolean; //if left undefined, will automatically be set to false if stream has ended
   in_progress?: boolean; //if left undefined, will automatically be set to true if the chat stream is in progress AND there is no message after it
 };

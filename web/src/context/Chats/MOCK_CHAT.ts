@@ -28,9 +28,9 @@ const createMockResponseMessageText = (): BusterChatMessage_text => ({
 const createMockResponseMessageThought = (): BusterChatMessage_thought => ({
   id: faker.string.uuid(),
   type: 'thought',
-  thought_title: faker.lorem.sentence(),
-  thought_secondary_title: faker.lorem.sentence(),
-  thought_pill: [],
+  thought_title: `Found ${faker.number.int(100)} terms`,
+  thought_secondary_title: faker.lorem.word(),
+  thought_pills: [],
   hidden: false,
   in_progress: false
 });

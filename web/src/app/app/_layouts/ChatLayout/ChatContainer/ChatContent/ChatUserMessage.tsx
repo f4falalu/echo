@@ -10,7 +10,7 @@ export const ChatUserMessage: React.FC<{ requestMessage: BusterChatMessageReques
 
     return (
       <MessageContainer senderName={sender_name} senderId={sender_id} senderAvatar={sender_avatar}>
-        <Text className="" lineHeight={20}>
+        <Text className="" lineHeight={undefined}>
           {request}
         </Text>
       </MessageContainer>

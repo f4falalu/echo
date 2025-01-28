@@ -7,7 +7,8 @@ export const MessageContainer: React.FC<{
   senderName?: string;
   senderId?: string;
   senderAvatar?: string | null;
-}> = React.memo(({ children, senderName, senderId, senderAvatar }) => {
+  className?: string;
+}> = React.memo(({ children, senderName, senderId, senderAvatar, className = '' }) => {
   const { styles, cx } = useStyles();
   return (
     <div className={cx('flex space-x-2')}>
@@ -16,7 +17,7 @@ export const MessageContainer: React.FC<{
       ) : (
         <BusterAvatar size={24} />
       )}
-      <div>{children}</div>
+      <div className={className}>{children}</div>
     </div>
   );
 });

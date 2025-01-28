@@ -69,7 +69,7 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
     // });
 
     return (
-      <MessageContainer>
+      <MessageContainer className="flex flex-col space-y-1">
         {responseMessages.map((responseMessage) => {
           const ChatResponseMessage = ChatResponseMessageRecord[responseMessage.type];
           return (
