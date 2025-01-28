@@ -1,12 +1,12 @@
 import { appContentHeaderHeight } from '@/components/layout';
 import { createStyles } from 'antd-style';
 import React from 'react';
-import { useChatSplitterContextSelector } from '../../ChatLayoutContext';
+import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { CollapseFileButton } from './CollapseFileButton';
 
 export const FileContainerHeader: React.FC = React.memo(() => {
   const { styles, cx } = useStyles();
-  const selectedLayout = useChatSplitterContextSelector((state) => state.selectedLayout);
+  const selectedLayout = useChatLayoutContextSelector((state) => state.selectedLayout);
 
   const showCollapseButton = true;
   const isCollapseOpen = selectedLayout === 'both';

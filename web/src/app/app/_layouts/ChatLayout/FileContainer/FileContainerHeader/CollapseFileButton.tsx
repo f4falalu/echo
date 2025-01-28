@@ -2,7 +2,7 @@ import { AppMaterialIcons } from '@/components';
 import { Button } from 'antd';
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useChatSplitterContextSelector } from '../../ChatLayoutContext';
+import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { useMemoizedFn } from 'ahooks';
 
 const animation = {
@@ -15,7 +15,7 @@ export const CollapseFileButton: React.FC<{
   showCollapseButton: boolean;
   isOpen: boolean;
 }> = React.memo(({ showCollapseButton, isOpen }) => {
-  const onCollapseFileClick = useChatSplitterContextSelector((state) => state.onCollapseFileClick);
+  const onCollapseFileClick = useChatLayoutContextSelector((state) => state.onCollapseFileClick);
   const icon = !isOpen ? 'keyboard_double_arrow_left' : 'keyboard_double_arrow_right';
 
   const onClick = useMemoizedFn(() => {

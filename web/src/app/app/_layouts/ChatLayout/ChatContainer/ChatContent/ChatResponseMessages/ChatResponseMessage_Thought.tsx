@@ -37,7 +37,7 @@ export const ChatResponseMessage_Thought: React.FC<ChatResponseMessageProps> = R
     return (
       <AnimatePresence initial={!isCompletedStream}>
         <motion.div className={cx(styles.container, 'flex space-x-1.5')} {...animationConfig}>
-          <div className="flex w-4 flex-col items-center pt-0.5">
+          <div className="flex w-4 min-w-4 flex-col items-center pt-0.5">
             <StatusIndicator inProgress={in_progress} />
             <VerticalBar inProgress={in_progress} hasPills={hasPills} />
           </div>

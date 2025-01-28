@@ -107,6 +107,6 @@ export const ChatSplitterContextProvider: React.FC<
 
 ChatSplitterContextProvider.displayName = 'ChatSplitterContextProvider';
 
-export const useChatSplitterContextSelector = <T,>(
+export const useChatLayoutContextSelector = <T,>(
   selector: ContextSelector<ReturnType<typeof useChatLayout>, T>
 ) => useContextSelector(ChatSplitterContext, selector);
