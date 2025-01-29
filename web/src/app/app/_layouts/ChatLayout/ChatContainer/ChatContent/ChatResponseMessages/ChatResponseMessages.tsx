@@ -15,12 +15,13 @@ interface ChatResponseMessagesProps {
 type ResponseMessageWithHiddenClusters = BusterChatMessageResponse | BusterChatMessageResponse[];
 
 const animationConfig = {
-  initial: { opacity: 1, height: 'auto' },
-  exit: { opacity: 0, height: 0 },
+  initial: { opacity: 1, height: 'auto', marginBottom: '' },
+  exit: { opacity: 0, height: 0, marginBottom: 0 },
   layout: true,
   transition: {
     opacity: { duration: 0.2 },
     height: { duration: 0.2 },
+    marginBottom: { duration: 0.185 },
     layout: { duration: 0.2 }
   }
 };
