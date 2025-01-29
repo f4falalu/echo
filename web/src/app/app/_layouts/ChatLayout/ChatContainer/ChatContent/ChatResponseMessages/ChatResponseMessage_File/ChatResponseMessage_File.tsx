@@ -7,7 +7,7 @@ import type {
 } from '@/api/buster_socket/chats';
 import { Text } from '@/components/text';
 import { motion, AnimatePresence } from 'framer-motion';
-import { animationConfig } from '../animationConfig';
+import { itemAnimationConfig } from '../animationConfig';
 import { useMemoizedFn } from 'ahooks';
 import { StatusIndicator } from '../StatusIndicator';
 
@@ -31,7 +31,7 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
       <AnimatePresence initial={!isCompletedStream}>
         <motion.div
           id={id}
-          {...animationConfig}
+          {...itemAnimationConfig}
           className={cx(styles.fileCard, 'file-card flex flex-col')}>
           <VerticalDivider className="top-line mb-0.5" />
           <div

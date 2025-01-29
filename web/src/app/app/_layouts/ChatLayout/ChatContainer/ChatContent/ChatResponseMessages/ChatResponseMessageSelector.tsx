@@ -21,12 +21,19 @@ const ChatResponseMessageRecord: Record<
   thought: ChatResponseMessage_Thought
 };
 
-export const ChatResponseMessageSelector: React.FC<{
+export interface ChatResponseMessageSelectorProps {
   responseMessage: BusterChatMessageResponse | BusterChatMessageResponse[];
   isCompletedStream: boolean;
   isLastMessageItem: boolean;
   selectedFileId: string | undefined;
-}> = ({ responseMessage, isCompletedStream, isLastMessageItem, selectedFileId }) => {
+}
+
+export const ChatResponseMessageSelector: React.FC<ChatResponseMessageSelectorProps> = ({
+  responseMessage,
+  isCompletedStream,
+  isLastMessageItem,
+  selectedFileId
+}) => {
   if (Array.isArray(responseMessage)) {
     return (
       <ChatResponseMessageHidden

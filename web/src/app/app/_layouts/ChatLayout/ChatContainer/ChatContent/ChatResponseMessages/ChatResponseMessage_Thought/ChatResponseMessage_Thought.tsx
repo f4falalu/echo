@@ -2,7 +2,7 @@ import { BusterChatMessage_thought } from '@/api/buster_socket/chats';
 import React from 'react';
 import { ChatResponseMessageProps } from '../ChatResponseMessageSelector';
 import { AnimatePresence, motion } from 'framer-motion';
-import { animationConfig } from '../animationConfig';
+import { itemAnimationConfig } from '../animationConfig';
 import { Text } from '@/components/text';
 import { createStyles } from 'antd-style';
 import { PillContainer } from './ChatResponseMessage_ThoughtPills';
@@ -24,7 +24,7 @@ export const ChatResponseMessage_Thought: React.FC<ChatResponseMessageProps> = R
       <AnimatePresence initial={!isCompletedStream}>
         <motion.div
           className={cx(styles.thoughtCard, 'relative flex space-x-1.5', 'thought-card')}
-          {...animationConfig}>
+          {...itemAnimationConfig}>
           <div className="ml-2 flex w-4 min-w-4 flex-col items-center pt-0.5">
             <StatusIndicator status={showLoadingIndicator} />
             <VerticalBar inProgress={inProgress} hasPills={hasPills} />

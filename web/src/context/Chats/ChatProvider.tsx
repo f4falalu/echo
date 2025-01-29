@@ -10,7 +10,7 @@ import { useMemoizedFn, useUnmount } from 'ahooks';
 import type { FileType } from '@/api/buster_socket/chats';
 import { createMockResponseMessageThought, MOCK_CHAT } from './MOCK_CHAT';
 import { IBusterChat } from './interfaces';
-import { chatMessageUpgrader, chatUpgrader } from './helpers';
+import { chatUpgrader } from './helpers';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { fi } from '@faker-js/faker';
 
@@ -110,6 +110,36 @@ export const useBusterChat = () => {
       chatsRef.current[chatId] = newChat;
       startTransition(() => {
         //just used to trigger UI update
+      });
+    }
+  });
+
+  useHotkeys('f', () => {
+    const chatId = Object.keys(chatsRef.current)[0];
+    if (chatId) {
+      const chat = chatsRef.current[chatId];
+
+      const newChat = { ...chat };
+      const firstMessage = newChat.messages[0];
+      const updatedResponseMessages = firstMessage.response_messages.map((msg) => {
+        if (msg.type === 'thought') {
+          return {
+            ...msg,
+            hidden: true
+          };
+        }
+        return msg;
+      });
+
+      const updatedMessage = {
+        ...firstMessage,
+        response_messages: updatedResponseMessages
+      };
+
+      newChat.messages = [updatedMessage];
+      chatsRef.current[chatId] = newChat;
+      startTransition(() => {
+        // Trigger UI update
       });
     }
   });

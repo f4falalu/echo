@@ -1,7 +1,7 @@
 import { BusterChatMessage_text } from '@/api/buster_socket/chats';
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { animationConfig } from './animationConfig';
+import { itemAnimationConfig } from './animationConfig';
 import { ChatResponseMessageProps } from './ChatResponseMessageSelector';
 import { createStyles } from 'antd-style';
 
@@ -32,13 +32,13 @@ export const ChatResponseMessage_Text: React.FC<ChatResponseMessageProps> = Reac
     }, [responseMessage?.message_chunk, responseMessage?.message]);
 
     return (
-      <div className={cx(styles.textCard, 'text-card')}>
+      <motion.div className={cx(styles.textCard, 'text-card')}>
         {textChunks.map((chunk, index) => (
           <AnimatePresence key={index} initial={!isCompletedStream}>
-            <motion.span {...animationConfig}>{chunk}</motion.span>
+            <motion.span {...itemAnimationConfig}>{chunk}</motion.span>
           </AnimatePresence>
         ))}
-      </div>
+      </motion.div>
     );
   }
 );
@@ -47,8 +47,6 @@ ChatResponseMessage_Text.displayName = 'ChatResponseMessage_Text';
 
 const useStyles = createStyles(({ token, css }) => ({
   textCard: css`
-    //  &.text-card:has(+ .thought-card) {
     margin-bottom: 14px;
-    //  }
   `
 }));

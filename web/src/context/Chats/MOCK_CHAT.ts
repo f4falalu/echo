@@ -45,7 +45,7 @@ export const createMockResponseMessageThought = (): BusterChatMessage_thought =>
     thought_title: `Found ${faker.number.int(100)} terms`,
     thought_secondary_title: faker.lorem.word(),
     thought_pills: fourRandomPills,
-    hidden: true,
+    hidden: undefined,
     status: undefined
   };
 };

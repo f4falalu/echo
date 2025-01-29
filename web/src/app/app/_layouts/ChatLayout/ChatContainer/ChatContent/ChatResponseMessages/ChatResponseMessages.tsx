@@ -1,11 +1,7 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import type { BusterChatMessageResponse } from '@/api/buster_socket/chats';
 import { MessageContainer } from '../MessageContainer';
-import { ChatResponseMessage_File } from './ChatResponseMessage_File';
-import { ChatResponseMessage_Text } from './ChatResponseMessage_Text';
-import { ChatResponseMessage_Thought } from './ChatResponseMessage_Thought';
-import { AnimatePresence } from 'framer-motion';
-import { ChatResponseMessageHidden } from './ChatResponseMessageHidden';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useMemoizedFn } from 'ahooks';
 import { ChatResponseMessageSelector } from './ChatResponseMessageSelector';
 
@@ -48,19 +44,41 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
       return responseMessage.id;
     });
 
+    const animationConfig = {
+      initial: { opacity: 1, height: 'auto' },
+      exit: { opacity: 0, height: 0 },
+      layout: true,
+      transition: {
+        opacity: { duration: 0.2 },
+        height: { duration: 0.2 },
+        layout: { duration: 0.2 }
+      }
+    };
+
     return (
       <MessageContainer className="flex w-full flex-col overflow-hidden">
-        {responseMessages.map((responseMessage, index) => {
-          return (
-            <ChatResponseMessageSelector
+        <AnimatePresence mode="sync" initial={false}>
+          {responseMessages.map((responseMessage, index) => (
+            <motion.div
               key={getKey(responseMessage)}
-              responseMessage={responseMessage}
-              isCompletedStream={isCompletedStream}
-              isLastMessageItem={index === lastMessageIndex}
-              selectedFileId={selectedFileId}
-            />
-          );
-        })}
+              initial={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              layout
+              transition={{
+                opacity: { duration: 0.2 },
+                height: { duration: 0.2 },
+                layout: { duration: 0.2 }
+              }}>
+              <ChatResponseMessageSelector
+                key={getKey(responseMessage)}
+                responseMessage={responseMessage}
+                isCompletedStream={isCompletedStream}
+                isLastMessageItem={index === lastMessageIndex}
+                selectedFileId={selectedFileId}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </MessageContainer>
     );
   }

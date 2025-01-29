@@ -1,14 +1,17 @@
 import React, { useState, useRef, useMemo } from 'react';
 import type { BusterChatMessageResponse } from '@/api/buster_socket/chats';
 import { createStyles } from 'antd-style';
-import { ChatResponseMessageSelector } from './ChatResponseMessageSelector';
+import {
+  ChatResponseMessageSelector,
+  ChatResponseMessageSelectorProps
+} from './ChatResponseMessageSelector';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Text } from '@/components/text';
 import { AppMaterialIcons } from '@/components';
 import pluralize from 'pluralize';
 import { useMemoizedFn } from 'ahooks';
 
-const animationConfig = {
+const messageAnimationConfig = {
   initial: { opacity: 0, height: 0 },
   animate: {
     height: 'auto',
@@ -41,32 +44,24 @@ export const ChatResponseMessageHidden: React.FC<{
   });
 
   return (
-    <div className={cx('hidden-card', styles.hiddenCard)}>
+    <motion.div className={cx('hidden-card', styles.hiddenCard)}>
       <HideButton onClick={onToggleHidden} numerOfItems={hiddenItems.length} isHidden={isHidden} />
       <AnimatePresence initial={false}>
         {!isHidden && (
-          <motion.div
-            className={styles.motionContainer}
-            initial={animationConfig.initial}
-            animate={animationConfig.animate}
-            exit={animationConfig.exit}>
-            <div>
-              {hiddenItems.map((item) => (
-                <div className="" key={item.id}>
-                  <ChatResponseMessageSelector
-                    key={item.id}
-                    responseMessage={item}
-                    isCompletedStream={isCompletedStream}
-                    isLastMessageItem={false}
-                    selectedFileId={selectedFileId}
-                  />
-                </div>
-              ))}
-            </div>
+          <motion.div className={styles.motionContainer} {...messageAnimationConfig}>
+            {hiddenItems.map((item) => (
+              <ChatResponseMessageSelector
+                key={item.id}
+                responseMessage={item}
+                isCompletedStream={isCompletedStream}
+                isLastMessageItem={false}
+                selectedFileId={selectedFileId}
+              />
+            ))}
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 });
 
@@ -126,7 +121,7 @@ const useStyles = createStyles(({ token, css }) => ({
   hideButton: css`
     border-radius: ${token.borderRadius}px;
     background: transparent;
-    padding: 1px 4px;
+    padding: 1px 6px 1px 4px;
 
     &:hover {
       background: ${token.controlItemBgActive};

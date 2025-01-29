@@ -535,32 +535,6 @@ export const useBusterNewThreads = () => {
     return res[0] as BusterThread;
   });
 
-  useHotkeys('f+h', () => {
-    if (isDev) {
-      const tenQuestions = [
-        'Show me all of my customers with a name that starts with A',
-        'Show me month over month sales for the last 12 months broken down by product category',
-        'Show me the top 5 customers by revenue',
-        'Show me month over month sales for the last 12 months broken down by month',
-        'What is the total revenue for the company?',
-        'How many customers have a balance greater than $1000?',
-        'What is the average order value?',
-        'What is the total revenue for the company?',
-        'How many customers have a balance greater than $1000?',
-        'What is the average order value?',
-        'What is the total revenue for the company?',
-        'How many customers have a balance greater than $1000?',
-        'What is the average order value?',
-        'Show me all of my categories',
-        'Show me all of my products'
-      ];
-
-      tenQuestions.forEach((question) => {
-        onStartNewThread(question).then((v) => {});
-      });
-    }
-  });
-
   return {
     duplicateThread,
     onSetSelectedThreadDataSource,
