@@ -7,12 +7,13 @@ import isNumber from 'lodash/isNumber';
 import isString from 'lodash/isString';
 import isDate from 'lodash/isDate';
 import isNaN from 'lodash/isNaN';
-import min from 'lodash/min';
 import { isNumeric } from './numbers';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import { getBrowserLanguage } from './language';
-import { SupportedLanguages } from '@/config';
-import { ColumnLabelFormat } from '@/components/charts';
+import { SupportedLanguages } from '../config/languages';
+import type { ColumnLabelFormat } from '../components/charts';
+
+import relativeTime from 'dayjs/plugin/relativeTime';
+
 import {
   DEFAULT_DATE_FORMAT_MONTH_OF_YEAR,
   DEFAULT_DATE_FORMAT_QUARTER,

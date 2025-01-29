@@ -117,12 +117,14 @@ export const processLineBarData = (
 
   // Helper to create initial row with x-value
   const createRow = (xValue: string | number) => [xValue];
+  const defaultReplaceMissingDataWith = 0;
 
   // For bar/line/pie charts - aggregate by x-value and category
   const processedData = Array.from(xValuesSet).map((xValue) => {
     const row = createRow(xValue);
 
     // Build row by adding values for each measure/category combination
+
     measureFields.forEach((measure) => {
       categories.forEach((category) => {
         const key = `${xValue}|${category}`;
@@ -132,7 +134,9 @@ export const processLineBarData = (
         const value =
           typeof dataMap.get(key)?.[measure] === 'number'
             ? dataMap.get(key)?.[measure]
-            : ((dataMap.get(key)?.[measure] || replaceMissingDataWith) ?? 0);
+            : (dataMap.get(key)?.[measure] ??
+              replaceMissingDataWith ??
+              defaultReplaceMissingDataWith);
         row.push(value as string | number);
       });
     });
