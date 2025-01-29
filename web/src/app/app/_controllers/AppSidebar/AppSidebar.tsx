@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { AppSidebarTopItems } from './AppSidebarTopItems';
 import { AppSidebarSettings } from './AppSidebarSettings';
 import { AppSidebarPrimary } from './AppSidebarPrimary';

@@ -3,14 +3,16 @@ import {
   DEFAULT_DATE_FORMAT_DAY_OF_WEEK,
   DEFAULT_DATE_FORMAT_MONTH_OF_YEAR,
   DEFAULT_DATE_FORMAT_QUARTER
-} from '@/api/buster_rest';
-import { ColumnLabelFormat, IColumnLabelFormat } from '@/components/charts';
-import { formatDate, makeHumanReadble, formatNumber, roundNumber } from '@/utils';
+} from '@/api/buster_rest/threads/defaults';
+import type { ColumnLabelFormat, IColumnLabelFormat } from '@/components/charts';
+import { formatDate } from './date';
+import { formatNumber, roundNumber } from './numbers';
+import { makeHumanReadble } from './text';
 
 const DEFAULT_DATE_FORMAT = 'll';
 
 export const formatLabel = (
-  textProp: string | number | Date | null,
+  textProp: string | number | Date | null | undefined,
   props: ColumnLabelFormat = {
     columnType: 'string',
     style: 'string'
@@ -26,7 +28,7 @@ export const formatLabel = (
     prefix = DEFAULT_COLUMN_LABEL_FORMAT.prefix,
     suffix = DEFAULT_COLUMN_LABEL_FORMAT.suffix,
     numberSeparatorStyle = DEFAULT_COLUMN_LABEL_FORMAT.numberSeparatorStyle,
-    replaceMissingDataWith = DEFAULT_COLUMN_LABEL_FORMAT.replaceMissingDataWith,
+    replaceMissingDataWith, //DO NOT USE THE DEFAULT
     convertNumberTo,
     currency = DEFAULT_COLUMN_LABEL_FORMAT.currency,
     displayName = DEFAULT_COLUMN_LABEL_FORMAT.displayName,
@@ -38,11 +40,24 @@ export const formatLabel = (
     compactNumbers = DEFAULT_COLUMN_LABEL_FORMAT.compactNumbers
   } = props;
 
-  const text = columnType === 'number' && !useKeyFormatter ? Number(textProp) : textProp;
+  const text =
+    columnType === 'number' && !useKeyFormatter && replaceMissingDataWith === 0
+      ? Number(textProp)
+      : textProp;
   let formattedText = text;
 
   if (text === null || text === undefined) {
-    formattedText = String(replaceMissingDataWith);
+    if (columnType === 'number') {
+      if (replaceMissingDataWith === null) {
+        formattedText = 'null';
+      } else {
+        formattedText = String(
+          replaceMissingDataWith ?? DEFAULT_COLUMN_LABEL_FORMAT.replaceMissingDataWith
+        );
+      }
+    } else if (replaceMissingDataWith !== undefined) {
+      formattedText = String(replaceMissingDataWith);
+    } else formattedText = String('null');
   } else if (style === 'date' && !useKeyFormatter) {
     formattedText = formatLabelDate(text, {
       dateFormat,

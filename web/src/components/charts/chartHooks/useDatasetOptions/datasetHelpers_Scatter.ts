@@ -46,6 +46,7 @@ export const processScatterData = (
     key: field,
     value: String(item[field])
   }));
+  const defaultReplaceMissingDataWith = null; //null is the default for scatter charts
 
   data.forEach((item) => {
     const row: (string | number | null)[] = [];
@@ -58,7 +59,10 @@ export const processScatterData = (
     measureFields.forEach((measure) => {
       categories.forEach((category) => {
         const columnLabelFormat = columnLabelFormats[measure];
-        const replaceMissingDataWith = columnLabelFormat?.replaceMissingDataWith ?? null;
+        const replaceMissingDataWith =
+          columnLabelFormat?.replaceMissingDataWith !== undefined
+            ? columnLabelFormat?.replaceMissingDataWith
+            : defaultReplaceMissingDataWith;
         if (categoryKey === category) {
           const value = item[measure] || replaceMissingDataWith;
           row.push(value as string | number);

@@ -17,6 +17,8 @@ import { BusterRoutes } from '@/routes';
 import { useGetDatasets } from '@/api/buster_rest/datasets';
 import { NewDatasetModal } from '../NewDatasetModal';
 
+const { TextArea } = Input;
+
 const themeConfig: ThemeConfig = {
   components: {
     Modal: {
@@ -156,6 +158,7 @@ export const NewThreadModal = React.memo<{
             />
 
             <NewThreadInput
+              key={open ? 'open' : 'closed'}
               setSuggestedPrompts={setSuggestedPrompts}
               debouncedGetSuggestedThreadPrompts={debouncedGetSuggestedThreadPrompts}
               shownPrompts={shownPrompts}
@@ -263,7 +266,7 @@ const NewThreadInput: React.FC<{
 
     return (
       <div className="flex min-h-[54px] items-center justify-between space-x-1 overflow-y-auto px-2">
-        <Input.TextArea
+        <TextArea
           ref={inputRef}
           size="large"
           className="w-full !pl-0"
@@ -271,10 +274,11 @@ const NewThreadInput: React.FC<{
           disabled={loadingNewThread}
           variant="borderless"
           placeholder="Search for a metric..."
-          value={prompt}
+          defaultValue={prompt}
           onChange={onChangeText}
           onPressEnter={onPressEnter}
         />
+
         <Button
           type="primary"
           size="middle"

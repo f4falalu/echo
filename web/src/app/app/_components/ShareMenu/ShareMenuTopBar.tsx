@@ -40,7 +40,9 @@ export const ShareMenuTopBar: React.FC<{
           label: 'Embed',
           show: shareType !== BusterShareAssetType.COLLECTION
         }
-      ].filter((o) => o.show);
+      ]
+        .filter((o) => o.show)
+        .map((o) => ({ ...o, show: undefined }));
     }, [shareType, isOwner]);
 
     const onChange = useMemoizedFn((v: SegmentedValue) => {
