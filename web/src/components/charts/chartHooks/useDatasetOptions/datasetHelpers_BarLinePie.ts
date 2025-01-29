@@ -49,7 +49,7 @@ export const mapLineBarPieData = (
 ) => {
   const xValuesSet = new Set<string>(); // Stores unique X-axis values
   const categoriesSet = new Set<string>(); // Stores unique category values
-  const dataMap = new Map<string | number, Record<string, string | number | Date>>(); // Stores data points in format: "xValue|category" => measures
+  const dataMap = new Map<string | number, Record<string, string | number | Date | null>>(); // Stores data points in format: "xValue|category" => measures
 
   // Pre-compile field access functions for better performance
   const xFieldAccessors = xFields.map((field) => (item: DataItem) => ({
@@ -68,7 +68,7 @@ export const mapLineBarPieData = (
       categoryFieldAccessors.map((accessor) => accessor(item))
     );
     const measures = Object.fromEntries(
-      measureFieldAccessors.map((accessor, i) => [measureFields[i], accessor(item) || 0])
+      measureFieldAccessors.map((accessor, i) => [measureFields[i], accessor(item)])
     );
 
     categoriesSet.add(categoryKey);
@@ -109,7 +109,7 @@ export const mapLineBarPieData = (
 export const processLineBarData = (
   categoriesSet: Set<string>,
   xValuesSet: Set<string>,
-  dataMap: Map<string | number, Record<string, string | number | Date>>,
+  dataMap: Map<string | number, Record<string, string | number | Date | null>>,
   measureFields: string[],
   columnLabelFormats: Record<string, ColumnLabelFormat>
 ) => {
@@ -134,9 +134,10 @@ export const processLineBarData = (
         const value =
           typeof dataMap.get(key)?.[measure] === 'number'
             ? dataMap.get(key)?.[measure]
-            : (dataMap.get(key)?.[measure] ??
-              replaceMissingDataWith ??
-              defaultReplaceMissingDataWith);
+            : replaceMissingDataWith !== undefined
+              ? replaceMissingDataWith
+              : defaultReplaceMissingDataWith;
+
         row.push(value as string | number);
       });
     });

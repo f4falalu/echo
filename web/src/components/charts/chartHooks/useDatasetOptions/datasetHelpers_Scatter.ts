@@ -60,7 +60,9 @@ export const processScatterData = (
       categories.forEach((category) => {
         const columnLabelFormat = columnLabelFormats[measure];
         const replaceMissingDataWith =
-          columnLabelFormat?.replaceMissingDataWith ?? defaultReplaceMissingDataWith;
+          columnLabelFormat?.replaceMissingDataWith !== undefined
+            ? columnLabelFormat?.replaceMissingDataWith
+            : defaultReplaceMissingDataWith;
         if (categoryKey === category) {
           const value = item[measure] || replaceMissingDataWith;
           row.push(value as string | number);
