@@ -8,7 +8,12 @@ import { useBusterWebSocket } from '../BusterWebSocket';
 import type { BusterChatAsset, BusterChat, BusterChatMessage } from '@/api/buster_socket/chats';
 import { useMemoizedFn, useUnmount } from 'ahooks';
 import type { FileType } from '@/api/buster_socket/chats';
-import { createMockResponseMessageThought, MOCK_CHAT } from './MOCK_CHAT';
+import {
+  createMockResponseMessageFile,
+  createMockResponseMessageText,
+  createMockResponseMessageThought,
+  MOCK_CHAT
+} from './MOCK_CHAT';
 import { IBusterChat } from './interfaces';
 import { chatUpgrader } from './helpers';
 import { useHotkeys } from 'react-hotkeys-hook';
@@ -95,7 +100,7 @@ export const useBusterChat = () => {
     }
   );
 
-  useHotkeys('z', () => {
+  useHotkeys('t', () => {
     const chatId = Object.keys(chatsRef.current)[0];
     if (chatId) {
       const chat = chatsRef.current[chatId];
@@ -115,6 +120,44 @@ export const useBusterChat = () => {
   });
 
   useHotkeys('f', () => {
+    const chatId = Object.keys(chatsRef.current)[0];
+    if (chatId) {
+      const chat = chatsRef.current[chatId];
+      const mockMessage = createMockResponseMessageFile();
+      const newChat = { ...chat };
+      const firstMessage = {
+        ...newChat.messages[0],
+        isCompletedStream: false,
+        response_messages: [...newChat.messages[0].response_messages, mockMessage]
+      };
+      newChat.messages = [firstMessage];
+      chatsRef.current[chatId] = newChat;
+      startTransition(() => {
+        //just used to trigger UI update
+      });
+    }
+  });
+
+  useHotkeys('r', () => {
+    const chatId = Object.keys(chatsRef.current)[0];
+    if (chatId) {
+      const chat = chatsRef.current[chatId];
+      const mockMessage = createMockResponseMessageText();
+      const newChat = { ...chat };
+      const firstMessage = {
+        ...newChat.messages[0],
+        isCompletedStream: false,
+        response_messages: [...newChat.messages[0].response_messages, mockMessage]
+      };
+      newChat.messages = [firstMessage];
+      chatsRef.current[chatId] = newChat;
+      startTransition(() => {
+        //just used to trigger UI update
+      });
+    }
+  });
+
+  useHotkeys('h', () => {
     const chatId = Object.keys(chatsRef.current)[0];
     if (chatId) {
       const chat = chatsRef.current[chatId];

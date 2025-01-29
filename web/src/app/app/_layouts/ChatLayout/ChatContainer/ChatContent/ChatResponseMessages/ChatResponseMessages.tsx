@@ -4,6 +4,7 @@ import { MessageContainer } from '../MessageContainer';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMemoizedFn } from 'ahooks';
 import { ChatResponseMessageSelector } from './ChatResponseMessageSelector';
+import { createStyles } from 'antd-style';
 
 interface ChatResponseMessagesProps {
   responseMessages: BusterChatMessageResponse[];
@@ -13,9 +14,20 @@ interface ChatResponseMessagesProps {
 
 type ResponseMessageWithHiddenClusters = BusterChatMessageResponse | BusterChatMessageResponse[];
 
+const animationConfig = {
+  initial: { opacity: 1, height: 'auto' },
+  exit: { opacity: 0, height: 0 },
+  layout: true,
+  transition: {
+    opacity: { duration: 0.2 },
+    height: { duration: 0.2 },
+    layout: { duration: 0.2 }
+  }
+};
+
 export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.memo(
   ({ responseMessages: responseMessagesProp, isCompletedStream, selectedFileId }) => {
-    const lastMessageIndex = responseMessagesProp.length - 1;
+    const { styles, cx } = useStyles();
 
     const responseMessages: ResponseMessageWithHiddenClusters[] = useMemo(() => {
       return responseMessagesProp.reduce<ResponseMessageWithHiddenClusters[]>(
@@ -37,6 +49,8 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
       );
     }, [responseMessagesProp]);
 
+    const lastMessageIndex = responseMessages.length - 1;
+
     const getKey = useMemoizedFn((responseMessage: ResponseMessageWithHiddenClusters) => {
       if (Array.isArray(responseMessage)) {
         return responseMessage.map((item) => item.id).join('-');
@@ -44,15 +58,21 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
       return responseMessage.id;
     });
 
-    const animationConfig = {
-      initial: { opacity: 1, height: 'auto' },
-      exit: { opacity: 0, height: 0 },
-      layout: true,
-      transition: {
-        opacity: { duration: 0.2 },
-        height: { duration: 0.2 },
-        layout: { duration: 0.2 }
+    const typeClassRecord: Record<BusterChatMessageResponse['type'] | 'hidden', string> =
+      useMemo(() => {
+        return {
+          text: cx(styles.textCard, 'text-card'),
+          file: cx(styles.fileCard, 'file-card min-h-fit'),
+          thought: cx(styles.thoughtCard, 'thought-card'),
+          hidden: cx(styles.hiddenCard, 'hidden-card')
+        };
+      }, []);
+
+    const getContainerClass = (item: ResponseMessageWithHiddenClusters) => {
+      if (Array.isArray(item)) {
+        return typeClassRecord.hidden;
       }
+      return typeClassRecord[item.type];
     };
 
     return (
@@ -61,14 +81,8 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
           {responseMessages.map((responseMessage, index) => (
             <motion.div
               key={getKey(responseMessage)}
-              initial={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              layout
-              transition={{
-                opacity: { duration: 0.2 },
-                height: { duration: 0.2 },
-                layout: { duration: 0.2 }
-              }}>
+              className={cx(getContainerClass(responseMessage), 'overflow-hidden')}
+              {...animationConfig}>
               <ChatResponseMessageSelector
                 key={getKey(responseMessage)}
                 responseMessage={responseMessage}
@@ -76,6 +90,7 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
                 isLastMessageItem={index === lastMessageIndex}
                 selectedFileId={selectedFileId}
               />
+              {index < lastMessageIndex && <VerticalDivider />}
             </motion.div>
           ))}
         </AnimatePresence>
@@ -83,3 +98,52 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
     );
   }
 );
+
+const VerticalDivider: React.FC<{ className?: string }> = ({ className }) => {
+  const { cx, styles } = useStyles();
+  return <div className={cx(styles.verticalDivider, 'vertical-divider', className)} />;
+};
+
+const useStyles = createStyles(({ token, css }) => ({
+  hiddenCard: css`
+    margin-bottom: 2px;
+
+    .vertical-divider {
+      display: none;
+    }
+  `,
+  textCard: css`
+    margin-bottom: 14px;
+
+    &:has(+ .text-card) {
+      margin-bottom: 8px;
+    }
+
+    .vertical-divider {
+      display: none;
+    }
+  `,
+  fileCard: css`
+    &:has(+ .text-card),
+    &:has(+ .thought-card),
+    &:has(+ .hidden-card) {
+      .vertical-divider {
+        display: none;
+      }
+      margin-bottom: 14px;
+    }
+  `,
+  thoughtCard: css`
+    .vertical-divider {
+      display: none;
+    }
+
+    margin-bottom: 4px;
+  `,
+  verticalDivider: css`
+    height: 9px;
+    width: 0.5px;
+    margin: 3px 0 3px 16px;
+    background: ${token.colorTextTertiary};
+  `
+}));

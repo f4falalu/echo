@@ -29,11 +29,7 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
 
     return (
       <AnimatePresence initial={!isCompletedStream}>
-        <motion.div
-          id={id}
-          {...itemAnimationConfig}
-          className={cx(styles.fileCard, 'file-card flex flex-col')}>
-          <VerticalDivider className="top-line mb-0.5" />
+        <motion.div id={id} {...itemAnimationConfig} className={cx('flex min-h-fit flex-col')}>
           <div
             onClick={onClickCard}
             className={cx(
@@ -46,7 +42,6 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
             <ChatResponseMessageHeader file_name={file_name} version_number={version_number} />
             <ChatResponseMessageBody metadata={metadata} />
           </div>
-          <VerticalDivider className="bottom-line mt-0.5" />
         </motion.div>
       </AnimatePresence>
     );
@@ -116,51 +111,7 @@ const MetadataItem: React.FC<{ metadata: BusterChatMessage_fileMetadata }> = ({ 
   );
 };
 
-const VerticalDivider: React.FC<{ className?: string }> = ({ className }) => {
-  const { cx, styles } = useStyles();
-  return <div className={cx(styles.verticalDivider, 'vertical-divider', className)} />;
-};
-
 const useStyles = createStyles(({ token, css }) => ({
-  fileCard: css`
-    & + .file-card {
-      .vertical-divider.top-line {
-        display: none;
-      }
-    }
-
-    .thought-card + & {
-      .vertical-divider.top-line {
-        display: none;
-      }
-    }
-
-    .hidden-card + & {
-      .vertical-divider.top-line {
-        display: none;
-      }
-    }
-
-    &:last-child {
-      .vertical-divider.bottom-line {
-        display: none;
-      }
-    }
-
-    &.file-card:has(+ .text-card) {
-      .vertical-divider.bottom-line {
-        display: none;
-      }
-    }
-
-    &.file-card:has(+ .file-card) {
-      margin-bottom: 4px;
-    }
-
-    &.file-card:has(+ .text-card) {
-      margin-bottom: 14px;
-    }
-  `,
   fileContainer: css`
     border-radius: ${token.borderRadius}px;
     border: 0.5px solid ${token.colorBorder};
@@ -184,11 +135,5 @@ const useStyles = createStyles(({ token, css }) => ({
     border-radius: ${token.borderRadius}px;
     padding: 4px;
     background: ${token.colorFillTertiary};
-  `,
-  verticalDivider: css`
-    height: 9px;
-    width: 0.5px;
-    margin-left: 16px;
-    background: ${token.colorTextTertiary};
   `
 }));

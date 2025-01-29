@@ -20,11 +20,14 @@ const createMockUserMessage = (
   sender_avatar: faker.image.avatar()
 });
 
-const createMockResponseMessageText = (): BusterChatMessage_text => ({
+export const createMockResponseMessageText = (): BusterChatMessage_text => ({
   id: faker.string.uuid(),
   type: 'text',
   message: '',
-  message_chunk: faker.lorem.sentence()
+  message_chunk: faker.lorem.sentence({
+    min: 5,
+    max: 35
+  })
 });
 
 export const createMockResponseMessageThought = (): BusterChatMessage_thought => {
@@ -50,7 +53,7 @@ export const createMockResponseMessageThought = (): BusterChatMessage_thought =>
   };
 };
 
-const createMockResponseMessageFile = (): BusterChatMessage_file => {
+export const createMockResponseMessageFile = (): BusterChatMessage_file => {
   const randomMetadataCount = faker.number.int({
     min: 1,
     max: 3
@@ -89,14 +92,14 @@ export const MOCK_CHAT: BusterChat = {
       response_messages: [
         createMockResponseMessageText(),
         createMockResponseMessageThought(),
-        createMockResponseMessageThought(),
-        createMockResponseMessageFile(),
-        createMockResponseMessageFile(),
-        createMockResponseMessageText(),
-        createMockResponseMessageText(),
-        createMockResponseMessageThought(),
-        createMockResponseMessageThought(),
+        // createMockResponseMessageThought(),
         createMockResponseMessageFile()
+        // createMockResponseMessageFile(),
+        // createMockResponseMessageText(),
+        // createMockResponseMessageText(),
+        // createMockResponseMessageThought(),
+        // createMockResponseMessageThought(),
+        // createMockResponseMessageFile()
       ]
     }
   ],

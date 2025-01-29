@@ -100,7 +100,7 @@ const HideButton: React.FC<{ onClick: () => void; numerOfItems: number; isHidden
             <AppMaterialIcons size={12} icon={icon} />
           </motion.div>
         </AnimatePresence>
-        <Text className="pointer-events-none">{text}</Text>
+        <Text className="pointer-events-none select-none">{text}</Text>
       </div>
     </div>
   );
