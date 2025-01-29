@@ -29,7 +29,7 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
 
     return (
       <AnimatePresence initial={!isCompletedStream}>
-        <motion.div id={id} {...itemAnimationConfig} className={cx('flex min-h-fit flex-col')}>
+        <motion.div id={id} {...itemAnimationConfig} className={cx('flex flex-col')}>
           <div
             onClick={onClickCard}
             className={cx(

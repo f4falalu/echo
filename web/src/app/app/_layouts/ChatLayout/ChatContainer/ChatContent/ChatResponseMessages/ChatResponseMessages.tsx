@@ -53,7 +53,7 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
 
     const getKey = useMemoizedFn((responseMessage: ResponseMessageWithHiddenClusters) => {
       if (Array.isArray(responseMessage)) {
-        return responseMessage.map((item) => item.id).join('-');
+        return responseMessage.map((item) => item.id).join('-') + '';
       }
       return responseMessage.id;
     });
@@ -62,7 +62,7 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
       useMemo(() => {
         return {
           text: cx(styles.textCard, 'text-card'),
-          file: cx(styles.fileCard, 'file-card min-h-fit'),
+          file: cx(styles.fileCard, 'file-card'),
           thought: cx(styles.thoughtCard, 'thought-card'),
           hidden: cx(styles.hiddenCard, 'hidden-card')
         };
@@ -81,7 +81,8 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
           {responseMessages.map((responseMessage, index) => (
             <motion.div
               key={getKey(responseMessage)}
-              className={cx(getContainerClass(responseMessage), 'overflow-hidden')}
+              className={cx(getContainerClass(responseMessage), '')}
+              layoutId={getKey(responseMessage)}
               {...animationConfig}>
               <ChatResponseMessageSelector
                 key={getKey(responseMessage)}
@@ -90,7 +91,8 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
                 isLastMessageItem={index === lastMessageIndex}
                 selectedFileId={selectedFileId}
               />
-              {index < lastMessageIndex && <VerticalDivider />}
+
+              <VerticalDivider />
             </motion.div>
           ))}
         </AnimatePresence>
@@ -125,12 +127,24 @@ const useStyles = createStyles(({ token, css }) => ({
   `,
   fileCard: css`
     &:has(+ .text-card),
-    &:has(+ .thought-card),
     &:has(+ .hidden-card) {
       .vertical-divider {
-        display: none;
+        opacity: 0;
       }
-      margin-bottom: 14px;
+      margin-bottom: 0px;
+    }
+
+    &:has(+ .thought-card) {
+      .vertical-divider {
+        opacity: 0;
+      }
+      margin-bottom: 0px;
+    }
+
+    &:last-child {
+      .vertical-divider {
+        opacity: 0;
+      }
     }
   `,
   thoughtCard: css`
@@ -141,6 +155,7 @@ const useStyles = createStyles(({ token, css }) => ({
     margin-bottom: 4px;
   `,
   verticalDivider: css`
+    transition: opacity 0.2s ease-in-out;
     height: 9px;
     width: 0.5px;
     margin: 3px 0 3px 16px;
