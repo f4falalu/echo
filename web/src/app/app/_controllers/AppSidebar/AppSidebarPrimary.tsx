@@ -185,7 +185,9 @@ export const AppSidebarPrimary: React.FC<
           onToggleSupportModal();
         }
       }
-    ].filter((item) => item.show !== false);
+    ]
+      .filter((item) => item.show !== false)
+      .map((item) => ({ ...item, show: undefined }));
   }, [isAdmin]);
 
   return (
