@@ -24,6 +24,7 @@ export type BusterChatMessage_text = {
   type: 'text';
   message: string;
   message_chunk: string;
+  hidden?: boolean;
 };
 
 export type BusterChatMessage_thoughtPill = {

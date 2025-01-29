@@ -1,6 +1,6 @@
 import { BusterChatMessage_thought } from '@/api/buster_socket/chats';
 import React from 'react';
-import { ChatResponseMessageProps } from '../ChatResponseMessages';
+import { ChatResponseMessageProps } from '../ChatResponseMessageSelector';
 import { AnimatePresence, motion } from 'framer-motion';
 import { animationConfig } from '../animationConfig';
 import { Text } from '@/components/text';

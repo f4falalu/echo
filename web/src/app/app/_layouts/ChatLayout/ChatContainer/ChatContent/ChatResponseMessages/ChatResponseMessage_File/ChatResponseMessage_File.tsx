@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ChatResponseMessageProps } from '../ChatResponseMessages';
+import { ChatResponseMessageProps } from '../ChatResponseMessageSelector';
 import { createStyles } from 'antd-style';
 import type {
   BusterChatMessage_file,
@@ -130,6 +130,12 @@ const useStyles = createStyles(({ token, css }) => ({
     }
 
     .thought-card + & {
+      .vertical-divider.top-line {
+        display: none;
+      }
+    }
+
+    .hidden-card + & {
       .vertical-divider.top-line {
         display: none;
       }

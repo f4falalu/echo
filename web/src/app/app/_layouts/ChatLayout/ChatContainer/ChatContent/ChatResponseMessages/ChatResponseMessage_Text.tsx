@@ -2,7 +2,7 @@ import { BusterChatMessage_text } from '@/api/buster_socket/chats';
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { animationConfig } from './animationConfig';
-import { ChatResponseMessageProps } from './ChatResponseMessages';
+import { ChatResponseMessageProps } from './ChatResponseMessageSelector';
 import { createStyles } from 'antd-style';
 
 export const ChatResponseMessage_Text: React.FC<ChatResponseMessageProps> = React.memo(
@@ -47,8 +47,8 @@ ChatResponseMessage_Text.displayName = 'ChatResponseMessage_Text';
 
 const useStyles = createStyles(({ token, css }) => ({
   textCard: css`
-    &.text-card:has(+ .thought-card) {
-      margin-bottom: 14px;
-    }
+    //  &.text-card:has(+ .thought-card) {
+    margin-bottom: 14px;
+    //  }
   `
 }));
