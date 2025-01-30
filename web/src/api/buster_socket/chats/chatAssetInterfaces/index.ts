@@ -3,7 +3,7 @@ import type { BusterDashboardAsset } from './chatAssetDashboardInterfaces';
 import type { BusterDatasetAsset } from './chatAssetDatasetInterfaces';
 import type { BusterTermAsset } from './chatAssetTermInterfaces';
 import type { BusterValueAsset } from './chatAssetValueInterfaces';
-import { BusterMetricAsset } from '@/api/buster_rest/metric';
+import type { BusterMetricAsset } from '@/api/asset_interfaces';
 export * from '../../share/shareInterfaces';
 
 export type BusterChatAsset =
