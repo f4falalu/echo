@@ -2,9 +2,8 @@ export const NUMBER_OF_COLUMNS = 12;
 export const MIN_NUMBER_OF_COLUMNS = 3;
 export const MAX_NUMBER_OF_COLUMNS = 12;
 export const MAX_NUMBER_OF_ITEMS = 4;
-
 export const MIN_ROW_HEIGHT = 320;
-export const MAX_HEIGHT_OF_ITEM = 550;
+export const MAX_ROW_HEIGHT = 550;
 export const HEIGHT_OF_DROPZONE = 100;
 export const SASH_SIZE = 12;
 

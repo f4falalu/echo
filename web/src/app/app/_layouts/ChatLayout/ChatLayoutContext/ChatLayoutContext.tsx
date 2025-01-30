@@ -12,15 +12,18 @@ import { createChatAssetRoute, createFileRoute } from './helpers';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { DEFAULT_CHAT_OPTION } from './config';
 import { useAutoSetLayout } from '../hooks';
+import { useChatFileLayout } from './useChatFileLayout';
 
 interface UseChatSplitterProps {
   defaultSelectedLayout: ChatSplitterProps['defaultSelectedLayout'];
+  defaultSelectedFile: ChatSplitterProps['defaultSelectedFile'];
   appSplitterRef: React.RefObject<AppSplitterRef>;
   chatId: string | undefined;
 }
 
 export const useChatLayout = ({
   defaultSelectedLayout,
+  defaultSelectedFile,
   appSplitterRef,
   chatId
 }: UseChatSplitterProps) => {
@@ -73,7 +76,13 @@ export const useChatLayout = ({
     defaultSelectedLayout
   });
 
+  const fileLayoutContext = useChatFileLayout({
+    selectedFileId: defaultSelectedFile?.id,
+    selectedFileType: defaultSelectedFile?.type
+  });
+
   return {
+    ...fileLayoutContext,
     isPureFile,
     isPureChat,
     onSetSelectedFile,

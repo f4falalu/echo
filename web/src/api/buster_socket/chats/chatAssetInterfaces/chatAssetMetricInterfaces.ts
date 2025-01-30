@@ -25,6 +25,14 @@ export type BusterMetricAsset = {
   sent_by_name: string;
   sent_by_avatar_url: string | null;
   draft_session_id: string | null; //DO WE NEED THIS?
+  dashboards: {
+    id: string;
+    name: string;
+  }[];
+  collections: {
+    id: string;
+    name: string;
+  }[];
 };
 
 enum BusterVerificationStatus {

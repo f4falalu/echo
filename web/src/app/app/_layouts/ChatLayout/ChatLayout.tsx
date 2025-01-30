@@ -28,7 +28,8 @@ export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(
     const useChatSplitterProps = useChatLayout({
       appSplitterRef,
       defaultSelectedLayout,
-      chatId
+      chatId,
+      defaultSelectedFile
     });
 
     const useChatContextValue = useChatContext({ chatId, defaultSelectedFile });

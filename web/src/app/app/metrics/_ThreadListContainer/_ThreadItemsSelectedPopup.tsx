@@ -8,7 +8,7 @@ import { useBusterThreadsContextSelector } from '@/context/Threads';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useCollectionsContextSelector } from '@/context/Collections';
 import { useMemoizedFn, useMount } from 'ahooks';
-import { SaveToCollectionsDropdown } from '@appComponents/Buttons/SaveToCollectionsDropdown';
+import { SaveToCollectionsDropdown } from '@/app/app/_components/Dropdowns/SaveToCollectionsDropdown';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 
 export const ThreadSelectedOptionPopup: React.FC<{

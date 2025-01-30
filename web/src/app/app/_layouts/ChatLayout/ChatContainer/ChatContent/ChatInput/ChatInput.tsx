@@ -20,7 +20,6 @@ export const ChatInput: React.FC = React.memo(() => {
 
   const onSubmit = useMemoizedFn(async () => {
     if (disableSendButton) return;
-    console.log('submit');
   });
 
   const disableSubmit = !inputHasText(inputValue);

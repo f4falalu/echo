@@ -1,5 +1,5 @@
 import { AppMaterialIcons } from '@/components';
-import { SaveToCollectionsDropdown } from '@appComponents/Buttons/SaveToCollectionsDropdown';
+import { SaveToCollectionsDropdown } from '@/app/app/_components/Dropdowns/SaveToCollectionsDropdown';
 import { useCollectionsContextSelector } from '@/context/Collections';
 import { useBusterThreadsContextSelector } from '@/context/Threads';
 import { IBusterThread } from '@/context/Threads/interfaces';

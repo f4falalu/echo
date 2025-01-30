@@ -12,3 +12,12 @@ export type BusterChatAsset =
   | BusterDatasetAsset
   | BusterTermAsset
   | BusterValueAsset;
+
+export {
+  BusterCollectionAsset,
+  BusterDashboardAsset,
+  BusterDatasetAsset,
+  BusterMetricAsset,
+  BusterTermAsset,
+  BusterValueAsset
+};

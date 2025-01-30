@@ -7,6 +7,7 @@ import { BarChartSortAscIcon } from './customIcons/BarChartSortAscIcon';
 import { LineChartAreaChartIcon } from './customIcons/LineChart_AreaChart';
 import { LineChartDotLineIcon } from './customIcons/LineChart_DotLine';
 import { KeepIcon } from './customIcons/KeepIcon';
+import { EditChartIcon } from './customIcons/EditChart';
 
 //https://react-material-symbols.vercel.app/?path=/docs/outlined--docs
 
@@ -24,7 +25,8 @@ const CustomIcons: Record<
   bar_sort_none: BarChartSortNoneIcon,
   line_chart_area: LineChartAreaChartIcon,
   line_chart_dot_line: LineChartDotLineIcon,
-  keep: KeepIcon
+  keep: KeepIcon,
+  chart_edit: EditChartIcon
 };
 
 type AppMaterialIconProps = Omit<MaterialSymbolProps, 'icon'> & {

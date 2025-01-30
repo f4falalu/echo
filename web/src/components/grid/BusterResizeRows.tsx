@@ -5,7 +5,7 @@ import { BusterResizeableGridRow } from './interfaces';
 import { BusterResizeColumns } from './BusterResizeColumns';
 import classNames from 'classnames';
 import { BusterNewItemDropzone } from './_BusterBusterNewItemDropzone';
-import { MAX_HEIGHT_OF_ITEM, MIN_ROW_HEIGHT, TOP_SASH_ID, NEW_ROW_ID } from './config';
+import { MIN_ROW_HEIGHT, TOP_SASH_ID, NEW_ROW_ID, MAX_ROW_HEIGHT } from './config';
 import { createStyles } from 'antd-style';
 import clamp from 'lodash/clamp';
 import { useDebounceFn, useMemoizedFn, useUpdateLayoutEffect } from 'ahooks';
@@ -192,7 +192,7 @@ const ResizeRowHandle: React.FC<{
 
       function onMouseMove(mouseMoveEvent: MouseEvent) {
         const newSize = sizes[index!] + (mouseMoveEvent.pageY - startPosition);
-        const clampedSize = clamp(newSize, MIN_ROW_HEIGHT, MAX_HEIGHT_OF_ITEM);
+        const clampedSize = clamp(newSize, MIN_ROW_HEIGHT, MAX_ROW_HEIGHT);
         onResize(index!, clampedSize);
       }
       function onMouseUp() {

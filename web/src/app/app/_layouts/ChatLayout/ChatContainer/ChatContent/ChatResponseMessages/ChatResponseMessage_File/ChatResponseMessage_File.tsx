@@ -10,7 +10,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { itemAnimationConfig } from '../animationConfig';
 import { useMemoizedFn } from 'ahooks';
 import { StatusIndicator } from '../StatusIndicator';
-
 import { useChatLayoutContextSelector } from '../../../../ChatLayoutContext';
 import { useChatContextSelector } from '../../../../ChatContext';
 
