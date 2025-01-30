@@ -23,10 +23,6 @@ const options: Partial<PostHogConfig> = {
   api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
   person_profiles: 'always',
   session_recording: {
-    maskAllInputs: false,
-    maskInputOptions: {
-      password: true
-    },
     recordBody: true
   }
 };
