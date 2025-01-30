@@ -14,6 +14,10 @@ pub struct SendToUserTool;
 
 #[async_trait]
 impl ToolExecutor for SendToUserTool {
+    fn get_name(&self) -> String {
+        "send_to_user".to_string()
+    }
+
     async fn execute(&self, tool_call: &ToolCall) -> Result<Value> {
         let params: SendToUserParams = serde_json::from_str(&tool_call.function.arguments.clone())?;
         // TODO: Implement actual send to user logic

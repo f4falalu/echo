@@ -14,6 +14,10 @@ pub struct SearchFilesTool;
 
 #[async_trait]
 impl ToolExecutor for SearchFilesTool {
+    fn get_name(&self) -> String {
+        "search_files".to_string()
+    }
+
     async fn execute(&self, tool_call: &ToolCall) -> Result<Value> {
         let params: SearchFilesParams = serde_json::from_str(&tool_call.function.arguments.clone())?;
         // TODO: Implement actual file search logic

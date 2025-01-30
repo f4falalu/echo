@@ -14,6 +14,10 @@ pub struct OpenFilesTool;
 
 #[async_trait]
 impl ToolExecutor for OpenFilesTool {
+    fn get_name(&self) -> String {
+        "open_files".to_string()
+    }
+
     async fn execute(&self, tool_call: &ToolCall) -> Result<Value> {
         let params: OpenFilesParams = serde_json::from_str(&tool_call.function.arguments.clone())?;
         // TODO: Implement actual file opening logic

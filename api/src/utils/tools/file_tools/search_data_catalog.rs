@@ -26,6 +26,10 @@ pub struct SearchDataCatalogTool;
 
 #[async_trait]
 impl ToolExecutor for SearchDataCatalogTool {
+    fn get_name(&self) -> String {
+        "search_data_catalog".to_string()
+    }
+
     async fn execute(&self, tool_call: &ToolCall) -> Result<Value> {
         let params: SearchDataCatalogParams = serde_json::from_str(&tool_call.function.arguments.clone())?;
         // TODO: Implement actual data catalog search logic
