@@ -1,5 +1,6 @@
 import type { BusterDashboardMetric } from '../../../buster_rest/dashboards';
 import type { DashboardConfig } from '../../dashboards';
+import { BusterShare } from '../../share/shareInterfaces';
 
 export type BusterDashboardAsset = {
   id: string;
@@ -13,4 +14,4 @@ export type BusterDashboardAsset = {
   title: string;
   updated_at: string | null;
   updated_by: string;
-};
+} & BusterShare;

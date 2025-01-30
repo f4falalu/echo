@@ -6,6 +6,7 @@ import {
 } from '@fluentui/react-context-selector';
 import { useBusterChatIndividual } from '@/context/Chats';
 import type { SelectedFile } from '../interfaces';
+import { useChatAsset } from './useChatAsset';
 
 export const useChatContext = ({
   chatId,
@@ -26,6 +27,11 @@ export const useChatContext = ({
 
   //FILE
   const hasFile = !!defaultSelectedFile?.id;
+
+  const chatAssetContext = useChatAsset({
+    selectedFileId,
+    selectedFileType
+  });
 
   return {
     hasFile,

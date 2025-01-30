@@ -14,7 +14,7 @@ import { BusterRoutes } from '@/routes';
 import { useBusterThreadsContextSelector } from '@/context/Threads';
 import { AppMaterialIcons, EditableTitle } from '@/components';
 import { FavoriteStar } from '../../_components/Lists/FavoriteStar';
-import { ShareMenu } from '../../_components/ShareMenu';
+import { ShareMenu } from '../../_components/ShareMenu_old';
 import { BusterCollection } from '@/api/buster_rest/collection';
 import { BusterShareAssetType } from '@/api/buster_rest';
 import { Text } from '@/components';

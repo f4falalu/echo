@@ -70,36 +70,6 @@ export const useBusterChat = () => {
     // });
   });
 
-  const getChatAsset = useMemoizedFn(
-    ({
-      chatId: chat_id,
-      assetId: asset_id,
-      type,
-      versionId: version_id
-    }: {
-      chatId?: string;
-      assetId: string;
-      type: FileType;
-      versionId?: string;
-    }) => {
-      return busterSocket.emitAndOnce({
-        emitEvent: {
-          route: '/chats/get/asset',
-          payload: {
-            type,
-            chat_id,
-            asset_id,
-            version_id
-          }
-        },
-        responseEvent: {
-          route: '/chats/get:getChatAsset',
-          callback: _onGetChatAsset
-        }
-      });
-    }
-  );
-
   useHotkeys('t', () => {
     const chatId = Object.keys(chatsRef.current)[0];
     if (chatId) {
@@ -190,8 +160,7 @@ export const useBusterChat = () => {
   return {
     chats: chatsRef.current,
     unsubscribeFromChat,
-    subscribeToChat,
-    getChatAsset
+    subscribeToChat
   };
 };
 

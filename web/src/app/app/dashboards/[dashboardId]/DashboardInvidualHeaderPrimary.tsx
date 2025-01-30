@@ -12,7 +12,7 @@ import { useBusterThreadsContextSelector } from '@/context/Threads';
 import { FavoriteStar } from '../../_components/Lists/FavoriteStar';
 import { AppMaterialIcons } from '@/components';
 import { BusterDashboard, BusterDashboardResponse, BusterShareAssetType } from '@/api/buster_rest';
-import { ShareMenu } from '../../_components/ShareMenu';
+import { ShareMenu } from '../../_components/ShareMenu_old';
 import { timeout } from '@/utils';
 import { AddTypeModal } from '../../_components/AddTypeModal';
 import { useCollectionsContextSelector } from '@/context/Collections';

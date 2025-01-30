@@ -29,7 +29,7 @@ import { useDisableSaveChanges } from './useDisableSaveChanges';
 import { useCollectionsContextSelector } from '@/context/Collections';
 import { exportJSONToCSV } from '@/utils/exportUtils';
 import { ShareRole } from '@/api/buster_socket/threads';
-import { ShareMenu } from '@/app/app/_components/ShareMenu';
+import { ShareMenu } from '@/app/app/_components/ShareMenu_old';
 import { FavoriteStar } from '@/app/app/_components/Lists/FavoriteStar';
 import { StatusBadgeButton } from '@/app/app/_components/Lists';
 import { SaveToCollectionsButton } from './SaveToCollectionButton';

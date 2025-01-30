@@ -1,4 +1,4 @@
-import type { BusterSocketRequestBase } from '../baseInterfaces';
+import type { BusterSocketRequestBase } from '../base_interfaces';
 import type { FileType } from './config';
 
 export type ChatCreateNewChat = BusterSocketRequestBase<
@@ -16,11 +16,6 @@ export type ChatCreateNewChat = BusterSocketRequestBase<
 export type ChatGetChat = BusterSocketRequestBase<'/chats/get', { id: string }>;
 
 export type ChatUnsubscribeFromChat = BusterSocketRequestBase<'/chats/unsubscribe', { id: string }>;
-
-export type ChatGetChatAsset = BusterSocketRequestBase<
-  '/chats/get/asset',
-  { chat_id?: string; asset_id: string; type: FileType; version_id?: string }
->;
 
 export type ChatListEmitPayload = BusterSocketRequestBase<
   '/chats/list',
@@ -53,7 +48,6 @@ export type ChatEmits =
   | ChatCreateNewChat
   | ChatGetChat
   | ChatUnsubscribeFromChat
-  | ChatGetChatAsset
   | ChatListEmitPayload
   | ChatDeleteChat
   | ChatUpdateChat

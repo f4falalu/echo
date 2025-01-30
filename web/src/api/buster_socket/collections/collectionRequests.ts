@@ -1,5 +1,5 @@
 import { BusterShareAssetType } from '@/api/buster_rest';
-import { BusterSocketRequestBase } from '../baseInterfaces';
+import { BusterSocketRequestBase } from '../base_interfaces';
 import { ShareRequest } from '../dashboards';
 
 export type CollectionsListEmit = BusterSocketRequestBase<

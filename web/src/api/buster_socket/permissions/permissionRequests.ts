@@ -1,5 +1,5 @@
 import { BusterOrganizationRole } from '@/api/buster_rest';
-import { BusterSocketRequestBase } from '../baseInterfaces';
+import { BusterSocketRequestBase } from '../base_interfaces';
 import { BusterPermissionUser } from '@/api/buster_rest/permissions';
 
 export type PermissionsListUsersRequest = BusterSocketRequestBase<

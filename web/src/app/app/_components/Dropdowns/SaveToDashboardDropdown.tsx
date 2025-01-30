@@ -8,7 +8,7 @@ import { Button } from 'antd';
 import { AppDropdownSelect } from '@/components/dropdown';
 import { AppTooltip } from '@/components/tooltip';
 import { AppMaterialIcons } from '@/components/icons';
-import type { BusterMetricAsset } from '@/api/buster_socket/chats';
+import type { BusterMetricAsset } from '@/api/buster_rest/metric';
 import type { BusterDashboardListItem } from '@/api/buster_rest/dashboards';
 
 export const SaveToDashboardDropdown: React.FC<{

@@ -1,4 +1,4 @@
-import { BusterSocketRequestBase } from '../baseInterfaces';
+import { BusterSocketRequestBase } from '../base_interfaces';
 
 export type TermsListRequest = BusterSocketRequestBase<
   '/terms/list',

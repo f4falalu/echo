@@ -5,7 +5,7 @@ import React from 'react';
 import { SaveToDashboardDropdown } from '../Dropdowns/SaveToDashboardDropdown';
 import { Button } from 'antd';
 import { AppMaterialIcons } from '@/components/icons';
-import { BusterMetricAsset } from '@/api/buster_socket/chats';
+import { BusterMetricAsset } from '@/api/buster_rest/metric';
 
 const EMPTY_SELECTED_DASHBOARDS: BusterMetricAsset['dashboards'] = [];
 

@@ -1,4 +1,5 @@
 import type { BusterChartConfigProps } from '@/components/charts';
+import { BusterShare } from '../../buster_socket/share/shareInterfaces';
 
 export type BusterMetricAsset = {
   id: string;
@@ -33,7 +34,7 @@ export type BusterMetricAsset = {
     id: string;
     name: string;
   }[];
-};
+} & BusterShare;
 
 enum BusterVerificationStatus {
   notRequested = 'notRequested',

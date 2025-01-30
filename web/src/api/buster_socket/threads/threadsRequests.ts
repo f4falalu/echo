@@ -1,5 +1,5 @@
 import { BusterChartConfigProps } from '@/components/charts';
-import { BusterSocketRequestBase } from '../baseInterfaces';
+import { BusterSocketRequestBase } from '../base_interfaces';
 import { ShareRequest } from '../dashboards';
 import type { BusterVerificationStatus } from '@/api/buster_rest';
 
