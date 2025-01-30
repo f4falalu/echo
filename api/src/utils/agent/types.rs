@@ -11,3 +11,12 @@ pub struct AgentThread {
     /// Ordered sequence of messages in the conversation
     pub messages: Vec<Message>,
 }
+
+impl AgentThread {
+    pub fn new(id: Option<String>, messages: Vec<Message>) -> Self {
+        Self {
+            id: id.unwrap_or(uuid::Uuid::new_v4().to_string()),
+            messages,
+        }
+    }
+}

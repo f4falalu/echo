@@ -4,19 +4,19 @@ use serde_json::Value;
 
 use crate::utils::clients::ai::litellm::ToolCall;
 
-mod search_files;
-mod create_files;
-mod bulk_modify_files;
-mod search_data_catalog;
-mod open_files;
-mod send_to_user;
+// mod bulk_modify_files;
+// mod create_files;
+// mod open_files;
+// mod search_data_catalog;
+// mod search_files;
+// mod send_to_user;
 
-pub use search_files::SearchFilesTool;
-pub use create_files::CreateFilesTool;
-pub use bulk_modify_files::BulkModifyFilesTool;
-pub use search_data_catalog::SearchDataCatalogTool;
-pub use open_files::OpenFilesTool;
-pub use send_to_user::SendToUserTool;
+// pub use bulk_modify_files::BulkModifyFilesTool;
+// pub use create_files::CreateFilesTool;
+// pub use open_files::OpenFilesTool;
+// pub use search_data_catalog::SearchDataCatalogTool;
+// pub use search_files::SearchFilesTool;
+// pub use send_to_user::SendToUserTool;
 
 /// A trait that defines how tools should be implemented.
 /// Any struct that wants to be used as a tool must implement this trait.
@@ -27,4 +27,17 @@ pub trait ToolExecutor: Send + Sync {
 
     /// Return the JSON schema that describes this tool's interface
     fn get_schema(&self) -> serde_json::Value;
+
+    /// Return the name of the tool
+    fn get_name(&self) -> String;
+}
+
+trait IntoBoxedTool {
+    fn boxed(self) -> Box<dyn ToolExecutor>;
+}
+
+impl<T: ToolExecutor + 'static> IntoBoxedTool for T {
+    fn boxed(self) -> Box<dyn ToolExecutor> {
+        Box::new(self)
+    }
 }

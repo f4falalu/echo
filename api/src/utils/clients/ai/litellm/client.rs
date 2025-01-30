@@ -61,6 +61,9 @@ impl LiteLLMClient {
             .await?
             .json::<ChatCompletionResponse>()
             .await?;
+
+        println!("Response: {:?}", response);
+
         Ok(response)
     }
 
@@ -133,6 +136,20 @@ mod tests {
     use std::env;
     use std::time::Duration;
     use tokio::time::timeout;
+
+    use dotenv::dotenv;
+
+    // Helper function to initialize environment before tests
+    async fn setup() -> (String, String) {
+        // Load environment variables from .env file
+        dotenv().ok();
+
+        // Get API key and base URL from environment
+        let api_key = env::var("LLM_API_KEY").expect("LLM_API_KEY must be set");
+        let base_url = env::var("LLM_BASE_URL").expect("LLM_API_BASE must be set");
+
+        (api_key, base_url)
+    }
 
     fn create_test_message() -> Message {
         Message::user("Hello".to_string())
@@ -329,12 +346,20 @@ mod tests {
 
         let response = client.chat_completion(request).await.unwrap();
         assert_eq!(response.id, "test-id");
-        if let Message::Assistant { content, tool_calls, .. } = &response.choices[0].message {
+        if let Message::Assistant {
+            content,
+            tool_calls,
+            ..
+        } = &response.choices[0].message
+        {
             assert!(content.is_none());
             let tool_calls = tool_calls.as_ref().unwrap();
             assert_eq!(tool_calls[0].id, "call_123");
             assert_eq!(tool_calls[0].function.name, "get_current_weather");
-            assert_eq!(tool_calls[0].function.arguments, "{\"location\":\"Boston, MA\"}");
+            assert_eq!(
+                tool_calls[0].function.arguments,
+                "{\"location\":\"Boston, MA\"}"
+            );
         } else {
             panic!("Expected assistant message");
         }
@@ -367,5 +392,24 @@ mod tests {
 
         env::remove_var("LLM_API_KEY");
         env::remove_var("LLM_BASE_URL");
+    }
+
+    #[tokio::test]
+    async fn test_single_message_completion() {
+        let (api_key, base_url) = setup().await;
+        let client = LiteLLMClient::new(Some(api_key), Some(base_url));
+
+        let request = ChatCompletionRequest {
+            model: "o1".to_string(),
+            messages: vec![Message::user("Hello, world!".to_string())],
+            ..Default::default()
+        };
+
+        let response = match client.chat_completion(request).await {
+            Ok(response) => response,
+            Err(e) => panic!("Error processing thread: {:?}", e),
+        };
+
+        assert!(response.choices.len() > 0);
     }
 }
