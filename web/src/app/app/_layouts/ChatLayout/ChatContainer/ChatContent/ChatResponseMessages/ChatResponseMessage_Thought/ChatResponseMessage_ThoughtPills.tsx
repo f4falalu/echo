@@ -47,7 +47,7 @@ export const PillContainer: React.FC<{
   pills: BusterChatMessage_thought['thought_pills'];
   isCompletedStream: boolean;
 }> = React.memo(({ pills = [], isCompletedStream }) => {
-  const { styles, cx } = useStyles();
+  const { cx } = useStyles();
   const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
   const [visiblePills, setVisiblePills] = useState<BusterChatMessage_thoughtPill[]>([]);
   const [hiddenCount, setHiddenCount] = useState(0);
@@ -58,7 +58,8 @@ export const PillContainer: React.FC<{
   const size = useSize(containerRef);
   const thoughtContainerWidth = size?.width;
   const debouncedWidth = useDebounce(thoughtContainerWidth, {
-    wait: 150,
+    wait: 25,
+    maxWait: 75,
     leading: true
   });
 

@@ -154,15 +154,7 @@ export const AppSidebarPrimary: React.FC<
     return [
       {
         key: 'invite-people',
-        label: (
-          <AppTooltip
-            title={'Invite team members'}
-            align={{ offset: [8, 0] }}
-            shortcuts={['I', 'P']}
-            placement="right">
-            <div className="h-full w-full">Invite people</div>
-          </AppTooltip>
-        ),
+        label: <div className="h-full w-full">Invite people</div>,
         icon: <AppMaterialIcons icon="add" />,
         onClick: () => {
           onToggleInviteModal();
@@ -171,15 +163,7 @@ export const AppSidebarPrimary: React.FC<
       },
       {
         key: 'support',
-        label: (
-          <AppTooltip
-            title={'Support'}
-            align={{ offset: [8, 0] }}
-            shortcuts={['S']}
-            placement="right">
-            <div className="h-full w-full">Leave feedback</div>
-          </AppTooltip>
-        ),
+        label: <div className="h-full w-full">Leave feedback</div>,
         icon: <AppMaterialIcons icon="flag" />,
         onClick: () => {
           onToggleSupportModal();

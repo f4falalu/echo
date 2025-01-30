@@ -9,7 +9,6 @@ export interface ChatResponseMessageProps {
   responseMessage: BusterChatMessageResponse;
   isCompletedStream: boolean;
   isLastMessageItem: boolean;
-  isSelectedFile: boolean;
 }
 
 const ChatResponseMessageRecord: Record<
@@ -25,21 +24,18 @@ export interface ChatResponseMessageSelectorProps {
   responseMessage: BusterChatMessageResponse | BusterChatMessageResponse[];
   isCompletedStream: boolean;
   isLastMessageItem: boolean;
-  selectedFileId: string | undefined;
 }
 
 export const ChatResponseMessageSelector: React.FC<ChatResponseMessageSelectorProps> = ({
   responseMessage,
   isCompletedStream,
-  isLastMessageItem,
-  selectedFileId
+  isLastMessageItem
 }) => {
   if (Array.isArray(responseMessage)) {
     return (
       <ChatResponseMessageHidden
         hiddenItems={responseMessage}
         isCompletedStream={isCompletedStream}
-        selectedFileId={selectedFileId}
       />
     );
   }
@@ -50,7 +46,6 @@ export const ChatResponseMessageSelector: React.FC<ChatResponseMessageSelectorPr
       responseMessage={responseMessage}
       isCompletedStream={isCompletedStream}
       isLastMessageItem={isLastMessageItem}
-      isSelectedFile={responseMessage.id === selectedFileId}
     />
   );
 };

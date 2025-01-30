@@ -2,11 +2,9 @@ import { useUpdateLayoutEffect } from 'ahooks';
 import { useState } from 'react';
 
 export const useAutoSetLayout = ({
-  defaultSelectedLayout,
-  selectedLayout
+  defaultSelectedLayout
 }: {
   defaultSelectedLayout: 'chat' | 'file' | 'both' | undefined;
-  selectedLayout: 'chat' | 'file' | 'both' | undefined;
 }): {
   isPureFile: boolean;
   isPureChat: boolean;
@@ -16,9 +14,9 @@ export const useAutoSetLayout = ({
   const [isPureChat, setIsPureChat] = useState(defaultSelectedLayout === 'chat');
 
   useUpdateLayoutEffect(() => {
-    if (isPureFile === true) setIsPureFile(selectedLayout === 'file');
-    if (isPureChat === true) setIsPureChat(selectedLayout === 'chat');
-  }, [selectedLayout]);
+    if (isPureFile === true) setIsPureFile(defaultSelectedLayout === 'file');
+    if (isPureChat === true) setIsPureChat(defaultSelectedLayout === 'chat');
+  }, [defaultSelectedLayout]);
 
   return { isPureFile, isPureChat, setIsPureChat };
 };

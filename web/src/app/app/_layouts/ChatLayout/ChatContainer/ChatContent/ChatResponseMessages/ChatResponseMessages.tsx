@@ -8,7 +8,6 @@ import { createStyles } from 'antd-style';
 
 interface ChatResponseMessagesProps {
   responseMessages: BusterChatMessageResponse[];
-  selectedFileId: string | undefined;
   isCompletedStream: boolean;
 }
 
@@ -27,7 +26,7 @@ const animationConfig = {
 };
 
 export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.memo(
-  ({ responseMessages: responseMessagesProp, isCompletedStream, selectedFileId }) => {
+  ({ responseMessages: responseMessagesProp, isCompletedStream }) => {
     const { styles, cx } = useStyles();
 
     const responseMessages: ResponseMessageWithHiddenClusters[] = useMemo(() => {
@@ -90,7 +89,6 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
                 responseMessage={responseMessage}
                 isCompletedStream={isCompletedStream}
                 isLastMessageItem={index === lastMessageIndex}
-                selectedFileId={selectedFileId}
               />
 
               <VerticalDivider />
@@ -102,10 +100,14 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
   }
 );
 
-const VerticalDivider: React.FC<{ className?: string }> = ({ className }) => {
+ChatResponseMessages.displayName = 'ChatResponseMessages';
+
+const VerticalDivider: React.FC<{ className?: string }> = React.memo(({ className }) => {
   const { cx, styles } = useStyles();
   return <div className={cx(styles.verticalDivider, 'vertical-divider', className)} />;
-};
+});
+
+VerticalDivider.displayName = 'VerticalDivider';
 
 const useStyles = createStyles(({ token, css }) => ({
   hiddenCard: css`

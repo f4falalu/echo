@@ -2,22 +2,23 @@ import React from 'react';
 import { useChatContextSelector } from '../../ChatContext';
 import { ChatMessageBlock } from './ChatMessageBlock';
 import { ChatInput } from './ChatInput';
+import { createStyles } from 'antd-style';
 
 export const ChatContent: React.FC<{ chatContentRef: React.RefObject<HTMLDivElement> }> =
   React.memo(({ chatContentRef }) => {
+    const { styles, cx } = useStyles();
     const chatMessages = useChatContextSelector((state) => state.chatMessages);
-    const selectedFileId = useChatContextSelector((x) => x.selectedFileId);
 
     return (
       <div className="flex h-full w-full flex-col overflow-hidden">
         <div ref={chatContentRef} className="h-full w-full overflow-y-auto">
-          <div className="mx-auto max-w-[600px] pb-8">
+          <div className="pb-8">
             {chatMessages?.map((message) => (
-              <ChatMessageBlock
-                key={message.id}
-                message={message}
-                selectedFileId={selectedFileId}
-              />
+              <div key={message.id} className={styles.messageBlock}>
+                <div className="mx-auto max-w-[600px]">
+                  <ChatMessageBlock key={message.id} message={message} />
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -27,3 +28,11 @@ export const ChatContent: React.FC<{ chatContentRef: React.RefObject<HTMLDivElem
   });
 
 ChatContent.displayName = 'ChatContent';
+
+const useStyles = createStyles(({ token, css }) => ({
+  messageBlock: css`
+    &:hover {
+      background-color: ${token.controlItemBgHover};
+    }
+  `
+}));

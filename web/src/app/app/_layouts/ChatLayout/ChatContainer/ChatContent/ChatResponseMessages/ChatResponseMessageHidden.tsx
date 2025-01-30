@@ -34,8 +34,7 @@ const messageAnimationConfig = {
 export const ChatResponseMessageHidden: React.FC<{
   hiddenItems: BusterChatMessageResponse[];
   isCompletedStream: boolean;
-  selectedFileId: string | undefined;
-}> = React.memo(({ hiddenItems, isCompletedStream, selectedFileId }) => {
+}> = React.memo(({ hiddenItems, isCompletedStream }) => {
   const { styles, cx } = useStyles();
   const [isHidden, setIsHidden] = useState(true);
 
@@ -55,7 +54,6 @@ export const ChatResponseMessageHidden: React.FC<{
                 responseMessage={item}
                 isCompletedStream={isCompletedStream}
                 isLastMessageItem={false}
-                selectedFileId={selectedFileId}
               />
             ))}
           </motion.div>

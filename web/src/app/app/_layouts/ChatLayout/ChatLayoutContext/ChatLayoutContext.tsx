@@ -3,10 +3,10 @@ import {
   createContext,
   useContextSelector
 } from '@fluentui/react-context-selector';
-import React, { PropsWithChildren, useMemo, useTransition } from 'react';
+import React, { PropsWithChildren, useTransition } from 'react';
 import type { SelectedFile } from '../interfaces';
 import type { ChatSplitterProps } from '../ChatLayout';
-import { useMemoizedFn, useSize } from 'ahooks';
+import { useMemoizedFn } from 'ahooks';
 import type { AppSplitterRef } from '@/components/layout';
 import { createChatAssetRoute, createFileRoute } from './helpers';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
@@ -14,18 +14,14 @@ import { DEFAULT_CHAT_OPTION } from './config';
 import { useAutoSetLayout } from '../hooks';
 
 interface UseChatSplitterProps {
-  defaultSelectedFile: SelectedFile | undefined;
   defaultSelectedLayout: ChatSplitterProps['defaultSelectedLayout'];
   appSplitterRef: React.RefObject<AppSplitterRef>;
-  chatContentRef: React.RefObject<HTMLDivElement>;
   chatId: string | undefined;
 }
 
 export const useChatLayout = ({
-  defaultSelectedFile,
   defaultSelectedLayout,
   appSplitterRef,
-  chatContentRef,
   chatId
 }: UseChatSplitterProps) => {
   const [isPending, startTransition] = useTransition();
@@ -74,12 +70,10 @@ export const useChatLayout = ({
   });
 
   const { setIsPureChat, isPureFile, isPureChat } = useAutoSetLayout({
-    defaultSelectedLayout,
-    selectedLayout
+    defaultSelectedLayout
   });
 
   return {
-    selectedLayout,
     isPureFile,
     isPureChat,
     onSetSelectedFile,
