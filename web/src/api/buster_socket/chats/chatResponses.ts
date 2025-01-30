@@ -1,5 +1,4 @@
 import type { RustApiError } from '../../buster_rest/errors';
-import type { BusterChatAsset } from './chatAssetInterfaces';
 import type { BusterChat, BusterChatListItem } from './chatInterfaces';
 
 export enum ChatsResponses {
@@ -29,12 +28,6 @@ export type Chat_getChat = {
   onError?: (d: unknown | RustApiError) => void;
 };
 
-export type Chat_getChatAsset = {
-  route: '/chats/get:getChatAsset';
-  callback: (d: BusterChatAsset) => void;
-  onError?: (d: unknown | RustApiError) => void;
-};
-
 /***** CHAT PROGRESS EVENTS START ******/
 
 export type ChatPost_initializeChat = {
@@ -55,6 +48,5 @@ export type ChatResponseTypes =
   | ChatList_getChatsList
   | Chat_unsubscribed
   | Chat_getChat
-  | Chat_getChatAsset
   | ChatPost_initializeChat
   | ChatPost_generatingTitle;

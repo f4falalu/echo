@@ -5,7 +5,7 @@ import {
   useContextSelector
 } from '@fluentui/react-context-selector';
 import { useBusterWebSocket } from '../BusterWebSocket';
-import type { BusterChatAsset, BusterChat, BusterChatMessage } from '@/api/buster_socket/chats';
+import type { BusterChat } from '@/api/buster_socket/chats';
 import { useMemoizedFn, useUnmount } from 'ahooks';
 import type { FileType } from '@/api/buster_socket/chats';
 import {
@@ -17,7 +17,6 @@ import {
 import { IBusterChat } from './interfaces';
 import { chatUpgrader } from './helpers';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { fi } from '@faker-js/faker';
 
 export const useBusterChat = () => {
   const busterSocket = useBusterWebSocket();
@@ -37,12 +36,6 @@ export const useBusterChat = () => {
       //just used to trigger UI update
     });
     return upgradedChat;
-  });
-
-  const _onGetChatAsset = useMemoizedFn((asset: BusterChatAsset) => {
-    const { id, type } = asset;
-    console.log('TODO: handle this. Put the asset in their respective chat');
-    return asset;
   });
 
   // EMITTERS
@@ -198,13 +191,3 @@ export const useBusterChatIndividual = ({ chatId: chatIdProp }: { chatId?: strin
     chat
   };
 };
-
-export const useBusterChatAssetIndividual = ({
-  chatId,
-  assetId,
-  type
-}: {
-  chatId: string;
-  assetId: string;
-  type: FileType;
-}) => {};
