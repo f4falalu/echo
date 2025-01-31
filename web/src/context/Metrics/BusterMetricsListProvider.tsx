@@ -2,123 +2,124 @@
 
 import React, { PropsWithChildren, useEffect, useMemo, useRef, useState } from 'react';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { VerificationStatus } from '@/api/asset_interfaces';
-import { BusterThreadListItem } from '@/api/buster_rest';
+import { BusterMetricListItem, VerificationStatus } from '@/api/asset_interfaces';
 import isEmpty from 'lodash/isEmpty';
 import { useBusterWebSocket } from '../BusterWebSocket';
 import { useParams } from 'next/navigation';
 import { BusterRoutes } from '@/routes';
 import { useMemoizedFn, useThrottleFn } from 'ahooks';
-import { threadsArrayToRecord } from './helpers';
-import { defaultBusterThreadListItem } from './config';
-import { useBusterThreadsContextSelector } from './BusterMetricsProvider';
+import { createFilterRecord, metricsArrayToRecord } from './helpers';
 import {
   createContext,
   useContextSelector,
   ContextSelector
 } from '@fluentui/react-context-selector';
+import { useBusterMetricsContextSelector } from './BusterMetricsProvider';
 
-const useThreadsList = () => {
-  const { threadId: openedThreadId } = useParams<{ threadId: string }>();
+const useMetricsList = () => {
+  const { metricId: openedMetricId } = useParams<{ metricId: string }>();
   const busterSocket = useBusterWebSocket();
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
-  const getThread = useBusterThreadsContextSelector((x) => x.getThreadNotLiveDataMethodOnly);
-  const onUpdateThread = useBusterThreadsContextSelector((x) => x.onUpdateThread);
+  const getMetric = useBusterMetricsContextSelector((x) => x.getMetricNotLiveDataMethodOnly);
+  const onUpdateMetric = useBusterMetricsContextSelector((x) => x.onUpdateMetric);
 
-  const [threadsList, setThreadsList] = useState<Record<string, BusterThreadListItem>>({});
-  const [threadListIds, setThreadListIds] = useState<Record<string, string[]>>({});
-  const loadedThreadList = useRef<
+  const [metricsList, setMetricsList] = useState<Record<string, BusterMetricListItem>>({});
+  const [metricListIds, setMetricListIds] = useState<Record<string, string[]>>({});
+  const loadedMetricList = useRef<
     Record<
-      string,
+      string, //filters
       {
         loading: boolean;
         fetched: boolean;
-        fetchedAt: number;
+        fetchedAt: number | null;
       }
     >
   >({});
 
-  const _onInitializeThreads = useMemoizedFn(
-    (threads: BusterThreadListItem[], filters: VerificationStatus[], admin_view: boolean) => {
-      const newThreads = threadsArrayToRecord(threads);
-      setThreadsList((prev) => ({
-        ...prev,
-        ...newThreads
-      }));
-      setThreadListIds((prev) => ({
-        ...prev,
-        [createFilterRecord({ filters, admin_view })]: Object.keys(newThreads)
-      }));
+  const _onInitializeMetrics = useMemoizedFn(
+    (metrics: BusterMetricListItem[], filters: VerificationStatus[], admin_view: boolean) => {
+      const newMetrics = metricsArrayToRecord(metrics);
+      const filterKey = createFilterRecord({ filters, admin_view });
 
-      loadedThreadList.current = {
-        ...loadedThreadList.current,
-        [createFilterRecord({ filters, admin_view })]: {
+      loadedMetricList.current = {
+        ...loadedMetricList.current,
+        [filterKey]: {
           loading: false,
           fetched: true,
           fetchedAt: Date.now()
         }
       };
+
+      setMetricsList((prev) => ({
+        ...prev,
+        ...newMetrics
+      }));
+
+      setMetricListIds((prev) => ({
+        ...prev,
+        [filterKey]: Object.keys(newMetrics)
+      }));
     }
   );
 
-  const onUpdateThreadListItem = useMemoizedFn((newThread: BusterThreadListItem) => {
-    setThreadsList((prevThreads) => {
-      const existingThread = prevThreads[newThread.id];
-      return {
-        ...prevThreads,
-        [newThread.id]: {
-          ...defaultBusterThreadListItem,
-          ...existingThread,
-          ...newThread
-        }
-      };
-    });
-  });
-
-  const removeItemFromThreadsList = useMemoizedFn(({ threadId }: { threadId: string }) => {
-    setThreadsList((prevThreads) => {
-      const newThreads = { ...prevThreads };
-      delete newThreads[threadId];
-      return newThreads;
-    });
-    setThreadListIds((prevThreadListIds) => {
-      const newThreadListIds = { ...prevThreadListIds };
-      Object.keys(newThreadListIds).forEach((key) => {
-        newThreadListIds[key] = newThreadListIds[key].filter((id) => id !== threadId);
+  const onUpdateMetricListItem = useMemoizedFn(
+    (newMetric: Partial<BusterMetricListItem> & { id: string }) => {
+      setMetricsList((prevMetrics) => {
+        return {
+          ...prevMetrics,
+          [newMetric.id]: {
+            ...prevMetrics[newMetric.id],
+            ...newMetric
+          }
+        };
       });
-      return newThreadListIds;
+    }
+  );
+
+  const removeItemFromMetricsList = useMemoizedFn(({ metricId }: { metricId: string }) => {
+    setMetricsList((prevMetrics) => {
+      const newMetrics = { ...prevMetrics };
+      delete newMetrics[metricId];
+      return newMetrics;
+    });
+    setMetricListIds((prevMetricListIds) => {
+      const newMetricListIds = { ...prevMetricListIds };
+      Object.keys(newMetricListIds).forEach((key) => {
+        newMetricListIds[key] = newMetricListIds[key].filter((id) => id !== metricId);
+      });
+      return newMetricListIds;
     });
   });
 
-  const onOpenThread = useMemoizedFn((threadId: string) => {
-    const thread = getThread({ threadId });
-    if (!thread) {
-      const threadListItem = threadsList[threadId]!;
-      onUpdateThread({
-        id: threadId,
-        title: threadListItem.title
+  const onOpenMetric = useMemoizedFn((metricId: string) => {
+    const metric = getMetric({ metricId });
+    if (!metric) {
+      const metricListItem = metricsList[metricId]!;
+      onUpdateMetric({
+        id: metricId,
+        title: metricListItem.title
       });
     }
     onChangePage({
-      route: BusterRoutes.APP_THREAD_ID,
-      threadId
+      route: BusterRoutes.APP_METRIC_ID,
+      metricId: metricId
     });
   });
 
-  const _getThreadsList = useMemoizedFn(
+  const _getMetricsList = useMemoizedFn(
     ({ filters, admin_view }: { admin_view: boolean; filters?: VerificationStatus[] }) => {
       const recordKey = createFilterRecord({ filters, admin_view });
 
-      if (loadedThreadList.current[recordKey]?.loading) {
+      if (loadedMetricList.current[recordKey]?.loading) {
         return;
       }
 
-      loadedThreadList.current = {
-        ...loadedThreadList.current,
+      loadedMetricList.current = {
+        ...loadedMetricList.current,
         [recordKey]: {
           loading: true,
-          fetched: loadedThreadList.current[recordKey]?.fetched || false,
-          fetchedAt: loadedThreadList.current[recordKey]?.fetchedAt || Date.now()
+          fetched: loadedMetricList.current[recordKey]?.fetched || false,
+          fetchedAt: loadedMetricList.current[recordKey]?.fetchedAt || null
         }
       };
 
@@ -126,92 +127,81 @@ const useThreadsList = () => {
 
       return busterSocket.emitAndOnce({
         emitEvent: {
-          route: '/threads/list',
+          route: '/metrics/list',
           payload: {
             page_token: 0,
-            page_size: 1000,
+            page_size: 3000, //TODO: make a pagination
             admin_view,
             filters: selectedFilters
           }
         },
         responseEvent: {
-          route: '/threads/list:getThreadsList',
-          callback: (v) => _onInitializeThreads(v, filters || [], admin_view)
+          route: '/metrics/list:getMetricList',
+          callback: (v) => _onInitializeMetrics(v, filters || [], admin_view)
         }
       });
     }
   );
 
-  const { run: getThreadsList } = useThrottleFn(_getThreadsList, { wait: 350, leading: true });
+  const { run: getMetricsList } = useThrottleFn(_getMetricsList, { wait: 350, leading: true });
 
   return {
-    threadListIds,
-    threadsList,
-    getThreadsList,
-    removeItemFromThreadsList,
-    openedThreadId,
-    onOpenThread,
-    onUpdateThreadListItem,
-    loadedThreadList
+    metricListIds,
+    metricsList,
+    getMetricsList,
+    removeItemFromMetricsList,
+    openedMetricId,
+    onOpenMetric,
+    onUpdateMetricListItem,
+    loadedMetricList
   };
 };
 
-const BusterThreadsList = createContext<ReturnType<typeof useThreadsList>>(
-  {} as ReturnType<typeof useThreadsList>
+const BusterMetricsList = createContext<ReturnType<typeof useMetricsList>>(
+  {} as ReturnType<typeof useMetricsList>
 );
 
-export const BusterThreadsListProvider: React.FC<PropsWithChildren> = React.memo(({ children }) => {
-  const threadsContext = useThreadsList();
+export const BusterMetricsListProvider: React.FC<PropsWithChildren> = React.memo(({ children }) => {
+  const metricsContext = useMetricsList();
 
-  return <BusterThreadsList.Provider value={threadsContext}>{children}</BusterThreadsList.Provider>;
+  return <BusterMetricsList.Provider value={metricsContext}>{children}</BusterMetricsList.Provider>;
 });
-BusterThreadsListProvider.displayName = 'BusterThreadsListProvider';
+BusterMetricsListProvider.displayName = 'BusterMetricsListProvider';
 
-export const useBusterThreadsListContextSelector = <T,>(
-  selector: ContextSelector<ReturnType<typeof useThreadsList>, T>
+export const useBusterMetricsListContextSelector = <T,>(
+  selector: ContextSelector<ReturnType<typeof useMetricsList>, T>
 ) => {
-  return useContextSelector(BusterThreadsList, selector);
+  return useContextSelector(BusterMetricsList, selector);
 };
 
-export const useBusterThreadListByFilter = (params: {
+export const useBusterMetricListByFilter = (params: {
   filters: VerificationStatus[];
   admin_view: boolean;
 }) => {
   const filterRecord = useMemo(() => createFilterRecord(params), [params]);
-  const threadListIds = useBusterThreadsListContextSelector((x) => x.threadListIds);
-  const threadsList = useBusterThreadsListContextSelector((x) => x.threadsList);
-  const allThreadListLoadingStatus = useBusterThreadsListContextSelector(
-    (x) => x.loadedThreadList.current
+  const metricListIds = useBusterMetricsListContextSelector((x) => x.metricListIds);
+  const metricsList = useBusterMetricsListContextSelector((x) => x.metricsList);
+  const allMetricListLoadingStatus = useBusterMetricsListContextSelector(
+    (x) => x.loadedMetricList.current
   );
-  const threadListLoadingStatus = allThreadListLoadingStatus[filterRecord];
-  const getThreadsList = useBusterThreadsListContextSelector((x) => x.getThreadsList);
+  const metricListLoadingStatus = allMetricListLoadingStatus[filterRecord];
+  const getMetricsList = useBusterMetricsListContextSelector((x) => x.getMetricsList);
 
   const list = useMemo(() => {
-    const listIds = threadListIds[createFilterRecord(params)] || [];
-    return listIds.map((id) => threadsList[id]);
-  }, [threadListIds, threadsList, filterRecord]);
+    const listIds = metricListIds[createFilterRecord(params)] || [];
+    return listIds.map((id) => metricsList[id]);
+  }, [metricListIds, metricsList, filterRecord]);
 
   useEffect(() => {
-    const wasFetchedMoreThanXSecondsAgo = Date.now() - threadListLoadingStatus?.fetchedAt > 2000;
+    const wasFetchedMoreThanXSecondsAgo =
+      Date.now() - (metricListLoadingStatus?.fetchedAt || 0) > 2000;
     if (
-      (!threadListLoadingStatus?.fetched || wasFetchedMoreThanXSecondsAgo) &&
-      !threadListLoadingStatus?.loading
+      (!metricListLoadingStatus?.fetched || wasFetchedMoreThanXSecondsAgo) &&
+      !metricListLoadingStatus?.loading
     ) {
-      getThreadsList(params);
+      getMetricsList(params);
     }
-  }, [getThreadsList, filterRecord]);
+  }, [getMetricsList, filterRecord]);
 
-  return { list, threadListLoadingStatus };
-};
-
-const createFilterRecord = ({
-  filters = [],
-  admin_view
-}: {
-  filters?: VerificationStatus[];
-  admin_view: boolean;
-}): string => {
-  const filtersString = filters.join(',');
-  const adminViewString = admin_view ? 'admin_view' : '';
-  return filtersString + adminViewString;
+  return { list, metricListLoadingStatus };
 };

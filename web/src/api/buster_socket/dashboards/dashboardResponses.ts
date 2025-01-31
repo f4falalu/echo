@@ -1,13 +1,11 @@
 import type {
   BusterDashboard,
   BusterDashboardListItem,
-  BusterDashboardResponse,
-  BusterMetricDataResponse
+  BusterDashboardResponse
 } from '@/api/asset_interfaces';
 
 export enum DashboardResponses {
   '/dashboards/get:getDashboardState' = '/dashboards/get:getDashboardState',
-  '/dashboards/get:fetchingData' = '/dashboards/get:fetchingData',
   '/dashboards/post:postDashboard' = '/dashboards/post:postDashboard',
   '/dashboards/unsubscribe:unsubscribed' = '/dashboards/unsubscribe:unsubscribed',
   '/dashboards/update:updateDashboard' = '/dashboards/update:updateDashboard',
@@ -45,12 +43,6 @@ export type DashboardResponses_unsubscribed = {
   onError?: (d: unknown) => void;
 };
 
-export type DashboardResponses_fetchingData = {
-  route: '/dashboards/get:fetchingData';
-  callback: (d: BusterMetricDataResponse) => void;
-  onError?: (d: unknown) => void;
-};
-
 export type DashboardResponse_deleteDashboard = {
   route: '/dashboards/delete:deleteDashboard';
   callback: (d: { ids: string[] }) => void;
@@ -62,5 +54,4 @@ export type DashboardResponseTypes =
   | DashboardResponses_getDashboardsList
   | DashboardResponses_getDashboardState
   | DashboardResponses_postDashboard
-  | DashboardResponses_updateDashboard
-  | DashboardResponses_fetchingData;
+  | DashboardResponses_updateDashboard;

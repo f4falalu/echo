@@ -1,21 +1,21 @@
-import { ThreadContentController } from '@/app/app/_controllers/ThreadController';
 import { AppAssetCheckLayout } from '../../../../_layouts/AppAssetCheckLayout';
 import { getAppSplitterLayout } from '@/components/layout';
 import React from 'react';
 
 export default async function CollectionThreadPage({
-  params: { threadId, collectionId }
+  params: { metricId, collectionId }
 }: {
   params: {
-    threadId: string;
+    metricId: string;
     collectionId: string;
   };
 }) {
-  const threadLayout = await getAppSplitterLayout('thread', ['auto', '360px']);
+  const metricLayout = await getAppSplitterLayout('metric', ['auto', '360px']);
 
   return (
-    <AppAssetCheckLayout threadId={threadId} type="thread">
-      <ThreadContentController threadId={threadId} threadLayout={threadLayout} />
+    <AppAssetCheckLayout metricId={metricId} type="metric">
+      <></>
+      {/* <ThreadContentController threadId={threadId} threadLayout={threadLayout} /> */}
     </AppAssetCheckLayout>
   );
 }

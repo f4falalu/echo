@@ -115,8 +115,8 @@ const createListItem = ({
 
   if (item.type === ShareAssetType.METRIC) {
     link = createBusterRoute({
-      route: BusterRoutes.APP_THREAD_ID,
-      threadId: item.id
+      route: BusterRoutes.APP_METRIC_ID,
+      metricId: item.id
     });
   } else if (item.type === 'dashboard') {
     link = createBusterRoute({

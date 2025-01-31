@@ -1,5 +1,3 @@
-import { AppContentHeader } from '@/components/layout/AppContentHeader';
-import { ThreadControllerHeader } from '@/app/app/_controllers/ThreadController';
 import React from 'react';
 
 export default function Layout({
@@ -9,12 +7,5 @@ export default function Layout({
   children: React.ReactNode;
   params: { threadId: string; collectionId: string };
 }>) {
-  return (
-    <>
-      <AppContentHeader>
-        <ThreadControllerHeader threadId={threadId} collectionId={collectionId} />
-      </AppContentHeader>
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }

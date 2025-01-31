@@ -1,4 +1,4 @@
-import { DEFAULT_CHART_CONFIG, type ColumnMetaData } from '@/api/buster_rest/threads';
+import { DEFAULT_CHART_CONFIG, type ColumnMetaData } from '@/api/asset_interfaces/metric';
 import type { BarAndLineAxis, PieChartAxis, ScatterAxis } from '@/components/charts';
 
 export const createDefaultBarAndLineAxis = (

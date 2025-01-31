@@ -1,5 +1,7 @@
-import { ColumnDataType } from '@/api/buster_rest';
-import { ColumnLabelFormat } from '@/components/charts';
+import type { ColumnMetaData } from '@/api/asset_interfaces';
+import type { ColumnLabelFormat } from '@/components/charts/interfaces';
+
+type ColumnDataType = ColumnMetaData['type'];
 
 export const NUMBER_TYPES: (ColumnDataType | string)[] = [
   'float',

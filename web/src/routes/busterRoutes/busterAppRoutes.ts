@@ -2,13 +2,13 @@ export enum BusterAppRoutes {
   APP_ROOT = '/app',
   APP_COLLECTIONS = '/app/collections',
   APP_COLLECTIONS_ID = '/app/collections/:collectionId',
-  APP_COLLECTIONS_ID_THREADS_ID = '/app/collections/:collectionId/metrics/:threadId',
-  APP_THREAD = '/app/metrics',
-  APP_THREAD_ID = '/app/metrics/:threadId',
+  APP_COLLECTIONS_ID_METRICS_ID = '/app/collections/:collectionId/metrics/:metricId',
+  APP_METRIC = '/app/metrics',
+  APP_METRIC_ID = '/app/metrics/:metricId',
   APP_DASHBOARDS = '/app/dashboards',
   APP_DASHBOARD_ID = '/app/dashboards/:dashboardId',
-  APP_DASHBOARD_THREADS = '/app/dashboards/:dashboardId/metrics',
-  APP_DASHBOARD_THREADS_ID = '/app/dashboards/:dashboardId/metrics/:threadId',
+  APP_DASHBOARD_METRICS = '/app/dashboards/:dashboardId/metrics',
+  APP_DASHBOARD_METRICS_ID = '/app/dashboards/:dashboardId/metrics/:metricId',
   APP_LOGS = '/app/logs',
   APP_DATASETS = '/app/datasets',
   APP_DATASETS_ID = '/app/datasets/:datasetId',
@@ -30,7 +30,6 @@ export enum BusterAppRoutes {
   APP_CHAT_ID_DATASET_ID = '/app/chat/:chatId/dataset/:datasetId',
   APP_CHAT_ID_TERM_ID = '/app/chat/:chatId/term/:termId',
   APP_CHAT_ID_VALUE_ID = '/app/chat/:chatId/value/:valueId',
-  APP_METRIC_ID = '/app/metric/:metricId',
   APP_VALUE_ID = '/app/value/:valueId',
 
   SETTINGS = '/app/settings',
@@ -76,21 +75,21 @@ export type BusterAppRoutesWithArgs = {
     route: BusterAppRoutes.APP_COLLECTIONS_ID;
     collectionId: string;
   };
-  [BusterAppRoutes.APP_THREAD]: { route: BusterAppRoutes.APP_THREAD };
-  [BusterAppRoutes.APP_THREAD_ID]: { route: BusterAppRoutes.APP_THREAD_ID; threadId: string };
+  [BusterAppRoutes.APP_METRIC]: { route: BusterAppRoutes.APP_METRIC };
+  [BusterAppRoutes.APP_METRIC_ID]: { route: BusterAppRoutes.APP_METRIC_ID; metricId: string };
   [BusterAppRoutes.APP_DASHBOARDS]: { route: BusterAppRoutes.APP_DASHBOARDS };
   [BusterAppRoutes.APP_DASHBOARD_ID]: {
     route: BusterAppRoutes.APP_DASHBOARD_ID;
     dashboardId: string;
   };
-  [BusterAppRoutes.APP_DASHBOARD_THREADS]: {
-    route: BusterAppRoutes.APP_DASHBOARD_THREADS;
+  [BusterAppRoutes.APP_DASHBOARD_METRICS]: {
+    route: BusterAppRoutes.APP_DASHBOARD_METRICS;
     dashboardId: string;
   };
-  [BusterAppRoutes.APP_DASHBOARD_THREADS_ID]: {
-    route: BusterAppRoutes.APP_DASHBOARD_THREADS_ID;
+  [BusterAppRoutes.APP_DASHBOARD_METRICS_ID]: {
+    route: BusterAppRoutes.APP_DASHBOARD_METRICS_ID;
     dashboardId: string;
-    threadId: string;
+    metricId: string;
   };
   [BusterAppRoutes.APP_DATASETS]: { route: BusterAppRoutes.APP_DATASETS };
   [BusterAppRoutes.APP_TERMS]: { route: BusterAppRoutes.APP_TERMS };
@@ -154,10 +153,10 @@ export type BusterAppRoutesWithArgs = {
     route: BusterAppRoutes.APP_DATASETS_ID_EDITOR;
     datasetId: string;
   };
-  [BusterAppRoutes.APP_COLLECTIONS_ID_THREADS_ID]: {
-    route: BusterAppRoutes.APP_COLLECTIONS_ID_THREADS_ID;
+  [BusterAppRoutes.APP_COLLECTIONS_ID_METRICS_ID]: {
+    route: BusterAppRoutes.APP_COLLECTIONS_ID_METRICS_ID;
     collectionId: string;
-    threadId: string;
+    metricId: string;
   };
   [BusterAppRoutes.NEW_USER]: { route: BusterAppRoutes.NEW_USER };
   [BusterAppRoutes.APP_SETTINGS_USERS]: { route: BusterAppRoutes.APP_SETTINGS_USERS };

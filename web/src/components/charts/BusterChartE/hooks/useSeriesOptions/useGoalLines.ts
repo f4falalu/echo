@@ -3,8 +3,7 @@ import { formatLabel } from '@/utils';
 import type { SeriesOption, MarkLineComponentOption } from 'echarts';
 import { useMemo } from 'react';
 import { extractFieldsFromChain } from '../../../chartHooks';
-import type { IBusterThreadMessageChartConfig } from '@/api/buster_rest/threads/threadConfigInterfaces';
-import { ColumnMetaData } from '@/api/buster_rest';
+import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { yAxisSimilar } from '@/components/charts/commonHelpers';
 
 export const GOAL_LINE_DELIMETER = '_🫷🥸🫸goal_';
@@ -16,7 +15,7 @@ const getSearchId = (index: number) => {
 export const useGoalLines = (props: {
   yAxisKeys: string[];
   columnLabelFormats: Record<string, IColumnLabelFormat>;
-  goalLines: IBusterThreadMessageChartConfig['goalLines'] | undefined;
+  goalLines: IBusterMetricChartConfig['goalLines'] | undefined;
   selectedChartType: ChartType;
 }) => {
   const { yAxisKeys, columnLabelFormats, goalLines, selectedChartType } = props;

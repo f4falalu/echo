@@ -6,7 +6,6 @@ import {
 } from './interfaces/chartComponentInterfaces';
 import { BusterChartJS } from './BusterChartJS';
 import { useDatasetOptions } from './chartHooks';
-import { useMount } from 'ahooks';
 
 // Dynamic import for BusterEChart with SSR disabled
 const BusterEChart = dynamic(() => import('./BusterChartE').then((mod) => mod.BusterEChart), {

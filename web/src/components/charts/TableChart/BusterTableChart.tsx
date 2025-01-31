@@ -1,14 +1,13 @@
 import React, { useCallback } from 'react';
 import { BusterTableChartConfig } from './interfaces';
-import { useBusterThreadsContextSelector } from '@/context/Threads';
-import { formatLabel } from '@/utils';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
+import { formatLabel } from '@/utils/columnFormatter';
 import isEqual from 'lodash/isEqual';
-import { BusterChartPropsBase } from '../interfaces';
-import { IBusterThreadMessageChartConfig } from '@/api/buster_rest/threads/threadConfigInterfaces';
-import { DEFAULT_CHART_CONFIG } from '@/api/buster_rest/threads/defaults';
+import type { BusterChartPropsBase } from '../interfaces';
+import { type IBusterMetricChartConfig, DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces/metric';
 import { useMemoizedFn } from 'ahooks';
-import AppDataGrid from '@/components/table/AppDataGrid/AppDataGrid';
 import { useChartWrapperContextSelector } from '../chartHooks/useChartWrapperProvider';
+import AppDataGrid from '@/components/table/AppDataGrid/AppDataGrid';
 
 //I decided to remove this to make it a little faster?
 // const AppDataGrid = dynamic(() => import('@/components/table/AppDataGrid'), {
@@ -38,8 +37,8 @@ const _BusterTableChart: React.FC<BusterTableChartProps> = ({
   onInitialAnimationEnd,
   tableColumnFontColor
 }) => {
-  const onUpdateMessageChartConfigChart = useBusterThreadsContextSelector(
-    (x) => x.onUpdateMessageChartConfig
+  const onUpdateMetricChartConfig = useBusterMetricsContextSelector(
+    (x) => x.onUpdateMetricChartConfig
   );
   const containerWidth = useChartWrapperContextSelector(({ width }) => width);
 
@@ -60,24 +59,24 @@ const _BusterTableChart: React.FC<BusterTableChartProps> = ({
 
   const onUpdateTableColumnOrder = useMemoizedFn((columns: string[]) => {
     if (!editable) return;
-    const config: Partial<IBusterThreadMessageChartConfig> = {
+    const config: Partial<IBusterMetricChartConfig> = {
       tableColumnOrder: columns
     };
 
-    onUpdateMessageChartConfigChart({
+    onUpdateMetricChartConfig({
       chartConfig: config
     });
   });
 
   const onUpdateTableColumnSize = useMemoizedFn((columns: { key: string; size: number }[]) => {
     if (!editable) return;
-    const config: Partial<IBusterThreadMessageChartConfig> = {
+    const config: Partial<IBusterMetricChartConfig> = {
       tableColumnWidths: columns.reduce<Record<string, number>>((acc, { key, size }) => {
         acc[key] = size;
         return acc;
       }, {})
     };
-    onUpdateMessageChartConfigChart({
+    onUpdateMetricChartConfig({
       chartConfig: config
     });
   });

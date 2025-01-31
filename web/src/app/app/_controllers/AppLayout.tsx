@@ -3,7 +3,7 @@
 import { ConfigProvider, Layout } from 'antd';
 import React, { PropsWithChildren, useMemo } from 'react';
 import { AppSidebar } from './AppSidebar';
-import { NewThreadModal } from '../_components/NewThreadModal';
+import { NewChatModal } from '../_components/NewChatModal';
 import { InvitePeopleModal } from '../_components/InvitePeopleModal';
 import { AppSplitter } from '@/components/layout';
 import { createStyles } from 'antd-style';
@@ -118,7 +118,7 @@ const AppLayoutContent: React.FC<
 
       {!isAnonymousUser && hasOrganization && (
         <>
-          <NewThreadModal open={openThreadsModal} onClose={onCloseThreadsModal} />
+          <NewChatModal open={openThreadsModal} onClose={onCloseThreadsModal} />
           <InvitePeopleModal open={openInviteModal} onClose={onCloseInviteModal} />
           <SupportModal open={openSupportModal} onClose={onCloseSupportModal} />
         </>

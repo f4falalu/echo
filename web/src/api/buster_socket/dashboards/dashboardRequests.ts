@@ -60,7 +60,7 @@ export type DashboardUpdate = BusterSocketRequestBase<
     add_to_collections?: string[]; // collection_id
     remove_from_collections?: string[]; // collection_id
     remove_users?: string[]; // user_id
-    threads?: string[]; // thread_id
+    metrics?: string[]; // metric_id
   } & ShareRequest
 >;
 

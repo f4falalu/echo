@@ -1,4 +1,4 @@
-import { BusterMessageData, IBusterThreadMessage } from '@/context/Threads';
+import { BusterMetricData, IBusterMetric } from '@/context/Metrics';
 import { downloadImageData, exportElementToImage } from './exportUtils';
 import { createRoot } from 'react-dom/client';
 import { timeout } from './timeout';
@@ -7,8 +7,8 @@ import React, { useEffect, useRef } from 'react';
 import { BusterChart } from '@/components/charts';
 
 export const generateChartDownloadImage = async (
-  message: IBusterThreadMessage,
-  messageData: NonNullable<BusterMessageData['data']>,
+  message: IBusterMetric,
+  messageData: NonNullable<BusterMetricData['data']>,
   isDark: boolean = false
 ) => {
   const tempContainer = document.createElement('div');
@@ -66,9 +66,9 @@ export const generateChartDownloadImage = async (
 
 export const generateChartPreviewImage = async (
   message: {
-    chart_config: IBusterThreadMessage['chart_config'];
+    chart_config: IBusterMetric['chart_config'];
   } | null,
-  messageData: BusterMessageData,
+  messageData: BusterMetricData,
   isDark: boolean = true
 ) => {
   // Create temporary container and append to body
@@ -82,7 +82,7 @@ export const generateChartPreviewImage = async (
 
   const container = (
     <PreviewImageReactComponent
-      message={message as IBusterThreadMessage}
+      message={message as IBusterMetric}
       messageData={messageData}
       isDark={isDark}
     />
@@ -154,8 +154,8 @@ const ChartPreviewImage = ({
   message,
   messageData
 }: {
-  message: IBusterThreadMessage;
-  messageData: BusterMessageData;
+  message: IBusterMetric;
+  messageData: BusterMetricData;
 }) => {
   const data = messageData?.data || [];
   const selectedChartView = message?.chart_config?.selectedView;
@@ -180,9 +180,9 @@ const ChartPreviewImage = ({
 
 export const PreviewImageReactComponent: React.FC<{
   message: {
-    chart_config: IBusterThreadMessage['chart_config'];
+    chart_config: IBusterMetric['chart_config'];
   } | null;
-  messageData: BusterMessageData;
+  messageData: BusterMetricData;
   isDark: boolean;
 }> = ({ isDark = false, message, messageData }) => {
   const data = messageData?.data || [];
@@ -220,10 +220,7 @@ export const PreviewImageReactComponent: React.FC<{
           }`}>
           {BusterLogo}
           {hasData && message?.chart_config ? (
-            <ChartPreviewImage
-              message={message as IBusterThreadMessage}
-              messageData={messageData}
-            />
+            <ChartPreviewImage message={message as IBusterMetric} messageData={messageData} />
           ) : (
             <div
               className={`${isDark ? 'text-stone-400' : 'text-stone-700'}`}

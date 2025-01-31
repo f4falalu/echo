@@ -1,12 +1,11 @@
-import { IBusterThreadMessageChartConfig } from '@/api/buster_rest';
+import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { useBusterThreadsContextSelector } from './BusterMetricsProvider';
-import { IBusterThreadMessage } from './interfaces';
+import React, { useMemo, useState } from 'react';
+import { IBusterMetric } from './interfaces';
 
 type IUndoRedoStackItem =
   | { messageId: string; type: 'selectedMessageId' }
-  | { messageId: string; type: 'chartConfig'; chartConfig: IBusterThreadMessageChartConfig };
+  | { messageId: string; type: 'chartConfig'; chartConfig: IBusterMetricChartConfig };
 
 interface IUndoRedoStack {
   undo: IUndoRedoStackItem[];
@@ -14,39 +13,36 @@ interface IUndoRedoStack {
 }
 
 export const useBusterUndoRedo = ({
-  getSearchMessageId,
   currentMessageIdByThread,
   messagesRef,
   onSetCurrentMessageId,
   onUpdateMessageChartConfig
 }: {
-  getSearchMessageId: ({ threadId, messageId }: { threadId: string; messageId?: string }) => string;
-  onSetCurrentMessageId: ({ threadId, messageId }: { threadId: string; messageId: string }) => void;
+  onSetCurrentMessageId: ({ metricId }: { metricId: string }) => void;
   onUpdateMessageChartConfig: (d: {
-    threadId?: string;
-    messageId?: string;
-    chartConfig: Partial<IBusterThreadMessageChartConfig>;
+    metricId?: string;
+    chartConfig: Partial<IBusterMetricChartConfig>;
     ignoreUndoRedo?: boolean;
   }) => Promise<void>;
   currentMessageIdByThread: { [key: string]: string | null };
-  messagesRef: React.MutableRefObject<Record<string, IBusterThreadMessage>>;
+  messagesRef: React.MutableRefObject<Record<string, IBusterMetric>>;
 }) => {
-  //keyed by threadId
+  //keyed by metricId
   const [undoRedoStack, setUndoRedoStack] = useState<Record<string, IUndoRedoStack>>({});
 
-  const onUndo = useMemoizedFn(({ threadId }: { threadId: string }) => {
-    if (undoRedoStack[threadId]?.undo.length === 0) {
+  const onUndo = useMemoizedFn(({ metricId }: { metricId: string }) => {
+    if (undoRedoStack[metricId]?.undo.length === 0) {
       return;
     }
 
-    const itemToUndo = undoRedoStack[threadId].undo[undoRedoStack[threadId].undo.length - 1];
-    const newUndoStack = undoRedoStack[threadId].undo.slice(0, -1);
+    const itemToUndo = undoRedoStack[metricId].undo[undoRedoStack[metricId].undo.length - 1];
+    const newUndoStack = undoRedoStack[metricId].undo.slice(0, -1);
 
     let redoItem: IUndoRedoStackItem;
     if (itemToUndo.type === 'selectedMessageId') {
       redoItem = {
         type: 'selectedMessageId',
-        messageId: currentMessageIdByThread[threadId] || ''
+        messageId: currentMessageIdByThread[metricId] || ''
       };
     } else {
       redoItem = {
@@ -58,37 +54,36 @@ export const useBusterUndoRedo = ({
 
     setUndoRedoStack({
       ...undoRedoStack,
-      [threadId]: {
+      [metricId]: {
         undo: newUndoStack,
-        redo: [...(undoRedoStack[threadId]?.redo || []), redoItem]
+        redo: [...(undoRedoStack[metricId]?.redo || []), redoItem]
       }
     });
 
     if (itemToUndo.type === 'selectedMessageId') {
-      onSetCurrentMessageId({ threadId, messageId: itemToUndo.messageId });
+      onSetCurrentMessageId({ metricId: itemToUndo.messageId });
     } else if (itemToUndo.type === 'chartConfig') {
       onUpdateMessageChartConfig({
-        threadId,
-        messageId: itemToUndo.messageId,
+        metricId: itemToUndo.messageId,
         chartConfig: itemToUndo.chartConfig,
         ignoreUndoRedo: true
       });
     }
   });
 
-  const onRedo = useMemoizedFn(({ threadId }: { threadId: string }) => {
-    if (undoRedoStack[threadId]?.redo.length === 0) {
+  const onRedo = useMemoizedFn(({ metricId }: { metricId: string }) => {
+    if (undoRedoStack[metricId]?.redo.length === 0) {
       return;
     }
 
-    const itemToRedo = undoRedoStack[threadId].redo[undoRedoStack[threadId].redo.length - 1];
-    const newRedoStack = undoRedoStack[threadId].redo.slice(0, -1);
+    const itemToRedo = undoRedoStack[metricId].redo[undoRedoStack[metricId].redo.length - 1];
+    const newRedoStack = undoRedoStack[metricId].redo.slice(0, -1);
 
     let undoItem: IUndoRedoStackItem;
     if (itemToRedo.type === 'selectedMessageId') {
       undoItem = {
         type: 'selectedMessageId',
-        messageId: currentMessageIdByThread[threadId] || ''
+        messageId: currentMessageIdByThread[metricId] || ''
       };
     } else {
       undoItem = {
@@ -100,18 +95,17 @@ export const useBusterUndoRedo = ({
 
     setUndoRedoStack({
       ...undoRedoStack,
-      [threadId]: {
-        undo: [...(undoRedoStack[threadId]?.undo || []), undoItem],
+      [metricId]: {
+        undo: [...(undoRedoStack[metricId]?.undo || []), undoItem],
         redo: newRedoStack
       }
     });
 
     if (itemToRedo.type === 'selectedMessageId') {
-      onSetCurrentMessageId({ threadId, messageId: itemToRedo.messageId });
+      onSetCurrentMessageId({ metricId: itemToRedo.messageId });
     } else if (itemToRedo.type === 'chartConfig') {
       onUpdateMessageChartConfig({
-        threadId,
-        messageId: itemToRedo.messageId,
+        metricId: itemToRedo.messageId,
         chartConfig: itemToRedo.chartConfig,
         ignoreUndoRedo: true
       });
@@ -120,13 +114,13 @@ export const useBusterUndoRedo = ({
 
   const addToUndoStack = useMemoizedFn(
     ({
-      threadId,
+      metricId,
       messageId,
       chartConfig
     }: {
-      threadId: string;
+      metricId: string;
       messageId: string;
-      chartConfig?: IBusterThreadMessageChartConfig;
+      chartConfig?: IBusterMetricChartConfig;
     }) => {
       const type = chartConfig ? 'chartConfig' : 'selectedMessageId';
       const newItem: IUndoRedoStackItem =
@@ -143,8 +137,8 @@ export const useBusterUndoRedo = ({
 
       setUndoRedoStack((v) => ({
         ...v,
-        [threadId]: {
-          undo: [...(v[threadId]?.undo || []), newItem],
+        [metricId]: {
+          undo: [...(v[metricId]?.undo || []), newItem],
           redo: []
         }
       }));
@@ -152,15 +146,15 @@ export const useBusterUndoRedo = ({
   );
 
   const canUndo = useMemo(() => {
-    return (threadId: string) => {
-      if (undoRedoStack[threadId]) return undoRedoStack[threadId]?.undo.length > 0;
+    return (metricId: string) => {
+      if (undoRedoStack[metricId]) return undoRedoStack[metricId]?.undo.length > 0;
       return false;
     };
   }, [undoRedoStack]);
 
   const canRedo = useMemo(() => {
-    return (threadId: string) => {
-      if (undoRedoStack[threadId]) return undoRedoStack[threadId]?.redo.length > 0;
+    return (metricId: string) => {
+      if (undoRedoStack[metricId]) return undoRedoStack[metricId]?.redo.length > 0;
       return false;
     };
   }, [undoRedoStack]);

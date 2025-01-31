@@ -1,25 +1,24 @@
-import { BusterDashboardMetric } from '@/api/asset_interfaces';
-import { useStyles } from '@/app/app/_components/ShareMenu_old/useStyles';
+import type { BusterMetric } from '@/api/asset_interfaces';
 import { AppMaterialIcons, Title, Text } from '@/components';
 import { SortableItemContext } from '@/components/grid/_BusterSortableItemDragContainer';
-import { useBusterThreadsContextSelector } from '@/context/Threads';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';
 import { MenuProps, Dropdown, Button } from 'antd';
 import Link from 'next/link';
 import React, { useContext, useMemo } from 'react';
 
 export const MetricTitle: React.FC<{
-  title: BusterDashboardMetric['name'];
-  timeFrame?: BusterDashboardMetric['time_frame'];
-  description?: BusterDashboardMetric['description'];
+  title: BusterMetric['title'];
+  timeFrame?: BusterMetric['time_frame'];
+  description?: BusterMetric['description'];
   metricLink: string;
   isDragOverlay: boolean;
-  threadId: string;
+  metricId: string;
   dashboardId: string;
   allowEdit?: boolean;
 }> = React.memo(
   ({
-    threadId,
+    metricId,
     allowEdit = true,
     dashboardId,
     title,
@@ -29,7 +28,6 @@ export const MetricTitle: React.FC<{
     timeFrame
   }) => {
     const { attributes, listeners, isDragging } = useContext(SortableItemContext);
-    const { cx } = useStyles();
 
     const useEllipsis = !isDragOverlay && !isDragging;
 
@@ -48,7 +46,7 @@ export const MetricTitle: React.FC<{
         <div
           {...attributes}
           {...listeners}
-          className={cx('group flex cursor-pointer flex-col space-y-0.5 px-4')}>
+          className={'group flex cursor-pointer flex-col space-y-0.5 px-4'}>
           <div className="flex w-full justify-between space-x-0.5">
             <Title
               {...titleConfig}
@@ -64,7 +62,7 @@ export const MetricTitle: React.FC<{
               <ThreeDotMenu
                 className="absolute right-[12px] top-[5px] opacity-0 transition group-hover:opacity-100"
                 dashboardId={dashboardId}
-                threadId={threadId}
+                metricId={metricId}
               />
             )}
           </div>
@@ -109,10 +107,10 @@ ThreeDotPlaceholder.displayName = 'ThreeDotPlaceholder';
 const ThreeDotMenu: React.FC<{
   className?: string;
   dashboardId: string;
-  threadId: string;
-}> = React.memo(({ dashboardId, threadId, className }) => {
-  const removeThreadFromDashboard = useBusterThreadsContextSelector(
-    (x) => x.removeThreadFromDashboard
+  metricId: string;
+}> = React.memo(({ dashboardId, metricId, className }) => {
+  const removeMetricFromDashboard = useBusterMetricsContextSelector(
+    (x) => x.removeMetricFromDashboard
   );
 
   const dropdownItems: MenuProps['items'] = useMemo(
@@ -123,9 +121,9 @@ const ThreeDotMenu: React.FC<{
         icon: <AppMaterialIcons icon="delete" />,
         onClick: async () => {
           try {
-            await removeThreadFromDashboard({
+            await removeMetricFromDashboard({
               dashboardId,
-              threadId
+              metricId
             });
           } catch (error) {
             //
@@ -133,7 +131,7 @@ const ThreeDotMenu: React.FC<{
         }
       }
     ],
-    [dashboardId, threadId]
+    [dashboardId, metricId]
   );
 
   const dropdownMenu = useMemo(() => {

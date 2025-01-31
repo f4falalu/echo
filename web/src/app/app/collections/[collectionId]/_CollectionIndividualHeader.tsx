@@ -11,19 +11,19 @@ import { Breadcrumb, Button, Dropdown, MenuProps } from 'antd';
 import Link from 'next/link';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
-import { useBusterThreadsContextSelector } from '@/context/Threads';
 import { AppMaterialIcons, EditableTitle } from '@/components';
 import { FavoriteStar } from '../../_components/Lists/FavoriteStar';
-import { ShareMenu } from '../../_components/ShareMenu_old';
+import { ShareMenu } from '../../_components/ShareMenu';
 import { BusterCollection, ShareAssetType } from '@/api/asset_interfaces';
 import { Text } from '@/components';
 import { useAntToken } from '@/styles/useAntToken';
 import { useMemoizedFn } from 'ahooks';
 import { BreadcrumbSeperator } from '@/components/breadcrumb';
 import { measureTextWidth } from '@/utils/canvas';
+import { useParams } from 'next/navigation';
 
 export const CollectionsIndividualHeader: React.FC<{}> = () => {
-  const selectedThreadId = useBusterThreadsContextSelector((x) => x.selectedThreadId);
+  const selectedThreadId = useParams().collectionId as string | undefined;
   const createPageLink = useAppLayoutContextSelector((s) => s.createPageLink);
   const openedCollectionId = useCollectionsContextSelector((x) => x.openedCollectionId);
   const updateCollection = useCollectionsContextSelector((x) => x.updateCollection);
@@ -139,7 +139,10 @@ const ContentRight: React.FC<{
 
   return (
     <div className="flex items-center space-x-2">
-      <ShareMenu shareType={ShareAssetType.COLLECTION} collection={collection}>
+      <ShareMenu
+        assetType={ShareAssetType.COLLECTION}
+        assetId={collection.id}
+        shareAssetConfig={collection}>
         <Button type="text" icon={<AppMaterialIcons icon="share_windows" size={16} />} />
       </ShareMenu>
       <Button icon={<AppMaterialIcons icon="add" />} onClick={onButtonClick} type="default">

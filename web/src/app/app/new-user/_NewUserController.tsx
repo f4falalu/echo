@@ -38,7 +38,7 @@ export const NewUserController = () => {
       });
 
       onChangePage({
-        route: BusterAppRoutes.APP_THREAD
+        route: BusterAppRoutes.APP_METRIC
       });
     } catch (error) {
       //

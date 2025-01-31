@@ -1,4 +1,8 @@
-import { type BusterThreadMessage, DEFAULT_CHART_CONFIG } from '@/api/buster_rest/threads';
+import {
+  type DataMetadata,
+  DEFAULT_CHART_CONFIG,
+  type IBusterMetricChartConfig
+} from '@/api/asset_interfaces/metric';
 import { createDefaultChartConfig } from '.';
 
 describe('createDefaultChartConfig', () => {
@@ -110,7 +114,7 @@ describe('createDefaultChartConfig', () => {
   });
 });
 
-const TEST_DATA_METADATA: BusterThreadMessage['data_metadata'] = {
+const TEST_DATA_METADATA: DataMetadata = {
   column_count: 1,
   column_metadata: [
     {
@@ -130,6 +134,6 @@ const TEST_MESSAGE = {
   data_metadata: TEST_DATA_METADATA
 };
 
-const createTestMessage = (chartConfig: BusterThreadMessage['chart_config']) => {
+const createTestMessage = (chartConfig: IBusterMetricChartConfig) => {
   return { ...TEST_MESSAGE };
 };

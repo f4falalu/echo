@@ -6,8 +6,8 @@ import {
   ChartType,
   ComboChartAxis
 } from '@/components/charts/interfaces';
-import { useDebounceFn, useMemoizedFn, useWhyDidYouUpdate } from 'ahooks';
-import { IBusterThreadMessageChartConfig } from '@/api/buster_rest';
+import { useDebounceFn, useMemoizedFn } from 'ahooks';
+import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import {
   addLegendHeadlines,
   BusterChartLegendItem,
@@ -24,7 +24,7 @@ interface UseBusterChartJSLegendProps {
   selectedChartType: ChartType;
   chartMounted: boolean;
   selectedAxis: ChartEncodes | undefined;
-  showLegendHeadline: IBusterThreadMessageChartConfig['showLegendHeadline'] | undefined;
+  showLegendHeadline: IBusterMetricChartConfig['showLegendHeadline'] | undefined;
   columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>;
   loading: boolean;
   lineGroupType: BusterChartProps['lineGroupType'];

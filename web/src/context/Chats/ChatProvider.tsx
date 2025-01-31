@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useTransition } from 'react';
+import React, { useEffect, useRef, useState, useTransition } from 'react';
 import {
   createContext,
   ContextSelector,
@@ -21,6 +21,7 @@ export const useBusterChat = () => {
   const busterSocket = useBusterWebSocket();
   const [isPending, startTransition] = useTransition();
   const chatsRef = useRef<Record<string, IBusterChat>>({});
+  const [prompt, setPrompt] = useState('');
 
   // GETTERS
 

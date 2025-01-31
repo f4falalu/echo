@@ -1,10 +1,10 @@
-import type { BusterDashboardMetric, DashboardConfig } from '@/api/asset_interfaces/dashboard';
+import type { DashboardConfig, BusterMetric } from '@/api/asset_interfaces';
 import type { BusterResizeableGridRow } from '@/components/grid/interfaces';
 import { NUMBER_OF_COLUMNS, MAX_NUMBER_OF_ITEMS, MIN_ROW_HEIGHT } from '@/components/grid/config';
 import { v4 as uuidv4 } from 'uuid';
 
 export const normalizeNewMetricsIntoGrid = (
-  metrics: BusterDashboardMetric[],
+  metrics: BusterMetric[],
   grid: DashboardConfig['rows'] = []
 ): BusterResizeableGridRow[] => {
   const newMetrics = getAddedThreads(metrics, grid);
@@ -14,7 +14,7 @@ export const normalizeNewMetricsIntoGrid = (
   const numberOfRows = grid.length;
   let newGrid = grid;
 
-  const createNewOverflowRows = (metrics: BusterDashboardMetric[]) => {
+  const createNewOverflowRows = (metrics: BusterMetric[]) => {
     return metrics.reduce<BusterResizeableGridRow[]>((acc, metric, index) => {
       const rowIndex = Math.floor(index / 4);
       const selectedRow = acc[rowIndex];
@@ -108,14 +108,14 @@ export const normalizeNewMetricsIntoGrid = (
 };
 
 export const hasUnmappedThreads = (
-  metrics: BusterDashboardMetric[],
+  metrics: BusterMetric[],
   configRows: DashboardConfig['rows'] = []
 ) => {
   return !metrics.every((m) => configRows.some((r) => r.items.some((t) => t.id === m.id)));
 };
 
 export const hasRemovedThreads = (
-  metrics: BusterDashboardMetric[],
+  metrics: BusterMetric[],
   configRows: BusterResizeableGridRow[]
 ) => {
   const allGridItemsLength = configRows.flatMap((r) => r.items).length;
@@ -127,17 +127,11 @@ export const hasRemovedThreads = (
   return !configRows.every((r) => r.items.some((t) => metrics.some((m) => t.id === m.id)));
 };
 
-const getRemovedThreads = (
-  metrics: BusterDashboardMetric[],
-  configRows: DashboardConfig['rows'] = []
-) => {
+const getRemovedThreads = (metrics: BusterMetric[], configRows: DashboardConfig['rows'] = []) => {
   const allGridItems = configRows.flatMap((r) => r.items);
   return allGridItems.filter((t) => !metrics.some((m) => m.id === t.id));
 };
 
-const getAddedThreads = (
-  metrics: BusterDashboardMetric[],
-  configRows: DashboardConfig['rows'] = []
-) => {
+const getAddedThreads = (metrics: BusterMetric[], configRows: DashboardConfig['rows'] = []) => {
   return metrics.filter((m) => !configRows.some((r) => r.items.some((t) => t.id === m.id)));
 };

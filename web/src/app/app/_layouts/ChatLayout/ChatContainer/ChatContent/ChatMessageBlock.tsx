@@ -1,7 +1,6 @@
 import React from 'react';
 import { ChatUserMessage } from './ChatUserMessage';
 import { ChatResponseMessages } from './ChatResponseMessages';
-import { createStyles } from 'antd-style';
 import type { IBusterChatMessage } from '@/context/Chats/interfaces';
 
 export const ChatMessageBlock: React.FC<{

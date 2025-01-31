@@ -29,8 +29,3 @@ export interface BusterShareIndividual {
   id: string;
   name: string;
 }
-
-export interface BusterThreadSearchItem {
-  id: string;
-  title: string;
-}

@@ -11,7 +11,7 @@ import {
 import { DashboardIndividualDashboard } from './_DashboardIndividualDashboard';
 import { EditableTitle } from '@/components';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { ShareRole } from '@/api/buster_socket/threads';
+import { ShareRole } from '@/api/buster_socket/metrics';
 import { useMemoizedFn } from 'ahooks';
 import { BusterDashboardResponse } from '@/api/asset_interfaces';
 

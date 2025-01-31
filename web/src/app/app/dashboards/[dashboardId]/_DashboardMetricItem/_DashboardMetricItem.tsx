@@ -27,7 +27,7 @@ const _DashboardMetricItem: React.FC<{
   const { ref, renderChart, metric, messageData, initialAnimationEnded, setInitialAnimationEnded } =
     useDashboardMetric({ metricId });
 
-  const loadingMetricData = !!metric && !messageData.retrievedData;
+  const loadingMetricData = !!metric && !messageData.fetched;
   const chartOptions = metric.chart_config;
   const data = messageData.data || null;
   const loading = loadingMetricData;
@@ -45,8 +45,8 @@ const _DashboardMetricItem: React.FC<{
 
   const metricLink = useMemo(() => {
     return createBusterRoute({
-      route: BusterRoutes.APP_DASHBOARD_THREADS_ID,
-      threadId: metricId,
+      route: BusterRoutes.APP_DASHBOARD_METRICS_ID,
+      metricId: metricId,
       dashboardId: dashboardId
     });
   }, [metricId, dashboardId]);
@@ -70,11 +70,11 @@ const _DashboardMetricItem: React.FC<{
       classNames={cardClassNamesMemoized}
       title={
         <MetricTitle
-          title={metric?.name}
+          title={metric.title}
           timeFrame={metric.time_frame}
           metricLink={metricLink}
           isDragOverlay={isDragOverlay}
-          threadId={metricId}
+          metricId={metricId}
           dashboardId={dashboardId}
           allowEdit={allowEdit}
           description={metric.description}

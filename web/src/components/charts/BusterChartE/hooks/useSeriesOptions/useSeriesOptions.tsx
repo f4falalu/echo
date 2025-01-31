@@ -6,7 +6,7 @@ import { ComboChartBuilder } from './ComboChartBuilder';
 import { LineChartSeriesBuilder } from './LineChartSeriesBuilder';
 import { PieChartBuilder } from './PieChartSeriesBuilder';
 import { ScatterChartSeriesBuilder } from './ScatterChartSeriesBuilder';
-import { ColumnMetaData, IBusterThreadMessageChartConfig } from '@/api/buster_rest';
+import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { useGoalLines } from './useGoalLines';
 import { useTrendlines } from './useTrendlines';
 import { TrendlineDataset } from '../../../chartHooks';
@@ -16,7 +16,7 @@ type _UseSeriesOptionsProps = Parameters<typeof PieChartBuilder>[0] &
   Parameters<typeof LineChartSeriesBuilder>[0] &
   Parameters<typeof ComboChartBuilder>[0] &
   Parameters<typeof ScatterChartSeriesBuilder>[0] & {
-    goalLines: IBusterThreadMessageChartConfig['goalLines'] | undefined;
+    goalLines: IBusterMetricChartConfig['goalLines'] | undefined;
     dataTrendlineOptions: TrendlineDataset[];
     selectedChartType: ChartType;
     y2AxisKeys: string[];

@@ -1,5 +1,4 @@
 import React from 'react';
-import { DashboardIndividualHeader } from './_DashboardIndividualHeader';
 import { DashboardIndividualContent } from './_DashboardIndividualContent';
 import { AppAssetCheckLayout } from '../../_layouts/AppAssetCheckLayout';
 
@@ -12,7 +11,6 @@ export default function DashboardPage({
 }) {
   return (
     <AppAssetCheckLayout dashboardId={dashboardId} type="dashboard">
-      <DashboardIndividualHeader />
       <DashboardIndividualContent />
     </AppAssetCheckLayout>
   );

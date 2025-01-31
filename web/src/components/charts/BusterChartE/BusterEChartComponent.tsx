@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef } from 'react';
-import { ChartType, BarSortBy, BusterChartConfigProps } from '../interfaces';
-import { ChartEncodes } from '../interfaces';
 import {
   useSeriesOptions,
   useAxisAndTickOptions,
@@ -11,8 +9,7 @@ import {
 } from './hooks';
 import { useColors } from '../chartHooks';
 import { DEFAULT_CHART_THEME } from '../configColors';
-import { DEFAULT_CHART_CONFIG } from '@/api/buster_rest/threads/defaults';
-import type { ColumnMetaData } from '@/api/buster_rest';
+import { DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces/metric';
 import { useAxisTitles } from '../commonHelpers/useAxisTitles';
 import { BusterEChartWrapper } from './BusterEChartWrapper';
 //import ReactECharts, { type EChartsInstance } from 'echarts-for-react';

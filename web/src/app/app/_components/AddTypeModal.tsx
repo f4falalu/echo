@@ -224,7 +224,7 @@ export const AddTypeModal: React.FC<{
     } else if (type === 'dashboard') {
       await onBulkAddRemoveToDashboard({
         dashboardId: dashboard!.id,
-        threadIds: selectedIds
+        metricIds: selectedIds
       });
       await refreshDashboard(dashboard!.id);
     }

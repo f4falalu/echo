@@ -6,7 +6,7 @@ export const getAssetCheck = async ({
   id,
   jwtToken
 }: {
-  type: 'thread' | 'dashboard';
+  type: 'metric' | 'dashboard';
   id: string;
   jwtToken: string | undefined;
 }): Promise<PublicAssetResponse> => {

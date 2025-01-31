@@ -10,9 +10,9 @@ import { DataFrameOperations } from '@/utils/math';
 import { formatLabel } from '@/utils';
 import { DatasetOption, extractFieldsFromChain } from '../../../chartHooks';
 
-import { DEFAULT_CHART_CONFIG, MIN_DONUT_WIDTH } from '@/api/buster_rest';
 import busterLightTheme, { labelContrastFormatter } from '../useEChartsTheme/buster_light_theme';
 import { getPieInnerLabelTitle } from '../../../commonHelpers/pieLabelHelpers';
+import { DEFAULT_CHART_CONFIG, MIN_DONUT_WIDTH } from '@/api/asset_interfaces';
 
 const MAX_DONUT_WIDTH = 75;
 const token = busterAppStyleConfig.token!;

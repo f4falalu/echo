@@ -33,7 +33,7 @@ export const useBusterSupabaseAuthMethods = () => {
 
     return redirect(
       createBusterRoute({
-        route: BusterRoutes.APP_THREAD
+        route: BusterRoutes.APP_METRIC
       })
     );
   };

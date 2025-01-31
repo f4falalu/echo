@@ -4,8 +4,8 @@ import { AnnotationOptions, AnnotationPluginOptions } from 'chartjs-plugin-annot
 import { useMemo } from 'react';
 import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOptionConfig';
 import { formatLabel } from '@/utils';
-import { TypeToLabel } from '@/app/app/_controllers/ThreadController/ThreadControllerEditContent/SidebarStylingApp/StylingAppStyling/EditTrendline/config';
 import { ChartProps } from '../../core';
+import { TypeToLabel } from './config';
 
 export const useTrendlines = ({
   trendlines,

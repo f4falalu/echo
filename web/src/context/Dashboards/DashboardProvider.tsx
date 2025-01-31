@@ -34,13 +34,7 @@ export const useDashboards = () => {
   } = useDashboardLists();
 
   //METRICS INDIVIDUAL
-  const {
-    getMetric,
-    onOpenMetric,
-    onRemoveFromCollection,
-    resetDashboardMetric,
-    onUpdateDashboardMetrics
-  } = useDashboardMetrics({ openedDashboardId });
+  const { onDashboardOpenMetric } = useDashboardMetrics({ openedDashboardId });
 
   //DASHBOARD INDIVIDUAL
   const {
@@ -59,12 +53,12 @@ export const useDashboards = () => {
     onShareDashboard,
     setEditingDashboardTitle,
     onBulkAddRemoveToDashboard,
-    onAddToCollection
+    onAddToCollection,
+    onRemoveFromCollection
   } = useDashboardIndividual({
     refreshDashboardsList,
     setDashboardsList,
     openedDashboardId,
-    onUpdateDashboardMetrics,
     updateDashboardNameInList
   });
 
@@ -88,7 +82,7 @@ export const useDashboards = () => {
     removeItemFromIndividualDashboard,
 
     //DASHBOARD METRICS
-    getMetric,
+    onDashboardOpenMetric,
 
     //OTHER
     onBulkAddRemoveToDashboard,
@@ -106,12 +100,10 @@ export const useDashboards = () => {
     unSubscribeToDashboard,
     onUpdateDashboard,
     onUpdateDashboardConfig,
-    onOpenMetric,
     unsubscribeFromDashboardsList,
     onShareDashboard,
     openAddContentModal,
-    setOpenAddContentModal,
-    resetDashboardMetric
+    setOpenAddContentModal
   };
 };
 

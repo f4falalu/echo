@@ -1,37 +1,31 @@
 import React, { useRef, useState } from 'react';
 import { useBusterWebSocket } from '../BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
-import {
-  BusterMessageData,
-  IBusterThreadMessage,
-  useBusterThreadsContextSelector
-} from '../Threads';
+import { BusterMetricData, useBusterMetricsContextSelector } from '../Metrics';
 import {
   createContext,
   useContextSelector,
   ContextSelector
 } from '@fluentui/react-context-selector';
-import type { IBusterThreadMessageChartConfig } from '@/api/buster_rest/threads';
-import { useBusterMessageDataContextSelector } from '../MessageData';
+import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import { useBusterMessageDataContextSelector } from '../MetricData';
 import { useBusterNotifications } from '../BusterNotifications';
 import { didColumnDataChange, simplifyChratConfigForSQLChange } from './helpers';
-import { ThreadUpdateMessage } from '@/api/buster_socket/threads';
 import { timeout } from '@/utils';
 import { RunSQLResponse } from '@/api/buster_rest/sql/responseInterfaces';
+import { MetricUpdateMessage } from '@/api/buster_socket/metrics';
 
 export const useSQLProvider = () => {
   const busterSocket = useBusterWebSocket();
   const { openSuccessNotification } = useBusterNotifications();
-  const onUpdateThreadMessage = useBusterThreadsContextSelector((x) => x.onUpdateThreadMessage);
+  const onUpdateMetric = useBusterMetricsContextSelector((x) => x.onUpdateMetric);
   const onSetMessageData = useBusterMessageDataContextSelector((x) => x.onSetMessageData);
   const getMessageData = useBusterMessageDataContextSelector((x) => x.getMessageData);
-  const updateThreadMessageToServer = useBusterThreadsContextSelector(
-    (x) => x.updateThreadMessageToServer
+  const updateMetricMessageToServer = useBusterMetricsContextSelector(
+    (x) => x.updateMetricMessageToServer
   );
-  const getThreadMessage = useBusterThreadsContextSelector(
-    (x) => x.getThreadMessageNotLiveDataMethodOnly
-  );
-  const onSaveThreadChanges = useBusterThreadsContextSelector((x) => x.onSaveThreadChanges);
+  const getMetric = useBusterMetricsContextSelector((x) => x.getMetricNotLiveDataMethodOnly);
+  const onSaveMetricChanges = useBusterMetricsContextSelector((x) => x.onSaveMetricChanges);
 
   const [warnBeforeNavigating, setWarnBeforeNavigating] = useState(false);
 
@@ -41,55 +35,48 @@ export const useSQLProvider = () => {
     Record<
       string,
       {
-        chartConfig: IBusterThreadMessageChartConfig;
+        chartConfig: IBusterMetricChartConfig;
         code: string;
-        data: BusterMessageData['data'];
-        dataMetadata: BusterMessageData['data_metadata'];
+        data: BusterMetricData['data'];
+        dataMetadata: BusterMetricData['data_metadata'];
       }
     >
   >({});
 
   const _onResponseRunSQL = useMemoizedFn(
-    (
-      d: RunSQLResponse,
-      sql: string,
-      { messageId, threadId }: { messageId?: string; threadId?: string }
-    ) => {
-      if (messageId && threadId) {
+    (d: RunSQLResponse, sql: string, { metricId }: { metricId?: string }) => {
+      if (metricId) {
         const { data, data_metadata } = d;
-        const threadMessage = getThreadMessage({ threadId, messageId });
-        const currentMessageData = getMessageData(messageId);
-        if (!originalConfigs.current[messageId]) {
-          originalConfigs.current[messageId] = {
-            chartConfig: threadMessage?.chart_config!,
+        const metricMessage = getMetric({ metricId });
+        const currentMessageData = getMessageData(metricId);
+        if (!originalConfigs.current[metricId]) {
+          originalConfigs.current[metricId] = {
+            chartConfig: metricMessage?.chart_config!,
             code: currentMessageData?.code!,
             data: currentMessageData?.data!,
             dataMetadata: currentMessageData?.data_metadata!
           };
         }
 
-        const oldColumnData = threadMessage.data_metadata?.column_metadata;
+        const oldColumnData = metricMessage.data_metadata?.column_metadata;
         const newColumnData = data_metadata?.column_metadata;
 
         const didDataMetadataChange = didColumnDataChange(oldColumnData, newColumnData);
 
-        const totallyDefaultChartConfig: IBusterThreadMessageChartConfig = didDataMetadataChange
-          ? simplifyChratConfigForSQLChange(threadMessage.chart_config, data_metadata)
-          : threadMessage.chart_config;
+        const totallyDefaultChartConfig: IBusterMetricChartConfig = didDataMetadataChange
+          ? simplifyChratConfigForSQLChange(metricMessage.chart_config, data_metadata)
+          : metricMessage.chart_config;
 
         onSetMessageData({
-          messageId,
+          metricId,
           data,
           isDataFromRerun: true,
           data_metadata,
           code: sql
         });
-        onUpdateThreadMessage({
-          threadId,
-          messageId,
-          message: {
-            chart_config: totallyDefaultChartConfig
-          }
+        onUpdateMetric({
+          id: metricId,
+          chart_config: totallyDefaultChartConfig
         });
       }
 
@@ -98,18 +85,7 @@ export const useSQLProvider = () => {
   );
 
   const runSQL = useMemoizedFn(
-    async ({
-      datasetId,
-
-      sql,
-      messageId,
-      threadId
-    }: {
-      messageId?: string;
-      datasetId: string;
-      threadId?: string;
-      sql: string;
-    }) => {
+    async ({ datasetId, sql, metricId }: { datasetId: string; metricId?: string; sql: string }) => {
       return new Promise<RunSQLResponse>((resolve, reject) => {
         busterSocket.emitAndOnce({
           emitEvent: {
@@ -122,7 +98,7 @@ export const useSQLProvider = () => {
           responseEvent: {
             route: '/sql/run:runSql',
             callback: (d) => {
-              const res = _onResponseRunSQL(d, sql, { messageId, threadId });
+              const res = _onResponseRunSQL(d, sql, { metricId });
               resolve(res);
             },
             onError: reject
@@ -132,85 +108,77 @@ export const useSQLProvider = () => {
     }
   );
 
-  const resetRunSQLData = useMemoizedFn(
-    ({ messageId, threadId }: { messageId: string; threadId: string }) => {
-      setWarnBeforeNavigating(false);
+  const resetRunSQLData = useMemoizedFn(({ metricId }: { metricId: string }) => {
+    setWarnBeforeNavigating(false);
 
-      if (!originalConfigs.current[messageId]) return;
-      const oldConfig = originalConfigs.current[messageId]?.chartConfig;
-      onUpdateThreadMessage({
-        threadId,
-        messageId,
-        message: {
-          chart_config: oldConfig
-        }
-      });
+    if (!originalConfigs.current[metricId]) return;
+    const oldConfig = originalConfigs.current[metricId]?.chartConfig;
+    onUpdateMetric({
+      id: metricId,
+      chart_config: oldConfig
+    });
+    onSetMessageData({
+      metricId,
+      data: originalConfigs.current[metricId]?.data!,
+      data_metadata: originalConfigs.current[metricId]?.dataMetadata!,
+      code: originalConfigs.current[metricId]?.code!,
+      isDataFromRerun: false
+    });
+    delete originalConfigs.current[metricId];
+  });
+
+  const saveSQL = useMemoizedFn(async ({ metricId, sql }: { metricId: string; sql: string }) => {
+    const ogConfigs = originalConfigs.current[metricId];
+    const currentMessage = getMetric({ metricId });
+    const datasetId = currentMessage?.dataset_id!;
+
+    if (!ogConfigs || ogConfigs.code !== sql) {
+      try {
+        await runSQL({
+          metricId,
+          sql: sql,
+          datasetId
+        });
+        await timeout(700);
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    const payload: MetricUpdateMessage['payload'] = {
+      id: metricId,
+      sql: sql
+    };
+
+    const res = await updateMetricMessageToServer(payload);
+    const metricRes = await onSaveMetricChanges({
+      metricId,
+      save_draft: true,
+      save_as_thread_state: metricId
+    });
+
+    setWarnBeforeNavigating(false);
+
+    if (originalConfigs.current[metricId]) {
       onSetMessageData({
-        messageId,
-        data: originalConfigs.current[messageId]?.data!,
-        data_metadata: originalConfigs.current[messageId]?.dataMetadata!,
-        code: originalConfigs.current[messageId]?.code!,
+        metricId,
+        data: originalConfigs.current[metricId]?.data!,
+        data_metadata: originalConfigs.current[metricId]?.dataMetadata!,
+        code: originalConfigs.current[metricId]?.code!,
         isDataFromRerun: false
       });
-      delete originalConfigs.current[messageId];
     }
-  );
+    setResetTrigger((prev) => prev + 1);
 
-  const saveSQL = useMemoizedFn(
-    async ({ messageId, threadId, sql }: { messageId: string; threadId: string; sql: string }) => {
-      const ogConfigs = originalConfigs.current[messageId];
-      const currentMessage = getThreadMessage({ threadId, messageId });
-      const datasetId = currentMessage?.dataset_id!;
-
-      if (!ogConfigs || ogConfigs.code !== sql) {
-        try {
-          await runSQL({
-            messageId,
-            threadId,
-            sql: sql,
-            datasetId
-          });
-          await timeout(700);
-        } catch (error) {
-          throw error;
-        }
-      }
-
-      const payload: ThreadUpdateMessage['payload'] = {
-        id: messageId,
-        sql: sql
-      };
-
-      const res = await updateThreadMessageToServer(payload);
-      const threadRes = await onSaveThreadChanges({
-        threadId,
-        save_draft: true,
-        save_as_thread_state: messageId
+    setTimeout(() => {
+      openSuccessNotification({
+        title: 'SQL Saved',
+        message: 'Your changes have been saved.'
       });
+    }, 120);
 
-      setWarnBeforeNavigating(false);
-
-      if (originalConfigs.current[messageId]) {
-        onSetMessageData({
-          messageId,
-          data: originalConfigs.current[messageId]?.data!,
-          data_metadata: originalConfigs.current[messageId]?.dataMetadata!,
-          code: originalConfigs.current[messageId]?.code!,
-          isDataFromRerun: false
-        });
-      }
-      setResetTrigger((prev) => prev + 1);
-
-      setTimeout(() => {
-        openSuccessNotification({
-          title: 'SQL Saved',
-          message: 'Your changes have been saved.'
-        });
-      }, 120);
-
-      delete originalConfigs.current[messageId];
-    }
-  );
+    delete originalConfigs.current[metricId];
+  });
 
   return {
     runSQL,

@@ -1,6 +1,6 @@
 import React from 'react';
-import { ThreadListContainer } from '../metrics/_ThreadListContainer';
+import { MetricListContainer } from '../metrics/_MetricListContainer';
 
 export default function LogsPage() {
-  return <ThreadListContainer type="logs" />;
+  return <MetricListContainer type="logs" />;
 }

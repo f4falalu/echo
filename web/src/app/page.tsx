@@ -16,7 +16,7 @@ export default async function Index() {
   if (user?.id) {
     return redirect(
       createBusterRoute({
-        route: BusterRoutes.APP_THREAD
+        route: BusterRoutes.APP_METRIC
       })
     );
   }

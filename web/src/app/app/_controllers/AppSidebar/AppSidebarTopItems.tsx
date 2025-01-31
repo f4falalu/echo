@@ -123,7 +123,7 @@ const LogoLink = React.memo(
         href={
           isUserRegistered
             ? createPageLink({
-                route: BusterRoutes.APP_THREAD
+                route: BusterRoutes.APP_METRIC
               })
             : '/'
         }>

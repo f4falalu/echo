@@ -1,6 +1,6 @@
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useDashboardContextSelector } from '@/context/Dashboards';
-import { useBusterThreadsContextSelector } from '@/context/Threads';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';
 import React, { useEffect, useMemo } from 'react';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
@@ -8,12 +8,12 @@ import { Button } from 'antd';
 import { AppDropdownSelect } from '@/components/dropdown';
 import { AppTooltip } from '@/components/tooltip';
 import { AppMaterialIcons } from '@/components/icons';
-import type { BusterMetricAsset } from '@/api/asset_interfaces';
+import type { BusterMetric } from '@/api/asset_interfaces';
 import type { BusterDashboardListItem } from '@/api/asset_interfaces';
 
 export const SaveToDashboardDropdown: React.FC<{
   children: React.ReactNode;
-  selectedDashboards: BusterMetricAsset['dashboards'];
+  selectedDashboards: BusterMetric['dashboards'];
   onSaveToDashboard: (dashboardId: string[]) => Promise<void>;
   onRemoveFromDashboard: (dashboardId: string) => void;
 }> = ({ children, onRemoveFromDashboard, onSaveToDashboard, selectedDashboards }) => {
@@ -21,8 +21,8 @@ export const SaveToDashboardDropdown: React.FC<{
   const creatingDashboard = useDashboardContextSelector((x) => x.creatingDashboard);
   const initDashboardsList = useDashboardContextSelector((x) => x.initDashboardsList);
   const dashboardsList = useDashboardContextSelector((state) => state.dashboardsList);
-  const saveThreadToDashboard = useBusterThreadsContextSelector(
-    (state) => state.saveThreadToDashboard
+  const saveMetricToDashboard = useBusterMetricsContextSelector(
+    (state) => state.saveMetricToDashboard
   );
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
 

@@ -1,8 +1,8 @@
-import { useDashboardContextSelector } from '@/context/Dashboards';
-import { useBusterMessageDataContextSelector } from '@/context/MessageData';
+import { useBusterMessageDataContextSelector } from '@/context/MetricData';
 import { useDashboardIndividualContextSelector } from '../_DashboardInvididualContext';
 import { useEffect, useRef } from 'react';
 import { useInViewport } from 'ahooks';
+import { useBusterMetricIndividual } from '@/context/Metrics';
 
 export const useDashboardMetric = ({ metricId }: { metricId: string }) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -10,7 +10,8 @@ export const useDashboardMetric = ({ metricId }: { metricId: string }) => {
     threshold: 0.25
   });
 
-  const metric = useDashboardContextSelector(({ getMetric }) => getMetric(metricId));
+  const { metric } = useBusterMetricIndividual({ metricId });
+
   const messageData = useBusterMessageDataContextSelector(({ getMessageData }) =>
     getMessageData(metricId)
   );

@@ -18,7 +18,7 @@ const items = [
   //   label: (
   //     <Link
   //       href={createPageLink({
-  //         route: BusterRoutes.APP_THREAD
+  //         route: BusterRoutes.APP_METRIC
   //       })}>
   //       Home
   //     </Link>
@@ -61,13 +61,13 @@ export const AppSidebarPrimary: React.FC<
     () =>
       [
         {
-          key: BusterRoutes.APP_THREAD,
+          key: BusterRoutes.APP_METRIC,
           label: (
             <Link
               prefetch={true}
               href={disableLink(
                 createBusterRoute({
-                  route: BusterRoutes.APP_THREAD
+                  route: BusterRoutes.APP_METRIC
                 })
               )}>
               Metrics

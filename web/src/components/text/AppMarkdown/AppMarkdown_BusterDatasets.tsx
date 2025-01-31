@@ -1,9 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Text } from '@/components/text';
 import { createStyles } from 'antd-style';
 import { AppTooltip } from '@/components/tooltip';
 import { AppMaterialIcons } from '@/components/icons';
-import { useBusterNewThreadsContextSelector } from '@/context/Threads';
 
 export interface BusterDatasetsProps {
   //we need to use this because of the way markdown parses :(

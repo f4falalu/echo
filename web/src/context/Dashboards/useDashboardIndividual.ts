@@ -13,19 +13,16 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useBusterNotifications } from '../BusterNotifications';
 import isEqual from 'lodash/isEqual';
 import { useBusterAssetsContextSelector } from '../Assets/BusterAssetsProvider';
-import { useDashboardMetrics } from './useDashboardMetrics';
 
 export const useDashboardIndividual = ({
   refreshDashboardsList,
   setDashboardsList,
   openedDashboardId,
-  onUpdateDashboardMetrics,
   updateDashboardNameInList
 }: {
+  openedDashboardId: string;
   refreshDashboardsList: ReturnType<typeof useDashboardLists>['refreshDashboardsList'];
   setDashboardsList: ReturnType<typeof useDashboardLists>['setDashboardsList'];
-  openedDashboardId: string;
-  onUpdateDashboardMetrics: ReturnType<typeof useDashboardMetrics>['onUpdateDashboardMetrics'];
   updateDashboardNameInList: ReturnType<typeof useDashboardLists>['updateDashboardNameInList'];
 }) => {
   const busterSocket = useBusterWebSocket();
@@ -231,9 +228,6 @@ export const useDashboardIndividual = ({
         [d.dashboard.id]: d
       };
     });
-
-    //set metrics
-    onUpdateDashboardMetrics(d.metrics);
   });
 
   const onAddToCollection = useMemoizedFn(
@@ -261,14 +255,33 @@ export const useDashboardIndividual = ({
     }
   );
 
+  const onRemoveFromCollection = useMemoizedFn(
+    async ({
+      dashboardId,
+      collectionId
+    }: {
+      collectionId: string | string[];
+      dashboardId?: string;
+    }) => {
+      const id = dashboardId || openedDashboardId;
+      busterSocket.emit({
+        route: '/dashboards/update',
+        payload: {
+          remove_from_collections: typeof collectionId === 'string' ? [collectionId] : collectionId,
+          id
+        }
+      });
+    }
+  );
+
   const onBulkAddRemoveToDashboard = useMemoizedFn(
-    async ({ threadIds, dashboardId }: { dashboardId: string; threadIds: string[] }) => {
+    async ({ metricIds, dashboardId }: { dashboardId: string; metricIds: string[] }) => {
       await busterSocket.emitAndOnce({
         emitEvent: {
           route: '/dashboards/update',
           payload: {
             id: dashboardId,
-            threads: threadIds
+            metrics: metricIds
           }
         },
         responseEvent: {
@@ -325,16 +338,16 @@ export const useDashboardIndividual = ({
   );
 
   const removeItemFromIndividualDashboard = useMemoizedFn(
-    ({ dashboardId, threadId }: { dashboardId: string; threadId: string }) => {
+    ({ dashboardId, metricId }: { dashboardId: string; metricId: string }) => {
       setDashboard((prevDashboards) => {
         const dashboardResponse: BusterDashboardResponse | undefined = prevDashboards[dashboardId];
         if (!dashboardResponse) return prevDashboards;
-        const newThreads = dashboardResponse.metrics.filter((t) => t.id !== threadId);
+        const newMetrics = dashboardResponse.metrics.filter((t) => t.id !== metricId);
         return {
           ...prevDashboards,
           [dashboardId]: {
             ...prevDashboards[dashboardId],
-            metrics: newThreads
+            metrics: newMetrics
           }
         };
       });
@@ -343,6 +356,7 @@ export const useDashboardIndividual = ({
 
   return {
     dashboards,
+    onRemoveFromCollection,
     onShareDashboard,
     setEditingDashboardTitle,
     removeItemFromIndividualDashboard,
@@ -358,7 +372,6 @@ export const useDashboardIndividual = ({
     unSubscribeToDashboard,
     onUpdateDashboard,
     onUpdateDashboardConfig,
-    _onGetDashboardState,
     onAddToCollection
   };
 };

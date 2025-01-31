@@ -1,11 +1,11 @@
-import type { ColumnMetaData, IBusterThreadMessageChartConfig } from '@/api/buster_rest';
-import type { IBusterThreadMessage } from '../Threads';
-import { createDefaultChartConfig } from '../Threads/helpers/messageAutoChartHandler';
+import type { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { IBusterMetric } from '../Metrics';
 import type {
   BusterChartConfigProps,
   ColumnLabelFormat,
   IColumnLabelFormat
 } from '@/components/charts';
+import { createDefaultChartConfig } from '../Metrics/helpers';
 
 export const didColumnDataChange = (
   oldColumnData: ColumnMetaData[] | undefined,
@@ -47,9 +47,9 @@ export const didColumnDataChange = (
 };
 
 export const simplifyChratConfigForSQLChange = (
-  chartConfig: IBusterThreadMessageChartConfig,
-  data_metadata: IBusterThreadMessage['data_metadata']
-): IBusterThreadMessageChartConfig => {
+  chartConfig: IBusterMetricChartConfig,
+  data_metadata: IBusterMetric['data_metadata']
+): IBusterMetricChartConfig => {
   const columnLabelFormats = data_metadata?.column_metadata?.reduce<
     Record<string, ColumnLabelFormat>
   >((acc, x) => {

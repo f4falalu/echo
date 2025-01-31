@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import isEmpty from 'lodash/isEmpty';
 import { Button } from 'antd';
 import { BusterResizeableGrid, BusterResizeableGridRow } from '@/components/grid';
@@ -6,16 +6,13 @@ import { useDebounceFn, useMemoizedFn } from 'ahooks';
 import { hasRemovedThreads, hasUnmappedThreads, normalizeNewMetricsIntoGrid } from './_helpers';
 import { DashboardMetricItem } from './_DashboardMetricItem';
 import { useDashboards } from '@/context/Dashboards';
-import { AppMaterialIcons } from '@/components';
+import { AppMaterialIcons } from '@/components/icons';
 import { DashboardIndividualProvider } from './_DashboardInvididualContext';
-import type {
-  BusterDashboardMetric,
-  BusterDashboardResponse,
-  DashboardConfig
-} from '@/api/asset_interfaces/dashboard';
+import type { BusterDashboardResponse, DashboardConfig } from '@/api/asset_interfaces/dashboard';
+import type { BusterMetric } from '@/api/asset_interfaces';
 
 const DEFAULT_EMPTY_ROWS: DashboardConfig['rows'] = [];
-const DEFAULT_EMPTY_METRICS: BusterDashboardMetric[] = [];
+const DEFAULT_EMPTY_METRICS: BusterMetric[] = [];
 const DEFAULT_EMPTY_CONFIG: DashboardConfig = {};
 
 export const DashboardIndividualDashboard: React.FC<{

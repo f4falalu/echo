@@ -1,4 +1,4 @@
-import { ThreadResponses, ThreadEmits, ThreadResponseTypes } from './threads';
+import { MetricResponses, MetricEmits, MetricResponseTypes } from './metrics';
 import { DashboardResponseTypes, DashboardEmits, DashboardResponses } from './dashboards';
 import { DatasetEmits, DatasetResponseTypes, DatasetResponses } from './datasets';
 import { SQLEmits, SQLResponses, SQLResponsesTypes } from './sql';
@@ -21,7 +21,7 @@ import {
 import { ChatEmits, ChatResponseTypes, ChatsResponses } from './chats';
 
 export type BusterSocketRequest =
-  | ThreadEmits
+  | MetricEmits
   | DashboardEmits
   | DatasetEmits
   | UserEmits
@@ -36,7 +36,7 @@ export type BusterSocketRequest =
   | ChatEmits;
 
 export type BusterSocketResponse =
-  | ThreadResponseTypes
+  | MetricResponseTypes
   | DashboardResponseTypes
   | DatasetResponseTypes
   | UserResponsesTypes
@@ -51,7 +51,7 @@ export type BusterSocketResponse =
   | ChatResponseTypes;
 
 export type BusterSocketResponseRoute =
-  | keyof typeof ThreadResponses
+  | keyof typeof MetricResponses
   | keyof typeof DashboardResponses
   | keyof typeof DatasetResponses
   | keyof typeof UserResponses

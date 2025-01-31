@@ -5,54 +5,56 @@ import { AppMaterialIcons, BackButton } from '@/components';
 import { useStyles } from './useStyles';
 import { AccessDropdown } from './AccessDropdown';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { ShareRole } from '@/api/buster_socket/threads';
-import { useBusterThreadsContextSelector } from '@/context/Threads';
+import { ShareRole } from '@/api/buster_socket/metrics';
 import { useDashboardContextSelector, useIndividualDashboard } from '@/context/Dashboards';
 import { ShareRequest } from '@/api/buster_socket/dashboards';
 import { useMemoizedFn } from 'ahooks';
 import { useCollectionsContextSelector, useIndividualCollection } from '@/context/Collections';
 import { Text } from '@/components';
 import { ShareAssetType } from '@/api/asset_interfaces';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
 
 export const ShareWithGroupAndTeam: React.FC<{
   goBack: () => void;
   onCopyLink: () => void;
-  shareType: ShareAssetType;
-  threadId?: string;
-  dashboardId?: string;
-  collectionId?: string;
-}> = ({ shareType, goBack, onCopyLink, threadId, dashboardId, collectionId }) => {
+  assetType: ShareAssetType;
+  assetId: string;
+}> = ({ assetType, assetId, goBack, onCopyLink }) => {
   const userTeams = useUserConfigContextSelector((state) => state.userTeams);
   const loadedUserTeams = useUserConfigContextSelector((state) => state.loadedUserTeams);
-  const onShareThread = useBusterThreadsContextSelector((state) => state.onShareThread);
-  const getThread = useBusterThreadsContextSelector(
-    (state) => state.getThreadNotLiveDataMethodOnly
+  const onShareMetric = useBusterMetricsContextSelector((state) => state.onShareMetric);
+  const getMetric = useBusterMetricsContextSelector(
+    (state) => state.getMetricNotLiveDataMethodOnly
   );
   const onShareDashboard = useDashboardContextSelector((state) => state.onShareDashboard);
   const onShareCollection = useCollectionsContextSelector((state) => state.onShareCollection);
 
-  const { dashboardResponse } = useIndividualDashboard({ dashboardId });
-  const { collection } = useIndividualCollection({ collectionId });
+  const { dashboardResponse } = useIndividualDashboard({
+    dashboardId: assetType === ShareAssetType.DASHBOARD ? assetId : undefined
+  });
+  const { collection } = useIndividualCollection({
+    collectionId: assetType === ShareAssetType.COLLECTION ? assetId : undefined
+  });
 
-  const thread = useMemo(
-    () => (shareType === 'metric' && threadId ? getThread({ threadId }) : null),
-    [shareType, threadId]
+  const metric = useMemo(
+    () =>
+      assetType === ShareAssetType.METRIC && assetId ? getMetric({ metricId: assetId }) : null,
+    [assetType, assetId]
   );
 
   const onUpdateShareRole = useMemoizedFn(
     async ({ teamId, role }: { teamId: string; role: ShareRole | null }) => {
-      const id = threadId || dashboardId || collectionId || '';
-      let payload: ShareRequest = { id };
+      let payload: ShareRequest = { id: assetId };
       if (!role) {
         payload.remove_teams = [teamId];
       } else {
         payload.team_permissions = [{ team_id: teamId, role }];
       }
-      if (shareType === 'metric') {
-        await onShareThread(payload);
-      } else if (shareType === 'dashboard') {
+      if (assetType === ShareAssetType.METRIC) {
+        await onShareMetric(payload);
+      } else if (assetType === ShareAssetType.DASHBOARD) {
         await onShareDashboard(payload);
-      } else if (shareType === 'collection') {
+      } else if (assetType === ShareAssetType.COLLECTION) {
         await onShareCollection(payload);
       }
     }
@@ -60,11 +62,11 @@ export const ShareWithGroupAndTeam: React.FC<{
 
   const listedTeam: { id: string; name: string; role: ShareRole | null }[] = useMemo(() => {
     const assosciatedPermissiongSearch = (teamId: string) => {
-      if (shareType === 'metric' && thread) {
-        return thread.team_permissions?.find((t) => t.id === teamId);
-      } else if (shareType === 'dashboard' && dashboardResponse) {
+      if (assetType === ShareAssetType.METRIC && metric) {
+        return metric.team_permissions?.find((t) => t.id === teamId);
+      } else if (assetType === ShareAssetType.DASHBOARD && dashboardResponse) {
         return dashboardResponse.team_permissions?.find((t) => t.id === teamId);
-      } else if (shareType === 'collection' && collection) {
+      } else if (assetType === ShareAssetType.COLLECTION && collection) {
         return collection.team_permissions?.find((t) => t.id === teamId);
       }
     };
@@ -78,16 +80,7 @@ export const ShareWithGroupAndTeam: React.FC<{
 
       return acc;
     }, []);
-  }, [
-    userTeams,
-    dashboardResponse,
-    thread,
-    threadId,
-    dashboardId,
-    collection,
-    collectionId,
-    shareType
-  ]);
+  }, [userTeams, dashboardResponse, metric, assetId, collection, assetType]);
 
   const stuffToShow = listedTeam.length > 0 || userTeams.length === 0;
 

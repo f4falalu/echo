@@ -1,25 +1,25 @@
 import { useDashboardContextSelector } from '@/context/Dashboards';
-import { useBusterThreadsContextSelector } from '@/context/Threads';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useMemoizedFn, useMount, useUnmount } from 'ahooks';
 import React from 'react';
 import { SaveToDashboardDropdown } from '../Dropdowns/SaveToDashboardDropdown';
 import { Button } from 'antd';
 import { AppMaterialIcons } from '@/components/icons';
-import type { BusterMetricAsset } from '@/api/asset_interfaces';
+import type { BusterMetric } from '@/api/asset_interfaces';
 
-const EMPTY_SELECTED_DASHBOARDS: BusterMetricAsset['dashboards'] = [];
+const EMPTY_SELECTED_DASHBOARDS: BusterMetric['dashboards'] = [];
 
 export const SaveMetricToDashboardButton: React.FC<{
   metricIds: string[];
   disabled?: boolean;
-  selectedDashboards?: BusterMetricAsset['dashboards'];
+  selectedDashboards?: BusterMetric['dashboards'];
 }> = React.memo(
   ({ metricIds, disabled = false, selectedDashboards = EMPTY_SELECTED_DASHBOARDS }) => {
-    const saveThreadToDashboard = useBusterThreadsContextSelector(
-      (state) => state.saveThreadToDashboard
+    const saveMetricToDashboard = useBusterMetricsContextSelector(
+      (state) => state.saveMetricToDashboard
     );
-    const removeThreadFromDashboard = useBusterThreadsContextSelector(
-      (state) => state.removeThreadFromDashboard
+    const removeMetricFromDashboard = useBusterMetricsContextSelector(
+      (state) => state.removeMetricFromDashboard
     );
     const initDashboardsList = useDashboardContextSelector((state) => state.initDashboardsList);
     const unsubscribeFromDashboardsList = useDashboardContextSelector(
