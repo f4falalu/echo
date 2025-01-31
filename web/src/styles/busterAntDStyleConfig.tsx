@@ -249,7 +249,10 @@ export const busterAppStyleConfig: ThemeConfig = {
       colorBgContainer: '#FFF',
       colorBorderSecondary: '#E0E0E0',
       lineWidth: 0.5,
-      fontWeightStrong: 400
+      fontWeightStrong: 400,
+      borderRadiusLG: 6,
+      borderRadiusSM: 6,
+      borderRadiusXS: 6
     },
     Slider: {
       trackBg: '#E0E0E0'
