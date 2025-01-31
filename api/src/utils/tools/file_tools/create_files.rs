@@ -27,8 +27,19 @@ impl ToolExecutor for CreateFilesTool {
 
     async fn execute(&self, tool_call: &ToolCall) -> Result<Value> {
         let params: CreateFilesParams =
-            serde_json::from_str(&tool_call.function.arguments.clone())?;
+            match serde_json::from_str(&tool_call.function.arguments.clone()) {
+                Ok(params) => params,
+                Err(e) => {
+                    return Err(anyhow::anyhow!(
+                        "Failed to parse create files parameters: {}",
+                        e
+                    ));
+                }
+            };
 
+        let files = params.files;
+
+        for file in files {}
         Ok(Value::Array(vec![]))
     }
 
@@ -48,12 +59,12 @@ impl ToolExecutor for CreateFilesTool {
                             "properties": {
                                 "name": {
                                     "type": "string",
-                                    "description": "The name of the file to be created"
+                                    "description": "The name of the file to be created. This should exlude the file extension. (i.e. '.yml')"
                                 },
                                 "file_type": {
                                     "type": "string",
                                     "enum": ["metric", "dashboard"],
-                                    "description": "The type of file to create"
+                                    "description": ""
                                 },
                                 "yml_content": {
                                     "type": "string",
