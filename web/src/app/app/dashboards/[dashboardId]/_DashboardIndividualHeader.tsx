@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useContext } from 'react';
+import React from 'react';
 import { DashboardIndividualHeaderPrimary } from './DashboardInvidualHeaderPrimary';
 import { AppContentHeader } from '../../../../components/layout/AppContentHeader';
 import { useDashboardContextSelector, useIndividualDashboard } from '@/context/Dashboards';

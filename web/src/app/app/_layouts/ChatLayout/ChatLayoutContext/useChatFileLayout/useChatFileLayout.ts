@@ -1,4 +1,4 @@
-import { FileType } from '@/api/buster_socket/chats';
+import { FileType } from '@/api/asset_interfaces';
 import { useMemo, useState } from 'react';
 import { FileConfig, FileView, FileViewConfig, FileViewSecondary } from './interfaces';
 import { useMemoizedFn } from 'ahooks';

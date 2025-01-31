@@ -1,4 +1,4 @@
-import { BusterChatMessage_text } from '@/api/buster_socket/chats';
+import { BusterChatMessage_text } from '@/api/asset_interfaces';
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { itemAnimationConfig } from './animationConfig';

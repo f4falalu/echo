@@ -1,5 +1,5 @@
 import type { BusterChartConfigProps } from '@/components/charts';
-import { BusterShare } from '../../buster_socket/share/shareInterfaces';
+import { BusterShare, VerificationStatus } from '../share';
 
 export type BusterMetricAsset = {
   id: string;
@@ -11,12 +11,8 @@ export type BusterMetricAsset = {
   dataset_name: string | null;
   error: string | null;
   chart_config?: BusterChartConfigProps;
-  data_metadata: {
-    column_count: number;
-    column_metadata: ColumnMetaData[];
-    row_count: number;
-  } | null;
-  status: BusterVerificationStatus;
+  data_metadata: DataMetadata;
+  status: VerificationStatus;
   evaluation_score: 'Moderate' | 'High' | 'Low';
   evaluation_summary: string;
   file: string; //yaml file
@@ -36,16 +32,13 @@ export type BusterMetricAsset = {
   }[];
 } & BusterShare;
 
-enum BusterVerificationStatus {
-  notRequested = 'notRequested',
-  requested = 'requested',
-  inReview = 'inReview',
-  verified = 'verified',
-  backlogged = 'backlogged',
-  notVerified = 'notVerified'
-}
+export type DataMetadata = {
+  column_count: number;
+  column_metadata: ColumnMetaData[];
+  row_count: number;
+} | null;
 
-type ColumnMetaData = {
+export type ColumnMetaData = {
   name: string;
   min_value: number | string;
   max_value: number | string;

@@ -1,4 +1,5 @@
 import { BusterPermissionUser } from '../permissions';
+import type { ShareAssetType } from '../../asset_interfaces';
 
 export interface BusterUserPalette {
   id: string;
@@ -35,7 +36,7 @@ export interface BusterUserTeam {
 
 export interface BusterUserFavorite {
   id: string;
-  type: BusterShareAssetType;
+  type: ShareAssetType;
   index?: number;
   name: string;
   //collections
@@ -43,15 +44,9 @@ export interface BusterUserFavorite {
   collection_id?: string;
   assets?: {
     id: string;
-    type: BusterShareAssetType;
+    type: ShareAssetType;
     name: string;
   }[];
-}
-
-export enum BusterShareAssetType {
-  THREAD = 'thread',
-  DASHBOARD = 'dashboard',
-  COLLECTION = 'collection'
 }
 
 export interface BusterUser {

@@ -1,4 +1,4 @@
-import { BusterSocketRequestBase } from '../base_interfaces';
+import type { BusterSocketRequestBase } from '../base_interfaces';
 
 export type BusterSearchRequest = BusterSocketRequestBase<
   '/search',

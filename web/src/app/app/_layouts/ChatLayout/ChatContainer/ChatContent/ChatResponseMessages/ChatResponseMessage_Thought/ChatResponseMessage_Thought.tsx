@@ -1,4 +1,4 @@
-import { BusterChatMessage_thought } from '@/api/buster_socket/chats';
+import { BusterChatMessage_thought } from '@/api/asset_interfaces';
 import React, { useRef } from 'react';
 import { ChatResponseMessageProps } from '../ChatResponseMessageSelector';
 import { AnimatePresence, motion } from 'framer-motion';

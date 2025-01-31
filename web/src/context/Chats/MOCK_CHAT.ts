@@ -8,7 +8,7 @@ import {
   FileType,
   BusterChatMessage_thoughtPill,
   BusterChatMessage_fileMetadata
-} from '@/api/buster_socket/chats';
+} from '@/api/asset_interfaces';
 import { faker } from '@faker-js/faker';
 
 const createMockUserMessage = (

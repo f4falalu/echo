@@ -1,5 +1,6 @@
-import { BusterThreadListItem, BusterVerificationStatus } from '@/api/buster_rest';
+import { BusterThreadListItem } from '@/api/buster_rest';
 import { IBusterThread } from './interfaces';
+import { VerificationStatus } from '@/api/asset_interfaces';
 import { ShareRole } from '@/api/buster_socket/threads';
 
 export const defaultIBusterThread: IBusterThread = {
@@ -43,6 +44,6 @@ export const defaultBusterThreadListItem: BusterThreadListItem = {
   created_by_name: '',
   created_by_email: '',
   created_by_avatar: '',
-  status: BusterVerificationStatus.notRequested,
+  status: VerificationStatus.notRequested,
   is_shared: false
 };

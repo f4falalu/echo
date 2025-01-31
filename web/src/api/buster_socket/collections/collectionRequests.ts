@@ -1,4 +1,4 @@
-import { BusterShareAssetType } from '@/api/buster_rest';
+import { ShareAssetType } from '../../asset_interfaces';
 import { BusterSocketRequestBase } from '../base_interfaces';
 import { ShareRequest } from '../dashboards';
 
@@ -28,7 +28,7 @@ export type CollectionUpdateCollection = BusterSocketRequestBase<
     id: string;
     name?: string;
     assets?: {
-      type: BusterShareAssetType;
+      type: ShareAssetType;
       id: string;
     }[];
   } & ShareRequest

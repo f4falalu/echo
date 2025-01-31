@@ -1,5 +1,4 @@
 import type { BusterSocketRequestBase } from '../base_interfaces';
-import type { FileType } from './config';
 
 export type ChatCreateNewChat = BusterSocketRequestBase<
   '/chats/post',

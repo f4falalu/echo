@@ -1,13 +1,10 @@
 'use client';
 
-import React, { useContext, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { AppContentHeader } from '../../../../components/layout/AppContentHeader';
-import { Button, Input } from 'antd';
-import { AppMaterialIcons, AppPopoverMenu, AppSegmented, AppTooltip } from '@/components';
-import { AppTooltipShortcutPill } from '@/components/tooltip/AppTooltipShortcutPill';
-import { useHotkeys } from 'react-hotkeys-hook';
-import type { InputRef } from 'antd';
-import { BusterVerificationStatus } from '@/api/buster_rest';
+import { Button } from 'antd';
+import { AppMaterialIcons, AppSegmented } from '@/components';
+import { VerificationStatus } from '@/api/asset_interfaces';
 import { Text } from '@/components';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn } from 'ahooks';
@@ -15,8 +12,8 @@ import { SegmentedValue } from 'antd/lib/segmented';
 
 export const ThreadSidebarHeader: React.FC<{
   type: 'logs' | 'threads';
-  filters: BusterVerificationStatus[];
-  onSetFilters: (filters: BusterVerificationStatus[]) => void;
+  filters: VerificationStatus[];
+  onSetFilters: (filters: VerificationStatus[]) => void;
 }> = ({ type, filters, onSetFilters }) => {
   const title = type === 'logs' ? 'Logs' : 'Metrics';
   const onToggleThreadsModal = useAppLayoutContextSelector((s) => s.onToggleThreadsModal);
@@ -55,23 +52,23 @@ const options = [
   },
   {
     label: 'Requested',
-    value: BusterVerificationStatus.requested
+    value: VerificationStatus.requested
   },
   {
     label: 'Verified',
-    value: BusterVerificationStatus.verified
+    value: VerificationStatus.verified
   }
 ];
 
 const ThreadsFilters: React.FC<{
   type: 'logs' | 'threads';
-  filters: BusterVerificationStatus[];
-  onSetFilters: (filters: BusterVerificationStatus[]) => void;
+  filters: VerificationStatus[];
+  onSetFilters: (filters: VerificationStatus[]) => void;
 }> = React.memo(({ type, filters, onSetFilters }) => {
   const selectedOption = useMemo(() => {
     return (
       options.find((option) => {
-        return filters.includes(option.value as BusterVerificationStatus);
+        return filters.includes(option.value as VerificationStatus);
       }) || options[0]
     );
   }, [filters]);
@@ -80,7 +77,7 @@ const ThreadsFilters: React.FC<{
     if (v === 'all') {
       onSetFilters([]);
     } else {
-      onSetFilters([v as BusterVerificationStatus]);
+      onSetFilters([v as VerificationStatus]);
     }
   });
 

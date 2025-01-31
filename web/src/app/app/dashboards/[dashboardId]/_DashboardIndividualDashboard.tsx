@@ -1,4 +1,3 @@
-import { BusterDashboardMetric, BusterDashboardResponse } from '@/api/buster_rest';
 import React, { useEffect, useMemo, useRef } from 'react';
 import isEmpty from 'lodash/isEmpty';
 import { Button } from 'antd';
@@ -6,10 +5,14 @@ import { BusterResizeableGrid, BusterResizeableGridRow } from '@/components/grid
 import { useDebounceFn, useMemoizedFn } from 'ahooks';
 import { hasRemovedThreads, hasUnmappedThreads, normalizeNewMetricsIntoGrid } from './_helpers';
 import { DashboardMetricItem } from './_DashboardMetricItem';
-import { DashboardConfig } from '@/api/buster_socket/dashboards/dashboardConfigInterfaces';
 import { useDashboards } from '@/context/Dashboards';
 import { AppMaterialIcons } from '@/components';
-import { DashboardIndividualProvider, useDashboardIndividual } from './_DashboardInvididualContext';
+import { DashboardIndividualProvider } from './_DashboardInvididualContext';
+import type {
+  BusterDashboardMetric,
+  BusterDashboardResponse,
+  DashboardConfig
+} from '@/api/asset_interfaces/dashboard';
 
 const DEFAULT_EMPTY_ROWS: DashboardConfig['rows'] = [];
 const DEFAULT_EMPTY_METRICS: BusterDashboardMetric[] = [];

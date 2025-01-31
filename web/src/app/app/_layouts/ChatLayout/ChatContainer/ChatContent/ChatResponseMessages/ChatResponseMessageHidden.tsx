@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo } from 'react';
-import type { BusterChatMessageResponse } from '@/api/buster_socket/chats';
+import type { BusterChatMessageResponse } from '@/api/asset_interfaces';
 import { createStyles } from 'antd-style';
 import {
   ChatResponseMessageSelector,

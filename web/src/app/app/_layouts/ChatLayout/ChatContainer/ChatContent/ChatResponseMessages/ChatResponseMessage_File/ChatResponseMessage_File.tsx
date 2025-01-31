@@ -4,7 +4,7 @@ import { createStyles } from 'antd-style';
 import type {
   BusterChatMessage_file,
   BusterChatMessage_fileMetadata
-} from '@/api/buster_socket/chats';
+} from '@/api/asset_interfaces';
 import { Text } from '@/components/text';
 import { motion, AnimatePresence } from 'framer-motion';
 import { itemAnimationConfig } from '../animationConfig';

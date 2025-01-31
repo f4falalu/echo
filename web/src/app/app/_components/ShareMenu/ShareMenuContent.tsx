@@ -1,5 +1,4 @@
-import { BusterShareAssetType } from '@/api/buster_rest/users';
-import { BusterShare, ShareRole } from '@/api/buster_socket/chats';
+import { BusterShare, ShareRole, ShareAssetType } from '@/api/asset_interfaces';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import React from 'react';
 import { ShareMenuTopBar, ShareMenuTopBarOptions } from './ShareMenuTopBar';
@@ -11,8 +10,8 @@ import { ShareMenuContentBody } from './ShareMenuContentBody';
 export const ShareMenuContent: React.FC<{
   shareAssetConfig: BusterShare;
   assetId: string;
-  assetType: BusterShareAssetType;
-  shareType: BusterShareAssetType;
+  assetType: ShareAssetType;
+  shareType: ShareAssetType;
   permission: ShareRole;
 }> = React.memo(({ assetId, assetType, shareAssetConfig, shareType, permission }) => {
   const { openSuccessMessage } = useBusterNotifications();
@@ -26,14 +25,14 @@ export const ShareMenuContent: React.FC<{
 
   const onCopyLink = useMemoizedFn(() => {
     let url = '';
-    if (shareType === BusterShareAssetType.THREAD && assetId) {
+    if (shareType === ShareAssetType.METRIC && assetId) {
       url = createBusterRoute({ route: BusterRoutes.APP_THREAD_ID, threadId: assetId });
-    } else if (shareType === BusterShareAssetType.DASHBOARD && assetId) {
+    } else if (shareType === ShareAssetType.DASHBOARD && assetId) {
       url = createBusterRoute({
         route: BusterRoutes.APP_DASHBOARD_ID,
         dashboardId: assetId
       });
-    } else if (shareType === BusterShareAssetType.COLLECTION && assetId) {
+    } else if (shareType === ShareAssetType.COLLECTION && assetId) {
       url = createBusterRoute({
         route: BusterRoutes.APP_COLLECTIONS_ID,
         collectionId: assetId

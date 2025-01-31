@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { BusterChatMessageResponse } from '@/api/buster_socket/chats';
+import type { BusterChatMessageResponse } from '@/api/asset_interfaces';
 import { MessageContainer } from '../MessageContainer';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMemoizedFn } from 'ahooks';

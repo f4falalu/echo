@@ -1,7 +1,7 @@
 import type {
   BusterChatMessage_thought,
   BusterChatMessage_thoughtPill
-} from '@/api/buster_socket/chats';
+} from '@/api/asset_interfaces';
 import { createStyles } from 'antd-style';
 import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';

@@ -1,3 +1,4 @@
+import { VerificationStatus } from '@/api/asset_interfaces';
 import type { ShareRole } from '@/api/buster_socket/threads';
 import type { BusterChartConfigProps } from '@/components/charts';
 
@@ -11,18 +12,9 @@ export type BusterThreadListItem = {
   created_by_name: string;
   created_by_email: string;
   created_by_avatar: string;
-  status: BusterVerificationStatus;
+  status: VerificationStatus;
   is_shared: boolean;
 };
-
-export enum BusterVerificationStatus {
-  notRequested = 'notRequested',
-  requested = 'requested',
-  inReview = 'inReview',
-  verified = 'verified',
-  backlogged = 'backlogged',
-  notVerified = 'notVerified'
-}
 
 export type BusterThread = {
   created_at: string;

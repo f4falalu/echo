@@ -5,13 +5,13 @@ import { BusterList, BusterListColumn, BusterListRow } from '@/components/list';
 import { useMemoizedFn, useThrottleFn } from 'ahooks';
 import { boldHighlights, formatDate } from '@/utils';
 import {
-  BusterDashboardResponse,
-  BusterSearchResult,
-  BusterShareAssetType
-} from '@/api/buster_rest';
+  type BusterDashboardResponse,
+  type BusterSearchResult,
+  ShareAssetType
+} from '@/api/asset_interfaces';
 import { asset_typeToIcon } from '@/app/_helpers';
 import { CircleSpinnerLoaderContainer } from '@/components/loaders';
-import { BusterCollection } from '@/api/buster_rest/collection';
+import { BusterCollection } from '@/api/asset_interfaces/collection';
 import { useBusterSearchContextSelector } from '@/context/Search';
 import isEmpty from 'lodash/isEmpty';
 import { useDashboardContextSelector } from '@/context/Dashboards';
@@ -61,11 +61,11 @@ export const AddTypeModal: React.FC<{
   const searchItems = inputValue ? ongoingSearchItems : ongoingSearchItems;
 
   const columns: BusterListColumn[] = useMemo(() => {
-    const fallbackName = (name: string, type: BusterShareAssetType) => {
-      if (type === BusterShareAssetType.DASHBOARD && !name) {
+    const fallbackName = (name: string, type: ShareAssetType) => {
+      if (type === ShareAssetType.DASHBOARD && !name) {
         return 'New dashboard';
       }
-      if (type === BusterShareAssetType.THREAD && !name) {
+      if (type === ShareAssetType.METRIC && !name) {
         return 'New metric';
       }
 

@@ -1,8 +1,6 @@
-import {
-  BusterShareAssetType,
-  BusterThreadListItem,
-  BusterVerificationStatus
-} from '@/api/buster_rest';
+import { BusterThreadListItem } from '@/api/buster_rest';
+import { VerificationStatus } from '@/api/asset_interfaces';
+import { ShareAssetType } from '@/api/asset_interfaces';
 import {
   getNow,
   isDateSame,
@@ -229,7 +227,7 @@ const MetricsEmptyState: React.FC<{
   );
 };
 
-const TitleCell = React.memo<{ title: string; status: BusterVerificationStatus; threadId: string }>(
+const TitleCell = React.memo<{ title: string; status: VerificationStatus; threadId: string }>(
   ({ title, status, threadId }) => {
     const onFavoriteDivClick = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
       e.stopPropagation();
@@ -244,7 +242,7 @@ const TitleCell = React.memo<{ title: string; status: BusterVerificationStatus; 
         <div className="flex items-center" onClick={onFavoriteDivClick}>
           <FavoriteStar
             id={threadId}
-            type={BusterShareAssetType.THREAD}
+            type={ShareAssetType.METRIC}
             iconStyle="tertiary"
             name={title}
             className="opacity-0 group-hover:opacity-100"

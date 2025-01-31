@@ -2,8 +2,8 @@ import { DashboardUpdate } from '@/api/buster_socket/dashboards';
 import {
   BusterDashboard,
   BusterDashboardResponse,
-  BusterVerificationStatus
-} from '@/api/buster_rest';
+  VerificationStatus
+} from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
 import { useRouter } from 'next/navigation';
 import React, { useRef, useState } from 'react';
@@ -150,7 +150,7 @@ export const useDashboardIndividual = ({
   const _updateDashboardResponseToServer = useMemoizedFn(
     (
       newDashboard: BusterDashboardResponse & {
-        status?: BusterVerificationStatus;
+        status?: VerificationStatus;
       }
     ) => {
       const oldDashboard = dashboards[newDashboard.dashboard.id];
@@ -316,7 +316,7 @@ export const useDashboardIndividual = ({
   });
 
   const onVerifiedDashboard = useMemoizedFn(
-    async ({ dashboardId, status }: { dashboardId: string; status: BusterVerificationStatus }) => {
+    async ({ dashboardId, status }: { dashboardId: string; status: VerificationStatus }) => {
       await _updateDashboardResponseToServer({
         ...dashboards[dashboardId],
         status

@@ -1,7 +1,8 @@
-import React, { useContext, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useBusterWebSocket } from '../BusterWebSocket';
 import { useMemoizedFn, useMount } from 'ahooks';
-import { BusterShareAssetType, BusterUserFavorite } from '@/api/buster_rest';
+import { BusterUserFavorite } from '@/api/buster_rest';
+import { ShareAssetType } from '@/api/asset_interfaces';
 
 export const useFavoriteProvider = () => {
   const busterSocket = useBusterWebSocket();
@@ -41,7 +42,7 @@ export const useFavoriteProvider = () => {
       name
     }: {
       id: string;
-      asset_type: BusterShareAssetType;
+      asset_type: ShareAssetType;
       name: string;
       index?: number;
     }) => {
@@ -64,7 +65,7 @@ export const useFavoriteProvider = () => {
   );
 
   const removeItemFromFavorite = useMemoizedFn(
-    async ({ id, asset_type }: { id: string; asset_type: BusterShareAssetType }) => {
+    async ({ id, asset_type }: { id: string; asset_type: ShareAssetType }) => {
       setUserFavorites(userFavorites.filter((f) => f.id !== id));
       await busterSocket.emitAndOnce({
         emitEvent: {

@@ -1,6 +1,7 @@
 'use client';
 
-import { BusterThreadListItem, BusterVerificationStatus } from '@/api/buster_rest';
+import { BusterThreadListItem } from '@/api/buster_rest';
+import { VerificationStatus } from '@/api/asset_interfaces';
 import { AppMaterialIcons, AppPopoverMenu, AppTooltip } from '@/components';
 import { useDashboardContextSelector } from '@/context/Dashboards';
 import { useUserConfigContextSelector } from '@/context/Users';
@@ -17,7 +18,7 @@ export const StatusBadgeButton: React.FC<{
   disabled?: boolean;
   onChangedStatus?: () => Promise<void>;
 }> = React.memo(
-  ({ type, id, status = BusterVerificationStatus.notRequested, onChangedStatus, disabled }) => {
+  ({ type, id, status = VerificationStatus.notRequested, onChangedStatus, disabled }) => {
     const onVerifiedDashboard = useDashboardContextSelector((state) => state.onVerifiedDashboard);
     const onVerifiedThread = useBusterThreadsContextSelector((state) => state.onVerifiedThread);
     const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
@@ -28,11 +29,8 @@ export const StatusBadgeButton: React.FC<{
       setIsOpen(open);
     });
 
-    const onChangeStatus = useMemoizedFn(async (newStatus: BusterVerificationStatus) => {
-      const userStatus = [
-        BusterVerificationStatus.notRequested,
-        BusterVerificationStatus.requested
-      ];
+    const onChangeStatus = useMemoizedFn(async (newStatus: VerificationStatus) => {
+      const userStatus = [VerificationStatus.notRequested, VerificationStatus.requested];
 
       if ((!isAdmin && !userStatus.includes(newStatus)) || newStatus === status) {
         return;
@@ -52,46 +50,46 @@ export const StatusBadgeButton: React.FC<{
       () =>
         [
           {
-            label: getTooltipText(BusterVerificationStatus.notRequested),
-            icon: <StatusBadgeIndicator status={BusterVerificationStatus.notRequested} />,
-            key: BusterVerificationStatus.notRequested,
+            label: getTooltipText(VerificationStatus.notRequested),
+            icon: <StatusBadgeIndicator status={VerificationStatus.notRequested} />,
+            key: VerificationStatus.notRequested,
             onClick: () => {
-              onChangeStatus(BusterVerificationStatus.notRequested);
+              onChangeStatus(VerificationStatus.notRequested);
             }
           },
           {
-            label: getTooltipText(BusterVerificationStatus.requested),
-            icon: <StatusBadgeIndicator status={BusterVerificationStatus.requested} />,
-            key: BusterVerificationStatus.requested,
+            label: getTooltipText(VerificationStatus.requested),
+            icon: <StatusBadgeIndicator status={VerificationStatus.requested} />,
+            key: VerificationStatus.requested,
             onClick: () => {
-              onChangeStatus(BusterVerificationStatus.requested);
+              onChangeStatus(VerificationStatus.requested);
             }
           },
           {
-            label: getTooltipText(BusterVerificationStatus.inReview),
-            icon: <StatusBadgeIndicator status={BusterVerificationStatus.inReview} />,
-            key: BusterVerificationStatus.inReview,
+            label: getTooltipText(VerificationStatus.inReview),
+            icon: <StatusBadgeIndicator status={VerificationStatus.inReview} />,
+            key: VerificationStatus.inReview,
             disabled: !isAdmin,
             onClick: () => {
-              isAdmin && onChangeStatus(BusterVerificationStatus.inReview);
+              isAdmin && onChangeStatus(VerificationStatus.inReview);
             }
           },
           {
-            label: getTooltipText(BusterVerificationStatus.verified),
-            icon: <StatusBadgeIndicator status={BusterVerificationStatus.verified} />,
-            key: BusterVerificationStatus.verified,
+            label: getTooltipText(VerificationStatus.verified),
+            icon: <StatusBadgeIndicator status={VerificationStatus.verified} />,
+            key: VerificationStatus.verified,
             disabled: !isAdmin,
             onClick: () => {
-              isAdmin && onChangeStatus(BusterVerificationStatus.verified);
+              isAdmin && onChangeStatus(VerificationStatus.verified);
             }
           },
           {
-            label: getTooltipText(BusterVerificationStatus.backlogged),
-            icon: <StatusBadgeIndicator status={BusterVerificationStatus.backlogged} />,
-            key: BusterVerificationStatus.backlogged,
+            label: getTooltipText(VerificationStatus.backlogged),
+            icon: <StatusBadgeIndicator status={VerificationStatus.backlogged} />,
+            key: VerificationStatus.backlogged,
             disabled: !isAdmin,
             onClick: () => {
-              isAdmin && onChangeStatus(BusterVerificationStatus.backlogged);
+              isAdmin && onChangeStatus(VerificationStatus.backlogged);
             }
           }
         ].map((item, index) => ({
@@ -140,7 +138,7 @@ export const StatusBadgeIndicator: React.FC<{
   showTooltip?: boolean;
 }> = ({
   showTooltip = true,
-  status = BusterVerificationStatus.notRequested,
+  status = VerificationStatus.notRequested,
   size = 16,
   className = ''
 }) => {
@@ -149,7 +147,7 @@ export const StatusBadgeIndicator: React.FC<{
   const colorClasses = getColorClasses(status);
   const tooltipText = getTooltipText(status);
   const isNotVerified =
-    status === BusterVerificationStatus.notVerified || BusterVerificationStatus.notRequested;
+    status === VerificationStatus.notVerified || VerificationStatus.notRequested;
   const sharedClass = `h-[16px] w-[16px] flex items-center justify-center rounded-full ${colorClasses}`;
   const _size = isNotVerified ? size : 16;
 
@@ -172,19 +170,19 @@ export const StatusBadgeIndicator: React.FC<{
   );
 };
 
-const statusRecordIcon: Record<BusterVerificationStatus, React.FC<any>> = {
-  [BusterVerificationStatus.verified]: () => <AppMaterialIcons icon="check_circle" fill />,
-  [BusterVerificationStatus.requested]: () => <AppMaterialIcons icon="contrast" />, //contrast
-  [BusterVerificationStatus.inReview]: () => <AppMaterialIcons icon="timelapse" />,
-  [BusterVerificationStatus.backlogged]: () => <AppMaterialIcons icon="cancel" fill />,
-  [BusterVerificationStatus.notVerified]: () => <StatusNotRequestedIcon />,
-  [BusterVerificationStatus.notRequested]: () => <StatusNotRequestedIcon />
+const statusRecordIcon: Record<VerificationStatus, React.FC<any>> = {
+  [VerificationStatus.verified]: () => <AppMaterialIcons icon="check_circle" fill />,
+  [VerificationStatus.requested]: () => <AppMaterialIcons icon="contrast" />, //contrast
+  [VerificationStatus.inReview]: () => <AppMaterialIcons icon="timelapse" />,
+  [VerificationStatus.backlogged]: () => <AppMaterialIcons icon="cancel" fill />,
+  [VerificationStatus.notVerified]: () => <StatusNotRequestedIcon />,
+  [VerificationStatus.notRequested]: () => <StatusNotRequestedIcon />
 };
 const getIcon = (status: BusterThreadListItem['status']) => {
   return statusRecordIcon[status] || (() => <AppMaterialIcons icon="motion_photos_on" />);
 };
 
-const statusRecordColors: Record<BusterVerificationStatus, string> = {
+const statusRecordColors: Record<VerificationStatus, string> = {
   verified: '!text-[#34A32D]',
   requested: '!text-[#F2BE01]',
   inReview: '!text-[#7C3AED]',
@@ -196,7 +194,7 @@ const getColorClasses = (status: BusterThreadListItem['status']) => {
   return statusRecordColors[status] || statusRecordColors.notRequested;
 };
 
-const statusRecordText: Record<BusterVerificationStatus, string> = {
+const statusRecordText: Record<VerificationStatus, string> = {
   verified: 'Verified',
   requested: 'Requested',
   inReview: 'In review',
@@ -205,7 +203,7 @@ const statusRecordText: Record<BusterVerificationStatus, string> = {
   notRequested: 'Not requested'
 };
 
-const getTooltipText = (status: BusterVerificationStatus) => {
+const getTooltipText = (status: VerificationStatus) => {
   return statusRecordText[status] || statusRecordText.notRequested;
 };
 

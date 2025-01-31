@@ -2,7 +2,8 @@
 
 import React, { PropsWithChildren, useEffect, useMemo, useRef, useState } from 'react';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { BusterThreadListItem, BusterVerificationStatus } from '@/api/buster_rest';
+import { VerificationStatus } from '@/api/asset_interfaces';
+import { BusterThreadListItem } from '@/api/buster_rest';
 import isEmpty from 'lodash/isEmpty';
 import { useBusterWebSocket } from '../BusterWebSocket';
 import { useParams } from 'next/navigation';
@@ -38,7 +39,7 @@ const useThreadsList = () => {
   >({});
 
   const _onInitializeThreads = useMemoizedFn(
-    (threads: BusterThreadListItem[], filters: BusterVerificationStatus[], admin_view: boolean) => {
+    (threads: BusterThreadListItem[], filters: VerificationStatus[], admin_view: boolean) => {
       const newThreads = threadsArrayToRecord(threads);
       setThreadsList((prev) => ({
         ...prev,
@@ -105,7 +106,7 @@ const useThreadsList = () => {
   });
 
   const _getThreadsList = useMemoizedFn(
-    ({ filters, admin_view }: { admin_view: boolean; filters?: BusterVerificationStatus[] }) => {
+    ({ filters, admin_view }: { admin_view: boolean; filters?: VerificationStatus[] }) => {
       const recordKey = createFilterRecord({ filters, admin_view });
 
       if (loadedThreadList.current[recordKey]?.loading) {
@@ -173,7 +174,7 @@ export const useBusterThreadsListContextSelector = <T,>(
 };
 
 export const useBusterThreadListByFilter = (params: {
-  filters: BusterVerificationStatus[];
+  filters: VerificationStatus[];
   admin_view: boolean;
 }) => {
   const filterRecord = useMemo(() => createFilterRecord(params), [params]);
@@ -207,7 +208,7 @@ const createFilterRecord = ({
   filters = [],
   admin_view
 }: {
-  filters?: BusterVerificationStatus[];
+  filters?: VerificationStatus[];
   admin_view: boolean;
 }): string => {
   const filtersString = filters.join(',');

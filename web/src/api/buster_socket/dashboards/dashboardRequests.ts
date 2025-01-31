@@ -1,7 +1,5 @@
-import { BusterVerificationStatus } from '@/api/buster_rest';
-import { BusterSocketRequestBase } from '../base_interfaces';
-import { ShareRole } from '../threads';
-import { DashboardConfig } from './dashboardConfigInterfaces';
+import type { ShareRole, DashboardConfig, VerificationStatus } from '@/api/asset_interfaces';
+import type { BusterSocketRequestBase } from '../base_interfaces';
 
 export type DashboardsListEmitPayload = BusterSocketRequestBase<
   '/dashboards/list',
@@ -58,7 +56,7 @@ export type DashboardUpdate = BusterSocketRequestBase<
     name?: string;
     description?: string | null;
     config?: DashboardConfig;
-    status?: BusterVerificationStatus;
+    status?: VerificationStatus;
     add_to_collections?: string[]; // collection_id
     remove_from_collections?: string[]; // collection_id
     remove_users?: string[]; // user_id

@@ -1,4 +1,4 @@
-import { BusterShareAssetType } from '@/api/buster_rest';
+import { ShareAssetType } from '@/api/asset_interfaces';
 import { AppMaterialIcons } from '@/components';
 import { useCollectionsContextSelector } from '@/context/Collections';
 import { useDashboardContextSelector } from '@/context/Dashboards';
@@ -15,7 +15,7 @@ export const ShareMenuContentEmbed: React.FC<{
   publicExpirationDate: string;
   publicly_accessible: boolean;
   password: string | null;
-  shareType: BusterShareAssetType;
+  shareType: ShareAssetType;
   threadId?: string;
   dashboardId?: string;
   collectionId?: string;
@@ -40,21 +40,21 @@ export const ShareMenuContentEmbed: React.FC<{
     const embedURL = useMemo(() => {
       let url = '';
 
-      if (shareType === BusterShareAssetType.THREAD) {
+      if (shareType === ShareAssetType.METRIC) {
         url = createBusterRoute({
           route: BusterRoutes.APP_THREAD_ID,
           threadId: id
         });
       }
 
-      if (shareType === BusterShareAssetType.DASHBOARD) {
+      if (shareType === ShareAssetType.DASHBOARD) {
         url = createBusterRoute({
           route: BusterRoutes.APP_DASHBOARD_ID,
           dashboardId: id
         });
       }
 
-      if (shareType === BusterShareAssetType.COLLECTION) {
+      if (shareType === ShareAssetType.COLLECTION) {
         url = createBusterRoute({
           route: BusterRoutes.APP_COLLECTIONS_ID,
           collectionId: id
@@ -76,7 +76,7 @@ export const ShareMenuContentEmbed: React.FC<{
         publicly_accessible: true
       };
 
-      if (shareType === BusterShareAssetType.THREAD) {
+      if (shareType === ShareAssetType.METRIC) {
         await onShareThread(payload);
       } else if (shareType === 'dashboard') {
         await onShareDashboard(payload);

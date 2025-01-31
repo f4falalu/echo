@@ -1,4 +1,4 @@
-import type { BusterChatMessageRequest } from '@/api/buster_socket/chats';
+import type { BusterChatMessageRequest } from '@/api/asset_interfaces';
 import { createStyles } from 'antd-style';
 import React from 'react';
 import { Text } from '@/components/text';

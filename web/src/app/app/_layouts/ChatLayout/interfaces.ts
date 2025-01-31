@@ -1,4 +1,4 @@
-import type { FileType } from '@/api/buster_socket/chats';
+import type { FileType } from '@/api/asset_interfaces';
 
 export type SelectedFile = {
   id: string;

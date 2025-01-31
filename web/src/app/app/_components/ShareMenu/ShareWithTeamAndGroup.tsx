@@ -12,11 +12,12 @@ import { ShareRequest } from '@/api/buster_socket/dashboards';
 import { useMemoizedFn } from 'ahooks';
 import { useCollectionsContextSelector, useIndividualCollection } from '@/context/Collections';
 import { Text } from '@/components';
+import { ShareAssetType } from '@/api/asset_interfaces';
 
 export const ShareWithGroupAndTeam: React.FC<{
   goBack: () => void;
   onCopyLink: () => void;
-  shareType: 'thread' | 'dashboard' | 'collection';
+  shareType: ShareAssetType;
   threadId?: string;
   dashboardId?: string;
   collectionId?: string;
@@ -34,7 +35,7 @@ export const ShareWithGroupAndTeam: React.FC<{
   const { collection } = useIndividualCollection({ collectionId });
 
   const thread = useMemo(
-    () => (shareType === 'thread' && threadId ? getThread({ threadId }) : null),
+    () => (shareType === 'metric' && threadId ? getThread({ threadId }) : null),
     [shareType, threadId]
   );
 
@@ -47,7 +48,7 @@ export const ShareWithGroupAndTeam: React.FC<{
       } else {
         payload.team_permissions = [{ team_id: teamId, role }];
       }
-      if (shareType === 'thread') {
+      if (shareType === 'metric') {
         await onShareThread(payload);
       } else if (shareType === 'dashboard') {
         await onShareDashboard(payload);
@@ -59,7 +60,7 @@ export const ShareWithGroupAndTeam: React.FC<{
 
   const listedTeam: { id: string; name: string; role: ShareRole | null }[] = useMemo(() => {
     const assosciatedPermissiongSearch = (teamId: string) => {
-      if (shareType === 'thread' && thread) {
+      if (shareType === 'metric' && thread) {
         return thread.team_permissions?.find((t) => t.id === teamId);
       } else if (shareType === 'dashboard' && dashboardResponse) {
         return dashboardResponse.team_permissions?.find((t) => t.id === teamId);

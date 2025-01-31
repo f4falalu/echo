@@ -1,12 +1,6 @@
-import { DashboardConfig } from '@/api/buster_socket/dashboards/dashboardConfigInterfaces';
-import { BusterDashboardMetric } from '@/api/buster_rest';
-import { BusterResizeableGridRow } from '@/components/grid';
-import {
-  NUMBER_OF_COLUMNS,
-  MAX_NUMBER_OF_COLUMNS,
-  MAX_NUMBER_OF_ITEMS,
-  MIN_ROW_HEIGHT
-} from '@/components/grid/config';
+import type { BusterDashboardMetric, DashboardConfig } from '@/api/asset_interfaces/dashboard';
+import type { BusterResizeableGridRow } from '@/components/grid/interfaces';
+import { NUMBER_OF_COLUMNS, MAX_NUMBER_OF_ITEMS, MIN_ROW_HEIGHT } from '@/components/grid/config';
 import { v4 as uuidv4 } from 'uuid';
 
 export const normalizeNewMetricsIntoGrid = (

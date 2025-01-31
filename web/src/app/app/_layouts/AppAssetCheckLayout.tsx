@@ -3,7 +3,7 @@ import { getAssetCheck } from '@/api/buster_rest/assets/requests';
 import { useSupabaseServerContext } from '@/context/Supabase/useSupabaseContext';
 import { AppPasswordAccess } from '../_controllers/AppPasswordAccess';
 import { AppNoPageAccess } from '../_controllers/AppNoPageAccess';
-import { BusterShareAssetType } from '@/api/buster_rest';
+import { ShareAssetType } from '@/api/asset_interfaces';
 import { useBusterSupabaseAuthMethods } from '@/hooks/useBusterSupabaseAuthMethods';
 import { ClientSideAnonCheck } from './ClientSideAnonCheck';
 import { redirect } from 'next/navigation';
@@ -63,7 +63,7 @@ export const AppAssetCheckLayout: React.FC<
         <AppPasswordAccess
           threadId={props.threadId}
           dashboardId={props.dashboardId}
-          type={type as BusterShareAssetType}>
+          type={type as ShareAssetType}>
           {children}
         </AppPasswordAccess>
       </ClientSideAnonCheck>
@@ -74,7 +74,7 @@ export const AppAssetCheckLayout: React.FC<
     return (
       <ClientSideAnonCheck jwtToken={jwtToken}>
         <AppNoPageAccess
-          asset_type={type as BusterShareAssetType}
+          asset_type={type as ShareAssetType}
           threadId={props.threadId}
           dashboardId={props.dashboardId}
         />

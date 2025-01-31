@@ -2,7 +2,7 @@ import {
   IBusterDashboardMetric,
   BusterMetricDataResponse,
   BusterDashboardMetric
-} from '@/api/buster_rest';
+} from '@/api/asset_interfaces';
 import { BusterRoutes } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
 import React, { useCallback, useEffect, useRef, useState, useTransition } from 'react';

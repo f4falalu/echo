@@ -1,6 +1,4 @@
-import { ShareRole } from '@/api/buster_socket/threads';
-import { BusterShareAssetType } from '../users';
-import { BusterShare } from '../threads';
+import { BusterShare, ShareAssetType, ShareRole } from '../share';
 
 export interface BusterCollectionListItem {
   id: string;
@@ -14,7 +12,7 @@ export interface BusterCollectionListItem {
     id: string;
     name: string;
   };
-  member: any[];
+  member: [];
 }
 
 export interface BusterCollection extends BusterShare {
@@ -38,7 +36,7 @@ export interface BusterCollection extends BusterShare {
 }
 
 export interface BusterCollectionItemAsset {
-  asset_type: BusterShareAssetType;
+  asset_type: ShareAssetType;
   id: string;
   created_at: string;
   updated_at: string;

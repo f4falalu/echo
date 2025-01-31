@@ -8,12 +8,12 @@ import {
   useDashboardContextSelector,
   useIndividualDashboard
 } from '@/context/Dashboards';
-import { BusterDashboardResponse } from '@/api/buster_rest';
 import { DashboardIndividualDashboard } from './_DashboardIndividualDashboard';
 import { EditableTitle } from '@/components';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { ShareRole } from '@/api/buster_socket/threads';
 import { useMemoizedFn } from 'ahooks';
+import { BusterDashboardResponse } from '@/api/asset_interfaces';
 
 export const DashboardIndividualContent: React.FC<{}> = ({}) => {
   const isAnonymousUser = useUserConfigContextSelector((state) => state.isAnonymousUser);

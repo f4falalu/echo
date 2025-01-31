@@ -22,7 +22,7 @@ import {
   PreventNavigation
 } from '@/components';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { BusterShareAssetType } from '@/api/buster_rest';
+import { ShareAssetType } from '@/api/asset_interfaces';
 import { useMemoizedFn, useMount } from 'ahooks';
 import { BusterMessageData, IBusterThreadMessage } from '@/context/Threads/interfaces';
 import { useDisableSaveChanges } from './useDisableSaveChanges';
@@ -150,7 +150,7 @@ export const ThreadControllerHeaderPrimary: React.FC<{
             />
 
             <FavoriteStar
-              type={BusterShareAssetType.THREAD}
+              type={ShareAssetType.METRIC}
               id={threadId}
               name={currentThreadMessage?.title || thread.title}
             />
@@ -197,7 +197,7 @@ export const ThreadControllerHeaderPrimary: React.FC<{
           disabled={disableButtons}
         />
 
-        <ShareMenu shareType={BusterShareAssetType.THREAD} thread={thread}>
+        <ShareMenu shareType={ShareAssetType.METRIC} thread={thread}>
           <Button
             disabled={disableButtons}
             type="text"

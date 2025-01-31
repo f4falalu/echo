@@ -1,5 +1,4 @@
-import { ShareRole } from '@/api/buster_socket/threads';
-import { BusterDashboard, BusterVerificationStatus } from '@/api/buster_rest';
+import { BusterDashboard, VerificationStatus } from '@/api/asset_interfaces';
 
 export const defaultBusterDashboard: BusterDashboard = {
   id: '',
@@ -18,6 +17,6 @@ export const defaultBusterDashboard: BusterDashboard = {
   password_secret_id: null,
   sharingKey: '',
   public_enabled_by: '',
-  status: BusterVerificationStatus.notRequested,
+  status: VerificationStatus.notRequested,
   public_password: null
 };

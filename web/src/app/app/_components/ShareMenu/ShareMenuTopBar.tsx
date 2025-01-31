@@ -1,7 +1,7 @@
 import { AppSegmented, AppSegmentedProps } from '@/components';
 import React, { useMemo } from 'react';
 import { CopyLinkButton } from './CopyLinkButton';
-import { BusterShareAssetType } from '@/api/buster_rest';
+import { ShareAssetType } from '@/api/asset_interfaces';
 import { ShareRole } from '@/api/buster_socket/threads';
 import { useMemoizedFn } from 'ahooks';
 import { SegmentedValue } from 'antd/es/segmented';
@@ -17,7 +17,7 @@ export const ShareMenuTopBar: React.FC<{
   selectedOptions: ShareMenuTopBarOptions;
   onChangeSelectedOption: (option: ShareMenuTopBarOptions) => void;
   onCopyLink: () => void;
-  shareType: BusterShareAssetType;
+  shareType: ShareAssetType;
   permission: ShareRole;
 }> = React.memo(
   ({ shareType, onCopyLink, selectedOptions, onChangeSelectedOption, permission }) => {
@@ -33,12 +33,12 @@ export const ShareMenuTopBar: React.FC<{
         {
           value: ShareMenuTopBarOptions.Publish,
           label: 'Publish',
-          show: shareType !== BusterShareAssetType.COLLECTION && isOwner
+          show: shareType !== ShareAssetType.COLLECTION && isOwner
         },
         {
           value: ShareMenuTopBarOptions.Embed,
           label: 'Embed',
-          show: shareType !== BusterShareAssetType.COLLECTION
+          show: shareType !== ShareAssetType.COLLECTION
         }
       ]
         .filter((o) => o.show)

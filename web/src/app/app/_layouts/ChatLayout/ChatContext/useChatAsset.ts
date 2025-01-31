@@ -1,4 +1,4 @@
-import { FileType } from '@/api/buster_socket/chats';
+import { FileType } from '@/api/asset_interfaces';
 import { useDashboardContextSelector, useIndividualDashboard } from '@/context/Dashboards';
 import React, { useMemo } from 'react';
 

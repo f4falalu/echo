@@ -4,6 +4,12 @@ export enum ShareRole {
   VIEWER = 'viewer'
 }
 
+export enum ShareAssetType {
+  METRIC = 'metric',
+  DASHBOARD = 'dashboard',
+  COLLECTION = 'collection'
+}
+
 export interface BusterShare {
   sharingKey: string;
   individual_permissions: null | BusterShareIndividual[];

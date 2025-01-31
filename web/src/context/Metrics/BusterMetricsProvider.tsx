@@ -8,7 +8,8 @@ import { BusterThreadsListProvider } from './BusterMetricsListProvider';
 import { defaultIBusterThread } from './config';
 import { useDebounceFn, useMemoizedFn } from 'ahooks';
 import type { IBusterThread, IBusterThreadMessage } from './interfaces';
-import type { BusterThread, BusterThreadUser, BusterVerificationStatus } from '@/api/buster_rest';
+import type { BusterThread, BusterThreadUser } from '@/api/buster_rest';
+import { VerificationStatus } from '@/api/asset_interfaces';
 import { useBusterWebSocket } from '../BusterWebSocket';
 import { useParams } from 'next/navigation';
 import { IBusterThreadMessageChartConfig } from '@/api/buster_rest/threads/threadConfigInterfaces';
@@ -742,7 +743,7 @@ export const useBusterThreads = () => {
     }: {
       threadId: string;
       messageId?: string;
-      status: BusterVerificationStatus;
+      status: VerificationStatus;
     }) => {
       const selectedMessageId = _getSearchMessageId({ messageId, threadId });
 

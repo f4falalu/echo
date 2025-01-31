@@ -13,14 +13,18 @@ import { useStyles } from './useStyles';
 import { IndividualSharePerson } from './IndividualSharePerson';
 import { ShareMenuContentPublish } from './ShareMenuContentPublish';
 import { ShareMenuContentEmbed } from './ShareMenuContentEmbed';
-import { IBusterThread } from '@/context/Threads/interfaces';
+import type { IBusterThread } from '@/context/Threads/interfaces';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { BusterDashboardResponse, BusterShare, BusterShareAssetType } from '@/api/buster_rest';
+import {
+  BusterCollection,
+  BusterDashboardResponse,
+  BusterShare,
+  ShareAssetType
+} from '@/api/asset_interfaces';
 import { useBusterThreadsContextSelector } from '@/context/Threads';
 import { AccessDropdown } from './AccessDropdown';
 import { ShareRole } from '@/api/buster_socket/threads';
 import { ShareRequest } from '@/api/buster_socket/dashboards';
-import { BusterCollection } from '@/api/buster_rest/collection';
 import { useCollectionsContextSelector } from '@/context/Collections';
 import { Text } from '@/components';
 import { useDashboardContextSelector } from '@/context/Dashboards';
@@ -33,7 +37,7 @@ export const ShareMenu: React.FC<
     thread?: IBusterThread;
     dashboardResponse?: BusterDashboardResponse;
     collection?: BusterCollection;
-    shareType: BusterShareAssetType;
+    shareType: ShareAssetType;
   }>
 > = ({ children, dashboardResponse, collection, thread, shareType, placement = 'bottomLeft' }) => {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -79,7 +83,7 @@ const ShareMenuContent: React.FC<{
   thread?: IBusterThread;
   dashboardResponse?: BusterDashboardResponse;
   collection?: BusterCollection;
-  shareType: BusterShareAssetType;
+  shareType: ShareAssetType;
   permission: ShareRole;
 }> = React.memo(({ collection, thread, dashboardResponse, shareType, permission }) => {
   const { openSuccessMessage } = useBusterNotifications();
@@ -94,7 +98,7 @@ const ShareMenuContent: React.FC<{
 
   const onCopyLink = useMemoizedFn(() => {
     let url = '';
-    if (shareType === BusterShareAssetType.THREAD && thread) {
+    if (shareType === ShareAssetType.METRIC && thread) {
       url = createBusterRoute({ route: BusterRoutes.APP_THREAD_ID, threadId: thread.id });
     } else if (shareType === 'dashboard' && dashboardResponse) {
       url = createBusterRoute({
@@ -163,7 +167,7 @@ const ShareMenuContentBody: React.FC<{
   thread?: IBusterThread;
   dashboardResponse?: BusterDashboardResponse;
   collection?: BusterCollection;
-  shareType: BusterShareAssetType;
+  shareType: ShareAssetType;
 }> = React.memo(
   ({
     shareType,

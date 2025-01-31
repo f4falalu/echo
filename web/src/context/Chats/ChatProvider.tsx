@@ -5,9 +5,8 @@ import {
   useContextSelector
 } from '@fluentui/react-context-selector';
 import { useBusterWebSocket } from '../BusterWebSocket';
-import type { BusterChat } from '@/api/buster_socket/chats';
+import type { BusterChat } from '@/api/asset_interfaces';
 import { useMemoizedFn, useUnmount } from 'ahooks';
-import type { FileType } from '@/api/buster_socket/chats';
 import {
   createMockResponseMessageFile,
   createMockResponseMessageText,

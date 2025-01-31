@@ -1,14 +1,9 @@
-import type { DashboardConfig } from '@/api/buster_socket/dashboards';
-import type { IBusterThreadMessageChartConfig } from '../threads/threadConfigInterfaces';
-import type {
-  BusterShare,
-  BusterThreadListItem,
-  BusterThreadMessage,
-  BusterVerificationStatus
-} from '../threads';
-import type { ShareRole } from '@/api/buster_socket/threads';
 import type { BusterCollectionListItem } from '../collection';
-import type { BusterChartConfigProps } from '@/components/charts';
+import type { BusterChartConfigProps } from '@/components/charts/interfaces';
+import type { BusterShare, ShareRole, VerificationStatus } from '../share';
+import type { DataMetadata, IBusterMetricChartConfig } from '../metric';
+import type { DashboardConfig } from './dashboardConfigInterfaces';
+
 export interface BusterDashboardListItem {
   created_at: string;
   id: string;
@@ -24,7 +19,7 @@ export interface BusterDashboardListItem {
     id: string;
     name: string;
   };
-  status: BusterVerificationStatus;
+  status: VerificationStatus;
   is_shared: boolean;
 }
 
@@ -54,7 +49,7 @@ export interface BusterDashboard
   name: string;
   updated_at: string | null;
   updated_by: string;
-  status: BusterThreadListItem['status'];
+  status: VerificationStatus;
 }
 
 export interface BusterDashboardMetric {
@@ -63,7 +58,7 @@ export interface BusterDashboardMetric {
   name: string;
   id: string;
   description: string | null;
-  data_metadata: BusterThreadMessage['data_metadata'];
+  data_metadata: DataMetadata;
   error: string | null;
   code: string | null;
 }
@@ -76,5 +71,5 @@ export interface BusterMetricDataResponse {
 }
 
 export interface IBusterDashboardMetric extends Omit<BusterDashboardMetric, 'chart_config'> {
-  chart_config: IBusterThreadMessageChartConfig;
+  chart_config: IBusterMetricChartConfig;
 }

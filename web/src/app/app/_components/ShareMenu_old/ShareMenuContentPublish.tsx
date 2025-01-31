@@ -10,7 +10,7 @@ import { useDashboardContextSelector } from '@/context/Dashboards';
 import { useBusterThreadsContextSelector } from '@/context/Threads';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useCollectionsContextSelector } from '@/context/Collections';
-import { BusterShareAssetType } from '@/api/buster_rest';
+import { ShareAssetType } from '@/api/asset_interfaces';
 import { Text } from '@/components';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { Dayjs } from 'dayjs';
@@ -20,7 +20,7 @@ export const ShareMenuContentPublish: React.FC<{
   publicExpirationDate: string;
   publicly_accessible: boolean;
   password: string | null;
-  shareType: BusterShareAssetType;
+  shareType: ShareAssetType;
   threadId?: string;
   dashboardId?: string;
   collectionId?: string;
@@ -51,7 +51,7 @@ export const ShareMenuContentPublish: React.FC<{
 
     const url = useMemo(() => {
       let url = '';
-      if (shareType === BusterShareAssetType.THREAD) {
+      if (shareType === ShareAssetType.METRIC) {
         url = createBusterRoute({ route: BusterRoutes.APP_THREAD_ID, threadId: id });
       } else if (shareType === 'dashboard') {
         url = createBusterRoute({ route: BusterRoutes.APP_DASHBOARD_ID, dashboardId: id });
@@ -70,7 +70,7 @@ export const ShareMenuContentPublish: React.FC<{
         public_password: _password || null,
         public_expiry_date: linkExp
       };
-      if (shareType === BusterShareAssetType.THREAD) {
+      if (shareType === ShareAssetType.METRIC) {
         await onShareThread(payload);
       } else if (shareType === 'dashboard') {
         await onShareDashboard(payload);
@@ -83,7 +83,7 @@ export const ShareMenuContentPublish: React.FC<{
 
     const onSetPasswordProtected = useMemoizedFn(async (v: boolean) => {
       if (!v) {
-        if (shareType === BusterShareAssetType.THREAD) {
+        if (shareType === ShareAssetType.METRIC) {
           await onShareThread({ id, public_password: null });
         } else if (shareType === 'dashboard') {
           await onShareDashboard({ id, public_password: null });
@@ -96,7 +96,7 @@ export const ShareMenuContentPublish: React.FC<{
     });
 
     const onSetPassword = useMemoizedFn(async (password: string | null) => {
-      if (shareType === BusterShareAssetType.THREAD) {
+      if (shareType === ShareAssetType.METRIC) {
         await onShareThread({ id, public_password: password });
       } else if (shareType === 'dashboard') {
         await onShareDashboard({ id, public_password: password });
@@ -109,7 +109,7 @@ export const ShareMenuContentPublish: React.FC<{
 
     const onSetExpirationDate = useMemoizedFn(async (date: Date | null) => {
       const linkExp = date ? date.toISOString() : null;
-      if (shareType === BusterShareAssetType.THREAD) {
+      if (shareType === ShareAssetType.METRIC) {
         await onShareThread({ id, public_expiry_date: linkExp });
       } else if (shareType === 'dashboard') {
         await onShareDashboard({ id, public_expiry_date: linkExp });

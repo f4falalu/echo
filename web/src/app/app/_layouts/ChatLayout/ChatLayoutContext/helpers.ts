@@ -1,4 +1,4 @@
-import type { FileType } from '@/api/buster_socket/chats';
+import type { FileType } from '@/api/asset_interfaces';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 
 const chatRouteRecord: Record<FileType, (chatId: string, assetId: string) => string> = {

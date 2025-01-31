@@ -1,7 +1,7 @@
 import { BusterChartConfigProps } from '@/components/charts';
 import { BusterSocketRequestBase } from '../base_interfaces';
 import { ShareRequest } from '../dashboards';
-import type { BusterVerificationStatus } from '@/api/buster_rest';
+import { VerificationStatus } from '@/api/asset_interfaces';
 
 export type ThreadListEmitPayload = BusterSocketRequestBase<
   '/threads/list',
@@ -9,7 +9,7 @@ export type ThreadListEmitPayload = BusterSocketRequestBase<
     page_token: number;
     page_size: number;
     admin_view: boolean;
-    filters?: { status: BusterVerificationStatus[] | null };
+    filters?: { status: VerificationStatus[] | null };
   }
 >;
 
@@ -62,7 +62,7 @@ export type ThreadUpdateMessage = BusterSocketRequestBase<
     title?: string;
     sql?: string;
     feedback?: 'negative';
-    status?: BusterVerificationStatus;
+    status?: VerificationStatus;
   }
 >;
 

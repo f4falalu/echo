@@ -6,7 +6,7 @@ import { useAntToken } from '@/styles/useAntToken';
 import { useBusterNewThreadsContextSelector } from '@/context/Threads';
 import { inputHasText } from '@/utils';
 import { useBusterSearchContextSelector } from '@/context/Search';
-import { BusterSearchResult } from '@/api/buster_rest';
+import type { BusterSearchResult } from '@/api/asset_interfaces';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { NewThreadModalDataSourceSelect } from './NewThreadModalDatasourceSelect';
 import { SuggestedPromptsContainer } from './SuggestedPromptsContainer';

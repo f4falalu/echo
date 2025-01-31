@@ -1,5 +1,5 @@
-import { BusterShareAssetType } from '@/api/buster_rest';
-import { BusterSocketRequestBase } from '../base_interfaces';
+import type { ShareAssetType } from '@/api/asset_interfaces';
+import type { BusterSocketRequestBase } from '../base_interfaces';
 
 export type UserColorsList = BusterSocketRequestBase<'/users/colors/list', {}>;
 
@@ -29,7 +29,7 @@ export type UsersFavoritePost = BusterSocketRequestBase<
   '/users/favorites/post',
   {
     id: string;
-    asset_type: BusterShareAssetType;
+    asset_type: ShareAssetType;
     index?: number;
   }
 >;
@@ -40,7 +40,7 @@ export type UserFavoriteDelete = BusterSocketRequestBase<
   '/users/favorites/delete',
   {
     id: string;
-    asset_type: BusterShareAssetType;
+    asset_type: ShareAssetType;
   }
 >;
 

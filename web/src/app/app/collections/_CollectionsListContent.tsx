@@ -14,7 +14,7 @@ import {
 } from '@/components/list';
 import { useMemoizedFn, useMount, useUnmount } from 'ahooks';
 import { NewCollectionModal } from './_NewCollectionModal';
-import { BusterCollectionListItem } from '@/api/buster_rest/collection';
+import { BusterCollectionListItem } from '@/api/asset_interfaces';
 import { CollectionSelectedPopup } from './_CollectionSelectedPopup';
 
 export const CollectionsListContent: React.FC<{}> = () => {

@@ -15,8 +15,7 @@ import { useBusterThreadsContextSelector } from '@/context/Threads';
 import { AppMaterialIcons, EditableTitle } from '@/components';
 import { FavoriteStar } from '../../_components/Lists/FavoriteStar';
 import { ShareMenu } from '../../_components/ShareMenu_old';
-import { BusterCollection } from '@/api/buster_rest/collection';
-import { BusterShareAssetType } from '@/api/buster_rest';
+import { BusterCollection, ShareAssetType } from '@/api/asset_interfaces';
 import { Text } from '@/components';
 import { useAntToken } from '@/styles/useAntToken';
 import { useMemoizedFn } from 'ahooks';
@@ -110,7 +109,7 @@ export const CollectionsIndividualHeader: React.FC<{}> = () => {
 
               <FavoriteStar
                 id={collection.id}
-                type={BusterShareAssetType.COLLECTION}
+                type={ShareAssetType.COLLECTION}
                 name={collectionTitle}
               />
             </div>
@@ -140,7 +139,7 @@ const ContentRight: React.FC<{
 
   return (
     <div className="flex items-center space-x-2">
-      <ShareMenu shareType={BusterShareAssetType.COLLECTION} collection={collection}>
+      <ShareMenu shareType={ShareAssetType.COLLECTION} collection={collection}>
         <Button type="text" icon={<AppMaterialIcons icon="share_windows" size={16} />} />
       </ShareMenu>
       <Button icon={<AppMaterialIcons icon="add" />} onClick={onButtonClick} type="default">

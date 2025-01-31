@@ -2,7 +2,7 @@ import React from 'react';
 import { ChatResponseMessage_File } from './ChatResponseMessage_File';
 import { ChatResponseMessage_Text } from './ChatResponseMessage_Text';
 import { ChatResponseMessage_Thought } from './ChatResponseMessage_Thought';
-import type { BusterChatMessageResponse } from '@/api/buster_socket/chats';
+import type { BusterChatMessageResponse } from '@/api/asset_interfaces';
 import { ChatResponseMessageHidden } from './ChatResponseMessageHidden';
 
 export interface ChatResponseMessageProps {

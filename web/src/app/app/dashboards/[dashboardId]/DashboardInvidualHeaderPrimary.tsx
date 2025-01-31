@@ -11,13 +11,13 @@ import { BusterRoutes } from '@/routes';
 import { useBusterThreadsContextSelector } from '@/context/Threads';
 import { FavoriteStar } from '../../_components/Lists/FavoriteStar';
 import { AppMaterialIcons } from '@/components';
-import { BusterDashboard, BusterDashboardResponse, BusterShareAssetType } from '@/api/buster_rest';
 import { ShareMenu } from '../../_components/ShareMenu_old';
 import { timeout } from '@/utils';
 import { AddTypeModal } from '../../_components/AddTypeModal';
 import { useCollectionsContextSelector } from '@/context/Collections';
 import { useMemoizedFn, useMount } from 'ahooks';
 import { useUserConfigContextSelector } from '@/context/Users';
+import { BusterDashboard, BusterDashboardResponse, ShareAssetType } from '@/api/asset_interfaces';
 
 export const DashboardIndividualHeaderPrimary: React.FC<{}> = React.memo(() => {
   const openedDashboardId = useDashboardContextSelector((x) => x.openedDashboardId);
@@ -43,7 +43,7 @@ export const DashboardIndividualHeaderPrimary: React.FC<{}> = React.memo(() => {
                 <ThreeDotMenu dashboardResponse={dashboardResponse} />
                 <FavoriteStar
                   id={dashboard.id}
-                  type={BusterShareAssetType.DASHBOARD}
+                  type={ShareAssetType.DASHBOARD}
                   name={dashboardTitle}
                 />
               </div>
@@ -104,7 +104,7 @@ const RightContent: React.FC<{
 
   return (
     <div className="flex items-center space-x-1">
-      <ShareMenu shareType={BusterShareAssetType.DASHBOARD} dashboardResponse={dashboardResponse}>
+      <ShareMenu shareType={ShareAssetType.DASHBOARD} dashboardResponse={dashboardResponse}>
         <Button type="text" icon={<AppMaterialIcons icon="share_windows" />} />
       </ShareMenu>
       <Button
@@ -199,7 +199,7 @@ const ThreeDotMenu: React.FC<{
           <AppMaterialIcons icon="star" />
         ),
         onClick: async () => {
-          const type = BusterShareAssetType.DASHBOARD;
+          const type = ShareAssetType.DASHBOARD;
 
           if (!isFavorited)
             return await addItemToFavorite({

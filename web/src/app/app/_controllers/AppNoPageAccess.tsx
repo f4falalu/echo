@@ -1,6 +1,6 @@
 'use client';
 
-import { BusterShareAssetType } from '@/api/buster_rest';
+import { ShareAssetType } from '@/api/asset_interfaces';
 import { asset_typeToTranslation } from '@/app/_helpers';
 import { BusterLogo } from '@/assets/svg/BusterLogo';
 import { Title } from '@/components/text';
@@ -12,7 +12,7 @@ import Link from 'next/link';
 import React from 'react';
 
 export const AppNoPageAccess: React.FC<{
-  asset_type: BusterShareAssetType;
+  asset_type: ShareAssetType;
   threadId?: string;
   dashboardId?: string;
 }> = React.memo(({ asset_type, threadId, dashboardId }) => {

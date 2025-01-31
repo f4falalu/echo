@@ -1,5 +1,5 @@
 import type { RustApiError } from '../../buster_rest/errors';
-import type { BusterChat, BusterChatListItem } from './chatInterfaces';
+import type { BusterChat, BusterChatListItem } from '../../asset_interfaces/chat';
 
 export enum ChatsResponses {
   '/chats/list:getChatsList' = '/chats/list:getChatsList',

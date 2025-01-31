@@ -1,6 +1,6 @@
-import { BusterShare, ShareRole } from '@/api/buster_socket/chats';
+import { BusterShare, ShareRole } from '@/api/asset_interfaces';
 import { ShareMenuTopBarOptions } from './ShareMenuTopBar';
-import { BusterShareAssetType } from '@/api/buster_rest/users';
+import { ShareAssetType } from '@/api/asset_interfaces';
 import React from 'react';
 import { ShareMenuContentPublish } from './ShareMenuContentPublish';
 import { ShareMenuContentEmbed } from './ShareMenuContentEmbed';
@@ -26,9 +26,9 @@ export const ShareMenuContentBody: React.FC<{
   goBack: () => void;
   onCopyLink: () => void;
   shareAssetConfig: BusterShare;
-  shareType: BusterShareAssetType;
+  shareType: ShareAssetType;
   assetId: string;
-  assetType: BusterShareAssetType;
+  assetType: ShareAssetType;
 }> = React.memo(
   ({
     shareType,

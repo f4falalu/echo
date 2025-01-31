@@ -1,7 +1,7 @@
-import { BusterShareAssetType } from '@/api/buster_rest';
+import { ShareAssetType } from '@/api/asset_interfaces';
 import { AppMaterialIcons, AppTooltip } from '@/components';
 import { useUserConfigContextSelector } from '@/context/Users';
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { gold } from '@ant-design/colors/es/presets';
 import { css } from 'antd-style';
 import { createStyles } from 'antd-style';
@@ -28,7 +28,7 @@ const useStyles = createStyles(({ token }) => ({
 
 export const FavoriteStar: React.FC<{
   id: string;
-  type: BusterShareAssetType;
+  type: ShareAssetType;
   name: string;
   className?: string;
   iconStyle?: 'default' | 'tertiary';

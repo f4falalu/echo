@@ -1,8 +1,4 @@
 import { BusterSocketResponseRoute } from '@/api/buster_socket';
-import {
-  BusterSocketResponseBase,
-  BusterSocketResponseMessage
-} from '@/api/buster_socket/baseInterfaces';
 import { ThreadResponses } from '@/api/buster_socket/threads';
 import { DashboardResponses } from '@/api/buster_socket/dashboards';
 import { isDev } from '@/config';
@@ -16,6 +12,10 @@ import { TeamResponses } from '@/api/buster_socket/user/teamResponses';
 import { SearchResponses } from '@/api/buster_socket/search';
 import { OrganizationResponses } from '@/api/buster_socket/organizations';
 import { SQLResponses } from '@/api/buster_socket/sql';
+import type {
+  BusterSocketResponseBase,
+  BusterSocketResponseMessage
+} from '@/api/buster_socket/base_interfaces';
 
 export const createBusterResponse = (
   message: BusterSocketResponseMessage

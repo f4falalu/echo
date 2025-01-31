@@ -2,7 +2,7 @@ import { appContentHeaderHeight } from '@/components/layout';
 import { createStyles } from 'antd-style';
 import React from 'react';
 import { CollapseFileButton } from './CollapseFileButton';
-import { FileType } from '@/api/buster_socket/chats';
+import { FileType } from '@/api/asset_interfaces';
 import { FileContainerSegmentProps, FileContainerButtonsProps } from './interfaces';
 import { MetricContainerHeaderButtons } from './MetricContainerHeaderButtons';
 import { ValueContainerHeaderButtons } from './ValueContainerHeaderButtons';

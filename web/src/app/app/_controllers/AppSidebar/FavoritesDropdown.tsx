@@ -1,4 +1,5 @@
-import { BusterShareAssetType, BusterUserFavorite } from '@/api/buster_rest';
+import type { BusterUserFavorite } from '@/api/buster_rest';
+import { ShareAssetType } from '@/api/asset_interfaces';
 import { AppMenuGroupSingleSortable } from '@/components/menu';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useUserConfigContextSelector } from '@/context/Users';
@@ -112,7 +113,7 @@ const createListItem = ({
   });
   let name = item.name || item.collection_name;
 
-  if (item.type === BusterShareAssetType.THREAD) {
+  if (item.type === ShareAssetType.METRIC) {
     link = createBusterRoute({
       route: BusterRoutes.APP_THREAD_ID,
       threadId: item.id

@@ -5,7 +5,7 @@ import React, { useRef } from 'react';
 import { Title } from '@/components/text';
 import { Button, Input, InputRef, Typography } from 'antd';
 import { LoginConfigProvider } from '@/app/auth/login/_components/LoginConfigProvider';
-import type { BusterShareAssetType } from '@/api/buster_rest';
+import { ShareAssetType } from '@/api/asset_interfaces';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { useMemoizedFn } from 'ahooks';
 
@@ -14,7 +14,7 @@ const { Text } = Typography;
 export const AppPasswordAccess: React.FC<{
   threadId?: string;
   dashboardId?: string;
-  type: BusterShareAssetType;
+  type: ShareAssetType;
   children: React.ReactNode;
 }> = React.memo(({ children, threadId, dashboardId, type }) => {
   const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);

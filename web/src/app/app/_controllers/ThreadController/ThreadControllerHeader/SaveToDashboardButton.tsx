@@ -1,11 +1,11 @@
-import { BusterDashboardListItem } from '@/api/buster_rest';
+import { BusterDashboardListItem } from '@/api/asset_interfaces';
 import { AppMaterialIcons, AppTooltip } from '@/components';
 import { AppDropdownSelect } from '@/components/dropdown';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useDashboardContextSelector } from '@/context/Dashboards';
 import { useBusterThreadsContextSelector } from '@/context/Threads';
 import { IBusterThread } from '@/context/Threads/interfaces';
-import { BusterRootRoutes, BusterRoutes, createBusterRoute } from '@/routes';
+import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn, useMount, useUnmount } from 'ahooks';
 import { Button } from 'antd';
 import React, { useEffect, useMemo } from 'react';

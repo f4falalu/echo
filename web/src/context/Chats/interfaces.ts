@@ -1,4 +1,4 @@
-import type { BusterChat, BusterChatMessage } from '@/api/buster_socket/chats';
+import type { BusterChat, BusterChatMessage } from '@/api/asset_interfaces/chat';
 
 export interface IBusterChat extends BusterChat {
   isNewChat: boolean;

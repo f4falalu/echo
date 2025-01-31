@@ -1,9 +1,9 @@
-import { BusterSearchResult } from '@/api/buster_rest';
+import type { BusterSearchResult } from '@/api/asset_interfaces';
 import { CircleSpinnerLoader } from '@/components';
 import { boldHighlights } from '@/utils/element';
 import { createStyles } from 'antd-style';
-import React, { useEffect, useMemo } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import React, { useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 export const SuggestedPromptsContainer: React.FC<{
   prompts: BusterSearchResult[];

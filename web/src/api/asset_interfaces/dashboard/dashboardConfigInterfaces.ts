@@ -1,4 +1,4 @@
-import { BusterResizeableGridRow } from '@/components/grid';
+import type { BusterResizeableGridRow } from '@/components/grid/interfaces';
 
 export interface DashboardConfig {
   rows?: (Omit<BusterResizeableGridRow, 'items'> & {

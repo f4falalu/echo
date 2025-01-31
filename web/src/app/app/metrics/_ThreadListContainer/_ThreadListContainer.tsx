@@ -7,21 +7,21 @@ import { ThreadItemsContainer } from './_ThreadItemsContainer';
 import { ThreadSidebarHeader } from './_ThreadSidebarHeader';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn, useMount } from 'ahooks';
-import { BusterVerificationStatus } from '@/api/buster_rest';
+import { VerificationStatus } from '@/api/asset_interfaces';
 
 export const ThreadListContainer: React.FC<{
   className?: string;
   type: 'logs' | 'threads';
 }> = ({ type, className = '' }) => {
   const onToggleThreadsModal = useAppLayoutContextSelector((s) => s.onToggleThreadsModal);
-  const [filters, setFilters] = useState<BusterVerificationStatus[]>([]);
+  const [filters, setFilters] = useState<VerificationStatus[]>([]);
   const adminView = type === 'logs';
   const { list, threadListLoadingStatus } = useBusterThreadListByFilter({
     filters,
     admin_view: adminView
   });
 
-  const onSetFilters = useMemoizedFn((newFilters: BusterVerificationStatus[]) => {
+  const onSetFilters = useMemoizedFn((newFilters: VerificationStatus[]) => {
     setFilters(newFilters);
   });
 

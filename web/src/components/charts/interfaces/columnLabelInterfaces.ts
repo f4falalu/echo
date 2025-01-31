@@ -1,4 +1,4 @@
-import { SimplifiedColumnType } from '@/utils';
+import type { SimplifiedColumnType } from '@/utils/messages';
 
 type ColumnLabelFormatBase = {
   style?: 'currency' | 'percent' | 'number' | 'date' | 'string';

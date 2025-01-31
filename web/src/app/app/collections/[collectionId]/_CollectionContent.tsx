@@ -9,11 +9,11 @@ import {
   BusterCollection,
   BusterCollectionItemAsset,
   BusterCollectionListItem
-} from '@/api/buster_rest/collection';
+} from '@/api/asset_interfaces';
 import { Text } from '@/components';
 import { ListEmptyStateWithButton } from '../../../../components/list';
 import { AddTypeModal } from '../../_components/AddTypeModal';
-import { BusterShareAssetType } from '@/api/buster_rest';
+import { ShareAssetType } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/list';
 import { CollectionIndividualSelectedPopup } from './_CollectionsIndividualPopup';
@@ -186,7 +186,7 @@ const CollectionListSkeleton: React.FC<{}> = () => {
 };
 
 const createAssetLink = (asset: BusterCollectionItemAsset, collectionId: string) => {
-  if (asset.asset_type === BusterShareAssetType.THREAD) {
+  if (asset.asset_type === ShareAssetType.METRIC) {
     return createBusterRoute({
       route: BusterRoutes.APP_COLLECTIONS_ID_THREADS_ID,
       collectionId,
