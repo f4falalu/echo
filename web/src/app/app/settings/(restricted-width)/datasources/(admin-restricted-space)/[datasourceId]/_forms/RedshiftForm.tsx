@@ -1,10 +1,8 @@
 import {
   DatasourceCreateCredentials,
-  MySqlCreateCredentials,
-  PostgresCreateCredentials,
   RedshiftCreateCredentials
 } from '@/api/buster_socket/datasources/interface';
-import { DataSource } from '@/api/buster_rest';
+import type { DataSource } from '@/api/asset_interfaces';
 import { AppSelectTagInput } from '@/components/select/AppSelectTagInput';
 import { Form, Input, InputNumber } from 'antd';
 

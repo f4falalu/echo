@@ -1,4 +1,8 @@
-import { BusterDataset, BusterDatasetData, BusterDatasetListItem } from './responseInterfaces';
+import type {
+  BusterDataset,
+  BusterDatasetData,
+  BusterDatasetListItem
+} from '../../asset_interfaces/datasets';
 import { mainApi } from '../instances';
 import * as config from './config';
 import { serverFetch } from '@/api/createServerInstance';

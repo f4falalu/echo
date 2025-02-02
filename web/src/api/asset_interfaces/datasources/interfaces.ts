@@ -1,4 +1,4 @@
-import { BusterDataset } from '../../datasets';
+import type { BusterDataset } from '../datasets';
 
 export enum DataSourceStatus {
   ACTIVE = 'active',

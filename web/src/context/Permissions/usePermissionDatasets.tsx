@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useBusterWebSocket } from '../BusterWebSocket';
-import { BusterDatasetListItem } from '@/api/buster_rest/datasets';
+import type { BusterDatasetListItem } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
 import { useUserConfigContextSelector } from '../Users';
 import { usePermissionsContextSelector } from './PermissionsConfigProvider';

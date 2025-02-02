@@ -6,7 +6,7 @@ import { BusterUserAvatar } from '@/components';
 import { formatDate } from '@/utils';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { BusterDatasetListItem } from '@/api/buster_rest/datasets';
+import type { BusterDatasetListItem } from '@/api/asset_interfaces/datasets';
 import { ListEmptyStateWithButton } from '../../../components/list';
 import { useDatasetContextSelector } from '@/context/Datasets';
 import { useMemoizedFn } from 'ahooks';

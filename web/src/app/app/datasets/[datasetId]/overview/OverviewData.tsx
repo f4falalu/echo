@@ -1,4 +1,4 @@
-import { BusterDatasetData } from '@/api/buster_rest/datasets';
+import type { BusterDatasetData } from '@/api/asset_interfaces/datasets';
 import { ShimmerText } from '@/components';
 import AppDataGrid from '@/components/table/AppDataGrid';
 import { useUserConfigContextSelector } from '@/context/Users';

@@ -1,7 +1,7 @@
 'use server';
 
 import { serverFetch } from '../../createServerInstance';
-import { BusterDataset } from './responseInterfaces';
+import type { BusterDataset } from '../../asset_interfaces/datasets';
 import * as config from './config';
 
 export const getDatasetMetadata_server = async (datasetId: string) => {

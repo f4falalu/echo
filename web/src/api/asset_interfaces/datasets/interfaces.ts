@@ -1,4 +1,4 @@
-import { DataSource, DataSourceTypes } from '../datasources';
+import type { DataSourceTypes } from '../datasources';
 
 export interface BusterDatasetListItem {
   id: string;
