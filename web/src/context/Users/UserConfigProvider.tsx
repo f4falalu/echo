@@ -1,6 +1,6 @@
 'use client';
 
-import { BusterUserResponse } from '@/api/buster_rest';
+import type { BusterUserResponse } from '@/api/asset_interfaces';
 import React, { PropsWithChildren, useState } from 'react';
 import { useBusterWebSocket } from '../BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';

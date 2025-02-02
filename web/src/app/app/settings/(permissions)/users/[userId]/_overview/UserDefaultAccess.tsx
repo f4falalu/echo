@@ -1,9 +1,10 @@
-import { type BusterUser, type OrganizationUser, useUpdateUser } from '@/api';
+import { type BusterUser, type OrganizationUser } from '@/api/asset_interfaces';
 import React from 'react';
 import { Text, Title } from '@/components/text';
 import { Card, Select } from 'antd';
 import { useMemoizedFn } from 'ahooks';
 import { AppTooltip } from '@/components';
+import { useUpdateUser } from '@/api/buster_rest';
 
 export const UserDefaultAccess: React.FC<{
   user: OrganizationUser;

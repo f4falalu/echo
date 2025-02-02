@@ -20,13 +20,13 @@ import { BusterTermsProvider } from './Terms/BusterTermsProvider';
 import { BusterPermissionsProvider } from './Permissions';
 import { BusterSearchProvider } from './Search';
 import { BusterAssetsProvider } from './Assets/BusterAssetsProvider';
-import { BusterUserResponse } from '@/api/buster_rest/users';
 import { BusterPosthogProvider } from './Posthog/usePosthog';
 import { BusterNotificationsProvider } from './BusterNotifications';
 import { BusterChatProvider, BusterNewChatProvider } from './Chats';
 import { RoutePrefetcher } from './RoutePrefetcher';
 import { BusterMessageDataProvider } from './MetricData';
 import { BusterMetricsProvider } from './Metrics';
+import type { BusterUserResponse } from '@/api/asset_interfaces';
 
 // scan({
 //   enabled: true,

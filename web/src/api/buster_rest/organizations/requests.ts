@@ -1,6 +1,6 @@
 import { serverFetch } from '../../createServerInstance';
 import { mainApi } from '../instances';
-import { OrganizationUser } from './responseInterfaces';
+import type { OrganizationUser } from '@/api/asset_interfaces';
 
 export const getOrganizationUsers = async ({
   organizationId

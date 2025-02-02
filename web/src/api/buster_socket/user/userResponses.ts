@@ -1,10 +1,9 @@
-import {
+import type {
   BusterUserFavorite,
   BusterUserListItem,
   BusterUserPalette,
-  BusterUserResponse,
-  BusterUserTeamListItem
-} from '@/api/buster_rest';
+  BusterUserResponse
+} from '@/api/asset_interfaces';
 
 export enum UserResponses {
   '/users/colors/list:listUserColorPalettes' = '/users/colors/list:listUserColorPalettes',

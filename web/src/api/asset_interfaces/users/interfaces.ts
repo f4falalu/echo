@@ -1,5 +1,5 @@
-import { BusterPermissionUser } from '../permissions';
-import type { ShareAssetType } from '../../asset_interfaces';
+import { BusterPermissionUser } from '../permission';
+import type { ShareAssetType } from '../share';
 
 export interface BusterUserPalette {
   id: string;

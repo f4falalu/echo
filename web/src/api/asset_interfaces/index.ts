@@ -6,3 +6,6 @@ export type * from './chat';
 export type * from './search';
 export * from './datasets';
 export * from './datasources';
+export * from './users';
+export * from './permission';
+export * from './organizations';

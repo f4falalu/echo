@@ -1,4 +1,4 @@
-import { TeamRole } from '@/api/buster_rest';
+import { TeamRole } from '@/api/asset_interfaces';
 import { TEAM_ROLE_OPTIONS } from './PermissionAssignTeamRole';
 import React, { useMemo } from 'react';
 import { Button, Dropdown, MenuProps } from 'antd';

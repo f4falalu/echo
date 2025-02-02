@@ -22,12 +22,12 @@ import {
 } from './requests';
 import { useMemoizedFn } from 'ahooks';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
-import {
+import type {
   BusterUserDataset,
   BusterUserDatasetGroup,
   BusterUserPermissionGroup,
   BusterUserTeamListItem
-} from './interfaces';
+} from '@/api/asset_interfaces';
 
 export const useGetUserDatasetGroups = ({ userId }: { userId: string }) => {
   const queryFn = useMemoizedFn(async () => getUserDatasetGroups({ userId }));

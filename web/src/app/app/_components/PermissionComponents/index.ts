@@ -7,3 +7,4 @@ export * from './PermissionAssignedCell';
 export * from './PermissionAssignedButton';
 export * from './PermissionAssignTeamRole';
 export * from './NewDatasetGroupModal';
+export * from './PermissionAsssignTeamRoleButton';

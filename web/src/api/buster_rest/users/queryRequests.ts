@@ -7,7 +7,7 @@ import { getUser, getUser_server, updateOrganizationUser } from './requests';
 import { useMemoizedFn } from 'ahooks';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import * as config from './config';
-import { OrganizationUser } from '../organizations';
+import type { OrganizationUser } from '@/api/asset_interfaces';
 
 export const useGetUser = (params: Parameters<typeof getUser>[0]) => {
   const queryFn = useMemoizedFn(() => {

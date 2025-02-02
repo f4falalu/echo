@@ -6,7 +6,7 @@ import {
   EmptyStateList,
   InfiniteListContainer
 } from '@/components/list';
-import { OrganizationUserDataset } from '@/api/buster_rest';
+import type { OrganizationUserDataset } from '@/api/asset_interfaces';
 import { PermissionLineageBreadcrumb } from '@appComponents/PermissionComponents';
 
 export const UserDatasetListContainer = React.memo(
