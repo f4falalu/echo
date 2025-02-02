@@ -5,7 +5,7 @@ export type BusterSearchRequest = BusterSocketRequestBase<
   {
     query: string;
     num_results?: null | number; //optional: default is 15
-    exclude_threads?: null | boolean; //optional: all of these excludes default to false.  If you pass up true, it will remove them from the results.
+    exclude_metrics?: null | boolean; //optional: all of these excludes default to false.  If you pass up true, it will remove them from the results.
     exclude_collections?: null | boolean;
     exclude_dashboards?: null | boolean;
     exclude_data_sources?: null | boolean;

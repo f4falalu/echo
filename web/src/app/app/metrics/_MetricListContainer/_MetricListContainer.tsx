@@ -13,7 +13,7 @@ export const MetricListContainer: React.FC<{
   className?: string;
   type: 'logs' | 'metrics';
 }> = ({ type, className = '' }) => {
-  const onToggleThreadsModal = useAppLayoutContextSelector((s) => s.onToggleThreadsModal);
+  const onToggleChatsModal = useAppLayoutContextSelector((s) => s.onToggleChatsModal);
   const [filters, setFilters] = useState<VerificationStatus[]>([]);
   const adminView = type === 'logs';
   const { list, metricListLoadingStatus } = useBusterMetricListByFilter({
@@ -25,8 +25,8 @@ export const MetricListContainer: React.FC<{
     setFilters(newFilters);
   });
 
-  const onOpenNewCollectionModal = useMemoizedFn(() => {
-    onToggleThreadsModal();
+  const onOpenNewMetricModal = useMemoizedFn(() => {
+    onToggleChatsModal();
   });
 
   useMount(async () => {
@@ -40,7 +40,7 @@ export const MetricListContainer: React.FC<{
         <MetricItemsContainer
           type={type}
           metrics={list}
-          openNewCollectionModal={onOpenNewCollectionModal}
+          openNewMetricModal={onOpenNewMetricModal}
           loading={!metricListLoadingStatus?.fetched}
           className="flex-col overflow-hidden"
         />

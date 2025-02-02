@@ -19,7 +19,6 @@ import { useBusterWebSocket } from '../BusterWebSocket';
 import { useParams } from 'next/navigation';
 import { useUserConfigContextSelector } from '../Users';
 import { useBusterAssetsContextSelector } from '../Assets/BusterAssetsProvider';
-import { useBusterUndoRedo } from './useBusterUndoRedo';
 import { useDashboardContextSelector } from '../Dashboards';
 import { useBusterNotifications } from '../BusterNotifications';
 import last from 'lodash/last';
@@ -460,7 +459,7 @@ export const useBusterMetrics = () => {
     }: {
       metricId: string;
       save_draft: boolean;
-      save_as_thread_state?: string;
+      save_as_metric_state?: string;
     }) => {
       return busterSocket.emitAndOnce({
         emitEvent: {
@@ -504,7 +503,7 @@ export const useBusterMetrics = () => {
   });
 
   const _onCheckUpdateMetricMessage = useMemoizedFn((metric: BusterMetric) => {
-    // const newMessage = thread[0].messages.find((m) => m.id === messageId);
+    // const newMessage = metric[0].messages.find((m) => m.id === messageId);
     // const currentMessage = _getMetricMessage({
     //   metricId: selectedMetricId,
     //   messageId: messageId

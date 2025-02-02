@@ -6,7 +6,7 @@ import { AppSplitter, AppSplitterRef } from '@/components';
 import { SQLContainer } from './SQLContainer';
 import { DataContainer } from './DataContainer';
 import { useMemoizedFn, useRequest } from 'ahooks';
-import type { BusterDatasetData } from '@/api/asset_interfaces/datasets';
+import type { BusterDatasetData } from '@/api/asset_interfaces';
 import { EditorApps, EditorContainerSubHeader } from './EditorContainerSubHeader';
 import { createStyles } from 'antd-style';
 import { MetadataContainer } from './MetadataContainer';

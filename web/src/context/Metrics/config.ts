@@ -1,6 +1,9 @@
-import { BusterMetric, ShareRole, VerificationStatus } from '@/api/asset_interfaces';
-import { BusterMetricListItem } from '@/api/asset_interfaces';
-import { DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces/metric';
+import {
+  BusterMetricListItem,
+  DEFAULT_CHART_CONFIG,
+  ShareRole,
+  VerificationStatus
+} from '@/api/asset_interfaces';
 import { IBusterMetric } from './interfaces';
 
 export const defaultIBusterMetric: Required<IBusterMetric> = {

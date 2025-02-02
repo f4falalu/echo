@@ -4,7 +4,7 @@ import {
   DEFAULT_COLUMN_LABEL_FORMAT,
   DEFAULT_COLUMN_SETTINGS,
   IBusterMetricChartConfig
-} from '@/api/asset_interfaces/metric';
+} from '@/api/asset_interfaces';
 import { getChangedValues } from '@/utils/objects';
 import { IBusterMetric } from '../interfaces';
 import isEqual from 'lodash/isEqual';

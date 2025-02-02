@@ -5,10 +5,10 @@ import { BusterChartConfigProps } from '@/components/charts';
 import { BusterMetricListItem, VerificationStatus } from '@/api/asset_interfaces';
 import { defaultIBusterMetric } from '../config';
 
-export const metricsArrayToRecord = (threads: BusterMetricListItem[]) => {
-  return threads.reduce(
-    (acc, thread) => {
-      acc[thread.id] = thread;
+export const metricsArrayToRecord = (metrics: BusterMetricListItem[]) => {
+  return metrics.reduce(
+    (acc, metric) => {
+      acc[metric.id] = metric;
       return acc;
     },
     {} as Record<string, BusterMetricListItem>
@@ -16,12 +16,12 @@ export const metricsArrayToRecord = (threads: BusterMetricListItem[]) => {
 };
 
 export const canEditChart = (
-  threadId: string | undefined | null,
+  metricId: string | undefined | null,
   messageData: BusterMetricData,
   columnLabelFormats: BusterChartConfigProps['columnLabelFormats']
 ): boolean => {
   return (
-    !!threadId &&
+    !!metricId &&
     !messageData?.fetching &&
     !!messageData?.fetched &&
     !isEmpty(messageData?.data) &&

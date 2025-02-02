@@ -2,7 +2,7 @@ import {
   DEFAULT_COLUMN_LABEL_FORMAT,
   type ColumnMetaData,
   type IBusterMetricChartConfig
-} from '@/api/asset_interfaces/metric';
+} from '@/api/asset_interfaces';
 import type { ColumnLabelFormat, IColumnLabelFormat } from '@/components/charts';
 import {
   isDateColumnType,

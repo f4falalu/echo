@@ -22,6 +22,8 @@
       "@/*": ["./src/*"],
       "@utils/*": ["./src/utils/*"],
       "@appComponents/*": ["./src/app/app/_components/*"],
+      "@appLayouts/*": ["./src/app/app/_layouts/*"],
+      "@appControllers/*": ["./src/app/app/_controllers/*"],
       "@chatLayout/*": ["./src/app/app/_layouts/ChatLayout/*"]
     },
     "target": "ES2017"

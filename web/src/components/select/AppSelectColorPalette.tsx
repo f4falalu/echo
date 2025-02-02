@@ -57,7 +57,7 @@ const useStyles = createStyles(({ token, css }) => {
 });
 
 export const AppSelectColorPalette: React.FC<AppSelectColorPaletteProps> = ({
-  options = [], //import { colorOptions } from '@/app/app/_controllers/ThreadController/ThreadControllerEditContent/SidebarChartApp';
+  options = [],
   children,
   appendedChildren,
   onChange,

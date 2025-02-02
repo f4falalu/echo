@@ -2,7 +2,7 @@ import {
   DEFAULT_COLUMN_SETTINGS,
   type ColumnMetaData,
   type IBusterMetricChartConfig
-} from '@/api/asset_interfaces/metric';
+} from '@/api/asset_interfaces';
 import type { ColumnSettings } from '@/components/charts';
 
 export const createDefaultColumnSettings = (

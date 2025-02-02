@@ -42,7 +42,7 @@ const FavoritesDropdownContent: React.FC<{
 }> = ({ setOpenedIds, userFavorites, favoritesList }) => {
   const params = useParams<{
     dashboardId: string;
-    threadId: string;
+    metricId: string;
     collectionId: string;
   }>();
   const currentRoute = useAppLayoutContextSelector((s) => s.currentRoute);
@@ -118,12 +118,12 @@ const createListItem = ({
       route: BusterRoutes.APP_METRIC_ID,
       metricId: item.id
     });
-  } else if (item.type === 'dashboard') {
+  } else if (item.type === ShareAssetType.DASHBOARD) {
     link = createBusterRoute({
       route: BusterRoutes.APP_DASHBOARD_ID,
       dashboardId: item.id
     });
-  } else if (item.type === 'collection') {
+  } else if (item.type === ShareAssetType.COLLECTION) {
     link = createBusterRoute({
       route: BusterRoutes.APP_COLLECTIONS_ID,
       collectionId: item.collection_id!

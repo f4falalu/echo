@@ -5,8 +5,7 @@ import {
   useContextSelector
 } from '@fluentui/react-context-selector';
 import { useMemoizedFn } from 'ahooks';
-import type { BusterSearchResult } from '@/api/asset_interfaces';
-import type { BusterDatasetListItem } from '@/api/asset_interfaces/datasets';
+import type { BusterDatasetListItem, BusterSearchResult } from '@/api/asset_interfaces';
 
 export const useBusterNewChat = () => {
   const [prompt, setPrompt] = useState('');

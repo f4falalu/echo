@@ -23,7 +23,7 @@ import { measureTextWidth } from '@/utils/canvas';
 import { useParams } from 'next/navigation';
 
 export const CollectionsIndividualHeader: React.FC<{}> = () => {
-  const selectedThreadId = useParams().collectionId as string | undefined;
+  const selectedCollectionId = useParams().collectionId as string | undefined;
   const createPageLink = useAppLayoutContextSelector((s) => s.createPageLink);
   const openedCollectionId = useCollectionsContextSelector((x) => x.openedCollectionId);
   const updateCollection = useCollectionsContextSelector((x) => x.updateCollection);
@@ -38,7 +38,7 @@ export const CollectionsIndividualHeader: React.FC<{}> = () => {
     return measureTextWidth(collectionTitle);
   }, [collectionTitle, editingTitle]);
 
-  const collectionBaseTitle = selectedThreadId ? collection?.name : 'Collections';
+  const collectionBaseTitle = selectedCollectionId ? collection?.name : 'Collections';
 
   const onSetTitleValue = useMemoizedFn((value: string) => {
     updateCollection({

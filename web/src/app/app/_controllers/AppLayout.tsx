@@ -76,8 +76,8 @@ const AppLayoutContent: React.FC<
   const { cx, styles } = useStyles();
   const onToggleInviteModal = useAppLayoutContextSelector((s) => s.onToggleInviteModal);
   const openInviteModal = useAppLayoutContextSelector((s) => s.openInviteModal);
-  const onToggleThreadsModal = useAppLayoutContextSelector((s) => s.onToggleThreadsModal);
-  const openThreadsModal = useAppLayoutContextSelector((s) => s.openThreadsModal);
+  const onToggleChatsModal = useAppLayoutContextSelector((s) => s.onToggleChatsModal);
+  const openChatsModal = useAppLayoutContextSelector((s) => s.openChatsModal);
   const onToggleSupportModal = useAppLayoutContextSelector((s) => s.onToggleSupportModal);
   const openSupportModal = useAppLayoutContextSelector((s) => s.openSupportModal);
   const userOrganizations = useUserConfigContextSelector((x) => x.userOrganizations);
@@ -85,7 +85,7 @@ const AppLayoutContent: React.FC<
     (s) => s.theme.token?.colorBgContainerDisabled
   );
 
-  const onCloseThreadsModal = useMemoizedFn(() => onToggleThreadsModal(false));
+  const onCloseChatsModal = useMemoizedFn(() => onToggleChatsModal(false));
   const onCloseInviteModal = useMemoizedFn(() => onToggleInviteModal(false));
   const onCloseSupportModal = useMemoizedFn(() => onToggleSupportModal(false));
 
@@ -118,7 +118,7 @@ const AppLayoutContent: React.FC<
 
       {!isAnonymousUser && hasOrganization && (
         <>
-          <NewChatModal open={openThreadsModal} onClose={onCloseThreadsModal} />
+          <NewChatModal open={openChatsModal} onClose={onCloseChatsModal} />
           <InvitePeopleModal open={openInviteModal} onClose={onCloseInviteModal} />
           <SupportModal open={openSupportModal} onClose={onCloseSupportModal} />
         </>

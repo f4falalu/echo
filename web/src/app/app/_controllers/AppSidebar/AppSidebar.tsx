@@ -28,11 +28,11 @@ export const AppSidebar: React.FC<{
   className?: string;
   signOut: () => void;
 }> = React.memo(({ className = '', signOut }) => {
-  const onToggleThreadsModal = useAppLayoutContextSelector((s) => s.onToggleThreadsModal);
+  const onToggleChatsModal = useAppLayoutContextSelector((s) => s.onToggleChatsModal);
   const createPageLink = useAppLayoutContextSelector((s) => s.createPageLink);
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
   const currentSegment = useAppLayoutContextSelector((s) => s.currentSegment);
-  const openThreadsModal = useAppLayoutContextSelector((s) => s.openThreadsModal);
+  const openChatsModal = useAppLayoutContextSelector((s) => s.openChatsModal);
   const isUserRegistered = useUserConfigContextSelector((state) => state.isUserRegistered);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const isScrolledSidebar = (useScroll(sidebarRef)?.top || 0) > 0;
@@ -71,9 +71,8 @@ export const AppSidebar: React.FC<{
         <ChosenTopBar
           onOpenSettings={onGoToSettingPage}
           onGoToHomePage={onGoToHomePage}
-          onOpenThreadsModal={onToggleThreadsModal}
+          onOpenChatsModal={onToggleChatsModal}
           createPageLink={createPageLink}
-          threadModalOpen={openThreadsModal}
           isUserRegistered={isUserRegistered}
           className="mb-5 px-3.5"
           style={memoizedStyle}

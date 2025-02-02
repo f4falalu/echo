@@ -11,9 +11,9 @@ export const SuggestedPromptsContainer: React.FC<{
   open: boolean;
   activeItem: number | null;
   setActiveItem: React.Dispatch<React.SetStateAction<number | null>>;
-  navigatingToThreadId: string | null;
+  navigatingToMetricId: string | null;
 }> = React.memo(
-  ({ navigatingToThreadId, activeItem, setActiveItem, prompts, open, onSelectPrompt }) => {
+  ({ navigatingToMetricId, activeItem, setActiveItem, prompts, open, onSelectPrompt }) => {
     const activeItemId = activeItem !== null ? prompts[activeItem]?.id : null;
 
     useEffect(() => {
@@ -68,7 +68,7 @@ export const SuggestedPromptsContainer: React.FC<{
             {...prompt}
             onSelectPrompt={onSelectPrompt}
             activeItemId={activeItemId}
-            loading={navigatingToThreadId === prompt.id}
+            loading={navigatingToMetricId === prompt.id}
           />
         ))}
       </div>

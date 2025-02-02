@@ -1,4 +1,4 @@
-import type { DataSource, DataSourceTypes } from '@/api/asset_interfaces/datasources';
+import type { DataSource, DataSourceTypes } from '@/api/asset_interfaces';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useDataSourceContextSelector } from '@/context/DataSources';
 import { BusterRoutes } from '@/routes';

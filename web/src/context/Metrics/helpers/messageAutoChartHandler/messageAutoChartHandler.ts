@@ -4,7 +4,7 @@ import {
   DataMetadata,
   DEFAULT_CHART_CONFIG,
   DEFAULT_CHART_CONFIG_ENTRIES
-} from '@/api/asset_interfaces/metric';
+} from '@/api/asset_interfaces';
 import type { BusterChartConfigProps } from '@/components/charts';
 import { produce } from 'immer';
 import isEmpty from 'lodash/isEmpty';

@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { FormWrapper, FormWrapperHandle } from './FormWrapper';
-import type { DataSource } from '@/api/asset_interfaces/datasources';
+import type { DataSource } from '@/api/asset_interfaces';
 import type {
   BigQueryCreateCredentials,
   DatasourceCreateCredentials

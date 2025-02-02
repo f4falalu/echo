@@ -1,6 +1,6 @@
 import React, { PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { useBusterWebSocket } from '../BusterWebSocket';
-import type { DataSource, DataSourceListItem } from '@/api/asset_interfaces/datasources';
+import type { DataSource, DataSourceListItem } from '@/api/asset_interfaces';
 import { useSelectedLayoutSegments } from 'next/navigation';
 import { useMemoizedFn, useMount } from 'ahooks';
 import type { DatasourceCreateCredentials } from '@/api/buster_socket/datasources/interface';

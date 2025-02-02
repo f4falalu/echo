@@ -28,12 +28,12 @@ export const SaveMetricToDashboardButton: React.FC<{
 
     const onSaveToDashboard = useMemoizedFn(async (dashboardIds: string[]) => {
       console.warn('TODO: save metric to dashboard', dashboardIds);
-      //  await saveThreadToDashboard({ threadId, dashboardIds });
+      //  await saveMetricToDashboard({ metricId, dashboardIds });
     });
 
     const onRemoveFromDashboard = useMemoizedFn(async (dashboardId: string) => {
       console.warn('TODO: remove metric from dashboard', dashboardId);
-      //  return await removeThreadFromDashboard({ threadId, dashboardId, useConfirmModal: false });
+      //  return await removeMetricFromDashboard({ metricId, dashboardId, useConfirmModal: false });
     });
 
     const onClick = useMemoizedFn(() => {

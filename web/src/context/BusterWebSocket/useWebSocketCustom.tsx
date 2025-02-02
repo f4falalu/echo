@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from 'react';
 import { ReadyState } from './useBusterWebSocket';
 import { BusterSocketResponseBase } from '@/api/buster_socket/base_interfaces';
 import { createBusterResponse } from './helpers';
-import { Priority, getPriorityFromRoute } from './messagePriority';
 import { DeviceCapabilities, getDeviceCapabilities } from './deviceCapabilities';
 import { useWindowFocus } from '@/hooks';
 import { SupabaseContextReturnType } from '../Supabase';
@@ -17,7 +16,6 @@ type WebSocketHookProps = {
 
 interface QueuedMessage {
   data: MessageEvent['data'];
-  priority: Priority;
   timestamp: number;
 }
 
@@ -110,11 +108,8 @@ const useWebSocket = ({ url, checkTokenValidity, canConnect, onMessage }: WebSoc
 
   const handleIncomingMessage = useMemoizedFn((event: MessageEvent) => {
     try {
-      const data = JSON.parse(event.data);
-      const priority = getPriorityFromRoute(data.route);
       const queuedMessage: QueuedMessage = {
         data: event.data,
-        priority,
         timestamp: Date.now()
       };
 

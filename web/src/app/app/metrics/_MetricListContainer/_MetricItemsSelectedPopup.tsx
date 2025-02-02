@@ -11,7 +11,7 @@ import { useMemoizedFn, useMount } from 'ahooks';
 import { SaveToCollectionsDropdown } from '@/app/app/_components/Dropdowns/SaveToCollectionsDropdown';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 
-export const ThreadSelectedOptionPopup: React.FC<{
+export const MetricSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
   hasSelected: boolean;

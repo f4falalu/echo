@@ -7,8 +7,8 @@ export const normalizeNewMetricsIntoGrid = (
   metrics: BusterMetric[],
   grid: DashboardConfig['rows'] = []
 ): BusterResizeableGridRow[] => {
-  const newMetrics = getAddedThreads(metrics, grid);
-  const removedMetrics = getRemovedThreads(metrics, grid);
+  const newMetrics = getAddedMetrics(metrics, grid);
+  const removedMetrics = getRemovedMetrics(metrics, grid);
   const numberOfNewMetrics = newMetrics.length;
   const numberOfRemovedMetrics = removedMetrics.length;
   const numberOfRows = grid.length;
@@ -107,14 +107,14 @@ export const normalizeNewMetricsIntoGrid = (
   return newGrid.filter((row) => row.items.length > 0);
 };
 
-export const hasUnmappedThreads = (
+export const hasUnmappedMetrics = (
   metrics: BusterMetric[],
   configRows: DashboardConfig['rows'] = []
 ) => {
   return !metrics.every((m) => configRows.some((r) => r.items.some((t) => t.id === m.id)));
 };
 
-export const hasRemovedThreads = (
+export const hasRemovedMetrics = (
   metrics: BusterMetric[],
   configRows: BusterResizeableGridRow[]
 ) => {
@@ -127,11 +127,11 @@ export const hasRemovedThreads = (
   return !configRows.every((r) => r.items.some((t) => metrics.some((m) => t.id === m.id)));
 };
 
-const getRemovedThreads = (metrics: BusterMetric[], configRows: DashboardConfig['rows'] = []) => {
+const getRemovedMetrics = (metrics: BusterMetric[], configRows: DashboardConfig['rows'] = []) => {
   const allGridItems = configRows.flatMap((r) => r.items);
   return allGridItems.filter((t) => !metrics.some((m) => m.id === t.id));
 };
 
-const getAddedThreads = (metrics: BusterMetric[], configRows: DashboardConfig['rows'] = []) => {
+const getAddedMetrics = (metrics: BusterMetric[], configRows: DashboardConfig['rows'] = []) => {
   return metrics.filter((m) => !configRows.some((r) => r.items.some((t) => t.id === m.id)));
 };

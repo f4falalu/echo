@@ -16,11 +16,11 @@ export const MetricSidebarHeader: React.FC<{
   onSetFilters: (filters: VerificationStatus[]) => void;
 }> = ({ type, filters, onSetFilters }) => {
   const title = type === 'logs' ? 'Logs' : 'Metrics';
-  const onToggleThreadsModal = useAppLayoutContextSelector((s) => s.onToggleThreadsModal);
+  const onToggleChatsModal = useAppLayoutContextSelector((s) => s.onToggleChatsModal);
   const showFilters: boolean = true;
 
-  const onToggleThreadsModalPreflight = useMemoizedFn(() => {
-    onToggleThreadsModal();
+  const onToggleChatsModalPreflight = useMemoizedFn(() => {
+    onToggleChatsModal();
   });
 
   return (
@@ -36,7 +36,7 @@ export const MetricSidebarHeader: React.FC<{
           <Button
             icon={<AppMaterialIcons icon="edit_square" />}
             type="default"
-            onClick={onToggleThreadsModalPreflight}>
+            onClick={onToggleChatsModalPreflight}>
             New metric
           </Button>
         </div>

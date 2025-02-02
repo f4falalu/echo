@@ -2,7 +2,7 @@ import {
   DatabricksCreateCredentials,
   DatasourceCreateCredentials
 } from '@/api/buster_socket/datasources/interface';
-import type { DataSource } from '@/api/asset_interfaces/datasources';
+import type { DataSource } from '@/api/asset_interfaces';
 import React from 'react';
 import { FormWrapper } from './FormWrapper';
 import { Form, Input } from 'antd';

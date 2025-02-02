@@ -1,6 +1,4 @@
-import { BusterMetricListItem } from '@/api/asset_interfaces';
-import { VerificationStatus } from '@/api/asset_interfaces';
-import { ShareAssetType } from '@/api/asset_interfaces';
+import { ShareAssetType, VerificationStatus, BusterMetricListItem } from '@/api/asset_interfaces';
 import {
   getNow,
   isDateSame,
@@ -15,7 +13,7 @@ import { BusterUserAvatar, Text } from '@/components';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
 import { BusterListColumn, BusterListRow } from '@/components/list';
-import { ThreadSelectedOptionPopup } from './_MetricItemsSelectedPopup';
+import { MetricSelectedOptionPopup } from './_MetricItemsSelectedPopup';
 import { BusterList, ListEmptyStateWithButton } from '@/components/list';
 import { FavoriteStar } from '../../_components/Lists';
 
@@ -70,10 +68,10 @@ const createLogRecord = (
 export const MetricItemsContainer: React.FC<{
   metrics: BusterMetricListItem[];
   className?: string;
-  openNewCollectionModal: () => void;
+  openNewMetricModal: () => void;
   type: 'logs' | 'metrics';
   loading: boolean;
-}> = ({ type, metrics = [], className = '', loading, openNewCollectionModal }) => {
+}> = ({ type, metrics = [], className = '', loading, openNewMetricModal }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const renderedDates = useRef<Record<string, string>>({});
   const renderedOwners = useRef<Record<string, React.ReactNode>>({});
@@ -172,15 +170,11 @@ export const MetricItemsContainer: React.FC<{
         onSelectChange={onSelectChange}
         selectedRowKeys={selectedRowKeys}
         emptyState={
-          <EmptyState
-            loading={loading}
-            type={type}
-            openNewCollectionModal={openNewCollectionModal}
-          />
+          <EmptyState loading={loading} type={type} openNewMetricModal={openNewMetricModal} />
         }
       />
 
-      <ThreadSelectedOptionPopup
+      <MetricSelectedOptionPopup
         selectedRowKeys={selectedRowKeys}
         onSelectChange={onSelectChange}
         hasSelected={hasSelected}
@@ -192,27 +186,27 @@ export const MetricItemsContainer: React.FC<{
 const EmptyState: React.FC<{
   loading: boolean;
   type: 'logs' | 'metrics';
-  openNewCollectionModal: () => void;
-}> = React.memo(({ loading, type, openNewCollectionModal }) => {
+  openNewMetricModal: () => void;
+}> = React.memo(({ loading, type, openNewMetricModal }) => {
   if (loading) {
     return <></>;
   }
 
-  return <MetricsEmptyState openNewCollectionModal={openNewCollectionModal} type={type} />;
+  return <MetricsEmptyState openNewMetricModal={openNewMetricModal} type={type} />;
 });
 EmptyState.displayName = 'EmptyState';
 
 const MetricsEmptyState: React.FC<{
-  openNewCollectionModal: () => void;
+  openNewMetricModal: () => void;
   type: 'logs' | 'metrics';
-}> = ({ openNewCollectionModal, type }) => {
+}> = ({ openNewMetricModal, type }) => {
   if (type === 'logs') {
     return (
       <ListEmptyStateWithButton
         title="You don’t have any logs yet."
         description="You don’t have any logs. As soon as you do, they will start to appear here."
         buttonText="New metric"
-        onClick={openNewCollectionModal}
+        onClick={openNewMetricModal}
       />
     );
   }
@@ -222,7 +216,7 @@ const MetricsEmptyState: React.FC<{
       title="You don’t have any metrics yet."
       description="You don’t have any metrics. As soon as you do, they will start to  appear here."
       buttonText="New metric"
-      onClick={openNewCollectionModal}
+      onClick={openNewMetricModal}
     />
   );
 };

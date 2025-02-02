@@ -1,6 +1,5 @@
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { permanentRedirect, redirect } from 'next/navigation';
-import React from 'react';
+import { permanentRedirect } from 'next/navigation';
 
 export default function DashboardPage() {
   return permanentRedirect(

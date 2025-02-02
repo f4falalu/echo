@@ -44,12 +44,12 @@ export const SaveMetricToCollectionButton: React.FC<{
   const onRemoveFromCollection = useMemoizedFn(async (collectionId: string) => {
     setSelectedCollections((prev) => prev.filter((id) => id !== collectionId));
     // const allSelectedButLast = selectedRowKeys.slice(0, -1);
-    // const lastThreadId = selectedRowKeys[selectedRowKeys.length - 1];
-    // const allRemoves: Promise<void>[] = allSelectedButLast.map((threadId) => {
-    //   return removeThreadFromCollection({ threadId, collectionId, ignoreFavoriteUpdates: true });
+    // const lastMetricId = selectedRowKeys[selectedRowKeys.length - 1];
+    // const allRemoves: Promise<void>[] = allSelectedButLast.map((metricId) => {
+    //   return removeMetricFromCollection({ metricId, collectionId, ignoreFavoriteUpdates: true });
     // });
-    // await removeThreadFromCollection({
-    //   threadId: lastThreadId,
+    // await removeMetricFromCollection({
+    //   metricId: lastMetricId,
     //   collectionId,
     //   ignoreFavoriteUpdates: false
     // });

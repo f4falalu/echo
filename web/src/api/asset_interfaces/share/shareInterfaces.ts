@@ -20,7 +20,7 @@ export interface BusterShare {
   public_enabled_by: string | null;
   publicly_accessible: boolean;
   public_password: string | null;
-  permission: ShareRole; //this is the permission the user has to the thread, dashboard or collection
+  permission: ShareRole; //this is the permission the user has to the metric, dashboard or collection
 }
 
 export interface BusterShareIndividual {

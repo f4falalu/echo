@@ -35,7 +35,6 @@ export const NewChatModal = React.memo<{
   onClose: () => void;
 }>(({ open, onClose }) => {
   const searchParams = useParams();
-  const threadId: string | undefined = searchParams.threadId as string;
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const { openErrorNotification } = useBusterNotifications();
   const { isFetched: isFetchedDatasets, data: datasetsList } = useGetDatasets();
@@ -68,7 +67,7 @@ export const NewChatModal = React.memo<{
   const getSuggestedChatPrompts = useMemoizedFn(async (prompt: string) => {
     const res = await onBusterSearch({
       query: prompt,
-      include: ['exclude_threads']
+      include: ['exclude_metrics']
     });
     return res;
   });
@@ -159,7 +158,7 @@ export const NewChatModal = React.memo<{
             setActiveItem={setActiveItem}
             prompts={shownPrompts}
             onSelectPrompt={onSelectPrompt}
-            navigatingToThreadId={navigatingToThreadId}
+            navigatingToMetricId={navigatingToMetricId}
           />
         )} */}
       </Modal>
@@ -192,7 +191,7 @@ const NewChatInput: React.FC<{
   }) => {
     const token = useAntToken();
     const inputRef = useRef<InputRef>(null);
-    const loadingNewThread = useBusterNewChatContextSelector((x) => x.loadingNewChat);
+    const loadingNewMetric = useBusterNewChatContextSelector((x) => x.loadingNewChat);
     const prompt = useBusterNewChatContextSelector((x) => x.prompt);
     const onStartNewChat = useBusterNewChatContextSelector((x) => x.onStartNewChat);
     const onSetPrompt = useBusterNewChatContextSelector((x) => x.onSetPrompt);
@@ -249,7 +248,7 @@ const NewChatInput: React.FC<{
           size="large"
           className="w-full !pl-0"
           autoSize={autoSizeMemoized}
-          disabled={loadingNewThread}
+          disabled={loadingNewMetric}
           variant="borderless"
           placeholder="Search for a metric..."
           defaultValue={prompt}
@@ -261,7 +260,7 @@ const NewChatInput: React.FC<{
           type="primary"
           size="middle"
           icon={<AppMaterialIcons icon="arrow_forward" size={token.fontSizeLG} />}
-          loading={loadingNewThread}
+          loading={loadingNewMetric}
           disabled={!inputHasText(prompt)}
           onClick={onClickSubmitButton}
         />

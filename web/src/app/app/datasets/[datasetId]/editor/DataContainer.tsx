@@ -1,4 +1,4 @@
-import type { BusterDatasetData } from '@/api/asset_interfaces/datasets';
+import type { BusterDatasetData } from '@/api/asset_interfaces';
 import { createStyles } from 'antd-style';
 import React from 'react';
 import isEmpty from 'lodash/isEmpty';

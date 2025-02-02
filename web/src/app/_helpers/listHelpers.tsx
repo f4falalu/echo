@@ -20,7 +20,7 @@ export const asset_typeToTranslation = (type: ShareAssetType) => {
   const asset_typeTranslation: Record<ShareAssetType, string> = {
     [ShareAssetType.COLLECTION]: 'collection',
     [ShareAssetType.DASHBOARD]: 'dashboard',
-    [ShareAssetType.METRIC]: 'thread'
+    [ShareAssetType.METRIC]: 'metric'
   };
   return asset_typeTranslation[type];
 };

@@ -8,7 +8,7 @@ import {
   useDashboardContextSelector,
   useIndividualDashboard
 } from '@/context/Dashboards';
-import { DashboardIndividualDashboard } from './_DashboardIndividualDashboard';
+import { DashboardIndividualDashboard } from './DashboardIndividualDashboard';
 import { EditableTitle } from '@/components';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { ShareRole } from '@/api/asset_interfaces';

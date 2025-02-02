@@ -29,7 +29,7 @@ export const useSQLProvider = () => {
 
   const [warnBeforeNavigating, setWarnBeforeNavigating] = useState(false);
 
-  const [resetTrigger, setResetTrigger] = useState<number>(0); //this is used to reset the original configs when the thread is reset. It's a hack used in useDisableSaveChanges.tsx
+  const [resetTrigger, setResetTrigger] = useState<number>(0); //this is used to reset the original configs when the metric is reset. It's a hack used in useDisableSaveChanges.tsx
 
   const originalConfigs = useRef<
     Record<
@@ -154,7 +154,7 @@ export const useSQLProvider = () => {
     const metricRes = await onSaveMetricChanges({
       metricId,
       save_draft: true,
-      save_as_thread_state: metricId
+      save_as_metric_state: metricId
     });
 
     setWarnBeforeNavigating(false);

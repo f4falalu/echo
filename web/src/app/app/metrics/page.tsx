@@ -1,5 +1,5 @@
 import { MetricListContainer } from './_MetricListContainer';
 
-export default function ThreadsPage() {
+export default function MetricsPage() {
   return <MetricListContainer type="metrics" />;
 }

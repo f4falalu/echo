@@ -11,7 +11,7 @@ import {
 } from '@/api/asset_interfaces';
 import { asset_typeToIcon } from '@/app/_helpers';
 import { CircleSpinnerLoaderContainer } from '@/components/loaders';
-import { BusterCollection } from '@/api/asset_interfaces/collection';
+import { BusterCollection } from '@/api/asset_interfaces';
 import { useBusterSearchContextSelector } from '@/context/Search';
 import isEmpty from 'lodash/isEmpty';
 import { useDashboardContextSelector } from '@/context/Dashboards';
@@ -151,9 +151,9 @@ export const AddTypeModal: React.FC<{
       let include: (keyof BusterSearchRequest['payload'])[] = [];
 
       if (type === 'collection') {
-        include = ['exclude_dashboards', 'exclude_threads'];
+        include = ['exclude_dashboards', 'exclude_metrics'];
         if (params === 'useMetrics') {
-          include = ['exclude_threads'];
+          include = ['exclude_metrics'];
         } else if (params === 'useDashboards') {
           include = ['exclude_dashboards'];
         }
@@ -163,7 +163,7 @@ export const AddTypeModal: React.FC<{
           include
         });
       } else if (type === 'dashboard') {
-        include = ['exclude_threads'];
+        include = ['exclude_metrics'];
         results = await onBusterSearch({
           query,
           include

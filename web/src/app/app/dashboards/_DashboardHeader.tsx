@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useContext, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { AppContentHeader } from '../../../components/layout/AppContentHeader';
-import { Breadcrumb, Button, Skeleton } from 'antd';
+import { Breadcrumb, Button } from 'antd';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useDashboardContextSelector, useIndividualDashboard } from '@/context/Dashboards';
 import { DashboardsListEmitPayload } from '@/api/buster_socket/dashboards';
-import { AppMaterialIcons, AppSegmented, AppTooltip } from '@/components';
+import { AppMaterialIcons, AppSegmented } from '@/components';
 import isEmpty from 'lodash/isEmpty';
 import { useMemoizedFn } from 'ahooks';
 

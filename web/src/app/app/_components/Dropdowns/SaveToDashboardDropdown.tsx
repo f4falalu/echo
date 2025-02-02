@@ -8,8 +8,7 @@ import { Button } from 'antd';
 import { AppDropdownSelect } from '@/components/dropdown';
 import { AppTooltip } from '@/components/tooltip';
 import { AppMaterialIcons } from '@/components/icons';
-import type { BusterMetric } from '@/api/asset_interfaces';
-import type { BusterDashboardListItem } from '@/api/asset_interfaces';
+import type { BusterMetric, BusterDashboardListItem } from '@/api/asset_interfaces';
 
 export const SaveToDashboardDropdown: React.FC<{
   children: React.ReactNode;
@@ -65,8 +64,8 @@ export const SaveToDashboardDropdown: React.FC<{
 
     if (res?.id) {
       await onSaveToDashboard([res.id]);
-      // await saveThreadToDashboard({
-      //   threadId,
+      // await saveMetricToDashboard({
+      //   metricId,
       //   dashboardIds: [res.id]
       // });
     }

@@ -1,15 +1,20 @@
-import React, { useEffect, useMemo } from 'react';
+'use client';
+
+import React, { useEffect, useMemo, useState } from 'react';
 import isEmpty from 'lodash/isEmpty';
 import { Button } from 'antd';
 import { BusterResizeableGrid, BusterResizeableGridRow } from '@/components/grid';
 import { useDebounceFn, useMemoizedFn } from 'ahooks';
-import { hasRemovedThreads, hasUnmappedThreads, normalizeNewMetricsIntoGrid } from './_helpers';
-import { DashboardMetricItem } from './_DashboardMetricItem';
+import { hasRemovedMetrics, hasUnmappedMetrics, normalizeNewMetricsIntoGrid } from './helpers';
+import { DashboardMetricItem } from './DashboardMetricItem';
 import { useDashboards } from '@/context/Dashboards';
 import { AppMaterialIcons } from '@/components/icons';
-import { DashboardIndividualProvider } from './_DashboardInvididualContext';
-import type { BusterDashboardResponse, DashboardConfig } from '@/api/asset_interfaces/dashboard';
-import type { BusterMetric } from '@/api/asset_interfaces';
+import { DashboardIndividualProvider } from './DashboardInvididualContext';
+import type {
+  BusterMetric,
+  BusterDashboardResponse,
+  DashboardConfig
+} from '@/api/asset_interfaces';
 
 const DEFAULT_EMPTY_ROWS: DashboardConfig['rows'] = [];
 const DEFAULT_EMPTY_METRICS: BusterMetric[] = [];
@@ -26,7 +31,7 @@ export const DashboardIndividualDashboard: React.FC<{
     const dashboardConfig = dashboardResponse.dashboard.config || DEFAULT_EMPTY_CONFIG;
     const configRows = dashboardConfig?.rows || DEFAULT_EMPTY_ROWS;
     const hasMetrics = !isEmpty(metrics);
-    const [draggingId, setDraggingId] = React.useState<string | null>(null);
+    const [draggingId, setDraggingId] = useState<string | null>(null);
 
     const { run: debouncedForInitialRenderOnUpdateDashboardConfig } = useDebounceFn(
       onUpdateDashboardConfig,
@@ -45,14 +50,14 @@ export const DashboardIndividualDashboard: React.FC<{
       onUpdateDashboardConfig({ rows: formattedRows }, dashboardResponse.dashboard.id);
     });
 
-    const remapThreads = useMemo(() => {
-      const res = hasUnmappedThreads(metrics, configRows) || hasRemovedThreads(metrics, configRows);
+    const remapMetrics = useMemo(() => {
+      const res = hasUnmappedMetrics(metrics, configRows) || hasRemovedMetrics(metrics, configRows);
       return res;
     }, [metrics, configRows.length]);
 
     const rows = useMemo(() => {
-      return remapThreads ? normalizeNewMetricsIntoGrid(metrics, configRows) : configRows;
-    }, [remapThreads, metrics, configRows]);
+      return remapMetrics ? normalizeNewMetricsIntoGrid(metrics, configRows) : configRows;
+    }, [remapMetrics, metrics, configRows]);
 
     const dashboardRows = useMemo(() => {
       return rows
@@ -87,12 +92,12 @@ export const DashboardIndividualDashboard: React.FC<{
     });
 
     useEffect(() => {
-      if (remapThreads && dashboardResponse.dashboard.id) {
+      if (remapMetrics && dashboardResponse.dashboard.id) {
         debouncedForInitialRenderOnUpdateDashboardConfig({
           rows: rows
         });
       }
-    }, [dashboardResponse.dashboard.id, remapThreads]);
+    }, [dashboardResponse.dashboard.id, remapMetrics]);
 
     return (
       <div className="h-full w-full">

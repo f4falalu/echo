@@ -1,6 +1,6 @@
 'use client';
 
-import type { DataSource } from '@/api/asset_interfaces/datasources';
+import type { DataSource } from '@/api/asset_interfaces';
 import { AppMaterialIcons, PulseLoader } from '@/components';
 import { AppDataSourceIcon } from '@/components/icons/AppDataSourceIcons';
 import { useAntToken } from '@/styles/useAntToken';

@@ -176,7 +176,6 @@ const CollectionList: React.FC<{
 };
 
 const CollectionIconRecord: Record<string, React.ReactNode> = {
-  thread: <AppMaterialIcons icon="monitoring" />,
   dashboard: <AppMaterialIcons icon="grid_view" />,
   metric: <AppMaterialIcons icon="monitoring" />
 };

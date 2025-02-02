@@ -10,7 +10,7 @@ import {
   PreparingYourRequestLoader
 } from './LoadingComponents/ChartLoadingComponents';
 import BusterTableChart from './TableChart';
-import { DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces/metric';
+import { DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces';
 import { DEFAULT_DATA } from './BusterChartLegend/config';
 import { NoValidAxis } from './LoadingComponents';
 import BusterMetricChart from './MetricChart';

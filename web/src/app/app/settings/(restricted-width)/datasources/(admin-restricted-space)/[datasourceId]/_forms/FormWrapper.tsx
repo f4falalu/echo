@@ -4,7 +4,7 @@ import { createStyles } from 'antd-style';
 import React, { useImperativeHandle, useLayoutEffect } from 'react';
 import { WhiteListBlock } from '../WhiteListBlock';
 import type { DatasourceCreateCredentials } from '@/api/buster_socket/datasources';
-import type { DataSource } from '@/api/asset_interfaces/datasources';
+import type { DataSource } from '@/api/asset_interfaces';
 import { NewDatasetModal } from '@appComponents/NewDatasetModal';
 
 const layout = {

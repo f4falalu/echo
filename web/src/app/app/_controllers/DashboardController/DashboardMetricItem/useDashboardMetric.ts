@@ -1,5 +1,5 @@
 import { useBusterMessageDataContextSelector } from '@/context/MetricData';
-import { useDashboardIndividualContextSelector } from '../_DashboardInvididualContext';
+import { useDashboardIndividualContextSelector } from '../DashboardInvididualContext';
 import { useEffect, useRef } from 'react';
 import { useInViewport } from 'ahooks';
 import { useBusterMetricIndividual } from '@/context/Metrics';

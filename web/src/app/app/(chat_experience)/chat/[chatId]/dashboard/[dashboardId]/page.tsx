@@ -1,3 +1,14 @@
-export default function Page() {
-  return <div className="h-full w-full bg-orange-500">Dashboard swag</div>;
+import { DashboardIndividualContent } from '@appControllers/DashboardController';
+import { AppAssetCheckLayout } from '@appLayouts/AppAssetCheckLayout';
+
+export default function DashboardPage({
+  params: { dashboardId }
+}: {
+  params: { dashboardId: string };
+}) {
+  return (
+    <AppAssetCheckLayout dashboardId={dashboardId} type="dashboard">
+      <DashboardIndividualContent />
+    </AppAssetCheckLayout>
+  );
 }

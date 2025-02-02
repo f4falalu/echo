@@ -29,10 +29,9 @@ const THEME_CONFIG_2: ThemeConfig = {
 export const AppSidebarTopItems: React.FC<{
   onOpenSettings: () => void;
   onGoToHomePage: () => void;
-  onOpenThreadsModal: () => void;
+  onOpenChatsModal: () => void;
   createPageLink: (params: BusterRoutesWithArgsRoute) => string;
   className?: string;
-  threadModalOpen: boolean;
   style?: React.CSSProperties;
   isUserRegistered: boolean;
 }> = React.memo(
@@ -41,13 +40,13 @@ export const AppSidebarTopItems: React.FC<{
     onOpenSettings,
     onGoToHomePage,
     createPageLink,
-    onOpenThreadsModal,
+    onOpenChatsModal,
     className = '',
     isUserRegistered
   }) => {
     useHotkeys('g+h', onGoToHomePage);
     useHotkeys('g+s', onOpenSettings);
-    useHotkeys('m', onOpenThreadsModal);
+    useHotkeys('c', onOpenChatsModal);
 
     return (
       <div className={`flex items-center justify-between ${className}`} style={style}>
@@ -56,7 +55,7 @@ export const AppSidebarTopItems: React.FC<{
         <AppSidebarButton
           createPageLink={createPageLink}
           isUserRegistered={isUserRegistered}
-          onOpenThreadsModal={onOpenThreadsModal}
+          onOpenChatsModal={onOpenChatsModal}
         />
       </div>
     );
@@ -69,11 +68,11 @@ const AppSidebarButton = React.memo(
   ({
     createPageLink,
     isUserRegistered,
-    onOpenThreadsModal
+    onOpenChatsModal
   }: {
     createPageLink: (params: BusterRoutesWithArgsRoute) => string;
     isUserRegistered: boolean;
-    onOpenThreadsModal: () => void;
+    onOpenChatsModal: () => void;
   }) => {
     return (
       <ConfigProvider theme={THEME_CONFIG_1}>
@@ -91,12 +90,12 @@ const AppSidebarButton = React.memo(
             </AppTooltip>
           </Link>
           <ConfigProvider theme={THEME_CONFIG_2}>
-            <AppTooltip title="New metric" shortcuts={['M']}>
+            <AppTooltip title="New chat" shortcuts={['C']}>
               <Button
-                data-cy="new-metric-button"
+                data-cy="new-chat-button"
                 disabled={!isUserRegistered}
                 type={'default'}
-                onClick={onOpenThreadsModal}
+                onClick={onOpenChatsModal}
                 icon={<AppMaterialIcons icon="edit_square" size={16} />}
               />
             </AppTooltip>

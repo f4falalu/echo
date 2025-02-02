@@ -9,7 +9,7 @@ import {
 } from './hooks';
 import { useColors } from '../chartHooks';
 import { DEFAULT_CHART_THEME } from '../configColors';
-import { DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces/metric';
+import { DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces';
 import { useAxisTitles } from '../commonHelpers/useAxisTitles';
 import { BusterEChartWrapper } from './BusterEChartWrapper';
 //import ReactECharts, { type EChartsInstance } from 'echarts-for-react';

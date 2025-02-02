@@ -1,8 +1,7 @@
 import { BASE_URL } from '@/api/buster_rest/instances';
-import type { BusterUserResponse } from '@/api/asset_interfaces';
+import type { OrganizationUser, BusterUserResponse } from '@/api/asset_interfaces';
 import { mainApi } from '../instances';
 import { serverFetch } from '../../createServerInstance';
-import type { OrganizationUser } from '@/api/asset_interfaces';
 
 export const getMyUserInfo = async ({
   jwtToken
