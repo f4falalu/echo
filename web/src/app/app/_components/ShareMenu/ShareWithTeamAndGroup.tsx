@@ -5,7 +5,7 @@ import { AppMaterialIcons, BackButton } from '@/components';
 import { useStyles } from './useStyles';
 import { AccessDropdown } from './AccessDropdown';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { ShareRole } from '@/api/buster_socket/metrics';
+import { ShareRole } from '@/api/asset_interfaces';
 import { useDashboardContextSelector, useIndividualDashboard } from '@/context/Dashboards';
 import { ShareRequest } from '@/api/buster_socket/dashboards';
 import { useMemoizedFn } from 'ahooks';

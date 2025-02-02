@@ -2,10 +2,9 @@ import { BusterUserAvatar } from '@/components';
 import { AccessDropdown } from './AccessDropdown';
 
 import React from 'react';
-import { ShareRole } from '@/api/buster_socket/metrics';
+import { ShareRole } from '@/api/asset_interfaces';
 import { Text } from '@/components';
 import { useMemoizedFn } from 'ahooks';
-import { ShareAssetType } from '@/api/asset_interfaces';
 
 export const IndividualSharePerson: React.FC<{
   name: string;

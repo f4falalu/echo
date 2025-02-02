@@ -9,3 +9,7 @@ export * from './datasources';
 export * from './users';
 export * from './permission';
 export * from './organizations';
+export * from './terms';
+export * from './sql';
+export * from './permission_groups';
+export * from './dataset_groups';

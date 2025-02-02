@@ -20,11 +20,11 @@ import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { useMemoizedFn } from 'ahooks';
 import { LIST_DATASET_GROUPS_QUERY_KEY } from '../datasets/permissions/config';
 import { USER_PERMISSIONS_DATASET_GROUPS_QUERY_KEY } from '../users/permissions/config';
-import {
+import type {
   GetDatasetGroupDatasetsResponse,
   GetDatasetGroupPermissionGroupsResponse,
   GetDatasetGroupUsersResponse
-} from './responseInterfaces';
+} from '../../asset_interfaces';
 import { timeout } from '@/utils';
 
 export const useListDatasetGroups = () => {

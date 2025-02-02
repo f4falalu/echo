@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { DatasetPermissionOverviewUser } from '@/api/buster_rest/datasets';
+import type { DatasetPermissionOverviewUser } from '@/api/asset_interfaces';
 import {
   BusterListColumn,
   BusterListRowItem,

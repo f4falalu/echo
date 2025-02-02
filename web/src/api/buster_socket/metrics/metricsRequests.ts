@@ -35,12 +35,6 @@ export type MetricCreateNewMetric = BusterSocketRequestBase<
   }
 >;
 
-export enum ShareRole {
-  OWNER = 'owner',
-  EDITOR = 'editor',
-  VIEWER = 'viewer'
-}
-
 export type MetricUpdateMetric = BusterSocketRequestBase<
   '/metrics/update',
   {

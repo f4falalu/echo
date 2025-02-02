@@ -1,10 +1,10 @@
 import { mainApi } from '../../instances';
-import {
+import type {
   DatasetPermissionsOverviewResponse,
   ListDatasetGroupsResponse,
   ListPermissionGroupsResponse,
   ListPermissionUsersResponse
-} from './responseInterfaces';
+} from '../../../asset_interfaces';
 import * as config from './config';
 
 export const listIndividualDatasetPermissionGroups = async ({

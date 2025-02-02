@@ -15,7 +15,7 @@ import {
 import { useMemoizedFn } from 'ahooks';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { getDatasetPermissionsOverview_server } from './serverRequests';
-import { ListPermissionUsersResponse } from './responseInterfaces';
+import type { ListPermissionUsersResponse } from '../../../asset_interfaces';
 import { PERMISSION_GROUP_QUERY_KEY } from '../../permission_groups';
 import { LIST_DATASET_GROUPS_QUERY_KEY } from './config';
 

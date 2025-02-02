@@ -1,5 +1,5 @@
 import { PermissionsListUsersRequest } from '@/api/buster_socket/permissions';
-import { BusterPermissionListUser } from '@/api/buster_rest/permissions';
+import type { BusterPermissionListUser } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
 import React, { useEffect, useMemo } from 'react';
 import { useBusterWebSocket } from '../BusterWebSocket';

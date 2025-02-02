@@ -12,7 +12,7 @@ import { useBusterMessageDataContextSelector } from '../MetricData';
 import { useBusterNotifications } from '../BusterNotifications';
 import { didColumnDataChange, simplifyChratConfigForSQLChange } from './helpers';
 import { timeout } from '@/utils';
-import { RunSQLResponse } from '@/api/buster_rest/sql/responseInterfaces';
+import type { RunSQLResponse } from '@/api/asset_interfaces';
 import { MetricUpdateMessage } from '@/api/buster_socket/metrics';
 
 export const useSQLProvider = () => {

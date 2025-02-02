@@ -1,4 +1,4 @@
-import { DatasetPermissionOverviewUser } from '@/api/buster_rest/datasets';
+import type { DatasetPermissionOverviewUser } from '@/api/asset_interfaces';
 import { AppMaterialIcons, AppPopover } from '@/components';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn } from 'ahooks';

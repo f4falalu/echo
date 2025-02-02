@@ -1,11 +1,11 @@
-import {
+import type {
   BusterPermissionGroup,
   BusterPermissionListGroup,
   BusterPermissionListTeam,
   BusterPermissionListUser,
   BusterPermissionTeam,
   BusterPermissionUser
-} from '@/api/buster_rest/permissions';
+} from '@/api/asset_interfaces';
 
 export enum PermissionsResponses {
   '/permissions/users/list:listUserPermissions' = '/permissions/users/list:listUserPermissions',

@@ -1,4 +1,4 @@
-import { RunSQLResponse } from '@/api/buster_rest/sql';
+import type { RunSQLResponse } from '@/api/asset_interfaces';
 
 export enum SQLResponses {
   '/sql/run:runSql' = '/sql/run:runSql'

@@ -1,4 +1,4 @@
-import { DataMetadata } from '@/api/asset_interfaces';
+import { DataMetadata } from '../metric';
 
 export interface RunSQLResponse {
   data: Record<string, string | number | null>[];

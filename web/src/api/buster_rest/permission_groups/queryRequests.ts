@@ -22,15 +22,16 @@ import {
 } from './requests';
 import { useMemoizedFn } from 'ahooks';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
-import {
+import type {
   GetPermissionGroupDatasetGroupsResponse,
   GetPermissionGroupDatasetsResponse,
   GetPermissionGroupResponse,
   GetPermissionGroupUsersResponse
-} from './responseInterfaces';
+} from '@/api/asset_interfaces';
 import isEmpty from 'lodash/isEmpty';
 import { PERMISSION_GROUP_QUERY_KEY } from './config';
-import { ListPermissionGroupsResponse, updateDatasetPermissionGroups } from '../datasets';
+import { updateDatasetPermissionGroups } from '../datasets';
+import type { ListPermissionGroupsResponse } from '../../asset_interfaces';
 import { USER_PERMISSIONS_PERMISSION_GROUPS_QUERY_KEY } from '../users/permissions/config';
 
 export const useListAllPermissionGroups = () => {

@@ -2,7 +2,7 @@ import { useAntToken } from '@/styles/useAntToken';
 import React, { useMemo } from 'react';
 import { Dropdown, Divider, MenuProps } from 'antd';
 import { AppMaterialIcons } from '@/components';
-import { ShareRole } from '@/api/buster_socket/metrics';
+import { ShareRole } from '@/api/asset_interfaces';
 import { DropdownLabel } from '@/components/dropdown';
 import { Text } from '@/components';
 import { useMemoizedFn } from 'ahooks';

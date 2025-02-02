@@ -1,4 +1,5 @@
-import { GetPermissionGroupUsersResponse, useUpdatePermissionGroupUsers } from '@/api/buster_rest';
+import type { GetPermissionGroupUsersResponse } from '@/api/asset_interfaces';
+import { useUpdatePermissionGroupUsers } from '@/api/buster_rest';
 import { PermissionAssignedCell } from '@/app/app/_components/PermissionComponents';
 import {
   BusterInfiniteList,
