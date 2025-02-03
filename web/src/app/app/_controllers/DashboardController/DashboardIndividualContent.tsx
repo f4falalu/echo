@@ -13,7 +13,7 @@ import { EditableTitle } from '@/components';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { ShareRole } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
-import { BusterDashboardResponse } from '@/api/asset_interfaces';
+import type { BusterDashboardResponse } from '@/api/asset_interfaces';
 
 export const DashboardIndividualContent: React.FC<{}> = ({}) => {
   const isAnonymousUser = useUserConfigContextSelector((state) => state.isAnonymousUser);
