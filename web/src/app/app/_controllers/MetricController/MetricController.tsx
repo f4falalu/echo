@@ -1,11 +1,37 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
+import { useChatLayoutContextSelector } from '../../_layouts/ChatLayout';
+import { AppSplitter, AppSplitterRef } from '@/components';
+import { useMetricControllerLayout } from './useMetricControllerLayout';
 
 export const MetricController: React.FC<{
   metricId: string;
 }> = React.memo(({ metricId }) => {
-  return <div>MetricController</div>;
+  const appSplitterRef = useRef<AppSplitterRef>(null);
+
+  const selectedFileViewSecondary = useChatLayoutContextSelector(
+    (x) => x.selectedFileViewSecondary
+  );
+
+  const { renderSecondary, isOpenSecondary } = useMetricControllerLayout({
+    selectedFileViewSecondary,
+    appSplitterRef
+  });
+
+  return (
+    <AppSplitter
+      ref={appSplitterRef}
+      leftChildren={<div>{metricId}</div>}
+      rightChildren={<div className="min-w-[230px]">right swag</div>}
+      rightHidden={!renderSecondary}
+      autoSaveId="metric-controller"
+      defaultLayout={['auto', '0px']}
+      preserveSide={'right'}
+      rightPanelMinSize={250}
+      rightPanelMaxSize={360}
+    />
+  );
 });
 
 MetricController.displayName = 'MetricController';
