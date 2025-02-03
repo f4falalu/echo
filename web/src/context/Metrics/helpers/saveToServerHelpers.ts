@@ -1,4 +1,4 @@
-import { MetricUpdateMessage } from '@/api/buster_socket/metrics';
+import { MetricUpdateMetric } from '@/api/buster_socket/metrics';
 import {
   DEFAULT_CHART_CONFIG_ENTRIES,
   DEFAULT_COLUMN_LABEL_FORMAT,
@@ -113,12 +113,12 @@ const getChangesFromDefaultChartConfig = (newMetric: IBusterMetric) => {
   return diff as BusterChartConfigProps;
 };
 
-export const prepareMetricUpdateMessage = (
+export const prepareMetricUpdateMetric = (
   newMetric: IBusterMetric,
   oldMetric: IBusterMetric
-): MetricUpdateMessage['payload'] | null => {
+): MetricUpdateMetric['payload'] | null => {
   const changedTopLevelValues = getChangedTopLevelMessageValues(newMetric, oldMetric) as Partial<
-    MetricUpdateMessage['payload']
+    MetricUpdateMetric['payload']
   >;
 
   const changedChartConfig = getChangesFromDefaultChartConfig(newMetric);

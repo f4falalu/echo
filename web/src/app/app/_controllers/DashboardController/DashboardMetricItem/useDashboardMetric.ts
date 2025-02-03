@@ -1,4 +1,4 @@
-import { useBusterMessageDataContextSelector } from '@/context/MetricData';
+import { useBusterMetricDataContextSelector } from '@/context/MetricData';
 import { useDashboardIndividualContextSelector } from '../DashboardInvididualContext';
 import { useEffect, useRef } from 'react';
 import { useInViewport } from 'ahooks';
@@ -10,11 +10,8 @@ export const useDashboardMetric = ({ metricId }: { metricId: string }) => {
     threshold: 0.25
   });
 
-  const { metric } = useBusterMetricIndividual({ metricId });
+  const { metric, metricData } = useBusterMetricIndividual({ metricId });
 
-  const messageData = useBusterMessageDataContextSelector(({ getMessageData }) =>
-    getMessageData(metricId)
-  );
   const metricMetadata = useDashboardIndividualContextSelector(
     ({ metricMetadata }) => metricMetadata[metricId]
   );
@@ -36,5 +33,5 @@ export const useDashboardMetric = ({ metricId }: { metricId: string }) => {
     }
   }, [inViewport]);
 
-  return { renderChart, metric, ref, messageData, initialAnimationEnded, setInitialAnimationEnded };
+  return { renderChart, metric, ref, metricData, initialAnimationEnded, setInitialAnimationEnded };
 };

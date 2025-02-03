@@ -8,19 +8,21 @@ import {
   ContextSelector
 } from '@fluentui/react-context-selector';
 import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { useBusterMessageDataContextSelector } from '../MetricData';
+import { useBusterMetricDataContextSelector } from '../MetricData';
 import { useBusterNotifications } from '../BusterNotifications';
 import { didColumnDataChange, simplifyChratConfigForSQLChange } from './helpers';
 import { timeout } from '@/utils';
 import type { RunSQLResponse } from '@/api/asset_interfaces';
-import { MetricUpdateMessage } from '@/api/buster_socket/metrics';
+import { MetricUpdateMetric } from '@/api/buster_socket/metrics';
 
 export const useSQLProvider = () => {
   const busterSocket = useBusterWebSocket();
   const { openSuccessNotification } = useBusterNotifications();
   const onUpdateMetric = useBusterMetricsContextSelector((x) => x.onUpdateMetric);
-  const onSetMessageData = useBusterMessageDataContextSelector((x) => x.onSetMessageData);
-  const getMessageData = useBusterMessageDataContextSelector((x) => x.getMessageData);
+  const onSetMetricData = useBusterMetricDataContextSelector((x) => x.onSetMetricData);
+  const getAllMetricDataMemoized = useBusterMetricDataContextSelector(
+    (x) => x.getAllMetricDataMemoized
+  );
   const updateMetricMessageToServer = useBusterMetricsContextSelector(
     (x) => x.updateMetricMessageToServer
   );
@@ -48,7 +50,7 @@ export const useSQLProvider = () => {
       if (metricId) {
         const { data, data_metadata } = d;
         const metricMessage = getMetric({ metricId });
-        const currentMessageData = getMessageData(metricId);
+        const currentMessageData = getAllMetricDataMemoized(metricId);
         if (!originalConfigs.current[metricId]) {
           originalConfigs.current[metricId] = {
             chartConfig: metricMessage?.chart_config!,
@@ -67,7 +69,7 @@ export const useSQLProvider = () => {
           ? simplifyChratConfigForSQLChange(metricMessage.chart_config, data_metadata)
           : metricMessage.chart_config;
 
-        onSetMessageData({
+        onSetMetricData({
           metricId,
           data,
           isDataFromRerun: true,
@@ -117,7 +119,7 @@ export const useSQLProvider = () => {
       id: metricId,
       chart_config: oldConfig
     });
-    onSetMessageData({
+    onSetMetricData({
       metricId,
       data: originalConfigs.current[metricId]?.data!,
       data_metadata: originalConfigs.current[metricId]?.dataMetadata!,
@@ -145,7 +147,7 @@ export const useSQLProvider = () => {
       }
     }
 
-    const payload: MetricUpdateMessage['payload'] = {
+    const payload: MetricUpdateMetric['payload'] = {
       id: metricId,
       sql: sql
     };
@@ -160,7 +162,7 @@ export const useSQLProvider = () => {
     setWarnBeforeNavigating(false);
 
     if (originalConfigs.current[metricId]) {
-      onSetMessageData({
+      onSetMetricData({
         metricId,
         data: originalConfigs.current[metricId]?.data!,
         data_metadata: originalConfigs.current[metricId]?.dataMetadata!,

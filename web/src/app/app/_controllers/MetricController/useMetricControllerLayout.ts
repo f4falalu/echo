@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useMemoizedFn, useUpdateLayoutEffect } from 'ahooks';
 import { type AppSplitterRef } from '@/components/layout';
 

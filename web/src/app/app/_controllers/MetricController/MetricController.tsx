@@ -17,6 +17,7 @@ export const MetricController: React.FC<{
   const selectedFileView = useChatLayoutContextSelector(
     (x) => x.selectedFileView
   ) as MetricFileView;
+
   const selectedFileViewSecondary = useChatLayoutContextSelector(
     (x) => x.selectedFileViewSecondary
   );
@@ -29,7 +30,9 @@ export const MetricController: React.FC<{
   return (
     <AppSplitter
       ref={appSplitterRef}
-      leftChildren={<MetricViewController selectedFileView={selectedFileView} />}
+      leftChildren={
+        <MetricViewController metricId={metricId} selectedFileView={selectedFileView} />
+      }
       rightChildren={<MetricEditController />}
       rightHidden={!renderSecondary}
       autoSaveId="metric-controller"

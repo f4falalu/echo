@@ -24,7 +24,7 @@ import { BusterPosthogProvider } from './Posthog/usePosthog';
 import { BusterNotificationsProvider } from './BusterNotifications';
 import { BusterChatProvider, BusterNewChatProvider } from './Chats';
 import { RoutePrefetcher } from './RoutePrefetcher';
-import { BusterMessageDataProvider } from './MetricData';
+import { BusterMetricDataProvider } from './MetricData';
 import { BusterMetricsProvider } from './Metrics';
 import type { BusterUserResponse } from '@/api/asset_interfaces';
 
@@ -65,7 +65,7 @@ export const AppProviders: React.FC<
                     <DataSourceProvider>
                       <DatasetProviders>
                         <BusterCollectionsProvider>
-                          <BusterMessageDataProvider>
+                          <BusterMetricDataProvider>
                             <BusterDashboardProvider>
                               {/* TODO: remove when we are ready to use chats */}
                               <BusterMetricsProvider>
@@ -87,7 +87,7 @@ export const AppProviders: React.FC<
                                 </BusterSQLProvider>
                               </BusterMetricsProvider>
                             </BusterDashboardProvider>
-                          </BusterMessageDataProvider>
+                          </BusterMetricDataProvider>
                         </BusterCollectionsProvider>
                       </DatasetProviders>
                     </DataSourceProvider>

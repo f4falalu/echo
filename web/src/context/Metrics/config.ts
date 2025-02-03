@@ -12,6 +12,7 @@ export const defaultIBusterMetric: Required<IBusterMetric> = {
   title: '',
   description: '',
   time_frame: '1d',
+  fetchedAt: 0,
   code: null,
   feedback: null,
   dataset_id: null,
@@ -40,7 +41,9 @@ export const defaultIBusterMetric: Required<IBusterMetric> = {
   public_expiry_date: null,
   public_enabled_by: null,
   publicly_accessible: false,
-  public_password: null
+  public_password: null,
+  fetched: false,
+  fetching: false
 };
 
 export const defaultBusterMetricListItem: Required<BusterMetricListItem> = {

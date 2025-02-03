@@ -24,12 +24,12 @@ const _DashboardMetricItem: React.FC<{
 }) => {
   const { cx, styles } = useStyles();
 
-  const { ref, renderChart, metric, messageData, initialAnimationEnded, setInitialAnimationEnded } =
+  const { ref, renderChart, metric, metricData, initialAnimationEnded, setInitialAnimationEnded } =
     useDashboardMetric({ metricId });
 
-  const loadingMetricData = !!metric && !messageData.fetched;
+  const loadingMetricData = !!metric && !metricData.fetched;
   const chartOptions = metric.chart_config;
-  const data = messageData.data || null;
+  const data = metricData.data || null;
   const loading = loadingMetricData;
   const animate = !initialAnimationEnded && !isDragOverlay && numberOfMetrics <= 8;
 
@@ -94,7 +94,7 @@ const _DashboardMetricItem: React.FC<{
             bordered={false}
             onInitialAnimationEnd={onInitialAnimationEndPreflight}
             animate={!isDragOverlay && animate}
-            columnMetadata={messageData.data_metadata?.column_metadata}
+            columnMetadata={metricData?.data_metadata?.column_metadata}
             editable={allowEdit} //this is really only to resize the columns of a table
             {...chartOptions}
           />

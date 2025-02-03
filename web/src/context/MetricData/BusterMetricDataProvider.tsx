@@ -8,37 +8,39 @@ import { useMemoizedFn, useMount } from 'ahooks';
 import { useBusterWebSocket } from '../BusterWebSocket';
 import type { BusterMetricData } from '../Metrics';
 import { MetricEvent_fetchingData } from '@/api/buster_socket/metrics/eventsInterfaces';
+import { MOCK_DATA } from './MOCK_DATA';
 
 const DEFAULT_MESSAGE_DATA: BusterMetricData = {
   fetched: false,
   fetching: false,
-  updatedAt: 0,
+  fetchedAt: 0,
   data_metadata: null,
-  code: null
+  code: null,
+  error: null
 };
 
-const useMessageData = () => {
+const useMetricData = () => {
   const busterSocket = useBusterWebSocket();
 
-  const [messageData, setMessageData] = useState<Record<string, BusterMetricData>>({});
+  const [metricData, setMetricData] = useState<Record<string, BusterMetricData>>({});
 
-  const _setMessageData = useMemoizedFn(
-    (metricId: string, newMessageData: Partial<BusterMetricData>) => {
-      setMessageData((prev) => ({
+  const _setMetricData = useMemoizedFn(
+    (metricId: string, newMetricData: Partial<BusterMetricData>) => {
+      setMetricData((prev) => ({
         ...prev,
-        [metricId]: { ...prev[metricId], ...newMessageData }
+        [metricId]: { ...prev[metricId], ...newMetricData }
       }));
     }
   );
 
   const _onGetFetchingData = useMemoizedFn((payload: MetricEvent_fetchingData) => {
     const { data, data_metadata, code, progress, metric_id: metricId } = payload;
-    const currentMessage = getMessageData(metricId);
-    const fallbackData = data || currentMessage?.data;
-    const fallbackDataMetadata = data_metadata || currentMessage?.data_metadata;
+    const currentMetric = getMetricData(metricId);
+    const fallbackData = data || currentMetric?.data;
+    const fallbackDataMetadata = data_metadata || currentMetric?.data_metadata;
     const isCompleted = progress === 'completed';
 
-    onSetMessageData({
+    onSetMetricData({
       metricId,
       data: fallbackData,
       data_metadata: fallbackDataMetadata,
@@ -49,20 +51,7 @@ const useMessageData = () => {
     });
   });
 
-  const onSetLoadingMessageData = useMemoizedFn(
-    ({
-      metricId,
-      ...params
-    }: {
-      metricId: string;
-      data_metadata?: BusterMetricData['data_metadata'];
-      code: string | null;
-    }) => {
-      _setMessageData(metricId, { ...params, fetching: true });
-    }
-  );
-
-  const onSetMessageData = useMemoizedFn(
+  const onSetMetricData = useMemoizedFn(
     ({
       metricId,
       data,
@@ -81,10 +70,10 @@ const useMessageData = () => {
       code: string | null;
     }) => {
       const setKey = isDataFromRerun ? 'dataFromRerun' : 'data';
-      const prev = getMessageData(metricId);
-      _setMessageData(metricId, {
+      const prev = getMetricData(metricId);
+      _setMetricData(metricId, {
         [setKey]: data,
-        updatedAt: Date.now(),
+        fetchedAt: Date.now(),
         fetched: fetchedData ?? true,
         fetching: fetchingData ?? false,
         data_metadata: data_metadata ?? prev?.data_metadata,
@@ -93,20 +82,27 @@ const useMessageData = () => {
     }
   );
 
-  const onSetMessageDataCode = useMemoizedFn(
+  const onSetMetricDataCode = useMemoizedFn(
     ({ messageId, code }: { messageId: string; code: string }) => {
-      _setMessageData(messageId, { code });
+      _setMetricData(messageId, { code });
     }
   );
 
-  const getDataByMessageId = useMemoizedFn(async ({ metricId }: { metricId: string }) => {
-    const selectedMessageData = getMessageData(metricId);
-    if (selectedMessageData?.fetching || selectedMessageData?.fetched) {
+  const fetchDataByMetricId = useMemoizedFn(async ({ metricId }: { metricId: string }) => {
+    const selectedMetricData = getMetricData(metricId);
+    if (selectedMetricData?.fetching || selectedMetricData?.fetched) {
       return;
     }
 
-    _setMessageData(metricId, {
+    _setMetricData(metricId, {
       fetching: true
+    });
+
+    //TODO: remove mock data
+    // _setMetricData(metricId, { ...MOCK_DATA, fetched: true });
+    onSetMetricData({
+      ...MOCK_DATA,
+      metricId
     });
 
     return await busterSocket.emitAndOnce({
@@ -121,19 +117,21 @@ const useMessageData = () => {
     });
   });
 
-  const getMessageData = useCallback(
+  const getMetricData = useCallback(
     (metricId: string | undefined) => {
-      if (metricId && messageData[metricId]) {
-        return messageData[metricId];
+      if (metricId && metricData[metricId]) {
+        return metricData[metricId];
       }
       return DEFAULT_MESSAGE_DATA;
     },
-    [messageData]
+    [metricData]
   );
 
-  const getAllMessageDataMemoized = useMemoizedFn(() => {
-    return messageData.current;
-  });
+  const getAllMetricDataMemoized = useMemoizedFn(
+    (metricId: string): BusterMetricData | undefined => {
+      return metricData[metricId];
+    }
+  );
 
   useMount(() => {
     busterSocket.on({
@@ -143,32 +141,32 @@ const useMessageData = () => {
   });
 
   return {
-    onSetMessageDataCode,
-    onSetMessageData,
-    onSetLoadingMessageData,
-    getDataByMessageId,
-    getMessageData,
-    getAllMessageDataMemoized
+    metricData,
+    onSetMetricDataCode,
+    onSetMetricData,
+    fetchDataByMetricId,
+    getMetricData,
+    getAllMetricDataMemoized
   };
 };
 
-const BusterMessageDataContext = createContext<ReturnType<typeof useMessageData>>(
-  {} as ReturnType<typeof useMessageData>
+const BusterMetricDataContext = createContext<ReturnType<typeof useMetricData>>(
+  {} as ReturnType<typeof useMetricData>
 );
 
-export const BusterMessageDataProvider: React.FC<PropsWithChildren> = ({ children }) => {
-  const messageDataContext = useMessageData();
+export const BusterMetricDataProvider: React.FC<PropsWithChildren> = ({ children }) => {
+  const messageDataContext = useMetricData();
 
   return (
-    <BusterMessageDataContext.Provider value={messageDataContext}>
+    <BusterMetricDataContext.Provider value={messageDataContext}>
       {children}
-    </BusterMessageDataContext.Provider>
+    </BusterMetricDataContext.Provider>
   );
 };
-BusterMessageDataProvider.displayName = 'BusterMessageDataProvider';
+BusterMetricDataProvider.displayName = 'BusterMetricDataProvider';
 
-export const useBusterMessageDataContextSelector = <T,>(
-  selector: ContextSelector<ReturnType<typeof useMessageData>, T>
+export const useBusterMetricDataContextSelector = <T,>(
+  selector: ContextSelector<ReturnType<typeof useMetricData>, T>
 ) => {
-  return useContextSelector(BusterMessageDataContext, selector);
+  return useContextSelector(BusterMetricDataContext, selector);
 };

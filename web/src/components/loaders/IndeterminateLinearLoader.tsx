@@ -7,7 +7,7 @@ export const IndeterminateLinearLoader: React.FC<{
   height?: number;
   trackColor?: string;
   valueColor?: string;
-}> = ({ className = '', trackColor, valueColor, style, height = 2 }) => {
+}> = React.memo(({ className = '', trackColor, valueColor, style, height = 2 }) => {
   const { styles, cx } = useStyles();
 
   return (
@@ -18,10 +18,13 @@ export const IndeterminateLinearLoader: React.FC<{
         className={cx(styles.track, 'indeterminate-progress-bar-value')}
         style={{
           backgroundColor: valueColor
-        }}></div>
+        }}
+      />
     </div>
   );
-};
+});
+
+IndeterminateLinearLoader.displayName = 'IndeterminateLinearLoader';
 
 const useStyles = createStyles(({ css, token }) => ({
   track: css`

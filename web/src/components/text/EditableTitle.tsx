@@ -38,7 +38,6 @@ export const EditableTitle = React.memo(
     HTMLDivElement,
     {
       children: string;
-      extraChildren?: React.ReactNode;
       onEdit?: (b: boolean) => void;
       onChange: (value: string) => void;
       onSetValue?: (value: string) => void;
@@ -50,6 +49,7 @@ export const EditableTitle = React.memo(
       placeholder?: string;
       style?: React.CSSProperties;
       showBottomBorder?: boolean;
+      inputClassName?: string;
     }
   >(
     (
@@ -58,9 +58,9 @@ export const EditableTitle = React.memo(
         style,
         disabled,
         className = '',
+        inputClassName = '',
         placeholder,
         onPressEnter,
-        extraChildren,
         editing,
         children,
         level = 4,
@@ -95,7 +95,7 @@ export const EditableTitle = React.memo(
             ref={inputRef}
             disabled={disabled}
             variant="borderless"
-            className={cx('w-full !px-0 !py-0', styles.input, {
+            className={cx('w-full !px-0 !py-0', inputClassName, styles.input, {
               [styles.level1]: level === 1,
               [styles.level2]: level === 2,
               [styles.level3]: level === 3,

@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useMemo, useRef, useState } from 'react';
+import React, { PropsWithChildren, useRef, useState } from 'react';
 import {
   createContext,
   ContextSelector,
@@ -6,7 +6,7 @@ import {
 } from '@fluentui/react-context-selector';
 import { BusterMetricsListProvider } from './BusterMetricsListProvider';
 import { defaultIBusterMetric } from './config';
-import { useDebounceFn, useMemoizedFn } from 'ahooks';
+import { useDebounceFn, useMemoizedFn, useMount } from 'ahooks';
 import type { IBusterMetric } from './interfaces';
 import {
   BusterMetric,
@@ -25,19 +25,17 @@ import last from 'lodash/last';
 import { useTransition } from 'react';
 import type { IColumnLabelFormat } from '@/components/charts/interfaces/columnLabelInterfaces';
 import type { ColumnSettings } from '@/components/charts/interfaces/columnInterfaces';
-import { useBusterMessageDataContextSelector } from '../MetricData';
 import { RustApiError } from '@/api/buster_rest/errors';
-import { prepareMetricUpdateMessage, resolveEmptyMetric, upgradeMetricToIMetric } from './helpers';
-import { MetricUpdateMessage, MetricUpdateMetric } from '@/api/buster_socket/metrics';
+import { prepareMetricUpdateMetric, resolveEmptyMetric, upgradeMetricToIMetric } from './helpers';
+import { MetricUpdateMetric } from '@/api/buster_socket/metrics';
+import { useBusterMetricDataContextSelector } from '../MetricData';
+import { MOCK_METRIC } from './MOCK_METRIC';
 
 export const useBusterMetrics = () => {
   const [isPending, startTransition] = useTransition();
   const { metricId: selectedMetricId } = useParams<{ metricId: string }>();
-  const { openInfoMessage, openConfirmModal } = useBusterNotifications();
+  const { openConfirmModal } = useBusterNotifications();
   const busterSocket = useBusterWebSocket();
-  const getDataByMessageId = useBusterMessageDataContextSelector(
-    ({ getDataByMessageId }) => getDataByMessageId
-  );
   const userFavorites = useUserConfigContextSelector((state) => state.userFavorites);
   const forceGetFavoritesList = useUserConfigContextSelector((x) => x.forceGetFavoritesList);
   const removeItemFromIndividualDashboard = useDashboardContextSelector(
@@ -276,17 +274,6 @@ export const useBusterMetrics = () => {
 
   //UI SELECTORS
 
-  // const _getSearchMessageId = useMemoizedFn(
-  //   ({ metricId, messageId }: { metricId?: string; messageId?: string }): string => {
-  //     const _selectedMetricId = metricId || selectedMetricId;
-  //     return (
-  //       messageId ||
-  //       currentMessageIdByMetric[_selectedMetricId] ||
-  //       last(_getMetric({ metricId: _selectedMetricId })?.messages)!
-  //     );
-  //   }
-  // );
-
   const _getMetric = useMemoizedFn(({ metricId }: { metricId?: string }): IBusterMetric => {
     const _metricId = getMetricId(metricId);
     const metrics = metricsRef.current || {};
@@ -300,12 +287,8 @@ export const useBusterMetrics = () => {
     const metrics = metricsRef.current || {};
 
     const oldMetric = metrics[newMetric.id] as IBusterMetric | undefined; //HMMM is this right?
-    const busterMetric: BusterMetric = {
-      ...defaultIBusterMetric,
-      ...newMetric
-    };
 
-    const upgradedMetric = upgradeMetricToIMetric(busterMetric, oldMetric);
+    const upgradedMetric = upgradeMetricToIMetric(newMetric, oldMetric);
 
     onUpdateMetric(upgradedMetric);
   });
@@ -318,10 +301,7 @@ export const useBusterMetrics = () => {
   });
 
   const onUpdateMetric = useMemoizedFn(
-    async (
-      newMetricPartial: Partial<IBusterMetric> & { id?: string },
-      saveToServer: boolean = true
-    ) => {
+    async (newMetricPartial: Partial<IBusterMetric>, saveToServer: boolean = true) => {
       const metricId = getMetricId(newMetricPartial.id);
       const currentMetric = _getMetric({ metricId })!;
       const newMetric: IBusterMetric = {
@@ -333,7 +313,7 @@ export const useBusterMetrics = () => {
         [metricId]: newMetric
       });
 
-      //This will trigger a rerender and push prepareMetricUpdateMessage off UI metric
+      //This will trigger a rerender and push prepareMetricUpdateMetric off UI metric
       startTransition(() => {
         const isReadyOnly = currentMetric.permission === ShareRole.VIEWER;
         if (saveToServer && !isReadyOnly) {
@@ -345,7 +325,7 @@ export const useBusterMetrics = () => {
 
   const { run: _prepareMetricAndSaveToServer } = useDebounceFn(
     useMemoizedFn((newMetric: IBusterMetric, oldMetric: IBusterMetric) => {
-      const changedValues = prepareMetricUpdateMessage(newMetric, oldMetric);
+      const changedValues = prepareMetricUpdateMetric(newMetric, oldMetric);
       if (changedValues) {
         _updateMetricMessageToServer(changedValues);
       }
@@ -477,16 +457,6 @@ export const useBusterMetrics = () => {
     }
   );
 
-  //UNDO REDO
-
-  // const undoRedoParams = useBusterUndoRedo({
-  //   getSearchMessageId: _getSearchMessageId,
-  //   onSetCurrentMessageId,
-  //   currentMessageIdByMetric,
-  //   onUpdateMessageChartConfig,
-  //   messagesRef
-  // });
-
   //LISTENERS
 
   const _onGetMetricState = useMemoizedFn((metric: BusterMetric) => {
@@ -526,9 +496,21 @@ export const useBusterMetrics = () => {
 
   // EMITTERS
 
-  const subscribeToMetric = useMemoizedFn(({ metricId }: { metricId: string }) => {
+  const subscribeToMetric = useMemoizedFn(async ({ metricId }: { metricId: string }) => {
     const { password } = getAssetPassword(metricId);
-    busterSocket.emitAndOnce({
+    const foundMetric: undefined | IBusterMetric = metricsRef.current[metricId];
+
+    if (foundMetric && (foundMetric.fetching || foundMetric.fetched)) {
+      return foundMetric;
+    }
+
+    //TODO: remove this
+    _onGetMetricState({
+      ...MOCK_METRIC,
+      id: metricId
+    });
+
+    return await busterSocket.emitAndOnce({
       emitEvent: {
         route: '/metrics/get',
         payload: {
@@ -555,10 +537,10 @@ export const useBusterMetrics = () => {
     });
   });
 
-  const updateMetricMessageToServer = useMemoizedFn((payload: MetricUpdateMessage['payload']) => {
+  const updateMetricMessageToServer = useMemoizedFn((payload: MetricUpdateMetric['payload']) => {
     return busterSocket.emitAndOnce({
       emitEvent: {
-        route: '/metrics/messages/update',
+        route: '/metrics/update',
         payload
       },
       responseEvent: {
@@ -611,7 +593,6 @@ export const useBusterMetrics = () => {
   );
 
   return {
-    //  ...undoRedoParams,
     resetMetric,
     deleteMetric,
     onVerifiedMetric,
@@ -657,9 +638,24 @@ export const useBusterMetricsContextSelector = <T,>(
 };
 
 export const useBusterMetricIndividual = ({ metricId }: { metricId: string }) => {
+  const editingMetricTitle = useBusterMetricsContextSelector((x) => x.editingMetricTitle);
+  const setEditingMetricTitle = useBusterMetricsContextSelector((x) => x.setEditingMetricTitle);
+  const subscribeToMetric = useBusterMetricsContextSelector((x) => x.subscribeToMetric);
+  const fetchDataByMetricId = useBusterMetricDataContextSelector((x) => x.fetchDataByMetricId);
   const metric = useBusterMetricsContextSelector((x) => x.metrics[metricId]);
+  const metricData = useBusterMetricDataContextSelector(({ getMetricData }) =>
+    getMetricData(metricId)
+  );
+
+  useMount(() => {
+    subscribeToMetric({ metricId });
+    fetchDataByMetricId({ metricId });
+  });
 
   return {
-    metric: resolveEmptyMetric(metric, metricId)
+    metric: resolveEmptyMetric(metric, metricId),
+    metricData,
+    editingMetricTitle,
+    setEditingMetricTitle
   };
 };

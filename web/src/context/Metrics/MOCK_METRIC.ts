@@ -1,0 +1,43 @@
+import { DEFAULT_CHART_CONFIG, ShareRole, VerificationStatus } from '@/api/asset_interfaces';
+import { IBusterMetric } from './interfaces';
+import { faker } from '@faker-js/faker';
+
+export const MOCK_METRIC: IBusterMetric = {
+  id: '123',
+  title: 'Mock Metric',
+  description: 'This is a mock metric',
+  time_frame: '1d',
+  type: 'metric',
+  chart_config: DEFAULT_CHART_CONFIG,
+  fetched: true,
+  fetching: false,
+  fetchedAt: 0,
+  dataset_id: '123',
+  dataset_name: 'Mock Dataset',
+  error: null,
+  data_metadata: null,
+  status: VerificationStatus.notRequested,
+  evaluation_score: 'Moderate',
+  evaluation_summary: faker.lorem.sentence(33),
+  file: '',
+  created_at: '',
+  updated_at: '',
+  sent_by_id: '',
+  sent_by_name: '',
+  sent_by_avatar_url: '',
+  code: null,
+  feedback: null,
+  draft_session_id: null,
+  collections: [],
+  dashboards: [],
+  sharingKey: '',
+  individual_permissions: [],
+  team_permissions: [],
+  organization_permissions: [],
+  password_secret_id: '',
+  public_expiry_date: '',
+  public_enabled_by: '',
+  publicly_accessible: false,
+  public_password: '',
+  permission: ShareRole.OWNER
+};
