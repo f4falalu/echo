@@ -1,9 +1,15 @@
 use anyhow::Result;
 use async_trait::async_trait;
+use diesel::insert_into;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::utils::{clients::ai::litellm::ToolCall, tools::ToolExecutor};
+use crate::{
+    database::{lib::get_pg_pool, schema::metric_files},
+    utils::{clients::ai::litellm::ToolCall, tools::ToolExecutor},
+};
+
+use super::file_types::{dashboard_file::DashboardFile, metric_file::MetricFile};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct FileParams {
@@ -39,7 +45,13 @@ impl ToolExecutor for CreateFilesTool {
 
         let files = params.files;
 
-        for file in files {}
+        for file in files {
+            match file.file_type.as_str() {
+                "metric" => create_metric_file(file)?,
+                "dashboard" => create_dashboard_file(file)?,
+                _ => return Err(anyhow::anyhow!("Invalid file type: {}. Currently only `metric` and `dashboard` types are supported.", file.file_type)),
+            }
+        }
         Ok(Value::Array(vec![]))
     }
 
@@ -81,4 +93,39 @@ impl ToolExecutor for CreateFilesTool {
             "description": "Creates **new** metric or dashboard files. Use this if no existing file can fulfill the user's needs. This will automatically open the metric/dashboard for the user."
         })
     }
+}
+
+async fn create_metric_file(file: FileParams) -> Result<()> {
+    let metric_file = match MetricFile::new(file.yml_content) {
+        Ok(metric_file) => metric_file,
+        Err(e) => return Err(e),
+    };
+
+    let mut conn = match get_pg_pool().get().await {
+        Ok(conn) => conn,
+        Err(e) => return Err(e),
+    };
+
+    // TODO: Add Metric File Record here.
+
+    let metric_file_record = match insert_into(metric_files::table)
+        .values(metric_file)
+        .returning(metric_files::all_columns)
+        .execute(&mut conn)
+        .await
+    {
+        Ok(metric_file_record) => metric_file_record,
+        Err(e) => return Err(e),
+    };
+
+    Ok(())
+}
+
+fn create_dashboard_file(file: FileParams) -> Result<()> {
+    let dashboard_file = match DashboardFile::new(file.yml_content) {
+        Ok(dashboard_file) => dashboard_file,
+        Err(e) => return Err(e),
+    };
+
+    Ok(())
 }

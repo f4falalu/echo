@@ -9,6 +9,13 @@ pub struct MetricFile {
     pub description: Option<String>,
     pub sql: String,
     pub chart_config: ChartConfig,
+    pub data_metadata: Vec<DataMetadata>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DataMetadata {
+    pub name: String,
+    pub data_type: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -287,7 +294,6 @@ impl MetricFile {
         }
     }
 
-    // TODO: Add validation logic here
     pub fn validate(&self) -> Result<()> {
         Ok(())
     }
