@@ -2,7 +2,7 @@
 
 import * as config from './config';
 import { serverFetch } from '../../../createServerInstance';
-import { DatasetPermissionsOverviewResponse } from './responseInterfaces';
+import type { DatasetPermissionsOverviewResponse } from '../../../asset_interfaces';
 
 export const getDatasetPermissionsOverview_server = async (datasetId: string) => {
   const response = await serverFetch<DatasetPermissionsOverviewResponse>(

@@ -1,4 +1,4 @@
-import { TeamRole } from '@/api';
+import { TeamRole } from '@/api/asset_interfaces';
 import { Select } from 'antd';
 import React from 'react';
 

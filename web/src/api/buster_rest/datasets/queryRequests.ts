@@ -12,7 +12,11 @@ import {
   updateDataset,
   deleteDataset
 } from './requests';
-import { BusterDataset, BusterDatasetData, BusterDatasetListItem } from './responseInterfaces';
+import type {
+  BusterDataset,
+  BusterDatasetData,
+  BusterDatasetListItem
+} from '../../asset_interfaces/datasets';
 import { useMemoizedFn } from 'ahooks';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { getDatasetMetadata_server } from './serverRequests';

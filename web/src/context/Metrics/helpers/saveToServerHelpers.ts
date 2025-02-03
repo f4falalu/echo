@@ -1,12 +1,12 @@
-import { ThreadUpdateMessage } from '@/api/buster_socket/threads';
+import { MetricUpdateMessage } from '@/api/buster_socket/metrics';
 import {
   DEFAULT_CHART_CONFIG_ENTRIES,
   DEFAULT_COLUMN_LABEL_FORMAT,
   DEFAULT_COLUMN_SETTINGS,
-  IBusterThreadMessageChartConfig
-} from '@/api/buster_rest';
+  IBusterMetricChartConfig
+} from '@/api/asset_interfaces';
 import { getChangedValues } from '@/utils/objects';
-import { IBusterThreadMessage } from '../interfaces';
+import { IBusterMetric } from '../interfaces';
 import isEqual from 'lodash/isEqual';
 import {
   BarAndLineAxis,
@@ -21,16 +21,11 @@ import {
 const DEFAULT_COLUMN_SETTINGS_ENTRIES = Object.entries(DEFAULT_COLUMN_SETTINGS);
 const DEFAULT_COLUMN_LABEL_FORMATS_ENTRIES = Object.entries(DEFAULT_COLUMN_LABEL_FORMAT);
 
-const getChangedTopLevelMessageValues = (
-  newMessage: IBusterThreadMessage,
-  oldMessage: IBusterThreadMessage
-) => {
-  return getChangedValues(oldMessage, newMessage, ['title', 'feedback', 'status', 'code']);
+const getChangedTopLevelMessageValues = (newMetric: IBusterMetric, oldMetric: IBusterMetric) => {
+  return getChangedValues(oldMetric, newMetric, ['title', 'feedback', 'status', 'code']);
 };
 
-const keySpecificHandlers: Partial<
-  Record<keyof IBusterThreadMessageChartConfig, (value: any) => any>
-> = {
+const keySpecificHandlers: Partial<Record<keyof IBusterMetricChartConfig, (value: any) => any>> = {
   barAndLineAxis: (value: BarAndLineAxis) => value,
   scatterAxis: (value: ScatterAxis) => value,
   pieChartAxis: (value: PieChartAxis) => value,
@@ -91,14 +86,14 @@ const keySpecificHandlers: Partial<
   }
 };
 
-const getChangesFromDefaultChartConfig = (newMessage: IBusterThreadMessage) => {
-  const chartConfig = newMessage.chart_config;
+const getChangesFromDefaultChartConfig = (newMetric: IBusterMetric) => {
+  const chartConfig = newMetric.chart_config;
   if (!chartConfig) return {} as BusterChartConfigProps;
 
-  const diff: Partial<IBusterThreadMessageChartConfig> = {};
+  const diff: Partial<IBusterMetricChartConfig> = {};
 
   for (const [_key, defaultValue] of DEFAULT_CHART_CONFIG_ENTRIES) {
-    const key = _key as keyof IBusterThreadMessageChartConfig;
+    const key = _key as keyof IBusterMetricChartConfig;
     const chartConfigValue = chartConfig[key];
     const handler = keySpecificHandlers[key];
 
@@ -118,19 +113,19 @@ const getChangesFromDefaultChartConfig = (newMessage: IBusterThreadMessage) => {
   return diff as BusterChartConfigProps;
 };
 
-export const prepareThreadUpdateMessage = (
-  newMessage: IBusterThreadMessage,
-  oldMessage: IBusterThreadMessage
-): ThreadUpdateMessage['payload'] | null => {
-  const changedTopLevelValues = getChangedTopLevelMessageValues(newMessage, oldMessage) as Partial<
-    ThreadUpdateMessage['payload']
+export const prepareMetricUpdateMessage = (
+  newMetric: IBusterMetric,
+  oldMetric: IBusterMetric
+): MetricUpdateMessage['payload'] | null => {
+  const changedTopLevelValues = getChangedTopLevelMessageValues(newMetric, oldMetric) as Partial<
+    MetricUpdateMessage['payload']
   >;
 
-  const changedChartConfig = getChangesFromDefaultChartConfig(newMessage);
+  const changedChartConfig = getChangesFromDefaultChartConfig(newMetric);
 
   return {
     ...changedTopLevelValues,
     chart_config: changedChartConfig,
-    id: newMessage.id
+    id: newMetric.id
   };
 };

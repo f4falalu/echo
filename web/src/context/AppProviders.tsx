@@ -11,7 +11,6 @@ import { DatasetProviders } from './Datasets';
 import { AppHotKeysProvider } from './AppHotKeys';
 import { AppLayoutProvider } from './BusterAppLayout';
 import { isDev } from '@/config';
-import { BusterThreadsProvider } from './Threads/BusterThreadsProvider';
 import { BusterDashboardProvider } from './Dashboards/DashboardProvider';
 import { BusterUserConfigProvider } from './Users/UserConfigProvider';
 import { BusterCollectionsProvider } from './Collections/CollectionsProvider';
@@ -21,12 +20,13 @@ import { BusterTermsProvider } from './Terms/BusterTermsProvider';
 import { BusterPermissionsProvider } from './Permissions';
 import { BusterSearchProvider } from './Search';
 import { BusterAssetsProvider } from './Assets/BusterAssetsProvider';
-import { BusterUserResponse } from '@/api/buster_rest/users';
 import { BusterPosthogProvider } from './Posthog/usePosthog';
 import { BusterNotificationsProvider } from './BusterNotifications';
-import { BusterChatProvider } from './Chats';
+import { BusterChatProvider, BusterNewChatProvider } from './Chats';
 import { RoutePrefetcher } from './RoutePrefetcher';
-import { BusterMessageDataProvider } from './MessageData';
+import { BusterMessageDataProvider } from './MetricData';
+import { BusterMetricsProvider } from './Metrics';
+import type { BusterUserResponse } from '@/api/asset_interfaces';
 
 // scan({
 //   enabled: true,
@@ -68,22 +68,24 @@ export const AppProviders: React.FC<
                           <BusterMessageDataProvider>
                             <BusterDashboardProvider>
                               {/* TODO: remove when we are ready to use chats */}
-                              <BusterThreadsProvider>
+                              <BusterMetricsProvider>
                                 <BusterSQLProvider>
                                   <BusterTermsProvider>
                                     <BusterPermissionsProvider>
                                       <BusterChatProvider>
-                                        <AppHotKeysProvider>
-                                          <BusterPosthogProvider>
-                                            {children}
-                                            <RoutePrefetcher />
-                                          </BusterPosthogProvider>
-                                        </AppHotKeysProvider>
+                                        <BusterNewChatProvider>
+                                          <AppHotKeysProvider>
+                                            <BusterPosthogProvider>
+                                              {children}
+                                              <RoutePrefetcher />
+                                            </BusterPosthogProvider>
+                                          </AppHotKeysProvider>
+                                        </BusterNewChatProvider>
                                       </BusterChatProvider>
                                     </BusterPermissionsProvider>
                                   </BusterTermsProvider>
                                 </BusterSQLProvider>
-                              </BusterThreadsProvider>
+                              </BusterMetricsProvider>
                             </BusterDashboardProvider>
                           </BusterMessageDataProvider>
                         </BusterCollectionsProvider>

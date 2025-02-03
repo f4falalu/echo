@@ -176,7 +176,6 @@ const CollectionList: React.FC<{
 };
 
 const CollectionIconRecord: Record<string, React.ReactNode> = {
-  thread: <AppMaterialIcons icon="monitoring" />,
   dashboard: <AppMaterialIcons icon="grid_view" />,
   metric: <AppMaterialIcons icon="monitoring" />
 };
@@ -188,9 +187,9 @@ const CollectionListSkeleton: React.FC<{}> = () => {
 const createAssetLink = (asset: BusterCollectionItemAsset, collectionId: string) => {
   if (asset.asset_type === ShareAssetType.METRIC) {
     return createBusterRoute({
-      route: BusterRoutes.APP_COLLECTIONS_ID_THREADS_ID,
+      route: BusterRoutes.APP_COLLECTIONS_ID_METRICS_ID,
       collectionId,
-      threadId: asset.id
+      metricId: asset.id
     });
   }
 

@@ -4,7 +4,7 @@ import { DataFrameOperations } from '@/utils/math';
 import { formatLabel } from '@/utils/columnFormatter';
 import { DatasetOption, extractFieldsFromChain } from '../chartHooks';
 import { createDayjsDate, getBestDateFormat } from '@/utils/date';
-import { IBusterThreadMessageChartConfig } from '@/api/buster_rest';
+import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 
 export const addLegendHeadlines = (
   legendItems: BusterChartLegendItem[],
@@ -12,7 +12,7 @@ export const addLegendHeadlines = (
   showLegendHeadline: ShowLegendHeadline,
   columnMetadata: NonNullable<BusterChartProps['columnMetadata']>,
   columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>,
-  selectedChartType: IBusterThreadMessageChartConfig['selectedChartType']
+  selectedChartType: IBusterMetricChartConfig['selectedChartType']
 ) => {
   if (!showLegendHeadline) return legendItems;
   const lastDataset = datasets[datasets.length - 1];

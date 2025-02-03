@@ -13,9 +13,9 @@ import React from 'react';
 
 export const AppNoPageAccess: React.FC<{
   asset_type: ShareAssetType;
-  threadId?: string;
+  metricId?: string;
   dashboardId?: string;
-}> = React.memo(({ asset_type, threadId, dashboardId }) => {
+}> = React.memo(({ asset_type, metricId, dashboardId }) => {
   const { openInfoMessage } = useBusterNotifications();
 
   return (

@@ -131,15 +131,15 @@ const useBusterSocketListeners = (props: {
     return new Promise((resolve, reject) => {
       const onceCallback = (payload: any) => {
         callback(payload);
-        off({ route: route as '/threads/list:getThreadsList', callback: onceCallback });
+        off({ route: route as '/metrics/list:getMetricList', callback: onceCallback });
         resolve(payload);
       };
       const onError = (error: any) => {
-        off({ route: route as '/threads/list:getThreadsList', callback: onceCallback });
+        off({ route: route as '/metrics/list:getMetricList', callback: onceCallback });
         reject(error);
       };
       on({
-        route: route as '/threads/list:getThreadsList',
+        route: route as '/metrics/list:getMetricList',
         callback: onceCallback,
         onError
       });
@@ -160,7 +160,7 @@ const useBusterSocketListeners = (props: {
         reject(d);
       };
       once({
-        route: route as '/threads/list:getThreadsList',
+        route: route as '/metrics/list:getMetricList',
         callback: promiseCallback,
         onError: onErrorCallback
       }).catch((e) => {

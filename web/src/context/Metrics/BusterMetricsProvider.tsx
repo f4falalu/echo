@@ -4,32 +4,35 @@ import {
   ContextSelector,
   useContextSelector
 } from '@fluentui/react-context-selector';
-import { BusterThreadsListProvider } from './BusterMetricsListProvider';
-import { defaultIBusterThread } from './config';
+import { BusterMetricsListProvider } from './BusterMetricsListProvider';
+import { defaultIBusterMetric } from './config';
 import { useDebounceFn, useMemoizedFn } from 'ahooks';
-import type { IBusterThread, IBusterThreadMessage } from './interfaces';
-import type { BusterThread, BusterThreadUser } from '@/api/buster_rest';
-import { VerificationStatus } from '@/api/asset_interfaces';
+import type { IBusterMetric } from './interfaces';
+import {
+  BusterMetric,
+  DEFAULT_CHART_CONFIG,
+  IBusterMetricChartConfig,
+  ShareRole,
+  VerificationStatus
+} from '@/api/asset_interfaces';
 import { useBusterWebSocket } from '../BusterWebSocket';
 import { useParams } from 'next/navigation';
-import { IBusterThreadMessageChartConfig } from '@/api/buster_rest/threads/threadConfigInterfaces';
-import { ShareRole, ThreadUpdateMessage, ThreadUpdateThread } from '@/api/buster_socket/threads';
-import { resolveEmptyThread, upgradeThreadToIThread, prepareThreadUpdateMessage } from './helpers';
 import { useUserConfigContextSelector } from '../Users';
 import { useBusterAssetsContextSelector } from '../Assets/BusterAssetsProvider';
-import { useBusterUndoRedo } from './useBusterUndoRedo';
 import { useDashboardContextSelector } from '../Dashboards';
 import { useBusterNotifications } from '../BusterNotifications';
 import last from 'lodash/last';
 import { useTransition } from 'react';
 import type { IColumnLabelFormat } from '@/components/charts/interfaces/columnLabelInterfaces';
 import type { ColumnSettings } from '@/components/charts/interfaces/columnInterfaces';
-import { useBusterMessageDataContextSelector } from '../MessageData';
+import { useBusterMessageDataContextSelector } from '../MetricData';
 import { RustApiError } from '@/api/buster_rest/errors';
+import { prepareMetricUpdateMessage, resolveEmptyMetric, upgradeMetricToIMetric } from './helpers';
+import { MetricUpdateMessage, MetricUpdateMetric } from '@/api/buster_socket/metrics';
 
-export const useBusterThreads = () => {
+export const useBusterMetrics = () => {
   const [isPending, startTransition] = useTransition();
-  const { threadId: selectedThreadId } = useParams<{ threadId: string }>();
+  const { metricId: selectedMetricId } = useParams<{ metricId: string }>();
   const { openInfoMessage, openConfirmModal } = useBusterNotifications();
   const busterSocket = useBusterWebSocket();
   const getDataByMessageId = useBusterMessageDataContextSelector(
@@ -44,36 +47,36 @@ export const useBusterThreads = () => {
   const setAssetPasswordError = useBusterAssetsContextSelector(
     (state) => state.setAssetPasswordError
   );
-  const threadsRef = useRef<Record<string, IBusterThread>>({});
-  const messagesRef = useRef<Record<string, IBusterThreadMessage>>({});
-  const [currentMessageIdByThread, setCurrentMessageIdByThread] = useState<
-    Record<string, string | null>
-  >({});
-  const [editingThreadTitle, setEditingThreadTitle] = useState(false);
+  const metricsRef = useRef<Record<string, IBusterMetric>>({});
+  const [editingMetricTitle, setEditingMetricTitle] = useState(false);
 
-  const setThreads = useMemoizedFn((newThreads: Record<string, IBusterThread>) => {
-    threadsRef.current = { ...newThreads };
+  const getMetricId = useMemoizedFn((metricId?: string): string => {
+    return metricId || selectedMetricId;
+  });
+
+  const setMetrics = useMemoizedFn((newMetrics: Record<string, IBusterMetric>) => {
+    metricsRef.current = { ...newMetrics };
     startTransition(() => {
       //trigger a rerender
     });
   });
 
-  const resetThread = useMemoizedFn(({ threadId }: { threadId: string }) => {
-    const prev = threadsRef.current;
-    delete prev[threadId];
-    setThreads(prev);
+  const resetMetric = useMemoizedFn(({ metricId }: { metricId: string }) => {
+    const prev = metricsRef.current;
+    delete prev[metricId];
+    setMetrics(prev);
   });
 
-  const saveThreadToDashboard = useMemoizedFn(
-    async ({ threadId, dashboardIds }: { threadId: string; dashboardIds: string[] }) => {
+  const saveMetricToDashboard = useMemoizedFn(
+    async ({ metricId, dashboardIds }: { metricId: string; dashboardIds: string[] }) => {
       const lastId = last(dashboardIds);
-      const prev = threadsRef.current;
-      setThreads({
+      const prev = metricsRef.current;
+      setMetrics({
         ...prev,
-        [threadId]: {
-          ...prev[threadId],
+        [metricId]: {
+          ...prev[metricId],
           dashboards: [
-            ...prev[threadId].dashboards,
+            ...prev[metricId].dashboards,
             ...dashboardIds.map((id) => {
               return { id, name: '' };
             })
@@ -85,15 +88,15 @@ export const useBusterThreads = () => {
         promises.push(
           busterSocket.emitAndOnce({
             emitEvent: {
-              route: '/threads/update',
+              route: '/metrics/update',
               payload: {
-                id: threadId,
+                id: metricId,
                 save_to_dashboard: dashboardId
               }
             },
             responseEvent: {
-              route: '/threads/update:updateThreadState',
-              callback: (d: [BusterThread]) => d
+              route: '/metrics/update:updateMetricState',
+              callback: (d) => d
             }
           })
         );
@@ -103,8 +106,8 @@ export const useBusterThreads = () => {
     }
   );
 
-  const saveThreadToCollection = useMemoizedFn(
-    async ({ threadId, collectionIds }: { threadId: string; collectionIds: string[] }) => {
+  const saveMetricToCollection = useMemoizedFn(
+    async ({ metricId, collectionIds }: { metricId: string; collectionIds: string[] }) => {
       const collectionIsInFavorites = userFavorites.some((f) => {
         const searchId = f.collection_id || f.id;
         return collectionIds.includes(searchId);
@@ -113,31 +116,31 @@ export const useBusterThreads = () => {
       collectionIds.forEach((collectionId) => {
         const promise = busterSocket.emitAndOnce({
           emitEvent: {
-            route: '/threads/update',
+            route: '/metrics/update',
             payload: {
-              id: threadId,
+              id: metricId,
               add_to_collections: [collectionId]
             }
           },
           responseEvent: {
-            route: '/threads/update:updateThreadState',
-            callback: (d: [BusterThread]) => d
+            route: '/metrics/update:updateMetricState',
+            callback: (d) => d
           }
         });
         addToPromises.push(promise);
       });
 
-      const prev = threadsRef.current;
+      const prev = metricsRef.current;
 
-      const hasPreviousThread = prev[threadId];
-      if (!hasPreviousThread) return; //if the thread doesn't exist, don't save to collections
+      const hasPreviousMetric = prev[metricId];
+      if (!hasPreviousMetric) return; //if the metric doesn't exist, don't save to collections
 
-      setThreads({
+      setMetrics({
         ...prev,
-        [threadId]: {
-          ...prev[threadId],
+        [metricId]: {
+          ...prev[metricId],
           collections: [
-            ...prev[threadId].collections,
+            ...prev[metricId].collections,
             ...collectionIds.map((id) => {
               return { id, name: '' };
             })
@@ -152,95 +155,95 @@ export const useBusterThreads = () => {
     }
   );
 
-  const removeThreadFromDashboard = useMemoizedFn(
+  const removeMetricFromDashboard = useMemoizedFn(
     async ({
-      threadId,
+      metricId,
       dashboardId,
       useConfirmModal = true
     }: {
-      threadId: string;
+      metricId: string;
       dashboardId: string;
       useConfirmModal?: boolean;
     }) => {
-      const prev = threadsRef.current;
+      const prev = metricsRef.current;
 
       const onOk = async () => {
-        if (prev[threadId]) {
-          setThreads({
+        if (prev[metricId]) {
+          setMetrics({
             ...prev,
-            [threadId]: {
-              ...prev[threadId],
-              dashboards: prev[threadId].dashboards.filter((d) => d.id !== dashboardId)
+            [metricId]: {
+              ...prev[metricId],
+              dashboards: prev[metricId].dashboards.filter((d) => d.id !== dashboardId)
             }
           });
         }
         removeItemFromIndividualDashboard({
           dashboardId,
-          threadId
+          metricId
         });
         return await busterSocket.emitAndOnce({
           emitEvent: {
-            route: '/threads/update',
+            route: '/metrics/update',
             payload: {
-              id: threadId,
+              id: metricId,
               remove_from_dashboard: dashboardId
             }
           },
           responseEvent: {
-            route: '/threads/update:updateThreadState',
-            callback: (d: [BusterThread]) => d
+            route: '/metrics/update:updateMetricState',
+            callback: (d) => d
           }
         });
       };
       if (!useConfirmModal) return await onOk();
       return await openConfirmModal({
         title: 'Remove from dashboard',
-        content: 'Are you sure you want to remove this thread from this dashboard?',
+        content: 'Are you sure you want to remove this metric from this dashboard?',
         onOk
       });
     }
   );
 
-  const removeThreadFromCollection = useMemoizedFn(
+  const removeMetricFromCollection = useMemoizedFn(
     async ({
-      threadId,
+      metricId,
       collectionId,
       ignoreFavoriteUpdates
     }: {
-      threadId: string;
+      metricId: string;
       collectionId: string;
       ignoreFavoriteUpdates?: boolean;
     }) => {
-      const currentThread = _getThread({ threadId });
+      const currentMetric = _getMetric({ metricId });
       const collectionIsInFavorites = userFavorites.some((f) => {
         const searchId = f.collection_id || f.id;
-        return currentThread.collections.some((c) => c.id === searchId);
+        return currentMetric.collections.some((c) => c.id === searchId);
       });
 
-      const prev = threadsRef.current;
+      const prev = metricsRef.current;
 
-      const hasPreviousThread = prev[threadId];
-      if (hasPreviousThread) {
-        setThreads({
+      const hasPreviousMetric = prev[metricId];
+      if (hasPreviousMetric) {
+        setMetrics({
           ...prev,
-          [threadId]: {
-            ...prev[threadId],
-            collections: prev[threadId].collections.filter((d) => d.id !== collectionId)
+          [metricId]: {
+            ...prev[metricId],
+            collections: prev[metricId].collections.filter((d) => d.id !== collectionId)
           }
         });
       }
 
       await busterSocket.emitAndOnce({
         emitEvent: {
-          route: '/threads/update',
+          route: '/metrics/update',
           payload: {
-            id: threadId,
+            id: metricId,
             remove_from_collections: [collectionId]
           }
         },
         responseEvent: {
-          route: '/threads/update:updateThreadState',
-          callback: (d: any) => d
+          route: '/metrics/update:updateMetricState',
+          callback: (d) => d
         }
       });
       if (collectionIsInFavorites && ignoreFavoriteUpdates !== true) {
@@ -249,21 +252,21 @@ export const useBusterThreads = () => {
     }
   );
 
-  const deleteThread = useMemoizedFn(async ({ threadIds }: { threadIds: string[] }) => {
+  const deleteMetric = useMemoizedFn(async ({ metricIds }: { metricIds: string[] }) => {
     return await openConfirmModal({
-      title: 'Delete thread',
-      content: 'Are you sure you want to delete this thread?',
+      title: 'Delete metric',
+      content: 'Are you sure you want to delete this metric?',
       onOk: async () => {
         await busterSocket.emitAndOnce({
           emitEvent: {
-            route: '/threads/delete',
+            route: '/metrics/delete',
             payload: {
-              ids: threadIds
+              ids: metricIds
             }
           },
           responseEvent: {
-            route: '/threads/delete:deleteThreadState',
-            callback: (d: any) => {}
+            route: '/metrics/delete:deleteMetricState',
+            callback: (d) => d
           }
         });
       },
@@ -273,211 +276,114 @@ export const useBusterThreads = () => {
 
   //UI SELECTORS
 
-  const _getSearchMessageId = useMemoizedFn(
-    ({ threadId, messageId }: { threadId?: string; messageId?: string }): string => {
-      const _selectedThreadId = threadId || selectedThreadId;
-      return (
-        messageId ||
-        currentMessageIdByThread[_selectedThreadId] ||
-        last(_getThread({ threadId: _selectedThreadId })?.messages)!
-      );
-    }
-  );
+  // const _getSearchMessageId = useMemoizedFn(
+  //   ({ metricId, messageId }: { metricId?: string; messageId?: string }): string => {
+  //     const _selectedMetricId = metricId || selectedMetricId;
+  //     return (
+  //       messageId ||
+  //       currentMessageIdByMetric[_selectedMetricId] ||
+  //       last(_getMetric({ metricId: _selectedMetricId })?.messages)!
+  //     );
+  //   }
+  // );
 
-  const _getThread = useMemoizedFn(({ threadId }: { threadId: string }): IBusterThread => {
-    const threads = threadsRef.current || {};
-    const currentThread = threads[threadId];
-    return resolveEmptyThread(currentThread, threadId);
+  const _getMetric = useMemoizedFn(({ metricId }: { metricId?: string }): IBusterMetric => {
+    const _metricId = getMetricId(metricId);
+    const metrics = metricsRef.current || {};
+    const currentMetric = metrics[_metricId];
+    return resolveEmptyMetric(currentMetric, _metricId);
   });
-
-  const _getThreadMessage = useMemoizedFn(
-    ({ threadId, messageId }: { threadId?: string; messageId?: string }) => {
-      const searchMessageId = _getSearchMessageId({ threadId, messageId });
-      const selectedMessage = messagesRef.current[searchMessageId];
-      return selectedMessage || null;
-    }
-  );
 
   //STATE UPDATERS
 
-  const onSetCurrentMessageId = useMemoizedFn(
-    ({
-      threadId,
-      messageId,
-      forceAddToUndoStack
-    }: {
-      threadId: string;
-      messageId: string | null;
-      forceAddToUndoStack?: boolean;
-    }) => {
-      if (currentMessageIdByThread[threadId] === messageId) return;
-      const selectedThread = _getThread({ threadId });
+  const onInitializeMetric = useMemoizedFn((newMetric: BusterMetric) => {
+    const metrics = metricsRef.current || {};
 
-      setCurrentMessageIdByThread({
-        ...currentMessageIdByThread,
-        [threadId]: messageId
-      });
+    const oldMetric = metrics[newMetric.id] as IBusterMetric | undefined; //HMMM is this right?
+    const busterMetric: BusterMetric = {
+      ...defaultIBusterMetric,
+      ...newMetric
+    };
 
-      if (messageId && !selectedThread?.isNewThread) {
-        getDataByMessageId({ messageId });
-      }
+    const upgradedMetric = upgradeMetricToIMetric(busterMetric, oldMetric);
 
-      const selectedMessageId = _getSearchMessageId({ threadId, messageId: messageId! });
-      undoRedoParams.addToUndoStack({
-        threadId,
-        messageId: selectedMessageId
-      });
-    }
-  );
+    onUpdateMetric(upgradedMetric);
+  });
 
-  const onInitializeThread = useMemoizedFn(
-    (
-      newThread: BusterThread,
-      params?: {
-        isNewThread?: boolean;
-        isFollowupMessage?: boolean;
-        isCompleted?: boolean;
-      }
-    ) => {
-      const threads = threadsRef.current || {};
-      const additionalParams = {
-        isNewThread: false,
-        isFollowupMessage: false,
-        isCompleted: false,
-        ...params
-      };
-      const oldThread = threads[newThread.id] as IBusterThread | undefined; //HMMM is this right?
-      const busterThread: BusterThread = {
-        ...defaultIBusterThread,
-        ...newThread
-      };
+  const bulkUpdateMetrics = useMemoizedFn((newMetrics: Record<string, IBusterMetric>) => {
+    metricsRef.current = {
+      ...metricsRef.current,
+      ...newMetrics
+    };
+  });
 
-      const { upgradedThread, upgradedMessages } = upgradeThreadToIThread(
-        busterThread,
-        oldThread,
-        messagesRef.current,
-        {
-          threadParams: additionalParams,
-          messageParams: {
-            isCompleted: additionalParams.isCompleted
-          }
-        }
-      );
-
-      onUpdateThread(upgradedThread, upgradedMessages);
-    }
-  );
-
-  const bulkUpdateThreadMessages = useMemoizedFn(
-    (newMessages: Record<string, IBusterThreadMessage>) => {
-      messagesRef.current = {
-        ...messagesRef.current,
-        ...newMessages
-      };
-    }
-  );
-
-  const onUpdateThread = useMemoizedFn(
-    (
-      newThread: Partial<IBusterThread> & { id: string },
-      newMessages?: Parameters<typeof bulkUpdateThreadMessages>[0]
-    ) => {
-      const prevThreads = threadsRef.current || {};
-      const existingThread = prevThreads[newThread.id];
-      const _newThread = {
-        ...defaultIBusterThread,
-        ...existingThread,
-        ...newThread
-      };
-
-      if (newMessages) bulkUpdateThreadMessages(newMessages);
-
-      setThreads({
-        ...prevThreads,
-        [newThread.id]: _newThread
-      });
-    }
-  );
-
-  const onUpdateThreadMessage = useMemoizedFn(
+  const onUpdateMetric = useMemoizedFn(
     async (
-      {
-        threadId,
-        message: newMessagePartial,
-        messageId
-      }: {
-        threadId: string;
-        messageId: string;
-        message: Partial<IBusterThreadMessage>;
-      },
+      newMetricPartial: Partial<IBusterMetric> & { id?: string },
       saveToServer: boolean = true
     ) => {
-      const currentThread = _getThread({ threadId })!;
-      const searchMessageId = _getSearchMessageId({ threadId, messageId });
-      const editMessage = _getThreadMessage({ threadId, messageId: searchMessageId });
-      const newMessageObject = {
-        ...editMessage,
-        ...newMessagePartial
-      } as IBusterThreadMessage;
+      const metricId = getMetricId(newMetricPartial.id);
+      const currentMetric = _getMetric({ metricId })!;
+      const newMetric: IBusterMetric = {
+        ...currentMetric,
+        ...newMetricPartial
+      };
 
-      messagesRef.current[searchMessageId] = newMessageObject;
+      setMetrics({
+        [metricId]: newMetric
+      });
 
-      //This will trigger a rerender and push prepareThreadUpdateMessage off UI thread
+      //This will trigger a rerender and push prepareMetricUpdateMessage off UI metric
       startTransition(() => {
-        const isReadyOnly = currentThread.permission === ShareRole.VIEWER;
+        const isReadyOnly = currentMetric.permission === ShareRole.VIEWER;
         if (saveToServer && !isReadyOnly) {
-          _prepareThreadAndSaveToServer(newMessageObject, editMessage);
+          _prepareMetricAndSaveToServer(newMetric, currentMetric);
         }
       });
     }
   );
 
-  const { run: _prepareThreadAndSaveToServer } = useDebounceFn(
-    useMemoizedFn((newMessageObject: IBusterThreadMessage, oldMessage: IBusterThreadMessage) => {
-      const changedValues = prepareThreadUpdateMessage(newMessageObject, oldMessage);
+  const { run: _prepareMetricAndSaveToServer } = useDebounceFn(
+    useMemoizedFn((newMetric: IBusterMetric, oldMetric: IBusterMetric) => {
+      const changedValues = prepareMetricUpdateMessage(newMetric, oldMetric);
       if (changedValues) {
-        _updateThreadMessageToServer(changedValues);
+        _updateMetricMessageToServer(changedValues);
       }
     }),
     { wait: 700 }
   );
 
-  const onUpdateMessageChartConfig = useMemoizedFn(
+  const onUpdateMetricChartConfig = useMemoizedFn(
     ({
-      threadId,
+      metricId,
       chartConfig,
-      messageId,
       ignoreUndoRedo
     }: {
-      threadId?: string;
-      messageId?: string;
-      chartConfig: Partial<IBusterThreadMessageChartConfig>;
+      metricId?: string;
+      chartConfig: Partial<IBusterMetricChartConfig>;
       ignoreUndoRedo?: boolean;
     }) => {
-      const editMessage = _getThreadMessage({
-        threadId,
-        messageId
+      const currentMetric = _getMetric({
+        metricId
       });
 
       if (!ignoreUndoRedo) {
-        undoRedoParams.addToUndoStack({
-          threadId: editMessage.thread_id,
-          messageId: editMessage.id,
-          chartConfig: editMessage.chart_config
-        });
+        // undoRedoParams.addToUndoStack({
+        //   metricId: editMetric.id,
+        //   messageId: editMessage.id,
+        //   chartConfig: editMessage.chart_config
+        // });
       }
 
-      const newChartConfig: IBusterThreadMessageChartConfig = {
-        ...editMessage.chart_config,
+      const newChartConfig: IBusterMetricChartConfig = {
+        ...DEFAULT_CHART_CONFIG,
+        ...currentMetric.chart_config,
         ...chartConfig
       };
 
-      return onUpdateThreadMessage({
-        threadId: editMessage.thread_id,
-        messageId: editMessage.id,
-        message: {
-          chart_config: newChartConfig
-        }
+      return onUpdateMetric({
+        id: metricId,
+        chart_config: newChartConfig
       });
     }
   );
@@ -486,19 +392,16 @@ export const useBusterThreads = () => {
     ({
       columnId,
       columnLabelFormat,
-      threadId,
-      messageId
+      metricId
     }: {
       columnId: string;
-      threadId?: string;
-      messageId?: string;
+      metricId: string;
       columnLabelFormat: Partial<IColumnLabelFormat>;
     }) => {
-      const editMessage = _getThreadMessage({
-        threadId,
-        messageId
+      const currentMetric = _getMetric({
+        metricId
       });
-      const existingColumnLabelFormats = editMessage.chart_config.columnLabelFormats;
+      const existingColumnLabelFormats = currentMetric.chart_config.columnLabelFormats;
       const existingColumnLabelFormat = existingColumnLabelFormats[columnId];
       const newColumnLabelFormat = {
         ...existingColumnLabelFormat,
@@ -508,9 +411,8 @@ export const useBusterThreads = () => {
         ...existingColumnLabelFormats,
         [columnId]: newColumnLabelFormat
       };
-      onUpdateMessageChartConfig({
-        threadId,
-        messageId,
+      onUpdateMetricChartConfig({
+        metricId,
         chartConfig: {
           columnLabelFormats
         }
@@ -522,20 +424,17 @@ export const useBusterThreads = () => {
     ({
       columnId,
       columnSetting,
-      threadId,
-      messageId
+      metricId
     }: {
       columnId: string;
       columnSetting: Partial<ColumnSettings>;
-      threadId?: string;
-      messageId?: string;
+      metricId: string;
     }) => {
-      const editMessage = _getThreadMessage({
-        threadId,
-        messageId
+      const currentMetric = _getMetric({
+        metricId
       });
-      const existingColumnSettings = editMessage.chart_config.columnSettings;
-      const existingColumnSetting = editMessage.chart_config.columnSettings[columnId];
+      const existingColumnSettings = currentMetric.chart_config.columnSettings;
+      const existingColumnSetting = currentMetric.chart_config.columnSettings[columnId];
       const newColumnSetting: Required<ColumnSettings> = {
         ...existingColumnSetting,
         ...columnSetting
@@ -544,9 +443,8 @@ export const useBusterThreads = () => {
         ...existingColumnSettings,
         [columnId]: newColumnSetting
       };
-      onUpdateMessageChartConfig({
-        threadId,
-        messageId,
+      onUpdateMetricChartConfig({
+        metricId,
         chartConfig: {
           columnSettings: newColumnSettings
         }
@@ -554,163 +452,131 @@ export const useBusterThreads = () => {
     }
   );
 
-  const onSaveThreadChanges = useMemoizedFn(
+  const onSaveMetricChanges = useMemoizedFn(
     async ({
-      threadId,
+      metricId,
       ...params
     }: {
-      threadId: string;
+      metricId: string;
       save_draft: boolean;
-      save_as_thread_state?: string;
+      save_as_metric_state?: string;
     }) => {
       return busterSocket.emitAndOnce({
         emitEvent: {
-          route: '/threads/update',
+          route: '/metrics/update',
           payload: {
-            id: threadId,
+            id: metricId,
             ...params
           }
         },
         responseEvent: {
-          route: '/threads/update:updateThreadState',
-          callback: _onUpdateThread
+          route: '/metrics/update:updateMetricState',
+          callback: _onUpdateMetric
         }
-      }) as Promise<[BusterThread]>;
+      }) as Promise<[BusterMetric]>;
     }
   );
 
   //UNDO REDO
 
-  const undoRedoParams = useBusterUndoRedo({
-    getSearchMessageId: _getSearchMessageId,
-    onSetCurrentMessageId,
-    currentMessageIdByThread,
-    onUpdateMessageChartConfig,
-    messagesRef
-  });
+  // const undoRedoParams = useBusterUndoRedo({
+  //   getSearchMessageId: _getSearchMessageId,
+  //   onSetCurrentMessageId,
+  //   currentMessageIdByMetric,
+  //   onUpdateMessageChartConfig,
+  //   messagesRef
+  // });
 
   //LISTENERS
 
-  const _onGetThreadState = useMemoizedFn((_thread: [BusterThread]) => {
-    const thread = _thread[0];
-    onInitializeThread(thread, { isCompleted: true });
+  const _onGetMetricState = useMemoizedFn((metric: BusterMetric) => {
+    onInitializeMetric(metric);
   });
 
-  const _onGetThreadStateError = useMemoizedFn((_error: any, threadId: string) => {
+  const _onGetMetricStateError = useMemoizedFn((_error: any, metricId: string) => {
     const error = _error as RustApiError;
-    setAssetPasswordError(threadId, error.message || 'An error occurred');
+    setAssetPasswordError(metricId, error.message || 'An error occurred');
   });
 
-  const _onJoinedThread = useMemoizedFn((users: BusterThreadUser[]) => {
-    users.forEach((user) => {
-      openInfoMessage(`${user.name} has joined the thread`);
-    });
+  const _onUpdateMetric = useMemoizedFn((metric: BusterMetric) => {
+    onInitializeMetric(metric);
   });
 
-  const _onLeaveThread = useMemoizedFn((users: BusterThreadUser[]) => {
-    users.forEach((user) => {
-      openInfoMessage(`${user.name} has left the thread`);
-    });
-  });
+  const _onCheckUpdateMetricMessage = useMemoizedFn((metric: BusterMetric) => {
+    // const newMessage = metric[0].messages.find((m) => m.id === messageId);
+    // const currentMessage = _getMetricMessage({
+    //   metricId: selectedMetricId,
+    //   messageId: messageId
+    // });
 
-  const _onUpdateThread = useMemoizedFn((_thread: [BusterThread]) => {
-    const thread = _thread[0];
-    if (thread) {
-      onInitializeThread(thread, {
-        isFollowupMessage: false,
-        isNewThread: false,
-        isCompleted: true
-      });
-    }
-  });
-
-  const _onCheckUpdateThreadMessage = useMemoizedFn((thread: [BusterThread], messageId: string) => {
-    const newMessage = thread[0].messages.find((m) => m.id === messageId);
-    const currentMessage = _getThreadMessage({
-      threadId: selectedThreadId,
-      messageId: messageId
-    });
-
-    if (newMessage?.draft_session_id && !currentMessage?.draft_session_id) {
-      onUpdateThreadMessage(
-        {
-          threadId: selectedThreadId,
-          messageId: messageId,
-          message: {
-            draft_session_id: newMessage.draft_session_id
-          }
-        },
-        false
-      );
-    }
-
-    return thread;
+    // if (newMessage?.draft_session_id && !currentMessage?.draft_session_id) {
+    //   onUpdateMetricMessage(
+    //     {
+    //       metricId: selectedMetricId,
+    //       messageId: messageId,
+    //       message: {
+    //         draft_session_id: newMessage.draft_session_id
+    //       }
+    //     },
+    //     false
+    //   );
+    // }
+    return metric;
   });
 
   // EMITTERS
 
-  const subscribeToThread = useMemoizedFn(({ threadId }: { threadId: string }) => {
-    const { password } = getAssetPassword(threadId);
+  const subscribeToMetric = useMemoizedFn(({ metricId }: { metricId: string }) => {
+    const { password } = getAssetPassword(metricId);
     busterSocket.emitAndOnce({
       emitEvent: {
-        route: '/threads/get',
+        route: '/metrics/get',
         payload: {
-          id: threadId,
+          id: metricId,
           password
         }
       },
       responseEvent: {
-        route: '/threads/get:getThreadState',
-        callback: _onGetThreadState,
-        onError: (error) => _onGetThreadStateError(error, threadId)
+        route: '/metrics/get:updateMetricState',
+        callback: _onGetMetricState,
+        onError: (error) => _onGetMetricStateError(error, metricId)
       }
     });
-    busterSocket.on({
-      route: '/threads/get:joinedThread',
-      callback: _onJoinedThread
+  });
+
+  const unsubscribeToMetricEvents = useMemoizedFn(({ metricId }: { metricId: string }) => {
+    busterSocket.off({
+      route: '/metrics/get:updateMetricState',
+      callback: _onUpdateMetric
     });
-    busterSocket.on({
-      route: '/threads/get:leaveThread',
-      callback: _onLeaveThread
+    busterSocket.off({
+      route: '/metrics/update:updateMetricState',
+      callback: _onUpdateMetric
     });
   });
 
-  const unsubscribeToThreadEvents = useMemoizedFn(({ threadId }: { threadId: string }) => {
-    busterSocket.off({
-      route: '/threads/get:joinedThread',
-      callback: _onJoinedThread
-    });
-    busterSocket.off({
-      route: '/threads/get:leaveThread',
-      callback: _onLeaveThread
-    });
-    busterSocket.off({
-      route: '/threads/update:updateThreadState',
-      callback: _onUpdateThread
-    });
-  });
-
-  const updateThreadMessageToServer = useMemoizedFn((payload: ThreadUpdateMessage['payload']) => {
+  const updateMetricMessageToServer = useMemoizedFn((payload: MetricUpdateMessage['payload']) => {
     return busterSocket.emitAndOnce({
       emitEvent: {
-        route: '/threads/messages/update',
+        route: '/metrics/messages/update',
         payload
       },
       responseEvent: {
-        route: '/threads/messages/update:updateThreadState',
-        callback: (v) => _onCheckUpdateThreadMessage(v, payload.id)
+        route: '/metrics/update:updateMetricState',
+        //   route: '/metrics/messages/update:updateMetricState',
+        callback: _onCheckUpdateMetricMessage
       }
     });
   });
 
-  const { run: _updateThreadMessageToServer } = useDebounceFn(updateThreadMessageToServer, {
+  const { run: _updateMetricMessageToServer } = useDebounceFn(updateMetricMessageToServer, {
     wait: 300
   });
 
-  const onShareThread = useMemoizedFn(
+  const onShareMetric = useMemoizedFn(
     async (
       payload: Pick<
-        ThreadUpdateThread['payload'],
+        MetricUpdateMetric['payload'],
         | 'id'
         | 'publicly_accessible'
         | 'public_password'
@@ -721,133 +587,79 @@ export const useBusterThreads = () => {
         | 'remove_teams'
       >
     ) => {
-      //keep this seperate from _updateThreadToServer because we need to do some extra stuff
+      //keep this seperate from _updateMetricToServer because we need to do some extra stuff
       return busterSocket.emitAndOnce({
         emitEvent: {
-          route: '/threads/update',
+          route: '/metrics/update',
           payload
         },
         responseEvent: {
-          route: '/threads/update:updateThreadState',
-          callback: _onUpdateThread
+          route: '/metrics/update:updateMetricState',
+          callback: _onUpdateMetric
         }
       });
     }
   );
 
-  const onVerifiedThread = useMemoizedFn(
-    async ({
-      threadId,
-      messageId,
-      status
-    }: {
-      threadId: string;
-      messageId?: string;
-      status: VerificationStatus;
-    }) => {
-      const selectedMessageId = _getSearchMessageId({ messageId, threadId });
-
-      if (!selectedMessageId) return;
-      return await onUpdateThreadMessage({
-        threadId,
-        messageId: selectedMessageId,
-        message: {
-          status
-        }
+  const onVerifiedMetric = useMemoizedFn(
+    async ({ metricId, status }: { metricId: string; status: VerificationStatus }) => {
+      return await onUpdateMetric({
+        id: metricId,
+        status
       });
     }
   );
 
   return {
-    ...undoRedoParams,
-    resetThread,
-    deleteThread,
-    onVerifiedThread,
-    onShareThread,
-    onUpdateThread,
-    onUpdateThreadMessage,
-    onInitializeThread,
-    subscribeToThread,
-    unsubscribeToThreadEvents,
-    onUpdateMessageChartConfig,
-    updateThreadMessageToServer,
+    //  ...undoRedoParams,
+    resetMetric,
+    deleteMetric,
+    onVerifiedMetric,
+    onShareMetric,
+    onUpdateMetric,
+    onInitializeMetric,
+    subscribeToMetric,
+    unsubscribeToMetricEvents,
+    onUpdateMetricChartConfig,
+    updateMetricMessageToServer,
     onUpdateColumnLabelFormat,
     onUpdateColumnSetting,
-    saveThreadToDashboard,
-    onSetCurrentMessageId,
-    removeThreadFromDashboard,
-    removeThreadFromCollection,
-    saveThreadToCollection,
-    editingThreadTitle,
-    setEditingThreadTitle,
-    selectedThreadId,
-    onSaveThreadChanges,
-    getThreadNotLiveDataMethodOnly: _getThread,
-    getThreadMessageNotLiveDataMethodOnly: _getThreadMessage,
-    currentMessageIdByThread,
-    threads: threadsRef.current,
-    messages: messagesRef.current
+    saveMetricToDashboard,
+    removeMetricFromDashboard,
+    removeMetricFromCollection,
+    saveMetricToCollection,
+    editingMetricTitle,
+    setEditingMetricTitle,
+    selectedMetricId,
+    onSaveMetricChanges,
+    getMetricNotLiveDataMethodOnly: _getMetric,
+    metrics: metricsRef.current
   };
 };
 
-const BusterThreads = createContext<ReturnType<typeof useBusterThreads>>(
-  {} as ReturnType<typeof useBusterThreads>
+const BusterMetrics = createContext<ReturnType<typeof useBusterMetrics>>(
+  {} as ReturnType<typeof useBusterMetrics>
 );
 
-export const BusterThreadsProvider: React.FC<PropsWithChildren> = React.memo(({ children }) => {
+export const BusterMetricsProvider: React.FC<PropsWithChildren> = React.memo(({ children }) => {
   return (
-    <BusterThreads.Provider value={useBusterThreads()}>
-      <BusterThreadsListProvider>{children}</BusterThreadsListProvider>
-    </BusterThreads.Provider>
+    <BusterMetrics.Provider value={useBusterMetrics()}>
+      <BusterMetricsListProvider>{children}</BusterMetricsListProvider>
+    </BusterMetrics.Provider>
   );
 });
-BusterThreadsProvider.displayName = 'BusterThreadsProvider';
+BusterMetricsProvider.displayName = 'BusterMetricsProvider';
 
-export const useBusterThreadsContextSelector = <T,>(
-  selector: ContextSelector<ReturnType<typeof useBusterThreads>, T>
+export const useBusterMetricsContextSelector = <T,>(
+  selector: ContextSelector<ReturnType<typeof useBusterMetrics>, T>
 ) => {
-  return useContextSelector(BusterThreads, selector);
+  return useContextSelector(BusterMetrics, selector);
 };
 
-export const useBusterThreadIndividual = ({ threadId }: { threadId: string }) => {
-  const thread = useBusterThreadsContextSelector((x) => x.threads[threadId]);
+export const useBusterMetricIndividual = ({ metricId }: { metricId: string }) => {
+  const metric = useBusterMetricsContextSelector((x) => x.metrics[metricId]);
 
   return {
-    thread: resolveEmptyThread(thread, threadId)
-  };
-};
-
-export const useBusterCurrentThreadMessage = ({
-  threadId,
-  messageId
-}: {
-  threadId: string;
-  messageId?: string;
-}): string => {
-  const lastMessageId = useBusterThreadsContextSelector((x) => last(x.threads[threadId]?.messages));
-  const contextSelectedId = useBusterThreadsContextSelector(
-    (x) => x.currentMessageIdByThread[threadId]
-  );
-  const selectedMessageId = useMemo(
-    () => messageId || contextSelectedId || lastMessageId || '',
-    [messageId, contextSelectedId, lastMessageId]
-  );
-
-  return selectedMessageId;
-};
-
-export const useBusterThreadMessage = ({
-  threadId,
-  messageId
-}: {
-  threadId: string;
-  messageId?: string;
-}): { message: IBusterThreadMessage | null; selectedMessageId: string } => {
-  const selectedMessageId = useBusterCurrentThreadMessage({ threadId, messageId });
-  const message = useBusterThreadsContextSelector((x) => x.messages[selectedMessageId]);
-
-  return {
-    message,
-    selectedMessageId
+    metric: resolveEmptyMetric(metric, metricId)
   };
 };

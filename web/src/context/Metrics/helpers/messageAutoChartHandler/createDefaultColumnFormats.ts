@@ -1,8 +1,8 @@
 import {
   DEFAULT_COLUMN_LABEL_FORMAT,
   type ColumnMetaData,
-  type IBusterThreadMessageChartConfig
-} from '@/api/buster_rest/threads';
+  type IBusterMetricChartConfig
+} from '@/api/asset_interfaces';
 import type { ColumnLabelFormat, IColumnLabelFormat } from '@/components/charts';
 import {
   isDateColumnType,
@@ -14,7 +14,7 @@ import {
 export const createDefaultColumnLabelFormats = (
   columnLabelFormats: Record<string, IColumnLabelFormat> | undefined,
   columnsMetaData: ColumnMetaData[] | undefined
-): IBusterThreadMessageChartConfig['columnLabelFormats'] => {
+): IBusterMetricChartConfig['columnLabelFormats'] => {
   if (!columnsMetaData) return {};
 
   return columnsMetaData.reduce(
@@ -26,7 +26,7 @@ export const createDefaultColumnLabelFormats = (
       };
       return acc;
     },
-    {} as IBusterThreadMessageChartConfig['columnLabelFormats']
+    {} as IBusterMetricChartConfig['columnLabelFormats']
   );
 };
 

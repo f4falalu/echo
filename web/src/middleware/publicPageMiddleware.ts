@@ -3,15 +3,15 @@ import { BusterRoutes, createPathnameToBusterRoute } from '@/routes/busterRoutes
 import { NextRequest } from 'next/server';
 
 const assetCheckPages: BusterRoutes[] = [
-  BusterRoutes.APP_THREAD_ID,
+  BusterRoutes.APP_METRIC_ID,
   BusterRoutes.APP_DASHBOARD_ID,
-  BusterRoutes.APP_DASHBOARD_THREADS_ID
+  BusterRoutes.APP_DASHBOARD_METRICS_ID
 ];
 
 const publicPages: BusterRoutes[] = [
-  BusterRoutes.APP_THREAD_ID,
+  BusterRoutes.APP_METRIC_ID,
   BusterRoutes.APP_DASHBOARD_ID,
-  BusterRoutes.APP_DASHBOARD_THREADS_ID,
+  BusterRoutes.APP_DASHBOARD_METRICS_ID,
   ...Object.values(BusterAuthRoutes)
 ];
 

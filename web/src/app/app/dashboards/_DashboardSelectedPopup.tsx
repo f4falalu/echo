@@ -106,8 +106,8 @@ const DeleteButton: React.FC<{
 
   const onDeleteClick = useMemoizedFn(async () => {
     openConfirmModal({
-      title: 'Delete thread',
-      content: 'Are you sure you want to delete these threads?',
+      title: 'Delete dashboard',
+      content: 'Are you sure you want to delete these dashboards?',
       onOk: async () => {
         await onDeleteDashboard(selectedRowKeys, true);
         onSelectChange([]);

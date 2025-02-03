@@ -12,13 +12,13 @@ import { useMemoizedFn } from 'ahooks';
 const { Text } = Typography;
 
 export const AppPasswordAccess: React.FC<{
-  threadId?: string;
+  metricId?: string;
   dashboardId?: string;
   type: ShareAssetType;
   children: React.ReactNode;
-}> = React.memo(({ children, threadId, dashboardId, type }) => {
+}> = React.memo(({ children, metricId, dashboardId, type }) => {
   const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
-  const { password, error } = getAssetPassword(threadId || dashboardId || '');
+  const { password, error } = getAssetPassword(metricId || dashboardId || '');
 
   if (password && !error) {
     return <>{children}</>;
@@ -28,7 +28,7 @@ export const AppPasswordAccess: React.FC<{
     <AppPasswordInputComponent
       password={password}
       error={error}
-      threadId={threadId}
+      metricId={metricId}
       dashboardId={dashboardId}
     />
   );
@@ -39,14 +39,14 @@ AppPasswordAccess.displayName = 'AppPasswordAccess';
 const AppPasswordInputComponent: React.FC<{
   password: string | undefined;
   error: string | null;
-  threadId?: string;
+  metricId?: string;
   dashboardId?: string;
-}> = ({ password, error, threadId, dashboardId }) => {
+}> = ({ password, error, metricId, dashboardId }) => {
   const setAssetPassword = useBusterAssetsContextSelector((state) => state.setAssetPassword);
   const inputRef = useRef<InputRef>(null);
 
   const onEnterPassword = useMemoizedFn((v: string) => {
-    setAssetPassword(threadId || dashboardId!, v);
+    setAssetPassword(metricId || dashboardId!, v);
   });
 
   const onPressEnter = useMemoizedFn((v: React.KeyboardEvent<HTMLInputElement>) => {

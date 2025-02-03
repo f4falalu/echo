@@ -1,9 +1,10 @@
 import {
-  type BusterThreadMessage,
-  type IBusterThreadMessageChartConfig,
+  type BusterMetric,
+  type IBusterMetricChartConfig,
+  DataMetadata,
   DEFAULT_CHART_CONFIG,
   DEFAULT_CHART_CONFIG_ENTRIES
-} from '@/api/buster_rest/threads';
+} from '@/api/asset_interfaces';
 import type { BusterChartConfigProps } from '@/components/charts';
 import { produce } from 'immer';
 import isEmpty from 'lodash/isEmpty';
@@ -17,27 +18,24 @@ import {
 
 const keySpecificHandlers: Partial<
   Record<
-    keyof IBusterThreadMessageChartConfig,
+    keyof IBusterMetricChartConfig,
     (
       value: any,
-      dataMetadata: BusterThreadMessage['data_metadata'] | undefined,
-      pieChartAxis: IBusterThreadMessageChartConfig['pieChartAxis'] | undefined
+      dataMetadata: DataMetadata | undefined,
+      pieChartAxis: IBusterMetricChartConfig['pieChartAxis'] | undefined
     ) => any
   >
 > = {
-  colors: (colors: IBusterThreadMessageChartConfig['colors']) => {
+  colors: (colors: IBusterMetricChartConfig['colors']) => {
     if (isEmpty(colors)) return DEFAULT_CHART_CONFIG.colors;
     if (colors.length >= 3) return colors; //we need at least 3 colors for the chart icons
     return Array.from({ length: 3 }, (_, index) => colors[index % colors.length]);
   },
-  scatterDotSize: (scatterDotSize: IBusterThreadMessageChartConfig['scatterDotSize']) => {
+  scatterDotSize: (scatterDotSize: IBusterMetricChartConfig['scatterDotSize']) => {
     if (isEmpty(scatterDotSize)) return DEFAULT_CHART_CONFIG.scatterDotSize;
     return scatterDotSize;
   },
-  barAndLineAxis: (
-    barAndLineAxis: IBusterThreadMessageChartConfig['barAndLineAxis'],
-    dataMetadata
-  ) => {
+  barAndLineAxis: (barAndLineAxis: IBusterMetricChartConfig['barAndLineAxis'], dataMetadata) => {
     if (isEmpty(barAndLineAxis)) {
       return createDefaultBarAndLineAxis(dataMetadata?.column_metadata);
     }
@@ -48,7 +46,7 @@ const keySpecificHandlers: Partial<
       category: barAndLineAxis.category || DEFAULT_CHART_CONFIG.barAndLineAxis.category
     };
   },
-  pieChartAxis: (pieChartAxis: IBusterThreadMessageChartConfig['pieChartAxis'], dataMetadata) => {
+  pieChartAxis: (pieChartAxis: IBusterMetricChartConfig['pieChartAxis'], dataMetadata) => {
     if (isEmpty(pieChartAxis)) return createDefaultPieAxis(dataMetadata?.column_metadata);
     return {
       x: pieChartAxis.x || DEFAULT_CHART_CONFIG.pieChartAxis.x,
@@ -56,7 +54,7 @@ const keySpecificHandlers: Partial<
       tooltip: pieChartAxis.tooltip || DEFAULT_CHART_CONFIG.pieChartAxis.tooltip
     };
   },
-  scatterAxis: (scatterAxis: IBusterThreadMessageChartConfig['scatterAxis'], dataMetadata) => {
+  scatterAxis: (scatterAxis: IBusterMetricChartConfig['scatterAxis'], dataMetadata) => {
     if (isEmpty(scatterAxis)) return createDefaultScatterAxis(dataMetadata?.column_metadata);
     return {
       x: scatterAxis.x || DEFAULT_CHART_CONFIG.scatterAxis.x,
@@ -66,10 +64,7 @@ const keySpecificHandlers: Partial<
       category: scatterAxis.category || DEFAULT_CHART_CONFIG.scatterAxis.category
     };
   },
-  comboChartAxis: (
-    comboChartAxis: IBusterThreadMessageChartConfig['comboChartAxis'],
-    dataMetadata
-  ) => {
+  comboChartAxis: (comboChartAxis: IBusterMetricChartConfig['comboChartAxis'], dataMetadata) => {
     if (isEmpty(comboChartAxis)) return createDefaultBarAndLineAxis(dataMetadata?.column_metadata);
     return {
       x: comboChartAxis.x || DEFAULT_CHART_CONFIG.comboChartAxis.x,
@@ -79,10 +74,7 @@ const keySpecificHandlers: Partial<
       category: comboChartAxis.category || DEFAULT_CHART_CONFIG.comboChartAxis.category
     };
   },
-  metricColumnId: (
-    metricColumnId: IBusterThreadMessageChartConfig['metricColumnId'],
-    dataMetadata
-  ) => {
+  metricColumnId: (metricColumnId: IBusterMetricChartConfig['metricColumnId'], dataMetadata) => {
     if (isEmpty(metricColumnId)) {
       const firstNumberColumn = dataMetadata?.column_metadata?.find(
         (m) => m.simple_type === 'number'
@@ -91,28 +83,25 @@ const keySpecificHandlers: Partial<
     }
     return metricColumnId;
   },
-  metricHeader: (metricHeader: IBusterThreadMessageChartConfig['metricHeader']) => {
+  metricHeader: (metricHeader: IBusterMetricChartConfig['metricHeader']) => {
     if (isEmpty(metricHeader)) return DEFAULT_CHART_CONFIG.metricHeader;
     return metricHeader;
   },
-  metricSubHeader: (metricSubHeader: IBusterThreadMessageChartConfig['metricSubHeader']) => {
+  metricSubHeader: (metricSubHeader: IBusterMetricChartConfig['metricSubHeader']) => {
     if (isEmpty(metricSubHeader)) return DEFAULT_CHART_CONFIG.metricSubHeader;
     return metricSubHeader;
   },
   columnLabelFormats: (
-    columnLabelFormats: IBusterThreadMessageChartConfig['columnLabelFormats'],
+    columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'],
     dataMetadata
   ) => {
     return createDefaultColumnLabelFormats(columnLabelFormats, dataMetadata?.column_metadata);
   },
-  columnSettings: (
-    columnSettings: IBusterThreadMessageChartConfig['columnSettings'],
-    dataMetadata
-  ) => {
+  columnSettings: (columnSettings: IBusterMetricChartConfig['columnSettings'], dataMetadata) => {
     return createDefaultColumnSettings(columnSettings, dataMetadata?.column_metadata);
   },
   pieLabelPosition: (
-    pieLabelPosition: IBusterThreadMessageChartConfig['pieLabelPosition'],
+    pieLabelPosition: IBusterMetricChartConfig['pieLabelPosition'],
     dataMetadata,
     pieChartAxis
   ) => {
@@ -129,15 +118,15 @@ const keySpecificHandlers: Partial<
 };
 
 export const createDefaultChartConfig = (
-  message: Pick<BusterThreadMessage, 'chart_config' | 'data_metadata'>
-): IBusterThreadMessageChartConfig => {
+  message: Pick<BusterMetric, 'chart_config' | 'data_metadata'>
+): IBusterMetricChartConfig => {
   const chartConfig: BusterChartConfigProps | undefined = message.chart_config;
   const dataMetadata = message.data_metadata;
   const pieChartAxis = chartConfig?.pieChartAxis;
 
   const newChartConfig = produce(DEFAULT_CHART_CONFIG, (draft) => {
     DEFAULT_CHART_CONFIG_ENTRIES.forEach(([key, defaultValue]) => {
-      const _key = key as keyof IBusterThreadMessageChartConfig;
+      const _key = key as keyof IBusterMetricChartConfig;
       const chartConfigValue = chartConfig?.[_key];
 
       const handler = keySpecificHandlers[_key];

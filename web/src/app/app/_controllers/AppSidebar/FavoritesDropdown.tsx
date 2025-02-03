@@ -1,4 +1,4 @@
-import type { BusterUserFavorite } from '@/api/buster_rest';
+import type { BusterUserFavorite } from '@/api/asset_interfaces';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { AppMenuGroupSingleSortable } from '@/components/menu';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
@@ -42,7 +42,7 @@ const FavoritesDropdownContent: React.FC<{
 }> = ({ setOpenedIds, userFavorites, favoritesList }) => {
   const params = useParams<{
     dashboardId: string;
-    threadId: string;
+    metricId: string;
     collectionId: string;
   }>();
   const currentRoute = useAppLayoutContextSelector((s) => s.currentRoute);
@@ -115,15 +115,15 @@ const createListItem = ({
 
   if (item.type === ShareAssetType.METRIC) {
     link = createBusterRoute({
-      route: BusterRoutes.APP_THREAD_ID,
-      threadId: item.id
+      route: BusterRoutes.APP_METRIC_ID,
+      metricId: item.id
     });
-  } else if (item.type === 'dashboard') {
+  } else if (item.type === ShareAssetType.DASHBOARD) {
     link = createBusterRoute({
       route: BusterRoutes.APP_DASHBOARD_ID,
       dashboardId: item.id
     });
-  } else if (item.type === 'collection') {
+  } else if (item.type === ShareAssetType.COLLECTION) {
     link = createBusterRoute({
       route: BusterRoutes.APP_COLLECTIONS_ID,
       collectionId: item.collection_id!

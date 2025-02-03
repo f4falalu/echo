@@ -1,11 +1,11 @@
 import { useMemoizedFn } from 'ahooks';
 import React, { useEffect, useRef, useState } from 'react';
 import { useBusterWebSocket } from '../BusterWebSocket';
-import {
+import type {
   BusterPermissionGroup,
   BusterPermissionTeam,
   BusterPermissionUser
-} from '@/api/buster_rest/permissions';
+} from '@/api/asset_interfaces';
 import {
   PermissionGroupUpdateRequest,
   PermissionTeamUpdateRequest,

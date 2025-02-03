@@ -3,7 +3,7 @@ import { BusterSearchRequest } from '@/api/buster_socket/search';
 export const allBusterSearchRequestKeys = [
   // 'query',
   //  'num_results',
-  'exclude_threads',
+  'exclude_metrics',
   'exclude_collections',
   'exclude_dashboards',
   'exclude_data_sources',

@@ -5,7 +5,6 @@ import { TextPulseLoader } from '@/components';
 import { Element } from 'hast';
 import { AppMarkdownComponentType, CustomComponents } from './config';
 import { BusterTimestamp } from './AppMarkdown_BusterTimestamp';
-import { BusterSuggestion } from './AppMarkdown_BusterSuggestion';
 import { BusterDatasets } from './AppMarkdown_BusterDatasets';
 
 export const commonStreamingCheck = (
@@ -186,9 +185,6 @@ export const AppMarkdownCustomComponents = (customProps: ExtraPropsExtra): Custo
   return {
     [AppMarkdownComponentType.BusterTimestamp]: (props) => (
       <BusterTimestamp {...props} {...customProps} />
-    ),
-    [AppMarkdownComponentType.BusterSuggestion]: (props) => (
-      <BusterSuggestion {...props} {...customProps} />
     ),
     [AppMarkdownComponentType.BusterDatasets]: (props) => (
       <BusterDatasets {...props} {...customProps} />

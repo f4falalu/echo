@@ -3,7 +3,7 @@
 import { AppProviders } from '@/context/AppProviders';
 import React from 'react';
 import { AppLayout } from './_controllers/AppLayout';
-import { BusterUserResponse } from '@/api/buster_rest';
+import type { BusterUserResponse } from '@/api/asset_interfaces';
 import { useSupabaseServerContext } from '@/context/Supabase/useSupabaseContext';
 import { GlobalErrorComponent } from '../../components/error';
 

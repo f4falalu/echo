@@ -1,8 +1,8 @@
 import nextApi from '@/api/next/instances';
 
-export const uploadPreviewImage = async (threadId: string, file: File) => {
+export const uploadPreviewImage = async (metricId: string, file: File) => {
   const formData = new FormData();
-  formData.append('threadId', threadId);
+  formData.append('metricId', metricId);
   formData.append('image', file);
 
   return await nextApi

@@ -1,8 +1,8 @@
-import {
+import type {
   GetDatasetGroupUsersResponse,
-  GetPermissionGroupUsersResponse,
-  useUpdateDatasetGroupUsers
-} from '@/api/buster_rest';
+  GetPermissionGroupUsersResponse
+} from '@/api/asset_interfaces';
+import { useUpdateDatasetGroupUsers } from '@/api/buster_rest';
 import { PermissionAssignedCell } from '@/app/app/_components/PermissionComponents';
 import {
   BusterInfiniteList,

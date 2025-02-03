@@ -1,6 +1,5 @@
-import { DataSourceTypes } from '@/api/buster_rest';
-import { BusterSocketRequestBase } from '../base_interfaces';
-import { DatasourceCreateCredentials } from './interface';
+import type { BusterSocketRequestBase } from '../base_interfaces';
+import type { DatasourceCreateCredentials } from './interface';
 
 export type DatasourceListRequest = BusterSocketRequestBase<
   '/data_sources/list',

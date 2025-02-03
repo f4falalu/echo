@@ -1,7 +1,5 @@
-import type { BusterCollectionListItem } from '../collection';
-import type { BusterChartConfigProps } from '@/components/charts/interfaces';
 import type { BusterShare, ShareRole, VerificationStatus } from '../share';
-import type { DataMetadata, IBusterMetricChartConfig } from '../metric';
+import type { BusterMetric } from '../metric';
 import type { DashboardConfig } from './dashboardConfigInterfaces';
 
 export interface BusterDashboardListItem {
@@ -23,16 +21,12 @@ export interface BusterDashboardListItem {
   is_shared: boolean;
 }
 
-export interface BusterDashboardResponse {
+export interface BusterDashboardResponse extends BusterShare {
   access: ShareRole;
-  metrics: BusterDashboardMetric[];
+  metrics: BusterMetric[];
   dashboard: BusterDashboard;
-  collections: BusterCollectionListItem[];
-  individual_permissions: BusterShare['individual_permissions'];
-  organization_permissions: BusterShare['organization_permissions'];
   permission: ShareRole;
   public_password: string | null;
-  team_permissions: BusterShare['team_permissions'];
 }
 
 export interface BusterDashboard
@@ -50,26 +44,4 @@ export interface BusterDashboard
   updated_at: string | null;
   updated_by: string;
   status: VerificationStatus;
-}
-
-export interface BusterDashboardMetric {
-  chart_config: BusterChartConfigProps;
-  time_frame: string | null;
-  name: string;
-  id: string;
-  description: string | null;
-  data_metadata: DataMetadata;
-  error: string | null;
-  code: string | null;
-}
-
-export interface BusterMetricDataResponse {
-  data: Record<string, string | number | null>[];
-  metric_id: string;
-  progress: 'completed';
-  code: string | null;
-}
-
-export interface IBusterDashboardMetric extends Omit<BusterDashboardMetric, 'chart_config'> {
-  chart_config: IBusterMetricChartConfig;
 }

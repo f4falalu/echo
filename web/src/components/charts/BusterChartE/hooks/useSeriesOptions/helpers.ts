@@ -1,4 +1,3 @@
-import { BarAndLineAxis } from '../../../interfaces';
 import { appendToKeyValueChain, extractFieldsFromChain } from '../../../chartHooks';
 import first from 'lodash/first';
 

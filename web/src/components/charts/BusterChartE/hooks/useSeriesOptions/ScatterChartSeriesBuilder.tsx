@@ -5,9 +5,9 @@ import type {
 } from 'echarts/types/dist/echarts';
 import { BusterChartProps } from '../../../interfaces';
 import { ChartEncodes, ScatterAxis } from '../../../interfaces';
-import { DEFAULT_CHART_CONFIG } from '@/api/buster_rest/threads';
 import isEmpty from 'lodash/isEmpty';
 import { appendToKeyValueChain } from '../../../chartHooks';
+import { DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces';
 
 let maxMinRecord: Record<string, [number, number, number]> = {};
 

@@ -1,13 +1,12 @@
 import {
   DatasourceCreateCredentials,
-  MySqlCreateCredentials,
-  PostgresCreateCredentials
+  MySqlCreateCredentials
 } from '@/api/buster_socket/datasources/interface';
-import { DataSource } from '@/api/buster_rest';
+import type { DataSource } from '@/api/asset_interfaces';
 import { AppSelectTagInput } from '@/components/select/AppSelectTagInput';
-import { Form, Select, Input, InputNumber } from 'antd';
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
-import { FormWrapper, FormWrapperHandle } from './FormWrapper';
+import { Form, Input, InputNumber } from 'antd';
+import React from 'react';
+import { FormWrapper } from './FormWrapper';
 
 export const MySqlForm: React.FC<{
   dataSource?: DataSource;

@@ -1,26 +1,25 @@
 'use client';
 
-import { BusterThreadListItem } from '@/api/buster_rest';
-import { VerificationStatus } from '@/api/asset_interfaces';
+import { BusterMetricListItem, VerificationStatus } from '@/api/asset_interfaces';
 import { AppMaterialIcons, AppPopoverMenu, AppTooltip } from '@/components';
 import { useDashboardContextSelector } from '@/context/Dashboards';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { useBusterThreadsContextSelector } from '@/context/Threads';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';
 import { Button } from 'antd';
 import React, { useMemo, useState } from 'react';
 import { StatusNotRequestedIcon } from '@/assets';
 
 export const StatusBadgeButton: React.FC<{
-  status: BusterThreadListItem['status'];
-  type: 'thread' | 'dashboard';
+  status: BusterMetricListItem['status'];
+  type: 'metric' | 'dashboard';
   id: string | string[];
   disabled?: boolean;
   onChangedStatus?: () => Promise<void>;
 }> = React.memo(
   ({ type, id, status = VerificationStatus.notRequested, onChangedStatus, disabled }) => {
     const onVerifiedDashboard = useDashboardContextSelector((state) => state.onVerifiedDashboard);
-    const onVerifiedThread = useBusterThreadsContextSelector((state) => state.onVerifiedThread);
+    const onVerifiedMetric = useBusterMetricsContextSelector((state) => state.onVerifiedMetric);
     const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
     const text = useMemo(() => getTooltipText(status), [status]);
     const [isOpen, setIsOpen] = React.useState(false);
@@ -38,7 +37,7 @@ export const StatusBadgeButton: React.FC<{
       const verifyFunction =
         type === 'dashboard'
           ? (id: string) => onVerifiedDashboard({ dashboardId: id, status: newStatus })
-          : (id: string) => onVerifiedThread({ threadId: id, status: newStatus });
+          : (id: string) => onVerifiedMetric({ metricId: id, status: newStatus });
 
       const ids = Array.isArray(id) ? id : [id];
       await Promise.all(ids.map(verifyFunction));
@@ -132,7 +131,7 @@ export const StatusBadgeButton: React.FC<{
 StatusBadgeButton.displayName = 'StatusBadgeButton';
 
 export const StatusBadgeIndicator: React.FC<{
-  status: BusterThreadListItem['status'];
+  status: BusterMetricListItem['status'];
   size?: number;
   className?: string;
   showTooltip?: boolean;
@@ -178,7 +177,7 @@ const statusRecordIcon: Record<VerificationStatus, React.FC<any>> = {
   [VerificationStatus.notVerified]: () => <StatusNotRequestedIcon />,
   [VerificationStatus.notRequested]: () => <StatusNotRequestedIcon />
 };
-const getIcon = (status: BusterThreadListItem['status']) => {
+const getIcon = (status: BusterMetricListItem['status']) => {
   return statusRecordIcon[status] || (() => <AppMaterialIcons icon="motion_photos_on" />);
 };
 
@@ -190,7 +189,7 @@ const statusRecordColors: Record<VerificationStatus, string> = {
   notVerified: '!text-[#575859]',
   notRequested: '!text-[#575859]'
 };
-const getColorClasses = (status: BusterThreadListItem['status']) => {
+const getColorClasses = (status: BusterMetricListItem['status']) => {
   return statusRecordColors[status] || statusRecordColors.notRequested;
 };
 
@@ -207,7 +206,7 @@ const getTooltipText = (status: VerificationStatus) => {
   return statusRecordText[status] || statusRecordText.notRequested;
 };
 
-export const getShareStatus = ({ is_shared }: { is_shared: BusterThreadListItem['is_shared'] }) => {
+export const getShareStatus = ({ is_shared }: { is_shared: BusterMetricListItem['is_shared'] }) => {
   if (is_shared) return 'Shared';
   return 'Private';
 };

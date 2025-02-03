@@ -1,40 +1,49 @@
-import { BusterThreadListItem } from '@/api/buster_rest';
-import { VerificationStatus } from '@/api/asset_interfaces';
-import { IBusterThread } from './interfaces';
-import { ShareRole } from '@/api/buster_socket/threads';
+import {
+  BusterMetricListItem,
+  DEFAULT_CHART_CONFIG,
+  ShareRole,
+  VerificationStatus
+} from '@/api/asset_interfaces';
+import { IBusterMetric } from './interfaces';
 
-export const defaultIBusterThread: IBusterThread = {
-  created_at: '',
-  created_by: '',
-  dashboard_id: null,
-  deleted_at: null,
-  folder_id: null,
+export const defaultIBusterMetric: Required<IBusterMetric> = {
   id: 'DEFAULT_ID',
-  messages: [],
-  updated_at: null,
-  updated_by: '',
+  type: 'metric',
   title: '',
-  isNewThread: false,
-  isFollowupMessage: false,
-  isInitialLoad: true,
-  dashboards: [],
-  password_secret_id: null,
-  public_expiry_date: null,
-  public_enabled_by: null,
-  publicly_accessible: false,
-  state_message_id: null,
-  collections: [],
+  description: '',
+  time_frame: '1d',
+  code: null,
+  feedback: null,
   dataset_id: null,
   dataset_name: null,
+  error: null,
+  data_metadata: null,
+  status: VerificationStatus.notRequested,
+  evaluation_score: 'Moderate',
+  evaluation_summary: '',
+  file: '',
+  created_at: '',
+  updated_at: '',
+  sent_by_id: '',
+  sent_by_name: '',
+  permission: ShareRole.VIEWER,
+  sent_by_avatar_url: null,
+  draft_session_id: null,
+  dashboards: [],
+  collections: [],
+  chart_config: DEFAULT_CHART_CONFIG,
   sharingKey: '',
   individual_permissions: null,
   team_permissions: null,
   organization_permissions: null,
-  public_password: null,
-  permission: ShareRole.VIEWER
+  password_secret_id: null,
+  public_expiry_date: null,
+  public_enabled_by: null,
+  publicly_accessible: false,
+  public_password: null
 };
 
-export const defaultBusterThreadListItem: BusterThreadListItem = {
+export const defaultBusterMetricListItem: Required<BusterMetricListItem> = {
   id: 'DEFAULT_ID',
   last_edited: '',
   title: '',

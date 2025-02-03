@@ -1,9 +1,5 @@
-import {
-  BusterUserTeamListItem,
-  TeamRole,
-  useUpdateUserTeams,
-  type BusterUserPermissionGroup
-} from '@/api/buster_rest';
+import { useUpdateUserTeams } from '@/api/buster_rest';
+import type { BusterUserTeamListItem, TeamRole } from '@/api/asset_interfaces';
 import { PermissionAssignTeamRole } from '@appComponents/PermissionComponents';
 import {
   BusterInfiniteList,
@@ -13,7 +9,7 @@ import {
   InfiniteListContainer
 } from '@/components/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { useMemoizedFn, useWhyDidYouUpdate } from 'ahooks';
+import { useMemoizedFn } from 'ahooks';
 import React, { useMemo, useState } from 'react';
 import { UserTeamsSelectedPopup } from './UserTeamsSelectedPopup';
 import pluralize from 'pluralize';

@@ -19,12 +19,12 @@ export const useAppLayout = () => {
   const currentRoute = pathNameToRoute(pathname, params);
   const previousRoute = usePrevious(currentRoute);
   const previousPath = usePrevious(pathname);
-  const [openThreadsModal, setOpenThreadsModal] = React.useState(false);
+  const [openChatsModal, setOpenChatsModal] = React.useState(false);
   const [openInviteModal, setOpenInviteModal] = React.useState(false);
   const [openSupportModal, setOpenSupportModal] = React.useState(false);
 
-  const onToggleThreadsModal = useMemoizedFn((v?: boolean) => {
-    setOpenThreadsModal(v ?? !openThreadsModal);
+  const onToggleChatsModal = useMemoizedFn((v?: boolean) => {
+    setOpenChatsModal(v ?? !openChatsModal);
   });
 
   const onToggleInviteModal = useMemoizedFn((v?: boolean) => {
@@ -48,11 +48,11 @@ export const useAppLayout = () => {
   });
 
   return {
-    onToggleThreadsModal,
+    onToggleChatsModal,
     createPageLink,
     currentRoute,
     currentSegment,
-    openThreadsModal,
+    openChatsModal,
     onToggleInviteModal,
     openInviteModal,
     onChangePage,

@@ -1,4 +1,4 @@
-import { BusterUserAttribute } from '@/api/buster_rest';
+import type { BusterUserAttribute } from '@/api/asset_interfaces';
 import {
   BusterInfiniteList,
   BusterListColumn,

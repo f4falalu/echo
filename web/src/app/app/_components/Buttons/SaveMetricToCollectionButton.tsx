@@ -1,7 +1,7 @@
 import { AppMaterialIcons } from '@/components/icons';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useCollectionsContextSelector } from '@/context/Collections';
-import { useBusterThreadsContextSelector } from '@/context/Threads';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useMemoizedFn, useMount } from 'ahooks';
 import { Button } from 'antd';
 import React, { useState } from 'react';
@@ -13,11 +13,11 @@ export const SaveMetricToCollectionButton: React.FC<{
   useText?: boolean;
 }> = ({ metricIds, buttonType = 'text', useText = false }) => {
   const { openInfoMessage } = useBusterNotifications();
-  const saveThreadToCollection = useBusterThreadsContextSelector(
-    (state) => state.saveThreadToCollection
+  const saveMetricToCollection = useBusterMetricsContextSelector(
+    (state) => state.saveMetricToCollection
   );
-  const removeThreadFromCollection = useBusterThreadsContextSelector(
-    (state) => state.removeThreadFromCollection
+  const removeMetricFromCollection = useBusterMetricsContextSelector(
+    (state) => state.removeMetricFromCollection
   );
 
   const collectionsList = useCollectionsContextSelector((state) => state.collectionsList);
@@ -44,12 +44,12 @@ export const SaveMetricToCollectionButton: React.FC<{
   const onRemoveFromCollection = useMemoizedFn(async (collectionId: string) => {
     setSelectedCollections((prev) => prev.filter((id) => id !== collectionId));
     // const allSelectedButLast = selectedRowKeys.slice(0, -1);
-    // const lastThreadId = selectedRowKeys[selectedRowKeys.length - 1];
-    // const allRemoves: Promise<void>[] = allSelectedButLast.map((threadId) => {
-    //   return removeThreadFromCollection({ threadId, collectionId, ignoreFavoriteUpdates: true });
+    // const lastMetricId = selectedRowKeys[selectedRowKeys.length - 1];
+    // const allRemoves: Promise<void>[] = allSelectedButLast.map((metricId) => {
+    //   return removeMetricFromCollection({ metricId, collectionId, ignoreFavoriteUpdates: true });
     // });
-    // await removeThreadFromCollection({
-    //   threadId: lastThreadId,
+    // await removeMetricFromCollection({
+    //   metricId: lastMetricId,
     //   collectionId,
     //   ignoreFavoriteUpdates: false
     // });

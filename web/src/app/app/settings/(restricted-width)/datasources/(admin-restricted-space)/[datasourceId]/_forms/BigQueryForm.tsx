@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { FormWrapper, FormWrapperHandle } from './FormWrapper';
-import { DataSource } from '@/api/buster_rest';
-import {
+import type { DataSource } from '@/api/asset_interfaces';
+import type {
   BigQueryCreateCredentials,
   DatasourceCreateCredentials
 } from '@/api/buster_socket/datasources/interface';

@@ -4,7 +4,7 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 export default function AppHomePage() {
   permanentRedirect(
     createBusterRoute({
-      route: BusterRoutes.APP_THREAD
+      route: BusterRoutes.APP_METRIC
     })
   );
 

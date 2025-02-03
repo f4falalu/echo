@@ -12,11 +12,10 @@ export const ShareMenu: React.FC<
   PropsWithChildren<{
     placement?: PopoverProps['placement'];
     shareAssetConfig: BusterShare;
-    shareType: ShareAssetType;
     assetId: string;
     assetType: ShareAssetType;
   }>
-> = ({ children, shareAssetConfig, shareType, assetId, assetType, placement = 'bottomLeft' }) => {
+> = ({ children, shareAssetConfig, assetId, assetType, placement = 'bottomLeft' }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const isPublic = shareAssetConfig.publicly_accessible;
@@ -42,7 +41,6 @@ export const ShareMenu: React.FC<
           shareAssetConfig={shareAssetConfig}
           assetId={assetId}
           assetType={assetType}
-          shareType={shareType}
           permission={permission}
         />
       }>

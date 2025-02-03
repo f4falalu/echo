@@ -1,8 +1,8 @@
-import {
+import type {
   ListPermissionGroupsResponse,
-  ListPermissionUsersResponse,
-  useDatasetUpdatePermissionUsers
-} from '@/api/buster_rest/datasets';
+  ListPermissionUsersResponse
+} from '@/api/asset_interfaces';
+import { useDatasetUpdatePermissionUsers } from '@/api/buster_rest/datasets';
 import {
   BusterListColumn,
   BusterListRowItem,

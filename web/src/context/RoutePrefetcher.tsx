@@ -1,19 +1,22 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import { createBusterRoute } from '@/routes';
 import { BusterAppRoutes } from '@/routes/busterRoutes/busterAppRoutes';
 import { useAsyncEffect } from 'ahooks';
-import { timeout } from '@/utils';
 
 const PRIORITY_ROUTES = [
   BusterAppRoutes.APP_ROOT,
   BusterAppRoutes.APP_COLLECTIONS,
   BusterAppRoutes.APP_DASHBOARDS,
-  BusterAppRoutes.APP_THREAD,
+  BusterAppRoutes.APP_METRIC,
   BusterAppRoutes.APP_DATASETS,
   BusterAppRoutes.SETTINGS_GENERAL,
-  BusterAppRoutes.APP_DASHBOARD_THREADS_ID,
-  BusterAppRoutes.APP_DASHBOARD_ID
+  BusterAppRoutes.APP_DASHBOARD_METRICS_ID,
+  BusterAppRoutes.APP_DASHBOARD_ID,
+  BusterAppRoutes.APP_CHAT_ID,
+  BusterAppRoutes.APP_CHAT_ID_COLLECTION_ID,
+  BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID,
+  BusterAppRoutes.APP_CHAT_ID_METRIC_ID
 ];
 
 export const RoutePrefetcher: React.FC<{}> = () => {

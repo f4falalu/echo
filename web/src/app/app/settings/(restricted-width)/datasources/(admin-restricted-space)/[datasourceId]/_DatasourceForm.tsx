@@ -1,6 +1,6 @@
 'use client';
 
-import { DataSource } from '@/api/buster_rest';
+import type { DataSource } from '@/api/asset_interfaces';
 import { AppMaterialIcons, PulseLoader } from '@/components';
 import { AppDataSourceIcon } from '@/components/icons/AppDataSourceIcons';
 import { useAntToken } from '@/styles/useAntToken';

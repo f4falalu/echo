@@ -7,43 +7,37 @@ import { useMemoizedFn } from 'ahooks';
 import { createStyles } from 'antd-style';
 import { createDayjsDate } from '@/utils/date';
 import { useDashboardContextSelector } from '@/context/Dashboards';
-import { useBusterThreadsContextSelector } from '@/context/Threads';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useCollectionsContextSelector } from '@/context/Collections';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { Text } from '@/components';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { Dayjs } from 'dayjs';
+import type { Dayjs } from 'dayjs';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
 
 export const ShareMenuContentPublish: React.FC<{
   onCopyLink: () => void;
   publicExpirationDate: string;
   publicly_accessible: boolean;
   password: string | null;
-  shareType: ShareAssetType;
-  threadId?: string;
-  dashboardId?: string;
-  collectionId?: string;
+  assetType: ShareAssetType;
+  assetId: string;
 }> = React.memo(
   ({
-    shareType,
+    assetType,
+    assetId,
     password = '',
     publicly_accessible,
     onCopyLink,
-    threadId,
-    dashboardId,
-    collectionId,
     publicExpirationDate
   }) => {
     const { openInfoMessage } = useBusterNotifications();
-    const onShareThread = useBusterThreadsContextSelector((state) => state.onShareThread);
+    const onShareMetric = useBusterMetricsContextSelector((state) => state.onShareMetric);
     const onShareDashboard = useDashboardContextSelector((state) => state.onShareDashboard);
     const onShareCollection = useCollectionsContextSelector((state) => state.onShareCollection);
     const [isPublishing, setIsPublishing] = useState<boolean>(false);
     const [isPasswordProtected, setIsPasswordProtected] = useState<boolean>(!!password);
     const [_password, _setPassword] = React.useState<string>(password || '');
-
-    const id = threadId || dashboardId || collectionId || '';
 
     const linkExpiry = useMemo(() => {
       return publicExpirationDate ? new Date(publicExpirationDate) : null;
@@ -51,30 +45,30 @@ export const ShareMenuContentPublish: React.FC<{
 
     const url = useMemo(() => {
       let url = '';
-      if (shareType === ShareAssetType.METRIC) {
-        url = createBusterRoute({ route: BusterRoutes.APP_THREAD_ID, threadId: id });
-      } else if (shareType === 'dashboard') {
-        url = createBusterRoute({ route: BusterRoutes.APP_DASHBOARD_ID, dashboardId: id });
-      } else if (shareType === 'collection') {
+      if (assetType === ShareAssetType.METRIC) {
+        url = createBusterRoute({ route: BusterRoutes.APP_METRIC_ID, metricId: assetId });
+      } else if (assetType === ShareAssetType.DASHBOARD) {
+        url = createBusterRoute({ route: BusterRoutes.APP_DASHBOARD_ID, dashboardId: assetId });
+      } else if (assetType === ShareAssetType.COLLECTION) {
         url = createBusterRoute({ route: BusterRoutes.APP_COLLECTIONS });
       }
       return window.location.origin + url;
-    }, [id]);
+    }, [assetId, assetType]);
 
     const onTogglePublish = useMemoizedFn(async (v?: boolean) => {
       setIsPublishing(true);
       const linkExp = linkExpiry ? linkExpiry.toISOString() : null;
       const payload = {
-        id,
+        id: assetId,
         publicly_accessible: v === undefined ? true : !!v,
         public_password: _password || null,
         public_expiry_date: linkExp
       };
-      if (shareType === ShareAssetType.METRIC) {
-        await onShareThread(payload);
-      } else if (shareType === 'dashboard') {
+      if (assetType === ShareAssetType.METRIC) {
+        await onShareMetric(payload);
+      } else if (assetType === ShareAssetType.DASHBOARD) {
         await onShareDashboard(payload);
-      } else if (shareType === 'collection') {
+      } else if (assetType === ShareAssetType.COLLECTION) {
         await onShareCollection(payload);
       }
 
@@ -83,12 +77,12 @@ export const ShareMenuContentPublish: React.FC<{
 
     const onSetPasswordProtected = useMemoizedFn(async (v: boolean) => {
       if (!v) {
-        if (shareType === ShareAssetType.METRIC) {
-          await onShareThread({ id, public_password: null });
-        } else if (shareType === 'dashboard') {
-          await onShareDashboard({ id, public_password: null });
-        } else if (shareType === 'collection') {
-          await onShareCollection({ id, public_password: null });
+        if (assetType === ShareAssetType.METRIC) {
+          await onShareMetric({ id: assetId, public_password: null });
+        } else if (assetType === ShareAssetType.DASHBOARD) {
+          await onShareDashboard({ id: assetId, public_password: null });
+        } else if (assetType === ShareAssetType.COLLECTION) {
+          await onShareCollection({ id: assetId, public_password: null });
         }
       }
 
@@ -96,12 +90,12 @@ export const ShareMenuContentPublish: React.FC<{
     });
 
     const onSetPassword = useMemoizedFn(async (password: string | null) => {
-      if (shareType === ShareAssetType.METRIC) {
-        await onShareThread({ id, public_password: password });
-      } else if (shareType === 'dashboard') {
-        await onShareDashboard({ id, public_password: password });
-      } else if (shareType === 'collection') {
-        await onShareCollection({ id, public_password: password });
+      if (assetType === ShareAssetType.METRIC) {
+        await onShareMetric({ id: assetId, public_password: password });
+      } else if (assetType === ShareAssetType.DASHBOARD) {
+        await onShareDashboard({ id: assetId, public_password: password });
+      } else if (assetType === ShareAssetType.COLLECTION) {
+        await onShareCollection({ id: assetId, public_password: password });
       }
       _setPassword(password || '');
       if (password) openInfoMessage('Password updated');
@@ -109,12 +103,12 @@ export const ShareMenuContentPublish: React.FC<{
 
     const onSetExpirationDate = useMemoizedFn(async (date: Date | null) => {
       const linkExp = date ? date.toISOString() : null;
-      if (shareType === ShareAssetType.METRIC) {
-        await onShareThread({ id, public_expiry_date: linkExp });
-      } else if (shareType === 'dashboard') {
-        await onShareDashboard({ id, public_expiry_date: linkExp });
-      } else if (shareType === 'collection') {
-        await onShareCollection({ id, public_expiry_date: linkExp });
+      if (assetType === ShareAssetType.METRIC) {
+        await onShareMetric({ id: assetId, public_expiry_date: linkExp });
+      } else if (assetType === ShareAssetType.DASHBOARD) {
+        await onShareDashboard({ id: assetId, public_expiry_date: linkExp });
+      } else if (assetType === ShareAssetType.COLLECTION) {
+        await onShareCollection({ id: assetId, public_expiry_date: linkExp });
       }
     });
 

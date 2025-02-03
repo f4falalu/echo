@@ -1,11 +1,11 @@
 import { serverFetch } from '@/api/createServerInstance';
 import { mainApi } from '../instances';
-import {
+import type {
   DatasetGroup,
   GetDatasetGroupPermissionGroupsResponse,
   GetDatasetGroupDatasetsResponse,
   GetDatasetGroupUsersResponse
-} from './responseInterfaces';
+} from '../../asset_interfaces';
 
 export const listDatasetGroups = async () => {
   return mainApi.get<DatasetGroup[]>(`/dataset_groups`).then((res) => res.data);

@@ -1,10 +1,10 @@
-import { DataSource, DataSourceTypes } from '@/api/buster_rest';
+import type { DataSource, DataSourceTypes } from '@/api/asset_interfaces';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useDataSourceContextSelector } from '@/context/DataSources';
 import { BusterRoutes } from '@/routes';
 import { useAntToken } from '@/styles/useAntToken';
 import { useMemoizedFn } from 'ahooks';
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { PostgresForm } from './_forms/PostgresForm';
 import { DatasourceCreateCredentials } from '@/api/buster_socket/datasources/interface';
 import { MySqlForm } from './_forms/MySqlForm';

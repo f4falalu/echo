@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { useBusterWebSocket } from '../BusterWebSocket';
 import { useMemoizedFn, useMount } from 'ahooks';
-import { BusterUserFavorite } from '@/api/buster_rest';
+import type { BusterUserFavorite } from '@/api/asset_interfaces';
 import { ShareAssetType } from '@/api/asset_interfaces';
 
 export const useFavoriteProvider = () => {

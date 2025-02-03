@@ -1,5 +1,3 @@
-import { StringColorFormat } from '@faker-js/faker';
-
 export interface PostgresCreateCredentials {
   datasource_name: string;
   host: string;

@@ -2,7 +2,7 @@ import { BusterUserAvatar } from '@/components';
 import { AccessDropdown } from './AccessDropdown';
 
 import React from 'react';
-import { ShareRole } from '@/api/buster_socket/threads';
+import { ShareRole } from '@/api/asset_interfaces';
 import { Text } from '@/components';
 import { useMemoizedFn } from 'ahooks';
 
@@ -11,9 +11,9 @@ export const IndividualSharePerson: React.FC<{
   email: string;
   role: ShareRole;
   id: string;
-  shareType: 'thread' | 'dashboard';
+
   onUpdateShareRole: (id: string, email: string, role: ShareRole | null) => void;
-}> = React.memo(({ name, onUpdateShareRole, email, shareType, id, role }) => {
+}> = React.memo(({ name, onUpdateShareRole, email, id, role }) => {
   const isSameEmailName = name === email;
 
   const onChangeShareLevel = useMemoizedFn((v: ShareRole | null) => {

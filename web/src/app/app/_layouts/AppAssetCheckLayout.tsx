@@ -10,9 +10,9 @@ import { redirect } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 
 export type AppAssetCheckLayoutProps = {
-  threadId?: string;
+  metricId?: string;
   dashboardId?: string;
-  type: 'thread' | 'dashboard';
+  type: 'metric' | 'dashboard';
 };
 
 export const AppAssetCheckLayout: React.FC<
@@ -22,7 +22,7 @@ export const AppAssetCheckLayout: React.FC<
 > = async ({ children, type, ...props }) => {
   const { accessToken, user } = await useSupabaseServerContext();
   const { signInWithAnonymousUser } = useBusterSupabaseAuthMethods();
-  const isThread = type === 'thread';
+  const isMetric = type === 'metric';
 
   let jwtToken = accessToken;
 
@@ -37,7 +37,7 @@ export const AppAssetCheckLayout: React.FC<
 
   const res = await getAssetCheck({
     type,
-    id: isThread ? props.threadId! : props.dashboardId!,
+    id: isMetric ? props.metricId! : props.dashboardId!,
     jwtToken
   })
     .then((v) => v)
@@ -46,7 +46,7 @@ export const AppAssetCheckLayout: React.FC<
   if (!res) {
     return redirect(
       createBusterRoute({
-        route: BusterRoutes.APP_THREAD
+        route: BusterRoutes.APP_METRIC
       })
     );
   }
@@ -61,7 +61,7 @@ export const AppAssetCheckLayout: React.FC<
     return (
       <ClientSideAnonCheck jwtToken={jwtToken}>
         <AppPasswordAccess
-          threadId={props.threadId}
+          metricId={props.metricId}
           dashboardId={props.dashboardId}
           type={type as ShareAssetType}>
           {children}
@@ -75,7 +75,7 @@ export const AppAssetCheckLayout: React.FC<
       <ClientSideAnonCheck jwtToken={jwtToken}>
         <AppNoPageAccess
           asset_type={type as ShareAssetType}
-          threadId={props.threadId}
+          metricId={props.metricId}
           dashboardId={props.dashboardId}
         />
       </ClientSideAnonCheck>

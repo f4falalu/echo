@@ -11,9 +11,8 @@ export const ShareMenuContent: React.FC<{
   shareAssetConfig: BusterShare;
   assetId: string;
   assetType: ShareAssetType;
-  shareType: ShareAssetType;
   permission: ShareRole;
-}> = React.memo(({ assetId, assetType, shareAssetConfig, shareType, permission }) => {
+}> = React.memo(({ assetId, assetType, shareAssetConfig, permission }) => {
   const { openSuccessMessage } = useBusterNotifications();
   const isOwner = permission === ShareRole.OWNER;
   const [selectedOptions, setSelectedOptions] = React.useState<ShareMenuTopBarOptions>(
@@ -25,14 +24,14 @@ export const ShareMenuContent: React.FC<{
 
   const onCopyLink = useMemoizedFn(() => {
     let url = '';
-    if (shareType === ShareAssetType.METRIC && assetId) {
-      url = createBusterRoute({ route: BusterRoutes.APP_THREAD_ID, threadId: assetId });
-    } else if (shareType === ShareAssetType.DASHBOARD && assetId) {
+    if (assetType === ShareAssetType.METRIC && assetId) {
+      url = createBusterRoute({ route: BusterRoutes.APP_METRIC_ID, metricId: assetId });
+    } else if (assetType === ShareAssetType.DASHBOARD && assetId) {
       url = createBusterRoute({
         route: BusterRoutes.APP_DASHBOARD_ID,
         dashboardId: assetId
       });
-    } else if (shareType === ShareAssetType.COLLECTION && assetId) {
+    } else if (assetType === ShareAssetType.COLLECTION && assetId) {
       url = createBusterRoute({
         route: BusterRoutes.APP_COLLECTIONS_ID,
         collectionId: assetId
@@ -61,7 +60,7 @@ export const ShareMenuContent: React.FC<{
       {showShareMenuTopBar && (
         <>
           <ShareMenuTopBar
-            shareType={shareType}
+            assetType={assetType}
             selectedOptions={selectedOptions}
             onChangeSelectedOption={onChangeSelectedOption}
             onCopyLink={onCopyLink}
@@ -73,9 +72,8 @@ export const ShareMenuContent: React.FC<{
 
       <ShareMenuContentBody
         shareAssetConfig={shareAssetConfig}
-        shareType={shareType}
-        assetId={assetId}
         assetType={assetType}
+        assetId={assetId}
         selectedOptions={selectedOptions}
         setOpenShareWithGroupAndTeam={setOpenShareWithGroupAndTeam}
         goBack={goBack}

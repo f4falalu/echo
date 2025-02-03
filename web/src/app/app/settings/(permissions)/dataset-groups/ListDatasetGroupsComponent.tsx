@@ -7,7 +7,7 @@ import {
 } from '@/components/list';
 import React, { useMemo } from 'react';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { DatasetGroup } from '@/api/buster_rest';
+import type { DatasetGroup } from '@/api/asset_interfaces';
 
 export const ListDatasetGroupsComponent: React.FC<{
   datasetGroups: DatasetGroup[];

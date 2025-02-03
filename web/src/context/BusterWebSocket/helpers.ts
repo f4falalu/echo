@@ -1,5 +1,4 @@
 import { BusterSocketResponseRoute } from '@/api/buster_socket';
-import { ThreadResponses } from '@/api/buster_socket/threads';
 import { DashboardResponses } from '@/api/buster_socket/dashboards';
 import { isDev } from '@/config';
 import { DatasetResponses } from '@/api/buster_socket/datasets';
@@ -36,7 +35,6 @@ export const createBusterResponse = (
 
 const isKnownMessageRoute = (parsedMessage: BusterSocketResponseMessage) => {
   const allResponses = {
-    ...ThreadResponses,
     ...DashboardResponses,
     ...DatasetResponses,
     ...UserResponses,
