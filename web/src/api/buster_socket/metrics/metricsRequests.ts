@@ -23,52 +23,28 @@ export type MetricSubscribeToMetric = BusterSocketRequestBase<
   { id: string; password?: string }
 >;
 
-export type MetricCreateNewMetric = BusterSocketRequestBase<
-  '/metrics/post',
-  {
-    dataset_id: string | null;
-    metric_id: string | null;
-    suggestion_id?: string | null;
-    prompt?: string;
-    message_id?: string; //only send if we want to REPLACE current message
-    draft_session_id?: string;
-  }
->;
-
 export type MetricUpdateMetric = BusterSocketRequestBase<
   '/metrics/update',
   {
     id: string; //metric id
+    title?: string;
     save_to_dashboard?: string;
     remove_from_dashboard?: string; // dashboard_id optional
     add_to_collections?: string[]; // collection_id
     remove_from_collections?: string[]; // collection_id
-    save_draft?: boolean;
-  } & ShareRequest
->;
-
-export type MetricUpdateMessage = BusterSocketRequestBase<
-  '/metrics/messages/update',
-  {
-    id: string; //messageid id
-    chart_config?: BusterChartConfigProps;
-    title?: string;
     sql?: string;
-    feedback?: 'negative';
-    status?: VerificationStatus;
-  }
+    chart_config?: BusterChartConfigProps;
+    save_draft?: boolean; //send if we want the metric (which is currently in draft) to be saved
+    feedback?: 'negative'; //send if we want to update the feedback of the metric
+    status?: VerificationStatus; //admin only: send if we want to update the status of the metric
+  } & ShareRequest
 >;
 
 export type MetricDelete = BusterSocketRequestBase<'/metrics/delete', { ids: string[] }>;
 
 export type MetricGetDataByMessageId = BusterSocketRequestBase<'/metrics/data', { id: string }>;
 
-export type MetricSearch = BusterSocketRequestBase<
-  '/metrics/search',
-  {
-    prompt: string;
-  }
->;
+export type MetricSearch = BusterSocketRequestBase<'/metrics/search', { prompt: string }>;
 
 export type MetricDuplicate = BusterSocketRequestBase<
   '/metrics/duplicate',
@@ -84,9 +60,7 @@ export type MetricEmits =
   | MetricListEmitPayload
   | MetricUnsubscribeEmitPayload
   | MetricUpdateMetric
-  | MetricCreateNewMetric
   | MetricSubscribeToMetric
   | MetricDelete
-  | MetricUpdateMessage
   | MetricGetDataByMessageId
   | MetricSearch;

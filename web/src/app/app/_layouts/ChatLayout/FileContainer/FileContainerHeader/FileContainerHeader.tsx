@@ -23,9 +23,11 @@ export const FileContainerHeader: React.FC = React.memo(() => {
   const { styles, cx } = useStyles();
   const selectedFileType = useChatLayoutContextSelector((x) => x.selectedFileType);
   const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView);
+  const onCollapseFileClick = useChatLayoutContextSelector((state) => state.onCollapseFileClick);
+  const collapseDirection = useChatLayoutContextSelector((state) => state.collapseDirection);
+  const isCollapseOpen = useChatLayoutContextSelector((state) => state.isCollapseOpen);
 
   const showCollapseButton = true;
-  const isCollapseOpen = true; //I could get the defaultSelectedLayout from the context and check if it is 'both'?
 
   const SelectedFileSegment = React.useMemo(
     () => (selectedFileType ? SelectedFileSegmentRecord[selectedFileType] : () => <></>),
@@ -39,9 +41,17 @@ export const FileContainerHeader: React.FC = React.memo(() => {
 
   return (
     <div
-      className={cx(styles.container, 'flex w-full items-center justify-between space-x-3.5 px-3')}>
+      className={cx(
+        styles.container,
+        'flex w-full items-center justify-between space-x-1 overflow-hidden px-3'
+      )}>
       <div className="flex items-center gap-1.5">
-        <CollapseFileButton showCollapseButton={showCollapseButton} isOpen={isCollapseOpen} />
+        <CollapseFileButton
+          collapseDirection={collapseDirection}
+          showCollapseButton={showCollapseButton}
+          isOpen={isCollapseOpen}
+          onCollapseFileClick={onCollapseFileClick}
+        />
         {selectedFileView && <SelectedFileSegment selectedFileView={selectedFileView} />}
       </div>
       <SelectedFileButtons selectedFileView={selectedFileView} />

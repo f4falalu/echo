@@ -7,7 +7,7 @@ interface FileContainerProps {
 
 export const FileContainer: React.FC<FileContainerProps> = React.memo(({ children }) => {
   return (
-    <div className="flex min-w-[370px] flex-col">
+    <div className="flex min-w-[325px] flex-col">
       <FileContainerHeader />
       {children}
     </div>

@@ -37,7 +37,7 @@ export const MetricSidebarHeader: React.FC<{
             icon={<AppMaterialIcons icon="edit_square" />}
             type="default"
             onClick={onToggleChatsModalPreflight}>
-            New metric
+            New Chat
           </Button>
         </div>
       </div>

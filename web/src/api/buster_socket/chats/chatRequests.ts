@@ -8,6 +8,7 @@ export type ChatCreateNewChat = BusterSocketRequestBase<
     chat_id?: string | null; //send if we are following up on a chat
     suggestion_id?: string | null; //send if we clicked on a suggestion
     message_id?: string; //send if we want to REPLACE current message
+    metric_id?: string; //send if we want to create a chat from a metric
     draft_session_id?: string; //TODO: do we need this?
   }
 >;
@@ -39,7 +40,7 @@ export type ChatsDuplicateChat = BusterSocketRequestBase<
   '/chats/duplicate',
   {
     id: string;
-    message_id?: string; //send if we want to duplciate the chat starting from a specific message
+    message_id: string; //send if we want to duplciate the chat starting from a specific message
   }
 >;
 

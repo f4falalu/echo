@@ -205,7 +205,7 @@ const MetricsEmptyState: React.FC<{
       <ListEmptyStateWithButton
         title="You don’t have any logs yet."
         description="You don’t have any logs. As soon as you do, they will start to appear here."
-        buttonText="New metric"
+        buttonText="New chat"
         onClick={openNewMetricModal}
       />
     );
@@ -215,7 +215,7 @@ const MetricsEmptyState: React.FC<{
     <ListEmptyStateWithButton
       title="You don’t have any metrics yet."
       description="You don’t have any metrics. As soon as you do, they will start to  appear here."
-      buttonText="New metric"
+      buttonText="New chat"
       onClick={openNewMetricModal}
     />
   );

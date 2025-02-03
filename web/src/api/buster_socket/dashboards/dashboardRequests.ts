@@ -37,7 +37,6 @@ export type ShareRequest = {
     user_email: string;
     role: ShareRole;
   }[];
-
   remove_users?: string[]; // user_id
   team_permissions?: {
     team_id: string;

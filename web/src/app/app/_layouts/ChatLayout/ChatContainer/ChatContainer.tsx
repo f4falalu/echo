@@ -17,7 +17,7 @@ export const ChatContainer = React.memo(
     }, [chatContentRef, scroll?.top]);
 
     return (
-      <div ref={ref} className="flex h-full w-full flex-col">
+      <div ref={ref} className="flex h-full w-full min-w-[225px] flex-col">
         <ChatHeader showScrollOverflow={showScrollOverflow} />
         <ChatContent chatContentRef={chatContentRef} />
       </div>

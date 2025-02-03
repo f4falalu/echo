@@ -3,7 +3,7 @@ import {
   createContext,
   useContextSelector
 } from '@fluentui/react-context-selector';
-import React, { PropsWithChildren, useTransition } from 'react';
+import React, { PropsWithChildren, useState, useTransition } from 'react';
 import type { SelectedFile } from '../interfaces';
 import type { ChatSplitterProps } from '../ChatLayout';
 import { useMemoizedFn } from 'ahooks';
@@ -30,8 +30,6 @@ export const useChatLayout = ({
   const [isPending, startTransition] = useTransition();
   const onChangePage = useAppLayoutContextSelector((state) => state.onChangePage);
 
-  const selectedLayout = defaultSelectedLayout;
-
   const animateOpenSplitter = useMemoizedFn((side: 'left' | 'right' | 'both') => {
     if (appSplitterRef.current) {
       const { animateWidth, isSideClosed } = appSplitterRef.current;
@@ -41,6 +39,8 @@ export const useChatLayout = ({
         animateWidth('100%', 'right');
       } else if (side === 'both' && (isSideClosed('right') || isSideClosed('left'))) {
         animateWidth(DEFAULT_CHAT_OPTION, 'left');
+        setIsPureChat(false);
+        setIsPureFile(false);
       }
     }
   });
@@ -56,7 +56,6 @@ export const useChatLayout = ({
 
     if (route) {
       onChangePage(route);
-      setIsPureChat(false);
       startTransition(() => {
         animateOpenSplitter('both');
       });
@@ -64,15 +63,34 @@ export const useChatLayout = ({
   });
 
   const onCollapseFileClick = useMemoizedFn((close?: boolean) => {
-    const isCloseAction = close ?? selectedLayout === 'both';
-    if (isCloseAction) {
-      animateOpenSplitter('left');
+    const isCloseAction = close ?? isCollapseOpen;
+
+    if (defaultSelectedLayout === 'file') {
+      if (!isCloseAction && defaultSelectedFile) {
+        setIsCollapseOpen(true);
+        animateOpenSplitter('both');
+      } else {
+        setIsCollapseOpen(false);
+        animateOpenSplitter('right');
+      }
     } else {
-      animateOpenSplitter('both');
+      if (isCloseAction) {
+        animateOpenSplitter('left');
+      } else {
+        animateOpenSplitter('both');
+      }
     }
   });
 
-  const { setIsPureChat, isPureFile, isPureChat } = useAutoSetLayout({
+  const {
+    setIsPureChat,
+    setIsCollapseOpen,
+    isPureFile,
+    isPureChat,
+    setIsPureFile,
+    collapseDirection,
+    isCollapseOpen
+  } = useAutoSetLayout({
     defaultSelectedLayout
   });
 
@@ -83,6 +101,8 @@ export const useChatLayout = ({
 
   return {
     ...fileLayoutContext,
+    collapseDirection,
+    isCollapseOpen,
     isPureFile,
     isPureChat,
     onSetSelectedFile,

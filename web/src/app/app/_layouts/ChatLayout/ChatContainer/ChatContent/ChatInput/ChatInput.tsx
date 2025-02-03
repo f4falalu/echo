@@ -48,7 +48,7 @@ export const ChatInput: React.FC = React.memo(() => {
     <div
       className={cx(
         styles.inputCard,
-        'z-10 flex flex-col items-center space-y-1.5 px-3 pb-2 pt-0.5'
+        'z-10 mx-3 mt-0.5 flex flex-col items-center space-y-1.5 overflow-hidden pb-2'
       )}>
       <div
         className={cx(
@@ -60,7 +60,7 @@ export const ChatInput: React.FC = React.memo(() => {
           variant="borderless"
           onBlur={onBlurInput}
           onFocus={onFocusInput}
-          className="inline-block !pl-3.5 !pr-9 align-middle"
+          className="inline-block !pl-3.5 !pr-9 !pt-2 align-middle"
           placeholder="Ask a follow up..."
           value={inputValue}
           autoFocus={true}
@@ -78,9 +78,7 @@ export const ChatInput: React.FC = React.memo(() => {
         </div>
       </div>
 
-      <Text size="xs" type="tertiary">
-        Our AI may make mistakes. Check important info.
-      </Text>
+      <AIWarning />
     </div>
   );
 });
@@ -105,3 +103,15 @@ const useStyles = createStyles(({ token, css }) => ({
     }
   `
 }));
+
+const AIWarning = React.memo(() => {
+  return (
+    <div className="w-full overflow-hidden truncate text-center">
+      <Text size="xs" type="tertiary" className="truncate">
+        Our AI may make mistakes. Check important info.
+      </Text>
+    </div>
+  );
+});
+
+AIWarning.displayName = 'AIWarning';
