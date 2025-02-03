@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { useChatLayoutContextSelector } from '../../_layouts/ChatLayout';
-import { AppSplitter, AppSplitterRef } from '@/components';
+import { MetricFileView, useChatLayoutContextSelector } from '../../_layouts/ChatLayout';
+import { AppSplitter, AppSplitterRef } from '@/components/layout/AppSplitter';
 import { useMetricControllerLayout } from './useMetricControllerLayout';
+import { MetricViewController } from './MetricViewController';
+import { MetricEditController } from './MetricEditController';
 
 const defaultLayout = ['auto', '0px'];
 
@@ -12,6 +14,9 @@ export const MetricController: React.FC<{
 }> = React.memo(({ metricId }) => {
   const appSplitterRef = useRef<AppSplitterRef>(null);
 
+  const selectedFileView = useChatLayoutContextSelector(
+    (x) => x.selectedFileView
+  ) as MetricFileView;
   const selectedFileViewSecondary = useChatLayoutContextSelector(
     (x) => x.selectedFileViewSecondary
   );
@@ -24,8 +29,8 @@ export const MetricController: React.FC<{
   return (
     <AppSplitter
       ref={appSplitterRef}
-      leftChildren={<div>{metricId}</div>}
-      rightChildren={<div className="min-w-[230px]">right swag</div>}
+      leftChildren={<MetricViewController selectedFileView={selectedFileView} />}
+      rightChildren={<MetricEditController />}
       rightHidden={!renderSecondary}
       autoSaveId="metric-controller"
       defaultLayout={defaultLayout}

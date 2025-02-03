@@ -2,21 +2,31 @@ import React from 'react';
 import { FileContainerButtonsProps } from './interfaces';
 import { Button, ButtonProps } from 'antd';
 import { AppMaterialIcons, AppTooltip } from '@/components';
-import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
+import { type MetricFileView, useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { useMemoizedFn } from 'ahooks';
 import { SaveMetricToCollectionButton } from '@appComponents/Buttons/SaveMetricToCollectionButton';
 import { SaveMetricToDashboardButton } from '@appComponents/Buttons/SaveMetricToDashboardButton';
 import { ShareMetricButton } from '@appComponents/Buttons/ShareMetricButton';
 import { useChatContextSelector } from '../../ChatContext';
+import { HideButtonContainer } from './HideButtonContainer';
+import { FileButtonContainer } from './FileButtonContainer';
 
 export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(() => {
+  const selectedFileView = useChatLayoutContextSelector(
+    (x) => x.selectedFileView
+  ) as MetricFileView;
+
+  const showEditChartButton = selectedFileView === 'chart';
+
   return (
-    <div className="flex items-center gap-1">
-      <EditChartButton />
+    <FileButtonContainer>
+      <HideButtonContainer show={showEditChartButton}>
+        <EditChartButton />
+      </HideButtonContainer>
       <SaveToCollectionButton />
       <SaveToDashboardButton />
       <ShareMetricButton />
-    </div>
+    </FileButtonContainer>
   );
 });
 
