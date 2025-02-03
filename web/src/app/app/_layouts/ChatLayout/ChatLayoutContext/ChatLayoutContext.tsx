@@ -41,6 +41,7 @@ export const useChatLayout = ({
         animateWidth(DEFAULT_CHAT_OPTION, 'left');
         setIsPureChat(false);
         setIsPureFile(false);
+        fileLayoutContext?.closeSecondaryView();
       }
     }
   });

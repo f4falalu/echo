@@ -26,6 +26,7 @@ export interface AppSplitterRef {
   setSplitSizes: (newSizes: (number | string)[]) => void;
   animateWidth: (width: string, side: 'left' | 'right', duration?: number) => Promise<void>;
   isSideClosed: (side: 'left' | 'right') => boolean;
+  sizes: (number | string)[];
 }
 
 export const AppSplitter = React.memo(
@@ -228,9 +229,10 @@ export const AppSplitter = React.memo(
         return () => ({
           setSplitSizes,
           animateWidth,
-          isSideClosed
+          isSideClosed,
+          sizes: _sizes
         });
-      }, [setSplitSizes, animateWidth, isSideClosed]);
+      }, [setSplitSizes, animateWidth, isSideClosed, _sizes]);
 
       // Add useImperativeHandle to expose the function
       useImperativeHandle(ref, imperativeHandleMethods);
