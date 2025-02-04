@@ -20,12 +20,6 @@ export const MetricViewChart: React.FC<{
   const loadingData = !metricData.fetched;
   const errorData = !!metricData.error;
 
-  const cardClass = useMemo(() => {
-    if (loadingData || errorData) return 'h-full max-h-[600px]';
-    if (isTable) return '';
-    return 'h-full max-h-[600px]';
-  }, [isTable, loadingData, errorData]);
-
   const onSetTitle = useMemoizedFn((title: string) => {
     if (inputHasText(title)) {
       onUpdateMetric({
@@ -41,7 +35,7 @@ export const MetricViewChart: React.FC<{
         'm-5 flex h-full flex-col justify-between space-y-3.5',
         'overflow-hidden'
       )}>
-      <div className={cx(styles.chartCard, cardClass, 'flex flex-col')}>
+      <MetricViewChartCard loadingData={loadingData} errorData={errorData} isTable={isTable}>
         <MetricViewChartHeader
           className="px-4"
           title={title}
@@ -57,7 +51,7 @@ export const MetricViewChart: React.FC<{
           fetchedData={metricData.fetched}
           errorMessage={metricData.error}
         />
-      </div>
+      </MetricViewChartCard>
 
       <MetricChartEvaluation
         evaluationScore={evaluation_score}
@@ -68,6 +62,23 @@ export const MetricViewChart: React.FC<{
 });
 
 MetricViewChart.displayName = 'MetricViewChart';
+
+const MetricViewChartCard: React.FC<{
+  children: React.ReactNode;
+  loadingData: boolean;
+  errorData: boolean;
+  isTable: boolean;
+}> = ({ children, loadingData, errorData, isTable }) => {
+  const { styles, cx } = useStyles();
+
+  const cardClass = useMemo(() => {
+    if (loadingData || errorData) return 'h-full max-h-[600px]';
+    if (isTable) return '';
+    return 'h-full max-h-[600px]';
+  }, [isTable, loadingData, errorData]);
+
+  return <div className={cx(styles.chartCard, cardClass, 'flex flex-col')}>{children}</div>;
+};
 
 const useStyles = createStyles(({ css, token }) => ({
   container: css``,

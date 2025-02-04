@@ -17,19 +17,20 @@ export const MetricViewChartHeader: React.FC<{
         {title}
       </EditableTitle>
       <div className="flex items-center space-x-1">
-        <Text type="secondary" className="!text-sm">
+        {!!timeFrame && (
+          <>
+            <Text type="secondary" className="!text-sm">
+              {timeFrame}
+            </Text>
+            <Text type="secondary" className="!text-sm">
+              •
+            </Text>
+          </>
+        )}
+
+        <Text type="secondary" className="truncate !text-sm">
           {description}
         </Text>
-        {!!timeFrame && (
-          <Text type="secondary" className="!text-sm">
-            •
-          </Text>
-        )}
-        {!!timeFrame && (
-          <Text type="secondary" className="!text-sm">
-            {timeFrame}
-          </Text>
-        )}
       </div>
     </div>
   );
