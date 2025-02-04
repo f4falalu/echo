@@ -40,7 +40,7 @@ export const MetricChartEvaluation: React.FC<{
           className={cx(
             styles.container,
             colorClass,
-            'flex items-center gap-1 rounded-lg px-2 py-1'
+            'flex items-center gap-1 rounded-lg px-2 py-1 hover:shadow-sm'
           )}>
           {icon}
           {text}

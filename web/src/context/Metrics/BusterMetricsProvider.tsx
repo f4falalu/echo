@@ -505,10 +505,12 @@ export const useBusterMetrics = () => {
     }
 
     //TODO: remove this
-    _onGetMetricState({
-      ...MOCK_METRIC,
-      id: metricId
-    });
+    setTimeout(() => {
+      _onGetMetricState({
+        ...MOCK_METRIC,
+        id: metricId
+      });
+    }, 500);
 
     return await busterSocket.emitAndOnce({
       emitEvent: {

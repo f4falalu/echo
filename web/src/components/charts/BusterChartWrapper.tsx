@@ -9,8 +9,7 @@ export const BusterChartWrapper = React.memo<{
   className: string | undefined;
   bordered: boolean;
   loading: boolean;
-  useTableSizing: boolean;
-}>(({ children, id, className, bordered, loading, useTableSizing }) => {
+}>(({ children, id, className, bordered, loading }) => {
   const { styles, cx } = useStyles();
   const ref = useRef<HTMLDivElement>(null);
   const size = useSize(ref);
@@ -22,12 +21,9 @@ export const BusterChartWrapper = React.memo<{
         ref={ref}
         id={id}
         className={cx(
-          styles.card,
           className,
-          'flex w-full flex-col',
+          'flex h-full w-full flex-col',
           'transition duration-300',
-          useTableSizing ? 'h-full' : 'h-full max-h-[600px] p-[18px]',
-          bordered ? styles.cardBorder : '',
           loading ? '!bg-transparent' : undefined,
           'overflow-hidden'
         )}>
@@ -40,13 +36,5 @@ export const BusterChartWrapper = React.memo<{
 BusterChartWrapper.displayName = 'BusterChartWrapper';
 
 const useStyles = createStyles(({ token }) => {
-  return {
-    card: {
-      borderRadius: token.borderRadius,
-      background: token.colorBgContainer
-    },
-    cardBorder: {
-      border: `0.5px solid ${token.colorBorder}`
-    }
-  };
+  return {};
 });

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { BusterChartProps, ChartEncodes, ChartType, ViewType } from './interfaces';
+import { BusterChartProps, ChartEncodes, ChartType } from './interfaces';
 import isEmpty from 'lodash/isEmpty';
 import { doesChartHaveValidAxis } from './helpers';
 import { useMemoizedFn } from 'ahooks';
@@ -44,12 +44,11 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
     onInitialAnimationEnd,
     editable,
     selectedChartType,
-    selectedView,
     columnLabelFormats = DEFAULT_CHART_CONFIG.columnLabelFormats,
     renderType = 'chartjs',
     ...props
   }) => {
-    const isTable = selectedView === ViewType.Table || selectedChartType === ChartType.Table;
+    const isTable = selectedChartType === ChartType.Table;
     const showNoData = !loading && (isEmpty(data) || data === null);
 
     const selectedAxis: ChartEncodes | undefined = useMemo(() => {
@@ -73,7 +72,7 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
         selectedAxis,
         isTable
       });
-    }, [selectedChartType, selectedView, isTable, selectedAxis]);
+    }, [selectedChartType, isTable, selectedAxis]);
 
     const onChartMounted = useMemoizedFn((chart?: any) => {
       onChartMountedProp?.(chart);
@@ -152,12 +151,7 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
 
     return (
       <BusterChartErrorWrapper>
-        <BusterChartWrapper
-          id={id}
-          className={className}
-          bordered={bordered}
-          loading={loading}
-          useTableSizing={isTable && !loading && !showNoData && hasValidAxis}>
+        <BusterChartWrapper id={id} className={className} bordered={bordered} loading={loading}>
           {SwitchComponent()}
         </BusterChartWrapper>
       </BusterChartErrorWrapper>

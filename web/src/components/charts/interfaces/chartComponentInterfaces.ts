@@ -42,7 +42,6 @@ export interface BusterChartRenderComponentProps
     | 'id'
     | 'bordered'
     | 'editable'
-    | 'selectedView'
     | 'groupByMethod'
     | 'error'
     | 'pieChartAxis'

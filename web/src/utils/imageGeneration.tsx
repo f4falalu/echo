@@ -158,7 +158,6 @@ const ChartPreviewImage = ({
   messageData: BusterMetricData;
 }) => {
   const data = messageData?.data || [];
-  const selectedChartView = message?.chart_config?.selectedView;
   const chartOptions = message?.chart_config;
 
   const chart = (
@@ -186,10 +185,6 @@ export const PreviewImageReactComponent: React.FC<{
   isDark: boolean;
 }> = ({ isDark = false, message, messageData }) => {
   const data = messageData?.data || [];
-
-  if (!message?.chart_config?.selectedView) {
-    return <div></div>;
-  }
 
   const BusterLogo = (
     <div

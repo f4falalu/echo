@@ -3,7 +3,7 @@ import type { BusterMetricData } from '../Metrics';
 import { faker } from '@faker-js/faker';
 
 const mockData = (): Record<string, string | number | null>[] => {
-  return Array.from({ length: 10 }, (x, index) => ({
+  return Array.from({ length: 100 }, (x, index) => ({
     sales: faker.number.int({ min: index * 50, max: (index + 1) * 100 }),
     date: faker.date.past({ years: index + 1 }).toISOString(),
     product: faker.commerce.productName()
@@ -41,12 +41,19 @@ const dataMetadata: DataMetadata = {
   row_count: 10
 };
 
+const data = mockData();
+data.push({
+  sales: 1,
+  date: '2024-01-01',
+  product: 'NATE RULEZ'
+});
+
 export const MOCK_DATA: Required<BusterMetricData> = {
   fetched: true,
   fetching: false,
   error: null,
   fetchedAt: Date.now(),
-  data: mockData(),
+  data: data,
   data_metadata: dataMetadata,
   dataFromRerun: null,
   code: `SELECT 

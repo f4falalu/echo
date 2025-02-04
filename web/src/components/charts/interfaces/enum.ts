@@ -14,8 +14,3 @@ export type ChartTypePlottable =
   | ChartType.Scatter
   | ChartType.Pie
   | ChartType.Combo;
-
-export enum ViewType {
-  Chart = 'chart',
-  Table = 'table'
-}

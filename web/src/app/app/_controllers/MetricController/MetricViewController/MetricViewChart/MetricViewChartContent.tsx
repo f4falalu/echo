@@ -1,7 +1,8 @@
 import type { DataMetadata } from '@/api/asset_interfaces';
+import { BusterChart, ChartType } from '@/components/charts';
 import type { BusterMetricData, IBusterMetric } from '@/context/Metrics';
 import { createStyles } from 'antd-style';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 interface MetricViewChartContentProps {
   className?: string;
@@ -13,9 +14,27 @@ interface MetricViewChartContentProps {
 }
 
 export const MetricViewChartContent: React.FC<MetricViewChartContentProps> = React.memo(
-  ({ className, chartConfig, metricData, dataMetadata, fetchedData, errorMessage }) => {
+  ({ className, chartConfig, metricData = null, dataMetadata, fetchedData, errorMessage }) => {
     const { styles, cx } = useStyles();
-    return <div className={cx('flex flex-col py-4', className)}>MetricViewChartContent</div>;
+    const columnMetadata = dataMetadata?.column_metadata;
+    const isTable = chartConfig?.selectedChartType === ChartType.Table;
+
+    const cardClassName = useMemo(() => {
+      if (isTable || !fetchedData) return '';
+      return 'p-4';
+    }, [isTable, fetchedData]);
+
+    return (
+      <div className={cx('flex h-full flex-col overflow-hidden', cardClassName, className)}>
+        <BusterChart
+          loading={!fetchedData}
+          error={errorMessage || undefined}
+          data={metricData}
+          columnMetadata={columnMetadata}
+          {...chartConfig}
+        />
+      </div>
+    );
   }
 );
 

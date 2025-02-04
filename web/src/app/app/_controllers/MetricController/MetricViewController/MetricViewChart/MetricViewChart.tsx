@@ -1,11 +1,12 @@
 import { createStyles } from 'antd-style';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { MetricViewChartContent } from './MetricViewChartContent';
 import { MetricViewChartHeader } from './MetricViewChartHeader';
 import { useBusterMetricIndividual, useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';
 import { inputHasText } from '@/utils/text';
 import { MetricChartEvaluation } from './MetricChartEvaluation';
+import { ChartType } from '@/components/charts/interfaces/enum';
 
 export const MetricViewChart: React.FC<{
   metricId: string;
@@ -14,6 +15,16 @@ export const MetricViewChart: React.FC<{
   const onUpdateMetric = useBusterMetricsContextSelector((x) => x.onUpdateMetric);
   const { metric, metricData } = useBusterMetricIndividual({ metricId });
   const { title, description, time_frame, evaluation_score, evaluation_summary } = metric;
+  const isTable = metric.chart_config.selectedChartType === ChartType.Table;
+
+  const loadingData = !metricData.fetched;
+  const errorData = !!metricData.error;
+
+  const cardClass = useMemo(() => {
+    if (loadingData || errorData) return 'h-full max-h-[600px]';
+    if (isTable) return '';
+    return 'h-full max-h-[600px]';
+  }, [isTable, loadingData, errorData]);
 
   const onSetTitle = useMemoizedFn((title: string) => {
     if (inputHasText(title)) {
@@ -24,8 +35,13 @@ export const MetricViewChart: React.FC<{
   });
 
   return (
-    <div className={cx(styles.container, 'm-5 flex h-full flex-col justify-between')}>
-      <div className={cx(styles.chartCard, 'flex flex-col')}>
+    <div
+      className={cx(
+        styles.container,
+        'm-5 flex h-full flex-col justify-between space-y-3.5',
+        'overflow-hidden'
+      )}>
+      <div className={cx(styles.chartCard, cardClass, 'flex flex-col')}>
         <MetricViewChartHeader
           className="px-4"
           title={title}
@@ -35,7 +51,6 @@ export const MetricViewChart: React.FC<{
         />
         <div className={cx(styles.divider)} />
         <MetricViewChartContent
-          className="px-4"
           chartConfig={metric.chart_config}
           metricData={metricData.data}
           dataMetadata={metricData.data_metadata}
@@ -60,6 +75,7 @@ const useStyles = createStyles(({ css, token }) => ({
     border-radius: ${token.borderRadiusLG}px;
     border: 0.5px solid ${token.colorBorder};
     background-color: ${token.colorBgContainer};
+    overflow: hidden;
   `,
   divider: css`
     border-bottom: 0.5px solid ${token.colorBorder};

@@ -1,5 +1,5 @@
-import { BarAndLineAxis, ChartEncodes } from './interfaces';
-import { ChartType, ViewType } from './interfaces/enum';
+import { ChartEncodes } from './interfaces';
+import { ChartType } from './interfaces/enum';
 import isEmpty from 'lodash/isEmpty';
 
 const defaultAxisCheck = (selectedAxis: ChartEncodes) => {

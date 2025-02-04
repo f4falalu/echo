@@ -1,6 +1,6 @@
 import type { IBusterMetricChartConfig } from './requireInterfaces';
 import type { ColumnSettings } from '../../../components/charts/interfaces/columnInterfaces';
-import { ChartType, ViewType } from '../../../components/charts/interfaces/enum';
+import { ChartType } from '../../../components/charts/interfaces/enum';
 import { DEFAULT_CHART_THEME } from '../../../components/charts/configColors';
 import type { ColumnLabelFormat } from '../../../components/charts/interfaces/columnLabelInterfaces';
 import type { ColumnMetaData } from './interfaces';
@@ -8,7 +8,6 @@ import type { ColumnMetaData } from './interfaces';
 export const DEFAULT_CHART_CONFIG: IBusterMetricChartConfig = {
   colors: DEFAULT_CHART_THEME,
   selectedChartType: ChartType.Table,
-  selectedView: ViewType.Table,
   yAxisShowAxisLabel: true,
   yAxisShowAxisTitle: true,
   yAxisAxisTitle: null,

@@ -1,18 +1,5 @@
 import { AppMaterialIcons } from '@/components/icons';
-import { ViewType, ChartType } from './interfaces';
-
-export const viewTypeOptions = [
-  {
-    label: 'Chart',
-    value: ViewType.Chart,
-    icon: <AppMaterialIcons icon="monitoring" />
-  },
-  {
-    label: 'Table',
-    value: ViewType.Table,
-    icon: <AppMaterialIcons icon="table" />
-  }
-];
+import { ChartType } from './interfaces';
 
 export const chartOptions = [
   {

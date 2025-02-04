@@ -1,4 +1,4 @@
-import { ChartType, ViewType } from './enum';
+import { ChartType } from './enum';
 import type { BarAndLineAxis, ComboChartAxis, PieChartAxis, ScatterAxis } from './axisInterfaces';
 import type {
   CategoryAxisStyleConfig,
@@ -13,7 +13,6 @@ import type { IColumnLabelFormat } from './columnLabelInterfaces';
 
 export type BusterChartConfigProps = {
   selectedChartType: ChartType;
-  selectedView: ViewType;
 
   //COLUMN SETTINGS
   columnSettings?: Record<string, ColumnSettings>; //OPTIONAL because the defaults will be determined by the UI

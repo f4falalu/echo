@@ -6,8 +6,7 @@ import {
   BusterChartProps,
   ChartType,
   IColumnLabelFormat,
-  Trendline,
-  ViewType
+  Trendline
 } from '@/components/charts';
 import { faker } from '@faker-js/faker';
 import { Checkbox, Select } from 'antd';
@@ -150,7 +149,6 @@ export default function ChartJS() {
         <BusterChart
           data={chartData}
           selectedChartType={chartType as ChartType.Pie}
-          selectedView={ViewType.Table}
           loading={false}
           barAndLineAxis={barAndLineAxis}
           pieChartAxis={pieConfig.axis}

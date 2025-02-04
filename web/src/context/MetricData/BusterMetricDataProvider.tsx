@@ -98,12 +98,14 @@ const useMetricData = () => {
       fetching: true
     });
 
-    //TODO: remove mock data
-    // _setMetricData(metricId, { ...MOCK_DATA, fetched: true });
-    onSetMetricData({
-      ...MOCK_DATA,
-      metricId
-    });
+    setTimeout(() => {
+      //TODO: remove mock data
+      // _setMetricData(metricId, { ...MOCK_DATA, fetched: true });
+      onSetMetricData({
+        ...MOCK_DATA,
+        metricId
+      });
+    }, 1800);
 
     return await busterSocket.emitAndOnce({
       emitEvent: {

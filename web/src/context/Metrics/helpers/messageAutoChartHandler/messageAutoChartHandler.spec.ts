@@ -25,7 +25,6 @@ describe('createDefaultChartConfig', () => {
         '#E83562'
       ],
       selectedChartType: 'table',
-      selectedView: 'table',
       yAxisShowAxisLabel: true,
       yAxisShowAxisTitle: true,
       yAxisAxisTitle: null,
