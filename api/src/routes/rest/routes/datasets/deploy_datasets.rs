@@ -58,6 +58,8 @@ pub struct DeployDatasetsColumnsRequest {
     #[serde(rename = "type")]
     pub type_: Option<String>,
     pub agg: Option<String>,
+    #[serde(default)]
+    pub stored_values: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -194,6 +196,7 @@ async fn process_deploy_request(
                         expr: Some(dim.expr),
                         type_: Some(dim.dimension_type),
                         agg: None,
+                        stored_values: false,
                     });
                 }
 
@@ -206,6 +209,7 @@ async fn process_deploy_request(
                         expr: Some(measure.expr),
                         type_: None,
                         agg: Some(measure.agg),
+                        stored_values: false,
                     });
                 }
 
@@ -591,6 +595,57 @@ async fn deploy_datasets_handler(
             .execute(&mut conn)
             .await
             .map_err(|e| anyhow!("Failed to upsert entity relationships: {}", e))?;
+    }
+
+    // After inserting columns, handle stored values
+    for req in &requests {
+        let data_source = data_sources
+            .iter()
+            .find(|data_source| {
+                data_source.name == req.data_source_name && data_source.env == req.env
+            })
+            .ok_or(anyhow!("Data source not found"))?;
+
+        let dataset = inserted_datasets
+            .iter()
+            .find(|dataset| {
+                dataset.name == req.name
+                    && dataset.data_source_id == data_source.id
+                    && dataset.schema == req.schema
+            })
+            .ok_or(anyhow!("Dataset not found"))?;
+
+        // Process columns that have stored_values enabled
+        for col in &req.columns {
+            if col.stored_values {
+                // Find the column ID from inserted_columns
+                let column = inserted_columns
+                    .iter()
+                    .find(|c| c.dataset_id == dataset.id && c.name == col.name)
+                    .ok_or(anyhow!("Column not found"))?;
+
+                match crate::utils::stored_values::store_column_values(
+                    &organization_id,
+                    &dataset.id,
+                    &col.name,
+                    &column.id,  // Pass the column ID
+                    &data_source.id,
+                    &dataset.schema,
+                    &dataset.database_name,
+                ).await {
+                    Ok(_) => (),
+                    Err(e) => {
+                        tracing::error!(
+                            "Error storing values for column {}: {:?}",
+                            col.name,
+                            e
+                        );
+                        // Continue with other columns even if one fails
+                        continue;
+                    }
+                }
+            }
+        }
     }
 
     if is_simple {
