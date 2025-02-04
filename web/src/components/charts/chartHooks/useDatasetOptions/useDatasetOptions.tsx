@@ -130,7 +130,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
         return value;
       })
       .join(',');
-  }, [measureFields, columnLabelFormats]);
+  }, [measureFields.join(''), columnLabelFormats]);
 
   const processedData = useMemo(() => {
     if (isScatter) {

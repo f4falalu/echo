@@ -8,7 +8,11 @@ use tokio::sync::mpsc;
 use uuid::Uuid;
 
 use crate::{
-    database::{lib::get_pg_pool, models::EntityRelationship, schema::entity_relationship},
+    database::{
+        lib::get_pg_pool,
+        models::EntityRelationship,
+        schema::{data_sources, datasets::data_source_id, entity_relationship},
+    },
     utils::{
         agent_builder::nodes::{
             error_node::ErrorNode,
@@ -23,6 +27,7 @@ use crate::{
             sql_gen_prompt::{sql_gen_system_prompt, sql_gen_user_prompt},
             sql_gen_thought_prompt::{sql_gen_thought_system_prompt, sql_gen_thought_user_prompt},
         },
+        stored_values::search::{search_values_for_dataset, StoredValue},
     },
 };
 
@@ -55,15 +60,17 @@ impl fmt::Display for GenerateSqlAgentError {
     }
 }
 
+#[derive(Clone)]
 pub struct GenerateSqlAgentOptions {
     pub sql_gen_action: Value,
-    pub message_history: Vec<Value>,
     pub datasets: Vec<DatasetWithMetadata>,
     pub thoughts: Thoughts,
     pub terms: Vec<RelevantTerm>,
-    pub relevant_values: Vec<StoredValueDocument>,
-    pub start_time: Instant,
     pub output_sender: mpsc::Sender<Value>,
+    pub message_history: Vec<Value>,
+    pub start_time: Instant,
+    pub organization_id: Uuid,
+    pub relevant_values: Vec<StoredValue>,
 }
 
 pub async fn generate_sql_agent(options: GenerateSqlAgentOptions) -> Result<Value, ErrorNode> {
@@ -269,8 +276,68 @@ pub async fn generate_sql_agent(options: GenerateSqlAgentOptions) -> Result<Valu
         .map(|(dataset, _)| dataset.dataset.id)
         .collect::<Vec<Uuid>>();
 
+    // Search for relevant stored values
+    let mut stored_values = Vec::new();
+    for dataset_id in &dataset_ids {
+        match search_values_for_dataset(&options.organization_id, dataset_id, input.to_string())
+            .await
+        {
+            Ok(values) => stored_values.extend(values),
+            Err(e) => {
+                tracing::error!(
+                    "Error searching stored values for dataset {}: {:?}",
+                    dataset_id,
+                    e
+                );
+            }
+        }
+    }
+
+    if !stored_values.is_empty() {
+        let values_str = stored_values
+            .iter()
+            .map(|v| format!("{}: {}", v.column_name, v.value))
+            .collect::<Vec<_>>()
+            .join("\n");
+
+        thoughts.thoughts.push(Thought {
+            type_: "thoughtBlock".to_string(),
+            title: "Found relevant values".to_string(),
+            content: Some(values_str),
+            code: None,
+            error: None,
+        });
+
+        send_message(
+            "thought".to_string(),
+            serde_json::to_value(&thoughts).unwrap(),
+            options.output_sender.clone(),
+        )
+        .await?;
+    }
+
+    let data_source_ids = datasets
+        .iter()
+        .map(|(dataset, _)| dataset.dataset.data_source_id)
+        .collect::<Vec<Uuid>>();
+
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
+        Err(e) => {
+            return Err(ErrorNode::new(
+                GenerateSqlAgentError::GenericError.to_string(),
+                e.to_string(),
+            ))
+        }
+    };
+
+    let data_source_type = match data_sources::table
+        .filter(data_sources::id.eq_any(&data_source_ids))
+        .select(data_sources::type_)
+        .first::<String>(&mut conn)
+        .await
+    {
+        Ok(data_source_type) => data_source_type,
         Err(e) => {
             return Err(ErrorNode::new(
                 GenerateSqlAgentError::GenericError.to_string(),
@@ -305,10 +372,6 @@ pub async fn generate_sql_agent(options: GenerateSqlAgentOptions) -> Result<Valu
             for j in (i + 1)..datasets.len() {
                 let (dataset1, _) = &datasets[i];
                 let (dataset2, _) = &datasets[j];
-
-                println!("dataset1: {:?}", dataset1.dataset.id);
-                println!("dataset2: {:?}", dataset2.dataset.id);
-                println!("entity_relationships: {:?}", entity_relationships);
 
                 // Check if there's a relationship in either direction
                 let has_relationship = entity_relationships.iter().any(|er| {
@@ -393,30 +456,30 @@ pub async fn generate_sql_agent(options: GenerateSqlAgentOptions) -> Result<Valu
     }
 
     let mut relevant_values_string = String::new();
-    let mut column_values: HashMap<Uuid, Vec<String>> = HashMap::new();
+    let mut column_values: HashMap<String, Vec<String>> = HashMap::new();
 
     // First collect values by column_id
-    for value in &options.relevant_values {
+    for value in &stored_values {
         for (dataset, _) in &datasets {
             if value.dataset_id == dataset.dataset.id {
                 column_values
-                    .entry(value.dataset_column_id.clone())
+                    .entry(value.column_name.clone())
                     .or_default()
                     .push(value.value.clone());
             }
         }
     }
 
-    // Then format using the actual column names from dataset
-    for (column_id, values) in column_values {
+    // Format stored values by column name within each dataset
+    for (column_name, values) in column_values {
+        // Find all datasets that have this column name
         for (dataset, _) in &datasets {
-            if let Some(column_name) = dataset.get_column_name(&column_id) {
-                relevant_values_string.push_str(&format!(
-                    "{}: {}\n",
-                    column_name,
-                    values.join(", ")
-                ));
-            }
+            relevant_values_string.push_str(&format!("\nDataset: {}\n", dataset.dataset.name));
+            relevant_values_string.push_str(&format!(
+                "  {}: {}\n",
+                column_name,
+                values.join(", ")
+            ));
         }
     }
 
@@ -429,7 +492,13 @@ pub async fn generate_sql_agent(options: GenerateSqlAgentOptions) -> Result<Valu
 
     let dataset_ddls = datasets
         .iter()
-        .map(|(dataset, _)| format!("{}\n{}", dataset.dataset_ddl.clone(), dataset.dataset.yml_file.clone().unwrap_or("".to_string())))
+        .map(|(dataset, _)| {
+            format!(
+                "{}\n{}",
+                dataset.dataset_ddl.clone(),
+                dataset.dataset.yml_file.clone().unwrap_or("".to_string())
+            )
+        })
         .collect::<Vec<String>>()
         .join("\n\n");
 
@@ -444,6 +513,7 @@ pub async fn generate_sql_agent(options: GenerateSqlAgentOptions) -> Result<Valu
             &input,
             &previous_sql,
             &dataset_ddls,
+            &data_source_type,
             &terms_string,
             &dataset_explanations,
             &options.message_history,
@@ -629,6 +699,7 @@ pub async fn generate_sql_agent(options: GenerateSqlAgentOptions) -> Result<Valu
             &dataset_explanations,
             &options.message_history,
             &relevant_values_string,
+            &data_source_type,
         ),
         stream: Some(options.output_sender.clone()),
         stream_name: Some("generating_sql".to_string()),
@@ -715,7 +786,7 @@ fn create_dataset_selector_messages(
     input: &String,
     datasets: &Vec<DatasetWithMetadata>,
     terms: &Vec<RelevantTerm>,
-    relevant_values: &Vec<StoredValueDocument>,
+    relevant_values: &Vec<StoredValue>,
     message_history: &Vec<Value>,
 ) -> Vec<PromptNodeMessage> {
     let mut terms_string = String::new();
@@ -811,10 +882,17 @@ fn create_sql_gen_messages(
     explanation: &String,
     message_history: &Vec<Value>,
     relevant_values: &String,
+    data_source_type: &String,
 ) -> Vec<PromptNodeMessage> {
     let mut messages = vec![PromptNodeMessage {
         role: "system".to_string(),
-        content: sql_gen_system_prompt(dataset, explanation, terms, relevant_values),
+        content: sql_gen_system_prompt(
+            dataset,
+            explanation,
+            terms,
+            relevant_values,
+            data_source_type,
+        ),
     }];
 
     // Add message history
@@ -859,6 +937,7 @@ fn create_sql_gen_thought_messages(
     input: &String,
     sql: &Option<String>,
     dataset: &String,
+    data_source_type: &String,
     terms: &String,
     explanation: &String,
     message_history: &Vec<Value>,
@@ -866,7 +945,13 @@ fn create_sql_gen_thought_messages(
 ) -> Vec<PromptNodeMessage> {
     let mut messages = vec![PromptNodeMessage {
         role: "system".to_string(),
-        content: sql_gen_thought_system_prompt(dataset, explanation, terms, relevant_values),
+        content: sql_gen_thought_system_prompt(
+            dataset,
+            explanation,
+            terms,
+            relevant_values,
+            data_source_type,
+        ),
     }];
 
     // Add message history

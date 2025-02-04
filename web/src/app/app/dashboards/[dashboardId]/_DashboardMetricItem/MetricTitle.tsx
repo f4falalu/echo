@@ -48,17 +48,21 @@ export const MetricTitle: React.FC<{
         <div
           {...attributes}
           {...listeners}
-          className={cx('group flex h-full cursor-pointer flex-col space-y-0.5 px-4 py-2')}>
+          className={cx('group flex cursor-pointer flex-col space-y-0.5 px-4')}>
           <div className="flex w-full justify-between space-x-0.5">
-            <Title {...titleConfig} level={4}>
-              {`${title}`}
+            <Title
+              {...titleConfig}
+              level={4}
+              className="max-w-[calc(100%_-_24px)] !text-md"
+              style={{ fontSize: '14px' }}>
+              {`${title} ${title} ${title} ${title} ${title} ${title} `}
             </Title>
 
             {isDragOverlay || !allowEdit ? (
-              <ThreeDotPlaceholder />
+              <></>
             ) : (
               <ThreeDotMenu
-                className="opacity-0 transition group-hover:opacity-100"
+                className="absolute right-[12px] top-[5px] opacity-0 transition group-hover:opacity-100"
                 dashboardId={dashboardId}
                 threadId={threadId}
               />
@@ -144,13 +148,9 @@ const ThreeDotMenu: React.FC<{
   });
 
   return (
-    <div onClick={onClick} className={`relative w-[24px] ${className}`}>
+    <div onClick={onClick} className={`w-[24px] ${className}`}>
       <Dropdown trigger={['click']} menu={dropdownMenu}>
-        <Button
-          className="absolute top-[-2px]"
-          type="text"
-          icon={<AppMaterialIcons icon="more_vert" />}
-        />
+        <Button className="" type="text" icon={<AppMaterialIcons icon="more_vert" />} />
       </Dropdown>
     </div>
   );

@@ -27,6 +27,7 @@ export const Title = React.memo<
       }}
       {...props}
       className={cx(
+        'leading-none',
         type === 'default' && styles.default,
         type === 'secondary' && styles.secondary,
         type === 'tertiary' && styles.tertiary,

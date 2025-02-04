@@ -3,6 +3,10 @@
 - Try to borrow (&) instead of copy (clone) as much as possible.
 - Use the tokio library for concurrent and async code.
 
+## PRD Guidelines
+- Make sure to update the prd files as you work on them marking the steps as done with ✅.
+- Feel free to add notes and comments to the prd files to help with the development process.
+
 ## Testing Guidelines
 - all tests need to be tokio async tests
 - all unit tests should be inline with the code they are testing

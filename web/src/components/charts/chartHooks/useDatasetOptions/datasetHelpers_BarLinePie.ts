@@ -49,7 +49,7 @@ export const mapLineBarPieData = (
 ) => {
   const xValuesSet = new Set<string>(); // Stores unique X-axis values
   const categoriesSet = new Set<string>(); // Stores unique category values
-  const dataMap = new Map<string | number, Record<string, string | number | Date>>(); // Stores data points in format: "xValue|category" => measures
+  const dataMap = new Map<string | number, Record<string, string | number | Date | null>>(); // Stores data points in format: "xValue|category" => measures
 
   // Pre-compile field access functions for better performance
   const xFieldAccessors = xFields.map((field) => (item: DataItem) => ({
@@ -68,7 +68,7 @@ export const mapLineBarPieData = (
       categoryFieldAccessors.map((accessor) => accessor(item))
     );
     const measures = Object.fromEntries(
-      measureFieldAccessors.map((accessor, i) => [measureFields[i], accessor(item) || 0])
+      measureFieldAccessors.map((accessor, i) => [measureFields[i], accessor(item)])
     );
 
     categoriesSet.add(categoryKey);
@@ -109,7 +109,7 @@ export const mapLineBarPieData = (
 export const processLineBarData = (
   categoriesSet: Set<string>,
   xValuesSet: Set<string>,
-  dataMap: Map<string | number, Record<string, string | number | Date>>,
+  dataMap: Map<string | number, Record<string, string | number | Date | null>>,
   measureFields: string[],
   columnLabelFormats: Record<string, ColumnLabelFormat>
 ) => {
@@ -117,12 +117,14 @@ export const processLineBarData = (
 
   // Helper to create initial row with x-value
   const createRow = (xValue: string | number) => [xValue];
+  const defaultReplaceMissingDataWith = 0;
 
   // For bar/line/pie charts - aggregate by x-value and category
   const processedData = Array.from(xValuesSet).map((xValue) => {
     const row = createRow(xValue);
 
     // Build row by adding values for each measure/category combination
+
     measureFields.forEach((measure) => {
       categories.forEach((category) => {
         const key = `${xValue}|${category}`;
@@ -132,7 +134,10 @@ export const processLineBarData = (
         const value =
           typeof dataMap.get(key)?.[measure] === 'number'
             ? dataMap.get(key)?.[measure]
-            : ((dataMap.get(key)?.[measure] || replaceMissingDataWith) ?? 0);
+            : replaceMissingDataWith !== undefined
+              ? replaceMissingDataWith
+              : defaultReplaceMissingDataWith;
+
         row.push(value as string | number);
       });
     });

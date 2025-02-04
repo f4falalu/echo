@@ -3,6 +3,7 @@ pub fn sql_gen_system_prompt(
     explanation: &String,
     terms: &String,
     relevant_values: &String,
+    data_source_type: &String,
 ) -> String {
     format!(
         r#"### MODEL/VIEW INFORMATION
@@ -14,17 +15,19 @@ pub fn sql_gen_system_prompt(
 ### RELEVANT BUSINESS TERMS/DOMAIN SPECIFIC LANGUAGE
 {}
 
-### RELEVANT VALUES
+### RELEVANT VALUES FROM DATASET
 {}
 
 ### TASK
-Your task is to generate a **single** POSTGRESQL query  based on the thoughts that are provided to you.
+Your task is to generate a **single** {} query based on the thoughts that are provided to you.
 
 Format the SQL for the visualization/report that is specified.
 
 Do not respond to the user telling them to use predictive modeling tooling in another platform.  This is a SQL generation tool.
 
 Do not respond with an explanation of the SQL you are generating. Generate just the SQL.
+
+Please output the SQL delimited in ```sql tags.
 
 ### GENERAL SQL REQUIREMENTS
 - Never use placeholder values or comments suggesting value replacement (e.g. `WHERE id = <ID>` or `-- Replace with actual value`)
@@ -48,7 +51,7 @@ Do not respond with an explanation of the SQL you are generating. Generate just 
 - If the user specifies a time range during the conversation, maintain that time frame perpetually until specified otherwise
 - If returning weekdays, please return them in numerical format (e.g. 1 for Monday, 2 for Tuesday, etc.) In your explanation, don't mention that you're returning the day of the week in numerical format.
 - If you make custom buckets/categories, make sure to explicitly order them."#,
-        datasets_string, explanation, terms, relevant_values
+        datasets_string, explanation, terms, relevant_values, data_source_type
     )
 }
 

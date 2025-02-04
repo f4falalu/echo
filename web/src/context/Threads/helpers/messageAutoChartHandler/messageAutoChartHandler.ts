@@ -1,29 +1,19 @@
 import {
-  BusterThreadMessage,
-  ColumnMetaData,
+  type BusterThreadMessage,
+  type IBusterThreadMessageChartConfig,
   DEFAULT_CHART_CONFIG,
-  DEFAULT_CHART_CONFIG_ENTRIES,
-  DEFAULT_COLUMN_LABEL_FORMAT,
-  DEFAULT_COLUMN_SETTINGS
-} from '@/api/buster_rest';
-import { IBusterThreadMessageChartConfig } from '@/api/buster_rest/threads/threadConfigInterfaces';
-import {
-  BarAndLineAxis,
-  BusterChartConfigProps,
-  ColumnLabelFormat,
-  ColumnSettings,
-  IColumnLabelFormat,
-  PieChartAxis,
-  ScatterAxis
-} from '@/components/charts';
-import {
-  isDateColumnType,
-  isNumericColumnType,
-  SimplifiedColumnType,
-  simplifyColumnType
-} from '@/utils';
+  DEFAULT_CHART_CONFIG_ENTRIES
+} from '@/api/buster_rest/threads';
+import type { BusterChartConfigProps } from '@/components/charts';
 import { produce } from 'immer';
 import isEmpty from 'lodash/isEmpty';
+import { createDefaultColumnLabelFormats } from './createDefaultColumnFormats';
+import { createDefaultColumnSettings } from './createDefaultColumnSettings';
+import {
+  createDefaultBarAndLineAxis,
+  createDefaultPieAxis,
+  createDefaultScatterAxis
+} from './createDefaultAxis';
 
 const keySpecificHandlers: Partial<
   Record<
@@ -164,103 +154,4 @@ export const createDefaultChartConfig = (
   });
 
   return newChartConfig;
-};
-
-//AXIS SETTINGS
-const createDefaultBarAndLineAxis = (
-  columnsMetaData: ColumnMetaData[] | undefined
-): BarAndLineAxis => {
-  const firstDateColumn = columnsMetaData?.find((m) => m.simple_type === 'date');
-  const firstNumberColumn = columnsMetaData?.find((m) => m.simple_type === 'number');
-  const firstStringColumn = columnsMetaData?.find((m) => m.simple_type === 'text');
-  return {
-    ...DEFAULT_CHART_CONFIG.barAndLineAxis,
-    x: [firstDateColumn?.name || firstStringColumn?.name].filter(Boolean) as string[],
-    y: [firstNumberColumn?.name].filter(Boolean) as string[]
-  };
-};
-
-const createDefaultPieAxis = (columnsMetaData: ColumnMetaData[] | undefined): PieChartAxis => {
-  const firstNumberColumn = columnsMetaData?.find((m) => m.simple_type === 'number');
-  const firstStringColumn = columnsMetaData?.find((m) => m.simple_type === 'text');
-  const firstDateColumn = columnsMetaData?.find((m) => m.simple_type === 'date');
-  return {
-    ...DEFAULT_CHART_CONFIG.pieChartAxis,
-    x: [firstStringColumn?.name || firstDateColumn?.name].filter(Boolean) as string[],
-    y: [firstNumberColumn?.name].filter(Boolean) as string[]
-  };
-};
-
-const createDefaultScatterAxis = (columnsMetaData: ColumnMetaData[] | undefined): ScatterAxis => {
-  const firstNumberColumn = columnsMetaData?.find((m) => m.simple_type === 'number');
-  const secondNumberColumn = columnsMetaData?.find(
-    (m) => m.simple_type === 'number' && m.name !== firstNumberColumn?.name
-  );
-  return {
-    ...DEFAULT_CHART_CONFIG.scatterAxis,
-    x: [firstNumberColumn?.name].filter(Boolean) as string[],
-    y: [secondNumberColumn?.name].filter(Boolean) as string[]
-  };
-};
-
-//COLUMN LABEL FORMATS
-
-const createDefaultColumnLabelFormats = (
-  columnLabelFormats: Record<string, IColumnLabelFormat> | undefined,
-  columnsMetaData: ColumnMetaData[] | undefined
-): IBusterThreadMessageChartConfig['columnLabelFormats'] => {
-  if (!columnsMetaData) return {};
-
-  return columnsMetaData.reduce(
-    (acc, column) => {
-      const existingLabelFormat = columnLabelFormats?.[column.name] || {};
-      acc[column.name] = {
-        ...createDefaulColumnLabel(columnsMetaData, column.name),
-        ...existingLabelFormat
-      };
-      return acc;
-    },
-    {} as IBusterThreadMessageChartConfig['columnLabelFormats']
-  );
-};
-
-const createDefaulColumnLabel = (
-  columnsMetaData: ColumnMetaData[],
-  name: string
-): Required<ColumnLabelFormat> => {
-  const assosciatedColumn = columnsMetaData?.find((m) => m.name === name)!;
-  const columnType: SimplifiedColumnType = simplifyColumnType(assosciatedColumn?.simple_type);
-  const style = createDefaultColumnLabelStyle(columnType);
-
-  return {
-    ...DEFAULT_COLUMN_LABEL_FORMAT,
-    style,
-    columnType
-  };
-};
-
-const createDefaultColumnLabelStyle = (
-  columnType: SimplifiedColumnType
-): IColumnLabelFormat['style'] => {
-  if (isDateColumnType(columnType)) return 'date';
-  if (isNumericColumnType(columnType)) return 'number';
-  return 'string';
-};
-
-const createDefaultColumnSettings = (
-  existingColumnSettings: Record<string, ColumnSettings> | undefined,
-  columnsMetaData: ColumnMetaData[] | undefined
-): IBusterThreadMessageChartConfig['columnSettings'] => {
-  if (!columnsMetaData) return {};
-
-  return columnsMetaData.reduce<IBusterThreadMessageChartConfig['columnSettings']>(
-    (acc, column) => {
-      acc[column.name] = {
-        ...DEFAULT_COLUMN_SETTINGS,
-        ...(existingColumnSettings?.[column.name] || {})
-      };
-      return acc;
-    },
-    {}
-  );
 };
