@@ -23,6 +23,7 @@ use crate::{
             write_query_engine::write_query_engine,
         }, security::checks::is_user_workspace_admin_or_data_admin, user::user_info::get_user_organization_id
     },
+    utils::stored_values::{store_column_values, process_stored_values_background, StoredValueColumn},
 };
 
 #[derive(Debug, Deserialize)]
@@ -558,17 +559,23 @@ async fn deploy_datasets_handler(
                 }
 
                 // Find the foreign dataset by the relationship name
-                let foreign_dataset = inserted_datasets
+                if let Some(foreign_dataset) = inserted_datasets
                     .iter()
                     .find(|d| d.name == rel.name)
-                    .ok_or(anyhow!("Foreign dataset not found for relationship"))?;
-
-                entity_relationships_to_upsert.push(EntityRelationship {
-                    primary_dataset_id: current_dataset.id,
-                    foreign_dataset_id: foreign_dataset.id,
-                    relationship_type: rel.type_.clone(),
-                    created_at: Utc::now(),
-                });
+                {
+                    entity_relationships_to_upsert.push(EntityRelationship {
+                        primary_dataset_id: current_dataset.id,
+                        foreign_dataset_id: foreign_dataset.id,
+                        relationship_type: rel.type_.clone(),
+                        created_at: Utc::now(),
+                    });
+                } else {
+                    tracing::warn!(
+                        "Skipping relationship: foreign dataset '{}' not found for dataset '{}'",
+                        rel.name,
+                        current_dataset.name
+                    );
+                }
             }
         }
     }
@@ -616,6 +623,7 @@ async fn deploy_datasets_handler(
             .ok_or(anyhow!("Dataset not found"))?;
 
         // Process columns that have stored_values enabled
+        let mut stored_value_columns = Vec::new();
         for col in &req.columns {
             if col.stored_values {
                 // Find the column ID from inserted_columns
@@ -624,27 +632,23 @@ async fn deploy_datasets_handler(
                     .find(|c| c.dataset_id == dataset.id && c.name == col.name)
                     .ok_or(anyhow!("Column not found"))?;
 
-                match crate::utils::stored_values::store_column_values(
-                    &organization_id,
-                    &dataset.id,
-                    &col.name,
-                    &column.id,  // Pass the column ID
-                    &data_source.id,
-                    &dataset.schema,
-                    &dataset.database_name,
-                ).await {
-                    Ok(_) => (),
-                    Err(e) => {
-                        tracing::error!(
-                            "Error storing values for column {}: {:?}",
-                            col.name,
-                            e
-                        );
-                        // Continue with other columns even if one fails
-                        continue;
-                    }
-                }
+                stored_value_columns.push(StoredValueColumn {
+                    organization_id: organization_id.clone(),
+                    dataset_id: dataset.id,
+                    column_name: col.name.clone(),
+                    column_id: column.id,
+                    data_source_id: data_source.id,
+                    schema: dataset.schema.clone(),
+                    table_name: dataset.database_name.clone(),
+                });
             }
+        }
+
+        // Spawn background task to process stored values
+        if !stored_value_columns.is_empty() {
+            tokio::spawn(async move {
+                process_stored_values_background(stored_value_columns).await;
+            });
         }
     }
 
