@@ -4,7 +4,7 @@ import {
   BusterDashboardResponse,
   VerificationStatus
 } from '@/api/asset_interfaces';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn, useMount } from 'ahooks';
 import { useRouter } from 'next/navigation';
 import React, { useRef, useState } from 'react';
 import { useBusterWebSocket } from '../BusterWebSocket';
@@ -51,15 +51,9 @@ export const useDashboardIndividual = ({
         | 'remove_teams'
       >
     ) => {
-      return busterSocket.emitAndOnce({
-        emitEvent: {
-          route: '/dashboards/update',
-          payload: { ...props }
-        },
-        responseEvent: {
-          route: '/dashboards/update:updateDashboard',
-          callback: _onGetDashboardState
-        }
+      return busterSocket.emit({
+        route: '/dashboards/update',
+        payload: { ...props }
       });
     }
   );
@@ -239,17 +233,11 @@ export const useDashboardIndividual = ({
       dashboardId?: string;
     }) => {
       const id = dashboardId || openedDashboardId;
-      busterSocket.emitAndOnce({
-        emitEvent: {
-          route: '/dashboards/update',
-          payload: {
-            add_to_collections: typeof collectionId === 'string' ? [collectionId] : collectionId,
-            id
-          }
-        },
-        responseEvent: {
-          route: '/dashboards/update:updateDashboard',
-          callback: _onGetDashboardState
+      busterSocket.emit({
+        route: '/dashboards/update',
+        payload: {
+          add_to_collections: typeof collectionId === 'string' ? [collectionId] : collectionId,
+          id
         }
       });
     }
@@ -276,17 +264,11 @@ export const useDashboardIndividual = ({
 
   const onBulkAddRemoveToDashboard = useMemoizedFn(
     async ({ metricIds, dashboardId }: { dashboardId: string; metricIds: string[] }) => {
-      await busterSocket.emitAndOnce({
-        emitEvent: {
-          route: '/dashboards/update',
-          payload: {
-            id: dashboardId,
-            metrics: metricIds
-          }
-        },
-        responseEvent: {
-          route: '/dashboards/update:updateDashboard',
-          callback: _onGetDashboardState
+      busterSocket.emit({
+        route: '/dashboards/update',
+        payload: {
+          id: dashboardId,
+          metrics: metricIds
         }
       });
     }
@@ -294,26 +276,18 @@ export const useDashboardIndividual = ({
 
   const refreshDashboard = useMemoizedFn(async (dashboardId: string) => {
     const { password } = getAssetPassword(dashboardId);
-    const res = await busterSocket.emitAndOnce({
-      emitEvent: {
-        route: '/dashboards/get',
-        payload: {
-          id: dashboardId,
-          password
-        }
-      },
-      responseEvent: {
-        route: '/dashboards/get:getDashboardState',
-        callback: _onGetDashboardState
+    busterSocket.emit({
+      route: '/dashboards/get',
+      payload: {
+        id: dashboardId,
+        password
       }
     });
-    return res as BusterDashboardResponse;
   });
 
   const subscribeToDashboard = useMemoizedFn(({ dashboardId }: { dashboardId: string }) => {
     if (dashboardId && !dashboardsSubscribed.current[dashboardId]) {
       refreshDashboard(dashboardId);
-
       dashboardsSubscribed.current[dashboardId] = true;
     }
   });
@@ -353,6 +327,13 @@ export const useDashboardIndividual = ({
       });
     }
   );
+
+  useMount(() => {
+    busterSocket.on({
+      route: '/dashboards/get:getDashboardState',
+      callback: _onGetDashboardState
+    });
+  });
 
   return {
     dashboards,

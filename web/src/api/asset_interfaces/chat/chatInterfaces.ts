@@ -11,8 +11,7 @@ export interface BusterChat {
   created_by_id: string;
   created_by_name: string;
   created_by_avatar: string | null;
-  // pinned_message_id: string | null;
-  // pinned_metric_id: string | null;
+  // pinned_message_id: string | null; MAYBE WE NEED THIS?
 }
 
 export interface BusterChatListItem {

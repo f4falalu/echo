@@ -1,9 +1,10 @@
 import type { RustApiError } from '../../buster_rest/errors';
 import type { BusterChat, BusterChatListItem } from '../../asset_interfaces/chat';
+import { ChatEvent_GeneratingMessage, ChatEvent_GeneratingTitle } from './eventInterfaces';
 
 export enum ChatsResponses {
   '/chats/list:getChatsList' = '/chats/list:getChatsList',
-  '/chats/unsubscribed' = '/chats/unsubscribed',
+  '/chats/unsubscribe:unsubscribe' = '/chats/unsubscribe:unsubscribe',
   '/chats/get:getChat' = '/chats/get:getChat',
   '/chats/get:getChatAsset' = '/chats/get:getChatAsset',
   '/chats/post:initializeChat' = '/chats/post:initializeChat',
@@ -16,8 +17,8 @@ export type ChatList_getChatsList = {
   onError?: (d: unknown | RustApiError) => void;
 };
 
-export type Chat_unsubscribed = {
-  route: '/chats/unsubscribed';
+export type Chat_unsubscribe = {
+  route: '/chats/unsubscribe:unsubscribe';
   callback: (d: { id: string }[]) => void;
   onError?: (d: unknown | RustApiError) => void;
 };
@@ -38,7 +39,13 @@ export type ChatPost_initializeChat = {
 
 export type ChatPost_generatingTitle = {
   route: '/chats/post:generatingTitle';
-  callback: (d: BusterChat) => void;
+  callback: (d: ChatEvent_GeneratingTitle) => void;
+  onError?: (d: unknown | RustApiError) => void;
+};
+
+export type ChatPost_generatingMessage = {
+  route: '/chats/post:generatingMessage';
+  callback: (d: ChatEvent_GeneratingMessage) => void;
   onError?: (d: unknown | RustApiError) => void;
 };
 
@@ -46,7 +53,8 @@ export type ChatPost_generatingTitle = {
 
 export type ChatResponseTypes =
   | ChatList_getChatsList
-  | Chat_unsubscribed
+  | Chat_unsubscribe
   | Chat_getChat
   | ChatPost_initializeChat
-  | ChatPost_generatingTitle;
+  | ChatPost_generatingTitle
+  | ChatPost_generatingMessage;

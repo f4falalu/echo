@@ -7,7 +7,7 @@ import { AccessDropdown } from './AccessDropdown';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { ShareRole } from '@/api/asset_interfaces';
 import { useDashboardContextSelector, useIndividualDashboard } from '@/context/Dashboards';
-import { ShareRequest } from '@/api/buster_socket/dashboards';
+import type { ShareRequest } from '@/api/buster_socket';
 import { useMemoizedFn } from 'ahooks';
 import { useCollectionsContextSelector, useIndividualCollection } from '@/context/Collections';
 import { Text } from '@/components';

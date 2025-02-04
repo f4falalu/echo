@@ -1,17 +1,15 @@
-import type { DashboardsListEmitPayload, DashboardUpdate } from '@/api/buster_socket/dashboards';
+import type { DashboardsListEmitPayload } from '@/api/buster_socket/dashboards';
 import type { BusterDashboardListItem } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
 import React, { useRef, useState } from 'react';
 import { useBusterWebSocket } from '../BusterWebSocket';
-
+import type { DashboardListFilters } from './interfaces';
 export const useDashboardLists = () => {
   const busterSocket = useBusterWebSocket();
 
   const hasMountedDashboardList = useRef(false);
   const [dashboardsList, setDashboardsList] = useState<BusterDashboardListItem[]>([]);
-  const [dashboardListFilters, setDashboardListFilters] = useState<
-    DashboardsListEmitPayload['payload']['filters']
-  >({});
+  const [dashboardListFilters, setDashboardListFilters] = useState<DashboardListFilters>({});
   const [loadedDashboards, setLoadedDashboards] = useState<boolean>(false);
 
   const onInitializeDashboardsList = (dashboards: BusterDashboardListItem[]) => {
@@ -19,33 +17,29 @@ export const useDashboardLists = () => {
     setLoadedDashboards(true);
   };
 
-  const refreshDashboardsList = useMemoizedFn(
-    async (filters?: DashboardsListEmitPayload['payload']['filters']) => {
-      const chosenFilters = filters ? filters : dashboardListFilters;
-      const res = await busterSocket.emitAndOnce({
-        emitEvent: {
-          route: '/dashboards/list',
-          payload: {
-            page_size: 1000,
-            page: 0,
-            filters: chosenFilters
-          }
-        },
-        responseEvent: {
-          route: '/dashboards/list:getDashboardsList',
-          callback: onInitializeDashboardsList
+  const refreshDashboardsList = useMemoizedFn(async (filters?: DashboardListFilters) => {
+    const chosenFilters = filters ? filters : dashboardListFilters;
+    const res = await busterSocket.emitAndOnce({
+      emitEvent: {
+        route: '/dashboards/list',
+        payload: {
+          ...chosenFilters,
+          page_size: 1000,
+          page: 0
         }
-      });
-      return res as BusterDashboardListItem[];
-    }
-  );
+      },
+      responseEvent: {
+        route: '/dashboards/list:getDashboardsList',
+        callback: onInitializeDashboardsList
+      }
+    });
+    return res as BusterDashboardListItem[];
+  });
 
-  const onSetDashboardListFilters = useMemoizedFn(
-    (newFilters: DashboardsListEmitPayload['payload']['filters']) => {
-      setDashboardListFilters(newFilters);
-      return refreshDashboardsList(newFilters);
-    }
-  );
+  const onSetDashboardListFilters = useMemoizedFn((newFilters: DashboardListFilters) => {
+    setDashboardListFilters(newFilters);
+    return refreshDashboardsList(newFilters);
+  });
 
   const unsubscribeFromDashboardsList = useMemoizedFn(() => {
     busterSocket.off({

@@ -32,6 +32,12 @@ export type CollectionResponses_updateCollectionState = {
   onError?: (d: unknown) => void;
 };
 
+export type CollectionResponse_deleteCollection = {
+  route: '/collections/delete:deleteCollections';
+  callback: (d: string[]) => void;
+  onError?: (d: unknown) => void;
+};
+
 export type CollectionResponseTypes =
   | CollectionResponses_listCollections
   | CollectionResponses_collectionState

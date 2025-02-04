@@ -5,7 +5,7 @@ export enum MetricResponses {
   '/metrics/list:getMetricList' = '/metrics/list:getMetricList',
   '/metrics/list:updateMetricList' = '/metrics/list:updateMetricList',
   '/metrics/get:updateMetricState' = '/metrics/get:updateMetricState',
-  '/metrics/unsubscribe:unsubscribed' = '/metrics/unsubscribe:unsubscribed',
+  '/metrics/unsubscribe:unsubscribe' = '/metrics/unsubscribe:unsubscribe',
   '/metrics/get:fetchingData' = '/metrics/get:fetchingData',
   '/metrics/delete:deleteMetricState' = '/metrics/delete:deleteMetricState',
   '/metrics/update:updateMetricState' = '/metrics/update:updateMetricState'
@@ -24,7 +24,7 @@ export type MetricGet_updateMetricState = {
 };
 
 export type Metric_Unsubscribe = {
-  route: '/metrics/unsubscribe:unsubscribed';
+  route: '/metrics/unsubscribe:unsubscribe';
   callback: (d: { id: string }[]) => void;
   onError?: (d: unknown) => void;
 };
@@ -62,7 +62,4 @@ export type MetricResponseTypes =
   | MetricList_updateMetricList
   | MetricDelete_deleteMetricState
   | MetricUpdate_updateMetricState
-  | MetricGet_fetchingData
-  | MetricGet_fetchingData
-  | MetricUpdate_updateMetricState
-  | MetricDelete_deleteMetricState;
+  | MetricGet_fetchingData;

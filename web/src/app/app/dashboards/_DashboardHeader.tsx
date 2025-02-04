@@ -82,7 +82,7 @@ export const DashboardHeader: React.FC<{}> = () => {
 
 const DashboardFilters: React.FC<{
   onChangeFilter: (v: { shared_with_me?: boolean; only_my_dashboards?: boolean }) => void;
-  activeFilters?: DashboardsListEmitPayload['payload']['filters'];
+  activeFilters?: NonNullable<Omit<DashboardsListEmitPayload['payload'], 'page' | 'page_size'>>;
 }> = ({ onChangeFilter, activeFilters }) => {
   const filters = [
     {

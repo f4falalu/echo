@@ -1,5 +1,6 @@
 import type { BusterChartConfigProps } from '@/components/charts/interfaces';
 import type { DataMetadata } from '../../asset_interfaces';
+import type { EventBase } from '../base_interfaces';
 
 export type MetricEvent_fetchingData = {
   metric_id: string;
@@ -7,5 +8,4 @@ export type MetricEvent_fetchingData = {
   data_metadata: DataMetadata;
   chart_config: BusterChartConfigProps;
   code: string | null;
-  progress: 'fetching' | 'completed';
-};
+} & EventBase;

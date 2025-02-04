@@ -1,60 +1,131 @@
 import { BusterChartConfigProps } from '@/components/charts';
 import { BusterSocketRequestBase } from '../base_interfaces';
-import { ShareRequest } from '../dashboards';
+import { ShareRequest } from '../shared_interfaces';
 import { VerificationStatus } from '@/api/asset_interfaces';
 
+/**
+ * Request payload for listing metrics with pagination and filtering options
+ */
 export type MetricListEmitPayload = BusterSocketRequestBase<
   '/metrics/list',
   {
+    /** The token representing the current page number for pagination */
     page_token: number;
+    /** The number of items to return per page */
     page_size: number;
-    admin_view: boolean;
-    filters?: { status: VerificationStatus[] | null };
+    /** Flag to enable admin view with additional permissions and data */
+    admin_view?: boolean;
+    /** Filtering options for metrics based on verification status */
+    status?: VerificationStatus[] | null;
   }
 >;
 
+/**
+ * Request payload for unsubscribing from metric updates
+ */
 export type MetricUnsubscribeEmitPayload = BusterSocketRequestBase<
   '/metrics/unsubscribe',
-  { id: null | string }
+  {
+    /** The ID of the metric to unsubscribe from, null to unsubscribe from all */
+    id: null | string;
+  }
 >;
 
+/**
+ * Request payload for subscribing to a specific metric
+ */
 export type MetricSubscribeToMetric = BusterSocketRequestBase<
   '/metrics/get',
-  { id: string; password?: string }
+  {
+    /** The unique identifier of the metric to subscribe to */
+    id: string;
+    /** Optional password for accessing protected metrics */
+    password?: string;
+  }
 >;
 
+/**
+ * Request payload for updating metric properties
+ */
 export type MetricUpdateMetric = BusterSocketRequestBase<
   '/metrics/update',
   {
-    id: string; //metric id
+    /** The unique identifier of the metric to update */
+    id: string;
+    /** New title for the metric */
     title?: string;
+    /** Dashboard ID to save the metric to */
     save_to_dashboard?: string;
-    remove_from_dashboard?: string; // dashboard_id optional
-    add_to_collections?: string[]; // collection_id
-    remove_from_collections?: string[]; // collection_id
+    /** Dashboard ID to remove the metric from */
+    remove_from_dashboard?: string;
+    /** Array of collection IDs to add the metric to */
+    add_to_collections?: string[];
+    /** Array of collection IDs to remove the metric from */
+    remove_from_collections?: string[];
+    /** SQL query associated with the metric */
     sql?: string;
+    /** Chart configuration properties */
     chart_config?: BusterChartConfigProps;
-    save_draft?: boolean; //send if we want the metric (which is currently in draft) to be saved
-    feedback?: 'negative'; //send if we want to update the feedback of the metric
-    status?: VerificationStatus; //admin only: send if we want to update the status of the metric
+    /** Flag to save the current draft state */
+    save_draft?: boolean;
+    /** Feedback status for the metric */
+    feedback?: 'negative';
+    /** Admin only: verification status update */
+    status?: VerificationStatus;
   } & ShareRequest
 >;
 
-export type MetricDelete = BusterSocketRequestBase<'/metrics/delete', { ids: string[] }>;
+/**
+ * Request payload for deleting metrics
+ */
+export type MetricDelete = BusterSocketRequestBase<
+  '/metrics/delete',
+  {
+    /** Array of metric IDs to delete */
+    ids: string[];
+  }
+>;
 
-export type MetricGetDataByMessageId = BusterSocketRequestBase<'/metrics/data', { id: string }>;
+/**
+ * Request payload for retrieving metric data by message ID
+ */
+export type MetricGetDataByMessageId = BusterSocketRequestBase<
+  '/metrics/data',
+  {
+    /** Message ID to retrieve metric data for */
+    id: string;
+  }
+>;
 
-export type MetricSearch = BusterSocketRequestBase<'/metrics/search', { prompt: string }>;
+/**
+ * Request payload for searching metrics
+ */
+export type MetricSearch = BusterSocketRequestBase<
+  '/metrics/search',
+  {
+    /** Search prompt/query string */
+    prompt: string;
+  }
+>;
 
+/**
+ * Request payload for duplicating a metric
+ */
 export type MetricDuplicate = BusterSocketRequestBase<
   '/metrics/duplicate',
   {
+    /** ID of the metric to duplicate */
     id: string;
+    /** Message ID associated with the duplication */
     message_id: string;
+    /** Whether to maintain the same sharing settings */
     share_with_same_people: boolean;
   }
 >;
 
+/**
+ * Union type of all possible metric emit payloads
+ */
 export type MetricEmits =
   | MetricDuplicate
   | MetricListEmitPayload

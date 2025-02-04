@@ -12,7 +12,7 @@ import { useCollectionsContextSelector } from '@/context/Collections';
 import { inputHasText } from '@/utils/text';
 import { validate } from 'email-validator';
 import { useMemoizedFn } from 'ahooks';
-import { ShareRequest } from '@/api/buster_socket/dashboards';
+import type { ShareRequest } from '@/api/buster_socket/shared_interfaces';
 import { Button, Divider, Input } from 'antd';
 import { AccessDropdown } from './AccessDropdown';
 import { IndividualSharePerson } from './IndividualSharePerson';

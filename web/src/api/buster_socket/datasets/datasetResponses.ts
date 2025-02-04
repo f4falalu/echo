@@ -6,8 +6,7 @@ export enum DatasetResponses {
   '/datasets/post:postDataset' = '/datasets/post:postDataset',
   '/datasets/delete:deleteDatasets' = '/datasets/delete:deleteDatasets',
   '/datasets/get:getDataset' = '/datasets/get:getDataset',
-  '/datasets/update:updateDataset' = '/datasets/update:updateDataset',
-  '/datasets/column/update:updateDatasetColumn' = '/datasets/column/update:updateDatasetColumn'
+  '/datasets/update:updateDataset' = '/datasets/update:updateDataset'
 }
 
 export type DatasetResponses_getDatasetsListAdmin = {
@@ -46,17 +45,10 @@ export type DatasetUpdate_updated_Dataset = {
   onError?: (d: unknown) => void;
 };
 
-export type DatasetUpdateColumn_updated_DatasetColumn = {
-  route: '/datasets/column/update:updateDatasetColumn';
-  callback: (d: BusterDataset) => void;
-  onError?: (d: unknown) => void;
-};
-
 export type DatasetResponseTypes =
   | DatasetResponses_getDatasetsList
   | DatasetPost_postDataset
   | DatasetDelete_deleteDataset
   | DatasetGet_getDataset
   | DatasetUpdate_updated_Dataset
-  | DatasetUpdateColumn_updated_DatasetColumn
   | DatasetResponses_getDatasetsListAdmin;

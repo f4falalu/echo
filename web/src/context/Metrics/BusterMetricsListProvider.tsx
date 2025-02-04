@@ -123,7 +123,7 @@ const useMetricsList = () => {
         }
       };
 
-      const selectedFilters = isEmpty(filters) ? { status: null } : { status: filters! };
+      const status = isEmpty(filters) ? null : filters!;
 
       return busterSocket.emitAndOnce({
         emitEvent: {
@@ -132,7 +132,7 @@ const useMetricsList = () => {
             page_token: 0,
             page_size: 3000, //TODO: make a pagination
             admin_view,
-            filters: selectedFilters
+            status
           }
         },
         responseEvent: {

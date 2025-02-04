@@ -1,10 +1,18 @@
+/**
+ * Base interface for Buster Socket requests
+ * @template R - The route type, defaults to string
+ * @template T - The payload type, defaults to Object
+ */
 export interface BusterSocketRequestBase<R = string, T = Object> {
   route: R;
   payload: T;
 }
 
 /**
- * This is the response from the server
+ * Interface representing the raw response message from the server
+ * @template R - The route type, defaults to string
+ * @template E - The event type, defaults to string
+ * @template P - The payload type, defaults to any
  */
 export interface BusterSocketResponseMessage<R = string, E = string, P = any> {
   route: R;
@@ -14,7 +22,9 @@ export interface BusterSocketResponseMessage<R = string, E = string, P = any> {
 }
 
 /**
- * This is the response that combines the route and the event to be consumed by the listeners
+ * Interface combining route and event for listener consumption
+ * @template R - The route type, defaults to string
+ * @template P - The payload type, defaults to any
  */
 export interface BusterSocketResponseBase<R = string, P = any> {
   route: R;
@@ -22,7 +32,20 @@ export interface BusterSocketResponseBase<R = string, P = any> {
   error: null | BusterSocketError;
 }
 
+/**
+ * Interface representing an error response from the Buster Socket
+ */
 export interface BusterSocketError {
+  /** Error code identifier */
   code: string;
+  /** Human-readable error message */
   message: string;
+}
+
+/**
+ * Base interface for event-related operations
+ */
+export interface EventBase {
+  /** Indicates the current progress state of the event */
+  progress: 'in_progress' | 'completed';
 }
