@@ -93,7 +93,7 @@ pub async fn deploy(
                     processed_files.insert(
                         model.name.clone(),
                         format!("SQL: {} bytes, YML: {} bytes", 
-                            obj.sql_definition.len(),
+                            obj.sql_definition.as_ref().map_or(0, |s| s.len()),
                             obj.yml_content.len()
                         ),
                     );

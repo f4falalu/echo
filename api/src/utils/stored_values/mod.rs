@@ -194,4 +194,44 @@ pub async fn search_stored_values(
         .await?;
 
     Ok(results.into_iter().map(|r| (r.value, r.column_name, r.column_id)).collect())
+}
+
+pub struct StoredValueColumn {
+    pub organization_id: Uuid,
+    pub dataset_id: Uuid,
+    pub column_name: String,
+    pub column_id: Uuid,
+    pub data_source_id: Uuid,
+    pub schema: String,
+    pub table_name: String,
+}
+
+pub async fn process_stored_values_background(columns: Vec<StoredValueColumn>) {
+    for column in columns {
+        match store_column_values(
+            &column.organization_id,
+            &column.dataset_id,
+            &column.column_name,
+            &column.column_id,
+            &column.data_source_id,
+            &column.schema,
+            &column.table_name,
+        ).await {
+            Ok(_) => {
+                tracing::info!(
+                    "Successfully processed stored values for column '{}' in dataset '{}'",
+                    column.column_name,
+                    column.table_name
+                );
+            }
+            Err(e) => {
+                tracing::error!(
+                    "Failed to process stored values for column '{}' in dataset '{}': {:?}",
+                    column.column_name,
+                    column.table_name,
+                    e
+                );
+            }
+        }
+    }
 } 
