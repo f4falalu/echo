@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AppMaterialIcons } from '@/components';
+import { AppMaterialIcons } from '@/components/icons';
 import { BusterListSelectedOptionPopupContainer } from '@/components/list';
 import { Button, Dropdown, DropdownProps } from 'antd';
 import { useUserConfigContextSelector } from '@/context/Users';

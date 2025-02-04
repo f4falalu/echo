@@ -7,7 +7,7 @@ import {
 } from './ChatResponseMessageSelector';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Text } from '@/components/text';
-import { AppMaterialIcons } from '@/components';
+import { AppMaterialIcons } from '@/components/icons';
 import pluralize from 'pluralize';
 import { useMemoizedFn } from 'ahooks';
 

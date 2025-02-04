@@ -1,7 +1,7 @@
 'use client';
 
 import { useGetPermissionGroupUsers } from '@/api';
-import { AppMaterialIcons } from '@/components';
+import { AppMaterialIcons } from '@/components/icons';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
 import { PermissionSearchAndListWrapper } from '@appComponents/PermissionComponents';

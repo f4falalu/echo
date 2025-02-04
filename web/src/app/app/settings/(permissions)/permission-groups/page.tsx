@@ -7,7 +7,7 @@ import { useListAllPermissionGroups } from '@/api/buster_rest';
 import { ListPermissionGroupsComponent } from './ListPermissionGroupsComponent';
 import { useMemoizedFn } from 'ahooks';
 import { Button } from 'antd';
-import { AppMaterialIcons } from '@/components';
+import { AppMaterialIcons } from '@/components/icons';
 
 export default function Page() {
   const { data: permissionGroups, isFetched, refetch } = useListAllPermissionGroups();

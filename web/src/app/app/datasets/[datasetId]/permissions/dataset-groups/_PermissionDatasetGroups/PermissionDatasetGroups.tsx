@@ -9,7 +9,7 @@ import {
   HeaderExplanation
 } from '@/app/app/_components/PermissionComponents';
 import { Button } from 'antd';
-import { AppMaterialIcons } from '@/components';
+import { AppMaterialIcons } from '@/components/icons';
 import { PermissionListDatasetGroupContainer } from './PermissionListDatasetGroupContainer';
 import { NewDatasetGroupModal } from '@appComponents/PermissionComponents';
 

@@ -1,7 +1,7 @@
 import { useAntToken } from '@/styles/useAntToken';
 import React, { useMemo } from 'react';
 import { Dropdown, Divider, MenuProps } from 'antd';
-import { AppMaterialIcons } from '@/components';
+import { AppMaterialIcons } from '@/components/icons';
 import { ShareRole } from '@/api/asset_interfaces';
 import { DropdownLabel } from '@/components/dropdown';
 import { Text } from '@/components';

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useMemoizedFn } from 'ahooks';
 import { Button } from 'antd';
-import { AppMaterialIcons } from '@/components';
+import { AppMaterialIcons } from '@/components/icons';
 import { PermissionListPermissionGroupContainer } from './PermissionListPermissionGroupContainer';
 import {
   PermissionSearchAndListWrapper,

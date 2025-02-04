@@ -1,5 +1,5 @@
 import { ShareAssetType } from '@/api/asset_interfaces';
-import { AppMaterialIcons } from '@/components';
+import { AppMaterialIcons } from '@/components/icons';
 
 const iconRecord: Record<ShareAssetType, string> = {
   [ShareAssetType.COLLECTION]: 'note_stack',

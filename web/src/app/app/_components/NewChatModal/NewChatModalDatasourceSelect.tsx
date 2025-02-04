@@ -1,5 +1,5 @@
 import type { BusterDatasetListItem } from '@/api/asset_interfaces';
-import { AppMaterialIcons } from '@/components';
+import { AppMaterialIcons } from '@/components/icons';
 import { SelectProps, Select } from 'antd';
 import isEmpty from 'lodash/isEmpty';
 import React, { useMemo } from 'react';

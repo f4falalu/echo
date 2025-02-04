@@ -1,4 +1,4 @@
-import { AppMaterialIcons } from '@/components';
+import { AppMaterialIcons } from '@/components/icons';
 import React, { useEffect, useMemo } from 'react';
 import { AppPopover, Text } from '@/components';
 

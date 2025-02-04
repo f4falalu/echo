@@ -3,7 +3,7 @@
 import { useDataSourceContextSelector } from '@/context/DataSources';
 import React from 'react';
 import { Button, Dropdown, Skeleton } from 'antd';
-import { AppMaterialIcons } from '@/components';
+import { AppMaterialIcons } from '@/components/icons';
 import { useAntToken } from '@/styles/useAntToken';
 import { AppDataSourceIcon } from '@/components/icons/AppDataSourceIcons';
 import type { DataSourceListItem } from '@/api/asset_interfaces';

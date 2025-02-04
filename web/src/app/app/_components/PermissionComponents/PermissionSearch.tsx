@@ -1,6 +1,6 @@
 import React from 'react';
 import { Input } from 'antd';
-import { AppMaterialIcons } from '@/components';
+import { AppMaterialIcons } from '@/components/icons';
 import { useMemoizedFn } from 'ahooks';
 
 export const PermissionSearch: React.FC<{

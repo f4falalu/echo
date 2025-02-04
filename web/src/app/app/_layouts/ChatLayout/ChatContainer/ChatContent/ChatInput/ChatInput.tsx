@@ -3,7 +3,7 @@ import { Input, Button } from 'antd';
 import { Text } from '@/components/text';
 import { createStyles } from 'antd-style';
 import { useMemoizedFn } from 'ahooks';
-import { AppMaterialIcons } from '@/components';
+import { AppMaterialIcons } from '@/components/icons';
 import { inputHasText } from '@/utils';
 
 const autoSize = { minRows: 3, maxRows: 4 };

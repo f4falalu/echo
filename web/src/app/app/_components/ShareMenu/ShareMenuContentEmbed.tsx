@@ -1,5 +1,5 @@
 import { ShareAssetType } from '@/api/asset_interfaces';
-import { AppMaterialIcons } from '@/components';
+import { AppMaterialIcons } from '@/components/icons';
 import { useCollectionsContextSelector } from '@/context/Collections';
 import { useDashboardContextSelector } from '@/context/Dashboards';
 import { BusterRoutes, createBusterRoute } from '@/routes';

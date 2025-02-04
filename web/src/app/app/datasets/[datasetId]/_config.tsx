@@ -1,4 +1,4 @@
-import { AppMaterialIcons } from '@/components';
+import { AppMaterialIcons } from '@/components/icons';
 import React from 'react';
 
 export enum DatasetApps {

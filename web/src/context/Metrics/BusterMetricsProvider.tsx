@@ -375,12 +375,10 @@ export const useBusterMetrics = () => {
       metricId
     }: {
       columnId: string;
-      metricId: string;
+      metricId?: string;
       columnLabelFormat: Partial<IColumnLabelFormat>;
     }) => {
-      const currentMetric = _getMetric({
-        metricId
-      });
+      const currentMetric = _getMetric({ metricId });
       const existingColumnLabelFormats = currentMetric.chart_config.columnLabelFormats;
       const existingColumnLabelFormat = existingColumnLabelFormats[columnId];
       const newColumnLabelFormat = {
@@ -408,11 +406,9 @@ export const useBusterMetrics = () => {
     }: {
       columnId: string;
       columnSetting: Partial<ColumnSettings>;
-      metricId: string;
+      metricId?: string;
     }) => {
-      const currentMetric = _getMetric({
-        metricId
-      });
+      const currentMetric = _getMetric({ metricId });
       const existingColumnSettings = currentMetric.chart_config.columnSettings;
       const existingColumnSetting = currentMetric.chart_config.columnSettings[columnId];
       const newColumnSetting: Required<ColumnSettings> = {

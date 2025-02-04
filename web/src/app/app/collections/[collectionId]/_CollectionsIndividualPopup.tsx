@@ -1,4 +1,4 @@
-import { AppMaterialIcons } from '@/components';
+import { AppMaterialIcons } from '@/components/icons';
 import { BusterListSelectedOptionPopupContainer } from '@/components/list';
 import { useCollectionsContextSelector } from '@/context/Collections';
 import { Button } from 'antd';
