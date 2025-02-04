@@ -1,6 +1,6 @@
 import React from 'react';
 import { FileContainerButtonsProps } from './interfaces';
-import { Button, ButtonProps } from 'antd';
+import { Button, ButtonProps, ConfigProvider } from 'antd';
 import { AppMaterialIcons, AppTooltip } from '@/components';
 import { type MetricFileView, useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { useMemoizedFn } from 'ahooks';
@@ -15,6 +15,7 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
   const selectedFileView = useChatLayoutContextSelector(
     (x) => x.selectedFileView
   ) as MetricFileView;
+  const isPureFile = useChatLayoutContextSelector((x) => x.isPureFile);
 
   const showEditChartButton = selectedFileView === 'chart';
 
@@ -26,6 +27,9 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
       <SaveToCollectionButton />
       <SaveToDashboardButton />
       <ShareMetricButton />
+      <HideButtonContainer show={isPureFile}>
+        <CreateChatButton />
+      </HideButtonContainer>
     </FileButtonContainer>
   );
 });
@@ -74,3 +78,21 @@ const ShareMetricButtonLocal = React.memo(() => {
   return <ShareMetricButton />;
 });
 ShareMetricButtonLocal.displayName = 'ShareMetricButtonLocal';
+
+const CreateChatButton = React.memo(() => {
+  const onCollapseFileClick = useChatLayoutContextSelector((x) => x.onCollapseFileClick);
+
+  return (
+    <Button
+      onClick={() => {
+        onCollapseFileClick(false);
+      }}
+      color="default"
+      variant="solid"
+      type="primary"
+      icon={<AppMaterialIcons icon="stars" />}>
+      Edit
+    </Button>
+  );
+});
+CreateChatButton.displayName = 'CreateChatButton';

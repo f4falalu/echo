@@ -1,1 +1,1 @@
-export const DEFAULT_CHAT_OPTION = '320px';
+export const DEFAULT_CHAT_OPTION = '295px';

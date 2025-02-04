@@ -7,7 +7,7 @@ export type BusterChatMessage = {
   created_at: string;
 };
 
-export type BusterChatMessageRequest = {
+export type BusterChatMessageRequest = null | {
   request: string;
   sender_id: string;
   sender_name: string;
@@ -23,7 +23,7 @@ export type BusterChatMessage_text = {
   id: string;
   type: 'text';
   message: string;
-  message_chunk: string;
+  message_chunk?: string;
   hidden?: boolean;
 };
 

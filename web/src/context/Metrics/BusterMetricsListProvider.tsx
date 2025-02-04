@@ -20,7 +20,7 @@ const useMetricsList = () => {
   const { metricId: openedMetricId } = useParams<{ metricId: string }>();
   const busterSocket = useBusterWebSocket();
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
-  const getMetric = useBusterMetricsContextSelector((x) => x.getMetricNotLiveDataMethodOnly);
+  const getMetric = useBusterMetricsContextSelector((x) => x.getMetricMemoized);
   const onUpdateMetric = useBusterMetricsContextSelector((x) => x.onUpdateMetric);
 
   const [metricsList, setMetricsList] = useState<Record<string, BusterMetricListItem>>({});

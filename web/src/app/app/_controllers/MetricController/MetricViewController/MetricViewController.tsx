@@ -7,21 +7,20 @@ import { useBusterMetricIndividual } from '@/context/Metrics';
 export const MetricViewController: React.FC<{
   metricId: string;
   selectedFileView: MetricFileView | undefined;
-}> = React.memo(({ metricId, selectedFileView }) => {
+}> = React.memo(({ metricId, selectedFileView = 'chart' }) => {
   const { metric, metricData } = useBusterMetricIndividual({ metricId });
 
   const isFetchedConfig = metric.fetched;
   const isFetchedData = metricData.fetched;
 
   const showLoader = !isFetchedConfig || !isFetchedData;
-  const showComponent = isFetchedConfig && selectedFileView;
 
   const Component = selectedFileView ? MetricViewComponents[selectedFileView] : () => null;
 
   return (
     <>
       {showLoader && <IndeterminateLinearLoader className="absolute left-0 top-0 z-10 w-full" />}
-      {showComponent && <Component metricId={metricId} selectedFileView={selectedFileView} />}
+      <Component metricId={metricId} selectedFileView={selectedFileView} />
     </>
   );
 });

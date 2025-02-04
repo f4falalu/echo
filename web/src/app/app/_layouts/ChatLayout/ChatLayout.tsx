@@ -9,6 +9,7 @@ import { useChatLayout } from './ChatLayoutContext';
 import { SelectedFile } from './interfaces';
 import { useDefaultSplitterLayout } from './hooks';
 import { ChatContextProvider, useChatContext } from './ChatContext/ChatContext';
+import { DEFAULT_CHAT_OPTION } from './ChatLayoutContext/config';
 
 export interface ChatSplitterProps {
   showChatCollapse?: boolean;
@@ -47,8 +48,9 @@ export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(
             autoSaveId="chat-splitter"
             defaultLayout={defaultSplitterLayout}
             rightHidden={isPureChat}
+            leftHidden={isPureFile}
             preserveSide="left"
-            leftPanelMinSize={hasFile ? 225 : undefined}
+            leftPanelMinSize={hasFile ? DEFAULT_CHAT_OPTION : undefined}
           />
         </ChatContextProvider>
       </ChatSplitterContextProvider>

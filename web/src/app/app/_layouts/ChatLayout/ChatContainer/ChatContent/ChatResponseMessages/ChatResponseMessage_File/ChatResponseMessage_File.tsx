@@ -69,12 +69,15 @@ const ChatResponseMessageHeader: React.FC<{ file_name: string; version_number: n
   });
 
 ChatResponseMessageHeader.displayName = 'ChatResponseMessageHeader';
-const VersionPill: React.FC<{ version_number: number }> = ({ version_number }) => {
+const VersionPill: React.FC<{ version_number: number }> = ({ version_number = 1 }) => {
   const { cx, styles } = useStyles();
+
+  const text = `v${version_number}`;
+
   return (
     <div className={cx(styles.fileVersion, 'flex items-center space-x-1.5')}>
       <Text type="secondary" lineHeight={11} size="sm">
-        v{version_number}
+        {text}
       </Text>
     </div>
   );

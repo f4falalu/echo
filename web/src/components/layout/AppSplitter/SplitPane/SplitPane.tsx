@@ -16,10 +16,10 @@ import {
   assertsSize
 } from './base';
 import { IAxis, ISplitProps, IPaneConfigs, ICacheSizes } from './types';
-import { useMemoizedFn } from 'ahooks';
 
 const SplitPane = ({
   children,
+  autoSizeId,
   sizes: propSizes,
   allowResize = true,
   split = 'vertical',
@@ -30,6 +30,7 @@ const SplitPane = ({
   onChange = () => null,
   onDragStart = () => null,
   onDragEnd = () => null,
+  initialReady = true,
   ...others
 }: ISplitProps) => {
   const axis = useRef<IAxis>({ x: 0, y: 0 });
@@ -37,12 +38,24 @@ const SplitPane = ({
   const cacheSizes = useRef<ICacheSizes>({ sizes: [], sashPosSizes: [] });
   const [wrapperRect, setWrapperRect] = useState<Record<string, DOMRect | any>>({});
   const [isDragging, setDragging] = useState<boolean>(false);
+  const [isReady, setIsReady] = useState<boolean>(initialReady);
 
   useEffect(() => {
-    const resizeObserver = new ResizeObserver(() => {
-      setWrapperRect(wrapper?.current?.getBoundingClientRect() ?? {});
+    const resizeObserver = new ResizeObserver((entries) => {
+      const rect = entries[0]?.contentRect;
+      if (rect && (rect.width > 0 || rect.height > 0)) {
+        setWrapperRect(rect);
+
+        setTimeout(() => {
+          setIsReady(true);
+        }, 40);
+      }
     });
-    resizeObserver.observe(wrapper.current!);
+
+    if (wrapper.current) {
+      resizeObserver.observe(wrapper.current);
+    }
+
     return () => {
       resizeObserver.disconnect();
     };
@@ -177,42 +190,46 @@ const SplitPane = ({
       )}
       ref={wrapper}
       {...others}>
-      {children.map((childNode, childIndex) => {
-        const isPane = childNode.type === Pane;
-        const paneProps = isPane ? childNode.props : {};
+      {isReady ? (
+        <>
+          {children.map((childNode, childIndex) => {
+            const isPane = childNode.type === Pane;
+            const paneProps = isPane ? childNode.props : {};
 
-        return (
-          <Pane
-            key={childIndex}
-            className={classNames(paneClassName, paneProps.className)}
-            style={{
-              ...paneProps.style,
-              [sizeName]: paneSizes[childIndex],
-              [splitPos]: panePoses[childIndex]
-            }}>
-            {isPane ? paneProps.children : childNode}
-          </Pane>
-        );
-      })}
-      {sashPosSizes.slice(1, -1).map((posSize, index) => (
-        <SplitPaneSash
-          key={index}
-          className={classNames(
-            !allowResize && sashDisabledClassName,
-            split === 'vertical' ? sashVerticalClassName : sashHorizontalClassName
-          )}
-          style={{
-            [sizeName]: resizerSize,
-            [splitPos]: posSize - resizerSize / 2
-          }}
-          render={sashRender.bind(null, index)}
-          onDragStart={dragStart}
-          onDragging={(e) => onDragging(e, index)}
-          onDragEnd={dragEnd}
-        />
-      ))}
+            return (
+              <Pane
+                key={childIndex}
+                className={classNames(paneClassName, paneProps.className)}
+                style={{
+                  ...paneProps.style,
+                  [sizeName]: paneSizes[childIndex],
+                  [splitPos]: panePoses[childIndex]
+                }}>
+                {isPane ? paneProps.children : childNode}
+              </Pane>
+            );
+          })}
+          {sashPosSizes.slice(1, -1).map((posSize, index) => (
+            <SplitPaneSash
+              key={index}
+              className={classNames(
+                !allowResize && sashDisabledClassName,
+                split === 'vertical' ? sashVerticalClassName : sashHorizontalClassName
+              )}
+              style={{
+                [sizeName]: resizerSize,
+                [splitPos]: posSize - resizerSize / 2
+              }}
+              render={sashRender.bind(null, index)}
+              onDragStart={dragStart}
+              onDragging={(e) => onDragging(e, index)}
+              onDragEnd={dragEnd}
+            />
+          ))}
+        </>
+      ) : null}
     </div>
   );
 };
 
-export default SplitPane;
+export default React.memo(SplitPane);

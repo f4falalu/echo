@@ -54,6 +54,7 @@ const dataMetadata: DataMetadata = {
 export const MOCK_METRIC: IBusterMetric = {
   id: '123',
   title: 'Mock Metric',
+  version_number: 1,
   description: faker.lorem.sentence(33),
   time_frame: '1d',
   type: 'metric',

@@ -18,6 +18,10 @@ export interface ICacheSizes {
 }
 
 export interface ISplitProps extends HTMLElementProps {
+  autoSizeId: string;
+
+  initialReady?: boolean;
+
   // eslint-disable-next-line no-undef
   children: JSX.Element[];
   /**

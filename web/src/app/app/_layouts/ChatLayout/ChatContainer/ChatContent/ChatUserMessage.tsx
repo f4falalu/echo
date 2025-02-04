@@ -6,6 +6,8 @@ import { MessageContainer } from './MessageContainer';
 
 export const ChatUserMessage: React.FC<{ requestMessage: BusterChatMessageRequest }> = React.memo(
   ({ requestMessage }) => {
+    if (!requestMessage) return null;
+
     const { sender_avatar, sender_id, sender_name, request } = requestMessage;
 
     return (

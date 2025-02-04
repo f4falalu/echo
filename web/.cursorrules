@@ -11,9 +11,11 @@ You are a TypeScript expert with deep knowledge of the language's features and b
 - Try to use Ant Design componets (Button, Input, etc) over native HTML elements.
 - If we need to create custom elements like cards or containers with border colors, use createStyles from antd-style and use the token to get the exact color
 - If newly defined element has a border, it should be 0.5px 
+- If I am ever instead createStyles function from antd-style AND I am using a border, it should be 0.5px
 - Use React.memo() for performance optimization when appropriate
 - Prefer async/await over .then() for asynchronous operations
 
 
 ## ADDITIONAL PARAMS
 - If we need to use useRouter, if needs to be from next/navigation
+- If I need to use text, I want to import the <Text> component from the @/components/text, If I need to use a title, I want to import the <Title /> component from the @/components/text directory.

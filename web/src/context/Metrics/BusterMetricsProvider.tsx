@@ -5,7 +5,6 @@ import {
   useContextSelector
 } from '@fluentui/react-context-selector';
 import { BusterMetricsListProvider } from './BusterMetricsListProvider';
-import { defaultIBusterMetric } from './config';
 import { useDebounceFn, useMemoizedFn, useMount } from 'ahooks';
 import type { IBusterMetric } from './interfaces';
 import {
@@ -506,7 +505,7 @@ export const useBusterMetrics = () => {
         ...MOCK_METRIC,
         id: metricId
       });
-    }, 500);
+    }, 300);
 
     return await busterSocket.emitAndOnce({
       emitEvent: {
@@ -611,7 +610,7 @@ export const useBusterMetrics = () => {
     setEditingMetricTitle,
     selectedMetricId,
     onSaveMetricChanges,
-    getMetricNotLiveDataMethodOnly: _getMetric,
+    getMetricMemoized: _getMetric,
     metrics: metricsRef.current
   };
 };

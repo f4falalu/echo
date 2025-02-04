@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { SidebarStylingAppSegments } from './config';
+import { MetricStylingAppSegments } from './config';
 import { SegmentedOptions, SegmentedValue } from 'antd/es/segmented';
 import { useMemoizedFn } from 'ahooks';
 import { Segmented } from 'antd';
@@ -12,9 +12,9 @@ const useStyles = createStyles(({ css, token }) => ({
   `
 }));
 
-export const SidebarStylingAppSegment: React.FC<{
-  segment: SidebarStylingAppSegments;
-  setSegment: (segment: SidebarStylingAppSegments) => void;
+export const MetricStylingAppSegment: React.FC<{
+  segment: MetricStylingAppSegments;
+  setSegment: (segment: MetricStylingAppSegments) => void;
   selectedChartType: IBusterMetricChartConfig['selectedChartType'];
   className?: string;
 }> = React.memo(({ segment, setSegment, selectedChartType, className = '' }) => {
@@ -27,17 +27,17 @@ export const SidebarStylingAppSegment: React.FC<{
   const options: SegmentedOptions = useMemo(
     () => [
       {
-        label: SidebarStylingAppSegments.VISUALIZE,
-        value: SidebarStylingAppSegments.VISUALIZE
+        label: MetricStylingAppSegments.VISUALIZE,
+        value: MetricStylingAppSegments.VISUALIZE
       },
       {
-        label: SidebarStylingAppSegments.STYLING,
-        value: SidebarStylingAppSegments.STYLING,
+        label: MetricStylingAppSegments.STYLING,
+        value: MetricStylingAppSegments.STYLING,
         disabled: disableStyling
       },
       {
-        label: SidebarStylingAppSegments.COLORS,
-        value: SidebarStylingAppSegments.COLORS,
+        label: MetricStylingAppSegments.COLORS,
+        value: MetricStylingAppSegments.COLORS,
         disabled: disableColors
       }
     ],
@@ -45,7 +45,7 @@ export const SidebarStylingAppSegment: React.FC<{
   );
 
   const onChangeSegment = useMemoizedFn((value: SegmentedValue) => {
-    setSegment(value as SidebarStylingAppSegments);
+    setSegment(value as MetricStylingAppSegments);
   });
 
   return (
@@ -56,4 +56,4 @@ export const SidebarStylingAppSegment: React.FC<{
     </div>
   );
 });
-SidebarStylingAppSegment.displayName = 'SidebarStylingAppSegment';
+MetricStylingAppSegment.displayName = 'MetricStylingAppSegment';

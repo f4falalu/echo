@@ -1,10 +1,14 @@
 import React from 'react';
 import { MetricEditControllerHeader } from './MetricEditControllerHeader';
+import { MetricStylingApp } from './MetricStylingApp';
 
-export const MetricEditController: React.FC = React.memo(() => {
+export const MetricEditController: React.FC<{
+  metricId: string;
+}> = React.memo(({ metricId }) => {
   return (
     <div className="flex w-full min-w-[250px] flex-col">
       <MetricEditControllerHeader />
+      <MetricStylingApp metricId={metricId} />
     </div>
   );
 });

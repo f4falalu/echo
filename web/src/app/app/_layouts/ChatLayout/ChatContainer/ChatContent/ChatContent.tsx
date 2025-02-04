@@ -6,7 +6,7 @@ import { createStyles } from 'antd-style';
 
 export const ChatContent: React.FC<{ chatContentRef: React.RefObject<HTMLDivElement> }> =
   React.memo(({ chatContentRef }) => {
-    const { styles, cx } = useStyles();
+    const { styles } = useStyles();
     const chatMessages = useChatContextSelector((state) => state.chatMessages);
 
     return (

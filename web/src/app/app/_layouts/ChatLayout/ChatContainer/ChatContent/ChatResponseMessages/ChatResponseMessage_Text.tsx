@@ -13,7 +13,7 @@ export const ChatResponseMessage_Text: React.FC<ChatResponseMessageProps> = Reac
     useEffect(() => {
       if (responseMessage.message_chunk && !responseMessage.message) {
         // Handle streaming chunks
-        setTextChunks((prevChunks) => [...prevChunks, responseMessage.message_chunk]);
+        setTextChunks((prevChunks) => [...prevChunks, responseMessage.message_chunk || '']);
       } else if (responseMessage.message) {
         // Handle complete message
         const currentText = textChunks.join('');

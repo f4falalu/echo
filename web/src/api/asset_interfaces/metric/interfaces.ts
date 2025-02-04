@@ -5,6 +5,7 @@ export type BusterMetric = {
   id: string;
   type: 'metric';
   title: string;
+  version_number: number;
   description: string | null;
   time_frame: string;
   dataset_id: string | null;

@@ -50,6 +50,7 @@ export const AppSplitter = React.memo(
       leftHidden?: boolean;
       style?: React.CSSProperties;
       hideSplitter?: boolean;
+      initialReady?: boolean;
     }
   >(
     (
@@ -70,7 +71,8 @@ export const AppSplitter = React.memo(
         splitterClassName = '',
         leftHidden,
         rightHidden,
-        hideSplitter
+        hideSplitter,
+        initialReady = true
       },
       ref
     ) => {
@@ -83,10 +85,9 @@ export const AppSplitter = React.memo(
         [hasHidden, allowResize]
       );
 
-      const _sizes = useMemo(
-        () => (hasHidden ? (leftHidden ? ['0px', 'auto'] : ['auto', '0px']) : sizes),
-        [hasHidden, leftHidden, sizes]
-      );
+      const _sizes = useMemo(() => {
+        return hasHidden ? (leftHidden ? ['0px', 'auto'] : ['auto', '0px']) : sizes;
+      }, [hasHidden, leftHidden, sizes]);
 
       const memoizedLeftPaneStyle = useMemo(() => {
         return {
@@ -240,6 +241,8 @@ export const AppSplitter = React.memo(
       return (
         <div className="h-full w-full" ref={containerRef}>
           <SplitPane
+            autoSizeId={autoSaveId}
+            initialReady={initialReady}
             split={split}
             className={`${className}`}
             sizes={_sizes}

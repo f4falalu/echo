@@ -151,6 +151,7 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
         />
 
         <SplitPane
+          autoSizeId="resize-column"
           split="vertical"
           sizes={sizes}
           allowResize={allowEdit && canResize}

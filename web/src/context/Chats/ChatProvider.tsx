@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useTransition } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import {
   createContext,
   ContextSelector,
@@ -16,6 +16,8 @@ import {
 import { IBusterChat } from './interfaces';
 import { chatUpgrader } from './helpers';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { useBusterMetricsContextSelector } from '../Metrics';
+import { fallbackToMetricChat } from './helpers/fallbackToMetricChat';
 
 export const useBusterChat = () => {
   const busterSocket = useBusterWebSocket();
@@ -173,11 +175,26 @@ export const useBusterChatContextSelector = <T,>(
   selector: ContextSelector<ReturnType<typeof useBusterChat>, T>
 ) => useContextSelector(BusterChat, selector);
 
-export const useBusterChatIndividual = ({ chatId: chatIdProp }: { chatId?: string }) => {
+export const useBusterChatIndividual = ({
+  chatId: chatIdProp,
+  metricId
+}: {
+  chatId?: string;
+  //if metricId is provided (without a chatId), we can assume that the chat is a new chat starting from a metric
+  metricId?: string;
+}) => {
   const chatId = chatIdProp || '';
-  const chat = useBusterChatContextSelector((x) => x.chats[chatId]);
+  const chat: IBusterChat | undefined = useBusterChatContextSelector((x) => x.chats[chatId]);
   const subscribeToChat = useBusterChatContextSelector((x) => x.subscribeToChat);
   const unsubscribeFromChat = useBusterChatContextSelector((x) => x.unsubscribeFromChat);
+  const metricTitle = useBusterMetricsContextSelector((x) => x.metrics[metricId || '']?.title);
+  const metricVersionNumber = useBusterMetricsContextSelector(
+    (x) => x.metrics[metricId || '']?.version_number
+  );
+
+  const memoizedFallbackToMetricChat = useMemo(() => {
+    return fallbackToMetricChat({ id: metricId || '', title: metricTitle, metricVersionNumber });
+  }, [metricId, metricVersionNumber, metricTitle]);
 
   useEffect(() => {
     if (chatId) subscribeToChat({ chatId });
@@ -187,7 +204,9 @@ export const useBusterChatIndividual = ({ chatId: chatIdProp }: { chatId?: strin
     if (chatId) unsubscribeFromChat({ chatId });
   });
 
+  const selectedChat: IBusterChat = chat || memoizedFallbackToMetricChat;
+
   return {
-    chat
+    chat: selectedChat
   };
 };

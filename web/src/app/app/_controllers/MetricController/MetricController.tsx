@@ -30,10 +30,11 @@ export const MetricController: React.FC<{
   return (
     <AppSplitter
       ref={appSplitterRef}
+      initialReady={false}
       leftChildren={
         <MetricViewController metricId={metricId} selectedFileView={selectedFileView} />
       }
-      rightChildren={<MetricEditController />}
+      rightChildren={<MetricEditController metricId={metricId} />}
       rightHidden={!renderSecondary}
       autoSaveId="metric-controller"
       defaultLayout={defaultLayout}

@@ -8,11 +8,20 @@ import { LineChartAreaChartIcon } from './customIcons/LineChart_AreaChart';
 import { LineChartDotLineIcon } from './customIcons/LineChart_DotLine';
 import { KeepIcon } from './customIcons/KeepIcon';
 import { EditChartIcon } from './customIcons/EditChart';
+import { StarsIcon } from './customIcons/Stars';
 
 //https://react-material-symbols.vercel.app/?path=/docs/outlined--docs
 
 const CustomIcons: Record<
-  string,
+  | 'edit_square'
+  | 'bar_sort_asc'
+  | 'bar_sort_desc'
+  | 'bar_sort_none'
+  | 'line_chart_area'
+  | 'line_chart_dot_line'
+  | 'keep'
+  | 'stars'
+  | 'chart_edit',
   React.FC<
     MaterialSymbolProps & {
       'data-value'?: string;
@@ -26,11 +35,14 @@ const CustomIcons: Record<
   line_chart_area: LineChartAreaChartIcon,
   line_chart_dot_line: LineChartDotLineIcon,
   keep: KeepIcon,
-  chart_edit: EditChartIcon
+  chart_edit: EditChartIcon,
+  stars: StarsIcon
 };
 
+export type AppMaterialIconIcon = MaterialSymbolProps['icon'] | keyof typeof CustomIcons;
+
 type AppMaterialIconProps = Omit<MaterialSymbolProps, 'icon'> & {
-  icon: MaterialSymbolProps['icon'] | keyof typeof CustomIcons;
+  icon: AppMaterialIconIcon;
 };
 
 export const AppMaterialIcons: React.FC<AppMaterialIconProps> = React.memo(

@@ -4,7 +4,7 @@ import { LabelAndInput } from '../Common';
 import { Segmented } from 'antd';
 import { useEditAppSegmented } from '../StylingAppVisualize/SelectAxis/SelectAxisColumnContent/useEditAppSegmented';
 import { BarSortBy } from '@/components/charts';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIconIcon, AppMaterialIcons } from '@/components/icons';
 import { AppTooltip } from '@/components';
 
 const allOptions: {
@@ -38,7 +38,7 @@ export const EditBarSorting: React.FC<{
       label: (
         <AppTooltip mouseEnterDelay={0.75} trigger={'hover'} title={x.tooltip}>
           <div className="flex h-full w-full items-center justify-center">
-            <AppMaterialIcons icon={x.icon} data-value={x.value} />
+            <AppMaterialIcons icon={x.icon as AppMaterialIconIcon} data-value={x.value} />
           </div>
         </AppTooltip>
       ),

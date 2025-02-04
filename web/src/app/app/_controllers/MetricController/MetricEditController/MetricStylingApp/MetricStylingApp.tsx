@@ -1,19 +1,17 @@
-import React, { useMemo, useState } from 'react';
-import { SidebarStylingAppSegments } from './config';
-import { SidebarStylingAppSegment } from './SidebarStylingAppSegment';
+import React, { useState } from 'react';
+import { MetricStylingAppSegments } from './config';
+import { MetricStylingAppSegment } from './MetricStylingAppSegment';
 import { StylingAppColors } from './StylingAppColors';
 import { StylingAppStyling } from './StylingAppStyling';
 import { StylingAppVisualize } from './StylingAppVisualize';
 import { BarAndLineAxis, ChartEncodes, ChartType, ScatterAxis } from '@/components/charts';
 import { useBusterMetricIndividual } from '@/context/Metrics';
 
-export const SidebarStylingApp: React.FC<{
-  showSkeletonLoader?: boolean;
-  isReadOnly: boolean;
+export const MetricStylingApp: React.FC<{
   metricId: string;
 }> = ({ metricId }) => {
-  const [segment, setSegment] = useState<SidebarStylingAppSegments>(
-    SidebarStylingAppSegments.VISUALIZE
+  const [segment, setSegment] = useState<MetricStylingAppSegments>(
+    MetricStylingAppSegments.VISUALIZE
   );
   const { metric, metricData } = useBusterMetricIndividual({ metricId });
 
@@ -82,7 +80,7 @@ export const SidebarStylingApp: React.FC<{
 
   return (
     <div className="flex h-full w-full flex-col pt-3">
-      <SidebarStylingAppSegment
+      <MetricStylingAppSegment
         className="px-4"
         segment={segment}
         setSegment={setSegment}
@@ -90,7 +88,7 @@ export const SidebarStylingApp: React.FC<{
       />
 
       <div className="h-full overflow-y-auto pb-12">
-        {segment === SidebarStylingAppSegments.VISUALIZE && (
+        {segment === MetricStylingAppSegments.VISUALIZE && (
           <StylingAppVisualize
             className="px-4 pt-3"
             key={selectedChartType}
@@ -134,7 +132,7 @@ export const SidebarStylingApp: React.FC<{
           />
         )}
 
-        {segment === SidebarStylingAppSegments.STYLING && (
+        {segment === MetricStylingAppSegments.STYLING && (
           <StylingAppStyling
             key={selectedChartType}
             className="px-4"
@@ -168,7 +166,7 @@ export const SidebarStylingApp: React.FC<{
           />
         )}
 
-        {segment === SidebarStylingAppSegments.COLORS && (
+        {segment === MetricStylingAppSegments.COLORS && (
           <StylingAppColors key={selectedChartType} className="px-4" colors={colors} />
         )}
       </div>

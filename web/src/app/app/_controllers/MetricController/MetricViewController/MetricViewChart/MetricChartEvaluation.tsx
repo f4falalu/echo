@@ -27,7 +27,7 @@ export const MetricChartEvaluation: React.FC<{
   const colorClass = useMemo(() => {
     if (evaluationScore === 'Low') return 'bg-red-100 text-red-500';
     if (evaluationScore === 'High') return 'bg-lime-100 text-lime-700';
-    if (evaluationScore === 'Moderate') return 'bg-amber-100 text-amber-500';
+    if (evaluationScore === 'Moderate') return 'bg-[#FFFBE6] text-amber-500';
     return 'bg-gray-100 text-gray-500';
   }, [evaluationScore]);
 
@@ -35,6 +35,7 @@ export const MetricChartEvaluation: React.FC<{
     <div className={cx('flex w-full cursor-pointer justify-end')}>
       <AppPopover
         placement="topRight"
+        trigger="hover"
         content={<div className="max-w-[250px] p-2">{evaluationSummary}</div>}>
         <div
           className={cx(

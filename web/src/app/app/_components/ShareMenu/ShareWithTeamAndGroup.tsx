@@ -23,9 +23,7 @@ export const ShareWithGroupAndTeam: React.FC<{
   const userTeams = useUserConfigContextSelector((state) => state.userTeams);
   const loadedUserTeams = useUserConfigContextSelector((state) => state.loadedUserTeams);
   const onShareMetric = useBusterMetricsContextSelector((state) => state.onShareMetric);
-  const getMetric = useBusterMetricsContextSelector(
-    (state) => state.getMetricNotLiveDataMethodOnly
-  );
+  const getMetric = useBusterMetricsContextSelector((state) => state.getMetricMemoized);
   const onShareDashboard = useDashboardContextSelector((state) => state.onShareDashboard);
   const onShareCollection = useCollectionsContextSelector((state) => state.onShareCollection);
 

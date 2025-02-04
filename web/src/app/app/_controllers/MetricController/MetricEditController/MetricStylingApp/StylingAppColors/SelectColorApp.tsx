@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Segmented } from 'antd';
 import { StylingAppColorsTab } from './config';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIconIcon, AppMaterialIcons } from '@/components/icons';
 
 export const SelectColorApp: React.FC<{
   selectedTab: StylingAppColorsTab;
@@ -17,7 +17,7 @@ export const SelectColorApp: React.FC<{
         label: (
           <div className="groupflex flex-col space-y-1.5 py-2.5">
             <div className="flex items-center justify-center">
-              <AppMaterialIcons icon={icon} />
+              <AppMaterialIcons icon={icon as AppMaterialIconIcon} />
             </div>
             <span className="flex leading-none">{text}</span>
           </div>

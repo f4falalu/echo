@@ -26,7 +26,7 @@ export const useSQLProvider = () => {
   const updateMetricMessageToServer = useBusterMetricsContextSelector(
     (x) => x.updateMetricMessageToServer
   );
-  const getMetric = useBusterMetricsContextSelector((x) => x.getMetricNotLiveDataMethodOnly);
+  const getMetric = useBusterMetricsContextSelector((x) => x.getMetricMemoized);
   const onSaveMetricChanges = useBusterMetricsContextSelector((x) => x.onSaveMetricChanges);
 
   const [warnBeforeNavigating, setWarnBeforeNavigating] = useState(false);

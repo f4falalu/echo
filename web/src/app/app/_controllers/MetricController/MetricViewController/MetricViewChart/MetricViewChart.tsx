@@ -7,6 +7,7 @@ import { useMemoizedFn } from 'ahooks';
 import { inputHasText } from '@/utils/text';
 import { MetricChartEvaluation } from './MetricChartEvaluation';
 import { ChartType } from '@/components/charts/interfaces/enum';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export const MetricViewChart: React.FC<{
   metricId: string;
@@ -19,6 +20,7 @@ export const MetricViewChart: React.FC<{
 
   const loadingData = !metricData.fetched;
   const errorData = !!metricData.error;
+  const showEvaluation = !!evaluation_score && !!evaluation_summary;
 
   const onSetTitle = useMemoizedFn((title: string) => {
     if (inputHasText(title)) {
@@ -53,10 +55,12 @@ export const MetricViewChart: React.FC<{
         />
       </MetricViewChartCard>
 
-      <MetricChartEvaluation
-        evaluationScore={evaluation_score}
-        evaluationSummary={evaluation_summary}
-      />
+      <AnimatePresenceWrapper show={showEvaluation}>
+        <MetricChartEvaluation
+          evaluationScore={evaluation_score}
+          evaluationSummary={evaluation_summary}
+        />
+      </AnimatePresenceWrapper>
     </div>
   );
 });
@@ -78,6 +82,24 @@ const MetricViewChartCard: React.FC<{
   }, [isTable, loadingData, errorData]);
 
   return <div className={cx(styles.chartCard, cardClass, 'flex flex-col')}>{children}</div>;
+};
+
+const animation = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+  transition: { duration: 0.4 }
+};
+
+const AnimatePresenceWrapper: React.FC<{
+  children: React.ReactNode;
+  show: boolean;
+}> = ({ children, show }) => {
+  return (
+    <AnimatePresence initial={false}>
+      {show && <motion.div {...animation}>{children}</motion.div>}
+    </AnimatePresence>
+  );
 };
 
 const useStyles = createStyles(({ css, token }) => ({
