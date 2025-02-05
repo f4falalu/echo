@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useCallback, useState } from 'react';
+import React, { PropsWithChildren, useCallback, useRef, useState, useTransition } from 'react';
 import {
   createContext,
   ContextSelector,
@@ -9,27 +9,23 @@ import { useBusterWebSocket } from '../BusterWebSocket';
 import type { BusterMetricData } from '../Metrics';
 import { MetricEvent_fetchingData } from '@/api/buster_socket/metrics/eventsInterfaces';
 import { MOCK_DATA } from './MOCK_DATA';
-
-const DEFAULT_MESSAGE_DATA: BusterMetricData = {
-  fetched: false,
-  fetching: false,
-  fetchedAt: 0,
-  data_metadata: null,
-  code: null,
-  error: null
-};
+import { DEFAULT_MESSAGE_DATA } from './config';
 
 const useMetricData = () => {
   const busterSocket = useBusterWebSocket();
+  const [isPending, startTransition] = useTransition();
 
-  const [metricData, setMetricData] = useState<Record<string, BusterMetricData>>({});
+  const metricDataRef = useRef<Record<string, BusterMetricData>>({});
 
   const _setMetricData = useMemoizedFn(
     (metricId: string, newMetricData: Partial<BusterMetricData>) => {
-      setMetricData((prev) => ({
-        ...prev,
-        [metricId]: { ...prev[metricId], ...newMetricData }
-      }));
+      metricDataRef.current = {
+        ...metricDataRef.current,
+        [metricId]: { ...metricDataRef.current[metricId], ...newMetricData }
+      };
+      startTransition(() => {
+        //trigger re-render
+      });
     }
   );
 
@@ -90,6 +86,7 @@ const useMetricData = () => {
 
   const fetchDataByMetricId = useMemoizedFn(async ({ metricId }: { metricId: string }) => {
     const selectedMetricData = getMetricData(metricId);
+
     if (selectedMetricData?.fetching || selectedMetricData?.fetched) {
       return;
     }
@@ -121,17 +118,17 @@ const useMetricData = () => {
 
   const getMetricData = useCallback(
     (metricId: string | undefined) => {
-      if (metricId && metricData[metricId]) {
-        return metricData[metricId];
+      if (metricId && metricDataRef.current[metricId]) {
+        return metricDataRef.current[metricId];
       }
       return DEFAULT_MESSAGE_DATA;
     },
-    [metricData]
+    [isPending]
   );
 
   const getAllMetricDataMemoized = useMemoizedFn(
     (metricId: string): BusterMetricData | undefined => {
-      return metricData[metricId];
+      return metricDataRef.current[metricId];
     }
   );
 
@@ -143,7 +140,7 @@ const useMetricData = () => {
   });
 
   return {
-    metricData,
+    metricData: metricDataRef.current,
     onSetMetricDataCode,
     onSetMetricData,
     fetchDataByMetricId,

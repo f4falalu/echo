@@ -292,6 +292,21 @@ export const useBusterMetrics = () => {
     onUpdateMetric(upgradedMetric);
   });
 
+  const _setLoadingMetric = useMemoizedFn((metricId: string) => {
+    const metrics = metricsRef.current || {};
+    metrics[metricId] = resolveEmptyMetric(
+      {
+        ...metrics[metricId],
+        fetching: true
+      },
+      metricId
+    );
+
+    setMetrics(metrics);
+
+    return metrics[metricId];
+  });
+
   const bulkUpdateMetrics = useMemoizedFn((newMetrics: Record<string, IBusterMetric>) => {
     metricsRef.current = {
       ...metricsRef.current,
@@ -307,7 +322,6 @@ export const useBusterMetrics = () => {
         ...currentMetric,
         ...newMetricPartial
       };
-
       setMetrics({
         [metricId]: newMetric
       });
@@ -359,8 +373,7 @@ export const useBusterMetrics = () => {
         ...currentMetric.chart_config,
         ...chartConfig
       };
-
-      return onUpdateMetric({
+      onUpdateMetric({
         id: metricId,
         chart_config: newChartConfig
       });
@@ -495,9 +508,11 @@ export const useBusterMetrics = () => {
     const { password } = getAssetPassword(metricId);
     const foundMetric: undefined | IBusterMetric = metricsRef.current[metricId];
 
-    if (foundMetric && (foundMetric.fetching || foundMetric.fetched)) {
+    if (foundMetric && (foundMetric?.fetching || foundMetric?.fetched)) {
       return foundMetric;
     }
+
+    _setLoadingMetric(metricId);
 
     //TODO: remove this
     setTimeout(() => {

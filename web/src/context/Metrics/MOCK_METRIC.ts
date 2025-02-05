@@ -16,7 +16,14 @@ const MOCK_CHART_CONFIG: IBusterMetricChartConfig = {
     x: ['date'],
     y: ['sales'],
     category: []
-    // category: ['product']
+  },
+  pieChartAxis: {
+    x: ['product'],
+    y: ['sales']
+  },
+  scatterAxis: {
+    x: ['date'],
+    y: ['sales']
   }
 };
 

@@ -37,7 +37,7 @@ export const resolveEmptyMetric = (
   metricId: string
 ): IBusterMetric => {
   if (!metric || !metric?.id) {
-    return { ...defaultIBusterMetric, id: metricId };
+    return { ...defaultIBusterMetric, ...metric, id: metricId };
   }
   return metric;
 };
