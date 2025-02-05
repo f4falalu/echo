@@ -3,6 +3,7 @@ use axum::{extract::Json, Extension};
 use chrono::{DateTime, Utc};
 use diesel::{upsert::excluded, ExpressionMethods, QueryDsl, SelectableHelper};
 use diesel_async::RunQueryDsl;
+use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use serde_yaml;
 use std::collections::HashSet;
@@ -21,9 +22,8 @@ use crate::{
             credentials::get_data_source_credentials,
             import_dataset_columns::retrieve_dataset_columns,
             write_query_engine::write_query_engine,
-        }, security::checks::is_user_workspace_admin_or_data_admin, user::user_info::get_user_organization_id
+        }, security::checks::is_user_workspace_admin_or_data_admin, stored_values::{process_stored_values_background, store_column_values, StoredValueColumn}, user::user_info::get_user_organization_id, validation::{dataset_validation::validate_model, ValidationError, ValidationResult}
     },
-    utils::stored_values::{store_column_values, process_stored_values_background, StoredValueColumn},
 };
 
 #[derive(Debug, Deserialize)]
@@ -73,7 +73,7 @@ pub struct DeployDatasetsEntityRelationshipsRequest {
 
 #[derive(Serialize)]
 pub struct DeployDatasetsResponse {
-    pub ids: Vec<Uuid>,
+    pub results: Vec<ValidationResult>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -125,13 +125,13 @@ pub struct Measure {
 pub async fn deploy_datasets(
     Extension(user): Extension<User>,
     Json(request): Json<DeployDatasetsRequest>,
-) -> Result<ApiResponse<DeployDatasetsResponse>, (axum::http::StatusCode, String)> {
+) -> Result<ApiResponse<DeployDatasetsResponse>, (StatusCode, String)> {
     let organization_id = match get_user_organization_id(&user.id).await {
         Ok(id) => id,
         Err(e) => {
             tracing::error!("Error getting user organization id: {:?}", e);
             return Err((
-                axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                StatusCode::INTERNAL_SERVER_ERROR,
                 "Error getting user organization id".to_string(),
             ));
         }
@@ -141,13 +141,13 @@ pub async fn deploy_datasets(
         Ok(true) => (),
         Ok(false) => {
             return Err((
-                axum::http::StatusCode::FORBIDDEN,
+                StatusCode::FORBIDDEN,
                 "Insufficient permissions".to_string(),
             ))
         }
         Err(e) => {
             tracing::error!("Error checking user permissions: {:?}", e);
-            return Err((axum::http::StatusCode::INTERNAL_SERVER_ERROR, e.to_string()));
+            return Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string()));
         }
     }
 
@@ -160,19 +160,83 @@ pub async fn deploy_datasets(
         Ok(requests) => requests,
         Err(e) => {
             tracing::error!("Error processing deploy request: {:?}", e);
-            return Err((axum::http::StatusCode::BAD_REQUEST, e.to_string()));
+            return Err((StatusCode::BAD_REQUEST, e.to_string()));
         }
     };
 
-    let _ = match deploy_datasets_handler(&user.id, requests, is_simple).await {
-        Ok(dataset) => dataset,
+    let mut results = Vec::new();
+    let mut conn = match get_pg_pool().get().await {
+        Ok(conn) => conn,
         Err(e) => {
-            tracing::error!("Error creating dataset: {:?}", e);
-            return Err((axum::http::StatusCode::INTERNAL_SERVER_ERROR, e.to_string()));
+            tracing::error!("Error getting connection from pool: {:?}", e);
+            return Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string()));
         }
     };
 
-    Ok(ApiResponse::OK)
+    for req in requests {
+        // Get data source
+        let data_source = match data_sources::table
+            .filter(data_sources::name.eq(&req.data_source_name))
+            .filter(data_sources::env.eq(&req.env))
+            .filter(data_sources::organization_id.eq(&organization_id))
+            .first::<DataSource>(&mut conn)
+            .await
+        {
+            Ok(ds) => ds,
+            Err(e) => {
+                tracing::error!("Error getting data source: {:?}", e);
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Data source not found: {}", req.data_source_name),
+                ));
+            }
+        };
+
+        // Extract columns for validation
+        let columns: Vec<(&str, &str)> = req.columns
+            .iter()
+            .map(|c| (c.name.as_str(), c.type_.as_deref().unwrap_or("text")))
+            .collect();
+
+        // Validate model
+        let validation = match validate_model(
+            &req.name,
+            // TODO: Right now we expect the database name to be the same as the model name.
+            &req.name,
+            &req.schema,
+            &data_source,
+            &columns,
+        )
+        .await
+        {
+            Ok(v) => v,
+            Err(e) => {
+                tracing::error!("Error validating model: {:?}", e);
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Error validating model: {}", e),
+                ));
+            }
+        };
+
+        if !validation.success {
+            results.push(validation);
+            continue;
+        }
+
+        // Deploy model
+        match deploy_single_model(&req, &organization_id, &user.id).await {
+            Ok(_) => results.push(validation),
+            Err(e) => {
+                let mut validation = validation;
+                validation.success = false;
+                validation.add_error(ValidationError::data_source_error(e.to_string()));
+                results.push(validation);
+            }
+        }
+    }
+
+    Ok(ApiResponse::JsonData(DeployDatasetsResponse { results }))
 }
 
 async fn process_deploy_request(
@@ -244,6 +308,53 @@ async fn process_deploy_request(
             Ok(requests)
         }
     }
+}
+
+async fn deploy_single_model(
+    req: &FullDeployDatasetsRequest,
+    organization_id: &Uuid,
+    user_id: &Uuid,
+) -> Result<()> {
+    let mut conn = get_pg_pool().get().await?;
+    let database_name = req.name.replace(" ", "_");
+
+    let dataset = Dataset {
+        id: req.id.unwrap_or_else(|| Uuid::new_v4()),
+        name: req.name.clone(),
+        data_source_id: data_sources::table
+            .filter(data_sources::name.eq(&req.data_source_name))
+            .filter(data_sources::env.eq(&req.env))
+            .filter(data_sources::organization_id.eq(organization_id))
+            .select(data_sources::id)
+            .first::<Uuid>(&mut conn)
+            .await?,
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+        database_name,
+        when_to_use: Some(req.description.clone()),
+        when_not_to_use: None,
+        type_: DatasetType::View,
+        definition: req.sql_definition.clone().unwrap_or_default(),
+        schema: req.schema.clone(),
+        enabled: true,
+        created_by: user_id.to_owned(),
+        updated_by: user_id.to_owned(),
+        deleted_at: None,
+        imported: false,
+        organization_id: organization_id.to_owned(),
+        model: req.model.clone(),
+        yml_file: req.yml_file.clone(),
+    };
+
+    diesel::insert_into(datasets::table)
+        .values(&dataset)
+        .on_conflict(datasets::id)
+        .do_update()
+        .set(&dataset)
+        .execute(&mut conn)
+        .await?;
+
+    Ok(())
 }
 
 async fn deploy_datasets_handler(
