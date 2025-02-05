@@ -2,5 +2,5 @@ import { mainApi } from '../instances';
 import type { RunSQLResponse } from '../../asset_interfaces';
 
 export const runSQL = (params: { data_source_id: string; sql: string }) => {
-  return mainApi.post<RunSQLResponse>('/sql/run', params);
+  return mainApi.post<RunSQLResponse>('/sql/run', params).then((res) => res.data);
 };

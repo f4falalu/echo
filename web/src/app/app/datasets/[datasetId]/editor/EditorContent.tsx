@@ -39,7 +39,7 @@ export const EditorContent: React.FC<{
       try {
         setRunSQLError('');
         const res = await runSQL({ data_source_id: dataset?.data_source_id!, sql });
-        const data = res.data.data;
+        const data = res.data;
         setTempData(data);
         return data;
       } catch (error) {

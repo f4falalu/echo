@@ -46,7 +46,7 @@ export const didColumnDataChange = (
   });
 };
 
-export const simplifyChratConfigForSQLChange = (
+export const simplifyChatConfigForSQLChange = (
   chartConfig: IBusterMetricChartConfig,
   data_metadata: IBusterMetric['data_metadata']
 ): IBusterMetricChartConfig => {

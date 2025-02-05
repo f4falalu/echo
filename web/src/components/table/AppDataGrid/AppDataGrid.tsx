@@ -461,12 +461,11 @@ const useStyles = createStyles(({ css, token }) => {
 
       .rdg-row {
         .rdg-cell {
-          border-bottom: 0px solid;
+          border-bottom-color: ${token.colorBorder};
           white-space: break-spaces;
           word-wrap: break-word;
           overflow-y: auto;
           border-width: 0.5px;
-          border-bottom: 0px solid;
 
           &:last-child {
             border-right: 0px solid;

@@ -63,13 +63,14 @@ export const MOCK_METRIC: IBusterMetric = {
   title: 'Mock Metric',
   version_number: 1,
   description: faker.lorem.sentence(33),
+  data_source_id: '6840fa04-c0d7-4e0e-8d3d-ea9190d93874',
   time_frame: '1d',
   type: 'metric',
   chart_config: MOCK_CHART_CONFIG,
   fetched: true,
   fetching: false,
   fetchedAt: 0,
-  dataset_id: '123',
+  dataset_id: '21c91803-c324-4341-98d1-960ef6a3e003',
   dataset_name: 'Mock Dataset',
   error: null,
   data_metadata: dataMetadata,
@@ -82,7 +83,19 @@ export const MOCK_METRIC: IBusterMetric = {
   sent_by_id: '',
   sent_by_name: '',
   sent_by_avatar_url: '',
-  code: null,
+  code: `WITH records AS (
+  SELECT 
+    response_time_id,
+    interaction_id,
+    agent_id,
+    customer_id,
+    channel,
+    date
+  FROM demo.response_times
+  ORDER BY date ASC
+  LIMIT 100
+)
+SELECT * FROM records;`,
   feedback: null,
   draft_session_id: null,
   collections: [],

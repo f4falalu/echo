@@ -4,7 +4,7 @@ import { SQLContainer } from './SQLContainer';
 import { DataContainer } from './DataContainer';
 import type { IDataResult } from '@/api/asset_interfaces';
 
-interface AppVerticalCodeSplitterProps {
+export interface AppVerticalCodeSplitterProps {
   sql: string;
   setSQL: (sql: string) => void;
   runSQLError: string | null;
@@ -14,6 +14,8 @@ interface AppVerticalCodeSplitterProps {
   defaultLayout: [string, string];
   autoSaveId: string;
   topHidden?: boolean;
+  onSaveSQL?: () => Promise<void>;
+  disabledSave?: boolean;
 }
 
 export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCodeSplitterProps>(
@@ -23,10 +25,12 @@ export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCod
       setSQL,
       runSQLError,
       onRunQuery,
+      onSaveSQL,
       data,
       fetchingData,
       defaultLayout,
       autoSaveId,
+      disabledSave = false,
       topHidden = false
     },
     ref
@@ -40,10 +44,12 @@ export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCod
         leftChildren={
           <SQLContainer
             className={sqlContainerClassName}
-            datasetSQL={sql}
+            sql={sql}
             setDatasetSQL={setSQL}
             error={runSQLError}
             onRunQuery={onRunQuery}
+            onSaveSQL={onSaveSQL}
+            disabledSave={disabledSave}
           />
         }
         rightChildren={

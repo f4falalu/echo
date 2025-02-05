@@ -8,7 +8,8 @@ export type BusterMetric = {
   version_number: number;
   description: string | null;
   time_frame: string;
-  dataset_id: string | null;
+  dataset_id: string;
+  data_source_id: string;
   dataset_name: string | null;
   error: string | null;
   chart_config?: BusterChartConfigProps;

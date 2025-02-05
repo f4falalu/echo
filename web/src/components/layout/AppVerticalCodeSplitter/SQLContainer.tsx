@@ -4,68 +4,86 @@ import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from 'ahooks';
 import { Button, Divider } from 'antd';
 import { createStyles } from 'antd-style';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import type { AppVerticalCodeSplitterProps } from './AppVerticalCodeSplitter';
 
 export const SQLContainer: React.FC<{
   className?: string;
-  datasetSQL: string | undefined;
+  sql: string | undefined;
   setDatasetSQL: (sql: string) => void;
   onRunQuery: () => Promise<void>;
+  onSaveSQL?: AppVerticalCodeSplitterProps['onSaveSQL'];
+  disabledSave?: AppVerticalCodeSplitterProps['disabledSave'];
   error?: string | null;
-}> = React.memo(({ className = '', datasetSQL, setDatasetSQL, onRunQuery, error }) => {
-  const { styles, cx } = useStyles();
-  const [isRunning, setIsRunning] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const { openInfoMessage } = useBusterNotifications();
+}> = React.memo(
+  ({ disabledSave, className = '', sql, setDatasetSQL, onRunQuery, onSaveSQL, error }) => {
+    const { styles, cx } = useStyles();
+    const [isRunning, setIsRunning] = useState(false);
+    const [isError, setIsError] = useState(false);
+    const { openInfoMessage } = useBusterNotifications();
 
-  const onCopySQL = useMemoizedFn(() => {
-    navigator.clipboard.writeText(datasetSQL || '');
-    openInfoMessage('SQL copied to clipboard');
-  });
+    const onCopySQL = useMemoizedFn(() => {
+      navigator.clipboard.writeText(sql || '');
+      openInfoMessage('SQL copied to clipboard');
+    });
 
-  const onRunQueryPreflight = useMemoizedFn(async () => {
-    setIsRunning(true);
-    await onRunQuery();
-    setIsRunning(false);
-  });
+    const onRunQueryPreflight = useMemoizedFn(async () => {
+      setIsRunning(true);
+      await onRunQuery();
+      setIsRunning(false);
+    });
 
-  useEffect(() => {
-    setIsError(!!error);
-  }, [error]);
+    useEffect(() => {
+      setIsError(!!error);
+    }, [error]);
 
-  return (
-    <div className={cx(styles.container, 'flex h-full w-full flex-col overflow-hidden', className)}>
-      <AppCodeEditor
-        className="overflow-hidden"
-        value={datasetSQL}
-        onChange={setDatasetSQL}
-        onMetaEnter={onRunQueryPreflight}
-      />
-      <Divider className="!my-0" />
-      <div className="relative flex items-center justify-between px-4 py-2.5">
-        <Button type="default" onClick={onCopySQL}>
-          Copy SQL
-        </Button>
+    return (
+      <div
+        className={cx(styles.container, 'flex h-full w-full flex-col overflow-hidden', className)}>
+        <AppCodeEditor
+          className="overflow-hidden"
+          value={sql}
+          onChange={setDatasetSQL}
+          onMetaEnter={onRunQueryPreflight}
+        />
+        <Divider className="!my-0" />
+        <div className="relative flex items-center justify-between px-4 py-2.5">
+          <Button type="default" onClick={onCopySQL}>
+            Copy SQL
+          </Button>
 
-        <Button
-          type="default"
-          loading={isRunning}
-          disabled={!datasetSQL}
-          className="flex items-center space-x-0"
-          onClick={onRunQueryPreflight}>
-          <span>Run</span>
-          <AppMaterialIcons icon="keyboard_command_key" />
-          <AppMaterialIcons icon="keyboard_return" />
-        </Button>
+          <div className="flex items-center gap-2">
+            {onSaveSQL && (
+              <Button
+                disabled={disabledSave || !sql || isRunning}
+                color="default"
+                variant="solid"
+                onClick={onSaveSQL}>
+                Save
+              </Button>
+            )}
 
-        {error && (
-          <ErrorContainer error={error} onClose={() => setIsError(false)} isError={isError} />
-        )}
+            <Button
+              type="default"
+              loading={isRunning}
+              disabled={!sql}
+              className="flex items-center space-x-0"
+              onClick={onRunQueryPreflight}>
+              <span>Run</span>
+              <AppMaterialIcons icon="keyboard_command_key" />
+              <AppMaterialIcons icon="keyboard_return" />
+            </Button>
+          </div>
+
+          {error && (
+            <ErrorContainer error={error} onClose={() => setIsError(false)} isError={isError} />
+          )}
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 SQLContainer.displayName = 'SQLContainer';
 
