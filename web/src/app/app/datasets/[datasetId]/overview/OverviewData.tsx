@@ -36,6 +36,9 @@ export const OverviewData: React.FC<{
           rows={data || []}
           headerFormat={isAdmin ? (v) => v : undefined}
           cellFormat={defaultCellFormatter}
+          resizable={true}
+          draggable={false}
+          animate={false}
         />
       ) : (
         <EmptyState />

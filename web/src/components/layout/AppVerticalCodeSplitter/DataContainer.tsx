@@ -23,7 +23,7 @@ export const DataContainer: React.FC<{
       />
 
       {hasData ? (
-        <AppDataGrid rows={data} />
+        <AppDataGrid rows={data} resizable={true} draggable={false} animate={false} />
       ) : (
         <div className="flex h-full items-center justify-center">
           {fetchingData ? 'Loading data...' : 'No data returned'}
