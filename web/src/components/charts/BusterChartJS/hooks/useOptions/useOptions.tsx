@@ -169,7 +169,8 @@ export const useOptions = ({
     columnSettings,
     datasetOptions,
     hasMismatchedTooltipsAndMeasures,
-    disableTooltip
+    disableTooltip,
+    colors
   });
 
   const options: ChartProps<ChartJSChartType>['options'] = useMemo(() => {
