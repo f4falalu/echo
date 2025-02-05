@@ -7,14 +7,12 @@ import { useBusterNewChatContextSelector } from '@/context/Chats';
 import { AIWarning } from './AIWarning';
 import { SubmitButton } from './SubmitButton';
 import { useChatInputFlow } from './useChatInputFlow';
-import { useChatContextSelector } from '../../../ChatContext';
 
-const autoSize = { minRows: 3, maxRows: 4 };
+const autoSize = { minRows: 3, maxRows: 16 };
 
 export const ChatInput: React.FC<{}> = React.memo(({}) => {
   const { styles, cx } = useStyles();
   const loading = useBusterNewChatContextSelector((state) => state.loadingNewChat);
-  const selectedFileId = useChatContextSelector((x) => x.selectedFileId);
 
   const [inputValue, setInputValue] = useState('');
   const [isFocused, setIsFocused] = React.useState(false);
@@ -51,19 +49,20 @@ export const ChatInput: React.FC<{}> = React.memo(({}) => {
     <div
       className={cx(
         styles.inputCard,
-        'z-10 mx-3 mt-0.5 flex flex-col items-center space-y-1.5 overflow-hidden pb-2'
+        'z-10 mx-3 mt-0.5 flex min-h-fit flex-col items-center space-y-1.5 overflow-hidden pb-2'
       )}>
       <div
         className={cx(
           styles.inputContainer,
           isFocused && 'focused',
-          'relative flex w-full items-center'
+          loading && 'loading',
+          'relative flex w-full items-center overflow-hidden'
         )}>
         <Input.TextArea
           variant="borderless"
           onBlur={onBlurInput}
           onFocus={onFocusInput}
-          className="inline-block !pl-3.5 !pr-9 !pt-2 align-middle"
+          className="inline-block w-full !pb-2 !pl-3.5 !pr-9 !pt-2 align-middle"
           placeholder="Ask a follow up..."
           value={inputValue}
           autoFocus={true}
@@ -72,6 +71,7 @@ export const ChatInput: React.FC<{}> = React.memo(({}) => {
           disabled={loading}
           autoSize={autoSize}
         />
+
         <div className="absolute bottom-2 right-2">
           <SubmitButton
             disableSendButton={disableSendButton}
@@ -103,6 +103,12 @@ const useStyles = createStyles(({ token, css }) => ({
     }
     &.focused {
       border-color: ${token.colorPrimary};
+    }
+    &.loading {
+      border-color: ${token.colorText};
+      textarea {
+        background: ${token.colorBgContainerDisabled};
+      }
     }
   `
 }));
