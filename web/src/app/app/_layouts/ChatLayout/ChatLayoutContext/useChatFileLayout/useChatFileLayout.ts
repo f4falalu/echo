@@ -93,5 +93,5 @@ const defaultFileView: Record<FileType, FileView> = {
   value: 'results',
   term: 'results',
   dataset: 'results',
-  dashboard: 'results'
+  dashboard: 'dashboard'
 };

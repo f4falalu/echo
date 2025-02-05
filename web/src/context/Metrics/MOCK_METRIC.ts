@@ -153,3 +153,10 @@ SELECT * FROM records;`,
   public_password: '',
   permission: ShareRole.OWNER
 };
+
+export const createMockMetric = (id: string): IBusterMetric => {
+  return {
+    ...MOCK_METRIC,
+    id
+  };
+};

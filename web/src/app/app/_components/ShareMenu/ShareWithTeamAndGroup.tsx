@@ -6,7 +6,7 @@ import { useStyles } from './useStyles';
 import { AccessDropdown } from './AccessDropdown';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { ShareRole } from '@/api/asset_interfaces';
-import { useDashboardContextSelector, useIndividualDashboard } from '@/context/Dashboards';
+import { useDashboardContextSelector, useBusterDashboardIndividual } from '@/context/Dashboards';
 import type { ShareRequest } from '@/api/buster_socket';
 import { useMemoizedFn } from 'ahooks';
 import { useCollectionsContextSelector, useIndividualCollection } from '@/context/Collections';
@@ -27,7 +27,7 @@ export const ShareWithGroupAndTeam: React.FC<{
   const onShareDashboard = useDashboardContextSelector((state) => state.onShareDashboard);
   const onShareCollection = useCollectionsContextSelector((state) => state.onShareCollection);
 
-  const { dashboardResponse } = useIndividualDashboard({
+  const { dashboardResponse } = useBusterDashboardIndividual({
     dashboardId: assetType === ShareAssetType.DASHBOARD ? assetId : undefined
   });
   const { collection } = useIndividualCollection({

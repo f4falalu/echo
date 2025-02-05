@@ -21,7 +21,7 @@ const useMetricData = () => {
     (metricId: string, newMetricData: Partial<BusterMetricData>) => {
       metricDataRef.current = {
         ...metricDataRef.current,
-        [metricId]: { ...metricDataRef.current[metricId], ...newMetricData }
+        [metricId]: { ...metricDataRef.current[metricId], ...newMetricData, metricId }
       };
       startTransition(() => {
         //trigger re-render

@@ -6,5 +6,6 @@ export const DEFAULT_MESSAGE_DATA: BusterMetricData = {
   fetchedAt: 0,
   data_metadata: null,
   code: null,
+  metricId: '',
   error: null
 };

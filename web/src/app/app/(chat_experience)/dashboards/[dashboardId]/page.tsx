@@ -1,3 +1,10 @@
-export default function Page() {
-  return <div className="h-full w-full bg-red-500">Dashboard swag</div>;
+import { DashboardController } from '@appControllers/DashboardController';
+import { AppAssetCheckLayout } from '@/app/app/_layouts/AppAssetCheckLayout';
+
+export default function Page({ params: { dashboardId } }: { params: { dashboardId: string } }) {
+  return (
+    // <AppAssetCheckLayout dashboardId={dashboardId} type="dashboard">
+    <DashboardController dashboardId={dashboardId} />
+    // </AppAssetCheckLayout>
+  );
 }

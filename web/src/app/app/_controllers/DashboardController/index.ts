@@ -1,1 +1,1 @@
-export * from './DashboardIndividualContent';
+export * from './DashboardController';

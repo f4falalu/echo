@@ -6,13 +6,14 @@ import {
   ContextSelector,
   useContextSelector
 } from '@fluentui/react-context-selector';
+import { BusterDashboard } from '@/api/asset_interfaces';
 
 interface DashboardMetricMetadata {
   initialAnimationEnded: boolean;
   hasBeenScrolledIntoView?: boolean;
 }
 
-export const useDashboardIndividual = ({}: {}) => {
+export const useDashboardContent = ({ dashboard }: { dashboard: BusterDashboard }) => {
   const [metricMetadata, setMetricMetadata] = useState<Record<string, DashboardMetricMetadata>>({});
 
   const setInitialAnimationEnded = useMemoizedFn((id: string) => {
@@ -37,25 +38,32 @@ export const useDashboardIndividual = ({}: {}) => {
 
   return {
     metricMetadata,
+    dashboard,
     setInitialAnimationEnded,
     setHasBeenScrolledIntoView
   };
 };
 
-export const DashboardIndividualPageContext = createContext<
-  ReturnType<typeof useDashboardIndividual>
->({} as ReturnType<typeof useDashboardIndividual>);
+export const DashboardContentControllerContext = createContext<
+  ReturnType<typeof useDashboardContent>
+>({} as ReturnType<typeof useDashboardContent>);
 
-export const DashboardIndividualProvider = ({ children }: { children: React.ReactNode }) => {
-  const value = useDashboardIndividual({});
+export const DashboardContentControllerProvider = ({
+  children,
+  dashboard
+}: {
+  children: React.ReactNode;
+  dashboard: BusterDashboard;
+}) => {
+  const value = useDashboardContent({ dashboard });
 
   return (
-    <DashboardIndividualPageContext.Provider value={value}>
+    <DashboardContentControllerContext.Provider value={value}>
       {children}
-    </DashboardIndividualPageContext.Provider>
+    </DashboardContentControllerContext.Provider>
   );
 };
 
-export const useDashboardIndividualContextSelector = <T,>(
-  selector: ContextSelector<ReturnType<typeof useDashboardIndividual>, T>
-) => useContextSelector(DashboardIndividualPageContext, selector);
+export const useDashboardContentControllerContextSelector = <T,>(
+  selector: ContextSelector<ReturnType<typeof useDashboardContent>, T>
+) => useContextSelector(DashboardContentControllerContext, selector);

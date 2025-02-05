@@ -2,33 +2,38 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import isEmpty from 'lodash/isEmpty';
-import { Button } from 'antd';
 import { BusterResizeableGrid, BusterResizeableGridRow } from '@/components/grid';
 import { useDebounceFn, useMemoizedFn } from 'ahooks';
 import { hasRemovedMetrics, hasUnmappedMetrics, normalizeNewMetricsIntoGrid } from './helpers';
 import { DashboardMetricItem } from './DashboardMetricItem';
-import { useDashboards } from '@/context/Dashboards';
-import { AppMaterialIcons } from '@/components/icons';
-import { DashboardIndividualProvider } from './DashboardInvididualContext';
+import type { useDashboards } from '@/context/Dashboards';
+import { DashboardContentControllerProvider } from './DashboardContentControllerContext';
 import type {
   BusterMetric,
   BusterDashboardResponse,
   DashboardConfig
 } from '@/api/asset_interfaces';
+import { DashboardEmptyState } from './DashboardEmptyState';
 
 const DEFAULT_EMPTY_ROWS: DashboardConfig['rows'] = [];
 const DEFAULT_EMPTY_METRICS: BusterMetric[] = [];
 const DEFAULT_EMPTY_CONFIG: DashboardConfig = {};
 
-export const DashboardIndividualDashboard: React.FC<{
+export const DashboardContentController: React.FC<{
   allowEdit?: boolean;
-  dashboardResponse: BusterDashboardResponse;
+  metrics: BusterDashboardResponse['metrics'];
+  dashboard: BusterDashboardResponse['dashboard'];
   onUpdateDashboardConfig: ReturnType<typeof useDashboards>['onUpdateDashboardConfig'];
   openAddContentModal: () => void;
 }> = React.memo(
-  ({ openAddContentModal, allowEdit, dashboardResponse, onUpdateDashboardConfig }) => {
-    const metrics = dashboardResponse.metrics || DEFAULT_EMPTY_METRICS;
-    const dashboardConfig = dashboardResponse.dashboard.config || DEFAULT_EMPTY_CONFIG;
+  ({
+    openAddContentModal,
+    dashboard,
+    allowEdit,
+    metrics = DEFAULT_EMPTY_METRICS,
+    onUpdateDashboardConfig
+  }) => {
+    const dashboardConfig = dashboard.config || DEFAULT_EMPTY_CONFIG;
     const configRows = dashboardConfig?.rows || DEFAULT_EMPTY_ROWS;
     const hasMetrics = !isEmpty(metrics);
     const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -47,7 +52,7 @@ export const DashboardIndividualDashboard: React.FC<{
           }))
         };
       });
-      onUpdateDashboardConfig({ rows: formattedRows }, dashboardResponse.dashboard.id);
+      onUpdateDashboardConfig({ rows: formattedRows }, dashboard.id);
     });
 
     const remapMetrics = useMemo(() => {
@@ -72,9 +77,9 @@ export const DashboardIndividualDashboard: React.FC<{
                   <DashboardMetricItem
                     key={item.id}
                     metricId={item.id}
-                    dashboardId={dashboardResponse.dashboard.id}
+                    dashboardId={dashboard.id}
                     allowEdit={allowEdit}
-                    numberOfMetrics={dashboardResponse.metrics.length}
+                    numberOfMetrics={metrics.length}
                   />
                 )
               };
@@ -92,17 +97,17 @@ export const DashboardIndividualDashboard: React.FC<{
     });
 
     useEffect(() => {
-      if (remapMetrics && dashboardResponse.dashboard.id) {
+      if (remapMetrics && dashboard.id) {
         debouncedForInitialRenderOnUpdateDashboardConfig({
           rows: rows
         });
       }
-    }, [dashboardResponse.dashboard.id, remapMetrics]);
+    }, [dashboard.id, remapMetrics]);
 
     return (
       <div className="h-full w-full">
         {hasMetrics && !!dashboardRows.length ? (
-          <DashboardIndividualProvider>
+          <DashboardContentControllerProvider dashboard={dashboard}>
             <BusterResizeableGrid
               rows={dashboardRows}
               allowEdit={allowEdit}
@@ -114,14 +119,14 @@ export const DashboardIndividualDashboard: React.FC<{
                   <DashboardMetricItem
                     metricId={draggingId}
                     allowEdit={false}
-                    dashboardId={dashboardResponse.dashboard.id}
+                    dashboardId={dashboard.id}
                     isDragOverlay
-                    numberOfMetrics={dashboardResponse.metrics.length}
+                    numberOfMetrics={metrics.length}
                   />
                 )
               }
             />
-          </DashboardIndividualProvider>
+          </DashboardContentControllerProvider>
         ) : (
           <DashboardEmptyState openAddContentModal={openAddContentModal} />
         )}
@@ -129,17 +134,4 @@ export const DashboardIndividualDashboard: React.FC<{
     );
   }
 );
-DashboardIndividualDashboard.displayName = 'DashboardIndividualDashboard';
-
-const DashboardEmptyState: React.FC<{
-  openAddContentModal: () => void;
-}> = React.memo(({ openAddContentModal }) => {
-  return (
-    <div className="-ml-1.5">
-      <Button type="text" icon={<AppMaterialIcons icon="add" />} onClick={openAddContentModal}>
-        Add content
-      </Button>
-    </div>
-  );
-});
-DashboardEmptyState.displayName = 'DashboardEmptyState';
+DashboardContentController.displayName = 'DashboardIndividualDashboard';

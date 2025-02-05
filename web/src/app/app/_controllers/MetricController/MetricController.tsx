@@ -1,17 +1,37 @@
 'use client';
 
 import React from 'react';
-import { type MetricFileView, useChatLayoutContextSelector } from '../../_layouts/ChatLayout';
-import { MetricViewController } from './MetricViewController';
+import {
+  MetricFileView,
+  useChatLayoutContextSelector
+} from '@appLayouts/ChatLayout/ChatLayoutContext';
+import { MetricViewComponents } from './config';
+import { useBusterMetricIndividual } from '@/context/Metrics';
+import { useBusterNewChatContextSelector } from '@/context/Chats';
+import { FileIndeterminateLoader } from '@appComponents/FileIndeterminateLoader';
 
 export const MetricController: React.FC<{
   metricId: string;
 }> = React.memo(({ metricId }) => {
-  const selectedFileView = useChatLayoutContextSelector(
-    (x) => x.selectedFileView
-  ) as MetricFileView;
+  const { metric, metricData } = useBusterMetricIndividual({ metricId });
+  const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView) || 'chart';
+  const loadingNewChat = useBusterNewChatContextSelector((x) => x.loadingNewChat);
 
-  return <MetricViewController metricId={metricId} selectedFileView={selectedFileView} />;
+  const isFetchedConfig = metric.fetched;
+  const isFetchedData = metricData.fetched;
+
+  const showLoader = !isFetchedConfig || !isFetchedData || loadingNewChat;
+
+  const Component = selectedFileView
+    ? MetricViewComponents[selectedFileView as MetricFileView]
+    : () => null;
+
+  return (
+    <>
+      {showLoader && <FileIndeterminateLoader />}
+      <Component metricId={metricId} />
+    </>
+  );
 });
 
 MetricController.displayName = 'MetricController';

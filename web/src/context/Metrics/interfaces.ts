@@ -13,6 +13,7 @@ export interface IBusterMetric extends Required<BusterMetric> {
 }
 
 export interface BusterMetricData {
+  metricId: string;
   data?: IDataResult;
   dataFromRerun?: IDataResult;
   fetched: boolean;

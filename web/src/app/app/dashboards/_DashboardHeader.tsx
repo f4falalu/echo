@@ -5,7 +5,7 @@ import { AppContentHeader } from '../../../components/layout/AppContentHeader';
 import { Breadcrumb, Button } from 'antd';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { useDashboardContextSelector, useIndividualDashboard } from '@/context/Dashboards';
+import { useDashboardContextSelector } from '@/context/Dashboards';
 import { DashboardsListEmitPayload } from '@/api/buster_socket/dashboards';
 import { AppMaterialIcons, AppSegmented } from '@/components';
 import isEmpty from 'lodash/isEmpty';
@@ -21,8 +21,7 @@ export const DashboardHeader: React.FC<{}> = () => {
   const loadedDashboards = useDashboardContextSelector((state) => state.loadedDashboards);
   const onCreateNewDashboard = useDashboardContextSelector((state) => state.onCreateNewDashboard);
   const creatingDashboard = useDashboardContextSelector((state) => state.creatingDashboard);
-  const { dashboardResponse } = useIndividualDashboard({ dashboardId: openedDashboardId });
-  const dashboardTitle = dashboardResponse?.dashboard?.name || 'Dashboards';
+  const dashboardTitle = 'Dashboards';
 
   const showFilters =
     (loadedDashboards && dashboardsList.length !== 0) || !isEmpty(dashboardListFilters);

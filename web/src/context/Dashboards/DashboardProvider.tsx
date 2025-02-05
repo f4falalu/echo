@@ -39,7 +39,6 @@ export const useDashboards = () => {
   //DASHBOARD INDIVIDUAL
   const {
     dashboards,
-    editingDashboardTitle,
     removeItemFromIndividualDashboard,
     refreshDashboard,
     onVerifiedDashboard,
@@ -51,7 +50,6 @@ export const useDashboards = () => {
     onUpdateDashboard,
     onUpdateDashboardConfig,
     onShareDashboard,
-    setEditingDashboardTitle,
     onBulkAddRemoveToDashboard,
     onAddToCollection,
     onRemoveFromCollection
@@ -86,8 +84,6 @@ export const useDashboards = () => {
 
     //OTHER
     onBulkAddRemoveToDashboard,
-    editingDashboardTitle,
-    setEditingDashboardTitle,
     onRemoveFromCollection,
     onAddToCollection,
     refreshDashboard,
@@ -121,13 +117,16 @@ export const useDashboardContextSelector = <T,>(
   selector: ContextSelector<ReturnType<typeof useDashboards>, T>
 ) => useContextSelector(BusterDashboards, selector);
 
-export const useIndividualDashboard = ({ dashboardId }: { dashboardId: string | undefined }) => {
+export const useBusterDashboardIndividual = ({
+  dashboardId
+}: {
+  dashboardId: string | undefined;
+}) => {
   const dashboardResponse = useDashboardContextSelector(
     (state) => state.dashboards[dashboardId || '']
   );
   const subscribeToDashboard = useDashboardContextSelector((state) => state.subscribeToDashboard);
   const unSubscribeToDashboard = useDashboardContextSelector((x) => x.unSubscribeToDashboard);
-  const setEditingDashboardTitle = useDashboardContextSelector((x) => x.setEditingDashboardTitle);
 
   useLayoutEffect(() => {
     if (dashboardId) subscribeToDashboard({ dashboardId });
@@ -135,10 +134,14 @@ export const useIndividualDashboard = ({ dashboardId }: { dashboardId: string | 
 
   useUnmount(() => {
     if (dashboardId) unSubscribeToDashboard({ dashboardId });
-    setEditingDashboardTitle(false);
   });
 
+  const dashboard = dashboardResponse?.dashboard;
+  const metrics = dashboardResponse?.metrics;
+
   return {
+    dashboard,
+    metrics,
     dashboardResponse
   };
 };

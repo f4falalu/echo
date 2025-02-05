@@ -7,12 +7,7 @@ import {
 import { useBusterWebSocket } from '../BusterWebSocket';
 import type { BusterChat } from '@/api/asset_interfaces';
 import { useMemoizedFn, useUnmount } from 'ahooks';
-import {
-  createMockResponseMessageFile,
-  createMockResponseMessageText,
-  createMockResponseMessageThought,
-  MOCK_CHAT
-} from './MOCK_CHAT';
+import { createMockResponseMessageThought, MOCK_CHAT } from './MOCK_CHAT';
 import { IBusterChat } from './interfaces';
 import { chatUpgrader } from './helpers';
 import { useHotkeys } from 'react-hotkeys-hook';

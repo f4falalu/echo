@@ -1,4 +1,3 @@
-import { DashboardIndividualContent } from '@appControllers/DashboardController';
 import { AppAssetCheckLayout } from '@appLayouts/AppAssetCheckLayout';
 
 export default function DashboardPage({
@@ -8,7 +7,7 @@ export default function DashboardPage({
 }) {
   return (
     <AppAssetCheckLayout dashboardId={dashboardId} type="dashboard">
-      <DashboardIndividualContent />
+      <></>
     </AppAssetCheckLayout>
   );
 }

@@ -5,27 +5,16 @@ import {
   useContextSelector
 } from '@fluentui/react-context-selector';
 import { BusterMetricsListProvider } from './BusterMetricsListProvider';
-import { useDebounceFn, useMemoizedFn, useMount } from 'ahooks';
+import { useMemoizedFn, useMount } from 'ahooks';
 import type { IBusterMetric } from './interfaces';
-import {
-  BusterMetric,
-  DEFAULT_CHART_CONFIG,
-  IBusterMetricChartConfig,
-  ShareRole,
-  VerificationStatus
-} from '@/api/asset_interfaces';
+import { BusterMetric } from '@/api/asset_interfaces';
 import { useBusterWebSocket } from '../BusterWebSocket';
 import { useParams } from 'next/navigation';
-import { useUserConfigContextSelector } from '../Users';
 import { useBusterAssetsContextSelector } from '../Assets/BusterAssetsProvider';
-import { useDashboardContextSelector } from '../Dashboards';
 import { useBusterNotifications } from '../BusterNotifications';
-import last from 'lodash/last';
 import { useTransition } from 'react';
-import type { IColumnLabelFormat } from '@/components/charts/interfaces/columnLabelInterfaces';
-import type { ColumnSettings } from '@/components/charts/interfaces/columnInterfaces';
 import { RustApiError } from '@/api/buster_rest/errors';
-import { prepareMetricUpdateMetric, resolveEmptyMetric, upgradeMetricToIMetric } from './helpers';
+import { resolveEmptyMetric, upgradeMetricToIMetric } from './helpers';
 import { MetricUpdateMetric } from '@/api/buster_socket/metrics';
 import { useBusterMetricDataContextSelector } from '../MetricData';
 import { MOCK_METRIC } from './MOCK_METRIC';
@@ -42,7 +31,6 @@ export const useBusterMetrics = () => {
     (state) => state.setAssetPasswordError
   );
   const metricsRef = useRef<Record<string, IBusterMetric>>({});
-  const [editingMetricTitle, setEditingMetricTitle] = useState(false);
 
   const getMetricId = useMemoizedFn((metricId?: string): string => {
     return metricId || selectedMetricId;
@@ -260,8 +248,6 @@ export const useBusterMetrics = () => {
     removeMetricFromDashboard,
     removeMetricFromCollection,
     saveMetricToCollection,
-    editingMetricTitle,
-    setEditingMetricTitle,
     onSaveMetricChanges,
     getMetricMemoized,
     metrics: metricsRef.current
@@ -288,8 +274,6 @@ export const useBusterMetricsContextSelector = <T,>(
 };
 
 export const useBusterMetricIndividual = ({ metricId }: { metricId: string }) => {
-  const editingMetricTitle = useBusterMetricsContextSelector((x) => x.editingMetricTitle);
-  const setEditingMetricTitle = useBusterMetricsContextSelector((x) => x.setEditingMetricTitle);
   const subscribeToMetric = useBusterMetricsContextSelector((x) => x.subscribeToMetric);
   const fetchDataByMetricId = useBusterMetricDataContextSelector((x) => x.fetchDataByMetricId);
   const metric = useBusterMetricsContextSelector((x) => x.metrics[metricId]);
@@ -298,14 +282,12 @@ export const useBusterMetricIndividual = ({ metricId }: { metricId: string }) =>
   );
 
   useMount(() => {
-    subscribeToMetric({ metricId });
+    //  subscribeToMetric({ metricId });
     fetchDataByMetricId({ metricId });
   });
 
   return {
     metric: resolveEmptyMetric(metric, metricId),
-    metricData,
-    editingMetricTitle,
-    setEditingMetricTitle
+    metricData
   };
 };

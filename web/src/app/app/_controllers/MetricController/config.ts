@@ -5,7 +5,6 @@ import { MetricViewFile } from './MetricViewFile';
 import { MetricViewResults } from './MetricViewResults';
 
 export interface MetricViewProps {
-  selectedFileView: MetricFileView;
   metricId: string;
 }
 

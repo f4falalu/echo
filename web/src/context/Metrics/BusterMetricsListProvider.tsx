@@ -36,7 +36,7 @@ const useMetricsList = () => {
     >
   >({});
 
-  const _onInitializeMetrics = useMemoizedFn(
+  const _onInitializeListMetrics = useMemoizedFn(
     (metrics: BusterMetricListItem[], filters: VerificationStatus[], admin_view: boolean) => {
       const newMetrics = metricsArrayToRecord(metrics);
       const filterKey = createFilterRecord({ filters, admin_view });
@@ -137,7 +137,7 @@ const useMetricsList = () => {
         },
         responseEvent: {
           route: '/metrics/list:getMetricList',
-          callback: (v) => _onInitializeMetrics(v, filters || [], admin_view)
+          callback: (v) => _onInitializeListMetrics(v, filters || [], admin_view)
         }
       });
     }

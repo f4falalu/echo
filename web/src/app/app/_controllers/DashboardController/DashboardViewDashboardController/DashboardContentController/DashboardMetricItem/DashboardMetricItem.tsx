@@ -5,7 +5,7 @@ import { useDashboardMetric } from './useDashboardMetric';
 import { BusterChart } from '@/components/charts';
 import { MetricTitle } from './MetricTitle';
 import { createBusterRoute, BusterRoutes } from '@/routes';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn, useWhyDidYouUpdate } from 'ahooks';
 
 const _DashboardMetricItem: React.FC<{
   metricId: string;
@@ -24,24 +24,31 @@ const _DashboardMetricItem: React.FC<{
 }) => {
   const { cx, styles } = useStyles();
 
-  const { ref, renderChart, metric, metricData, initialAnimationEnded, setInitialAnimationEnded } =
-    useDashboardMetric({ metricId });
+  const {
+    conatinerRef,
+    renderChart,
+    metric,
+    metricData,
+    initialAnimationEnded,
+    setInitialAnimationEnded
+  } = useDashboardMetric({ metricId });
 
   const loadingMetricData = !!metric && !metricData.fetched;
   const chartOptions = metric.chart_config;
   const data = metricData.data || null;
   const loading = loadingMetricData;
   const animate = !initialAnimationEnded && !isDragOverlay && numberOfMetrics <= 8;
+  const isTable = metric.chart_config.selectedChartType === 'table';
 
   const error = useMemo(() => {
     if (metric.error) {
       return metric.error;
     }
-    if (metric.code === null) {
+    if (metric.code === null && metric.fetched) {
       return 'No code was generated for this request';
     }
     return undefined;
-  }, [metric]);
+  }, [metric.error, metric.code]);
 
   const metricLink = useMemo(() => {
     return createBusterRoute({
@@ -57,14 +64,36 @@ const _DashboardMetricItem: React.FC<{
 
   const cardClassNamesMemoized = useMemo(() => {
     return {
-      body: `h-full w-full overflow-hidden !p-0 relative`,
+      body: `h-full w-full overflow-hidden ${isTable ? '!p-0' : '!px-2 !pt-2 !pb-0.5'} relative`,
       header: cx(`!p-0 !min-h-[52px]`, styles.cardTitle)
     };
-  }, []);
+  }, [isTable]);
+
+  useWhyDidYouUpdate('DashboardMetricItem', {
+    metricId,
+    dashboardId,
+    allowEdit,
+    className,
+    isDragOverlay,
+    numberOfMetrics,
+    renderChart,
+    loading,
+    error,
+    metricLink,
+    onInitialAnimationEndPreflight,
+    cardClassNamesMemoized,
+    metric,
+    metricData,
+    initialAnimationEnded,
+    setInitialAnimationEnded,
+    data,
+    loadingMetricData,
+    chartOptions
+  });
 
   return (
     <Card
-      ref={ref}
+      ref={conatinerRef}
       size="small"
       className={`metric-item flex h-full w-full flex-col overflow-auto ${className}`}
       classNames={cardClassNamesMemoized}
@@ -82,7 +111,7 @@ const _DashboardMetricItem: React.FC<{
       }>
       <div
         className={cx(
-          'absolute bottom-0 left-0 right-0 top-[1px]',
+          //  'absolute bottom-0 left-0 right-0 top-[1px]',
           `h-full w-full overflow-hidden bg-transparent`,
           isDragOverlay ? 'pointer-events-none' : 'pointer-events-auto'
         )}>

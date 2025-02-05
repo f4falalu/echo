@@ -54,6 +54,7 @@ export const MOCK_DATA: Required<BusterMetricData> = {
   error: null,
   fetchedAt: Date.now(),
   data: data,
+  metricId: faker.string.uuid(),
   data_metadata: dataMetadata,
   dataFromRerun: null,
   code: `SELECT 
@@ -63,4 +64,12 @@ export const MOCK_DATA: Required<BusterMetricData> = {
 FROM sales_data 
 WHERE date BETWEEN '2024-01-01' AND '2024-01-31'
 ORDER BY date ASC`
+};
+
+export const createMockData = (metricId: string): Required<BusterMetricData> => {
+  return {
+    ...MOCK_DATA,
+    metricId,
+    data: mockData()
+  };
 };

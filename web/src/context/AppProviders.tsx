@@ -66,9 +66,8 @@ export const AppProviders: React.FC<
                       <DatasetProviders>
                         <BusterCollectionsProvider>
                           <BusterMetricDataProvider>
-                            <BusterDashboardProvider>
-                              {/* TODO: remove when we are ready to use chats */}
-                              <BusterMetricsProvider>
+                            <BusterMetricsProvider>
+                              <BusterDashboardProvider>
                                 <BusterSQLProvider>
                                   <BusterTermsProvider>
                                     <BusterPermissionsProvider>
@@ -85,8 +84,8 @@ export const AppProviders: React.FC<
                                     </BusterPermissionsProvider>
                                   </BusterTermsProvider>
                                 </BusterSQLProvider>
-                              </BusterMetricsProvider>
-                            </BusterDashboardProvider>
+                              </BusterDashboardProvider>
+                            </BusterMetricsProvider>
                           </BusterMetricDataProvider>
                         </BusterCollectionsProvider>
                       </DatasetProviders>
