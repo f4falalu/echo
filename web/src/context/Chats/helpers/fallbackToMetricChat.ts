@@ -19,7 +19,7 @@ export const fallbackToMetricChat = (metric: {
             message: `I’ve pulled in your metric. How can I help? Is there anything you'd like to modify?`
           },
           {
-            id: 'init-file',
+            id: metric.id,
             type: 'file',
             file_type: 'metric',
             file_name: metric.title || 'New Metric',

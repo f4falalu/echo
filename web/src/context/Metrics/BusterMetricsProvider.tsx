@@ -29,17 +29,14 @@ import { prepareMetricUpdateMetric, resolveEmptyMetric, upgradeMetricToIMetric }
 import { MetricUpdateMetric } from '@/api/buster_socket/metrics';
 import { useBusterMetricDataContextSelector } from '../MetricData';
 import { MOCK_METRIC } from './MOCK_METRIC';
+import { useUpdateMetricConfig } from './useUpdateMetricConfig';
+import { useUpdateMetricAssosciations } from './useUpdateMetricAssosciations';
 
 export const useBusterMetrics = () => {
   const [isPending, startTransition] = useTransition();
   const { metricId: selectedMetricId } = useParams<{ metricId: string }>();
   const { openConfirmModal } = useBusterNotifications();
   const busterSocket = useBusterWebSocket();
-  const userFavorites = useUserConfigContextSelector((state) => state.userFavorites);
-  const forceGetFavoritesList = useUserConfigContextSelector((x) => x.forceGetFavoritesList);
-  const removeItemFromIndividualDashboard = useDashboardContextSelector(
-    (state) => state.removeItemFromIndividualDashboard
-  );
   const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
   const setAssetPasswordError = useBusterAssetsContextSelector(
     (state) => state.setAssetPasswordError
@@ -63,191 +60,6 @@ export const useBusterMetrics = () => {
     delete prev[metricId];
     setMetrics(prev);
   });
-
-  const saveMetricToDashboard = useMemoizedFn(
-    async ({ metricId, dashboardIds }: { metricId: string; dashboardIds: string[] }) => {
-      const lastId = last(dashboardIds);
-      const prev = metricsRef.current;
-      setMetrics({
-        ...prev,
-        [metricId]: {
-          ...prev[metricId],
-          dashboards: [
-            ...prev[metricId].dashboards,
-            ...dashboardIds.map((id) => {
-              return { id, name: '' };
-            })
-          ]
-        }
-      });
-      let promises: Promise<any>[] = [];
-      dashboardIds.forEach((dashboardId) => {
-        promises.push(
-          busterSocket.emitAndOnce({
-            emitEvent: {
-              route: '/metrics/update',
-              payload: {
-                id: metricId,
-                save_to_dashboard: dashboardId
-              }
-            },
-            responseEvent: {
-              route: '/metrics/update:updateMetricState',
-              callback: (d) => d
-            }
-          })
-        );
-      });
-      await Promise.all(promises);
-      return lastId;
-    }
-  );
-
-  const saveMetricToCollection = useMemoizedFn(
-    async ({ metricId, collectionIds }: { metricId: string; collectionIds: string[] }) => {
-      const collectionIsInFavorites = userFavorites.some((f) => {
-        const searchId = f.collection_id || f.id;
-        return collectionIds.includes(searchId);
-      });
-      const addToPromises: Promise<unknown>[] = [];
-      collectionIds.forEach((collectionId) => {
-        const promise = busterSocket.emitAndOnce({
-          emitEvent: {
-            route: '/metrics/update',
-            payload: {
-              id: metricId,
-              add_to_collections: [collectionId]
-            }
-          },
-          responseEvent: {
-            route: '/metrics/update:updateMetricState',
-            callback: (d) => d
-          }
-        });
-        addToPromises.push(promise);
-      });
-
-      const prev = metricsRef.current;
-
-      const hasPreviousMetric = prev[metricId];
-      if (!hasPreviousMetric) return; //if the metric doesn't exist, don't save to collections
-
-      setMetrics({
-        ...prev,
-        [metricId]: {
-          ...prev[metricId],
-          collections: [
-            ...prev[metricId].collections,
-            ...collectionIds.map((id) => {
-              return { id, name: '' };
-            })
-          ]
-        }
-      });
-
-      if (addToPromises.length) await Promise.all(addToPromises);
-      if (collectionIsInFavorites) {
-        await forceGetFavoritesList();
-      }
-    }
-  );
-
-  const removeMetricFromDashboard = useMemoizedFn(
-    async ({
-      metricId,
-      dashboardId,
-      useConfirmModal = true
-    }: {
-      metricId: string;
-      dashboardId: string;
-      useConfirmModal?: boolean;
-    }) => {
-      const prev = metricsRef.current;
-
-      const onOk = async () => {
-        if (prev[metricId]) {
-          setMetrics({
-            ...prev,
-            [metricId]: {
-              ...prev[metricId],
-              dashboards: prev[metricId].dashboards.filter((d) => d.id !== dashboardId)
-            }
-          });
-        }
-        removeItemFromIndividualDashboard({
-          dashboardId,
-          metricId
-        });
-        return await busterSocket.emitAndOnce({
-          emitEvent: {
-            route: '/metrics/update',
-            payload: {
-              id: metricId,
-              remove_from_dashboard: dashboardId
-            }
-          },
-          responseEvent: {
-            route: '/metrics/update:updateMetricState',
-            callback: (d) => d
-          }
-        });
-      };
-      if (!useConfirmModal) return await onOk();
-      return await openConfirmModal({
-        title: 'Remove from dashboard',
-        content: 'Are you sure you want to remove this metric from this dashboard?',
-        onOk
-      });
-    }
-  );
-
-  const removeMetricFromCollection = useMemoizedFn(
-    async ({
-      metricId,
-      collectionId,
-      ignoreFavoriteUpdates
-    }: {
-      metricId: string;
-      collectionId: string;
-      ignoreFavoriteUpdates?: boolean;
-    }) => {
-      const currentMetric = _getMetric({ metricId });
-      const collectionIsInFavorites = userFavorites.some((f) => {
-        const searchId = f.collection_id || f.id;
-        return currentMetric.collections.some((c) => c.id === searchId);
-      });
-
-      const prev = metricsRef.current;
-
-      const hasPreviousMetric = prev[metricId];
-      if (hasPreviousMetric) {
-        setMetrics({
-          ...prev,
-          [metricId]: {
-            ...prev[metricId],
-            collections: prev[metricId].collections.filter((d) => d.id !== collectionId)
-          }
-        });
-      }
-
-      await busterSocket.emitAndOnce({
-        emitEvent: {
-          route: '/metrics/update',
-          payload: {
-            id: metricId,
-            remove_from_collections: [collectionId]
-          }
-        },
-        responseEvent: {
-          route: '/metrics/update:updateMetricState',
-          callback: (d) => d
-        }
-      });
-      if (collectionIsInFavorites && ignoreFavoriteUpdates !== true) {
-        await forceGetFavoritesList();
-      }
-    }
-  );
 
   const deleteMetric = useMemoizedFn(async ({ metricIds }: { metricIds: string[] }) => {
     return await openConfirmModal({
@@ -273,7 +85,7 @@ export const useBusterMetrics = () => {
 
   //UI SELECTORS
 
-  const _getMetric = useMemoizedFn(({ metricId }: { metricId?: string }): IBusterMetric => {
+  const getMetricMemoized = useMemoizedFn(({ metricId }: { metricId?: string }): IBusterMetric => {
     const _metricId = getMetricId(metricId);
     const metrics = metricsRef.current || {};
     const currentMetric = metrics[_metricId];
@@ -314,157 +126,6 @@ export const useBusterMetrics = () => {
     };
   });
 
-  const onUpdateMetric = useMemoizedFn(
-    async (newMetricPartial: Partial<IBusterMetric>, saveToServer: boolean = true) => {
-      const metricId = getMetricId(newMetricPartial.id);
-      const currentMetric = _getMetric({ metricId })!;
-      const newMetric: IBusterMetric = {
-        ...currentMetric,
-        ...newMetricPartial
-      };
-      setMetrics({
-        [metricId]: newMetric
-      });
-
-      //This will trigger a rerender and push prepareMetricUpdateMetric off UI metric
-      startTransition(() => {
-        const isReadyOnly = currentMetric.permission === ShareRole.VIEWER;
-        if (saveToServer && !isReadyOnly) {
-          _prepareMetricAndSaveToServer(newMetric, currentMetric);
-        }
-      });
-    }
-  );
-
-  const { run: _prepareMetricAndSaveToServer } = useDebounceFn(
-    useMemoizedFn((newMetric: IBusterMetric, oldMetric: IBusterMetric) => {
-      const changedValues = prepareMetricUpdateMetric(newMetric, oldMetric);
-      if (changedValues) {
-        _updateMetricMessageToServer(changedValues);
-      }
-    }),
-    { wait: 700 }
-  );
-
-  const onUpdateMetricChartConfig = useMemoizedFn(
-    ({
-      metricId,
-      chartConfig,
-      ignoreUndoRedo
-    }: {
-      metricId?: string;
-      chartConfig: Partial<IBusterMetricChartConfig>;
-      ignoreUndoRedo?: boolean;
-    }) => {
-      const currentMetric = _getMetric({
-        metricId
-      });
-
-      if (!ignoreUndoRedo) {
-        // undoRedoParams.addToUndoStack({
-        //   metricId: editMetric.id,
-        //   messageId: editMessage.id,
-        //   chartConfig: editMessage.chart_config
-        // });
-      }
-
-      const newChartConfig: IBusterMetricChartConfig = {
-        ...DEFAULT_CHART_CONFIG,
-        ...currentMetric.chart_config,
-        ...chartConfig
-      };
-      onUpdateMetric({
-        id: metricId,
-        chart_config: newChartConfig
-      });
-    }
-  );
-
-  const onUpdateColumnLabelFormat = useMemoizedFn(
-    ({
-      columnId,
-      columnLabelFormat,
-      metricId
-    }: {
-      columnId: string;
-      metricId?: string;
-      columnLabelFormat: Partial<IColumnLabelFormat>;
-    }) => {
-      const currentMetric = _getMetric({ metricId });
-      const existingColumnLabelFormats = currentMetric.chart_config.columnLabelFormats;
-      const existingColumnLabelFormat = existingColumnLabelFormats[columnId];
-      const newColumnLabelFormat = {
-        ...existingColumnLabelFormat,
-        ...columnLabelFormat
-      };
-      const columnLabelFormats = {
-        ...existingColumnLabelFormats,
-        [columnId]: newColumnLabelFormat
-      };
-      onUpdateMetricChartConfig({
-        metricId,
-        chartConfig: {
-          columnLabelFormats
-        }
-      });
-    }
-  );
-
-  const onUpdateColumnSetting = useMemoizedFn(
-    ({
-      columnId,
-      columnSetting,
-      metricId
-    }: {
-      columnId: string;
-      columnSetting: Partial<ColumnSettings>;
-      metricId?: string;
-    }) => {
-      const currentMetric = _getMetric({ metricId });
-      const existingColumnSettings = currentMetric.chart_config.columnSettings;
-      const existingColumnSetting = currentMetric.chart_config.columnSettings[columnId];
-      const newColumnSetting: Required<ColumnSettings> = {
-        ...existingColumnSetting,
-        ...columnSetting
-      };
-      const newColumnSettings: Record<string, Required<ColumnSettings>> = {
-        ...existingColumnSettings,
-        [columnId]: newColumnSetting
-      };
-      onUpdateMetricChartConfig({
-        metricId,
-        chartConfig: {
-          columnSettings: newColumnSettings
-        }
-      });
-    }
-  );
-
-  const onSaveMetricChanges = useMemoizedFn(
-    async ({
-      metricId,
-      ...params
-    }: {
-      metricId: string;
-      save_draft: boolean;
-      save_as_metric_state?: string;
-    }) => {
-      return busterSocket.emitAndOnce({
-        emitEvent: {
-          route: '/metrics/update',
-          payload: {
-            id: metricId,
-            ...params
-          }
-        },
-        responseEvent: {
-          route: '/metrics/update:updateMetricState',
-          callback: _onUpdateMetric
-        }
-      }) as Promise<[BusterMetric]>;
-    }
-  );
-
   //LISTENERS
 
   const _onGetMetricState = useMemoizedFn((metric: BusterMetric) => {
@@ -478,28 +139,6 @@ export const useBusterMetrics = () => {
 
   const _onUpdateMetric = useMemoizedFn((metric: BusterMetric) => {
     onInitializeMetric(metric);
-  });
-
-  const _onCheckUpdateMetricMessage = useMemoizedFn((metric: BusterMetric) => {
-    // const newMessage = metric[0].messages.find((m) => m.id === messageId);
-    // const currentMessage = _getMetricMessage({
-    //   metricId: selectedMetricId,
-    //   messageId: messageId
-    // });
-
-    // if (newMessage?.draft_session_id && !currentMessage?.draft_session_id) {
-    //   onUpdateMetricMessage(
-    //     {
-    //       metricId: selectedMetricId,
-    //       messageId: messageId,
-    //       message: {
-    //         draft_session_id: newMessage.draft_session_id
-    //       }
-    //     },
-    //     false
-    //   );
-    // }
-    return metric;
   });
 
   // EMITTERS
@@ -549,24 +188,6 @@ export const useBusterMetrics = () => {
     });
   });
 
-  const updateMetricMessageToServer = useMemoizedFn((payload: MetricUpdateMetric['payload']) => {
-    return busterSocket.emitAndOnce({
-      emitEvent: {
-        route: '/metrics/update',
-        payload
-      },
-      responseEvent: {
-        route: '/metrics/update:updateMetricState',
-        //   route: '/metrics/messages/update:updateMetricState',
-        callback: _onCheckUpdateMetricMessage
-      }
-    });
-  });
-
-  const { run: _updateMetricMessageToServer } = useDebounceFn(updateMetricMessageToServer, {
-    wait: 300
-  });
-
   const onShareMetric = useMemoizedFn(
     async (
       payload: Pick<
@@ -595,14 +216,32 @@ export const useBusterMetrics = () => {
     }
   );
 
-  const onVerifiedMetric = useMemoizedFn(
-    async ({ metricId, status }: { metricId: string; status: VerificationStatus }) => {
-      return await onUpdateMetric({
-        id: metricId,
-        status
-      });
-    }
-  );
+  const {
+    saveMetricToDashboard,
+    saveMetricToCollection,
+    removeMetricFromDashboard,
+    removeMetricFromCollection
+  } = useUpdateMetricAssosciations({
+    metricsRef,
+    setMetrics,
+    getMetricMemoized
+  });
+
+  const {
+    onVerifiedMetric,
+    onUpdateMetric,
+    onUpdateMetricChartConfig,
+    onUpdateColumnLabelFormat,
+    onUpdateColumnSetting,
+    updateMetricToServer,
+    onSaveMetricChanges
+  } = useUpdateMetricConfig({
+    getMetricId,
+    setMetrics,
+    startTransition,
+    _onUpdateMetric,
+    getMetricMemoized
+  });
 
   return {
     resetMetric,
@@ -614,7 +253,7 @@ export const useBusterMetrics = () => {
     subscribeToMetric,
     unsubscribeToMetricEvents,
     onUpdateMetricChartConfig,
-    updateMetricMessageToServer,
+    updateMetricToServer,
     onUpdateColumnLabelFormat,
     onUpdateColumnSetting,
     saveMetricToDashboard,
@@ -623,9 +262,8 @@ export const useBusterMetrics = () => {
     saveMetricToCollection,
     editingMetricTitle,
     setEditingMetricTitle,
-    selectedMetricId,
     onSaveMetricChanges,
-    getMetricMemoized: _getMetric,
+    getMetricMemoized,
     metrics: metricsRef.current
   };
 };

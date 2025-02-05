@@ -23,9 +23,7 @@ export const useSQLProvider = () => {
   const getAllMetricDataMemoized = useBusterMetricDataContextSelector(
     (x) => x.getAllMetricDataMemoized
   );
-  const updateMetricMessageToServer = useBusterMetricsContextSelector(
-    (x) => x.updateMetricMessageToServer
-  );
+  const updateMetricToServer = useBusterMetricsContextSelector((x) => x.updateMetricToServer);
   const getMetric = useBusterMetricsContextSelector((x) => x.getMetricMemoized);
   const onSaveMetricChanges = useBusterMetricsContextSelector((x) => x.onSaveMetricChanges);
 
@@ -152,7 +150,7 @@ export const useSQLProvider = () => {
       sql: sql
     };
 
-    const res = await updateMetricMessageToServer(payload);
+    const res = await updateMetricToServer(payload);
     const metricRes = await onSaveMetricChanges({
       metricId,
       save_draft: true,

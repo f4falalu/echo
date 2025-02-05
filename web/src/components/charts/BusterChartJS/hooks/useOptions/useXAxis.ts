@@ -44,6 +44,8 @@ export const useXAxis = ({
 }): DeepPartial<ScaleChartOptions<'bar'>['scales']['x']> | undefined => {
   const isScatterChart = selectedChartType === ChartType.Scatter;
   const isPieChart = selectedChartType === ChartType.Pie;
+  const isLineChart = selectedChartType === ChartType.Line;
+  const isComboChart = selectedChartType === ChartType.Combo;
   const useGrid = isScatterChart;
 
   const isSupportedType = useMemo(() => {
@@ -76,14 +78,11 @@ export const useXAxis = ({
     if (xAxisKeysLength === 1) {
       const xIsDate = xAxisColumnFormats[firstXKey].columnType === 'date';
 
-      if (
-        (selectedChartType === ChartType.Line || selectedChartType === ChartType.Scatter) &&
-        xIsDate
-      ) {
+      if ((isLineChart || isScatterChart) && xIsDate) {
         return 'time';
       }
 
-      if (selectedChartType === ChartType.Combo && columnSettings) {
+      if (isComboChart && columnSettings) {
         const allYAxisKeys = [...selectedAxis.y, ...((selectedAxis as ComboChartAxis).y2 || [])];
         const atLeastOneLineVisualization = allYAxisKeys.some(
           (y) =>
@@ -101,7 +100,7 @@ export const useXAxis = ({
     }
 
     return 'category';
-  }, [isScatterChart, columnSettings, xAxisColumnFormats]);
+  }, [isScatterChart, isComboChart, isLineChart, columnSettings, xAxisColumnFormats]);
 
   const title = useXAxisTitle({
     xAxis: selectedAxis.x,
