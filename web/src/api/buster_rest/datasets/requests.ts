@@ -1,8 +1,4 @@
-import type {
-  BusterDataset,
-  BusterDatasetData,
-  BusterDatasetListItem
-} from '../../asset_interfaces/datasets';
+import type { BusterDataset, IDataResult, BusterDatasetListItem } from '../../asset_interfaces';
 import { mainApi } from '../instances';
 import * as config from './config';
 import { serverFetch } from '@/api/createServerInstance';
@@ -40,9 +36,9 @@ export const getDatasetMetadata = async (datasetId: string): Promise<BusterDatas
     .then((res) => res.data);
 };
 
-export const getDatasetDataSample = async (datasetId: string): Promise<BusterDatasetData> => {
+export const getDatasetDataSample = async (datasetId: string) => {
   return await mainApi
-    .get<BusterDatasetData>(`/datasets/${datasetId}/data/sample`)
+    .get<IDataResult>(`/datasets/${datasetId}/data/sample`)
     .then((res) => res.data);
 };
 

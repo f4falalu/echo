@@ -108,9 +108,13 @@ export const AppSplitter = React.memo(
         return _sizes[1] === '0px' || _sizes[1] === '0%' || _sizes[1] === 0;
       });
 
+      const hideSash = useMemo(() => {
+        return hideSplitter ?? (leftHidden || rightHidden);
+      }, [hideSplitter, leftHidden, rightHidden]);
+
       const sashRender = useMemoizedFn((_: number, active: boolean) => (
         <AppSplitterSash
-          hideSplitter={hideSplitter}
+          hideSplitter={hideSash}
           active={active}
           splitterClassName={splitterClassName}
           splitDirection={split}

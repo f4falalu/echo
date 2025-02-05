@@ -21,10 +21,18 @@ export const MetricViewController: React.FC<{
 
   return (
     <>
-      {showLoader && <IndeterminateLinearLoader className="absolute left-0 top-0 z-10 w-full" />}
+      {showLoader && <MetricViewLoader />}
       <Component metricId={metricId} selectedFileView={selectedFileView} />
     </>
   );
 });
 
 MetricViewController.displayName = 'MetricViewController';
+
+const MetricViewLoader: React.FC = () => {
+  return (
+    <div className="relative z-10 h-0 overflow-visible">
+      <IndeterminateLinearLoader className="absolute left-0 top-0 w-full" />
+    </div>
+  );
+};

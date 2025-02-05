@@ -2,17 +2,16 @@
 
 import React, { useMemo, useRef, useState } from 'react';
 import { useDatasetPageContextSelector } from '../_DatasetPageContext';
-import { AppSplitter, AppSplitterRef } from '@/components';
-import { SQLContainer } from './SQLContainer';
-import { DataContainer } from './DataContainer';
 import { useMemoizedFn, useRequest } from 'ahooks';
-import type { BusterDatasetData } from '@/api/asset_interfaces';
+import type { IDataResult } from '@/api/asset_interfaces';
 import { EditorApps, EditorContainerSubHeader } from './EditorContainerSubHeader';
 import { createStyles } from 'antd-style';
 import { MetadataContainer } from './MetadataContainer';
 import { runSQL } from '@/api/buster_rest';
-import { RustApiError } from '@/api/buster_rest/errors';
+import type { RustApiError } from '@/api/buster_rest/errors';
 import isEmpty from 'lodash/isEmpty';
+import type { AppSplitterRef } from '@/components/layout/AppSplitter';
+import { AppVerticalCodeSplitter } from '@/components/layout/AppVerticalCodeSplitter';
 
 export const EditorContent: React.FC<{
   defaultLayout: [string, string];
@@ -28,7 +27,7 @@ export const EditorContent: React.FC<{
   const ymlFile = useDatasetPageContextSelector((state) => state.ymlFile);
   const setYmlFile = useDatasetPageContextSelector((state) => state.setYmlFile);
 
-  const [tempData, setTempData] = useState<BusterDatasetData>(datasetData.data || []);
+  const [tempData, setTempData] = useState<IDataResult>(datasetData.data || []);
   const [runSQLError, setRunSQLError] = useState<string>('');
 
   const shownData = useMemo(() => {
@@ -74,30 +73,16 @@ export const EditorContent: React.FC<{
       <EditorContainerSubHeader selectedApp={selectedApp} setSelectedApp={setSelectedApp} />
       <div className={cx('h-full w-full overflow-hidden p-5', styles.container)}>
         {selectedApp === EditorApps.PREVIEW && (
-          <AppSplitter
-            ref={splitterRef}
-            leftChildren={
-              <SQLContainer
-                className="mb-3"
-                datasetSQL={sql}
-                setDatasetSQL={setSQL}
-                error={runSQLError}
-                onRunQuery={onRunQuery}
-              />
-            }
-            rightChildren={
-              <DataContainer
-                className="mt-3"
-                data={shownData}
-                fetchingData={fetchingInitialData || fetchingTempData}
-              />
-            }
-            split="horizontal"
-            defaultLayout={defaultLayout}
+          <AppVerticalCodeSplitter
             autoSaveId="dataset-editor"
-            preserveSide="left"
-            rightPanelMinSize={'80px'}
-            leftPanelMinSize={'120px'}
+            ref={splitterRef}
+            sql={sql}
+            setSQL={setSQL}
+            runSQLError={runSQLError}
+            onRunQuery={onRunQuery}
+            data={shownData}
+            fetchingData={fetchingInitialData || fetchingTempData}
+            defaultLayout={defaultLayout}
           />
         )}
 

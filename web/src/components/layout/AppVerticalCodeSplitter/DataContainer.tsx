@@ -1,17 +1,17 @@
-import type { BusterDatasetData } from '@/api/asset_interfaces';
+import type { IDataResult } from '@/api/asset_interfaces';
 import { createStyles } from 'antd-style';
 import React from 'react';
 import isEmpty from 'lodash/isEmpty';
-import AppDataGrid from '@/components/table/AppDataGrid';
-import { IndeterminateLinearLoader } from '@/components/loaders';
+import AppDataGrid from '../../table/AppDataGrid';
+import { IndeterminateLinearLoader } from '../../loaders';
 
 export const DataContainer: React.FC<{
-  data: BusterDatasetData;
+  data: IDataResult;
   fetchingData: boolean;
   className?: string;
 }> = React.memo(({ data, fetchingData, className }) => {
   const { styles, cx } = useStyles();
-  const hasData = !isEmpty(data);
+  const hasData = data && !isEmpty(data);
 
   return (
     <div className={cx(styles.container, 'relative h-full w-full overflow-hidden', className)}>

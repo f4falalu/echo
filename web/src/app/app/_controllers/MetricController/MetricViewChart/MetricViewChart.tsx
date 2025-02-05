@@ -8,10 +8,9 @@ import { inputHasText } from '@/utils/text';
 import { MetricChartEvaluation } from './MetricChartEvaluation';
 import { ChartType } from '@/components/charts/interfaces/enum';
 import { AnimatePresence, motion } from 'framer-motion';
+import type { MetricViewProps } from '../config';
 
-export const MetricViewChart: React.FC<{
-  metricId: string;
-}> = React.memo(({ metricId }) => {
+export const MetricViewChart: React.FC<{ metricId: string }> = React.memo(({ metricId }) => {
   const { styles, cx } = useStyles();
   const onUpdateMetric = useBusterMetricsContextSelector((x) => x.onUpdateMetric);
   const { metric, metricData } = useBusterMetricIndividual({ metricId });

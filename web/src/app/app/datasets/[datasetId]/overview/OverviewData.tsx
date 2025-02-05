@@ -1,4 +1,4 @@
-import type { BusterDatasetData } from '@/api/asset_interfaces';
+import type { IDataResult } from '@/api/asset_interfaces';
 import { ShimmerText } from '@/components';
 import AppDataGrid from '@/components/table/AppDataGrid';
 import { useUserConfigContextSelector } from '@/context/Users';
@@ -11,7 +11,7 @@ import { createStyles } from 'antd-style';
 
 export const OverviewData: React.FC<{
   datasetId: string;
-  data: BusterDatasetData;
+  data: IDataResult;
   isFetchedDatasetData: boolean;
 }> = React.memo(({ data, isFetchedDatasetData }) => {
   const token = useAntToken();

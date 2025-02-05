@@ -12,11 +12,7 @@ import {
   updateDataset,
   deleteDataset
 } from './requests';
-import type {
-  BusterDataset,
-  BusterDatasetData,
-  BusterDatasetListItem
-} from '../../asset_interfaces/datasets';
+import type { BusterDataset, BusterDatasetListItem, IDataResult } from '../../asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { getDatasetMetadata_server } from './serverRequests';
@@ -53,7 +49,7 @@ export const prefetchGetDatasets = async (
 
 export const useGetDatasetData = (datasetId: string) => {
   const queryFn = useMemoizedFn(() => getDatasetDataSample(datasetId));
-  return useCreateReactQuery<BusterDatasetData>({
+  return useCreateReactQuery<IDataResult>({
     queryKey: ['datasetData', datasetId],
     queryFn,
     enabled: !!datasetId,

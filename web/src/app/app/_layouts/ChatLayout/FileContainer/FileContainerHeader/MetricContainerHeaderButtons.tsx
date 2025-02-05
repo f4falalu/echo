@@ -2,7 +2,11 @@ import React from 'react';
 import { FileContainerButtonsProps } from './interfaces';
 import { Button, ButtonProps, ConfigProvider } from 'antd';
 import { AppMaterialIcons, AppTooltip } from '@/components';
-import { type MetricFileView, useChatLayoutContextSelector } from '../../ChatLayoutContext';
+import {
+  type MetricFileView,
+  MetricFileViewSecondary,
+  useChatLayoutContextSelector
+} from '../../ChatLayoutContext';
 import { useMemoizedFn } from 'ahooks';
 import { SaveMetricToCollectionButton } from '@appComponents/Buttons/SaveMetricToCollectionButton';
 import { SaveMetricToDashboardButton } from '@appComponents/Buttons/SaveMetricToDashboardButton';
@@ -11,6 +15,7 @@ import { useChatContextSelector } from '../../ChatContext';
 import { HideButtonContainer } from './HideButtonContainer';
 import { FileButtonContainer } from './FileButtonContainer';
 import { CreateChatButton } from './CreateChatButtont';
+import { SelectableButton } from './SelectableButton';
 
 export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(() => {
   const selectedFileView = useChatLayoutContextSelector(
@@ -22,9 +27,8 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
 
   return (
     <FileButtonContainer>
-      <HideButtonContainer show={showEditChartButton}>
-        <EditChartButton />
-      </HideButtonContainer>
+      <EditChartButton />
+      <EditSQLButton />
       <SaveToCollectionButton />
       <SaveToDashboardButton />
       <ShareMetricButton />
@@ -42,24 +46,48 @@ const EditChartButton = React.memo(() => {
     (x) => x.selectedFileViewSecondary
   );
   const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
-  const isSelectedView = selectedFileViewSecondary === 'chart-edit';
-  const buttonVariant: ButtonProps['variant'] = isSelectedView ? 'filled' : 'text';
+  const editableSecondaryView: MetricFileViewSecondary = 'chart-edit';
+  const isSelectedView = selectedFileViewSecondary === editableSecondaryView;
+
   const onClickButton = useMemoizedFn(() => {
-    const secondaryView = isSelectedView ? null : 'chart-edit';
-    onSetFileView({ secondaryView });
+    const secondaryView = isSelectedView ? null : editableSecondaryView;
+    onSetFileView({ secondaryView, fileView: 'chart' });
   });
+
   return (
-    <AppTooltip title="Edit chart">
-      <Button
-        color="default"
-        variant={buttonVariant}
-        icon={<AppMaterialIcons icon="chart_edit" />}
-        onClick={onClickButton}
-      />
-    </AppTooltip>
+    <SelectableButton
+      tooltipText="Edit chart"
+      icon="chart_edit"
+      onClick={onClickButton}
+      selected={isSelectedView}
+    />
   );
 });
 EditChartButton.displayName = 'EditChartButton';
+
+const EditSQLButton = React.memo(() => {
+  const selectedFileViewSecondary = useChatLayoutContextSelector(
+    (x) => x.selectedFileViewSecondary
+  );
+  const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
+  const editableSecondaryView: MetricFileViewSecondary = 'sql-edit';
+  const isSelectedView = selectedFileViewSecondary === editableSecondaryView;
+
+  const onClickButton = useMemoizedFn(() => {
+    const secondaryView = isSelectedView ? null : editableSecondaryView;
+    onSetFileView({ secondaryView, fileView: 'results' });
+  });
+
+  return (
+    <SelectableButton
+      tooltipText="Edit SQL"
+      icon="code_blocks"
+      onClick={onClickButton}
+      selected={isSelectedView}
+    />
+  );
+});
+EditSQLButton.displayName = 'EditSQLButton';
 
 const SaveToCollectionButton = React.memo(() => {
   const selectedFileId = useChatContextSelector((x) => x.selectedFileId)!;

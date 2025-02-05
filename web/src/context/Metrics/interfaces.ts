@@ -1,4 +1,9 @@
-import type { BusterMetric, DataMetadata, IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type {
+  BusterMetric,
+  DataMetadata,
+  IBusterMetricChartConfig,
+  IDataResult
+} from '@/api/asset_interfaces';
 
 export interface IBusterMetric extends Required<BusterMetric> {
   chart_config: IBusterMetricChartConfig;
@@ -8,8 +13,8 @@ export interface IBusterMetric extends Required<BusterMetric> {
 }
 
 export interface BusterMetricData {
-  data?: Record<string, null | string | number>[] | null;
-  dataFromRerun?: Record<string, string | number | null>[] | null;
+  data?: IDataResult;
+  dataFromRerun?: IDataResult;
   fetched: boolean;
   fetching: boolean;
   fetchedAt: number;

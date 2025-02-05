@@ -45,5 +45,3 @@ export interface BusterDatasetColumn {
   nullable: boolean;
   updated_at: string;
 }
-
-export type BusterDatasetData = Record<string, string | number | null>[];

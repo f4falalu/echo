@@ -1,5 +1,5 @@
-import { AppMaterialIcons } from '@/components/icons';
-import { AppCodeEditor } from '@/components/inputs/AppCodeEditor';
+import { AppMaterialIcons } from '../../icons';
+import { AppCodeEditor } from '../../inputs/AppCodeEditor';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from 'ahooks';
 import { Button, Divider } from 'antd';
@@ -12,8 +12,8 @@ export const SQLContainer: React.FC<{
   datasetSQL: string | undefined;
   setDatasetSQL: (sql: string) => void;
   onRunQuery: () => Promise<void>;
-  error?: string;
-}> = ({ className = '', datasetSQL, setDatasetSQL, onRunQuery, error }) => {
+  error?: string | null;
+}> = React.memo(({ className = '', datasetSQL, setDatasetSQL, onRunQuery, error }) => {
   const { styles, cx } = useStyles();
   const [isRunning, setIsRunning] = useState(false);
   const [isError, setIsError] = useState(false);
@@ -65,13 +65,15 @@ export const SQLContainer: React.FC<{
       </div>
     </div>
   );
-};
+});
+
+SQLContainer.displayName = 'SQLContainer';
 
 const ErrorContainer: React.FC<{
   error: string;
   onClose: () => void;
   isError: boolean;
-}> = ({ error, onClose, isError }) => {
+}> = React.memo(({ error, onClose, isError }) => {
   const { styles, cx } = useStyles();
 
   return (
@@ -100,7 +102,9 @@ const ErrorContainer: React.FC<{
       )}
     </AnimatePresence>
   );
-};
+});
+
+ErrorContainer.displayName = 'ErrorContainer';
 
 const useStyles = createStyles(({ css, token }) => ({
   container: css`

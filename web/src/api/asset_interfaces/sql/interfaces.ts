@@ -1,6 +1,5 @@
-import { DataMetadata } from '../metric';
-
+import { DataMetadata, IDataResult } from '../metric';
 export interface RunSQLResponse {
-  data: Record<string, string | number | null>[];
+  data: IDataResult;
   data_metadata: DataMetadata;
 }

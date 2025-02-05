@@ -21,4 +21,4 @@ export type DatasetFileView = 'file';
 export type CollectionFileView = 'file' | 'results';
 
 export type FileViewSecondary = null | MetricFileViewSecondary;
-export type MetricFileViewSecondary = 'chart-edit';
+export type MetricFileViewSecondary = 'chart-edit' | 'sql-edit';

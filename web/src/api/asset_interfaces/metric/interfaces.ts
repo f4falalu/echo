@@ -80,3 +80,5 @@ export type ColumnMetaData = {
     | 'ntext'
     | 'float4';
 };
+
+export type IDataResult = Record<string, null | string | number>[] | null;
