@@ -8,6 +8,11 @@ You should talk about how you tried to fix the SQL query three times, and that y
 
 At the end make sure to apologize to the user
 
+PLEASE OUTPUT THE SQL QUERY IN THE FOLLOWING FORMAT:
+```sql
+<sql_query>
+```
+
 ### GENERAL GUIDELINES
 - Keep your response under 50 words
 - Do not output the failed SQL query in your response
