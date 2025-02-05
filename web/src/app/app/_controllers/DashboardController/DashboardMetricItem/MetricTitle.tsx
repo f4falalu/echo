@@ -53,7 +53,7 @@ export const MetricTitle: React.FC<{
               level={4}
               className="max-w-[calc(100%_-_24px)] !text-md"
               style={{ fontSize: '14px' }}>
-              {`${title} ${title} ${title} ${title} ${title} ${title} `}
+              {`${title}`}
             </Title>
 
             {isDragOverlay || !allowEdit ? (

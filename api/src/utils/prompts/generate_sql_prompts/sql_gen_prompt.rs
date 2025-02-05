@@ -15,17 +15,19 @@ pub fn sql_gen_system_prompt(
 ### RELEVANT BUSINESS TERMS/DOMAIN SPECIFIC LANGUAGE
 {}
 
-### RELEVANT VALUES
+### RELEVANT VALUES FROM DATASET
 {}
 
 ### TASK
-Your task is to generate a **single** {} query  based on the thoughts that are provided to you.
+Your task is to generate a **single** {} query based on the thoughts that are provided to you.
 
 Format the SQL for the visualization/report that is specified.
 
 Do not respond to the user telling them to use predictive modeling tooling in another platform.  This is a SQL generation tool.
 
 Do not respond with an explanation of the SQL you are generating. Generate just the SQL.
+
+Please output the SQL delimited in ```sql tags.
 
 ### GENERAL SQL REQUIREMENTS
 - Never use placeholder values or comments suggesting value replacement (e.g. `WHERE id = <ID>` or `-- Replace with actual value`)
