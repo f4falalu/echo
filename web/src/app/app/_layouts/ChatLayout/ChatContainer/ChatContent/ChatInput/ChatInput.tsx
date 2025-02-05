@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Input } from 'antd';
 import { createStyles } from 'antd-style';
 import { useMemoizedFn } from 'ahooks';
@@ -7,12 +7,14 @@ import { useBusterNewChatContextSelector } from '@/context/Chats';
 import { AIWarning } from './AIWarning';
 import { SubmitButton } from './SubmitButton';
 import { useChatInputFlow } from './useChatInputFlow';
+import type { TextAreaRef } from 'antd/es/input/TextArea';
 
 const autoSize = { minRows: 3, maxRows: 16 };
 
 export const ChatInput: React.FC<{}> = React.memo(({}) => {
   const { styles, cx } = useStyles();
   const loading = useBusterNewChatContextSelector((state) => state.loadingNewChat);
+  const inputRef = useRef<TextAreaRef>(null);
 
   const [inputValue, setInputValue] = useState('');
   const [isFocused, setIsFocused] = React.useState(false);
@@ -24,7 +26,9 @@ export const ChatInput: React.FC<{}> = React.memo(({}) => {
   const { onSubmitPreflight } = useChatInputFlow({
     disableSendButton,
     inputValue,
-    setInputValue
+    setInputValue,
+    loading,
+    inputRef
   });
 
   const onPressEnter = useMemoizedFn((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -59,6 +63,7 @@ export const ChatInput: React.FC<{}> = React.memo(({}) => {
           'relative flex w-full items-center overflow-hidden'
         )}>
         <Input.TextArea
+          ref={inputRef}
           variant="borderless"
           onBlur={onBlurInput}
           onFocus={onFocusInput}

@@ -11,18 +11,12 @@ export const useBusterNewChat = () => {
   const [selectedChatDataSource, setSelectedChatDataSource] =
     useState<BusterDatasetListItem | null>(null);
   const [loadingNewChat, setLoadingNewChat] = useState(false);
-  const [prompt, setPrompt] = useState('');
-
-  const onSetPrompt = useMemoizedFn((prompt: string) => {
-    setPrompt(prompt);
-  });
 
   const onSelectSearchAsset = useMemoizedFn(async (asset: BusterSearchResult) => {
     setLoadingNewChat(true);
     console.log('select search asset');
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setLoadingNewChat(false);
-    onSetPrompt('');
   });
 
   const onStartNewChat = useMemoizedFn(async (prompt: string) => {
@@ -30,7 +24,6 @@ export const useBusterNewChat = () => {
     console.log('start new chat');
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setLoadingNewChat(false);
-    onSetPrompt('');
   });
 
   const onStartChatFromFile = useMemoizedFn(
@@ -39,7 +32,6 @@ export const useBusterNewChat = () => {
       console.log('start chat from file');
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setLoadingNewChat(false);
-      onSetPrompt('');
     }
   );
 
@@ -49,7 +41,6 @@ export const useBusterNewChat = () => {
       console.log('follow up chat');
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setLoadingNewChat(false);
-      onSetPrompt('');
     }
   );
 
@@ -59,9 +50,13 @@ export const useBusterNewChat = () => {
       console.log('replace message in chat');
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setLoadingNewChat(false);
-      onSetPrompt('');
     }
   );
+
+  const onStopChat = useMemoizedFn(({ chatId }: { chatId: string }) => {
+    setLoadingNewChat(false);
+    console.log('stop current chat');
+  });
 
   const onSetSelectedChatDataSource = useMemoizedFn((dataSource: BusterDatasetListItem | null) => {
     setSelectedChatDataSource(dataSource);
@@ -73,11 +68,10 @@ export const useBusterNewChat = () => {
     onSelectSearchAsset,
     selectedChatDataSource,
     onSetSelectedChatDataSource,
-    onSetPrompt,
     onFollowUpChat,
-    prompt,
     onStartChatFromFile,
-    onReplaceMessageInChat
+    onReplaceMessageInChat,
+    onStopChat
   };
 };
 

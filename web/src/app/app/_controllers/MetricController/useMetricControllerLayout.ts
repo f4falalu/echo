@@ -18,7 +18,7 @@ export const useMetricControllerLayout = ({
       if (side === 'metric') {
         appSplitterRef.current.animateWidth('100%', 'left');
       } else if (side === 'both') {
-        appSplitterRef.current.animateWidth('265px', 'right');
+        appSplitterRef.current.animateWidth('310px', 'right');
       }
     }
   });

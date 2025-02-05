@@ -25,7 +25,7 @@ const TooltipShortcut: React.FC<{ shortcut: string }> = ({ shortcut }) => {
     <div
       className="relative flex justify-center"
       style={{
-        lineHeight: 1.25,
+        lineHeight: 1,
         fontSize: 12,
         borderRadius: borderRadius,
         border: `0.5px solid ${colorBorder}`,

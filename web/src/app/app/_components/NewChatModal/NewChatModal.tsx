@@ -10,7 +10,6 @@ import type { BusterSearchResult } from '@/api/asset_interfaces';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { NewChatModalDataSourceSelect } from './NewChatModalDatasourceSelect';
 import { NoDatasets } from './NoDatasets';
-import { useParams } from 'next/navigation';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useGetDatasets } from '@/api/buster_rest/datasets';
 import { NewDatasetModal } from '../NewDatasetModal';
@@ -35,11 +34,9 @@ export const NewChatModal = React.memo<{
   onClose: () => void;
 }>(({ open, onClose }) => {
   const token = useAntToken();
-  const searchParams = useParams();
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const { openErrorNotification } = useBusterNotifications();
   const { isFetched: isFetchedDatasets, data: datasetsList } = useGetDatasets();
-  const onStartNewChat = useBusterNewChatContextSelector((x) => x.onStartNewChat);
   const onSetSelectedChatDataSource = useBusterNewChatContextSelector(
     (x) => x.onSetSelectedChatDataSource
   );
@@ -192,13 +189,18 @@ const NewChatInput: React.FC<{
     const token = useAntToken();
     const inputRef = useRef<InputRef>(null);
     const loadingNewMetric = useBusterNewChatContextSelector((x) => x.loadingNewChat);
-    const prompt = useBusterNewChatContextSelector((x) => x.prompt);
     const onStartNewChat = useBusterNewChatContextSelector((x) => x.onStartNewChat);
-    const onSetPrompt = useBusterNewChatContextSelector((x) => x.onSetPrompt);
+    const onSelectSearchAsset = useBusterNewChatContextSelector((x) => x.onSelectSearchAsset);
+    const [prompt, setPrompt] = useState('');
+
+    const onStartNewChatPreflight = useMemoizedFn(async () => {
+      await onStartNewChat(prompt);
+      setPrompt('');
+    });
 
     const onChangeText = useMemoizedFn((e: React.ChangeEvent<HTMLTextAreaElement>) => {
       const value = e.currentTarget.value;
-      onSetPrompt(value);
+      setPrompt(value);
       if (value.length < 1) {
         setSuggestedPrompts([]);
       } else {
@@ -216,7 +218,10 @@ const NewChatInput: React.FC<{
         shownPrompts[activeItem]?.name &&
         lastKeyPressedWasUpOrDown
       ) {
-        onStartNewChat(shownPrompts[activeItem]?.name);
+        const foundAsset = shownPrompts[activeItem];
+        if (foundAsset) {
+          onSelectSearchAsset(foundAsset);
+        }
         v.stopPropagation();
         v.preventDefault();
         return;
@@ -224,17 +229,17 @@ const NewChatInput: React.FC<{
       if (v.shiftKey) {
         return;
       }
-      onStartNewChat(value);
+      onStartNewChatPreflight();
     });
 
     const onClickSubmitButton = useMemoizedFn(() => {
-      onStartNewChat(prompt);
+      onStartNewChatPreflight();
     });
 
     useMount(() => {
       setTimeout(() => {
         inputRef.current?.focus();
-      }, 200);
+      }, 175);
     });
 
     const autoSizeMemoized = useMemo(() => {

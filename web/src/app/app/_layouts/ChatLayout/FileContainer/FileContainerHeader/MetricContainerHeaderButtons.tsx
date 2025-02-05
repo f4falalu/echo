@@ -10,6 +10,7 @@ import { ShareMetricButton } from '@appComponents/Buttons/ShareMetricButton';
 import { useChatContextSelector } from '../../ChatContext';
 import { HideButtonContainer } from './HideButtonContainer';
 import { FileButtonContainer } from './FileButtonContainer';
+import { CreateChatButton } from './CreateChatButtont';
 
 export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(() => {
   const selectedFileView = useChatLayoutContextSelector(
@@ -78,21 +79,3 @@ const ShareMetricButtonLocal = React.memo(() => {
   return <ShareMetricButton />;
 });
 ShareMetricButtonLocal.displayName = 'ShareMetricButtonLocal';
-
-const CreateChatButton = React.memo(() => {
-  const onCollapseFileClick = useChatLayoutContextSelector((x) => x.onCollapseFileClick);
-
-  return (
-    <Button
-      onClick={() => {
-        onCollapseFileClick(false);
-      }}
-      color="default"
-      variant="solid"
-      type="primary"
-      icon={<AppMaterialIcons icon="stars" />}>
-      Edit
-    </Button>
-  );
-});
-CreateChatButton.displayName = 'CreateChatButton';
