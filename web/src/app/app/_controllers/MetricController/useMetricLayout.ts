@@ -28,25 +28,27 @@ export const useMetricLayout = ({
   const defaultOpenLayout = isChart ? defaultChartOpenLayout : defaultSqlOpenLayout;
   const defaultOriginalLayout = isChart ? defaultChartLayout : defaultSqlLayout;
 
-  const secondaryLayoutDimensions = useMemo(() => {
+  const secondaryLayoutDimensions: [string, string] = useMemo(() => {
     const cookieKey = createAutoSaveId(autoSaveId);
     const cookieValue = Cookies.get(cookieKey);
     if (cookieValue) {
       try {
-        const parsedValue = JSON.parse(cookieValue);
-        return parsedValue;
+        const parsedValue = JSON.parse(cookieValue) as string[];
+        if (!parsedValue?.some((item) => item === 'auto')) {
+          return parsedValue as [string, string];
+        }
       } catch (error) {
         //
       }
     }
-    return defaultOpenLayout;
+    return defaultOpenLayout as [string, string];
   }, []);
 
-  const defaultLayout = useMemo(() => {
+  const defaultLayout: [string, string] = useMemo(() => {
     if (isOpenSecondary) {
       return secondaryLayoutDimensions;
     }
-    return defaultOriginalLayout;
+    return defaultOriginalLayout as [string, string];
   }, []);
 
   const animateOpenSplitter = useMemoizedFn((side: 'metric' | 'both') => {
