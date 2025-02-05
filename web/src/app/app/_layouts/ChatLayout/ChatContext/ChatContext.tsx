@@ -23,18 +23,25 @@ export const useChatContext = ({
     chatId,
     metricId
   });
+  const hasChat = !!chatId && !!chat;
   const chatTitle = chat?.title;
   const chatMessages = chat?.messages ?? [];
 
   //FILE
   const hasFile = !!defaultSelectedFile?.id;
 
+  //MESSAGES
+  const currentMessageId = chatMessages[chatMessages.length - 1]?.id;
+
   return {
+    hasChat,
     hasFile,
     selectedFileId,
+    currentMessageId,
     chatTitle,
     selectedFileType,
-    chatMessages
+    chatMessages,
+    chatId
   };
 };
 

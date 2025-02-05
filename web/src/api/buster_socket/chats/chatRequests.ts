@@ -20,6 +20,8 @@ export type ChatCreateNewChat = BusterSocketRequestBase<
     message_id?: string;
     /** Optional ID of a metric to initialize the chat from */
     metric_id?: string;
+    /** Optional ID of a dashboard to initialize the chat from */
+    dashboard_id?: string;
   }
 >;
 

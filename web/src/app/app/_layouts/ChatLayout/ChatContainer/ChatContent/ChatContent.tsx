@@ -3,6 +3,7 @@ import { useChatContextSelector } from '../../ChatContext';
 import { ChatMessageBlock } from './ChatMessageBlock';
 import { ChatInput } from './ChatInput';
 import { createStyles } from 'antd-style';
+import { useBusterNewChatContextSelector } from '@/context/Chats';
 
 export const ChatContent: React.FC<{ chatContentRef: React.RefObject<HTMLDivElement> }> =
   React.memo(({ chatContentRef }) => {

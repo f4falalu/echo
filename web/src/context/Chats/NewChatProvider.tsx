@@ -5,13 +5,13 @@ import {
   useContextSelector
 } from '@fluentui/react-context-selector';
 import { useMemoizedFn } from 'ahooks';
-import type { BusterDatasetListItem, BusterSearchResult } from '@/api/asset_interfaces';
+import type { BusterDatasetListItem, BusterSearchResult, FileType } from '@/api/asset_interfaces';
 
 export const useBusterNewChat = () => {
-  const [prompt, setPrompt] = useState('');
   const [selectedChatDataSource, setSelectedChatDataSource] =
     useState<BusterDatasetListItem | null>(null);
   const [loadingNewChat, setLoadingNewChat] = useState(false);
+  const [prompt, setPrompt] = useState('');
 
   const onSetPrompt = useMemoizedFn((prompt: string) => {
     setPrompt(prompt);
@@ -25,18 +25,37 @@ export const useBusterNewChat = () => {
     setLoadingNewChat(false);
   });
 
+  const onStartChatFromFile = useMemoizedFn(
+    async ({}: { prompt: string; fileId: string; fileType: FileType }) => {}
+  );
+
+  const onFollowUpChat = useMemoizedFn(
+    async ({ prompt, messageId }: { prompt: string; messageId: string }) => {
+      setLoadingNewChat(true);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setLoadingNewChat(false);
+    }
+  );
+
+  const onReplaceMessageInChat = useMemoizedFn(
+    async ({ prompt, messageId }: { prompt: string; messageId: string }) => {}
+  );
+
   const onSetSelectedChatDataSource = useMemoizedFn((dataSource: BusterDatasetListItem | null) => {
     setSelectedChatDataSource(dataSource);
   });
 
   return {
     onStartNewChat,
-    prompt,
-    onSetPrompt,
     loadingNewChat,
     onSelectSearchAsset,
     selectedChatDataSource,
-    onSetSelectedChatDataSource
+    onSetSelectedChatDataSource,
+    onSetPrompt,
+    onFollowUpChat,
+    prompt,
+    onStartChatFromFile,
+    onReplaceMessageInChat
   };
 };
 

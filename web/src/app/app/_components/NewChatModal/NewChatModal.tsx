@@ -34,6 +34,7 @@ export const NewChatModal = React.memo<{
   open: boolean;
   onClose: () => void;
 }>(({ open, onClose }) => {
+  const token = useAntToken();
   const searchParams = useParams();
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const { openErrorNotification } = useBusterNotifications();
@@ -43,10 +44,9 @@ export const NewChatModal = React.memo<{
     (x) => x.onSetSelectedChatDataSource
   );
   const selectedChatDataSource = useBusterNewChatContextSelector((x) => x.selectedChatDataSource);
-  const onSetPrompt = useBusterNewChatContextSelector((x) => x.onSetPrompt);
-  const prompt = useBusterNewChatContextSelector((x) => x.prompt);
   const onBusterSearch = useBusterSearchContextSelector((x) => x.onBusterSearch);
-  const token = useAntToken();
+
+  const [prompt, setPrompt] = useState('');
   const [openNewDatasetModal, setOpenNewDatasetModal] = useState(false);
   const [suggestedPrompts, setSuggestedPrompts] = useState<BusterSearchResult[]>([]);
   const [activeItem, setActiveItem] = useState<number | null>(null);
@@ -97,7 +97,7 @@ export const NewChatModal = React.memo<{
 
   useEffect(() => {
     if (open) {
-      onSetPrompt('');
+      setPrompt('');
 
       if (defaultSuggestedPrompts.length === 0) {
         getDefaultSuggestedPrompts();

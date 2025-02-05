@@ -1,34 +1,36 @@
 import React, { useMemo, useState } from 'react';
-import { Input, Button } from 'antd';
-import { Text } from '@/components/text';
+import { Input } from 'antd';
 import { createStyles } from 'antd-style';
 import { useMemoizedFn } from 'ahooks';
-import { AppMaterialIcons } from '@/components/icons';
 import { inputHasText } from '@/utils';
+import { useBusterNewChatContextSelector } from '@/context/Chats';
+import { AIWarning } from './AIWarning';
+import { SubmitButton } from './SubmitButton';
+import { useChatInputFlow } from './useChatInputFlow';
+import { useChatContextSelector } from '../../../ChatContext';
 
 const autoSize = { minRows: 3, maxRows: 4 };
 
-export const ChatInput: React.FC = React.memo(() => {
+export const ChatInput: React.FC<{}> = React.memo(({}) => {
   const { styles, cx } = useStyles();
-  const [inputValue, setInputValue] = useState('');
+  const loading = useBusterNewChatContextSelector((state) => state.loadingNewChat);
+  const selectedFileId = useChatContextSelector((x) => x.selectedFileId);
 
-  const loading = false;
+  const [inputValue, setInputValue] = useState('');
+  const [isFocused, setIsFocused] = React.useState(false);
 
   const disableSendButton = useMemo(() => {
     return !inputHasText(inputValue);
   }, [inputValue]);
 
-  const onSubmit = useMemoizedFn(async () => {
-    if (disableSendButton) return;
+  const { onSubmitPreflight } = useChatInputFlow({
+    disableSendButton,
+    inputValue
   });
-
-  const disableSubmit = !inputHasText(inputValue);
-  const [isFocused, setIsFocused] = React.useState(false);
 
   const onPressEnter = useMemoizedFn((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.metaKey && e.key === 'Enter') {
-      onSubmit();
-      return;
+      onSubmitPreflight();
     }
   });
 
@@ -70,10 +72,10 @@ export const ChatInput: React.FC = React.memo(() => {
           autoSize={autoSize}
         />
         <div className="absolute bottom-2 right-2">
-          <Button
-            shape="circle"
-            disabled={disableSendButton}
-            icon={<AppMaterialIcons icon="arrow_upward" />}
+          <SubmitButton
+            disableSendButton={disableSendButton}
+            loading={loading}
+            onSubmitPreflight={onSubmitPreflight}
           />
         </div>
       </div>
@@ -103,15 +105,3 @@ const useStyles = createStyles(({ token, css }) => ({
     }
   `
 }));
-
-const AIWarning = React.memo(() => {
-  return (
-    <div className="w-full overflow-hidden truncate text-center">
-      <Text size="xs" type="tertiary" className="truncate">
-        Our AI may make mistakes. Check important info.
-      </Text>
-    </div>
-  );
-});
-
-AIWarning.displayName = 'AIWarning';
