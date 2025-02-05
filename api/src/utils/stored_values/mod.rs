@@ -41,12 +41,12 @@ pub async fn ensure_stored_values_schema(organization_id: &Uuid) -> Result<()> {
     // Create schema and table using raw SQL
     let schema_name = organization_id.to_string().replace("-", "_");
     let create_schema_sql = format!(
-        "CREATE SCHEMA IF NOT EXISTS {}_values",
+        "CREATE SCHEMA IF NOT EXISTS values_{}",
         schema_name
     );
 
     let create_table_sql = format!(
-        "CREATE TABLE IF NOT EXISTS {}_values.values_v1 (
+        "CREATE TABLE IF NOT EXISTS values_{}.values_v1 (
             value text NOT NULL,
             dataset_id uuid NOT NULL,
             column_name text NOT NULL,
@@ -60,7 +60,7 @@ pub async fn ensure_stored_values_schema(organization_id: &Uuid) -> Result<()> {
 
     let create_index_sql = format!(
         "CREATE INDEX IF NOT EXISTS values_v1_embedding_idx 
-         ON {}_values.values_v1 
+         ON values_{}.values_v1 
          USING ivfflat (embedding vector_cosine_ops)",
         schema_name
     );
