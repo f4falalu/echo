@@ -218,7 +218,7 @@ pub async fn search_stored_values(
     let schema_name = organization_id.to_string().replace("-", "_");
     let query = format!(
         "SELECT value, column_name, column_id
-         FROM {}_values.values_v1
+         FROM values_{}.values_v1
          WHERE dataset_id = $2::uuid
          ORDER BY embedding <=> $1::vector
          LIMIT $3::integer",
