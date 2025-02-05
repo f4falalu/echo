@@ -32,6 +32,7 @@ interface UseTooltipOptionsProps {
   datasetOptions: DatasetOption[];
   hasMismatchedTooltipsAndMeasures: boolean;
   disableTooltip: boolean;
+  colors: string[];
 }
 
 export const useTooltipOptions = ({
@@ -44,7 +45,8 @@ export const useTooltipOptions = ({
   columnSettings,
   selectedAxis,
   datasetOptions,
-  disableTooltip
+  disableTooltip,
+  colors
 }: UseTooltipOptionsProps): DeepPartial<TooltipOptions> => {
   const tooltipCache = useRef<Record<string, string>>({});
 
@@ -52,6 +54,10 @@ export const useTooltipOptions = ({
     () => JSON.stringify(columnLabelFormats),
     [columnLabelFormats]
   );
+
+  const colorsStringCache = useMemo(() => {
+    return colors.map((c) => String(c)).join('');
+  }, [colors]);
 
   const mode: TooltipOptions['mode'] = useMemo(() => {
     if (selectedChartType === 'scatter') {
@@ -107,7 +113,12 @@ export const useTooltipOptions = ({
   }, [useGlobalPercentage, selectedChartType, columnSettings, tooltipKeys]);
 
   const memoizedExternal = useMemoizedFn((context: TooltipContext) => {
-    const key = createTooltipCacheKey(context.chart, keyToUsePercentage, columnLabelFormatsString);
+    const key = createTooltipCacheKey(
+      context.chart,
+      keyToUsePercentage,
+      columnLabelFormatsString,
+      colorsStringCache
+    );
     const matchedCacheItem = tooltipCache.current[key];
     const result = externalTooltip(
       context,
@@ -149,7 +160,8 @@ export const useTooltipOptions = ({
 const createTooltipCacheKey = (
   chart: ChartJSOrUndefined,
   keyToUsePercentage: string[],
-  columnLabelFormatsString: string
+  columnLabelFormatsString: string,
+  colorsStringCache: string
 ) => {
   if (!chart?.tooltip) return '';
 
@@ -159,7 +171,8 @@ const createTooltipCacheKey = (
     chart.tooltip.title.join(''),
     chart.tooltip.body?.map((b) => b.lines.join('')).join(''),
     keyToUsePercentage.join(''),
-    columnLabelFormatsString
+    columnLabelFormatsString,
+    colorsStringCache
   ];
 
   return parts.join('');
