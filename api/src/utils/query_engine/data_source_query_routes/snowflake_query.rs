@@ -49,9 +49,12 @@ pub async fn snowflake_query(
 ) -> Result<Vec<IndexMap<std::string::String, DataType>>, Error> {
     const MAX_ROWS: usize = 5_000;
 
-    // Wrap the original query in a limit clause
-    // let limited_query = format!("SELECT * FROM ({}) tmp_query LIMIT {}", query.replace(";", ""), MAX_ROWS);
-    let limited_query = query;
+    let query_no_semicolon = query.trim_end_matches(';');
+    let limited_query = if !query_no_semicolon.to_lowercase().contains("limit") {
+        format!("{} FETCH FIRST {} ROWS ONLY", query_no_semicolon, MAX_ROWS)
+    } else {
+        query_no_semicolon.to_string()
+    };
 
     let rows = match snowflake_client.exec(&limited_query).await {
         Ok(result) => match result {
