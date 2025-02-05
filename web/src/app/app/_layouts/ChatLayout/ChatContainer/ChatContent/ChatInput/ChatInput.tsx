@@ -25,7 +25,8 @@ export const ChatInput: React.FC<{}> = React.memo(({}) => {
 
   const { onSubmitPreflight } = useChatInputFlow({
     disableSendButton,
-    inputValue
+    inputValue,
+    setInputValue
   });
 
   const onPressEnter = useMemoizedFn((e: React.KeyboardEvent<HTMLTextAreaElement>) => {

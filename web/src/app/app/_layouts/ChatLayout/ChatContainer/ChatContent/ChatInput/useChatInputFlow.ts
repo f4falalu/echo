@@ -7,10 +7,12 @@ type FlowType = 'followup-chat' | 'followup-metric' | 'followup-dashboard' | 'ne
 
 export const useChatInputFlow = ({
   disableSendButton,
-  inputValue
+  inputValue,
+  setInputValue
 }: {
   disableSendButton: boolean;
   inputValue: string;
+  setInputValue: (value: string) => void;
 }) => {
   const hasChat = useChatContextSelector((x) => x.hasChat);
   const selectedFileType = useChatContextSelector((x) => x.selectedFileType);
@@ -32,29 +34,34 @@ export const useChatInputFlow = ({
 
     switch (flow) {
       case 'followup-chat':
-        return onFollowUpChat({ prompt: inputValue, messageId: currentMessageId! });
+        await onFollowUpChat({ prompt: inputValue, messageId: currentMessageId! });
+        break;
 
       case 'followup-metric':
-        return onStartChatFromFile({
+        await onStartChatFromFile({
           prompt: inputValue,
           fileId: selectedFileId!,
           fileType: 'metric'
         });
-
+        break;
       case 'followup-dashboard':
-        return onStartChatFromFile({
+        await onStartChatFromFile({
           prompt: inputValue,
           fileId: selectedFileId!,
           fileType: 'dashboard'
         });
+        break;
 
       case 'new':
-        return onStartNewChat(inputValue);
+        await onStartNewChat(inputValue);
+        break;
 
       default:
         const _exhaustiveCheck: never = flow;
         return _exhaustiveCheck;
     }
+
+    setInputValue('');
   });
 
   return { onSubmitPreflight };

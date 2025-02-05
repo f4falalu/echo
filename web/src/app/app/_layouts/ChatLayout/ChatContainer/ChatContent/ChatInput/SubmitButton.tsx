@@ -13,30 +13,36 @@ interface SubmitButtonProps {
 const animationIcon = {
   initial: { opacity: 0, scale: 0.8 },
   animate: { opacity: 1, scale: 1 },
-  exit: { opacity: 0, scale: 0.8 }
+  exit: { opacity: 0, scale: 0.8 },
+  transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] }
+};
+
+const buttonAnimation = {
+  whileHover: { scale: 1.085 },
+  whileTap: { scale: 0.9 },
+  transition: { duration: 0.24, ease: 'easeInOut' }
 };
 
 export const SubmitButton: React.FC<SubmitButtonProps> = React.memo(
-  ({ disableSendButton, onSubmitPreflight }) => {
+  ({ disableSendButton, loading, onSubmitPreflight }) => {
     const { styles } = useStyles();
-
-    const [loading, setLoading] = useState(false);
-
-    const onTest = () => {
-      setLoading(!loading);
-    };
 
     const tooltipText = loading ? 'Stop' : 'Send message';
     const tooltipShortcuts = loading ? [] : ['⌘', '↵'];
 
     return (
-      <AppTooltip title={tooltipText} shortcuts={tooltipShortcuts} mouseEnterDelay={1}>
-        <button
-          onClick={onTest}
+      <AppTooltip
+        title={tooltipText}
+        shortcuts={tooltipShortcuts}
+        mouseEnterDelay={1.75}
+        mouseLeaveDelay={0}>
+        <motion.button
+          onClick={onSubmitPreflight}
           disabled={disableSendButton}
           className={`${styles.button} ${loading ? styles.loading : ''} ${
             disableSendButton ? styles.disabled : ''
-          }`}>
+          }`}
+          {...(!disableSendButton && buttonAnimation)}>
           <AnimatePresence mode="wait">
             {loading ? (
               <motion.div key="loading" {...animationIcon} className={styles.iconWrapper}>
@@ -48,7 +54,7 @@ export const SubmitButton: React.FC<SubmitButtonProps> = React.memo(
               </motion.div>
             )}
           </AnimatePresence>
-        </button>
+        </motion.button>
       </AppTooltip>
     );
   }
@@ -65,24 +71,15 @@ const useStyles = createStyles(({ token, css }) => ({
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s ease;
     background: ${token.colorBgContainer};
     border: 0.5px solid ${token.colorBorder};
     padding: 0;
     outline: none;
-
-    .material-symbols {
-      transition: color 0.2s ease;
-    }
+    transition: all 0.2s ease-in-out;
 
     &:not(:disabled):hover {
       border-color: ${token.colorPrimary};
-      transform: scale(1.075);
       box-shadow: ${token.boxShadowTertiary};
-    }
-
-    &:not(:disabled):active {
-      transform: scale(0.95);
     }
 
     &:disabled {
@@ -98,12 +95,12 @@ const useStyles = createStyles(({ token, css }) => ({
     }
   `,
   loading: css`
-    background: ${token.colorText};
-    border: 0.5px solid ${token.colorBorder};
+    background: ${token.colorText} !important;
+    border: 0.5px solid ${token.colorText} !important;
     color: ${token.colorBgLayout};
 
     &:hover {
-      background: ${token.colorTextSecondary};
+      background: ${token.colorTextSecondary} !important;
       border-color: ${token.colorTextSecondary} !important;
     }
 
