@@ -100,7 +100,7 @@ export const useSQLProvider = () => {
 
         return result;
       } catch (error) {
-        console.log(error);
+        //
       }
     }
   );

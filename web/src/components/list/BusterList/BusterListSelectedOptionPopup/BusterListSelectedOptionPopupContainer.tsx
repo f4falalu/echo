@@ -4,6 +4,7 @@ import { useAntToken } from '@/styles/useAntToken';
 import { createStyles } from 'antd-style';
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { PopupContainer, PopupSplitter } from '@/components/popup/PopupContainer';
 
 export const BusterListSelectedOptionPopupContainer: React.FC<{
   selectedRowKeys: string[];
@@ -16,44 +17,17 @@ export const BusterListSelectedOptionPopupContainer: React.FC<{
   const show = showProp ?? selectedRowKeys.length > 0;
 
   return (
-    <AnimatePresence mode="wait">
-      {show && (
-        <motion.div
-          className="absolute flex w-full justify-center"
-          initial={{ opacity: 0, y: -3 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -3 }}
-          transition={{ duration: 0.12 }}
-          style={{
-            bottom: 28
-          }}>
-          <div
-            style={{
-              backgroundColor: token.colorBgContainer,
-              borderRadius: token.borderRadius,
-              boxShadow: token.boxShadowSecondary,
-              padding: token.paddingXS
-            }}>
-            {show && (
-              <div className="flex w-full items-center space-x-2">
-                <SelectedButton selectedRowKeys={selectedRowKeys} onSelectChange={onSelectChange} />
+    <PopupContainer show={show}>
+      <div className="flex w-full items-center space-x-2">
+        <SelectedButton selectedRowKeys={selectedRowKeys} onSelectChange={onSelectChange} />
 
-                {buttons.length > 0 && (
-                  <div
-                    className="w-[0.5px]"
-                    style={{ backgroundColor: token.colorSplit, height: token.controlHeight - 4 }}
-                  />
-                )}
+        {buttons.length > 0 && <PopupSplitter />}
 
-                {buttons.map((button, index) => (
-                  <React.Fragment key={index}>{button}</React.Fragment>
-                ))}
-              </div>
-            )}
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        {buttons.map((button, index) => (
+          <React.Fragment key={index}>{button}</React.Fragment>
+        ))}
+      </div>
+    </PopupContainer>
   );
 };
 

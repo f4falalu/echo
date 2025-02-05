@@ -7,6 +7,7 @@ export type BusterMetric = {
   title: string;
   version_number: number;
   description: string | null;
+  file_name: string;
   time_frame: string;
   dataset_id: string;
   data_source_id: string;

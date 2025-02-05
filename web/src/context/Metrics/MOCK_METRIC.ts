@@ -62,6 +62,7 @@ export const MOCK_METRIC: IBusterMetric = {
   id: '123',
   title: 'Mock Metric',
   version_number: 1,
+  file_name: 'mock_metric.yml',
   description: faker.lorem.sentence(33),
   data_source_id: '6840fa04-c0d7-4e0e-8d3d-ea9190d93874',
   time_frame: '1d',
@@ -77,7 +78,48 @@ export const MOCK_METRIC: IBusterMetric = {
   status: VerificationStatus.notRequested,
   evaluation_score: 'Moderate',
   evaluation_summary: faker.lorem.sentence(33),
-  file: '',
+  file: `
+metric:
+  name: sales_performance
+  description: Monthly sales performance by product
+  source: sales_database
+  refresh_interval: daily
+  
+dimensions:
+  - name: date
+    type: date
+    format: YYYY-MM-DD
+  - name: product
+    type: string
+  - name: region 
+    type: string
+    
+measures:
+  - name: sales_amount
+    type: decimal
+    aggregation: sum
+  - name: units_sold
+    type: integer
+    aggregation: sum
+    
+filters:
+  - field: date
+    operator: between
+    value: [2024-01-01, 2024-12-31]
+  - field: region
+    operator: in
+    value: [North, South, East, West]
+    
+joins:
+  - name: product_details
+    type: left
+    on: product_id
+    
+sorting:
+  - field: sales_amount
+    direction: desc
+    
+limit: 1000`,
   created_at: '',
   updated_at: '',
   sent_by_id: '',
