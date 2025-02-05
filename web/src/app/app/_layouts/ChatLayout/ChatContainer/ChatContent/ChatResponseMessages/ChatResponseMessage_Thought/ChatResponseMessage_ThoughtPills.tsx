@@ -9,6 +9,7 @@ import { calculateTextWidth } from '@/utils';
 import { useDebounce, useMemoizedFn, useSize } from 'ahooks';
 import { AppPopover } from '@/components';
 import { useChatLayoutContextSelector } from '../../../../ChatLayoutContext';
+import { PopoverProps } from 'antd';
 
 const duration = 0.25;
 
@@ -164,6 +165,7 @@ const Pill: React.FC<{
 
 Pill.displayName = 'Pill';
 
+const memoizedTrigger: PopoverProps['trigger'] = ['click'];
 const OverflowPill = React.memo(
   ({
     hiddenPills,
@@ -185,7 +187,7 @@ const OverflowPill = React.memo(
     );
 
     return (
-      <AppPopover destroyTooltipOnHide content={content} trigger={['click']}>
+      <AppPopover destroyTooltipOnHide content={content} trigger={memoizedTrigger}>
         <div>
           <Pill className="cursor-pointer" useAnimation={useAnimation} text={`+${count} more`} />
         </div>

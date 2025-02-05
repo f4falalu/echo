@@ -2,7 +2,7 @@ import React from 'react';
 import { AppPopover } from '@/components';
 import { ChartEncodes, IColumnLabelFormat } from '@/components/charts';
 import { SelectAxisDropdownContent } from './SelectAxisColumnContent';
-import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { SelectAxisContainerId } from './config';
 
 interface SelectAxisColumnPopoverProps {
@@ -15,6 +15,7 @@ interface SelectAxisColumnPopoverProps {
   lineGroupType: IBusterMetricChartConfig['lineGroupType'];
   zoneId: SelectAxisContainerId;
   selectedAxis: ChartEncodes | null;
+  rowCount: number;
 }
 
 export const SelectAxisColumnPopover = React.memo(

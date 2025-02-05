@@ -10,6 +10,13 @@ const mockData = (): Record<string, string | number | null>[] => {
   }));
 };
 
+const data = mockData();
+data.push({
+  sales: 1,
+  date: '2024-01-01',
+  product: 'NATE RULEZ'
+});
+
 const dataMetadata: DataMetadata = {
   column_count: 3,
   column_metadata: [
@@ -38,15 +45,8 @@ const dataMetadata: DataMetadata = {
       type: 'text'
     }
   ],
-  row_count: 10
+  row_count: data.length
 };
-
-const data = mockData();
-data.push({
-  sales: 1,
-  date: '2024-01-01',
-  product: 'NATE RULEZ'
-});
 
 export const MOCK_DATA: Required<BusterMetricData> = {
   fetched: true,

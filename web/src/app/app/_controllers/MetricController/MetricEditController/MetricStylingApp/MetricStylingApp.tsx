@@ -18,6 +18,8 @@ export const MetricStylingApp: React.FC<{
   if (!metric) return null;
 
   const columnMetadata = metricData?.data_metadata?.column_metadata || [];
+  const rowCount = metricData?.data_metadata?.row_count || 0;
+
   const chartConfig = metric.chart_config;
   const {
     selectedChartType,
@@ -93,6 +95,7 @@ export const MetricStylingApp: React.FC<{
             className="px-4 pt-3"
             key={selectedChartType}
             columnMetadata={columnMetadata}
+            rowCount={rowCount}
             selectedChartType={selectedChartType}
             lineGroupType={lineGroupType}
             barGroupType={barGroupType}
@@ -163,6 +166,7 @@ export const MetricStylingApp: React.FC<{
             columnMetadata={columnMetadata}
             columnLabelFormats={columnLabelFormats}
             barShowTotalAtTop={barShowTotalAtTop}
+            rowCount={rowCount}
           />
         )}
 

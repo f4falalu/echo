@@ -33,6 +33,7 @@ export interface ISelectAxisContext
   trendlines: IBusterMetricChartConfig['trendlines'];
   barShowTotalAtTop: IBusterMetricChartConfig['barShowTotalAtTop'];
   disableTooltip: IBusterMetricChartConfig['disableTooltip'];
+  rowCount: number;
 }
 
 const SelectAxisContext = createContext<ISelectAxisContext>({} as ISelectAxisContext);

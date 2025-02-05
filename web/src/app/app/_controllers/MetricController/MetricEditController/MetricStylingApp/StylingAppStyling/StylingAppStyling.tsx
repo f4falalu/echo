@@ -57,6 +57,7 @@ export const StylingAppStyling: React.FC<{
   scatterDotSize: IBusterMetricChartConfig['scatterDotSize'];
   selectedAxis: ChartEncodes;
   columnMetadata: ColumnMetaData[];
+  rowCount: number;
   columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
   barShowTotalAtTop: IBusterMetricChartConfig['barShowTotalAtTop'];
 }> = ({
@@ -87,7 +88,8 @@ export const StylingAppStyling: React.FC<{
   columnMetadata,
   columnLabelFormats,
   barShowTotalAtTop,
-  yAxisShowAxisTitle
+  yAxisShowAxisTitle,
+  rowCount
 }) => {
   const onUpdateMetricChartConfig = useBusterMetricsContextSelector(
     (x) => x.onUpdateMetricChartConfig
@@ -140,6 +142,7 @@ export const StylingAppStyling: React.FC<{
         onUpdateDataLabel={onUpdateDataLabel}
         onUpdateYAxis={onUpdateYAxis}
         className={className}
+        rowCount={rowCount}
       />
 
       <Divider />
@@ -206,6 +209,7 @@ const GlobalSettings: React.FC<{
   selectedChartType: IBusterMetricChartConfig['selectedChartType'];
   pieLabelPosition: IBusterMetricChartConfig['pieLabelPosition'];
   selectedAxis: ChartEncodes;
+  rowCount: number;
   onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
   onUpdateDataLabel: (v: boolean) => void;
   onUpdateYAxis: (v: boolean) => void;
@@ -220,6 +224,7 @@ const GlobalSettings: React.FC<{
   selectedChartType,
   pieLabelPosition,
   yAxisShowAxisTitle,
+  rowCount,
   onUpdateChartConfig,
   onUpdateDataLabel,
   onUpdateYAxis
@@ -260,6 +265,7 @@ const GlobalSettings: React.FC<{
         <EditShowDataLabels
           showDataLabels={mostPermissiveDataLabel}
           onUpdateColumnSettingConfig={onUpdateDataLabel}
+          rowCount={rowCount}
         />
       )
     },

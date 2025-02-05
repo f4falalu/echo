@@ -5,7 +5,7 @@ import { useDatasetContextSelector } from '@/context/Datasets';
 import { useMount } from 'ahooks';
 import { createStyles } from 'antd-style';
 import React, { useContext, useMemo } from 'react';
-import { Button } from 'antd';
+import { Button, PopoverProps } from 'antd';
 import { Text } from '@/components';
 import { useGetDatasets } from '@/api/buster_rest/datasets';
 
@@ -66,6 +66,8 @@ export const DatasetList: React.FC<{
 });
 DatasetList.displayName = 'DatasetList';
 
+const memoizedTrigger: AppDropdownSelectProps['trigger'] = ['click'];
+
 const DropdownSelect: React.FC<{
   children: React.ReactNode;
   datasets: BusterTerm['datasets'];
@@ -99,7 +101,7 @@ const DropdownSelect: React.FC<{
       destroyPopupOnHide
       headerContent={'Related datasets...'}
       selectedItems={selectedItems}
-      trigger={['click']}>
+      trigger={memoizedTrigger}>
       {children}
     </AppDropdownSelect>
   );

@@ -16,7 +16,7 @@ export const StylingMetric: React.FC<{
   columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
   metricHeader: IBusterMetricChartConfig['metricHeader'];
   metricSubHeader: IBusterMetricChartConfig['metricSubHeader'];
-  metricValueLabel: IBusterMetricChartConfig['metricValueLabel'];
+  rowCount: number;
   metricValueAggregate: IBusterMetricChartConfig['metricValueAggregate'];
   metricColumnId: IBusterMetricChartConfig['metricColumnId'];
   columnMetadata: ColumnMetaData[];
@@ -25,7 +25,7 @@ export const StylingMetric: React.FC<{
   columnLabelFormats,
   metricHeader,
   metricSubHeader,
-  metricValueLabel,
+  rowCount,
   metricValueAggregate,
   metricColumnId,
   columnMetadata
@@ -52,7 +52,7 @@ export const StylingMetric: React.FC<{
           columnFieldOptions={columnFieldOptions}
           columnLabelFormats={columnLabelFormats}
           metricValueAggregate={metricValueAggregate}
-          columnMetadata={columnMetadata}
+          rowCount={rowCount}
           onUpdateChartConfig={onUpdateChartConfig}
         />
       </div>
@@ -63,10 +63,9 @@ export const StylingMetric: React.FC<{
         <HeaderMetricStyling
           header={metricHeader}
           type="header"
-          metricValueAggregate={metricValueAggregate}
+          rowCount={rowCount}
           columnFieldOptions={columnFieldOptions}
           columnLabelFormats={columnLabelFormats}
-          columnMetadata={columnMetadata}
           onUpdateChartConfig={onUpdateChartConfig}
         />
       </div>
@@ -77,10 +76,9 @@ export const StylingMetric: React.FC<{
         <HeaderMetricStyling
           header={metricSubHeader}
           type="subHeader"
-          metricValueAggregate={metricValueAggregate}
+          rowCount={rowCount}
           columnFieldOptions={columnFieldOptions}
           columnLabelFormats={columnLabelFormats}
-          columnMetadata={columnMetadata}
           onUpdateChartConfig={onUpdateChartConfig}
         />
       </div>
@@ -93,14 +91,14 @@ const PrimaryMetricStyling: React.FC<{
   metricValueAggregate: IBusterMetricChartConfig['metricValueAggregate'];
   columnFieldOptions: ReturnType<typeof createColumnFieldOptions>;
   columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
-  columnMetadata: ColumnMetaData[];
+  rowCount: number;
   onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
 }> = ({
   metricColumnId,
   columnLabelFormats,
   metricValueAggregate,
   columnFieldOptions,
-  columnMetadata,
+  rowCount,
   onUpdateChartConfig
 }) => {
   const onUpdateMetricField = useMemoizedFn(
@@ -134,7 +132,7 @@ const PrimaryMetricStyling: React.FC<{
         columnId={metricColumnId}
         columnLabelFormats={columnLabelFormats}
         columnFieldOptions={columnFieldOptions}
-        columnMetadata={columnMetadata}
+        rowCount={rowCount}
         onUpdateChartConfig={onUpdateChartConfig}
         onUpdateMetricField={onUpdateMetricField}
       />
@@ -151,20 +149,11 @@ const PrimaryMetricStyling: React.FC<{
 const HeaderMetricStyling: React.FC<{
   header: IBusterMetricChartConfig['metricHeader'] | IBusterMetricChartConfig['metricSubHeader'];
   columnFieldOptions: ReturnType<typeof createColumnFieldOptions>;
-  columnMetadata: ColumnMetaData[];
+  rowCount: number;
   columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
   type: 'header' | 'subHeader';
-  metricValueAggregate: IBusterMetricChartConfig['metricValueAggregate'];
   onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
-}> = ({
-  header,
-  type,
-  columnFieldOptions,
-  columnMetadata,
-  columnLabelFormats,
-  metricValueAggregate,
-  onUpdateChartConfig
-}) => {
+}> = ({ header, type, columnFieldOptions, rowCount, columnLabelFormats, onUpdateChartConfig }) => {
   const isStringHeader = typeof header === 'string';
   const isObjectHeader = typeof header === 'object';
   const doNotUseHeader = header === null;
@@ -239,7 +228,7 @@ const HeaderMetricStyling: React.FC<{
       component: (
         <EditMetricField
           columnFieldOptions={columnFieldOptions}
-          columnMetadata={columnMetadata}
+          rowCount={rowCount}
           columnId={(header as DerivedMetricTitle)?.columnId}
           columnLabelFormats={columnLabelFormats}
           onUpdateChartConfig={onUpdateChartConfig}

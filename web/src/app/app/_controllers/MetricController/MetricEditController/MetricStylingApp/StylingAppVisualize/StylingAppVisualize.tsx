@@ -37,7 +37,7 @@ export const StylingAppVisualize: React.FC<
     metricColumnId,
     metricHeader,
     metricSubHeader,
-    metricValueLabel,
+    rowCount,
     metricValueAggregate,
     columnLabelFormats,
     columnMetadata,
@@ -77,9 +77,9 @@ export const StylingAppVisualize: React.FC<
           metricColumnId={metricColumnId}
           metricHeader={metricHeader}
           metricSubHeader={metricSubHeader}
-          metricValueLabel={metricValueLabel}
           metricValueAggregate={metricValueAggregate}
           columnMetadata={columnMetadata}
+          rowCount={rowCount}
         />
       )}
     </div>

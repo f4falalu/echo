@@ -3,7 +3,7 @@ import { isNumericColumnStyle, isNumericColumnType } from '@/utils';
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../Common';
 import { Button, Select } from 'antd';
-import { DEFAULT_COLUMN_SETTINGS, type ColumnMetaData } from '@/api/asset_interfaces';
+import { DEFAULT_COLUMN_SETTINGS } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
 import { createColumnFieldOptions } from './helpers';
 import { AppMaterialIcons, AppPopover } from '@/components';
@@ -16,7 +16,7 @@ export const EditMetricField: React.FC<{
   columnId: IBusterMetricChartConfig['metricColumnId'];
   columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
   columnFieldOptions: ReturnType<typeof createColumnFieldOptions>;
-  columnMetadata: ColumnMetaData[];
+  rowCount: number;
   onUpdateMetricField: (config: {
     metricColumnId: string;
     metricValueAggregate?: DerivedMetricTitle['aggregate'];
@@ -26,7 +26,7 @@ export const EditMetricField: React.FC<{
   ({
     columnId,
     columnFieldOptions,
-    columnMetadata,
+    rowCount,
     label = 'Metric column',
     columnLabelFormats,
     onUpdateMetricField,
@@ -69,6 +69,7 @@ export const EditMetricField: React.FC<{
           />
           <StylingPopover
             metricColumnId={columnId}
+            rowCount={rowCount}
             columnLabelFormat={columnLabelFormat}
             onUpdateChartConfig={onUpdateChartConfig}
           />
@@ -83,7 +84,8 @@ const StylingPopover: React.FC<{
   metricColumnId: IBusterMetricChartConfig['metricColumnId'];
   columnLabelFormat: IBusterMetricChartConfig['columnLabelFormats'][string];
   onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
-}> = ({ metricColumnId, columnLabelFormat }) => {
+  rowCount: number;
+}> = ({ metricColumnId, columnLabelFormat, rowCount }) => {
   return (
     <AppPopover
       trigger="click"
@@ -101,6 +103,7 @@ const StylingPopover: React.FC<{
             lineGroupType={null}
             barGroupType={null}
             selectedAxis={null}
+            rowCount={rowCount}
           />
         </div>
       }

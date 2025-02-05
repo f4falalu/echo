@@ -69,6 +69,19 @@ export const SaveToCollectionsDropdown: React.FC<{
     setShowDropdown(false);
   });
 
+  const memoizedButton = useMemo(() => {
+    return (
+      <Button
+        type="text"
+        block
+        className="!justify-start"
+        icon={<AppMaterialIcons icon="add" />}
+        onClick={onClick}>
+        New collection
+      </Button>
+    );
+  }, [onClick]);
+
   return (
     <>
       <AppDropdownSelect
@@ -78,16 +91,7 @@ export const SaveToCollectionsDropdown: React.FC<{
         headerContent={'Save to a collection'}
         open={showDropdown}
         onOpenChange={onOpenChange}
-        footerContent={
-          <Button
-            type="text"
-            block
-            className="!justify-start"
-            icon={<AppMaterialIcons icon="add" />}
-            onClick={onClick}>
-            New collection
-          </Button>
-        }
+        footerContent={memoizedButton}
         items={items}
         selectedItems={selectedCollections}>
         {showDropdown ? (

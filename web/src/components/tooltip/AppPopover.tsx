@@ -23,44 +23,50 @@ const useStyles = createStyles(({ token, css }) => ({
   `
 }));
 
-export const AppPopover: React.FC<PropsWithChildren<Props>> = ({
-  children,
-  content,
-  headerContent,
-  arrow = false,
-  className,
-  performant,
-  destroyTooltipOnHide = true,
-  ...props
-}) => {
-  const [performatMounted, setPerformantMounted] = useState(false);
-  const { styles, cx } = useStyles();
+export const AppPopover: React.FC<PropsWithChildren<Props>> = React.memo(
+  ({
+    children,
+    content,
+    headerContent,
+    arrow = false,
+    className,
+    performant,
+    destroyTooltipOnHide = true,
+    ...props
+  }) => {
+    const [performatMounted, setPerformantMounted] = useState(false);
+    const { styles, cx } = useStyles();
 
-  const contentWithHeader = headerContent ? (
-    <div className="flex w-full flex-col">
-      {headerContent && <div className={cx(styles.header)}>{headerContent}</div>}
-      {content}
-    </div>
-  ) : (
-    content
-  );
+    const contentWithHeader = headerContent ? (
+      <div className="flex w-full flex-col">
+        {headerContent && <div className={cx(styles.header)}>{headerContent}</div>}
+        {content}
+      </div>
+    ) : (
+      content
+    );
 
-  if (performant && !performatMounted) {
+    if (performant && !performatMounted) {
+      return (
+        <span className="flex" onMouseEnter={() => setPerformantMounted(true)}>
+          {children}
+        </span>
+      );
+    }
+
     return (
-      <span className="flex" onMouseEnter={() => setPerformantMounted(true)}>
-        {children}
-      </span>
+      <Popover
+        {...props}
+        destroyTooltipOnHide={destroyTooltipOnHide}
+        classNames={{
+          root: cx(styles.popover, className)
+        }}
+        arrow={arrow}
+        content={contentWithHeader}>
+        {performant === undefined ? children : <span className="flex">{children}</span>}
+      </Popover>
     );
   }
+);
 
-  return (
-    <Popover
-      {...props}
-      destroyTooltipOnHide={destroyTooltipOnHide}
-      overlayClassName={cx(styles.popover, className, '')}
-      arrow={arrow}
-      content={contentWithHeader}>
-      {performant === undefined ? children : <span className="flex">{children}</span>}
-    </Popover>
-  );
-};
+AppPopover.displayName = 'AppPopover';

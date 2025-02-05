@@ -8,8 +8,8 @@ import { AppMaterialIcons } from '@/components/icons';
 import { Button } from 'antd';
 import { useMemoizedFn } from 'ahooks';
 import { SelectAxisColumnPopover } from './SelectAxisColumnPopover';
-import { ChartEncodes, IColumnLabelFormat } from '@/components/charts';
-import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { ChartEncodes, IColumnLabelFormat } from '@/components/charts';
+import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { SelectAxisContainerId } from './config';
 
 export const SelectAxisItemAvailableContainer = React.memo(
@@ -32,6 +32,7 @@ export const SelectAxisItemAvailableContainer = React.memo(
     const barGroupType = useSelectAxisContextSelector((x) => x.barGroupType);
     const lineGroupType = useSelectAxisContextSelector((x) => x.lineGroupType);
     const selectedAxis = useSelectAxisContextSelector((x) => x.selectedAxis);
+    const rowCount = useSelectAxisContextSelector((x) => x.rowCount);
 
     return (
       <SelectAxisItemDragContainer {...props} ref={ref}>
@@ -47,6 +48,7 @@ export const SelectAxisItemAvailableContainer = React.memo(
             id={id}
             zoneId={zoneId}
             selectedAxis={selectedAxis}
+            rowCount={rowCount}
           />
         </div>
       </SelectAxisItemDragContainer>
@@ -64,6 +66,7 @@ const ThreeDotMenu: React.FC<{
   zoneId: SelectAxisContainerId;
   selectedAxis: ChartEncodes | null;
   id: string;
+  rowCount: number;
 }> = (props) => {
   const onClickButton = useMemoizedFn(
     (e: React.MouseEvent<HTMLButtonElement> | React.MouseEvent<HTMLDivElement>) => {

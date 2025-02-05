@@ -5,7 +5,7 @@ import { useMemoizedFn } from 'ahooks';
 import React, { useEffect, useMemo } from 'react';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { Button } from 'antd';
-import { AppDropdownSelect } from '@/components/dropdown';
+import { AppDropdownSelect, AppDropdownSelectProps } from '@/components/dropdown';
 import { AppTooltip } from '@/components/tooltip';
 import { AppMaterialIcons } from '@/components/icons';
 import type { BusterMetric, BusterDashboardListItem } from '@/api/asset_interfaces';
@@ -90,25 +90,31 @@ export const SaveToDashboardDropdown: React.FC<{
     }
   }, [showDropdown]);
 
+  const memoizedTrigger = useMemo<AppDropdownSelectProps['trigger']>(() => ['click'], []);
+
+  const memoizedButton = useMemo(() => {
+    return (
+      <Button
+        type="text"
+        className="!justify-start"
+        loading={creatingDashboard}
+        block
+        icon={<AppMaterialIcons icon="add" />}
+        onClick={onClickNewDashboardButton}>
+        New dashboard
+      </Button>
+    );
+  }, [creatingDashboard, onClickNewDashboardButton]);
+
   return (
     <>
       <AppDropdownSelect
-        trigger={['click']}
+        trigger={memoizedTrigger}
         headerContent={'Save to a dashboard'}
         placement="bottomRight"
         open={showDropdown}
         onOpenChange={onOpenChange}
-        footerContent={
-          <Button
-            type="text"
-            className="!justify-start"
-            loading={creatingDashboard}
-            block
-            icon={<AppMaterialIcons icon="add" />}
-            onClick={onClickNewDashboardButton}>
-            New dashboard
-          </Button>
-        }
+        footerContent={memoizedButton}
         items={items}
         selectedItems={selectedItems}>
         <AppTooltip title={showDropdown ? '' : 'Save to dashboard'}>{children}</AppTooltip>

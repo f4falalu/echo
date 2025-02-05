@@ -43,11 +43,13 @@ export const SelectAxisDropdownContent: React.FC<{
     columnSetting?: string;
     labelSettings?: string;
   };
+  rowCount: number;
 }> = ({
   columnLabelFormat,
   columnSetting,
   id,
   zoneId,
+  rowCount,
   className = '',
   selectedChartType,
   barGroupType,
@@ -98,6 +100,7 @@ export const SelectAxisDropdownContent: React.FC<{
         lineGroupType={lineGroupType}
         barGroupType={barGroupType}
         zoneId={zoneId}
+        rowCount={rowCount}
       />
 
       <LabelSettings
@@ -124,6 +127,7 @@ const ColumnSettingComponent: React.FC<{
   zoneId: SelectAxisContainerId;
   lineGroupType: IBusterMetricChartConfig['lineGroupType'];
   barGroupType: IBusterMetricChartConfig['barGroupType'];
+  rowCount: number;
 }> = ({
   formattedTitle,
   columnSetting,
@@ -135,7 +139,8 @@ const ColumnSettingComponent: React.FC<{
   zoneId,
   className = '',
   lineGroupType,
-  barGroupType
+  barGroupType,
+  rowCount
 }) => {
   const {
     lineStyle,
@@ -233,6 +238,7 @@ const ColumnSettingComponent: React.FC<{
         <EditShowDataLabel
           showDataLabels={showDataLabels}
           onUpdateColumnSettingConfig={onUpdateColumnSettingConfig}
+          rowCount={rowCount}
         />
       )
     },

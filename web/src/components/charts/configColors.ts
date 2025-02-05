@@ -189,7 +189,7 @@ export const BLUE_TO_ORANGE_GRADIENT = [
   '#fb9017'
 ];
 
-export const SEA_AND_GREEN_GRADIENT = [
+export const VIBRANT_RAINBOW = [
   '#F0DC75',
   '#98EC6F',
   '#69E8A8',

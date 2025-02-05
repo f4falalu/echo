@@ -14,6 +14,8 @@ export interface AppDropdownSelectProps extends AppPopoverMenuProps {
   }[];
 }
 
-export const AppDropdownSelect: React.FC<AppDropdownSelectProps> = (props) => {
+export const AppDropdownSelect: React.FC<AppDropdownSelectProps> = React.memo((props) => {
   return <AppPopoverMenu {...props} />;
-};
+});
+
+AppDropdownSelect.displayName = 'AppDropdownSelect';

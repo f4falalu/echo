@@ -80,6 +80,7 @@ const DropdownContent: React.FC<{ id: string; zoneId: SelectAxisContainerId }> =
   const barGroupType = useSelectAxisContextSelector((x) => x.barGroupType);
   const lineGroupType = useSelectAxisContextSelector((x) => x.lineGroupType);
   const selectedAxis = useSelectAxisContextSelector((x) => x.selectedAxis);
+  const rowCount = useSelectAxisContextSelector((x) => x.rowCount);
 
   return (
     <SelectAxisDropdownContent
@@ -92,6 +93,7 @@ const DropdownContent: React.FC<{ id: string; zoneId: SelectAxisContainerId }> =
       barGroupType={barGroupType}
       lineGroupType={lineGroupType}
       selectedAxis={selectedAxis}
+      rowCount={rowCount}
     />
   );
 };

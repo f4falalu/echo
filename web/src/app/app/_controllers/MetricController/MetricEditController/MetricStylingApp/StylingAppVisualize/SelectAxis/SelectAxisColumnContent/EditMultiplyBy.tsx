@@ -11,6 +11,7 @@ export const EditMultiplyBy: React.FC<{
     return (
       <LabelAndInput label="Multiply By">
         <InputNumber
+          placeholder="1"
           className="!w-full"
           min={0}
           defaultValue={multiplier}
