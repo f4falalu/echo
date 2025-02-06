@@ -8,8 +8,8 @@ use crate::utils::{
         prompt_node::{prompt_node, PromptNodeMessage, PromptNodeSettings},
     },
     prompts::analyst_chat_prompts::failed_to_fix_sql_prompts::{
-            failed_to_fix_sql_system_prompt, failed_to_fix_sql_user_prompt,
-        },
+        failed_to_fix_sql_system_prompt, failed_to_fix_sql_user_prompt,
+    },
 };
 
 pub enum FailedToFixSqlAgent {
@@ -82,6 +82,7 @@ pub async fn failed_to_fix_sql_agent(
         stream: Some(options.output_sender),
         stream_name: Some("failed_to_fix_sql".to_string()),
         prompt_name: "failed_to_fix_sql".to_string(),
+        json_mode: true,
         ..Default::default()
     };
 
@@ -93,19 +94,24 @@ pub async fn failed_to_fix_sql_agent(
         }
     };
 
-    // Combine master response with first part of response
+    let sql = match response.get("sql") {
+        Some(sql) => sql.as_str().unwrap_or_default().to_string(),
+        None => "".to_string(),
+    };
+
+    // Combine SQL with first part of response
     let combined_response = match (
-        response.as_str(),
+        sql.as_str(),
         options.outputs.get("first_part_of_response"),
     ) {
-        (Some(master_str), Some(first_part)) => {
+        (sql_str, Some(first_part)) if !sql_str.is_empty() => {
             if let Some(first_part_str) = first_part.as_str() {
-                Value::String(format!("{}\n\n{}", first_part_str, master_str))
+                Value::String(format!("{}\n\n{}", first_part_str, sql_str))
             } else {
-                response
+                Value::String(sql)
             }
         }
-        _ => response,
+        _ => Value::String(sql),
     };
 
     Ok(combined_response)
