@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 
 use crate::utils::{
     BusterClient, DeployDatasetsRequest, DeployDatasetsColumnsRequest, DeployDatasetsEntityRelationshipsRequest,
-    buster_credentials::get_and_validate_buster_credentials,
+    buster_credentials::get_and_validate_buster_credentials, ValidationResult, ValidationError, ValidationErrorType,
 };
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -122,6 +122,81 @@ impl DeployProgress {
             Some(path) => println!("📄 Found SQL file for '{}' at: {}", model_name, path.display()),
             None => println!("⚠️  No SQL file found for '{}', using default SELECT", model_name),
         }
+    }
+
+    pub fn log_validation_error(&self, validation: &ValidationResult) {
+        if !validation.success {
+            println!("\n❌ Validation failed for {}", validation.model_name);
+            println!("   Data Source: {}", validation.data_source_name);
+            println!("   Schema: {}", validation.schema);
+            
+            // Group errors by type
+            let mut table_errors = Vec::new();
+            let mut column_errors = Vec::new();
+            let mut type_errors = Vec::new();
+            let mut other_errors = Vec::new();
+            
+            for error in &validation.errors {
+                match error.error_type {
+                    ValidationErrorType::TableNotFound => table_errors.push(error),
+                    ValidationErrorType::ColumnNotFound => column_errors.push(error),
+                    ValidationErrorType::TypeMismatch => type_errors.push(error),
+                    ValidationErrorType::DataSourceError => other_errors.push(error),
+                }
+            }
+            
+            // Print grouped errors
+            if !table_errors.is_empty() {
+                println!("\n   Table/View Errors:");
+                for error in table_errors {
+                    println!("   - {}", error.message);
+                }
+            }
+            
+            if !column_errors.is_empty() {
+                println!("\n   Column Errors:");
+                for error in column_errors {
+                    if let Some(col) = &error.column_name {
+                        println!("   - Column '{}': {}", col, error.message);
+                    }
+                }
+            }
+            
+            if !type_errors.is_empty() {
+                println!("\n   Type Mismatch Errors:");
+                for error in type_errors {
+                    if let Some(col) = &error.column_name {
+                        println!("   - Column '{}': {}", col, error.message);
+                    }
+                }
+            }
+            
+            if !other_errors.is_empty() {
+                println!("\n   Other Errors:");
+                for error in other_errors {
+                    println!("   - {}", error.message);
+                }
+            }
+            
+            // Print suggestions if any
+            let suggestions: Vec<_> = validation.errors
+                .iter()
+                .filter_map(|e| e.suggestion.as_ref())
+                .collect();
+            
+            if !suggestions.is_empty() {
+                println!("\n💡 Suggestions:");
+                for suggestion in suggestions {
+                    println!("   - {}", suggestion);
+                }
+            }
+        }
+    }
+
+    pub fn log_validation_success(&self, validation: &ValidationResult) {
+        println!("\n✅ Validation passed for {}", validation.model_name);
+        println!("   Data Source: {}", validation.data_source_name);
+        println!("   Schema: {}", validation.schema);
     }
 }
 
@@ -513,21 +588,54 @@ pub async fn deploy_v2(path: Option<&str>) -> Result<()> {
         }
 
         let data_source_name = deploy_requests[0].data_source_name.clone();
-        if let Err(e) = client.deploy_datasets(deploy_requests).await {
-            println!("\n❌ Deployment failed!");
-            println!("Error: {}", e);
-            println!("\n💡 Troubleshooting:");
-            println!("1. Check data source:");
-            println!("   - Verify '{}' exists in Buster", data_source_name);
-            println!("   - Confirm it has env='dev'");
-            println!("   - Check your access permissions");
-            println!("2. Check model definitions:");
-            println!("   - Validate SQL syntax");
-            println!("   - Verify column names match");
-            println!("3. Check relationships:");
-            println!("   - Ensure referenced models exist");
-            println!("   - Verify relationship types");
-            return Err(anyhow::anyhow!("Failed to deploy models to Buster: {}", e));
+        match client.deploy_datasets(deploy_requests).await {
+            Ok(response) => {
+                let mut has_validation_errors = false;
+
+                // Process validation results
+                for validation in &response.results {
+                    if validation.success {
+                        progress.log_validation_success(validation);
+                    } else {
+                        has_validation_errors = true;
+                        progress.log_validation_error(validation);
+                    }
+                }
+
+                if has_validation_errors {
+                    println!("\n❌ Deployment failed due to validation errors!");
+                    println!("\n💡 Troubleshooting:");
+                    println!("1. Check data source:");
+                    println!("   - Verify '{}' exists in Buster", data_source_name);
+                    println!("   - Confirm it has env='dev'");
+                    println!("   - Check your access permissions");
+                    println!("2. Check model definitions:");
+                    println!("   - Validate SQL syntax");
+                    println!("   - Verify column names match");
+                    println!("3. Check relationships:");
+                    println!("   - Ensure referenced models exist");
+                    println!("   - Verify relationship types");
+                    return Err(anyhow::anyhow!("Deployment failed due to validation errors"));
+                }
+
+                println!("\n✅ All models deployed successfully!");
+            }
+            Err(e) => {
+                println!("\n❌ Deployment failed!");
+                println!("Error: {}", e);
+                println!("\n💡 Troubleshooting:");
+                println!("1. Check data source:");
+                println!("   - Verify '{}' exists in Buster", data_source_name);
+                println!("   - Confirm it has env='dev'");
+                println!("   - Check your access permissions");
+                println!("2. Check model definitions:");
+                println!("   - Validate SQL syntax");
+                println!("   - Verify column names match");
+                println!("3. Check relationships:");
+                println!("   - Ensure referenced models exist");
+                println!("   - Verify relationship types");
+                return Err(anyhow::anyhow!("Failed to deploy models to Buster: {}", e));
+            }
         }
     }
 

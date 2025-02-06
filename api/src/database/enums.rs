@@ -441,6 +441,7 @@ impl FromSql<sql_types::VerificationEnum, Pg> for Verification {
     Copy,
     PartialEq,
     Eq,
+    Hash,
     diesel::AsExpression,
     diesel::FromSqlRow,
 )]

@@ -8,7 +8,10 @@ use crate::{
             credentials::get_data_source_credentials,
             import_dataset_columns::retrieve_dataset_columns,
         },
-        validation::types::{ValidationError, ValidationResult},
+        validation::{
+            types::{ValidationError, ValidationResult},
+            type_mapping::{normalize_type, types_compatible},
+        },
     },
 };
 
@@ -72,11 +75,13 @@ pub async fn validate_model(
     // Validate each column
     for (col_name, col_type) in columns {
         if let Some(ds_col) = ds_columns.iter().find(|c| c.name == *col_name) {
-            if !types_compatible(&ds_col.type_, col_type) {
+            if !types_compatible(data_source.type_, &ds_col.type_, col_type) {
+                let ds_type = normalize_type(data_source.type_, &ds_col.type_);
+                let model_type = normalize_type(data_source.type_, col_type);
                 result.add_error(ValidationError::type_mismatch(
                     col_name,
-                    col_type,
-                    &ds_col.type_,
+                    &model_type.to_string(),
+                    &ds_type.to_string(),
                 ));
             }
         } else {
@@ -85,12 +90,6 @@ pub async fn validate_model(
     }
 
     Ok(result)
-}
-
-// Basic type compatibility check - will be enhanced in Phase 2
-fn types_compatible(ds_type: &str, model_type: &str) -> bool {
-    // For now, just check exact match
-    ds_type.to_lowercase() == model_type.to_lowercase()
 }
 
 #[cfg(test)]

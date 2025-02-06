@@ -219,21 +219,29 @@ pub async fn deploy_datasets(
             }
         };
 
-        if !validation.success {
-            results.push(validation);
-            continue;
-        }
+        results.push(validation.clone()); // Clone validation result before checking success
 
-        // Deploy model
-        match deploy_single_model(&req, &organization_id, &user.id).await {
-            Ok(_) => results.push(validation),
-            Err(e) => {
-                let mut validation = validation;
-                validation.success = false;
-                validation.add_error(ValidationError::data_source_error(e.to_string()));
-                results.push(validation);
+        // Only deploy if validation passed
+        if validation.success {
+            // Deploy model
+            match deploy_single_model(&req, &organization_id, &user.id).await {
+                Ok(_) => (),
+                Err(e) => {
+                    let mut failed_validation = validation;
+                    failed_validation.success = false;
+                    failed_validation.add_error(ValidationError::data_source_error(e.to_string()));
+                    results.pop(); // Remove the successful validation
+                    results.push(failed_validation); // Add the failed one
+                }
             }
         }
+    }
+
+    // Check if any validations failed
+    let has_failures = results.iter().any(|r| !r.success);
+    if has_failures {
+        tracing::warn!("Some models failed validation");
+        return Ok(ApiResponse::JsonData(DeployDatasetsResponse { results }));
     }
 
     Ok(ApiResponse::JsonData(DeployDatasetsResponse { results }))

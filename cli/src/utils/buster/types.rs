@@ -56,3 +56,33 @@ pub struct DeployDatasetsEntityRelationshipsRequest {
     #[serde(rename = "type")]
     pub type_: String,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct ValidationResult {
+    pub success: bool,
+    pub model_name: String,
+    pub data_source_name: String,
+    pub schema: String,
+    pub errors: Vec<ValidationError>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ValidationError {
+    pub error_type: ValidationErrorType,
+    pub column_name: Option<String>,
+    pub message: String,
+    pub suggestion: Option<String>,
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
+pub enum ValidationErrorType {
+    TableNotFound,
+    ColumnNotFound,
+    TypeMismatch,
+    DataSourceError,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct DeployDatasetsResponse {
+    pub results: Vec<ValidationResult>,
+}
