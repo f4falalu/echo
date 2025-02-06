@@ -80,6 +80,9 @@ pub enum ValidationErrorType {
     ColumnNotFound,
     TypeMismatch,
     DataSourceError,
+    ModelNotFound,
+    InvalidRelationship,
+    ExpressionError,
 }
 
 #[derive(Debug, Deserialize)]

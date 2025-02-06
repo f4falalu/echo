@@ -142,6 +142,9 @@ impl DeployProgress {
             let mut column_errors = Vec::new();
             let mut type_errors = Vec::new();
             let mut other_errors = Vec::new();
+            let mut model_not_found_errors = Vec::new();
+            let mut invalid_relationship_errors = Vec::new();
+            let mut expression_errors = Vec::new();
             
             for error in &validation.errors {
                 match error.error_type {
@@ -149,6 +152,10 @@ impl DeployProgress {
                     ValidationErrorType::ColumnNotFound => column_errors.push(error),
                     ValidationErrorType::TypeMismatch => type_errors.push(error),
                     ValidationErrorType::DataSourceError => other_errors.push(error),
+                    ValidationErrorType::ModelNotFound => model_not_found_errors.push(error),
+                    ValidationErrorType::InvalidRelationship => invalid_relationship_errors.push(error),
+                    ValidationErrorType::ExpressionError => expression_errors.push(error),
+                    
                 }
             }
             
