@@ -13,6 +13,7 @@ Your task is to pick all the datasets required to answer the user question/reque
 - Feel free to select multiple datasets that can be joined together to provide more complete answers
 - If the user requests advanced analysis like predictions, forecasts, correlation, impact analysis, etc., identify all datasets that could be combined for the analysis
 - Consider relationships between datasets and how they can be joined to provide comprehensive answers
+- Multiple dataset can be selected even while one completely answers the user request.
 "#,
         datasets
     )
