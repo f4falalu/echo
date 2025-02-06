@@ -101,7 +101,6 @@ export const useOptions = ({
     columnSettings,
     selectedAxis,
     selectedChartType,
-    columnMetadata,
     xAxisLabelRotation,
     xAxisShowAxisLabel,
     gridLines,

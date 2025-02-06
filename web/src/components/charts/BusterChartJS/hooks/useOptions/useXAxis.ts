@@ -20,7 +20,6 @@ export const useXAxis = ({
   columnLabelFormats,
   selectedAxis,
   selectedChartType,
-  columnMetadata,
   columnSettings,
   xAxisLabelRotation,
   xAxisShowAxisLabel,
@@ -34,7 +33,6 @@ export const useXAxis = ({
   columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>;
   selectedAxis: ChartEncodes;
   selectedChartType: ChartType;
-  columnMetadata: NonNullable<BusterChartProps['columnMetadata']>;
   xAxisLabelRotation: NonNullable<BusterChartProps['xAxisLabelRotation']>;
   xAxisShowAxisLabel: NonNullable<BusterChartProps['xAxisShowAxisLabel']>;
   gridLines: NonNullable<BusterChartProps['gridLines']>;
@@ -148,6 +146,13 @@ export const useXAxis = ({
 
   const timeUnit = useMemo(() => {
     if (type === 'time' && xAxisTimeInterval) {
+      const arrayOfValidTimeUnits: XAxisConfig['xAxisTimeInterval'][] = [
+        'day',
+        'week',
+        'month',
+        'quarter',
+        'year'
+      ];
       const isValidTimeUnit = arrayOfValidTimeUnits.includes(xAxisTimeInterval);
       return isValidTimeUnit ? xAxisTimeInterval : false;
     }
@@ -157,7 +162,6 @@ export const useXAxis = ({
   const memoizedXAxisOptions: DeepPartial<ScaleChartOptions<'bar'>['scales']['x']> | undefined =
     useMemo(() => {
       if (isPieChart) return undefined;
-
       return {
         type,
         offset: !isScatterChart,
@@ -166,17 +170,21 @@ export const useXAxis = ({
           text: title
         },
         stacked,
+        time: {
+          unit: xAxisTimeInterval ? xAxisTimeInterval : false
+        },
         ticks: {
           ...rotation,
+          sampleSize: type === 'time' ? 24 : undefined,
           display: xAxisShowAxisLabel,
           callback: useTickCallback ? tickCallback : null,
           autoSkip: true,
-          autoSkipPadding: 3,
           align: 'center',
           time: {
             unit: timeUnit
           },
           includeBounds: true,
+          autoSkipPadding: 4, // 17,
           source: 'auto'
         },
         display: true,
@@ -186,6 +194,7 @@ export const useXAxis = ({
         grid
       } as DeepPartial<ScaleChartOptions<'bar'>['scales']['x']>;
     }, [
+      timeUnit,
       title,
       isScatterChart,
       isPieChart,

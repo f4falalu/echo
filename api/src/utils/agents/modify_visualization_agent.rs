@@ -367,7 +367,7 @@ pub async fn modify_visualization_agent(
     let (
         format_labels_result,
         configure_charts_result,
-        global_styling_result,
+        mut global_styling_result,
         stylize_columns_result,
     ) = tokio::join!(
         async {
@@ -399,6 +399,29 @@ pub async fn modify_visualization_agent(
             }
         }
     );
+
+    let time_unit = match configure_charts_result.clone() {
+        Some(mut result) => {
+            // Try to get and remove from bar_line_chart first
+            if let Some(Value::String(time_unit)) = result.bar_line_chart.as_object_mut().and_then(|obj| obj.remove("x_axis_time_unit")) {
+                time_unit
+            } else {
+                // If not found in bar_line_chart, try combo_chart
+                if let Some(Value::String(time_unit)) = result.combo_chart.as_object_mut().and_then(|obj| obj.remove("x_axis_time_unit")) {
+                    time_unit
+                } else {
+                    String::new()
+                }
+            }
+        },
+        None => String::new(),
+    };
+
+    if !time_unit.is_empty() {
+        global_styling_result = Some(json!({
+            "xAxisTimeInterval": time_unit
+        }));
+    }
 
     // Transform format_labels_result into columnLabelFormats
     let column_label_formats = match format_labels_result {
