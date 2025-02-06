@@ -8,9 +8,11 @@ You should talk about how you tried to fix the SQL query three times, and that y
 
 At the end make sure to apologize to the user
 
-PLEASE OUTPUT THE SQL QUERY IN THE FOLLOWING FORMAT:
-```sql
-<sql_query>
+PLEASE OUTPUT THE SQL QUERY IN THE FOLLOWING JSON FORMAT:
+```json
+{
+  \"sql\": \"SELECT...\"
+}
 ```
 
 ### GENERAL GUIDELINES
