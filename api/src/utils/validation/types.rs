@@ -23,6 +23,9 @@ pub enum ValidationErrorType {
     ColumnNotFound,
     TypeMismatch,
     DataSourceError,
+    ModelNotFound,
+    InvalidRelationship,
+    ExpressionError,
 }
 
 impl ValidationResult {
@@ -92,6 +95,33 @@ impl ValidationError {
             ValidationErrorType::DataSourceError,
             None,
             message,
+            None,
+        )
+    }
+
+    pub fn model_not_found(model_name: &str) -> Self {
+        Self::new(
+            ValidationErrorType::ModelNotFound,
+            None,
+            format!("Model '{}' not found in data source", model_name),
+            None,
+        )
+    }
+
+    pub fn invalid_relationship(from: &str, to: &str, reason: &str) -> Self {
+        Self::new(
+            ValidationErrorType::InvalidRelationship,
+            None,
+            format!("Invalid relationship from '{}' to '{}': {}", from, to, reason),
+            None,
+        )
+    }
+
+    pub fn expression_error(column_name: &str, expr: &str, reason: &str) -> Self {
+        Self::new(
+            ValidationErrorType::ExpressionError,
+            Some(column_name.to_string()),
+            format!("Invalid expression '{}' for column '{}': {}", expr, column_name, reason),
             None,
         )
     }

@@ -18,11 +18,17 @@ use crate::{
     },
     routes::rest::ApiResponse,
     utils::{
+        dataset::column_management::{get_column_types, update_dataset_columns},
         query_engine::{
             credentials::get_data_source_credentials,
             import_dataset_columns::retrieve_dataset_columns,
             write_query_engine::write_query_engine,
-        }, security::checks::is_user_workspace_admin_or_data_admin, stored_values::{process_stored_values_background, store_column_values, StoredValueColumn}, user::user_info::get_user_organization_id, validation::{dataset_validation::validate_model, ValidationError, ValidationResult}
+        },
+        security::checks::is_user_workspace_admin_or_data_admin,
+        stored_values::{process_stored_values_background, store_column_values, StoredValueColumn},
+        user::user_info::get_user_organization_id,
+        validation::{dataset_validation::validate_model, ValidationError, ValidationResult},
+        ColumnUpdate,
     },
 };
 
@@ -164,87 +170,147 @@ pub async fn deploy_datasets(
         }
     };
 
-    let mut results = Vec::new();
-    let mut conn = match get_pg_pool().get().await {
-        Ok(conn) => conn,
+    // Call the handler with processed requests
+    match deploy_datasets_handler(&user.id, requests, is_simple).await {
+        Ok(results) => Ok(ApiResponse::JsonData(DeployDatasetsResponse { results })),
         Err(e) => {
-            tracing::error!("Error getting connection from pool: {:?}", e);
-            return Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string()));
+            tracing::error!("Error in deploy_datasets_handler: {:?}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
         }
-    };
+    }
+}
+
+// Handler function that contains all the business logic
+async fn deploy_datasets_handler(
+    user_id: &Uuid,
+    requests: Vec<FullDeployDatasetsRequest>,
+    is_simple: bool,
+) -> Result<Vec<ValidationResult>> {
+    let organization_id = get_user_organization_id(user_id).await?;
+    let mut conn = get_pg_pool().get().await?;
+    let mut results = Vec::new();
+
+    // Get all data sources upfront to avoid multiple queries
+    let data_sources = data_sources::table
+        .filter(
+            data_sources::name.eq_any(
+                requests
+                    .iter()
+                    .map(|r| r.data_source_name.clone())
+                    .collect::<Vec<String>>(),
+            ),
+        )
+        .filter(
+            data_sources::env.eq_any(
+                requests
+                    .iter()
+                    .map(|r| r.env.clone())
+                    .collect::<Vec<String>>(),
+            ),
+        )
+        .filter(data_sources::organization_id.eq(organization_id))
+        .filter(data_sources::deleted_at.is_null())
+        .select(data_sources::all_columns)
+        .load::<DataSource>(&mut conn)
+        .await?;
 
     for req in requests {
-        // Get data source
-        let data_source = match data_sources::table
-            .filter(data_sources::name.eq(&req.data_source_name))
-            .filter(data_sources::env.eq(&req.env))
-            .filter(data_sources::organization_id.eq(&organization_id))
-            .first::<DataSource>(&mut conn)
-            .await
+        // Get data source for this request
+        let data_source = match data_sources
+            .iter()
+            .find(|ds| ds.name == req.data_source_name && ds.env == req.env)
         {
-            Ok(ds) => ds,
-            Err(e) => {
-                tracing::error!("Error getting data source: {:?}", e);
-                return Err((
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    format!("Data source not found: {}", req.data_source_name),
-                ));
+            Some(ds) => ds,
+            None => {
+                let mut validation = ValidationResult::new(
+                    req.name.clone(),
+                    req.data_source_name.clone(),
+                    req.schema.clone(),
+                );
+                validation.add_error(ValidationError::data_source_error(format!(
+                    "Data source not found: {}",
+                    req.data_source_name
+                )));
+                results.push(validation);
+                continue;
             }
         };
 
         // Extract columns for validation
-        let columns: Vec<(&str, &str)> = req.columns
+        let columns: Vec<(&str, &str)> = req
+            .columns
             .iter()
             .map(|c| (c.name.as_str(), c.type_.as_deref().unwrap_or("text")))
             .collect();
 
+        // Extract expressions for validation
+        let expressions: Vec<(&str, &str)> = req
+            .columns
+            .iter()
+            .filter_map(|c| c.expr.as_ref().map(|expr| (c.name.as_str(), expr.as_str())))
+            .collect();
+
+        // Extract relationships for validation
+        let relationships: Vec<(&str, &str, &str)> = req
+            .entity_relationships
+            .as_ref()
+            .map(|rels| {
+                rels.iter()
+                    .map(|r| (r.name.as_str(), r.expr.as_str(), r.type_.as_str()))
+                    .collect()
+            })
+            .unwrap_or_default();
+
         // Validate model
         let validation = match validate_model(
             &req.name,
-            // TODO: Right now we expect the database name to be the same as the model name.
-            &req.name,
+            &req.name, // database name same as model name
             &req.schema,
-            &data_source,
+            data_source,
             &columns,
+            if expressions.is_empty() {
+                None
+            } else {
+                Some(&expressions)
+            },
+            if relationships.is_empty() {
+                None
+            } else {
+                Some(&relationships)
+            },
         )
         .await
         {
             Ok(v) => v,
             Err(e) => {
-                tracing::error!("Error validating model: {:?}", e);
-                return Err((
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    format!("Error validating model: {}", e),
-                ));
+                let mut validation = ValidationResult::new(
+                    req.name.clone(),
+                    req.data_source_name.clone(),
+                    req.schema.clone(),
+                );
+                validation.add_error(ValidationError::data_source_error(format!(
+                    "Error validating model: {}",
+                    e
+                )));
+                validation
             }
         };
 
-        results.push(validation.clone()); // Clone validation result before checking success
+        results.push(validation.clone());
 
         // Only deploy if validation passed
         if validation.success {
-            // Deploy model
-            match deploy_single_model(&req, &organization_id, &user.id).await {
-                Ok(_) => (),
-                Err(e) => {
-                    let mut failed_validation = validation;
-                    failed_validation.success = false;
-                    failed_validation.add_error(ValidationError::data_source_error(e.to_string()));
-                    results.pop(); // Remove the successful validation
-                    results.push(failed_validation); // Add the failed one
-                }
+            if let Err(e) = deploy_single_model(&req, &organization_id, user_id).await {
+                let mut failed_validation = validation;
+                failed_validation.success = false;
+                failed_validation.add_error(ValidationError::data_source_error(e.to_string()));
+                results.pop();
+                results.push(failed_validation);
             }
         }
     }
 
-    // Check if any validations failed
-    let has_failures = results.iter().any(|r| !r.success);
-    if has_failures {
-        tracing::warn!("Some models failed validation");
-        return Ok(ApiResponse::JsonData(DeployDatasetsResponse { results }));
-    }
-
-    Ok(ApiResponse::JsonData(DeployDatasetsResponse { results }))
+    Ok(results)
 }
 
 async fn process_deploy_request(
@@ -326,16 +392,20 @@ async fn deploy_single_model(
     let mut conn = get_pg_pool().get().await?;
     let database_name = req.name.replace(" ", "_");
 
+    // Get data source
+    let data_source = data_sources::table
+        .filter(data_sources::name.eq(&req.data_source_name))
+        .filter(data_sources::env.eq(&req.env))
+        .filter(data_sources::organization_id.eq(organization_id))
+        .select(data_sources::all_columns)
+        .first::<DataSource>(&mut conn)
+        .await?;
+
+    // Create or update dataset
     let dataset = Dataset {
         id: req.id.unwrap_or_else(|| Uuid::new_v4()),
         name: req.name.clone(),
-        data_source_id: data_sources::table
-            .filter(data_sources::name.eq(&req.data_source_name))
-            .filter(data_sources::env.eq(&req.env))
-            .filter(data_sources::organization_id.eq(organization_id))
-            .select(data_sources::id)
-            .first::<Uuid>(&mut conn)
-            .await?,
+        data_source_id: data_source.id,
         created_at: Utc::now(),
         updated_at: Utc::now(),
         database_name,
@@ -354,469 +424,46 @@ async fn deploy_single_model(
         yml_file: req.yml_file.clone(),
     };
 
-    diesel::insert_into(datasets::table)
+    // Insert or update dataset
+    let dataset = diesel::insert_into(datasets::table)
         .values(&dataset)
         .on_conflict(datasets::id)
         .do_update()
         .set(&dataset)
-        .execute(&mut conn)
+        .returning(Dataset::as_select())
+        .get_result(&mut conn)
         .await?;
 
-    Ok(())
-}
+    // Get column types from data source
+    let mut source_columns = get_column_types(&dataset, &data_source).await?;
 
-async fn deploy_datasets_handler(
-    user_id: &Uuid,
-    requests: Vec<FullDeployDatasetsRequest>,
-    is_simple: bool,
-) -> Result<()> {
-    // Get the user organization id.
-    let organization_id = get_user_organization_id(&user_id).await?;
-
-    let pg_pool = get_pg_pool();
-
-    let mut conn = match pg_pool.get().await {
-        Ok(conn) => conn,
-        Err(e) => return Err(anyhow!("Unable to get connection from pool: {}", e)),
-    };
-
-    // Verify data source exists and belongs to organization
-    let data_sources = data_sources::table
-        .filter(
-            data_sources::name.eq_any(
-                requests
-                    .iter()
-                    .map(|r| r.data_source_name.clone())
-                    .collect::<Vec<String>>(),
-            ),
-        )
-        .filter(
-            data_sources::env.eq_any(
-                requests
-                    .iter()
-                    .map(|r| r.env.clone())
-                    .collect::<Vec<String>>(),
-            ),
-        )
-        .filter(data_sources::organization_id.eq(organization_id))
-        .filter(data_sources::deleted_at.is_null())
-        .select(data_sources::all_columns)
-        .load::<DataSource>(&mut conn)
-        .await
-        .map_err(|_| anyhow!("Data sources not found"))?;
-
-    // Need to create the datasets, multiple datasets can be created at once.
-    let mut datasets_with_ids = Vec::new();
-    let mut datasets_without_ids = Vec::new();
-
-    for req in &requests {
-        let data_source = data_sources
-            .iter()
-            .find(|data_source| {
-                data_source.name == req.data_source_name && data_source.env == req.env
-            })
-            .ok_or(anyhow!("Data source not found"))?;
-
-        let database_name = req.name.replace(" ", "_");
-
-        let dataset = Dataset {
-            id: req.id.unwrap_or_else(|| Uuid::new_v4()),
-            name: req.name.clone(),
-            data_source_id: data_source.id,
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            database_name,
-            when_to_use: Some(req.description.clone()),
-            when_not_to_use: None,
-            type_: DatasetType::View,
-            definition: req
-                .sql_definition
-                .clone()
-                .unwrap_or("NO DEFINITION FOUND".to_string()),
-            schema: req.schema.clone(),
-            enabled: true,
-            created_by: user_id.to_owned(),
-            updated_by: user_id.to_owned(),
-            deleted_at: None,
-            imported: false,
-            organization_id,
-            model: req.model.clone(),
-            yml_file: req.yml_file.clone(),
-        };
-
-        match req.id {
-            Some(_) => datasets_with_ids.push(dataset),
-            None => datasets_without_ids.push(dataset),
+    // Update columns with request information
+    for col in &mut source_columns {
+        if let Some(req_col) = req.columns.iter().find(|c| c.name == col.name) {
+            col.description = Some(req_col.description.clone());
+            col.semantic_type = req_col.semantic_type.clone();
+            col.dim_type = req_col.type_.clone();
+            col.expr = req_col.expr.clone();
         }
     }
 
-    // Upsert the datasets into the database concurrently
-    let (inserted_id_datasets, inserted_no_id_datasets) = tokio::try_join!(
-        async {
-            let mut conn = pg_pool.get().await?;
-            diesel::insert_into(datasets::table)
-                .values(&datasets_with_ids)
-                .on_conflict(datasets::id)
-                .do_update()
-                .set((
-                    datasets::name.eq(excluded(datasets::name)),
-                    datasets::when_to_use.eq(excluded(datasets::when_to_use)),
-                    datasets::definition.eq(excluded(datasets::definition)),
-                    datasets::type_.eq(excluded(datasets::type_)),
-                    datasets::schema.eq(excluded(datasets::schema)),
-                    datasets::updated_at.eq(Utc::now()),
-                    datasets::deleted_at.eq(None::<DateTime<Utc>>),
-                ))
-                .returning(Dataset::as_select())
-                .get_results::<Dataset>(&mut conn)
-                .await
-                .map_err(|e| anyhow!("Failed to create dataset: {}", e))
-        },
-        async {
-            let mut conn = pg_pool.get().await?;
-            diesel::insert_into(datasets::table)
-                .values(&datasets_without_ids)
-                .on_conflict((datasets::database_name, datasets::data_source_id))
-                .do_update()
-                .set((
-                    datasets::name.eq(excluded(datasets::name)),
-                    datasets::when_to_use.eq(excluded(datasets::when_to_use)),
-                    datasets::definition.eq(excluded(datasets::definition)),
-                    datasets::type_.eq(excluded(datasets::type_)),
-                    datasets::schema.eq(excluded(datasets::schema)),
-                    datasets::updated_at.eq(Utc::now()),
-                    datasets::deleted_at.eq(None::<DateTime<Utc>>),
-                ))
-                .returning(Dataset::as_select())
-                .get_results::<Dataset>(&mut conn)
-                .await
-                .map_err(|e| anyhow!("Failed to create dataset: {}", e))
-        }
-    )?;
-
-    let mut inserted_datasets = inserted_id_datasets;
-    inserted_datasets.extend(inserted_no_id_datasets);
-    // Upsert the dataset columns into the database. We will pull these from the data source for their types.
-
-    let mut columns_to_upsert: Vec<DatasetColumn> = Vec::new();
-
-    for req in &requests {
-        let data_source = data_sources
-            .iter()
-            .find(|data_source| {
-                data_source.name == req.data_source_name && data_source.env == req.env
-            })
-            .ok_or(anyhow!("Data source not found"))?;
-
-        let dataset = inserted_datasets
-            .iter()
-            .find(|dataset| {
-                dataset.name == req.name
-                    && dataset.data_source_id == data_source.id
-                    && dataset.schema == req.schema
-            })
-            .ok_or(anyhow!("Dataset not found"))?;
-
-        let credentials =
-            get_data_source_credentials(&data_source.secret_id, &data_source.type_, false)
-                .await
-                .map_err(|e| anyhow!("Error getting data source credentials: {}", e))?;
-
-        let cols = retrieve_dataset_columns(&dataset.database_name, &dataset.schema, &credentials)
-            .await
-            .map_err(|e| anyhow!("Error retrieving dataset columns: {}", e))?;
-
-        // Validate all required columns exist in database
-        let mut required_columns = HashSet::new();
-        
-        // Add relationship columns
-        if let Some(relationships) = &req.entity_relationships {
-            for rel in relationships {
-                required_columns.insert(rel.expr.clone());
-            }
-        }
-
-        // Add regular columns
-        for req_col in &req.columns {
-            match &req_col.expr {
-                Some(expr) => required_columns.insert(expr.clone()),
-                None => required_columns.insert(req_col.name.clone()),
-            };
-        }
-
-        // Check all required columns exist
-        let existing_columns: HashSet<String> = cols.iter().map(|c| c.name.clone()).collect();
-        let missing_columns: Vec<String> = required_columns
-            .difference(&existing_columns)
-            .cloned()
-            .collect();
-
-        if !missing_columns.is_empty() {
-            return Err(anyhow!(
-                "Dataset '{}' is missing required columns: {:?}",
-                dataset.name,
-                missing_columns
-            ));
-        }
-
-        // First add columns from entity relationships if they exist
-        if let Some(relationships) = &req.entity_relationships {
-            for rel in relationships {
-                // Skip if we already have this column
-                if columns_to_upsert
-                    .iter()
-                    .any(|c| c.dataset_id == dataset.id && c.name == rel.expr)
-                {
-                    continue;
-                }
-
-                // Get column info from source - we know it exists from validation
-                let col = cols.iter()
-                    .find(|c| c.name == rel.expr)
-                    .expect("Column should exist - validated earlier");
-
-                columns_to_upsert.push(DatasetColumn {
-                    id: Uuid::new_v4(),
-                    name: rel.expr.clone(),
-                    description: None,
-                    semantic_type: None,
-                    dataset_id: dataset.id,
-                    type_: col.type_.clone(),
-                    nullable: col.nullable,
-                    created_at: Utc::now(),
-                    updated_at: Utc::now(),
-                    deleted_at: None,
-                    stored_values: None,
-                    stored_values_status: None,
-                    stored_values_error: None,
-                    stored_values_count: None,
-                    stored_values_last_synced: None,
-                    dim_type: None,
-                    expr: Some(rel.expr.clone()),
-                });
-            }
-        }
-
-        // Then process regular columns
-        for req_col in &req.columns {
-            // Skip if we already have this column for this dataset
-            if columns_to_upsert
-                .iter()
-                .any(|c| c.dataset_id == dataset.id && c.name == req_col.name)
-            {
-                continue;
-            }
-
-            // Get column info - we know it exists from validation
-            let col = cols.iter()
-                .find(|c| match &req_col.expr {
-                    Some(expr) => c.name == *expr,
-                    None => c.name == req_col.name,
-                })
-                .expect("Column should exist - validated earlier");
-
-            columns_to_upsert.push(DatasetColumn {
-                id: Uuid::new_v4(),
-                name: req_col.name.clone(),
-                description: Some(req_col.description.clone()),
-                semantic_type: req_col.semantic_type.clone(),
-                dataset_id: dataset.id.clone(),
-                type_: col.type_.clone(),
-                nullable: col.nullable,
-                created_at: Utc::now(),
-                updated_at: Utc::now(),
-                deleted_at: None,
-                stored_values: None,
-                stored_values_status: None,
-                stored_values_error: None,
-                stored_values_count: None,
-                stored_values_last_synced: None,
-                dim_type: req_col.type_.clone(),
-                expr: req_col.expr.clone(),
+    // Add relationship columns
+    if let Some(relationships) = &req.entity_relationships {
+        for rel in relationships {
+            source_columns.push(ColumnUpdate {
+                name: rel.expr.clone(),
+                description: None,
+                semantic_type: None,
+                type_: "text".to_string(), // Default type for relationship columns
+                nullable: true,
+                dim_type: Some(rel.type_.clone()),
+                expr: Some(rel.expr.clone()),
             });
         }
     }
 
-    // Dedupe columns based on dataset_id and name
-    let columns_to_upsert: Vec<DatasetColumn> = {
-        let mut seen = HashSet::new();
-        columns_to_upsert
-            .into_iter()
-            .filter(|col| seen.insert((col.dataset_id, col.name.clone())))
-            .collect()
-    };
+    // Update columns in database
+    update_dataset_columns(&dataset, source_columns).await?;
 
-    let inserted_columns = diesel::insert_into(dataset_columns::table)
-        .values(&columns_to_upsert)
-        .on_conflict((dataset_columns::dataset_id, dataset_columns::name))
-        .do_update()
-        .set((
-            dataset_columns::name.eq(excluded(dataset_columns::name)),
-            dataset_columns::description.eq(excluded(dataset_columns::description)),
-            dataset_columns::semantic_type.eq(excluded(dataset_columns::semantic_type)),
-            dataset_columns::type_.eq(excluded(dataset_columns::type_)),
-            dataset_columns::dim_type.eq(excluded(dataset_columns::dim_type)),
-            dataset_columns::expr.eq(excluded(dataset_columns::expr)),
-            dataset_columns::nullable.eq(excluded(dataset_columns::nullable)),
-            dataset_columns::updated_at.eq(Utc::now()),
-            dataset_columns::deleted_at.eq(None::<DateTime<Utc>>),
-        ))
-        .returning(DatasetColumn::as_select())
-        .get_results::<DatasetColumn>(&mut conn)
-        .await
-        .map_err(|e| anyhow!("Failed to upsert dataset columns: {}", e))?;
-
-    diesel::update(dataset_columns::table)
-        .filter(
-            dataset_columns::dataset_id.eq_any(
-                inserted_columns
-                    .iter()
-                    .map(|c| c.dataset_id.clone())
-                    .collect::<Vec<Uuid>>(),
-            ),
-        )
-        .filter(
-            dataset_columns::id.ne_all(
-                inserted_columns
-                    .iter()
-                    .map(|c| c.id.clone())
-                    .collect::<Vec<Uuid>>(),
-            ),
-        )
-        .filter(dataset_columns::deleted_at.is_null())
-        .set(dataset_columns::deleted_at.eq(Some(Utc::now())))
-        .execute(&mut conn)
-        .await
-        .map_err(|e| anyhow!("Failed to update deleted_at for dataset columns: {}", e))?;
-
-    // Handle entity relationships
-    let mut entity_relationships_to_upsert: Vec<EntityRelationship> = Vec::new();
-
-    for req in &requests {
-        if let Some(relationships) = &req.entity_relationships {
-            let current_dataset = inserted_datasets
-                .iter()
-                .find(|d| d.name == req.name)
-                .ok_or(anyhow!("Dataset not found for relationships"))?;
-
-            println!("current_dataset: {:?}", current_dataset);
-            println!("relationships: {:?}", relationships);
-
-            for rel in relationships {
-                // Skip primary relationships
-                if rel.type_ == "primary" {
-                    continue;
-                }
-
-                // Find the foreign dataset by the relationship name
-                if let Some(foreign_dataset) = inserted_datasets
-                    .iter()
-                    .find(|d| d.name == rel.name)
-                {
-                    entity_relationships_to_upsert.push(EntityRelationship {
-                        primary_dataset_id: current_dataset.id,
-                        foreign_dataset_id: foreign_dataset.id,
-                        relationship_type: rel.type_.clone(),
-                        created_at: Utc::now(),
-                    });
-                } else {
-                    tracing::warn!(
-                        "Skipping relationship: foreign dataset '{}' not found for dataset '{}'",
-                        rel.name,
-                        current_dataset.name
-                    );
-                }
-            }
-        }
-    }
-
-    // Dedupe relationships based on dataset pair
-    let unique_relationships: Vec<EntityRelationship> = {
-        let mut seen = HashSet::new();
-        entity_relationships_to_upsert
-            .into_iter()
-            .filter(|er| seen.insert((er.primary_dataset_id, er.foreign_dataset_id)))
-            .collect()
-    };
-
-    if !unique_relationships.is_empty() {
-        diesel::insert_into(entity_relationship::table)
-            .values(&unique_relationships)
-            .on_conflict((
-                entity_relationship::primary_dataset_id,
-                entity_relationship::foreign_dataset_id,
-            ))
-            .do_update()
-            .set((entity_relationship::relationship_type
-                .eq(excluded(entity_relationship::relationship_type)),))
-            .execute(&mut conn)
-            .await
-            .map_err(|e| anyhow!("Failed to upsert entity relationships: {}", e))?;
-    }
-
-    // After inserting columns, handle stored values
-    for req in &requests {
-        let data_source = data_sources
-            .iter()
-            .find(|data_source| {
-                data_source.name == req.data_source_name && data_source.env == req.env
-            })
-            .ok_or(anyhow!("Data source not found"))?;
-
-        let dataset = inserted_datasets
-            .iter()
-            .find(|dataset| {
-                dataset.name == req.name
-                    && dataset.data_source_id == data_source.id
-                    && dataset.schema == req.schema
-            })
-            .ok_or(anyhow!("Dataset not found"))?;
-
-        // Process columns that have stored_values enabled
-        let mut stored_value_columns = Vec::new();
-        for col in &req.columns {
-            if col.stored_values {
-                // Find the column ID from inserted_columns
-                let column = inserted_columns
-                    .iter()
-                    .find(|c| c.dataset_id == dataset.id && c.name == col.name)
-                    .ok_or(anyhow!("Column not found"))?;
-
-                stored_value_columns.push(StoredValueColumn {
-                    organization_id: organization_id.clone(),
-                    dataset_id: dataset.id,
-                    column_name: col.name.clone(),
-                    column_id: column.id,
-                    data_source_id: data_source.id,
-                    schema: dataset.schema.clone(),
-                    table_name: dataset.database_name.clone(),
-                });
-            }
-        }
-
-        // Spawn background task to process stored values
-        if !stored_value_columns.is_empty() {
-            tokio::spawn(async move {
-                process_stored_values_background(stored_value_columns).await;
-            });
-        }
-    }
-
-    if is_simple {
-        for dataset in inserted_datasets {
-            let view_name = format!("{}.{}", dataset.schema, dataset.database_name);
-            let view_sql = format!(
-                "CREATE {} {} AS {}",
-                dataset.type_.to_string(),
-                view_name,
-                dataset.definition
-            );
-
-            // Write the view to the data source
-            write_query_engine(&dataset.id, &view_sql).await?;
-        }
-    }
-
-    // TODO: Need to send back the updated and inserated objects.
     Ok(())
 }

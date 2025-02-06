@@ -21,6 +21,8 @@ pub async fn validate_model(
     schema: &str,
     data_source: &DataSource,
     columns: &[(&str, &str)], // (name, type)
+    expressions: Option<&[(&str, &str)]>, // (column_name, expr)
+    relationships: Option<&[(&str, &str, &str)]>, // (from_model, to_model, type)
 ) -> Result<ValidationResult> {
     let mut result = ValidationResult::new(
         model_name.to_string(),
@@ -89,6 +91,49 @@ pub async fn validate_model(
         }
     }
 
+    // Validate expressions if provided
+    if let Some(exprs) = expressions {
+        for (col_name, expr) in exprs {
+            // Check if expression references valid columns
+            let expr_cols: Vec<&str> = expr
+                .split_whitespace()
+                .filter(|word| !word.chars().all(|c| c.is_ascii_punctuation()))
+                .collect();
+
+            for expr_col in expr_cols {
+                if !ds_columns.iter().any(|c| c.name == expr_col) {
+                    result.add_error(ValidationError::expression_error(
+                        col_name,
+                        expr,
+                        &format!("Referenced column '{}' not found", expr_col),
+                    ));
+                }
+            }
+        }
+    }
+
+    // Validate relationships if provided
+    if let Some(rels) = relationships {
+        for (from_model, to_model, rel_type) in rels {
+            // For now, just validate that both models exist
+            // TODO: Add more sophisticated relationship validation
+            if !ds_columns.iter().any(|c| c.name == *from_model) {
+                result.add_error(ValidationError::invalid_relationship(
+                    from_model,
+                    to_model,
+                    "Source model not found",
+                ));
+            }
+            if !ds_columns.iter().any(|c| c.name == *to_model) {
+                result.add_error(ValidationError::invalid_relationship(
+                    from_model,
+                    to_model,
+                    "Target model not found",
+                ));
+            }
+        }
+    }
+
     Ok(result)
 }
 
@@ -125,6 +170,8 @@ mod tests {
             "test_schema",
             &data_source,
             &[("col1", "text")],
+            None,
+            None,
         )
         .await
         .unwrap();
@@ -135,5 +182,76 @@ mod tests {
             result.errors[0].error_type,
             ValidationErrorType::DataSourceError
         );
+    }
+
+    #[tokio::test]
+    async fn test_validate_model_with_expressions() {
+        let data_source = create_test_data_source();
+        let result = validate_model(
+            "test_model",
+            "test_db",
+            "test_schema",
+            &data_source,
+            &[("col1", "text")],
+            Some(&[("col1", "invalid_col + 1")]),
+            None,
+        )
+        .await
+        .unwrap();
+
+        assert!(!result.success);
+        assert!(result
+            .errors
+            .iter()
+            .any(|e| e.error_type == ValidationErrorType::ExpressionError));
+    }
+
+    #[tokio::test]
+    async fn test_validate_model_with_relationships() {
+        let data_source = create_test_data_source();
+        let result = validate_model(
+            "test_model",
+            "test_db",
+            "test_schema",
+            &data_source,
+            &[("col1", "text")],
+            None,
+            Some(&[("model1", "model2", "many_to_one")]),
+        )
+        .await
+        .unwrap();
+
+        assert!(!result.success);
+        assert!(result
+            .errors
+            .iter()
+            .any(|e| e.error_type == ValidationErrorType::InvalidRelationship));
+    }
+
+    #[tokio::test]
+    async fn test_validate_model_multiple_errors() {
+        let data_source = create_test_data_source();
+        let result = validate_model(
+            "test_model",
+            "test_db",
+            "test_schema",
+            &data_source,
+            &[("col1", "text"), ("col2", "invalid_type")],
+            Some(&[("col1", "invalid_col + 1")]),
+            Some(&[("model1", "model2", "many_to_one")]),
+        )
+        .await
+        .unwrap();
+
+        assert!(!result.success);
+        assert!(result.errors.len() > 1);
+        assert!(result
+            .errors
+            .iter()
+            .any(|e| e.error_type == ValidationErrorType::ExpressionError));
+        assert!(result
+            .errors
+            .iter()
+            .any(|e| e.error_type == ValidationErrorType::InvalidRelationship));
     }
 }
