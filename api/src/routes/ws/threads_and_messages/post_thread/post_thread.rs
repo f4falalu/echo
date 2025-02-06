@@ -929,9 +929,16 @@ fn create_dataset_ddl(dataset: &Dataset, dataset_columns: &Vec<DatasetColumn>) -
     if let Some(when_to_use) = &dataset.when_to_use {
         ddl.push_str(&format!("    -- Description: {}\n", when_to_use));
     }
+
+    let schema_identifier = if let Some(db_id) = &dataset.database_identifier {
+        format!("{}.{}", db_id, dataset.schema)
+    } else {
+        dataset.schema.clone()
+    };
+
     ddl.push_str(&format!(
         "    CREATE TABLE {}.{} (\n",
-        dataset.schema, dataset.database_name
+        schema_identifier, dataset.database_name
     ));
 
     // Add columns

@@ -48,6 +48,7 @@ pub struct FullDeployDatasetsRequest {
     pub entity_relationships: Option<Vec<DeployDatasetsEntityRelationshipsRequest>>,
     pub columns: Vec<DeployDatasetsColumnsRequest>,
     pub yml_file: Option<String>,
+    pub database_identifier: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -238,6 +239,7 @@ async fn process_deploy_request(
                     entity_relationships: Some(entity_relationships),
                     columns,
                     yml_file: Some(yml.clone()),
+                    database_identifier: None,
                 });
             }
 
@@ -323,6 +325,7 @@ async fn deploy_datasets_handler(
             organization_id,
             model: req.model.clone(),
             yml_file: req.yml_file.clone(),
+            database_identifier: req.database_identifier.clone(),
         };
 
         match req.id {
