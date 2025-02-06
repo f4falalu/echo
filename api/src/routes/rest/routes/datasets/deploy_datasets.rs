@@ -526,6 +526,39 @@ async fn deploy_datasets_handler(
             .await
             .map_err(|e| anyhow!("Error retrieving dataset columns: {}", e))?;
 
+        // Validate all required columns exist in database
+        let mut required_columns = HashSet::new();
+        
+        // Add relationship columns
+        if let Some(relationships) = &req.entity_relationships {
+            for rel in relationships {
+                required_columns.insert(rel.expr.clone());
+            }
+        }
+
+        // Add regular columns
+        for req_col in &req.columns {
+            match &req_col.expr {
+                Some(expr) => required_columns.insert(expr.clone()),
+                None => required_columns.insert(req_col.name.clone()),
+            };
+        }
+
+        // Check all required columns exist
+        let existing_columns: HashSet<String> = cols.iter().map(|c| c.name.clone()).collect();
+        let missing_columns: Vec<String> = required_columns
+            .difference(&existing_columns)
+            .cloned()
+            .collect();
+
+        if !missing_columns.is_empty() {
+            return Err(anyhow!(
+                "Dataset '{}' is missing required columns: {:?}",
+                dataset.name,
+                missing_columns
+            ));
+        }
+
         // First add columns from entity relationships if they exist
         if let Some(relationships) = &req.entity_relationships {
             for rel in relationships {
@@ -537,11 +570,10 @@ async fn deploy_datasets_handler(
                     continue;
                 }
 
-                // Try to find column info from source
-                let (col_type, nullable) = match cols.iter().find(|c| c.name == rel.expr) {
-                    Some(col) => (col.type_.clone(), col.nullable),
-                    None => ("".to_string(), true),
-                };
+                // Get column info from source - we know it exists from validation
+                let col = cols.iter()
+                    .find(|c| c.name == rel.expr)
+                    .expect("Column should exist - validated earlier");
 
                 columns_to_upsert.push(DatasetColumn {
                     id: Uuid::new_v4(),
@@ -549,8 +581,8 @@ async fn deploy_datasets_handler(
                     description: None,
                     semantic_type: None,
                     dataset_id: dataset.id,
-                    type_: col_type,
-                    nullable,
+                    type_: col.type_.clone(),
+                    nullable: col.nullable,
                     created_at: Utc::now(),
                     updated_at: Utc::now(),
                     deleted_at: None,
@@ -565,7 +597,7 @@ async fn deploy_datasets_handler(
             }
         }
 
-        // Then process regular columns as before
+        // Then process regular columns
         for req_col in &req.columns {
             // Skip if we already have this column for this dataset
             if columns_to_upsert
@@ -575,23 +607,22 @@ async fn deploy_datasets_handler(
                 continue;
             }
 
-            // Try to find existing column info, but don't require it
-            let (col_type, nullable) = match cols.iter().find(|c| match &req_col.expr {
-                Some(expr) => c.name == *expr,
-                None => c.name == req_col.name,
-            }) {
-                Some(col) => (col.type_.clone(), col.nullable),
-                None => (req_col.type_.clone().unwrap_or("".to_string()), true),
-            };
+            // Get column info - we know it exists from validation
+            let col = cols.iter()
+                .find(|c| match &req_col.expr {
+                    Some(expr) => c.name == *expr,
+                    None => c.name == req_col.name,
+                })
+                .expect("Column should exist - validated earlier");
 
             columns_to_upsert.push(DatasetColumn {
                 id: Uuid::new_v4(),
-                name: req_col.expr.clone().unwrap_or(req_col.name.clone()),
+                name: req_col.name.clone(),
                 description: Some(req_col.description.clone()),
                 semantic_type: req_col.semantic_type.clone(),
                 dataset_id: dataset.id.clone(),
-                type_: col_type,
-                nullable,
+                type_: col.type_.clone(),
+                nullable: col.nullable,
                 created_at: Utc::now(),
                 updated_at: Utc::now(),
                 deleted_at: None,

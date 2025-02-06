@@ -70,8 +70,15 @@ struct ModelFile {
 
 #[derive(Debug, Default)]
 pub struct DeployResult {
-    success: Vec<String>,
-    failures: Vec<(String, String)>, // (filename, error)
+    success: Vec<(String, String, String)>,      // (filename, model_name, data_source)
+    failures: Vec<(String, String, Vec<String>)>, // (filename, model_name, errors)
+}
+
+// Track mapping between files and their models
+#[derive(Debug)]
+struct ModelMapping {
+    file: String,
+    model_name: String,
 }
 
 #[derive(Debug)]
@@ -488,6 +495,7 @@ pub async fn deploy_v2(path: Option<&str>) -> Result<()> {
     progress.total_files = yml_files.len();
 
     let mut deploy_requests = Vec::new();
+    let mut model_mappings = Vec::new();
 
     // Process each file
     for yml_path in yml_files {
@@ -505,7 +513,11 @@ pub async fn deploy_v2(path: Option<&str>) -> Result<()> {
             Ok(mf) => mf,
             Err(e) => {
                 progress.log_error(&format!("Failed to load model: {}", e));
-                result.failures.push((progress.current_file.clone(), format!("Failed to load model: {}", e)));
+                result.failures.push((
+                    progress.current_file.clone(),
+                    "unknown".to_string(),
+                    vec![format!("Failed to load model: {}", e)]
+                ));
                 continue;
             }
         };
@@ -517,7 +529,11 @@ pub async fn deploy_v2(path: Option<&str>) -> Result<()> {
             for error in &errors {
                 progress.log_error(error);
             }
-            result.failures.push((progress.current_file.clone(), errors.join(", ")));
+            result.failures.push((
+                progress.current_file.clone(),
+                "unknown".to_string(),
+                errors
+            ));
             continue;
         }
 
@@ -532,7 +548,8 @@ pub async fn deploy_v2(path: Option<&str>) -> Result<()> {
                 ));
                 result.failures.push((
                     progress.current_file.clone(),
-                    format!("Missing data_source_name for model {}", model.name)
+                    model.name.clone(),
+                    vec![format!("Missing data_source_name for model {}", model.name)]
                 ));
                 continue;
             }
@@ -544,7 +561,8 @@ pub async fn deploy_v2(path: Option<&str>) -> Result<()> {
                 ));
                 result.failures.push((
                     progress.current_file.clone(),
-                    format!("Missing schema for model {}", model.name)
+                    model.name.clone(),
+                    vec![format!("Missing schema for model {}", model.name)]
                 ));
                 continue;
             }
@@ -556,24 +574,33 @@ pub async fn deploy_v2(path: Option<&str>) -> Result<()> {
                     progress.log_error(&format!("Failed to read SQL content: {}", e));
                     result.failures.push((
                         progress.current_file.clone(),
-                        format!("Failed to read SQL content: {}", e)
+                        model.name.clone(),
+                        vec![format!("Failed to read SQL content: {}", e)]
                     ));
                     continue;
                 }
             };
+
+            // Track model mapping
+            model_mappings.push(ModelMapping {
+                file: progress.current_file.clone(),
+                model_name: model.name.clone(),
+            });
 
             // Create deploy request
             deploy_requests.push(model_file.to_deploy_request(model, sql_content));
         }
 
         progress.log_success();
-        result.success.push(progress.current_file.clone());
     }
 
     // Deploy to API if we have valid models
     if !deploy_requests.is_empty() {
         progress.status = "Deploying models to Buster...".to_string();
         progress.log_progress();
+
+        // Store data source name for error messages
+        let data_source_name = deploy_requests[0].data_source_name.clone();
 
         // Log what we're trying to deploy
         println!("\n📦 Deploying {} models:", deploy_requests.len());
@@ -587,18 +614,40 @@ pub async fn deploy_v2(path: Option<&str>) -> Result<()> {
             }
         }
 
-        let data_source_name = deploy_requests[0].data_source_name.clone();
         match client.deploy_datasets(deploy_requests).await {
             Ok(response) => {
                 let mut has_validation_errors = false;
 
                 // Process validation results
                 for validation in &response.results {
+                    // Find corresponding file from model mapping
+                    let file = model_mappings.iter()
+                        .find(|m| m.model_name == validation.model_name)
+                        .map(|m| m.file.clone())
+                        .unwrap_or_else(|| "unknown".to_string());
+
                     if validation.success {
                         progress.log_validation_success(validation);
+                        result.success.push((
+                            file,
+                            validation.model_name.clone(),
+                            validation.data_source_name.clone()
+                        ));
                     } else {
                         has_validation_errors = true;
                         progress.log_validation_error(validation);
+                        
+                        // Collect all error messages
+                        let error_messages: Vec<String> = validation.errors
+                            .iter()
+                            .map(|e| e.message.clone())
+                            .collect();
+                        
+                        result.failures.push((
+                            file,
+                            validation.model_name.clone(),
+                            error_messages
+                        ));
                     }
                 }
 
@@ -645,17 +694,16 @@ pub async fn deploy_v2(path: Option<&str>) -> Result<()> {
     println!("✅ Successfully deployed: {} models", result.success.len());
     if !result.success.is_empty() {
         println!("\nSuccessful deployments:");
-        for success in &result.success {
-            println!("   - {}", success);
+        for (file, model_name, data_source) in &result.success {
+            println!("   - {} (Model: {}, Data Source: {})", file, model_name, data_source);
         }
     }
 
     if !result.failures.is_empty() {
         println!("\n❌ Failed deployments: {} models", result.failures.len());
         println!("\nFailures:");
-        for (file, error) in &result.failures {
-            println!("   - {}", file);
-            println!("     Error: {}", error);
+        for (file, model_name, errors) in &result.failures {
+            println!("   - {} (Model: {}, Errors: {})", file, model_name, errors.join(", "));
         }
         return Err(anyhow::anyhow!("Some models failed to deploy"));
     }
