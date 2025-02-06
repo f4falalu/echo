@@ -106,6 +106,10 @@ ChartJS.defaults.plugins = {
   },
   tooltipHoverBar: {
     isDarkMode: false
+  },
+  deferred: {
+    ...ChartJS.defaults.plugins.deferred,
+    yOffset: '40%'
   }
 };
 

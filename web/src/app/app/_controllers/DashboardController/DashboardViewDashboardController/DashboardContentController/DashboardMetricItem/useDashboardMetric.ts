@@ -29,7 +29,7 @@ export const useDashboardMetric = ({ metricId }: { metricId: string }) => {
 
   const initialAnimationEnded = metricMetadata?.initialAnimationEnded || false;
   const renderChart =
-    true || ((metricMetadata?.hasBeenScrolledIntoView || isOnFirstTwoRows) && metric?.fetched);
+    (metricMetadata?.hasBeenScrolledIntoView || isOnFirstTwoRows) && metric?.fetched;
 
   useEffect(() => {
     if (inViewport) {
