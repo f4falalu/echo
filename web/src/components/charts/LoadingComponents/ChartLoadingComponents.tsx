@@ -1,6 +1,6 @@
 'use client';
 
-import { Text } from '@/components/text';
+import { ShimmerText, Text } from '@/components/text';
 import { busterChartsTwMerge } from '@/styles/busterChartsTwMerge';
 import React from 'react';
 
@@ -8,17 +8,22 @@ export const PreparingYourRequestLoader: React.FC<{
   className?: string;
   text?: string;
   error?: string | null;
-}> = ({ className = '', text = 'Processing your request...', error }) => {
+  useShimmer?: boolean;
+}> = ({ className = '', text = 'Processing your request...', error, useShimmer = true }) => {
   return (
     <div
       className={busterChartsTwMerge(
         'flex h-full w-full items-center justify-center space-x-1.5',
         className
       )}>
-      <Text type="tertiary" className="flex items-center text-center">
-        {/* {!!error && <AppMaterialIcons icon="error" className="mr-1" />} */}
-        {error || text}
-      </Text>
+      {error || useShimmer === false ? (
+        <Text type="tertiary" className="flex items-center text-center">
+          {/* {!!error && <AppMaterialIcons icon="error" className="mr-1" />} */}
+          {error || text}
+        </Text>
+      ) : (
+        <ShimmerText text={text} />
+      )}
     </div>
   );
 };

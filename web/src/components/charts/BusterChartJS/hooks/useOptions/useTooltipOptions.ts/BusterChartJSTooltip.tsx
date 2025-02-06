@@ -31,6 +31,7 @@ export const BusterChartJSTooltip: React.FC<{
   const isScatter = selectedChartType === ChartType.Scatter;
   const isLine = selectedChartType === ChartType.Line;
   const isBar = selectedChartType === ChartType.Bar;
+  const isPie = selectedChartType === ChartType.Pie;
   const isComboChart = selectedChartType === ChartType.Combo;
   const datasets = chart.data.datasets;
   const dataPoints = dataPointsProp.filter((item) => !item.dataset.isTrendline);
@@ -38,7 +39,6 @@ export const BusterChartJSTooltip: React.FC<{
   const title = useMemo(() => {
     if (isScatter) return undefined;
 
-    const isTimeAxis = chart.scales.x.type === 'time';
     const dataIndex = dataPoints[0].dataIndex;
     const value = chart.data.labels?.[dataIndex!];
     if (typeof value === 'string') return String(value);
@@ -50,16 +50,8 @@ export const BusterChartJSTooltip: React.FC<{
     const key = xAxisKeys.at(0)!;
     const columnLabelFormat = columnLabelFormats[key!];
 
-    // if (columnLabelFormat.dateFormat === 'auto') {
-    //   const parsedXValue = dataPoints[0]?.parsed?.x;
-    //   const assosciatedTick = chart.scales.x.ticks.find((tick) => tick.value === parsedXValue);
-    //   if (assosciatedTick) {
-    //     return assosciatedTick.label as string;
-    //   }
-    // }
-
     return formatLabel(value as number | Date, columnLabelFormat);
-  }, [dataPoints, chart]);
+  }, [dataPoints, isPie, isScatter, chart]);
 
   const tooltipItems: ITooltipItem[] = useMemo(() => {
     if (isBar || isLine || isComboChart) {

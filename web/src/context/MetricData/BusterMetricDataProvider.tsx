@@ -8,8 +8,8 @@ import { useMemoizedFn, useMount } from 'ahooks';
 import { useBusterWebSocket } from '../BusterWebSocket';
 import type { BusterMetricData } from '../Metrics';
 import { MetricEvent_fetchingData } from '@/api/buster_socket/metrics/eventsInterfaces';
-import { MOCK_DATA } from './MOCK_DATA';
 import { DEFAULT_MESSAGE_DATA } from './config';
+import { createMockData } from './MOCK_DATA';
 
 const useMetricData = () => {
   const busterSocket = useBusterWebSocket();
@@ -103,10 +103,7 @@ const useMetricData = () => {
     setTimeout(() => {
       //TODO: remove mock data
       // _setMetricData(metricId, { ...MOCK_DATA, fetched: true });
-      onSetDataForMetric({
-        ...MOCK_DATA,
-        metricId
-      });
+      onSetDataForMetric(createMockData(metricId));
     }, Math.random() * 5000);
 
     return await busterSocket.emitAndOnce({

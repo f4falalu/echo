@@ -3,14 +3,12 @@ import type { BusterMetricData } from '../Metrics';
 import { faker } from '@faker-js/faker';
 
 const mockData = (): Record<string, string | number | null>[] => {
-  return Array.from({ length: faker.number.int({ min: 20, max: 150 }) }, (x, index) => ({
+  return Array.from({ length: faker.number.int({ min: 5, max: 150 }) }, (x, index) => ({
     sales: index + 1,
     date: faker.date.past({ years: index + 1 }).toISOString(),
     product: faker.commerce.productName()
   }));
 };
-
-const data = mockData();
 
 const dataMetadata: DataMetadata = {
   column_count: 3,
@@ -40,15 +38,15 @@ const dataMetadata: DataMetadata = {
       type: 'text'
     }
   ],
-  row_count: data.length
+  row_count: 1
 };
 
-export const MOCK_DATA: Required<BusterMetricData> = {
+const MOCK_DATA: Required<BusterMetricData> = {
   fetched: true,
   fetching: false,
   error: null,
   fetchedAt: Date.now(),
-  data: data,
+  data: mockData(),
   metricId: faker.string.uuid(),
   data_metadata: dataMetadata,
   dataFromRerun: null,
@@ -62,9 +60,14 @@ ORDER BY date ASC`
 };
 
 export const createMockData = (metricId: string): Required<BusterMetricData> => {
+  const data = mockData();
   return {
     ...MOCK_DATA,
     metricId,
-    data: mockData()
+    data: data,
+    data_metadata: {
+      ...dataMetadata,
+      row_count: data.length
+    }
   };
 };

@@ -67,7 +67,7 @@ const _DashboardMetricItem: React.FC<{
   const cardClassNamesMemoized = useMemo(() => {
     return {
       body: `h-full w-full overflow-hidden ${isTable ? '!p-0' : '!px-2 !pt-2 !pb-0.5'} relative`,
-      header: cx(`!p-0 !min-h-[52px]`, styles.cardTitle)
+      header: cx(`!p-0 !min-h-[52px] !mb-0`, styles.cardTitle)
     };
   }, [isTable]);
 
