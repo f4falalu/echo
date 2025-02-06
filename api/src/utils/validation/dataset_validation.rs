@@ -101,11 +101,11 @@ pub async fn validate_model(
                 .collect();
 
             for expr_col in expr_cols {
-                if !ds_columns.iter().any(|c| c.name == expr_col) {
+                if !columns.iter().any(|(name, _)| *name == expr_col) {
                     result.add_error(ValidationError::expression_error(
                         col_name,
                         expr,
-                        &format!("Referenced column '{}' not found", expr_col),
+                        &format!("Referenced column '{}' not found in model definition", expr_col),
                     ));
                 }
             }
