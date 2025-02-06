@@ -5,7 +5,7 @@ import { useDashboardMetric } from './useDashboardMetric';
 import { BusterChart } from '@/components/charts';
 import { MetricTitle } from './MetricTitle';
 import { createBusterRoute, BusterRoutes } from '@/routes';
-import { useMemoizedFn, useWhyDidYouUpdate } from 'ahooks';
+import { useMemoizedFn } from 'ahooks';
 
 const _DashboardMetricItem: React.FC<{
   metricId: string;
@@ -37,7 +37,7 @@ const _DashboardMetricItem: React.FC<{
   const chartOptions = metric.chart_config;
   const data = metricData.data || null;
   const loading = loadingMetricData;
-  const animate = !initialAnimationEnded && !isDragOverlay && numberOfMetrics <= 8;
+  const animate = !initialAnimationEnded && !isDragOverlay && numberOfMetrics <= 12;
   const isTable = metric.chart_config.selectedChartType === 'table';
 
   const error = useMemo(() => {
@@ -68,28 +68,6 @@ const _DashboardMetricItem: React.FC<{
       header: cx(`!p-0 !min-h-[52px]`, styles.cardTitle)
     };
   }, [isTable]);
-
-  useWhyDidYouUpdate('DashboardMetricItem', {
-    metricId,
-    dashboardId,
-    allowEdit,
-    className,
-    isDragOverlay,
-    numberOfMetrics,
-    renderChart,
-    loading,
-    error,
-    metricLink,
-    onInitialAnimationEndPreflight,
-    cardClassNamesMemoized,
-    metric,
-    metricData,
-    initialAnimationEnded,
-    setInitialAnimationEnded,
-    data,
-    loadingMetricData,
-    chartOptions
-  });
 
   return (
     <Card

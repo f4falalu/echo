@@ -17,9 +17,9 @@ import { runSQL as runSQLRest } from '@/api/buster_rest';
 export const useSQLProvider = () => {
   const { openSuccessNotification } = useBusterNotifications();
   const onUpdateMetric = useBusterMetricsContextSelector((x) => x.onUpdateMetric);
-  const onSetMetricData = useBusterMetricDataContextSelector((x) => x.onSetMetricData);
-  const getAllMetricDataMemoized = useBusterMetricDataContextSelector(
-    (x) => x.getAllMetricDataMemoized
+  const onSetDataForMetric = useBusterMetricDataContextSelector((x) => x.onSetDataForMetric);
+  const getDataByMetricIdMemoized = useBusterMetricDataContextSelector(
+    (x) => x.getDataByMetricIdMemoized
   );
   const updateMetricToServer = useBusterMetricsContextSelector((x) => x.updateMetricToServer);
   const getMetric = useBusterMetricsContextSelector((x) => x.getMetricMemoized);
@@ -44,7 +44,7 @@ export const useSQLProvider = () => {
       if (metricId) {
         const { data, data_metadata } = d;
         const metricMessage = getMetric({ metricId });
-        const currentMessageData = getAllMetricDataMemoized(metricId);
+        const currentMessageData = getDataByMetricIdMemoized(metricId);
         if (!originalConfigs.current[metricId]) {
           originalConfigs.current[metricId] = {
             chartConfig: metricMessage?.chart_config!,
@@ -63,7 +63,7 @@ export const useSQLProvider = () => {
           ? simplifyChatConfigForSQLChange(metricMessage.chart_config, data_metadata)
           : metricMessage.chart_config;
 
-        onSetMetricData({
+        onSetDataForMetric({
           metricId,
           data,
           isDataFromRerun: true,
@@ -114,7 +114,7 @@ export const useSQLProvider = () => {
       id: metricId,
       chart_config: oldConfig
     });
-    onSetMetricData({
+    onSetDataForMetric({
       metricId,
       data: originalConfigs.current[metricId]?.data!,
       data_metadata: originalConfigs.current[metricId]?.dataMetadata!,
@@ -165,7 +165,7 @@ export const useSQLProvider = () => {
       setWarnBeforeNavigating(false);
 
       if (originalConfigs.current[metricId]) {
-        onSetMetricData({
+        onSetDataForMetric({
           metricId,
           data: originalConfigs.current[metricId]?.data!,
           data_metadata: originalConfigs.current[metricId]?.dataMetadata!,

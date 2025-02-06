@@ -26,7 +26,7 @@ export const DashboardEditTitles: React.FC<{
   );
 
   return (
-    <div className="flex flex-col space-y-1.5">
+    <div className="flex flex-col space-y-0">
       <EditableTitle
         className="w-full truncate"
         disabled={!allowEdit}

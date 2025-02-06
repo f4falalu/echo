@@ -17,7 +17,7 @@ import { RustApiError } from '@/api/buster_rest/errors';
 import { resolveEmptyMetric, upgradeMetricToIMetric } from './helpers';
 import { MetricUpdateMetric } from '@/api/buster_socket/metrics';
 import { useBusterMetricDataContextSelector } from '../MetricData';
-import { MOCK_METRIC } from './MOCK_METRIC';
+import { createMockMetric, MOCK_METRIC } from './MOCK_METRIC';
 import { useUpdateMetricConfig } from './useUpdateMetricConfig';
 import { useUpdateMetricAssosciations } from './useUpdateMetricAssosciations';
 
@@ -37,7 +37,7 @@ export const useBusterMetrics = () => {
   });
 
   const setMetrics = useMemoizedFn((newMetrics: Record<string, IBusterMetric>) => {
-    metricsRef.current = { ...newMetrics };
+    metricsRef.current = { ...metricsRef.current, ...newMetrics };
     startTransition(() => {
       //trigger a rerender
     });
@@ -89,7 +89,7 @@ export const useBusterMetrics = () => {
 
     const upgradedMetric = upgradeMetricToIMetric(newMetric, oldMetric);
 
-    onUpdateMetric(upgradedMetric);
+    onUpdateMetric(upgradedMetric, false);
   });
 
   const _setLoadingMetric = useMemoizedFn((metricId: string) => {
@@ -143,10 +143,7 @@ export const useBusterMetrics = () => {
 
     //TODO: remove this
     setTimeout(() => {
-      _onGetMetricState({
-        ...MOCK_METRIC,
-        id: metricId
-      });
+      _onGetMetricState(createMockMetric(metricId));
     }, 300);
 
     return await busterSocket.emitAndOnce({
@@ -277,12 +274,12 @@ export const useBusterMetricIndividual = ({ metricId }: { metricId: string }) =>
   const subscribeToMetric = useBusterMetricsContextSelector((x) => x.subscribeToMetric);
   const fetchDataByMetricId = useBusterMetricDataContextSelector((x) => x.fetchDataByMetricId);
   const metric = useBusterMetricsContextSelector((x) => x.metrics[metricId]);
-  const metricData = useBusterMetricDataContextSelector(({ getMetricData }) =>
-    getMetricData(metricId)
+  const metricData = useBusterMetricDataContextSelector(({ getDataByMetricId }) =>
+    getDataByMetricId(metricId)
   );
 
   useMount(() => {
-    //  subscribeToMetric({ metricId });
+    subscribeToMetric({ metricId });
     fetchDataByMetricId({ metricId });
   });
 

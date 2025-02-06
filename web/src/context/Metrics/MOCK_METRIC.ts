@@ -58,12 +58,12 @@ const dataMetadata: DataMetadata = {
   row_count: 10
 };
 
-export const MOCK_METRIC: IBusterMetric = {
-  id: '123',
-  title: 'Mock Metric',
+export const MOCK_METRIC = (id = ''): IBusterMetric => ({
+  id: id || '123',
+  title: id + ' - ' + faker.lorem.words({ min: 2, max: 6 }),
   version_number: 1,
-  file_name: 'mock_metric.yml',
-  description: faker.lorem.sentence(33),
+  file_name: `${faker.lorem.words({ min: 1, max: 3 })}.yml`,
+  description: faker.commerce.productName(),
   data_source_id: '6840fa04-c0d7-4e0e-8d3d-ea9190d93874',
   time_frame: '1d',
   type: 'metric',
@@ -152,11 +152,42 @@ SELECT * FROM records;`,
   publicly_accessible: false,
   public_password: '',
   permission: ShareRole.OWNER
-};
+});
 
 export const createMockMetric = (id: string): IBusterMetric => {
   return {
-    ...MOCK_METRIC,
+    ...MOCK_METRIC(id),
     id
   };
 };
+
+export const mockMetric1 = createMockMetric('number1');
+export const mockMetric2 = createMockMetric('number2');
+export const mockMetric3 = createMockMetric('number3');
+export const mockMetric4 = createMockMetric('number4');
+export const mockMetric5 = createMockMetric('number5');
+export const mockMetric6 = createMockMetric('number6');
+export const mockMetric7 = createMockMetric('number7');
+export const mockMetric8 = createMockMetric('number8');
+export const mockMetric9 = createMockMetric('number9');
+export const mockMetric10 = createMockMetric('number10');
+export const mockMetric11 = createMockMetric('number11');
+export const mockMetric12 = createMockMetric('number12');
+export const mockMetric13 = createMockMetric('number13');
+export const mockMetric14 = createMockMetric('number14');
+export const mockMetric15 = createMockMetric('number15');
+export const mockMetric16 = createMockMetric('number16');
+export const mockMetric17 = createMockMetric('number17');
+export const mockMetric18 = createMockMetric('number18');
+export const mockMetric19 = createMockMetric('number19');
+export const mockMetric20 = createMockMetric('number20');
+export const mockMetric21 = createMockMetric('number21');
+export const mockMetric22 = createMockMetric('number22');
+export const mockMetric23 = createMockMetric('number23');
+export const mockMetric24 = createMockMetric('number24');
+export const mockMetric25 = createMockMetric('number25');
+export const mockMetric26 = createMockMetric('number26');
+export const mockMetric27 = createMockMetric('number27');
+export const mockMetric28 = createMockMetric('number28');
+export const mockMetric29 = createMockMetric('number29');
+export const mockMetric30 = createMockMetric('number30');

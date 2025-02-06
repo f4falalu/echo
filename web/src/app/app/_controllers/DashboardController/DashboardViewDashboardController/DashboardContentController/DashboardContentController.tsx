@@ -105,7 +105,7 @@ export const DashboardContentController: React.FC<{
     }, [dashboard.id, remapMetrics]);
 
     return (
-      <div className="h-full w-full">
+      <div className="dashboard-content-controller">
         {hasMetrics && !!dashboardRows.length ? (
           <DashboardContentControllerProvider dashboard={dashboard}>
             <BusterResizeableGrid

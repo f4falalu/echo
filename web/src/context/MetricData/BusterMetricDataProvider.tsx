@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useCallback, useRef, useState, useTransition } from 'react';
+import React, { PropsWithChildren, useCallback, useRef, useTransition } from 'react';
 import {
   createContext,
   ContextSelector,
@@ -21,7 +21,12 @@ const useMetricData = () => {
     (metricId: string, newMetricData: Partial<BusterMetricData>) => {
       metricDataRef.current = {
         ...metricDataRef.current,
-        [metricId]: { ...metricDataRef.current[metricId], ...newMetricData, metricId }
+        [metricId]: {
+          ...DEFAULT_MESSAGE_DATA,
+          ...metricDataRef.current[metricId],
+          ...newMetricData,
+          metricId
+        }
       };
       startTransition(() => {
         //trigger re-render
@@ -31,12 +36,12 @@ const useMetricData = () => {
 
   const _onGetFetchingData = useMemoizedFn((payload: MetricEvent_fetchingData) => {
     const { data, data_metadata, code, progress, metric_id: metricId } = payload;
-    const currentMetric = getMetricData(metricId);
+    const currentMetric = getDataByMetricId(metricId);
     const fallbackData = data || currentMetric?.data;
     const fallbackDataMetadata = data_metadata || currentMetric?.data_metadata;
     const isCompleted = progress === 'completed';
 
-    onSetMetricData({
+    onSetDataForMetric({
       metricId,
       data: fallbackData,
       data_metadata: fallbackDataMetadata,
@@ -47,7 +52,7 @@ const useMetricData = () => {
     });
   });
 
-  const onSetMetricData = useMemoizedFn(
+  const onSetDataForMetric = useMemoizedFn(
     ({
       metricId,
       data,
@@ -66,7 +71,7 @@ const useMetricData = () => {
       code: string | null;
     }) => {
       const setKey = isDataFromRerun ? 'dataFromRerun' : 'data';
-      const prev = getMetricData(metricId);
+      const prev = getDataByMetricId(metricId);
       _setMetricData(metricId, {
         [setKey]: data,
         fetchedAt: Date.now(),
@@ -85,7 +90,7 @@ const useMetricData = () => {
   );
 
   const fetchDataByMetricId = useMemoizedFn(async ({ metricId }: { metricId: string }) => {
-    const selectedMetricData = getMetricData(metricId);
+    const selectedMetricData = getDataByMetricId(metricId);
 
     if (selectedMetricData?.fetching || selectedMetricData?.fetched) {
       return;
@@ -98,11 +103,11 @@ const useMetricData = () => {
     setTimeout(() => {
       //TODO: remove mock data
       // _setMetricData(metricId, { ...MOCK_DATA, fetched: true });
-      onSetMetricData({
+      onSetDataForMetric({
         ...MOCK_DATA,
         metricId
       });
-    }, 1800);
+    }, Math.random() * 10800);
 
     return await busterSocket.emitAndOnce({
       emitEvent: {
@@ -116,17 +121,17 @@ const useMetricData = () => {
     });
   });
 
-  const getMetricData = useCallback(
+  const getDataByMetricId = useCallback(
     (metricId: string | undefined) => {
       if (metricId && metricDataRef.current[metricId]) {
         return metricDataRef.current[metricId];
       }
-      return DEFAULT_MESSAGE_DATA;
+      return { ...DEFAULT_MESSAGE_DATA, metricId };
     },
     [isPending]
   );
 
-  const getAllMetricDataMemoized = useMemoizedFn(
+  const getDataByMetricIdMemoized = useMemoizedFn(
     (metricId: string): BusterMetricData | undefined => {
       return metricDataRef.current[metricId];
     }
@@ -142,10 +147,10 @@ const useMetricData = () => {
   return {
     metricData: metricDataRef.current,
     onSetMetricDataCode,
-    onSetMetricData,
+    onSetDataForMetric,
     fetchDataByMetricId,
-    getMetricData,
-    getAllMetricDataMemoized
+    getDataByMetricId,
+    getDataByMetricIdMemoized
   };
 };
 

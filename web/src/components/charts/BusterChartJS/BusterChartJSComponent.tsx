@@ -183,7 +183,7 @@ export const BusterChartJSComponent = React.memo(
         <React.Fragment>
           <Chart
             className={className}
-            ref={ref}
+            //   ref={ref}
             options={options}
             data={data}
             type={type}
