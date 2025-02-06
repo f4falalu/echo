@@ -72,7 +72,26 @@ export const generateMockDashboard = (numMetrics: number): DashboardMockResponse
 
   const dashboard: BusterDashboard = {
     id: '123',
-    name: 'Mock Dashboard',
+    title: 'Mock Dashboard',
+    file: `title: Mock Dashboard
+description: A sample dashboard configuration
+version: 1.0
+layout:
+  rows:
+    - id: row1
+      columns:
+        - width: 6
+          metric_id: metric-1
+        - width: 6 
+          metric_id: metric-2
+    - id: row2
+      columns:
+        - width: 12
+          metric_id: metric-3
+theme: light
+refresh_interval: 300`,
+    file_name: 'mock-file.yaml',
+    version_number: 1,
     description: null,
     created_at: new Date().toISOString(),
     created_by: 'user-123',
@@ -113,4 +132,4 @@ export const generateMockDashboard = (numMetrics: number): DashboardMockResponse
 // Example usage:
 // const { dashboard, response } = generateMockDashboard(12);
 
-export const MOCK_DASHBOARD_RESPONSE = generateMockDashboard(15).response;
+export const MOCK_DASHBOARD_RESPONSE = generateMockDashboard(3).response;

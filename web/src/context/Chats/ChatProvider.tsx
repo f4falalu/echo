@@ -11,8 +11,8 @@ import { createMockResponseMessageThought, MOCK_CHAT } from './MOCK_CHAT';
 import { IBusterChat } from './interfaces';
 import { chatUpgrader } from './helpers';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { useBusterMetricsContextSelector } from '../Metrics';
-import { fallbackToMetricChat } from './helpers/fallbackToMetricChat';
+import { useFileFallback } from './helpers/useFileFallback';
+import { SelectedFile } from '@/app/app/_layouts/ChatLayout';
 
 export const useBusterChat = () => {
   const busterSocket = useBusterWebSocket();
@@ -104,24 +104,19 @@ export const useBusterChatContextSelector = <T,>(
 
 export const useBusterChatIndividual = ({
   chatId: chatIdProp,
-  metricId
+  defaultSelectedFile
 }: {
   chatId?: string;
-  //if metricId is provided (without a chatId), we can assume that the chat is a new chat starting from a metric
-  metricId?: string;
+  defaultSelectedFile?: SelectedFile;
 }) => {
   const chatId = chatIdProp || '';
   const chat: IBusterChat | undefined = useBusterChatContextSelector((x) => x.chats[chatId]);
   const subscribeToChat = useBusterChatContextSelector((x) => x.subscribeToChat);
   const unsubscribeFromChat = useBusterChatContextSelector((x) => x.unsubscribeFromChat);
-  const metricTitle = useBusterMetricsContextSelector((x) => x.metrics[metricId || '']?.title);
-  const metricVersionNumber = useBusterMetricsContextSelector(
-    (x) => x.metrics[metricId || '']?.version_number
-  );
 
-  const memoizedFallbackToMetricChat = useMemo(() => {
-    return fallbackToMetricChat({ id: metricId || '', title: metricTitle, metricVersionNumber });
-  }, [metricId, metricVersionNumber, metricTitle]);
+  const memoizedFallbackToMetricChat = useFileFallback({
+    defaultSelectedFile
+  });
 
   useEffect(() => {
     if (chatId) subscribeToChat({ chatId });

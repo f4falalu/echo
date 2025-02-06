@@ -22,6 +22,7 @@ export const CreateChatButton = React.memo(() => {
         color="default"
         variant="solid"
         type="primary"
+        className="ml-1.5"
         icon={<AppMaterialIcons icon="stars" />}>
         Edit
       </Button>

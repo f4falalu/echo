@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FileContainerButtonsProps } from './interfaces';
 import { FileButtonContainer } from './FileButtonContainer';
 import { useChatContextSelector } from '../../ChatContext';
@@ -7,8 +7,13 @@ import { HideButtonContainer } from './HideButtonContainer';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { CreateChatButton } from './CreateChatButtont';
 import { ShareDashboardButton } from '@appComponents/Buttons/ShareDashboardButton';
-import { Button } from 'antd';
+import { Button, Dropdown } from 'antd';
 import { AppMaterialIcons } from '@/components/icons';
+import { MenuProps } from 'antd/lib';
+import { useDashboardContextSelector } from '@/context/Dashboards';
+import { useRouter } from 'next/router';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { BusterRoutes } from '@/routes';
 
 export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(
   () => {
@@ -19,6 +24,7 @@ export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps
       <FileButtonContainer>
         <SaveToCollectionButton />
         <ShareDashboardButton dashboardId={selectedFileId} /> <AddContentToDashboardButton />
+        <ThreeDotMenu dashboardId={selectedFileId} />
         <HideButtonContainer show={isPureFile}>
           <CreateChatButton />
         </HideButtonContainer>
@@ -43,3 +49,31 @@ const AddContentToDashboardButton = React.memo(() => {
   );
 });
 AddContentToDashboardButton.displayName = 'AddContentToDashboardButton';
+
+const ThreeDotMenu = React.memo(({ dashboardId }: { dashboardId: string }) => {
+  const onDeleteDashboard = useDashboardContextSelector((x) => x.onDeleteDashboard);
+  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
+
+  const menu: MenuProps = useMemo(() => {
+    return {
+      items: [
+        {
+          label: 'Delete',
+          key: 'delete',
+          icon: <AppMaterialIcons icon="delete" />,
+          onClick: async () => {
+            await onDeleteDashboard(dashboardId);
+            onChangePage({ route: BusterRoutes.APP_DASHBOARDS });
+          }
+        }
+      ]
+    };
+  }, [dashboardId, onDeleteDashboard, onChangePage]);
+
+  return (
+    <Dropdown menu={menu}>
+      <Button type="text" icon={<AppMaterialIcons icon="more_horiz" />} />
+    </Dropdown>
+  );
+});
+ThreeDotMenu.displayName = 'ThreeDotMenu';

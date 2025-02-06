@@ -25,7 +25,7 @@ export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
   });
 
   return (
-    <div className="flex flex-col space-y-3 overflow-y-auto p-5">
+    <div className="flex flex-col space-y-3 overflow-y-auto p-10">
       <DashboardEditTitles
         onUpdateDashboard={onUpdateDashboard}
         allowEdit={allowEdit}

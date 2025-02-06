@@ -7,6 +7,7 @@ import { useDashboardUpdateConfig } from './useDashboardUpdateConfig';
 import { useDashboardSubscribe } from './useDashboardSubscribe';
 import { useDashboardCreate } from './useDashboardCreate';
 import { useShareDashboard } from './useShareDashboard';
+import { useMemoizedFn } from 'ahooks';
 
 export const useDashboardIndividual = ({
   refreshDashboardsList,
@@ -53,6 +54,10 @@ export const useDashboardIndividual = ({
     onUpdateDashboard
   });
 
+  const getDashboardMemoized = useMemoizedFn((id: string) => {
+    return dashboards[id];
+  });
+
   return {
     dashboards,
     onRemoveFromCollection,
@@ -63,6 +68,7 @@ export const useDashboardIndividual = ({
     onVerifiedDashboard,
     openedDashboardId,
     creatingDashboard,
+    getDashboardMemoized,
     onCreateNewDashboard,
     onDeleteDashboard,
     subscribeToDashboard,

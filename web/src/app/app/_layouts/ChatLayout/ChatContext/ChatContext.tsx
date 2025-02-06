@@ -6,6 +6,7 @@ import {
 } from '@fluentui/react-context-selector';
 import { useBusterChatIndividual } from '@/context/Chats';
 import type { SelectedFile } from '../interfaces';
+import { useChatAssociation } from './useChatAssosciation';
 
 export const useChatContext = ({
   chatId,
@@ -16,12 +17,11 @@ export const useChatContext = ({
 }) => {
   const selectedFileId = defaultSelectedFile?.id;
   const selectedFileType = defaultSelectedFile?.type;
-  const metricId = defaultSelectedFile?.type === 'metric' ? defaultSelectedFile?.id : undefined;
 
   //CHAT
   const { chat } = useBusterChatIndividual({
     chatId,
-    metricId
+    defaultSelectedFile
   });
   const hasChat = !!chatId && !!chat;
   const chatTitle = chat?.title;
@@ -33,7 +33,11 @@ export const useChatContext = ({
   //MESSAGES
   const currentMessageId = chatMessages[chatMessages.length - 1]?.id;
 
+  //ASSOCIATION
+  const association = useChatAssociation({ chatId });
+
   return {
+    ...association,
     hasChat,
     hasFile,
     selectedFileId,

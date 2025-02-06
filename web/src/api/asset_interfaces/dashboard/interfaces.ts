@@ -40,8 +40,11 @@ export interface BusterDashboard
   deleted_at: string | null;
   description: string | null;
   id: string;
-  name: string;
+  title: string;
   updated_at: string | null;
   updated_by: string;
   status: VerificationStatus;
+  version_number: number;
+  file: string; //yaml file
+  file_name: string;
 }

@@ -39,6 +39,7 @@ export const useDashboards = () => {
   //DASHBOARD INDIVIDUAL
   const {
     dashboards,
+    getDashboardMemoized,
     removeItemFromIndividualDashboard,
     refreshDashboard,
     onVerifiedDashboard,
@@ -99,6 +100,7 @@ export const useDashboards = () => {
     unsubscribeFromDashboardsList,
     onShareDashboard,
     openAddContentModal,
+    getDashboardMemoized,
     setOpenAddContentModal
   };
 };
