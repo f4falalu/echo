@@ -10,7 +10,7 @@ export const EditDotsOnLineGlobal: React.FC<{
   onUpdateChartConfig: (config: Partial<IBusterMetricChartConfig>) => void;
 }> = React.memo(({ columnSettings, onUpdateChartConfig }) => {
   const allDotsOnLine = useMemo(() => {
-    return Object.values(columnSettings).every((column) => column.lineSymbolSize > 0);
+    return Object.values(columnSettings).some((column) => column.lineSymbolSize > 0);
   }, [columnSettings]);
 
   const onChangeAllSmooth = useMemoizedFn((value: boolean) => {

@@ -114,7 +114,7 @@ export const useXAxis = ({
     isSupportedChartForAxisTitles: isSupportedType
   });
 
-  const useTicketCallback = useMemo(() => {
+  const useTickCallback = useMemo(() => {
     if (type === 'time') {
       const isSingleXAxis = selectedAxis.x.length === 1;
       const columnLabelFormat = xAxisColumnFormats[selectedAxis.x[0]];
@@ -169,13 +169,14 @@ export const useXAxis = ({
         ticks: {
           ...rotation,
           display: xAxisShowAxisLabel,
-          callback: useTicketCallback ? tickCallback : null,
+          callback: useTickCallback ? tickCallback : null,
           autoSkip: true,
           autoSkipPadding: 3,
           align: 'center',
           time: {
             unit: timeUnit
           },
+          includeBounds: true,
           source: 'auto'
         },
         display: true,
@@ -188,7 +189,7 @@ export const useXAxis = ({
       title,
       isScatterChart,
       isPieChart,
-      useTicketCallback,
+      useTickCallback,
       xAxisShowAxisLabel,
       stacked,
       type,

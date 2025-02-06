@@ -132,6 +132,6 @@ export const DEFAULT_DATE_FORMAT_DAY_OF_WEEK = 'dddd';
 export const DEFAULT_DATE_FORMAT_MONTH_OF_YEAR = 'MMMM';
 export const DEFAULT_DATE_FORMAT_QUARTER = 'YYYY [Q]Q';
 
-export const ENABLED_DOTS_ON_LINE_SIZE = 8;
+export const ENABLED_DOTS_ON_LINE_SIZE = 4;
 
 export const DEFAULT_COLUMN_METADATA: ColumnMetaData[] = [];

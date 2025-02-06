@@ -161,7 +161,7 @@ const ColumnSettingComponent: React.FC<{
   const isYAxisZone =
     zoneId === SelectAxisContainerId.YAxis || zoneId === SelectAxisContainerId.Y2Axis;
   const isAvailableZone = zoneId === SelectAxisContainerId.Available;
-  const isCategoryAxis = zoneId === SelectAxisContainerId.CategoryAxis;
+  const isCategoryZone = zoneId === SelectAxisContainerId.CategoryAxis;
   const isXAxisZone = zoneId === SelectAxisContainerId.XAxis;
   const isSizeZone = zoneId === SelectAxisContainerId.SizeAxis;
   const isBarVisualization = columnVisualization === 'bar';
@@ -204,7 +204,8 @@ const ColumnSettingComponent: React.FC<{
       )
     },
     {
-      enabled: (isLineChart || (isLineVisualization && isComboChart)) && !isCategoryAxis,
+      enabled:
+        (isLineChart || (isLineVisualization && isComboChart)) && !isCategoryZone && !isXAxisZone,
       key: 'lineStyle',
       Component: (
         <EditLineStyle

@@ -2,7 +2,7 @@ import type { ChartProps } from '../../core';
 import { LabelBuilderProps } from './useSeriesOptions';
 import { SeriesBuilderProps } from './interfaces';
 import { extractFieldsFromChain } from '@/components/charts/chartHooks';
-import { DEFAULT_COLUMN_SETTINGS } from '@/api/asset_interfaces';
+import { DEFAULT_COLUMN_SETTINGS, ENABLED_DOTS_ON_LINE_SIZE } from '@/api/asset_interfaces';
 import { barBuilder } from './barSeriesBuilder';
 import { createDayjsDate } from '@/utils/date';
 import { formatChartLabelDelimiter } from '@/components/charts/commonHelpers';
@@ -113,7 +113,7 @@ const dotSeriesBuilder = (
   const uniqueColumnSetting = { ...columnSettings };
   const columnSetting = uniqueColumnSetting[yKey];
   columnSetting.lineWidth = 0;
-  columnSetting.lineSymbolSize = 4;
+  columnSetting.lineSymbolSize = ENABLED_DOTS_ON_LINE_SIZE;
 
   return lineBuilder({ ...props, order: -index, columnSettings: uniqueColumnSetting });
 };
