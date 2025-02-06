@@ -46,7 +46,6 @@ export const useFileFallback = ({
   }, [fileType, metricVersionNumber, dashboardVersionNumber]);
 
   const memoizedFallbackToMetricChat = useMemo(() => {
-    console.log(fileType, defaultSelectedFile);
     return fallbackToFileChat({
       id: fileId,
       title: title,

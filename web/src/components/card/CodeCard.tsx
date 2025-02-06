@@ -16,8 +16,10 @@ export const CodeCard: React.FC<{
   buttons?: React.ReactNode | true;
   onChange?: (code: string) => void;
   readOnly?: boolean;
+  onMetaEnter?: () => void;
 }> = ({
   code,
+  onMetaEnter,
   language = 'yml',
   fileName,
   className = 'h-full overflow-hidden',
@@ -48,6 +50,7 @@ export const CodeCard: React.FC<{
           onChange={onChange}
           readOnly={readOnly}
           height="100%"
+          onMetaEnter={onMetaEnter}
         />
       </div>
     </div>

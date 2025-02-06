@@ -36,8 +36,10 @@ const SplitterContent: React.FC<{
         <Button type="default" onClick={onReset}>
           Reset
         </Button>
-        <Button color="default" variant="solid" onClick={onSave}>
-          Save
+        <Button className="flex items-center" color="default" variant="solid" onClick={onSave}>
+          <span>Save</span>
+          <AppMaterialIcons icon="keyboard_command_key" />
+          <AppMaterialIcons icon="keyboard_return" />
         </Button>
       </div>
     </div>

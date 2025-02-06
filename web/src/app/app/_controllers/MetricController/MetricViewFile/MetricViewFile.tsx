@@ -34,7 +34,13 @@ export const MetricViewFile: React.FC<MetricViewProps> = React.memo(({ metricId 
 
   return (
     <div className="relative h-full overflow-hidden p-3">
-      <CodeCard code={file} language="yaml" fileName={file_name} onChange={setFile} />
+      <CodeCard
+        code={file}
+        language="yaml"
+        fileName={file_name}
+        onChange={setFile}
+        onMetaEnter={onSaveFile}
+      />
 
       <SaveResetFilePopup open={showPopup} onReset={onResetFile} onSave={onSaveFile} />
     </div>
