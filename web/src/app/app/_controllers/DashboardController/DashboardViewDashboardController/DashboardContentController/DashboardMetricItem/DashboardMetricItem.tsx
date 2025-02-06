@@ -37,7 +37,9 @@ const _DashboardMetricItem: React.FC<{
   const chartOptions = metric.chart_config;
   const data = metricData.data || null;
   const loading = loadingMetricData;
-  const animate = !initialAnimationEnded && !isDragOverlay && numberOfMetrics <= 12;
+  const dataLength = metricData?.data?.length || 1;
+  const animate =
+    !initialAnimationEnded && !isDragOverlay && dataLength < 125 && numberOfMetrics <= 30;
   const isTable = metric.chart_config.selectedChartType === 'table';
 
   const error = useMemo(() => {

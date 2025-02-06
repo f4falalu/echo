@@ -107,7 +107,7 @@ const useMetricData = () => {
         ...MOCK_DATA,
         metricId
       });
-    }, Math.random() * 10800);
+    }, Math.random() * 5000);
 
     return await busterSocket.emitAndOnce({
       emitEvent: {

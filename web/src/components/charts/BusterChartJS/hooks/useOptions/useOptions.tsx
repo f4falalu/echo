@@ -178,7 +178,7 @@ export const useOptions = ({
 
     return {
       indexAxis: isHorizontalBar ? 'y' : 'x',
-      animation: animate ? { duration: 1000 } : false,
+      animation: animate ? { duration: 1000 } : { duration: 0 },
       responsive: true,
       maintainAspectRatio: false,
       backgroundColor: colors,
