@@ -15,7 +15,7 @@ use super::{
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BusterModelObject {
-    pub sql_definition: String,
+    pub sql_definition: Option<String>,
     pub model_file: BusterModel,
     pub yml_content: String,
 }
@@ -32,8 +32,11 @@ pub struct Model {
     pub description: String,
     pub model: Option<String>,
     pub schema: Option<String>,
+    #[serde(default)]
     pub entities: Vec<Entity>,
+    #[serde(default)]
     pub dimensions: Vec<Dimension>,
+    #[serde(default)]
     pub measures: Vec<Measure>,
 }
 
@@ -52,6 +55,8 @@ pub struct Dimension {
     #[serde(rename = "type")]
     pub dimension_type: String,
     pub description: String,
+    #[serde(default = "bool::default")]
+    pub stored_values: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -65,21 +70,93 @@ pub struct Measure {
 pub async fn get_model_files(dir_path: Option<&str>) -> Result<Vec<BusterModelObject>> {
     let mut model_objects = Vec::new();
     let path = match dir_path {
-        Some(p) => std::path::Path::new("models").join(p),
+        Some(p) => std::path::PathBuf::from(p),
         None => std::path::Path::new("models").to_path_buf(),
     };
     
     if !path.exists() {
-        return Err(anyhow::anyhow!("Directory not found: {}", path.display()));
+        return Err(anyhow::anyhow!("Path not found: {}", path.display()));
+    }
+
+    if path.is_file() {
+        if let Some(ext) = path.extension() {
+            if ext == "yml" {
+                process_yml_file(&path, &mut model_objects, dir_path.is_some()).await?;
+            } else {
+                return Err(anyhow::anyhow!("File must be a YML file: {}", path.display()));
+            }
+        } else {
+            return Err(anyhow::anyhow!("File must be a YML file: {}", path.display()));
+        }
+    } else {
+        process_directory(&path, &mut model_objects, dir_path.is_some()).await?;
     }
     
-    process_directory(&path, &mut model_objects).await?;
     Ok(model_objects)
+}
+
+async fn process_yml_file(
+    path: &std::path::Path,
+    model_objects: &mut Vec<BusterModelObject>,
+    is_custom_path: bool,
+) -> Result<()> {
+    println!("📄 Processing YAML file: {}", path.display());
+    
+    let yaml_content = match fs::read_to_string(path).await {
+        Ok(content) => content,
+        Err(e) => {
+            println!("❌ Failed to read YAML file {}: {}", path.display(), e);
+            return Ok(());
+        }
+    };
+        
+    let model: BusterModel = match serde_yaml::from_str(&yaml_content) {
+        Ok(model) => model,
+        Err(e) => {
+            println!("⚠️  Skipping invalid YAML file {}: {}", path.display(), e);
+            return Ok(());
+        }
+    };
+
+    if is_custom_path {
+        // In custom path mode, we don't need SQL files
+        model_objects.push(BusterModelObject {
+            sql_definition: None,
+            model_file: model,
+            yml_content: yaml_content,
+        });
+        println!("✅ Successfully processed YML file: {}", path.display());
+    } else {
+        // In default mode, we require SQL files
+        let sql_path = path.with_extension("sql");
+        if !sql_path.exists() {
+            println!("⚠️  Skipping {} - No matching SQL file found at {}", path.display(), sql_path.display());
+            return Ok(());
+        }
+
+        let sql_definition = match tokio::fs::read_to_string(&sql_path).await {
+            Ok(content) => content,
+            Err(e) => {
+                println!("❌ Failed to read SQL file {}: {}", sql_path.display(), e);
+                return Ok(());
+            }
+        };
+
+        model_objects.push(BusterModelObject {
+            sql_definition: Some(sql_definition),
+            model_file: model,
+            yml_content: yaml_content,
+        });
+        println!("✅ Successfully processed model file: {}", path.display());
+    }
+
+    Ok(())
 }
 
 async fn process_directory(
     dir_path: &std::path::Path,
     model_objects: &mut Vec<BusterModelObject>,
+    is_custom_path: bool,
 ) -> Result<()> {
     println!("📂 Processing directory: {}", dir_path.display());
     let mut dir = tokio::fs::read_dir(dir_path).await?;
@@ -88,50 +165,13 @@ async fn process_directory(
         let path = entry.path();
 
         if path.is_dir() {
-            Box::pin(process_directory(&path, model_objects)).await?;
+            Box::pin(process_directory(&path, model_objects, is_custom_path)).await?;
             continue;
         }
 
         if let Some(ext) = path.extension() {
             if ext == "yml" {
-                println!("📄 Found YAML file: {}", path.display());
-                let sql_path = path.with_extension("sql");
-                
-                if !sql_path.exists() {
-                    println!("⚠️  Skipping {} - No matching SQL file found at {}", path.display(), sql_path.display());
-                    continue;
-                }
-
-                let sql_definition = match tokio::fs::read_to_string(&sql_path).await {
-                    Ok(content) => content,
-                    Err(e) => {
-                        println!("❌ Failed to read SQL file {}: {}", sql_path.display(), e);
-                        continue;
-                    }
-                };
-                    
-                let yaml_content = match fs::read_to_string(&path).await {
-                    Ok(content) => content,
-                    Err(e) => {
-                        println!("❌ Failed to read YAML file {}: {}", path.display(), e);
-                        continue;
-                    }
-                };
-                    
-                let model: BusterModel = match serde_yaml::from_str(&yaml_content) {
-                    Ok(model) => model,
-                    Err(e) => {
-                        println!("❌ Failed to parse YAML file {}: {}", path.display(), e);
-                        continue;
-                    }
-                };
-
-                println!("✅ Successfully processed model file: {}", path.display());
-                model_objects.push(BusterModelObject {
-                    sql_definition,
-                    model_file: model,
-                    yml_content: yaml_content,
-                });
+                process_yml_file(&path, model_objects, is_custom_path).await?;
             }
         }
     }
@@ -206,7 +246,7 @@ pub async fn upload_model_files(
                 model: semantic_model.model,
                 schema: schema_name.clone(),
                 description: semantic_model.description,
-                sql_definition: Some(model.sql_definition.clone()),
+                sql_definition: model.sql_definition.clone(),
                 entity_relationships: Some(entity_relationships),
                 columns,
                 yml_file: Some(model.yml_content.clone()),

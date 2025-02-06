@@ -1227,6 +1227,7 @@ async fn search_for_relevant_terms(
     terms_search
   where
     fts @@ websearch_to_tsquery('{prompt}')
+    and organization_id = '{organization_id}'
   order by rank_ix
   limit least(10, 30) * 2
 ),
@@ -1236,6 +1237,7 @@ semantic as (
     row_number() over (order by embedding <#> '{prompt_embedding}') as rank_ix
   from
     terms_search
+  where organization_id = '{organization_id}'
   order by rank_ix
   limit least(10, 30) * 2
 )
