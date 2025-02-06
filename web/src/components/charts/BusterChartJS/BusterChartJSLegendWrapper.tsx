@@ -7,7 +7,7 @@ import { DatasetOption } from '../chartHooks';
 
 interface BusterChartJSLegendWrapperProps {
   children: React.ReactNode;
-  animate: boolean;
+  animateLegend: boolean;
   loading: boolean;
   columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>;
   selectedAxis: ChartEncodes | undefined;
@@ -37,7 +37,7 @@ export const BusterChartJSLegendWrapper = React.memo<BusterChartJSLegendWrapperP
     selectedAxis,
     chartRef,
     selectedChartType,
-    animate,
+    animateLegend,
     columnSettings,
     columnMetadata,
     showLegendHeadline,
@@ -76,7 +76,7 @@ export const BusterChartJSLegendWrapper = React.memo<BusterChartJSLegendWrapperP
     return (
       <BusterChartLegendWrapper
         className={className}
-        animate={animate}
+        animateLegend={animateLegend}
         renderLegend={renderLegend}
         legendItems={legendItems}
         showLegend={showLegend}

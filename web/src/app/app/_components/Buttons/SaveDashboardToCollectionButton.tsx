@@ -1,34 +1,28 @@
-import { AppMaterialIcons } from '@/components/icons';
-import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useCollectionsContextSelector } from '@/context/Collections';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
-import { useMemoizedFn, useMount } from 'ahooks';
-import { Button } from 'antd';
 import React, { useState } from 'react';
 import { SaveToCollectionsDropdown } from '../Dropdowns/SaveToCollectionsDropdown';
+import { useMemoizedFn, useMount } from 'ahooks';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import { useCollectionsContextSelector } from '@/context/Collections';
+import { useDashboardContextSelector } from '@/context/Dashboards';
 import { CollectionButton } from './CollectionButton';
 
-export const SaveMetricToCollectionButton: React.FC<{
-  metricIds: string[];
+export const SaveDashboardToCollectionButton: React.FC<{
+  dashboardIds: string[];
   buttonType?: 'text' | 'default';
   useText?: boolean;
-}> = ({ metricIds, buttonType = 'text', useText = false }) => {
+}> = React.memo(({ dashboardIds, buttonType = 'text', useText = false }) => {
   const { openInfoMessage } = useBusterNotifications();
-  const saveMetricToCollection = useBusterMetricsContextSelector(
-    (state) => state.saveMetricToCollection
-  );
-  const removeMetricFromCollection = useBusterMetricsContextSelector(
-    (state) => state.removeMetricFromCollection
-  );
-
   const collectionsList = useCollectionsContextSelector((state) => state.collectionsList);
   const getInitialCollections = useCollectionsContextSelector(
     (state) => state.getInitialCollections
   );
-
   const [selectedCollections, setSelectedCollections] = useState<
     Parameters<typeof SaveToCollectionsDropdown>[0]['selectedCollections']
   >([]);
+  const saveDashboardToCollection = useDashboardContextSelector((state) => state.onAddToCollection);
+  const removeDashboardFromCollection = useDashboardContextSelector(
+    (state) => state.onRemoveFromCollection
+  );
 
   const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
     setSelectedCollections(collectionIds);
@@ -70,4 +64,6 @@ export const SaveMetricToCollectionButton: React.FC<{
       <CollectionButton buttonType={buttonType} useText={useText} />
     </SaveToCollectionsDropdown>
   );
-};
+});
+
+SaveDashboardToCollectionButton.displayName = 'SaveDashboardToCollectionButton';

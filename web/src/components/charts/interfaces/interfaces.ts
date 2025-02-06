@@ -8,6 +8,7 @@ export type BusterChartProps = {
   className?: string;
   bordered?: boolean;
   animate?: boolean;
+  animateLegend?: boolean;
   id?: string;
   error?: string;
   columnMetadata: ColumnMetaData[] | undefined;

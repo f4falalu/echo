@@ -13,6 +13,7 @@ export interface BusterChartTypeComponentProps
     | 'trendlines'
     | 'barSortBy'
     | 'onChartMounted'
+    | 'animateLegend'
   > {
   onChartReady: () => void;
 }

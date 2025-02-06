@@ -3,48 +3,53 @@
 import React, { PropsWithChildren } from 'react';
 import { PopoverProps } from 'antd';
 import { AppPopover } from '@/components/tooltip/AppPopover';
-import { AppTooltip } from '@/components';
+import { AppTooltip } from '@/components/tooltip';
 import { useMemoizedFn } from 'ahooks';
-import { BusterShare, ShareAssetType, ShareRole } from '@/api/asset_interfaces';
+import { BusterShare, ShareAssetType } from '@/api/asset_interfaces';
 import { ShareMenuContent } from './ShareMenuContent';
+import { isShareMenuVisible } from './publicHelpers';
 
 export const ShareMenu: React.FC<
   PropsWithChildren<{
     placement?: PopoverProps['placement'];
-    shareAssetConfig: BusterShare;
+    shareAssetConfig: BusterShare | null;
     assetId: string;
     assetType: ShareAssetType;
   }>
 > = ({ children, shareAssetConfig, assetId, assetType, placement = 'bottomLeft' }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const isPublic = shareAssetConfig.publicly_accessible;
-  const permission = shareAssetConfig.permission;
-  const showShareMenu = permission === ShareRole.OWNER;
-
   const onOpenChange = useMemoizedFn((v: boolean) => {
     setIsOpen(v);
   });
+
+  const showShareMenu = shareAssetConfig && isShareMenuVisible(shareAssetConfig);
 
   if (!showShareMenu) {
     return null;
   }
 
+  const permission = shareAssetConfig?.permission;
+
   return (
     <AppPopover
-      trigger={'click'}
+      trigger={['click']}
       destroyTooltipOnHide
       placement={placement}
       onOpenChange={onOpenChange}
       content={
-        <ShareMenuContent
-          shareAssetConfig={shareAssetConfig}
-          assetId={assetId}
-          assetType={assetType}
-          permission={permission}
-        />
+        shareAssetConfig ? (
+          <ShareMenuContent
+            shareAssetConfig={shareAssetConfig}
+            assetId={assetId}
+            assetType={assetType}
+            permission={permission}
+          />
+        ) : null
       }>
-      <AppTooltip title={!isOpen ? 'Share item' : ''}>{children}</AppTooltip>
+      <AppTooltip performant={false} title={!isOpen ? 'Share item' : ''}>
+        <div className="flex">{children}</div>
+      </AppTooltip>
     </AppPopover>
   );
 };

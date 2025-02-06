@@ -17,7 +17,7 @@ export const OverflowButton: React.FC<{
     <AppPopover
       placement="bottomRight"
       mouseEnterDelay={0.75}
-      trigger={['click', 'hover']}
+      trigger={'click'}
       destroyTooltipOnHide
       className="max-h-[420px] min-w-[200px] !max-w-[265px] overflow-y-auto overflow-x-hidden px-0"
       content={

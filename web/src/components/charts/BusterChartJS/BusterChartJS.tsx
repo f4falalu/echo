@@ -22,6 +22,7 @@ export const BusterChartJS: React.FC<BusterChartComponentProps> = ({
   onChartMounted,
   onInitialAnimationEnd,
   columnSettings = DEFAULT_CHART_CONFIG.columnSettings,
+  animateLegend = true,
   ...props
 }) => {
   const chartRef = useRef<ChartJSOrUndefined>(null);
@@ -40,7 +41,7 @@ export const BusterChartJS: React.FC<BusterChartComponentProps> = ({
 
   return (
     <BusterChartJSLegendWrapper
-      animate={animate}
+      animateLegend={animateLegend}
       loading={loading}
       columnLabelFormats={columnLabelFormats}
       selectedAxis={selectedAxis}

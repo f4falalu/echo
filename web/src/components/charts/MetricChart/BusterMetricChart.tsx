@@ -26,10 +26,6 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
     const firstRowValue = firstRow?.[metricColumnId];
     const yLabelFormat = columnLabelFormats[metricColumnId];
 
-    const canUseAggregateForHeaders = useMemo(() => {
-      return data.length === 1 && metricValueAggregate === 'first';
-    }, [data.length, metricValueAggregate]);
-
     const headerColumnLabelFormat: ColumnLabelFormat = useMemo(() => {
       const isDerivedTitle = typeof metricHeader === 'object' && metricHeader?.columnId;
       if (isDerivedTitle) {

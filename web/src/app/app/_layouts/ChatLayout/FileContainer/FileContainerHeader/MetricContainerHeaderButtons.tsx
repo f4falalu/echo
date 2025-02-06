@@ -1,7 +1,5 @@
 import React from 'react';
 import { FileContainerButtonsProps } from './interfaces';
-import { Button, ButtonProps, ConfigProvider } from 'antd';
-import { AppMaterialIcons, AppTooltip } from '@/components';
 import {
   type MetricFileView,
   MetricFileViewSecondary,

@@ -103,6 +103,7 @@ const _DashboardMetricItem: React.FC<{
             bordered={false}
             onInitialAnimationEnd={onInitialAnimationEndPreflight}
             animate={!isDragOverlay && animate}
+            animateLegend={false}
             columnMetadata={metricData?.data_metadata?.column_metadata}
             editable={allowEdit} //this is really only to resize the columns of a table
             {...chartOptions}

@@ -3,7 +3,7 @@ import type { BusterMetricData } from '../Metrics';
 import { faker } from '@faker-js/faker';
 
 const mockData = (): Record<string, string | number | null>[] => {
-  return Array.from({ length: faker.number.int({ min: 5, max: 15 }) }, (x, index) => ({
+  return Array.from({ length: faker.number.int({ min: 2, max: 615 }) }, (x, index) => ({
     sales: index + 1,
     date: faker.date.past({ years: index + 1 }).toISOString(),
     product: faker.commerce.productName()

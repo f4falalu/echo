@@ -1,7 +1,7 @@
-import { BusterChartProps, ChartType, ShowLegendHeadline } from '../interfaces';
+import { ChartType, ShowLegendHeadline } from '../interfaces';
 
 export interface BusterChartLegendProps {
-  animate: boolean;
+  animateLegend: boolean;
   legendItems: BusterChartLegendItem[];
   show?: boolean;
   containerWidth: number;

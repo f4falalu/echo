@@ -16,7 +16,7 @@ export type BusterChartLegendWrapper = {
   showLegendHeadline: ShowLegendHeadline | undefined;
   inactiveDatasets: Record<string, boolean>;
   className: string | undefined;
-  animate: boolean;
+  animateLegend: boolean;
   onHoverItem: (item: BusterChartLegendItem, isHover: boolean) => void;
   onLegendItemClick: (item: BusterChartLegendItem) => void;
   onLegendItemFocus: ((item: BusterChartLegendItem) => void) | undefined;
@@ -30,7 +30,7 @@ export const BusterChartLegendWrapper: React.FC<BusterChartLegendWrapper> = Reac
     showLegend,
     showLegendHeadline,
     inactiveDatasets,
-    animate,
+    animateLegend,
     className,
     onHoverItem,
     onLegendItemClick,
@@ -45,7 +45,7 @@ export const BusterChartLegendWrapper: React.FC<BusterChartLegendWrapper> = Reac
           {renderLegend && (
             <BusterChartLegend
               show={showLegend}
-              animate={animate}
+              animateLegend={animateLegend}
               legendItems={legendItems}
               containerWidth={width}
               onClickItem={onLegendItemClick}

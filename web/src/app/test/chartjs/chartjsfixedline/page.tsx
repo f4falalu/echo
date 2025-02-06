@@ -1,13 +1,7 @@
 'use client';
 
-import { ColumnMetaData, DEFAULT_COLUMN_SETTINGS } from '@/api/buster_rest';
-import {
-  BusterChart,
-  BusterChartProps,
-  ChartType,
-  IColumnLabelFormat,
-  ViewType
-} from '@/components/charts';
+import { ColumnMetaData, DEFAULT_COLUMN_SETTINGS } from '@/api/asset_interfaces';
+import { BusterChart, BusterChartProps, ChartType, IColumnLabelFormat } from '@/components/charts';
 import { faker } from '@faker-js/faker';
 import { Button, Checkbox, Select, Slider } from 'antd';
 import { useMemo, useState } from 'react';
@@ -116,7 +110,6 @@ export default function ChartjsFixedLine() {
           key={rerenderNumber}
           data={data}
           selectedChartType={ChartType.Line}
-          selectedView={ViewType.Chart}
           loading={false}
           barAndLineAxis={barAndLineAxis}
           pieChartAxis={pieConfig}

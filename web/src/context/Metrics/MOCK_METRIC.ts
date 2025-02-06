@@ -11,12 +11,12 @@ import { ChartType } from '@/components/charts';
 
 const createMockChartConfig = (): IBusterMetricChartConfig => {
   const chartType = faker.helpers.arrayElement([
-    //   ChartType.Bar,
-    //   ChartType.Table,
+    ChartType.Bar,
+    ChartType.Table,
     ChartType.Line,
-    ChartType.Pie
-    //  ChartType.Scatter,
-    //  ChartType.Metric
+    ChartType.Pie,
+    ChartType.Scatter,
+    ChartType.Metric
   ]);
 
   return {

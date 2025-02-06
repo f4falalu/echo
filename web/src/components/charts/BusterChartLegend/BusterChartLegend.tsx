@@ -1,28 +1,18 @@
 'use client';
 
-import React, { useMemo, useRef, useCallback, useState } from 'react';
-import { BusterChartLegendItem, BusterChartLegendProps } from './interfaces';
+import React, { useMemo, useRef } from 'react';
+import { BusterChartLegendProps } from './interfaces';
 import { LegendItem } from './LegendItem';
 import { OverflowButton } from './OverflowContainer';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMemoizedFn } from 'ahooks';
-import isEmpty from 'lodash/isEmpty';
 import { computeHiddenShowItems } from './helpers';
-
-const MeasureContainer = ({ children }: { children: React.ReactNode }) => {
-  return <div className="invisible absolute mt-12 flex w-full items-center">{children}</div>;
-};
-
-interface ItemMeasurement {
-  width: number;
-  height: number;
-}
 
 export const BusterChartLegend: React.FC<BusterChartLegendProps> = React.memo(
   ({
     legendItems,
     onClickItem,
-    animate,
+    animateLegend,
     containerWidth = 400,
     showLegendHeadline,
     onFocusItem,
@@ -52,17 +42,6 @@ export const BusterChartLegend: React.FC<BusterChartLegendProps> = React.memo(
     const onFocusItemHandler = legendItems.length > 2 ? onFocusItem : undefined;
     const onHoverItemHandler = legendItems.length > 1 ? onHoverItem : undefined;
 
-    const memoizedChildAnimation = useMemo(() => {
-      if (!animate) return {};
-
-      return {
-        initial: { opacity: 0 },
-        animate: { opacity: 1 },
-        exit: { opacity: 0 },
-        transition: { duration: 0.25 }
-      };
-    }, [animate, showLegend]);
-
     const initialHeight = useMemo(() => {
       const hasHeadline = !completedInitialAnimation.current
         ? showLegendHeadline
@@ -72,7 +51,8 @@ export const BusterChartLegend: React.FC<BusterChartLegendProps> = React.memo(
     }, [legendItems, showLegendHeadline]);
 
     const memoizedAnimation = useMemo(() => {
-      if (!animate) return {};
+      if (!animateLegend) return {};
+
       return {
         initial: {
           height: show && !completedInitialAnimation.current ? initialHeight : 0,
@@ -91,7 +71,18 @@ export const BusterChartLegend: React.FC<BusterChartLegendProps> = React.memo(
         exit: { height: 0 },
         transition: { duration: 0.25 }
       };
-    }, [animate, initialHeight, showLegend]);
+    }, [animateLegend, initialHeight, showLegend]);
+
+    const memoizedChildAnimation = useMemo(() => {
+      if (!animateLegend) return {};
+
+      return {
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+        exit: { opacity: 0 },
+        transition: { duration: 0.25 }
+      };
+    }, [animateLegend, showLegend]);
 
     const onAnimationComplete = useMemoizedFn(() => {
       setTimeout(() => {
@@ -99,10 +90,14 @@ export const BusterChartLegend: React.FC<BusterChartLegendProps> = React.memo(
       }, 250 * 1.5);
     });
 
+    const forceInitialHeight = useMemo(() => {
+      return !animateLegend && !!show;
+    }, [animateLegend, showLegend, show]);
+
     return (
       <>
         <motion.div
-          className="chart-legend flex w-full items-center overflow-hidden"
+          className={`chart-legend flex w-full items-center overflow-hidden ${forceInitialHeight ? 'min-h-[24px]' : ''}`}
           onAnimationComplete={onAnimationComplete}
           {...memoizedAnimation}>
           <AnimatePresence mode="wait" initial={false}>

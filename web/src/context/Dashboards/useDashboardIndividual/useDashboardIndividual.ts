@@ -1,5 +1,4 @@
 import { BusterDashboardResponse } from '@/api/asset_interfaces';
-import { useMemoizedFn, useMount } from 'ahooks';
 import { useRef, useState } from 'react';
 import { useBusterWebSocket } from '../../BusterWebSocket';
 import { useDashboardLists } from '../useDashboardLists';

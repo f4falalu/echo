@@ -113,4 +113,4 @@ export const generateMockDashboard = (numMetrics: number): DashboardMockResponse
 // Example usage:
 // const { dashboard, response } = generateMockDashboard(12);
 
-export const MOCK_DASHBOARD_RESPONSE = generateMockDashboard(30).response;
+export const MOCK_DASHBOARD_RESPONSE = generateMockDashboard(15).response;
