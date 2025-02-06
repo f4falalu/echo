@@ -17,7 +17,7 @@ import { RustApiError } from '@/api/buster_rest/errors';
 import { resolveEmptyMetric, upgradeMetricToIMetric } from './helpers';
 import { MetricUpdateMetric } from '@/api/buster_socket/metrics';
 import { useBusterMetricDataContextSelector } from '../MetricData';
-import { createMockMetric, MOCK_METRIC } from './MOCK_METRIC';
+import { createMockMetric } from './MOCK_METRIC';
 import { useUpdateMetricConfig } from './useUpdateMetricConfig';
 import { useUpdateMetricAssosciations } from './useUpdateMetricAssosciations';
 

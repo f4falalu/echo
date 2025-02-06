@@ -27,7 +27,8 @@ export const useXAxis = ({
   xAxisShowAxisTitle,
   gridLines,
   lineGroupType,
-  barGroupType
+  barGroupType,
+  xAxisTimeInterval
 }: {
   columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>;
   selectedAxis: ChartEncodes;
@@ -41,6 +42,7 @@ export const useXAxis = ({
   lineGroupType: BusterChartProps['lineGroupType'];
   barGroupType: BusterChartProps['barGroupType'];
   columnSettings: BusterChartProps['columnSettings'];
+  xAxisTimeInterval: BusterChartProps['xAxisTimeInterval'];
 }): DeepPartial<ScaleChartOptions<'bar'>['scales']['x']> | undefined => {
   const isScatterChart = selectedChartType === ChartType.Scatter;
   const isPieChart = selectedChartType === ChartType.Pie;
@@ -161,7 +163,11 @@ export const useXAxis = ({
           callback: useTicketCallback ? tickCallback : null,
           autoSkip: true,
           autoSkipPadding: 3,
-          align: 'center'
+          align: 'center',
+          time: {
+            unit: xAxisTimeInterval
+          },
+          source: 'auto'
         },
         display: true,
         border: {

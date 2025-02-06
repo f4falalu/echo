@@ -54,6 +54,7 @@ interface UseOptionsProps {
   goalLinesAnnotations: AnnotationPluginOptions['annotations'];
   trendlineAnnotations: AnnotationPluginOptions['annotations'];
   disableTooltip: boolean;
+  xAxisTimeInterval: BusterChartProps['xAxisTimeInterval'];
 }
 
 export const useOptions = ({
@@ -92,7 +93,8 @@ export const useOptions = ({
   animate,
   goalLinesAnnotations,
   trendlineAnnotations,
-  disableTooltip
+  disableTooltip,
+  xAxisTimeInterval
 }: UseOptionsProps) => {
   const xAxis = useXAxis({
     columnLabelFormats,
@@ -106,7 +108,8 @@ export const useOptions = ({
     xAxisAxisTitle,
     xAxisShowAxisTitle,
     lineGroupType,
-    barGroupType
+    barGroupType,
+    xAxisTimeInterval
   });
 
   const yAxis = useYAxis({

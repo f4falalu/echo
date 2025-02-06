@@ -18,6 +18,7 @@ export const DEFAULT_CHART_CONFIG: IBusterMetricChartConfig = {
   y2AxisShowAxisTitle: true,
   y2AxisStartAxisAtZero: true,
   y2AxisScaleType: 'linear',
+  xAxisTimeInterval: null,
   xAxisShowAxisLabel: true,
   xAxisShowAxisTitle: true,
   xAxisAxisTitle: null,

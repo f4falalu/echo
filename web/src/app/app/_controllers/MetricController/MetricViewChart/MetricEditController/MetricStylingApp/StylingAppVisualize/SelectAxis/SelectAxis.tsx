@@ -18,7 +18,7 @@ import { SelectAxisEmptyState } from './SelectAxisEmptyState';
 
 export const SelectAxis: React.FC<
   Required<YAxisConfig> &
-    Required<XAxisConfig> &
+    Required<Omit<XAxisConfig, 'xAxisTimeInterval'>> &
     Required<CategoryAxisStyleConfig> &
     Required<Y2AxisConfig> &
     ISelectAxisContext
