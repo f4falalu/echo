@@ -17,7 +17,9 @@ PLEASE OUTPUT THE SQL QUERY IN THE FOLLOWING FORMAT:
 - Keep your response under 50 words
 - Do not output the failed SQL query in your response
 - Keep this response fairly non-technical
-- escape columns, datasets, tables, errors, etc. with backticks.".to_string()
+- escape columns, datasets, tables, errors, etc. with backticks.
+- You must output the sql query in the format specified above.
+".to_string()
 }
 
 pub fn failed_to_fix_sql_user_prompt(
@@ -48,6 +50,8 @@ pub fn failed_to_fix_sql_user_prompt(
         message.push_str("\n\n## ERROR\n");
         message.push_str(error);
     }
+
+    message.push_str("\n\nPlease output the SQL query in the format specified above. (```sql ... ```)");
 
     message
 }
