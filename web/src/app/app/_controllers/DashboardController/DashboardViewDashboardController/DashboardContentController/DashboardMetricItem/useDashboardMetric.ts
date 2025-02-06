@@ -24,7 +24,7 @@ export const useDashboardMetric = ({ metricId }: { metricId: string }) => {
 
   const conatinerRef = useRef<HTMLDivElement>(null);
   const [inViewport] = useInViewport(conatinerRef, {
-    threshold: 0.25
+    threshold: 0.33
   });
 
   const initialAnimationEnded = metricMetadata?.initialAnimationEnded || false;

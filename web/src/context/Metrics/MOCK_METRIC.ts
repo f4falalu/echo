@@ -11,12 +11,12 @@ import { ChartType } from '@/components/charts';
 
 const createMockChartConfig = (): IBusterMetricChartConfig => {
   const chartType = faker.helpers.arrayElement([
-    ChartType.Bar,
-    ChartType.Table,
+    //   ChartType.Bar,
+    //   ChartType.Table,
     ChartType.Line,
-    ChartType.Pie,
-    ChartType.Scatter,
-    ChartType.Metric
+    ChartType.Pie
+    //  ChartType.Scatter,
+    //  ChartType.Metric
   ]);
 
   return {
@@ -75,15 +75,17 @@ const dataMetadata: DataMetadata = {
 };
 
 export const createMockMetric = (id: string): IBusterMetric => {
+  const chart_config = createMockChartConfig();
+
   return {
     title: id + ' - ' + faker.lorem.words({ min: 2, max: 6 }),
     version_number: 1,
-    file_name: `${faker.lorem.words({ min: 1, max: 3 })}.yml`,
+    file_name: `${faker.lorem.words({ min: 1, max: 4 })}.yml`,
     description: faker.commerce.productName(),
     data_source_id: '6840fa04-c0d7-4e0e-8d3d-ea9190d93874',
     time_frame: '1d',
     type: 'metric',
-    chart_config: createMockChartConfig(),
+    chart_config: chart_config,
     fetched: true,
     fetching: false,
     fetchedAt: 0,

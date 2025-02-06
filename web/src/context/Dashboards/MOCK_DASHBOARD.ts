@@ -5,7 +5,6 @@ import {
 } from '@/api/asset_interfaces';
 import { ShareRole } from '@/api/asset_interfaces';
 import {
-  createMockMetric,
   mockMetric1,
   mockMetric2,
   mockMetric3,
