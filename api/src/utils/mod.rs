@@ -1,3 +1,4 @@
+pub mod agent;
 pub mod agent_builder;
 pub mod agents;
 pub mod charting;
@@ -8,8 +9,6 @@ pub mod search_engine;
 pub mod security;
 pub mod serde_helpers;
 pub mod sharing;
+pub mod stored_values;
 pub mod tools;
 pub mod user;
-pub mod agent;
-pub mod serde_helpers;
-pub mod stored_values;

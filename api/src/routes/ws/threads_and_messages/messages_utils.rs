@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::database::{
     enums::{AssetPermissionRole, UserOrganizationRole},
     lib::get_pg_pool,
-    models::Message,
+    models::MessageDeprecated,
     schema::{
         asset_permissions, data_sources, datasets, messages_deprecated, teams_to_users, threads_deprecated,
         users_to_organizations,
@@ -31,7 +31,7 @@ pub struct MessageDraftState {
 pub async fn get_message_with_permission(
     message_id: &Uuid,
     user_id: &Uuid,
-) -> Result<(Message, AssetPermissionRole)> {
+) -> Result<(MessageDeprecated, AssetPermissionRole)> {
     let message_id = Arc::new(message_id.clone());
     let user_id = Arc::new(user_id.clone());
 
@@ -95,7 +95,7 @@ pub async fn get_message_with_permission(
     Ok((message, final_permission))
 }
 
-async fn get_message_by_id(message_id: Arc<Uuid>) -> Result<Message> {
+async fn get_message_by_id(message_id: Arc<Uuid>) -> Result<MessageDeprecated> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => {
@@ -108,7 +108,7 @@ async fn get_message_by_id(message_id: Arc<Uuid>) -> Result<Message> {
         .filter(messages_deprecated::id.eq(message_id.as_ref()))
         .filter(messages_deprecated::deleted_at.is_null())
         .select(messages_deprecated::all_columns)
-        .first::<Message>(&mut conn)
+        .first::<MessageDeprecated>(&mut conn)
         .await
     {
         Ok(threads) => threads,

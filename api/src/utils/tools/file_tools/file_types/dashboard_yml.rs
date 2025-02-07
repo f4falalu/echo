@@ -3,10 +3,10 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct DashboardFile {
-    id: Option<Uuid>,
-    name: Option<String>,
-    rows: Vec<Row>,
+pub struct DashboardYml {
+    pub id: Option<Uuid>,
+    pub name: Option<String>,
+    pub rows: Vec<Row>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -22,10 +22,10 @@ pub struct RowItem {
     id: Uuid,
 }
 
-impl DashboardFile {
+impl DashboardYml {
     pub fn new(yml_content: String) -> Result<Self> {
         // Oftentimes if the llm is creating a new dashboard, it will not include the id.
-        let mut file: DashboardFile = match serde_yaml::from_str(&yml_content) {
+        let mut file: DashboardYml = match serde_yaml::from_str(&yml_content) {
             Ok(file) => file,
             Err(e) => return Err(anyhow::anyhow!("Error parsing YAML: {}", e)),
         };

@@ -6,6 +6,102 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
+#[derive(Queryable, Insertable, Identifiable, Associations, Debug)]
+#[diesel(belongs_to(User, foreign_key = owner_id))]
+#[diesel(table_name = api_keys)]
+pub struct ApiKey {
+    pub id: Uuid,
+    pub owner_id: Uuid,
+    pub key: String,
+    pub organization_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Queryable, Insertable, Identifiable, Debug, Clone, Serialize)]
+#[diesel(table_name = dashboard_files)]
+pub struct DashboardFile {
+    pub id: Uuid,
+    pub name: String,
+    pub file_name: String,
+    pub content: Value,
+    pub filter: Option<String>,
+    pub organization_id: Uuid,
+    pub created_by: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Queryable, Insertable, Identifiable, Associations, Debug, Clone, Serialize)]
+#[diesel(belongs_to(Thread))]
+#[diesel(belongs_to(User, foreign_key = created_by))]
+#[diesel(table_name = messages)]
+pub struct Message {
+    pub id: Uuid,
+    pub request: String,
+    pub response: Value,
+    pub thread_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub created_by: Uuid,
+}
+
+#[derive(Queryable, Insertable, Debug)]
+#[diesel(table_name = messages_to_files)]
+pub struct MessageToFile {
+    pub id: Uuid,
+    pub message_id: Uuid,
+    pub file_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Queryable, Insertable, Identifiable, Debug, Clone, Serialize)]
+#[diesel(table_name = metric_files)]
+pub struct MetricFile {
+    pub id: Uuid,
+    pub name: String,
+    pub file_name: String,
+    pub content: Value,
+    pub verification: Verification,
+    pub evaluation_obj: Option<Value>,
+    pub evaluation_summary: Option<String>,
+    pub evaluation_score: Option<f64>,
+    pub organization_id: Uuid,
+    pub created_by: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Queryable, Insertable, Identifiable, Associations, Debug, Clone, Serialize)]
+#[diesel(belongs_to(Organization))]
+#[diesel(belongs_to(User, foreign_key = created_by))]
+#[diesel(table_name = threads)]
+pub struct Thread {
+    pub id: Uuid,
+    pub title: String,
+    pub organization_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub created_by: Uuid,
+}
+
+#[derive(Queryable, Insertable, Associations, Debug)]
+#[diesel(belongs_to(PermissionGroup, foreign_key = permission_group_id))]
+#[diesel(belongs_to(User, foreign_key = user_id))]
+#[diesel(table_name = permission_groups_to_users)]
+pub struct PermissionGroupToUser {
+    pub permission_group_id: Uuid,
+    pub user_id: Uuid,
+    pub created_at: DateTime<Utc>,
+}
+
 allow_columns_to_appear_in_same_group_by_clause!(
     dataset_groups::id,
     dataset_groups::name,
@@ -34,20 +130,7 @@ allow_columns_to_appear_in_same_group_by_clause!(
     data_sources::name,
 );
 
-#[derive(Queryable, Insertable, Identifiable, Associations, Debug)]
-#[diesel(belongs_to(User, foreign_key = owner_id))]
-#[diesel(table_name = api_keys)]
-pub struct ApiKey {
-    pub id: Uuid,
-    pub owner_id: Uuid,
-    pub key: String,
-    pub organization_id: Uuid,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub deleted_at: Option<DateTime<Utc>>,
-}
-
-#[derive(Queryable, Identifiable, Associations, Debug)]
+#[derive(Queryable, Insertable, Identifiable, Associations, Debug, Clone, Serialize)]
 #[diesel(belongs_to(Dashboard, foreign_key = dashboard_id))]
 #[diesel(table_name = dashboard_versions)]
 pub struct DashboardVersion {
@@ -295,7 +378,7 @@ pub struct User {
 #[diesel(belongs_to(User, foreign_key = sent_by))]
 #[diesel(belongs_to(Dataset))]
 #[diesel(table_name = messages_deprecated)]
-pub struct Message {
+pub struct MessageDeprecated {
     pub id: Uuid,
     pub thread_id: Uuid,
     pub sent_by: Uuid,
@@ -569,3 +652,4 @@ pub struct DatasetToDatasetGroup {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
 }
+

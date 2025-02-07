@@ -17,7 +17,7 @@ use crate::{
     database::{
         enums::{AssetPermissionRole, AssetType, UserOrganizationRole},
         lib::{get_pg_pool, ColumnMetadata, DataMetadataJsonBody, MinMaxValue, PgPool},
-        models::{Message, ThreadDeprecated},
+        models::{MessageDeprecated, ThreadDeprecated},
         schema::{
             asset_permissions, collections_to_assets, dashboards, data_sources, datasets, messages_deprecated,
             sql_evaluations, teams_to_users, threads_deprecated, threads_to_dashboards, users,
@@ -38,7 +38,7 @@ use crate::{
 #[derive(Serialize, Clone, Debug)]
 pub struct MessageWithUserInfo {
     #[serde(flatten)]
-    pub message: Message,
+    pub message: MessageDeprecated,
     pub thoughts: Option<Value>,
     pub response: Option<String>,
     pub evaluation_summary: Option<String>,
@@ -697,7 +697,7 @@ async fn get_thread_messages(
 
     let message_records = match statement
         .load::<(
-            Message,
+            MessageDeprecated,
             Option<String>,
             Option<String>,
             Option<String>,
@@ -789,7 +789,7 @@ async fn get_thread_messages(
     Ok(messages)
 }
 
-fn apply_draft_state(message: Message, draft_state: &MessageDraftState) -> Message {
+fn apply_draft_state(message: MessageDeprecated, draft_state: &MessageDraftState) -> MessageDeprecated {
     let mut message = message;
 
     if let Some(title) = &draft_state.title {

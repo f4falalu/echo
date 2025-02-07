@@ -13,7 +13,7 @@ use crate::{
     database::{
         enums::{AssetPermissionRole, AssetType},
         lib::get_pg_pool,
-        models::{Dashboard, Message},
+        models::{Dashboard, MessageDeprecated},
         schema::{asset_permissions, dashboards, messages_deprecated, threads_to_dashboards, users_to_organizations},
     },
     utils::{
@@ -447,7 +447,7 @@ async fn get_dashboard_metrics(dashboard_id: Arc<Uuid>) -> Result<Vec<Metric>> {
         .filter(messages_deprecated::deleted_at.is_null())
         .filter(messages_deprecated::draft_session_id.is_null())
         .filter(threads_to_dashboards::deleted_at.is_null())
-        .load::<(Uuid, Message)>(&mut conn)
+        .load::<(Uuid, MessageDeprecated)>(&mut conn)
         .await
     {
         Ok(metric_records) => metric_records,
@@ -457,7 +457,7 @@ async fn get_dashboard_metrics(dashboard_id: Arc<Uuid>) -> Result<Vec<Metric>> {
     };
 
     let mut metrics = Vec::new();
-    let mut thread_messages: HashMap<Uuid, Message> = HashMap::new();
+    let mut thread_messages: HashMap<Uuid, MessageDeprecated> = HashMap::new();
 
     // Group messages by thread and keep the most recent one
     for (thread_id, message) in metric_records {

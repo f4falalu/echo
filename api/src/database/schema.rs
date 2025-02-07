@@ -345,20 +345,25 @@ diesel::table! {
 
 diesel::table! {
     messages_to_files (id) {
-        id -> Int4,
+        id -> Uuid,
         message_id -> Uuid,
         file_id -> Uuid,
-        created_at -> Timestamp,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+        deleted_at -> Nullable<Timestamptz>,
     }
 }
 
 diesel::table! {
+    use diesel::sql_types::*;
+    use super::sql_types::VerificationEnum;
+
     metric_files (id) {
         id -> Uuid,
         name -> Varchar,
         file_name -> Varchar,
         content -> Jsonb,
-        verification -> Nullable<Bool>,
+        verification -> VerificationEnum,
         evaluation_obj -> Nullable<Jsonb>,
         evaluation_summary -> Nullable<Text>,
         evaluation_score -> Nullable<Float8>,

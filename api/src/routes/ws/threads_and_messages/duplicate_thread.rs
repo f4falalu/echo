@@ -10,7 +10,7 @@ use crate::{
     database::{
         enums::{AssetPermissionRole, AssetType, IdentityType},
         lib::{get_pg_pool, FetchingData, StepProgress},
-        models::{AssetPermission, Message, User},
+        models::{AssetPermission, MessageDeprecated, User},
         schema::{asset_permissions, messages_deprecated, threads_deprecated},
     },
     routes::ws::{
@@ -382,7 +382,7 @@ async fn duplicate_thread_handler(
         Err(e) => return Err(anyhow!("Error inserting thread: {}", e)),
     }
 
-    let bulk_messages: Vec<Message> = thread_state
+    let bulk_messages: Vec<MessageDeprecated> = thread_state
         .messages
         .iter()
         .map(|m| m.message.clone())

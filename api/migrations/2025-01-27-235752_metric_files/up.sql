@@ -4,7 +4,7 @@ CREATE TABLE metric_files (
     name VARCHAR NOT NULL,
     file_name VARCHAR NOT NULL,
     content JSONB NOT NULL,
-    verification BOOLEAN DEFAULT FALSE,
+    verification verification_enum NOT NULL DEFAULT 'notRequested',
     evaluation_obj JSONB,
     evaluation_summary TEXT,
     evaluation_score FLOAT,

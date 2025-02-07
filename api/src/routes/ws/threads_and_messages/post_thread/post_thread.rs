@@ -55,7 +55,7 @@ use uuid::Uuid;
 use crate::{
     database::{
         enums::Verification,
-        models::{Message, ThreadDeprecated, User},
+        models::{MessageDeprecated, ThreadDeprecated, User},
     },
     routes::ws::{
         ws::{WsEvent, WsResponseMessage},
@@ -967,7 +967,7 @@ async fn initialize_thread(
     prompt: &String,
     message_id: &Option<Uuid>,
     organization_id: &Uuid,
-) -> Result<(ThreadState, Message)> {
+) -> Result<(ThreadState, MessageDeprecated)> {
     let (thread, message) = if let Some(thread_id) = thread_id {
         match follow_up_thread(user, &thread_id, prompt, message_id).await {
             Ok(thread) => thread,
@@ -994,7 +994,7 @@ async fn follow_up_thread(
     thread_id: &Uuid,
     prompt: &String,
     message_id: &Option<Uuid>,
-) -> Result<(ThreadState, Message)> {
+) -> Result<(ThreadState, MessageDeprecated)> {
     let draft_session_id = get_draft_session_id(&thread_id).await?;
 
     let draft_session_id = if let Some(draft_session_id) = draft_session_id {
@@ -1047,7 +1047,7 @@ async fn follow_up_thread(
                 .cloned()
                 .ok_or_else(|| anyhow!("Message with id {} not found", message_id))?;
 
-            let new_message = Message {
+            let new_message = MessageDeprecated {
                 id: Uuid::new_v4(),
                 thread_id: thread_id.clone(),
                 sent_by: user.id,
@@ -1075,7 +1075,7 @@ async fn follow_up_thread(
             new_message
         }
         None => {
-            let new_message = Message {
+            let new_message = MessageDeprecated {
                 id: Uuid::new_v4(),
                 thread_id: thread_id.clone(),
                 sent_by: user.id,
@@ -1302,7 +1302,7 @@ async fn create_thread(
     user: &User,
     prompt: &String,
     organization_id: &Uuid,
-) -> Result<(ThreadState, Message)> {
+) -> Result<(ThreadState, MessageDeprecated)> {
     let message_uuid = Uuid::new_v4();
 
     let thread = ThreadDeprecated {
@@ -1324,7 +1324,7 @@ async fn create_thread(
     let message_context = ContextJsonBody { steps: vec![] };
     let message_response = MessageResponses { messages: vec![] };
 
-    let message = Message {
+    let message = MessageDeprecated {
         id: message_uuid,
         thread_id: thread.id,
         sent_by: user.id,
@@ -1526,7 +1526,7 @@ async fn send_initial_thread_to_sub(
 
 async fn update_thread_and_message(
     thread: &mut ThreadState,
-    message: &Message,
+    message: &MessageDeprecated,
 ) -> Result<Arc<ThreadState>> {
     if let Some(title) = &message.title {
         thread.title = title.clone();

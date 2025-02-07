@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct MetricFile {
+pub struct MetricYml {
     pub id: Option<Uuid>,
     pub title: String,
     pub description: Option<String>,
@@ -277,9 +277,9 @@ pub struct TableChartConfig {
     pub table_column_font_color: Option<String>,
 }
 
-impl MetricFile {
+impl MetricYml {
     pub fn new(yml_content: String) -> Result<Self> {
-        let mut file: MetricFile = match serde_yaml::from_str(&yml_content) {
+        let mut file: MetricYml = match serde_yaml::from_str(&yml_content) {
             Ok(file) => file,
             Err(e) => return Err(anyhow::anyhow!("Error parsing YAML: {}", e)),
         };

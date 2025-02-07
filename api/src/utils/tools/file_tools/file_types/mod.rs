@@ -1,3 +1,3 @@
-pub mod dashboard_file;
+pub mod dashboard_yml;
 pub mod file;
-pub mod metric_file;
+pub mod metric_yml;

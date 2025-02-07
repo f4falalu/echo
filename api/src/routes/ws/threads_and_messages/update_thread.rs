@@ -14,7 +14,7 @@ use crate::{
     database::{
         enums::AssetType,
         lib::get_pg_pool,
-        models::{Message, ThreadToDashboard, User},
+        models::{MessageDeprecated, ThreadToDashboard, User},
         schema::{messages_deprecated, threads_deprecated, threads_to_dashboards},
     },
     routes::ws::{
@@ -547,7 +547,7 @@ async fn save_draft_handler(thread_id: Arc<Uuid>, draft_session_id: Uuid) -> Res
                 .or(messages_deprecated::draft_session_id.is_null()),
         )
         .order(messages_deprecated::created_at.desc())
-        .first::<Message>(&mut conn)
+        .first::<MessageDeprecated>(&mut conn)
         .await
     {
         Ok(message) => message,
