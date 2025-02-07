@@ -4,13 +4,16 @@ import { useMemoizedFn } from 'ahooks';
 import { SaveResetFilePopup } from '@appComponents/Popups/SaveResetFilePopup';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { DashboardViewProps } from '../config';
-import { useBusterDashboardIndividual, useDashboardContextSelector } from '@/context/Dashboards';
+import {
+  useBusterDashboardIndividual,
+  useBusterDashboardContextSelector
+} from '@/context/Dashboards';
 
 export const DashboardViewFileController: React.FC<DashboardViewProps> = React.memo(
   ({ dashboardId }) => {
     const { dashboard } = useBusterDashboardIndividual({ dashboardId });
     const { openSuccessMessage } = useBusterNotifications();
-    const onUpdateDashboard = useDashboardContextSelector((x) => x.onUpdateDashboard);
+    const onUpdateDashboard = useBusterDashboardContextSelector((x) => x.onUpdateDashboard);
 
     const { file: fileProp, file_name } = dashboard;
 
@@ -24,7 +27,8 @@ export const DashboardViewFileController: React.FC<DashboardViewProps> = React.m
 
     const onSaveFile = useMemoizedFn(async () => {
       await onUpdateDashboard({
-        file
+        file,
+        id: dashboardId
       });
       openSuccessMessage(`${file_name} saved`);
     });

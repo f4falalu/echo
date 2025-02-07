@@ -6,8 +6,8 @@ import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn, useMount } from 'ahooks';
 import { VerificationStatus } from '@/api/asset_interfaces';
 import { useBusterMetricListByFilter } from '@/context/Metrics';
-import { MetricSidebarHeader } from './_MetricSidebarHeader';
-import { MetricItemsContainer } from './_MetricItemsContainer';
+import { MetricListHeader } from './MetricListHeader';
+import { MetricItemsContainer } from './MetricItemsContainer';
 
 export const MetricListContainer: React.FC<{
   className?: string;
@@ -25,23 +25,19 @@ export const MetricListContainer: React.FC<{
     setFilters(newFilters);
   });
 
-  const onOpenNewMetricModal = useMemoizedFn(() => {
-    onToggleChatsModal();
-  });
-
   useMount(async () => {
     onSetFilters([]);
   });
 
   return (
     <div className={`${className} flex h-full flex-col`}>
-      <MetricSidebarHeader type={type} filters={filters} onSetFilters={onSetFilters} />
-      <AppContent className="">
+      <MetricListHeader type={type} filters={filters} onSetFilters={onSetFilters} />
+      <AppContent>
         <MetricItemsContainer
           type={type}
           metrics={list}
-          openNewMetricModal={onOpenNewMetricModal}
           loading={!fetched}
+          openNewMetricModal={onToggleChatsModal}
           className="flex-col overflow-hidden"
         />
       </AppContent>

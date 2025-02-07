@@ -14,7 +14,7 @@ import { CircleSpinnerLoaderContainer } from '@/components/loaders';
 import { BusterCollection } from '@/api/asset_interfaces';
 import { useBusterSearchContextSelector } from '@/context/Search';
 import isEmpty from 'lodash/isEmpty';
-import { useDashboardContextSelector } from '@/context/Dashboards';
+import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { useCollectionsContextSelector } from '@/context/Collections';
 import { SegmentedValue } from 'antd/es/segmented';
 import { BusterSearchRequest } from '@/api/buster_socket/search';
@@ -36,8 +36,8 @@ export const AddTypeModal: React.FC<{
   collection?: BusterCollection;
 }> = React.memo(({ type = 'collection', open, onClose, collection, dashboardResponse }) => {
   const onBusterSearch = useBusterSearchContextSelector((state) => state.onBusterSearch);
-  const refreshDashboard = useDashboardContextSelector((state) => state.refreshDashboard);
-  const onBulkAddRemoveToDashboard = useDashboardContextSelector(
+  const refreshDashboard = useBusterDashboardContextSelector((state) => state.refreshDashboard);
+  const onBulkAddRemoveToDashboard = useBusterDashboardContextSelector(
     (state) => state.onBulkAddRemoveToDashboard
   );
   const onBulkAddRemoveToCollection = useCollectionsContextSelector(

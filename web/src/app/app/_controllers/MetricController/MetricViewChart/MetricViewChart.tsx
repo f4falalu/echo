@@ -2,7 +2,10 @@ import { createStyles } from 'antd-style';
 import React, { useMemo } from 'react';
 import { MetricViewChartContent } from './MetricViewChartContent';
 import { MetricViewChartHeader } from './MetricViewChartHeader';
-import { useBusterMetricIndividual, useBusterMetricsContextSelector } from '@/context/Metrics';
+import {
+  useBusterMetricIndividual,
+  useBusterMetricsIndividualContextSelector
+} from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';
 import { inputHasText } from '@/utils/text';
 import { MetricChartEvaluation } from './MetricChartEvaluation';
@@ -12,7 +15,7 @@ import type { MetricViewProps } from '../config';
 
 export const MetricViewChart: React.FC<{ metricId: string }> = React.memo(({ metricId }) => {
   const { styles, cx } = useStyles();
-  const onUpdateMetric = useBusterMetricsContextSelector((x) => x.onUpdateMetric);
+  const onUpdateMetric = useBusterMetricsIndividualContextSelector((x) => x.onUpdateMetric);
   const { metric, metricData } = useBusterMetricIndividual({ metricId });
   const { title, description, time_frame, evaluation_score, evaluation_summary } = metric;
   const isTable = metric.chart_config.selectedChartType === ChartType.Table;

@@ -6,7 +6,6 @@ import { BusterResizeableGrid, BusterResizeableGridRow } from '@/components/grid
 import { useDebounceFn, useMemoizedFn } from 'ahooks';
 import { hasRemovedMetrics, hasUnmappedMetrics, normalizeNewMetricsIntoGrid } from './helpers';
 import { DashboardMetricItem } from './DashboardMetricItem';
-import type { useDashboards } from '@/context/Dashboards';
 import { DashboardContentControllerProvider } from './DashboardContentControllerContext';
 import type {
   BusterMetric,
@@ -14,6 +13,7 @@ import type {
   DashboardConfig
 } from '@/api/asset_interfaces';
 import { DashboardEmptyState } from './DashboardEmptyState';
+import { useBusterDashboards } from '@/context/Dashboards';
 
 const DEFAULT_EMPTY_ROWS: DashboardConfig['rows'] = [];
 const DEFAULT_EMPTY_METRICS: BusterMetric[] = [];
@@ -23,7 +23,7 @@ export const DashboardContentController: React.FC<{
   allowEdit?: boolean;
   metrics: BusterDashboardResponse['metrics'];
   dashboard: BusterDashboardResponse['dashboard'];
-  onUpdateDashboardConfig: ReturnType<typeof useDashboards>['onUpdateDashboardConfig'];
+  onUpdateDashboardConfig: ReturnType<typeof useBusterDashboards>['onUpdateDashboardConfig'];
   openAddContentModal: () => void;
 }> = React.memo(
   ({
@@ -98,9 +98,7 @@ export const DashboardContentController: React.FC<{
 
     useEffect(() => {
       if (remapMetrics && dashboard.id) {
-        debouncedForInitialRenderOnUpdateDashboardConfig({
-          rows: rows
-        });
+        debouncedForInitialRenderOnUpdateDashboardConfig({ rows }, dashboard.id);
       }
     }, [dashboard.id, remapMetrics]);
 

@@ -2,16 +2,14 @@ import React, { useState } from 'react';
 import { AppMaterialIcons } from '@/components/icons';
 import { BusterListSelectedOptionPopupContainer } from '@/components/list';
 import { Button, Dropdown, DropdownProps } from 'antd';
-import { StatusBadgeButton } from '../../_components/Lists';
-import { VerificationStatus } from '@/api/asset_interfaces';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useCollectionsContextSelector } from '@/context/Collections';
 import { useMemoizedFn, useMount } from 'ahooks';
-import { SaveToCollectionsDropdown } from '@/app/app/_components/Dropdowns/SaveToCollectionsDropdown';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { SaveToCollectionsDropdown } from '@/app/app/_components/Dropdowns/SaveToCollectionsDropdown';
+import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 
-export const MetricSelectedOptionPopup: React.FC<{
+export const DashboardSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
   hasSelected: boolean;
@@ -23,16 +21,6 @@ export const MetricSelectedOptionPopup: React.FC<{
       buttons={[
         <CollectionsButton
           key="collections"
-          selectedRowKeys={selectedRowKeys}
-          onSelectChange={onSelectChange}
-        />,
-        <DashboardButton
-          key="dashboard"
-          selectedRowKeys={selectedRowKeys}
-          onSelectChange={onSelectChange}
-        />,
-        <StatusButton
-          key="status"
           selectedRowKeys={selectedRowKeys}
           onSelectChange={onSelectChange}
         />,
@@ -57,11 +45,9 @@ const CollectionsButton: React.FC<{
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
   const { openInfoMessage } = useBusterNotifications();
-  const saveMetricToCollection = useBusterMetricsContextSelector(
-    (state) => state.saveMetricToCollection
-  );
-  const removeMetricFromCollection = useBusterMetricsContextSelector(
-    (state) => state.removeMetricFromCollection
+  const onAddToCollection = useBusterDashboardContextSelector((state) => state.onAddToCollection);
+  const onRemoveFromCollection = useBusterDashboardContextSelector(
+    (state) => state.onRemoveFromCollection
   );
 
   const collectionsList = useCollectionsContextSelector((state) => state.collectionsList);
@@ -75,30 +61,24 @@ const CollectionsButton: React.FC<{
 
   const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
     setSelectedCollections(collectionIds);
-    const allSaves: Promise<void>[] = selectedRowKeys.map((metricId) => {
-      return saveMetricToCollection({
-        metricId,
-        collectionIds
+    const allSaves: Promise<void>[] = selectedRowKeys.map((dashboardId) => {
+      return onAddToCollection({
+        dashboardId,
+        collectionId: collectionIds
       });
     });
     await Promise.all(allSaves);
-    openInfoMessage('Metrics saved to collections');
+    openInfoMessage('Dashboards saved to collections');
   });
 
-  const onRemoveFromCollection = useMemoizedFn(async (collectionId: string) => {
+  const onRemoveFromCollectionPreflight = useMemoizedFn(async (collectionId: string) => {
     setSelectedCollections((prev) => prev.filter((id) => id !== collectionId));
-    const allSelectedButLast = selectedRowKeys.slice(0, -1);
-    const lastMetricId = selectedRowKeys[selectedRowKeys.length - 1];
-    const allRemoves: Promise<void>[] = allSelectedButLast.map((metricId) => {
-      return removeMetricFromCollection({ metricId, collectionId, ignoreFavoriteUpdates: true });
+    const allRemoves = selectedRowKeys.map((dashboardId) => {
+      return onRemoveFromCollection({ dashboardId, collectionId });
     });
-    await removeMetricFromCollection({
-      metricId: lastMetricId,
-      collectionId,
-      ignoreFavoriteUpdates: false
-    });
+
     await Promise.all(allRemoves);
-    openInfoMessage('Metrics removed from collections');
+    openInfoMessage('Dashboards removed from collections');
   });
 
   useMount(() => {
@@ -108,7 +88,7 @@ const CollectionsButton: React.FC<{
   return (
     <SaveToCollectionsDropdown
       onSaveToCollection={onSaveToCollection}
-      onRemoveFromCollection={onRemoveFromCollection}
+      onRemoveFromCollection={onRemoveFromCollectionPreflight}
       selectedCollections={selectedCollections}>
       <Button icon={<AppMaterialIcons icon="note_stack" />} type="default">
         Collections
@@ -117,52 +97,23 @@ const CollectionsButton: React.FC<{
   );
 };
 
-const DashboardButton: React.FC<{
-  selectedRowKeys: string[];
-  onSelectChange: (selectedRowKeys: string[]) => void;
-}> = ({ selectedRowKeys, onSelectChange }) => {
-  return (
-    <Dropdown menu={{ items: [{ label: 'Dashboard', key: 'dashboard' }] }}>
-      <Button icon={<AppMaterialIcons icon="grid_view" fill />} type="default">
-        Dashboard
-      </Button>
-    </Dropdown>
-  );
-};
-
-const StatusButton: React.FC<{
-  selectedRowKeys: string[];
-  onSelectChange: (selectedRowKeys: string[]) => void;
-}> = ({ selectedRowKeys, onSelectChange }) => {
-  return (
-    <StatusBadgeButton
-      status={VerificationStatus.notRequested}
-      type="metric"
-      id={selectedRowKeys}
-      onChangedStatus={async () => {
-        onSelectChange([]);
-      }}
-    />
-  );
-};
-
 const DeleteButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
-  const deleteMetric = useBusterMetricsContextSelector((state) => state.deleteMetric);
+  const onDeleteDashboard = useBusterDashboardContextSelector((state) => state.onDeleteDashboard);
   const { openConfirmModal } = useBusterNotifications();
 
-  const onDeleteClick = async () => {
+  const onDeleteClick = useMemoizedFn(async () => {
     openConfirmModal({
-      title: 'Delete metric',
-      content: 'Are you sure you want to delete these metrics?',
+      title: 'Delete dashboard',
+      content: 'Are you sure you want to delete these dashboards?',
       onOk: async () => {
-        await deleteMetric({ metricIds: selectedRowKeys });
+        await onDeleteDashboard(selectedRowKeys, true);
         onSelectChange([]);
       }
     });
-  };
+  });
 
   return (
     <Button icon={<AppMaterialIcons icon="delete" />} type="default" onClick={onDeleteClick}>
@@ -185,7 +136,7 @@ const ThreeDotButton: React.FC<{
       key: 'add-to-favorites',
       onClick: async () => {
         const allFavorites: string[] = [...userFavorites.map((f) => f.id), ...selectedRowKeys];
-        //   bulkEditFavorites(allFavorites);
+        //    bulkEditFavorites(allFavorites);
         alert('TODO - feature not implemented yet');
       }
     },

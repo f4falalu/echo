@@ -1,7 +1,7 @@
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { AppMaterialIcons } from '@/components/icons';
 import { useCollectionsContextSelector } from '@/context/Collections';
-import { useDashboardContextSelector } from '@/context/Dashboards';
+import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useAntToken } from '@/styles/useAntToken';
 import { Button, Divider, Input, Space } from 'antd';
@@ -9,7 +9,7 @@ import React, { useMemo } from 'react';
 import { Text } from '@/components';
 import { useMemoizedFn } from 'ahooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
+import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 
 export const ShareMenuContentEmbed: React.FC<{
   publicExpirationDate: string;
@@ -19,8 +19,8 @@ export const ShareMenuContentEmbed: React.FC<{
   assetId: string;
 }> = React.memo(({ publicExpirationDate, publicly_accessible, password, assetType, assetId }) => {
   const token = useAntToken();
-  const onShareDashboard = useDashboardContextSelector((state) => state.onShareDashboard);
-  const onShareMetric = useBusterMetricsContextSelector((state) => state.onShareMetric);
+  const onShareDashboard = useBusterDashboardContextSelector((state) => state.onShareDashboard);
+  const onShareMetric = useBusterMetricsIndividualContextSelector((state) => state.onShareMetric);
   const onShareCollection = useCollectionsContextSelector((state) => state.onShareCollection);
   const { openSuccessMessage } = useBusterNotifications();
 

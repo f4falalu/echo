@@ -13,7 +13,7 @@ import { BusterUserAvatar, Text } from '@/components';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
 import { BusterListColumn, BusterListRow } from '@/components/list';
-import { MetricSelectedOptionPopup } from './_MetricItemsSelectedPopup';
+import { MetricSelectedOptionPopup } from './MetricItemsSelectedPopup';
 import { BusterList, ListEmptyStateWithButton } from '@/components/list';
 import { FavoriteStar } from '../../_components/Lists';
 

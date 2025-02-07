@@ -6,13 +6,16 @@ import { useStyles } from './useStyles';
 import { AccessDropdown } from './AccessDropdown';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { ShareRole } from '@/api/asset_interfaces';
-import { useDashboardContextSelector, useBusterDashboardIndividual } from '@/context/Dashboards';
+import {
+  useBusterDashboardContextSelector,
+  useBusterDashboardIndividual
+} from '@/context/Dashboards';
 import type { ShareRequest } from '@/api/buster_socket';
 import { useMemoizedFn } from 'ahooks';
 import { useCollectionsContextSelector, useIndividualCollection } from '@/context/Collections';
 import { Text } from '@/components';
 import { ShareAssetType } from '@/api/asset_interfaces';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
+import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 
 export const ShareWithGroupAndTeam: React.FC<{
   goBack: () => void;
@@ -22,9 +25,9 @@ export const ShareWithGroupAndTeam: React.FC<{
 }> = ({ assetType, assetId, goBack, onCopyLink }) => {
   const userTeams = useUserConfigContextSelector((state) => state.userTeams);
   const loadedUserTeams = useUserConfigContextSelector((state) => state.loadedUserTeams);
-  const onShareMetric = useBusterMetricsContextSelector((state) => state.onShareMetric);
-  const getMetric = useBusterMetricsContextSelector((state) => state.getMetricMemoized);
-  const onShareDashboard = useDashboardContextSelector((state) => state.onShareDashboard);
+  const onShareMetric = useBusterMetricsIndividualContextSelector((state) => state.onShareMetric);
+  const getMetric = useBusterMetricsIndividualContextSelector((state) => state.getMetricMemoized);
+  const onShareDashboard = useBusterDashboardContextSelector((state) => state.onShareDashboard);
   const onShareCollection = useCollectionsContextSelector((state) => state.onShareCollection);
 
   const { dashboardResponse } = useBusterDashboardIndividual({

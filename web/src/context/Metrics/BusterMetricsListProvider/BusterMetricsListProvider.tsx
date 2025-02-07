@@ -22,7 +22,9 @@ interface IMetricsList {
 const useMetricsList = () => {
   const busterSocket = useBusterWebSocket();
 
-  const [metricsList, setMetricsList] = useState<Record<string, BusterMetricListItem>>({});
+  const [metricsListItems, setMetricsListItems] = useState<Record<string, BusterMetricListItem>>(
+    {}
+  );
   const [metricListIds, setMetricListIds] = useState<Record<string, IMetricsList>>({});
 
   const _onInitializeListMetrics = useMemoizedFn(
@@ -30,7 +32,7 @@ const useMetricsList = () => {
       const newMetrics = metricsArrayToRecord(metrics);
       const filterKey = createFilterRecord({ filters, admin_view });
 
-      setMetricsList((prev) => ({
+      setMetricsListItems((prev) => ({
         ...prev,
         ...newMetrics
       }));
@@ -49,7 +51,7 @@ const useMetricsList = () => {
 
   const onUpdateMetricListItem = useMemoizedFn(
     (newMetric: Partial<BusterMetricListItem> & { id: string }) => {
-      setMetricsList((prevMetrics) => {
+      setMetricsListItems((prevMetrics) => {
         return {
           ...prevMetrics,
           [newMetric.id]: {
@@ -119,7 +121,7 @@ const useMetricsList = () => {
 
   return {
     metricListIds,
-    metricsList,
+    metricsListItems,
     getMetricsList,
     removeItemFromMetricsList,
     onUpdateMetricListItem
@@ -149,7 +151,7 @@ export const useBusterMetricListByFilter = (params: {
 }) => {
   const filterRecord = useMemo(() => createFilterRecord(params), [params]);
   const metricListIds = useBusterMetricsListContextSelector((x) => x.metricListIds);
-  const metricsList = useBusterMetricsListContextSelector((x) => x.metricsList);
+  const metricsListItems = useBusterMetricsListContextSelector((x) => x.metricsListItems);
 
   const getMetricsList = useBusterMetricsListContextSelector((x) => x.getMetricsList);
 
@@ -163,11 +165,11 @@ export const useBusterMetricListByFilter = (params: {
         metricListIds: []
       }
     );
-  }, [metricListIds, metricsList, filterRecord]);
+  }, [metricListIds, metricsListItems, filterRecord]);
 
   const list = useMemo(() => {
-    return assosciatedMetricList.metricListIds.map((id) => metricsList[id]);
-  }, [assosciatedMetricList.metricListIds, metricsList]);
+    return assosciatedMetricList.metricListIds.map((id) => metricsListItems[id]);
+  }, [assosciatedMetricList.metricListIds, metricsListItems]);
 
   useEffect(() => {
     const wasFetchedMoreThanXSecondsAgo =

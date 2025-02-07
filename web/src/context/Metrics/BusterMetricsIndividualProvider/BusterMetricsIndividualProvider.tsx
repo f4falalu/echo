@@ -4,7 +4,6 @@ import {
   ContextSelector,
   useContextSelector
 } from '@fluentui/react-context-selector';
-import { BusterMetricsListProvider } from '../BusterMetricsListProvider';
 import { useMemoizedFn, useMount } from 'ahooks';
 import type { IBusterMetric } from '../interfaces';
 import { BusterMetric } from '@/api/asset_interfaces';
@@ -57,47 +56,26 @@ export const useBusterMetricsIndividual = () => {
 
     const upgradedMetric = upgradeMetricToIMetric(newMetric, oldMetric);
 
-    onUpdateMetric(upgradedMetric, false);
-  });
-
-  const bulkUpdateMetrics = useMemoizedFn((newMetrics: Record<string, IBusterMetric>) => {
-    metricsRef.current = {
-      ...metricsRef.current,
-      ...newMetrics
-    };
+    metricUpdateConfig.onUpdateMetric(upgradedMetric, false);
   });
 
   // EMITTERS
 
-  const { subscribeToMetric, unsubscribeToMetricEvents } = useMetricSubscribe({
+  const metricSubscribe = useMetricSubscribe({
     metricsRef,
     setMetrics,
     onInitializeMetric
   });
 
-  const { onShareMetric } = useShareMetric({ onInitializeMetric });
+  const metricShare = useShareMetric({ onInitializeMetric });
 
-  const {
-    saveMetricToDashboard,
-    saveMetricToCollection,
-    removeMetricFromDashboard,
-    removeMetricFromCollection,
-    deleteMetric
-  } = useUpdateMetricAssosciations({
+  const metricAssosciations = useUpdateMetricAssosciations({
     metricsRef,
     setMetrics,
     getMetricMemoized
   });
 
-  const {
-    onVerifiedMetric,
-    onUpdateMetric,
-    onUpdateMetricChartConfig,
-    onUpdateColumnLabelFormat,
-    onUpdateColumnSetting,
-    updateMetricToServer,
-    onSaveMetricChanges
-  } = useUpdateMetricConfig({
+  const metricUpdateConfig = useUpdateMetricConfig({
     getMetricId,
     setMetrics,
     startTransition,
@@ -106,23 +84,12 @@ export const useBusterMetricsIndividual = () => {
   });
 
   return {
+    ...metricAssosciations,
+    ...metricShare,
+    ...metricUpdateConfig,
+    ...metricSubscribe,
     resetMetric,
-    deleteMetric,
-    onVerifiedMetric,
-    onShareMetric,
-    onUpdateMetric,
     onInitializeMetric,
-    subscribeToMetric,
-    unsubscribeToMetricEvents,
-    onUpdateMetricChartConfig,
-    updateMetricToServer,
-    onUpdateColumnLabelFormat,
-    onUpdateColumnSetting,
-    saveMetricToDashboard,
-    removeMetricFromDashboard,
-    removeMetricFromCollection,
-    saveMetricToCollection,
-    onSaveMetricChanges,
     getMetricMemoized,
     metrics: metricsRef.current
   };

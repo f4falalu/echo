@@ -7,10 +7,8 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export const useDashboardCreate = ({
-  refreshDashboardsList,
   onUpdateDashboard
 }: {
-  refreshDashboardsList: () => void;
   onUpdateDashboard: (dashboard: BusterDashboard) => void;
 }) => {
   const busterSocket = useBusterWebSocket();
@@ -39,7 +37,6 @@ export const useDashboardCreate = ({
           route: '/dashboards/post:postDashboard',
           callback: (v) => {
             setTimeout(() => {
-              refreshDashboardsList();
               onUpdateDashboard(v);
             }, 700);
 

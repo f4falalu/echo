@@ -2,20 +2,21 @@ import { useMemoizedFn } from 'ahooks';
 import { EditableTitle } from '@/components/text';
 import { Input } from 'antd';
 import React from 'react';
-import { useDashboardIndividual } from '@/context/Dashboards/useDashboardIndividual';
+import { useBusterDashboards } from '@/context/Dashboards';
 
 export const DashboardEditTitles: React.FC<{
   title: string;
-  onUpdateDashboard: ReturnType<typeof useDashboardIndividual>['onUpdateDashboard'];
+  onUpdateDashboard: ReturnType<typeof useBusterDashboards>['onUpdateDashboard'];
   description: string;
   allowEdit?: boolean;
-}> = React.memo(({ onUpdateDashboard, allowEdit, title, description }) => {
+  dashboardId: string;
+}> = React.memo(({ onUpdateDashboard, allowEdit, title, description, dashboardId }) => {
   const onChangeTitle = useMemoizedFn((title: string) => {
-    onUpdateDashboard({ title });
+    onUpdateDashboard({ title, id: dashboardId });
   });
 
   const onChangeDescription = useMemoizedFn((description: string) => {
-    onUpdateDashboard({ description });
+    onUpdateDashboard({ description, id: dashboardId });
   });
 
   const onChangeDashboardDescription = useMemoizedFn(

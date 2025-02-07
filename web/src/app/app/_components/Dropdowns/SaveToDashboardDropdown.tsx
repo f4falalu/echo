@@ -1,8 +1,12 @@
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { useDashboardContextSelector } from '@/context/Dashboards';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
+import {
+  useBusterDashboardContextSelector,
+  useBusterDashboardListByFilter,
+  useBusterDashboardListContextSelector
+} from '@/context/Dashboards';
+import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { Button } from 'antd';
 import { AppDropdownSelect, AppDropdownSelectProps } from '@/components/dropdown';
@@ -16,16 +20,16 @@ export const SaveToDashboardDropdown: React.FC<{
   onSaveToDashboard: (dashboardId: string[]) => Promise<void>;
   onRemoveFromDashboard: (dashboardId: string) => void;
 }> = ({ children, onRemoveFromDashboard, onSaveToDashboard, selectedDashboards }) => {
-  const onCreateNewDashboard = useDashboardContextSelector((x) => x.onCreateNewDashboard);
-  const creatingDashboard = useDashboardContextSelector((x) => x.creatingDashboard);
-  const initDashboardsList = useDashboardContextSelector((x) => x.initDashboardsList);
-  const dashboardsList = useDashboardContextSelector((state) => state.dashboardsList);
-  const saveMetricToDashboard = useBusterMetricsContextSelector(
+  const onCreateNewDashboard = useBusterDashboardContextSelector((x) => x.onCreateNewDashboard);
+  const creatingDashboard = useBusterDashboardContextSelector((x) => x.creatingDashboard);
+  const getDashboardsList = useBusterDashboardListContextSelector((x) => x.getDashboardsList);
+  const saveMetricToDashboard = useBusterMetricsIndividualContextSelector(
     (state) => state.saveMetricToDashboard
   );
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
+  const { list: dashboardsList } = useBusterDashboardListByFilter({});
 
-  const [showDropdown, setShowDropdown] = React.useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const onClickItem = useMemoizedFn(async (dashboard: BusterDashboardListItem) => {
     const isSelected = selectedDashboards.some((d) => d.id === dashboard.id);
@@ -86,7 +90,7 @@ export const SaveToDashboardDropdown: React.FC<{
 
   useEffect(() => {
     if (showDropdown) {
-      initDashboardsList();
+      getDashboardsList();
     }
   }, [showDropdown]);
 

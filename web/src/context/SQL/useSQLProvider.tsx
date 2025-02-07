@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useMemoizedFn } from 'ahooks';
-import { BusterMetricData, useBusterMetricsContextSelector } from '../Metrics';
+import { BusterMetricData, useBusterMetricsIndividualContextSelector } from '../Metrics';
 import {
   createContext,
   useContextSelector,
@@ -16,14 +16,18 @@ import { runSQL as runSQLRest } from '@/api/buster_rest';
 
 export const useSQLProvider = () => {
   const { openSuccessNotification } = useBusterNotifications();
-  const onUpdateMetric = useBusterMetricsContextSelector((x) => x.onUpdateMetric);
+  const onUpdateMetric = useBusterMetricsIndividualContextSelector((x) => x.onUpdateMetric);
   const onSetDataForMetric = useBusterMetricDataContextSelector((x) => x.onSetDataForMetric);
   const getDataByMetricIdMemoized = useBusterMetricDataContextSelector(
     (x) => x.getDataByMetricIdMemoized
   );
-  const updateMetricToServer = useBusterMetricsContextSelector((x) => x.updateMetricToServer);
-  const getMetric = useBusterMetricsContextSelector((x) => x.getMetricMemoized);
-  const onSaveMetricChanges = useBusterMetricsContextSelector((x) => x.onSaveMetricChanges);
+  const updateMetricToServer = useBusterMetricsIndividualContextSelector(
+    (x) => x.updateMetricToServer
+  );
+  const getMetric = useBusterMetricsIndividualContextSelector((x) => x.getMetricMemoized);
+  const onSaveMetricChanges = useBusterMetricsIndividualContextSelector(
+    (x) => x.onSaveMetricChanges
+  );
 
   const [warnBeforeNavigating, setWarnBeforeNavigating] = useState(false);
 

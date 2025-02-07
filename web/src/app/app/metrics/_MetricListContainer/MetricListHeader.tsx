@@ -10,7 +10,7 @@ import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn } from 'ahooks';
 import { SegmentedValue } from 'antd/lib/segmented';
 
-export const MetricSidebarHeader: React.FC<{
+export const MetricListHeader: React.FC<{
   type: 'logs' | 'metrics';
   filters: VerificationStatus[];
   onSetFilters: (filters: VerificationStatus[]) => void;

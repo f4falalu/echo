@@ -1,20 +1,20 @@
-import type { BusterDashboardListItem, BusterDashboardResponse } from '@/api/asset_interfaces';
+import type { BusterDashboardResponse } from '@/api/asset_interfaces';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
 import React from 'react';
+import { useBusterDashboardListContextSelector } from '../DashboardListProvider/DashboardListProvider';
 
 export const useDashboardAssosciations = ({
-  openedDashboardId,
-  setDashboard,
-  setDashboardsList
+  setDashboard
 }: {
-  openedDashboardId: string;
   setDashboard: React.Dispatch<React.SetStateAction<Record<string, BusterDashboardResponse>>>;
-  setDashboardsList: React.Dispatch<React.SetStateAction<BusterDashboardListItem[]>>;
 }) => {
   const busterSocket = useBusterWebSocket();
   const { openConfirmModal } = useBusterNotifications();
+  const removeItemFromDashboardsList = useBusterDashboardListContextSelector(
+    (state) => state.removeItemFromDashboardsList
+  );
 
   const onAddToCollection = useMemoizedFn(
     async ({
@@ -22,14 +22,13 @@ export const useDashboardAssosciations = ({
       collectionId
     }: {
       collectionId: string | string[];
-      dashboardId?: string;
+      dashboardId: string;
     }) => {
-      const id = dashboardId || openedDashboardId;
       busterSocket.emit({
         route: '/dashboards/update',
         payload: {
           add_to_collections: typeof collectionId === 'string' ? [collectionId] : collectionId,
-          id
+          id: dashboardId
         }
       });
     }
@@ -41,14 +40,13 @@ export const useDashboardAssosciations = ({
       collectionId
     }: {
       collectionId: string | string[];
-      dashboardId?: string;
+      dashboardId: string;
     }) => {
-      const id = dashboardId || openedDashboardId;
       busterSocket.emit({
         route: '/dashboards/update',
         payload: {
           remove_from_collections: typeof collectionId === 'string' ? [collectionId] : collectionId,
-          id
+          id: dashboardId
         }
       });
     }
@@ -86,18 +84,11 @@ export const useDashboardAssosciations = ({
   const onDeleteDashboard = useMemoizedFn(
     async (dashboardId: string | string[], ignoreConfirm?: boolean) => {
       const method = () => {
-        setDashboardsList((prevDashboards) => {
-          return prevDashboards.filter((dashboard) => dashboard.id !== dashboardId);
-        });
+        removeItemFromDashboardsList({ dashboardId });
         const ids = typeof dashboardId === 'string' ? [dashboardId] : dashboardId;
         busterSocket.emit({
           route: '/dashboards/delete',
-          payload: {
-            ids
-          }
-        });
-        setDashboardsList((prevDashboards) => {
-          return prevDashboards.filter((dashboard) => !ids.includes(dashboard.id));
+          payload: { ids }
         });
       };
       if (ignoreConfirm) {

@@ -2,20 +2,21 @@ import { BusterDashboardResponse } from '@/api/asset_interfaces';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useMemoizedFn, useMount } from 'ahooks';
-import React from 'react';
-import { MOCK_DASHBOARD_RESPONSE } from '../MOCK_DASHBOARD';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
+import React, { useRef } from 'react';
+import { MOCK_DASHBOARD_RESPONSE } from './MOCK_DASHBOARD';
+import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 
 export const useDashboardSubscribe = ({
-  dashboardsSubscribed,
   setDashboard
 }: {
-  dashboardsSubscribed: React.MutableRefObject<Record<string, boolean>>;
   setDashboard: React.Dispatch<React.SetStateAction<Record<string, BusterDashboardResponse>>>;
 }) => {
   const busterSocket = useBusterWebSocket();
-  const onInitializeMetric = useBusterMetricsContextSelector((state) => state.onInitializeMetric);
+  const onInitializeMetric = useBusterMetricsIndividualContextSelector(
+    (state) => state.onInitializeMetric
+  );
   const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
+  const dashboardsSubscribed = useRef<Record<string, boolean>>({});
 
   const _onGetDashboardState = useMemoizedFn((d: BusterDashboardResponse) => {
     const metrics = d.metrics;

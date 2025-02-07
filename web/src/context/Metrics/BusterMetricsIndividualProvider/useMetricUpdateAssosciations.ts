@@ -5,7 +5,7 @@ import { IBusterMetric } from '../interfaces';
 import { useBusterWebSocket } from '../../BusterWebSocket';
 import { useUserConfigContextSelector } from '../../Users';
 import { useBusterNotifications } from '../../BusterNotifications';
-import { useDashboardContextSelector } from '../../Dashboards';
+import { useBusterDashboardContextSelector } from '../../Dashboards';
 
 export const useUpdateMetricAssosciations = ({
   metricsRef,
@@ -19,7 +19,7 @@ export const useUpdateMetricAssosciations = ({
   const busterSocket = useBusterWebSocket();
   const userFavorites = useUserConfigContextSelector((state) => state.userFavorites);
   const forceGetFavoritesList = useUserConfigContextSelector((x) => x.forceGetFavoritesList);
-  const removeItemFromIndividualDashboard = useDashboardContextSelector(
+  const removeItemFromIndividualDashboard = useBusterDashboardContextSelector(
     (state) => state.removeItemFromIndividualDashboard
   );
 

@@ -1,6 +1,6 @@
 import { SelectedFile } from '@/app/app/_layouts/ChatLayout';
-import { useDashboardContextSelector } from '@/context/Dashboards';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
+import { useBusterDashboardContextSelector } from '@/context/Dashboards';
+import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemo } from 'react';
 import { IBusterChat } from '../../interfaces';
 
@@ -11,12 +11,14 @@ export const useFileFallback = ({
   defaultSelectedFile?: SelectedFile;
 }) => {
   const fileId = defaultSelectedFile?.id || '';
-  const metricTitle = useBusterMetricsContextSelector((x) => x.metrics[fileId]?.title);
-  const metricVersionNumber = useBusterMetricsContextSelector(
+  const metricTitle = useBusterMetricsIndividualContextSelector((x) => x.metrics[fileId]?.title);
+  const metricVersionNumber = useBusterMetricsIndividualContextSelector(
     (x) => x.metrics[fileId]?.version_number
   );
-  const dashboardTitle = useDashboardContextSelector((x) => x.dashboards[fileId]?.dashboard?.title);
-  const dashboardVersionNumber = useDashboardContextSelector(
+  const dashboardTitle = useBusterDashboardContextSelector(
+    (x) => x.dashboards[fileId]?.dashboard?.title
+  );
+  const dashboardVersionNumber = useBusterDashboardContextSelector(
     (x) => x.dashboards[fileId]?.dashboard?.version_number
   );
 

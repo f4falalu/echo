@@ -1,1 +1,1 @@
-export * from './_MetricListContainer';
+export * from './MetricListContainer';

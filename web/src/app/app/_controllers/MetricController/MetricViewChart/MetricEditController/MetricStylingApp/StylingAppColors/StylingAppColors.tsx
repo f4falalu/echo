@@ -6,7 +6,7 @@ import { CustomApp } from './CustomApp';
 import { PaletteApp } from './PaletteApp';
 import { ColorsApp } from './ColorsApp';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
+import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';
 
 export const StylingAppColors: React.FC<{
@@ -15,7 +15,7 @@ export const StylingAppColors: React.FC<{
 }> = ({ className, colors }) => {
   const [selectedTab, setSelectedTab] = useState<StylingAppColorsTab>(StylingAppColorsTab.Colors);
 
-  const onUpdateMetricChartConfig = useBusterMetricsContextSelector(
+  const onUpdateMetricChartConfig = useBusterMetricsIndividualContextSelector(
     (x) => x.onUpdateMetricChartConfig
   );
 

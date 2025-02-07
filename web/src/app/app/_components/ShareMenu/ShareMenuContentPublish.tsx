@@ -6,14 +6,14 @@ import { AppMaterialIcons, PulseLoader } from '@/components';
 import { useMemoizedFn } from 'ahooks';
 import { createStyles } from 'antd-style';
 import { createDayjsDate } from '@/utils/date';
-import { useDashboardContextSelector } from '@/context/Dashboards';
+import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useCollectionsContextSelector } from '@/context/Collections';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { Text } from '@/components';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import type { Dayjs } from 'dayjs';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
+import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 
 export const ShareMenuContentPublish: React.FC<{
   onCopyLink: () => void;
@@ -32,8 +32,8 @@ export const ShareMenuContentPublish: React.FC<{
     publicExpirationDate
   }) => {
     const { openInfoMessage } = useBusterNotifications();
-    const onShareMetric = useBusterMetricsContextSelector((state) => state.onShareMetric);
-    const onShareDashboard = useDashboardContextSelector((state) => state.onShareDashboard);
+    const onShareMetric = useBusterMetricsIndividualContextSelector((state) => state.onShareMetric);
+    const onShareDashboard = useBusterDashboardContextSelector((state) => state.onShareDashboard);
     const onShareCollection = useCollectionsContextSelector((state) => state.onShareCollection);
     const [isPublishing, setIsPublishing] = useState<boolean>(false);
     const [isPasswordProtected, setIsPasswordProtected] = useState<boolean>(!!password);

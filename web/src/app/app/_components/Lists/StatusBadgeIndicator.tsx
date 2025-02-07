@@ -2,9 +2,9 @@
 
 import { BusterMetricListItem, VerificationStatus } from '@/api/asset_interfaces';
 import { AppMaterialIcons, AppPopoverMenu, AppTooltip } from '@/components';
-import { useDashboardContextSelector } from '@/context/Dashboards';
+import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
+import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';
 import { Button } from 'antd';
 import React, { useMemo, useState } from 'react';
@@ -18,8 +18,12 @@ export const StatusBadgeButton: React.FC<{
   onChangedStatus?: () => Promise<void>;
 }> = React.memo(
   ({ type, id, status = VerificationStatus.notRequested, onChangedStatus, disabled }) => {
-    const onVerifiedDashboard = useDashboardContextSelector((state) => state.onVerifiedDashboard);
-    const onVerifiedMetric = useBusterMetricsContextSelector((state) => state.onVerifiedMetric);
+    const onVerifiedDashboard = useBusterDashboardContextSelector(
+      (state) => state.onVerifiedDashboard
+    );
+    const onVerifiedMetric = useBusterMetricsIndividualContextSelector(
+      (state) => state.onVerifiedMetric
+    );
     const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
     const text = useMemo(() => getTooltipText(status), [status]);
     const [isOpen, setIsOpen] = React.useState(false);

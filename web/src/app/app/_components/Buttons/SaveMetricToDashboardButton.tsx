@@ -1,5 +1,8 @@
-import { useDashboardContextSelector } from '@/context/Dashboards';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
+import {
+  useBusterDashboardContextSelector,
+  useBusterDashboardListContextSelector
+} from '@/context/Dashboards';
+import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemoizedFn, useMount, useUnmount } from 'ahooks';
 import React from 'react';
 import { SaveToDashboardDropdown } from '../Dropdowns/SaveToDashboardDropdown';
@@ -15,15 +18,14 @@ export const SaveMetricToDashboardButton: React.FC<{
   selectedDashboards?: BusterMetric['dashboards'];
 }> = React.memo(
   ({ metricIds, disabled = false, selectedDashboards = EMPTY_SELECTED_DASHBOARDS }) => {
-    const saveMetricToDashboard = useBusterMetricsContextSelector(
+    const saveMetricToDashboard = useBusterMetricsIndividualContextSelector(
       (state) => state.saveMetricToDashboard
     );
-    const removeMetricFromDashboard = useBusterMetricsContextSelector(
+    const removeMetricFromDashboard = useBusterMetricsIndividualContextSelector(
       (state) => state.removeMetricFromDashboard
     );
-    const initDashboardsList = useDashboardContextSelector((state) => state.initDashboardsList);
-    const unsubscribeFromDashboardsList = useDashboardContextSelector(
-      (state) => state.unsubscribeFromDashboardsList
+    const getDashboardsList = useBusterDashboardListContextSelector(
+      (state) => state.getDashboardsList
     );
 
     const onSaveToDashboard = useMemoizedFn(async (dashboardIds: string[]) => {
@@ -37,17 +39,13 @@ export const SaveMetricToDashboardButton: React.FC<{
     });
 
     const onClick = useMemoizedFn(() => {
-      initDashboardsList();
+      getDashboardsList();
     });
 
     useMount(() => {
       setTimeout(() => {
-        initDashboardsList();
+        getDashboardsList();
       }, 8000);
-    });
-
-    useUnmount(() => {
-      unsubscribeFromDashboardsList();
     });
 
     return (

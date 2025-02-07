@@ -1,7 +1,7 @@
 import type { BusterMetric } from '@/api/asset_interfaces';
 import { AppMaterialIcons, Title, Text } from '@/components';
 import { SortableItemContext } from '@/components/grid/_BusterSortableItemDragContainer';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
+import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';
 import { MenuProps, Dropdown, Button } from 'antd';
 import Link from 'next/link';
@@ -109,7 +109,7 @@ const ThreeDotMenu: React.FC<{
   dashboardId: string;
   metricId: string;
 }> = React.memo(({ dashboardId, metricId, className }) => {
-  const removeMetricFromDashboard = useBusterMetricsContextSelector(
+  const removeMetricFromDashboard = useBusterMetricsIndividualContextSelector(
     (x) => x.removeMetricFromDashboard
   );
 

@@ -4,10 +4,10 @@ import { useSelectAxisContextSelector } from '../useSelectAxisContext';
 import { useMemoizedFn } from 'ahooks';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { EditAxisTitle } from './EditShowAxisTitle';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
+import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 
 export const CategoryAxisSettingContent: React.FC<{}> = React.memo(({}) => {
-  const onUpdateMetricChartConfig = useBusterMetricsContextSelector(
+  const onUpdateMetricChartConfig = useBusterMetricsIndividualContextSelector(
     ({ onUpdateMetricChartConfig }) => onUpdateMetricChartConfig
   );
   const selectedChartType = useSelectAxisContextSelector((x) => x.selectedChartType);

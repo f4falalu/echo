@@ -12,7 +12,7 @@ export type DashboardsListEmitPayload = BusterSocketRequestBase<
   '/dashboards/list',
   {
     /** The page number to fetch */
-    page: number;
+    page_token: number;
     /** Number of items per page */
     page_size: number;
     /** Filter for dashboards shared with the current user */

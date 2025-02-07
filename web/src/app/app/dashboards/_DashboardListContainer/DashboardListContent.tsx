@@ -1,16 +1,20 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { AppContent } from '../../../components/layout/AppContent';
-import { useDashboardContextSelector } from '@/context/Dashboards';
+import { AppContent } from '../../../../components/layout/AppContent';
+import {
+  useBusterDashboardContextSelector,
+  useBusterDashboardListByFilter
+} from '@/context/Dashboards';
 import { BusterUserAvatar } from '@/components';
 import { formatDate } from '@/utils';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { getShareStatus } from '../_components/Lists';
-import { ListEmptyStateWithButton } from '../../../components/list';
+import { getShareStatus } from '../../_components/Lists';
+import { ListEmptyStateWithButton } from '../../../../components/list';
 import { useMemoizedFn, useUnmount } from 'ahooks';
-import { DashboardSelectedOptionPopup } from './_DashboardSelectedPopup';
+import { DashboardSelectedOptionPopup } from './DashboardSelectedPopup';
+import { BusterDashboard, BusterDashboardListItem } from '@/api/asset_interfaces';
 
 const columns: BusterListColumn[] = [
   {
@@ -49,14 +53,15 @@ const columns: BusterListColumn[] = [
   }
 ];
 
-export const DashboardListContent: React.FC<{}> = () => {
-  const dashboardsList = useDashboardContextSelector((state) => state.dashboardsList);
-  const loadedDashboards = useDashboardContextSelector((state) => state.loadedDashboards);
-  const unsubscribeFromDashboardsList = useDashboardContextSelector(
-    (state) => state.unsubscribeFromDashboardsList
+export const DashboardListContent: React.FC<{
+  loading: boolean;
+  dashboardsList: BusterDashboardListItem[];
+  className?: string;
+}> = ({ loading, dashboardsList, className = '' }) => {
+  const onCreateNewDashboard = useBusterDashboardContextSelector(
+    (state) => state.onCreateNewDashboard
   );
-  const onCreateNewDashboard = useDashboardContextSelector((state) => state.onCreateNewDashboard);
-  const creatingDashboard = useDashboardContextSelector((state) => state.creatingDashboard);
+  const creatingDashboard = useBusterDashboardContextSelector((state) => state.creatingDashboard);
   const [selectedDashboardIds, setSelectedDashboardIds] = useState<string[]>([]);
 
   const rows: BusterListRow[] = useMemo(() => {
@@ -76,21 +81,17 @@ export const DashboardListContent: React.FC<{}> = () => {
     await onCreateNewDashboard({ rerouteToDashboard: true });
   });
 
-  useUnmount(() => {
-    unsubscribeFromDashboardsList();
-  });
-
   return (
     <>
       <AppContent>
-        <div className="relative flex h-full flex-col items-center">
+        <div className={`${className} relative flex h-full flex-col items-center`}>
           <BusterList
             rows={rows}
             columns={columns}
             selectedRowKeys={selectedDashboardIds}
             onSelectChange={setSelectedDashboardIds}
             emptyState={
-              loadedDashboards ? (
+              !loading ? (
                 <ListEmptyStateWithButton
                   title={`You don’t have any dashboards yet.`}
                   buttonText="New dashboard"

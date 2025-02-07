@@ -6,19 +6,14 @@ import type {
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
 import isEqual from 'lodash/isEqual';
-import { useDashboardLists } from '../useDashboardLists';
 import React from 'react';
 
 export const useDashboardUpdateConfig = ({
   dashboards,
-  openedDashboardId,
-  setDashboard,
-  updateDashboardNameInList
+  setDashboard
 }: {
   dashboards: Record<string, BusterDashboardResponse>;
-  openedDashboardId: string;
   setDashboard: React.Dispatch<React.SetStateAction<Record<string, BusterDashboardResponse>>>;
-  updateDashboardNameInList: ReturnType<typeof useDashboardLists>['updateDashboardNameInList'];
 }) => {
   const busterSocket = useBusterWebSocket();
 
@@ -46,56 +41,50 @@ export const useDashboardUpdateConfig = ({
   );
 
   const onUpdateDashboardRequest = useMemoizedFn(
-    (newDashboard: Partial<BusterDashboardResponse>) => {
+    (newDashboard: Partial<BusterDashboardResponse>, dashboardId: string) => {
       const newDashboardState: BusterDashboardResponse = {
-        ...dashboards[openedDashboardId],
+        ...dashboards[dashboardId],
         ...newDashboard
       };
       setDashboard((prevDashboards) => {
         return {
           ...prevDashboards,
-          [openedDashboardId]: newDashboardState
+          [dashboardId]: newDashboardState
         };
       });
       _updateDashboardResponseToServer(newDashboardState);
     }
   );
 
-  const onUpdateDashboard = useMemoizedFn((newDashboard: Partial<BusterDashboard>) => {
-    const id = newDashboard?.id || openedDashboardId;
-    const currentDashboard = dashboards[id] || {};
-    const newDashboardState = {
-      ...currentDashboard,
-      dashboard: {
-        ...currentDashboard.dashboard,
-        ...newDashboard
-      }
-    };
-    const didTitleChange =
-      newDashboard.title && newDashboard.title !== currentDashboard.dashboard.title;
+  const onUpdateDashboard = useMemoizedFn(
+    (newDashboard: Partial<BusterDashboard> & { id: string }) => {
+      const id = newDashboard.id;
+      const currentDashboard = dashboards[id] || {};
+      const newDashboardState = {
+        ...currentDashboard,
+        dashboard: {
+          ...currentDashboard.dashboard,
+          ...newDashboard
+        }
+      };
 
-    onUpdateDashboardRequest(newDashboardState);
-
-    if (didTitleChange) {
-      const newName = newDashboard.title || currentDashboard.dashboard.title;
-      updateDashboardNameInList(id, newName);
+      onUpdateDashboardRequest(newDashboardState, id);
     }
-  });
+  );
 
   const onUpdateDashboardConfig = useMemoizedFn(
-    (newDashboard: Partial<BusterDashboard['config']>, dashboardId?: string) => {
-      const id = dashboardId || openedDashboardId;
+    (newDashboard: Partial<BusterDashboard['config']>, dashboardId: string) => {
       const newDashboardState = {
-        ...dashboards[id],
+        ...dashboards[dashboardId],
         dashboard: {
-          ...dashboards[id].dashboard,
+          ...dashboards[dashboardId].dashboard,
           config: {
-            ...dashboards[id].dashboard.config,
+            ...dashboards[dashboardId].dashboard.config,
             ...newDashboard
           }
         }
       };
-      onUpdateDashboardRequest(newDashboardState);
+      onUpdateDashboardRequest(newDashboardState, dashboardId);
     }
   );
 

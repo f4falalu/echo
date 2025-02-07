@@ -6,7 +6,7 @@ import { EditHideYAxis } from './EditHideYAxis';
 import { EditShowDataLabels } from './EditShowDataLabels';
 import { useMemoizedFn } from 'ahooks';
 import { IBusterMetricChartConfig, ColumnMetaData } from '@/api/asset_interfaces';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
+import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { EditBarSorting } from './EditBarAxisSorting';
 import { EditGrouping } from '../StylingAppVisualize/SelectAxis/SelectAxisSettingsContent/EditGrouping';
 import { EditBarRoundnessGlobal } from './EditBarRoundnessGlobal';
@@ -91,7 +91,7 @@ export const StylingAppStyling: React.FC<{
   yAxisShowAxisTitle,
   rowCount
 }) => {
-  const onUpdateMetricChartConfig = useBusterMetricsContextSelector(
+  const onUpdateMetricChartConfig = useBusterMetricsIndividualContextSelector(
     (x) => x.onUpdateMetricChartConfig
   );
 

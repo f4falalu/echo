@@ -1,11 +1,5 @@
-import { DashboardHeader } from './_DashboardHeader';
-import { DashboardListContent } from './_DashboardListContent';
+import { DashboardListContainer } from './_DashboardListContainer';
 
 export default function DashboardPage(props: any) {
-  return (
-    <>
-      <DashboardHeader />
-      <DashboardListContent />
-    </>
-  );
+  return <DashboardListContainer />;
 }

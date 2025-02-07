@@ -1,30 +1,31 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { AppContentHeader } from '../../../components/layout/AppContentHeader';
+import React, { useMemo, useState } from 'react';
+import { AppContentHeader } from '../../../../components/layout/AppContentHeader';
 import { Breadcrumb, Button } from 'antd';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { useDashboardContextSelector } from '@/context/Dashboards';
+import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { DashboardsListEmitPayload } from '@/api/buster_socket/dashboards';
 import { AppMaterialIcons, AppSegmented } from '@/components';
-import isEmpty from 'lodash/isEmpty';
 import { useMemoizedFn } from 'ahooks';
 
-export const DashboardHeader: React.FC<{}> = () => {
-  const onSetDashboardListFilters = useDashboardContextSelector(
-    (state) => state.onSetDashboardListFilters
+export const DashboardHeader: React.FC<{
+  dashboardFilters: {
+    shared_with_me?: boolean;
+    only_my_dashboards?: boolean;
+  };
+  onSetDashboardListFilters: (v: {
+    shared_with_me?: boolean;
+    only_my_dashboards?: boolean;
+  }) => void;
+}> = ({ dashboardFilters, onSetDashboardListFilters }) => {
+  const onCreateNewDashboard = useBusterDashboardContextSelector(
+    (state) => state.onCreateNewDashboard
   );
-  const dashboardListFilters = useDashboardContextSelector((state) => state.dashboardListFilters);
-  const openedDashboardId = useDashboardContextSelector((state) => state.openedDashboardId);
-  const dashboardsList = useDashboardContextSelector((state) => state.dashboardsList);
-  const loadedDashboards = useDashboardContextSelector((state) => state.loadedDashboards);
-  const onCreateNewDashboard = useDashboardContextSelector((state) => state.onCreateNewDashboard);
-  const creatingDashboard = useDashboardContextSelector((state) => state.creatingDashboard);
+  const creatingDashboard = useBusterDashboardContextSelector((state) => state.creatingDashboard);
   const dashboardTitle = 'Dashboards';
-
-  const showFilters =
-    (loadedDashboards && dashboardsList.length !== 0) || !isEmpty(dashboardListFilters);
+  const showFilters = true;
 
   const breadcrumbItems = useMemo(
     () => [
@@ -32,20 +33,13 @@ export const DashboardHeader: React.FC<{}> = () => {
         title: (
           <Link
             suppressHydrationWarning
-            href={
-              openedDashboardId
-                ? createBusterRoute({
-                    route: BusterRoutes.APP_DASHBOARD_ID,
-                    dashboardId: openedDashboardId
-                  })
-                : createBusterRoute({ route: BusterRoutes.APP_DASHBOARDS })
-            }>
+            href={createBusterRoute({ route: BusterRoutes.APP_DASHBOARDS })}>
             {dashboardTitle}
           </Link>
         )
       }
     ],
-    [openedDashboardId, dashboardTitle]
+    [dashboardTitle]
   );
 
   const onClickNewDashboardButton = useMemoizedFn(async () => {
@@ -59,7 +53,7 @@ export const DashboardHeader: React.FC<{}> = () => {
           <Breadcrumb className="flex items-center" items={breadcrumbItems} />
           {showFilters && (
             <DashboardFilters
-              activeFilters={dashboardListFilters}
+              activeFilters={dashboardFilters}
               onChangeFilter={onSetDashboardListFilters}
             />
           )}
@@ -81,7 +75,9 @@ export const DashboardHeader: React.FC<{}> = () => {
 
 const DashboardFilters: React.FC<{
   onChangeFilter: (v: { shared_with_me?: boolean; only_my_dashboards?: boolean }) => void;
-  activeFilters?: NonNullable<Omit<DashboardsListEmitPayload['payload'], 'page' | 'page_size'>>;
+  activeFilters?: NonNullable<
+    Omit<DashboardsListEmitPayload['payload'], 'page_token' | 'page_size'>
+  >;
 }> = ({ onChangeFilter, activeFilters }) => {
   const filters = [
     {

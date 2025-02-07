@@ -7,7 +7,7 @@ import { ShareMenuContentEmbed } from './ShareMenuContentEmbed';
 import { ShareWithGroupAndTeam } from './ShareWithTeamAndGroup';
 import { Text } from '@/components/text';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { useDashboardContextSelector } from '@/context/Dashboards';
+import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { useCollectionsContextSelector } from '@/context/Collections';
 import { inputHasText } from '@/utils/text';
 import { validate } from 'email-validator';
@@ -18,7 +18,7 @@ import { AccessDropdown } from './AccessDropdown';
 import { IndividualSharePerson } from './IndividualSharePerson';
 import { useStyles } from './useStyles';
 import { AppMaterialIcons } from '@/components/icons';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
+import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 
 export const ShareMenuContentBody: React.FC<{
   selectedOptions: ShareMenuTopBarOptions;
@@ -76,8 +76,8 @@ const ShareMenuContentShare: React.FC<{
   assetId: string;
 }> = React.memo(({ setOpenShareWithGroupAndTeam, assetType, individual_permissions, assetId }) => {
   const userTeams = useUserConfigContextSelector((state) => state.userTeams);
-  const onShareMetric = useBusterMetricsContextSelector((state) => state.onShareMetric);
-  const onShareDashboard = useDashboardContextSelector((state) => state.onShareDashboard);
+  const onShareMetric = useBusterMetricsIndividualContextSelector((state) => state.onShareMetric);
+  const onShareDashboard = useBusterDashboardContextSelector((state) => state.onShareDashboard);
   const onShareCollection = useCollectionsContextSelector((state) => state.onShareCollection);
   const [inputValue, setInputValue] = React.useState<string>('');
   const [isInviting, setIsInviting] = React.useState<boolean>(false);

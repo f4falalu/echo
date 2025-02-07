@@ -3,7 +3,7 @@ import { SaveToCollectionsDropdown } from '../Dropdowns/SaveToCollectionsDropdow
 import { useMemoizedFn, useMount } from 'ahooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useCollectionsContextSelector } from '@/context/Collections';
-import { useDashboardContextSelector } from '@/context/Dashboards';
+import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { CollectionButton } from './CollectionButton';
 
 export const SaveDashboardToCollectionButton: React.FC<{
@@ -19,8 +19,10 @@ export const SaveDashboardToCollectionButton: React.FC<{
   const [selectedCollections, setSelectedCollections] = useState<
     Parameters<typeof SaveToCollectionsDropdown>[0]['selectedCollections']
   >([]);
-  const saveDashboardToCollection = useDashboardContextSelector((state) => state.onAddToCollection);
-  const removeDashboardFromCollection = useDashboardContextSelector(
+  const saveDashboardToCollection = useBusterDashboardContextSelector(
+    (state) => state.onAddToCollection
+  );
+  const removeDashboardFromCollection = useBusterDashboardContextSelector(
     (state) => state.onRemoveFromCollection
   );
 

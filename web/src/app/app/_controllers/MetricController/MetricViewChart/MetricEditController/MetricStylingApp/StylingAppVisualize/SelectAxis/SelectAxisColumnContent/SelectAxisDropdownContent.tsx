@@ -2,7 +2,7 @@ import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import type { IColumnLabelFormat } from '@/components/charts/interfaces/columnLabelInterfaces';
 import { useMemoizedFn } from 'ahooks';
 import React, { useMemo } from 'react';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
+import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { formatLabel } from '@/utils';
 import { EditTitle } from './EditTitle';
 import { EditDisplayAs } from './EditDisplayAs';
@@ -58,10 +58,10 @@ export const SelectAxisDropdownContent: React.FC<{
   hideTitle = false,
   classNames
 }) => {
-  const onUpdateColumnLabelFormat = useBusterMetricsContextSelector(
+  const onUpdateColumnLabelFormat = useBusterMetricsIndividualContextSelector(
     ({ onUpdateColumnLabelFormat }) => onUpdateColumnLabelFormat
   );
-  const onUpdateColumnSetting = useBusterMetricsContextSelector(
+  const onUpdateColumnSetting = useBusterMetricsIndividualContextSelector(
     ({ onUpdateColumnSetting }) => onUpdateColumnSetting
   );
 

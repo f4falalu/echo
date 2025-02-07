@@ -1,12 +1,10 @@
-import { AppMaterialIcons } from '@/components/icons';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useCollectionsContextSelector } from '@/context/Collections';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useMemoizedFn, useMount } from 'ahooks';
-import { Button } from 'antd';
 import React, { useState } from 'react';
 import { SaveToCollectionsDropdown } from '../Dropdowns/SaveToCollectionsDropdown';
 import { CollectionButton } from './CollectionButton';
+import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 
 export const SaveMetricToCollectionButton: React.FC<{
   metricIds: string[];
@@ -14,10 +12,10 @@ export const SaveMetricToCollectionButton: React.FC<{
   useText?: boolean;
 }> = ({ metricIds, buttonType = 'text', useText = false }) => {
   const { openInfoMessage } = useBusterNotifications();
-  const saveMetricToCollection = useBusterMetricsContextSelector(
+  const saveMetricToCollection = useBusterMetricsIndividualContextSelector(
     (state) => state.saveMetricToCollection
   );
-  const removeMetricFromCollection = useBusterMetricsContextSelector(
+  const removeMetricFromCollection = useBusterMetricsIndividualContextSelector(
     (state) => state.removeMetricFromCollection
   );
 

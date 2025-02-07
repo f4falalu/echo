@@ -1,4 +1,4 @@
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
+import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import React, { useMemo } from 'react';
 import { useSelectAxisContextSelector } from '../useSelectAxisContext';
 import { ColumnLabelFormat } from '@/components/charts';
@@ -11,7 +11,7 @@ import { EditAxisLabelRotation } from './EditAxisLabelRotation';
 import { AXIS_TITLE_SEPARATOR } from '@/components/charts/commonHelpers';
 
 export const XAxisSettingContent: React.FC<{}> = React.memo(({}) => {
-  const onUpdateMetricChartConfig = useBusterMetricsContextSelector(
+  const onUpdateMetricChartConfig = useBusterMetricsIndividualContextSelector(
     ({ onUpdateMetricChartConfig }) => onUpdateMetricChartConfig
   );
   const xAxisAxisTitle = useSelectAxisContextSelector((x) => x.xAxisAxisTitle);

@@ -10,7 +10,7 @@ import { ShareDashboardButton } from '@appComponents/Buttons/ShareDashboardButto
 import { Button, Dropdown } from 'antd';
 import { AppMaterialIcons } from '@/components/icons';
 import { MenuProps } from 'antd/lib';
-import { useDashboardContextSelector } from '@/context/Dashboards';
+import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { useRouter } from 'next/router';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
@@ -51,7 +51,7 @@ const AddContentToDashboardButton = React.memo(() => {
 AddContentToDashboardButton.displayName = 'AddContentToDashboardButton';
 
 const ThreeDotMenu = React.memo(({ dashboardId }: { dashboardId: string }) => {
-  const onDeleteDashboard = useDashboardContextSelector((x) => x.onDeleteDashboard);
+  const onDeleteDashboard = useBusterDashboardContextSelector((x) => x.onDeleteDashboard);
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
 
   const menu: MenuProps = useMemo(() => {

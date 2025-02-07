@@ -6,7 +6,7 @@ import type { ColumnLabelFormat, ComboChartAxis } from '@/components/charts/inte
 import { AXIS_TITLE_SEPARATOR } from '@/components/charts/commonHelpers';
 import { formatLabel } from '@/utils';
 import { useMemoizedFn } from 'ahooks';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
+import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { EditShowAxisLabel } from './EditShowAxisLabel';
 import { EditAxisScale } from './EditAxisScale';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
@@ -14,7 +14,7 @@ import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 export const Y2AxisSettingContent: React.FC<{
   zoneId: SelectAxisContainerId;
 }> = React.memo(({}) => {
-  const onUpdateMetricChartConfig = useBusterMetricsContextSelector(
+  const onUpdateMetricChartConfig = useBusterMetricsIndividualContextSelector(
     ({ onUpdateMetricChartConfig }) => onUpdateMetricChartConfig
   );
   const selectedAxis = useSelectAxisContextSelector((x) => x.selectedAxis) as ComboChartAxis;
