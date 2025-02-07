@@ -3,9 +3,9 @@ use crate::utils::{
     tools::ToolExecutor,
 };
 use anyhow::Result;
+use serde_json::Value;
 use std::{collections::HashMap, env};
 use tokio::sync::mpsc;
-use async_trait::async_trait;
 
 use super::types::AgentThread;
 
@@ -16,14 +16,14 @@ pub struct Agent {
     /// Client for communicating with the LLM provider
     llm_client: LiteLLMClient,
     /// Registry of available tools, mapped by their names
-    tools: HashMap<String, Box<dyn ToolExecutor>>,
+    tools: HashMap<String, Box<dyn ToolExecutor<Output = Value>>>,
     /// The model identifier to use (e.g., "gpt-4")
     model: String,
 }
 
 impl Agent {
     /// Create a new Agent instance with a specific LLM client and model
-    pub fn new(model: String, tools: HashMap<String, Box<dyn ToolExecutor>>) -> Self {
+    pub fn new(model: String, tools: HashMap<String, Box<dyn ToolExecutor<Output = Value>>>) -> Self {
         let llm_api_key = env::var("LLM_API_KEY").expect("LLM_API_KEY must be set");
         let llm_base_url = env::var("LLM_BASE_URL").expect("LLM_API_BASE must be set");
 
@@ -41,7 +41,7 @@ impl Agent {
     /// # Arguments
     /// * `name` - The name of the tool, used to identify it in tool calls
     /// * `tool` - The tool implementation that will be executed
-    pub fn add_tool<T: ToolExecutor + 'static>(&mut self, name: String, tool: T) {
+    pub fn add_tool<T: ToolExecutor<Output = Value> + 'static>(&mut self, name: String, tool: T) {
         self.tools.insert(name, Box::new(tool));
     }
 
@@ -49,7 +49,7 @@ impl Agent {
     ///
     /// # Arguments
     /// * `tools` - HashMap of tool names and their implementations
-    pub fn add_tools<T: ToolExecutor + 'static>(&mut self, tools: HashMap<String, T>) {
+    pub fn add_tools<T: ToolExecutor<Output = Value> + 'static>(&mut self, tools: HashMap<String, T>) {
         for (name, tool) in tools {
             self.tools.insert(name, Box::new(tool));
         }
@@ -204,6 +204,7 @@ mod tests {
     use crate::utils::clients::ai::litellm::ToolCall;
 
     use super::*;
+    use axum::async_trait;
     use dotenv::dotenv;
     use serde_json::{json, Value};
 
@@ -215,7 +216,9 @@ mod tests {
 
     #[async_trait]
     impl ToolExecutor for WeatherTool {
-        async fn execute(&self, tool_call: &ToolCall) -> Result<Value> {
+        type Output = Value;
+
+        async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
             Ok(json!({
                 "temperature": 20,
                 "unit": "fahrenheit"

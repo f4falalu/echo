@@ -1,7 +1,7 @@
 use anyhow::Result;
 use async_trait::async_trait;
-use serde_json::Value;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 use crate::utils::{clients::ai::litellm::ToolCall, tools::ToolExecutor};
 
@@ -10,18 +10,28 @@ struct SearchFilesParams {
     query_params: Vec<String>,
 }
 
+#[derive(Debug, Serialize)]
+pub struct SearchFilesOutput {
+    success: bool,
+}
+
 pub struct SearchFilesTool;
 
 #[async_trait]
 impl ToolExecutor for SearchFilesTool {
+    type Output = SearchFilesOutput;
+
     fn get_name(&self) -> String {
         "search_files".to_string()
     }
 
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Value> {
-        let params: SearchFilesParams = serde_json::from_str(&tool_call.function.arguments.clone())?;
+    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+        let params: SearchFilesParams =
+            serde_json::from_str(&tool_call.function.arguments.clone())?;
         // TODO: Implement actual file search logic
-        Ok(Value::Array(vec![]))
+        Ok(SearchFilesOutput {
+            success: true,
+        })
     }
 
     fn get_schema(&self) -> Value {
@@ -46,4 +56,4 @@ impl ToolExecutor for SearchFilesTool {
             "description": "Searches for metric and dashboard files using natural-language queries. Typically used if you suspect there might already be a relevant metric or dashboard in the repository. If results are found, you can then decide whether to open them with `open_files`."
         })
     }
-} 
+}

@@ -10,18 +10,25 @@ struct SendToUserParams {
     metric_id: String,
 }
 
+#[derive(Debug, Serialize)]
+pub struct SendToUserOutput {
+    success: bool,
+}
+
 pub struct SendToUserTool;
 
 #[async_trait]
 impl ToolExecutor for SendToUserTool {
+    type Output = SendToUserOutput;
+
     fn get_name(&self) -> String {
         "send_to_user".to_string()
     }
 
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Value> {
+    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
         let params: SendToUserParams = serde_json::from_str(&tool_call.function.arguments.clone())?;
         // TODO: Implement actual send to user logic
-        Ok(Value::Array(vec![]))
+        Ok(SendToUserOutput { success: true })
     }
 
     fn get_schema(&self) -> Value {

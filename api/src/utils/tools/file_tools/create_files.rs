@@ -17,9 +17,9 @@ use crate::{
     utils::{clients::ai::litellm::ToolCall, tools::ToolExecutor},
 };
 
-use super::file_types::{dashboard_yml::DashboardYml, metric_yml::MetricYml};
+use super::file_types::{dashboard_yml::DashboardYml, file::FileEnum, metric_yml::MetricYml};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 struct FileParams {
     name: String,
     file_type: String,
@@ -31,15 +31,24 @@ struct CreateFilesParams {
     files: Vec<FileParams>,
 }
 
+#[derive(Debug, Serialize)]
+pub struct CreateFilesOutput {
+    success: bool,
+    message: String,
+    files: Vec<FileEnum>,
+}
+
 pub struct CreateFilesTool;
 
 #[async_trait]
 impl ToolExecutor for CreateFilesTool {
+    type Output = CreateFilesOutput;
+
     fn get_name(&self) -> String {
         "create_files".to_string()
     }
 
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Value> {
+    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
         let params: CreateFilesParams =
             match serde_json::from_str(&tool_call.function.arguments.clone()) {
                 Ok(params) => params,
@@ -53,15 +62,64 @@ impl ToolExecutor for CreateFilesTool {
 
         let files = params.files;
 
+        let mut created_files = vec![];
+
+        let mut failed_files = vec![];
+
         for file in files {
-            match file.file_type.as_str() {
-                "metric" => create_metric_file(file).await?,
-                "dashboard" => create_dashboard_file(file).await?,
-                _ => return Err(anyhow::anyhow!("Invalid file type: {}. Currently only `metric` and `dashboard` types are supported.", file.file_type)),
-            }
+            let created_file = match file.file_type.as_str() {
+                "metric" => match create_metric_file(file.clone()).await {
+                    Ok(f) => {
+                        created_files.push(f);
+                        continue;
+                    }
+                    Err(e) => {
+                        failed_files.push((file.name, e.to_string()));
+                        continue;
+                    }
+                },
+                "dashboard" => match create_dashboard_file(file.clone()).await {
+                    Ok(f) => {
+                        created_files.push(f);
+                        continue;
+                    }
+                    Err(e) => {
+                        failed_files.push((file.name, e.to_string()));
+                        continue;
+                    }
+                },
+                _ => {
+                    failed_files.push((file.name, format!("Invalid file type: {}. Currently only `metric` and `dashboard` types are supported.", file.file_type)));
+                    continue;
+                }
+            };
         }
 
-        Ok(Value::Array(vec![]))
+        let message = if failed_files.is_empty() {
+            format!("Successfully created {} files.", created_files.len())
+        } else {
+            let success_msg = if !created_files.is_empty() {
+                format!("Successfully created {} files. ", created_files.len())
+            } else {
+                String::new()
+            };
+            
+            let failures: Vec<String> = failed_files
+                .iter()
+                .map(|(name, error)| format!("Failed to create '{}': {}", name, error))
+                .collect();
+            
+            format!("{}Failed to create {} files: {}", 
+                success_msg,
+                failed_files.len(),
+                failures.join("; "))
+        };
+
+        Ok(CreateFilesOutput {
+            success: !created_files.is_empty(),
+            message,
+            files: created_files,
+        })
     }
 
     fn get_schema(&self) -> Value {
@@ -104,7 +162,7 @@ impl ToolExecutor for CreateFilesTool {
     }
 }
 
-async fn create_metric_file(file: FileParams) -> Result<()> {
+async fn create_metric_file(file: FileParams) -> Result<FileEnum> {
     let metric_yml = match MetricYml::new(file.yml_content) {
         Ok(metric_file) => metric_file,
         Err(e) => return Err(e),
@@ -128,7 +186,7 @@ async fn create_metric_file(file: FileParams) -> Result<()> {
         id: metric_id.clone(),
         name: metric_yml.title.clone(),
         file_name: format!("{}.yml", file.name),
-        content: serde_json::to_value(metric_yml).unwrap(),
+        content: serde_json::to_value(metric_yml.clone()).unwrap(),
         created_by: Uuid::new_v4(),
         verification: Verification::NotRequested,
         evaluation_obj: None,
@@ -140,9 +198,8 @@ async fn create_metric_file(file: FileParams) -> Result<()> {
         deleted_at: None,
     };
 
-    let metric_file_record = match insert_into(metric_files::table)
-        .values(metric_file_record)
-        .returning(metric_files::all_columns)
+    match insert_into(metric_files::table)
+        .values(&metric_file_record)
         .execute(&mut conn)
         .await
     {
@@ -150,10 +207,10 @@ async fn create_metric_file(file: FileParams) -> Result<()> {
         Err(e) => return Err(anyhow::anyhow!("Failed to create metric file: {}", e)),
     };
 
-    Ok(())
+    Ok(FileEnum::Metric(metric_yml))
 }
 
-async fn create_dashboard_file(file: FileParams) -> Result<()> {
+async fn create_dashboard_file(file: FileParams) -> Result<FileEnum> {
     let dashboard_yml = match DashboardYml::new(file.yml_content) {
         Ok(dashboard_file) => dashboard_file,
         Err(e) => return Err(e),
@@ -175,9 +232,12 @@ async fn create_dashboard_file(file: FileParams) -> Result<()> {
 
     let dashboard_file_record = DashboardFile {
         id: dashboard_id.clone(),
-        name: dashboard_yml.name.clone().unwrap_or_else(|| "New Dashboard".to_string()),
+        name: dashboard_yml
+            .name
+            .clone()
+            .unwrap_or_else(|| "New Dashboard".to_string()),
         file_name: format!("{}.yml", file.name),
-        content: serde_json::to_value(dashboard_yml).unwrap(),
+        content: serde_json::to_value(dashboard_yml.clone()).unwrap(),
         filter: None,
         organization_id: Uuid::new_v4(),
         created_by: Uuid::new_v4(),
@@ -187,12 +247,14 @@ async fn create_dashboard_file(file: FileParams) -> Result<()> {
     };
 
     match insert_into(dashboard_files::table)
-        .values(dashboard_file_record)
+        .values(&dashboard_file_record)
         .returning(dashboard_files::all_columns)
         .execute(&mut conn)
         .await
     {
-        Ok(_) => Ok(()),
-        Err(e) => Err(anyhow::anyhow!(e)),
-    }
+        Ok(_) => (),
+        Err(e) => return Err(anyhow::anyhow!(e)),
+    };
+
+    Ok(FileEnum::Dashboard(dashboard_yml))
 }

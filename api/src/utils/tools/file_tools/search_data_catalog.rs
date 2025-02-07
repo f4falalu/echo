@@ -1,7 +1,7 @@
 use anyhow::Result;
 use async_trait::async_trait;
-use serde_json::Value;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 use crate::utils::{clients::ai::litellm::ToolCall, tools::ToolExecutor};
 
@@ -22,18 +22,30 @@ struct CatalogSearchResult {
     metadata: Value,
 }
 
+#[derive(Debug, Serialize)]
+pub struct SearchDataCatalogOutput {
+    success: bool,
+    results: Vec<CatalogSearchResult>,
+}
+
 pub struct SearchDataCatalogTool;
 
 #[async_trait]
 impl ToolExecutor for SearchDataCatalogTool {
+    type Output = SearchDataCatalogOutput;
+
     fn get_name(&self) -> String {
         "search_data_catalog".to_string()
     }
 
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Value> {
-        let params: SearchDataCatalogParams = serde_json::from_str(&tool_call.function.arguments.clone())?;
+    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+        let params: SearchDataCatalogParams =
+            serde_json::from_str(&tool_call.function.arguments.clone())?;
         // TODO: Implement actual data catalog search logic
-        Ok(Value::Array(vec![]))
+        Ok(SearchDataCatalogOutput {
+            success: true,
+            results: vec![],
+        })
     }
 
     fn get_schema(&self) -> Value {
@@ -67,4 +79,4 @@ impl ToolExecutor for SearchDataCatalogTool {
             "description": "Searches the data catalog for relevant items including datasets, metrics, business terms, and logic definitions. Returns structured results with relevance scores. Use this to find data assets and their documentation."
         })
     }
-} 
+}

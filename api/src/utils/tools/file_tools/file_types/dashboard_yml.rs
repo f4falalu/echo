@@ -1,22 +1,24 @@
 use anyhow::Result;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DashboardYml {
     pub id: Option<Uuid>,
+    pub updated_at: Option<DateTime<Utc>>,
     pub name: Option<String>,
     pub rows: Vec<Row>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Row {
     items: Vec<RowItem>,    // max number of items in a row is 4, min is 1
     row_height: u32,        // max is 550, min is 320
     column_sizes: Vec<u32>, // max sum of elements is 12 min is 3
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RowItem {
     // This id is the id of the metric or item reference that goes here in the dashboard.
     id: Uuid,
@@ -40,6 +42,8 @@ impl DashboardYml {
             file.name = Some(String::from("New Dashboard"));
         }
 
+        file.updated_at = Some(Utc::now());
+
         // Validate the file
         match file.validate() {
             Ok(_) => Ok(file),
@@ -47,6 +51,7 @@ impl DashboardYml {
         }
     }
 
+    // TODO: The validate of the dashboard should also be whether metrics exist?
     pub fn validate(&self) -> Result<()> {
         // Validate the id and name
         if self.id.is_none() {
@@ -55,6 +60,10 @@ impl DashboardYml {
 
         if self.name.is_none() {
             return Err(anyhow::anyhow!("Dashboard file name is required"));
+        }
+
+        if self.updated_at.is_none() {
+            return Err(anyhow::anyhow!("Dashboard file updated_at is required"));
         }
 
         // Validate each row

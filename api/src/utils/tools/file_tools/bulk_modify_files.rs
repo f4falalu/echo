@@ -22,18 +22,29 @@ struct BulkModifyFilesParams {
     files_with_modifications: Vec<FileModification>,
 }
 
+#[derive(Debug, Serialize)]
+pub struct BulkModifyFilesOutput {
+    success: bool,
+}
+
 pub struct BulkModifyFilesTool;
 
 #[async_trait]
 impl ToolExecutor for BulkModifyFilesTool {
+    type Output = BulkModifyFilesOutput;
+
     fn get_name(&self) -> String {
         "bulk_modify_files".to_string()
     }
 
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Value> {
+    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
         let params: BulkModifyFilesParams = serde_json::from_str(&tool_call.function.arguments.clone())?;
         // TODO: Implement actual file modification logic
-        Ok(Value::Array(vec![]))
+        let output = BulkModifyFilesOutput {
+            success: true,
+        };
+
+        Ok(output)
     }
 
     fn get_schema(&self) -> Value {

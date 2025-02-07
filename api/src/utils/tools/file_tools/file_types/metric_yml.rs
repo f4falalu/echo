@@ -1,10 +1,12 @@
 use anyhow::Result;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct MetricYml {
     pub id: Option<Uuid>,
+    pub updated_at: Option<DateTime<Utc>>,
     pub title: String,
     pub description: Option<String>,
     pub sql: String,
@@ -12,13 +14,13 @@ pub struct MetricYml {
     pub data_metadata: Vec<DataMetadata>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DataMetadata {
     pub name: String,
     pub data_type: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "selectedChartType")]
 pub enum ChartConfig {
     #[serde(rename = "bar")]
@@ -38,7 +40,7 @@ pub enum ChartConfig {
 }
 
 // Base chart config shared by all chart types
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BaseChartConfig {
     pub column_label_formats: std::collections::HashMap<String, ColumnLabelFormat>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -67,7 +69,7 @@ pub struct BaseChartConfig {
     pub y2_axis_config: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ColumnLabelFormat {
     pub column_type: String,
     pub style: String,
@@ -101,7 +103,7 @@ pub struct ColumnLabelFormat {
     pub convert_number_to: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ColumnSettings {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub show_data_labels: Option<bool>,
@@ -123,7 +125,7 @@ pub struct ColumnSettings {
     pub line_symbol_size_dot: Option<f64>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct GoalLine {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub show: Option<bool>,
@@ -137,7 +139,7 @@ pub struct GoalLine {
     pub goal_line_color: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Trendline {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub show: Option<bool>,
@@ -151,7 +153,7 @@ pub struct Trendline {
     pub trend_line_color: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BarLineChartConfig {
     #[serde(flatten)]
     pub base: BaseChartConfig,
@@ -168,7 +170,7 @@ pub struct BarLineChartConfig {
     pub line_group_type: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BarAndLineAxis {
     pub x: Vec<String>,
     pub y: Vec<String>,
@@ -177,7 +179,7 @@ pub struct BarAndLineAxis {
     pub tooltip: Option<Vec<String>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ScatterChartConfig {
     #[serde(flatten)]
     pub base: BaseChartConfig,
@@ -186,7 +188,7 @@ pub struct ScatterChartConfig {
     pub scatter_dot_size: Option<Vec<f64>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ScatterAxis {
     pub x: Vec<String>,
     pub y: Vec<String>,
@@ -198,7 +200,7 @@ pub struct ScatterAxis {
     pub tooltip: Option<Vec<String>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PieChartConfig {
     #[serde(flatten)]
     pub base: BaseChartConfig,
@@ -219,7 +221,7 @@ pub struct PieChartConfig {
     pub pie_minimum_slice_percentage: Option<f64>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PieChartAxis {
     pub x: Vec<String>,
     pub y: Vec<String>,
@@ -227,14 +229,14 @@ pub struct PieChartAxis {
     pub tooltip: Option<Vec<String>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ComboChartConfig {
     #[serde(flatten)]
     pub base: BaseChartConfig,
     pub combo_chart_axis: ComboChartAxis,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ComboChartAxis {
     pub x: Vec<String>,
     pub y: Vec<String>,
@@ -246,7 +248,7 @@ pub struct ComboChartAxis {
     pub tooltip: Option<Vec<String>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct MetricChartConfig {
     #[serde(flatten)]
     pub base: BaseChartConfig,
@@ -261,7 +263,7 @@ pub struct MetricChartConfig {
     pub metric_value_label: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct TableChartConfig {
     #[serde(flatten)]
     pub base: BaseChartConfig,
@@ -288,12 +290,15 @@ impl MetricYml {
             file.id = Some(Uuid::new_v4());
         }
 
+        file.updated_at = Some(Utc::now());
+
         match file.validate() {
             Ok(_) => Ok(file),
             Err(e) => Err(anyhow::anyhow!("Error compiling file: {}", e)),
         }
     }
 
+    //TODO: Need to validate a metric deeply.
     pub fn validate(&self) -> Result<()> {
         Ok(())
     }
