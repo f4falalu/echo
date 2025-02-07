@@ -6,6 +6,7 @@ use tokio::sync::mpsc;
 
 use super::types::*;
 
+#[derive(Clone)]
 pub struct LiteLLMClient {
     client: Client,
     pub(crate) api_key: String,
