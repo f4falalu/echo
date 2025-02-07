@@ -55,9 +55,17 @@ Consider all queries collectively to determine relevance. These queries describe
 The YML content contains important information about the dataset including its schema, description, and other metadata.
 Use this information to determine if the dataset would be relevant to answering the queries.
 
-You must return your response as a JSON object with a 'results' array. Each result should have:
-- id: string (UUID)
-- name: string
+IMPORTANT: You must return your response in this exact JSON format:
+{
+    "results": [
+        {
+            "id": "uuid-string-here",
+            "name": "dataset-name-here",
+            "yml_content": "yml-content-here"
+        }
+        // ... more results in order of relevance
+    ]
+}
 
 Available datasets:
 {datasets_array_as_json}
@@ -65,9 +73,9 @@ Available datasets:
 Requirements:
 1. Return all relevant datasets (no limit)
 2. Order results from most to least relevant
-3. Only include id and name fields
-4. Ensure all field types match the specified formats
-5. If no datasets are relevant, return an empty results array
+3. ALWAYS include the "results" key in your response, even if the array is empty
+4. Each result MUST have all fields: id, name, and yml_content
+5. If no datasets are relevant, return {"results": []}
 "#;
 
 pub struct SearchDataCatalogTool;

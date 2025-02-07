@@ -49,11 +49,18 @@ Your task is to identify up to 10 most relevant files based on the following sea
 
 Consider all queries collectively to determine relevance.
 
-You must return your response as a JSON array of objects, where each object has these exact fields:
-- id: string (UUID)
-- name: string
-- file_type: string (either "metric" or "dashboard")
-- updated_at: string (ISO timestamp)
+IMPORTANT: You must return your response in this exact JSON format:
+{
+    "results": [
+        {
+            "id": "uuid-string-here",
+            "name": "file-name-here",
+            "file_type": "metric-or-dashboard",
+            "updated_at": "iso-timestamp"
+        }
+        // ... more results up to 10 total
+    ]
+}
 
 Available files:
 {files_array_as_json}
@@ -61,8 +68,10 @@ Available files:
 Requirements:
 1. Return up to 10 most relevant files
 2. Order results from most to least relevant
-3. Only include the specified fields
-4. Ensure all field types match the specified formats
+3. ALWAYS include the "results" key in your response, even if the array is empty
+4. Each result MUST have all fields: id, name, file_type, and updated_at
+5. file_type MUST be either "metric" or "dashboard"
+6. If no files match, return {"results": []}
 "#;
 
 #[derive(Debug, Deserialize)]
