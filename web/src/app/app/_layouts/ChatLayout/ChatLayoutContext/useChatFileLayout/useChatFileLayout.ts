@@ -2,7 +2,7 @@ import { FileType } from '@/api/asset_interfaces';
 import { useMemo, useState } from 'react';
 import { FileConfig, FileView, FileViewConfig, FileViewSecondary } from './interfaces';
 import { useMemoizedFn } from 'ahooks';
-import { produce } from 'immer';
+import { create } from 'mutative';
 
 export const useChatFileLayout = ({
   selectedFileId,
@@ -71,7 +71,7 @@ export const useChatFileLayout = ({
   const closeSecondaryView = useMemoizedFn(() => {
     if (!selectedFileId || !selectedFileViewConfig || !selectedFileView) return;
     setFileViews(
-      produce((draft) => {
+      create((draft) => {
         if (!draft[selectedFileId]?.fileViewConfig?.[selectedFileView]) return;
         draft[selectedFileId].fileViewConfig[selectedFileView].secondaryView = null;
       })

@@ -6,7 +6,7 @@ import {
   DEFAULT_CHART_CONFIG_ENTRIES
 } from '@/api/asset_interfaces';
 import type { BusterChartConfigProps } from '@/components/charts';
-import { produce } from 'immer';
+import { create } from 'mutative';
 import isEmpty from 'lodash/isEmpty';
 import { createDefaultColumnLabelFormats } from './createDefaultColumnFormats';
 import { createDefaultColumnSettings } from './createDefaultColumnSettings';
@@ -124,21 +124,21 @@ export const createDefaultChartConfig = (
   const dataMetadata = message.data_metadata;
   const pieChartAxis = chartConfig?.pieChartAxis;
 
-  const newChartConfig = produce(DEFAULT_CHART_CONFIG, (draft) => {
-    DEFAULT_CHART_CONFIG_ENTRIES.forEach(([key, defaultValue]) => {
-      const _key = key as keyof IBusterMetricChartConfig;
-      const chartConfigValue = chartConfig?.[_key];
+  const newChartConfig = create(DEFAULT_CHART_CONFIG, (draft) => {
+    DEFAULT_CHART_CONFIG_ENTRIES.forEach(([_key, defaultValue]) => {
+      const key = _key as keyof IBusterMetricChartConfig;
+      const chartConfigValue = chartConfig?.[key];
 
-      const handler = keySpecificHandlers[_key];
+      const handler = keySpecificHandlers[key];
 
       if (!handler) {
-        (draft as any)[_key] = chartConfigValue ?? defaultValue;
+        (draft as any)[key] = chartConfigValue ?? defaultValue;
         return;
       }
 
       const result = handler(chartConfigValue, dataMetadata, pieChartAxis);
 
-      (draft as any)[_key] = result ?? defaultValue;
+      (draft as any)[key] = result ?? defaultValue;
     });
   });
 
