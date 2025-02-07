@@ -33,9 +33,6 @@ export const useDashboards = () => {
     getDashboardFromList
   } = useDashboardLists();
 
-  //METRICS INDIVIDUAL
-  const { onDashboardOpenMetric } = useDashboardMetrics({ openedDashboardId });
-
   //DASHBOARD INDIVIDUAL
   const {
     dashboards,
@@ -79,9 +76,6 @@ export const useDashboards = () => {
     //INDIVIDUAL DASHBOARD
     dashboards,
     removeItemFromIndividualDashboard,
-
-    //DASHBOARD METRICS
-    onDashboardOpenMetric,
 
     //OTHER
     onBulkAddRemoveToDashboard,

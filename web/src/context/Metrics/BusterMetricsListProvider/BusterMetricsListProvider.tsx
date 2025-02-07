@@ -1,11 +1,9 @@
 'use client';
 
 import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterMetricListItem, VerificationStatus } from '@/api/asset_interfaces';
 import isEmpty from 'lodash/isEmpty';
-import { useBusterWebSocket } from '../BusterWebSocket';
-import { BusterRoutes } from '@/routes';
+import { useBusterWebSocket } from '../../BusterWebSocket';
 import { useMemoizedFn, useThrottleFn } from 'ahooks';
 import { createFilterRecord, metricsArrayToRecord } from './helpers';
 import {
@@ -13,7 +11,6 @@ import {
   useContextSelector,
   ContextSelector
 } from '@fluentui/react-context-selector';
-import { useBusterMetricsContextSelector } from './BusterMetricsProvider';
 
 interface IMetricsList {
   fetching: boolean;

@@ -5,7 +5,7 @@ import {
   ShareRole,
   VerificationStatus
 } from '@/api/asset_interfaces';
-import { IBusterMetric } from './interfaces';
+import { IBusterMetric } from '../interfaces';
 import { faker } from '@faker-js/faker';
 import { ChartType } from '@/components/charts';
 

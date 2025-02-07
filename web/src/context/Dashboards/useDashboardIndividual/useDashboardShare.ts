@@ -21,7 +21,7 @@ export const useShareDashboard = () => {
     ) => {
       return busterSocket.emit({
         route: '/dashboards/update',
-        payload: { ...props }
+        payload: props
       });
     }
   );

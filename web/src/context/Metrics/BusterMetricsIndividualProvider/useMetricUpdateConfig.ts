@@ -1,5 +1,5 @@
 import { useDebounceFn, useMemoizedFn } from 'ahooks';
-import type { IBusterMetric } from './interfaces';
+import type { IBusterMetric } from '../interfaces';
 import {
   BusterMetric,
   DEFAULT_CHART_CONFIG,
@@ -7,10 +7,10 @@ import {
   ShareRole,
   VerificationStatus
 } from '@/api/asset_interfaces';
-import { prepareMetricUpdateMetric } from './helpers';
+import { prepareMetricUpdateMetric } from '../helpers';
 import { MetricUpdateMetric } from '@/api/buster_socket/metrics';
 import { ColumnSettings, IColumnLabelFormat } from '@/components/charts';
-import { useBusterWebSocket } from '../BusterWebSocket';
+import { useBusterWebSocket } from '../../BusterWebSocket';
 
 export const useUpdateMetricConfig = ({
   getMetricId,

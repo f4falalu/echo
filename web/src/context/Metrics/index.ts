@@ -1,3 +1,4 @@
 export * from './BusterMetricsListProvider';
-export * from './BusterMetricsProvider';
+export * from './BusterMetricsIndividualProvider';
+export * from './BusterMetricProvider';
 export * from './interfaces';

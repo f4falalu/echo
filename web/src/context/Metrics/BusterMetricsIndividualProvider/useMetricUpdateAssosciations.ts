@@ -1,11 +1,11 @@
 import { useMemoizedFn } from 'ahooks';
 import last from 'lodash/last';
 import { MutableRefObject } from 'react';
-import { IBusterMetric } from './interfaces';
-import { useBusterWebSocket } from '../BusterWebSocket';
-import { useUserConfigContextSelector } from '../Users';
-import { useBusterNotifications } from '../BusterNotifications';
-import { useDashboardContextSelector } from '../Dashboards';
+import { IBusterMetric } from '../interfaces';
+import { useBusterWebSocket } from '../../BusterWebSocket';
+import { useUserConfigContextSelector } from '../../Users';
+import { useBusterNotifications } from '../../BusterNotifications';
+import { useDashboardContextSelector } from '../../Dashboards';
 
 export const useUpdateMetricAssosciations = ({
   metricsRef,

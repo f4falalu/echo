@@ -1,29 +1,23 @@
-import React, { PropsWithChildren, useRef, useState } from 'react';
+import React, { PropsWithChildren, useRef } from 'react';
 import {
   createContext,
   ContextSelector,
   useContextSelector
 } from '@fluentui/react-context-selector';
-import { BusterMetricsListProvider } from './BusterMetricsListProvider';
+import { BusterMetricsListProvider } from '../BusterMetricsListProvider';
 import { useMemoizedFn, useMount } from 'ahooks';
-import type { IBusterMetric } from './interfaces';
+import type { IBusterMetric } from '../interfaces';
 import { BusterMetric } from '@/api/asset_interfaces';
-import { useBusterWebSocket } from '../BusterWebSocket';
-import { useParams } from 'next/navigation';
-import { useBusterAssetsContextSelector } from '../Assets/BusterAssetsProvider';
-import { useBusterNotifications } from '../BusterNotifications';
 import { useTransition } from 'react';
-import { RustApiError } from '@/api/buster_rest/errors';
-import { resolveEmptyMetric, upgradeMetricToIMetric } from './helpers';
-import { MetricUpdateMetric } from '@/api/buster_socket/metrics';
-import { useBusterMetricDataContextSelector } from '../MetricData';
-import { createMockMetric } from './MOCK_METRIC';
-import { useUpdateMetricConfig } from './useUpdateMetricConfig';
-import { useUpdateMetricAssosciations } from './useUpdateMetricAssosciations';
-import { useShareMetric } from './useShareMetric';
+import { resolveEmptyMetric, upgradeMetricToIMetric } from '../helpers';
+import { useBusterMetricDataContextSelector } from '../../MetricData';
+import { useUpdateMetricConfig } from './useMetricUpdateConfig';
+import { useUpdateMetricAssosciations } from './useMetricUpdateAssosciations';
+import { useShareMetric } from './useMetricShare';
 import { useMetricSubscribe } from './useMetricSubscribe';
+import { useParams } from 'next/navigation';
 
-export const useBusterMetrics = () => {
+export const useBusterMetricsIndividual = () => {
   const [isPending, startTransition] = useTransition();
   const { metricId: selectedMetricId } = useParams<{ metricId: string }>();
   const metricsRef = useRef<Record<string, IBusterMetric>>({});
@@ -134,29 +128,31 @@ export const useBusterMetrics = () => {
   };
 };
 
-const BusterMetrics = createContext<ReturnType<typeof useBusterMetrics>>(
-  {} as ReturnType<typeof useBusterMetrics>
+const BusterMetricsIndividual = createContext<ReturnType<typeof useBusterMetricsIndividual>>(
+  {} as ReturnType<typeof useBusterMetricsIndividual>
 );
 
-export const BusterMetricsProvider: React.FC<PropsWithChildren> = React.memo(({ children }) => {
-  return (
-    <BusterMetrics.Provider value={useBusterMetrics()}>
-      <BusterMetricsListProvider>{children}</BusterMetricsListProvider>
-    </BusterMetrics.Provider>
-  );
-});
-BusterMetricsProvider.displayName = 'BusterMetricsProvider';
+export const BusterMetricsIndividualProvider: React.FC<PropsWithChildren> = React.memo(
+  ({ children }) => {
+    return (
+      <BusterMetricsIndividual.Provider value={useBusterMetricsIndividual()}>
+        {children}
+      </BusterMetricsIndividual.Provider>
+    );
+  }
+);
+BusterMetricsIndividualProvider.displayName = 'BusterMetricsIndividualProvider';
 
-export const useBusterMetricsContextSelector = <T,>(
-  selector: ContextSelector<ReturnType<typeof useBusterMetrics>, T>
+export const useBusterMetricsIndividualContextSelector = <T,>(
+  selector: ContextSelector<ReturnType<typeof useBusterMetricsIndividual>, T>
 ) => {
-  return useContextSelector(BusterMetrics, selector);
+  return useContextSelector(BusterMetricsIndividual, selector);
 };
 
 export const useBusterMetricIndividual = ({ metricId }: { metricId: string }) => {
-  const subscribeToMetric = useBusterMetricsContextSelector((x) => x.subscribeToMetric);
+  const subscribeToMetric = useBusterMetricsIndividualContextSelector((x) => x.subscribeToMetric);
   const fetchDataByMetricId = useBusterMetricDataContextSelector((x) => x.fetchDataByMetricId);
-  const metric = useBusterMetricsContextSelector((x) => x.metrics[metricId]);
+  const metric = useBusterMetricsIndividualContextSelector((x) => x.metrics[metricId]);
   const metricData = useBusterMetricDataContextSelector(({ getDataByMetricId }) =>
     getDataByMetricId(metricId)
   );

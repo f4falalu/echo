@@ -1,11 +1,11 @@
 import { useMemoizedFn } from 'ahooks';
-import { useBusterAssetsContextSelector } from '../Assets/BusterAssetsProvider';
-import { IBusterMetric } from './interfaces';
+import { useBusterAssetsContextSelector } from '../../Assets/BusterAssetsProvider';
+import { IBusterMetric } from '../interfaces';
 import { createMockMetric } from './MOCK_METRIC';
-import { useBusterWebSocket } from '../BusterWebSocket';
+import { useBusterWebSocket } from '../../BusterWebSocket';
 import { BusterMetric } from '@/api/asset_interfaces';
 import { RustApiError } from '@/api/buster_rest/errors';
-import { resolveEmptyMetric } from './helpers';
+import { resolveEmptyMetric } from '../helpers';
 import React from 'react';
 
 export const useMetricSubscribe = ({
