@@ -11,16 +11,8 @@ export const useFileFallback = ({
   defaultSelectedFile?: SelectedFile;
 }) => {
   const fileId = defaultSelectedFile?.id || '';
-  const metricTitle = useBusterMetricsIndividualContextSelector((x) => x.metrics[fileId]?.title);
-  const metricVersionNumber = useBusterMetricsIndividualContextSelector(
-    (x) => x.metrics[fileId]?.version_number
-  );
-  const dashboardTitle = useBusterDashboardContextSelector(
-    (x) => x.dashboards[fileId]?.dashboard?.title
-  );
-  const dashboardVersionNumber = useBusterDashboardContextSelector(
-    (x) => x.dashboards[fileId]?.dashboard?.version_number
-  );
+  const { metricTitle, metricVersionNumber } = useMetricParams(fileId);
+  const { dashboardTitle, dashboardVersionNumber } = useDashboardParams(fileId);
 
   const fileType: 'metric' | 'dashboard' = useMemo(() => {
     if (defaultSelectedFile?.type === 'metric') {
@@ -70,7 +62,6 @@ const fallbackToFileChat = ({
   versionNumber: number;
   type?: 'metric' | 'dashboard';
 }): IBusterChat => {
-  console.log(type);
   return {
     id,
     isNewChat: true,
@@ -82,7 +73,7 @@ const fallbackToFileChat = ({
           {
             id: 'init',
             type: 'text',
-            message: `I’ve pulled in your ${type}. How can I help? Is there anything you'd like to modify?`
+            message: `I've pulled in your ${type}. How can I help? Is there anything you'd like to modify?`
           },
           {
             id,
@@ -113,4 +104,24 @@ const fallbackToFileChat = ({
     created_by_name: '',
     created_by_avatar: ''
   };
+};
+
+const useMetricParams = (fileId: string) => {
+  const metricTitle = useBusterMetricsIndividualContextSelector((x) => x.metrics[fileId]?.title);
+  const metricVersionNumber = useBusterMetricsIndividualContextSelector(
+    (x) => x.metrics[fileId]?.version_number
+  );
+
+  return { metricTitle, metricVersionNumber };
+};
+
+const useDashboardParams = (fileId: string) => {
+  const dashboardTitle = useBusterDashboardContextSelector(
+    (x) => x.dashboards[fileId]?.dashboard?.title
+  );
+  const dashboardVersionNumber = useBusterDashboardContextSelector(
+    (x) => x.dashboards[fileId]?.dashboard?.version_number
+  );
+
+  return { dashboardTitle, dashboardVersionNumber };
 };

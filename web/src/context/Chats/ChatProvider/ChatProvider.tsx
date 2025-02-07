@@ -63,6 +63,7 @@ export const useBusterChatIndividual = ({
   });
 
   const selectedChat: IBusterChat = chat || memoizedFallbackToMetricChat;
+  const fetched = chat?.created_at !== undefined;
 
   useEffect(() => {
     if (chatId) subscribeToChat({ chatId });
