@@ -93,6 +93,7 @@ impl SearchFilesTool {
                 content: prompt,
                 name: None,
             }],
+            temperature: Some(0.0),
             response_format: Some(ResponseFormat {
                 type_: "json_object".to_string(),
                 json_schema: None,
@@ -248,6 +249,34 @@ async fn get_dashboard_files() -> Result<Vec<DashboardFile>> {
 mod tests {
     use super::*;
     use chrono::TimeZone;
+
+    fn parse_search_result(result: &Value) -> Result<FileSearchResult> {
+        Ok(FileSearchResult {
+            id: Uuid::parse_str(
+                result
+                    .get("id")
+                    .and_then(|v| v.as_str())
+                    .ok_or_else(|| anyhow::anyhow!("Missing id"))?,
+            )?,
+            name: result
+                .get("name")
+                .and_then(|v| v.as_str())
+                .ok_or_else(|| anyhow::anyhow!("Missing name"))?
+                .to_string(),
+            file_type: result
+                .get("file_type")
+                .and_then(|v| v.as_str())
+                .ok_or_else(|| anyhow::anyhow!("Missing file_type"))?
+                .to_string(),
+            updated_at: DateTime::parse_from_rfc3339(
+                result
+                    .get("updated_at")
+                    .and_then(|v| v.as_str())
+                    .ok_or_else(|| anyhow::anyhow!("Missing updated_at"))?,
+            )?
+            .with_timezone(&Utc),
+        })
+    }
 
     #[test]
     fn test_parse_valid_search_result() {
