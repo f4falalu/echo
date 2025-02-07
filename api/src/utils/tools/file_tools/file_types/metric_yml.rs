@@ -11,7 +11,7 @@ pub struct MetricYml {
     pub description: Option<String>,
     pub sql: String,
     pub chart_config: ChartConfig,
-    pub data_metadata: Vec<DataMetadata>,
+    pub data_metadata: Option<Vec<DataMetadata>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -21,7 +21,7 @@ pub struct DataMetadata {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(tag = "selectedChartType")]
+#[serde(tag = "selected_chart_type")]
 pub enum ChartConfig {
     #[serde(rename = "bar")]
     Bar(BarLineChartConfig),
@@ -300,6 +300,63 @@ impl MetricYml {
 
     //TODO: Need to validate a metric deeply.
     pub fn validate(&self) -> Result<()> {
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn normalize_whitespace(s: &str) -> String {
+        s.split_whitespace().collect::<Vec<&str>>().join(" ")
+    }
+
+    #[test]
+    fn test_metric_yml_bar_serialization() -> Result<()> {
+        let yml_content = "title: \"Average Time to Close by Rep\"\nsql: |\n  SELECT\n    rep_id,\n    AVG(time_to_close) AS average_time_to_close\n  FROM deal_metrics\n  GROUP BY rep_id\n  ORDER BY average_time_to_close DESC\nchart_config:\n  selected_chart_type: \"bar\"\n  selected_view: \"standard\"\n  bar_and_line_axis:\n    x: [\"rep_id\"]\n    y: [\"average_time_to_close\"]\n    category: [\"rep_id\"]\n  bar_layout: \"vertical\"\n  bar_group_type: \"group\"\n  column_label_formats: {}\n  colors: [\"#1f77b4\", \"#ff7f0e\", \"#2ca02c\", \"#d62728\"]\n  show_legend: false\n  grid_lines: true\n  column_settings: {}\ndata_metadata:\n  - name: \"rep_id\"\n    data_type: \"string\"\n  - name: \"average_time_to_close\"\n    data_type: \"number\"";
+
+        let metric = MetricYml::new(yml_content.to_string())?;
+
+        // Verify the basic fields
+        assert_eq!(metric.title, "Average Time to Close by Rep");
+        
+        // Compare SQL with normalized whitespace
+        let expected_sql = normalize_whitespace("SELECT rep_id, AVG(time_to_close) AS average_time_to_close FROM deal_metrics GROUP BY rep_id ORDER BY average_time_to_close DESC");
+        let actual_sql = normalize_whitespace(&metric.sql);
+        assert_eq!(actual_sql, expected_sql);
+
+        // Verify chart config
+        match metric.chart_config {
+            ChartConfig::Bar(config) => {
+                assert!(config.base.column_label_formats.is_empty());
+                assert_eq!(config.bar_and_line_axis.x, vec!["rep_id"]);
+                assert_eq!(config.bar_and_line_axis.y, vec!["average_time_to_close"]);
+                assert_eq!(config.bar_and_line_axis.category, vec!["rep_id"]);
+                assert_eq!(config.bar_layout.unwrap(), "vertical");
+                assert_eq!(config.bar_group_type.unwrap(), "group");
+                assert_eq!(
+                    config.base.colors.unwrap(),
+                    vec!["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"]
+                );
+                assert_eq!(config.base.show_legend.unwrap(), false);
+                assert_eq!(config.base.grid_lines.unwrap(), true);
+            }
+            _ => panic!("Expected Bar chart type"),
+        }
+
+        // Verify data metadata
+        let metadata = metric.data_metadata.unwrap();
+        assert_eq!(metadata.len(), 2);
+        assert_eq!(metadata[0].name, "rep_id");
+        assert_eq!(metadata[0].data_type, "string");
+        assert_eq!(metadata[1].name, "average_time_to_close");
+        assert_eq!(metadata[1].data_type, "number");
+
+        // Verify auto-generated fields
+        assert!(metric.id.is_some());
+        assert!(metric.updated_at.is_some());
+
         Ok(())
     }
 }

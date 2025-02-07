@@ -14,8 +14,10 @@ pub struct DashboardYml {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Row {
     items: Vec<RowItem>,    // max number of items in a row is 4, min is 1
-    row_height: u32,        // max is 550, min is 320
-    column_sizes: Vec<u32>, // max sum of elements is 12 min is 3
+    #[serde(skip_serializing_if = "Option::is_none")]
+    row_height: Option<u32>,        // max is 550, min is 320
+    #[serde(skip_serializing_if = "Option::is_none")]
+    column_sizes: Option<Vec<u32>>, // max sum of elements is 12 min is 3
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -69,11 +71,13 @@ impl DashboardYml {
         // Validate each row
         for row in &self.rows {
             // Check row height constraints
-            if row.row_height < 320 || row.row_height > 550 {
-                return Err(anyhow::anyhow!(
-                    "Row height must be between 320 and 550, got {}",
-                    row.row_height
-                ));
+            if let Some(row_height) = row.row_height {
+                if row_height < 320 || row_height > 550 {
+                    return Err(anyhow::anyhow!(
+                        "Row height must be between 320 and 550, got {}",
+                        row_height
+                    ));
+                }
             }
 
             // Check number of items constraint
@@ -85,21 +89,23 @@ impl DashboardYml {
             }
 
             // Check column sizes sum to valid amount
-            let sum: u32 = row.column_sizes.iter().sum();
-            if sum < 3 || sum > 12 {
-                return Err(anyhow::anyhow!(
-                    "Sum of column sizes must be between 3 and 12, got {}",
-                    sum
-                ));
-            }
+            if let Some(column_sizes) = &row.column_sizes {
+                let sum: u32 = column_sizes.iter().sum();
+                if sum < 3 || sum > 12 {
+                    return Err(anyhow::anyhow!(
+                        "Sum of column sizes must be between 3 and 12, got {}",
+                        sum
+                    ));
+                }
 
-            // Check column sizes match number of items
-            if row.column_sizes.len() != row.items.len() {
-                return Err(anyhow::anyhow!(
-                    "Number of column sizes ({}) must match number of items ({})",
-                    row.column_sizes.len(),
-                    row.items.len()
-                ));
+                // Check column sizes match number of items
+                if column_sizes.len() != row.items.len() {
+                    return Err(anyhow::anyhow!(
+                        "Number of column sizes ({}) must match number of items ({})",
+                        column_sizes.len(),
+                        row.items.len()
+                    ));
+                }
             }
         }
 

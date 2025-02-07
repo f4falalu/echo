@@ -401,7 +401,7 @@ mod tests {
                 bar_show_total_at_top: None,
                 line_group_type: None,
             }),
-            data_metadata: vec![
+            data_metadata: Some(vec![
                 DataMetadata {
                     name: "id".to_string(),
                     data_type: "number".to_string(),
@@ -410,7 +410,7 @@ mod tests {
                     name: "value".to_string(), 
                     data_type: "string".to_string(),
                 }
-            ],
+            ]),
         }
     }
 
