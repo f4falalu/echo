@@ -497,8 +497,6 @@ impl ToolExecutor for ModifyFilesTool {
                                                 "items": {
                                                     "type": "number"
                                                 },
-                                                "minItems": 2,
-                                                "maxItems": 2,
                                                 "description": "Array containing exactly 2 numbers [start,end] specifying the range of lines to replace. For example, [1,5] replaces lines 1 through 5. For a single line, use [n,n] (e.g., [3,3] for line 3)."
                                             }
                                         },

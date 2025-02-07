@@ -53,6 +53,10 @@ impl LiteLLMClient {
         request: ChatCompletionRequest,
     ) -> Result<ChatCompletionResponse> {
         let url = format!("{}/chat/completions", self.base_url);
+        
+        println!("DEBUG: Sending chat completion request to URL: {}", url);
+        println!("DEBUG: Request payload: {}", serde_json::to_string_pretty(&request).unwrap());
+        
         let response = self
             .client
             .post(&url)
@@ -62,7 +66,17 @@ impl LiteLLMClient {
             .json::<ChatCompletionResponse>()
             .await?;
 
-        println!("Response: {:?}", response);
+        // Print tool calls if present
+        if let Some(Message::Assistant { tool_calls: Some(tool_calls), .. }) = response.choices.first().map(|c| &c.message) {
+            println!("DEBUG: Tool calls in response:");
+            for tool_call in tool_calls {
+                println!("DEBUG: Tool Call ID: {}", tool_call.id);
+                println!("DEBUG: Tool Name: {}", tool_call.function.name);
+                println!("DEBUG: Tool Arguments: {}", tool_call.function.arguments);
+            }
+        }
+
+        println!("DEBUG: Received chat completion response: {}", serde_json::to_string_pretty(&response).unwrap());
 
         Ok(response)
     }
@@ -72,6 +86,10 @@ impl LiteLLMClient {
         request: ChatCompletionRequest,
     ) -> Result<mpsc::Receiver<Result<ChatCompletionChunk>>> {
         let url = format!("{}/chat/completions", self.base_url);
+        
+        println!("DEBUG: Starting stream chat completion request to URL: {}", url);
+        println!("DEBUG: Stream request payload: {}", serde_json::to_string_pretty(&request).unwrap());
+        
         let mut stream = self
             .client
             .post(&url)
@@ -87,11 +105,13 @@ impl LiteLLMClient {
 
         tokio::spawn(async move {
             let mut buffer = String::new();
+            println!("DEBUG: Stream processing started");
 
             while let Some(chunk_result) = stream.next().await {
                 match chunk_result {
                     Ok(chunk) => {
                         let chunk_str = String::from_utf8_lossy(&chunk);
+                        println!("DEBUG: Received raw stream chunk: {}", chunk_str);
                         buffer.push_str(&chunk_str);
 
                         while let Some(pos) = buffer.find("\n\n") {
@@ -100,25 +120,41 @@ impl LiteLLMClient {
 
                             if line.starts_with("data: ") {
                                 let data = &line["data: ".len()..];
+                                println!("DEBUG: Processing stream data: {}", data);
                                 if data == "[DONE]" {
+                                    println!("DEBUG: Stream completed with [DONE] signal");
                                     break;
                                 }
 
                                 if let Ok(response) =
                                     serde_json::from_str::<ChatCompletionChunk>(data)
                                 {
+                                    // Print tool calls if present in the stream chunk
+                                    if let Some(tool_calls) = &response.choices[0].delta.tool_calls {
+                                        println!("DEBUG: Tool calls in stream chunk:");
+                                        for tool_call in tool_calls {
+                                            println!("DEBUG: Tool Call ID: {}", tool_call.id);
+                                            println!("DEBUG: Tool Name: {}", tool_call.function.name);
+                                            println!("DEBUG: Tool Arguments: {}", tool_call.function.arguments);
+                                        }
+                                    }
+                                    
+                                    println!("DEBUG: Parsed stream chunk: {:?}", response);
                                     let _ = tx.send(Ok(response)).await;
                                 }
                             }
                         }
                     }
                     Err(e) => {
+                        println!("DEBUG: Error in stream processing: {:?}", e);
                         let _ = tx.send(Err(anyhow::Error::from(e))).await;
                     }
                 }
             }
+            println!("DEBUG: Stream processing completed");
         });
 
+        println!("DEBUG: Returning stream receiver");
         Ok(rx)
     }
 }

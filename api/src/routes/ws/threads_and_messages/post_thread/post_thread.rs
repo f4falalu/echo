@@ -20,5 +20,5 @@ pub async fn post_thread(
     request: ChatCreateNewChat,
 ) -> Result<()> {
     let handler = AgentThreadHandler::new()?;
-    handler.handle_request(request).await
+    handler.handle_request(request, user.clone()).await
 }

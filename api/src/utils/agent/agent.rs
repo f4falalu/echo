@@ -156,6 +156,9 @@ impl Agent {
             })
             .collect();
 
+        println!("DEBUG: Starting stream_process_thread with {} tools", tools.len());
+        println!("DEBUG: Tools registered: {:?}", tools);
+
         // Create the request to send to the LLM
         let request = ChatCompletionRequest {
             model: self.model.clone(),
@@ -165,28 +168,39 @@ impl Agent {
             ..Default::default()
         };
 
+        println!("DEBUG: Created chat completion request with model: {}", self.model);
+
         // Get the streaming response from the LLM
         let mut stream = self.llm_client.stream_chat_completion(request).await?;
         let (tx, rx) = mpsc::channel(100);
         let mut pending_tool_calls = HashMap::new();
+
+        // Clone the tools map for use in the spawned task
+        let tools_for_execution = self.tools.clone();
+
+        println!("DEBUG: Stream initialized, starting processing task");
 
         // Process the stream in a separate task
         tokio::spawn(async move {
             let mut current_message = Message::assistant(None, None);
 
             while let Some(chunk_result) = stream.recv().await {
+                println!("DEBUG: Received new stream chunk");
                 match chunk_result {
                     Ok(chunk) => {
                         let delta = &chunk.choices[0].delta;
+                        println!("DEBUG: Processing delta: {:?}", delta);
 
                         // Handle role changes
                         if let Some(role) = &delta.role {
+                            println!("DEBUG: Role change detected: {}", role);
                             match role.as_str() {
                                 "assistant" => {
                                     current_message = Message::assistant(None, None);
+                                    println!("DEBUG: Reset current_message for assistant");
                                 }
                                 "tool" => {
-                                    // Tool completion will be handled in content
+                                    println!("DEBUG: Tool role detected, waiting for content");
                                     continue;
                                 }
                                 _ => continue,
@@ -195,8 +209,51 @@ impl Agent {
 
                         // Handle tool calls (tool execution start)
                         if let Some(tool_calls) = &delta.tool_calls {
+                            println!("DEBUG: Processing {} tool calls", tool_calls.len());
                             for tool_call in tool_calls {
+                                println!("DEBUG: Tool call detected - ID: {}, Name: {}", 
+                                    tool_call.id, 
+                                    tool_call.function.name);
+                                
+                                // Store or update the tool call
                                 pending_tool_calls.insert(tool_call.id.clone(), tool_call.clone());
+                                
+                                // Check if this tool call is complete and ready for execution
+                                if let Some(complete_tool_call) = pending_tool_calls.get(&tool_call.id) {
+                                    if let Some(tool) = tools_for_execution.get(&complete_tool_call.function.name) {
+                                        println!("DEBUG: Executing tool: {}", complete_tool_call.function.name);
+                                        
+                                        // Execute the tool
+                                        match tool.execute(complete_tool_call).await {
+                                            Ok(result) => {
+                                                let result_str = serde_json::to_string(&result)
+                                                    .unwrap_or_else(|e| format!("Error serializing result: {}", e));
+                                                println!("DEBUG: Tool execution successful: {}", result_str);
+                                                
+                                                // Send tool result message
+                                                let tool_result_msg = Message::tool(
+                                                    result_str,
+                                                    complete_tool_call.id.clone(),
+                                                );
+                                                let _ = tx.send(Ok(tool_result_msg)).await;
+                                            }
+                                            Err(e) => {
+                                                println!("DEBUG: Tool execution failed: {:?}", e);
+                                                let error_msg = format!("Tool execution failed: {:?}", e);
+                                                let tool_error_msg = Message::tool(
+                                                    error_msg,
+                                                    complete_tool_call.id.clone(),
+                                                );
+                                                let _ = tx.send(Ok(tool_error_msg)).await;
+                                            }
+                                        }
+                                        
+                                        // Remove the executed tool call
+                                        pending_tool_calls.remove(&tool_call.id);
+                                    }
+                                }
+
+                                // Send the tool start message
                                 let tool_start_msg = Message::assistant(None, Some(vec![tool_call.clone()]));
                                 let _ = tx.send(Ok(tool_start_msg)).await;
                             }
@@ -204,44 +261,37 @@ impl Agent {
 
                         // Handle content updates
                         if let Some(content) = &delta.content {
+                            println!("DEBUG: Content update received: {}", content);
                             match &mut current_message {
                                 Message::Assistant { content: msg_content, tool_calls, .. } => {
                                     *msg_content = Some(if let Some(existing) = msg_content {
-                                        format!("{}{}", existing, content)
+                                        let combined = format!("{}{}", existing, content);
+                                        println!("DEBUG: Updated assistant content: {}", combined);
+                                        combined
                                     } else {
+                                        println!("DEBUG: New assistant content: {}", content);
                                         content.clone()
                                     });
                                 }
                                 Message::Tool { content: msg_content, .. } => {
+                                    println!("DEBUG: Updating tool content: {}", content);
                                     *msg_content = content.clone();
                                 }
                                 _ => {}
                             }
                             let _ = tx.send(Ok(current_message.clone())).await;
                         }
-
-                        // Handle tool execution completion
-                        if let Some(role) = &delta.role {
-                            if role == "tool" && delta.content.is_some() {
-                                // Find the corresponding tool call
-                                if let Some(tool_call_id) = pending_tool_calls.keys().next().cloned() {
-                                    let tool_msg = Message::tool(
-                                        delta.content.as_ref().unwrap().clone(),
-                                        tool_call_id.clone(),
-                                    );
-                                    pending_tool_calls.remove(&tool_call_id);
-                                    let _ = tx.send(Ok(tool_msg)).await;
-                                }
-                            }
-                        }
                     }
                     Err(e) => {
-                        let _ = tx.send(Err(e)).await;
+                        println!("DEBUG: Error processing stream chunk: {:?}", e);
+                        let _ = tx.send(Err(anyhow::Error::from(e))).await;
                     }
                 }
             }
+            println!("DEBUG: Stream processing completed");
         });
 
+        println!("DEBUG: Returning stream receiver");
         Ok(rx)
     }
 }
