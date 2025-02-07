@@ -49,25 +49,15 @@ export const useUpdateMetricConfig = ({
     }
   );
 
-  const _onCheckUpdateMetricMessage = useMemoizedFn((metric: BusterMetric) => {
-    // const newMessage = metric[0].messages.find((m) => m.id === messageId);
-    // const currentMessage = getMetricMemoizedMessage({
-    //   metricId: selectedMetricId,
-    //   messageId: messageId
-    // });
-
-    // if (newMessage?.draft_session_id && !currentMessage?.draft_session_id) {
-    //   onUpdateMetricMessage(
-    //     {
-    //       metricId: selectedMetricId,
-    //       messageId: messageId,
-    //       message: {
-    //         draft_session_id: newMessage.draft_session_id
-    //       }
-    //     },
-    //     false
-    //   );
-    // }
+  const _CheckUpdateMetric = useMemoizedFn((metric: BusterMetric) => {
+    const draftSessionId = metric.draft_session_id;
+    const currentMessage = getMetricMemoized({ metricId: metric.id });
+    if (draftSessionId && !currentMessage?.draft_session_id) {
+      onUpdateMetric({
+        id: metric.id,
+        draft_session_id: draftSessionId
+      });
+    }
     return metric;
   });
 
@@ -79,7 +69,7 @@ export const useUpdateMetricConfig = ({
       },
       responseEvent: {
         route: '/metrics/update:updateMetricState',
-        callback: _onCheckUpdateMetricMessage
+        callback: _CheckUpdateMetric
       }
     });
   });
