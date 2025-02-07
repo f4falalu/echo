@@ -210,10 +210,33 @@ export const useUpdateMetricAssosciations = ({
     }
   );
 
+  const deleteMetric = useMemoizedFn(async ({ metricIds }: { metricIds: string[] }) => {
+    return await openConfirmModal({
+      title: 'Delete metric',
+      content: 'Are you sure you want to delete this metric?',
+      onOk: async () => {
+        await busterSocket.emitAndOnce({
+          emitEvent: {
+            route: '/metrics/delete',
+            payload: {
+              ids: metricIds
+            }
+          },
+          responseEvent: {
+            route: '/metrics/delete:deleteMetricState',
+            callback: (d) => d
+          }
+        });
+      },
+      useReject: true
+    });
+  });
+
   return {
     saveMetricToDashboard,
     saveMetricToCollection,
     removeMetricFromDashboard,
-    removeMetricFromCollection
+    removeMetricFromCollection,
+    deleteMetric
   };
 };

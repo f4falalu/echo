@@ -1,5 +1,5 @@
 import type { BusterChat, BusterChatMessage } from '@/api/asset_interfaces';
-import type { IBusterChat, IBusterChatMessage } from '../interfaces';
+import type { IBusterChat, IBusterChatMessage } from '../../interfaces';
 
 export const chatUpgrader = (
   chat: BusterChat,

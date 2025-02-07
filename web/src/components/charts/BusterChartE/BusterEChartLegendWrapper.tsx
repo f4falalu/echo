@@ -73,7 +73,7 @@ export const BusterEChartLegendWrapper: React.FC<BusterEChartLegendWrapperProps>
   return (
     <BusterChartLegendWrapper
       className={className}
-      animate={animate}
+      animateLegend={animate}
       renderLegend={renderLegend}
       legendItems={legendItems}
       showLegend={showLegend}

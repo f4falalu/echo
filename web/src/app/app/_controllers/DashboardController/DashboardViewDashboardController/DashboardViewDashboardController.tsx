@@ -29,7 +29,7 @@ export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
       <DashboardEditTitles
         onUpdateDashboard={onUpdateDashboard}
         allowEdit={allowEdit}
-        title={dashboardResponse?.dashboard?.name || ''}
+        title={dashboardResponse?.dashboard?.title || ''}
         description={dashboardResponse?.dashboard?.description || ''}
       />
 

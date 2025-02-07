@@ -1,18 +1,17 @@
-import { useEffect } from 'react';
 import { useMemoizedFn } from 'ahooks';
 import { EditableTitle } from '@/components/text';
 import { Input } from 'antd';
 import React from 'react';
-import { useDashboardUpdateConfig } from '@/context/Dashboards/useDashboardIndividual/useDashboardUpdateConfig';
+import { useDashboardIndividual } from '@/context/Dashboards/useDashboardIndividual';
 
 export const DashboardEditTitles: React.FC<{
   title: string;
-  onUpdateDashboard: ReturnType<typeof useDashboardUpdateConfig>['onUpdateDashboard'];
+  onUpdateDashboard: ReturnType<typeof useDashboardIndividual>['onUpdateDashboard'];
   description: string;
   allowEdit?: boolean;
 }> = React.memo(({ onUpdateDashboard, allowEdit, title, description }) => {
-  const onChangeTitle = useMemoizedFn((name: string) => {
-    onUpdateDashboard({ name });
+  const onChangeTitle = useMemoizedFn((title: string) => {
+    onUpdateDashboard({ title });
   });
 
   const onChangeDescription = useMemoizedFn((description: string) => {

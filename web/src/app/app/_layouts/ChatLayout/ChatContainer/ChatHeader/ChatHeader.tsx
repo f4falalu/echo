@@ -3,14 +3,14 @@ import { createStyles } from 'antd-style';
 import React from 'react';
 import { ChatHeaderOptions } from './ChatHeaderOptions';
 import { ChatHeaderTitle } from './ChatHeaderTitle';
-import { useChatContextSelector } from '../../ChatContext';
+import { useChatIndividualContextSelector } from '../../ChatContext';
 
 export const ChatHeader: React.FC<{
   showScrollOverflow: boolean;
 }> = React.memo(({ showScrollOverflow }) => {
   const { cx, styles } = useStyles();
-  const hasFile = useChatContextSelector((state) => state.hasFile);
-  const chatTitle = useChatContextSelector((state) => state.chatTitle);
+  const hasFile = useChatIndividualContextSelector((state) => state.hasFile);
+  const chatTitle = useChatIndividualContextSelector((state) => state.chatTitle);
 
   return (
     <div

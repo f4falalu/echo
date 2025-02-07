@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { FileContainerButtonsProps } from './interfaces';
 import { FileButtonContainer } from './FileButtonContainer';
-import { useChatContextSelector } from '../../ChatContext';
+import { useChatIndividualContextSelector } from '../../ChatContext';
 import { SaveDashboardToCollectionButton } from '@appComponents/Buttons/SaveDashboardToCollectionButton';
 import { HideButtonContainer } from './HideButtonContainer';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
@@ -18,7 +18,7 @@ import { BusterRoutes } from '@/routes';
 export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(
   () => {
     const isPureFile = useChatLayoutContextSelector((x) => x.isPureFile);
-    const selectedFileId = useChatContextSelector((x) => x.selectedFileId)!;
+    const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
 
     return (
       <FileButtonContainer>
@@ -36,7 +36,7 @@ export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps
 DashboardContainerHeaderButtons.displayName = 'DashboardContainerHeaderButtons';
 
 const SaveToCollectionButton = React.memo(() => {
-  const selectedFileId = useChatContextSelector((x) => x.selectedFileId)!;
+  const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
   return <SaveDashboardToCollectionButton dashboardIds={[selectedFileId]} />;
 });
 SaveToCollectionButton.displayName = 'SaveToCollectionButton';

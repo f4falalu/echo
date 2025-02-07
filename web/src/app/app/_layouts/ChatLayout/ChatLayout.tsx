@@ -8,7 +8,7 @@ import { ChatSplitterContextProvider } from './ChatLayoutContext';
 import { useChatLayout } from './ChatLayoutContext';
 import { SelectedFile } from './interfaces';
 import { useDefaultSplitterLayout } from './hooks';
-import { ChatContextProvider, useChatContext } from './ChatContext/ChatContext';
+import { ChatContextProvider, useChatIndividualContext } from './ChatContext/ChatContext';
 import { DEFAULT_CHAT_OPTION } from './ChatLayoutContext/config';
 
 export interface ChatSplitterProps {
@@ -33,7 +33,7 @@ export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(
       defaultSelectedFile
     });
 
-    const useChatContextValue = useChatContext({ chatId, defaultSelectedFile });
+    const useChatContextValue = useChatIndividualContext({ chatId, defaultSelectedFile });
 
     const { isPureChat, isPureFile } = useChatSplitterProps;
     const { hasFile } = useChatContextValue;

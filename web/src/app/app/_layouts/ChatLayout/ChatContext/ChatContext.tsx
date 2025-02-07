@@ -6,9 +6,8 @@ import {
 } from '@fluentui/react-context-selector';
 import { useBusterChatIndividual } from '@/context/Chats';
 import type { SelectedFile } from '../interfaces';
-import { useChatAssociation } from './useChatAssosciation';
 
-export const useChatContext = ({
+export const useChatIndividualContext = ({
   chatId,
   defaultSelectedFile
 }: {
@@ -33,11 +32,7 @@ export const useChatContext = ({
   //MESSAGES
   const currentMessageId = chatMessages[chatMessages.length - 1]?.id;
 
-  //ASSOCIATION
-  const association = useChatAssociation({ chatId });
-
   return {
-    ...association,
     hasChat,
     hasFile,
     selectedFileId,
@@ -49,18 +44,23 @@ export const useChatContext = ({
   };
 };
 
-export const ChatContext = createContext<ReturnType<typeof useChatContext>>(
-  {} as ReturnType<typeof useChatContext>
+export const IndividualChatContext = createContext<ReturnType<typeof useChatIndividualContext>>(
+  {} as ReturnType<typeof useChatIndividualContext>
 );
 
 export const ChatContextProvider = React.memo(
-  ({ value, children }: PropsWithChildren<{ value: ReturnType<typeof useChatContext> }>) => {
-    return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
+  ({
+    value,
+    children
+  }: PropsWithChildren<{ value: ReturnType<typeof useChatIndividualContext> }>) => {
+    return (
+      <IndividualChatContext.Provider value={value}>{children}</IndividualChatContext.Provider>
+    );
   }
 );
 
 ChatContextProvider.displayName = 'ChatContextProvider';
 
-export const useChatContextSelector = <T,>(
-  selector: ContextSelector<ReturnType<typeof useChatContext>, T>
-) => useContextSelector(ChatContext, selector);
+export const useChatIndividualContextSelector = <T,>(
+  selector: ContextSelector<ReturnType<typeof useChatIndividualContext>, T>
+) => useContextSelector(IndividualChatContext, selector);

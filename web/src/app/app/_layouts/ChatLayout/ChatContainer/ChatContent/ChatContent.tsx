@@ -1,14 +1,13 @@
 import React from 'react';
-import { useChatContextSelector } from '../../ChatContext';
+import { useChatIndividualContextSelector } from '../../ChatContext';
 import { ChatMessageBlock } from './ChatMessageBlock';
 import { ChatInput } from './ChatInput';
 import { createStyles } from 'antd-style';
-import { useBusterNewChatContextSelector } from '@/context/Chats';
 
 export const ChatContent: React.FC<{ chatContentRef: React.RefObject<HTMLDivElement> }> =
   React.memo(({ chatContentRef }) => {
     const { styles } = useStyles();
-    const chatMessages = useChatContextSelector((state) => state.chatMessages);
+    const chatMessages = useChatIndividualContextSelector((state) => state.chatMessages);
 
     return (
       <div className="flex h-full w-full flex-col overflow-hidden">

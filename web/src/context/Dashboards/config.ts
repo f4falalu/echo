@@ -8,7 +8,7 @@ export const defaultBusterDashboard: BusterDashboard = {
   created_at: '',
   deleted_at: '',
   description: '',
-  name: '',
+  title: '',
   updated_at: '',
   created_by: '',
   updated_by: '',
@@ -18,5 +18,8 @@ export const defaultBusterDashboard: BusterDashboard = {
   sharingKey: '',
   public_enabled_by: '',
   status: VerificationStatus.notRequested,
-  public_password: null
+  public_password: null,
+  version_number: 1,
+  file: '',
+  file_name: ''
 };

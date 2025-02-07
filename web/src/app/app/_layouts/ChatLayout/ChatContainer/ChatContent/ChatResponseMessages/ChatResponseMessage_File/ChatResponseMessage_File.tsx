@@ -11,13 +11,13 @@ import { itemAnimationConfig } from '../animationConfig';
 import { useMemoizedFn } from 'ahooks';
 import { StatusIndicator } from '../StatusIndicator';
 import { useChatLayoutContextSelector } from '../../../../ChatLayoutContext';
-import { useChatContextSelector } from '../../../../ChatContext';
+import { useChatIndividualContextSelector } from '../../../../ChatContext';
 
 export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = React.memo(
   ({ responseMessage: responseMessageProp, isCompletedStream }) => {
     const { cx, styles } = useStyles();
     const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
-    const selectedFileId = useChatContextSelector((x) => x.selectedFileId);
+    const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId);
     const responseMessage = responseMessageProp as BusterChatMessage_file;
     const { file_name, file_type, version_number, id, metadata = [] } = responseMessage;
     const isSelectedFile = selectedFileId === id;

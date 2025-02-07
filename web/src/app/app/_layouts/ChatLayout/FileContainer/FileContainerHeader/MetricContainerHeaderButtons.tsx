@@ -9,7 +9,7 @@ import { useMemoizedFn } from 'ahooks';
 import { SaveMetricToCollectionButton } from '@appComponents/Buttons/SaveMetricToCollectionButton';
 import { SaveMetricToDashboardButton } from '@appComponents/Buttons/SaveMetricToDashboardButton';
 import { ShareMetricButton } from '@appComponents/Buttons/ShareMetricButton';
-import { useChatContextSelector } from '../../ChatContext';
+import { useChatIndividualContextSelector } from '../../ChatContext';
 import { HideButtonContainer } from './HideButtonContainer';
 import { FileButtonContainer } from './FileButtonContainer';
 import { CreateChatButton } from './CreateChatButtont';
@@ -20,16 +20,17 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
     (x) => x.selectedFileView
   ) as MetricFileView;
   const isPureFile = useChatLayoutContextSelector((x) => x.isPureFile);
+  const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
 
-  const showEditChartButton = selectedFileView === 'chart';
+  const metricId = selectedFileId;
 
   return (
     <FileButtonContainer>
       <EditChartButton />
       <EditSQLButton />
-      <SaveToCollectionButton />
+      <SaveToCollectionButton metricId={metricId} />
       <SaveToDashboardButton />
-      <ShareMetricButton />
+      <ShareMetricButton metricId={metricId} />
       <HideButtonContainer show={isPureFile}>
         <CreateChatButton />
       </HideButtonContainer>
@@ -87,21 +88,18 @@ const EditSQLButton = React.memo(() => {
 });
 EditSQLButton.displayName = 'EditSQLButton';
 
-const SaveToCollectionButton = React.memo(() => {
-  const selectedFileId = useChatContextSelector((x) => x.selectedFileId)!;
-  return <SaveMetricToCollectionButton metricIds={[selectedFileId]} />;
+const SaveToCollectionButton = React.memo(({ metricId }: { metricId: string }) => {
+  return <SaveMetricToCollectionButton metricIds={[metricId]} />;
 });
 SaveToCollectionButton.displayName = 'SaveToCollectionButton';
 
 const SaveToDashboardButton = React.memo(() => {
-  const selectedFileId = useChatContextSelector((x) => x.selectedFileId)!;
+  const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
   return <SaveMetricToDashboardButton metricIds={[selectedFileId]} />;
 });
 SaveToDashboardButton.displayName = 'SaveToDashboardButton';
 
-const ShareMetricButtonLocal = React.memo(() => {
-  const selectedFileId = useChatContextSelector((x) => x.selectedFileId)!;
-
-  return <ShareMetricButton />;
+const ShareMetricButtonLocal = React.memo(({ metricId }: { metricId: string }) => {
+  return <ShareMetricButton metricId={metricId} />;
 });
 ShareMetricButtonLocal.displayName = 'ShareMetricButtonLocal';

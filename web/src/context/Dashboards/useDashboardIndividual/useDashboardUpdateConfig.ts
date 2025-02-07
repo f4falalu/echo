@@ -38,7 +38,7 @@ export const useDashboardUpdateConfig = ({
         payload: {
           id: newDashboard.dashboard.id,
           description: newDashboard.dashboard.description,
-          name: newDashboard.dashboard.name,
+          title: newDashboard.dashboard.title,
           config: newDashboard.dashboard.config
         }
       });
@@ -71,13 +71,13 @@ export const useDashboardUpdateConfig = ({
         ...newDashboard
       }
     };
-    const didNameChange =
-      newDashboard.name && newDashboard.name !== currentDashboard.dashboard.name;
+    const didTitleChange =
+      newDashboard.title && newDashboard.title !== currentDashboard.dashboard.title;
 
     onUpdateDashboardRequest(newDashboardState);
 
-    if (didNameChange) {
-      const newName = newDashboard.name || currentDashboard.dashboard.name;
+    if (didTitleChange) {
+      const newName = newDashboard.title || currentDashboard.dashboard.title;
       updateDashboardNameInList(id, newName);
     }
   });

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useChatContextSelector } from '../../../ChatContext';
+import { useChatIndividualContextSelector } from '../../../ChatContext';
 import { useMemoizedFn } from 'ahooks';
 import { useBusterNewChatContextSelector } from '@/context/Chats';
 import type { TextAreaRef } from 'antd/es/input/TextArea';
@@ -19,15 +19,15 @@ export const useChatInputFlow = ({
   inputRef: React.RefObject<TextAreaRef>;
   loading: boolean;
 }) => {
-  const hasChat = useChatContextSelector((x) => x.hasChat);
-  const chatId = useChatContextSelector((x) => x.chatId);
-  const selectedFileType = useChatContextSelector((x) => x.selectedFileType);
-  const selectedFileId = useChatContextSelector((x) => x.selectedFileId);
+  const hasChat = useChatIndividualContextSelector((x) => x.hasChat);
+  const chatId = useChatIndividualContextSelector((x) => x.chatId);
+  const selectedFileType = useChatIndividualContextSelector((x) => x.selectedFileType);
+  const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId);
   const onStartNewChat = useBusterNewChatContextSelector((state) => state.onStartNewChat);
   const onFollowUpChat = useBusterNewChatContextSelector((state) => state.onFollowUpChat);
   const onStartChatFromFile = useBusterNewChatContextSelector((state) => state.onStartChatFromFile);
   const onStopChat = useBusterNewChatContextSelector((state) => state.onStopChat);
-  const currentMessageId = useChatContextSelector((x) => x.currentMessageId);
+  const currentMessageId = useChatIndividualContextSelector((x) => x.currentMessageId);
 
   const flow: FlowType = useMemo(() => {
     if (hasChat) return 'followup-chat';

@@ -1,11 +1,10 @@
 'use client';
 
-import React, { PropsWithChildren, useEffect, useMemo, useRef, useState } from 'react';
+import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterMetricListItem, VerificationStatus } from '@/api/asset_interfaces';
 import isEmpty from 'lodash/isEmpty';
 import { useBusterWebSocket } from '../BusterWebSocket';
-import { useParams } from 'next/navigation';
 import { BusterRoutes } from '@/routes';
 import { useMemoizedFn, useThrottleFn } from 'ahooks';
 import { createFilterRecord, metricsArrayToRecord } from './helpers';
@@ -16,39 +15,23 @@ import {
 } from '@fluentui/react-context-selector';
 import { useBusterMetricsContextSelector } from './BusterMetricsProvider';
 
+interface IMetricsList {
+  fetching: boolean;
+  fetched: boolean;
+  fetchedAt: number;
+  metricListIds: string[];
+}
+
 const useMetricsList = () => {
-  const { metricId: openedMetricId } = useParams<{ metricId: string }>();
   const busterSocket = useBusterWebSocket();
-  const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
-  const getMetric = useBusterMetricsContextSelector((x) => x.getMetricMemoized);
-  const onUpdateMetric = useBusterMetricsContextSelector((x) => x.onUpdateMetric);
 
   const [metricsList, setMetricsList] = useState<Record<string, BusterMetricListItem>>({});
-  const [metricListIds, setMetricListIds] = useState<Record<string, string[]>>({});
-  const loadedMetricList = useRef<
-    Record<
-      string, //filters
-      {
-        loading: boolean;
-        fetched: boolean;
-        fetchedAt: number | null;
-      }
-    >
-  >({});
+  const [metricListIds, setMetricListIds] = useState<Record<string, IMetricsList>>({});
 
   const _onInitializeListMetrics = useMemoizedFn(
     (metrics: BusterMetricListItem[], filters: VerificationStatus[], admin_view: boolean) => {
       const newMetrics = metricsArrayToRecord(metrics);
       const filterKey = createFilterRecord({ filters, admin_view });
-
-      loadedMetricList.current = {
-        ...loadedMetricList.current,
-        [filterKey]: {
-          loading: false,
-          fetched: true,
-          fetchedAt: Date.now()
-        }
-      };
 
       setMetricsList((prev) => ({
         ...prev,
@@ -57,7 +40,12 @@ const useMetricsList = () => {
 
       setMetricListIds((prev) => ({
         ...prev,
-        [filterKey]: Object.keys(newMetrics)
+        [filterKey]: {
+          fetching: false,
+          fetched: true,
+          fetchedAt: Date.now(),
+          metricListIds: Object.keys(newMetrics)
+        }
       }));
     }
   );
@@ -77,32 +65,15 @@ const useMetricsList = () => {
   );
 
   const removeItemFromMetricsList = useMemoizedFn(({ metricId }: { metricId: string }) => {
-    setMetricsList((prevMetrics) => {
-      const newMetrics = { ...prevMetrics };
-      delete newMetrics[metricId];
-      return newMetrics;
-    });
     setMetricListIds((prevMetricListIds) => {
       const newMetricListIds = { ...prevMetricListIds };
       Object.keys(newMetricListIds).forEach((key) => {
-        newMetricListIds[key] = newMetricListIds[key].filter((id) => id !== metricId);
+        newMetricListIds[key] = {
+          ...newMetricListIds[key],
+          metricListIds: newMetricListIds[key].metricListIds.filter((id) => id !== metricId)
+        };
       });
       return newMetricListIds;
-    });
-  });
-
-  const onOpenMetric = useMemoizedFn((metricId: string) => {
-    const metric = getMetric({ metricId });
-    if (!metric) {
-      const metricListItem = metricsList[metricId]!;
-      onUpdateMetric({
-        id: metricId,
-        title: metricListItem.title
-      });
-    }
-    onChangePage({
-      route: BusterRoutes.APP_METRIC_ID,
-      metricId: metricId
     });
   });
 
@@ -110,18 +81,22 @@ const useMetricsList = () => {
     ({ filters, admin_view }: { admin_view: boolean; filters?: VerificationStatus[] }) => {
       const recordKey = createFilterRecord({ filters, admin_view });
 
-      if (loadedMetricList.current[recordKey]?.loading) {
+      if (metricListIds[recordKey]?.fetching) {
         return;
       }
 
-      loadedMetricList.current = {
-        ...loadedMetricList.current,
-        [recordKey]: {
-          loading: true,
-          fetched: loadedMetricList.current[recordKey]?.fetched || false,
-          fetchedAt: loadedMetricList.current[recordKey]?.fetchedAt || null
-        }
-      };
+      setMetricListIds((prev) => {
+        const foundRecord = prev[recordKey];
+        return {
+          ...prev,
+          [recordKey]: {
+            fetching: true,
+            metricListIds: foundRecord?.metricListIds || [],
+            fetched: foundRecord?.fetched || false,
+            fetchedAt: foundRecord?.fetchedAt || 0
+          }
+        };
+      });
 
       const status = isEmpty(filters) ? null : filters!;
 
@@ -150,10 +125,7 @@ const useMetricsList = () => {
     metricsList,
     getMetricsList,
     removeItemFromMetricsList,
-    openedMetricId,
-    onOpenMetric,
-    onUpdateMetricListItem,
-    loadedMetricList
+    onUpdateMetricListItem
   };
 };
 
@@ -181,27 +153,36 @@ export const useBusterMetricListByFilter = (params: {
   const filterRecord = useMemo(() => createFilterRecord(params), [params]);
   const metricListIds = useBusterMetricsListContextSelector((x) => x.metricListIds);
   const metricsList = useBusterMetricsListContextSelector((x) => x.metricsList);
-  const allMetricListLoadingStatus = useBusterMetricsListContextSelector(
-    (x) => x.loadedMetricList.current
-  );
-  const metricListLoadingStatus = allMetricListLoadingStatus[filterRecord];
+
   const getMetricsList = useBusterMetricsListContextSelector((x) => x.getMetricsList);
 
-  const list = useMemo(() => {
-    const listIds = metricListIds[createFilterRecord(params)] || [];
-    return listIds.map((id) => metricsList[id]);
+  const assosciatedMetricList: IMetricsList = useMemo(() => {
+    const listIds: IMetricsList | undefined = metricListIds[createFilterRecord(params)];
+    return (
+      listIds || {
+        fetching: false,
+        fetched: false,
+        fetchedAt: 0,
+        metricListIds: []
+      }
+    );
   }, [metricListIds, metricsList, filterRecord]);
+
+  const list = useMemo(() => {
+    return assosciatedMetricList.metricListIds.map((id) => metricsList[id]);
+  }, [assosciatedMetricList.metricListIds, metricsList]);
 
   useEffect(() => {
     const wasFetchedMoreThanXSecondsAgo =
-      Date.now() - (metricListLoadingStatus?.fetchedAt || 0) > 2000;
+      Date.now() - (assosciatedMetricList?.fetchedAt || 0) > 3500;
+
     if (
-      (!metricListLoadingStatus?.fetched || wasFetchedMoreThanXSecondsAgo) &&
-      !metricListLoadingStatus?.loading
+      (!assosciatedMetricList.fetched || wasFetchedMoreThanXSecondsAgo) &&
+      !assosciatedMetricList?.fetching
     ) {
       getMetricsList(params);
     }
-  }, [getMetricsList, filterRecord]);
+  }, [filterRecord]);
 
-  return { list, metricListLoadingStatus };
+  return { list, fetched: assosciatedMetricList.fetched, fetching: assosciatedMetricList.fetching };
 };

@@ -1,7 +1,7 @@
 import { Text } from '@/components/text';
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useChatContextSelector } from '../../ChatContext';
+import { useChatIndividualContextSelector } from '../../ChatContext';
 
 const animation = {
   initial: { opacity: 0 },
@@ -11,7 +11,7 @@ const animation = {
 };
 
 export const ChatHeaderTitle: React.FC<{}> = React.memo(() => {
-  const chatTitle = useChatContextSelector((state) => state.chatTitle);
+  const chatTitle = useChatIndividualContextSelector((state) => state.chatTitle);
 
   return (
     <AnimatePresence mode="wait" initial={false}>

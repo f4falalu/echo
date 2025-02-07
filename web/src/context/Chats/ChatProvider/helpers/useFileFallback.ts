@@ -2,7 +2,7 @@ import { SelectedFile } from '@/app/app/_layouts/ChatLayout';
 import { useDashboardContextSelector } from '@/context/Dashboards';
 import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useMemo } from 'react';
-import { IBusterChat } from '../interfaces';
+import { IBusterChat } from '../../interfaces';
 
 export const useFileFallback = ({
   defaultSelectedFile

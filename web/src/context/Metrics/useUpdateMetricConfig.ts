@@ -17,10 +17,10 @@ export const useUpdateMetricConfig = ({
   getMetricMemoized,
   setMetrics,
   startTransition,
-  _onUpdateMetric
+  onInitializeMetric
 }: {
   getMetricMemoized: ({ metricId }: { metricId?: string }) => IBusterMetric;
-  _onUpdateMetric: (metric: BusterMetric) => void;
+  onInitializeMetric: (metric: BusterMetric) => void;
   getMetricId: (metricId?: string) => string;
   setMetrics: (metrics: Record<string, IBusterMetric>) => void;
   startTransition: (fn: () => void) => void;
@@ -211,7 +211,7 @@ export const useUpdateMetricConfig = ({
         },
         responseEvent: {
           route: '/metrics/update:updateMetricState',
-          callback: _onUpdateMetric
+          callback: onInitializeMetric
         }
       }) as Promise<[BusterMetric]>;
     }

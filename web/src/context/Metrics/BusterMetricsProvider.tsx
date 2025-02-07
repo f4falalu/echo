@@ -20,16 +20,12 @@ import { useBusterMetricDataContextSelector } from '../MetricData';
 import { createMockMetric } from './MOCK_METRIC';
 import { useUpdateMetricConfig } from './useUpdateMetricConfig';
 import { useUpdateMetricAssosciations } from './useUpdateMetricAssosciations';
+import { useShareMetric } from './useShareMetric';
+import { useMetricSubscribe } from './useMetricSubscribe';
 
 export const useBusterMetrics = () => {
   const [isPending, startTransition] = useTransition();
   const { metricId: selectedMetricId } = useParams<{ metricId: string }>();
-  const { openConfirmModal } = useBusterNotifications();
-  const busterSocket = useBusterWebSocket();
-  const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
-  const setAssetPasswordError = useBusterAssetsContextSelector(
-    (state) => state.setAssetPasswordError
-  );
   const metricsRef = useRef<Record<string, IBusterMetric>>({});
 
   const getMetricId = useMemoizedFn((metricId?: string): string => {
@@ -47,28 +43,6 @@ export const useBusterMetrics = () => {
     const prev = metricsRef.current;
     delete prev[metricId];
     setMetrics(prev);
-  });
-
-  const deleteMetric = useMemoizedFn(async ({ metricIds }: { metricIds: string[] }) => {
-    return await openConfirmModal({
-      title: 'Delete metric',
-      content: 'Are you sure you want to delete this metric?',
-      onOk: async () => {
-        await busterSocket.emitAndOnce({
-          emitEvent: {
-            route: '/metrics/delete',
-            payload: {
-              ids: metricIds
-            }
-          },
-          responseEvent: {
-            route: '/metrics/delete:deleteMetricState',
-            callback: (d) => d
-          }
-        });
-      },
-      useReject: true
-    });
   });
 
   //UI SELECTORS
@@ -92,21 +66,6 @@ export const useBusterMetrics = () => {
     onUpdateMetric(upgradedMetric, false);
   });
 
-  const _setLoadingMetric = useMemoizedFn((metricId: string) => {
-    const metrics = metricsRef.current || {};
-    metrics[metricId] = resolveEmptyMetric(
-      {
-        ...metrics[metricId],
-        fetching: true
-      },
-      metricId
-    );
-
-    setMetrics(metrics);
-
-    return metrics[metricId];
-  });
-
   const bulkUpdateMetrics = useMemoizedFn((newMetrics: Record<string, IBusterMetric>) => {
     metricsRef.current = {
       ...metricsRef.current,
@@ -114,98 +73,22 @@ export const useBusterMetrics = () => {
     };
   });
 
-  //LISTENERS
-
-  const _onGetMetricState = useMemoizedFn((metric: BusterMetric) => {
-    onInitializeMetric(metric);
-  });
-
-  const _onGetMetricStateError = useMemoizedFn((_error: any, metricId: string) => {
-    const error = _error as RustApiError;
-    setAssetPasswordError(metricId, error.message || 'An error occurred');
-  });
-
-  const _onUpdateMetric = useMemoizedFn((metric: BusterMetric) => {
-    onInitializeMetric(metric);
-  });
-
   // EMITTERS
 
-  const subscribeToMetric = useMemoizedFn(async ({ metricId }: { metricId: string }) => {
-    const { password } = getAssetPassword(metricId);
-    const foundMetric: undefined | IBusterMetric = metricsRef.current[metricId];
-
-    if (foundMetric && (foundMetric?.fetching || foundMetric?.fetched)) {
-      return foundMetric;
-    }
-
-    _setLoadingMetric(metricId);
-
-    //TODO: remove this
-    setTimeout(() => {
-      _onGetMetricState(createMockMetric(metricId));
-    }, 300);
-
-    return await busterSocket.emitAndOnce({
-      emitEvent: {
-        route: '/metrics/get',
-        payload: {
-          id: metricId,
-          password
-        }
-      },
-      responseEvent: {
-        route: '/metrics/get:updateMetricState',
-        callback: _onGetMetricState,
-        onError: (error) => _onGetMetricStateError(error, metricId)
-      }
-    });
+  const { subscribeToMetric, unsubscribeToMetricEvents } = useMetricSubscribe({
+    metricsRef,
+    setMetrics,
+    onInitializeMetric
   });
 
-  const unsubscribeToMetricEvents = useMemoizedFn(({ metricId }: { metricId: string }) => {
-    busterSocket.off({
-      route: '/metrics/get:updateMetricState',
-      callback: _onUpdateMetric
-    });
-    busterSocket.off({
-      route: '/metrics/update:updateMetricState',
-      callback: _onUpdateMetric
-    });
-  });
-
-  const onShareMetric = useMemoizedFn(
-    async (
-      payload: Pick<
-        MetricUpdateMetric['payload'],
-        | 'id'
-        | 'publicly_accessible'
-        | 'public_password'
-        | 'user_permissions'
-        | 'team_permissions'
-        | 'public_expiry_date'
-        | 'remove_users'
-        | 'remove_teams'
-      >
-    ) => {
-      //keep this seperate from _updateMetricToServer because we need to do some extra stuff
-      return busterSocket.emitAndOnce({
-        emitEvent: {
-          route: '/metrics/update',
-          payload
-        },
-        responseEvent: {
-          route: '/metrics/update:updateMetricState',
-          callback: _onUpdateMetric
-        }
-      });
-    }
-  );
+  const { onShareMetric } = useShareMetric({ onInitializeMetric });
 
   const {
     saveMetricToDashboard,
     saveMetricToCollection,
     removeMetricFromDashboard,
-    removeMetricFromCollection
+    removeMetricFromCollection,
+    deleteMetric
   } = useUpdateMetricAssosciations({
     metricsRef,
     setMetrics,
@@ -224,7 +107,7 @@ export const useBusterMetrics = () => {
     getMetricId,
     setMetrics,
     startTransition,
-    _onUpdateMetric,
+    onInitializeMetric,
     getMetricMemoized
   });
 
