@@ -62,38 +62,125 @@ impl ToolExecutor for CreateFilesTool {
             };
 
         let files = params.files;
-
         let mut created_files = vec![];
-
         let mut failed_files = vec![];
 
+        // Separate files by type and validate/prepare them
+        let mut metric_records = vec![];
+        let mut dashboard_records = vec![];
+        let mut metric_ymls = vec![];
+        let mut dashboard_ymls = vec![];
+
+        // First pass - validate and prepare all records
         for file in files {
             match file.file_type.as_str() {
-                "metric" => match create_metric_file(file.clone()).await {
-                    Ok(f) => {
-                        created_files.push(f);
-                        continue;
+                "metric" => {
+                    match MetricYml::new(file.yml_content.clone()) {
+                        Ok(metric_yml) => {
+                            if let Some(metric_id) = &metric_yml.id {
+                                let metric_file = MetricFile {
+                                    id: metric_id.clone(),
+                                    name: metric_yml.title.clone(),
+                                    file_name: format!("{}.yml", file.name),
+                                    content: serde_json::to_value(metric_yml.clone()).unwrap(),
+                                    created_by: Uuid::new_v4(),
+                                    verification: Verification::NotRequested,
+                                    evaluation_obj: None,
+                                    evaluation_summary: None,
+                                    evaluation_score: None,
+                                    organization_id: Uuid::new_v4(),
+                                    created_at: Utc::now(),
+                                    updated_at: Utc::now(),
+                                    deleted_at: None,
+                                };
+                                metric_records.push(metric_file);
+                                metric_ymls.push(metric_yml);
+                            } else {
+                                failed_files.push((file.name, "Metric YML file does not have an id. This should never happen.".to_string()));
+                            }
+                        }
+                        Err(e) => {
+                            failed_files.push((file.name, e.to_string()));
+                        }
                     }
-                    Err(e) => {
-                        failed_files.push((file.name, e.to_string()));
-                        continue;
+                }
+                "dashboard" => {
+                    match DashboardYml::new(file.yml_content.clone()) {
+                        Ok(dashboard_yml) => {
+                            if let Some(dashboard_id) = &dashboard_yml.id {
+                                let dashboard_file = DashboardFile {
+                                    id: dashboard_id.clone(),
+                                    name: dashboard_yml.name.clone().unwrap_or_else(|| "New Dashboard".to_string()),
+                                    file_name: format!("{}.yml", file.name),
+                                    content: serde_json::to_value(dashboard_yml.clone()).unwrap(),
+                                    filter: None,
+                                    organization_id: Uuid::new_v4(),
+                                    created_by: Uuid::new_v4(),
+                                    created_at: Utc::now(),
+                                    updated_at: Utc::now(),
+                                    deleted_at: None,
+                                };
+                                dashboard_records.push(dashboard_file);
+                                dashboard_ymls.push(dashboard_yml);
+                            } else {
+                                failed_files.push((file.name, "Dashboard YML file does not have an id. This should never happen.".to_string()));
+                            }
+                        }
+                        Err(e) => {
+                            failed_files.push((file.name, e.to_string()));
+                        }
                     }
-                },
-                "dashboard" => match create_dashboard_file(file.clone()).await {
-                    Ok(f) => {
-                        created_files.push(f);
-                        continue;
-                    }
-                    Err(e) => {
-                        failed_files.push((file.name, e.to_string()));
-                        continue;
-                    }
-                },
+                }
                 _ => {
                     failed_files.push((file.name, format!("Invalid file type: {}. Currently only `metric` and `dashboard` types are supported.", file.file_type)));
-                    continue;
                 }
-            };
+            }
+        }
+
+        // Second pass - bulk insert records
+        let mut conn = match get_pg_pool().get().await {
+            Ok(conn) => conn,
+            Err(e) => return Err(anyhow::anyhow!(e)),
+        };
+
+        // Insert metric files
+        if !metric_records.is_empty() {
+            match insert_into(metric_files::table)
+                .values(&metric_records)
+                .execute(&mut conn)
+                .await
+            {
+                Ok(_) => {
+                    created_files.extend(metric_ymls.into_iter().map(FileEnum::Metric));
+                }
+                Err(e) => {
+                    failed_files.extend(
+                        metric_records
+                            .iter()
+                            .map(|r| (r.file_name.clone(), format!("Failed to create metric file: {}", e))),
+                    );
+                }
+            }
+        }
+
+        // Insert dashboard files
+        if !dashboard_records.is_empty() {
+            match insert_into(dashboard_files::table)
+                .values(&dashboard_records)
+                .execute(&mut conn)
+                .await
+            {
+                Ok(_) => {
+                    created_files.extend(dashboard_ymls.into_iter().map(FileEnum::Dashboard));
+                }
+                Err(e) => {
+                    failed_files.extend(
+                        dashboard_records
+                            .iter()
+                            .map(|r| (r.file_name.clone(), format!("Failed to create dashboard file: {}", e))),
+                    );
+                }
+            }
         }
 
         let message = if failed_files.is_empty() {
@@ -162,103 +249,6 @@ impl ToolExecutor for CreateFilesTool {
             "description": "Creates **new** metric or dashboard files. Use this if no existing file can fulfill the user's needs. This will automatically open the metric/dashboard for the user."
         })
     }
-}
-
-async fn create_metric_file(file: FileParams) -> Result<FileEnum> {
-    let metric_yml = match MetricYml::new(file.yml_content) {
-        Ok(metric_file) => metric_file,
-        Err(e) => return Err(e),
-    };
-
-    let mut conn = match get_pg_pool().get().await {
-        Ok(conn) => conn,
-        Err(e) => return Err(anyhow::anyhow!(e)),
-    };
-
-    let metric_id = match &metric_yml.id {
-        Some(id) => id,
-        None => {
-            return Err(anyhow::anyhow!(
-                "Metric YML file does not have an id. This should never happen."
-            ))
-        }
-    };
-
-    let metric_file_record = MetricFile {
-        id: metric_id.clone(),
-        name: metric_yml.title.clone(),
-        file_name: format!("{}.yml", file.name),
-        content: serde_json::to_value(metric_yml.clone()).unwrap(),
-        created_by: Uuid::new_v4(),
-        verification: Verification::NotRequested,
-        evaluation_obj: None,
-        evaluation_summary: None,
-        evaluation_score: None,
-        organization_id: Uuid::new_v4(),
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
-        deleted_at: None,
-    };
-
-    match insert_into(metric_files::table)
-        .values(&metric_file_record)
-        .execute(&mut conn)
-        .await
-    {
-        Ok(metric_file_record) => metric_file_record,
-        Err(e) => return Err(anyhow::anyhow!("Failed to create metric file: {}", e)),
-    };
-
-    Ok(FileEnum::Metric(metric_yml))
-}
-
-async fn create_dashboard_file(file: FileParams) -> Result<FileEnum> {
-    let dashboard_yml = match DashboardYml::new(file.yml_content) {
-        Ok(dashboard_file) => dashboard_file,
-        Err(e) => return Err(e),
-    };
-
-    let mut conn = match get_pg_pool().get().await {
-        Ok(conn) => conn,
-        Err(e) => return Err(anyhow::anyhow!(e)),
-    };
-
-    let dashboard_id = match &dashboard_yml.id {
-        Some(id) => id,
-        None => {
-            return Err(anyhow::anyhow!(
-                "Dashboard YML file does not have an id. This should never happen."
-            ))
-        }
-    };
-
-    let dashboard_file_record = DashboardFile {
-        id: dashboard_id.clone(),
-        name: dashboard_yml
-            .name
-            .clone()
-            .unwrap_or_else(|| "New Dashboard".to_string()),
-        file_name: format!("{}.yml", file.name),
-        content: serde_json::to_value(dashboard_yml.clone()).unwrap(),
-        filter: None,
-        organization_id: Uuid::new_v4(),
-        created_by: Uuid::new_v4(),
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
-        deleted_at: None,
-    };
-
-    match insert_into(dashboard_files::table)
-        .values(&dashboard_file_record)
-        .returning(dashboard_files::all_columns)
-        .execute(&mut conn)
-        .await
-    {
-        Ok(_) => (),
-        Err(e) => return Err(anyhow::anyhow!(e)),
-    };
-
-    Ok(FileEnum::Dashboard(dashboard_yml))
 }
 
 #[cfg(test)]
