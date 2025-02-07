@@ -33,7 +33,6 @@ struct CreateFilesParams {
 
 #[derive(Debug, Serialize)]
 pub struct CreateFilesOutput {
-    success: bool,
     message: String,
     files: Vec<FileEnum>,
 }
@@ -67,7 +66,7 @@ impl ToolExecutor for CreateFilesTool {
         let mut failed_files = vec![];
 
         for file in files {
-            let created_file = match file.file_type.as_str() {
+            match file.file_type.as_str() {
                 "metric" => match create_metric_file(file.clone()).await {
                     Ok(f) => {
                         created_files.push(f);
@@ -103,20 +102,21 @@ impl ToolExecutor for CreateFilesTool {
             } else {
                 String::new()
             };
-            
+
             let failures: Vec<String> = failed_files
                 .iter()
                 .map(|(name, error)| format!("Failed to create '{}': {}", name, error))
                 .collect();
-            
-            format!("{}Failed to create {} files: {}", 
+
+            format!(
+                "{}Failed to create {} files: {}",
                 success_msg,
                 failed_files.len(),
-                failures.join("; "))
+                failures.join("; ")
+            )
         };
 
         Ok(CreateFilesOutput {
-            success: !created_files.is_empty(),
             message,
             files: created_files,
         })
