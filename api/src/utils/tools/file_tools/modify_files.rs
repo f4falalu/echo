@@ -4,6 +4,7 @@ use serde_json::Value;
 use serde::{Deserialize, Serialize};
 
 use crate::utils::{clients::ai::litellm::ToolCall, tools::ToolExecutor};
+use super::FileModificationTool;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Modification {
@@ -18,29 +19,31 @@ struct FileModification {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct BulkModifyFilesParams {
+struct ModifyFilesParams {
     files_with_modifications: Vec<FileModification>,
 }
 
 #[derive(Debug, Serialize)]
-pub struct BulkModifyFilesOutput {
+pub struct ModifyFilesOutput {
     success: bool,
 }
 
-pub struct BulkModifyFilesTool;
+pub struct ModifyFilesTool;
+
+impl FileModificationTool for ModifyFilesTool {}
 
 #[async_trait]
-impl ToolExecutor for BulkModifyFilesTool {
-    type Output = BulkModifyFilesOutput;
+impl ToolExecutor for ModifyFilesTool {
+    type Output = ModifyFilesOutput;
 
     fn get_name(&self) -> String {
-        "bulk_modify_files".to_string()
+        "modify_files".to_string()
     }
 
     async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
-        let params: BulkModifyFilesParams = serde_json::from_str(&tool_call.function.arguments.clone())?;
+        let params: ModifyFilesParams = serde_json::from_str(&tool_call.function.arguments.clone())?;
         // TODO: Implement actual file modification logic
-        let output = BulkModifyFilesOutput {
+        let output = ModifyFilesOutput {
             success: true,
         };
 
@@ -49,7 +52,7 @@ impl ToolExecutor for BulkModifyFilesTool {
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "bulk_modify_files",
+            "name": "modify_files",
             "strict": true,
             "parameters": {
                 "type": "object",

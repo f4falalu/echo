@@ -22,6 +22,7 @@ use crate::{
         tools::ToolExecutor,
     },
 };
+use super::FileModificationTool;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct FileRequest {
@@ -41,6 +42,8 @@ pub struct OpenFilesOutput {
 }
 
 pub struct OpenFilesTool;
+
+impl FileModificationTool for OpenFilesTool {}
 
 #[async_trait]
 impl ToolExecutor for OpenFilesTool {

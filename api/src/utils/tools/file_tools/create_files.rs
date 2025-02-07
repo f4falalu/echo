@@ -17,7 +17,7 @@ use crate::{
     utils::{clients::ai::litellm::ToolCall, tools::ToolExecutor},
 };
 
-use super::file_types::{dashboard_yml::DashboardYml, file::FileEnum, metric_yml::MetricYml};
+use super::{file_types::{dashboard_yml::DashboardYml, file::FileEnum, metric_yml::MetricYml}, FileModificationTool};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct FileParams {
@@ -38,6 +38,8 @@ pub struct CreateFilesOutput {
 }
 
 pub struct CreateFilesTool;
+
+impl FileModificationTool for CreateFilesTool {}
 
 #[async_trait]
 impl ToolExecutor for CreateFilesTool {
@@ -257,4 +259,42 @@ async fn create_dashboard_file(file: FileParams) -> Result<FileEnum> {
     };
 
     Ok(FileEnum::Dashboard(dashboard_yml))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    #[test]
+    fn test_create_files_serialization() {
+        let tool = CreateFilesTool;
+        let output = CreateFilesOutput {
+            message: "Test message".to_string(),
+            files: vec![],
+        };
+        
+        // Use the custom serialization
+        let result = tool.serialize_output(&output);
+        assert!(result.is_ok());
+    }
+    
+    #[test]
+    fn test_create_files_with_content() {
+        let tool = CreateFilesTool;
+        let yml_content = "name: test\ntype: metric\ndescription: A test metric";
+        let metric = MetricYml::new(yml_content.to_string()).unwrap();
+        
+        let output = CreateFilesOutput {
+            message: "Test message".to_string(),
+            files: vec![FileEnum::Metric(metric)],
+        };
+        
+        // Use the custom serialization
+        let result = tool.serialize_output(&output).unwrap();
+        
+        // Verify line numbers were added
+        assert!(result.contains("1 | name: test"));
+        assert!(result.contains("2 | type: metric"));
+        assert!(result.contains("3 | description: A test metric"));
+    }
 }

@@ -1,6 +1,7 @@
 use crate::utils::{
     clients::ai::litellm::{ChatCompletionRequest, LiteLLMClient, Message, Tool},
     tools::ToolExecutor,
+    tools::file_tools::FileModificationTool,
 };
 use anyhow::Result;
 use serde_json::Value;
@@ -112,9 +113,9 @@ impl Agent {
             for tool_call in tool_calls {
                 if let Some(tool) = self.tools.get(&tool_call.function.name) {
                     let result = tool.execute(tool_call).await?;
-                    // Create a message for the tool's response
+                    let result_str = serde_json::to_string(&result)?;
                     results.push(Message::tool(
-                        serde_json::to_string(&result).unwrap(),
+                        result_str,
                         tool_call.id.clone(),
                     ));
                 }
