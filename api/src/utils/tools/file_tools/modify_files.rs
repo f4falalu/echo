@@ -222,6 +222,12 @@ pub struct ModifyFilesOutput {
 
 pub struct ModifyFilesTool;
 
+impl ModifyFilesTool {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
 impl FileModificationTool for ModifyFilesTool {}
 
 #[async_trait]

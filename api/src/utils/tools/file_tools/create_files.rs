@@ -39,6 +39,12 @@ pub struct CreateFilesOutput {
 
 pub struct CreateFilesTool;
 
+impl CreateFilesTool {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
 impl FileModificationTool for CreateFilesTool {}
 
 #[async_trait]

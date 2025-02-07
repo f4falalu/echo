@@ -43,6 +43,12 @@ pub struct OpenFilesOutput {
 
 pub struct OpenFilesTool;
 
+impl OpenFilesTool {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
 impl FileModificationTool for OpenFilesTool {}
 
 #[async_trait]

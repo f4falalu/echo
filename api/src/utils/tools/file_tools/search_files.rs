@@ -73,6 +73,10 @@ struct LLMSearchResponse {
 pub struct SearchFilesTool;
 
 impl SearchFilesTool {
+    pub fn new() -> Self {
+        Self
+    }
+
     fn format_search_prompt(query_params: &[String], files_array: &[Value]) -> Result<String> {
         let queries_joined = query_params.join("\n");
         let files_json = serde_json::to_string_pretty(&files_array)?;

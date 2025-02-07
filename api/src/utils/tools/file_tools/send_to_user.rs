@@ -17,6 +17,12 @@ pub struct SendToUserOutput {
 
 pub struct SendToUserTool;
 
+impl SendToUserTool {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
 #[async_trait]
 impl ToolExecutor for SendToUserTool {
     type Output = SendToUserOutput;

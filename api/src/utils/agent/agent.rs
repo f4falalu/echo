@@ -1,7 +1,6 @@
 use crate::utils::{
     clients::ai::litellm::{ChatCompletionRequest, LiteLLMClient, Message, Tool},
     tools::ToolExecutor,
-    tools::file_tools::FileModificationTool,
 };
 use anyhow::Result;
 use serde_json::Value;
@@ -24,7 +23,10 @@ pub struct Agent {
 
 impl Agent {
     /// Create a new Agent instance with a specific LLM client and model
-    pub fn new(model: String, tools: HashMap<String, Box<dyn ToolExecutor<Output = Value>>>) -> Self {
+    pub fn new(
+        model: String,
+        tools: HashMap<String, Box<dyn ToolExecutor<Output = Value>>>,
+    ) -> Self {
         let llm_api_key = env::var("LLM_API_KEY").expect("LLM_API_KEY must be set");
         let llm_base_url = env::var("LLM_BASE_URL").expect("LLM_API_BASE must be set");
 
@@ -50,7 +52,10 @@ impl Agent {
     ///
     /// # Arguments
     /// * `tools` - HashMap of tool names and their implementations
-    pub fn add_tools<T: ToolExecutor<Output = Value> + 'static>(&mut self, tools: HashMap<String, T>) {
+    pub fn add_tools<T: ToolExecutor<Output = Value> + 'static>(
+        &mut self,
+        tools: HashMap<String, T>,
+    ) {
         for (name, tool) in tools {
             self.tools.insert(name, Box::new(tool));
         }
@@ -114,10 +119,7 @@ impl Agent {
                 if let Some(tool) = self.tools.get(&tool_call.function.name) {
                     let result = tool.execute(tool_call).await?;
                     let result_str = serde_json::to_string(&result)?;
-                    results.push(Message::tool(
-                        result_str,
-                        tool_call.id.clone(),
-                    ));
+                    results.push(Message::tool(result_str, tool_call.id.clone()));
                 }
             }
 
@@ -165,6 +167,7 @@ impl Agent {
         // Get the streaming response from the LLM
         let mut stream = self.llm_client.stream_chat_completion(request).await?;
         let (tx, rx) = mpsc::channel(100);
+        let mut pending_tool_calls = HashMap::new();
 
         // Process the stream in a separate task
         tokio::spawn(async move {
@@ -175,19 +178,61 @@ impl Agent {
                     Ok(chunk) => {
                         let delta = &chunk.choices[0].delta;
 
-                        // Update the message with the new content
-                        if let Message::Assistant { content, .. } = &mut current_message {
-                            if let Some(new_content) = &delta.content {
-                                *content = Some(if let Some(existing) = content {
-                                    format!("{}{}", existing, new_content)
-                                } else {
-                                    new_content.clone()
-                                });
+                        // Handle role changes
+                        if let Some(role) = &delta.role {
+                            match role.as_str() {
+                                "assistant" => {
+                                    current_message = Message::assistant(None, None);
+                                }
+                                "tool" => {
+                                    // Tool completion will be handled in content
+                                    continue;
+                                }
+                                _ => continue,
                             }
                         }
-                        let _ = tx.send(Ok(current_message.clone())).await;
 
-                        // TODO: Handle streaming tool calls when they are supported by the API
+                        // Handle tool calls (tool execution start)
+                        if let Some(tool_calls) = &delta.tool_calls {
+                            for tool_call in tool_calls {
+                                pending_tool_calls.insert(tool_call.id.clone(), tool_call.clone());
+                                let tool_start_msg = Message::assistant(None, Some(vec![tool_call.clone()]));
+                                let _ = tx.send(Ok(tool_start_msg)).await;
+                            }
+                        }
+
+                        // Handle content updates
+                        if let Some(content) = &delta.content {
+                            match &mut current_message {
+                                Message::Assistant { content: msg_content, tool_calls, .. } => {
+                                    *msg_content = Some(if let Some(existing) = msg_content {
+                                        format!("{}{}", existing, content)
+                                    } else {
+                                        content.clone()
+                                    });
+                                }
+                                Message::Tool { content: msg_content, .. } => {
+                                    *msg_content = content.clone();
+                                }
+                                _ => {}
+                            }
+                            let _ = tx.send(Ok(current_message.clone())).await;
+                        }
+
+                        // Handle tool execution completion
+                        if let Some(role) = &delta.role {
+                            if role == "tool" && delta.content.is_some() {
+                                // Find the corresponding tool call
+                                if let Some(tool_call_id) = pending_tool_calls.keys().next().cloned() {
+                                    let tool_msg = Message::tool(
+                                        delta.content.as_ref().unwrap().clone(),
+                                        tool_call_id.clone(),
+                                    );
+                                    pending_tool_calls.remove(&tool_call_id);
+                                    let _ = tx.send(Ok(tool_msg)).await;
+                                }
+                            }
+                        }
                     }
                     Err(e) => {
                         let _ = tx.send(Err(e)).await;

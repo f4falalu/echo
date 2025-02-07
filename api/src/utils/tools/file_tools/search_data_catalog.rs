@@ -73,6 +73,10 @@ Requirements:
 pub struct SearchDataCatalogTool;
 
 impl SearchDataCatalogTool {
+    pub fn new() -> Self {
+        Self
+    }
+
     fn format_search_prompt(query_params: &[String], datasets: &[DatasetRecord]) -> Result<String> {
         let datasets_json = datasets
             .iter()
