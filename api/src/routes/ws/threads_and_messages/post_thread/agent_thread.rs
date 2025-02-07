@@ -13,12 +13,12 @@ use crate::{
         ws_utils::send_ws_message,
     },
     utils::{
-        agent::Agent,
+        agent::{Agent, AgentThread},
         clients::ai::litellm::Message,
-        tools::file_tools::{
+        tools::{file_tools::{
             CreateFilesTool, ModifyFilesTool, OpenFilesTool, SearchDataCatalogTool,
             SearchFilesTool, SendToUserTool,
-        },
+        }, ToolExecutor, IntoValueTool},
     },
 };
 
@@ -50,16 +50,12 @@ impl AgentThreadHandler {
         let open_files_tool = OpenFilesTool;
         let send_to_user_tool = SendToUserTool;
 
-        // Add each tool individually
-        agent.add_tool(
-            search_data_catalog_tool.get_name(),
-            search_data_catalog_tool,
-        );
-        agent.add_tool(search_files_tool.get_name(), search_files_tool);
-        agent.add_tool(modify_files_tool.get_name(), modify_files_tool);
-        agent.add_tool(create_files_tool.get_name(), create_files_tool);
-        agent.add_tool(open_files_tool.get_name(), open_files_tool);
-        agent.add_tool(send_to_user_tool.get_name(), send_to_user_tool);
+        agent.add_tool(search_data_catalog_tool.get_name(), search_data_catalog_tool.into_value_tool());
+        agent.add_tool(search_files_tool.get_name(), search_files_tool.into_value_tool());
+        agent.add_tool(modify_files_tool.get_name(), modify_files_tool.into_value_tool());
+        agent.add_tool(create_files_tool.get_name(), create_files_tool.into_value_tool());
+        agent.add_tool(open_files_tool.get_name(), open_files_tool.into_value_tool());
+        agent.add_tool(send_to_user_tool.get_name(), send_to_user_tool.into_value_tool());
 
         Ok(Self { agent })
     }

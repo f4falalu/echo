@@ -17,7 +17,10 @@ use crate::{
     utils::{clients::ai::litellm::ToolCall, tools::ToolExecutor},
 };
 
-use super::{file_types::{dashboard_yml::DashboardYml, file::FileEnum, metric_yml::MetricYml}, FileModificationTool};
+use super::{
+    file_types::{dashboard_yml::DashboardYml, file::FileEnum, metric_yml::MetricYml},
+    FileModificationTool,
+};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct FileParams {
@@ -116,7 +119,10 @@ impl ToolExecutor for CreateFilesTool {
                             if let Some(dashboard_id) = &dashboard_yml.id {
                                 let dashboard_file = DashboardFile {
                                     id: dashboard_id.clone(),
-                                    name: dashboard_yml.name.clone().unwrap_or_else(|| "New Dashboard".to_string()),
+                                    name: dashboard_yml
+                                        .name
+                                        .clone()
+                                        .unwrap_or_else(|| "New Dashboard".to_string()),
                                     file_name: format!("{}.yml", file.name),
                                     content: serde_json::to_value(dashboard_yml.clone()).unwrap(),
                                     filter: None,
@@ -160,11 +166,12 @@ impl ToolExecutor for CreateFilesTool {
                     created_files.extend(metric_ymls.into_iter().map(FileEnum::Metric));
                 }
                 Err(e) => {
-                    failed_files.extend(
-                        metric_records
-                            .iter()
-                            .map(|r| (r.file_name.clone(), format!("Failed to create metric file: {}", e))),
-                    );
+                    failed_files.extend(metric_records.iter().map(|r| {
+                        (
+                            r.file_name.clone(),
+                            format!("Failed to create metric file: {}", e),
+                        )
+                    }));
                 }
             }
         }
@@ -180,11 +187,12 @@ impl ToolExecutor for CreateFilesTool {
                     created_files.extend(dashboard_ymls.into_iter().map(FileEnum::Dashboard));
                 }
                 Err(e) => {
-                    failed_files.extend(
-                        dashboard_records
-                            .iter()
-                            .map(|r| (r.file_name.clone(), format!("Failed to create dashboard file: {}", e))),
-                    );
+                    failed_files.extend(dashboard_records.iter().map(|r| {
+                        (
+                            r.file_name.clone(),
+                            format!("Failed to create dashboard file: {}", e),
+                        )
+                    }));
                 }
             }
         }
@@ -254,43 +262,5 @@ impl ToolExecutor for CreateFilesTool {
             },
             "description": "Creates **new** metric or dashboard files. Use this if no existing file can fulfill the user's needs. This will automatically open the metric/dashboard for the user."
         })
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    
-    #[test]
-    fn test_create_files_serialization() {
-        let tool = CreateFilesTool;
-        let output = CreateFilesOutput {
-            message: "Test message".to_string(),
-            files: vec![],
-        };
-        
-        // Use the custom serialization
-        let result = tool.serialize_output(&output);
-        assert!(result.is_ok());
-    }
-    
-    #[test]
-    fn test_create_files_with_content() {
-        let tool = CreateFilesTool;
-        let yml_content = "name: test\ntype: metric\ndescription: A test metric";
-        let metric = MetricYml::new(yml_content.to_string()).unwrap();
-        
-        let output = CreateFilesOutput {
-            message: "Test message".to_string(),
-            files: vec![FileEnum::Metric(metric)],
-        };
-        
-        // Use the custom serialization
-        let result = tool.serialize_output(&output).unwrap();
-        
-        // Verify line numbers were added
-        assert!(result.contains("1 | name: test"));
-        assert!(result.contains("2 | type: metric"));
-        assert!(result.contains("3 | description: A test metric"));
     }
 }

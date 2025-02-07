@@ -24,12 +24,35 @@ pub trait ToolExecutor: Send + Sync {
     fn get_name(&self) -> String;
 }
 
-trait IntoBoxedTool {
-    fn boxed(self) -> Box<dyn ToolExecutor<Output = Value>>;
+/// A wrapper type that converts any ToolExecutor to one that outputs Value
+pub struct ValueToolExecutor<T: ToolExecutor>(T);
+
+#[async_trait]
+impl<T: ToolExecutor> ToolExecutor for ValueToolExecutor<T> {
+    type Output = Value;
+
+    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+        let result = self.0.execute(tool_call).await?;
+        Ok(serde_json::to_value(result)?)
+    }
+
+    fn get_schema(&self) -> Value {
+        self.0.get_schema()
+    }
+
+    fn get_name(&self) -> String {
+        self.0.get_name()
+    }
 }
 
-impl<T: ToolExecutor<Output = Value> + 'static> IntoBoxedTool for T {
-    fn boxed(self) -> Box<dyn ToolExecutor<Output = Value>> {
-        Box::new(self)
+/// Extension trait to add value conversion methods to ToolExecutor
+pub trait IntoValueTool {
+    fn into_value_tool(self) -> ValueToolExecutor<Self> where Self: ToolExecutor + Sized;
+}
+
+// Implement IntoValueTool for all types that implement ToolExecutor
+impl<T: ToolExecutor> IntoValueTool for T {
+    fn into_value_tool(self) -> ValueToolExecutor<Self> {
+        ValueToolExecutor(self)
     }
 }

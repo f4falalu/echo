@@ -6,6 +6,7 @@ use anyhow::Result;
 use serde_json::Value;
 use std::{collections::HashMap, env};
 use tokio::sync::mpsc;
+use serde::Serialize;
 
 use super::types::AgentThread;
 
@@ -44,7 +45,7 @@ impl Agent {
     /// # Arguments
     /// * `name` - The name of the tool, used to identify it in tool calls
     /// * `tool` - The tool implementation that will be executed
-    pub fn add_tool<T: ToolExecutor<Output = Value> + 'static>(&mut self, name: String, tool: T) {
+    pub fn add_tool(&mut self, name: String, tool: impl ToolExecutor<Output = Value> + 'static) {
         self.tools.insert(name, Box::new(tool));
     }
 
@@ -52,9 +53,9 @@ impl Agent {
     ///
     /// # Arguments
     /// * `tools` - HashMap of tool names and their implementations
-    pub fn add_tools<T: ToolExecutor<Output = Value> + 'static>(
+    pub fn add_tools<E: ToolExecutor<Output = Value> + 'static>(
         &mut self,
-        tools: HashMap<String, T>,
+        tools: HashMap<String, E>,
     ) {
         for (name, tool) in tools {
             self.tools.insert(name, Box::new(tool));
