@@ -99,7 +99,7 @@ impl SearchDataCatalogTool {
                 content: prompt,
                 name: None,
             }],
-            temperature: Some(0.0),
+            stream: Some(false),
             response_format: Some(ResponseFormat {
                 type_: "json_object".to_string(),
                 json_schema: None,

@@ -97,7 +97,7 @@ impl SearchFilesTool {
                 content: prompt,
                 name: None,
             }],
-            temperature: Some(0.0),
+            stream: Some(false),
             response_format: Some(ResponseFormat {
                 type_: "json_object".to_string(),
                 json_schema: None,
@@ -116,7 +116,10 @@ impl SearchFilesTool {
             Message::Assistant {
                 content: Some(content),
                 ..
-            } => content,
+            } => {
+                debug!("Received LLM response content: {}", content);
+                content
+            }
             _ => {
                 error!("LLM response missing content");
                 return Err(anyhow::anyhow!("LLM response missing content"));
@@ -125,7 +128,7 @@ impl SearchFilesTool {
 
         // Parse into structured response
         serde_json::from_str(content).map_err(|e| {
-            warn!(error = %e, "Failed to parse LLM response as JSON");
+            warn!(error = %e, content = content, "Failed to parse LLM response as JSON");
             anyhow::anyhow!("Failed to parse search results: {}", e)
         })
     }

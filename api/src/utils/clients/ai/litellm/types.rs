@@ -191,6 +191,7 @@ impl Message {
 pub struct ResponseFormat {
     #[serde(rename = "type")]
     pub type_: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub json_schema: Option<Value>,
 }
 
