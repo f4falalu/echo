@@ -18,41 +18,33 @@ export const useDashboardUpdateConfig = ({
   const busterSocket = useBusterWebSocket();
 
   const _updateDashboardResponseToServer = useMemoizedFn(
-    (
-      newDashboard: BusterDashboardResponse & {
-        status?: VerificationStatus;
-      }
-    ) => {
-      const oldDashboard = dashboards[newDashboard.dashboard.id];
-      if (isEqual(oldDashboard, newDashboard)) {
-        return;
-      }
-
-      busterSocket.emit({
-        route: '/dashboards/update',
-        payload: {
-          id: newDashboard.dashboard.id,
-          description: newDashboard.dashboard.description,
-          title: newDashboard.dashboard.title,
-          config: newDashboard.dashboard.config
-        }
-      });
-    }
-  );
-
-  const onUpdateDashboardRequest = useMemoizedFn(
     (newDashboard: Partial<BusterDashboardResponse>, dashboardId: string) => {
       const newDashboardState: BusterDashboardResponse = {
         ...dashboards[dashboardId],
         ...newDashboard
       };
+
+      const oldDashboard = dashboards[dashboardId];
+      if (isEqual(oldDashboard, newDashboard)) {
+        return;
+      }
+
       setDashboard((prevDashboards) => {
         return {
           ...prevDashboards,
           [dashboardId]: newDashboardState
         };
       });
-      _updateDashboardResponseToServer(newDashboardState);
+
+      busterSocket.emit({
+        route: '/dashboards/update',
+        payload: {
+          id: dashboardId,
+          description: newDashboardState.dashboard.description,
+          title: newDashboardState.dashboard.title,
+          config: newDashboardState.dashboard.config
+        }
+      });
     }
   );
 
@@ -68,7 +60,7 @@ export const useDashboardUpdateConfig = ({
         }
       };
 
-      onUpdateDashboardRequest(newDashboardState, id);
+      _updateDashboardResponseToServer(newDashboardState, id);
     }
   );
 
@@ -84,14 +76,14 @@ export const useDashboardUpdateConfig = ({
           }
         }
       };
-      onUpdateDashboardRequest(newDashboardState, dashboardId);
+      _updateDashboardResponseToServer(newDashboardState, dashboardId);
     }
   );
 
   const onVerifiedDashboard = useMemoizedFn(
     async ({ dashboardId, status }: { dashboardId: string; status: VerificationStatus }) => {
-      await _updateDashboardResponseToServer({
-        ...dashboards[dashboardId],
+      return onUpdateDashboard({
+        id: dashboardId,
         status
       });
     }

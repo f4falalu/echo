@@ -1,8 +1,13 @@
+import { BusterDashboardResponse } from '@/api/asset_interfaces';
 import { DashboardUpdate } from '@/api/buster_socket/dashboards';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
 
-export const useShareDashboard = () => {
+export const useShareDashboard = ({
+  initializeDashboard
+}: {
+  initializeDashboard: (d: BusterDashboardResponse) => void;
+}) => {
   const busterSocket = useBusterWebSocket();
 
   const onShareDashboard = useMemoizedFn(
@@ -19,9 +24,15 @@ export const useShareDashboard = () => {
         | 'remove_teams'
       >
     ) => {
-      return busterSocket.emit({
-        route: '/dashboards/update',
-        payload: props
+      return busterSocket.emitAndOnce({
+        emitEvent: {
+          route: '/dashboards/update',
+          payload: props
+        },
+        responseEvent: {
+          route: '/dashboards/update:updateDashboard',
+          callback: initializeDashboard
+        }
       });
     }
   );

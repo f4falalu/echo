@@ -17,8 +17,6 @@ export const useBusterDashboards = () => {
 
   const [dashboards, setDashboard] = useState<Record<string, BusterDashboardResponse>>({});
 
-  const dashboardShare = useShareDashboard();
-
   const dashboardSubscribe = useDashboardSubscribe({ setDashboard });
 
   const dashboardUpdateConfig = useDashboardUpdateConfig({ dashboards, setDashboard });
@@ -27,6 +25,10 @@ export const useBusterDashboards = () => {
 
   const dashboardCreate = useDashboardCreate({
     onUpdateDashboard: dashboardUpdateConfig.onUpdateDashboard
+  });
+
+  const dashboardShare = useShareDashboard({
+    initializeDashboard: dashboardSubscribe.initializeDashboard
   });
 
   const getDashboardMemoized = useMemoizedFn((id: string) => dashboards[id]);

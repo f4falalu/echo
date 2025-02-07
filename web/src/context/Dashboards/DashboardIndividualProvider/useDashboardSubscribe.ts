@@ -18,7 +18,7 @@ export const useDashboardSubscribe = ({
   const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
   const dashboardsSubscribed = useRef<Record<string, boolean>>({});
 
-  const _onGetDashboardState = useMemoizedFn((d: BusterDashboardResponse) => {
+  const initializeDashboard = useMemoizedFn((d: BusterDashboardResponse) => {
     const metrics = d.metrics;
 
     for (const metric of metrics) {
@@ -63,18 +63,19 @@ export const useDashboardSubscribe = ({
 
   useMount(() => {
     setTimeout(() => {
-      _onGetDashboardState(MOCK_DASHBOARD_RESPONSE);
+      initializeDashboard(MOCK_DASHBOARD_RESPONSE);
     }, 500);
 
     busterSocket.on({
       route: '/dashboards/get:getDashboardState',
-      callback: _onGetDashboardState
+      callback: initializeDashboard
     });
   });
 
   return {
     subscribeToDashboard,
     unSubscribeToDashboard,
-    refreshDashboard
+    refreshDashboard,
+    initializeDashboard
   };
 };

@@ -1,5 +1,5 @@
 import { DashboardListContainer } from './_DashboardListContainer';
 
-export default function DashboardPage(props: any) {
+export default function DashboardPage() {
   return <DashboardListContainer />;
 }
