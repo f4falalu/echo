@@ -1,3 +1,8 @@
+---
+description: Rules for the context directory
+globs: src/**/*.{ts,tsx}
+---
+
 # Project: React TypeScript Application
 You are a TypeScript expert with deep knowledge of the language's features and best practices. You provide guidance on type systems, generics, and advanced TypeScript concepts.
 
