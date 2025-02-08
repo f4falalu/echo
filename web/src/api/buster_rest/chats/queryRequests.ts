@@ -1,12 +1,12 @@
 import { useCreateReactQuery } from '@/api/createReactQuery';
 import { useMemoizedFn } from 'ahooks';
 import { QueryClient } from '@tanstack/react-query';
-import { getChats, getChats_server } from './requests';
-import type { BusterChatListItem } from '@/api/asset_interfaces';
+import { getListChats, getListChats_server, getChat, getChat_server } from './requests';
+import type { BusterChatListItem, BusterChat } from '@/api/asset_interfaces';
 
-export const useGetChats = (params?: Parameters<typeof getChats>[0]) => {
+export const useGetListChats = (params?: Parameters<typeof getListChats>[0]) => {
   const queryFn = useMemoizedFn(() => {
-    return getChats(params);
+    return getListChats(params);
   });
 
   const res = useCreateReactQuery<BusterChatListItem[]>({
@@ -20,15 +20,40 @@ export const useGetChats = (params?: Parameters<typeof getChats>[0]) => {
   };
 };
 
-export const prefetchGetChats = async (
-  params?: Parameters<typeof getChats>[0],
+export const prefetchGetListChats = async (
+  params?: Parameters<typeof getListChats>[0],
   queryClientProp?: QueryClient
 ) => {
   const queryClient = queryClientProp || new QueryClient();
 
   await queryClient.prefetchQuery({
     queryKey: ['chats', 'list', params || {}],
-    queryFn: () => getChats_server(params)
+    queryFn: () => getListChats_server(params)
+  });
+
+  return queryClient;
+};
+
+export const useGetChat = (params: Parameters<typeof getChat>[0]) => {
+  const queryFn = useMemoizedFn(() => {
+    return getChat(params);
+  });
+
+  return useCreateReactQuery<BusterChat>({
+    queryKey: ['chats', 'get', params.id],
+    queryFn
+  });
+};
+
+export const prefetchGetChat = async (
+  params: Parameters<typeof getChat>[0],
+  queryClientProp?: QueryClient
+) => {
+  const queryClient = queryClientProp || new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ['chats', 'get', params.id],
+    queryFn: () => getChat_server(params)
   });
 
   return queryClient;

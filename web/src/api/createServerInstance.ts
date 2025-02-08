@@ -6,7 +6,7 @@ import { createClient } from '../context/Supabase/server';
 
 export interface FetchConfig extends RequestInit {
   baseURL?: string;
-  params?: Record<string, string | number | boolean>;
+  params?: Record<string, any>;
 }
 
 export const serverFetch = async <T>(url: string, config: FetchConfig = {}): Promise<T> => {

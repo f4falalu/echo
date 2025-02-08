@@ -29,7 +29,7 @@ import { serverFetch } from '@/api/createServerInstance';
 import { BusterDatasetListItem } from '@/api/asset_interfaces/datasets';
 
 // Client-side fetch version
-export const getDatasets = async (params?: GetDatasetsParams): Promise<BusterDatasetListItem[]> => {
+export const getDatasets = async (params?: GetDatasetsParams) => {
   const { page = 0, page_size = 1000, ...allParams } = params || {};
   return mainApi
     .get<BusterDatasetListItem[]>(`/datasets`, { params: { page, page_size, ...allParams } })
@@ -37,7 +37,7 @@ export const getDatasets = async (params?: GetDatasetsParams): Promise<BusterDat
 };
 
 // Server-side fetch version
-export const getDatasets_server = async (params?: GetDatasetsParams): Promise<BusterDatasetListItem[]> => {
+export const getDatasets_server = async (params?: GetDatasetsParams) => {
   const { page = 0, page_size = 1000, ...allParams } = params || {};
   return await serverFetch<BusterDatasetListItem[]>(`/datasets`, {
     params: { page, page_size, ...allParams }
