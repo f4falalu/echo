@@ -1,24 +1,18 @@
-import mainApi, { BASE_URL } from '@/api/buster_rest/instances';
-import { BusterApiKeyListItem } from './interfaces';
+import mainApi from '@/api/buster_rest/instances';
+import { BusterApiKeyListItem } from '@/api/asset_interfaces';
 
-export const getApiKeys = async (): Promise<{
-  api_keys: BusterApiKeyListItem[];
-}> => {
-  return mainApi.get(`/api_keys`).then((res) => res.data);
+export const getApiKeys = async () => {
+  return mainApi.get<{ api_keys: BusterApiKeyListItem[] }>(`/api_keys`).then((res) => res.data);
 };
 
-export const createApiKey = async (
-  name: string
-): Promise<{
-  api_key: string;
-}> => {
-  return mainApi.post(`/api_keys`, { name }).then((res) => res.data);
+export const createApiKey = async (name: string) => {
+  return mainApi.post<{ api_key: string }>(`/api_keys`, { name }).then((res) => res.data);
 };
 
-export const deleteApiKey = async (id: string): Promise<void> => {
+export const deleteApiKey = async (id: string) => {
   return mainApi.delete(`/api_keys/${id}`).then(() => {});
 };
 
-export const getApiKey = async (id: string): Promise<BusterApiKeyListItem> => {
-  return mainApi.get(`/api_keys/${id}`).then((res) => res.data);
+export const getApiKey = async (id: string) => {
+  return mainApi.get<BusterApiKeyListItem>(`/api_keys/${id}`).then((res) => res.data);
 };

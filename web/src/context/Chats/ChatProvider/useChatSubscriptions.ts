@@ -1,6 +1,6 @@
-import { MutableRefObject, useEffect } from 'react';
+import { MutableRefObject } from 'react';
 import { useBusterWebSocket } from '../../BusterWebSocket';
-import { useMemoizedFn, useUnmount } from 'ahooks';
+import { useMemoizedFn } from 'ahooks';
 import { BusterChat } from '@/api/asset_interfaces';
 import { IBusterChat } from '../interfaces';
 import { chatUpgrader } from './helpers';

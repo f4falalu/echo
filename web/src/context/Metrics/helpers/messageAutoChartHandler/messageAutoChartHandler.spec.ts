@@ -74,6 +74,7 @@ describe('createDefaultChartConfig', () => {
       tableHeaderBackgroundColor: null,
       tableHeaderFontColor: null,
       tableColumnFontColor: null,
+      xAxisTimeInterval: null,
       columnSettings: {
         test: {
           showDataLabels: false,

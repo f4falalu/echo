@@ -3,6 +3,7 @@ import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemo } from 'react';
 import { IBusterChat } from '../../interfaces';
+import { FileTypeEditable } from '@/api/asset_interfaces';
 
 export const useFileFallback = ({
   defaultSelectedFile
@@ -14,7 +15,7 @@ export const useFileFallback = ({
   const { metricTitle, metricVersionNumber } = useMetricParams(fileId);
   const { dashboardTitle, dashboardVersionNumber } = useDashboardParams(fileId);
 
-  const fileType: 'metric' | 'dashboard' = useMemo(() => {
+  const fileType: FileTypeEditable = useMemo(() => {
     if (defaultSelectedFile?.type === 'metric') {
       return 'metric';
     } else {
@@ -60,7 +61,7 @@ const fallbackToFileChat = ({
   id: string;
   title: string | undefined;
   versionNumber: number;
-  type?: 'metric' | 'dashboard';
+  type: FileTypeEditable;
 }): IBusterChat => {
   return {
     id,

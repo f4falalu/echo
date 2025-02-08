@@ -95,9 +95,9 @@ export const AppVerticalSteps: React.FC<{
 
 const useStyles = createStyles(({ token, css }) => {
   return {
-    line: {
-      background: token.colorBorderSecondary
-    },
+    line: css`
+      background: ${token.colorBorderSecondary};
+    `,
     icon: {
       color: token.colorTextTertiary
     }

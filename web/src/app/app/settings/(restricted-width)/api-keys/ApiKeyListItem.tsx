@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Button } from 'antd';
-import { BusterApiKeyListItem } from '@/api/buster_rest/api_keys';
+import type { BusterApiKeyListItem } from '@/api/asset_interfaces';
 import { AppMaterialIcons } from '@/components/icons';
 import { formatDate } from '@/utils/date';
 import { Text } from '@/components';

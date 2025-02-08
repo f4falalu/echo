@@ -16,7 +16,7 @@ interface GetDatasetsParams {
 
 export const getDatasets = async (params?: GetDatasetsParams): Promise<BusterDatasetListItem[]> => {
   const { page = 0, page_size = 1000, ...allParams } = params || {};
-  return await mainApi
+  return mainApi
     .get<BusterDatasetListItem[]>(`/datasets`, { params: { page, page_size, ...allParams } })
     .then((res) => res.data);
 };
@@ -34,6 +34,10 @@ export const getDatasetMetadata = async (datasetId: string): Promise<BusterDatas
   return await mainApi
     .get<BusterDataset>(config.GET_DATASET_URL(datasetId))
     .then((res) => res.data);
+};
+
+export const getDatasetMetadata_server = async (datasetId: string) => {
+  return await serverFetch<BusterDataset>(config.GET_DATASET_URL(datasetId));
 };
 
 export const getDatasetDataSample = async (datasetId: string) => {

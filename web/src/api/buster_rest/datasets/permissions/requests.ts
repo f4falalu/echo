@@ -6,6 +6,7 @@ import type {
   ListPermissionUsersResponse
 } from '../../../asset_interfaces';
 import * as config from './config';
+import { serverFetch } from '../../../createServerInstance';
 
 export const listIndividualDatasetPermissionGroups = async ({
   dataset_id
@@ -75,4 +76,11 @@ export const getDatasetPermissionsOverview = async ({
   dataset_id: string;
 }): Promise<DatasetPermissionsOverviewResponse> => {
   return await mainApi.get(config.GET_PERMISSIONS_OVERVIEW(dataset_id)).then((res) => res.data);
+};
+
+export const getDatasetPermissionsOverview_server = async (datasetId: string) => {
+  const response = await serverFetch<DatasetPermissionsOverviewResponse>(
+    config.GET_PERMISSIONS_OVERVIEW(datasetId)
+  );
+  return response;
 };

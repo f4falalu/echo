@@ -1,12 +1,13 @@
 import { BASE_URL } from '@/api/buster_rest/instances';
 import { PublicAssetResponse } from './interface';
+import { FileTypeEditable } from '@/api/asset_interfaces';
 
 export const getAssetCheck = async ({
   type,
   id,
   jwtToken
 }: {
-  type: 'metric' | 'dashboard';
+  type: FileTypeEditable;
   id: string;
   jwtToken: string | undefined;
 }): Promise<PublicAssetResponse> => {
