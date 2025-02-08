@@ -4,7 +4,13 @@ import { useMemoizedFn } from 'ahooks';
 import { BusterChat } from '@/api/asset_interfaces';
 import { IBusterChat } from '../interfaces';
 import { chatUpgrader } from './helpers';
-import { MOCK_CHAT } from './MOCK_CHAT';
+import {
+  createMockResponseMessageFile,
+  createMockResponseMessageText,
+  createMockResponseMessageThought,
+  MOCK_CHAT
+} from './MOCK_CHAT';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 export const useChatSubscriptions = ({
   chatsRef,
@@ -45,6 +51,73 @@ export const useChatSubscriptions = ({
     //     callback: _onGetChat
     //   }
     // });
+  });
+
+  useHotkeys('t', () => {
+    const newThoughts = createMockResponseMessageThought();
+    const myChat = {
+      ...chatsRef.current[MOCK_CHAT.id]!,
+      messages: [
+        {
+          ...chatsRef.current[MOCK_CHAT.id]!.messages[0],
+          reasoning: [...chatsRef.current[MOCK_CHAT.id]!.messages[0].reasoning, newThoughts],
+          isCompletedStream: false
+        }
+      ]
+    };
+
+    chatsRef.current[MOCK_CHAT.id] = myChat;
+
+    startTransition(() => {
+      // Create a new reference to trigger React update
+      chatsRef.current = { ...chatsRef.current };
+    });
+  });
+
+  useHotkeys('m', () => {
+    const newTextMessage = createMockResponseMessageText();
+    const myChat = {
+      ...chatsRef.current[MOCK_CHAT.id]!,
+      messages: [
+        {
+          ...chatsRef.current[MOCK_CHAT.id]!.messages[0],
+          response_messages: [
+            ...chatsRef.current[MOCK_CHAT.id]!.messages[0]!.response_messages,
+            newTextMessage
+          ],
+          isCompletedStream: false
+        }
+      ]
+    };
+
+    chatsRef.current[MOCK_CHAT.id] = myChat;
+
+    startTransition(() => {
+      chatsRef.current = { ...chatsRef.current };
+    });
+  });
+
+  useHotkeys('f', () => {
+    const newFileMessage = createMockResponseMessageFile();
+    const myChat = {
+      ...chatsRef.current[MOCK_CHAT.id]!,
+      messages: [
+        {
+          ...chatsRef.current[MOCK_CHAT.id]!.messages[0],
+          response_messages: [
+            ...chatsRef.current[MOCK_CHAT.id]!.messages[0]!.response_messages,
+            newFileMessage
+          ],
+          isCompletedStream: false
+        }
+      ]
+    };
+
+    chatsRef.current[MOCK_CHAT.id] = myChat;
+
+    startTransition(() => {
+      chatsRef.current = { ...chatsRef.current };
+    });
   });
 
   return {

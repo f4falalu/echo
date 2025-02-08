@@ -24,7 +24,7 @@ export enum BusterAppRoutes {
 
   //NEW CHAT
   APP_CHAT_ID = '/app/chat/:chatId',
-  APP_CHAT_ID_REASONING_ID = '/app/chat/:chatId/reasoning/:reasoningId',
+  APP_CHAT_ID_REASONING_ID = '/app/chat/:chatId/reasoning/:messageId',
   APP_CHAT_ID_METRIC_ID = '/app/chat/:chatId/metric/:metricId',
   APP_CHAT_ID_COLLECTION_ID = '/app/chat/:chatId/collection/:collectionId',
   APP_CHAT_ID_DASHBOARD_ID = '/app/chat/:chatId/dashboard/:dashboardId',

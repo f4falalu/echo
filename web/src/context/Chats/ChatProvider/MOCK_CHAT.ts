@@ -90,6 +90,7 @@ export const MOCK_CHAT: BusterChat = {
       response_messages: [
         createMockResponseMessageText(),
         createMockResponseMessageFile(),
+        createMockResponseMessageFile(),
         createMockResponseMessageText(),
         createMockResponseMessageText()
       ]

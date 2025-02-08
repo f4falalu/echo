@@ -36,7 +36,5 @@ export const useSelectedFileByParams = () => {
     return 'chat';
   }, [metricId, collectionId, datasetId, dashboardId, chatId]);
 
-  console.log(selectedFile, selectedLayout, chatId);
-
   return { selectedFile, selectedLayout, chatId };
 };

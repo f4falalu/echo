@@ -3,7 +3,7 @@ import {
   createContext,
   useContextSelector
 } from '@fluentui/react-context-selector';
-import React, { PropsWithChildren, useState, useTransition } from 'react';
+import React, { PropsWithChildren, useTransition } from 'react';
 import type { SelectedFile } from '../interfaces';
 import type { ChatSplitterProps } from '../ChatLayout';
 import { useMemoizedFn } from 'ahooks';
@@ -51,7 +51,7 @@ export const useChatLayout = ({
     const fileType = file.type;
     const fileId = file.id;
     const route =
-      isChatView && chatId
+      isChatView && chatId !== undefined
         ? createChatAssetRoute({ chatId, assetId: fileId, type: fileType })
         : createFileRoute({ assetId: fileId, type: fileType });
 
