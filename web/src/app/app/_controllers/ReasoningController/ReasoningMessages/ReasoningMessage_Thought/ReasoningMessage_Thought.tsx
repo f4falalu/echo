@@ -1,18 +1,19 @@
-import { BusterChatMessage_thought } from '@/api/asset_interfaces';
-import React, { useRef } from 'react';
-import { ChatResponseMessageProps } from '../ChatResponseMessageSelector';
+import { BusterChatMessageReasoning_thought } from '@/api/asset_interfaces';
+import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { itemAnimationConfig } from '../animationConfig';
 import { Text } from '@/components/text';
-import { PillContainer } from './ChatResponseMessage_ThoughtPills';
-import { StatusIndicator } from '../StatusIndicator';
+import { PillContainer } from './ReasoningMessage_ThoughtPills';
+import { StatusIndicator } from '@/components/indicators';
 import { VerticalBar } from './VerticalBar';
 import { createStyles } from 'antd-style';
+import { ReasoningMessageProps } from '../ReasoningMessageSelector';
 
-export const ChatResponseMessage_Thought: React.FC<ChatResponseMessageProps> = React.memo(
-  ({ responseMessage: responseMessageProp, isCompletedStream, isLastMessageItem }) => {
-    const responseMessage = responseMessageProp as BusterChatMessage_thought;
-    const { thought_title, thought_secondary_title, thought_pills, status } = responseMessage;
+export const ReasoningMessage_Thought: React.FC<ReasoningMessageProps> = React.memo(
+  ({ reasoningMessage, isCompletedStream, isLastMessageItem }) => {
+    const { thought_title, thought_secondary_title, thought_pills, status } =
+      reasoningMessage as BusterChatMessageReasoning_thought;
+
     const hasPills = thought_pills && thought_pills.length > 0;
 
     const showLoadingIndicator =
@@ -24,11 +25,7 @@ export const ChatResponseMessage_Thought: React.FC<ChatResponseMessageProps> = R
         <motion.div
           className={'relative flex space-x-1.5 overflow-hidden'}
           {...itemAnimationConfig}>
-          <BarContainer
-            inProgress={inProgress}
-            hasPills={hasPills}
-            showLoadingIndicator={showLoadingIndicator}
-          />
+          <BarContainer hasPills={hasPills} showLoadingIndicator={showLoadingIndicator} />
           <div className="flex w-full flex-col space-y-2 overflow-hidden">
             <TextContainer
               thought_title={thought_title}
@@ -42,17 +39,16 @@ export const ChatResponseMessage_Thought: React.FC<ChatResponseMessageProps> = R
   }
 );
 
-ChatResponseMessage_Thought.displayName = 'ChatResponseMessage_Thought';
+ReasoningMessage_Thought.displayName = 'ReasoningMessage_Thought';
 
 const BarContainer: React.FC<{
-  inProgress: boolean;
   hasPills: boolean | undefined;
   showLoadingIndicator: 'loading' | 'completed';
-}> = React.memo(({ inProgress, hasPills, showLoadingIndicator }) => {
+}> = React.memo(({ hasPills, showLoadingIndicator }) => {
   return (
     <div className="ml-2 flex w-4 min-w-4 flex-col items-center pt-0.5">
       <StatusIndicator status={showLoadingIndicator} />
-      <VerticalBar inProgress={inProgress} hasPills={hasPills} />
+      <VerticalBar hasPills={hasPills} />
     </div>
   );
 });
@@ -64,6 +60,7 @@ const TextContainer: React.FC<{
   thought_secondary_title: string;
 }> = React.memo(({ thought_title, thought_secondary_title }) => {
   const { styles, cx } = useStyles();
+  const lineHeight = 13;
 
   return (
     <div
@@ -71,10 +68,10 @@ const TextContainer: React.FC<{
         styles.hideSecondaryText,
         'flex w-full items-center space-x-1.5 overflow-hidden'
       )}>
-      <Text size="sm" className="whitespace-nowrap">
+      <Text size="sm" className="whitespace-nowrap" lineHeight={lineHeight}>
         {thought_title}
       </Text>
-      <Text size="sm" type="tertiary" className="secondary-text truncate">
+      <Text size="sm" type="tertiary" className="secondary-text truncate" lineHeight={lineHeight}>
         {thought_secondary_title}
       </Text>
     </div>

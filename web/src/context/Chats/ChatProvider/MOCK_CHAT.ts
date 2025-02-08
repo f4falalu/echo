@@ -2,10 +2,10 @@ import {
   type BusterChat,
   type BusterChatMessage_text,
   type BusterChatMessage_file,
-  type BusterChatMessage_thought,
   type BusterChatMessageRequest,
-  BusterChatMessage_thoughtPill,
-  BusterChatMessage_fileMetadata
+  BusterChatMessage_fileMetadata,
+  BusterChatMessageReasoning_thought,
+  BusterChatMessageReasoning_thoughtPill
 } from '@/api/asset_interfaces';
 import { faker } from '@faker-js/faker';
 
@@ -28,9 +28,9 @@ export const createMockResponseMessageText = (): BusterChatMessage_text => ({
   })
 });
 
-export const createMockResponseMessageThought = (): BusterChatMessage_thought => {
-  const randomPillCount = faker.number.int(7);
-  const fourRandomPills: BusterChatMessage_thoughtPill[] = Array.from(
+export const createMockResponseMessageThought = (): BusterChatMessageReasoning_thought => {
+  const randomPillCount = faker.number.int({ min: 0, max: 7 });
+  const fourRandomPills: BusterChatMessageReasoning_thoughtPill[] = Array.from(
     { length: randomPillCount },
     () => {
       return {
@@ -46,7 +46,6 @@ export const createMockResponseMessageThought = (): BusterChatMessage_thought =>
     thought_title: `Found ${faker.number.int(100)} terms`,
     thought_secondary_title: faker.lorem.word(),
     thought_pills: fourRandomPills,
-    hidden: undefined,
     status: undefined
   };
 };
@@ -84,15 +83,25 @@ export const MOCK_CHAT: BusterChat = {
   is_favorited: false,
   messages: [
     {
-      id: faker.string.uuid(),
+      id: '123',
       created_at: '2025-01-01',
       request_message: createMockUserMessage(),
+      reasoning: [
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
+        createMockResponseMessageThought(),
+        ...Array.from({ length: 100 }, () => createMockResponseMessageThought())
+      ],
       response_messages: [
         createMockResponseMessageText(),
-        createMockResponseMessageThought(),
-        createMockResponseMessageThought(),
-        createMockResponseMessageThought(),
-        createMockResponseMessageThought(),
+        // createMockResponseMessageThought(),
+        // createMockResponseMessageThought(),
+        // createMockResponseMessageThought(),
+        // createMockResponseMessageThought(),
         createMockResponseMessageFile()
         // createMockResponseMessageFile(),
         // createMockResponseMessageText(),

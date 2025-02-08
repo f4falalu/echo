@@ -6,23 +6,25 @@ import { useParams } from 'next/navigation';
 import { ChatSplitterProps } from '../ChatLayout';
 
 export const useSelectedFileByParams = () => {
-  const { metricId, collectionId, datasetId, dashboardId, chatId } = useParams() as {
+  const { metricId, collectionId, datasetId, dashboardId, chatId, messageId } = useParams() as {
     metricId?: string;
     collectionId?: string;
     datasetId?: string;
     dashboardId?: string;
     chatId?: string;
+    messageId?: string;
   };
 
   const selectedFile: SelectedFile | undefined = useMemo(() => {
     if (metricId) return { id: metricId, type: 'metric' };
-    if (collectionId) return { id: collectionId, type: 'collection' };
-    if (datasetId) return { id: datasetId, type: 'dataset' };
     if (dashboardId) return { id: dashboardId, type: 'dashboard' };
-  }, [metricId, collectionId, datasetId, dashboardId, chatId]);
+    if (messageId) return { id: messageId, type: 'reasoning' };
+    // if (collectionId) return { id: collectionId, type: 'collection' };
+    // if (datasetId) return { id: datasetId, type: 'dataset' };
+  }, [metricId, collectionId, datasetId, dashboardId, chatId, messageId]);
 
   const selectedLayout: ChatSplitterProps['defaultSelectedLayout'] = useMemo(() => {
-    const hasFileId = metricId || collectionId || datasetId || dashboardId;
+    const hasFileId = metricId || collectionId || datasetId || dashboardId || messageId;
 
     if (chatId) {
       if (hasFileId) return 'both';
@@ -33,6 +35,8 @@ export const useSelectedFileByParams = () => {
 
     return 'chat';
   }, [metricId, collectionId, datasetId, dashboardId, chatId]);
+
+  console.log(selectedFile, selectedLayout, chatId);
 
   return { selectedFile, selectedLayout, chatId };
 };

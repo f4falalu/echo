@@ -1,8 +1,7 @@
 import React from 'react';
 import { ChatResponseMessage_File } from './ChatResponseMessage_File';
-import { ChatResponseMessage_Text } from './ChatResponseMessage_Text';
-import { ChatResponseMessage_Thought } from './ChatResponseMessage_Thought';
-import type { BusterChatMessageResponse } from '@/api/asset_interfaces';
+import { StreamingMessage_Text } from '@appComponents/Streaming/StreamingMessage_Text';
+import type { BusterChatMessage_text, BusterChatMessageResponse } from '@/api/asset_interfaces';
 import { ChatResponseMessageHidden } from './ChatResponseMessageHidden';
 
 export interface ChatResponseMessageProps {
@@ -15,9 +14,10 @@ const ChatResponseMessageRecord: Record<
   BusterChatMessageResponse['type'],
   React.FC<ChatResponseMessageProps>
 > = {
-  text: ChatResponseMessage_Text,
-  file: ChatResponseMessage_File,
-  thought: ChatResponseMessage_Thought
+  text: (props) => (
+    <StreamingMessage_Text {...props} message={props.responseMessage as BusterChatMessage_text} />
+  ),
+  file: ChatResponseMessage_File
 };
 
 export interface ChatResponseMessageSelectorProps {

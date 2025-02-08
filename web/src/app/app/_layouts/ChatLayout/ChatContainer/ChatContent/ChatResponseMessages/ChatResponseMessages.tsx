@@ -63,17 +63,16 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
         return {
           text: cx(styles.textCard, 'text-card'),
           file: cx(styles.fileCard, 'file-card'),
-          thought: cx(styles.thoughtCard, 'thought-card'),
           hidden: cx(styles.hiddenCard, 'hidden-card')
         };
       }, []);
 
-    const getContainerClass = (item: ResponseMessageWithHiddenClusters) => {
+    const getContainerClass = useMemoizedFn((item: ResponseMessageWithHiddenClusters) => {
       if (Array.isArray(item)) {
         return typeClassRecord.hidden;
       }
       return typeClassRecord[item.type];
-    };
+    });
 
     return (
       <MessageContainer className="flex w-full flex-col overflow-hidden">
@@ -106,7 +105,6 @@ const VerticalDivider: React.FC<{ className?: string }> = React.memo(({ classNam
   const { cx, styles } = useStyles();
   return <div className={cx(styles.verticalDivider, 'vertical-divider', className)} />;
 });
-
 VerticalDivider.displayName = 'VerticalDivider';
 
 const useStyles = createStyles(({ token, css }) => ({
@@ -149,13 +147,6 @@ const useStyles = createStyles(({ token, css }) => ({
         opacity: 0;
       }
     }
-  `,
-  thoughtCard: css`
-    .vertical-divider {
-      display: none;
-    }
-
-    margin-bottom: 4px;
   `,
   verticalDivider: css`
     transition: opacity 0.2s ease-in-out;

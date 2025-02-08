@@ -1,10 +1,7 @@
 import { createStyles } from 'antd-style';
 import React from 'react';
 
-export const VerticalBar: React.FC<{ inProgress?: boolean; hasPills?: boolean }> = ({
-  inProgress,
-  hasPills
-}) => {
+export const VerticalBar: React.FC<{ hasPills?: boolean }> = ({ hasPills }) => {
   const { styles, cx } = useStyles();
   return (
     <div

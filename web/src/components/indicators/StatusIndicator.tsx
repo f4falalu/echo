@@ -21,7 +21,7 @@ export const StatusIndicator: React.FC<{ status?: 'completed' | 'loading' | 'fai
         className={cx(
           styles.indicatorContainer,
           inProgress && 'in-progress',
-          'flex items-center justify-center transition-all delay-100 duration-300'
+          'relative flex items-center justify-center transition-all delay-100 duration-300'
         )}>
         <AnimatePresence mode="wait">
           <motion.div
@@ -32,11 +32,7 @@ export const StatusIndicator: React.FC<{ status?: 'completed' | 'loading' | 'fai
               inProgress && 'in-progress',
               'flex items-center justify-center transition-all duration-300'
             )}>
-            {inProgress ? (
-              <CircleSpinnerLoader size={8} />
-            ) : (
-              <AppMaterialIcons className="" icon="check" size={6} />
-            )}
+            {inProgress ? <CircleSpinnerLoader size={8} /> : <></>}
           </motion.div>
         </AnimatePresence>
       </div>
@@ -47,21 +43,30 @@ StatusIndicator.displayName = 'StatusIndicator';
 
 const useStyles = createStyles(({ token, css }) => ({
   indicatorContainer: css`
-    width: 10px;
-    height: 10px;
+    width: 11px;
+    height: 11px;
     background-color: ${token.colorTextPlaceholder};
     border-radius: 100%;
 
     &.in-progress {
       background-color: transparent;
     }
+
+    .swag {
+      opacity: 0.99;
+    }
   `,
   indicator: css`
     color: white;
-    padding: 1px;
+    padding: 4px;
+    // height: 7px;
+    // width: 7px;
+
     border-radius: 100%;
     background-color: ${token.colorTextPlaceholder};
     box-shadow: 0 0 0 0.7px white inset;
+
+    position: absolute;
 
     &.in-progress {
       background-color: transparent;

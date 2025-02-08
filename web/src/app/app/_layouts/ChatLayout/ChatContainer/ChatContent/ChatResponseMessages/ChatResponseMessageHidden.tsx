@@ -1,10 +1,7 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import type { BusterChatMessageResponse } from '@/api/asset_interfaces';
 import { createStyles } from 'antd-style';
-import {
-  ChatResponseMessageSelector,
-  ChatResponseMessageSelectorProps
-} from './ChatResponseMessageSelector';
+import { ChatResponseMessageSelector } from './ChatResponseMessageSelector';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Text } from '@/components/text';
 import { AppMaterialIcons } from '@/components/icons';

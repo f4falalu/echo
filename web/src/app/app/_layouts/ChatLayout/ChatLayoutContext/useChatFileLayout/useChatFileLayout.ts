@@ -88,10 +88,11 @@ export const useChatFileLayout = ({
 };
 
 const defaultFileView: Record<FileType, FileView> = {
-  collection: 'results',
   metric: 'chart',
-  value: 'results',
-  term: 'results',
-  dataset: 'results',
-  dashboard: 'dashboard'
+  dashboard: 'dashboard',
+  reasoning: 'reasoning'
+  // collection: 'results',
+  // value: 'results',
+  // term: 'results',
+  // dataset: 'results',
 };

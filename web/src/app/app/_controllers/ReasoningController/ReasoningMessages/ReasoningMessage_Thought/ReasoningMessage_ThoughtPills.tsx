@@ -1,6 +1,6 @@
 import type {
-  BusterChatMessage_thought,
-  BusterChatMessage_thoughtPill
+  BusterChatMessageReasoning_thought,
+  BusterChatMessageReasoning_thoughtPill
 } from '@/api/asset_interfaces';
 import { createStyles } from 'antd-style';
 import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
@@ -8,8 +8,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { calculateTextWidth } from '@/utils';
 import { useDebounce, useMemoizedFn, useSize } from 'ahooks';
 import { AppPopover } from '@/components';
-import { useChatLayoutContextSelector } from '../../../../ChatLayoutContext';
 import { PopoverProps } from 'antd';
+import { isOpenableFile, SelectedFile, useChatLayoutContextSelector } from '@appLayouts/ChatLayout';
 
 const duration = 0.25;
 
@@ -45,12 +45,12 @@ const pillBorder = 1; // 0.5px * 2
 const font = '11px -apple-system, BlinkMacSystemFont, sans-serif'; // Match your app's font
 
 export const PillContainer: React.FC<{
-  pills: BusterChatMessage_thought['thought_pills'];
+  pills: BusterChatMessageReasoning_thought['thought_pills'];
   isCompletedStream: boolean;
 }> = React.memo(({ pills = [], isCompletedStream }) => {
   const { cx } = useStyles();
   const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
-  const [visiblePills, setVisiblePills] = useState<BusterChatMessage_thoughtPill[]>([]);
+  const [visiblePills, setVisiblePills] = useState<BusterChatMessageReasoning_thoughtPill[]>([]);
   const [hiddenCount, setHiddenCount] = useState(0);
   const [hasDoneInitialAnimation, setHasDoneInitialAnimation] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -64,13 +64,15 @@ export const PillContainer: React.FC<{
     leading: true
   });
 
-  const hiddenPills: BusterChatMessage_thoughtPill[] = useMemo(() => {
+  const hiddenPills: BusterChatMessageReasoning_thoughtPill[] = useMemo(() => {
     return pills.slice(visiblePills.length, visiblePills.length + hiddenCount);
   }, [pills, visiblePills, hiddenCount]);
 
   const handlePillClick = useMemoizedFn(
-    (pill: Pick<BusterChatMessage_thoughtPill, 'id' | 'type'>) => {
-      onSetSelectedFile(pill);
+    (pill: Pick<BusterChatMessageReasoning_thoughtPill, 'id' | 'type'>) => {
+      if (isOpenableFile(pill.type)) {
+        onSetSelectedFile(pill as SelectedFile);
+      }
     }
   );
 
@@ -84,7 +86,7 @@ export const PillContainer: React.FC<{
     const containerWidth = thoughtContainerWidth || 240;
 
     let currentLineWidth = 0;
-    const visible: BusterChatMessage_thoughtPill[] = [];
+    const visible: BusterChatMessageReasoning_thoughtPill[] = [];
     let hidden = 0;
 
     for (let i = 0; i < pills.length; i++) {
@@ -140,10 +142,10 @@ PillContainer.displayName = 'PillContainer';
 const Pill: React.FC<{
   text: string;
   id?: string;
-  type?: BusterChatMessage_thoughtPill['type'];
+  type?: BusterChatMessageReasoning_thoughtPill['type'];
   useAnimation: boolean;
   className?: string;
-  onClick?: (pill: Pick<BusterChatMessage_thoughtPill, 'id' | 'type'>) => void;
+  onClick?: (pill: Pick<BusterChatMessageReasoning_thoughtPill, 'id' | 'type'>) => void;
 }> = React.memo(({ text, type, id, useAnimation, className = '', onClick }) => {
   const { styles, cx } = useStyles();
   return (
@@ -172,9 +174,9 @@ const OverflowPill = React.memo(
     useAnimation,
     onClickPill
   }: {
-    hiddenPills: BusterChatMessage_thoughtPill[];
+    hiddenPills: BusterChatMessageReasoning_thoughtPill[];
     useAnimation: boolean;
-    onClickPill: (pill: Pick<BusterChatMessage_thoughtPill, 'id' | 'type'>) => void;
+    onClickPill: (pill: Pick<BusterChatMessageReasoning_thoughtPill, 'id' | 'type'>) => void;
   }) => {
     const count = hiddenPills.length;
 

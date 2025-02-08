@@ -4,20 +4,20 @@ import React from 'react';
 import { CollapseFileButton } from './CollapseFileButton';
 import { FileType } from '@/api/asset_interfaces';
 import { FileContainerSegmentProps, FileContainerButtonsProps } from './interfaces';
-import { MetricContainerHeaderButtons } from './MetricContainerHeaderButtons';
 import { ValueContainerHeaderButtons } from './ValueContainerHeaderButtons';
 import { TermContainerHeaderButtons } from './TermContainerHeaderButtons';
 import { DatasetContainerHeaderButtons } from './DatasetContainerHeaderButtons';
-import { DashboardContainerHeaderButtons } from './DashboardContainerHeaderButtons';
-import { CollectionContainerHeaderButtons } from './CollectionContainerHeaderButtons';
-import { CollectionContainerHeaderSegment } from './CollectionContainerHeaderSegment';
-import { MetricContainerHeaderSegment } from './MetricContainerHeaderSegment';
 import { ValueContainerHeaderSegment } from './ValueContainerHeaderSegment';
 import { TermContainerHeaderSegment } from './TermContainerHeaderSegment';
 import { DatasetContainerHeaderSegment } from './DatasetContainerHeaderSegment';
+import { CollectionContainerHeaderButtons } from './CollectionContainerHeaderButtons';
+import { CollectionContainerHeaderSegment } from './CollectionContainerHeaderSegment';
+import { DashboardContainerHeaderButtons } from './DashboardContainerHeaderButtons';
 import { DashboardContainerHeaderSegment } from './DashboardContainerHeaderSegment';
-
+import { MetricContainerHeaderSegment } from './MetricContainerHeaderSegment';
+import { MetricContainerHeaderButtons } from './MetricContainerHeaderButtons';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
+import { ReasoningContainerHeaderSegment } from './ReasoningContainerHeaderSegment';
 
 export const FileContainerHeader: React.FC = React.memo(() => {
   const { styles, cx } = useStyles();
@@ -31,12 +31,18 @@ export const FileContainerHeader: React.FC = React.memo(() => {
   const showCollapseButton = !isPureFile;
 
   const SelectedFileSegment = React.useMemo(
-    () => (selectedFileType ? SelectedFileSegmentRecord[selectedFileType] : () => <></>),
+    () =>
+      selectedFileType && SelectedFileSegmentRecord[selectedFileType]
+        ? SelectedFileSegmentRecord[selectedFileType]
+        : () => <></>,
     [selectedFileType]
   );
 
   const SelectedFileButtons = React.useMemo(
-    () => (selectedFileType ? SelectedFileButtonsRecord[selectedFileType] : () => <></>),
+    () =>
+      selectedFileType && SelectedFileButtonsRecord[selectedFileType]
+        ? SelectedFileButtonsRecord[selectedFileType]
+        : () => <></>,
     [selectedFileType]
   );
 
@@ -64,20 +70,22 @@ FileContainerHeader.displayName = 'FileContainerHeader';
 
 const SelectedFileButtonsRecord: Record<FileType, React.FC<FileContainerButtonsProps>> = {
   metric: MetricContainerHeaderButtons,
-  value: ValueContainerHeaderButtons,
-  term: TermContainerHeaderButtons,
-  dataset: DatasetContainerHeaderButtons,
   dashboard: DashboardContainerHeaderButtons,
-  collection: CollectionContainerHeaderButtons
+  reasoning: () => null
+  // value: ValueContainerHeaderButtons,
+  // term: TermContainerHeaderButtons,
+  // dataset: DatasetContainerHeaderButtons,
+  // collection: CollectionContainerHeaderButtons
 };
 
 const SelectedFileSegmentRecord: Record<FileType, React.FC<FileContainerSegmentProps>> = {
   metric: MetricContainerHeaderSegment,
-  value: ValueContainerHeaderSegment,
-  term: TermContainerHeaderSegment,
-  dataset: DatasetContainerHeaderSegment,
   dashboard: DashboardContainerHeaderSegment,
-  collection: CollectionContainerHeaderSegment
+  reasoning: ReasoningContainerHeaderSegment
+  // value: ValueContainerHeaderSegment,
+  // term: TermContainerHeaderSegment,
+  // dataset: DatasetContainerHeaderSegment,
+  // collection: CollectionContainerHeaderSegment
 };
 
 const useStyles = createStyles(({ css, token }) => ({

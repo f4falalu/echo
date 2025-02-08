@@ -1,3 +1,5 @@
-export type FileType = 'dataset' | 'collection' | 'metric' | 'dashboard' | 'term' | 'value';
+export type FileType = 'metric' | 'dashboard' | 'reasoning'; //'dataset' | 'collection' | | 'term' | 'value'
 
-export type FileTypeEditable = 'metric' | 'dashboard';
+export type ThoughtFileType = 'metric' | 'dashboard' | 'collection' | 'dataset' | 'term' | 'value';
+
+export type AllFileTypes = ThoughtFileType | FileType;
