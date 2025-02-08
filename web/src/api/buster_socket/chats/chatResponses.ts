@@ -17,14 +17,27 @@ export type ChatList_getChatsList = {
   onError?: (d: unknown | RustApiError) => void;
 };
 
+/**
+ * Response type for getting a single chat's details.
+ * This response is triggered when requesting a specific chat's information.
+ */
+export type Chat_getChat = {
+  /** The route identifier for getting a single chat */
+  route: '/chats/get:getChat';
+  /** Callback function that receives the chat data */
+  callback: (chat: BusterChat) => void;
+  /** Optional error handler for when the chat request fails */
+  onError?: (error: RustApiError) => void;
+};
+
 export type Chat_unsubscribe = {
   route: '/chats/unsubscribe:unsubscribe';
   callback: (d: { id: string }[]) => void;
   onError?: (d: unknown | RustApiError) => void;
 };
 
-export type Chat_getChat = {
-  route: '/chats/get:getChat';
+export type Chat_getChatAsset = {
+  route: '/chats/get:getChatAsset';
   callback: (d: BusterChat) => void;
   onError?: (d: unknown | RustApiError) => void;
 };
@@ -55,6 +68,7 @@ export type ChatResponseTypes =
   | ChatList_getChatsList
   | Chat_unsubscribe
   | Chat_getChat
+  | Chat_getChatAsset
   | ChatPost_initializeChat
   | ChatPost_generatingTitle
   | ChatPost_generatingMessage;
