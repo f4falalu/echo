@@ -29,7 +29,7 @@ export const createMockResponseMessageText = (): BusterChatMessage_text => ({
 });
 
 export const createMockResponseMessageThought = (): BusterChatMessageReasoning_thought => {
-  const randomPillCount = faker.number.int({ min: 0, max: 7 });
+  const randomPillCount = faker.number.int({ min: 0, max: 10 });
   const fourRandomPills: BusterChatMessageReasoning_thoughtPill[] = Array.from(
     { length: randomPillCount },
     () => {
@@ -86,29 +86,12 @@ export const MOCK_CHAT: BusterChat = {
       id: '123',
       created_at: '2025-01-01',
       request_message: createMockUserMessage(),
-      reasoning: [
-        createMockResponseMessageThought(),
-        createMockResponseMessageThought(),
-        createMockResponseMessageThought(),
-        createMockResponseMessageThought(),
-        createMockResponseMessageThought(),
-        createMockResponseMessageThought(),
-        createMockResponseMessageThought(),
-        ...Array.from({ length: 100 }, () => createMockResponseMessageThought())
-      ],
+      reasoning: [...Array.from({ length: 6 }, () => createMockResponseMessageThought())],
       response_messages: [
         createMockResponseMessageText(),
-        // createMockResponseMessageThought(),
-        // createMockResponseMessageThought(),
-        // createMockResponseMessageThought(),
-        // createMockResponseMessageThought(),
-        createMockResponseMessageFile()
-        // createMockResponseMessageFile(),
-        // createMockResponseMessageText(),
-        // createMockResponseMessageText(),
-        // createMockResponseMessageThought(),
-        // createMockResponseMessageThought(),
-        // createMockResponseMessageFile()
+        createMockResponseMessageFile(),
+        createMockResponseMessageText(),
+        createMockResponseMessageText()
       ]
     }
   ],

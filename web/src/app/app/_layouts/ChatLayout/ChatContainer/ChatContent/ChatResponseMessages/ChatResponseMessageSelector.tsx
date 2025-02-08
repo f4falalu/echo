@@ -2,7 +2,6 @@ import React from 'react';
 import { ChatResponseMessage_File } from './ChatResponseMessage_File';
 import { StreamingMessage_Text } from '@appComponents/Streaming/StreamingMessage_Text';
 import type { BusterChatMessage_text, BusterChatMessageResponse } from '@/api/asset_interfaces';
-import { ChatResponseMessageHidden } from './ChatResponseMessageHidden';
 
 export interface ChatResponseMessageProps {
   responseMessage: BusterChatMessageResponse;
@@ -21,7 +20,7 @@ const ChatResponseMessageRecord: Record<
 };
 
 export interface ChatResponseMessageSelectorProps {
-  responseMessage: BusterChatMessageResponse | BusterChatMessageResponse[];
+  responseMessage: BusterChatMessageResponse;
   isCompletedStream: boolean;
   isLastMessageItem: boolean;
 }
@@ -31,16 +30,8 @@ export const ChatResponseMessageSelector: React.FC<ChatResponseMessageSelectorPr
   isCompletedStream,
   isLastMessageItem
 }) => {
-  if (Array.isArray(responseMessage)) {
-    return (
-      <ChatResponseMessageHidden
-        hiddenItems={responseMessage}
-        isCompletedStream={isCompletedStream}
-      />
-    );
-  }
-
-  const ChatResponseMessage = ChatResponseMessageRecord[responseMessage.type];
+  const messageType = responseMessage.type;
+  const ChatResponseMessage = ChatResponseMessageRecord[messageType];
   return (
     <ChatResponseMessage
       responseMessage={responseMessage}

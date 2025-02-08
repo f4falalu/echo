@@ -22,7 +22,6 @@ export type BusterChatMessage_text = {
   type: 'text';
   message: string;
   message_chunk?: string;
-  hidden?: boolean;
 };
 
 export type BusterChatMessage_fileMetadata = {
@@ -39,7 +38,6 @@ export type BusterChatMessage_file = {
   version_number: number;
   version_id: string;
   metadata?: BusterChatMessage_fileMetadata[];
-  hidden?: boolean; //if left undefined, will automatically be set to true
 };
 
 export type BusterChatMessageReasoning =

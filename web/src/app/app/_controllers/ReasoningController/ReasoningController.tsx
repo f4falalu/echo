@@ -17,8 +17,6 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
     [chatMessages, messageId]
   );
 
-  console.log(chatMessages);
-
   if (!hasChat || !message) return null;
 
   const reasoningMessages = message.reasoning;

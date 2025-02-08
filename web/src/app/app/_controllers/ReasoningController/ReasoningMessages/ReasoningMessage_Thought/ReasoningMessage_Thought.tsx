@@ -18,7 +18,6 @@ export const ReasoningMessage_Thought: React.FC<ReasoningMessageProps> = React.m
 
     const showLoadingIndicator =
       (status ?? (isLastMessageItem && !isCompletedStream)) ? 'loading' : 'completed';
-    const inProgress = showLoadingIndicator === 'loading';
 
     return (
       <AnimatePresence initial={!isCompletedStream}>

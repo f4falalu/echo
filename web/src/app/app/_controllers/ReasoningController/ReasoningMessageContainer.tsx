@@ -8,6 +8,7 @@ export const ReasoningMessageContainer: React.FC<{
   isCompletedStream: boolean;
 }> = React.memo(({ reasoningMessages, isCompletedStream }) => {
   const { cx, styles } = useStyles();
+  const lastMessageIndex = reasoningMessages.length - 1;
 
   const typeClassRecord: Record<BusterChatMessageReasoning['type'], string> = useMemo(() => {
     return {
@@ -20,12 +21,10 @@ export const ReasoningMessageContainer: React.FC<{
     return typeClassRecord[item.type];
   };
 
-  const lastMessageIndex = reasoningMessages.length - 1;
-
   return (
     <div className="flex flex-col pb-4">
       {reasoningMessages?.map((message, index) => (
-        <div key={message.id} className={cx(getContainerClass(message))}>
+        <div key={message.id} className={getContainerClass(message)}>
           <ReasoningMessageSelector
             key={message.id}
             reasoningMessage={message}
