@@ -35,7 +35,7 @@ const BusterChat = createContext<ReturnType<typeof useBusterChat>>(
   {} as ReturnType<typeof useBusterChat>
 );
 
-export const BusterChatProvider: React.FC<{
+export const ChatProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const value = useBusterChat();
@@ -63,7 +63,6 @@ export const useBusterChatIndividual = ({
   });
 
   const selectedChat: IBusterChat = chat || memoizedFallbackToMetricChat;
-  const fetched = chat?.created_at !== undefined;
 
   useEffect(() => {
     if (chatId) subscribeToChat({ chatId });

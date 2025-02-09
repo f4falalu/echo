@@ -1,4 +1,4 @@
-import type { ThoughtFileType, FileType } from '@/api/asset_interfaces';
+import type { ThoughtFileType } from '@/api/asset_interfaces';
 
 const OPENABLE_FILES = new Set<string>(['metric', 'dashboard', 'reasoning']);
 

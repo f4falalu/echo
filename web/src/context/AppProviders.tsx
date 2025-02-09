@@ -22,7 +22,7 @@ import { BusterSearchProvider } from './Search';
 import { BusterAssetsProvider } from './Assets/BusterAssetsProvider';
 import { BusterPosthogProvider } from './Posthog/usePosthog';
 import { BusterNotificationsProvider } from './BusterNotifications';
-import { BusterChatProvider, BusterNewChatProvider } from './Chats';
+import { BusterChatProvider } from './Chats';
 import { RoutePrefetcher } from './RoutePrefetcher';
 import { BusterMetricDataProvider } from './MetricData';
 import { BusterMetricsProvider } from './Metrics';
@@ -72,14 +72,12 @@ export const AppProviders: React.FC<
                                   <BusterTermsProvider>
                                     <BusterPermissionsProvider>
                                       <BusterChatProvider>
-                                        <BusterNewChatProvider>
-                                          <AppHotKeysProvider>
-                                            <BusterPosthogProvider>
-                                              {children}
-                                              <RoutePrefetcher />
-                                            </BusterPosthogProvider>
-                                          </AppHotKeysProvider>
-                                        </BusterNewChatProvider>
+                                        <AppHotKeysProvider>
+                                          <BusterPosthogProvider>
+                                            {children}
+                                            <RoutePrefetcher />
+                                          </BusterPosthogProvider>
+                                        </AppHotKeysProvider>
                                       </BusterChatProvider>
                                     </BusterPermissionsProvider>
                                   </BusterTermsProvider>

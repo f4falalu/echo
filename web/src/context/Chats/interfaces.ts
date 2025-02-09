@@ -1,9 +1,9 @@
 import type { BusterChat, BusterChatMessage } from '@/api/asset_interfaces';
 
-export interface IBusterChat extends BusterChat {
+export interface IBusterChat extends Omit<BusterChat, 'messages'> {
   isNewChat: boolean;
   isFollowupMessage: boolean;
-  messages: IBusterChatMessage[];
+  messages: string[];
 }
 
 export interface IBusterChatMessage extends BusterChatMessage {
