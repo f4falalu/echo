@@ -4,7 +4,7 @@ import { AppMaterialIcons } from '@/components/icons';
 import { useMemoizedFn, useMount, useThrottleFn } from 'ahooks';
 import { useAntToken } from '@/styles/useAntToken';
 import { useBusterNewChatContextSelector } from '@/context/Chats';
-import { inputHasText } from '@/utils';
+import { inputHasText, timeout } from '@/utils';
 import { useBusterSearchContextSelector } from '@/context/Search';
 import type { BusterSearchResult } from '@/api/asset_interfaces';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -37,21 +37,20 @@ export const NewChatModal = React.memo<{
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const { openErrorNotification } = useBusterNotifications();
   const { isFetched: isFetchedDatasets, data: datasetsList } = useGetDatasets();
-  const onSetSelectedChatDataSource = useBusterNewChatContextSelector(
-    (x) => x.onSetSelectedChatDataSource
-  );
-  const selectedChatDataSource = useBusterNewChatContextSelector((x) => x.selectedChatDataSource);
   const onBusterSearch = useBusterSearchContextSelector((x) => x.onBusterSearch);
 
-  const [prompt, setPrompt] = useState('');
+  const [selectedChatDataSource, setSelectedChatDataSource] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const [openNewDatasetModal, setOpenNewDatasetModal] = useState(false);
+  const [prompt, setPrompt] = useState('');
   const [suggestedPrompts, setSuggestedPrompts] = useState<BusterSearchResult[]>([]);
   const [activeItem, setActiveItem] = useState<number | null>(null);
   const [defaultSuggestedPrompts, setDefaultSuggestedPrompts] = useState<BusterSearchResult[]>([]);
-  const shownPrompts = prompt.length > 1 ? suggestedPrompts : defaultSuggestedPrompts;
   const lastKeyPressed = useRef<string | null>(null);
   const hasDatasets = datasetsList.length > 0 && isFetchedDatasets;
-  const showSuggested = shownPrompts.length > 0 && hasDatasets;
+  const shownPrompts = prompt.length > 1 ? suggestedPrompts : defaultSuggestedPrompts;
 
   const memoizedHasDatasetStyle = useMemo(() => {
     return {
@@ -94,8 +93,6 @@ export const NewChatModal = React.memo<{
 
   useEffect(() => {
     if (open) {
-      setPrompt('');
-
       if (defaultSuggestedPrompts.length === 0) {
         getDefaultSuggestedPrompts();
       }
@@ -125,7 +122,7 @@ export const NewChatModal = React.memo<{
         {hasDatasets && (
           <div className="flex w-full flex-col" style={memoizedHasDatasetStyle}>
             <NewChatModalDataSourceSelect
-              onSetSelectedChatDataSource={onSetSelectedChatDataSource}
+              onSetSelectedChatDataSource={setSelectedChatDataSource}
               selectedChatDataSource={selectedChatDataSource}
               dataSources={datasetsList}
               loading={!isFetchedDatasets}
@@ -138,6 +135,8 @@ export const NewChatModal = React.memo<{
               shownPrompts={shownPrompts}
               lastKeyPressed={lastKeyPressed}
               activeItem={activeItem}
+              prompt={prompt}
+              setPrompt={setPrompt}
             />
           </div>
         )}
@@ -146,7 +145,7 @@ export const NewChatModal = React.memo<{
           <NoDatasets onClose={onClose} setOpenNewDatasetModal={setOpenNewDatasetModal} />
         )}
 
-        {hasDatasets && showSuggested && <Divider className="!m-0" />}
+        {/* {hasDatasets && showSuggested && <Divider className="!m-0" />} */}
 
         {/* {hasDatasets && (
           <SuggestedPromptsContainer
@@ -178,24 +177,30 @@ const NewChatInput: React.FC<{
   shownPrompts: BusterSearchResult[];
   lastKeyPressed: React.MutableRefObject<string | null>;
   activeItem: number | null;
+  prompt: string;
+  setPrompt: (prompt: string) => void;
 }> = React.memo(
   ({
     setSuggestedPrompts,
     debouncedGetSuggestedChatPrompts,
     activeItem,
     shownPrompts,
-    lastKeyPressed
+    lastKeyPressed,
+    prompt,
+    setPrompt
   }) => {
     const token = useAntToken();
     const inputRef = useRef<InputRef>(null);
-    const loadingNewMetric = useBusterNewChatContextSelector((x) => x.loadingNewChat);
     const onStartNewChat = useBusterNewChatContextSelector((x) => x.onStartNewChat);
     const onSelectSearchAsset = useBusterNewChatContextSelector((x) => x.onSelectSearchAsset);
-    const [prompt, setPrompt] = useState('');
+    const [loadingNewChat, setLoadingNewChat] = useState(false);
 
     const onStartNewChatPreflight = useMemoizedFn(async () => {
+      setLoadingNewChat(true);
       await onStartNewChat(prompt);
+      await timeout(400);
       setPrompt('');
+      setLoadingNewChat(false);
     });
 
     const onChangeText = useMemoizedFn((e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -253,7 +258,7 @@ const NewChatInput: React.FC<{
           size="large"
           className="w-full !pl-0"
           autoSize={autoSizeMemoized}
-          disabled={loadingNewMetric}
+          disabled={loadingNewChat}
           variant="borderless"
           placeholder="Search for a metric..."
           defaultValue={prompt}
@@ -265,7 +270,7 @@ const NewChatInput: React.FC<{
           type="primary"
           size="middle"
           icon={<AppMaterialIcons icon="arrow_forward" size={token.fontSizeLG} />}
-          loading={loadingNewMetric}
+          loading={loadingNewChat}
           disabled={!inputHasText(prompt)}
           onClick={onClickSubmitButton}
         />

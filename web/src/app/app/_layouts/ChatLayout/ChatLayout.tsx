@@ -4,7 +4,7 @@ import React, { useRef } from 'react';
 import { AppSplitter, AppSplitterRef } from '@/components/layout/AppSplitter';
 import { ChatContainer } from './ChatContainer';
 import { FileContainer } from './FileContainer';
-import { ChatSplitterContextProvider } from './ChatLayoutContext';
+import { ChatLayoutContextProvider } from './ChatLayoutContext';
 import { useChatLayout } from './ChatLayoutContext';
 import { SelectedFile } from './interfaces';
 import { useDefaultSplitterLayout } from './hooks';
@@ -26,20 +26,24 @@ export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(
 
     const defaultSplitterLayout = useDefaultSplitterLayout({ defaultSelectedLayout });
 
-    const useChatSplitterProps = useChatLayout({
+    const useChatLayoutProps = useChatLayout({
       appSplitterRef,
       defaultSelectedLayout,
       chatId,
       defaultSelectedFile
     });
+    const { isPureChat, isPureFile, onSetSelectedFile } = useChatLayoutProps;
 
-    const useChatContextValue = useChatIndividualContext({ chatId, defaultSelectedFile });
+    const useChatContextValue = useChatIndividualContext({
+      chatId,
+      defaultSelectedFile,
+      onSetSelectedFile
+    });
 
-    const { isPureChat, isPureFile } = useChatSplitterProps;
     const { hasFile } = useChatContextValue;
 
     return (
-      <ChatSplitterContextProvider useChatSplitterProps={useChatSplitterProps}>
+      <ChatLayoutContextProvider useChatLayoutProps={useChatLayoutProps}>
         <ChatContextProvider value={useChatContextValue}>
           <AppSplitter
             ref={appSplitterRef}
@@ -53,7 +57,7 @@ export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(
             leftPanelMinSize={hasFile ? DEFAULT_CHAT_OPTION : undefined}
           />
         </ChatContextProvider>
-      </ChatSplitterContextProvider>
+      </ChatLayoutContextProvider>
     );
   }
 );

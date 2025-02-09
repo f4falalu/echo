@@ -3,21 +3,24 @@ import { Input } from 'antd';
 import { createStyles } from 'antd-style';
 import { useMemoizedFn } from 'ahooks';
 import { inputHasText } from '@/utils';
-import { useBusterNewChatContextSelector } from '@/context/Chats';
 import { AIWarning } from './AIWarning';
 import { SubmitButton } from './SubmitButton';
 import { useChatInputFlow } from './useChatInputFlow';
 import type { TextAreaRef } from 'antd/es/input/TextArea';
+import { useChatIndividualContextSelector } from '../../../ChatContext';
 
 const autoSize = { minRows: 3, maxRows: 16 };
 
 export const ChatInput: React.FC<{}> = React.memo(({}) => {
   const { styles, cx } = useStyles();
-  const loading = useBusterNewChatContextSelector((state) => state.loadingNewChat);
+  const isNewChat = useChatIndividualContextSelector((x) => x.isNewChat);
+  const isFollowUpChat = useChatIndividualContextSelector((x) => x.isFollowUpChat);
   const inputRef = useRef<TextAreaRef>(null);
 
   const [inputValue, setInputValue] = useState('');
   const [isFocused, setIsFocused] = React.useState(false);
+
+  const loading = isNewChat || isFollowUpChat;
 
   const disableSendButton = useMemo(() => {
     return !inputHasText(inputValue);

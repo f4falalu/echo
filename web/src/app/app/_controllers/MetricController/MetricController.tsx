@@ -15,12 +15,11 @@ export const MetricController: React.FC<{
 }> = React.memo(({ metricId }) => {
   const { metric, metricData } = useBusterMetricIndividual({ metricId });
   const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView) || 'chart';
-  const loadingNewChat = useBusterNewChatContextSelector((x) => x.loadingNewChat);
 
   const isFetchedConfig = metric.fetched;
   const isFetchedData = metricData.fetched;
 
-  const showLoader = !isFetchedConfig || !isFetchedData || loadingNewChat;
+  const showLoader = !isFetchedConfig || !isFetchedData;
 
   const Component = selectedFileView
     ? MetricViewComponents[selectedFileView as MetricFileView]

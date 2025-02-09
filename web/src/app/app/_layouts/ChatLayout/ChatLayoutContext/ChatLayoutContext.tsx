@@ -112,28 +112,26 @@ export const useChatLayout = ({
   };
 };
 
-const ChatSplitterContext = createContext<ReturnType<typeof useChatLayout>>(
+const ChatLayoutContext = createContext<ReturnType<typeof useChatLayout>>(
   {} as ReturnType<typeof useChatLayout>
 );
 
-interface ChatSplitterContextProviderProps {}
+interface ChatLayoutContextProviderProps {}
 
-export const ChatSplitterContextProvider: React.FC<
+export const ChatLayoutContextProvider: React.FC<
   PropsWithChildren<
-    ChatSplitterContextProviderProps & {
-      useChatSplitterProps: ReturnType<typeof useChatLayout>;
+    ChatLayoutContextProviderProps & {
+      useChatLayoutProps: ReturnType<typeof useChatLayout>;
     }
   >
-> = React.memo(({ children, useChatSplitterProps }) => {
+> = React.memo(({ children, useChatLayoutProps }) => {
   return (
-    <ChatSplitterContext.Provider value={useChatSplitterProps}>
-      {children}
-    </ChatSplitterContext.Provider>
+    <ChatLayoutContext.Provider value={useChatLayoutProps}>{children}</ChatLayoutContext.Provider>
   );
 });
 
-ChatSplitterContextProvider.displayName = 'ChatSplitterContextProvider';
+ChatLayoutContextProvider.displayName = 'ChatLayoutContextProvider';
 
 export const useChatLayoutContextSelector = <T,>(
   selector: ContextSelector<ReturnType<typeof useChatLayout>, T>
-) => useContextSelector(ChatSplitterContext, selector);
+) => useContextSelector(ChatLayoutContext, selector);

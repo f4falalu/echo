@@ -4,33 +4,40 @@ import {
   createContext,
   useContextSelector
 } from '@fluentui/react-context-selector';
-import { useBusterChatIndividual } from '@/context/Chats';
 import type { SelectedFile } from '../interfaces';
+import { useSubscribeIndividualChat } from './useSubscribeIndividualChat';
+import { useAutoChangeLayout } from './useAutoChangeLayout';
 
 export const useChatIndividualContext = ({
   chatId,
-  defaultSelectedFile
+  defaultSelectedFile,
+  onSetSelectedFile
 }: {
   chatId?: string;
   defaultSelectedFile?: SelectedFile;
+  onSetSelectedFile: (file: SelectedFile) => void;
 }) => {
   const selectedFileId = defaultSelectedFile?.id;
   const selectedFileType = defaultSelectedFile?.type;
 
   //CHAT
-  const { chat } = useBusterChatIndividual({
+  const chat = useSubscribeIndividualChat({
     chatId,
     defaultSelectedFile
   });
   const hasChat = !!chatId && !!chat;
   const chatTitle = chat?.title;
-  const chatMessages = chat?.messages ?? [];
+  const chatMessageIds = chat?.messages ?? [];
 
   //FILE
   const hasFile = !!defaultSelectedFile?.id;
 
   //MESSAGES
-  const currentMessageId = chatMessages[chatMessages.length - 1]?.id;
+  const currentMessageId = chatMessageIds[chatMessageIds.length - 1];
+  const isNewChat = chat?.isNewChat ?? false;
+  const isFollowUpChat = chat?.isFollowupMessage ?? false;
+
+  useAutoChangeLayout({ lastMessageId: currentMessageId, onSetSelectedFile, chat });
 
   return {
     hasChat,
@@ -39,8 +46,10 @@ export const useChatIndividualContext = ({
     currentMessageId,
     chatTitle,
     selectedFileType,
-    chatMessages,
-    chatId
+    chatMessageIds,
+    chatId,
+    isNewChat,
+    isFollowUpChat
   };
 };
 

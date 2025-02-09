@@ -1,33 +1,48 @@
-import React, { useEffect, useRef, useTransition } from 'react';
+import React, { useRef, useTransition } from 'react';
 import {
   createContext,
   ContextSelector,
   useContextSelector
 } from '@fluentui/react-context-selector';
 import type { BusterChat } from '@/api/asset_interfaces';
-import { useUnmount } from 'ahooks';
-import { IBusterChat } from '../interfaces';
-import { SelectedFile } from '@/app/app/_layouts/ChatLayout';
+import { IBusterChat, IBusterChatMessage } from '../interfaces';
 import { useChatSubscriptions } from './useChatSubscriptions';
 import { useChatAssosciations } from './useChatAssosciations';
-import { useFileFallback } from './helpers';
+import { useChatSelectors } from './useChatSelectors';
+import { useChatUpdate } from './useChatUpdate';
 
 export const useBusterChat = () => {
   const [isPending, startTransition] = useTransition();
   const chatsRef = useRef<Record<string, IBusterChat>>({});
+  const chatsMessagesRef = useRef<Record<string, IBusterChatMessage>>({});
 
-  const { unsubscribeFromChat, subscribeToChat } = useChatSubscriptions({
+  const chatSubscriptions = useChatSubscriptions({
     chatsRef,
+    chatsMessagesRef,
     startTransition
   });
 
-  const { onDeleteChat } = useChatAssosciations();
+  const chatAssociations = useChatAssosciations();
+
+  const chatSelectors = useChatSelectors({
+    chatsRef,
+    chatsMessagesRef,
+    isPending
+  });
+
+  const chatUpdate = useChatUpdate({
+    chatsRef,
+    chatsMessagesRef,
+    startTransition
+  });
 
   return {
     chats: chatsRef.current,
-    unsubscribeFromChat,
-    subscribeToChat,
-    onDeleteChat
+    chatsMessages: chatsMessagesRef.current,
+    ...chatSubscriptions,
+    ...chatAssociations,
+    ...chatSelectors,
+    ...chatUpdate
   };
 };
 
@@ -46,33 +61,3 @@ export const ChatProvider: React.FC<{
 export const useBusterChatContextSelector = <T,>(
   selector: ContextSelector<ReturnType<typeof useBusterChat>, T>
 ) => useContextSelector(BusterChat, selector);
-
-export const useBusterChatIndividual = ({
-  chatId,
-  defaultSelectedFile
-}: {
-  chatId?: string;
-  defaultSelectedFile?: SelectedFile;
-}) => {
-  const chat: IBusterChat | undefined = useBusterChatContextSelector((x) => x.chats[chatId || '']);
-  const subscribeToChat = useBusterChatContextSelector((x) => x.subscribeToChat);
-  const unsubscribeFromChat = useBusterChatContextSelector((x) => x.unsubscribeFromChat);
-
-  const memoizedFallbackToMetricChat = useFileFallback({
-    defaultSelectedFile
-  });
-
-  const selectedChat: IBusterChat = chat || memoizedFallbackToMetricChat;
-
-  useEffect(() => {
-    if (chatId) subscribeToChat({ chatId });
-  }, [chatId]);
-
-  useUnmount(() => {
-    if (chatId) unsubscribeFromChat({ chatId });
-  });
-
-  return {
-    chat: selectedChat
-  };
-};

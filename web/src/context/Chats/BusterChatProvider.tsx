@@ -6,11 +6,11 @@ import { BusterChatListProvider } from './ChatListProvider';
 export const BusterChatProvider = React.memo(({ children }: { children: React.ReactNode }) => {
   return (
     <ChatProvider>
-      <BusterNewChatProvider>
-        <BusterChatListProvider>{children}</BusterChatListProvider>
-      </BusterNewChatProvider>
+      <BusterChatListProvider>
+        <BusterNewChatProvider>{children}</BusterNewChatProvider>
+      </BusterChatListProvider>
     </ChatProvider>
   );
 });
 
-ChatProvider.displayName = 'ChatProvider';
+BusterChatProvider.displayName = 'ChatProvider';

@@ -2,8 +2,8 @@ import { MutableRefObject } from 'react';
 import { useBusterWebSocket } from '../../BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
 import { BusterChat } from '@/api/asset_interfaces';
-import { IBusterChat } from '../interfaces';
-import { chatUpgrader } from './helpers';
+import { IBusterChat, IBusterChatMessage } from '../interfaces';
+import { chatMessageUpgrader, chatUpgrader } from './helpers';
 import {
   createMockResponseMessageFile,
   createMockResponseMessageText,
@@ -14,16 +14,23 @@ import { useHotkeys } from 'react-hotkeys-hook';
 
 export const useChatSubscriptions = ({
   chatsRef,
+  chatsMessagesRef,
   startTransition
 }: {
   chatsRef: MutableRefObject<Record<string, IBusterChat>>;
+  chatsMessagesRef: MutableRefObject<Record<string, IBusterChatMessage>>;
   startTransition: (fn: () => void) => void;
 }) => {
   const busterSocket = useBusterWebSocket();
 
   const _onGetChat = useMemoizedFn((chat: BusterChat): IBusterChat => {
     const upgradedChat = chatUpgrader(chat);
+    const upgradedChatMessages = chatMessageUpgrader(chat.messages);
     chatsRef.current[chat.id] = upgradedChat;
+    chatsMessagesRef.current = {
+      ...chatsMessagesRef.current,
+      ...upgradedChatMessages
+    };
     startTransition(() => {
       //just used to trigger UI update
     });

@@ -10,8 +10,8 @@ import { createStyles } from 'antd-style';
 
 export const NewChatModalDataSourceSelect: React.FC<{
   dataSources: BusterDatasetListItem[];
-  onSetSelectedChatDataSource: (dataSource: BusterDatasetListItem | null) => void;
-  selectedChatDataSource: BusterDatasetListItem | null;
+  onSetSelectedChatDataSource: (dataSource: { id: string; name: string } | null) => void;
+  selectedChatDataSource: { id: string; name: string } | null;
   loading: boolean;
 }> = React.memo(({ dataSources, selectedChatDataSource, onSetSelectedChatDataSource, loading }) => {
   const { styles } = useStyles();

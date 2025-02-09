@@ -1,9 +1,13 @@
-import { SelectedFile } from '@/app/app/_layouts/ChatLayout';
+import { SelectedFile } from '@appLayouts/ChatLayout';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
-import { useMemo } from 'react';
-import { IBusterChat, IBusterChatMessage } from '../../interfaces';
+import { useEffect, useMemo } from 'react';
 import { FileType } from '@/api/asset_interfaces';
+import {
+  useBusterChatContextSelector,
+  type IBusterChat,
+  type IBusterChatMessage
+} from '@/context/Chats';
 
 export const useFileFallback = ({
   defaultSelectedFile
@@ -12,6 +16,7 @@ export const useFileFallback = ({
   defaultSelectedFile?: SelectedFile;
 }) => {
   const fileId = defaultSelectedFile?.id || '';
+  const onUpdateChatMessage = useBusterChatContextSelector((x) => x.onUpdateChatMessage);
   const { metricTitle, metricVersionNumber } = useMetricParams(fileId);
   const { dashboardTitle, dashboardVersionNumber } = useDashboardParams(fileId);
 
@@ -40,7 +45,7 @@ export const useFileFallback = ({
     return 1;
   }, [fileType, metricVersionNumber, dashboardVersionNumber]);
 
-  const memoizedFallbackToMetricChat = useMemo(() => {
+  const memoizedFallbackToChat = useMemo(() => {
     return fallbackToFileChat({
       id: fileId
     });
@@ -55,13 +60,21 @@ export const useFileFallback = ({
     });
   }, [fileId, title, versionNumber, fileType]);
 
-  return { memoizedFallbackToMetricChat, memoizedFallbackToChatMessage };
+  //TODO: add fallback to chat message
+
+  useEffect(() => {
+    if (fileId) {
+      onUpdateChatMessage(memoizedFallbackToChatMessage);
+    }
+  }, [fileId]);
+
+  return { memoizedFallbackToChat, memoizedFallbackToChatMessage };
 };
 
 const fallbackToFileChat = ({ id }: { id: string }): IBusterChat => {
   return {
     id,
-    isNewChat: true,
+    isNewChat: false,
     isFollowupMessage: false,
     messages: [fallbackMessageId(id)],
     title: '',

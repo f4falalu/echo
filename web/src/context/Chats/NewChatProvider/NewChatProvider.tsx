@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   createContext,
   ContextSelector,
@@ -8,8 +8,6 @@ import { useMemoizedFn } from 'ahooks';
 import type { BusterDatasetListItem, BusterSearchResult, FileType } from '@/api/asset_interfaces';
 
 export const useBusterNewChat = () => {
-  const [selectedChatDataSourceId, setSelectedChatDataSourceId] = useState<string | null>(null);
-
   const onSelectSearchAsset = useMemoizedFn(async (asset: BusterSearchResult) => {
     console.log('select search asset');
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -52,7 +50,6 @@ export const useBusterNewChat = () => {
   return {
     onStartNewChat,
     onSelectSearchAsset,
-    selectedChatDataSourceId,
     onSetSelectedChatDataSource,
     onFollowUpChat,
     onStartChatFromFile,

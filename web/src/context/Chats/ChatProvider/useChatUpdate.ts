@@ -5,9 +5,11 @@ import { IBusterChat, IBusterChatMessage } from '../interfaces';
 
 export const useChatUpdate = ({
   chatsRef,
+  chatsMessagesRef,
   startTransition
 }: {
   chatsRef: MutableRefObject<Record<string, IBusterChat>>;
+  chatsMessagesRef: MutableRefObject<Record<string, IBusterChatMessage>>;
   startTransition: (fn: () => void) => void;
 }) => {
   const busterSocket = useBusterWebSocket();
@@ -25,13 +27,11 @@ export const useChatUpdate = ({
   );
 
   const onUpdateChatMessage = useMemoizedFn(
-    async (newMessageConfig: Partial<IBusterChatMessage> & { id: string }, chatId: string) => {
-      //   chatsRef.current[chatId] = {
-      //     ...chatsRef.current[chatId],
-      //     messages: chatsRef.current[chatId].messages.map((message) =>
-      //       message.id === newMessageConfig.id ? { ...message, ...newMessageConfig } : message
-      //     )
-      //   };
+    async (newMessageConfig: Partial<IBusterChatMessage> & { id: string }) => {
+      chatsMessagesRef.current[newMessageConfig.id] = {
+        ...chatsMessagesRef.current[newMessageConfig.id],
+        ...newMessageConfig
+      };
       startTransition(() => {
         //just used to trigger UI update
       });
