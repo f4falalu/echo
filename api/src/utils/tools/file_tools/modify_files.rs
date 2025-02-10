@@ -29,22 +29,22 @@ use super::{
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-struct Modification {
-    new_content: String,
-    line_numbers: Vec<i64>,
+pub struct Modification {
+    pub new_content: String,
+    pub line_numbers: Vec<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct FileModification {
-    id: Uuid,
-    file_type: String,
-    file_name: String,
-    modifications: Vec<Modification>,
+pub struct FileModification {
+    pub id: Uuid,
+    pub file_type: String,
+    pub file_name: String,
+    pub modifications: Vec<Modification>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct ModifyFilesParams {
-    files: Vec<FileModification>,
+pub struct ModifyFilesParams {
+    pub files: Vec<FileModification>,
 }
 
 #[derive(Debug, Serialize)]

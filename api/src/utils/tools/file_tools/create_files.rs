@@ -25,15 +25,15 @@ use super::{
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-struct FileParams {
-    name: String,
-    file_type: String,
-    yml_content: String,
+pub struct FileParams {
+    pub name: String,
+    pub file_type: String,
+    pub yml_content: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct CreateFilesParams {
-    files: Vec<FileParams>,
+pub struct CreateFilesParams {
+    pub files: Vec<FileParams>,
 }
 
 #[derive(Debug, Serialize)]
