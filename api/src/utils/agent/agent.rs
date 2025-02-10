@@ -91,7 +91,8 @@ impl Agent {
         if recursion_depth >= 30 {
             return Ok(Message::assistant(
                 Some("I apologize, but I've reached the maximum number of actions (30). Please try breaking your request into smaller parts.".to_string()),
-                None
+                None,
+                None,
             ));
         }
 
@@ -132,7 +133,7 @@ impl Agent {
         let mut tool_thread = thread.clone();
         tool_thread
             .messages
-            .push(Message::assistant(Some(initial_content), None));
+            .push(Message::assistant(Some(initial_content), None, None));
 
         // Create the tool-enabled request
         let request = ChatCompletionRequest {
@@ -157,7 +158,7 @@ impl Agent {
                 content,
                 tool_calls,
                 ..
-            } => Message::assistant(content.clone(), tool_calls.clone()),
+            } => Message::assistant(content.clone(), tool_calls.clone(), None),
             _ => return Err(anyhow::anyhow!("Expected assistant message from LLM")),
         };
 
@@ -228,7 +229,8 @@ impl Agent {
                 if recursion_depth >= 30 {
                     let limit_message = Message::assistant(
                         Some("I apologize, but I've reached the maximum number of actions (30). Please try breaking your request into smaller parts.".to_string()),
-                        None
+                        None,
+                        None,
                     );
                     let _ = tx.send(Ok(limit_message)).await;
                     return Ok(());
@@ -259,7 +261,7 @@ impl Agent {
 
                 // Get streaming response for initial thoughts
                 let mut initial_stream = llm_client.stream_chat_completion(initial_request).await?;
-                let mut initial_message = Message::assistant(Some(String::new()), None);
+                let mut initial_message = Message::assistant(Some(String::new()), None, None);
                 let mut has_started = false;
 
                 // Process initial stream chunks
@@ -275,7 +277,11 @@ impl Agent {
                                         has_started = true;
                                         // Send empty message to indicate start
                                         let _ = tx
-                                            .send(Ok(Message::assistant(Some(String::new()), None)))
+                                            .send(Ok(Message::assistant(
+                                                Some(String::new()),
+                                                None,
+                                                None,
+                                            )))
                                             .await;
                                     }
                                     _ => continue,
@@ -286,7 +292,7 @@ impl Agent {
                             if let Some(content) = &delta.content {
                                 // Send the delta chunk immediately
                                 let _ = tx
-                                    .send(Ok(Message::assistant(Some(content.clone()), None)))
+                                    .send(Ok(Message::assistant(Some(content.clone()), None, None)))
                                     .await;
 
                                 // Also accumulate for our thread history
@@ -318,7 +324,7 @@ impl Agent {
                 let mut tool_thread = thread.clone();
                 tool_thread
                     .messages
-                    .push(Message::assistant(Some(initial_content), None));
+                    .push(Message::assistant(Some(initial_content), None, None));
 
                 // Create the tool-enabled request
                 let request = ChatCompletionRequest {
@@ -332,7 +338,7 @@ impl Agent {
 
                 // Get streaming response
                 let mut stream = llm_client.stream_chat_completion(request).await?;
-                let mut current_message = Message::assistant(Some(String::new()), None);
+                let mut current_message = Message::assistant(Some(String::new()), None, None);
                 let mut current_pending_tool: Option<PendingToolCall> = None;
                 let mut has_tool_calls = false;
                 let mut tool_results = Vec::new();
@@ -350,28 +356,41 @@ impl Agent {
                                     // Tool call is complete - execute it
                                     if let Some(pending) = current_pending_tool.take() {
                                         let tool_call = pending.into_tool_call();
-                                        
+
                                         // Create and preserve the assistant message with the tool call
-                                        let assistant_tool_message = Message::assistant(None, Some(vec![tool_call.clone()]));
+                                        let assistant_tool_message = Message::assistant(
+                                            None,
+                                            Some(vec![tool_call.clone()]),
+                                            None,
+                                        );
                                         let _ = tx.send(Ok(assistant_tool_message.clone())).await;
-                                        
+
                                         // Execute the tool
-                                        if let Some(tool) = tools_ref.get(&tool_call.function.name) {
+                                        if let Some(tool) = tools_ref.get(&tool_call.function.name)
+                                        {
                                             match tool.execute(&tool_call).await {
                                                 Ok(result) => {
-                                                    let result_str = serde_json::to_string(&result)?;
-                                                    let tool_result = Message::tool(result_str, tool_call.id.clone());
+                                                    let result_str =
+                                                        serde_json::to_string(&result)?;
+                                                    let tool_result = Message::tool(
+                                                        result_str,
+                                                        tool_call.id.clone(),
+                                                    );
                                                     let _ = tx.send(Ok(tool_result.clone())).await;
-                                                    
+
                                                     // Store both the assistant tool message and the tool result
                                                     tool_results.push(assistant_tool_message);
                                                     tool_results.push(tool_result);
                                                 }
                                                 Err(e) => {
-                                                    let error_msg = format!("Tool execution failed: {:?}", e);
-                                                    let tool_error = Message::tool(error_msg, tool_call.id.clone());
+                                                    let error_msg =
+                                                        format!("Tool execution failed: {:?}", e);
+                                                    let tool_error = Message::tool(
+                                                        error_msg,
+                                                        tool_call.id.clone(),
+                                                    );
                                                     let _ = tx.send(Ok(tool_error.clone())).await;
-                                                    
+
                                                     // Store both the assistant tool message and the error
                                                     tool_results.push(assistant_tool_message);
                                                     tool_results.push(tool_error);
@@ -387,7 +406,8 @@ impl Agent {
                             if let Some(role) = &delta.role {
                                 match role.as_str() {
                                     "assistant" => {
-                                        current_message = Message::assistant(Some(String::new()), None);
+                                        current_message =
+                                            Message::assistant(Some(String::new()), None, None);
                                     }
                                     _ => continue,
                                 }
@@ -396,27 +416,37 @@ impl Agent {
                             // Handle content updates - only send if we have actual content
                             if let Some(content) = &delta.content {
                                 if !content.trim().is_empty() {
-                                    if let Message::Assistant { content: msg_content, .. } = &mut current_message {
+                                    if let Message::Assistant {
+                                        content: msg_content,
+                                        ..
+                                    } = &mut current_message
+                                    {
                                         if let Some(existing) = msg_content {
                                             existing.push_str(content);
                                         }
                                     }
-                                    let _ = tx.send(Ok(Message::assistant(Some(content.clone()), None))).await;
+                                    let _ = tx
+                                        .send(Ok(Message::assistant(
+                                            Some(content.clone()),
+                                            None,
+                                            None,
+                                        )))
+                                        .await;
                                 }
                             }
 
                             // Handle tool calls - only send when we have meaningful tool call data
                             if let Some(tool_calls) = &delta.tool_calls {
                                 has_tool_calls = true;
-                                
+
                                 if current_pending_tool.is_none() {
                                     current_pending_tool = Some(PendingToolCall::new());
                                 }
-                                
+
                                 if let Some(pending) = &mut current_pending_tool {
                                     for tool_call in tool_calls {
                                         pending.update_from_delta(tool_call);
-                                        
+
                                         // Only send intermediate updates if we have a function name
                                         if let Some(name) = &pending.function_name {
                                             if !pending.arguments.trim().is_empty() {
@@ -426,12 +456,21 @@ impl Agent {
                                                         name: name.clone(),
                                                         arguments: pending.arguments.clone(),
                                                     },
-                                                    call_type: pending.call_type.clone().unwrap_or_default(),
+                                                    call_type: pending
+                                                        .call_type
+                                                        .clone()
+                                                        .unwrap_or_default(),
                                                     code_interpreter: None,
                                                     retrieval: None,
                                                 };
-                                                
-                                                let _ = tx.send(Ok(Message::assistant(None, Some(vec![temp_tool_call])))).await;
+
+                                                let _ = tx
+                                                    .send(Ok(Message::assistant(
+                                                        None,
+                                                        Some(vec![temp_tool_call]),
+                                                        None,
+                                                    )))
+                                                    .await;
                                             }
                                         }
                                     }
@@ -448,7 +487,11 @@ impl Agent {
                 // If we didn't get any tool calls in the auto response, we're done
                 if !has_tool_calls {
                     // Only include current_message in the thread if it has content
-                    if let Message::Assistant { content: Some(content), .. } = &current_message {
+                    if let Message::Assistant {
+                        content: Some(content),
+                        ..
+                    } = &current_message
+                    {
                         if !content.trim().is_empty() {
                             let mut new_thread = thread.clone();
                             new_thread.messages.push(current_message);
@@ -461,7 +504,11 @@ impl Agent {
                 // Create new thread with tool results and recurse
                 let mut new_thread = thread.clone();
                 // Only include current_message if it has content
-                if let Message::Assistant { content: Some(content), .. } = &current_message {
+                if let Message::Assistant {
+                    content: Some(content),
+                    ..
+                } = &current_message
+                {
                     if !content.trim().is_empty() {
                         new_thread.messages.push(current_message);
                     }

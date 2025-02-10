@@ -9,7 +9,10 @@ use uuid::Uuid;
 use crate::{
     database::models::User,
     routes::ws::{
-        threads_and_messages::threads_router::{ThreadEvent, ThreadRoute},
+        threads_and_messages::{
+            threads_router::{ThreadEvent, ThreadRoute},
+            post_thread::agent_message_transformer::transform_message,
+        },
         ws::{WsEvent, WsResponseMessage, WsSendMethod},
         ws_router::WsRoutes,
         ws_utils::send_ws_message,
@@ -98,14 +101,8 @@ impl AgentThreadHandler {
         let thread = AgentThread::new(
             request.chat_id,
             vec![
-                Message::Developer {
-                    content: AGENT_PROMPT.to_string(),
-                    name: None,
-                },
-                Message::User {
-                    content: request.prompt,
-                    name: None,
-                },
+                Message::developer(AGENT_PROMPT.to_string()),
+                Message::user(request.prompt),
             ],
         );
         self.agent.stream_process_thread(&thread).await
@@ -120,17 +117,24 @@ impl AgentThreadHandler {
 
         while let Some(msg_result) = rx.recv().await {
             if let Ok(msg) = msg_result {
-                let response = WsResponseMessage::new_no_user(
-                    WsRoutes::Threads(ThreadRoute::Post),
-                    WsEvent::Threads(ThreadEvent::PostThread),
-                    msg,
-                    None,
-                    WsSendMethod::All,
-                );
+                match transform_message(msg) {
+                    Ok(transformed) => {
+                        let response = WsResponseMessage::new_no_user(
+                            WsRoutes::Threads(ThreadRoute::Post),
+                            WsEvent::Threads(ThreadEvent::PostThread),
+                            transformed,
+                            None,
+                            WsSendMethod::All,
+                        );
 
-                if let Err(e) = send_ws_message(&subscription, &response).await {
-                    tracing::error!("Failed to send websocket message: {}", e);
-                    break;
+                        if let Err(e) = send_ws_message(&subscription, &response).await {
+                            tracing::error!("Failed to send websocket message: {}", e);
+                            break;
+                        }
+                    }
+                    Err(e) => {
+                        tracing::error!("Failed to transform message: {}", e);
+                    }
                 }
             }
         }

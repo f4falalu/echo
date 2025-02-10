@@ -87,29 +87,45 @@ impl Default for ChatCompletionRequest {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum MessageProgress {
+    InProgress,
+    Complete,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "role")]
 #[serde(rename_all = "lowercase")]
 pub enum Message {
     #[serde(alias = "system")]
     Developer {
+        #[serde(skip)]
+        id: Option<String>,
         content: String,
         #[serde(skip_serializing_if = "Option::is_none")]
         name: Option<String>,
     },
     User {
+        #[serde(skip)]
+        id: Option<String>,
         content: String,
         #[serde(skip_serializing_if = "Option::is_none")]
         name: Option<String>,
     },
     Assistant {
+        #[serde(skip)]
+        id: Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
         content: Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
         name: Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
         tool_calls: Option<Vec<ToolCall>>,
+        #[serde(skip)]
+        progress: Option<MessageProgress>,
     },
     Tool {
+        #[serde(skip)]
+        id: Option<String>,
         content: String,
         tool_call_id: String,
         #[serde(skip_serializing_if = "Option::is_none")]
@@ -122,6 +138,7 @@ pub enum Message {
 impl Message {
     pub fn developer(content: impl Into<String>) -> Self {
         Self::Developer {
+            id: None,
             content: content.into(),
             name: None,
         }
@@ -129,21 +146,29 @@ impl Message {
 
     pub fn user(content: impl Into<String>) -> Self {
         Self::User {
+            id: None,
             content: content.into(),
             name: None,
         }
     }
 
-    pub fn assistant(content: Option<String>, tool_calls: Option<Vec<ToolCall>>) -> Self {
+    pub fn assistant(
+        content: Option<String>,
+        tool_calls: Option<Vec<ToolCall>>,
+        progress: Option<MessageProgress>,
+    ) -> Self {
         Self::Assistant {
+            id: None,
             content,
             name: None,
             tool_calls,
+            progress: None,
         }
     }
 
     pub fn tool(content: impl Into<String>, tool_call_id: impl Into<String>) -> Self {
         Self::Tool {
+            id: None,
             content: content.into(),
             tool_call_id: tool_call_id.into(),
             name: None,
@@ -433,6 +458,7 @@ mod tests {
                 message: Message::assistant(
                     Some("\n\nHello there, how may I assist you today?".to_string()),
                     None,
+                    None,
                 ),
                 logprobs: None,
                 finish_reason: Some("stop".to_string()),
@@ -574,7 +600,7 @@ mod tests {
             choices: vec![Choice {
                 finish_reason: Some("length".to_string()),
                 index: 0,
-                message: Message::assistant(Some("".to_string()), None),
+                message: Message::assistant(Some("".to_string()), None, None),
                 delta: None,
                 logprobs: None,
             }],
@@ -862,6 +888,7 @@ mod tests {
                         code_interpreter: None,
                         retrieval: None,
                     }]),
+                    None,
                 ),
                 logprobs: None,
                 finish_reason: Some("tool_calls".to_string()),
@@ -896,10 +923,13 @@ mod tests {
 
         match &choice.message {
             Message::Assistant {
+                id,
                 content,
                 tool_calls,
                 name,
+                progress,
             } => {
+                assert_eq!(id, &None);
                 assert_eq!(content, &None);
                 let tool_call = &tool_calls.as_ref().unwrap()[0];
                 assert_eq!(tool_call.id, "call_abc123");

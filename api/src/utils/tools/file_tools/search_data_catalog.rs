@@ -104,6 +104,7 @@ impl SearchDataCatalogTool {
         let request = ChatCompletionRequest {
             model: "o3-mini".to_string(),
             messages: vec![Message::User {
+                id: None,
                 content: prompt,
                 name: None,
             }],
