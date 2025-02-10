@@ -74,7 +74,8 @@ export type BusterChatMessageReasoning_text = {
 
 export type BusterChatMessageReasoning_file = {
   id: string;
-  type: FileType;
+  type: 'file';
+  file_type: FileType;
   file_name: string;
   version_number: number;
   version_id: string;
