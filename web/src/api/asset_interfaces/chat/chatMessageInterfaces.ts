@@ -42,7 +42,8 @@ export type BusterChatMessage_file = {
 
 export type BusterChatMessageReasoning =
   | BusterChatMessageReasoning_thought
-  | BusterChatMessageReasoning_text;
+  | BusterChatMessageReasoning_text
+  | BusterChatMessageReasoning_file;
 
 export type BusterChatMessageReasoning_thoughtPill = {
   text: string;
@@ -69,4 +70,23 @@ export type BusterChatMessageReasoning_text = {
   type: 'text';
   message: string;
   message_chunk?: string;
+};
+
+export type BusterChatMessageReasoning_file = {
+  id: string;
+  type: FileType;
+  file_name: string;
+  version_number: number;
+  version_id: string;
+  status: 'loading' | 'completed' | 'failed';
+  file_chunk?: {
+    text: string;
+    line_number: number;
+    modified?: boolean; //defaults to true
+  }[];
+  file?: {
+    text: string;
+    line_number: number;
+    modified?: boolean; //defaults to true
+  }; //will be defined if the file has been completed OR on a page refresh
 };
