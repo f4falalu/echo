@@ -154,7 +154,7 @@ impl Message {
     pub fn get_role(&self) -> String {
         match self {
             Self::Developer { .. } => "developer".to_string(),
-            Self::User { .. } => "user".to_string(), 
+            Self::User { .. } => "user".to_string(),
             Self::Assistant { .. } => "assistant".to_string(),
             Self::Tool { .. } => "tool".to_string(),
         }
@@ -222,11 +222,29 @@ pub struct FunctionCall {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct DeltaFunctionCall {
+    pub name: Option<String>,
+    pub arguments: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ToolCall {
     pub id: String,
     #[serde(rename = "type")]
     pub call_type: String,
     pub function: FunctionCall,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub code_interpreter: Option<CodeInterpreter>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub retrieval: Option<Retrieval>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct DeltaToolCall {
+    pub id: Option<String>,
+    #[serde(rename = "type")]
+    pub call_type: Option<String>,
+    pub function: Option<DeltaFunctionCall>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub code_interpreter: Option<CodeInterpreter>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -348,9 +366,9 @@ pub struct Delta {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub function_call: Option<FunctionCall>,
+    pub function_call: Option<DeltaFunctionCall>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tool_calls: Option<Vec<ToolCall>>,
+    pub tool_calls: Option<Vec<DeltaToolCall>>,
 }
 
 #[cfg(test)]
@@ -372,7 +390,7 @@ mod tests {
 
         // Serialize to JSON string
         let json = serde_json::to_string(&request).unwrap();
-        
+
         // Print for debugging
         println!("Serialized JSON: {}", json);
 
@@ -384,7 +402,7 @@ mod tests {
 
         // Verify messages
         assert_eq!(deserialized.messages.len(), 2);
-        
+
         // Check first message (developer)
         match &deserialized.messages[0] {
             Message::Developer { content, .. } => {
@@ -445,18 +463,28 @@ mod tests {
         assert_eq!(deserialized.object, "chat.completion");
         assert_eq!(deserialized.created, 1677652288);
         assert_eq!(deserialized.model, "gpt-4o-mini");
-        assert_eq!(deserialized.system_fingerprint, Some("fp_44709d6fcb".to_string()));
+        assert_eq!(
+            deserialized.system_fingerprint,
+            Some("fp_44709d6fcb".to_string())
+        );
         assert_eq!(deserialized.service_tier, Some("default".to_string()));
 
         // Verify choice
         let choice = &deserialized.choices[0];
         assert_eq!(choice.index, 0);
         assert_eq!(choice.finish_reason, Some("stop".to_string()));
-        
+
         // Verify message
         match &choice.message {
-            Message::Assistant { content, tool_calls, .. } => {
-                assert_eq!(content, &Some("\n\nHello there, how may I assist you today?".to_string()));
+            Message::Assistant {
+                content,
+                tool_calls,
+                ..
+            } => {
+                assert_eq!(
+                    content,
+                    &Some("\n\nHello there, how may I assist you today?".to_string())
+                );
                 // Verify tool_calls is None since no tools were used
                 assert!(tool_calls.is_none(), "Expected tool_calls to be None");
             }
@@ -467,7 +495,7 @@ mod tests {
         assert_eq!(deserialized.usage.prompt_tokens, 9);
         assert_eq!(deserialized.usage.completion_tokens, 12);
         assert_eq!(deserialized.usage.total_tokens, 21);
-        
+
         // Verify completion tokens details
         let details = deserialized.usage.completion_tokens_details.unwrap();
         assert_eq!(details.reasoning_tokens, 0);
@@ -479,34 +507,30 @@ mod tests {
     async fn test_chat_completion_request_with_tools() {
         let request = ChatCompletionRequest {
             model: "o1".to_string(),
-            messages: vec![
-                Message::user("Hello whats the weather in vineyard ut!"),
-            ],
+            messages: vec![Message::user("Hello whats the weather in vineyard ut!")],
             max_completion_tokens: Some(100),
-            tools: Some(vec![
-                Tool {
-                    tool_type: "function".to_string(),
-                    function: json!({
-                        "name": "get_weather",
-                        "description": "Get current weather information for a specific location",
-                        "parameters": {
-                            "type": "object",
-                            "properties": {
-                                "location": {
-                                    "type": "string",
-                                    "description": "The city and state, e.g., San Francisco, CA"
-                                },
-                                "unit": {
-                                    "type": "string",
-                                    "enum": ["celsius", "fahrenheit"],
-                                    "description": "The temperature unit to use"
-                                }
+            tools: Some(vec![Tool {
+                tool_type: "function".to_string(),
+                function: json!({
+                    "name": "get_weather",
+                    "description": "Get current weather information for a specific location",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "location": {
+                                "type": "string",
+                                "description": "The city and state, e.g., San Francisco, CA"
                             },
-                            "required": ["location"]
-                        }
-                    }),
-                }
-            ]),
+                            "unit": {
+                                "type": "string",
+                                "enum": ["celsius", "fahrenheit"],
+                                "description": "The temperature unit to use"
+                            }
+                        },
+                        "required": ["location"]
+                    }
+                }),
+            }]),
             ..Default::default()
         };
 
@@ -520,7 +544,7 @@ mod tests {
         // Verify fields
         assert_eq!(deserialized.model, "o1");
         assert_eq!(deserialized.max_completion_tokens, Some(100));
-        
+
         // Verify message
         assert_eq!(deserialized.messages.len(), 1);
         match &deserialized.messages[0] {
@@ -578,16 +602,23 @@ mod tests {
         assert_eq!(deserialized.id, "chatcmpl-Aty6m8WYqaTYvjE0OUd0x80kflE2k");
         assert_eq!(deserialized.created, 1737902460);
         assert_eq!(deserialized.model, "o1-2024-12-17");
-        assert_eq!(deserialized.system_fingerprint, Some("fp_6675b66d18".to_string()));
-        
+        assert_eq!(
+            deserialized.system_fingerprint,
+            Some("fp_6675b66d18".to_string())
+        );
+
         // Verify choice
         let choice = &deserialized.choices[0];
         assert_eq!(choice.index, 0);
         assert_eq!(choice.finish_reason, Some("length".to_string()));
-        
+
         // Verify message is empty
         match &choice.message {
-            Message::Assistant { content, tool_calls, .. } => {
+            Message::Assistant {
+                content,
+                tool_calls,
+                ..
+            } => {
                 assert_eq!(content, &Some("".to_string()));
                 assert!(tool_calls.is_none());
             }
@@ -598,7 +629,7 @@ mod tests {
         assert_eq!(deserialized.usage.completion_tokens, 100);
         assert_eq!(deserialized.usage.prompt_tokens, 85);
         assert_eq!(deserialized.usage.total_tokens, 185);
-        
+
         // Verify completion tokens details
         let details = deserialized.usage.completion_tokens_details.unwrap();
         assert_eq!(details.accepted_prediction_tokens, 0);
@@ -628,7 +659,7 @@ mod tests {
         // Verify fields
         assert_eq!(deserialized.model, "o1");
         assert_eq!(deserialized.stream, Some(true));
-        
+
         // Verify messages
         assert_eq!(deserialized.messages.len(), 2);
         match &deserialized.messages[0] {
@@ -708,7 +739,10 @@ mod tests {
         };
 
         // Test serialization/deserialization of all chunks
-        for (i, chunk) in vec![initial_chunk, content_chunk, final_chunk].into_iter().enumerate() {
+        for (i, chunk) in vec![initial_chunk, content_chunk, final_chunk]
+            .into_iter()
+            .enumerate()
+        {
             let json = serde_json::to_string_pretty(&chunk).unwrap();
             println!("Chunk {} JSON:\n{}", i, json);
 
@@ -719,7 +753,10 @@ mod tests {
             assert_eq!(deserialized.object, "chat.completion.chunk");
             assert_eq!(deserialized.created, 1694268190);
             assert_eq!(deserialized.model, "gpt-4o-mini");
-            assert_eq!(deserialized.system_fingerprint, Some("fp_44709d6fcb".to_string()));
+            assert_eq!(
+                deserialized.system_fingerprint,
+                Some("fp_44709d6fcb".to_string())
+            );
 
             // Verify choice
             let choice = &deserialized.choices[0];
@@ -756,32 +793,28 @@ mod tests {
         // Test request with function tool
         let request = ChatCompletionRequest {
             model: "gpt-4o".to_string(),
-            messages: vec![
-                Message::user("What's the weather like in Boston today?"),
-            ],
-            tools: Some(vec![
-                Tool {
-                    tool_type: "function".to_string(),
-                    function: json!({
-                        "name": "get_current_weather",
-                        "description": "Get the current weather in a given location",
-                        "parameters": {
-                            "type": "object",
-                            "properties": {
-                                "location": {
-                                    "type": "string",
-                                    "description": "The city and state, e.g. San Francisco, CA"
-                                },
-                                "unit": {
-                                    "type": "string",
-                                    "enum": ["celsius", "fahrenheit"]
-                                }
+            messages: vec![Message::user("What's the weather like in Boston today?")],
+            tools: Some(vec![Tool {
+                tool_type: "function".to_string(),
+                function: json!({
+                    "name": "get_current_weather",
+                    "description": "Get the current weather in a given location",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "location": {
+                                "type": "string",
+                                "description": "The city and state, e.g. San Francisco, CA"
                             },
-                            "required": ["location"]
-                        }
-                    }),
-                }
-            ]),
+                            "unit": {
+                                "type": "string",
+                                "enum": ["celsius", "fahrenheit"]
+                            }
+                        },
+                        "required": ["location"]
+                    }
+                }),
+            }]),
             tool_choice: Some(ToolChoice::Auto("auto".to_string())),
             ..Default::default()
         };
@@ -801,7 +834,7 @@ mod tests {
             }
             _ => panic!("Expected user message"),
         }
-        
+
         let tool = &deserialized_req.tools.as_ref().unwrap()[0];
         assert_eq!(tool.tool_type, "function");
         assert_eq!(
@@ -857,18 +890,25 @@ mod tests {
 
         // Verify response fields
         assert_eq!(deserialized_resp.id, "chatcmpl-abc123");
-        
+
         let choice = &deserialized_resp.choices[0];
         assert_eq!(choice.finish_reason, Some("tool_calls".to_string()));
-        
+
         match &choice.message {
-            Message::Assistant { content, tool_calls, name } => {
+            Message::Assistant {
+                content,
+                tool_calls,
+                name,
+            } => {
                 assert_eq!(content, &None);
                 let tool_call = &tool_calls.as_ref().unwrap()[0];
                 assert_eq!(tool_call.id, "call_abc123");
                 assert_eq!(tool_call.call_type, "function");
                 assert_eq!(tool_call.function.name, "get_current_weather");
-                assert_eq!(tool_call.function.arguments, "{\n\"location\": \"Boston, MA\"\n}");
+                assert_eq!(
+                    tool_call.function.arguments,
+                    "{\n\"location\": \"Boston, MA\"\n}"
+                );
             }
             _ => panic!("Expected assistant message"),
         }

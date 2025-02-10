@@ -2,7 +2,7 @@
 CREATE OR REPLACE FUNCTION update_user_org_attributes()
 RETURNS TRIGGER AS $$
 BEGIN
-    UPDATE users
+    UPDATE public.users
     SET attributes = jsonb_set(
         jsonb_set(
             COALESCE(attributes, '{}'::jsonb),

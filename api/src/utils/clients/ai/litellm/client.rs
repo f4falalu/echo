@@ -54,10 +54,13 @@ impl LiteLLMClient {
         request: ChatCompletionRequest,
     ) -> Result<ChatCompletionResponse> {
         let url = format!("{}/chat/completions", self.base_url);
-        
+
         println!("DEBUG: Sending chat completion request to URL: {}", url);
-        println!("DEBUG: Request payload: {}", serde_json::to_string_pretty(&request).unwrap());
-        
+        println!(
+            "DEBUG: Request payload: {}",
+            serde_json::to_string_pretty(&request).unwrap()
+        );
+
         let response = self
             .client
             .post(&url)
@@ -68,7 +71,11 @@ impl LiteLLMClient {
             .await?;
 
         // Print tool calls if present
-        if let Some(Message::Assistant { tool_calls: Some(tool_calls), .. }) = response.choices.first().map(|c| &c.message) {
+        if let Some(Message::Assistant {
+            tool_calls: Some(tool_calls),
+            ..
+        }) = response.choices.first().map(|c| &c.message)
+        {
             println!("DEBUG: Tool calls in response:");
             for tool_call in tool_calls {
                 println!("DEBUG: Tool Call ID: {}", tool_call.id);
@@ -77,7 +84,10 @@ impl LiteLLMClient {
             }
         }
 
-        println!("DEBUG: Received chat completion response: {}", serde_json::to_string_pretty(&response).unwrap());
+        println!(
+            "DEBUG: Received chat completion response: {}",
+            serde_json::to_string_pretty(&response).unwrap()
+        );
 
         Ok(response)
     }
@@ -87,10 +97,16 @@ impl LiteLLMClient {
         request: ChatCompletionRequest,
     ) -> Result<mpsc::Receiver<Result<ChatCompletionChunk>>> {
         let url = format!("{}/chat/completions", self.base_url);
-        
-        println!("DEBUG: Starting stream chat completion request to URL: {}", url);
-        println!("DEBUG: Stream request payload: {}", serde_json::to_string_pretty(&request).unwrap());
-        
+
+        println!(
+            "DEBUG: Starting stream chat completion request to URL: {}",
+            url
+        );
+        println!(
+            "DEBUG: Stream request payload: {}",
+            serde_json::to_string_pretty(&request).unwrap()
+        );
+
         let mut stream = self
             .client
             .post(&url)
@@ -131,15 +147,27 @@ impl LiteLLMClient {
                                     serde_json::from_str::<ChatCompletionChunk>(data)
                                 {
                                     // Print tool calls if present in the stream chunk
-                                    if let Some(tool_calls) = &response.choices[0].delta.tool_calls {
+                                    if let Some(tool_calls) = &response.choices[0].delta.tool_calls
+                                    {
                                         println!("DEBUG: Tool calls in stream chunk:");
                                         for tool_call in tool_calls {
-                                            println!("DEBUG: Tool Call ID: {}", tool_call.id);
-                                            println!("DEBUG: Tool Name: {}", tool_call.function.name);
-                                            println!("DEBUG: Tool Arguments: {}", tool_call.function.arguments);
+                                            if let (Some(id), Some(function)) =
+                                                (tool_call.id.clone(), tool_call.function.clone())
+                                            {
+                                                println!("DEBUG: Tool Call ID: {}", id);
+                                                if let Some(name) = function.name {
+                                                    println!("DEBUG: Tool Name: {}", name);
+                                                }
+                                                if let Some(arguments) = function.arguments {
+                                                    println!(
+                                                        "DEBUG: Tool Arguments: {}",
+                                                        arguments
+                                                    );
+                                                }
+                                            }
                                         }
                                     }
-                                    
+
                                     println!("DEBUG: Parsed stream chunk: {:?}", response);
                                     let _ = tx.send(Ok(response)).await;
                                 }
