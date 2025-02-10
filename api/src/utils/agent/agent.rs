@@ -183,7 +183,7 @@ impl Agent {
                 if let Some(tool) = self.tools.get(&tool_call.function.name) {
                     let result = tool.execute(tool_call).await?;
                     let result_str = serde_json::to_string(&result)?;
-                    results.push(Message::tool(result_str, tool_call.id.clone()));
+                    results.push(Message::tool(result_str, tool_call.id.clone(), None));
                 }
             }
 
@@ -375,6 +375,7 @@ impl Agent {
                                                     let tool_result = Message::tool(
                                                         result_str,
                                                         tool_call.id.clone(),
+                                                        None,
                                                     );
                                                     let _ = tx.send(Ok(tool_result.clone())).await;
 
@@ -388,6 +389,7 @@ impl Agent {
                                                     let tool_error = Message::tool(
                                                         error_msg,
                                                         tool_call.id.clone(),
+                                                        None,
                                                     );
                                                     let _ = tx.send(Ok(tool_error.clone())).await;
 

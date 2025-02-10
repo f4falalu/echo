@@ -130,6 +130,8 @@ pub enum Message {
         tool_call_id: String,
         #[serde(skip_serializing_if = "Option::is_none")]
         name: Option<String>,
+        #[serde(skip)]
+        progress: Option<MessageProgress>,
     },
 }
 
@@ -162,16 +164,21 @@ impl Message {
             content,
             name: None,
             tool_calls,
-            progress: None,
+            progress,
         }
     }
 
-    pub fn tool(content: impl Into<String>, tool_call_id: impl Into<String>) -> Self {
+    pub fn tool(
+        content: impl Into<String>,
+        tool_call_id: impl Into<String>,
+        progress: Option<MessageProgress>,
+    ) -> Self {
         Self::Tool {
             id: None,
             content: content.into(),
             tool_call_id: tool_call_id.into(),
             name: None,
+            progress,
         }
     }
 
