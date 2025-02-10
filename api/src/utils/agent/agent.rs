@@ -424,31 +424,26 @@ impl Agent {
                                     for tool_call in tool_calls {
                                         pending.update_from_delta(tool_call);
 
-                                        // Only send intermediate updates if we have a function name
+                                        // Send an update if we have a name, regardless of arguments
                                         if let Some(name) = &pending.function_name {
-                                            if !pending.arguments.trim().is_empty() {
-                                                let temp_tool_call = ToolCall {
-                                                    id: pending.id.clone().unwrap_or_default(),
-                                                    function: FunctionCall {
-                                                        name: name.clone(),
-                                                        arguments: pending.arguments.clone(),
-                                                    },
-                                                    call_type: pending
-                                                        .call_type
-                                                        .clone()
-                                                        .unwrap_or_default(),
-                                                    code_interpreter: None,
-                                                    retrieval: None,
-                                                };
+                                            let temp_tool_call = ToolCall {
+                                                id: pending.id.clone().unwrap_or_default(),
+                                                function: FunctionCall {
+                                                    name: name.clone(),
+                                                    arguments: pending.arguments.clone(),
+                                                },
+                                                call_type: pending.call_type.clone().unwrap_or_default(),
+                                                code_interpreter: None,
+                                                retrieval: None,
+                                            };
 
-                                                let _ = tx
-                                                    .send(Ok(Message::assistant(
-                                                        None,
-                                                        Some(vec![temp_tool_call]),
-                                                        Some(MessageProgress::InProgress),
-                                                    )))
-                                                    .await;
-                                            }
+                                            let _ = tx
+                                                .send(Ok(Message::assistant(
+                                                    None,
+                                                    Some(vec![temp_tool_call]),
+                                                    Some(MessageProgress::InProgress),
+                                                )))
+                                                .await;
                                         }
                                     }
                                 }
