@@ -140,14 +140,17 @@ fn assistant_data_catalog_search(
 ) -> Result<BusterThreadMessage> {
     if let Some(progress) = progress {
         match progress {
-            MessageProgress::InProgress => Ok(BusterThreadMessage::Thought(BusterThought {
+            MessageProgress::InProgress => {
+                let id = id.unwrap_or_else(|| Uuid::new_v4().to_string());
+                
+                Ok(BusterThreadMessage::Thought(BusterThought {
                 id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
                 thought_type: "thought".to_string(),
                 thought_title: "Searching your data catalog...".to_string(),
                 thought_secondary_title: "".to_string(),
                 thought_pills: None,
                 status: "loading".to_string(),
-            })),
+            }))},
             _ => Err(anyhow::anyhow!(
                 "Assistant data catalog search only supports in progress."
             )),
@@ -234,6 +237,72 @@ fn tool_stored_values_search(
             "Tool stored values search requires progress."
         ))
     }
+}
+
+fn assistant_file_search(
+    id: Option<String>,
+    progress: Option<MessageProgress>,
+) -> Result<BusterThreadMessage> {
+    if let Some(progress) = progress {
+        match progress {
+            MessageProgress::InProgress => Ok(BusterThreadMessage::Thought(BusterThought {
+                id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
+                thought_type: "thought".to_string(),
+                thought_title: "Searching your files...".to_string(),
+                thought_secondary_title: "".to_string(),
+                thought_pills: None,
+                status: "loading".to_string(),
+            })),    
+            _ => Err(anyhow::anyhow!(
+                "Assistant file search only supports in progress."
+            )),
+        }
+    } else {
+        Err(anyhow::anyhow!(    
+            "Assistant file search requires progress."
+        ))
+    }
+}
+
+fn tool_file_search(    
+    id: Option<String>,
+    content: String,
+    progress: Option<MessageProgress>,
+) -> Result<BusterThreadMessage> {
+    Ok(BusterThreadMessage::Thought(BusterThought {
+        id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
+        thought_type: "thought".to_string(),
+        thought_title: "".to_string(),
+        thought_secondary_title: "".to_string(),
+        thought_pills: None,
+        status: "completed".to_string(),
+    }))
+}
+
+fn assistant_open_file(
+    id: Option<String>,
+    content: String,
+    progress: Option<MessageProgress>,
+) -> Result<BusterThreadMessage> {
+    Ok(BusterThreadMessage::ChatMessage(BusterChatMessage {
+        id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
+        message_type: "text".to_string(),
+        message: Some(content),
+        message_chunk: None,
+    }))
+}   
+
+fn tool_open_file(
+    id: Option<String>,
+    content: String,
+    progress: Option<MessageProgress>,
+) -> Result<BusterThreadMessage> {
+    Ok(BusterThreadMessage::ChatMessage(BusterChatMessage {
+        id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
+        message_type: "text".to_string(),
+        message: Some(content),
+        message_chunk: None,
+    }))
 }
 
 #[cfg(test)]
