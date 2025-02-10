@@ -65,21 +65,16 @@ export const useChatLayout = ({
 
   const onCollapseFileClick = useMemoizedFn((close?: boolean) => {
     const isCloseAction = close ?? isCollapseOpen;
+    const isFileLayout = defaultSelectedLayout === 'file';
 
-    if (defaultSelectedLayout === 'file') {
-      if (!isCloseAction && defaultSelectedFile) {
-        setIsCollapseOpen(true);
-        animateOpenSplitter('both');
-      } else {
-        setIsCollapseOpen(false);
-        animateOpenSplitter('right');
-      }
+    setIsCollapseOpen(!isCloseAction);
+
+    if (isFileLayout) {
+      // For file layout, toggle between 'both' and 'right'
+      animateOpenSplitter(!isCloseAction && defaultSelectedFile ? 'both' : 'right');
     } else {
-      if (isCloseAction) {
-        animateOpenSplitter('left');
-      } else {
-        animateOpenSplitter('both');
-      }
+      // For other layouts, toggle between 'right' and 'both'
+      animateOpenSplitter(!isCloseAction ? 'right' : 'both');
     }
   });
 

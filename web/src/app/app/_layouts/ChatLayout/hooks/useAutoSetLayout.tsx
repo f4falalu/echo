@@ -16,6 +16,7 @@ export const useAutoSetLayout = ({
   }, [defaultSelectedLayout]);
 
   const collapseDirection: 'left' | 'right' = useMemo(() => {
+    console.log(defaultSelectedLayout);
     return defaultSelectedLayout === 'file' ? 'left' : 'right';
   }, [defaultSelectedLayout]);
 
