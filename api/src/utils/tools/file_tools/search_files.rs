@@ -29,20 +29,20 @@ struct SearchFilesParams {
     query_params: Vec<String>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SearchFilesOutput {
-    message: String,
-    query_params: Vec<String>,
-    duration: i64,
-    files: Vec<FileSearchResult>,
+    pub message: String,
+    pub query_params: Vec<String>,
+    pub duration: i64,
+    pub files: Vec<FileSearchResult>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct FileSearchResult {
-    id: Uuid,
-    name: String,
-    file_type: String,
-    updated_at: DateTime<Utc>,
+pub struct FileSearchResult {
+    pub id: Uuid,
+    pub name: String,
+    pub file_type: String,
+    pub updated_at: DateTime<Utc>,
 }
 
 const FILE_SEARCH_PROMPT: &str = r#"

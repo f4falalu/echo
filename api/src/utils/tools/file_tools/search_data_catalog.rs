@@ -25,7 +25,7 @@ struct SearchDataCatalogParams {
     query_params: Vec<String>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SearchDataCatalogOutput {
     pub message: String,
     pub query_params: Vec<String>,
