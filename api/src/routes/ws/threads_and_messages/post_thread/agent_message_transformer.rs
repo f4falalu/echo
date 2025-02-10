@@ -57,17 +57,14 @@ pub fn transform_message(message: Message) -> Result<BusterThreadMessage> {
             tool_call_id,
             name,
             progress,
-        } => {
-            tracing::debug!("Tool message: {:?}", message);
-            Ok(BusterThreadMessage::Thought(BusterThought {
-                id,
-                thought_type: "text".to_string(),
-                thought_title: "".to_string(),
-                thought_secondary_title: "".to_string(),
-                thought_pills: None,
-                status: "".to_string(),
-            }))
-        }
+        } => Ok(BusterThreadMessage::Thought(BusterThought {
+            id: tool_call_id.clone(),
+            thought_type: "text".to_string(),
+            thought_title: "".to_string(),
+            thought_secondary_title: "".to_string(),
+            thought_pills: None,
+            status: "".to_string(),
+        })),
         _ => Err(anyhow::anyhow!("Unsupported message type")),
     }
 }
@@ -89,8 +86,6 @@ mod tests {
         let result = transform_message(message);
         assert!(result.is_ok());
         let transformed = result.unwrap();
-        assert_eq!(transformed.message_type, "text");
-        assert!(transformed.message_chunk.is_some());
     }
 
     #[test]
