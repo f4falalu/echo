@@ -15,7 +15,7 @@ interface TextProps {
   style?: React.CSSProperties;
   onClick?: React.MouseEventHandler<HTMLSpanElement>;
   children: React.ReactNode;
-  lineHeight?: number;
+  lineHeight?: number | string;
 }
 
 const useTextStyles = createStyles(({ css, token }) => {
@@ -108,7 +108,11 @@ const TextComponent = React.memo<TextProps>(
 
     const memoizedStyles = useMemo(() => {
       return {
-        lineHeight: lineHeight ? `${lineHeight}px` : undefined,
+        lineHeight: lineHeight
+          ? typeof lineHeight === 'number'
+            ? `${lineHeight}px`
+            : lineHeight
+          : undefined,
         cursor: type === 'link' ? 'pointer' : undefined,
         ...props.style
       };

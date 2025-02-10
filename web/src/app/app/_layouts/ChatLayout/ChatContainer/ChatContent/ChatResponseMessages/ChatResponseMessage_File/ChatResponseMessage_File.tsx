@@ -12,6 +12,7 @@ import { useMemoizedFn } from 'ahooks';
 import { StatusIndicator } from '@/components/indicators';
 import { useChatLayoutContextSelector } from '../../../../ChatLayoutContext';
 import { useChatIndividualContextSelector } from '../../../../ChatContext';
+import { VersionPill } from '@appComponents/Text/VersionPill';
 
 export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = React.memo(
   ({ responseMessage: responseMessageProp, isCompletedStream }) => {
@@ -69,19 +70,6 @@ const ChatResponseMessageHeader: React.FC<{ file_name: string; version_number: n
   });
 
 ChatResponseMessageHeader.displayName = 'ChatResponseMessageHeader';
-const VersionPill: React.FC<{ version_number: number }> = ({ version_number = 1 }) => {
-  const { cx, styles } = useStyles();
-
-  const text = `v${version_number}`;
-
-  return (
-    <div className={cx(styles.fileVersion, 'flex items-center space-x-1.5')}>
-      <Text type="secondary" lineHeight={11} size="sm">
-        {text}
-      </Text>
-    </div>
-  );
-};
 
 const ChatResponseMessageBody: React.FC<{
   metadata: BusterChatMessage_fileMetadata[];
@@ -148,11 +136,6 @@ const useStyles = createStyles(({ token, css }) => ({
     background: ${token.controlItemBgActive};
     border-bottom: 0.5px solid ${token.colorBorder};
     height: 32px;
-  `,
-  fileVersion: css`
-    border-radius: ${token.borderRadius}px;
-    padding: 4px;
-    background: ${token.colorFillTertiary};
   `,
   hideSecondaryText: css`
     container-type: inline-size;

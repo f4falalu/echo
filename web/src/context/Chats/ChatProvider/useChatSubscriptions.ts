@@ -13,10 +13,12 @@ import {
   createMockResponseMessageFile,
   createMockResponseMessageText,
   createMockResponseMessageThought,
+  createMockReasoningMessageFile,
   MOCK_CHAT
 } from './MOCK_CHAT';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { faker } from '@faker-js/faker';
+
 export const useChatSubscriptions = ({
   chatsRef,
   chatsMessagesRef,
@@ -91,10 +93,10 @@ export const useChatSubscriptions = ({
       modified: true
     };
 
-    // Create new reasoning file with updated chunks
+    // Create new reasoning file with appended chunk
     const updatedReasoningFile = {
       ...lastReasoningFile,
-      file_chunk: [newChunk]
+      file: [...(lastReasoningFile.file || []), newChunk]
     };
 
     // Create new message with updated reasoning array
@@ -106,6 +108,49 @@ export const useChatSubscriptions = ({
         }
         return r;
       })
+    };
+
+    // Update the refs with new object references
+    chatsMessagesRef.current = {
+      ...chatsMessagesRef.current,
+      [lastMessageId]: updatedMessage
+    };
+
+    chatsRef.current = {
+      ...chatsRef.current,
+      [lastChatId]: {
+        ...lastChat,
+        messages: [...lastChat.messages]
+      }
+    };
+
+    startTransition(() => {
+      // Force a re-render
+      chatsRef.current = { ...chatsRef.current };
+      chatsMessagesRef.current = { ...chatsMessagesRef.current };
+    });
+  });
+
+  useHotkeys('y', () => {
+    // Find the last chat message
+    const lastChatId = Object.keys(chatsRef.current)[Object.keys(chatsRef.current).length - 1];
+    const lastChat = chatsRef.current[lastChatId];
+
+    if (!lastChat?.messages?.length) return;
+
+    const lastMessageId = lastChat.messages[lastChat.messages.length - 1];
+    const lastMessage = chatsMessagesRef.current[lastMessageId];
+
+    if (!lastMessage) return;
+    lastMessage.isCompletedStream = false;
+
+    // Create a new reasoning file message
+    const newReasoningFile = createMockReasoningMessageFile();
+
+    // Add the new reasoning file to the reasoning array
+    const updatedMessage = {
+      ...lastMessage,
+      reasoning: [...(lastMessage.reasoning || []), newReasoningFile]
     };
 
     // Update the refs with new object references

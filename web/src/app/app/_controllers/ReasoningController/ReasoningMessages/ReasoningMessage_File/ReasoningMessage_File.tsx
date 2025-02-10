@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ReasoningMessageProps } from '../ReasoningMessageSelector';
 import { BusterChatMessageReasoning_file } from '@/api/asset_interfaces';
 import {
@@ -8,7 +8,10 @@ import {
 import { useBusterStylesContext } from '@/context/BusterStyles';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { AnimatePresence, motion } from 'framer-motion';
-import { TextPulseLoader } from '@/components/loaders';
+import { itemAnimationConfig } from '../animationConfig';
+import { LoaderDot } from './LoaderDot';
+import { ReasoningFileButtons } from './ReasoningFileButtons';
+import { ReasoningFileTitle } from './ReasoningFileTitle';
 
 const style = SyntaxHighlighterLightTheme;
 
@@ -30,8 +33,9 @@ const item = {
 };
 
 export const ReasoningMessage_File: React.FC<ReasoningMessageProps> = React.memo(
-  ({ reasoningMessage, isCompletedStream, isLastMessageItem }) => {
-    const { file, file_name, file_chunk } = reasoningMessage as BusterChatMessageReasoning_file;
+  ({ reasoningMessage, isCompletedStream, isLastMessageItem, chatId }) => {
+    const { file, file_name, file_type, version_id, version_number } =
+      reasoningMessage as BusterChatMessageReasoning_file;
     const isDarkMode = useBusterStylesContext((s) => s.isDarkMode);
 
     const showLoader = !isCompletedStream && isLastMessageItem;
@@ -49,75 +53,73 @@ export const ReasoningMessage_File: React.FC<ReasoningMessageProps> = React.memo
 
     // Append new chunks as they arrive
     useEffect(() => {
-      if (file_chunk) {
+      if (file) {
         setLineMap((prevMap) => {
           const newMap = new Map(prevMap);
-          file_chunk.forEach((chunk) => {
-            const existingLine = prevMap.get(chunk.line_number) || '';
-            newMap.set(chunk.line_number, existingLine + chunk.text);
+          file.forEach((chunk) => {
+            newMap.set(chunk.line_number, chunk.text);
           });
           return newMap;
         });
       }
-    }, [file_chunk]);
+    }, [file]);
 
     return (
-      <AppCodeBlockWrapper
-        title={file_name}
-        language={'yaml'}
-        showCopyButton={false}
-        isDarkMode={isDarkMode}>
-        <AnimatePresence>
-          <motion.div
-            className="w-full overflow-x-auto p-3"
-            variants={container}
-            initial="hidden"
-            animate="show"
-            exit="exit">
-            <div className="border border-red-500">
-              {Array.from(lineMap.entries()).map(([lineNumber, text]) => (
-                <motion.div
-                  key={lineNumber}
-                  variants={item}
-                  className="line-number border border-blue-500">
-                  <MemoizedSyntaxHighlighter lineNumber={lineNumber} text={text} />
-                </motion.div>
-              ))}
-            </div>
-            {showLoader && <LoaderDot />}
-          </motion.div>
-        </AnimatePresence>
-      </AppCodeBlockWrapper>
+      <AnimatePresence initial={!isCompletedStream}>
+        <motion.div {...itemAnimationConfig}>
+          <AppCodeBlockWrapper
+            title={<ReasoningFileTitle file_name={file_name} version_number={version_number} />}
+            language={'yaml'}
+            showCopyButton={false}
+            isDarkMode={isDarkMode}
+            buttons={
+              <ReasoningFileButtons
+                fileType={file_type}
+                fileId={version_id}
+                isCompletedStream={isCompletedStream}
+                chatId={chatId}
+              />
+            }>
+            <AnimatePresence initial={!isCompletedStream}>
+              <motion.div
+                className="w-full overflow-x-auto p-3"
+                variants={container}
+                initial="hidden"
+                animate="show"
+                exit="exit">
+                <div className="">
+                  {Array.from(lineMap.entries()).map(([lineNumber, text]) => (
+                    <motion.div key={lineNumber} variants={item} className="line-number w-fit pr-1">
+                      <MemoizedSyntaxHighlighter lineNumber={lineNumber} text={text} />
+                    </motion.div>
+                  ))}
+                </div>
+                {showLoader && <LoaderDot />}
+              </motion.div>
+            </AnimatePresence>
+          </AppCodeBlockWrapper>
+        </motion.div>
+      </AnimatePresence>
     );
   }
 );
 
-const LoaderDot = React.memo(() => {
-  return (
-    <div className="-mt-0.5 pl-1">
-      <TextPulseLoader />
-    </div>
-  );
-});
-
-LoaderDot.displayName = 'LoaderDot';
-
 ReasoningMessage_File.displayName = 'ReasoningMessage_File';
 
-const lineNumberStyles = { color: '#000' };
+const lineNumberStyles: React.CSSProperties = {
+  minWidth: '2.25em'
+};
 const MemoizedSyntaxHighlighter = React.memo(
   ({ lineNumber, text }: { lineNumber: number; text: string }) => {
     return (
       <SyntaxHighlighter
         style={style}
         language={'yaml'}
-        key={lineNumber}
         showLineNumbers
-        wrapLines
-        wrapLongLines
         startingLineNumber={lineNumber}
         lineNumberStyle={lineNumberStyles}
-        className={`!m-0 !border-none !p-0`}>
+        lineNumberContainerStyle={{ color: 'red' }}
+        className={`!m-0 !w-fit !border-none !p-0`}>
         {text}
       </SyntaxHighlighter>
     );

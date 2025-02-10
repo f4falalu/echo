@@ -13,7 +13,7 @@ export const AppCodeBlockWrapper: React.FC<{
   language?: string;
   showCopyButton?: boolean;
   buttons?: React.ReactNode;
-  title?: string;
+  title?: string | React.ReactNode;
 }> = React.memo(({ children, code, showCopyButton = true, language, buttons, title }) => {
   const { cx, styles } = useStyles();
   const { openSuccessMessage } = useBusterNotifications();

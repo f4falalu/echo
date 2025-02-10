@@ -11,6 +11,7 @@ export interface ReasoningMessageProps {
   reasoningMessage: BusterChatMessageReasoning;
   isCompletedStream: boolean;
   isLastMessageItem: boolean;
+  chatId: string;
 }
 
 const ReasoningMessageRecord: Record<
@@ -31,12 +32,14 @@ export interface ReasoningMessageSelectorProps {
   reasoningMessage: BusterChatMessageReasoning;
   isCompletedStream: boolean;
   isLastMessageItem: boolean;
+  chatId: string;
 }
 
 export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> = ({
   reasoningMessage,
   isCompletedStream,
-  isLastMessageItem
+  isLastMessageItem,
+  chatId
 }) => {
   const ReasoningMessage = ReasoningMessageRecord[reasoningMessage.type];
   return (
@@ -44,6 +47,7 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
       reasoningMessage={reasoningMessage}
       isCompletedStream={isCompletedStream}
       isLastMessageItem={isLastMessageItem}
+      chatId={chatId}
     />
   );
 };

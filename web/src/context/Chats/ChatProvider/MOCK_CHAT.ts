@@ -89,7 +89,7 @@ export const createMockResponseMessageFile = (): BusterChatMessage_file => {
 
 export const createMockReasoningMessageFile = (): BusterChatMessageReasoning_file => {
   return {
-    id: 'swag',
+    id: 'swag' + faker.string.uuid(),
     type: 'file',
     file_type: 'metric',
     status: 'completed',
@@ -130,6 +130,9 @@ export const MOCK_CHAT: BusterChat = {
       reasoning: [
         ...Array.from({ length: 1 }, () => createMockResponseMessageThought()),
         createMockReasoningMessageFile()
+        // createMockReasoningMessageFile(),
+        // createMockResponseMessageThought(),
+        // createMockResponseMessageThought()
       ],
       response_messages: [
         createMockResponseMessageText(),

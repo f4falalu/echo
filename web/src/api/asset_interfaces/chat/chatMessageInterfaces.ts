@@ -80,11 +80,6 @@ export type BusterChatMessageReasoning_file = {
   version_number: number;
   version_id: string;
   status: 'loading' | 'completed' | 'failed';
-  file_chunk?: {
-    text: string;
-    line_number: number;
-    modified?: boolean; //defaults to true
-  }[];
   file?: {
     text: string;
     line_number: number;

@@ -23,6 +23,7 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
       <ReasoningMessageContainer
         reasoningMessages={reasoningMessages}
         isCompletedStream={isCompletedStream}
+        chatId={chatId}
       />
     </div>
   );

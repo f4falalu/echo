@@ -1,0 +1,54 @@
+import type { FileType } from '@/api/asset_interfaces';
+import { createChatAssetRoute } from '@appLayouts/ChatLayout/ChatLayoutContext/helpers';
+import { AppMaterialIcons, AppTooltip } from '@/components';
+import { Button } from 'antd';
+import React from 'react';
+import { useChatLayoutContextSelector } from '@/app/app/_layouts/ChatLayout';
+import { useMemoizedFn } from 'ahooks';
+
+export const ReasoningFileButtons = React.memo(
+  ({
+    fileType,
+    fileId,
+    chatId,
+    isCompletedStream
+  }: {
+    fileType: FileType;
+    fileId: string;
+    chatId: string;
+    isCompletedStream: boolean;
+  }) => {
+    if (!isCompletedStream) return null;
+
+    const onSetSelectedFile = useChatLayoutContextSelector((state) => state.onSetSelectedFile);
+
+    const link = createChatAssetRoute({
+      chatId: chatId,
+      assetId: fileId,
+      type: fileType
+    });
+
+    const onOpenFile = useMemoizedFn((e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onSetSelectedFile({
+        id: fileId,
+        type: fileType
+      });
+    });
+
+    return (
+      <div>
+        <AppTooltip title="Open file">
+          <Button
+            href={link}
+            onClick={onOpenFile}
+            type="text"
+            icon={<AppMaterialIcons icon="open_in_new" />}></Button>
+        </AppTooltip>
+      </div>
+    );
+  }
+);
+
+ReasoningFileButtons.displayName = 'ReasoningFileButtons';

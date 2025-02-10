@@ -58,7 +58,8 @@ export const busterAppStyleConfig: ThemeConfig = {
     lineHeightHeading3: 1.3,
     lineHeightHeading4: 1.3,
     lineHeightHeading5: 1.3,
-    fontFamily: 'Roobert_Pro'
+    fontFamily: 'Roobert_Pro',
+    colorFill: '#E6E6E6'
   },
   components: {
     Typography: {

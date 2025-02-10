@@ -6,7 +6,8 @@ import { createStyles } from 'antd-style';
 export const ReasoningMessageContainer: React.FC<{
   reasoningMessages: BusterChatMessageReasoning[];
   isCompletedStream: boolean;
-}> = React.memo(({ reasoningMessages, isCompletedStream }) => {
+  chatId: string;
+}> = React.memo(({ reasoningMessages, isCompletedStream, chatId }) => {
   const { cx, styles } = useStyles();
   const lastMessageIndex = reasoningMessages.length - 1;
 
@@ -31,6 +32,7 @@ export const ReasoningMessageContainer: React.FC<{
             reasoningMessage={message}
             isCompletedStream={isCompletedStream}
             isLastMessageItem={index === lastMessageIndex}
+            chatId={chatId}
           />
           <VerticalDivider />
         </div>
@@ -71,6 +73,17 @@ const useStyles = createStyles(({ token, css }) => ({
 
     .vertical-divider {
       display: none;
+    }
+
+    &:has(+ .file-card) {
+      margin-bottom: 0px;
+      .vertical-divider {
+        display: block;
+      }
+    }
+
+    &:has(+ .thought-card) {
+      margin-bottom: 14px;
     }
   `,
   verticalDivider: css`
