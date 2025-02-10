@@ -34,7 +34,7 @@ pub struct SearchDataCatalogOutput {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct DatasetSearchResult {
+pub struct DatasetSearchResult {
     pub id: Uuid,
     pub name: String,
     pub yml_content: String,

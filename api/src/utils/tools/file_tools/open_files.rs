@@ -35,11 +35,11 @@ struct OpenFilesParams {
     files: Vec<FileRequest>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct OpenFilesOutput {
-    message: String,
-    duration: i64,
-    results: Vec<FileEnum>,
+    pub message: String,
+    pub duration: i64,
+    pub results: Vec<FileEnum>,
 }
 
 pub struct OpenFilesTool;
