@@ -1,10 +1,10 @@
-mod modify_files;
-mod create_files;
+pub mod modify_files;
+pub mod create_files;
 pub mod file_types;
-mod open_files;
-mod search_data_catalog;
-mod search_files;
-mod send_to_user;
+pub mod open_files;
+pub mod search_data_catalog;
+pub mod search_files;
+pub mod send_to_user;
 
 pub use modify_files::ModifyFilesTool;
 pub use create_files::CreateFilesTool;

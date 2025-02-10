@@ -27,17 +27,17 @@ struct SearchDataCatalogParams {
 
 #[derive(Debug, Serialize)]
 pub struct SearchDataCatalogOutput {
-    message: String,
-    query_params: Vec<String>,
-    duration: i64,
-    results: Vec<DatasetSearchResult>,
+    pub message: String,
+    pub query_params: Vec<String>,
+    pub duration: i64,
+    pub results: Vec<DatasetSearchResult>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 struct DatasetSearchResult {
-    id: Uuid,
-    name: String,
-    yml_content: String,
+    pub id: Uuid,
+    pub name: String,
+    pub yml_content: String,
 }
 
 #[derive(Debug, Deserialize)]
