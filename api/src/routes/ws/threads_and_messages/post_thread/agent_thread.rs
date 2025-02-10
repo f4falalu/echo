@@ -27,8 +27,11 @@ use crate::{
             },
             IntoValueTool, ToolExecutor,
         },
+        tools::file_tools::parsers::{CreateFileParser, ModifyFileParser, FileStreamEvent},
     },
 };
+
+use super::agent_message_transformer::BusterThreadMessage;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct ChatCreateNewChat {
@@ -114,22 +117,85 @@ impl AgentThreadHandler {
         user_id: &Uuid,
     ) {
         let subscription = user_id.to_string();
+        tracing::debug!("Starting stream processing for user: {}", user_id);
+        
+        // Track file state across chunks
+        let mut file_parsers: HashMap<String, Box<dyn FileParser>> = HashMap::new();
 
         while let Some(msg_result) = rx.recv().await {
             if let Ok(msg) = msg_result {
                 match transform_message(msg) {
                     Ok(transformed) => {
-                        let response = WsResponseMessage::new_no_user(
-                            WsRoutes::Threads(ThreadRoute::Post),
-                            WsEvent::Threads(ThreadEvent::PostThread),
-                            transformed,
-                            None,
-                            WsSendMethod::All,
-                        );
+                        // Handle file messages specially to maintain state
+                        if let BusterThreadMessage::FileMessage(file_msg) = &transformed {
+                            tracing::debug!(
+                                "Processing file message: id={}, type={}, name={}, status={}",
+                                file_msg.id,
+                                file_msg.message_type,
+                                file_msg.file_name,
+                                file_msg.status
+                            );
 
-                        if let Err(e) = send_ws_message(&subscription, &response).await {
-                            tracing::error!("Failed to send websocket message: {}", e);
-                            break;
+                            let parser = file_parsers
+                                .entry(file_msg.id.clone())
+                                .or_insert_with(|| {
+                                    tracing::debug!(
+                                        "Creating new parser for file: {} (type: {})",
+                                        file_msg.file_name,
+                                        file_msg.message_type
+                                    );
+                                    if file_msg.message_type == "create_files" {
+                                        Box::new(CreateFileParser::new())
+                                    } else {
+                                        Box::new(ModifyFileParser::new())
+                                    }
+                                });
+                            
+                            // Log file chunks if present
+                            if let Some(chunks) = &file_msg.file_chunk {
+                                for chunk in chunks {
+                                    tracing::debug!(
+                                        "FILE CHUNK: line={}, modified={}\n{}",
+                                        chunk.line_number,
+                                        chunk.modified,
+                                        chunk.text
+                                    );
+                                }
+                            }
+                            
+                            // Send transformed message
+                            let response = WsResponseMessage::new_no_user(
+                                WsRoutes::Threads(ThreadRoute::Post),
+                                WsEvent::Threads(ThreadEvent::PostThread),
+                                transformed.clone(),
+                                None,
+                                WsSendMethod::All,
+                            );
+
+                            if let Err(e) = send_ws_message(&subscription, &response).await {
+                                tracing::error!("Failed to send websocket message: {}", e);
+                                break;
+                            }
+
+                            // Clean up completed files
+                            if file_msg.status == "completed" {
+                                tracing::debug!("Cleaning up parser for completed file: {}", file_msg.id);
+                                file_parsers.remove(&file_msg.id);
+                            }
+                        } else {
+                            // Handle non-file messages as before
+                            let response = WsResponseMessage::new_no_user(
+                                WsRoutes::Threads(ThreadRoute::Post),
+                                WsEvent::Threads(ThreadEvent::PostThread),
+                                transformed.clone(),
+                                None,
+                                WsSendMethod::All,
+                            );
+
+                            if let Err(e) = send_ws_message(&subscription, &response).await {
+                                tracing::error!("Failed to send websocket message: {}", e);
+                                break;
+                            }
                         }
                     }
                     Err(e) => {
@@ -138,6 +204,24 @@ impl AgentThreadHandler {
                 }
             }
         }
+        tracing::debug!("Stream processing completed for user: {}", user_id);
+    }
+}
+
+// Add FileParser trait to abstract over different parser types
+trait FileParser: Send {
+    fn process_chunk(&mut self, chunk: &str) -> Result<Option<FileStreamEvent>>;
+}
+
+impl FileParser for CreateFileParser {
+    fn process_chunk(&mut self, chunk: &str) -> Result<Option<FileStreamEvent>> {
+        self.process_chunk(chunk)
+    }
+}
+
+impl FileParser for ModifyFileParser {
+    fn process_chunk(&mut self, chunk: &str) -> Result<Option<FileStreamEvent>> {
+        self.process_chunk(chunk)
     }
 }
 

@@ -171,13 +171,14 @@ impl Message {
     pub fn tool(
         content: impl Into<String>,
         tool_call_id: impl Into<String>,
+        name: Option<String>,
         progress: Option<MessageProgress>,
     ) -> Self {
         Self::Tool {
             id: None,
             content: content.into(),
             tool_call_id: tool_call_id.into(),
-            name: None,
+            name,
             progress,
         }
     }

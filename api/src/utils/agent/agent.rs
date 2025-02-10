@@ -183,7 +183,12 @@ impl Agent {
                 if let Some(tool) = self.tools.get(&tool_call.function.name) {
                     let result = tool.execute(tool_call).await?;
                     let result_str = serde_json::to_string(&result)?;
-                    results.push(Message::tool(result_str, tool_call.id.clone(), None));
+                    results.push(Message::tool(
+                        result_str,
+                        tool_call.id.clone(),
+                        Some(tool_call.function.name.clone()),
+                        None,
+                    ));
                 }
             }
 
@@ -361,6 +366,7 @@ impl Agent {
                                                     let tool_result = Message::tool(
                                                         result_str,
                                                         tool_call.id.clone(),
+                                                        Some(tool_call.function.name.clone()),
                                                         Some(MessageProgress::Complete),
                                                     );
                                                     let _ = tx.send(Ok(tool_result.clone())).await;
@@ -375,6 +381,7 @@ impl Agent {
                                                     let tool_error = Message::tool(
                                                         error_msg,
                                                         tool_call.id.clone(),
+                                                        Some(tool_call.function.name.clone()),
                                                         Some(MessageProgress::Complete),
                                                     );
                                                     let _ = tx.send(Ok(tool_error.clone())).await;
@@ -432,7 +439,10 @@ impl Agent {
                                                     name: name.clone(),
                                                     arguments: pending.arguments.clone(),
                                                 },
-                                                call_type: pending.call_type.clone().unwrap_or_default(),
+                                                call_type: pending
+                                                    .call_type
+                                                    .clone()
+                                                    .unwrap_or_default(),
                                                 code_interpreter: None,
                                                 retrieval: None,
                                             };
@@ -472,7 +482,7 @@ impl Agent {
                                 Some(MessageProgress::Complete),
                             );
                             let _ = tx.send(Ok(complete_message.clone())).await;
-                            
+
                             let mut new_thread = thread.clone();
                             new_thread.messages.push(current_message);
                             return Ok(());
