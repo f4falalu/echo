@@ -45,11 +45,9 @@ export const AppCodeBlock: React.FC<{
           {language ? (
             <SyntaxHighlighter
               {...rest}
-              showLineNumbers
               className={`${className} !p-3 transition ${!style ? 'opacity-100' : '!m-0 !border-none !p-0 opacity-100'}`}
               language={language}
-              style={style}
-              lineNumberStyle={{ color: '#000' }}>
+              style={style}>
               {code}
             </SyntaxHighlighter>
           ) : (

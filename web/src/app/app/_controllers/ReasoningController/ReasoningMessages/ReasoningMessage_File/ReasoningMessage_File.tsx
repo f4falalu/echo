@@ -12,6 +12,23 @@ import { TextPulseLoader } from '@/components/loaders';
 
 const style = SyntaxHighlighterLightTheme;
 
+const container = {
+  hidden: { opacity: 0, height: 0 },
+  show: {
+    opacity: 1,
+    height: 'auto',
+    transition: {
+      opacity: { duration: 0.12 },
+      staggerChildren: 0.08
+    }
+  }
+};
+
+const item = {
+  hidden: { opacity: 0, x: 0 },
+  show: { opacity: 1, x: 0 }
+};
+
 export const ReasoningMessage_File: React.FC<ReasoningMessageProps> = React.memo(
   ({ reasoningMessage, isCompletedStream, isLastMessageItem }) => {
     const { file, file_name, file_chunk } = reasoningMessage as BusterChatMessageReasoning_file;
@@ -36,7 +53,8 @@ export const ReasoningMessage_File: React.FC<ReasoningMessageProps> = React.memo
         setLineMap((prevMap) => {
           const newMap = new Map(prevMap);
           file_chunk.forEach((chunk) => {
-            newMap.set(chunk.line_number, chunk.text);
+            const existingLine = prevMap.get(chunk.line_number) || '';
+            newMap.set(chunk.line_number, existingLine + chunk.text);
           });
           return newMap;
         });
@@ -49,13 +67,26 @@ export const ReasoningMessage_File: React.FC<ReasoningMessageProps> = React.memo
         language={'yaml'}
         showCopyButton={false}
         isDarkMode={isDarkMode}>
-        <div className="p-3">
-          {Array.from(lineMap.entries()).map(([lineNumber, text]) => (
-            <MemoizedSyntaxHighlighter lineNumber={lineNumber} text={text} key={lineNumber} />
-          ))}
-
-          {showLoader && <LoaderDot />}
-        </div>
+        <AnimatePresence>
+          <motion.div
+            className="w-full overflow-x-auto p-3"
+            variants={container}
+            initial="hidden"
+            animate="show"
+            exit="exit">
+            <div className="border border-red-500">
+              {Array.from(lineMap.entries()).map(([lineNumber, text]) => (
+                <motion.div
+                  key={lineNumber}
+                  variants={item}
+                  className="line-number border border-blue-500">
+                  <MemoizedSyntaxHighlighter lineNumber={lineNumber} text={text} />
+                </motion.div>
+              ))}
+            </div>
+            {showLoader && <LoaderDot />}
+          </motion.div>
+        </AnimatePresence>
       </AppCodeBlockWrapper>
     );
   }
@@ -73,6 +104,7 @@ LoaderDot.displayName = 'LoaderDot';
 
 ReasoningMessage_File.displayName = 'ReasoningMessage_File';
 
+const lineNumberStyles = { color: '#000' };
 const MemoizedSyntaxHighlighter = React.memo(
   ({ lineNumber, text }: { lineNumber: number; text: string }) => {
     return (
@@ -80,6 +112,11 @@ const MemoizedSyntaxHighlighter = React.memo(
         style={style}
         language={'yaml'}
         key={lineNumber}
+        showLineNumbers
+        wrapLines
+        wrapLongLines
+        startingLineNumber={lineNumber}
+        lineNumberStyle={lineNumberStyles}
         className={`!m-0 !border-none !p-0`}>
         {text}
       </SyntaxHighlighter>
