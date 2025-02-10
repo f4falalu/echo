@@ -6,12 +6,12 @@ use uuid::Uuid;
 
 use crate::utils::clients::ai::litellm::{Message, MessageProgress, ToolCall};
 
+use crate::utils::tools::file_tools::create_files::CreateFilesParams;
 use crate::utils::tools::file_tools::file_types::file::FileEnum;
+use crate::utils::tools::file_tools::modify_files::ModifyFilesParams;
 use crate::utils::tools::file_tools::open_files::OpenFilesOutput;
 use crate::utils::tools::file_tools::search_data_catalog::SearchDataCatalogOutput;
 use crate::utils::tools::file_tools::search_files::SearchFilesOutput;
-use crate::utils::tools::file_tools::create_files::CreateFilesParams;
-use crate::utils::tools::file_tools::modify_files::ModifyFilesParams;
 
 #[derive(Debug, Serialize)]
 #[serde(untagged)]
@@ -69,8 +69,8 @@ pub fn transform_message(message: Message) -> Result<BusterThreadMessage> {
                 return transform_text_message(id, content, progress);
             }
 
-            if let (Some(name), Some(tool_calls)) = (name, tool_calls) {
-                return transform_assistant_tool_message(id, name, tool_calls, progress);
+            if let Some(tool_calls) = tool_calls {
+                return transform_assistant_tool_message(id, tool_calls, progress);
             }
 
             Err(anyhow::anyhow!("Assistant message missing required fields"))
@@ -144,18 +144,21 @@ fn transform_tool_message(
 
 fn transform_assistant_tool_message(
     id: Option<String>,
-    name: String,
     tool_calls: Vec<ToolCall>,
     progress: Option<MessageProgress>,
 ) -> Result<BusterThreadMessage> {
-    match name.as_str() {
-        "data_catalog_search" => assistant_data_catalog_search(id, progress),
-        "stored_values_search" => assistant_stored_values_search(id, progress),
-        "search_files" => assistant_file_search(id, progress),
-        "create_files" => assistant_create_file(id, tool_calls, progress),
-        "modify_files" => assistant_modify_file(id, tool_calls, progress),
-        "open_files" => assistant_open_files(id, progress),
-        _ => Err(anyhow::anyhow!("Unsupported tool name")),
+    if let Some(tool_call) = tool_calls.first() {
+        match tool_call.function.name.as_str() {
+            "data_catalog_search" => assistant_data_catalog_search(id, progress),
+            "stored_values_search" => assistant_stored_values_search(id, progress),
+            "search_files" => assistant_file_search(id, progress),
+            "create_files" => assistant_create_file(id, tool_calls, progress),
+            "modify_files" => assistant_modify_file(id, tool_calls, progress),
+            "open_files" => assistant_open_files(id, progress),
+            _ => Err(anyhow::anyhow!("Unsupported tool name")),
+        }
+    } else {
+        Err(anyhow::anyhow!("Assistant tool message missing tool call"))
     }
 }
 
@@ -573,12 +576,17 @@ fn assistant_create_file(
             MessageProgress::InProgress => {
                 // Try to parse the tool call arguments to get file metadata
                 if let Some(tool_call) = tool_calls.first() {
-                    if let Ok(params) = serde_json::from_str::<CreateFilesParams>(&tool_call.function.arguments) {
+                    if let Ok(params) =
+                        serde_json::from_str::<CreateFilesParams>(&tool_call.function.arguments)
+                    {
                         if let Some(file) = params.files.first() {
                             return Ok(BusterThreadMessage::Thought(BusterThought {
                                 id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
                                 thought_type: "thought".to_string(),
-                                thought_title: format!("Creating {} file '{}'...", file.file_type, file.name),
+                                thought_title: format!(
+                                    "Creating {} file '{}'...",
+                                    file.file_type, file.name
+                                ),
                                 thought_secondary_title: "".to_string(),
                                 thought_pills: None,
                                 status: "loading".to_string(),
@@ -588,7 +596,7 @@ fn assistant_create_file(
                 }
                 // Fall back to generic message if we can't parse the metadata
                 let id = id.unwrap_or_else(|| Uuid::new_v4().to_string());
-                
+
                 Ok(BusterThreadMessage::Thought(BusterThought {
                     id,
                     thought_type: "thought".to_string(),
@@ -607,6 +615,8 @@ fn assistant_create_file(
     }
 }
 
+fn process_assistant_create_file() -> Result<BusterThreadMessage> {}
+
 fn assistant_modify_file(
     id: Option<String>,
     tool_calls: Vec<ToolCall>,
@@ -617,12 +627,17 @@ fn assistant_modify_file(
             MessageProgress::InProgress => {
                 // Try to parse the tool call arguments to get file metadata
                 if let Some(tool_call) = tool_calls.first() {
-                    if let Ok(params) = serde_json::from_str::<ModifyFilesParams>(&tool_call.function.arguments) {
+                    if let Ok(params) =
+                        serde_json::from_str::<ModifyFilesParams>(&tool_call.function.arguments)
+                    {
                         if let Some(file) = params.files.first() {
                             return Ok(BusterThreadMessage::Thought(BusterThought {
                                 id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
                                 thought_type: "thought".to_string(),
-                                thought_title: format!("Modifying {} file '{}'...", file.file_type, file.file_name),
+                                thought_title: format!(
+                                    "Modifying {} file '{}'...",
+                                    file.file_type, file.file_name
+                                ),
                                 thought_secondary_title: "".to_string(),
                                 thought_pills: None,
                                 status: "loading".to_string(),
@@ -632,7 +647,7 @@ fn assistant_modify_file(
                 }
                 // Fall back to generic message if we can't parse the metadata
                 let id = id.unwrap_or_else(|| Uuid::new_v4().to_string());
-                
+
                 Ok(BusterThreadMessage::Thought(BusterThought {
                     id,
                     thought_type: "thought".to_string(),

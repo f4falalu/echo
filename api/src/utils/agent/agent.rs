@@ -129,7 +129,7 @@ impl Agent {
             _ => return Err(anyhow::anyhow!("Expected assistant message from LLM")),
         };
 
-        // Create a new thread with the initial response (ensuring content is present)
+        // Create a new thread with the initial response
         let mut tool_thread = thread.clone();
         tool_thread
             .messages
@@ -311,7 +311,18 @@ impl Agent {
                     _ => String::new(),
                 };
 
-                // Create new thread with initial response (ensuring content is present)
+                // Send the complete message with accumulated content
+                if !initial_content.trim().is_empty() {
+                    let _ = tx
+                        .send(Ok(Message::assistant(
+                            Some(initial_content.clone()),
+                            None,
+                            Some(MessageProgress::Complete),
+                        )))
+                        .await;
+                }
+
+                // Create a new thread with the initial response
                 let mut tool_thread = thread.clone();
                 tool_thread
                     .messages
@@ -413,7 +424,7 @@ impl Agent {
                                         .send(Ok(Message::assistant(
                                             Some(content.clone()),
                                             None,
-                                            None,
+                                            Some(MessageProgress::InProgress),
                                         )))
                                         .await;
                                 }
@@ -458,6 +469,30 @@ impl Agent {
                                     }
                                 }
                             }
+
+                            // Check for completion
+                            if let Some(finish_reason) = &chunk.choices[0].finish_reason {
+                                if finish_reason == "stop" {
+                                    if let Message::Assistant {
+                                        content: Some(content),
+                                        ..
+                                    } = &current_message {
+                                        if !content.trim().is_empty() {
+                                            let _ = tx
+                                                .send(Ok(Message::assistant(
+                                                    Some(content.clone()),
+                                                    None,
+                                                    Some(MessageProgress::Complete),
+                                                )))
+                                                .await;
+                                        }
+                                    }
+                                    // If this was a content-only message, stop recursion
+                                    if !has_tool_calls {
+                                        return Ok(());
+                                    }
+                                }
+                            }
                         }
                         Err(e) => {
                             let _ = tx.send(Err(anyhow::Error::from(e))).await;
@@ -466,55 +501,33 @@ impl Agent {
                     }
                 }
 
-                // If we didn't get any tool calls in the auto response, we're done
-                if !has_tool_calls {
-                    // Only include current_message in the thread if it has content
+                // If we have tool calls, create new thread and recurse
+                if has_tool_calls {
+                    // Create new thread with tool results and recurse
+                    let mut new_thread = thread.clone();
+                    // Only include current_message if it has content
                     if let Message::Assistant {
                         content: Some(content),
                         ..
                     } = &current_message
                     {
                         if !content.trim().is_empty() {
-                            // Send the complete message
-                            let complete_message = Message::assistant(
-                                Some(content.clone()),
-                                None,
-                                Some(MessageProgress::Complete),
-                            );
-                            let _ = tx.send(Ok(complete_message.clone())).await;
-
-                            let mut new_thread = thread.clone();
                             new_thread.messages.push(current_message);
-                            return Ok(());
                         }
                     }
-                    return Ok(());
-                }
+                    new_thread.messages.extend(tool_results);
 
-                // Create new thread with tool results and recurse
-                let mut new_thread = thread.clone();
-                // Only include current_message if it has content
-                if let Message::Assistant {
-                    content: Some(content),
-                    ..
-                } = &current_message
-                {
-                    if !content.trim().is_empty() {
-                        new_thread.messages.push(current_message);
-                    }
+                    // Recurse with new thread
+                    Box::pin(process_stream_recursive(
+                        llm_client,
+                        model,
+                        tools_ref,
+                        &new_thread,
+                        tx,
+                        recursion_depth + 1,
+                    ))
+                    .await?;
                 }
-                new_thread.messages.extend(tool_results);
-
-                // Recurse with new thread
-                Box::pin(process_stream_recursive(
-                    llm_client,
-                    model,
-                    tools_ref,
-                    &new_thread,
-                    tx,
-                    recursion_depth + 1,
-                ))
-                .await?;
 
                 Ok(())
             }
