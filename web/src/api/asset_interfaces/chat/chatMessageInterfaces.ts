@@ -50,12 +50,17 @@ export type BusterChatMessageReasoning_thoughtPill = {
   id: string;
 };
 
+export type BusterChatMessageReasoning_thoughtPillContainer = {
+  title: string;
+  thought_pills: BusterChatMessageReasoning_thoughtPill[];
+};
+
 export type BusterChatMessageReasoning_thought = {
   id: string;
   type: 'thought';
   thought_title: string;
   thought_secondary_title: string;
-  thought_pills?: BusterChatMessageReasoning_thoughtPill[];
+  thoughts?: BusterChatMessageReasoning_thoughtPillContainer[];
   status?: 'loading' | 'completed' | 'failed'; //if left undefined, will automatically be set to 'loading' if the chat stream is in progress AND there is no message after it
 };
 
