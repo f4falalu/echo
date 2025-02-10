@@ -21,18 +21,17 @@ export const StatusIndicator: React.FC<{ status?: 'completed' | 'loading' | 'fai
         className={cx(
           styles.indicatorContainer,
           inProgress && 'in-progress',
-          'relative flex items-center justify-center transition-all delay-100 duration-300'
+          'relative flex items-center justify-center transition-all duration-300'
         )}>
         <AnimatePresence mode="wait">
           <motion.div
-            key={inProgress ? 'in-progress' : 'completed'}
             {...animationConfig}
             className={cx(
               inProgress && 'in-progress',
               'ml-[0.5px] flex items-center justify-center transition-all duration-300'
             )}>
             {inProgress ? (
-              <CircleSpinnerLoader size={8} />
+              <AppMaterialIcons icon="circle_with_ring" size={10} />
             ) : (
               <AppMaterialIcons icon="circle_with_ring" size={10} />
             )}
@@ -51,5 +50,9 @@ const useStyles = createStyles(({ token, css }) => ({
     border-radius: 100%;
 
     color: ${token.colorTextPlaceholder};
+
+    &.in-progress {
+      color: ${token.colorPrimary};
+    }
   `
 }));
