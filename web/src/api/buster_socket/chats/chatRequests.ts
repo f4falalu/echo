@@ -9,7 +9,7 @@ export type ChatCreateNewChat = BusterSocketRequestBase<
   '/chats/post',
   {
     /** The ID of the dataset to associate with the chat. Null if no dataset is associated */
-    dataset_id: string | null;
+    dataset_id?: string | null;
     /** The initial message or prompt to start the chat conversation */
     prompt: string;
     /** Optional ID of an existing chat for follow-up messages. Null for new chats */
@@ -154,4 +154,5 @@ export type ChatEmits =
   | ChatDeleteChat
   | ChatUpdateChat
   | ChatsSearch
-  | ChatsDuplicateChat;
+  | ChatsDuplicateChat
+  | ChatStopChat;

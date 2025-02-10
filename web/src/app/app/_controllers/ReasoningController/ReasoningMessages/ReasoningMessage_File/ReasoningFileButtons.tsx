@@ -18,8 +18,6 @@ export const ReasoningFileButtons = React.memo(
     chatId: string;
     isCompletedStream: boolean;
   }) => {
-    if (!isCompletedStream) return null;
-
     const onSetSelectedFile = useChatLayoutContextSelector((state) => state.onSetSelectedFile);
 
     const link = createChatAssetRoute({
@@ -36,6 +34,8 @@ export const ReasoningFileButtons = React.memo(
         type: fileType
       });
     });
+
+    if (!isCompletedStream) return null;
 
     return (
       <div>

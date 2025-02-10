@@ -37,16 +37,16 @@ export const useChatInputFlow = ({
   }, [hasChat, selectedFileType, selectedFileId]);
 
   const onSubmitPreflight = useMemoizedFn(async () => {
-    if (disableSendButton) return;
+    if (disableSendButton || !chatId || !currentMessageId) return;
 
     if (loading) {
-      onStopChat({ chatId: chatId! });
+      onStopChat({ chatId: chatId!, messageId: currentMessageId });
       return;
     }
 
     switch (flow) {
       case 'followup-chat':
-        await onFollowUpChat({ prompt: inputValue, messageId: currentMessageId! });
+        await onFollowUpChat({ prompt: inputValue, chatId: chatId });
         break;
 
       case 'followup-metric':

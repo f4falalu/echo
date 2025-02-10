@@ -80,6 +80,7 @@ export type BusterChatMessageReasoning_file = {
   version_number: number;
   version_id: string;
   status: 'loading' | 'completed' | 'failed';
+  //when we are streaming, the whole file will always be streamed back, not chunks
   file?: {
     text: string;
     line_number: number;

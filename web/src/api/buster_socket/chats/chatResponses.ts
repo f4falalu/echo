@@ -1,6 +1,10 @@
 import type { RustApiError } from '../../buster_rest/errors';
 import type { BusterChat, BusterChatListItem } from '../../asset_interfaces/chat';
-import { ChatEvent_GeneratingMessage, ChatEvent_GeneratingTitle } from './eventInterfaces';
+import {
+  ChatEvent_GeneratingReasoningMessage,
+  ChatEvent_GeneratingResponseMessage,
+  ChatEvent_GeneratingTitle
+} from './eventInterfaces';
 
 export enum ChatsResponses {
   '/chats/list:getChatsList' = '/chats/list:getChatsList',
@@ -8,7 +12,10 @@ export enum ChatsResponses {
   '/chats/get:getChat' = '/chats/get:getChat',
   '/chats/get:getChatAsset' = '/chats/get:getChatAsset',
   '/chats/post:initializeChat' = '/chats/post:initializeChat',
-  '/chats/post:generatingTitle' = '/chats/post:generatingTitle'
+  '/chats/post:generatingTitle' = '/chats/post:generatingTitle',
+  '/chats/post:generatingResponseMessage' = '/chats/post:generatingResponseMessage',
+  '/chats/post:generatingReasoningMessage' = '/chats/post:generatingReasoningMessage',
+  '/chats/post:complete' = '/chats/post:complete'
 }
 
 export type ChatList_getChatsList = {
@@ -56,9 +63,21 @@ export type ChatPost_generatingTitle = {
   onError?: (d: unknown | RustApiError) => void;
 };
 
-export type ChatPost_generatingMessage = {
-  route: '/chats/post:generatingMessage';
-  callback: (d: ChatEvent_GeneratingMessage) => void;
+export type ChatPost_generatingResponseMessage = {
+  route: '/chats/post:generatingResponseMessage';
+  callback: (d: ChatEvent_GeneratingResponseMessage) => void;
+  onError?: (d: unknown | RustApiError) => void;
+};
+
+export type ChatPost_generatingReasoningMessage = {
+  route: '/chats/post:generatingReasoningMessage';
+  callback: (d: ChatEvent_GeneratingReasoningMessage) => void;
+  onError?: (d: unknown | RustApiError) => void;
+};
+
+export type ChatPost_complete = {
+  route: '/chats/post:complete';
+  callback: (d: BusterChat) => void;
   onError?: (d: unknown | RustApiError) => void;
 };
 
@@ -71,4 +90,6 @@ export type ChatResponseTypes =
   | Chat_getChatAsset
   | ChatPost_initializeChat
   | ChatPost_generatingTitle
-  | ChatPost_generatingMessage;
+  | ChatPost_generatingResponseMessage
+  | ChatPost_generatingReasoningMessage
+  | ChatPost_complete;

@@ -125,3 +125,5 @@ const MemoizedSyntaxHighlighter = React.memo(
     );
   }
 );
+
+MemoizedSyntaxHighlighter.displayName = 'MemoizedSyntaxHighlighter';

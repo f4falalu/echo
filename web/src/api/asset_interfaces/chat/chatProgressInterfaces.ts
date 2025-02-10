@@ -1,4 +1,8 @@
-import type { BusterChatMessage, BusterChatMessageResponse } from './chatMessageInterfaces';
+import type {
+  BusterChatMessage,
+  BusterChatMessageReasoning,
+  BusterChatMessageResponse
+} from './chatMessageInterfaces';
 
 enum BusterChatStepProgress {
   IN_PROGRESS = 'in_progress',
@@ -18,6 +22,10 @@ export type ChatPost_generatingTitle = {
 
 export type ChatPost_generatingMessage = {
   resposnse_message: BusterChatMessageResponse;
+} & BusterChatStepBase;
+
+export type ChatPost_generatingReasoning = {
+  reasoning: BusterChatMessageReasoning;
 } & BusterChatStepBase;
 
 export type ChatPost_complete = {

@@ -6,8 +6,19 @@ import {
 } from '@fluentui/react-context-selector';
 import { useMemoizedFn } from 'ahooks';
 import type { BusterDatasetListItem, BusterSearchResult, FileType } from '@/api/asset_interfaces';
+import { useBusterWebSocket } from '@/context/BusterWebSocket';
+import { useChatUpdateMessage } from './useChatUpdateMessage';
 
 export const useBusterNewChat = () => {
+  const busterSocket = useBusterWebSocket();
+
+  const {
+    completeChatCallback,
+    startListeningForChatProgress,
+    stopListeningForChatProgress,
+    stopChatCallback
+  } = useChatUpdateMessage();
+
   const onSelectSearchAsset = useMemoizedFn(async (asset: BusterSearchResult) => {
     console.log('select search asset');
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -25,13 +36,6 @@ export const useBusterNewChat = () => {
     }
   );
 
-  const onFollowUpChat = useMemoizedFn(
-    async ({ prompt, messageId }: { prompt: string; messageId: string }) => {
-      console.log('follow up chat');
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-  );
-
   const onReplaceMessageInChat = useMemoizedFn(
     async ({ prompt, messageId }: { prompt: string; messageId: string }) => {
       console.log('replace message in chat');
@@ -39,18 +43,45 @@ export const useBusterNewChat = () => {
     }
   );
 
-  const onStopChat = useMemoizedFn(({ chatId }: { chatId: string }) => {
-    console.log('stop current chat');
-  });
+  const onFollowUpChat = useMemoizedFn(
+    async ({ prompt, chatId }: { prompt: string; chatId: string }) => {
+      startListeningForChatProgress();
+      const result = await busterSocket.emitAndOnce({
+        emitEvent: {
+          route: '/chats/post',
+          payload: {
+            dataset_id: null,
+            prompt,
+            chat_id: chatId
+          }
+        },
+        responseEvent: {
+          route: '/chats/post:complete',
+          callback: completeChatCallback
+        }
+      });
 
-  const onSetSelectedChatDataSource = useMemoizedFn((dataSource: BusterDatasetListItem | null) => {
-    //
-  });
+      stopListeningForChatProgress();
+    }
+  );
+
+  const onStopChat = useMemoizedFn(
+    ({ chatId, messageId }: { chatId: string; messageId: string }) => {
+      busterSocket.emit({
+        route: '/chats/stop',
+        payload: {
+          id: chatId,
+          message_id: messageId
+        }
+      });
+      stopListeningForChatProgress();
+      stopChatCallback(chatId);
+    }
+  );
 
   return {
     onStartNewChat,
     onSelectSearchAsset,
-    onSetSelectedChatDataSource,
     onFollowUpChat,
     onStartChatFromFile,
     onReplaceMessageInChat,

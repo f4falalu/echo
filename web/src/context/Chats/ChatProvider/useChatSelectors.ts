@@ -1,5 +1,6 @@
 import { MutableRefObject, useCallback } from 'react';
 import { IBusterChat, IBusterChatMessage } from '../interfaces';
+import { useMemoizedFn } from 'ahooks';
 
 export const useChatSelectors = ({
   isPending,
@@ -10,6 +11,10 @@ export const useChatSelectors = ({
   chatsRef: MutableRefObject<Record<string, IBusterChat>>;
   chatsMessagesRef: MutableRefObject<Record<string, IBusterChatMessage>>;
 }) => {
+  const getChatMemoized = useMemoizedFn((chatId: string) => {
+    return chatsRef.current[chatId];
+  });
+
   const getChatMessages = useCallback(
     (chatId: string): IBusterChatMessage[] => {
       const chatMessageIds = chatsRef.current[chatId].messages || [];
@@ -25,5 +30,19 @@ export const useChatSelectors = ({
     [chatsMessagesRef, isPending]
   );
 
-  return { getChatMessages, getChatMessage };
+  const getChatMessagesMemoized = useMemoizedFn((chatId: string) => {
+    return getChatMessages(chatId);
+  });
+
+  const getChatMessageMemoized = useMemoizedFn((messageId: string) => {
+    return getChatMessage(messageId);
+  });
+
+  return {
+    getChatMemoized,
+    getChatMessages,
+    getChatMessage,
+    getChatMessagesMemoized,
+    getChatMessageMemoized
+  };
 };
