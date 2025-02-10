@@ -43,7 +43,8 @@ const chatRouteRecord: Record<AllFileTypes, (chatId: string, assetId: string) =>
       route: BusterRoutes.APP_CHAT_ID_REASONING_ID,
       chatId,
       messageId: assetId
-    })
+    }),
+  empty: () => ''
 };
 
 export const createChatAssetRoute = ({
@@ -70,7 +71,8 @@ const fileRouteRecord: Record<AllFileTypes, (assetId: string) => string> = {
     createBusterRoute({ route: BusterRoutes.APP_DASHBOARD_ID, dashboardId: assetId }),
   term: (assetId) => createBusterRoute({ route: BusterRoutes.APP_TERMS_ID, termId: assetId }),
   value: (assetId) => createBusterRoute({ route: BusterRoutes.APP_VALUE_ID, valueId: assetId }),
-  reasoning: (assetId) => createBusterRoute({ route: BusterRoutes.APP_METRIC })
+  reasoning: (assetId) => createBusterRoute({ route: BusterRoutes.APP_METRIC }),
+  empty: () => ''
 };
 
 export const createFileRoute = ({ assetId, type }: { assetId: string; type: FileType }) => {

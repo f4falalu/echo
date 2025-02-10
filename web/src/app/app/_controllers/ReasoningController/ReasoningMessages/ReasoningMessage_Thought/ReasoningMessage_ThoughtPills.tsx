@@ -1,9 +1,6 @@
-import type {
-  BusterChatMessageReasoning_thought,
-  BusterChatMessageReasoning_thoughtPill
-} from '@/api/asset_interfaces';
+import type { BusterChatMessageReasoning_thoughtPill } from '@/api/asset_interfaces';
 import { createStyles } from 'antd-style';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMemoizedFn } from 'ahooks';
 import { AppPopover } from '@/components';
@@ -19,7 +16,7 @@ const containerVariants = {
   },
   visible: {
     height: 'auto',
-    marginBottom: '8px',
+    marginBottom: '4px',
     transition: {
       duration: duration,
       staggerChildren: 0.035,
@@ -41,7 +38,7 @@ const pillVariants = {
 };
 
 export const PillContainer: React.FC<{
-  pills: BusterChatMessageReasoning_thought['thought_pills'];
+  pills: BusterChatMessageReasoning_thoughtPill[];
   isCompletedStream: boolean;
 }> = React.memo(({ pills = [], isCompletedStream }) => {
   const { cx } = useStyles();

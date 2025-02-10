@@ -9,6 +9,7 @@ import { LineChartDotLineIcon } from './customIcons/LineChart_DotLine';
 import { KeepIcon } from './customIcons/KeepIcon';
 import { EditChartIcon } from './customIcons/EditChart';
 import { StarsIcon } from './customIcons/Stars';
+import { CircleWithRing } from './customIcons/CircleWithRing';
 
 //https://react-material-symbols.vercel.app/?path=/docs/outlined--docs
 
@@ -21,12 +22,9 @@ const CustomIcons: Record<
   | 'line_chart_dot_line'
   | 'keep'
   | 'stars'
-  | 'chart_edit',
-  React.FC<
-    MaterialSymbolProps & {
-      'data-value'?: string;
-    }
-  >
+  | 'chart_edit'
+  | 'circle_with_ring',
+  React.FC<MaterialSymbolProps & { 'data-value'?: string }>
 > = {
   edit_square: PencilSquareIcon,
   bar_sort_asc: BarChartSortAscIcon,
@@ -36,7 +34,8 @@ const CustomIcons: Record<
   line_chart_dot_line: LineChartDotLineIcon,
   keep: KeepIcon,
   chart_edit: EditChartIcon,
-  stars: StarsIcon
+  stars: StarsIcon,
+  circle_with_ring: CircleWithRing
 };
 
 export type AppMaterialIconIcon = MaterialSymbolProps['icon'] | keyof typeof CustomIcons;

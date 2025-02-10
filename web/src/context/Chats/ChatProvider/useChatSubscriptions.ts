@@ -1,7 +1,11 @@
 import { MutableRefObject } from 'react';
 import { useBusterWebSocket } from '../../BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
-import { BusterChat } from '@/api/asset_interfaces';
+import {
+  BusterChat,
+  BusterChatMessage,
+  BusterChatMessageReasoning_thought
+} from '@/api/asset_interfaces';
 import { IBusterChat, IBusterChatMessage } from '../interfaces';
 import { chatMessageUpgrader, chatUpgrader } from './helpers';
 import {

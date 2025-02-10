@@ -8,7 +8,7 @@ const animationConfig = {
   initial: { opacity: 0 },
   animate: { opacity: 1 },
   exit: { opacity: 0 },
-  transition: { duration: 0.25 }
+  transition: { duration: 0.2 }
 };
 
 export const StatusIndicator: React.FC<{ status?: 'completed' | 'loading' | 'failed' }> =
@@ -28,11 +28,14 @@ export const StatusIndicator: React.FC<{ status?: 'completed' | 'loading' | 'fai
             key={inProgress ? 'in-progress' : 'completed'}
             {...animationConfig}
             className={cx(
-              styles.indicator,
               inProgress && 'in-progress',
-              'flex items-center justify-center transition-all duration-300'
+              'ml-[0.5px] flex items-center justify-center transition-all duration-300'
             )}>
-            {inProgress ? <CircleSpinnerLoader size={8} /> : <></>}
+            {inProgress ? (
+              <CircleSpinnerLoader size={8} />
+            ) : (
+              <AppMaterialIcons icon="circle_with_ring" size={10} />
+            )}
           </motion.div>
         </AnimatePresence>
       </div>
@@ -45,32 +48,8 @@ const useStyles = createStyles(({ token, css }) => ({
   indicatorContainer: css`
     width: 11px;
     height: 11px;
-    background-color: ${token.colorTextPlaceholder};
     border-radius: 100%;
 
-    &.in-progress {
-      background-color: transparent;
-    }
-
-    .swag {
-      opacity: 0.99;
-    }
-  `,
-  indicator: css`
-    color: white;
-    padding: 4px;
-    // height: 7px;
-    // width: 7px;
-
-    border-radius: 100%;
-    background-color: ${token.colorTextPlaceholder};
-    box-shadow: 0 0 0 0.7px white inset;
-
-    position: absolute;
-
-    &.in-progress {
-      background-color: transparent;
-      box-shadow: none;
-    }
+    color: ${token.colorTextPlaceholder};
   `
 }));

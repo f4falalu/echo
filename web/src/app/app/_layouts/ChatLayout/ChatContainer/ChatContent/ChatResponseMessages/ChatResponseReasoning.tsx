@@ -24,7 +24,10 @@ export const ChatResponseReasoning: React.FC<{
     if (lastMessage.type === 'text') {
       return lastMessage.message;
     }
-    return lastMessage.thought_title;
+    if (lastMessage.type === 'thought') {
+      return lastMessage.thought_title;
+    }
+    return lastMessage.file_name;
   }, [lastMessage]);
 
   const getRandomThought = useMemoizedFn(() => {

@@ -5,6 +5,7 @@ import type {
 } from '@/api/asset_interfaces';
 import { ReasoningMessage_Thought } from './ReasoningMessage_Thought';
 import { StreamingMessage_Text } from '@appComponents/Streaming/StreamingMessage_Text';
+import { ReasoningMessage_File } from './ReasoningMessage_File';
 
 export interface ReasoningMessageProps {
   reasoningMessage: BusterChatMessageReasoning;
@@ -22,7 +23,8 @@ const ReasoningMessageRecord: Record<
       {...props}
       message={props.reasoningMessage as BusterChatMessageReasoning_text}
     />
-  )
+  ),
+  file: ReasoningMessage_File
 };
 
 export interface ReasoningMessageSelectorProps {

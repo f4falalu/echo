@@ -13,7 +13,8 @@ export const ReasoningMessageContainer: React.FC<{
   const typeClassRecord: Record<BusterChatMessageReasoning['type'], string> = useMemo(() => {
     return {
       text: cx(styles.textCard, 'text-card'),
-      thought: cx(styles.thoughtCard, 'thought-card')
+      thought: cx(styles.thoughtCard, 'thought-card'),
+      file: cx(styles.fileCard, 'file-card')
     };
   }, []);
 
@@ -63,6 +64,9 @@ const useStyles = createStyles(({ token, css }) => ({
       display: none;
     }
 
+    margin-bottom: 4px;
+  `,
+  fileCard: css`
     margin-bottom: 4px;
   `,
   verticalDivider: css`

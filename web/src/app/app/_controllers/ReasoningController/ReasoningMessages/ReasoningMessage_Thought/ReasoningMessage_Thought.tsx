@@ -1,21 +1,20 @@
-import { BusterChatMessageReasoning_thought } from '@/api/asset_interfaces';
+import type { BusterChatMessageReasoning_thought } from '@/api/asset_interfaces';
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { itemAnimationConfig } from '../animationConfig';
 import { Text } from '@/components/text';
-import { PillContainer } from './ReasoningMessage_ThoughtPills';
 import { StatusIndicator } from '@/components/indicators';
 import { VerticalBar } from './VerticalBar';
 import { createStyles } from 'antd-style';
 import { ReasoningMessageProps } from '../ReasoningMessageSelector';
+import { ReasoningMessage_ThoughtContainer } from './ReasoningMessage_ThoughtContainer';
 
 export const ReasoningMessage_Thought: React.FC<ReasoningMessageProps> = React.memo(
   ({ reasoningMessage, isCompletedStream, isLastMessageItem }) => {
-    const { thought_title, thought_secondary_title, thought_pills, status } =
+    const { thought_title, thought_secondary_title, thoughts, status, id } =
       reasoningMessage as BusterChatMessageReasoning_thought;
 
-    const hasPills = thought_pills && thought_pills.length > 0;
-
+    const hasThoughts = !!thoughts && thoughts.length > 0;
     const showLoadingIndicator =
       (status ?? (isLastMessageItem && !isCompletedStream)) ? 'loading' : 'completed';
 
@@ -24,13 +23,20 @@ export const ReasoningMessage_Thought: React.FC<ReasoningMessageProps> = React.m
         <motion.div
           className={'relative flex space-x-1.5 overflow-hidden'}
           {...itemAnimationConfig}>
-          <BarContainer hasPills={hasPills} showLoadingIndicator={showLoadingIndicator} />
-          <div className="flex w-full flex-col space-y-2 overflow-hidden">
+          <BarContainer hasThoughts={hasThoughts} showLoadingIndicator={showLoadingIndicator} />
+          <div className="mb-2.5 flex w-full flex-col space-y-2 overflow-hidden">
             <TextContainer
               thought_title={thought_title}
               thought_secondary_title={thought_secondary_title}
             />
-            <PillContainer pills={thought_pills} isCompletedStream={isCompletedStream} />
+            {hasThoughts &&
+              thoughts.map((thought, index) => (
+                <ReasoningMessage_ThoughtContainer
+                  key={index}
+                  thought={thought}
+                  isCompletedStream={isCompletedStream}
+                />
+              ))}
           </div>
         </motion.div>
       </AnimatePresence>
@@ -41,13 +47,13 @@ export const ReasoningMessage_Thought: React.FC<ReasoningMessageProps> = React.m
 ReasoningMessage_Thought.displayName = 'ReasoningMessage_Thought';
 
 const BarContainer: React.FC<{
-  hasPills: boolean | undefined;
+  hasThoughts: boolean;
   showLoadingIndicator: 'loading' | 'completed';
-}> = React.memo(({ hasPills, showLoadingIndicator }) => {
+}> = React.memo(({ hasThoughts, showLoadingIndicator }) => {
   return (
-    <div className="ml-2 flex w-4 min-w-4 flex-col items-center pt-0.5">
+    <div className="ml-2 flex w-4 min-w-4 flex-col items-center">
       <StatusIndicator status={showLoadingIndicator} />
-      <VerticalBar hasPills={hasPills} />
+      <VerticalBar show={hasThoughts} />
     </div>
   );
 });

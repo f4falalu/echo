@@ -45,7 +45,16 @@ export const createMockResponseMessageThought = (): BusterChatMessageReasoning_t
     type: 'thought',
     thought_title: `Found ${faker.number.int(100)} terms`,
     thought_secondary_title: faker.lorem.word(),
-    thought_pills: fourRandomPills,
+    thoughts: [
+      {
+        title: `Found ${faker.number.int(100)} terms`,
+        thought_pills: fourRandomPills
+      },
+      {
+        title: `Found ${faker.number.int(100)} terms 2`,
+        thought_pills: fourRandomPills
+      }
+    ],
     status: undefined
   };
 };
@@ -86,7 +95,7 @@ export const MOCK_CHAT: BusterChat = {
       id: '123',
       created_at: '2025-01-01',
       request_message: createMockUserMessage(),
-      reasoning: [...Array.from({ length: 6 }, () => createMockResponseMessageThought())],
+      reasoning: [...Array.from({ length: 1 }, () => createMockResponseMessageThought())],
       response_messages: [
         createMockResponseMessageText(),
         createMockResponseMessageFile(),
