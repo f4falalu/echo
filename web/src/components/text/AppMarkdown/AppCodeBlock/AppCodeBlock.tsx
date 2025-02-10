@@ -1,16 +1,11 @@
 import React, { useLayoutEffect, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { AppMaterialIcons } from '../../../icons';
 import { createStyles } from 'antd-style';
-import { Button } from 'antd';
 import darkTheme from 'react-syntax-highlighter/dist/cjs/styles/prism/vsc-dark-plus';
-import { Text } from '@/components/text';
 import { TextPulseLoader } from '../../..';
-import { useAntToken } from '@/styles/useAntToken';
 import lightTheme from './light';
-import { useMemoizedFn } from 'ahooks';
-import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useBusterStylesContext } from '@/context/BusterStyles/BusterStyles';
+import { AppCodeBlockWrapper } from './AppCodeBlockWrapper';
 
 export const AppCodeBlock: React.FC<{
   language?: string;
@@ -40,7 +35,7 @@ export const AppCodeBlock: React.FC<{
   }
 
   return (
-    <CodeBlockWrapper
+    <AppCodeBlockWrapper
       code={code}
       isDarkMode={isDarkMode}
       language={title || language}
@@ -52,11 +47,11 @@ export const AppCodeBlock: React.FC<{
               {...rest}
               showLineNumbers
               className={`${className} !p-3 transition ${!style ? 'opacity-100' : '!m-0 !border-none !p-0 opacity-100'}`}
-              children={code}
               language={language}
               style={style}
-              lineNumberStyle={{ color: '#000' }}
-            />
+              lineNumberStyle={{ color: '#000' }}>
+              {code}
+            </SyntaxHighlighter>
           ) : (
             <code {...rest} className={className}>
               {children}
@@ -70,24 +65,12 @@ export const AppCodeBlock: React.FC<{
           )}
         </div>
       </div>
-    </CodeBlockWrapper>
+    </AppCodeBlockWrapper>
   );
 });
 AppCodeBlock.displayName = 'AppCodeBlock';
 
 const useStyles = createStyles(({ token }) => ({
-  container: {
-    backgroundColor: token.colorBgBase,
-    margin: `0px 0px`,
-    border: `0.5px solid ${token.colorBorder}`,
-    borderRadius: `${token.borderRadiusLG}px`,
-    overflow: 'hidden'
-  },
-  containerHeader: {
-    borderBottom: `0.5px solid ${token.colorBorder}`,
-    padding: '4px',
-    backgroundColor: token.controlItemBgActive
-  },
   codeInlineWrapper: {
     backgroundColor: token.controlItemBgActive,
     borderRadius: token.borderRadiusSM,
@@ -95,53 +78,6 @@ const useStyles = createStyles(({ token }) => ({
     fontSize: token.fontSize - 1
   }
 }));
-
-const CodeBlockWrapper: React.FC<{
-  children: React.ReactNode;
-  isDarkMode: boolean;
-  code: string;
-  language?: string;
-  showCopyButton: boolean;
-  buttons?: React.ReactNode;
-}> = React.memo(({ children, code, showCopyButton, language, buttons }) => {
-  const { cx, styles } = useStyles();
-  const { openSuccessMessage } = useBusterNotifications();
-  const token = useAntToken();
-
-  const copyCode = useMemoizedFn(() => {
-    navigator.clipboard.writeText(code);
-    openSuccessMessage('Copied to clipboard');
-  });
-
-  return (
-    <div className={cx(styles.container, 'max-h-fit')}>
-      <div className={cx(styles.containerHeader, 'flex items-center justify-between')}>
-        <Text className="pl-2">{language}</Text>
-        <div className="flex items-center space-x-1">
-          {showCopyButton && (
-            <Button
-              style={{
-                color: token.colorTextSecondary
-              }}
-              type="text"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                copyCode();
-              }}
-              icon={<AppMaterialIcons icon="content_copy" />}>
-              Copy
-            </Button>
-          )}
-          {buttons}
-        </div>
-      </div>
-
-      {children}
-    </div>
-  );
-});
-CodeBlockWrapper.displayName = 'CodeBlockWrapper';
 
 const CodeInlineWrapper: React.FC<{
   children: React.ReactNode;

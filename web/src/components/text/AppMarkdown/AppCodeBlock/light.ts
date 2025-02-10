@@ -2,6 +2,7 @@ import { busterAppStyleConfig } from '@/styles/busterAntDStyleConfig';
 import React from 'react';
 
 const token = busterAppStyleConfig.token!;
+const magneta5 = '#08979c';
 
 export default {
   'code[class*="language-"]': {
@@ -108,25 +109,25 @@ export default {
     color: '#393A34'
   },
   url: {
-    color: '#36acaa'
+    color: token.green3
   },
   symbol: {
-    color: '#36acaa'
+    color: magneta5
   },
   number: {
-    color: '#36acaa'
+    color: magneta5
   },
   boolean: {
-    color: '#36acaa'
+    color: magneta5
   },
   variable: {
-    color: '#36acaa'
+    color: magneta5
   },
   constant: {
-    color: '#36acaa'
+    color: magneta5
   },
   inserted: {
-    color: '#36acaa'
+    color: magneta5
   },
   atrule: {
     color: token.colorPrimary
