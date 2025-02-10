@@ -1,5 +1,8 @@
 import { busterAppStyleConfig } from '@/styles/busterAntDStyleConfig';
 import React from 'react';
+
+const token = busterAppStyleConfig.token!;
+
 export default {
   'code[class*="language-"]': {
     color: '#393A34',
@@ -77,7 +80,7 @@ export default {
     border: '1px solid #dddddd'
   },
   comment: {
-    color: '#008000',
+    color: token.colorTextTertiary,
     fontStyle: 'italic'
   },
   prolog: {
@@ -126,25 +129,25 @@ export default {
     color: '#36acaa'
   },
   atrule: {
-    color: busterAppStyleConfig.token?.colorPrimary
+    color: token.colorPrimary
   },
   keyword: {
-    color: busterAppStyleConfig.token?.colorPrimary
+    color: token.colorPrimary
   },
   'attr-value': {
-    color: busterAppStyleConfig.token?.colorPrimary
+    color: token.colorPrimary
   },
   '.language-autohotkey .token.selector': {
-    color: busterAppStyleConfig.token?.colorPrimary
+    color: token.colorPrimary
   },
   '.language-json .token.boolean': {
-    color: busterAppStyleConfig.token?.colorPrimary
+    color: token.colorPrimary
   },
   '.language-json .token.number': {
-    color: busterAppStyleConfig.token?.colorPrimary
+    color: token.colorPrimary
   },
   'code[class*="language-css"]': {
-    color: busterAppStyleConfig.token?.colorPrimary
+    color: token.colorPrimary
   },
   function: {
     color: '#393A34'

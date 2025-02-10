@@ -89,5 +89,5 @@ export type BusterChatMessageReasoning_file = {
     text: string;
     line_number: number;
     modified?: boolean; //defaults to true
-  }; //will be defined if the file has been completed OR on a page refresh
+  }[]; //will be defined if the file has been completed OR on a page refresh
 };

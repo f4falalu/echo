@@ -68,6 +68,10 @@ const useStyles = createStyles(({ token, css }) => ({
   `,
   fileCard: css`
     margin-bottom: 4px;
+
+    .vertical-divider {
+      display: none;
+    }
   `,
   verticalDivider: css`
     transition: opacity 0.2s ease-in-out;

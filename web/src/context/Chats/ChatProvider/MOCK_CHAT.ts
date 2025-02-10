@@ -5,7 +5,8 @@ import {
   type BusterChatMessageRequest,
   BusterChatMessage_fileMetadata,
   BusterChatMessageReasoning_thought,
-  BusterChatMessageReasoning_thoughtPill
+  BusterChatMessageReasoning_thoughtPill,
+  BusterChatMessageReasoning_file
 } from '@/api/asset_interfaces';
 import { faker } from '@faker-js/faker';
 
@@ -86,6 +87,37 @@ export const createMockResponseMessageFile = (): BusterChatMessage_file => {
   };
 };
 
+export const createMockReasoningMessageFile = (): BusterChatMessageReasoning_file => {
+  return {
+    id: 'swag',
+    type: 'file',
+    file_type: 'metric',
+    status: 'completed',
+    file_name: faker.company.name(),
+    version_number: 1,
+    version_id: faker.string.uuid(),
+    file: [
+      {
+        text: 'name: my-service\nversion: 1.0.0\ndescription: A sample service',
+        line_number: 1,
+        modified: false
+      },
+      {
+        text: 'dependencies:\n  - name: redis\n    version: 6.2.0\n  - name: postgres\n    version: 13.4',
+        line_number: 2
+      },
+      {
+        text: 'ports:\n  - 8080\n  - 9000\n  - 6379',
+        line_number: 3
+      },
+      {
+        text: 'environment:\n  NODE_ENV: production\n  LOG_LEVEL: info\n  DB_HOST: localhost',
+        line_number: 4
+      }
+    ]
+  };
+};
+
 export const MOCK_CHAT: BusterChat = {
   id: '0',
   title: 'Mock Chat',
@@ -95,7 +127,10 @@ export const MOCK_CHAT: BusterChat = {
       id: '123',
       created_at: '2025-01-01',
       request_message: createMockUserMessage(),
-      reasoning: [...Array.from({ length: 1 }, () => createMockResponseMessageThought())],
+      reasoning: [
+        ...Array.from({ length: 1 }, () => createMockResponseMessageThought()),
+        createMockReasoningMessageFile()
+      ],
       response_messages: [
         createMockResponseMessageText(),
         createMockResponseMessageFile(),

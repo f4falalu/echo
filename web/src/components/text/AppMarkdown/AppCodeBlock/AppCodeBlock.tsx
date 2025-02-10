@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { AppMaterialIcons } from '../../../icons';
 import { createStyles } from 'antd-style';
@@ -6,7 +6,6 @@ import { Button } from 'antd';
 import darkTheme from 'react-syntax-highlighter/dist/cjs/styles/prism/vsc-dark-plus';
 import { Text } from '@/components/text';
 import { TextPulseLoader } from '../../..';
-
 import { useAntToken } from '@/styles/useAntToken';
 import lightTheme from './light';
 import { useMemoizedFn } from 'ahooks';
@@ -20,7 +19,9 @@ export const AppCodeBlock: React.FC<{
   style?: React.CSSProperties;
   showLoader?: boolean;
   showCopyButton?: boolean;
-}> = React.memo((props) => {
+  title?: string;
+  buttons?: React.ReactNode;
+}> = React.memo(({ title, buttons, ...props }) => {
   const isDarkMode = useBusterStylesContext((state) => state.isDarkMode);
   const { children, className = '', language, showLoader, showCopyButton = true, ...rest } = props;
   const [style, setStyle] = useState<{
@@ -42,17 +43,19 @@ export const AppCodeBlock: React.FC<{
     <CodeBlockWrapper
       code={code}
       isDarkMode={isDarkMode}
-      language={language || ''}
+      language={title || language}
       showCopyButton={showCopyButton}>
       <div className="w-full overflow-x-auto">
         <div className="code-wrapper">
           {language ? (
             <SyntaxHighlighter
               {...rest}
+              showLineNumbers
               className={`${className} !p-3 transition ${!style ? 'opacity-100' : '!m-0 !border-none !p-0 opacity-100'}`}
               children={code}
               language={language}
               style={style}
+              lineNumberStyle={{ color: '#000' }}
             />
           ) : (
             <code {...rest} className={className}>
@@ -97,9 +100,10 @@ const CodeBlockWrapper: React.FC<{
   children: React.ReactNode;
   isDarkMode: boolean;
   code: string;
-  language: string;
+  language?: string;
   showCopyButton: boolean;
-}> = React.memo(({ children, code, showCopyButton, language }) => {
+  buttons?: React.ReactNode;
+}> = React.memo(({ children, code, showCopyButton, language, buttons }) => {
   const { cx, styles } = useStyles();
   const { openSuccessMessage } = useBusterNotifications();
   const token = useAntToken();
@@ -113,21 +117,24 @@ const CodeBlockWrapper: React.FC<{
     <div className={cx(styles.container, 'max-h-fit')}>
       <div className={cx(styles.containerHeader, 'flex items-center justify-between')}>
         <Text className="pl-2">{language}</Text>
-        {showCopyButton && (
-          <Button
-            style={{
-              color: token.colorTextSecondary
-            }}
-            type="text"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              copyCode();
-            }}
-            icon={<AppMaterialIcons icon="content_copy" />}>
-            Copy
-          </Button>
-        )}
+        <div className="flex items-center space-x-1">
+          {showCopyButton && (
+            <Button
+              style={{
+                color: token.colorTextSecondary
+              }}
+              type="text"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                copyCode();
+              }}
+              icon={<AppMaterialIcons icon="content_copy" />}>
+              Copy
+            </Button>
+          )}
+          {buttons}
+        </div>
       </div>
 
       {children}
