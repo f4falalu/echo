@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use anyhow::Result;
 use async_trait::async_trait;
 use chrono::Utc;
@@ -56,6 +58,7 @@ struct ModificationResult {
     error: Option<String>,
     modification_type: String,
     timestamp: chrono::DateTime<Utc>,
+    duration: i64,
 }
 
 #[derive(Debug)]
@@ -217,6 +220,7 @@ fn apply_modifications_to_content(content: &str, modifications: &[Modification],
 #[derive(Debug, Serialize)]
 pub struct ModifyFilesOutput {
     message: String,
+    duration: i64,
     files: Vec<FileEnum>,
 }
 
@@ -239,13 +243,18 @@ impl ToolExecutor for ModifyFilesTool {
     }
 
     async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+        let start_time = Instant::now();
+
         debug!("Starting file modification execution");
+
         let params: ModifyFilesParams = match serde_json::from_str(&tool_call.function.arguments.clone()) {
             Ok(params) => params,
             Err(e) => {
+                let duration = start_time.elapsed().as_millis() as i64;
                 return Ok(ModifyFilesOutput {
                     message: format!("Failed to parse modification parameters: {}", e),
                     files: Vec::new(),
+                    duration,
                 });
             }
         };
@@ -286,9 +295,11 @@ impl ToolExecutor for ModifyFilesTool {
         let mut conn = match get_pg_pool().get().await {
             Ok(conn) => conn,
             Err(e) => {
+                let duration = start_time.elapsed().as_millis() as i64;
                 return Ok(ModifyFilesOutput {
                     message: format!("Failed to connect to database: {}", e),
                     files: Vec::new(),
+                    duration,
                 });
             }
         };
@@ -305,7 +316,7 @@ impl ToolExecutor for ModifyFilesTool {
                 Ok(files) => {
                     for file in files {
                         if let Some(modifications) = file_map.get(&file.id) {
-                            match process_metric_file(file, modifications).await {
+                            match process_metric_file(file, modifications, start_time.elapsed().as_millis() as i64).await {
                                 Ok((metric_file, metric_yml, results)) => {
                                     batch.metric_files.push(metric_file);
                                     batch.metric_ymls.push(metric_yml);
@@ -322,9 +333,11 @@ impl ToolExecutor for ModifyFilesTool {
                     }
                 }
                 Err(e) => {
+                    let duration = start_time.elapsed().as_millis() as i64;
                     return Ok(ModifyFilesOutput {
                         message: format!("Failed to fetch metric files: {}", e),
                         files: Vec::new(),
+                        duration,
                     });
                 }
             }
@@ -342,7 +355,7 @@ impl ToolExecutor for ModifyFilesTool {
                 Ok(files) => {
                     for file in files {
                         if let Some(modifications) = file_map.get(&file.id) {
-                            match process_dashboard_file(file, modifications).await {
+                            match process_dashboard_file(file, modifications, start_time.elapsed().as_millis() as i64).await {
                                 Ok((dashboard_file, dashboard_yml, results)) => {
                                     batch.dashboard_files.push(dashboard_file);
                                     batch.dashboard_ymls.push(dashboard_yml);
@@ -359,18 +372,22 @@ impl ToolExecutor for ModifyFilesTool {
                     }
                 }
                 Err(e) => {
+                    let duration = start_time.elapsed().as_millis() as i64;
                     return Ok(ModifyFilesOutput {
                         message: format!("Failed to fetch dashboard files: {}", e),
                         files: Vec::new(),
+                        duration,
                     });
                 }
             }
         }
 
         // Process results and generate output message
+        let duration = start_time.elapsed().as_millis() as i64;
         let mut output = ModifyFilesOutput {
             message: String::new(),
             files: Vec::new(),
+            duration,
         };
 
         // Update metric files in database
@@ -520,6 +537,7 @@ impl ToolExecutor for ModifyFilesTool {
 async fn process_metric_file(
     mut file: MetricFile,
     modification: &FileModification,
+    duration: i64,
 ) -> Result<(MetricFile, MetricYml, Vec<ModificationResult>)> {
     debug!(
         file_id = %file.id,
@@ -550,6 +568,7 @@ async fn process_metric_file(
                 error: Some(error.clone()),
                 modification_type: "parsing".to_string(),
                 timestamp: Utc::now(),
+                duration,
             });
             return Err(anyhow::anyhow!(error));
         }
@@ -576,6 +595,7 @@ async fn process_metric_file(
                 error: Some(error.clone()),
                 modification_type: "serialization".to_string(),
                 timestamp: Utc::now(),
+                duration,
             });
             return Err(anyhow::anyhow!(error));
         }
@@ -618,6 +638,7 @@ async fn process_metric_file(
                         error: None,
                         modification_type: "content".to_string(),
                         timestamp: Utc::now(),
+                        duration,
                     });
                     
                     Ok((file, new_yml, results))
@@ -640,6 +661,7 @@ async fn process_metric_file(
                         error: Some(error.clone()),
                         modification_type: "validation".to_string(),
                         timestamp: Utc::now(),
+                        duration,
                     });
                     Err(anyhow::anyhow!(error))
                 }
@@ -663,6 +685,7 @@ async fn process_metric_file(
                 error: Some(error.clone()),
                 modification_type: "modification".to_string(),
                 timestamp: Utc::now(),
+                duration,
             });
             Err(anyhow::anyhow!(error))
         }
@@ -672,6 +695,7 @@ async fn process_metric_file(
 async fn process_dashboard_file(
     mut file: DashboardFile,
     modification: &FileModification,
+    duration: i64,
 ) -> Result<(DashboardFile, DashboardYml, Vec<ModificationResult>)> {
     let mut results = Vec::new();
     
@@ -696,6 +720,7 @@ async fn process_dashboard_file(
                 error: Some(error.clone()),
                 modification_type: "parsing".to_string(),
                 timestamp: Utc::now(),
+                duration,
             });
             return Err(anyhow::anyhow!(error));
         }
@@ -722,6 +747,7 @@ async fn process_dashboard_file(
                 error: Some(error.clone()),
                 modification_type: "serialization".to_string(),
                 timestamp: Utc::now(),
+                duration,
             });
             return Err(anyhow::anyhow!(error));
         }
@@ -763,6 +789,7 @@ async fn process_dashboard_file(
                                 error: Some(error.clone()),
                                 modification_type: "serialization".to_string(),
                                 timestamp: Utc::now(),
+                                duration,
                             });
                             return Err(anyhow::anyhow!(error));
                         }
@@ -780,6 +807,7 @@ async fn process_dashboard_file(
                         error: None,
                         modification_type: "content".to_string(),
                         timestamp: Utc::now(),
+                        duration,
                     });
                     
                     Ok((file, new_yml, results))
@@ -802,6 +830,7 @@ async fn process_dashboard_file(
                         error: Some(error.clone()),
                         modification_type: "validation".to_string(),
                         timestamp: Utc::now(),
+                        duration,
                     });
                     return Err(anyhow::anyhow!(error));
                 }
@@ -825,6 +854,7 @@ async fn process_dashboard_file(
                 error: Some(error.clone()),
                 modification_type: "modification".to_string(),
                 timestamp: Utc::now(),
+                duration,
             });
             return Err(anyhow::anyhow!(error));
         }
@@ -978,6 +1008,7 @@ mod tests {
             error: None,
             modification_type: "content".to_string(),
             timestamp: Utc::now(),
+            duration: 0,
         };
 
         // Test successful modification result

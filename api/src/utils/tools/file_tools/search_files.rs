@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use anyhow::Result;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
@@ -30,6 +32,8 @@ struct SearchFilesParams {
 #[derive(Debug, Serialize)]
 pub struct SearchFilesOutput {
     message: String,
+    query_params: Vec<String>,
+    duration: i64,
     files: Vec<FileSearchResult>,
 }
 
@@ -153,6 +157,8 @@ impl ToolExecutor for SearchFilesTool {
     }
 
     async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+        let start_time = Instant::now();
+
         debug!("Starting file search operation");
         let params: SearchFilesParams =
             serde_json::from_str(&tool_call.function.arguments.clone())?;
@@ -187,9 +193,12 @@ impl ToolExecutor for SearchFilesTool {
         let search_response = match Self::perform_llm_search(prompt).await {
             Ok(response) => response,
             Err(e) => {
+                let duration = start_time.elapsed().as_millis() as i64;
                 return Ok(SearchFilesOutput {
                     message: format!("Search failed: {}", e),
                     files: vec![],
+                    duration,
+                    query_params: params.query_params,
                 });
             }
         };
@@ -206,9 +215,13 @@ impl ToolExecutor for SearchFilesTool {
             "Completed file search operation"
         );
 
+        let duration = start_time.elapsed().as_millis() as i64;
+
         Ok(SearchFilesOutput {
             message,
             files: search_response.results,
+            duration,
+            query_params: params.query_params,
         })
     }
 

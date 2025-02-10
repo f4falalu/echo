@@ -4,7 +4,7 @@ use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::collections::{HashMap, HashSet};
+use std::{collections::{HashMap, HashSet}, time::Instant};
 use tracing::{debug, error, info, warn};
 use uuid::Uuid;
 
@@ -38,6 +38,7 @@ struct OpenFilesParams {
 #[derive(Debug, Serialize)]
 pub struct OpenFilesOutput {
     message: String,
+    duration: i64,
     results: Vec<FileEnum>,
 }
 
@@ -60,6 +61,8 @@ impl ToolExecutor for OpenFilesTool {
     }
 
     async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+        let start_time = Instant::now();
+
         debug!("Starting file open operation");
         let params: OpenFilesParams =
             serde_json::from_str(&tool_call.function.arguments.clone())
@@ -169,7 +172,9 @@ impl ToolExecutor for OpenFilesTool {
             "Completed file open operation"
         );
 
-        Ok(OpenFilesOutput { message, results })
+        let duration = start_time.elapsed().as_millis();
+
+        Ok(OpenFilesOutput { message, duration: duration as i64, results })
     }
 
     fn get_schema(&self) -> Value {

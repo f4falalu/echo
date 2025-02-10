@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use anyhow::Result;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
@@ -9,14 +11,10 @@ use tracing::{debug, error, warn};
 use uuid::Uuid;
 
 use crate::{
-    database::{
-        lib::get_pg_pool,
-        schema::datasets,
-    },
+    database::{lib::get_pg_pool, schema::datasets},
     utils::{
         clients::ai::litellm::{
-            ChatCompletionRequest, LiteLLMClient, Message, ResponseFormat,
-            Tool, ToolCall,
+            ChatCompletionRequest, LiteLLMClient, Message, ResponseFormat, Tool, ToolCall,
         },
         tools::ToolExecutor,
     },
@@ -30,6 +28,8 @@ struct SearchDataCatalogParams {
 #[derive(Debug, Serialize)]
 pub struct SearchDataCatalogOutput {
     message: String,
+    query_params: Vec<String>,
+    duration: i64,
     results: Vec<DatasetSearchResult>,
 }
 
@@ -93,12 +93,15 @@ impl SearchDataCatalogTool {
 
         Ok(CATALOG_SEARCH_PROMPT
             .replace("{queries_joined_with_newlines}", &query_params.join("\n"))
-            .replace("{datasets_array_as_json}", &serde_json::to_string_pretty(&datasets_json)?))
+            .replace(
+                "{datasets_array_as_json}",
+                &serde_json::to_string_pretty(&datasets_json)?,
+            ))
     }
 
     async fn perform_llm_search(prompt: String) -> Result<Vec<DatasetSearchResult>> {
         debug!("Performing LLM search");
-        
+
         // Setup LiteLLM client
         let llm_client = LiteLLMClient::new(None, None);
         let request = ChatCompletionRequest {
@@ -179,9 +182,10 @@ impl SearchDataCatalogTool {
             .await?;
 
         debug!(count = datasets.len(), "Successfully loaded datasets");
-        
+
         // Convert to DatasetRecord format
-        datasets.into_iter()
+        datasets
+            .into_iter()
             .map(DatasetRecord::from_dataset)
             .collect()
     }
@@ -196,14 +200,20 @@ impl ToolExecutor for SearchDataCatalogTool {
     }
 
     async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+        let start_time = Instant::now();
+
         debug!("Starting dataset search operation");
         let params: SearchDataCatalogParams = serde_json::from_str(&tool_call.function.arguments)?;
 
         // Fetch all non-deleted datasets
         let datasets = Self::get_datasets().await?;
         if datasets.is_empty() {
+            let duration = start_time.elapsed().as_millis();
+
             return Ok(SearchDataCatalogOutput {
                 message: "No datasets available to search".to_string(),
+                query_params: params.query_params,
+                duration: duration as i64,
                 results: vec![],
             });
         }
@@ -213,8 +223,12 @@ impl ToolExecutor for SearchDataCatalogTool {
         let search_results = match Self::perform_llm_search(prompt).await {
             Ok(results) => results,
             Err(e) => {
+                let duration = start_time.elapsed().as_millis();
+
                 return Ok(SearchDataCatalogOutput {
                     message: format!("Search failed: {}", e),
+                    query_params: params.query_params,
+                    duration: duration as i64,
                     results: vec![],
                 });
             }
@@ -230,8 +244,12 @@ impl ToolExecutor for SearchDataCatalogTool {
             )
         };
 
+        let duration = start_time.elapsed().as_millis();
+
         Ok(SearchDataCatalogOutput {
             message,
+            query_params: params.query_params,
+            duration: duration as i64,
             results: search_results,
         })
     }

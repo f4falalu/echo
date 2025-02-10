@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use anyhow::Result;
 use async_trait::async_trait;
 use chrono::Utc;
@@ -37,6 +39,7 @@ struct CreateFilesParams {
 #[derive(Debug, Serialize)]
 pub struct CreateFilesOutput {
     message: String,
+    duration: i64,
     files: Vec<FileEnum>,
 }
 
@@ -59,6 +62,8 @@ impl ToolExecutor for CreateFilesTool {
     }
 
     async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+        let start_time = Instant::now();
+
         let params: CreateFilesParams =
             match serde_json::from_str(&tool_call.function.arguments.clone()) {
                 Ok(params) => params,
@@ -219,8 +224,11 @@ impl ToolExecutor for CreateFilesTool {
             )
         };
 
+        let duration = start_time.elapsed().as_millis() as i64;
+
         Ok(CreateFilesOutput {
             message,
+            duration,
             files: created_files,
         })
     }

@@ -1,7 +1,7 @@
 use crate::utils::{
     clients::ai::litellm::{
         ChatCompletionRequest, DeltaFunctionCall, DeltaToolCall, FunctionCall, LiteLLMClient,
-        Message, Tool, ToolCall, ToolChoice,
+        Message, MessageProgress, Tool, ToolCall, ToolChoice,
     },
     tools::ToolExecutor,
 };
@@ -270,29 +270,15 @@ impl Agent {
                         Ok(chunk) => {
                             let delta = &chunk.choices[0].delta;
 
-                            // Handle role changes
-                            if let Some(role) = &delta.role {
-                                match role.as_str() {
-                                    "assistant" => {
-                                        has_started = true;
-                                        // Send empty message to indicate start
-                                        let _ = tx
-                                            .send(Ok(Message::assistant(
-                                                Some(String::new()),
-                                                None,
-                                                None,
-                                            )))
-                                            .await;
-                                    }
-                                    _ => continue,
-                                }
-                            }
-
                             // Handle content updates - send delta directly
                             if let Some(content) = &delta.content {
-                                // Send the delta chunk immediately
+                                // Send the delta chunk immediately with InProgress
                                 let _ = tx
-                                    .send(Ok(Message::assistant(Some(content.clone()), None, None)))
+                                    .send(Ok(Message::assistant(
+                                        Some(content.clone()),
+                                        None,
+                                        Some(MessageProgress::InProgress),
+                                    )))
                                     .await;
 
                                 // Also accumulate for our thread history
@@ -361,7 +347,7 @@ impl Agent {
                                         let assistant_tool_message = Message::assistant(
                                             None,
                                             Some(vec![tool_call.clone()]),
-                                            None,
+                                            Some(MessageProgress::Complete),
                                         );
                                         let _ = tx.send(Ok(assistant_tool_message.clone())).await;
 
@@ -375,7 +361,7 @@ impl Agent {
                                                     let tool_result = Message::tool(
                                                         result_str,
                                                         tool_call.id.clone(),
-                                                        None,
+                                                        Some(MessageProgress::Complete),
                                                     );
                                                     let _ = tx.send(Ok(tool_result.clone())).await;
 
@@ -389,7 +375,7 @@ impl Agent {
                                                     let tool_error = Message::tool(
                                                         error_msg,
                                                         tool_call.id.clone(),
-                                                        None,
+                                                        Some(MessageProgress::Complete),
                                                     );
                                                     let _ = tx.send(Ok(tool_error.clone())).await;
 
@@ -401,17 +387,6 @@ impl Agent {
                                         }
                                     }
                                     continue;
-                                }
-                            }
-
-                            // Handle role changes - just update internal state, don't send message
-                            if let Some(role) = &delta.role {
-                                match role.as_str() {
-                                    "assistant" => {
-                                        current_message =
-                                            Message::assistant(Some(String::new()), None, None);
-                                    }
-                                    _ => continue,
                                 }
                             }
 
@@ -470,7 +445,7 @@ impl Agent {
                                                     .send(Ok(Message::assistant(
                                                         None,
                                                         Some(vec![temp_tool_call]),
-                                                        None,
+                                                        Some(MessageProgress::InProgress),
                                                     )))
                                                     .await;
                                             }
@@ -495,6 +470,14 @@ impl Agent {
                     } = &current_message
                     {
                         if !content.trim().is_empty() {
+                            // Send the complete message
+                            let complete_message = Message::assistant(
+                                Some(content.clone()),
+                                None,
+                                Some(MessageProgress::Complete),
+                            );
+                            let _ = tx.send(Ok(complete_message.clone())).await;
+                            
                             let mut new_thread = thread.clone();
                             new_thread.messages.push(current_message);
                             return Ok(());
