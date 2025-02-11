@@ -8,12 +8,12 @@ use uuid::Uuid;
 
 use crate::utils::clients::ai::litellm::{Message, MessageProgress, ToolCall};
 
+use crate::utils::tools::file_tools::create_files::CreateFilesOutput;
 use crate::utils::tools::file_tools::file_types::file::FileEnum;
 use crate::utils::tools::file_tools::modify_files::ModifyFilesParams;
 use crate::utils::tools::file_tools::open_files::OpenFilesOutput;
 use crate::utils::tools::file_tools::search_data_catalog::SearchDataCatalogOutput;
 use crate::utils::tools::file_tools::search_files::SearchFilesOutput;
-use crate::utils::tools::file_tools::create_files::CreateFilesOutput;
 
 struct StreamingParser {
     buffer: String,
@@ -310,12 +310,14 @@ fn transform_text_message(
                     message_chunk: Some(content),
                 })])
             }
-            MessageProgress::Complete => Ok(vec![BusterThreadMessage::ChatMessage(BusterChatMessage {
-                id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
-                message_type: "text".to_string(),
-                message: Some(content),
-                message_chunk: None,
-            })]),
+            MessageProgress::Complete => {
+                Ok(vec![BusterThreadMessage::ChatMessage(BusterChatMessage {
+                    id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
+                    message_type: "text".to_string(),
+                    message: Some(content),
+                    message_chunk: None,
+                })])
+            }
             _ => Err(anyhow::anyhow!("Unsupported message progress")),
         }
     } else {
@@ -352,12 +354,12 @@ fn transform_assistant_tool_message(
 ) -> Result<Vec<BusterThreadMessage>> {
     if let Some(tool_call) = tool_calls.first() {
         match tool_call.function.name.as_str() {
-            "search_data_catalog" => assistant_data_catalog_search(id, progress),
-            "stored_values_search" => assistant_stored_values_search(id, progress),
-            "search_files" => assistant_file_search(id, progress),
+            "search_data_catalog" => assistant_data_catalog_search(id, tool_calls, progress),
+            "stored_values_search" => assistant_stored_values_search(id, tool_calls, progress),
+            "search_files" => assistant_file_search(id, tool_calls, progress),
             "create_files" => assistant_create_file(id, tool_calls, progress),
             "modify_files" => assistant_modify_file(id, tool_calls, progress),
-            "open_files" => assistant_open_files(id, progress),
+            "open_files" => assistant_open_files(id, tool_calls, progress),
             _ => Err(anyhow::anyhow!("Unsupported tool name")),
         }
     } else {
@@ -367,6 +369,7 @@ fn transform_assistant_tool_message(
 
 fn assistant_data_catalog_search(
     id: Option<String>,
+    tool_calls: Vec<ToolCall>,
     progress: Option<MessageProgress>,
 ) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
@@ -510,6 +513,7 @@ fn proccess_data_catalog_search_results(
 
 fn assistant_stored_values_search(
     id: Option<String>,
+    tool_calls: Vec<ToolCall>,
     progress: Option<MessageProgress>,
 ) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
@@ -562,6 +566,7 @@ fn tool_stored_values_search(
 
 fn assistant_file_search(
     id: Option<String>,
+    tool_calls: Vec<ToolCall>,
     progress: Option<MessageProgress>,
 ) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
@@ -685,6 +690,7 @@ fn process_file_search_results(
 
 fn assistant_open_files(
     id: Option<String>,
+    tool_calls: Vec<ToolCall>,
     progress: Option<MessageProgress>,
 ) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
@@ -862,7 +868,7 @@ fn tool_create_file(
                 // Parse the content to get file information using CreateFilesOutput
                 let create_files_result = serde_json::from_str::<CreateFilesOutput>(&content)?;
                 let mut messages = Vec::new();
-                
+
                 for file in create_files_result.files {
                     let (name, file_type, content) = match &file {
                         FileEnum::Dashboard(dashboard) => (
@@ -876,7 +882,7 @@ fn tool_create_file(
                             serde_json::to_string_pretty(&metric)?,
                         ),
                     };
-                    
+
                     let mut current_lines = Vec::new();
                     for (i, line) in content.lines().enumerate() {
                         current_lines.push(BusterFileLine {
@@ -896,11 +902,11 @@ fn tool_create_file(
                         file: Some(current_lines),
                     }));
                 }
-                
+
                 if messages.is_empty() {
                     return Err(anyhow::anyhow!("No valid files found in response"));
                 }
-                
+
                 Ok(messages)
             }
             _ => Err(anyhow::anyhow!("Tool create file only supports complete.")),

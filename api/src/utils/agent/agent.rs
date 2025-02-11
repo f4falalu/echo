@@ -253,94 +253,90 @@ impl Agent {
                     })
                     .collect();
 
-                // First, make request with tool_choice set to none
-                let initial_request = ChatCompletionRequest {
-                    model: model.to_string(),
-                    messages: thread.messages.clone(),
-                    tools: if tools.is_empty() {
-                        None
-                    } else {
-                        Some(tools.clone())
-                    },
-                    tool_choice: Some(ToolChoice::None("none".to_string())),
-                    stream: Some(true),
-                    ..Default::default()
-                };
+                let mut tool_thread = thread.clone();
 
-                // Get streaming response for initial thoughts
-                let mut initial_stream = llm_client.stream_chat_completion(initial_request).await?;
-                let mut initial_message = Message::assistant(
-                    None,
-                    Some(String::new()),
-                    None,
-                    None,
-                );
+                // Only do initial message phase if this is the first call (recursion_depth = 0)
+                if recursion_depth == 0 {
+                    // First, make request with tool_choice set to none
+                    let initial_request = ChatCompletionRequest {
+                        model: model.to_string(),
+                        messages: thread.messages.clone(),
+                        tools: if tools.is_empty() {
+                            None
+                        } else {
+                            Some(tools.clone())
+                        },
+                        tool_choice: Some(ToolChoice::None("none".to_string())),
+                        stream: Some(true),
+                        ..Default::default()
+                    };
 
-                // Process initial stream chunks
-                while let Some(chunk_result) = initial_stream.recv().await {
-                    match chunk_result {
-                        Ok(chunk) => {
-                            initial_message.set_id(chunk.id.clone());
+                    // Get streaming response for initial thoughts
+                    let mut initial_stream = llm_client.stream_chat_completion(initial_request).await?;
+                    let mut initial_message = Message::assistant(
+                        None,
+                        Some(String::new()),
+                        None,
+                        None,
+                    );
 
-                            let delta = &chunk.choices[0].delta;
+                    // Process initial stream chunks
+                    while let Some(chunk_result) = initial_stream.recv().await {
+                        match chunk_result {
+                            Ok(chunk) => {
+                                initial_message.set_id(chunk.id.clone());
 
-                            // Handle content updates - send delta directly
-                            if let Some(content) = &delta.content {
-                                // Send the delta chunk immediately with InProgress
-                                let _ = tx
-                                    .send(Ok(Message::assistant(
-                                        Some("initial_message".to_string()),
-                                        Some(content.clone()),
-                                        None,
-                                        Some(MessageProgress::InProgress),
-                                    )))
-                                    .await;
+                                let delta = &chunk.choices[0].delta;
 
-                                // Also accumulate for our thread history
-                                if let Message::Assistant {
-                                    content: msg_content,
-                                    ..
-                                } = &mut initial_message
-                                {
-                                    if let Some(existing) = msg_content {
-                                        existing.push_str(content);
+                                // Handle content updates - send delta directly
+                                if let Some(content) = &delta.content {
+                                    // Send the delta chunk immediately with InProgress
+                                    let _ = tx
+                                        .send(Ok(Message::assistant(
+                                            Some("initial_message".to_string()),
+                                            Some(content.clone()),
+                                            None,
+                                            Some(MessageProgress::InProgress),
+                                        )))
+                                        .await;
+
+                                    // Also accumulate for our thread history
+                                    if let Message::Assistant {
+                                        content: msg_content,
+                                        ..
+                                    } = &mut initial_message
+                                    {
+                                        if let Some(existing) = msg_content {
+                                            existing.push_str(content);
+                                        }
                                     }
                                 }
                             }
-                        }
-                        Err(e) => {
-                            let _ = tx.send(Err(anyhow::Error::from(e))).await;
-                            return Ok(());
+                            Err(e) => {
+                                let _ = tx.send(Err(anyhow::Error::from(e))).await;
+                                return Ok(());
+                            }
                         }
                     }
+
+                    // Ensure we have content in the initial message
+                    let initial_content = match &initial_message {
+                        Message::Assistant { content, .. } => content.clone().unwrap_or_default(),
+                        _ => String::new(),
+                    };
+
+                    // Send the complete message with accumulated content
+                    if !initial_content.trim().is_empty() {
+                        let _ = tx
+                            .send(Ok(Message::assistant(
+                                Some("initial_message".to_string()),
+                                Some(initial_content.clone()),
+                                None,
+                                Some(MessageProgress::Complete),
+                            )))
+                            .await;
+                    }
                 }
-
-                // Ensure we have content in the initial message
-                let initial_content = match &initial_message {
-                    Message::Assistant { content, .. } => content.clone().unwrap_or_default(),
-                    _ => String::new(),
-                };
-
-                // Send the complete message with accumulated content
-                if !initial_content.trim().is_empty() {
-                    let _ = tx
-                        .send(Ok(Message::assistant(
-                            Some("initial_message".to_string()),
-                            Some(initial_content.clone()),
-                            None,
-                            Some(MessageProgress::Complete),
-                        )))
-                        .await;
-                }
-
-                // Create a new thread with the initial response
-                let mut tool_thread = thread.clone();
-                tool_thread.messages.push(Message::assistant(
-                    Some("initial_message".to_string()),
-                    Some(initial_content.clone()),
-                    None,
-                    None,
-                ));
 
                 // Create the tool-enabled request
                 let request = ChatCompletionRequest {
