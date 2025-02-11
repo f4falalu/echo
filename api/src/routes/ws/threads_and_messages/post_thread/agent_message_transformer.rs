@@ -242,7 +242,7 @@ pub struct BusterThought {
     pub thought_type: String,
     pub thought_title: String,
     pub thought_secondary_title: String,
-    pub thought_pills: Option<Vec<BusterThoughtPillContainer>>,
+    pub thoughts: Option<Vec<BusterThoughtPillContainer>>,
     pub status: String,
 }
 
@@ -506,7 +506,7 @@ fn assistant_data_catalog_search(
                         thought_type: "thought".to_string(),
                         thought_title: "Searching your data catalog...".to_string(),
                         thought_secondary_title: "".to_string(),
-                        thought_pills: None,
+                        thoughts: None,
                         status: "loading".to_string(),
                     })])
                 }
@@ -563,7 +563,7 @@ fn tool_data_catalog_search(
                 thought_type: "thought".to_string(),
                 thought_title: format!("Found {} results", result_count),
                 thought_secondary_title: format!("{} seconds", duration),
-                thought_pills: Some(thought_pill_containters),
+                thoughts: Some(thought_pill_containters),
                 status: "completed".to_string(),
             })
         } else {
@@ -572,7 +572,7 @@ fn tool_data_catalog_search(
                 thought_type: "thought".to_string(),
                 thought_title: "No data catalog items found".to_string(),
                 thought_secondary_title: format!("{} seconds", duration),
-                thought_pills: Some(vec![BusterThoughtPillContainer {
+                thoughts: Some(vec![BusterThoughtPillContainer {
                     title: "No results found".to_string(),
                     thought_pills: query_params
                         .iter()
@@ -654,7 +654,7 @@ fn assistant_stored_values_search(
                         thought_type: "thought".to_string(),
                         thought_title: "Searching for relevant values...".to_string(),
                         thought_secondary_title: "".to_string(),
-                        thought_pills: None,
+                        thoughts: None,
                         status: "loading".to_string(),
                     })])
                 }
@@ -687,7 +687,7 @@ fn tool_stored_values_search(
                 thought_type: "thought".to_string(),
                 thought_title: "".to_string(),
                 thought_secondary_title: "".to_string(),
-                thought_pills: None,
+                thoughts: None,
                 status: "completed".to_string(),
             })]),
             _ => Err(anyhow::anyhow!(
@@ -715,7 +715,7 @@ fn assistant_file_search(
                         thought_type: "thought".to_string(),
                         thought_title: "Searching across your assets...".to_string(),
                         thought_secondary_title: "".to_string(),
-                        thought_pills: None,
+                        thoughts: None,
                         status: "loading".to_string(),
                     })])
                 }
@@ -766,7 +766,7 @@ fn tool_file_search(
                 thought_type: "thought".to_string(),
                 thought_title: format!("Found {} assets", result_count),
                 thought_secondary_title: format!("{} seconds", duration),
-                thought_pills: Some(thought_pill_containers),
+                thoughts: Some(thought_pill_containers),
                 status: "completed".to_string(),
             })
         } else {
@@ -775,7 +775,7 @@ fn tool_file_search(
                 thought_type: "thought".to_string(),
                 thought_title: "No assets found".to_string(),
                 thought_secondary_title: format!("{} seconds", duration),
-                thought_pills: Some(vec![BusterThoughtPillContainer {
+                thoughts: Some(vec![BusterThoughtPillContainer {
                     title: "No assets found".to_string(),
                     thought_pills: query_params
                         .iter()
@@ -847,7 +847,7 @@ fn assistant_open_files(
                         thought_type: "thought".to_string(),
                         thought_title: "Looking through assets...".to_string(),
                         thought_secondary_title: "".to_string(),
-                        thought_pills: None,
+                        thoughts: None,
                         status: "loading".to_string(),
                     })])
                 }
@@ -913,7 +913,7 @@ fn tool_open_files(
             thought_type: "thought".to_string(),
             thought_title: format!("Looked through {} assets", result_count),
             thought_secondary_title: format!("{} seconds", duration),
-            thought_pills: Some(thought_pill_containers),
+            thoughts: Some(thought_pill_containers),
             status: "completed".to_string(),
         });
 
@@ -983,7 +983,7 @@ fn assistant_modify_file(
                                     file.file_type, file.file_name
                                 ),
                                 thought_secondary_title: "".to_string(),
-                                thought_pills: None,
+                                thoughts: None,
                                 status: "loading".to_string(),
                             })]);
                         }
@@ -997,7 +997,7 @@ fn assistant_modify_file(
                     thought_type: "thought".to_string(),
                     thought_title: "Modifying file...".to_string(),
                     thought_secondary_title: "".to_string(),
-                    thought_pills: None,
+                    thoughts: None,
                     status: "loading".to_string(),
                 })])
             }
@@ -1071,7 +1071,7 @@ fn tool_modify_file(
             thought_type: "thought".to_string(),
             thought_title: "Modified file".to_string(),
             thought_secondary_title: format!("{} seconds", duration),
-            thought_pills: Some(vec![BusterThoughtPillContainer {
+            thoughts: Some(vec![BusterThoughtPillContainer {
                 title: "Modified".to_string(),
                 thought_pills: vec![BusterThoughtPill {
                     id: Uuid::new_v4().to_string(),
