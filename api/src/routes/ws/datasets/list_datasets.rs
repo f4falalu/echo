@@ -236,7 +236,6 @@ async fn get_user_permissioned_datasets(
             users::email,
             data_sources::id,
             data_sources::name,
-            sql::<Nullable<Timestamptz>>("max(messages.created_at) as last_queried"),
         ))
         .group_by((
             datasets::id,
@@ -271,7 +270,6 @@ async fn get_user_permissioned_datasets(
             String,
             Uuid,
             String,
-            Option<DateTime<Utc>>,
         )>(&mut conn)
         .await
     {
@@ -294,7 +292,6 @@ async fn get_user_permissioned_datasets(
                 user_email,
                 data_source_id,
                 data_source_name,
-                last_queried,
             )| {
                 ListDatasetObject {
                     id,
@@ -307,7 +304,7 @@ async fn get_user_permissioned_datasets(
                         id: data_source_id,
                         name: data_source_name,
                     },
-                    last_queried,
+                    last_queried: None,
                     owner: Some(ListDatasetOwner {
                         id: user_id,
                         name: user_name.unwrap_or(user_email),
@@ -351,7 +348,6 @@ async fn get_org_datasets(
             users::email,
             data_sources::id,
             data_sources::name,
-            sql::<Nullable<Timestamptz>>("max(messages.created_at) as last_queried"),
         ))
         .group_by((
             datasets::id,
@@ -397,7 +393,6 @@ async fn get_org_datasets(
             String,
             Uuid,
             String,
-            Option<DateTime<Utc>>,
         )>(&mut conn)
         .await
     {
@@ -420,7 +415,6 @@ async fn get_org_datasets(
                 user_email,
                 data_source_id,
                 data_source_name,
-                last_queried,
             )| {
                 ListDatasetObject {
                     id,
@@ -433,7 +427,7 @@ async fn get_org_datasets(
                         id: data_source_id,
                         name: data_source_name,
                     },
-                    last_queried,
+                    last_queried: None,
                     owner: Some(ListDatasetOwner {
                         id: user_id,
                         name: user_name.unwrap_or(user_email),
@@ -542,7 +536,6 @@ async fn get_restricted_user_datasets(
                     users::email,
                     data_sources::id,
                     data_sources::name,
-                    sql::<Nullable<Timestamptz>>("max(messages.created_at) as last_queried"),
                 ))
                 .group_by((
                     datasets::id,
@@ -575,7 +568,6 @@ async fn get_restricted_user_datasets(
                     String,
                     Uuid,
                     String,
-                    Option<DateTime<Utc>>,
                 )>(&mut conn)
                 .await
             {
@@ -608,7 +600,6 @@ async fn get_restricted_user_datasets(
                 String,
                 Uuid,
                 String,
-                Option<DateTime<Utc>>,
             )> = match datasets::table
                 .inner_join(data_sources::table.on(datasets::data_source_id.eq(data_sources::id)))
                 .inner_join(users::table.on(datasets::created_by.eq(users::id)))
@@ -632,7 +623,6 @@ async fn get_restricted_user_datasets(
                     users::email,
                     data_sources::id,
                     data_sources::name,
-                    sql::<Nullable<Timestamptz>>("max(messages.created_at) as last_queried"),
                 ))
                 .group_by((
                     datasets::id,
@@ -668,7 +658,6 @@ async fn get_restricted_user_datasets(
                     String,
                     Uuid,
                     String,
-                    Option<DateTime<Utc>>,
                 )>(&mut conn)
                 .await
             {
@@ -692,7 +681,6 @@ async fn get_restricted_user_datasets(
         String,
         Uuid,
         String,
-        Option<DateTime<Utc>>,
     )> = Vec::new();
 
     match direct_user_permissioned_datasets_handle.await {
@@ -728,7 +716,6 @@ async fn get_restricted_user_datasets(
                 user_email,
                 data_source_id,
                 data_source_name,
-                last_queried,
             )| {
                 ListDatasetObject {
                     id,
@@ -741,7 +728,7 @@ async fn get_restricted_user_datasets(
                         id: data_source_id,
                         name: data_source_name,
                     },
-                    last_queried,
+                    last_queried: None,
                     owner: Some(ListDatasetOwner {
                         id: user_id,
                         name: user_name.unwrap_or(user_email),
