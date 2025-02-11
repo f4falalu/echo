@@ -83,6 +83,9 @@ pub enum ValidationErrorType {
     ModelNotFound,
     InvalidRelationship,
     ExpressionError,
+    ProjectNotFound,
+    InvalidBusterYml,
+    DataSourceMismatch,
 }
 
 #[derive(Debug, Deserialize)]

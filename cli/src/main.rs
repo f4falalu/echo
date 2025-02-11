@@ -18,6 +18,8 @@ pub enum Commands {
     Deploy {
         #[arg(long)]
         path: Option<String>,
+        #[arg(long, default_value_t = false)]
+        dry_run: bool,
     },
 }
 
@@ -37,7 +39,7 @@ async fn main() {
         Commands::Auth => auth().await,
         Commands::Generate => generate().await,
         Commands::Import => import().await,
-        Commands::Deploy { path } => deploy_v2(path.as_deref()).await,
+        Commands::Deploy { path, dry_run } => deploy_v2(path.as_deref(), dry_run).await,
     };
 
     if let Err(e) = result {
