@@ -34,7 +34,6 @@ export const ReasoningMessageContainer: React.FC<{
             isLastMessageItem={index === lastMessageIndex}
             chatId={chatId}
           />
-          <VerticalDivider />
         </div>
       ))}
     </div>
@@ -70,6 +69,12 @@ const useStyles = createStyles(({ token, css }) => ({
 
     &:has(+ .file-card) {
       margin-bottom: 3px;
+    }
+
+    &:has(+ .thought-card) {
+      .vertical-divider {
+        display: none;
+      }
     }
   `,
   fileCard: css`

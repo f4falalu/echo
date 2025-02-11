@@ -15,7 +15,7 @@ export const ReasoningMessage_Thought: React.FC<ReasoningMessageProps> = React.m
 
     return (
       <BarContainer
-        showBar={hasThoughts}
+        showBar={hasThoughts || !isLastMessageItem}
         status={loadingStatus}
         isCompletedStream={isCompletedStream}
         title={thought_title}

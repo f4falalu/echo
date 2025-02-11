@@ -11,7 +11,6 @@ import { updateChatToIChat } from '@/utils/chat';
 import { useAutoAppendThought } from './useAutoAppendThought';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
-import last from 'lodash/last';
 
 export const useChatUpdateMessage = () => {
   const busterSocket = useBusterWebSocket();
@@ -69,11 +68,14 @@ export const useChatUpdateMessage = () => {
   const _generatingReasoningMessageCallback = useMemoizedFn(
     (d: ChatEvent_GeneratingReasoningMessage) => {
       const { message_id, reasoning, chat_id } = d;
-      const currentReasoning = getChatMessageMemoized(message_id)!.reasoning;
-      const isNewMessage = !currentReasoning?.some(({ id }) => id === message_id);
+      const currentReasoning = getChatMessageMemoized(message_id)?.reasoning ?? [];
+      const reasoningMessageId = reasoning.id;
+      const foundReasoningMessage = currentReasoning.find(({ id }) => id === reasoningMessageId);
+      const isNewMessage = !foundReasoningMessage;
+
       const updatedReasoning = isNewMessage
         ? [...currentReasoning, reasoning]
-        : currentReasoning.map((rm) => (rm.id === message_id ? reasoning : rm));
+        : currentReasoning.map((rm) => (rm.id === reasoningMessageId ? reasoning : rm));
 
       onUpdateChatMessage({
         id: message_id,
@@ -96,7 +98,7 @@ export const useChatUpdateMessage = () => {
     });
   });
 
-  const initializeChatCallback = useMemoizedFn((d: BusterChat) => {
+  const initializeNewChatCallback = useMemoizedFn((d: BusterChat) => {
     const { iChat, iChatMessages } = updateChatToIChat(d, true);
     onBulkSetChatMessages(iChatMessages);
     onUpdateChat(iChat);
@@ -179,7 +181,7 @@ export const useChatUpdateMessage = () => {
   });
 
   return {
-    initializeChatCallback,
+    initializeNewChatCallback,
     completeChatCallback,
     startListeningForChatProgress,
     stopListeningForChatProgress,

@@ -40,7 +40,10 @@ export const useChatIndividualContext = ({
     (x) => !x.chatsMessages[currentMessageId]?.isCompletedStream
   );
 
-  useAutoChangeLayout({ lastMessageId: currentMessageId, onSetSelectedFile });
+  useAutoChangeLayout({
+    lastMessageId: currentMessageId,
+    onSetSelectedFile
+  });
 
   return {
     hasChat,

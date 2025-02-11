@@ -17,7 +17,7 @@ export const useBusterNewChat = () => {
     startListeningForChatProgress,
     stopListeningForChatProgress,
     stopChatCallback,
-    initializeChatCallback,
+    initializeNewChatCallback,
     replaceMessageCallback
   } = useChatUpdateMessage();
 
@@ -52,7 +52,7 @@ export const useBusterNewChat = () => {
         },
         responseEvent: {
           route: '/chats/post:initializeChat',
-          callback: initializeChatCallback
+          callback: initializeNewChatCallback
         }
       });
 
@@ -68,10 +68,20 @@ export const useBusterNewChat = () => {
   );
 
   const onStartChatFromFile = useMemoizedFn(
-    async ({}: { prompt: string; fileId: string; fileType: FileType }) => {
-      console.log('start chat from file');
-
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    async ({
+      prompt,
+      fileId,
+      fileType
+    }: {
+      prompt: string;
+      fileId: string;
+      fileType: FileType;
+    }) => {
+      onStartNewChat({
+        prompt,
+        metricId: fileType === 'metric' ? fileId : undefined,
+        dashboardId: fileType === 'dashboard' ? fileId : undefined
+      });
     }
   );
 

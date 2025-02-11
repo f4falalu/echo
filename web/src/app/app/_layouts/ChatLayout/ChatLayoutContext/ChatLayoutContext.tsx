@@ -11,7 +11,7 @@ import type { AppSplitterRef } from '@/components/layout';
 import { createChatAssetRoute, createFileRoute } from './helpers';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { DEFAULT_CHAT_OPTION } from './config';
-import { useAutoSetLayout } from '../hooks';
+import { useInitialChatLayout } from '../hooks';
 import { useChatFileLayout } from './useChatFileLayout';
 
 interface UseChatSplitterProps {
@@ -32,12 +32,13 @@ export const useChatLayout = ({
 
   const animateOpenSplitter = useMemoizedFn((side: 'left' | 'right' | 'both') => {
     if (appSplitterRef.current) {
-      const { animateWidth, isSideClosed } = appSplitterRef.current;
+      const { animateWidth } = appSplitterRef.current;
       if (side === 'left') {
         animateWidth('100%', 'left');
       } else if (side === 'right') {
         animateWidth('100%', 'right');
-      } else if (side === 'both' && (isSideClosed('right') || isSideClosed('left'))) {
+      } else if (side === 'both') {
+        //&& (isSideClosed('right') || isSideClosed('left'))
         animateWidth(DEFAULT_CHAT_OPTION, 'left');
         setIsPureChat(false);
         setIsPureFile(false);
@@ -69,7 +70,9 @@ export const useChatLayout = ({
 
     setIsCollapseOpen(!isCloseAction);
 
-    if (isFileLayout) {
+    if (defaultSelectedFile && defaultSelectedFile.type === 'reasoning') {
+      animateOpenSplitter(!isCloseAction ? 'both' : 'left');
+    } else if (isFileLayout) {
       // For file layout, toggle between 'both' and 'right'
       animateOpenSplitter(!isCloseAction && defaultSelectedFile ? 'both' : 'right');
     } else {
@@ -86,8 +89,11 @@ export const useChatLayout = ({
     setIsPureFile,
     collapseDirection,
     isCollapseOpen
-  } = useAutoSetLayout({
-    defaultSelectedLayout
+  } = useInitialChatLayout({
+    defaultSelectedLayout,
+    defaultSelectedFile,
+    chatId,
+    onCollapseFileClick
   });
 
   const fileLayoutContext = useChatFileLayout({

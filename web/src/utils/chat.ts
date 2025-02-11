@@ -1,10 +1,11 @@
 import type { BusterChat, BusterChatMessage } from '@/api/asset_interfaces';
 import type { IBusterChat, IBusterChatMessage } from '@/context/Chats/interfaces';
 
-const chatUpgrader = (chat: BusterChat): IBusterChat => {
+const chatUpgrader = (chat: BusterChat, { isNewChat }: { isNewChat: boolean }): IBusterChat => {
   return {
     ...chat,
-    messages: chat.messages.map((message) => message.id)
+    messages: chat.messages.map((message) => message.id),
+    isNewChat
   };
 };
 
@@ -36,7 +37,7 @@ const chatMessageUpgrader = (
 };
 
 export const updateChatToIChat = (chat: BusterChat, isNewChat: boolean) => {
-  const iChat = chatUpgrader(chat);
+  const iChat = chatUpgrader(chat, { isNewChat });
   const iChatMessages = chatMessageUpgrader(chat.messages, {
     isCompletedStream: !isNewChat,
     messageId: chat.messages[0].id
