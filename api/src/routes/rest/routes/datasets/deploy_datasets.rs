@@ -6,7 +6,7 @@ use diesel_async::RunQueryDsl;
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use serde_yaml;
-use std::collections::HashSet;
+use std::collections::{HashSet, HashMap};
 use uuid::Uuid;
 
 use crate::{
@@ -21,7 +21,7 @@ use crate::{
         dataset::column_management::{get_column_types, update_dataset_columns},
         query_engine::{
             credentials::get_data_source_credentials,
-            import_dataset_columns::retrieve_dataset_columns,
+            import_dataset_columns::{retrieve_dataset_columns, retrieve_dataset_columns_batch},
             write_query_engine::write_query_engine,
         },
         security::checks::is_user_workspace_admin_or_data_admin,
@@ -43,6 +43,7 @@ pub struct BusterConfig {
 pub enum DeployDatasetsRequest {
     Full(Vec<FullDeployDatasetsRequest>),
     Simple { id: Uuid, sql: String, yml: String },
+    Batch(BatchValidationRequest),
 }
 
 #[derive(Debug, Deserialize)]
@@ -160,6 +161,43 @@ pub struct Measure {
     pub description: String,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct BatchValidationRequest {
+    pub datasets: Vec<DatasetValidationRequest>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct DatasetValidationRequest {
+    pub dataset_id: Option<Uuid>,
+    pub name: String,
+    pub schema: String,
+    pub data_source_name: String,
+    pub columns: Vec<DeployDatasetsColumnsRequest>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct BatchValidationResult {
+    pub successes: Vec<DatasetValidationSuccess>,
+    pub failures: Vec<DatasetValidationFailure>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct DatasetValidationSuccess {
+    pub dataset_id: Uuid,
+    pub name: String,
+    pub schema: String,
+    pub data_source_name: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct DatasetValidationFailure {
+    pub dataset_id: Option<Uuid>,
+    pub name: String,
+    pub schema: String,
+    pub data_source_name: String,
+    pub errors: Vec<ValidationError>,
+}
+
 pub async fn deploy_datasets(
     Extension(user): Extension<User>,
     Json(request): Json<DeployDatasetsRequest>,
@@ -192,56 +230,99 @@ pub async fn deploy_datasets(
     let is_simple = match request {
         DeployDatasetsRequest::Full(_) => false,
         DeployDatasetsRequest::Simple { .. } => true,
+        DeployDatasetsRequest::Batch(_) => false,
     };
 
-    let requests = match process_deploy_request(request).await {
-        Ok(requests) => requests,
-        Err(e) => {
-            tracing::error!("Error processing deploy request: {:?}", e);
-            return Err((StatusCode::BAD_REQUEST, e.to_string()));
-        }
-    };
-
-    // Call the handler with processed requests
-    match deploy_datasets_handler(&user.id, requests, is_simple).await {
-        Ok(results) => {
-            // Create deployment summary
-            let mut summary = DeploymentSummary {
-                total_models: results.len(),
-                successful_models: 0,
-                failed_models: 0,
-                successes: Vec::new(),
-                failures: Vec::new(),
-            };
-
-            // Process results
-            for result in &results {
-                if result.success {
-                    summary.successful_models += 1;
-                    summary.successes.push(DeploymentSuccess {
-                        model_name: result.model_name.clone(),
-                        data_source_name: result.data_source_name.clone(),
-                        schema: result.schema.clone(),
-                    });
-                } else {
-                    summary.failed_models += 1;
-                    summary.failures.push(DeploymentFailure {
-                        model_name: result.model_name.clone(),
-                        data_source_name: result.data_source_name.clone(),
-                        schema: result.schema.clone(),
-                        errors: result.errors.clone(),
-                    });
-                }
-            }
+    match request {
+        DeployDatasetsRequest::Batch(batch_request) => {
+            let batch_result = batch_validate_datasets(&user.id, batch_request.datasets).await?;
+            
+            // Convert batch result to deployment response format
+            let results = batch_result
+                .successes
+                .iter()
+                .map(|s| ValidationResult {
+                    success: true,
+                    model_name: s.name.clone(),
+                    data_source_name: s.data_source_name.clone(),
+                    schema: s.schema.clone(),
+                    errors: vec![],
+                })
+                .chain(batch_result.failures.iter().map(|f| ValidationResult {
+                    success: false,
+                    model_name: f.name.clone(),
+                    data_source_name: f.data_source_name.clone(),
+                    schema: f.schema.clone(),
+                    errors: f.errors.clone(),
+                }))
+                .collect();
 
             Ok(ApiResponse::JsonData(DeployDatasetsResponse {
                 results,
-                summary,
+                summary: DeploymentSummary {
+                    total_models: batch_result.successes.len() + batch_result.failures.len(),
+                    successful_models: batch_result.successes.len(),
+                    failed_models: batch_result.failures.len(),
+                    successes: batch_result
+                        .successes
+                        .iter()
+                        .map(|s| DeploymentSuccess {
+                            model_name: s.name.clone(),
+                            data_source_name: s.data_source_name.clone(),
+                            schema: s.schema.clone(),
+                        })
+                        .collect(),
+                    failures: batch_result
+                        .failures
+                        .iter()
+                        .map(|f| DeploymentFailure {
+                            model_name: f.name.clone(),
+                            data_source_name: f.data_source_name.clone(),
+                            schema: f.schema.clone(),
+                            errors: f.errors.clone(),
+                        })
+                        .collect(),
+                },
             }))
         }
-        Err(e) => {
-            tracing::error!("Error in deploy_datasets_handler: {:?}", e);
-            Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+        _ => {
+            let requests = process_deploy_request(request).await?;
+            let results = deploy_datasets_handler(&user.id, requests, is_simple).await?;
+
+            let successful_models = results.iter().filter(|r| r.success).count();
+            let failed_models = results.iter().filter(|r| !r.success).count();
+
+            let successes = results
+                .iter()
+                .filter(|r| r.success)
+                .map(|r| DeploymentSuccess {
+                    model_name: r.model_name.clone(),
+                    data_source_name: r.data_source_name.clone(),
+                    schema: r.schema.clone(),
+                })
+                .collect();
+
+            let failures = results
+                .iter()
+                .filter(|r| !r.success)
+                .map(|r| DeploymentFailure {
+                    model_name: r.model_name.clone(),
+                    data_source_name: r.data_source_name.clone(),
+                    schema: r.schema.clone(),
+                    errors: r.errors.clone(),
+                })
+                .collect();
+
+            Ok(ApiResponse::JsonData(DeployDatasetsResponse {
+                results,
+                summary: DeploymentSummary {
+                    total_models: results.len(),
+                    successful_models,
+                    failed_models,
+                    successes,
+                    failures,
+                },
+            }))
         }
     }
 }
@@ -483,6 +564,30 @@ async fn process_deploy_request(
 
             Ok(requests)
         }
+        DeployDatasetsRequest::Batch(batch_request) => {
+            let mut requests = Vec::new();
+            for request in batch_request.datasets {
+                let mut columns = Vec::new();
+                for col in request.columns {
+                    columns.push(col);
+                }
+                requests.push(FullDeployDatasetsRequest {
+                    id: request.dataset_id,
+                    data_source_name: request.data_source_name,
+                    env: "batch".to_string(),
+                    type_: "batch".to_string(),
+                    name: request.name,
+                    model: None,
+                    schema: request.schema,
+                    description: "batch".to_string(),
+                    sql_definition: None,
+                    entity_relationships: None,
+                    columns,
+                    yml_file: None,
+                });
+            }
+            Ok(requests)
+        }
     }
 }
 
@@ -570,4 +675,262 @@ async fn deploy_single_model(
     update_dataset_columns(&dataset, source_columns).await?;
 
     Ok(())
+}
+
+async fn batch_validate_datasets(
+    user_id: &Uuid,
+    requests: Vec<DatasetValidationRequest>,
+) -> Result<BatchValidationResult> {
+    let mut successes = Vec::new();
+    let mut failures = Vec::new();
+    let organization_id = get_user_organization_id(user_id).await?;
+
+    // Group requests by data source for efficient validation
+    let mut data_source_groups: HashMap<String, Vec<(&DatasetValidationRequest, Vec<(&str, &str)>)>> = HashMap::new();
+    
+    for request in &requests {
+        let columns: Vec<(&str, &str)> = request
+            .columns
+            .iter()
+            .map(|c| (c.name.as_str(), c.type_.as_deref().unwrap_or("text")))
+            .collect();
+
+        data_source_groups
+            .entry(request.data_source_name.clone())
+            .or_default()
+            .push((request, columns));
+    }
+
+    // Process each data source group
+    for (data_source_name, group) in data_source_groups {
+        // Get data source
+        let data_source = match get_data_source_by_name(&data_source_name, &organization_id).await {
+            Ok(ds) => ds,
+            Err(e) => {
+                for (request, _) in group {
+                    failures.push(DatasetValidationFailure {
+                        dataset_id: request.dataset_id,
+                        name: request.name.clone(),
+                        schema: request.schema.clone(),
+                        data_source_name: request.data_source_name.clone(),
+                        errors: vec![ValidationError::data_source_not_found(
+                            format!("Data source not found: {}", e),
+                        )],
+                    });
+                }
+                continue;
+            }
+        };
+
+        // Prepare tables for batch validation
+        let tables_to_validate: Vec<(String, String)> = group
+            .iter()
+            .map(|(req, _)| (req.name.clone(), req.schema.clone()))
+            .collect();
+
+        // Get credentials
+        let credentials = match get_data_source_credentials(
+            &data_source.secret_id,
+            &data_source.type_,
+            false,
+        )
+        .await
+        {
+            Ok(creds) => creds,
+            Err(e) => {
+                for (request, _) in group {
+                    failures.push(DatasetValidationFailure {
+                        dataset_id: request.dataset_id,
+                        name: request.name.clone(),
+                        schema: request.schema.clone(),
+                        data_source_name: request.data_source_name.clone(),
+                        errors: vec![ValidationError::data_source_error(
+                            format!("Failed to get data source credentials: {}", e),
+                        )],
+                    });
+                }
+                continue;
+            }
+        };
+
+        // Get all columns in one batch
+        let ds_columns = match retrieve_dataset_columns_batch(&tables_to_validate, &credentials).await {
+            Ok(cols) => cols,
+            Err(e) => {
+                for (request, _) in group {
+                    failures.push(DatasetValidationFailure {
+                        dataset_id: request.dataset_id,
+                        name: request.name.clone(),
+                        schema: request.schema.clone(),
+                        data_source_name: request.data_source_name.clone(),
+                        errors: vec![ValidationError::data_source_error(
+                            format!("Failed to get columns from data source: {}", e),
+                        )],
+                    });
+                }
+                continue;
+            }
+        };
+
+        // Validate each dataset in the group
+        for (request, columns) in group {
+            let mut validation_errors = Vec::new();
+
+            // Filter columns for this dataset
+            let dataset_columns: Vec<_> = ds_columns
+                .iter()
+                .filter(|col| col.dataset_name == request.name && col.schema_name == request.schema)
+                .collect();
+
+            if dataset_columns.is_empty() {
+                validation_errors.push(ValidationError::table_not_found(&request.name));
+            } else {
+                // Validate each column exists
+                for (col_name, _) in &columns {
+                    if !dataset_columns.iter().any(|c| c.name == *col_name) {
+                        validation_errors.push(ValidationError::column_not_found(col_name));
+                    }
+                }
+            }
+
+            if validation_errors.is_empty() {
+                // Create or update dataset
+                match create_or_update_dataset(request, &organization_id, user_id).await {
+                    Ok(dataset_id) => {
+                        successes.push(DatasetValidationSuccess {
+                            dataset_id,
+                            name: request.name.clone(),
+                            schema: request.schema.clone(),
+                            data_source_name: request.data_source_name.clone(),
+                        });
+                    }
+                    Err(e) => {
+                        failures.push(DatasetValidationFailure {
+                            dataset_id: request.dataset_id,
+                            name: request.name.clone(),
+                            schema: request.schema.clone(),
+                            data_source_name: request.data_source_name.clone(),
+                            errors: vec![ValidationError::data_source_error(
+                                format!("Failed to create/update dataset: {}", e),
+                            )],
+                        });
+                    }
+                }
+            } else {
+                failures.push(DatasetValidationFailure {
+                    dataset_id: request.dataset_id,
+                    name: request.name.clone(),
+                    schema: request.schema.clone(),
+                    data_source_name: request.data_source_name.clone(),
+                    errors: validation_errors,
+                });
+            }
+        }
+    }
+
+    Ok(BatchValidationResult {
+        successes,
+        failures,
+    })
+}
+
+async fn create_or_update_dataset(
+    request: &DatasetValidationRequest,
+    organization_id: &Uuid,
+    user_id: &Uuid,
+) -> Result<Uuid> {
+    let mut conn = get_pg_pool().get().await?;
+    let now = Utc::now();
+
+    // Start transaction
+    let mut tx = conn.begin().await?;
+
+    let dataset_id = match request.dataset_id {
+        Some(id) => {
+            // Update existing dataset
+            diesel::update(datasets::table)
+                .filter(datasets::id.eq(id))
+                .set((
+                    datasets::name.eq(&request.name),
+                    datasets::updated_at.eq(now),
+                    datasets::updated_by.eq(user_id),
+                ))
+                .execute(&mut tx)
+                .await?;
+            id
+        }
+        None => {
+            // Create new dataset
+            let dataset = Dataset {
+                id: Uuid::new_v4(),
+                name: request.name.clone(),
+                data_source_id: Uuid::new_v4(), // This needs to be set correctly
+                created_at: now,
+                updated_at: now,
+                database_name: request.name.clone(),
+                when_to_use: None,
+                when_not_to_use: None,
+                type_: DatasetType::View,
+                definition: String::new(),
+                schema: request.schema.clone(),
+                enabled: false,
+                created_by: user_id.clone(),
+                updated_by: user_id.clone(),
+                deleted_at: None,
+                imported: false,
+                organization_id: organization_id.clone(),
+                yml_file: None,
+                model: None,
+            };
+
+            diesel::insert_into(datasets::table)
+                .values(&dataset)
+                .execute(&mut tx)
+                .await?;
+
+            dataset.id
+        }
+    };
+
+    // Update columns
+    let columns: Vec<DatasetColumn> = request
+        .columns
+        .iter()
+        .map(|col| DatasetColumn {
+            id: Uuid::new_v4(),
+            dataset_id,
+            name: col.name.clone(),
+            type_: col.type_.clone().unwrap_or_else(|| "text".to_string()),
+            description: Some(col.description.clone()),
+            nullable: true, // This should be determined from the source
+            created_at: now,
+            updated_at: now,
+            deleted_at: None,
+            stored_values: None,
+            stored_values_status: None,
+            stored_values_error: None,
+            stored_values_count: None,
+            stored_values_last_synced: None,
+            semantic_type: col.semantic_type.clone(),
+            dim_type: None,
+            expr: col.expr.clone(),
+        })
+        .collect();
+
+    // Delete existing columns not in the new set
+    diesel::delete(dataset_columns::table)
+        .filter(dataset_columns::dataset_id.eq(dataset_id))
+        .execute(&mut tx)
+        .await?;
+
+    // Insert new columns
+    diesel::insert_into(dataset_columns::table)
+        .values(&columns)
+        .execute(&mut tx)
+        .await?;
+
+    // Commit transaction
+    tx.commit().await?;
+
+    Ok(dataset_id)
 }
