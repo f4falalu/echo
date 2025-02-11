@@ -57,7 +57,7 @@ pub struct Dimension {
     pub dimension_type: String,
     pub description: String,
     #[serde(default = "bool::default")]
-    pub stored_values: bool,
+    pub searchable: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

@@ -99,7 +99,7 @@ models:
         expr: "created_at::date"
         type: "date"
         description: "Date when customer signed up"
-        stored_values: true  # Enable value caching
+        searchable: true  # Enable value caching
     
     # Define measures
     measures:
@@ -197,7 +197,7 @@ dimensions:
   - name: country
     expr: "country_code"
     type: "string"
-    stored_values: true  # Values will be cached
+    searchable: true  # Values will be cached
 ```
 
 ### Default SQL Generation
