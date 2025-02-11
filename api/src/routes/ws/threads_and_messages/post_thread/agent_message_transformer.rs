@@ -181,7 +181,7 @@ impl StreamingParser {
                 }
 
                 return Ok(Some(BusterThreadMessage::File(BusterFileMessage {
-                    id: Uuid::new_v4().to_string(),
+                    id: name.to_string(),
                     message_type: "file".to_string(),
                     file_type: file_type.to_string(),
                     file_name: name.to_string(),
