@@ -1,7 +1,7 @@
 import { useMemoizedFn } from 'ahooks';
 import { useBusterChatContextSelector } from '../ChatProvider';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
-import { BusterChat } from '@/api/asset_interfaces';
+import { BusterChat, BusterChatMessage_text } from '@/api/asset_interfaces';
 import {
   ChatEvent_GeneratingReasoningMessage,
   ChatEvent_GeneratingResponseMessage,
@@ -11,6 +11,7 @@ import { updateChatToIChat } from '@/utils/chat';
 import { useAutoAppendThought } from './useAutoAppendThought';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
+import last from 'lodash/last';
 
 export const useChatUpdateMessage = () => {
   const busterSocket = useBusterWebSocket();
@@ -40,12 +41,27 @@ export const useChatUpdateMessage = () => {
     (d: ChatEvent_GeneratingResponseMessage) => {
       const { message_id, response_message } = d;
       const currentResponseMessages = getChatMessageMemoized(message_id)?.response_messages ?? [];
-      const isNewMessage = !currentResponseMessages.some(({ id }) => id === message_id);
+      const responseMessageId = response_message.id;
+      const foundResponseMessage = currentResponseMessages.find(
+        ({ id }) => id === responseMessageId
+      );
+      const isNewMessage = !foundResponseMessage;
+
+      if (response_message.type === 'text') {
+        const existingMessage = (foundResponseMessage as BusterChatMessage_text)?.message || '';
+        const isStreaming = !!response_message.message_chunk;
+        if (isStreaming) {
+          response_message.message = existingMessage + response_message.message_chunk;
+        }
+      }
+
       onUpdateChatMessage({
         id: message_id,
         response_messages: isNewMessage
           ? [...currentResponseMessages, response_message]
-          : currentResponseMessages.map((rm) => (rm.id === message_id ? response_message : rm))
+          : currentResponseMessages.map((rm) =>
+              rm.id === responseMessageId ? response_message : rm
+            )
       });
     }
   );
@@ -68,7 +84,7 @@ export const useChatUpdateMessage = () => {
   );
 
   const completeChatCallback = useMemoizedFn((d: BusterChat) => {
-    const { iChat, iChatMessages } = updateChatToIChat(d);
+    const { iChat, iChatMessages } = updateChatToIChat(d, false);
     onBulkSetChatMessages(iChatMessages);
     onUpdateChat(iChat);
   });
@@ -81,10 +97,9 @@ export const useChatUpdateMessage = () => {
   });
 
   const initializeChatCallback = useMemoizedFn((d: BusterChat) => {
-    const { iChat, iChatMessages } = updateChatToIChat(d);
+    const { iChat, iChatMessages } = updateChatToIChat(d, true);
     onBulkSetChatMessages(iChatMessages);
     onUpdateChat(iChat);
-
     onChangePage({
       route: BusterRoutes.APP_CHAT_ID,
       chatId: iChat.id

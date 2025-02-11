@@ -22,6 +22,7 @@ export type BusterChatMessage_text = {
   type: 'text';
   message: string;
   message_chunk?: string;
+  is_final_message?: boolean; //defaults to false
 };
 
 export type BusterChatMessage_fileMetadata = {

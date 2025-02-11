@@ -17,7 +17,7 @@ export const useChatSubscriptions = ({
   const busterSocket = useBusterWebSocket();
 
   const _onGetChat = useMemoizedFn((chat: BusterChat): IBusterChat => {
-    const { iChat, iChatMessages } = updateChatToIChat(chat);
+    const { iChat, iChatMessages } = updateChatToIChat(chat, false);
 
     chatsRef.current[chat.id] = iChat;
     chatsMessagesRef.current = {

@@ -11,9 +11,7 @@ import random from 'lodash/random';
 
 export const useAutoAppendThought = () => {
   const onUpdateChatMessage = useBusterChatContextSelector((x) => x.onUpdateChatMessage);
-  const getChatMemoized = useBusterChatContextSelector((x) => x.getChatMemoized);
   const getChatMessagesMemoized = useBusterChatContextSelector((x) => x.getChatMessagesMemoized);
-  const getChatMessageMemoized = useBusterChatContextSelector((x) => x.getChatMessageMemoized);
 
   const removeAutoThoughts = useMemoizedFn(
     (reasoningMessages: BusterChatMessageReasoning[]): BusterChatMessageReasoning[] => {
@@ -26,8 +24,9 @@ export const useAutoAppendThought = () => {
       reasoningMessages: BusterChatMessageReasoning[],
       chatId: string
     ): BusterChatMessageReasoning[] => {
+      const lastReasoningMessage = reasoningMessages[reasoningMessages.length - 1];
       const lastMessageIsCompleted =
-        reasoningMessages[reasoningMessages.length - 1].status === 'completed';
+        !lastReasoningMessage || lastReasoningMessage?.status === 'completed';
 
       if (lastMessageIsCompleted) {
         _loopAutoThought(chatId);
@@ -40,13 +39,14 @@ export const useAutoAppendThought = () => {
   );
 
   const _loopAutoThought = useMemoizedFn(async (chatId: string) => {
-    const randomDelay = random(3500, 5500);
+    const randomDelay = random(3000, 5000);
     await timeout(randomDelay);
     const chatMessages = getChatMessagesMemoized(chatId);
     const lastMessage = last(chatMessages);
     const isCompletedStream = !!lastMessage?.isCompletedStream;
     const lastReasoningMessage = last(lastMessage?.reasoning);
-    const lastReasoningMessageIsAutoAppended = lastReasoningMessage?.id === AUTO_THOUGHT_ID;
+    const lastReasoningMessageIsAutoAppended =
+      !lastReasoningMessage || lastReasoningMessage?.id === AUTO_THOUGHT_ID;
 
     if (!isCompletedStream && lastReasoningMessageIsAutoAppended && lastMessage) {
       const lastMessageId = lastMessage?.id!;

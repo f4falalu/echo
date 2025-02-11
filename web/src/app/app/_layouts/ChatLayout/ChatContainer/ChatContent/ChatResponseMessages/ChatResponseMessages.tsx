@@ -7,6 +7,7 @@ import type {
 import { MessageContainer } from '../MessageContainer';
 import { ChatResponseMessageSelector } from './ChatResponseMessageSelector';
 import { ChatResponseReasoning } from './ChatResponseReasoning';
+import { ShimmerText } from '@/components/text';
 
 interface ChatResponseMessagesProps {
   responseMessages: BusterChatMessageResponse[];
@@ -17,40 +18,41 @@ interface ChatResponseMessagesProps {
 
 export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.memo(
   ({ responseMessages, reasoningMessages, isCompletedStream, messageId }) => {
-    const firstResponseMessage = responseMessages[0] as BusterChatMessage_text;
-    const restResponseMessages = useMemo(() => {
-      if (!firstResponseMessage) return [];
-      return responseMessages.slice(1);
-    }, [firstResponseMessage, responseMessages]);
-
     const lastMessageIndex = responseMessages.length - 1;
+
+    const showDefaultMessage = responseMessages.length === 0;
+
+    const reasonginStepIndex = useMemo(() => {
+      const lastTextMessage = responseMessages.findLast(
+        (message) => message.type === 'text' && message.is_final_message !== false
+      ) as BusterChatMessage_text;
+
+      if (!lastTextMessage) return -1;
+      if (lastTextMessage?.message_chunk) return -1;
+
+      return responseMessages.findIndex((message) => message.id === lastTextMessage.id);
+    }, [responseMessages]);
 
     return (
       <MessageContainer className="flex w-full flex-col overflow-hidden">
-        {firstResponseMessage && (
-          <ChatResponseMessageSelector
-            key={firstResponseMessage.id}
-            responseMessage={firstResponseMessage}
-            isCompletedStream={isCompletedStream}
-            isLastMessageItem={false}
-          />
-        )}
+        {showDefaultMessage && <DefaultFirstMessage />}
 
-        {firstResponseMessage && (
-          <ChatResponseReasoning
-            reasoningMessages={reasoningMessages}
-            isCompletedStream={isCompletedStream}
-            messageId={messageId}
-          />
-        )}
+        {responseMessages.map((responseMessage, index) => (
+          <React.Fragment key={responseMessage.id}>
+            <ChatResponseMessageSelector
+              responseMessage={responseMessage}
+              isCompletedStream={isCompletedStream}
+              isLastMessageItem={index === lastMessageIndex}
+            />
 
-        {restResponseMessages.map((responseMessage, index) => (
-          <ChatResponseMessageSelector
-            key={responseMessage.id}
-            responseMessage={responseMessage}
-            isCompletedStream={isCompletedStream}
-            isLastMessageItem={index === lastMessageIndex}
-          />
+            {index === reasonginStepIndex && (
+              <ChatResponseReasoning
+                reasoningMessages={reasoningMessages}
+                isCompletedStream={isCompletedStream}
+                messageId={messageId}
+              />
+            )}
+          </React.Fragment>
         ))}
       </MessageContainer>
     );
@@ -58,3 +60,11 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
 );
 
 ChatResponseMessages.displayName = 'ChatResponseMessages';
+
+const DefaultFirstMessage: React.FC = () => {
+  return (
+    <div>
+      <ShimmerText text="Thinking..." />
+    </div>
+  );
+};

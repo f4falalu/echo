@@ -35,9 +35,12 @@ const chatMessageUpgrader = (
   );
 };
 
-export const updateChatToIChat = (chat: BusterChat) => {
+export const updateChatToIChat = (chat: BusterChat, isNewChat: boolean) => {
   const iChat = chatUpgrader(chat);
-  const iChatMessages = chatMessageUpgrader(chat.messages);
+  const iChatMessages = chatMessageUpgrader(chat.messages, {
+    isCompletedStream: !isNewChat,
+    messageId: chat.messages[0].id
+  });
   return {
     iChat,
     iChatMessages

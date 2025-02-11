@@ -198,8 +198,6 @@ const NewChatInput: React.FC<{
     const onSelectSearchAsset = useBusterNewChatContextSelector((x) => x.onSelectSearchAsset);
     const [loadingNewChat, setLoadingNewChat] = useState(false);
 
-    console.log(selectedChatDataSource);
-
     const onStartNewChatPreflight = useMemoizedFn(async () => {
       setLoadingNewChat(true);
       await onStartNewChat({ prompt, datasetId: selectedChatDataSource?.id });

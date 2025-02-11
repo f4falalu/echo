@@ -1,28 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useTransition } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { itemAnimationConfig } from './animationConfig';
+import { useMemoizedFn } from 'ahooks';
 
 interface StreamingMessage_TextProps {
   isCompletedStream: boolean;
-  message: {
-    message_chunk?: string;
-    message?: string;
-  };
+  message: string;
 }
 
 export const StreamingMessage_Text: React.FC<StreamingMessage_TextProps> = React.memo(
-  ({ message: messageProp, isCompletedStream }) => {
-    const { message_chunk, message } = messageProp;
+  ({ message, isCompletedStream }) => {
+    const [isPending, startTransition] = useTransition();
+    const textChunksRef = useRef<string[]>([]);
 
-    const [textChunks, setTextChunks] = useState<string[]>([]);
+    const setTextChunks = useMemoizedFn((updater: (prevChunks: string[]) => string[]) => {
+      textChunksRef.current = updater(textChunksRef.current);
+      startTransition(() => {
+        //just used to trigger UI update
+      });
+    });
 
     useEffect(() => {
-      if (message_chunk && !message) {
-        // Handle streaming chunks
-        setTextChunks((prevChunks) => [...prevChunks, message_chunk || '']);
-      } else if (message) {
+      if (message) {
         // Handle complete message
-        const currentText = textChunks.join('');
+        const currentText = textChunksRef.current.join('');
+
         if (message.startsWith(currentText)) {
           const remainingText = message.slice(currentText.length);
           if (remainingText) {
@@ -30,14 +32,14 @@ export const StreamingMessage_Text: React.FC<StreamingMessage_TextProps> = React
           }
         } else {
           // If there's a mismatch, just use the complete message
-          setTextChunks([message]);
+          setTextChunks(() => [message]);
         }
       }
-    }, [message_chunk, message]);
+    }, [message]);
 
     return (
       <div className={''}>
-        {textChunks.map((chunk, index) => (
+        {textChunksRef.current.map((chunk, index) => (
           <AnimatePresence key={index} initial={!isCompletedStream}>
             <motion.span {...itemAnimationConfig}>{chunk}</motion.span>
           </AnimatePresence>

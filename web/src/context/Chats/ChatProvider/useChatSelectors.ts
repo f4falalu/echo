@@ -17,25 +17,25 @@ export const useChatSelectors = ({
 
   const getChatMessages = useCallback(
     (chatId: string): IBusterChatMessage[] => {
-      const chatMessageIds = chatsRef.current[chatId].messages || [];
-      return chatMessageIds.map((messageId) => chatsMessagesRef.current[messageId]);
+      return getChatMessagesMemoized(chatId);
     },
     [chatsMessagesRef, isPending, chatsRef]
   );
 
   const getChatMessage = useCallback(
     (messageId: string): IBusterChatMessage | undefined => {
-      return chatsMessagesRef.current[messageId];
+      return getChatMessageMemoized(messageId);
     },
     [chatsMessagesRef, isPending]
   );
 
   const getChatMessagesMemoized = useMemoizedFn((chatId: string) => {
-    return getChatMessages(chatId);
+    const chatMessageIds = chatsRef.current[chatId].messages || [];
+    return chatMessageIds.map((messageId) => chatsMessagesRef.current[messageId]);
   });
 
   const getChatMessageMemoized = useMemoizedFn((messageId: string) => {
-    return getChatMessage(messageId);
+    return chatsMessagesRef.current[messageId];
   });
 
   return {

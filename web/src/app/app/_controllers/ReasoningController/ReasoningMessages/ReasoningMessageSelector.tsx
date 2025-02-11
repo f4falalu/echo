@@ -22,7 +22,7 @@ const ReasoningMessageRecord: Record<
   text: (props) => (
     <StreamingMessage_Text
       {...props}
-      message={props.reasoningMessage as BusterChatMessageReasoning_text}
+      message={(props.reasoningMessage as BusterChatMessageReasoning_text).message}
     />
   ),
   file: ReasoningMessage_File

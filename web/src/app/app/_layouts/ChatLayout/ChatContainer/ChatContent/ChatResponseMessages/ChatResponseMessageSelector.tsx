@@ -16,7 +16,10 @@ const ChatResponseMessageRecord: Record<
   React.FC<ChatResponseMessageProps>
 > = {
   text: (props) => (
-    <StreamingMessage_Text {...props} message={props.responseMessage as BusterChatMessage_text} />
+    <StreamingMessage_Text
+      {...props}
+      message={(props.responseMessage as BusterChatMessage_text).message}
+    />
   ),
   file: ChatResponseMessage_File
 };
@@ -27,37 +30,37 @@ export interface ChatResponseMessageSelectorProps {
   isLastMessageItem: boolean;
 }
 
-export const ChatResponseMessageSelector: React.FC<ChatResponseMessageSelectorProps> = ({
-  responseMessage,
-  isCompletedStream,
-  isLastMessageItem
-}) => {
-  const messageType = responseMessage.type;
-  const ChatResponseMessage = ChatResponseMessageRecord[messageType];
-  const { cx, styles } = useStyles();
+export const ChatResponseMessageSelector: React.FC<ChatResponseMessageSelectorProps> = React.memo(
+  ({ responseMessage, isCompletedStream, isLastMessageItem }) => {
+    const { cx, styles } = useStyles();
+    const messageType = responseMessage.type;
+    const ChatResponseMessage = ChatResponseMessageRecord[messageType];
 
-  const typeClassRecord: Record<BusterChatMessageResponse['type'], string> = useMemo(() => {
-    return {
-      text: cx(styles.textCard, 'text-card'),
-      file: cx(styles.fileCard, 'file-card')
-    };
-  }, []);
+    const typeClassRecord: Record<BusterChatMessageResponse['type'], string> = useMemo(() => {
+      return {
+        text: cx(styles.textCard, 'text-card'),
+        file: cx(styles.fileCard, 'file-card')
+      };
+    }, []);
 
-  const getContainerClass = useMemoizedFn((item: BusterChatMessageResponse) => {
-    return typeClassRecord[item.type];
-  });
+    const getContainerClass = useMemoizedFn((item: BusterChatMessageResponse) => {
+      return typeClassRecord[item.type];
+    });
 
-  return (
-    <div key={responseMessage.id} className={getContainerClass(responseMessage)}>
-      <ChatResponseMessage
-        responseMessage={responseMessage}
-        isCompletedStream={isCompletedStream}
-        isLastMessageItem={isLastMessageItem}
-      />
-      <VerticalDivider />
-    </div>
-  );
-};
+    return (
+      <div key={responseMessage.id} className={getContainerClass(responseMessage)}>
+        <ChatResponseMessage
+          responseMessage={responseMessage}
+          isCompletedStream={isCompletedStream}
+          isLastMessageItem={isLastMessageItem}
+        />
+        <VerticalDivider />
+      </div>
+    );
+  }
+);
+
+ChatResponseMessageSelector.displayName = 'ChatResponseMessageSelector';
 
 const VerticalDivider: React.FC<{ className?: string }> = React.memo(({ className }) => {
   const { cx, styles } = useStyles();
