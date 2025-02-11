@@ -57,8 +57,8 @@ pub struct TempInitChatMessage {
 #[derive(Debug, Deserialize, Clone)]
 pub struct ChatCreateNewChat {
     pub prompt: String,
-    pub chat_id: Option<String>,
-    pub message_id: Option<String>,
+    pub chat_id: Option<Uuid>,
+    pub message_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize)]
@@ -167,14 +167,17 @@ impl AgentThreadHandler {
 
     async fn process_stream(
         mut rx: Receiver<Result<Message, Error>>,
-        chat_id: Option<String>,
+        chat_id: Option<Uuid>,
         user_id: &Uuid,
     ) {
         let subscription = user_id.to_string();
 
+        let chat_id = chat_id.unwrap_or_else(|| Uuid::new_v4());
+        let message_id = Uuid::new_v4();
+
         while let Some(msg_result) = rx.recv().await {
             if let Ok(msg) = msg_result {
-                match transform_message(msg) {
+                match transform_message(chat_id, message_id, msg) {
                     Ok((transformed_messages, event)) => {
                         for transformed in transformed_messages {
                             let response = WsResponseMessage::new_no_user(
