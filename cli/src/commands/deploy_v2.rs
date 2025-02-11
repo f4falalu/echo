@@ -38,6 +38,8 @@ pub struct Model {
 #[derive(Debug, Deserialize, Serialize, Clone, Eq, PartialEq, Hash)]
 pub struct Entity {
     name: String,
+    #[serde(default)]
+    ref_: Option<String>,
     expr: String,
     #[serde(rename = "type")]
     entity_type: String,
@@ -315,33 +317,34 @@ impl ModelFile {
 
         let mut model_names = std::collections::HashSet::new();
 
+        // First pass: collect all model names
         for model in &self.model.models {
-            // Check for duplicate model names
-            if !model_names.insert(&model.name) {
+            if !model_names.insert(model.name.clone()) {
                 errors.push(format!("Duplicate model name: {}", model.name));
                 continue;
             }
+        }
 
-            let (data_source_name, schema) = self.resolve_model_config(model, config);
+        // Second pass: validate model references
+        for model in &self.model.models {
+            for entity in &model.entities {
+                if entity.entity_type == "foreign" {
+                    // Get the model reference from ref_ field if present, otherwise use name
+                    let referenced_model = entity.ref_.as_ref().unwrap_or(&entity.name);
 
-            // Critical errors
-            if data_source_name.is_none() {
-                errors.push(format!(
-                    "data_source_name is required for model '{}' (not found in model or buster.yml)",
-                    model.name
-                ));
+                    // If no project_path, the model should exist in the current project
+                    if entity.project_path.is_none() && !model_names.contains(referenced_model) {
+                        errors.push(format!(
+                            "Model '{}' references non-existent model '{}' in expression '{}'",
+                            model.name, referenced_model, entity.expr
+                        ));
+                    }
+                }
             }
-            if schema.is_none() {
-                errors.push(format!(
-                    "schema is required for model '{}' (not found in model or buster.yml)",
-                    model.name
-                ));
-            }
-            if model.name.is_empty() {
-                errors.push("model name is required".to_string());
-            }
+        }
 
-            // Warnings
+        // Warnings
+        for model in &self.model.models {
             if model.description.is_empty() {
                 println!("⚠️  Warning: Model '{}' has no description", model.name);
             }
@@ -547,6 +550,56 @@ impl ModelFile {
                                             suggestion: Some("Ensure both projects use the same data source".to_string()),
                                         });
                                     }
+
+                                    // Validate referenced model exists
+                                    let model_files = std::fs::read_dir(&target_path)
+                                        .ok()
+                                        .into_iter()
+                                        .flatten()
+                                        .filter_map(|entry| entry.ok())
+                                        .filter(|entry| {
+                                            let path = entry.path();
+                                            path.extension()
+                                                .and_then(|ext| ext.to_str())
+                                                .map(|ext| ext == "yml")
+                                                .unwrap_or(false)
+                                                && path
+                                                    .file_name()
+                                                    .and_then(|name| name.to_str())
+                                                    .map(|name| name != "buster.yml")
+                                                    .unwrap_or(false)
+                                        })
+                                        .collect::<Vec<_>>();
+
+                                    let mut found_model = false;
+                                    for model_file in model_files {
+                                        if let Ok(content) = std::fs::read_to_string(model_file.path()) {
+                                            if let Ok(model_def) = serde_yaml::from_str::<BusterModel>(&content) {
+                                                // Extract model name from entity.expr (assuming format "model_name.field")
+                                                if let Some(referenced_model) = entity.ref_.as_ref().unwrap_or(&entity.name).split('.').next() {
+                                                    if model_def.models.iter().any(|m| m.name == referenced_model) {
+                                                        found_model = true;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    if !found_model {
+                                        validation_errors.push(ValidationError {
+                                            error_type: ValidationErrorType::ModelNotFound,
+                                            message: format!(
+                                                "Referenced model from expression '{}' not found in project '{}'",
+                                                entity.expr, project_path_display
+                                            ),
+                                            column_name: None,
+                                            suggestion: Some(format!(
+                                                "Verify that the model referenced in '{}' exists in the target project",
+                                                entity.expr
+                                            )),
+                                        });
+                                    }
                                 } else {
                                     validation_errors.push(ValidationError {
                                         error_type: ValidationErrorType::InvalidBusterYml,
@@ -636,27 +689,10 @@ pub async fn deploy_v2(path: Option<&str>, dry_run: bool) -> Result<()> {
     let mut progress = DeployProgress::new(0);
     let mut result = DeployResult::default();
 
-    // Only authenticate if not in dry-run mode
+    // Only create client if not in dry-run mode
     let client = if !dry_run {
-        // Get Buster credentials
-        progress.status = "Checking Buster credentials...".to_string();
-        progress.log_progress();
-
-        let creds = match get_and_validate_buster_credentials().await {
-            Ok(creds) => {
-                println!("✅ Successfully authenticated with Buster");
-                creds
-            }
-            Err(e) => {
-                println!("❌ Authentication failed");
-                return Err(anyhow::anyhow!(
-                    "Failed to get Buster credentials. Please run 'buster auth' first: {}",
-                    e
-                ));
-            }
-        };
-
-        // Create API client
+        // Create API client without explicit auth check
+        let creds = get_and_validate_buster_credentials().await?;
         Some(BusterClient::new(creds.url, creds.api_key)?)
     } else {
         None
@@ -1212,6 +1248,88 @@ mod tests {
         create_test_yaml(temp_dir.path(), "invalid_model.yml", invalid_yml).await?;
         
         // Test dry run - should fail due to invalid YAML
+        let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true).await;
+        assert!(result.is_err());
+        
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_deploy_with_ref_field() -> Result<()> {
+        let temp_dir = setup_test_dir().await?;
+        
+        // Create buster.yml
+        let buster_yml = r#"
+            data_source_name: "test_source"
+            schema: "test_schema"
+        "#;
+        create_test_yaml(temp_dir.path(), "buster.yml", buster_yml).await?;
+        
+        // Create referenced model
+        let referenced_model_yml = r#"
+            version: 1
+            models:
+              - name: actual_model
+                description: "Referenced model"
+                entities: []
+                dimensions: []
+                measures: []
+        "#;
+        create_test_yaml(temp_dir.path(), "referenced_model.yml", referenced_model_yml).await?;
+        
+        // Create model with ref field
+        let model_yml = r#"
+            version: 1
+            models:
+              - name: test_model
+                description: "Test model"
+                entities:
+                  - name: "User Model"
+                    ref: "actual_model"
+                    expr: "user_id"
+                    type: "foreign"
+                    description: "Reference to actual model"
+                dimensions: []
+                measures: []
+        "#;
+        create_test_yaml(temp_dir.path(), "test_model.yml", model_yml).await?;
+        
+        // Test dry run - should succeed because actual_model exists
+        let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true).await;
+        assert!(result.is_ok());
+        
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_deploy_with_invalid_ref() -> Result<()> {
+        let temp_dir = setup_test_dir().await?;
+        
+        // Create buster.yml
+        let buster_yml = r#"
+            data_source_name: "test_source"
+            schema: "test_schema"
+        "#;
+        create_test_yaml(temp_dir.path(), "buster.yml", buster_yml).await?;
+        
+        // Create model with invalid ref
+        let model_yml = r#"
+            version: 1
+            models:
+              - name: test_model
+                description: "Test model"
+                entities:
+                  - name: "User Model"
+                    ref: "non_existent_model"
+                    expr: "user_id"
+                    type: "foreign"
+                    description: "Reference to non-existent model"
+                dimensions: []
+                measures: []
+        "#;
+        create_test_yaml(temp_dir.path(), "test_model.yml", model_yml).await?;
+        
+        // Test dry run - should fail because referenced model doesn't exist
         let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true).await;
         assert!(result.is_err());
         
