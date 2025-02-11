@@ -26,6 +26,11 @@ pub enum ValidationErrorType {
     ModelNotFound,
     InvalidRelationship,
     ExpressionError,
+    ProjectNotFound,
+    InvalidBusterYml,
+    DataSourceMismatch,
+    RequiredFieldMissing,
+    DataSourceNotFound,
 }
 
 impl ValidationResult {

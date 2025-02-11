@@ -424,6 +424,7 @@ impl ModelFile {
                 expr: Some(dim.expr.clone()),
                 type_: Some(dim.dimension_type.clone()),
                 agg: None,
+                searchable: dim.searchable,
             });
         }
 
@@ -436,6 +437,7 @@ impl ModelFile {
                 expr: Some(measure.expr.clone()),
                 type_: None,
                 agg: Some(measure.agg.clone()),
+                searchable: false, // Measures don't have stored values
             });
         }
 

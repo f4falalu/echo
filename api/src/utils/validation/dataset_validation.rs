@@ -6,7 +6,7 @@ use crate::{
     utils::{
         query_engine::{
             credentials::get_data_source_credentials,
-            import_dataset_columns::retrieve_dataset_columns,
+            import_dataset_columns::retrieve_dataset_columns_batch,
         },
         validation::{
             types::{ValidationError, ValidationResult},
@@ -20,7 +20,7 @@ pub async fn validate_model(
     model_database_name: &str,
     schema: &str,
     data_source: &DataSource,
-    columns: &[(&str, &str)], // (name, type)
+    columns: &[(&str, &str)], // (name, type) - type is now ignored for validation
     expressions: Option<&[(&str, &str)]>, // (column_name, expr)
     relationships: Option<&[(&str, &str, &str)]>, // (from_model, to_model, type)
 ) -> Result<ValidationResult> {
@@ -49,14 +49,27 @@ pub async fn validate_model(
         }
     };
 
-    // Get data source columns
-    let ds_columns = match retrieve_dataset_columns(
-        &model_database_name.to_string(),
-        &schema.to_string(),
-        &credentials,
-    )
-    .await
-    {
+    // Collect all tables that need validation (including those referenced in relationships)
+    let mut tables_to_validate = vec![(model_database_name.to_string(), schema.to_string())];
+    
+    // Add tables from relationships if any
+    if let Some(rels) = relationships {
+        for (from_model, to_model, _) in rels {
+            // Add both from and to models if they're not already in the list
+            let from_pair = (from_model.to_string(), schema.to_string());
+            let to_pair = (to_model.to_string(), schema.to_string());
+            
+            if !tables_to_validate.contains(&from_pair) {
+                tables_to_validate.push(from_pair);
+            }
+            if !tables_to_validate.contains(&to_pair) {
+                tables_to_validate.push(to_pair);
+            }
+        }
+    }
+
+    // Get data source columns using batched retrieval for all tables at once
+    let ds_columns_result = match retrieve_dataset_columns_batch(&tables_to_validate, &credentials).await {
         Ok(cols) => cols,
         Err(e) => {
             tracing::error!("Failed to get columns from data source: {}", e);
@@ -68,25 +81,25 @@ pub async fn validate_model(
         }
     };
 
-    // If no columns found, table doesn't exist
+    if ds_columns_result.is_empty() {
+        result.add_error(ValidationError::table_not_found(model_database_name));
+        return Ok(result);
+    }
+
+    // Filter columns for the current model
+    let ds_columns: Vec<_> = ds_columns_result
+        .iter()
+        .filter(|col| col.dataset_name == model_database_name && col.schema_name == schema)
+        .collect();
+
     if ds_columns.is_empty() {
         result.add_error(ValidationError::table_not_found(model_database_name));
         return Ok(result);
     }
 
-    // Validate each column
-    for (col_name, col_type) in columns {
-        if let Some(ds_col) = ds_columns.iter().find(|c| c.name == *col_name) {
-            if !types_compatible(data_source.type_, &ds_col.type_, col_type) {
-                let ds_type = normalize_type(data_source.type_, &ds_col.type_);
-                let model_type = normalize_type(data_source.type_, col_type);
-                result.add_error(ValidationError::type_mismatch(
-                    col_name,
-                    &model_type.to_string(),
-                    &ds_type.to_string(),
-                ));
-            }
-        } else {
+    // Validate each column exists (no type validation)
+    for (col_name, _) in columns {
+        if !ds_columns.iter().any(|c| c.name == *col_name) {
             result.add_error(ValidationError::column_not_found(col_name));
         }
     }
@@ -114,9 +127,8 @@ pub async fn validate_model(
 
     // Validate relationships if provided
     if let Some(rels) = relationships {
-        for (from_model, to_model, rel_type) in rels {
+        for (from_model, to_model, _) in rels {
             // For now, just validate that both models exist
-            // TODO: Add more sophisticated relationship validation
             if !ds_columns.iter().any(|c| c.name == *from_model) {
                 result.add_error(ValidationError::invalid_relationship(
                     from_model,
@@ -169,7 +181,7 @@ mod tests {
             "test_db",
             "test_schema",
             &data_source,
-            &[("col1", "text")],
+            &[("col1", "text")], // type is ignored now
             None,
             None,
         )
@@ -185,6 +197,32 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_validate_model_column_existence() {
+        let data_source = create_test_data_source();
+        let result = validate_model(
+            "test_model",
+            "test_db",
+            "test_schema",
+            &data_source,
+            &[
+                ("existing_col", "any_type"), // type is ignored
+                ("missing_col", "any_type"),  // type is ignored
+            ],
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+
+        assert!(!result.success);
+        assert!(result
+            .errors
+            .iter()
+            .any(|e| e.error_type == ValidationErrorType::ColumnNotFound 
+                && e.column_name.as_deref() == Some("missing_col")));
+    }
+
+    #[tokio::test]
     async fn test_validate_model_with_expressions() {
         let data_source = create_test_data_source();
         let result = validate_model(
@@ -192,7 +230,7 @@ mod tests {
             "test_db",
             "test_schema",
             &data_source,
-            &[("col1", "text")],
+            &[("col1", "any_type")], // type is ignored
             Some(&[("col1", "invalid_col + 1")]),
             None,
         )
@@ -207,6 +245,29 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_validate_model_with_valid_expressions() {
+        let data_source = create_test_data_source();
+        let result = validate_model(
+            "test_model",
+            "test_db",
+            "test_schema",
+            &data_source,
+            &[("col1", "any_type"), ("col2", "any_type")], // types are ignored
+            Some(&[("result", "col1 + col2")]),
+            None,
+        )
+        .await
+        .unwrap();
+
+        // Should only fail due to data source error in test environment
+        assert!(!result.success);
+        assert!(result
+            .errors
+            .iter()
+            .all(|e| e.error_type == ValidationErrorType::DataSourceError));
+    }
+
+    #[tokio::test]
     async fn test_validate_model_with_relationships() {
         let data_source = create_test_data_source();
         let result = validate_model(
@@ -214,7 +275,7 @@ mod tests {
             "test_db",
             "test_schema",
             &data_source,
-            &[("col1", "text")],
+            &[("col1", "any_type")], // type is ignored
             None,
             Some(&[("model1", "model2", "many_to_one")]),
         )
@@ -236,7 +297,7 @@ mod tests {
             "test_db",
             "test_schema",
             &data_source,
-            &[("col1", "text"), ("col2", "invalid_type")],
+            &[("col1", "any_type"), ("col2", "any_type")], // types are ignored
             Some(&[("col1", "invalid_col + 1")]),
             Some(&[("model1", "model2", "many_to_one")]),
         )

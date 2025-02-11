@@ -47,6 +47,8 @@ pub struct DeployDatasetsColumnsRequest {
     #[serde(rename = "type")]
     pub type_: Option<String>,
     pub agg: Option<String>,
+    #[serde(default)]
+    pub searchable: bool,
 }
 
 #[derive(Debug, Serialize)]

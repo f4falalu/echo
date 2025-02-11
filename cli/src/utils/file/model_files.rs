@@ -226,6 +226,7 @@ pub async fn upload_model_files(
                     expr: Some(column.expr),
                     type_: None,
                     agg: None,
+                    searchable: column.searchable,
                 });
             }
 
@@ -237,6 +238,7 @@ pub async fn upload_model_files(
                     expr: Some(column.expr),
                     type_: None,
                     agg: Some(column.agg),
+                    searchable: false,
                 });
             }
 

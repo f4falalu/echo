@@ -25,6 +25,7 @@ pub struct ColumnUpdate {
     pub nullable: bool,
     pub dim_type: Option<String>,
     pub expr: Option<String>,
+    pub searchable: bool,
 }
 
 /// Retrieves column types from the data source
@@ -45,12 +46,13 @@ pub async fn get_column_types(
         .into_iter()
         .map(|col| ColumnUpdate {
             name: col.name,
-            description: None,
+            description: col.comment,
             semantic_type: None,
             type_: col.type_,
             nullable: col.nullable,
             dim_type: None,
             expr: None,
+            searchable: false,
         })
         .collect())
 }
@@ -60,6 +62,8 @@ pub async fn update_dataset_columns(
     dataset: &Dataset,
     columns: Vec<ColumnUpdate>,
 ) -> Result<Vec<DatasetColumn>> {
+    let mut conn = get_pg_pool().get().await?;
+
     // Convert columns to DatasetColumn structs
     let columns_to_upsert: Vec<DatasetColumn> = columns
         .into_iter()
@@ -74,7 +78,7 @@ pub async fn update_dataset_columns(
             created_at: Utc::now(),
             updated_at: Utc::now(),
             deleted_at: None,
-            stored_values: None,
+            stored_values: Some(col.searchable),
             stored_values_status: None,
             stored_values_error: None,
             stored_values_count: None,
@@ -83,8 +87,6 @@ pub async fn update_dataset_columns(
             expr: col.expr,
         })
         .collect();
-
-    let mut conn = get_pg_pool().get().await?;
 
     // Perform upsert
     let inserted_columns = diesel::insert_into(dataset_columns::table)
@@ -98,6 +100,7 @@ pub async fn update_dataset_columns(
             dataset_columns::dim_type.eq(excluded(dataset_columns::dim_type)),
             dataset_columns::expr.eq(excluded(dataset_columns::expr)),
             dataset_columns::nullable.eq(excluded(dataset_columns::nullable)),
+            dataset_columns::stored_values.eq(excluded(dataset_columns::stored_values)),
             dataset_columns::updated_at.eq(Utc::now()),
             dataset_columns::deleted_at.eq(None::<chrono::DateTime<Utc>>),
         ))
