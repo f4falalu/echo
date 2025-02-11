@@ -301,30 +301,32 @@ pub fn transform_message(
             initial,
         } => {
             if let Some(content) = content {
-                let messages = match transform_text_message(id, content, progress) {
-                    Ok(messages) => messages
-                        .into_iter()
-                        .map(BusterContainer::ChatMessage)
-                        .collect(),
-                    Err(e) => {
-                        return Err(e);
-                    }
-                };
-
-                return Ok((messages, ThreadEvent::GeneratingResponseMessage));
-            }
-
-            if let Some(tool_calls) = tool_calls {
                 let messages =
-                    match transform_assistant_tool_message(id, tool_calls, progress, initial) {
+                    match transform_text_message(id, content, progress, chat_id, message_id) {
                         Ok(messages) => messages
                             .into_iter()
-                            .map(BusterContainer::ReasoningMessage)
+                            .map(BusterContainer::ChatMessage)
                             .collect(),
                         Err(e) => {
                             return Err(e);
                         }
                     };
+
+                return Ok((messages, ThreadEvent::GeneratingResponseMessage));
+            }
+
+            if let Some(tool_calls) = tool_calls {
+                let messages = match transform_assistant_tool_message(
+                    id, tool_calls, progress, initial, chat_id, message_id,
+                ) {
+                    Ok(messages) => messages
+                        .into_iter()
+                        .map(BusterContainer::ReasoningMessage)
+                        .collect(),
+                    Err(e) => {
+                        return Err(e);
+                    }
+                };
 
                 return Ok((messages, ThreadEvent::GeneratingReasoningMessage));
             }
@@ -339,7 +341,9 @@ pub fn transform_message(
             progress,
         } => {
             if let Some(name) = name {
-                let messages = match transform_tool_message(id, name, content, progress) {
+                let messages = match transform_tool_message(
+                    id, name, content, progress, chat_id, message_id,
+                ) {
                     Ok(messages) => messages
                         .into_iter()
                         .map(BusterContainer::ReasoningMessage)
@@ -362,6 +366,8 @@ fn transform_text_message(
     id: Option<String>,
     content: String,
     progress: Option<MessageProgress>,
+    chat_id: Uuid,
+    message_id: Uuid,
 ) -> Result<Vec<BusterChatMessageContainer>> {
     if let Some(progress) = progress {
         match progress {
@@ -372,8 +378,8 @@ fn transform_text_message(
                     message: None,
                     message_chunk: Some(content),
                 },
-                chat_id: Uuid::new_v4(),
-                message_id: Uuid::new_v4(),
+                chat_id,
+                message_id,
             }]),
             MessageProgress::Complete => Ok(vec![BusterChatMessageContainer {
                 response_message: BusterChatMessage {
@@ -382,8 +388,8 @@ fn transform_text_message(
                     message: Some(content),
                     message_chunk: None,
                 },
-                chat_id: Uuid::new_v4(),
-                message_id: Uuid::new_v4(),
+                chat_id,
+                message_id,
             }]),
             _ => Err(anyhow::anyhow!("Unsupported message progress")),
         }
@@ -395,8 +401,8 @@ fn transform_text_message(
                 message: None,
                 message_chunk: None,
             },
-            chat_id: Uuid::new_v4(),
-            message_id: Uuid::new_v4(),
+            chat_id,
+            message_id,
         }])
     }
 }
@@ -406,6 +412,8 @@ fn transform_tool_message(
     name: String,
     content: String,
     progress: Option<MessageProgress>,
+    chat_id: Uuid,
+    message_id: Uuid,
 ) -> Result<Vec<BusterReasoningMessageContainer>> {
     let messages = match name.as_str() {
         "search_data_catalog" => tool_data_catalog_search(id, content, progress),
@@ -425,8 +433,8 @@ fn transform_tool_message(
                 BusterThreadMessage::File(file) => ReasoningMessage::File(file),
                 _ => unreachable!("Tool messages should only return Thought or File"),
             },
-            chat_id: Uuid::new_v4(),
-            message_id: Uuid::new_v4(),
+            chat_id,
+            message_id,
         })
         .collect())
 }
@@ -436,6 +444,8 @@ fn transform_assistant_tool_message(
     tool_calls: Vec<ToolCall>,
     progress: Option<MessageProgress>,
     initial: bool,
+    chat_id: Uuid,
+    message_id: Uuid,
 ) -> Result<Vec<BusterReasoningMessageContainer>> {
     if let Some(tool_call) = tool_calls.first() {
         let messages = match tool_call.function.name.as_str() {
@@ -456,8 +466,8 @@ fn transform_assistant_tool_message(
                     BusterThreadMessage::File(file) => ReasoningMessage::File(file),
                     _ => unreachable!("Assistant tool messages should only return Thought or File"),
                 },
-                chat_id: Uuid::new_v4(),
-                message_id: Uuid::new_v4(),
+                chat_id,
+                message_id,
             })
             .collect())
     } else {

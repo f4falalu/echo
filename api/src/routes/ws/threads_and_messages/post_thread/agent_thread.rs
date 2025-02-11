@@ -48,10 +48,18 @@ pub struct TempInitChat {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TempInitChatMessage {
     pub id: String,
-    pub request_message: Option<String>,
+    pub request_message: TempRequestMessage,
     pub response_messages: Vec<String>,
     pub reasoning: Vec<String>,
     pub created_at: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TempRequestMessage {
+    pub request: String,
+    pub sender_id: Uuid,
+    pub sender_name: String,
+    pub sender_avatar: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -119,7 +127,12 @@ impl AgentThreadHandler {
             is_favorited: false,
             messages: vec![TempInitChatMessage {
                 id: Uuid::new_v4().to_string(),
-                request_message: Some(request.prompt.clone()),
+                request_message: TempRequestMessage {
+                    request: request.prompt.clone(),
+                    sender_id: user.id,
+                    sender_name: user.name.clone().unwrap_or_default(),
+                    sender_avatar: None,
+                },
                 response_messages: vec![],
                 reasoning: vec![],
                 created_at: Utc::now().to_string(),
