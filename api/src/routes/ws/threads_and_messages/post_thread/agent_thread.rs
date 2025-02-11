@@ -33,7 +33,7 @@ use crate::{
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TempInitChat {
-    pub id: String,
+    pub id: Uuid,
     pub title: String,
     pub is_favorited: bool,
     pub messages: Vec<TempInitChatMessage>,
@@ -47,7 +47,7 @@ pub struct TempInitChat {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TempInitChatMessage {
-    pub id: String,
+    pub id: Uuid,
     pub request_message: TempRequestMessage,
     pub response_messages: Vec<String>,
     pub reasoning: Vec<String>,
@@ -121,12 +121,15 @@ impl AgentThreadHandler {
     pub async fn handle_request(&self, request: ChatCreateNewChat, user: User) -> Result<()> {
         let subscription = &user.id.to_string();
 
+        let chat_id = request.chat_id.unwrap_or_else(|| Uuid::new_v4());
+        let message_id = request.message_id.unwrap_or_else(|| Uuid::new_v4());
+
         let init_response = TempInitChat {
-            id: Uuid::new_v4().to_string(),
+            id: chat_id.clone(),
             title: "New Chat".to_string(),
             is_favorited: false,
             messages: vec![TempInitChatMessage {
-                id: Uuid::new_v4().to_string(),
+                id: message_id.clone(),
                 request_message: TempRequestMessage {
                     request: request.prompt.clone(),
                     sender_id: user.id,
@@ -159,7 +162,7 @@ impl AgentThreadHandler {
 
         let rx = self.process_chat_request(request.clone()).await?;
         tokio::spawn(async move {
-            Self::process_stream(rx, request.chat_id, &user.id).await;
+            Self::process_stream(rx, &user.id, &chat_id, &message_id).await;
         });
         Ok(())
     }
@@ -180,13 +183,11 @@ impl AgentThreadHandler {
 
     async fn process_stream(
         mut rx: Receiver<Result<Message, Error>>,
-        chat_id: Option<Uuid>,
         user_id: &Uuid,
+        chat_id: &Uuid,
+        message_id: &Uuid,
     ) {
         let subscription = user_id.to_string();
-
-        let chat_id = chat_id.unwrap_or_else(|| Uuid::new_v4());
-        let message_id = Uuid::new_v4();
 
         while let Some(msg_result) = rx.recv().await {
             if let Ok(msg) = msg_result {

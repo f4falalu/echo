@@ -287,8 +287,8 @@ pub enum BusterContainer {
 }
 
 pub fn transform_message(
-    chat_id: Uuid,
-    message_id: Uuid,
+    chat_id: &Uuid,
+    message_id: &Uuid,
     message: Message,
 ) -> Result<(Vec<BusterContainer>, ThreadEvent)> {
     match message {
@@ -301,23 +301,33 @@ pub fn transform_message(
             initial,
         } => {
             if let Some(content) = content {
-                let messages =
-                    match transform_text_message(id, content, progress, chat_id, message_id) {
-                        Ok(messages) => messages
-                            .into_iter()
-                            .map(BusterContainer::ChatMessage)
-                            .collect(),
-                        Err(e) => {
-                            return Err(e);
-                        }
-                    };
+                let messages = match transform_text_message(
+                    id,
+                    content,
+                    progress,
+                    chat_id.clone(),
+                    message_id.clone(),
+                ) {
+                    Ok(messages) => messages
+                        .into_iter()
+                        .map(BusterContainer::ChatMessage)
+                        .collect(),
+                    Err(e) => {
+                        return Err(e);
+                    }
+                };
 
                 return Ok((messages, ThreadEvent::GeneratingResponseMessage));
             }
 
             if let Some(tool_calls) = tool_calls {
                 let messages = match transform_assistant_tool_message(
-                    id, tool_calls, progress, initial, chat_id, message_id,
+                    id,
+                    tool_calls,
+                    progress,
+                    initial,
+                    chat_id.clone(),
+                    message_id.clone(),
                 ) {
                     Ok(messages) => messages
                         .into_iter()
@@ -342,7 +352,12 @@ pub fn transform_message(
         } => {
             if let Some(name) = name {
                 let messages = match transform_tool_message(
-                    id, name, content, progress, chat_id, message_id,
+                    id,
+                    name,
+                    content,
+                    progress,
+                    chat_id.clone(),
+                    message_id.clone(),
                 ) {
                     Ok(messages) => messages
                         .into_iter()
