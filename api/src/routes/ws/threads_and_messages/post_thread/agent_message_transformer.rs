@@ -335,7 +335,7 @@ fn transform_tool_message(
     progress: Option<MessageProgress>,
 ) -> Result<Vec<BusterThreadMessage>> {
     match name.as_str() {
-        "data_catalog_search" => tool_data_catalog_search(id, content, progress),
+        "search_data_catalog" => tool_data_catalog_search(id, content, progress),
         "stored_values_search" => tool_stored_values_search(id, content, progress),
         "search_files" => tool_file_search(id, content, progress),
         "create_files" => tool_create_file(id, content, progress),
@@ -352,7 +352,7 @@ fn transform_assistant_tool_message(
 ) -> Result<Vec<BusterThreadMessage>> {
     if let Some(tool_call) = tool_calls.first() {
         match tool_call.function.name.as_str() {
-            "data_catalog_search" => assistant_data_catalog_search(id, progress),
+            "search_data_catalog" => assistant_data_catalog_search(id, progress),
             "stored_values_search" => assistant_stored_values_search(id, progress),
             "search_files" => assistant_file_search(id, progress),
             "create_files" => assistant_create_file(id, tool_calls, progress),
