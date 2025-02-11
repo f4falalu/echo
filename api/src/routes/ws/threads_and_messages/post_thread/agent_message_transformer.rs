@@ -43,7 +43,10 @@ impl StreamingParser {
         for captures in self.yml_content_regex.captures_iter(&self.buffer) {
             if let Some(content_match) = captures.get(1) {
                 yml_contents.push(content_match.as_str().to_string());
-                positions.push((captures.get(0).unwrap().start(), captures.get(0).unwrap().end()));
+                positions.push((
+                    captures.get(0).unwrap().start(),
+                    captures.get(0).unwrap().end(),
+                ));
             }
         }
 
@@ -70,9 +73,10 @@ impl StreamingParser {
                         if let Some(file_obj) = file.as_object_mut() {
                             if let Some(yml_content) = yml_contents.get(i) {
                                 // Process escaped characters
-                                let processed_content = serde_json::from_str::<String>(&format!("\"{}\"", yml_content))
-                                    .unwrap_or_else(|_| yml_content.clone());
-                                
+                                let processed_content =
+                                    serde_json::from_str::<String>(&format!("\"{}\"", yml_content))
+                                        .unwrap_or_else(|_| yml_content.clone());
+
                                 file_obj.insert(
                                     "yml_content".to_string(),
                                     Value::String(processed_content),
@@ -88,7 +92,8 @@ impl StreamingParser {
                 if let Some(files) = obj.get("files").and_then(Value::as_array) {
                     if let Some(last_file) = files.last().and_then(Value::as_object) {
                         let has_name = last_file.get("name").and_then(Value::as_str).is_some();
-                        let has_file_type = last_file.get("file_type").and_then(Value::as_str).is_some();
+                        let has_file_type =
+                            last_file.get("file_type").and_then(Value::as_str).is_some();
                         let has_yml_content = last_file.get("yml_content").is_some();
 
                         if has_name && has_file_type && has_yml_content {
@@ -111,7 +116,7 @@ impl StreamingParser {
         // Process each character and track structure
         for c in json.chars() {
             processed.push(c);
-            
+
             if escape_next {
                 escape_next = false;
                 continue;
@@ -125,12 +130,12 @@ impl StreamingParser {
                     if nesting_stack.last() == Some(&'{') {
                         nesting_stack.pop();
                     }
-                },
+                }
                 ']' if !in_string => {
                     if nesting_stack.last() == Some(&'[') {
                         nesting_stack.pop();
                     }
-                },
+                }
                 _ => {}
             }
         }
@@ -157,8 +162,14 @@ impl StreamingParser {
         if let Some(files) = value.get("files").and_then(Value::as_array) {
             if let Some(last_file) = files.last().and_then(Value::as_object) {
                 let name = last_file.get("name").and_then(Value::as_str).unwrap_or("");
-                let file_type = last_file.get("file_type").and_then(Value::as_str).unwrap_or("");
-                let yml_content = last_file.get("yml_content").and_then(Value::as_str).unwrap_or("");
+                let file_type = last_file
+                    .get("file_type")
+                    .and_then(Value::as_str)
+                    .unwrap_or("");
+                let yml_content = last_file
+                    .get("yml_content")
+                    .and_then(Value::as_str)
+                    .unwrap_or("");
 
                 let mut current_lines = Vec::new();
                 for (i, line) in yml_content.lines().enumerate() {
@@ -175,7 +186,7 @@ impl StreamingParser {
                     file_name: name.to_string(),
                     version_number: 1,
                     version_id: Uuid::new_v4().to_string(),
-                    status: "completed".to_string(),
+                    status: "loading".to_string(),
                     file: Some(current_lines),
                 })));
             }

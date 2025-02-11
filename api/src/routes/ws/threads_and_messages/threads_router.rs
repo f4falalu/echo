@@ -22,7 +22,7 @@ pub enum ThreadRoute {
     List,
     #[serde(rename = "/threads/get")]
     Get,
-    #[serde(rename = "/threads/post")]
+    #[serde(rename = "/chats/post")]
     Post,
     #[serde(rename = "/threads/unsubscribe")]
     Unsubscribe,
@@ -142,6 +142,7 @@ impl ThreadRoute {
             "/threads/duplicate" => Ok(Self::DuplicateThread),
             "/threads/messages/update" => Ok(Self::UpdateMessage),
             "/threads/messages/data" => Ok(Self::MessageData),
+            "/chats/post" => Ok(Self::Post),
             _ => Err(anyhow!("Invalid path")),
         }
     }
