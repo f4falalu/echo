@@ -70,6 +70,11 @@ pub enum ThreadEvent {
     Unsubscribed,
     DuplicateThread,
     SqlEvaluation,
+    InitializeChat,
+    GeneratingTitle,
+    GeneratingResponseMessage,
+    GeneratingReasoningMessage,
+    Complete,
 }
 
 pub async fn threads_router(

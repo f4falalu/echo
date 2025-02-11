@@ -6,6 +6,7 @@ use serde::Serialize;
 use serde_json::Value;
 use uuid::Uuid;
 
+use crate::routes::ws::threads_and_messages::threads_router::ThreadEvent;
 use crate::utils::clients::ai::litellm::{Message, MessageProgress, ToolCall};
 
 use crate::utils::tools::file_tools::create_files::CreateFilesOutput;
@@ -257,7 +258,7 @@ pub struct BusterFileLine {
     pub text: String,
 }
 
-pub fn transform_message(message: Message) -> Result<Vec<BusterThreadMessage>> {
+pub fn transform_message(message: Message) -> Result<(Vec<BusterThreadMessage>, ThreadEvent)> {
     println!("transform_message: {:?}", message);
 
     match message {
@@ -270,11 +271,31 @@ pub fn transform_message(message: Message) -> Result<Vec<BusterThreadMessage>> {
             initial,
         } => {
             if let Some(content) = content {
-                return transform_text_message(id, content, progress);
+                let messages = match transform_text_message(id, content, progress) {
+                    Ok(messages) => messages,
+                    Err(e) => {
+                        return Err(e);
+                    }
+                };
+
+                return Ok((
+                    messages,
+                    ThreadEvent::GeneratingResponseMessage,
+                ));
             }
 
             if let Some(tool_calls) = tool_calls {
-                return transform_assistant_tool_message(id, tool_calls, progress, initial);
+                let messages = match transform_assistant_tool_message(id, tool_calls, progress, initial) {
+                    Ok(messages) => messages,
+                    Err(e) => {
+                        return Err(e);
+                    }
+                };
+
+                return Ok((
+                    messages,
+                    ThreadEvent::GeneratingReasoningMessage,
+                ));
             }
 
             Err(anyhow::anyhow!("Assistant message missing required fields"))
@@ -287,7 +308,17 @@ pub fn transform_message(message: Message) -> Result<Vec<BusterThreadMessage>> {
             progress,
         } => {
             if let Some(name) = name {
-                return transform_tool_message(id, name, content, progress);
+                let messages = match transform_tool_message(id, name, content, progress) {
+                    Ok(messages) => messages,
+                    Err(e) => {
+                        return Err(e);
+                    }
+                };
+
+                return Ok((
+                    messages,
+                    ThreadEvent::GeneratingReasoningMessage,
+                ));
             }
 
             Err(anyhow::anyhow!("Tool message missing name field"))
@@ -902,11 +933,7 @@ fn tool_create_file(
                 let mut messages = Vec::new();
 
                 for file in create_files_result.files {
-                    let (name, file_type, content) = (
-                        file.name,
-                        file.file_type,
-                        file.yml_content
-                    );
+                    let (name, file_type, content) = (file.name, file.file_type, file.yml_content);
 
                     let mut current_lines = Vec::new();
                     for (i, line) in content.lines().enumerate() {

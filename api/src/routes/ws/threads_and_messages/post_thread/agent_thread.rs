@@ -134,7 +134,7 @@ impl AgentThreadHandler {
 
         let response = WsResponseMessage::new_no_user(
             WsRoutes::Threads(ThreadRoute::Post),
-            WsEvent::Threads(ThreadEvent::PostThread),
+            WsEvent::Threads(ThreadEvent::InitializeChat),
             init_response,
             None,
             WsSendMethod::All,
@@ -175,11 +175,11 @@ impl AgentThreadHandler {
         while let Some(msg_result) = rx.recv().await {
             if let Ok(msg) = msg_result {
                 match transform_message(msg) {
-                    Ok(transformed_messages) => {
+                    Ok((transformed_messages, event)) => {
                         for transformed in transformed_messages {
                             let response = WsResponseMessage::new_no_user(
                                 WsRoutes::Threads(ThreadRoute::Post),
-                                WsEvent::Threads(ThreadEvent::PostThread),
+                                WsEvent::Threads(event.clone()),
                                 transformed,
                                 None,
                                 WsSendMethod::All,
