@@ -256,7 +256,7 @@ pub struct BusterFileLine {
     pub text: String,
 }
 
-pub fn transform_message(message: Message) -> Result<BusterThreadMessage> {
+pub fn transform_message(message: Message) -> Result<Vec<BusterThreadMessage>> {
     println!("transform_message: {:?}", message);
 
     match message {
@@ -298,32 +298,32 @@ fn transform_text_message(
     id: Option<String>,
     content: String,
     progress: Option<MessageProgress>,
-) -> Result<BusterThreadMessage> {
+) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
         match progress {
             MessageProgress::InProgress => {
-                Ok(BusterThreadMessage::ChatMessage(BusterChatMessage {
+                Ok(vec![BusterThreadMessage::ChatMessage(BusterChatMessage {
                     id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
                     message_type: "text".to_string(),
                     message: None,
                     message_chunk: Some(content),
-                }))
+                })])
             }
-            MessageProgress::Complete => Ok(BusterThreadMessage::ChatMessage(BusterChatMessage {
+            MessageProgress::Complete => Ok(vec![BusterThreadMessage::ChatMessage(BusterChatMessage {
                 id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
                 message_type: "text".to_string(),
                 message: Some(content),
                 message_chunk: None,
-            })),
+            })]),
             _ => Err(anyhow::anyhow!("Unsupported message progress")),
         }
     } else {
-        Ok(BusterThreadMessage::ChatMessage(BusterChatMessage {
+        Ok(vec![BusterThreadMessage::ChatMessage(BusterChatMessage {
             id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
             message_type: "text".to_string(),
             message: None,
             message_chunk: None,
-        }))
+        })])
     }
 }
 
@@ -332,7 +332,7 @@ fn transform_tool_message(
     name: String,
     content: String,
     progress: Option<MessageProgress>,
-) -> Result<BusterThreadMessage> {
+) -> Result<Vec<BusterThreadMessage>> {
     match name.as_str() {
         "data_catalog_search" => tool_data_catalog_search(id, content, progress),
         "stored_values_search" => tool_stored_values_search(id, content, progress),
@@ -348,7 +348,7 @@ fn transform_assistant_tool_message(
     id: Option<String>,
     tool_calls: Vec<ToolCall>,
     progress: Option<MessageProgress>,
-) -> Result<BusterThreadMessage> {
+) -> Result<Vec<BusterThreadMessage>> {
     if let Some(tool_call) = tool_calls.first() {
         match tool_call.function.name.as_str() {
             "data_catalog_search" => assistant_data_catalog_search(id, progress),
@@ -367,20 +367,20 @@ fn transform_assistant_tool_message(
 fn assistant_data_catalog_search(
     id: Option<String>,
     progress: Option<MessageProgress>,
-) -> Result<BusterThreadMessage> {
+) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
         match progress {
             MessageProgress::InProgress => {
                 let id = id.unwrap_or_else(|| Uuid::new_v4().to_string());
 
-                Ok(BusterThreadMessage::Thought(BusterThought {
+                Ok(vec![BusterThreadMessage::Thought(BusterThought {
                     id,
                     thought_type: "thought".to_string(),
                     thought_title: "Searching your data catalog...".to_string(),
                     thought_secondary_title: "".to_string(),
                     thought_pills: None,
                     status: "loading".to_string(),
-                }))
+                })])
             }
             _ => Err(anyhow::anyhow!(
                 "Assistant data catalog search only supports in progress."
@@ -397,7 +397,7 @@ fn tool_data_catalog_search(
     id: Option<String>,
     content: String,
     progress: Option<MessageProgress>,
-) -> Result<BusterThreadMessage> {
+) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
         let data_catalog_result = match serde_json::from_str::<SearchDataCatalogOutput>(&content) {
             Ok(result) => result,
@@ -410,9 +410,7 @@ fn tool_data_catalog_search(
         };
 
         let duration = (data_catalog_result.duration.clone() as f64 / 1000.0 * 10.0).round() / 10.0;
-
         let result_count = data_catalog_result.results.len();
-
         let query_params = data_catalog_result.query_params.clone();
 
         let thought_pill_containters =
@@ -457,7 +455,7 @@ fn tool_data_catalog_search(
         };
 
         match progress {
-            MessageProgress::Complete => Ok(buster_thought),
+            MessageProgress::Complete => Ok(vec![buster_thought]),
             _ => Err(anyhow::anyhow!(
                 "Tool data catalog search only supports complete."
             )),
@@ -512,17 +510,17 @@ fn proccess_data_catalog_search_results(
 fn assistant_stored_values_search(
     id: Option<String>,
     progress: Option<MessageProgress>,
-) -> Result<BusterThreadMessage> {
+) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
         match progress {
-            MessageProgress::InProgress => Ok(BusterThreadMessage::Thought(BusterThought {
+            MessageProgress::InProgress => Ok(vec![BusterThreadMessage::Thought(BusterThought {
                 id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
                 thought_type: "thought".to_string(),
                 thought_title: "Searching for relevant values...".to_string(),
                 thought_secondary_title: "".to_string(),
                 thought_pills: None,
                 status: "loading".to_string(),
-            })),
+            })]),
             _ => Err(anyhow::anyhow!(
                 "Assistant stored values search only supports in progress."
             )),
@@ -539,17 +537,17 @@ fn tool_stored_values_search(
     id: Option<String>,
     content: String,
     progress: Option<MessageProgress>,
-) -> Result<BusterThreadMessage> {
+) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
         match progress {
-            MessageProgress::Complete => Ok(BusterThreadMessage::Thought(BusterThought {
+            MessageProgress::Complete => Ok(vec![BusterThreadMessage::Thought(BusterThought {
                 id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
                 thought_type: "thought".to_string(),
                 thought_title: "".to_string(),
                 thought_secondary_title: "".to_string(),
                 thought_pills: None,
                 status: "completed".to_string(),
-            })),
+            })]),
             _ => Err(anyhow::anyhow!(
                 "Tool stored values search only supports complete."
             )),
@@ -564,17 +562,17 @@ fn tool_stored_values_search(
 fn assistant_file_search(
     id: Option<String>,
     progress: Option<MessageProgress>,
-) -> Result<BusterThreadMessage> {
+) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
         match progress {
-            MessageProgress::InProgress => Ok(BusterThreadMessage::Thought(BusterThought {
+            MessageProgress::InProgress => Ok(vec![BusterThreadMessage::Thought(BusterThought {
                 id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
                 thought_type: "thought".to_string(),
                 thought_title: "Searching across your assets...".to_string(),
                 thought_secondary_title: "".to_string(),
                 thought_pills: None,
                 status: "loading".to_string(),
-            })),
+            })]),
             _ => Err(anyhow::anyhow!(
                 "Assistant file search only supports in progress."
             )),
@@ -588,7 +586,7 @@ fn tool_file_search(
     id: Option<String>,
     content: String,
     progress: Option<MessageProgress>,
-) -> Result<BusterThreadMessage> {
+) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
         let file_search_result = match serde_json::from_str::<SearchFilesOutput>(&content) {
             Ok(result) => result,
@@ -642,7 +640,7 @@ fn tool_file_search(
         };
 
         match progress {
-            MessageProgress::Complete => Ok(buster_thought),
+            MessageProgress::Complete => Ok(vec![buster_thought]),
             _ => Err(anyhow::anyhow!("Tool file search only supports complete.")),
         }
     } else {
@@ -687,17 +685,17 @@ fn process_file_search_results(
 fn assistant_open_files(
     id: Option<String>,
     progress: Option<MessageProgress>,
-) -> Result<BusterThreadMessage> {
+) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
         match progress {
-            MessageProgress::InProgress => Ok(BusterThreadMessage::Thought(BusterThought {
+            MessageProgress::InProgress => Ok(vec![BusterThreadMessage::Thought(BusterThought {
                 id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
                 thought_type: "thought".to_string(),
                 thought_title: "Looking through assets...".to_string(),
                 thought_secondary_title: "".to_string(),
                 thought_pills: None,
                 status: "loading".to_string(),
-            })),
+            })]),
             _ => Err(anyhow::anyhow!(
                 "Assistant file search only supports in progress."
             )),
@@ -711,7 +709,7 @@ fn tool_open_files(
     id: Option<String>,
     content: String,
     progress: Option<MessageProgress>,
-) -> Result<BusterThreadMessage> {
+) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
         let open_files_result = match serde_json::from_str::<OpenFilesOutput>(&content) {
             Ok(result) => result,
@@ -760,7 +758,7 @@ fn tool_open_files(
         });
 
         match progress {
-            MessageProgress::Complete => Ok(buster_thought),
+            MessageProgress::Complete => Ok(vec![buster_thought]),
             _ => Err(anyhow::anyhow!("Tool open file only supports complete.")),
         }
     } else {
@@ -772,7 +770,7 @@ fn assistant_create_file(
     id: Option<String>,
     tool_calls: Vec<ToolCall>,
     progress: Option<MessageProgress>,
-) -> Result<BusterThreadMessage> {
+) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
         match progress {
             MessageProgress::InProgress | MessageProgress::Complete => {
@@ -791,12 +789,12 @@ fn assistant_create_file(
     }
 }
 
-fn process_assistant_create_file(tool_call: &ToolCall) -> Result<BusterThreadMessage> {
+fn process_assistant_create_file(tool_call: &ToolCall) -> Result<Vec<BusterThreadMessage>> {
     let mut parser = StreamingParser::new();
 
     // Process the arguments from the tool call
     if let Some(message) = parser.process_chunk(&tool_call.function.arguments)? {
-        return Ok(message);
+        return Ok(vec![message]);
     }
 
     // If we couldn't parse a message, return an error
@@ -807,7 +805,7 @@ fn assistant_modify_file(
     id: Option<String>,
     tool_calls: Vec<ToolCall>,
     progress: Option<MessageProgress>,
-) -> Result<BusterThreadMessage> {
+) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
         match progress {
             MessageProgress::InProgress => {
@@ -817,7 +815,7 @@ fn assistant_modify_file(
                         serde_json::from_str::<ModifyFilesParams>(&tool_call.function.arguments)
                     {
                         if let Some(file) = params.files.first() {
-                            return Ok(BusterThreadMessage::Thought(BusterThought {
+                            return Ok(vec![BusterThreadMessage::Thought(BusterThought {
                                 id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
                                 thought_type: "thought".to_string(),
                                 thought_title: format!(
@@ -827,21 +825,21 @@ fn assistant_modify_file(
                                 thought_secondary_title: "".to_string(),
                                 thought_pills: None,
                                 status: "loading".to_string(),
-                            }));
+                            })]);
                         }
                     }
                 }
                 // Fall back to generic message if we can't parse the metadata
                 let id = id.unwrap_or_else(|| Uuid::new_v4().to_string());
 
-                Ok(BusterThreadMessage::Thought(BusterThought {
+                Ok(vec![BusterThreadMessage::Thought(BusterThought {
                     id,
                     thought_type: "thought".to_string(),
                     thought_title: "Modifying file...".to_string(),
                     thought_secondary_title: "".to_string(),
                     thought_pills: None,
                     status: "loading".to_string(),
-                }))
+                })])
             }
             _ => Err(anyhow::anyhow!(
                 "Assistant modify file only supports in progress."
@@ -856,28 +854,52 @@ fn tool_create_file(
     id: Option<String>,
     content: String,
     progress: Option<MessageProgress>,
-) -> Result<BusterThreadMessage> {
+) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
-        let duration = 0.1; // File creation is typically very fast
-
-        let buster_thought = BusterThreadMessage::Thought(BusterThought {
-            id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
-            thought_type: "thought".to_string(),
-            thought_title: "Created new file".to_string(),
-            thought_secondary_title: format!("{} seconds", duration),
-            thought_pills: Some(vec![BusterThoughtPillContainer {
-                title: "Created".to_string(),
-                thought_pills: vec![BusterThoughtPill {
-                    id: Uuid::new_v4().to_string(),
-                    text: content,
-                    thought_file_type: "file".to_string(),
-                }],
-            }]),
-            status: "completed".to_string(),
-        });
-
         match progress {
-            MessageProgress::Complete => Ok(buster_thought),
+            MessageProgress::Complete => {
+                // Parse the content to get file information
+                let file_info: Value = serde_json::from_str(&content)?;
+                let mut messages = Vec::new();
+                
+                if let Some(files) = file_info.get("files").and_then(Value::as_array) {
+                    for file in files {
+                        if let Some(file) = file.as_object() {
+                            let name = file.get("name").and_then(Value::as_str).unwrap_or("");
+                            let file_type = file.get("file_type").and_then(Value::as_str).unwrap_or("");
+                            let content = file.get("yml_content").and_then(Value::as_str).unwrap_or("");
+                            
+                            let mut current_lines = Vec::new();
+                            for (i, line) in content.lines().enumerate() {
+                                current_lines.push(BusterFileLine {
+                                    line_number: i + 1,
+                                    text: line.to_string(),
+                                });
+                            }
+
+                            messages.push(BusterThreadMessage::File(BusterFileMessage {
+                                id: Uuid::new_v4().to_string(),
+                                message_type: "file".to_string(),
+                                file_type: file_type.to_string(),
+                                file_name: name.to_string(),
+                                version_number: 1,
+                                version_id: Uuid::new_v4().to_string(),
+                                status: "completed".to_string(),
+                                file: Some(current_lines),
+                            }));
+                        }
+                    }
+                    
+                    if messages.is_empty() {
+                        return Err(anyhow::anyhow!("No valid files found in response"));
+                    }
+                    
+                    return Ok(messages);
+                }
+                
+                // If we couldn't parse the file info, return an error
+                Err(anyhow::anyhow!("Invalid file creation response format"))
+            }
             _ => Err(anyhow::anyhow!("Tool create file only supports complete.")),
         }
     } else {
@@ -889,7 +911,7 @@ fn tool_modify_file(
     id: Option<String>,
     content: String,
     progress: Option<MessageProgress>,
-) -> Result<BusterThreadMessage> {
+) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
         let duration = 0.1; // File modification is typically very fast
 
@@ -910,7 +932,7 @@ fn tool_modify_file(
         });
 
         match progress {
-            MessageProgress::Complete => Ok(buster_thought),
+            MessageProgress::Complete => Ok(vec![buster_thought]),
             _ => Err(anyhow::anyhow!("Tool modify file only supports complete.")),
         }
     } else {

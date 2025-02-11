@@ -118,18 +118,20 @@ impl AgentThreadHandler {
         while let Some(msg_result) = rx.recv().await {
             if let Ok(msg) = msg_result {
                 match transform_message(msg) {
-                    Ok(transformed) => {
-                        let response = WsResponseMessage::new_no_user(
-                            WsRoutes::Threads(ThreadRoute::Post),
-                            WsEvent::Threads(ThreadEvent::PostThread),
-                            transformed,
-                            None,
-                            WsSendMethod::All,
-                        );
+                    Ok(transformed_messages) => {
+                        for transformed in transformed_messages {
+                            let response = WsResponseMessage::new_no_user(
+                                WsRoutes::Threads(ThreadRoute::Post),
+                                WsEvent::Threads(ThreadEvent::PostThread),
+                                transformed,
+                                None,
+                                WsSendMethod::All,
+                            );
 
-                        if let Err(e) = send_ws_message(&subscription, &response).await {
-                            tracing::error!("Failed to send websocket message: {}", e);
-                            break;
+                            if let Err(e) = send_ws_message(&subscription, &response).await {
+                                tracing::error!("Failed to send websocket message: {}", e);
+                                break;
+                            }
                         }
                     }
                     Err(e) => {
