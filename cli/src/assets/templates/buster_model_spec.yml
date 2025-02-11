@@ -19,7 +19,7 @@ models: # Root element - contains an array of model definitions
         optional_fields:
           description: string # Description of the field or role the entity takes in this table
           expr: string # The field that denotes that entity (e.g., transaction_id)
-
+          project_path: string # Optional unless refering to model in different project. The path to the project from this file.
     measures: # Array of measure definitions
       - # Measure Definition
         required_fields:

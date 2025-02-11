@@ -4,6 +4,7 @@ models:
     model: model_name ## Required: the database identifier of the table/view/mv that this semantic model relates to.
     entities:
       - name: <name of the entity> ## Required: this is the name of the entity
+        project_path: <path to the project from this file> ## Optional: this is the project name of the entity
         type: Primary or natural or foreign ## Required: this is the type of the entity
         description: A description of the field or role the entity takes in this table ## Optional
         expr: The field that denotes that entity (transaction_id). ## Optional TODO: This should just be 'key'...
