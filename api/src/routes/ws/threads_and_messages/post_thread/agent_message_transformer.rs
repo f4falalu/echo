@@ -886,7 +886,7 @@ fn tool_create_file(
                     }
 
                     messages.push(BusterThreadMessage::File(BusterFileMessage {
-                        id: Uuid::new_v4().to_string(),
+                        id: name.clone(),
                         message_type: "file".to_string(),
                         file_type,
                         file_name: name,

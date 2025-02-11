@@ -155,12 +155,13 @@ impl Message {
     }
 
     pub fn assistant(
+        id: Option<String>,
         content: Option<String>,
         tool_calls: Option<Vec<ToolCall>>,
         progress: Option<MessageProgress>,
     ) -> Self {
         Self::Assistant {
-            id: None,
+            id,
             content,
             name: None,
             tool_calls,
@@ -169,13 +170,14 @@ impl Message {
     }
 
     pub fn tool(
+        id: Option<String>,
         content: impl Into<String>,
         tool_call_id: impl Into<String>,
         name: Option<String>,
         progress: Option<MessageProgress>,
     ) -> Self {
         Self::Tool {
-            id: None,
+            id,
             content: content.into(),
             tool_call_id: tool_call_id.into(),
             name,
@@ -476,6 +478,7 @@ mod tests {
                     Some("\n\nHello there, how may I assist you today?".to_string()),
                     None,
                     None,
+                    None,
                 ),
                 logprobs: None,
                 finish_reason: Some("stop".to_string()),
@@ -617,7 +620,7 @@ mod tests {
             choices: vec![Choice {
                 finish_reason: Some("length".to_string()),
                 index: 0,
-                message: Message::assistant(Some("".to_string()), None, None),
+                message: Message::assistant(Some("".to_string()), None, None, None),
                 delta: None,
                 logprobs: None,
             }],
@@ -894,6 +897,7 @@ mod tests {
             choices: vec![Choice {
                 index: 0,
                 message: Message::assistant(
+                    None,
                     None,
                     Some(vec![ToolCall {
                         id: "call_abc123".to_string(),

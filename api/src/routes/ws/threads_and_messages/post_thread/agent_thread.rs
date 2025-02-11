@@ -115,11 +115,8 @@ impl AgentThreadHandler {
     ) {
         let subscription = user_id.to_string();
 
-        let message_id = Uuid::new_v4().to_string();
-
         while let Some(msg_result) = rx.recv().await {
-            if let Ok(mut msg) = msg_result {
-                msg.set_id(message_id.clone());
+            if let Ok(msg) = msg_result {
                 match transform_message(msg) {
                     Ok(transformed_messages) => {
                         for transformed in transformed_messages {
