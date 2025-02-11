@@ -11,12 +11,10 @@ const duration = 0.25;
 
 const containerVariants = {
   hidden: {
-    height: 0,
-    marginBottom: 0
+    height: 0
   },
   visible: {
     height: 'auto',
-    marginBottom: '4px',
     transition: {
       duration: duration,
       staggerChildren: 0.035,
@@ -146,6 +144,7 @@ const useStyles = createStyles(({ token, css }) => ({
     border-radius: ${token.borderRadiusLG}px;
     padding: 0px 4px;
     height: 18px;
+    min-height: 18px;
     font-size: 11px;
     &.cursor-pointer {
       &:hover {

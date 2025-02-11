@@ -8,6 +8,9 @@ import {
   ChatEvent_GeneratingTitle
 } from '@/api/buster_socket/chats';
 import { updateChatToIChat } from '@/utils/chat';
+import { useAutoAppendThought } from './useAutoAppendThought';
+import { useHotkeys } from 'react-hotkeys-hook';
+import { MOCK_CHAT } from '../ChatProvider/MOCK_CHAT';
 
 export const useChatUpdateMessage = () => {
   const busterSocket = useBusterWebSocket();
@@ -16,6 +19,8 @@ export const useChatUpdateMessage = () => {
   const onUpdateChatMessage = useBusterChatContextSelector((x) => x.onUpdateChatMessage);
   const getChatMessageMemoized = useBusterChatContextSelector((x) => x.getChatMessageMemoized);
   const onBulkSetChatMessages = useBusterChatContextSelector((x) => x.onBulkSetChatMessages);
+
+  const { autoAppendThought } = useAutoAppendThought();
 
   const _generatingTitleCallback = useMemoizedFn((d: ChatEvent_GeneratingTitle) => {
     const { chat_id, title, title_chunk } = d;
@@ -44,7 +49,7 @@ export const useChatUpdateMessage = () => {
 
   const _generatingReasoningMessageCallback = useMemoizedFn(
     (d: ChatEvent_GeneratingReasoningMessage) => {
-      const { message_id, reasoning } = d;
+      const { message_id, reasoning, chat_id } = d;
       const currentReasoning = getChatMessageMemoized(message_id)?.reasoning;
       const isNewMessage = !currentReasoning?.some(({ id }) => id === message_id);
       const updatedReasoning = isNewMessage
@@ -53,7 +58,8 @@ export const useChatUpdateMessage = () => {
 
       onUpdateChatMessage({
         id: message_id,
-        reasoning: updatedReasoning
+        reasoning: autoAppendThought(updatedReasoning, chat_id),
+        isCompletedStream: false
       });
     }
   );
@@ -123,6 +129,24 @@ export const useChatUpdateMessage = () => {
     stopListeningForGeneratingTitle();
     stopListeningForGeneratingResponseMessage();
     stopListeningForGeneratingReasoningMessage();
+  });
+
+  useHotkeys('x', () => {
+    const mock_generatingResponseMessageCallback: ChatEvent_GeneratingReasoningMessage = {
+      chat_id: MOCK_CHAT.id,
+      message_id: MOCK_CHAT.messages[0].id,
+      progress: 'completed',
+      reasoning: {
+        id: MOCK_CHAT.messages[0].id,
+        type: 'file',
+        file_type: 'metric',
+        file_name: 'metric.json',
+        version_id: '1',
+        version_number: 1,
+        status: 'completed'
+      }
+    };
+    _generatingReasoningMessageCallback(mock_generatingResponseMessageCallback);
   });
 
   return {

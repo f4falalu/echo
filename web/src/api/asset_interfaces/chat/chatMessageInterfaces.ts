@@ -56,13 +56,15 @@ export type BusterChatMessageReasoning_thoughtPillContainer = {
   thought_pills: BusterChatMessageReasoning_thoughtPill[];
 };
 
+export type BusterChatMessageReasoning_status = 'loading' | 'completed' | 'failed';
+
 export type BusterChatMessageReasoning_thought = {
   id: string;
   type: 'thought';
   thought_title: string;
   thought_secondary_title: string;
   thoughts?: BusterChatMessageReasoning_thoughtPillContainer[];
-  status?: 'loading' | 'completed' | 'failed'; //if left undefined, will automatically be set to 'loading' if the chat stream is in progress AND there is no message after it
+  status?: BusterChatMessageReasoning_status; //if left undefined, will automatically be set to 'loading' if the chat stream is in progress AND there is no message after it
 };
 
 export type BusterChatMessageReasoning_text = {
@@ -70,6 +72,7 @@ export type BusterChatMessageReasoning_text = {
   type: 'text';
   message: string;
   message_chunk?: string;
+  status?: BusterChatMessageReasoning_status;
 };
 
 export type BusterChatMessageReasoning_file = {
@@ -79,7 +82,7 @@ export type BusterChatMessageReasoning_file = {
   file_name: string;
   version_number: number;
   version_id: string;
-  status: 'loading' | 'completed' | 'failed';
+  status?: BusterChatMessageReasoning_status;
   //when we are streaming, the whole file will always be streamed back, not chunks
   file?: {
     text: string;

@@ -62,6 +62,9 @@ const useStyles = createStyles(({ token }) => ({
   containerHeader: {
     borderBottom: `0.5px solid ${token.colorBorder}`,
     padding: '4px',
-    backgroundColor: token.controlItemBgActive
+    backgroundColor: token.controlItemBgActive,
+    height: '32px',
+    minHeight: '32px',
+    maxHeight: '32px'
   }
 }));

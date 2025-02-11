@@ -37,7 +37,7 @@ export const useChatIndividualContext = ({
   //MESSAGES
   const currentMessageId = chatMessageIds[chatMessageIds.length - 1];
   const isLoading = useBusterChatContextSelector(
-    (x) => x.chatsMessages[currentMessageId]?.isCompletedStream
+    (x) => !x.chatsMessages[currentMessageId]?.isCompletedStream
   );
 
   useAutoChangeLayout({ lastMessageId: currentMessageId, onSetSelectedFile });

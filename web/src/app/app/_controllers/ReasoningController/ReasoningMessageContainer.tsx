@@ -67,6 +67,10 @@ const useStyles = createStyles(({ token, css }) => ({
     }
 
     margin-bottom: 4px;
+
+    &:has(+ .file-card) {
+      margin-bottom: 3px;
+    }
   `,
   fileCard: css`
     margin-bottom: 4px;
@@ -76,14 +80,14 @@ const useStyles = createStyles(({ token, css }) => ({
     }
 
     &:has(+ .file-card) {
-      margin-bottom: 0px;
+      margin-bottom: 6px;
       .vertical-divider {
-        display: block;
+        display: none;
       }
     }
 
     &:has(+ .thought-card) {
-      margin-bottom: 14px;
+      margin-bottom: 6px;
     }
   `,
   verticalDivider: css`

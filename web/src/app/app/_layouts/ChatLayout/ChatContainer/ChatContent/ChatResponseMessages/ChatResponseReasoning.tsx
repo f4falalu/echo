@@ -1,5 +1,5 @@
 import { BusterChatMessageReasoning } from '@/api/asset_interfaces';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import last from 'lodash/last';
 import { ShimmerText } from '@/components/text';
 import { useMemoizedFn } from 'ahooks';
@@ -8,6 +8,12 @@ import { AnimatePresence } from 'framer-motion';
 import { AppMaterialIcons, Text } from '@/components';
 import { createStyles } from 'antd-style';
 import { useChatLayoutContextSelector } from '../../../ChatLayoutContext';
+
+const animations = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 }
+};
 
 export const ChatResponseReasoning: React.FC<{
   reasoningMessages: BusterChatMessageReasoning[];
@@ -20,19 +26,20 @@ export const ChatResponseReasoning: React.FC<{
   const isReasonginFileSelected = selectedFileType === 'reasoning';
 
   const text = useMemo(() => {
-    if (!lastMessage) return null;
-    if (lastMessage.type === 'text') {
-      return lastMessage.message;
-    }
-    if (lastMessage.type === 'thought') {
-      return lastMessage.thought_title;
-    }
-    return lastMessage.file_name;
-  }, [lastMessage]);
+    if (!lastMessage) return 'Thinking...';
 
-  const getRandomThought = useMemoizedFn(() => {
-    return DEFAULT_THOUGHTS[Math.floor(Math.random() * DEFAULT_THOUGHTS.length)];
-  });
+    switch (lastMessage.type) {
+      case 'text':
+        return lastMessage.message;
+      case 'thought':
+        return lastMessage.thought_title;
+      case 'file':
+        return lastMessage.file_name;
+      default:
+        const _exhaustiveCheck: never = lastMessage;
+        return 'Thinking...';
+    }
+  }, [lastMessage]);
 
   const onClickReasoning = useMemoizedFn(() => {
     onSetSelectedFile({
@@ -41,34 +48,11 @@ export const ChatResponseReasoning: React.FC<{
     });
   });
 
-  const [thought, setThought] = useState(text || DEFAULT_THOUGHTS[0]);
-
-  useEffect(() => {
-    if (!isCompletedStream && !text) {
-      const randomInterval = Math.floor(Math.random() * 3000) + 1200;
-      const interval = setTimeout(() => {
-        setThought(getRandomThought());
-      }, randomInterval);
-      return () => clearTimeout(interval);
-    }
-    if (text) {
-      setThought(text);
-    }
-  }, [thought, isCompletedStream, text, getRandomThought]);
-
-  const animations = useMemo(() => {
-    return {
-      initial: { opacity: 0 },
-      animate: { opacity: 1 },
-      exit: { opacity: 0 }
-    };
-  }, []);
-
   return (
     <AnimatePresence initial={!isCompletedStream} mode="wait">
-      <motion.div {...animations} key={thought} className="mb-3.5 w-fit" onClick={onClickReasoning}>
+      <motion.div {...animations} key={text} className="mb-3.5 w-fit" onClick={onClickReasoning}>
         <ShimmerTextWithIcon
-          text={thought}
+          text={text}
           isCompletedStream={isCompletedStream}
           isSelected={isReasonginFileSelected}
         />
@@ -78,45 +62,6 @@ export const ChatResponseReasoning: React.FC<{
 });
 
 ChatResponseReasoning.displayName = 'ChatThoughts';
-
-const DEFAULT_THOUGHTS = [
-  'Thinking through next steps...',
-  'Looking through context...',
-  'Reflecting on the instructions...',
-  'Analyzing available actions',
-  'Reviewing the objective...',
-  'Deciding feasible options...',
-  'Sorting out some details...',
-  'Exploring other possibilities...',
-  'Confirming things....',
-  'Mapping information across files...',
-  'Making a few edits...',
-  'Filling out arguments...',
-  'Double-checking the logic...',
-  'Validating my approach...',
-  'Looking at a few edge cases...',
-  'Ensuring everything aligns...',
-  'Polishing the details...',
-  'Making some adjustments...',
-  'Writing out arguments...',
-  'Mapping trends and patterns...',
-  'Re-evaluating this step...',
-  'Updating parameters...',
-  'Evaluating available data...',
-  'Reviewing all parameters...',
-  'Processing relevant info...',
-  'Aligning with user request...',
-  'Gathering necessary details...',
-  'Sorting through options...',
-  'Editing my system logic...',
-  'Cross-checking references...',
-  'Validating my approach...',
-  'Rewriting operational details...',
-  'Mapping new information...',
-  'Adjusting priorities & approach...',
-  'Revisiting earlier inputs...',
-  'Finalizing plan details...'
-];
 
 const ShimmerTextWithIcon = React.memo(
   ({
