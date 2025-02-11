@@ -9,25 +9,29 @@ import {
 } from '@/api/buster_socket/chats';
 import { updateChatToIChat } from '@/utils/chat';
 import { useAutoAppendThought } from './useAutoAppendThought';
-import { useHotkeys } from 'react-hotkeys-hook';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { BusterRoutes } from '@/routes';
 
 export const useChatUpdateMessage = () => {
   const busterSocket = useBusterWebSocket();
+  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const onUpdateChat = useBusterChatContextSelector((x) => x.onUpdateChat);
   const getChatMemoized = useBusterChatContextSelector((x) => x.getChatMemoized);
   const onUpdateChatMessage = useBusterChatContextSelector((x) => x.onUpdateChatMessage);
   const getChatMessageMemoized = useBusterChatContextSelector((x) => x.getChatMessageMemoized);
   const onBulkSetChatMessages = useBusterChatContextSelector((x) => x.onBulkSetChatMessages);
+  const onToggleChatsModal = useAppLayoutContextSelector((s) => s.onToggleChatsModal);
 
   const { autoAppendThought } = useAutoAppendThought();
 
   const _generatingTitleCallback = useMemoizedFn((d: ChatEvent_GeneratingTitle) => {
     const { chat_id, title, title_chunk } = d;
     const isCompleted = d.progress === 'completed';
-    const currentTitle = getChatMemoized(chat_id)?.title;
+    const currentChat = getChatMemoized(chat_id)!;
+    const currentTitle = currentChat?.title;
     const newTitle = isCompleted ? title : currentTitle + title_chunk;
     onUpdateChat({
-      ...getChatMemoized(chat_id),
+      ...currentChat,
       title: newTitle
     });
   });
@@ -49,7 +53,7 @@ export const useChatUpdateMessage = () => {
   const _generatingReasoningMessageCallback = useMemoizedFn(
     (d: ChatEvent_GeneratingReasoningMessage) => {
       const { message_id, reasoning, chat_id } = d;
-      const currentReasoning = getChatMessageMemoized(message_id)?.reasoning;
+      const currentReasoning = getChatMessageMemoized(message_id)!.reasoning;
       const isNewMessage = !currentReasoning?.some(({ id }) => id === message_id);
       const updatedReasoning = isNewMessage
         ? [...currentReasoning, reasoning]
@@ -75,6 +79,35 @@ export const useChatUpdateMessage = () => {
       isCompletedStream: true
     });
   });
+
+  const initializeChatCallback = useMemoizedFn((d: BusterChat) => {
+    const { iChat, iChatMessages } = updateChatToIChat(d);
+    onBulkSetChatMessages(iChatMessages);
+    onUpdateChat(iChat);
+
+    onChangePage({
+      route: BusterRoutes.APP_CHAT_ID,
+      chatId: iChat.id
+    });
+    onToggleChatsModal(false);
+  });
+
+  const replaceMessageCallback = useMemoizedFn(
+    ({ prompt, messageId }: { prompt: string; messageId: string }) => {
+      const currentMessage = getChatMessageMemoized(messageId);
+      const currentRequestMessage = currentMessage?.request_message!;
+
+      onUpdateChatMessage({
+        id: messageId,
+        request_message: {
+          ...currentRequestMessage,
+          request: prompt
+        },
+        reasoning: [],
+        response_messages: []
+      });
+    }
+  );
 
   const listenForGeneratingTitle = useMemoizedFn(() => {
     busterSocket.on({
@@ -131,9 +164,11 @@ export const useChatUpdateMessage = () => {
   });
 
   return {
+    initializeChatCallback,
     completeChatCallback,
     startListeningForChatProgress,
     stopListeningForChatProgress,
-    stopChatCallback
+    stopChatCallback,
+    replaceMessageCallback
   };
 };

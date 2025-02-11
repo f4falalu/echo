@@ -10,7 +10,6 @@ export enum ChatsResponses {
   '/chats/list:getChatsList' = '/chats/list:getChatsList',
   '/chats/unsubscribe:unsubscribe' = '/chats/unsubscribe:unsubscribe',
   '/chats/get:getChat' = '/chats/get:getChat',
-  '/chats/get:getChatAsset' = '/chats/get:getChatAsset',
   '/chats/post:initializeChat' = '/chats/post:initializeChat',
   '/chats/post:generatingTitle' = '/chats/post:generatingTitle',
   '/chats/post:generatingResponseMessage' = '/chats/post:generatingResponseMessage',
@@ -40,12 +39,6 @@ export type Chat_getChat = {
 export type Chat_unsubscribe = {
   route: '/chats/unsubscribe:unsubscribe';
   callback: (d: { id: string }[]) => void;
-  onError?: (d: unknown | RustApiError) => void;
-};
-
-export type Chat_getChatAsset = {
-  route: '/chats/get:getChatAsset';
-  callback: (d: BusterChat) => void;
   onError?: (d: unknown | RustApiError) => void;
 };
 
@@ -87,7 +80,6 @@ export type ChatResponseTypes =
   | ChatList_getChatsList
   | Chat_unsubscribe
   | Chat_getChat
-  | Chat_getChatAsset
   | ChatPost_initializeChat
   | ChatPost_generatingTitle
   | ChatPost_generatingResponseMessage

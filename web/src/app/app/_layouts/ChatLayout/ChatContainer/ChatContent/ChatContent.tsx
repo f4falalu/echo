@@ -10,20 +10,24 @@ export const ChatContent: React.FC<{ chatContentRef: React.RefObject<HTMLDivElem
     const chatMessageIds = useChatIndividualContextSelector((state) => state.chatMessageIds);
     // const chatMessages = useBusterChatContextSelector((state) => state.chatsMessages);
 
+    const autoClass = 'mx-auto max-w-[600px] w-full';
+
     return (
       <div className="flex h-full w-full flex-col overflow-hidden">
         <div ref={chatContentRef} className="h-full w-full overflow-y-auto">
           <div className="pb-8">
             {chatMessageIds?.map((messageId) => (
               <div key={messageId} className={styles.messageBlock}>
-                <div className="mx-auto max-w-[600px]">
+                <div className={autoClass}>
                   <ChatMessageBlock key={messageId} messageId={messageId} />
                 </div>
               </div>
             ))}
           </div>
         </div>
-        <ChatInput />
+        <div className={autoClass}>
+          <ChatInput />
+        </div>
       </div>
     );
   });

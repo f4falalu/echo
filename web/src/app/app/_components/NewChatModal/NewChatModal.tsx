@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Modal, Input, InputRef, ConfigProvider, Divider, ThemeConfig } from 'antd';
+import { Button, Modal, Input, InputRef, ConfigProvider, ThemeConfig } from 'antd';
 import { AppMaterialIcons } from '@/components/icons';
 import { useMemoizedFn, useMount, useThrottleFn } from 'ahooks';
 import { useAntToken } from '@/styles/useAntToken';
@@ -71,9 +71,10 @@ export const NewChatModal = React.memo<{
   const { run: debouncedGetSuggestedChatPrompts } = useThrottleFn(
     async (v: string) => {
       try {
-        const prompts = await getSuggestedChatPrompts(v);
-        setSuggestedPrompts(prompts);
-        return prompts;
+        // const prompts = await getSuggestedChatPrompts(v);
+        // setSuggestedPrompts(prompts);
+        // return prompts;
+        return [];
       } catch (e) {
         openErrorNotification(e);
       }
@@ -85,10 +86,6 @@ export const NewChatModal = React.memo<{
     getSuggestedChatPrompts('').then((prompts) => {
       setDefaultSuggestedPrompts(prompts);
     });
-  });
-
-  const onCloseOrCancel = useMemoizedFn(() => {
-    onClose();
   });
 
   useEffect(() => {
@@ -112,9 +109,9 @@ export const NewChatModal = React.memo<{
     <ConfigProvider theme={themeConfig}>
       <Modal
         open={open}
-        onCancel={onCloseOrCancel}
+        onCancel={onClose}
         closable={false}
-        onClose={onCloseOrCancel}
+        onClose={onClose}
         width={hasDatasets ? 725 : 350}
         destroyOnClose={true}
         footer={null}
@@ -136,6 +133,7 @@ export const NewChatModal = React.memo<{
               lastKeyPressed={lastKeyPressed}
               activeItem={activeItem}
               prompt={prompt}
+              selectedChatDataSource={selectedChatDataSource}
               setPrompt={setPrompt}
             />
           </div>
@@ -179,6 +177,10 @@ const NewChatInput: React.FC<{
   activeItem: number | null;
   prompt: string;
   setPrompt: (prompt: string) => void;
+  selectedChatDataSource: {
+    id: string;
+    name: string;
+  } | null;
 }> = React.memo(
   ({
     setSuggestedPrompts,
@@ -187,7 +189,8 @@ const NewChatInput: React.FC<{
     shownPrompts,
     lastKeyPressed,
     prompt,
-    setPrompt
+    setPrompt,
+    selectedChatDataSource
   }) => {
     const token = useAntToken();
     const inputRef = useRef<InputRef>(null);
@@ -195,10 +198,12 @@ const NewChatInput: React.FC<{
     const onSelectSearchAsset = useBusterNewChatContextSelector((x) => x.onSelectSearchAsset);
     const [loadingNewChat, setLoadingNewChat] = useState(false);
 
+    console.log(selectedChatDataSource);
+
     const onStartNewChatPreflight = useMemoizedFn(async () => {
       setLoadingNewChat(true);
-      await onStartNewChat(prompt);
-      await timeout(400);
+      await onStartNewChat({ prompt, datasetId: selectedChatDataSource?.id });
+      await timeout(380);
       setPrompt('');
       setLoadingNewChat(false);
     });
@@ -269,6 +274,8 @@ const NewChatInput: React.FC<{
         <Button
           type="primary"
           size="middle"
+          // color="default"
+          // variant="solid"
           icon={<AppMaterialIcons icon="arrow_forward" size={token.fontSizeLG} />}
           loading={loadingNewChat}
           disabled={!inputHasText(prompt)}

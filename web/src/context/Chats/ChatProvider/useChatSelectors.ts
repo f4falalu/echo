@@ -11,7 +11,7 @@ export const useChatSelectors = ({
   chatsRef: MutableRefObject<Record<string, IBusterChat>>;
   chatsMessagesRef: MutableRefObject<Record<string, IBusterChatMessage>>;
 }) => {
-  const getChatMemoized = useMemoizedFn((chatId: string) => {
+  const getChatMemoized = useMemoizedFn((chatId: string): IBusterChat | undefined => {
     return chatsRef.current[chatId];
   });
 
@@ -24,7 +24,7 @@ export const useChatSelectors = ({
   );
 
   const getChatMessage = useCallback(
-    (messageId: string): IBusterChatMessage => {
+    (messageId: string): IBusterChatMessage | undefined => {
       return chatsMessagesRef.current[messageId];
     },
     [chatsMessagesRef, isPending]

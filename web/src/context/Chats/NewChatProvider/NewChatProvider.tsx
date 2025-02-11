@@ -16,7 +16,9 @@ export const useBusterNewChat = () => {
     completeChatCallback,
     startListeningForChatProgress,
     stopListeningForChatProgress,
-    stopChatCallback
+    stopChatCallback,
+    initializeChatCallback,
+    replaceMessageCallback
   } = useChatUpdateMessage();
 
   const onSelectSearchAsset = useMemoizedFn(async (asset: BusterSearchResult) => {
@@ -24,47 +26,96 @@ export const useBusterNewChat = () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
   });
 
-  const onStartNewChat = useMemoizedFn(async (prompt: string) => {
-    console.log('start new chat');
-    startListeningForChatProgress();
-    const result = await busterSocket.emitAndOnce({
-      emitEvent: {
-        route: '/chats/post',
-        payload: {
-          dataset_id: null, //TODO: add selected dataset id
-          prompt
+  const onStartNewChat = useMemoizedFn(
+    async ({
+      prompt,
+      datasetId,
+      metricId,
+      dashboardId
+    }: {
+      prompt: string;
+      datasetId?: string;
+      metricId?: string;
+      dashboardId?: string;
+    }) => {
+      startListeningForChatProgress();
+
+      await busterSocket.emitAndOnce({
+        emitEvent: {
+          route: '/chats/post',
+          payload: {
+            dataset_id: datasetId, //TODO: add selected dataset id
+            prompt,
+            metric_id: metricId,
+            dashboard_id: dashboardId
+          }
+        },
+        responseEvent: {
+          route: '/chats/post:initializeChat',
+          callback: initializeChatCallback
         }
-      },
-      responseEvent: {
-        route: '/chats/post:complete',
-        callback: completeChatCallback
-      }
-    });
-    stopListeningForChatProgress();
-  });
+      });
+
+      busterSocket
+        .once({
+          route: '/chats/post:complete',
+          callback: completeChatCallback
+        })
+        .then(() => {
+          stopListeningForChatProgress();
+        });
+    }
+  );
 
   const onStartChatFromFile = useMemoizedFn(
     async ({}: { prompt: string; fileId: string; fileType: FileType }) => {
       console.log('start chat from file');
+
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   );
 
   const onReplaceMessageInChat = useMemoizedFn(
-    async ({ prompt, messageId }: { prompt: string; messageId: string }) => {
-      console.log('replace message in chat');
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    async ({
+      prompt,
+      messageId,
+      chatId
+    }: {
+      prompt: string;
+      messageId: string;
+      chatId: string;
+    }) => {
+      startListeningForChatProgress();
+      replaceMessageCallback({
+        prompt,
+        messageId
+      });
+      await busterSocket.emitAndOnce({
+        emitEvent: {
+          route: '/chats/post',
+          payload: {
+            prompt,
+            message_id: messageId,
+            chat_id: chatId
+          }
+        },
+        responseEvent: {
+          route: '/chats/post:complete',
+          callback: completeChatCallback
+        }
+      });
+      stopListeningForChatProgress();
     }
   );
 
   const onFollowUpChat = useMemoizedFn(
     async ({ prompt, chatId }: { prompt: string; chatId: string }) => {
       startListeningForChatProgress();
-      const result = await busterSocket.emitAndOnce({
+
+      await busterSocket.emitAndOnce({
         emitEvent: {
           route: '/chats/post',
           payload: {
-            dataset_id: null,
             prompt,
             chat_id: chatId
           }

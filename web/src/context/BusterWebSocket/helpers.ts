@@ -15,6 +15,7 @@ import type {
   BusterSocketResponseBase,
   BusterSocketResponseMessage
 } from '@/api/buster_socket/base_interfaces';
+import { ChatsResponses } from '@/api/buster_socket/chats';
 
 export const createBusterResponse = (
   message: BusterSocketResponseMessage
@@ -45,7 +46,8 @@ const isKnownMessageRoute = (parsedMessage: BusterSocketResponseMessage) => {
     ...PermissionsResponses,
     ...TeamResponses,
     ...SearchResponses,
-    ...OrganizationResponses
+    ...OrganizationResponses,
+    ...ChatsResponses
   };
   const event = parsedMessage?.event;
   const route = parsedMessage?.route;

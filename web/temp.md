@@ -69,7 +69,6 @@ export enum ChatsResponses {
   '/chats/list:getChatsList' = '/chats/list:getChatsList',
   '/chats/unsubscribe:unsubscribe' = '/chats/unsubscribe:unsubscribe',
   '/chats/get:getChat' = '/chats/get:getChat',
-  '/chats/get:getChatAsset' = '/chats/get:getChatAsset',
   '/chats/post:initializeChat' = '/chats/post:initializeChat',
   '/chats/post:generatingTitle' = '/chats/post:generatingTitle'
 }

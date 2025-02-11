@@ -65,7 +65,7 @@ export const useChatInputFlow = ({
         break;
 
       case 'new':
-        await onStartNewChat(inputValue);
+        await onStartNewChat({ prompt: inputValue });
         break;
 
       default:
