@@ -7,7 +7,7 @@ use uuid::Uuid;
 pub struct DashboardYml {
     pub id: Option<Uuid>,
     pub updated_at: Option<DateTime<Utc>>,
-    pub name: Option<String>,
+    pub name: String,
     pub rows: Vec<Row>,
 }
 
@@ -40,8 +40,8 @@ impl DashboardYml {
         }
 
         // If the name is not provided, we will use a default name.
-        if file.name.is_none() {
-            file.name = Some(String::from("New Dashboard"));
+        if file.name.is_empty() {
+            file.name = String::from("New Dashboard");
         }
 
         file.updated_at = Some(Utc::now());
@@ -60,7 +60,7 @@ impl DashboardYml {
             return Err(anyhow::anyhow!("Dashboard file id is required"));
         }
 
-        if self.name.is_none() {
+        if self.name.is_empty() {
             return Err(anyhow::anyhow!("Dashboard file name is required"));
         }
 

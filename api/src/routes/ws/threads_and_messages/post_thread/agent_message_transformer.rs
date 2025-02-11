@@ -13,6 +13,7 @@ use crate::utils::tools::file_tools::modify_files::ModifyFilesParams;
 use crate::utils::tools::file_tools::open_files::OpenFilesOutput;
 use crate::utils::tools::file_tools::search_data_catalog::SearchDataCatalogOutput;
 use crate::utils::tools::file_tools::search_files::SearchFilesOutput;
+use crate::utils::tools::file_tools::create_files::CreateFilesOutput;
 
 struct StreamingParser {
     buffer: String,
@@ -858,47 +859,49 @@ fn tool_create_file(
     if let Some(progress) = progress {
         match progress {
             MessageProgress::Complete => {
-                // Parse the content to get file information
-                let file_info: Value = serde_json::from_str(&content)?;
+                // Parse the content to get file information using CreateFilesOutput
+                let create_files_result = serde_json::from_str::<CreateFilesOutput>(&content)?;
                 let mut messages = Vec::new();
                 
-                if let Some(files) = file_info.get("files").and_then(Value::as_array) {
-                    for file in files {
-                        if let Some(file) = file.as_object() {
-                            let name = file.get("name").and_then(Value::as_str).unwrap_or("");
-                            let file_type = file.get("file_type").and_then(Value::as_str).unwrap_or("");
-                            let content = file.get("yml_content").and_then(Value::as_str).unwrap_or("");
-                            
-                            let mut current_lines = Vec::new();
-                            for (i, line) in content.lines().enumerate() {
-                                current_lines.push(BusterFileLine {
-                                    line_number: i + 1,
-                                    text: line.to_string(),
-                                });
-                            }
+                for file in create_files_result.files {
+                    let (name, file_type, content) = match &file {
+                        FileEnum::Dashboard(dashboard) => (
+                            dashboard.name.clone(),
+                            "dashboard".to_string(),
+                            serde_json::to_string_pretty(&dashboard)?,
+                        ),
+                        FileEnum::Metric(metric) => (
+                            metric.title.clone(),
+                            "metric".to_string(),
+                            serde_json::to_string_pretty(&metric)?,
+                        ),
+                    };
+                    
+                    let mut current_lines = Vec::new();
+                    for (i, line) in content.lines().enumerate() {
+                        current_lines.push(BusterFileLine {
+                            line_number: i + 1,
+                            text: line.to_string(),
+                        });
+                    }
 
-                            messages.push(BusterThreadMessage::File(BusterFileMessage {
-                                id: Uuid::new_v4().to_string(),
-                                message_type: "file".to_string(),
-                                file_type: file_type.to_string(),
-                                file_name: name.to_string(),
-                                version_number: 1,
-                                version_id: Uuid::new_v4().to_string(),
-                                status: "completed".to_string(),
-                                file: Some(current_lines),
-                            }));
-                        }
-                    }
-                    
-                    if messages.is_empty() {
-                        return Err(anyhow::anyhow!("No valid files found in response"));
-                    }
-                    
-                    return Ok(messages);
+                    messages.push(BusterThreadMessage::File(BusterFileMessage {
+                        id: Uuid::new_v4().to_string(),
+                        message_type: "file".to_string(),
+                        file_type,
+                        file_name: name,
+                        version_number: 1,
+                        version_id: Uuid::new_v4().to_string(),
+                        status: "completed".to_string(),
+                        file: Some(current_lines),
+                    }));
                 }
                 
-                // If we couldn't parse the file info, return an error
-                Err(anyhow::anyhow!("Invalid file creation response format"))
+                if messages.is_empty() {
+                    return Err(anyhow::anyhow!("No valid files found in response"));
+                }
+                
+                Ok(messages)
             }
             _ => Err(anyhow::anyhow!("Tool create file only supports complete.")),
         }

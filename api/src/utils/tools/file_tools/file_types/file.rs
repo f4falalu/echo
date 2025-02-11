@@ -22,10 +22,7 @@ impl FileEnum {
     pub fn name(&self) -> anyhow::Result<String> {
         match self {
             Self::Metric(metric) => Ok(metric.title.clone()),
-            Self::Dashboard(dashboard) => match &dashboard.name {
-                Some(name) => Ok(name.clone()),
-                None => Err(anyhow::anyhow!("Dashboard name is required but not found")),
-            },
+            Self::Dashboard(dashboard) => Ok(dashboard.name.clone()),
         }
     }
 

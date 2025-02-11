@@ -36,11 +36,11 @@ pub struct CreateFilesParams {
     pub files: Vec<FileParams>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CreateFilesOutput {
-    message: String,
-    duration: i64,
-    files: Vec<FileEnum>,
+    pub message: String,
+    pub duration: i64,
+    pub files: Vec<FileEnum>,
 }
 
 pub struct CreateFilesTool;
@@ -126,8 +126,7 @@ impl ToolExecutor for CreateFilesTool {
                                     id: dashboard_id.clone(),
                                     name: dashboard_yml
                                         .name
-                                        .clone()
-                                        .unwrap_or_else(|| "New Dashboard".to_string()),
+                                        .clone(),
                                     file_name: format!("{}.yml", file.name),
                                     content: serde_json::to_value(dashboard_yml.clone()).unwrap(),
                                     filter: None,
