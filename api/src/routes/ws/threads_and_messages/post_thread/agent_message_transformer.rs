@@ -267,13 +267,14 @@ pub fn transform_message(message: Message) -> Result<Vec<BusterThreadMessage>> {
             name,
             tool_calls,
             progress,
+            initial,
         } => {
             if let Some(content) = content {
                 return transform_text_message(id, content, progress);
             }
 
             if let Some(tool_calls) = tool_calls {
-                return transform_assistant_tool_message(id, tool_calls, progress);
+                return transform_assistant_tool_message(id, tool_calls, progress, initial);
             }
 
             Err(anyhow::anyhow!("Assistant message missing required fields"))
@@ -351,15 +352,16 @@ fn transform_assistant_tool_message(
     id: Option<String>,
     tool_calls: Vec<ToolCall>,
     progress: Option<MessageProgress>,
+    initial: bool,
 ) -> Result<Vec<BusterThreadMessage>> {
     if let Some(tool_call) = tool_calls.first() {
         match tool_call.function.name.as_str() {
-            "search_data_catalog" => assistant_data_catalog_search(id, tool_calls, progress),
-            "stored_values_search" => assistant_stored_values_search(id, tool_calls, progress),
-            "search_files" => assistant_file_search(id, tool_calls, progress),
+            "search_data_catalog" => assistant_data_catalog_search(id, progress, initial),
+            "stored_values_search" => assistant_stored_values_search(id, progress, initial),
+            "search_files" => assistant_file_search(id, progress, initial),
             "create_files" => assistant_create_file(id, tool_calls, progress),
             "modify_files" => assistant_modify_file(id, tool_calls, progress),
-            "open_files" => assistant_open_files(id, tool_calls, progress),
+            "open_files" => assistant_open_files(id, progress, initial),
             _ => Err(anyhow::anyhow!("Unsupported tool name")),
         }
     } else {
@@ -369,26 +371,32 @@ fn transform_assistant_tool_message(
 
 fn assistant_data_catalog_search(
     id: Option<String>,
-    tool_calls: Vec<ToolCall>,
     progress: Option<MessageProgress>,
+    initial: bool,
 ) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
-        match progress {
-            MessageProgress::InProgress => {
-                let id = id.unwrap_or_else(|| Uuid::new_v4().to_string());
+        if initial {
+            match progress {
+                MessageProgress::InProgress => {
+                    let id = id.unwrap_or_else(|| Uuid::new_v4().to_string());
 
-                Ok(vec![BusterThreadMessage::Thought(BusterThought {
-                    id,
-                    thought_type: "thought".to_string(),
-                    thought_title: "Searching your data catalog...".to_string(),
-                    thought_secondary_title: "".to_string(),
-                    thought_pills: None,
-                    status: "loading".to_string(),
-                })])
+                    Ok(vec![BusterThreadMessage::Thought(BusterThought {
+                        id,
+                        thought_type: "thought".to_string(),
+                        thought_title: "Searching your data catalog...".to_string(),
+                        thought_secondary_title: "".to_string(),
+                        thought_pills: None,
+                        status: "loading".to_string(),
+                    })])
+                }
+                _ => Err(anyhow::anyhow!(
+                    "Assistant data catalog search only supports in progress."
+                )),
             }
-            _ => Err(anyhow::anyhow!(
-                "Assistant data catalog search only supports in progress."
-            )),
+        } else {
+            Err(anyhow::anyhow!(
+                "Assistant data catalog search only supports initial."
+            ))
         }
     } else {
         Err(anyhow::anyhow!(
@@ -513,22 +521,30 @@ fn proccess_data_catalog_search_results(
 
 fn assistant_stored_values_search(
     id: Option<String>,
-    tool_calls: Vec<ToolCall>,
     progress: Option<MessageProgress>,
+    initial: bool,
 ) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
-        match progress {
-            MessageProgress::InProgress => Ok(vec![BusterThreadMessage::Thought(BusterThought {
-                id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
-                thought_type: "thought".to_string(),
-                thought_title: "Searching for relevant values...".to_string(),
-                thought_secondary_title: "".to_string(),
-                thought_pills: None,
-                status: "loading".to_string(),
-            })]),
-            _ => Err(anyhow::anyhow!(
-                "Assistant stored values search only supports in progress."
-            )),
+        if initial {
+            match progress {
+                MessageProgress::InProgress => {
+                    Ok(vec![BusterThreadMessage::Thought(BusterThought {
+                        id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
+                        thought_type: "thought".to_string(),
+                        thought_title: "Searching for relevant values...".to_string(),
+                        thought_secondary_title: "".to_string(),
+                        thought_pills: None,
+                        status: "loading".to_string(),
+                    })])
+                }
+                _ => Err(anyhow::anyhow!(
+                    "Assistant stored values search only supports in progress."
+                )),
+            }
+        } else {
+            Err(anyhow::anyhow!(
+                "Assistant stored values search only supports initial."
+            ))
         }
     } else {
         Err(anyhow::anyhow!(
@@ -566,22 +582,30 @@ fn tool_stored_values_search(
 
 fn assistant_file_search(
     id: Option<String>,
-    tool_calls: Vec<ToolCall>,
     progress: Option<MessageProgress>,
+    initial: bool,
 ) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
-        match progress {
-            MessageProgress::InProgress => Ok(vec![BusterThreadMessage::Thought(BusterThought {
-                id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
-                thought_type: "thought".to_string(),
-                thought_title: "Searching across your assets...".to_string(),
-                thought_secondary_title: "".to_string(),
-                thought_pills: None,
-                status: "loading".to_string(),
-            })]),
-            _ => Err(anyhow::anyhow!(
-                "Assistant file search only supports in progress."
-            )),
+        if initial {
+            match progress {
+                MessageProgress::InProgress => {
+                    Ok(vec![BusterThreadMessage::Thought(BusterThought {
+                        id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
+                        thought_type: "thought".to_string(),
+                        thought_title: "Searching across your assets...".to_string(),
+                        thought_secondary_title: "".to_string(),
+                        thought_pills: None,
+                        status: "loading".to_string(),
+                    })])
+                }
+                _ => Err(anyhow::anyhow!(
+                    "Assistant file search only supports in progress."
+                )),
+            }
+        } else {
+            Err(anyhow::anyhow!(
+                "Assistant file search only supports initial."
+            ))
         }
     } else {
         Err(anyhow::anyhow!("Assistant file search requires progress."))
@@ -690,22 +714,30 @@ fn process_file_search_results(
 
 fn assistant_open_files(
     id: Option<String>,
-    tool_calls: Vec<ToolCall>,
     progress: Option<MessageProgress>,
+    initial: bool,
 ) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
-        match progress {
-            MessageProgress::InProgress => Ok(vec![BusterThreadMessage::Thought(BusterThought {
-                id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
-                thought_type: "thought".to_string(),
-                thought_title: "Looking through assets...".to_string(),
-                thought_secondary_title: "".to_string(),
-                thought_pills: None,
-                status: "loading".to_string(),
-            })]),
-            _ => Err(anyhow::anyhow!(
-                "Assistant file search only supports in progress."
-            )),
+        if initial {
+            match progress {
+                MessageProgress::InProgress => {
+                    Ok(vec![BusterThreadMessage::Thought(BusterThought {
+                        id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
+                        thought_type: "thought".to_string(),
+                        thought_title: "Looking through assets...".to_string(),
+                        thought_secondary_title: "".to_string(),
+                        thought_pills: None,
+                        status: "loading".to_string(),
+                    })])
+                }
+                _ => Err(anyhow::anyhow!(
+                    "Assistant file search only supports in progress."
+                )),
+            }
+        } else {
+            Err(anyhow::anyhow!(
+                "Assistant file search only supports initial."
+            ))
         }
     } else {
         Err(anyhow::anyhow!("Assistant file search requires progress."))
@@ -870,18 +902,11 @@ fn tool_create_file(
                 let mut messages = Vec::new();
 
                 for file in create_files_result.files {
-                    let (name, file_type, content) = match &file {
-                        FileEnum::Dashboard(dashboard) => (
-                            dashboard.name.clone(),
-                            "dashboard".to_string(),
-                            serde_json::to_string_pretty(&dashboard)?,
-                        ),
-                        FileEnum::Metric(metric) => (
-                            metric.title.clone(),
-                            "metric".to_string(),
-                            serde_json::to_string_pretty(&metric)?,
-                        ),
-                    };
+                    let (name, file_type, content) = (
+                        file.name,
+                        file.file_type,
+                        file.yml_content
+                    );
 
                     let mut current_lines = Vec::new();
                     for (i, line) in content.lines().enumerate() {

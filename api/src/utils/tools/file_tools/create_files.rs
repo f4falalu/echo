@@ -40,7 +40,14 @@ pub struct CreateFilesParams {
 pub struct CreateFilesOutput {
     pub message: String,
     pub duration: i64,
-    pub files: Vec<FileEnum>,
+    pub files: Vec<CreateFilesFile>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CreateFilesFile {
+    pub name: String,
+    pub file_type: String,
+    pub yml_content: String,
 }
 
 pub struct CreateFilesTool;
@@ -124,9 +131,7 @@ impl ToolExecutor for CreateFilesTool {
                             if let Some(dashboard_id) = &dashboard_yml.id {
                                 let dashboard_file = DashboardFile {
                                     id: dashboard_id.clone(),
-                                    name: dashboard_yml
-                                        .name
-                                        .clone(),
+                                    name: dashboard_yml.name.clone(),
                                     file_name: format!("{}.yml", file.name),
                                     content: serde_json::to_value(dashboard_yml.clone()).unwrap(),
                                     filter: None,
@@ -167,7 +172,13 @@ impl ToolExecutor for CreateFilesTool {
                 .await
             {
                 Ok(_) => {
-                    created_files.extend(metric_ymls.into_iter().map(FileEnum::Metric));
+                    for (i, yml) in metric_ymls.into_iter().enumerate() {
+                        created_files.push(CreateFilesFile {
+                            name: metric_records[i].file_name.trim_end_matches(".yml").to_string(),
+                            file_type: "metric".to_string(),
+                            yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
+                        });
+                    }
                 }
                 Err(e) => {
                     failed_files.extend(metric_records.iter().map(|r| {
@@ -188,7 +199,13 @@ impl ToolExecutor for CreateFilesTool {
                 .await
             {
                 Ok(_) => {
-                    created_files.extend(dashboard_ymls.into_iter().map(FileEnum::Dashboard));
+                    for (i, yml) in dashboard_ymls.into_iter().enumerate() {
+                        created_files.push(CreateFilesFile {
+                            name: dashboard_records[i].file_name.trim_end_matches(".yml").to_string(),
+                            file_type: "dashboard".to_string(),
+                            yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
+                        });
+                    }
                 }
                 Err(e) => {
                     failed_files.extend(dashboard_records.iter().map(|r| {

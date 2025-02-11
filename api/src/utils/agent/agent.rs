@@ -94,6 +94,7 @@ impl Agent {
                 Some("I apologize, but I've reached the maximum number of actions (30). Please try breaking your request into smaller parts.".to_string()),
                 None,
                 None,
+                None,
             ));
         }
 
@@ -134,7 +135,7 @@ impl Agent {
         let mut tool_thread = thread.clone();
         tool_thread
             .messages
-            .push(Message::assistant(None, Some(initial_content), None, None));
+            .push(Message::assistant(None, Some(initial_content), None, None, None));
 
         // Create the tool-enabled request
         let request = ChatCompletionRequest {
@@ -159,7 +160,7 @@ impl Agent {
                 content,
                 tool_calls,
                 ..
-            } => Message::assistant(None, content.clone(), tool_calls.clone(), None),
+            } => Message::assistant(None, content.clone(), tool_calls.clone(), None, None),
             _ => return Err(anyhow::anyhow!("Expected assistant message from LLM")),
         };
 
@@ -239,6 +240,7 @@ impl Agent {
                         Some("I apologize, but I've reached the maximum number of actions (30). Please try breaking your request into smaller parts.".to_string()),
                         None,
                         None,
+                        None,
                     );
                     let _ = tx.send(Ok(limit_message)).await;
                     return Ok(());
@@ -278,6 +280,7 @@ impl Agent {
                         Some(String::new()),
                         None,
                         None,
+                        None,
                     );
 
                     // Process initial stream chunks
@@ -297,6 +300,7 @@ impl Agent {
                                             Some(content.clone()),
                                             None,
                                             Some(MessageProgress::InProgress),
+                                            None,
                                         )))
                                         .await;
 
@@ -333,6 +337,7 @@ impl Agent {
                                 Some(initial_content.clone()),
                                 None,
                                 Some(MessageProgress::Complete),
+                                None,
                             )))
                             .await;
                     }
@@ -350,10 +355,11 @@ impl Agent {
 
                 // Get streaming response
                 let mut stream = llm_client.stream_chat_completion(request).await?;
-                let mut current_message = Message::assistant(None, Some(String::new()), None, None);
+                let mut current_message = Message::assistant(None, Some(String::new()), None, None, None);
                 let mut current_pending_tool: Option<PendingToolCall> = None;
                 let mut has_tool_calls = false;
                 let mut tool_results = Vec::new();
+                let mut first_tool_message_sent = false;
 
                 // Process stream chunks
                 while let Some(chunk_result) = stream.recv().await {
@@ -372,11 +378,15 @@ impl Agent {
                                         let tool_call = pending.into_tool_call();
 
                                         // Create and preserve the assistant message with the tool call
+                                        let is_first = !first_tool_message_sent;
+                                        first_tool_message_sent = true;
+                                        
                                         let assistant_tool_message = Message::assistant(
                                             Some(chunk.id.clone()),
                                             None,
                                             Some(vec![tool_call.clone()]),
                                             Some(MessageProgress::Complete),
+                                            Some(is_first),
                                         );
                                         let _ = tx.send(Ok(assistant_tool_message.clone())).await;
 
@@ -441,6 +451,7 @@ impl Agent {
                                             Some(content.clone()),
                                             None,
                                             Some(MessageProgress::InProgress),
+                                            None,
                                         )))
                                         .await;
                                 }
@@ -474,12 +485,16 @@ impl Agent {
                                                 retrieval: None,
                                             };
 
+                                            let is_first = !first_tool_message_sent;
+                                            first_tool_message_sent = true;
+
                                             let _ = tx
                                                 .send(Ok(Message::assistant(
                                                     Some(chunk.id.clone()),
                                                     None,
                                                     Some(vec![temp_tool_call]),
                                                     Some(MessageProgress::InProgress),
+                                                    Some(is_first),
                                                 )))
                                                 .await;
                                         }
@@ -502,6 +517,7 @@ impl Agent {
                                                     Some(content.clone()),
                                                     None,
                                                     Some(MessageProgress::Complete),
+                                                    None,
                                                 )))
                                                 .await;
                                         }
@@ -737,3 +753,4 @@ mod tests {
         println!("Response: {:?}", response);
     }
 }
+

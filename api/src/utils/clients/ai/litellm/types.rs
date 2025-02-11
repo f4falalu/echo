@@ -122,6 +122,8 @@ pub enum Message {
         tool_calls: Option<Vec<ToolCall>>,
         #[serde(skip)]
         progress: Option<MessageProgress>,
+        #[serde(skip)]
+        initial: bool,
     },
     Tool {
         #[serde(skip)]
@@ -159,13 +161,17 @@ impl Message {
         content: Option<String>,
         tool_calls: Option<Vec<ToolCall>>,
         progress: Option<MessageProgress>,
+        initial: Option<bool>,
     ) -> Self {
+        let initial = initial.unwrap_or(false);
+
         Self::Assistant {
             id,
             content,
             name: None,
             tool_calls,
             progress,
+            initial,
         }
     }
 
@@ -479,6 +485,7 @@ mod tests {
                     None,
                     None,
                     None,
+                    None,
                 ),
                 logprobs: None,
                 finish_reason: Some("stop".to_string()),
@@ -620,7 +627,7 @@ mod tests {
             choices: vec![Choice {
                 finish_reason: Some("length".to_string()),
                 index: 0,
-                message: Message::assistant(Some("".to_string()), None, None, None),
+                message: Message::assistant(Some("".to_string()), None, None, None, None),
                 delta: None,
                 logprobs: None,
             }],
@@ -910,6 +917,7 @@ mod tests {
                         retrieval: None,
                     }]),
                     None,
+                    None,
                 ),
                 logprobs: None,
                 finish_reason: Some("tool_calls".to_string()),
@@ -949,6 +957,7 @@ mod tests {
                 tool_calls,
                 name,
                 progress,
+                initial,
             } => {
                 assert_eq!(id, &None);
                 assert_eq!(content, &None);
