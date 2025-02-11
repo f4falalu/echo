@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     database::{
         enums::AssetPermissionRole,
-        lib::{get_pg_pool, get_sqlx_pool},
+        lib::get_pg_pool,
         models::User,
         schema::dashboards,
     },

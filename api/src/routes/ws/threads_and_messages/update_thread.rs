@@ -14,8 +14,8 @@ use crate::{
     database::{
         enums::AssetType,
         lib::get_pg_pool,
-        models::{Message, ThreadToDashboard, User},
-        schema::{messages, threads, threads_to_dashboards},
+        models::{MessageDeprecated, ThreadToDashboard, User},
+        schema::{messages_deprecated, threads_deprecated, threads_to_dashboards},
     },
     routes::ws::{
         ws::{SubscriptionRwLock, WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
@@ -242,7 +242,7 @@ pub async fn update_thread(
 }
 
 #[derive(AsChangeset)]
-#[diesel(table_name = threads)]
+#[diesel(table_name = threads_deprecated)]
 pub struct ThreadChangeset {
     pub updated_at: DateTime<Utc>,
     pub updated_by: Uuid,
@@ -317,8 +317,8 @@ async fn update_thread_record(
         let thread_id = Arc::clone(&thread_id);
 
         tokio::spawn(async move {
-            match update(threads::table)
-                .filter(threads::id.eq(*thread_id))
+            match update(threads_deprecated::table)
+                .filter(threads_deprecated::id.eq(*thread_id))
                 .set(changeset)
                 .execute(&mut conn)
                 .await
@@ -538,16 +538,16 @@ async fn save_draft_handler(thread_id: Arc<Uuid>, draft_session_id: Uuid) -> Res
         }
     };
 
-    let mut most_recent_message = match messages::table
-        .select(messages::all_columns)
-        .filter(messages::thread_id.eq(*thread_id))
+    let mut most_recent_message = match messages_deprecated::table
+        .select(messages_deprecated::all_columns)
+        .filter(messages_deprecated::thread_id.eq(*thread_id))
         .filter(
-            messages::draft_session_id
+            messages_deprecated::draft_session_id
                 .eq(&draft_session_id)
-                .or(messages::draft_session_id.is_null()),
+                .or(messages_deprecated::draft_session_id.is_null()),
         )
-        .order(messages::created_at.desc())
-        .first::<Message>(&mut conn)
+        .order(messages_deprecated::created_at.desc())
+        .first::<MessageDeprecated>(&mut conn)
         .await
     {
         Ok(message) => message,
@@ -561,9 +561,9 @@ async fn save_draft_handler(thread_id: Arc<Uuid>, draft_session_id: Uuid) -> Res
                 Ok(conn) => conn,
                 Err(e) => return Err(anyhow!("Error getting connection from pool: {}", e)),
             };
-            match update(threads::table)
-                .filter(threads::id.eq(*thread_id))
-                .set(threads::state_message_id.eq(most_recent_message.id))
+            match update(threads_deprecated::table)
+                .filter(threads_deprecated::id.eq(*thread_id))
+                .set(threads_deprecated::state_message_id.eq(most_recent_message.id))
                 .execute(&mut conn)
                 .await
             {
@@ -580,10 +580,10 @@ async fn save_draft_handler(thread_id: Arc<Uuid>, draft_session_id: Uuid) -> Res
                 Ok(conn) => conn,
                 Err(e) => return Err(anyhow!("Error getting connection from pool: {}", e)),
             };
-            match update(messages::table)
-                .filter(messages::thread_id.eq(*thread_id))
-                .filter(messages::draft_session_id.eq(Some(&draft_session_id)))
-                .set(messages::draft_session_id.eq(None::<Uuid>))
+            match update(messages_deprecated::table)
+                .filter(messages_deprecated::thread_id.eq(*thread_id))
+                .filter(messages_deprecated::draft_session_id.eq(Some(&draft_session_id)))
+                .set(messages_deprecated::draft_session_id.eq(None::<Uuid>))
                 .execute(&mut conn)
                 .await
             {
@@ -609,8 +609,8 @@ async fn save_draft_handler(thread_id: Arc<Uuid>, draft_session_id: Uuid) -> Res
             };
 
             tokio::spawn(async move {
-                match update(messages::table)
-                    .filter(messages::id.eq(most_recent_message.id))
+                match update(messages_deprecated::table)
+                    .filter(messages_deprecated::id.eq(most_recent_message.id))
                     .set(most_recent_message)
                     .execute(&mut conn)
                     .await

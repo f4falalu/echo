@@ -5,17 +5,15 @@ use diesel::{
 };
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::{
     database::{
-        enums::{AssetType, IdentityType, UserOrganizationRole, Verification},
-        lib::{get_pg_pool, PgPool},
-        models::{Message, User},
+        enums::{AssetType, IdentityType, Verification},
+        lib::get_pg_pool,
+        models::User,
         schema::{
-            asset_permissions, data_sources, datasets, messages, teams_to_users, threads, users,
-            users_to_organizations,
+            asset_permissions, datasets, messages_deprecated, teams_to_users, threads_deprecated, users,
         },
     },
     routes::ws::{
@@ -234,16 +232,16 @@ async fn get_user_threads(
         }
     };
 
-    let mut messages_statement = threads::table
+    let mut messages_statement = threads_deprecated::table
         .inner_join(
-            messages::table.on(messages::id
+            messages_deprecated::table.on(messages_deprecated::id
                 .nullable()
-                .eq(threads::state_message_id.nullable())
-                .and(messages::deleted_at.is_null())),
+                .eq(threads_deprecated::state_message_id.nullable())
+                .and(messages_deprecated::deleted_at.is_null())),
         )
-        .inner_join(datasets::table.on(datasets::id.nullable().eq(messages::dataset_id)))
+        .inner_join(datasets::table.on(datasets::id.nullable().eq(messages_deprecated::dataset_id)))
         .inner_join(
-            asset_permissions::table.on(threads::id
+            asset_permissions::table.on(threads_deprecated::id
                 .eq(asset_permissions::asset_id)
                 .and(asset_permissions::asset_type.eq(AssetType::Thread))
                 .and(asset_permissions::deleted_at.is_null())),
@@ -254,13 +252,13 @@ async fn get_user_threads(
                 .and(asset_permissions::identity_type.eq(IdentityType::Team))
                 .and(asset_permissions::deleted_at.is_null())),
         )
-        .inner_join(users::table.on(users::id.eq(threads::created_by)))
+        .inner_join(users::table.on(users::id.eq(threads_deprecated::created_by)))
         .select((
             (
-                messages::thread_id,
-                messages::title,
-                messages::verification,
-                messages::created_at,
+                messages_deprecated::thread_id,
+                messages_deprecated::title,
+                messages_deprecated::verification,
+                messages_deprecated::created_at,
             ),
             (users::id, users::name.nullable(), users::email),
             (datasets::id, datasets::name),
@@ -270,12 +268,12 @@ async fn get_user_threads(
                 .eq(user_id)
                 .or(teams_to_users::user_id.eq(user_id)),
         )
-        .filter(threads::deleted_at.is_null())
-        .filter(messages::deleted_at.is_null())
-        .filter(messages::draft_session_id.is_null())
-        .filter(messages::dataset_id.is_not_null())
-        .filter(messages::code.is_not_null())
-        .order_by(messages::created_at.desc())
+        .filter(threads_deprecated::deleted_at.is_null())
+        .filter(messages_deprecated::deleted_at.is_null())
+        .filter(messages_deprecated::draft_session_id.is_null())
+        .filter(messages_deprecated::dataset_id.is_not_null())
+        .filter(messages_deprecated::code.is_not_null())
+        .order_by(messages_deprecated::created_at.desc())
         .offset(page * page_size)
         .limit(page_size)
         .into_boxed();
@@ -283,7 +281,7 @@ async fn get_user_threads(
     if let Some(filters) = filters {
         if let Some(verification) = filters.verification {
             messages_statement =
-                messages_statement.filter(messages::verification.eq_any(verification));
+                messages_statement.filter(messages_deprecated::verification.eq_any(verification));
         }
     }
 
@@ -319,31 +317,31 @@ async fn get_admin_threads(
 > {
     let organization_id = get_user_organization_id(user_id).await?;
 
-    let mut messages_statement = threads::table
+    let mut messages_statement = threads_deprecated::table
         .inner_join(
-            messages::table.on(messages::id
+            messages_deprecated::table.on(messages_deprecated::id
                 .nullable()
-                .eq(threads::state_message_id.nullable())),
+                .eq(threads_deprecated::state_message_id.nullable())),
         )
-        .inner_join(datasets::table.on(datasets::id.nullable().eq(messages::dataset_id)))
-        .inner_join(users::table.on(users::id.eq(threads::created_by)))
+        .inner_join(datasets::table.on(datasets::id.nullable().eq(messages_deprecated::dataset_id)))
+        .inner_join(users::table.on(users::id.eq(threads_deprecated::created_by)))
         .select((
             (
-                messages::thread_id,
-                messages::title,
-                messages::verification,
-                messages::created_at,
+                messages_deprecated::thread_id,
+                messages_deprecated::title,
+                messages_deprecated::verification,
+                messages_deprecated::created_at,
             ),
             (users::id, users::name.nullable(), users::email),
             (datasets::id, datasets::name),
         ))
-        .filter(threads::organization_id.eq(organization_id))
-        .filter(threads::deleted_at.is_null())
-        .filter(messages::deleted_at.is_null())
-        .filter(messages::draft_session_id.is_null())
-        .filter(messages::dataset_id.is_not_null())
-        .filter(messages::code.is_not_null())
-        .order_by(messages::created_at.desc())
+        .filter(threads_deprecated::organization_id.eq(organization_id))
+        .filter(threads_deprecated::deleted_at.is_null())
+        .filter(messages_deprecated::deleted_at.is_null())
+        .filter(messages_deprecated::draft_session_id.is_null())
+        .filter(messages_deprecated::dataset_id.is_not_null())
+        .filter(messages_deprecated::code.is_not_null())
+        .order_by(messages_deprecated::created_at.desc())
         .offset(page * page_size)
         .limit(page_size)
         .into_boxed();
@@ -351,7 +349,7 @@ async fn get_admin_threads(
     if let Some(filters) = filters {
         if let Some(verification) = filters.verification {
             messages_statement =
-                messages_statement.filter(messages::verification.eq_any(verification));
+                messages_statement.filter(messages_deprecated::verification.eq_any(verification));
         }
     }
 

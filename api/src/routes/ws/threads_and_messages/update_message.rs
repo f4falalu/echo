@@ -10,9 +10,9 @@ use uuid::Uuid;
 use crate::{
     database::{
         enums::{AssetPermissionRole, MessageFeedback, Verification},
-        lib::{get_pg_pool, get_sqlx_pool},
+        lib::get_pg_pool,
         models::User,
-        schema::{messages, threads},
+        schema::{messages_deprecated, threads_deprecated},
     },
     routes::ws::{
         ws::{SubscriptionRwLock, WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
@@ -57,10 +57,10 @@ pub async fn update_message(
         }
     };
 
-    let thread_id = match threads::table
-        .select(threads::id)
-        .inner_join(messages::table.on(threads::id.eq(messages::thread_id)))
-        .filter(messages::id.eq(&req.id))
+    let thread_id = match threads_deprecated::table
+        .select(threads_deprecated::id)
+        .inner_join(messages_deprecated::table.on(threads_deprecated::id.eq(messages_deprecated::thread_id)))
+        .filter(messages_deprecated::id.eq(&req.id))
         .first::<Uuid>(&mut conn)
         .await
     {
@@ -276,9 +276,9 @@ async fn update_message_handler(
                 }
             };
 
-            match update(messages::table)
+            match update(messages_deprecated::table)
                 .set(&message)
-                .filter(messages::id.eq(&message.id))
+                .filter(messages_deprecated::id.eq(&message.id))
                 .execute(&mut conn)
                 .await
             {

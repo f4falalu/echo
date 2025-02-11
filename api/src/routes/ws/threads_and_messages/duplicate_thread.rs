@@ -10,8 +10,8 @@ use crate::{
     database::{
         enums::{AssetPermissionRole, AssetType, IdentityType},
         lib::{get_pg_pool, FetchingData, StepProgress},
-        models::{AssetPermission, Message, User},
-        schema::{asset_permissions, messages, threads},
+        models::{AssetPermission, MessageDeprecated, User},
+        schema::{asset_permissions, messages_deprecated, threads_deprecated},
     },
     routes::ws::{
         ws::{SubscriptionRwLock, WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
@@ -373,7 +373,7 @@ async fn duplicate_thread_handler(
         Err(e) => return Err(anyhow!("Error getting pg connection: {}", e)),
     };
 
-    match insert_into(threads::table)
+    match insert_into(threads_deprecated::table)
         .values(&thread_state.thread)
         .execute(&mut conn)
         .await
@@ -382,7 +382,7 @@ async fn duplicate_thread_handler(
         Err(e) => return Err(anyhow!("Error inserting thread: {}", e)),
     }
 
-    let bulk_messages: Vec<Message> = thread_state
+    let bulk_messages: Vec<MessageDeprecated> = thread_state
         .messages
         .iter()
         .map(|m| m.message.clone())
@@ -394,7 +394,7 @@ async fn duplicate_thread_handler(
             Err(e) => return Err(anyhow!("Error getting pg connection: {}", e)),
         };
         tokio::spawn(async move {
-            match insert_into(messages::table)
+            match insert_into(messages_deprecated::table)
                 .values(bulk_messages)
                 .execute(&mut conn)
                 .await

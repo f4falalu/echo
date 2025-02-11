@@ -1,29 +1,13 @@
 use sqlx::Row;
-use std::sync::Arc;
 use tokio_stream::StreamExt;
 
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
-use diesel::{
-    BoolExpressionMethods, ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl,
-};
-use diesel_async::RunQueryDsl;
+use diesel::QueryDsl;
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::{
-    database::{
-        enums::{AssetType, IdentityType, UserOrganizationRole},
-        lib::{get_pg_pool, get_sqlx_pool, PgPool},
-        schema::{
-            asset_permissions, collections, dashboards, data_sources, datasets,
-            datasets_to_permission_groups, messages, organizations, permission_groups,
-            permission_groups_to_identities, teams, teams_to_users, terms, users,
-            users_to_organizations,
-        },
-    },
-    utils::clients::typesense::{self, CollectionName, Document, SearchRequestObject},
-};
+use crate::database::lib::get_sqlx_pool;
 
 #[derive(Serialize, Debug)]
 pub struct MessageSearchResult {

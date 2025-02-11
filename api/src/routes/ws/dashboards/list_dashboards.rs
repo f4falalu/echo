@@ -10,10 +10,10 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     database::{
-        enums::{AssetPermissionRole, AssetType, IdentityType},
+        enums::{AssetPermissionRole, AssetType},
         lib::get_pg_pool,
         models::User,
-        schema::{asset_permissions, dashboards, teams_to_users, users},
+        schema::{asset_permissions, dashboards, users},
     },
     routes::ws::{
         dashboards::dashboards_router::{DashboardEvent, DashboardRoute},

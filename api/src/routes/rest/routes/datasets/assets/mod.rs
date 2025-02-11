@@ -3,7 +3,7 @@ mod list_dataset_assets;
 mod put_dataset_assets;
 
 use axum::{
-    routing::{get, put},
+    routing::get,
     Router,
 };
 

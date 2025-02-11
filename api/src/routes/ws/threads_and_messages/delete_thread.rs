@@ -10,7 +10,7 @@ use crate::{
     database::{
         lib::get_pg_pool,
         models::User,
-        schema::threads,
+        schema::threads_deprecated,
     },
     routes::ws::{
         ws::{SubscriptionRwLock, WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
@@ -141,9 +141,9 @@ async fn delete_thread_handler(
     let id = id.clone();
 
     let delete_thread_task = tokio::task::spawn(async move {
-        match update(threads::table)
-            .filter(threads::id.eq(&id))
-            .set(threads::deleted_at.eq(chrono::Utc::now()))
+        match update(threads_deprecated::table)
+            .filter(threads_deprecated::id.eq(&id))
+            .set(threads_deprecated::deleted_at.eq(chrono::Utc::now()))
             .execute(&mut conn)
             .await
         {

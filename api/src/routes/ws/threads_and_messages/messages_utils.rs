@@ -3,9 +3,9 @@ use std::sync::Arc;
 use crate::database::{
     enums::{AssetPermissionRole, UserOrganizationRole},
     lib::get_pg_pool,
-    models::Message,
+    models::MessageDeprecated,
     schema::{
-        asset_permissions, data_sources, datasets, messages, teams_to_users, threads,
+        asset_permissions, data_sources, datasets, messages_deprecated, teams_to_users, threads_deprecated,
         users_to_organizations,
     },
 };
@@ -31,7 +31,7 @@ pub struct MessageDraftState {
 pub async fn get_message_with_permission(
     message_id: &Uuid,
     user_id: &Uuid,
-) -> Result<(Message, AssetPermissionRole)> {
+) -> Result<(MessageDeprecated, AssetPermissionRole)> {
     let message_id = Arc::new(message_id.clone());
     let user_id = Arc::new(user_id.clone());
 
@@ -95,7 +95,7 @@ pub async fn get_message_with_permission(
     Ok((message, final_permission))
 }
 
-async fn get_message_by_id(message_id: Arc<Uuid>) -> Result<Message> {
+async fn get_message_by_id(message_id: Arc<Uuid>) -> Result<MessageDeprecated> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => {
@@ -104,11 +104,11 @@ async fn get_message_by_id(message_id: Arc<Uuid>) -> Result<Message> {
         }
     };
 
-    let message = match messages::table
-        .filter(messages::id.eq(message_id.as_ref()))
-        .filter(messages::deleted_at.is_null())
-        .select(messages::all_columns)
-        .first::<Message>(&mut conn)
+    let message = match messages_deprecated::table
+        .filter(messages_deprecated::id.eq(message_id.as_ref()))
+        .filter(messages_deprecated::deleted_at.is_null())
+        .select(messages_deprecated::all_columns)
+        .first::<MessageDeprecated>(&mut conn)
         .await
     {
         Ok(threads) => threads,
@@ -132,18 +132,18 @@ pub async fn check_public_thread(message_id: Arc<Uuid>) -> Result<bool> {
         }
     };
 
-    match threads::table
+    match threads_deprecated::table
         .inner_join(
-            messages::table.on(threads::id.eq(messages::thread_id).and(
-                messages::id.eq(message_id.as_ref()).and(
-                    messages::deleted_at
+            messages_deprecated::table.on(threads_deprecated::id.eq(messages_deprecated::thread_id).and(
+                messages_deprecated::id.eq(message_id.as_ref()).and(
+                    messages_deprecated::deleted_at
                         .is_null()
-                        .and(messages::draft_session_id.is_null()),
+                        .and(messages_deprecated::draft_session_id.is_null()),
                 ),
             )),
         )
-        .select((threads::publicly_accessible, threads::public_expiry_date))
-        .filter(threads::deleted_at.is_null())
+        .select((threads_deprecated::publicly_accessible, threads_deprecated::public_expiry_date))
+        .filter(threads_deprecated::deleted_at.is_null())
         .first::<(bool, Option<DateTime<Utc>>)>(&mut conn)
         .await
     {
@@ -246,14 +246,14 @@ async fn get_user_asset_role(
         .left_join(
             teams_to_users::table.on(asset_permissions::identity_id.eq(teams_to_users::team_id)),
         )
-        .inner_join(messages::table.on(asset_permissions::asset_id.eq(messages::thread_id)))
+        .inner_join(messages_deprecated::table.on(asset_permissions::asset_id.eq(messages_deprecated::thread_id)))
         .select(asset_permissions::role)
         .filter(
             asset_permissions::identity_id
                 .eq(user_id.as_ref())
                 .or(teams_to_users::user_id.eq(user_id.as_ref())),
         )
-        .filter(messages::id.eq(message_id.as_ref()))
+        .filter(messages_deprecated::id.eq(message_id.as_ref()))
         .filter(asset_permissions::deleted_at.is_null())
         .load::<AssetPermissionRole>(&mut conn)
         .await
@@ -284,9 +284,9 @@ async fn is_organization_admin_or_owner(user_id: Arc<Uuid>, message_id: Arc<Uuid
                 .on(users_to_organizations::organization_id.eq(data_sources::organization_id)),
         )
         .inner_join(datasets::table.on(data_sources::id.eq(datasets::data_source_id)))
-        .inner_join(messages::table.on(datasets::id.nullable().eq(messages::dataset_id)))
+        .inner_join(messages_deprecated::table.on(datasets::id.nullable().eq(messages_deprecated::dataset_id)))
         .select(users_to_organizations::role)
-        .filter(messages::id.eq(message_id.as_ref()))
+        .filter(messages_deprecated::id.eq(message_id.as_ref()))
         .filter(users_to_organizations::user_id.eq(user_id.as_ref()))
         .first::<UserOrganizationRole>(&mut conn)
         .await

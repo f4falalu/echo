@@ -1,0 +1,480 @@
+use anyhow::Result;
+use futures_util::StreamExt;
+use reqwest::{header, Client};
+use std::env;
+use tokio::sync::mpsc;
+
+use super::types::*;
+
+#[derive(Clone)]
+pub struct LiteLLMClient {
+    client: Client,
+    pub(crate) api_key: String,
+    pub(crate) base_url: String,
+}
+
+impl LiteLLMClient {
+    pub fn new(api_key: Option<String>, base_url: Option<String>) -> Self {
+        let api_key = api_key.or_else(|| env::var("LLM_API_KEY").ok()).expect(
+            "LLM_API_KEY must be provided either through parameter or environment variable",
+        );
+
+        let base_url = base_url
+            .or_else(|| env::var("LLM_BASE_URL").ok())
+            .unwrap_or_else(|| "http://localhost:8000".to_string());
+
+        let mut headers = header::HeaderMap::new();
+        headers.insert(
+            "Authorization",
+            header::HeaderValue::from_str(&format!("Bearer {}", api_key)).unwrap(),
+        );
+        headers.insert(
+            "Content-Type",
+            header::HeaderValue::from_static("application/json"),
+        );
+        headers.insert(
+            "Accept",
+            header::HeaderValue::from_static("application/json"),
+        );
+
+        let client = Client::builder()
+            .default_headers(headers)
+            .build()
+            .expect("Failed to create HTTP client");
+
+        Self {
+            client,
+            api_key,
+            base_url,
+        }
+    }
+
+    pub async fn chat_completion(
+        &self,
+        request: ChatCompletionRequest,
+    ) -> Result<ChatCompletionResponse> {
+        let url = format!("{}/chat/completions", self.base_url);
+
+        println!("DEBUG: Sending chat completion request to URL: {}", url);
+        println!(
+            "DEBUG: Request payload: {}",
+            serde_json::to_string_pretty(&request).unwrap()
+        );
+
+        let response = self
+            .client
+            .post(&url)
+            .json(&request)
+            .send()
+            .await?
+            .json::<ChatCompletionResponse>()
+            .await?;
+
+        // Print tool calls if present
+        if let Some(Message::Assistant {
+            tool_calls: Some(tool_calls),
+            ..
+        }) = response.choices.first().map(|c| &c.message)
+        {
+            println!("DEBUG: Tool calls in response:");
+            for tool_call in tool_calls {
+                println!("DEBUG: Tool Call ID: {}", tool_call.id);
+                println!("DEBUG: Tool Name: {}", tool_call.function.name);
+                println!("DEBUG: Tool Arguments: {}", tool_call.function.arguments);
+            }
+        }
+
+        println!(
+            "DEBUG: Received chat completion response: {}",
+            serde_json::to_string_pretty(&response).unwrap()
+        );
+
+        Ok(response)
+    }
+
+    pub async fn stream_chat_completion(
+        &self,
+        request: ChatCompletionRequest,
+    ) -> Result<mpsc::Receiver<Result<ChatCompletionChunk>>> {
+        let url = format!("{}/chat/completions", self.base_url);
+
+        println!(
+            "DEBUG: Starting stream chat completion request to URL: {}",
+            url
+        );
+        println!(
+            "DEBUG: Stream request payload: {}",
+            serde_json::to_string_pretty(&request).unwrap()
+        );
+
+        let mut stream = self
+            .client
+            .post(&url)
+            .json(&ChatCompletionRequest {
+                stream: Some(true),
+                ..request
+            })
+            .send()
+            .await?
+            .bytes_stream();
+
+        let (tx, rx) = mpsc::channel(100);
+
+        tokio::spawn(async move {
+            let mut buffer = String::new();
+            println!("DEBUG: Stream processing started");
+
+            while let Some(chunk_result) = stream.next().await {
+                match chunk_result {
+                    Ok(chunk) => {
+                        let chunk_str = String::from_utf8_lossy(&chunk);
+                        println!("DEBUG: Received raw stream chunk: {}", chunk_str);
+                        buffer.push_str(&chunk_str);
+
+                        while let Some(pos) = buffer.find("\n\n") {
+                            let line = buffer[..pos].trim().to_string();
+                            buffer = buffer[pos + 2..].to_string();
+
+                            if line.starts_with("data: ") {
+                                let data = &line["data: ".len()..];
+                                println!("DEBUG: Processing stream data: {}", data);
+                                if data == "[DONE]" {
+                                    println!("DEBUG: Stream completed with [DONE] signal");
+                                    break;
+                                }
+
+                                if let Ok(response) =
+                                    serde_json::from_str::<ChatCompletionChunk>(data)
+                                {
+                                    // Print tool calls if present in the stream chunk
+                                    if let Some(tool_calls) = &response.choices[0].delta.tool_calls
+                                    {
+                                        println!("DEBUG: Tool calls in stream chunk:");
+                                        for tool_call in tool_calls {
+                                            if let (Some(id), Some(function)) =
+                                                (tool_call.id.clone(), tool_call.function.clone())
+                                            {
+                                                println!("DEBUG: Tool Call ID: {}", id);
+                                                if let Some(name) = function.name {
+                                                    println!("DEBUG: Tool Name: {}", name);
+                                                }
+                                                if let Some(arguments) = function.arguments {
+                                                    println!(
+                                                        "DEBUG: Tool Arguments: {}",
+                                                        arguments
+                                                    );
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    println!("DEBUG: Parsed stream chunk: {:?}", response);
+                                    let _ = tx.send(Ok(response)).await;
+                                }
+                            }
+                        }
+                    }
+                    Err(e) => {
+                        println!("DEBUG: Error in stream processing: {:?}", e);
+                        let _ = tx.send(Err(anyhow::Error::from(e))).await;
+                    }
+                }
+            }
+            println!("DEBUG: Stream processing completed");
+        });
+
+        println!("DEBUG: Returning stream receiver");
+        Ok(rx)
+    }
+}
+
+impl Default for LiteLLMClient {
+    fn default() -> Self {
+        Self::new(None, None)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use mockito;
+    use std::env;
+    use std::time::Duration;
+    use tokio::time::timeout;
+
+    use dotenv::dotenv;
+
+    // Helper function to initialize environment before tests
+    async fn setup() -> (String, String) {
+        // Load environment variables from .env file
+        dotenv().ok();
+
+        // Get API key and base URL from environment
+        let api_key = env::var("LLM_API_KEY").expect("LLM_API_KEY must be set");
+        let base_url = env::var("LLM_BASE_URL").expect("LLM_API_BASE must be set");
+
+        (api_key, base_url)
+    }
+
+    fn create_test_message() -> Message {
+        Message::user("Hello".to_string())
+    }
+
+    fn create_test_request() -> ChatCompletionRequest {
+        ChatCompletionRequest {
+            model: "gpt-4".to_string(),
+            messages: vec![create_test_message()],
+            temperature: Some(0.7),
+            ..Default::default()
+        }
+    }
+
+    #[tokio::test]
+    async fn test_chat_completion_success() {
+        let mut server = mockito::Server::new_async().await;
+
+        let request = create_test_request();
+        let request_body = serde_json::to_string(&request).unwrap();
+
+        let mock = server
+            .mock("POST", "/chat/completions")
+            .match_header("content-type", "application/json")
+            .match_header("authorization", "Bearer test-key")
+            .match_body(mockito::Matcher::JsonString(request_body))
+            .with_status(200)
+            .with_header("content-type", "application/json")
+            .with_body(
+                r#"{
+                "id": "test-id",
+                "object": "chat.completion",
+                "created": 1234567890,
+                "model": "gpt-4",
+                "system_fingerprint": "fp_44709d6fcb",
+                "choices": [{
+                    "index": 0,
+                    "message": {
+                        "role": "assistant",
+                        "content": "Hello there!"
+                    },
+                    "finish_reason": "stop"
+                }],
+                "usage": {
+                    "prompt_tokens": 10,
+                    "completion_tokens": 20,
+                    "total_tokens": 30,
+                    "completion_tokens_details": {
+                        "reasoning_tokens": 0,
+                        "accepted_prediction_tokens": 0,
+                        "rejected_prediction_tokens": 0
+                    }
+                }
+            }"#,
+            )
+            .create();
+
+        let client = LiteLLMClient::new(Some("test-key".to_string()), Some(server.url()));
+
+        let response = client.chat_completion(request).await.unwrap();
+        assert_eq!(response.id, "test-id");
+        if let Message::Assistant { content, .. } = response.choices[0].message.clone() {
+            assert_eq!(content.unwrap(), "Hello there!");
+        } else {
+            panic!("Expected assistant message");
+        }
+
+        mock.assert();
+    }
+
+    #[tokio::test]
+    async fn test_chat_completion_error() {
+        let mut server = mockito::Server::new_async().await;
+
+        let request = create_test_request();
+        let request_body = serde_json::to_string(&request).unwrap();
+
+        let mock = server
+            .mock("POST", "/chat/completions")
+            .match_header("content-type", "application/json")
+            .match_header("authorization", "Bearer test-key")
+            .match_body(mockito::Matcher::JsonString(request_body))
+            .with_status(400)
+            .with_header("content-type", "application/json")
+            .with_body(r#"{"error": "Invalid request"}"#)
+            .create();
+
+        let client = LiteLLMClient::new(Some("test-key".to_string()), Some(server.url()));
+
+        let result = client.chat_completion(request).await;
+        assert!(result.is_err());
+
+        mock.assert();
+    }
+
+    #[tokio::test]
+    async fn test_stream_chat_completion() {
+        let mut server = mockito::Server::new_async().await;
+
+        let mut request = create_test_request();
+        request.stream = Some(true);
+        let request_body = serde_json::to_string(&request).unwrap();
+
+        let mock = server.mock("POST", "/chat/completions")
+            .match_header("content-type", "application/json")
+            .match_header("authorization", "Bearer test-key")
+            .match_body(mockito::Matcher::JsonString(request_body))
+            .with_status(200)
+            .with_header("content-type", "text/event-stream")
+            .with_body(
+                "data: {\"id\":\"1\",\"object\":\"chat.completion.chunk\",\"created\":1234567890,\"model\":\"gpt-4\",\"system_fingerprint\":\"fp_44709d6fcb\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"Hello\"},\"finish_reason\":null}]}\n\n\
+                 data: {\"id\":\"1\",\"object\":\"chat.completion.chunk\",\"created\":1234567890,\"model\":\"gpt-4\",\"system_fingerprint\":\"fp_44709d6fcb\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" world\"},\"finish_reason\":null}]}\n\n\
+                 data: [DONE]\n\n"
+            )
+            .create();
+
+        let client = LiteLLMClient::new(Some("test-key".to_string()), Some(server.url()));
+
+        let mut stream = client.stream_chat_completion(request).await.unwrap();
+
+        let mut chunks = Vec::new();
+        while let Ok(Some(chunk)) = timeout(Duration::from_secs(1), stream.recv()).await {
+            if let Ok(chunk) = chunk {
+                chunks.push(chunk);
+            }
+        }
+
+        assert_eq!(chunks.len(), 2);
+        // First chunk assertions
+        let first_chunk = &chunks[0].choices[0].delta;
+        assert_eq!(first_chunk.content.as_ref().unwrap(), "Hello");
+
+        // Second chunk assertions
+        let second_chunk = &chunks[1].choices[0].delta;
+        assert_eq!(second_chunk.content.as_ref().unwrap(), " world");
+        assert!(second_chunk.role.is_none());
+        assert!(second_chunk.tool_calls.is_none());
+
+        mock.assert();
+    }
+
+    #[tokio::test]
+    async fn test_tool_call_completion() {
+        let mut server = mockito::Server::new_async().await;
+
+        let request = create_test_request();
+        let request_body = serde_json::to_string(&request).unwrap();
+
+        let mock = server
+            .mock("POST", "/chat/completions")
+            .match_header("content-type", "application/json")
+            .match_header("authorization", "Bearer test-key")
+            .match_body(mockito::Matcher::JsonString(request_body))
+            .with_status(200)
+            .with_header("content-type", "application/json")
+            .with_body(
+                r#"{
+                "id": "test-id",
+                "object": "chat.completion",
+                "created": 1234567890,
+                "model": "gpt-4",
+                "system_fingerprint": "fp_44709d6fcb",
+                "choices": [{
+                    "index": 0,
+                    "message": {
+                        "role": "assistant",
+                        "content": null,
+                        "tool_calls": [{
+                            "id": "call_123",
+                            "type": "function",
+                            "function": {
+                                "name": "get_current_weather",
+                                "arguments": "{\"location\":\"Boston, MA\"}"
+                            }
+                        }]
+                    },
+                    "finish_reason": "tool_calls"
+                }],
+                "usage": {
+                    "prompt_tokens": 82,
+                    "completion_tokens": 17,
+                    "total_tokens": 99,
+                    "completion_tokens_details": {
+                        "reasoning_tokens": 0,
+                        "accepted_prediction_tokens": 0,
+                        "rejected_prediction_tokens": 0
+                    }
+                }
+            }"#,
+            )
+            .create();
+
+        let client = LiteLLMClient::new(Some("test-key".to_string()), Some(server.url()));
+
+        let response = client.chat_completion(request).await.unwrap();
+        assert_eq!(response.id, "test-id");
+        if let Message::Assistant {
+            content,
+            tool_calls,
+            ..
+        } = &response.choices[0].message
+        {
+            assert!(content.is_none());
+            let tool_calls = tool_calls.as_ref().unwrap();
+            assert_eq!(tool_calls[0].id, "call_123");
+            assert_eq!(tool_calls[0].function.name, "get_current_weather");
+            assert_eq!(
+                tool_calls[0].function.arguments,
+                "{\"location\":\"Boston, MA\"}"
+            );
+        } else {
+            panic!("Expected assistant message");
+        }
+
+        mock.assert();
+    }
+
+    #[test]
+    fn test_client_initialization_with_env_vars() {
+        let test_api_key = "test-env-key";
+        let test_base_url = "http://test-env-url";
+
+        env::set_var("LLM_API_KEY", test_api_key);
+        env::set_var("LLM_BASE_URL", test_base_url);
+
+        // Test with no parameters (should use env vars)
+        let client = LiteLLMClient::new(None, None);
+        assert_eq!(client.api_key, test_api_key);
+        assert_eq!(client.base_url, test_base_url);
+
+        // Test with parameters (should override env vars)
+        let override_key = "override-key";
+        let override_url = "http://override-url";
+        let client = LiteLLMClient::new(
+            Some(override_key.to_string()),
+            Some(override_url.to_string()),
+        );
+        assert_eq!(client.api_key, override_key);
+        assert_eq!(client.base_url, override_url);
+
+        env::remove_var("LLM_API_KEY");
+        env::remove_var("LLM_BASE_URL");
+    }
+
+    #[tokio::test]
+    async fn test_single_message_completion() {
+        let (api_key, base_url) = setup().await;
+        let client = LiteLLMClient::new(Some(api_key), Some(base_url));
+
+        let request = ChatCompletionRequest {
+            model: "o1".to_string(),
+            messages: vec![Message::user("Hello, world!".to_string())],
+            ..Default::default()
+        };
+
+        let response = match client.chat_completion(request).await {
+            Ok(response) => response,
+            Err(e) => panic!("Error processing thread: {:?}", e),
+        };
+
+        assert!(response.choices.len() > 0);
+    }
+}

@@ -8,7 +8,7 @@ use serde::Serialize;
 use uuid::Uuid;
 
 use crate::database::lib::get_pg_pool;
-use crate::database::models::{PermissionGroup, User};
+use crate::database::models::User;
 use crate::database::schema::{permission_groups, permission_groups_to_identities, dataset_permissions, dataset_groups_permissions};
 use crate::database::enums::IdentityType;
 use crate::routes::rest::ApiResponse;

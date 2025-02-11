@@ -13,14 +13,13 @@ use uuid::Uuid;
 use crate::{
     database::{
         enums::{IdentityType, UserOrganizationRole},
-        lib::{get_pg_pool, PgPool},
+        lib::get_pg_pool,
         models::{User, UserToOrganization},
         schema::{
-            data_sources, dataset_groups, dataset_groups_permissions, dataset_permissions, datasets, datasets_to_permission_groups, messages, permission_groups_to_identities, permission_groups_to_users, teams_to_users, users, users_to_organizations
+            data_sources, dataset_groups, dataset_groups_permissions, dataset_permissions, datasets, messages_deprecated, permission_groups_to_identities, users, users_to_organizations
         },
     },
     routes::rest::ApiResponse,
-    utils::user::user_info::get_user_organization_id,
 };
 
 #[derive(Deserialize)]
@@ -169,7 +168,7 @@ async fn get_org_datasets(
     let mut query = datasets::table
         .inner_join(data_sources::table.on(datasets::data_source_id.eq(data_sources::id)))
         .inner_join(users::table.on(datasets::created_by.eq(users::id)))
-        .left_join(messages::table.on(messages::dataset_id.eq(datasets::id.nullable())))
+        .left_join(messages_deprecated::table.on(messages_deprecated::dataset_id.eq(datasets::id.nullable())))
         .select((
             datasets::id,
             datasets::name,

@@ -14,7 +14,7 @@ use crate::database::enums::{AssetPermissionRole, AssetType, UserOrganizationRol
 use crate::database::lib::{get_pg_pool, PgPool};
 use crate::database::models::User;
 use crate::database::schema::{
-    asset_permissions, collections_to_assets, dashboards, teams_to_users, threads,
+    asset_permissions, collections_to_assets, dashboards, teams_to_users, threads_deprecated,
     threads_to_dashboards, users_to_organizations,
 };
 use crate::routes::rest::ApiResponse;
@@ -93,15 +93,15 @@ async fn get_asset_access_handler(
         AssetType::Thread => {
             let mut conn = pg_pool.get().await?;
 
-            let thread_info = threads::table
+            let thread_info = threads_deprecated::table
                 .select((
-                    threads::id,
-                    threads::publicly_accessible,
-                    threads::password_secret_id.is_not_null(),
-                    threads::public_expiry_date,
+                    threads_deprecated::id,
+                    threads_deprecated::publicly_accessible,
+                    threads_deprecated::password_secret_id.is_not_null(),
+                    threads_deprecated::public_expiry_date,
                 ))
-                .filter(threads::id.eq(&asset_id))
-                .filter(threads::deleted_at.is_null())
+                .filter(threads_deprecated::id.eq(&asset_id))
+                .filter(threads_deprecated::deleted_at.is_null())
                 .first::<(Uuid, bool, bool, Option<DateTime<Utc>>)>(&mut conn)
                 .await?;
 

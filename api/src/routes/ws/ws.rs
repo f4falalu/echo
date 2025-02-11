@@ -21,7 +21,7 @@ use futures::{
 };
 use redis::{streams::StreamReadOptions, AsyncCommands};
 use serde::{Deserialize, Serialize};
-use serde_json::{json, to_value, Value};
+use serde_json::{to_value, Value};
 use tokio::sync::broadcast;
 use tokio::task::JoinSet;
 use tokio::{

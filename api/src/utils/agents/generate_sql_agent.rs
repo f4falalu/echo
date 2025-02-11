@@ -398,7 +398,7 @@ pub async fn generate_sql_agent(options: GenerateSqlAgentOptions) -> Result<Valu
 
             thoughts.title = main_title;
 
-            let mut content = "".to_string();
+            let content = "".to_string();
 
             thoughts.thoughts.push(Thought {
                 type_: "thoughtBlock".to_string(),

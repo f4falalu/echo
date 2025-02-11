@@ -11,7 +11,7 @@ use crate::{
         enums::UserOrganizationRole,
         lib::get_pg_pool,
         models::{Dataset, User},
-        schema::{data_sources, datasets, users, users_to_organizations},
+        schema::{datasets, users_to_organizations},
     },
     routes::rest::ApiResponse,
     utils::query_engine::{data_types::DataType, query_engine::query_engine},

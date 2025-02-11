@@ -14,10 +14,10 @@ use serde::{Deserialize, Serialize};
 use crate::{
     database::{
         enums::{IdentityType, UserOrganizationRole},
-        lib::{get_pg_pool, PgPool},
+        lib::get_pg_pool,
         models::{User, UserToOrganization},
         schema::{
-            data_sources, dataset_permissions, datasets, datasets_to_permission_groups, messages,
+            data_sources, dataset_permissions, datasets, datasets_to_permission_groups, messages_deprecated,
             permission_groups_to_identities, permission_groups_to_users, teams_to_users, users,
             users_to_organizations,
         },
@@ -28,7 +28,7 @@ use crate::{
         ws_router::WsRoutes,
         ws_utils::{send_error_message, send_ws_message},
     },
-    utils::{clients::sentry_utils::send_sentry_error, user::user_info::get_user_organization_id},
+    utils::clients::sentry_utils::send_sentry_error,
 };
 
 #[derive(Deserialize, Debug, Clone)]
@@ -223,7 +223,7 @@ async fn get_user_permissioned_datasets(
                 .and(teams_to_users::deleted_at.is_null())),
         )
         .inner_join(users::table.on(datasets::created_by.eq(users::id)))
-        .left_join(messages::table.on(messages::dataset_id.eq(datasets::id.nullable())))
+        .left_join(messages_deprecated::table.on(messages_deprecated::dataset_id.eq(datasets::id.nullable())))
         .select((
             datasets::id,
             datasets::name,
@@ -338,7 +338,7 @@ async fn get_org_datasets(
     let mut query = datasets::table
         .inner_join(data_sources::table.on(datasets::data_source_id.eq(data_sources::id)))
         .inner_join(users::table.on(datasets::created_by.eq(users::id)))
-        .left_join(messages::table.on(messages::dataset_id.eq(datasets::id.nullable())))
+        .left_join(messages_deprecated::table.on(messages_deprecated::dataset_id.eq(datasets::id.nullable())))
         .select((
             datasets::id,
             datasets::name,
@@ -529,7 +529,7 @@ async fn get_restricted_user_datasets(
                 .inner_join(
                     dataset_permissions::table.on(dataset_permissions::dataset_id.eq(datasets::id)),
                 )
-                .left_join(messages::table.on(messages::dataset_id.eq(datasets::id.nullable())))
+                .left_join(messages_deprecated::table.on(messages_deprecated::dataset_id.eq(datasets::id.nullable())))
                 .select((
                     datasets::id,
                     datasets::name,
@@ -619,7 +619,7 @@ async fn get_restricted_user_datasets(
                     permission_groups_to_users::table
                         .on(permission_groups_to_users::user_id.eq(user_id)),
                 )
-                .left_join(messages::table.on(messages::dataset_id.eq(datasets::id.nullable())))
+                .left_join(messages_deprecated::table.on(messages_deprecated::dataset_id.eq(datasets::id.nullable())))
                 .select((
                     datasets::id,
                     datasets::name,

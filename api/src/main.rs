@@ -7,9 +7,8 @@ pub mod utils;
 use std::env;
 use std::sync::Arc;
 
-use axum::{middleware, Extension, Router};
-use buster_middleware::{auth::auth, cors::cors};
-use database::lib::get_pg_pool;
+use axum::{Extension, Router};
+use buster_middleware::cors::cors;
 use diesel::{Connection, PgConnection};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use dotenv::dotenv;
