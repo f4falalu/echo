@@ -26,7 +26,21 @@ export const useBusterNewChat = () => {
 
   const onStartNewChat = useMemoizedFn(async (prompt: string) => {
     console.log('start new chat');
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    startListeningForChatProgress();
+    const result = await busterSocket.emitAndOnce({
+      emitEvent: {
+        route: '/chats/post',
+        payload: {
+          dataset_id: null, //TODO: add selected dataset id
+          prompt
+        }
+      },
+      responseEvent: {
+        route: '/chats/post:complete',
+        callback: completeChatCallback
+      }
+    });
+    stopListeningForChatProgress();
   });
 
   const onStartChatFromFile = useMemoizedFn(
@@ -60,7 +74,6 @@ export const useBusterNewChat = () => {
           callback: completeChatCallback
         }
       });
-
       stopListeningForChatProgress();
     }
   );
