@@ -4,7 +4,6 @@ import { useMemoizedFn } from 'ahooks';
 import type { BusterChat } from '@/api/asset_interfaces';
 import type { IBusterChat, IBusterChatMessage } from '../interfaces';
 import { updateChatToIChat } from '@/utils/chat';
-import { MOCK_CHAT } from './MOCK_CHAT';
 
 export const useChatSubscriptions = ({
   chatsRef,
@@ -41,17 +40,16 @@ export const useChatSubscriptions = ({
   });
 
   const subscribeToChat = useMemoizedFn(({ chatId }: { chatId: string }) => {
-    _onGetChat(MOCK_CHAT);
-    // return busterSocket.emitAndOnce({
-    //   emitEvent: {
-    //     route: '/chats/get',
-    //     payload: { id: chatId }
-    //   },
-    //   responseEvent: {
-    //     route: '/chats/get:getChat',
-    //     callback: _onGetChat
-    //   }
-    // });
+    return busterSocket.emitAndOnce({
+      emitEvent: {
+        route: '/chats/get',
+        payload: { id: chatId }
+      },
+      responseEvent: {
+        route: '/chats/get:getChat',
+        callback: _onGetChat
+      }
+    });
   });
 
   return {

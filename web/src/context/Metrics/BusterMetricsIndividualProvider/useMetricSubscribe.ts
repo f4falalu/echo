@@ -1,7 +1,6 @@
 import { useMemoizedFn } from 'ahooks';
 import { useBusterAssetsContextSelector } from '../../Assets/BusterAssetsProvider';
 import { IBusterMetric } from '../interfaces';
-import { createMockMetric } from './MOCK_METRIC';
 import { useBusterWebSocket } from '../../BusterWebSocket';
 import { BusterMetric } from '@/api/asset_interfaces';
 import { RustApiError } from '@/api/buster_rest/errors';
@@ -56,11 +55,6 @@ export const useMetricSubscribe = ({
     }
 
     _setLoadingMetric(metricId);
-
-    //TODO: remove this
-    setTimeout(() => {
-      _onGetMetricState(createMockMetric(metricId));
-    }, 300);
 
     return await busterSocket.emitAndOnce({
       emitEvent: {

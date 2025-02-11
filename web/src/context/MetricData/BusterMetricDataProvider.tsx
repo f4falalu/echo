@@ -9,7 +9,6 @@ import { useBusterWebSocket } from '../BusterWebSocket';
 import type { BusterMetricData } from '../Metrics';
 import { MetricEvent_fetchingData } from '@/api/buster_socket/metrics/eventsInterfaces';
 import { DEFAULT_MESSAGE_DATA } from './config';
-import { createMockData } from './MOCK_DATA';
 
 const useMetricData = () => {
   const busterSocket = useBusterWebSocket();
@@ -99,12 +98,6 @@ const useMetricData = () => {
     _setMetricData(metricId, {
       fetching: true
     });
-
-    setTimeout(() => {
-      //TODO: remove mock data
-      // _setMetricData(metricId, { ...MOCK_DATA, fetched: true });
-      onSetDataForMetric(createMockData(metricId));
-    }, Math.random() * 5000);
 
     return await busterSocket.emitAndOnce({
       emitEvent: {
