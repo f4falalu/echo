@@ -1,4 +1,5 @@
 use anyhow::{Error, Result};
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -29,6 +30,29 @@ use crate::{
         },
     },
 };
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TempInitChat {
+    pub id: String,
+    pub title: String,
+    pub is_favorited: bool,
+    pub messages: Vec<TempInitChatMessage>,
+    pub created_at: String,
+    pub updated_at: String,
+    pub created_by: String,
+    pub created_by_id: String,
+    pub created_by_name: String,
+    pub created_by_avatar: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TempInitChatMessage {
+    pub id: String,
+    pub request_message: Option<String>,
+    pub response_messages: Vec<String>,
+    pub reasoning: Vec<String>,
+    pub created_at: String,
+}
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct ChatCreateNewChat {
@@ -87,6 +111,39 @@ impl AgentThreadHandler {
     }
 
     pub async fn handle_request(&self, request: ChatCreateNewChat, user: User) -> Result<()> {
+        let subscription = &user.id.to_string();
+
+        let init_response = TempInitChat {
+            id: Uuid::new_v4().to_string(),
+            title: "New Chat".to_string(),
+            is_favorited: false,
+            messages: vec![TempInitChatMessage {
+                id: Uuid::new_v4().to_string(),
+                request_message: Some(request.prompt.clone()),
+                response_messages: vec![],
+                reasoning: vec![],
+                created_at: Utc::now().to_string(),
+            }],
+            created_at: Utc::now().to_string(),
+            updated_at: Utc::now().to_string(),
+            created_by: user.id.to_string(),
+            created_by_id: user.id.to_string(),
+            created_by_name: user.name.clone().unwrap_or_default(),
+            created_by_avatar: None,
+        };
+
+        let response = WsResponseMessage::new_no_user(
+            WsRoutes::Threads(ThreadRoute::Post),
+            WsEvent::Threads(ThreadEvent::PostThread),
+            init_response,
+            None,
+            WsSendMethod::All,
+        );
+
+        if let Err(e) = send_ws_message(subscription, &response).await {
+            tracing::error!("Failed to send websocket message: {}", e);
+        }
+
         let rx = self.process_chat_request(request.clone()).await?;
         tokio::spawn(async move {
             Self::process_stream(rx, request.chat_id, &user.id).await;
