@@ -3,13 +3,11 @@
 //https://github.com/popsql/monaco-sql-languages/blob/main/example/src/App.js#L2
 //https://dtstack.github.io/monaco-sql-languages/
 
-import React, { forwardRef, useLayoutEffect, useMemo } from 'react';
+import React, { forwardRef, useMemo } from 'react';
 import type { editor } from 'monaco-editor/esm/vs/editor/editor.api';
-import dynamic from 'next/dynamic';
 import { CircleSpinnerLoaderContainer } from '../../loaders/CircleSpinnerLoaderContainer';
 import { useBusterStylesContext } from '@/context/BusterStyles/BusterStyles';
 import { createStyles } from 'antd-style';
-import { motion } from 'framer-motion';
 import { useMemoizedFn } from 'ahooks';
 
 import './MonacoWebWorker';
@@ -19,11 +17,7 @@ import { configureMonacoToUseYaml } from './yamlHelper';
 //import NightOwnTheme from 'monaco-themes/themes/Night Owl.json';
 //https://github.com/brijeshb42/monaco-ace-tokenizer
 
-let hasLoadedDynamicEditor = false;
-export const DynamicEditor = dynamic(() => import('@monaco-editor/react'), {
-  ssr: false,
-  loading: () => null
-});
+import { Editor as DynamicEditor } from '@monaco-editor/react';
 
 const useStyles = createStyles(({ token }) => ({
   code: {
@@ -84,7 +78,6 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
     const { cx, styles } = useStyles();
 
     const isDarkModeContext = useBusterStylesContext((s) => s.isDarkMode);
-    const [isLoading, setIsLoading] = React.useState(true);
     const useDarkMode = isDarkMode ?? isDarkModeContext;
 
     const memoizedMonacoEditorOptions: editor.IStandaloneEditorConstructionOptions = useMemo(() => {
@@ -144,9 +137,6 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
         editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
           onMetaEnter?.();
         });
-
-        setIsLoading(false);
-        hasLoadedDynamicEditor = true;
       }
     );
 
@@ -156,24 +146,18 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
       }
     });
 
-    useLayoutEffect(() => {
-      if (hasLoadedDynamicEditor) {
-        setIsLoading(false);
-      }
-    }, [hasLoadedDynamicEditor]);
-
     return (
       <div
-        className={cx('app-code-editor relative h-full w-full', className, styles.code, {
+        className={cx('app-code-editor relative h-full w-full border', className, styles.code, {
           [styles.bordered]: variant === 'bordered'
         })}
         style={style}>
         <DynamicEditor
           key={useDarkMode ? 'dark' : 'light'}
           height={height}
-          loading={null}
+          loading={<LoadingContainer />}
           language={language}
-          className={`${className} ${isLoading ? 'pointer-events-none opacity-0' : ''}`}
+          className={className}
           defaultValue={defaultValue}
           value={value}
           theme={useDarkMode ? 'night-owl' : 'github-light'}
@@ -181,18 +165,13 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
           onChange={onChangeCodeEditor}
           options={memoizedMonacoEditorOptions}
         />
-
-        {isLoading && (
-          <motion.div
-            className="z-1 absolute bottom-0 left-0 right-0 top-0"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.15, delay: 0.15 }}>
-            <CircleSpinnerLoaderContainer />
-          </motion.div>
-        )}
       </div>
     );
   }
 );
 AppCodeEditor.displayName = 'AppCodeEditor';
+
+const LoadingContainer = React.memo(() => {
+  return <CircleSpinnerLoaderContainer />;
+});
+LoadingContainer.displayName = 'LoadingContainer';
