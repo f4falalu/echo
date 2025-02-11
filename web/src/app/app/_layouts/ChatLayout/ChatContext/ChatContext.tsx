@@ -7,6 +7,7 @@ import {
 import type { SelectedFile } from '../interfaces';
 import { useSubscribeIndividualChat } from './useSubscribeIndividualChat';
 import { useAutoChangeLayout } from './useAutoChangeLayout';
+import { useBusterChatContextSelector } from '@/context/Chats';
 
 export const useChatIndividualContext = ({
   chatId,
@@ -25,6 +26,7 @@ export const useChatIndividualContext = ({
     chatId,
     defaultSelectedFile
   });
+
   const hasChat = !!chatId && !!chat;
   const chatTitle = chat?.title;
   const chatMessageIds = chat?.messages ?? [];
@@ -34,10 +36,11 @@ export const useChatIndividualContext = ({
 
   //MESSAGES
   const currentMessageId = chatMessageIds[chatMessageIds.length - 1];
-  const isNewChat = chat?.isNewChat ?? false;
-  const isFollowUpChat = chat?.isFollowupMessage ?? false;
+  const isLoading = useBusterChatContextSelector(
+    (x) => x.chatsMessages[currentMessageId]?.isCompletedStream
+  );
 
-  useAutoChangeLayout({ lastMessageId: currentMessageId, onSetSelectedFile, chat });
+  useAutoChangeLayout({ lastMessageId: currentMessageId, onSetSelectedFile });
 
   return {
     hasChat,
@@ -48,8 +51,7 @@ export const useChatIndividualContext = ({
     selectedFileType,
     chatMessageIds,
     chatId,
-    isNewChat,
-    isFollowUpChat
+    isLoading
   };
 };
 

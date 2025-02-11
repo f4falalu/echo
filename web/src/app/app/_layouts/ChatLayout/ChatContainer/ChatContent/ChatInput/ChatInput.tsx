@@ -13,14 +13,11 @@ const autoSize = { minRows: 3, maxRows: 16 };
 
 export const ChatInput: React.FC<{}> = React.memo(({}) => {
   const { styles, cx } = useStyles();
-  const isNewChat = useChatIndividualContextSelector((x) => x.isNewChat);
-  const isFollowUpChat = useChatIndividualContextSelector((x) => x.isFollowUpChat);
   const inputRef = useRef<TextAreaRef>(null);
 
+  const loading = useChatIndividualContextSelector((x) => x.isLoading);
   const [inputValue, setInputValue] = useState('');
-  const [isFocused, setIsFocused] = React.useState(false);
-
-  const loading = isNewChat || isFollowUpChat;
+  const [isFocused, setIsFocused] = useState(false);
 
   const disableSendButton = useMemo(() => {
     return !inputHasText(inputValue);

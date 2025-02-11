@@ -1,6 +1,7 @@
 import type { FileType } from '@/api/asset_interfaces';
 import { createChatAssetRoute } from '@appLayouts/ChatLayout/ChatLayoutContext/helpers';
-import { AppMaterialIcons, AppTooltip } from '@/components';
+import { AppTooltip } from '@/components/tooltip';
+import { AppMaterialIcons } from '@/components/icons';
 import { Button } from 'antd';
 import React from 'react';
 import { useChatLayoutContextSelector } from '@/app/app/_layouts/ChatLayout';

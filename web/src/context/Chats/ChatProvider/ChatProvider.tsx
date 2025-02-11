@@ -5,7 +5,7 @@ import {
   useContextSelector
 } from '@fluentui/react-context-selector';
 import type { BusterChat } from '@/api/asset_interfaces';
-import { IBusterChat, IBusterChatMessage } from '../interfaces';
+import type { IBusterChat, IBusterChatMessage } from '../interfaces';
 import { useChatSubscriptions } from './useChatSubscriptions';
 import { useChatAssosciations } from './useChatAssosciations';
 import { useChatSelectors } from './useChatSelectors';

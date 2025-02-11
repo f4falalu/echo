@@ -5,9 +5,5 @@ export default function Page({
 }: {
   params: { chatId: string; messageId: string };
 }) {
-  return (
-    <>
-      <ReasoningController chatId={chatId} messageId={messageId} />
-    </>
-  );
+  return <ReasoningController chatId={chatId} messageId={messageId} />;
 }

@@ -7,6 +7,7 @@ import {
   ChatEvent_GeneratingResponseMessage,
   ChatEvent_GeneratingTitle
 } from '@/api/buster_socket/chats';
+import { updateChatToIChat } from '@/utils/chat';
 
 export const useChatUpdateMessage = () => {
   const busterSocket = useBusterWebSocket();
@@ -14,6 +15,7 @@ export const useChatUpdateMessage = () => {
   const getChatMemoized = useBusterChatContextSelector((x) => x.getChatMemoized);
   const onUpdateChatMessage = useBusterChatContextSelector((x) => x.onUpdateChatMessage);
   const getChatMessageMemoized = useBusterChatContextSelector((x) => x.getChatMessageMemoized);
+  const onBulkSetChatMessages = useBusterChatContextSelector((x) => x.onBulkSetChatMessages);
 
   const _generatingTitleCallback = useMemoizedFn((d: ChatEvent_GeneratingTitle) => {
     const { chat_id, title, title_chunk } = d;
@@ -57,10 +59,9 @@ export const useChatUpdateMessage = () => {
   );
 
   const completeChatCallback = useMemoizedFn((d: BusterChat) => {
-    onUpdateChatMessage({
-      ...d,
-      isCompletedStream: true
-    });
+    const { iChat, iChatMessages } = updateChatToIChat(d);
+    onBulkSetChatMessages(iChatMessages);
+    onUpdateChat(iChat);
   });
 
   const stopChatCallback = useMemoizedFn((chatId: string) => {

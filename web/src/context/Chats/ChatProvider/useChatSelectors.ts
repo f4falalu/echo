@@ -1,5 +1,5 @@
-import { MutableRefObject, useCallback } from 'react';
-import { IBusterChat, IBusterChatMessage } from '../interfaces';
+import { type MutableRefObject, useCallback } from 'react';
+import type { IBusterChat, IBusterChatMessage } from '../interfaces';
 import { useMemoizedFn } from 'ahooks';
 
 export const useChatSelectors = ({

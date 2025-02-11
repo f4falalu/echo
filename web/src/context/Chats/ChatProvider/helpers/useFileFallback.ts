@@ -61,8 +61,6 @@ export const useFileFallback = ({
 const fallbackToFileChat = ({ id }: { id: string }): IBusterChat => {
   return {
     id,
-    isNewChat: true,
-    isFollowupMessage: false,
     messages: [fallbackMessageId(id)],
     title: '',
     is_favorited: false,

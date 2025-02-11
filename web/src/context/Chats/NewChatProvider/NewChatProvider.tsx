@@ -5,7 +5,7 @@ import {
   useContextSelector
 } from '@fluentui/react-context-selector';
 import { useMemoizedFn } from 'ahooks';
-import type { BusterDatasetListItem, BusterSearchResult, FileType } from '@/api/asset_interfaces';
+import type { BusterSearchResult, FileType } from '@/api/asset_interfaces';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useChatUpdateMessage } from './useChatUpdateMessage';
 

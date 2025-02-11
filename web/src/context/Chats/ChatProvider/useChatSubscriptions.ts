@@ -2,8 +2,8 @@ import { MutableRefObject } from 'react';
 import { useBusterWebSocket } from '../../BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
 import type { BusterChat } from '@/api/asset_interfaces';
-import { IBusterChat, IBusterChatMessage } from '../interfaces';
-import { chatMessageUpgrader, chatUpgrader } from './helpers';
+import type { IBusterChat, IBusterChatMessage } from '../interfaces';
+import { updateChatToIChat } from '@/utils/chat';
 import { MOCK_CHAT } from './MOCK_CHAT';
 
 export const useChatSubscriptions = ({
@@ -18,17 +18,17 @@ export const useChatSubscriptions = ({
   const busterSocket = useBusterWebSocket();
 
   const _onGetChat = useMemoizedFn((chat: BusterChat): IBusterChat => {
-    const upgradedChat = chatUpgrader(chat);
-    const upgradedChatMessages = chatMessageUpgrader(chat.messages);
-    chatsRef.current[chat.id] = upgradedChat;
+    const { iChat, iChatMessages } = updateChatToIChat(chat);
+
+    chatsRef.current[chat.id] = iChat;
     chatsMessagesRef.current = {
       ...chatsMessagesRef.current,
-      ...upgradedChatMessages
+      ...iChatMessages
     };
     startTransition(() => {
       //just used to trigger UI update
     });
-    return upgradedChat;
+    return iChat;
   });
 
   const unsubscribeFromChat = useMemoizedFn(({ chatId }: { chatId: string }) => {

@@ -1,7 +1,7 @@
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
-import { MutableRefObject } from 'react';
-import { IBusterChat, IBusterChatMessage } from '../interfaces';
+import { type MutableRefObject } from 'react';
+import type { IBusterChat, IBusterChatMessage } from '../interfaces';
 
 export const useChatUpdate = ({
   chatsRef,
@@ -15,13 +15,25 @@ export const useChatUpdate = ({
   const busterSocket = useBusterWebSocket();
 
   const onUpdateChat = useMemoizedFn(
-    async (newChatConfig: Partial<IBusterChat> & { id: string }) => {
+    async (newChatConfig: Partial<IBusterChat> & { id: string }, saveToServer: boolean = false) => {
       chatsRef.current[newChatConfig.id] = {
         ...chatsRef.current[newChatConfig.id],
         ...newChatConfig
       };
       startTransition(() => {
         //just used to trigger UI update
+
+        if (saveToServer) {
+          const { title, is_favorited, id } = chatsRef.current[newChatConfig.id];
+          busterSocket.emit({
+            route: '/chats/update',
+            payload: {
+              id,
+              title,
+              is_favorited
+            }
+          });
+        }
       });
     }
   );
@@ -38,8 +50,21 @@ export const useChatUpdate = ({
     }
   );
 
+  const onBulkSetChatMessages = useMemoizedFn(
+    (newMessagesConfig: Record<string, IBusterChatMessage>) => {
+      chatsMessagesRef.current = {
+        ...chatsMessagesRef.current,
+        ...newMessagesConfig
+      };
+      startTransition(() => {
+        //just used to trigger UI update
+      });
+    }
+  );
+
   return {
     onUpdateChat,
-    onUpdateChatMessage
+    onUpdateChatMessage,
+    onBulkSetChatMessages
   };
 };
