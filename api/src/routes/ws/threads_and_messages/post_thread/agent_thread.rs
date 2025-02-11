@@ -10,8 +10,8 @@ use crate::{
     database::models::User,
     routes::ws::{
         threads_and_messages::{
-            threads_router::{ThreadEvent, ThreadRoute},
             post_thread::agent_message_transformer::transform_message,
+            threads_router::{ThreadEvent, ThreadRoute},
         },
         ws::{WsEvent, WsResponseMessage, WsSendMethod},
         ws_router::WsRoutes,
@@ -115,8 +115,11 @@ impl AgentThreadHandler {
     ) {
         let subscription = user_id.to_string();
 
+        let message_id = Uuid::new_v4().to_string();
+
         while let Some(msg_result) = rx.recv().await {
-            if let Ok(msg) = msg_result {
+            if let Ok(mut msg) = msg_result {
+                msg.set_id(message_id.clone());
                 match transform_message(msg) {
                     Ok(transformed_messages) => {
                         for transformed in transformed_messages {

@@ -218,6 +218,15 @@ impl Message {
             _ => None,
         }
     }
+
+    pub fn set_id(&mut self, new_id: String) {
+        match self {
+            Self::Assistant { id, .. } => *id = Some(new_id.clone()),
+            Self::Tool { id, .. } => *id = Some(new_id.clone()),
+            Self::Developer { id, .. } => *id = Some(new_id.clone()),
+            Self::User { id, .. } => *id = Some(new_id),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
