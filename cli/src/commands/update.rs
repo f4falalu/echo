@@ -246,8 +246,16 @@ impl UpdateCommand {
                 .output()?;
 
             // Move the extracted binary to the target location
-            let extracted_binary = package_path.parent().unwrap().join("buster-cli");
-            fs::rename(extracted_binary, target_path)?;
+            let extracted_binary = package_path.parent().context("Invalid package path")?.join("buster-cli");
+            #[cfg(unix)]
+            {
+                use std::os::unix::fs::PermissionsExt;
+                let metadata = fs::metadata(&extracted_binary)?;
+                let mut perms = metadata.permissions();
+                perms.set_mode(0o755);
+                fs::set_permissions(&extracted_binary, perms)?;
+            }
+            fs::rename(extracted_binary, target_path)?
         }
 
         Ok(())
