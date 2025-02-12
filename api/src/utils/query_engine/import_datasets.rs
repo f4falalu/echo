@@ -82,6 +82,7 @@ async fn create_datasets(
             deleted_at: None,
             yml_file: None,
             model: None,
+            database_identifier: None,
         })
         .collect::<Vec<Dataset>>();
 

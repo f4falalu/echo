@@ -54,6 +54,7 @@ pub struct DeployDatasetsRequest {
     pub entity_relationships: Option<Vec<DeployDatasetsEntityRelationshipsRequest>>,
     pub columns: Vec<DeployDatasetsColumnsRequest>,
     pub yml_file: Option<String>,
+    pub database_identifier: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]

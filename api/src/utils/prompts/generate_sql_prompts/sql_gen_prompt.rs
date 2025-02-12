@@ -39,6 +39,7 @@ Please output the SQL delimited in ```sql tags.
 - Always order dates in ascending order.
 - When working with time series data, always return a date field.
 - You must use the schema when referencing tables. Like this pattern <SCHEMA_NAME>.<TABLE_NAME>
+- Pay attention to the database identifier. It may be used to reference across multiple databases. 
 - Never use the 'SELECT *'  or 'SELECT COUNT(*)' command.  You must select the columns you want to see/use.
 - Users may mention formatting or charting.  Although this task is specific to SQL generation, the user is referring to future steps for visualization.
 - A request for a line chart should default to using a date-related field unless the user specifies otherwise or it is not available.
