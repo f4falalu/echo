@@ -727,8 +727,9 @@ fn create_dataset_selector_messages(
 
     for dataset in datasets {
         dataset_schemas.push_str(&format!(
-            "{}",
-            dataset.dataset.yml_file.clone().unwrap_or(dataset.dataset_ddl.clone())
+            "{}\n{}",
+            dataset.dataset.yml_file.clone().unwrap_or("".to_string()),
+            dataset.dataset_ddl.clone(),
         ));
         dataset_schemas.push_str("\n\n");
     }
