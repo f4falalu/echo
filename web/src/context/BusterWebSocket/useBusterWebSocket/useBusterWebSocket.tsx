@@ -28,11 +28,11 @@ interface BusterSocket {
   on: (d: BusterSocketResponse) => void;
   off: (d: BusterSocketResponse) => void;
   emit: (d: BusterSocketRequest) => void;
-  once: (d: BusterSocketResponse) => Promise<unknown>;
-  emitAndOnce: (d: {
+  once: <T extends BusterSocketResponse>(d: T) => Promise<Parameters<T['callback']>[0]>;
+  emitAndOnce: <T extends BusterSocketResponse>(d: {
     emitEvent: BusterSocketRequest;
-    responseEvent: BusterSocketResponse;
-  }) => Promise<unknown>;
+    responseEvent: T;
+  }) => Promise<Parameters<T['callback']>[0]>;
 }
 
 export const useBusterWebSocketHook = ({
