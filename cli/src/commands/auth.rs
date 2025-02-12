@@ -114,7 +114,7 @@ pub async fn auth_with_args(args: AuthArgs) -> Result<()> {
 
     // Save credentials unless --no-save is specified
     if !args.no_save {
-        set_buster_credentials(buster_creds.clone()).await
+        set_buster_credentials(buster_creds).await
             .context("Failed to save credentials")?;
         println!("Credentials saved successfully!");
     }
