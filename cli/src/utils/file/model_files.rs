@@ -269,6 +269,7 @@ pub async fn upload_model_files(
                 yml_file: Some(model.yml_content.clone()),
                 id: None,
                 type_: String::from("view"),
+                database: None,
             };
 
             post_datasets_req_body.push(dataset);

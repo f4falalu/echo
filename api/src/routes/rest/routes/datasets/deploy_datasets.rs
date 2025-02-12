@@ -48,6 +48,7 @@ pub struct DeployDatasetsRequest {
     pub name: String,
     pub model: Option<String>,
     pub schema: String,
+    pub database: Option<String>,
     pub description: String,
     pub sql_definition: Option<String>,
     pub entity_relationships: Option<Vec<DeployDatasetsEntityRelationshipsRequest>>,

@@ -14,6 +14,7 @@ use crate::utils::{
 pub struct BusterConfig {
     pub data_source_name: Option<String>,
     pub schema: Option<String>,
+    pub database: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -28,6 +29,7 @@ pub struct Model {
     name: String,
     data_source_name: Option<String>,
     schema: Option<String>,
+    database: Option<String>,
     description: String,
     model: Option<String>,
     #[serde(default)]
@@ -398,7 +400,7 @@ impl ModelFile {
         &self,
         model: &Model,
         config: Option<&BusterConfig>,
-    ) -> (Option<String>, Option<String>) {
+    ) -> (Option<String>, Option<String>, Option<String>) {
         let data_source_name = model
             .data_source_name
             .clone()
@@ -409,7 +411,12 @@ impl ModelFile {
             .clone()
             .or_else(|| config.and_then(|c| c.schema.clone()));
 
-        (data_source_name, schema)
+        let database = model
+            .database
+            .clone()
+            .or_else(|| config.and_then(|c| c.database.clone()));
+
+        (data_source_name, schema, database)
     }
 
     fn to_deploy_request(&self, model: &Model, sql_content: String) -> DeployDatasetsRequest {
@@ -453,11 +460,12 @@ impl ModelFile {
             .collect();
 
         // Resolve configuration with global config
-        let (data_source_name, schema) = self.resolve_model_config(model, self.config.as_ref());
+        let (data_source_name, schema, database) = self.resolve_model_config(model, self.config.as_ref());
 
         // Unwrap with error if missing - this should never happen since we validate earlier
         let data_source_name = data_source_name.expect("data_source_name missing after validation");
         let schema = schema.expect("schema missing after validation");
+        // Note: database is optional, so we don't unwrap it
 
         DeployDatasetsRequest {
             id: None,
@@ -467,6 +475,7 @@ impl ModelFile {
             name: model.name.clone(),
             model: model.model.clone(),
             schema,
+            database,  // This is already Option<String>
             description: model.description.clone(),
             sql_definition: Some(sql_content),
             entity_relationships: Some(entity_relationships),
@@ -738,6 +747,9 @@ pub async fn deploy_v2(path: Option<&str>, dry_run: bool) -> Result<()> {
             if let Some(schema) = &config.schema {
                 println!("   - Default schema: {}", schema);
             }
+            if let Some(database) = &config.database {
+                println!("   - Default database: {}", database);
+            }
             Some(config)
         }
         Ok(None) => {
@@ -826,7 +838,7 @@ pub async fn deploy_v2(path: Option<&str>, dry_run: bool) -> Result<()> {
 
         // Process each model in the file
         for model in &model_file.model.models {
-            let (data_source_name, schema) =
+            let (data_source_name, schema, database) =
                 model_file.resolve_model_config(model, config.as_ref());
             
             if data_source_name.is_none() {
@@ -894,6 +906,9 @@ pub async fn deploy_v2(path: Option<&str>, dry_run: bool) -> Result<()> {
                     request.data_source_name, request.env
                 );
                 println!("     Schema: {}", request.schema);
+                if let Some(database) = &request.database {
+                    println!("     Database: {}", database);
+                }
                 println!("     Columns: {}", request.columns.len());
                 if let Some(rels) = &request.entity_relationships {
                     println!("     Relationships: {}", rels.len());
@@ -918,6 +933,9 @@ pub async fn deploy_v2(path: Option<&str>, dry_run: bool) -> Result<()> {
                 request.data_source_name, request.env
             );
             println!("     Schema: {}", request.schema);
+            if let Some(database) = &request.database {
+                println!("     Database: {}", database);
+            }
             println!("     Columns: {}", request.columns.len());
             if let Some(rels) = &request.entity_relationships {
                 println!("     Relationships: {}", rels.len());
