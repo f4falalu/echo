@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use std::collections::HashMap;
 
 use crate::utils::profiles::Credential;
 
@@ -94,4 +95,18 @@ pub enum ValidationErrorType {
 #[derive(Debug, Deserialize)]
 pub struct DeployDatasetsResponse {
     pub results: Vec<ValidationResult>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct GenerateApiRequest {
+    pub data_source_name: String,
+    pub schema: String,
+    pub database: Option<String>,
+    pub model_names: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct GenerateApiResponse {
+    pub yml_contents: HashMap<String, String>,
+    pub errors: HashMap<String, String>,
 }

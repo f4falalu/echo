@@ -8,6 +8,10 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fmt;
 use inquire::{Text, required};
+use crate::utils::{
+    buster_credentials::get_and_validate_buster_credentials,
+    BusterClient, GenerateApiRequest, GenerateApiResponse,
+};
 
 #[derive(Debug)]
 pub struct GenerateCommand {
@@ -137,7 +141,7 @@ impl GenerateCommand {
         progress.status = "Checking buster.yml configuration...".to_string();
         progress.log_progress();
         
-        self.handle_buster_yml().await?;
+        let config = self.handle_buster_yml().await?;
 
         progress.status = "Scanning source directory...".to_string();
         progress.log_progress();
@@ -147,9 +151,58 @@ impl GenerateCommand {
         // Print results
         println!("\n✅ Successfully processed all files");
         println!("\nFound {} model names:", model_names.len());
-        for model in model_names {
+        for model in &model_names {
             println!("  - {} ({})", model.name, 
                 if model.is_from_alias { "from alias" } else { "from filename" });
+        }
+
+        // Create API client
+        progress.status = "Connecting to Buster API...".to_string();
+        progress.log_progress();
+
+        let creds = get_and_validate_buster_credentials().await?;
+        let client = BusterClient::new(creds.url, creds.api_key)?;
+
+        // Prepare API request
+        let request = GenerateApiRequest {
+            data_source_name: config.data_source_name.expect("data_source_name is required"),
+            schema: config.schema.expect("schema is required"),
+            database: config.database,
+            model_names: model_names.iter().map(|m| m.name.clone()).collect(),
+        };
+
+        // Make API call
+        progress.status = "Generating YAML files...".to_string();
+        progress.log_progress();
+
+        match client.generate_datasets(request).await {
+            Ok(response) => {
+                // Process successful generations
+                for (model_name, yml_content) in response.yml_contents {
+                    let file_path = self.destination_path.join(format!("{}.yml", model_name));
+                    match fs::write(&file_path, yml_content) {
+                        Ok(_) => {
+                            progress.log_success();
+                            println!("✅ Created {}.yml", model_name);
+                        }
+                        Err(e) => {
+                            progress.log_error(&format!("Failed to write {}.yml: {}", model_name, e));
+                        }
+                    }
+                }
+
+                // Report any errors
+                if !response.errors.is_empty() {
+                    println!("\n⚠️  Some models had errors:");
+                    for (model_name, error) in response.errors {
+                        println!("❌ {}: {}", model_name, error);
+                    }
+                }
+            }
+            Err(e) => {
+                progress.log_error(&format!("API call failed: {}", e));
+                return Err(anyhow::anyhow!("Failed to generate YAML files: {}", e));
+            }
         }
         
         Ok(())
