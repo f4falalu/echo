@@ -1,7 +1,11 @@
 'use client';
 
-import { QueryKey, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { BusterSocketResponse, BusterSocketResponseRoute } from '@/api/buster_socket';
+import { QueryKey, useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
+import type {
+  BusterSocketRequest,
+  BusterSocketResponse,
+  BusterSocketResponseRoute
+} from '@/api/buster_socket';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import type {
   UseBusterSocketQueryResult,
@@ -9,13 +13,20 @@ import type {
   BusterSocketResponseConfig
 } from './types';
 import { useMount } from 'ahooks';
+import { createQueryKey } from './helpers';
+import { useMemo } from 'react';
 
-export const useBusterWebSocketOn = <TRoute extends BusterSocketResponseRoute, TError = unknown>(
-  queryKey: QueryKey,
-  socketResponse: BusterSocketResponseConfig<TRoute>
+export const useSockeQueryOn = <TRoute extends BusterSocketResponseRoute, TError = unknown>(
+  socketResponse: BusterSocketResponseConfig<TRoute>,
+  options?: Partial<UseQueryOptions<InferBusterSocketResponseData<TRoute>, TError>>
 ): UseBusterSocketQueryResult<InferBusterSocketResponseData<TRoute>, TError> => {
   const busterSocket = useBusterWebSocket();
   const queryClient = useQueryClient();
+
+  const queryKey = useMemo(
+    () => options?.queryKey || createQueryKey(socketResponse),
+    [options?.queryKey, socketResponse?.route]
+  );
 
   useMount(() => {
     busterSocket.on({
@@ -23,18 +34,13 @@ export const useBusterWebSocketOn = <TRoute extends BusterSocketResponseRoute, T
       onError: socketResponse.onError,
       callback: (d: unknown) => {
         queryClient.setQueryData(queryKey, d as InferBusterSocketResponseData<TRoute>);
-        queryClient.invalidateQueries({ queryKey });
       }
     } as BusterSocketResponse);
   });
 
   return useQuery({
-    queryKey
-  });
-};
-
-const ExampleUsage = () => {
-  const { data, isFetched } = useBusterWebSocketOn(['chats', 'get', '123'], {
-    route: '/chats/get:getChat'
+    queryKey,
+    ...options,
+    enabled: false
   });
 };

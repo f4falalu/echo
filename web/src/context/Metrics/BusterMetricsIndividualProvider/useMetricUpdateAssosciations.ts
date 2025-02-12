@@ -18,7 +18,7 @@ export const useUpdateMetricAssosciations = ({
 }) => {
   const busterSocket = useBusterWebSocket();
   const userFavorites = useUserConfigContextSelector((state) => state.userFavorites);
-  const forceGetFavoritesList = useUserConfigContextSelector((x) => x.forceGetFavoritesList);
+  const refreshFavoritesList = useUserConfigContextSelector((x) => x.refreshFavoritesList);
   const removeItemFromIndividualDashboard = useBusterDashboardContextSelector(
     (state) => state.removeItemFromIndividualDashboard
   );
@@ -108,7 +108,7 @@ export const useUpdateMetricAssosciations = ({
 
       if (addToPromises.length) await Promise.all(addToPromises);
       if (collectionIsInFavorites) {
-        await forceGetFavoritesList();
+        await refreshFavoritesList();
       }
     }
   );
@@ -205,7 +205,7 @@ export const useUpdateMetricAssosciations = ({
         }
       });
       if (collectionIsInFavorites && ignoreFavoriteUpdates !== true) {
-        await forceGetFavoritesList();
+        await refreshFavoritesList();
       }
     }
   );

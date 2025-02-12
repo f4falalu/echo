@@ -11,17 +11,23 @@ import type {
   BusterSocketResponseConfig
 } from './types';
 import { useCreateReactQuery } from '@/api/createReactQuery';
+import { createQueryKey } from './helpers';
+import { useMemo } from 'react';
 
-export function useBusterWebSocketQuery<TRoute extends BusterSocketResponseRoute, TError = unknown>(
-  queryKey: QueryKey,
+export function useSocketQueryEmitAndOnce<
+  TRoute extends BusterSocketResponseRoute,
+  TError = unknown
+>(
   socketRequest: BusterSocketRequest,
   socketResponse: BusterSocketResponseConfig<TRoute>,
-  options?: Omit<
-    UseQueryOptions<InferBusterSocketResponseData<TRoute>, TError>,
-    'queryKey' | 'queryFn'
-  >
+  options?: Partial<Omit<UseQueryOptions<InferBusterSocketResponseData<TRoute>, TError>, 'queryFn'>>
 ): UseBusterSocketQueryResult<InferBusterSocketResponseData<TRoute>, TError> {
   const busterSocket = useBusterWebSocket();
+
+  const queryKey = useMemo(
+    () => options?.queryKey || createQueryKey(socketResponse, socketRequest),
+    [options?.queryKey, socketResponse?.route, socketRequest?.route]
+  );
 
   const queryFn = async (): Promise<InferBusterSocketResponseData<TRoute>> => {
     try {
@@ -44,15 +50,8 @@ export function useBusterWebSocketQuery<TRoute extends BusterSocketResponseRoute
     queryKey,
     queryFn,
     isUseSession: false,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
     options
   });
 }
-
-// Example usage with automatic type inference
-const ExampleUsage = () => {
-  const { data, isLoading, error } = useBusterWebSocketQuery(
-    ['chats', 'get', '123'],
-    { route: '/chats/get', payload: { id: '123' } },
-    { route: '/chats/get:getChat' }
-  );
-};
