@@ -49,6 +49,7 @@ struct Model {
     name: String,
     description: String,
     dimensions: Vec<Dimension>,
+    measures: Vec<Measure>,
 }
 
 #[derive(Debug, Serialize)]
@@ -60,6 +61,54 @@ struct Dimension {
     description: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     searchable: Option<bool>,
+}
+
+#[derive(Debug, Serialize)]
+struct Measure {
+    name: String,
+    expr: String,
+    #[serde(rename = "type")]
+    type_: String,
+    agg: Option<String>,
+    description: String,
+}
+
+// Add type mapping enum
+#[derive(Debug)]
+enum ColumnMappingType {
+    Dimension(String),  // String holds the semantic type
+    Measure(String),    // String holds the measure type (e.g., "number")
+    Unsupported,
+}
+
+fn map_snowflake_type(type_str: &str) -> ColumnMappingType {
+    // Convert to uppercase for consistent matching
+    let type_upper = type_str.to_uppercase();
+    
+    match type_upper.as_str() {
+        // Numeric types that should be measures
+        "NUMBER" | "DECIMAL" | "NUMERIC" | "FLOAT" | "REAL" | "DOUBLE" | "INT" | "INTEGER" | 
+        "BIGINT" | "SMALLINT" | "TINYINT" | "BYTEINT" => ColumnMappingType::Measure("number".to_string()),
+        
+        // Date/Time types
+        "DATE" | "DATETIME" | "TIME" | "TIMESTAMP" | "TIMESTAMP_LTZ" | 
+        "TIMESTAMP_NTZ" | "TIMESTAMP_TZ" => ColumnMappingType::Dimension("timestamp".to_string()),
+        
+        // String types
+        "TEXT" | "STRING" | "VARCHAR" | "CHAR" | "CHARACTER" => ColumnMappingType::Dimension("string".to_string()),
+        
+        // Boolean type
+        "BOOLEAN" | "BOOL" => ColumnMappingType::Dimension("boolean".to_string()),
+        
+        // Unsupported types
+        "ARRAY" | "OBJECT" | "VARIANT" => ColumnMappingType::Unsupported,
+        
+        // Default to dimension for unknown types
+        _ => {
+            tracing::warn!("Unknown Snowflake type: {}, defaulting to string dimension", type_str);
+            ColumnMappingType::Dimension("string".to_string())
+        }
+    }
 }
 
 pub async fn generate_datasets(
@@ -195,22 +244,45 @@ async fn generate_model_yaml(
         return Err(anyhow!("No columns found for model"));
     }
 
-    // Create dimensions from columns
-    let dimensions: Vec<Dimension> = model_columns
-        .iter()
-        .map(|col| Dimension {
-            name: col.name.clone(),
-            expr: col.name.clone(),
-            type_: col.type_.clone(),
-            description: format!("Column {} from {}", col.name, model_name),
-            searchable: Some(false),
-        })
-        .collect();
+    let mut dimensions = Vec::new();
+    let mut measures = Vec::new();
+
+    // Process each column and categorize as dimension or measure
+    for col in model_columns {
+        match map_snowflake_type(&col.type_) {
+            ColumnMappingType::Dimension(semantic_type) => {
+                dimensions.push(Dimension {
+                    name: col.name.clone(),
+                    expr: col.name.clone(),
+                    type_: semantic_type,
+                    description: format!("Column {} from {}", col.name, model_name),
+                    searchable: Some(false),
+                });
+            }
+            ColumnMappingType::Measure(measure_type) => {
+                measures.push(Measure {
+                    name: col.name.clone(),
+                    expr: col.name.clone(),
+                    type_: measure_type,
+                    agg: Some("sum".to_string()),  // Default aggregation
+                    description: format!("Column {} from {}", col.name, model_name),
+                });
+            }
+            ColumnMappingType::Unsupported => {
+                tracing::warn!(
+                    "Skipping unsupported column type: {} for column: {}",
+                    col.type_,
+                    col.name
+                );
+            }
+        }
+    }
 
     let model = Model {
         name: model_name.to_string(),
         description: format!("Generated model for {}", model_name),
         dimensions,
+        measures,
     };
 
     let config = ModelConfig {
