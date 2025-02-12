@@ -94,11 +94,7 @@ pub async fn auth_with_args(args: AuthArgs) -> Result<()> {
     }
 
     if buster_creds.api_key.is_empty() {
-        let obfuscated_api_key = if buster_creds.api_key.is_empty() {
-            String::from("None")
-        } else {
-            format!("{}****", &buster_creds.api_key[..4])
-        };
+        let obfuscated_api_key = String::from("None");
 
         let api_key_input = Password::new(&format!("Enter your API key [{obfuscated_api_key}]:"))
             .without_confirmation()
