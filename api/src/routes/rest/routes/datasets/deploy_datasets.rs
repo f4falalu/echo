@@ -521,12 +521,6 @@ async fn deploy_datasets_handler(
                 .into_iter()
                 .collect();
 
-            // Get the new dataset names
-            let new_dataset_names: HashSet<String> = valid_datasets
-                .iter()
-                .map(|req| req.name.clone())
-                .collect();
-
             // Bulk upsert columns for each dataset
             for req in valid_datasets {
                 let dataset_id = match dataset_ids.get(&req.name) {
