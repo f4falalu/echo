@@ -20,7 +20,7 @@ use gcp_bigquery_client::model::query_request::QueryRequest;
 use sqlx::{FromRow, Row};
 use uuid::Uuid;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DatasetColumnRecord {
     pub dataset_name: String,
     pub schema_name: String,
