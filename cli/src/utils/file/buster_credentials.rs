@@ -5,7 +5,7 @@ use tokio::fs;
 
 use crate::{error::BusterError, utils::BusterClient};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct BusterCredentials {
     pub url: String,
     pub api_key: String,
