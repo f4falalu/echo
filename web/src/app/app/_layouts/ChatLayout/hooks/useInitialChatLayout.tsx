@@ -44,6 +44,12 @@ export const useInitialChatLayout = ({
     }
   }, [chatId]);
 
+  // useEffect(() => {
+  //   if (isReasoningFile) {
+  //     setIsCollapseOpen(false);
+  //   }
+  // }, [isReasoningFile]);
+
   return {
     isPureFile,
     isPureChat,

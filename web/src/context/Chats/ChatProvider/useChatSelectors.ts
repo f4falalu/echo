@@ -30,7 +30,7 @@ export const useChatSelectors = ({
   );
 
   const getChatMessagesMemoized = useMemoizedFn((chatId: string) => {
-    const chatMessageIds = chatsRef.current[chatId].messages || [];
+    const chatMessageIds = chatsRef.current[chatId]?.messages || [];
     return chatMessageIds.map((messageId) => chatsMessagesRef.current[messageId]);
   });
 

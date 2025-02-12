@@ -78,12 +78,12 @@ const TextContainer: React.FC<{
         styles.hideSecondaryText,
         'flex w-full items-center space-x-1.5 overflow-hidden'
       )}>
-      <AnimatedThoughtTitle title={title} />
-      {secondaryTitle && (
-        <Text size="sm" type="tertiary" className="secondary-text truncate" lineHeight={lineHeight}>
-          {secondaryTitle}
-        </Text>
-      )}
+      <AnimatedThoughtTitle title={title} type="default" />
+      <AnimatedThoughtTitle
+        title={secondaryTitle}
+        type="tertiary"
+        className="secondary-text truncate"
+      />
     </div>
   );
 });
@@ -96,17 +96,33 @@ const animations = {
   exit: { opacity: 0 }
 };
 
-const AnimatedThoughtTitle = React.memo(({ title }: { title: string }) => {
-  return (
-    <AnimatePresence initial={false} mode="wait">
-      <motion.div className="flex" {...animations} key={title}>
-        <Text size="sm" className="whitespace-nowrap" lineHeight={lineHeight}>
-          {title}
-        </Text>
-      </motion.div>
-    </AnimatePresence>
-  );
-});
+const AnimatedThoughtTitle = React.memo(
+  ({
+    title,
+    type,
+    className = ''
+  }: {
+    title: string | undefined;
+    type: 'tertiary' | 'default';
+    className?: string;
+  }) => {
+    return (
+      <AnimatePresence initial={false} mode="wait">
+        {title && (
+          <motion.div className="flex" {...animations} key={title}>
+            <Text
+              size="sm"
+              className={`whitespace-nowrap ${className}`}
+              type={type}
+              lineHeight={lineHeight}>
+              {title}
+            </Text>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  }
+);
 AnimatedThoughtTitle.displayName = 'AnimatedThoughtTitle';
 
 const useStyles = createStyles(({ token, css }) => ({
