@@ -42,6 +42,25 @@ This will prompt you for:
 - API Key (required) - Get this from the Buster Platform
 - Host (optional) - Defaults to production if not specified
 
+You can also configure authentication using environment variables:
+```bash
+# Set API key via environment variable
+export BUSTER_API_KEY=your_api_key_here
+
+# Optional: Set custom host. For self-hosted instances.
+export BUSTER_HOST=your_custom_host
+```
+
+The CLI will check for these environment variables in the following order:
+1. Command line arguments
+2. Environment variables
+3. Interactive prompt
+
+This is particularly useful for:
+- CI/CD environments
+- Automated scripts
+- Development workflows where you don't want to enter credentials repeatedly
+
 ### 2. Generate Models
 
 Generate Buster YAML models from your existing SQL files:
