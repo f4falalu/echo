@@ -1,4 +1,8 @@
-import type { BusterSocketResponse, BusterSocketResponseRoute } from '@/api/buster_socket';
+import type {
+  BusterSocketRequest,
+  BusterSocketResponse,
+  BusterSocketResponseRoute
+} from '@/api/buster_socket';
 import { UseQueryResult } from '@tanstack/react-query';
 
 /**
@@ -20,3 +24,17 @@ export type BusterSocketResponseConfig<TRoute extends BusterSocketResponseRoute>
 };
 
 export type UseBusterSocketQueryResult<TData, TError = unknown> = UseQueryResult<TData, TError>;
+
+/**
+ * Extract the route type from BusterSocketRequest
+ */
+export type BusterSocketRequestRoute = BusterSocketRequest['route'];
+
+export type BusterSocketRequestConfig<TRoute extends BusterSocketRequestRoute> = {
+  route: TRoute;
+};
+
+export type InferBusterSocketRequestPayload<TRoute extends BusterSocketRequestRoute> = Extract<
+  BusterSocketRequest,
+  { route: TRoute }
+>['payload'];

@@ -1,7 +1,7 @@
 import { useBusterWebSocket } from '../BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
 import { BusterUserFavorite, ShareAssetType } from '@/api/asset_interfaces';
-import { createQueryKey, useSocketQueryEmitOn } from '@/hooks';
+import { createQueryKey, useSocketQueryEmitOn, useSocketQueryMutation } from '@/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { useHotkeys } from 'react-hotkeys-hook';
 
@@ -19,6 +19,13 @@ export const useFavoriteProvider = () => {
     { route: '/users/favorites/list:listFavorites' }
   );
 
+  const { mutate: addItemToFavorite } = useSocketQueryMutation(
+    { route: '/users/favorites/post' },
+    {
+      route: '/users/favorites/post:createFavorite'
+    }
+  );
+
   const setUserFavorites = useMemoizedFn(
     (updater: (v: BusterUserFavorite[]) => BusterUserFavorite[]) => {
       queryClient.setQueryData(favoritesQueryKey, (v: BusterUserFavorite[] | undefined) => {
@@ -27,7 +34,7 @@ export const useFavoriteProvider = () => {
     }
   );
 
-  const addItemToFavorite = useMemoizedFn(
+  const aXddItemToFavorite = useMemoizedFn(
     async ({
       id,
       asset_type,

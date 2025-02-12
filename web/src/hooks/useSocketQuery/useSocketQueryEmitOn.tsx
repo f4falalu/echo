@@ -35,7 +35,6 @@ export const useSocketQueryEmitOn = <TRoute extends BusterSocketResponseRoute, T
   >
 ): UseBusterSocketQueryResult<InferBusterSocketResponseData<TRoute>, TError> => {
   const busterSocket = useBusterWebSocket();
-  const queryClient = useQueryClient();
 
   const queryKey = createQueryKey(socketResponse, socketRequest);
 
