@@ -120,7 +120,25 @@ your-project/
 # buster.yml
 data_source_name: "my_warehouse"  # Your default data source
 schema: "analytics"               # Default schema for models
+database: "prod"                  # Optional database name
+exclude_files:                    # Optional list of files to exclude from generation
+  - "temp_*.sql"                 # Exclude all SQL files starting with temp_
+  - "test/**/*.sql"             # Exclude all SQL files in test directories
+  - "customers.sql"         # Exclude a specific file
 ```
+
+The configuration supports the following fields:
+- `data_source_name`: (Required) Default data source for your models
+- `schema`: (Required) Default schema for your models
+- `database`: (Optional) Default database name
+- `exclude_files`: (Optional) List of glob patterns for files to exclude from generation
+  - Supports standard glob patterns (*, **, ?, etc.)
+  - Matches against relative paths from source directory
+  - Common use cases:
+    - Excluding temporary files: `temp_*.sql`
+    - Excluding test files: `test/**/*.sql`
+    - Excluding specific files: `customers.sql`
+    - Excluding files in directories: `archive/**/*.sql`
 
 ### Model Definition Example
 
