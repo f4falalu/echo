@@ -46,6 +46,7 @@ pub struct Entity {
     pub expr: String,
     #[serde(rename = "type")]
     pub entity_type: String,
+    pub project: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -56,7 +57,7 @@ pub struct Dimension {
     pub dimension_type: String,
     pub description: String,
     #[serde(default = "bool::default")]
-    pub stored_values: bool,
+    pub searchable: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -73,7 +74,7 @@ pub async fn get_model_files(dir_path: Option<&str>) -> Result<Vec<BusterModelOb
         Some(p) => std::path::PathBuf::from(p),
         None => std::path::Path::new("models").to_path_buf(),
     };
-    
+
     if !path.exists() {
         return Err(anyhow::anyhow!("Path not found: {}", path.display()));
     }
@@ -83,15 +84,21 @@ pub async fn get_model_files(dir_path: Option<&str>) -> Result<Vec<BusterModelOb
             if ext == "yml" {
                 process_yml_file(&path, &mut model_objects, dir_path.is_some()).await?;
             } else {
-                return Err(anyhow::anyhow!("File must be a YML file: {}", path.display()));
+                return Err(anyhow::anyhow!(
+                    "File must be a YML file: {}",
+                    path.display()
+                ));
             }
         } else {
-            return Err(anyhow::anyhow!("File must be a YML file: {}", path.display()));
+            return Err(anyhow::anyhow!(
+                "File must be a YML file: {}",
+                path.display()
+            ));
         }
     } else {
         process_directory(&path, &mut model_objects, dir_path.is_some()).await?;
     }
-    
+
     Ok(model_objects)
 }
 
@@ -101,7 +108,7 @@ async fn process_yml_file(
     is_custom_path: bool,
 ) -> Result<()> {
     println!("📄 Processing YAML file: {}", path.display());
-    
+
     let yaml_content = match fs::read_to_string(path).await {
         Ok(content) => content,
         Err(e) => {
@@ -109,7 +116,7 @@ async fn process_yml_file(
             return Ok(());
         }
     };
-        
+
     let model: BusterModel = match serde_yaml::from_str(&yaml_content) {
         Ok(model) => model,
         Err(e) => {
@@ -130,7 +137,11 @@ async fn process_yml_file(
         // In default mode, we require SQL files
         let sql_path = path.with_extension("sql");
         if !sql_path.exists() {
-            println!("⚠️  Skipping {} - No matching SQL file found at {}", path.display(), sql_path.display());
+            println!(
+                "⚠️  Skipping {} - No matching SQL file found at {}",
+                path.display(),
+                sql_path.display()
+            );
             return Ok(());
         }
 
@@ -215,6 +226,7 @@ pub async fn upload_model_files(
                     expr: Some(column.expr),
                     type_: None,
                     agg: None,
+                    searchable: column.searchable,
                 });
             }
 
@@ -226,6 +238,7 @@ pub async fn upload_model_files(
                     expr: Some(column.expr),
                     type_: None,
                     agg: Some(column.agg),
+                    searchable: false,
                 });
             }
 
@@ -241,7 +254,11 @@ pub async fn upload_model_files(
 
             let dataset = DeployDatasetsRequest {
                 data_source_name: profile_name.clone(),
-                env: env.map(String::from).unwrap_or_else(|| semantic_model.schema.unwrap_or_else(|| "default".to_string())),
+                env: env.map(String::from).unwrap_or_else(|| {
+                    semantic_model
+                        .schema
+                        .unwrap_or_else(|| "default".to_string())
+                }),
                 name: semantic_model.name,
                 model: semantic_model.model,
                 schema: schema_name.clone(),
@@ -252,6 +269,7 @@ pub async fn upload_model_files(
                 yml_file: Some(model.yml_content.clone()),
                 id: None,
                 type_: String::from("view"),
+                database: None,
             };
 
             post_datasets_req_body.push(dataset);

@@ -132,48 +132,12 @@ pub async fn generate_sql_agent(options: GenerateSqlAgentOptions) -> Result<Valu
         }
     };
 
-    // Extract the datasets from the response.
     let datasets = match dataset_selector_response.get("datasets") {
         Some(Value::Array(datasets)) => datasets,
-        _ => {
-            let explanation = match dataset_selector_response.get("explanation") {
-                Some(Value::String(explanation)) => explanation,
-                _ => &String::from("No Relevant Dataset Found."),
-            };
-
-            let duration = Instant::now().duration_since(options.start_time);
-
-            let main_title = format!("Thought for {} seconds", duration.as_secs());
-
-            thoughts.title = main_title;
-
-            thoughts.thoughts.push(Thought {
-                type_: "thoughtBlock".to_string(),
-                title: "No relevant dataset found".to_string(),
-                content: Some(explanation.to_string()),
-                code: None,
-                error: None,
-            });
-
-            send_message(
-                "thought_finished".to_string(),
-                serde_json::to_value(&thoughts).unwrap(),
-                options.output_sender.clone(),
-            )
-            .await?;
-
-            let final_sql_agent_object = json!({
-                "name": "generate_sql",
-                "dataset_selection": dataset_selector_response,
-                "error": GenerateSqlAgentError::NoDatasetSelected.to_string(),
-                "error_message": "Multiple datasets were selected".to_string(),
-                "thoughts": thoughts,
-            });
-
-            return Ok(final_sql_agent_object);
-        }
+        _ => &Vec::new(),
     };
 
+    // Extract the datasets from the response.
     let datasets = if datasets.len() == 0 {
         // If no datasets, return the explanation for why. This will be fed into the break out explaining that no datasets were selected.
         let explanation = match dataset_selector_response.get("explanation") {
@@ -255,7 +219,7 @@ pub async fn generate_sql_agent(options: GenerateSqlAgentOptions) -> Result<Valu
 
         vec![(dataset, explanation)]
     } else {
-        // If multiple datasets, return the error. This will be fed into the break out explaining that multiple datasets were selected.
+        // If multiple datasets, process them all
         let mut datasets_and_explanations = Vec::new();
 
         for dataset in datasets {
@@ -364,69 +328,6 @@ pub async fn generate_sql_agent(options: GenerateSqlAgentOptions) -> Result<Valu
         }
     };
 
-    // Check if datasets can be joined based on entity relationships
-    if datasets.len() > 1 {
-        let mut can_join = true;
-        // Check each pair of datasets
-        for i in 0..datasets.len() {
-            for j in (i + 1)..datasets.len() {
-                let (dataset1, _) = &datasets[i];
-                let (dataset2, _) = &datasets[j];
-
-                // Check if there's a relationship in either direction
-                let has_relationship = entity_relationships.iter().any(|er| {
-                    er.primary_dataset_id == dataset1.dataset.id
-                        && er.foreign_dataset_id == dataset2.dataset.id
-                        || er.primary_dataset_id == dataset2.dataset.id
-                            && er.foreign_dataset_id == dataset1.dataset.id
-                });
-
-                if !has_relationship {
-                    can_join = false;
-                    break;
-                }
-            }
-            if !can_join {
-                break;
-            }
-        }
-
-        if !can_join {
-            let duration = Instant::now().duration_since(options.start_time);
-
-            let main_title = format!("Thought for {} seconds", duration.as_secs());
-
-            thoughts.title = main_title;
-
-            let mut content = "".to_string();
-
-            thoughts.thoughts.push(Thought {
-                type_: "thoughtBlock".to_string(),
-                title: "Multiple datasets were considered relevant".to_string(),
-                content: Some(content),
-                code: None,
-                error: None,
-            });
-
-            send_message(
-                "thought_finished".to_string(),
-                serde_json::to_value(&thoughts).unwrap(),
-                options.output_sender.clone(),
-            )
-            .await?;
-
-            let final_sql_agent_object = json!({
-                "name": "generate_sql",
-                "dataset_selection": dataset_selector_response,
-                "error": GenerateSqlAgentError::MultipleDatasetsSelected.to_string(),
-                "error_message": "Multiple datasets were selected".to_string(),
-                "thoughts": thoughts,
-            });
-
-            return Ok(final_sql_agent_object);
-        }
-    }
-
     let mut terms_string = String::new();
     let mut terms_map: std::collections::HashMap<String, (String, String, Vec<String>)> =
         std::collections::HashMap::new();
@@ -475,11 +376,7 @@ pub async fn generate_sql_agent(options: GenerateSqlAgentOptions) -> Result<Valu
         // Find all datasets that have this column name
         for (dataset, _) in &datasets {
             relevant_values_string.push_str(&format!("\nDataset: {}\n", dataset.dataset.name));
-            relevant_values_string.push_str(&format!(
-                "  {}: {}\n",
-                column_name,
-                values.join(", ")
-            ));
+            relevant_values_string.push_str(&format!("  {}: {}\n", column_name, values.join(", ")));
         }
     }
 
@@ -829,7 +726,10 @@ fn create_dataset_selector_messages(
     let mut dataset_schemas = String::new();
 
     for dataset in datasets {
-        dataset_schemas.push_str(&format!("{}", dataset.dataset_ddl));
+        dataset_schemas.push_str(&format!(
+            "{}",
+            dataset.dataset.yml_file.clone().unwrap_or(dataset.dataset_ddl.clone())
+        ));
         dataset_schemas.push_str("\n\n");
     }
 

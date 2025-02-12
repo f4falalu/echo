@@ -6,6 +6,7 @@ use reqwest::{
 
 use super::{
     PostDataSourcesRequest, DeployDatasetsRequest, ValidateApiKeyRequest, ValidateApiKeyResponse,
+    DeployDatasetsResponse, GenerateApiRequest, GenerateApiResponse,
 };
 
 pub struct BusterClient {
@@ -85,7 +86,7 @@ impl BusterClient {
         }
     }
 
-    pub async fn deploy_datasets(&self, req_body: Vec<DeployDatasetsRequest>) -> Result<()> {
+    pub async fn deploy_datasets(&self, req_body: Vec<DeployDatasetsRequest>) -> Result<DeployDatasetsResponse> {
         let headers = self.build_headers()?;
 
         match self
@@ -103,9 +104,33 @@ impl BusterClient {
                         res.text().await?
                     ));
                 }
-                Ok(())
+                Ok(res.json().await?)
             }
             Err(e) => Err(anyhow::anyhow!("POST /api/v1/datasets/deploy failed: {}", e)),
+        }
+    }
+
+    pub async fn generate_datasets(&self, req_body: GenerateApiRequest) -> Result<GenerateApiResponse> {
+        let headers = self.build_headers()?;
+
+        match self
+            .client
+            .post(format!("{}/api/v1/datasets/generate", self.base_url))
+            .headers(headers)
+            .json(&req_body)
+            .send()
+            .await
+        {
+            Ok(res) => {
+                if !res.status().is_success() {
+                    return Err(anyhow::anyhow!(
+                        "POST /api/v1/datasets/generate failed: {}",
+                        res.text().await?
+                    ));
+                }
+                Ok(res.json().await?)
+            }
+            Err(e) => Err(anyhow::anyhow!("POST /api/v1/datasets/generate failed: {}", e)),
         }
     }
 }
