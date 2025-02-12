@@ -51,7 +51,7 @@ jobs:
         working-directory: ./cli
         run: |
           cd target/release
-          tar czf buster-cli-linux-x86_64.tar.gz buster
+          tar czf buster-cli-linux-x86_64.tar.gz buster-cli
           sha256sum buster-cli-linux-x86_64.tar.gz > buster-cli-linux-x86_64.tar.gz.sha256
 
       - name: Upload artifacts
