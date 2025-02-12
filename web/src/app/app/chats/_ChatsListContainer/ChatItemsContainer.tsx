@@ -238,7 +238,7 @@ const TitleCell = React.memo<{ title: string; status: VerificationStatus; metric
             id={metricId}
             type={ShareAssetType.METRIC}
             iconStyle="tertiary"
-            name={title}
+            title={title}
             className="opacity-0 group-hover:opacity-100"
           />
         </div>

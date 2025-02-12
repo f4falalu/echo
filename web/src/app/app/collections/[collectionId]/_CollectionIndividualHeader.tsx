@@ -110,7 +110,7 @@ export const CollectionsIndividualHeader: React.FC<{}> = () => {
               <FavoriteStar
                 id={collection.id}
                 type={ShareAssetType.COLLECTION}
-                name={collectionTitle}
+                title={collectionTitle}
               />
             </div>
           )}

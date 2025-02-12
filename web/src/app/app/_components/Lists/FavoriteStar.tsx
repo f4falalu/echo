@@ -29,10 +29,10 @@ const useStyles = createStyles(({ token }) => ({
 export const FavoriteStar: React.FC<{
   id: string;
   type: ShareAssetType;
-  name: string;
+  title: string;
   className?: string;
   iconStyle?: 'default' | 'tertiary';
-}> = React.memo(({ name, id, type, className = '', iconStyle = 'default' }) => {
+}> = React.memo(({ title, id, type, className = '', iconStyle = 'default' }) => {
   const userFavorites = useUserConfigContextSelector((state) => state.userFavorites);
   const removeItemFromFavorite = useUserConfigContextSelector(
     (state) => state.removeItemFromFavorite
@@ -51,7 +51,7 @@ export const FavoriteStar: React.FC<{
       return await addItemToFavorite({
         asset_type: type,
         id,
-        name
+        title
       });
 
     await removeItemFromFavorite({

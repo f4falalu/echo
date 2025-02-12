@@ -47,7 +47,7 @@ const FavoritesDropdownContent: React.FC<{
   }>();
   const currentRoute = useAppLayoutContextSelector((s) => s.currentRoute);
 
-  const reorderFavorites = useUserConfigContextSelector((state) => state.reorderFavorites);
+  const bulkEditFavorites = useUserConfigContextSelector((state) => state.bulkEditFavorites);
   const removeItemFromFavorite = useUserConfigContextSelector(
     (state) => state.removeItemFromFavorite
   );
@@ -68,7 +68,7 @@ const FavoritesDropdownContent: React.FC<{
       }[]
     ) => {
       const newFavorites = items.map((item) => item?.value as string);
-      if (newFavorites.length === items.length) reorderFavorites(newFavorites);
+      if (newFavorites.length === items.length) bulkEditFavorites(newFavorites);
     }
   );
 
@@ -77,7 +77,7 @@ const FavoritesDropdownContent: React.FC<{
     if (item) {
       await removeItemFromFavorite({
         id: item.id || item.collection_id!,
-        asset_type: item.type
+        asset_type: item.asset_type
       });
     }
   });
@@ -108,22 +108,22 @@ const createListItem = ({
   value: string;
 } => {
   let link = '';
-  let icon = asset_typeToIcon(item.type, {
+  let icon = asset_typeToIcon(item.asset_type, {
     open: openedIds.includes(item.collection_id || '')
   });
-  let name = item.name || item.collection_name;
+  let name = item.title || item.collection_name;
 
-  if (item.type === ShareAssetType.METRIC) {
+  if (item.title === ShareAssetType.METRIC) {
     link = createBusterRoute({
       route: BusterRoutes.APP_METRIC_ID,
       metricId: item.id
     });
-  } else if (item.type === ShareAssetType.DASHBOARD) {
+  } else if (item.title === ShareAssetType.DASHBOARD) {
     link = createBusterRoute({
       route: BusterRoutes.APP_DASHBOARD_ID,
       dashboardId: item.id
     });
-  } else if (item.type === ShareAssetType.COLLECTION) {
+  } else if (item.title === ShareAssetType.COLLECTION) {
     link = createBusterRoute({
       route: BusterRoutes.APP_COLLECTIONS_ID,
       collectionId: item.collection_id!

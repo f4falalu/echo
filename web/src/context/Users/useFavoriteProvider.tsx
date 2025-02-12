@@ -1,19 +1,7 @@
-import { useBusterWebSocket } from '../BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
-import { BusterUserFavorite, ShareAssetType } from '@/api/asset_interfaces';
-import { createQueryKey, useSocketQueryEmitOn, useSocketQueryMutation } from '@/hooks';
-import { useQueryClient } from '@tanstack/react-query';
-import { useHotkeys } from 'react-hotkeys-hook';
+import { useSocketQueryEmitOn, useSocketQueryMutation } from '@/hooks';
 
 export const useFavoriteProvider = () => {
-  const busterSocket = useBusterWebSocket();
-  const queryClient = useQueryClient();
-
-  const favoritesQueryKey = createQueryKey(
-    { route: '/users/favorites/list:listFavorites' },
-    { route: '/users/favorites/list', payload: {} }
-  );
-
   const { data: userFavorites, refetch: refreshFavoritesList } = useSocketQueryEmitOn(
     { route: '/users/favorites/list', payload: {} },
     { route: '/users/favorites/list:listFavorites' }
@@ -21,106 +9,40 @@ export const useFavoriteProvider = () => {
 
   const { mutate: addItemToFavorite } = useSocketQueryMutation(
     { route: '/users/favorites/post' },
+    { route: '/users/favorites/post:createFavorite' },
+    { preSetQueryData: (prev, mutationParams) => [mutationParams, ...(prev || [])] }
+  );
+
+  const { mutate: removeItemFromFavorite } = useSocketQueryMutation(
+    { route: '/users/favorites/delete' },
+    { route: '/users/favorites/post:createFavorite' },
     {
-      route: '/users/favorites/post:createFavorite'
+      preSetQueryData: (prev, mutationParams) =>
+        prev?.filter((f) => f.id !== mutationParams.id) || []
     }
   );
 
-  const setUserFavorites = useMemoizedFn(
-    (updater: (v: BusterUserFavorite[]) => BusterUserFavorite[]) => {
-      queryClient.setQueryData(favoritesQueryKey, (v: BusterUserFavorite[] | undefined) => {
-        return updater(v || []);
-      });
+  const { mutate: updateFavorites } = useSocketQueryMutation(
+    { route: '/users/favorites/update' },
+    { route: '/users/favorites/update:updateFavorite' },
+    {
+      awaitPrefetchQueryData: true,
+      preSetQueryData: (prev, mutationParams) => {
+        return mutationParams.favorites.map((id, index) => {
+          let favorite = (prev || []).find((f) => f.id === id || f.collection_id === id)!;
+          return { ...favorite, index };
+        });
+      }
     }
   );
-
-  const aXddItemToFavorite = useMemoizedFn(
-    async ({
-      id,
-      asset_type,
-      name
-    }: {
-      id: string;
-      asset_type: ShareAssetType;
-      name: string;
-      index?: number;
-    }) => {
-      setUserFavorites((v) => [{ id, type: asset_type, name }, ...v]);
-
-      // busterSocket.emit({
-      //   route: '/users/favorites/post',
-      //   payload: {
-      //     id,
-      //     asset_type
-      //   }
-      // });
-
-      // await busterSocket.emitAndOnce({
-      //   emitEvent: {
-      //     route: '/users/favorites/post',
-      //     payload: {
-      //       id,
-      //       asset_type
-      //     }
-      //   },
-      //   responseEvent: {
-      //     route: '/users/favorites/post:createFavorite',
-      //     callback: _onSetInitialFavoritesList
-      //   }
-      // });
-    }
-  );
-
-  const removeItemFromFavorite = useMemoizedFn(
-    async ({ id, asset_type }: { id: string; asset_type: ShareAssetType }) => {
-      // setUserFavorites(userFavorites.filter((f) => f.id !== id));
-      // await busterSocket.emitAndOnce({
-      //   emitEvent: {
-      //     route: '/users/favorites/delete',
-      //     payload: {
-      //       id,
-      //       asset_type
-      //     }
-      //   },
-      //   responseEvent: {
-      //     route: '/users/favorites/post:createFavorite',
-      //     callback: _onSetInitialFavoritesList
-      //   }
-      // });
-    }
-  );
-
-  const reorderFavorites = useMemoizedFn(async (favorites: string[]) => {
-    // requestAnimationFrame(() => {
-    //   setUserFavorites((v) => {
-    //     return favorites.map((id, index) => {
-    //       let favorite = v.find((f) => f.id === id || f.collection_id === id)!;
-    //       return { ...favorite, index };
-    //     });
-    //   });
-    // });
-    // await busterSocket.emitAndOnce({
-    //   emitEvent: {
-    //     route: '/users/favorites/update',
-    //     payload: {
-    //       favorites
-    //     }
-    //   },
-    //   responseEvent: {
-    //     route: '/users/favorites/update:updateFavorite',
-    //     callback: _onSetInitialFavoritesList
-    //   }
-    // });
-  });
 
   const bulkEditFavorites = useMemoizedFn(async (favorites: string[]) => {
-    return reorderFavorites(favorites);
+    return updateFavorites({ favorites });
   });
 
   return {
     bulkEditFavorites,
     refreshFavoritesList,
-    reorderFavorites,
     userFavorites: userFavorites || [],
     addItemToFavorite,
     removeItemFromFavorite

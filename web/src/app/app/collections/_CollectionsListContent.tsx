@@ -18,9 +18,6 @@ import { BusterCollectionListItem } from '@/api/asset_interfaces';
 import { CollectionSelectedPopup } from './_CollectionSelectedPopup';
 
 export const CollectionsListContent: React.FC<{}> = () => {
-  const unsubscribeToListCollections = useCollectionsContextSelector(
-    (x) => x.unsubscribeToListCollections
-  );
   const getInitialCollections = useCollectionsContextSelector((x) => x.getInitialCollections);
   const collectionStatus = useCollectionsContextSelector(
     (x) => x.collectionStatus[initialFilterOptionKey]
@@ -37,10 +34,6 @@ export const CollectionsListContent: React.FC<{}> = () => {
 
   useMount(() => {
     getInitialCollections();
-  });
-
-  useUnmount(() => {
-    unsubscribeToListCollections();
   });
 
   return (

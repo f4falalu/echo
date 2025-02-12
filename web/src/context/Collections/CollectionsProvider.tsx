@@ -39,44 +39,6 @@ export const useBusterCollections = () => {
     >
   >({});
 
-  const _onPostCollectionState = useMemoizedFn((collection: BusterCollection) => {
-    setIndividualCollection((prev) => ({
-      ...prev,
-      [collection.id]: collection
-    }));
-    return collection;
-  });
-
-  const createNewCollection = useMemoizedFn(
-    async ({
-      name,
-      onCollectionCreated
-    }: {
-      name: string;
-      onCollectionCreated?: (id: string) => Promise<void>;
-    }) => {
-      setCreatingCollection(true);
-      const res = await busterSocket.emitAndOnce({
-        emitEvent: {
-          route: '/collections/post',
-          payload: {
-            name,
-            description: ''
-          }
-        },
-        responseEvent: {
-          route: '/collections/post:collectionState',
-          callback: _onPostCollectionState
-        }
-      });
-      if (res && onCollectionCreated) await onCollectionCreated?.((res as BusterCollection).id);
-      setTimeout(() => {
-        setCreatingCollection(false);
-      }, 500);
-      return res as BusterCollection;
-    }
-  );
-
   const { run: updateCollectionDebounced } = useDebounceFn(
     async ({ id, ...props }: CollectionUpdateCollection['payload']) => {
       busterSocket.emit({
@@ -197,14 +159,6 @@ export const useBusterCollections = () => {
     }
   );
 
-  const unsubscribeToListCollections = useMemoizedFn(() => {
-    busterSocket.off({
-      route: '/collections/list:listCollections',
-      callback: _onGetInitialCollections
-    });
-    gettingInitialCollections.current = {};
-  });
-
   const onSetCollectionListFilters = useMemoizedFn(
     (newFilters: Omit<CollectionsListEmit['payload'], 'page' | 'page_size'>) => {
       setCollectionFilters(newFilters);
@@ -320,7 +274,6 @@ export const useBusterCollections = () => {
     updateCollection,
     deleteCollection,
     getInitialCollections,
-    unsubscribeToListCollections,
     onSetCollectionListFilters,
     collectionListFilters,
     openedCollectionId,
@@ -364,16 +317,10 @@ export const useIndividualCollection = ({
   const subscribeToCollection = useCollectionsContextSelector(
     (state) => state.subscribeToCollection
   );
-  const unsubscribeToGetCollection = useCollectionsContextSelector(
-    (state) => state.unsubscribeToGetCollection
-  );
 
   useEffect(() => {
     if (collectionId && !ignoreSubscribe) {
       subscribeToCollection(collectionId);
-      return () => {
-        unsubscribeToGetCollection({ collectionId });
-      };
     }
   }, [collectionId]);
 

@@ -3,7 +3,7 @@ import {
   BusterSocketResponse,
   BusterSocketResponseRoute
 } from '@/api/buster_socket';
-import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
+import { QueryKey, useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
 import {
@@ -15,6 +15,28 @@ import {
 } from './types';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { createQueryKey } from './helpers';
+
+type QueryDataStrategy = 'replace' | 'append' | 'prepend' | 'merge' | 'ignore';
+
+type SocketQueryMutationOptions<
+  TRoute extends BusterSocketResponseRoute,
+  TError,
+  TVariables
+> = Omit<
+  UseMutationOptions<InferBusterSocketResponseData<TRoute>, TError, TVariables>,
+  'mutationFn'
+> & {
+  preSetQueryData?: (
+    data: InferBusterSocketResponseData<TRoute> | undefined,
+    variables: TVariables
+  ) => InferBusterSocketResponseData<TRoute>;
+  awaitPrefetchQueryData?: boolean;
+  queryDataStrategy?: QueryDataStrategy;
+  presetQueryDataFunction?: (
+    inferredReturnRoute: TRoute,
+    data: InferBusterSocketResponseData<TRoute>
+  ) => void;
+};
 
 /**
  * A hook that creates a mutation for emitting socket requests and handling responses.
@@ -38,104 +60,106 @@ export const useSocketQueryMutation = <
 >(
   socketRequest: BusterSocketRequestConfig<TRequestRoute>,
   socketResponse: BusterSocketResponseConfig<TRoute> & {
-    callback?: (d: unknown) => InferBusterSocketResponseData<TRoute>;
+    callback?: (data: unknown) => InferBusterSocketResponseData<TRoute>;
   },
-  optionsProps?: Omit<
-    UseMutationOptions<InferBusterSocketResponseData<TRoute>, TError, TVariables>,
-    'mutationFn'
-  > & {
-    preSetQueryData?: (
-      d: InferBusterSocketResponseData<TRoute> | undefined,
-      variables: TVariables
-    ) => InferBusterSocketResponseData<TRoute>;
-    queryDataStrategy?: 'replace' | 'append' | 'prepend' | 'merge' | 'ignore';
-  }
+  options?: SocketQueryMutationOptions<TRoute, TError, TVariables>
 ) => {
   const busterSocket = useBusterWebSocket();
   const queryClient = useQueryClient();
-  const { preSetQueryData, queryDataStrategy = 'ignore', ...options } = optionsProps || {};
+  const { preSetQueryData, queryDataStrategy = 'ignore', ...mutationOptions } = options || {};
+
+  const updateQueryData = useMemoizedFn(
+    async (queryKey: QueryKey, data: InferBusterSocketResponseData<TRoute>) => {
+      if (queryDataStrategy === 'ignore') return;
+
+      const strategies: Record<Exclude<QueryDataStrategy, 'ignore'>, () => Promise<void>> = {
+        replace: async () => {
+          await queryClient.setQueryData(queryKey, data);
+        },
+        append: async () => {
+          await queryClient.setQueryData<InferBusterSocketResponseData<TRoute>[]>(
+            queryKey,
+            (prev) => [...(Array.isArray(prev) ? prev : []), data]
+          );
+        },
+        prepend: async () => {
+          await queryClient.setQueryData<InferBusterSocketResponseData<TRoute>[]>(
+            queryKey,
+            (prev) => [data, ...(Array.isArray(prev) ? prev : [])]
+          );
+        },
+        merge: async () => {
+          if (typeof data === 'object' && data !== null && 'id' in data) {
+            await queryClient.setQueryData<Record<string, InferBusterSocketResponseData<TRoute>>>(
+              queryKey,
+              (prev) => ({
+                ...(prev || {}),
+                [(data as { id: string }).id]: data
+              })
+            );
+          }
+        }
+      };
+
+      const updateStrategy = strategies[queryDataStrategy as Exclude<QueryDataStrategy, 'ignore'>];
+      if (updateStrategy) {
+        await updateStrategy();
+      }
+    }
+  );
 
   const mutationFn = useMemoizedFn(async (variables: TVariables) => {
-    const compiledSocketRequest = {
+    const request = {
       ...socketRequest,
       payload: variables
-    } as unknown as BusterSocketRequest;
-    const queryKey = createQueryKey(socketResponse, compiledSocketRequest);
+    } as BusterSocketRequest;
+
+    const queryKey = createQueryKey(socketResponse, request);
 
     if (preSetQueryData) {
-      await queryClient.setQueryData<InferBusterSocketResponseData<TRoute>>(queryKey, (d) => {
-        return preSetQueryData(d, variables);
-      });
+      if (options?.awaitPrefetchQueryData) {
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+      }
+      await queryClient.setQueryData<InferBusterSocketResponseData<TRoute>>(queryKey, (prev) =>
+        preSetQueryData(prev, variables)
+      );
     }
 
-    const res = await busterSocket.emitAndOnce({
-      emitEvent: compiledSocketRequest,
+    const response = await busterSocket.emitAndOnce({
+      emitEvent: request,
       responseEvent: {
         ...socketResponse,
-        callback: (d: unknown) => {
-          if (socketResponse.callback) {
-            socketResponse.callback(d);
-          }
-          return d;
+        callback: (data: unknown) => {
+          socketResponse.callback?.(data);
+          return data;
         }
       } as BusterSocketResponse
     });
 
-    if (res !== undefined) {
-      if (queryDataStrategy === 'replace') {
-        await queryClient.setQueryData<InferBusterSocketResponseData<TRoute>>(queryKey, () => {
-          return res as InferBusterSocketResponseData<TRoute>;
-        });
-      } else if (queryDataStrategy === 'append') {
-        await queryClient.setQueryData<InferBusterSocketResponseData<TRoute>[]>(queryKey, (d) => {
-          return [...(Array.isArray(d) ? d : []), res as InferBusterSocketResponseData<TRoute>];
-        });
-      } else if (queryDataStrategy === 'prepend') {
-        await queryClient.setQueryData<InferBusterSocketResponseData<TRoute>[]>(queryKey, (d) => {
-          return [res as InferBusterSocketResponseData<TRoute>, ...(Array.isArray(d) ? d : [])];
-        });
-      } else if (queryDataStrategy === 'merge') {
-        await queryClient.setQueryData<Record<string, InferBusterSocketResponseData<TRoute>>>(
-          queryKey,
-          (d) => {
-            if (typeof res === 'object' && res !== null && 'id' in res) {
-              const typedRes = res as InferBusterSocketResponseData<TRoute> & { id: string };
-              return {
-                ...(d || {}),
-                [typedRes.id]: typedRes
-              };
-            } else {
-              console.warn('response is not an object with an id', res);
-            }
-            return d;
-          }
-        );
-      }
+    if (response !== undefined) {
+      await updateQueryData(queryKey, response as InferBusterSocketResponseData<TRoute>);
     }
 
-    return res as InferBusterSocketResponseData<TRoute>;
+    return response as InferBusterSocketResponseData<TRoute>;
   });
 
   return useMutation({
-    ...options,
-    mutationFn: mutationFn
+    ...mutationOptions,
+    mutationFn
   });
 };
 
 const Example = () => {
   // Example 1: Favorites mutation
-  const { mutate, data } = useSocketQueryMutation(
-    {
-      route: '/users/favorites/post'
-    },
-    {
-      route: '/users/favorites/post:createFavorite'
-    }
+  const { mutate, mutateAsync } = useSocketQueryMutation(
+    { route: '/users/favorites/post' },
+    { route: '/users/favorites/post:createFavorite' }
   );
 
   mutate({
     id: 'some-asset-id',
-    asset_type: ShareAssetType.DASHBOARD
+    asset_type: ShareAssetType.DASHBOARD,
+    title: 'some-title'
   });
 
   return null;
