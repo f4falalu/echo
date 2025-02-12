@@ -118,11 +118,11 @@ impl DeployProgress {
         );
         println!("Status: {}", self.status);
     }
-    
+
     fn log_error(&self, error: &str) {
         eprintln!("❌ Error processing {}: {}", self.current_file, error);
     }
-    
+
     fn log_success(&self) {
         println!("✅ Successfully deployed: {}", self.current_file);
     }
@@ -158,7 +158,7 @@ impl DeployProgress {
             println!("\n❌ Validation failed for {}", validation.model_name);
             println!("   Data Source: {}", validation.data_source_name);
             println!("   Schema: {}", validation.schema);
-            
+
             // Group errors by type
             let mut table_errors = Vec::new();
             let mut column_errors = Vec::new();
@@ -170,7 +170,7 @@ impl DeployProgress {
             let mut project_errors = Vec::new();
             let mut buster_yml_errors = Vec::new();
             let mut data_source_errors = Vec::new();
-            
+
             for error in &validation.errors {
                 match error.error_type {
                     ValidationErrorType::TableNotFound => table_errors.push(error),
@@ -187,7 +187,7 @@ impl DeployProgress {
                     ValidationErrorType::DataSourceMismatch => data_source_errors.push(error),
                 }
             }
-            
+
             // Print grouped errors
             if !table_errors.is_empty() {
                 println!("\n   Table/View Errors:");
@@ -195,7 +195,7 @@ impl DeployProgress {
                     println!("   - {}", error.message);
                 }
             }
-            
+
             if !column_errors.is_empty() {
                 println!("\n   Column Errors:");
                 for error in column_errors {
@@ -204,7 +204,7 @@ impl DeployProgress {
                     }
                 }
             }
-            
+
             if !type_errors.is_empty() {
                 println!("\n   Type Mismatch Errors:");
                 for error in type_errors {
@@ -234,21 +234,21 @@ impl DeployProgress {
                     println!("   - {}", error.message);
                 }
             }
-            
+
             if !other_errors.is_empty() {
                 println!("\n   Other Errors:");
                 for error in other_errors {
                     println!("   - {}", error.message);
                 }
             }
-            
+
             // Print suggestions if any
             let suggestions: Vec<_> = validation
                 .errors
                 .iter()
                 .filter_map(|e| e.suggestion.as_ref())
                 .collect();
-            
+
             if !suggestions.is_empty() {
                 println!("\n💡 Suggestions:");
                 for suggestion in suggestions {
@@ -269,7 +269,7 @@ impl ModelFile {
     fn new(yml_path: PathBuf, config: Option<BusterConfig>) -> Result<Self> {
         let yml_content = std::fs::read_to_string(&yml_path)?;
         let model: BusterModel = serde_yaml::from_str(&yml_content)?;
-        
+
         Ok(Self {
             yml_path: yml_path.clone(),
             sql_path: Self::find_sql(&yml_path),
@@ -281,28 +281,28 @@ impl ModelFile {
     fn find_sql(yml_path: &Path) -> Option<PathBuf> {
         // Get the file stem (name without extension)
         let file_stem = yml_path.file_stem()?;
-        
+
         // Look one directory up
         let parent_dir = yml_path.parent()?.parent()?;
         let sql_path = parent_dir.join(format!("{}.sql", file_stem.to_str()?));
-        
+
         if sql_path.exists() {
             Some(sql_path)
         } else {
             None
         }
     }
-    
+
     fn get_config(dir: &Path) -> Result<Option<BusterConfig>> {
         let config_path = dir.join("buster.yml");
         if config_path.exists() {
             let content = std::fs::read_to_string(&config_path)
                 .map_err(|e| anyhow::anyhow!("Failed to read buster.yml: {}", e))?;
-            
+
             if content.trim().is_empty() {
                 return Ok(None);
             }
-            
+
             serde_yaml::from_str(&content)
                 .map(Some)
                 .map_err(|e| anyhow::anyhow!("Failed to parse buster.yml: {}", e))
@@ -313,13 +313,13 @@ impl ModelFile {
 
     async fn validate(&self, config: Option<&BusterConfig>) -> Result<(), Vec<String>> {
         let mut errors = Vec::new();
-        
+
         // Basic validation first
         if self.model.models.is_empty() {
             errors.push("At least one model is required".to_string());
             return Err(errors);
         }
-        
+
         let mut model_names = std::collections::HashSet::new();
 
         // First pass: collect all model names
@@ -339,7 +339,7 @@ impl ModelFile {
 
                     // If no project_path, the model should exist in the current project
                     if entity.project_path.is_none() && !model_names.contains(referenced_model) {
-                errors.push(format!(
+                        errors.push(format!(
                             "Model '{}' references non-existent model '{}' (via {})",
                             model.name,
                             referenced_model,
@@ -348,9 +348,9 @@ impl ModelFile {
                     }
                 }
             }
-            }
+        }
 
-            // Warnings
+        // Warnings
         for model in &self.model.models {
             if model.description.is_empty() {
                 println!("⚠️  Warning: Model '{}' has no description", model.name);
@@ -372,7 +372,7 @@ impl ModelFile {
         if let Err(validation_errors) = self.validate_cross_project_references(config).await {
             errors.extend(validation_errors.into_iter().map(|e| e.message));
         }
-        
+
         if errors.is_empty() {
             Ok(())
         } else {
@@ -383,7 +383,7 @@ impl ModelFile {
     fn generate_default_sql(&self, model: &Model) -> String {
         format!(
             "select * from {}.{}",
-            model.schema.as_ref().map(String::as_str).unwrap_or(""), 
+            model.schema.as_ref().map(String::as_str).unwrap_or(""),
             model.name
         )
     }
@@ -405,7 +405,7 @@ impl ModelFile {
             .data_source_name
             .clone()
             .or_else(|| config.and_then(|c| c.data_source_name.clone()));
-        
+
         let schema = model
             .schema
             .clone()
@@ -460,11 +460,16 @@ impl ModelFile {
             .collect();
 
         // Resolve configuration with global config
-        let (data_source_name, schema, database) = self.resolve_model_config(model, self.config.as_ref());
+        let (data_source_name, schema, database) =
+            self.resolve_model_config(model, self.config.as_ref());
 
         // Unwrap with error if missing - this should never happen since we validate earlier
         let data_source_name = data_source_name.expect("data_source_name missing after validation");
         let schema = schema.expect("schema missing after validation");
+
+        if database.is_some() {
+            println!("DATABASE DETECTED: {:?}", database);
+        }
         // Note: database is optional, so we don't unwrap it
 
         DeployDatasetsRequest {
@@ -475,7 +480,7 @@ impl ModelFile {
             name: model.name.clone(),
             model: model.model.clone(),
             schema,
-            database,  // This is already Option<String>
+            database, // This is already Option<String>
             description: model.description.clone(),
             sql_definition: Some(sql_content),
             entity_relationships: Some(entity_relationships),
@@ -587,7 +592,8 @@ impl ModelFile {
                                         })
                                         .collect::<Vec<_>>();
 
-                                    println!("🔍 Searching for model '{}' in directory: {}", 
+                                    println!(
+                                        "🔍 Searching for model '{}' in directory: {}",
                                         entity.ref_.as_ref().unwrap_or(&entity.name),
                                         target_path.display()
                                     );
@@ -595,24 +601,45 @@ impl ModelFile {
 
                                     let mut found_model = false;
                                     for model_file in model_files {
-                                        println!("   Checking file: {}", model_file.path().display());
-                                        if let Ok(content) = std::fs::read_to_string(model_file.path()) {
+                                        println!(
+                                            "   Checking file: {}",
+                                            model_file.path().display()
+                                        );
+                                        if let Ok(content) =
+                                            std::fs::read_to_string(model_file.path())
+                                        {
                                             match serde_yaml::from_str::<BusterModel>(&content) {
                                                 Ok(model_def) => {
                                                     // Get the model reference from ref_ field if present, otherwise use name
-                                                    let referenced_model = entity.ref_.as_ref().unwrap_or(&entity.name);
-                                                    println!("     - Found {} models in file", model_def.models.len());
+                                                    let referenced_model = entity
+                                                        .ref_
+                                                        .as_ref()
+                                                        .unwrap_or(&entity.name);
+                                                    println!(
+                                                        "     - Found {} models in file",
+                                                        model_def.models.len()
+                                                    );
                                                     for m in &model_def.models {
-                                                        println!("     - Checking model: {}", m.name);
+                                                        println!(
+                                                            "     - Checking model: {}",
+                                                            m.name
+                                                        );
                                                     }
-                                                    if model_def.models.iter().any(|m| m.name == *referenced_model) {
+                                                    if model_def
+                                                        .models
+                                                        .iter()
+                                                        .any(|m| m.name == *referenced_model)
+                                                    {
                                                         found_model = true;
                                                         println!("     ✅ Found matching model!");
                                                         break;
                                                     }
                                                 }
                                                 Err(e) => {
-                                                    println!("     ⚠️  Failed to parse YAML content: {}", e);
+                                                    println!(
+                                                        "     ⚠️  Failed to parse YAML content: {}",
+                                                        e
+                                                    );
                                                     println!("     Content:\n{}", content);
                                                 }
                                             }
@@ -647,8 +674,8 @@ impl ModelFile {
                                         suggestion: Some("Add data_source_name to the referenced project's buster.yml".to_string()),
                                     });
                                 }
-        }
-        Err(e) => {
+                            }
+                            Err(e) => {
                                 validation_errors.push(ValidationError {
                                     error_type: ValidationErrorType::InvalidBusterYml,
                                     message: format!(
@@ -805,7 +832,7 @@ pub async fn deploy_v2(path: Option<&str>, dry_run: bool) -> Result<()> {
             .and_then(|n| n.to_str())
             .unwrap_or("unknown")
             .to_string();
-        
+
         progress.status = "Loading model file...".to_string();
         progress.log_progress();
 
@@ -840,7 +867,7 @@ pub async fn deploy_v2(path: Option<&str>, dry_run: bool) -> Result<()> {
         for model in &model_file.model.models {
             let (data_source_name, schema, database) =
                 model_file.resolve_model_config(model, config.as_ref());
-            
+
             if data_source_name.is_none() {
                 progress.log_error(&format!(
                     "data_source_name is required for model {} (not found in model or buster.yml)",
@@ -917,7 +944,8 @@ pub async fn deploy_v2(path: Option<&str>, dry_run: bool) -> Result<()> {
             return Ok(());
         }
 
-        let client = client.expect("BusterClient should be initialized for non-dry-run deployments");
+        let client =
+            client.expect("BusterClient should be initialized for non-dry-run deployments");
         progress.status = "Deploying models to Buster...".to_string();
         progress.log_progress();
 
@@ -965,14 +993,14 @@ pub async fn deploy_v2(path: Option<&str>, dry_run: bool) -> Result<()> {
                     } else {
                         has_validation_errors = true;
                         progress.log_validation_error(validation);
-                        
+
                         // Collect all error messages
                         let error_messages: Vec<String> = validation
                             .errors
                             .iter()
                             .map(|e| e.message.clone())
                             .collect();
-                        
+
                         result
                             .failures
                             .push((file, validation.model_name.clone(), error_messages));
@@ -1052,9 +1080,9 @@ pub async fn deploy_v2(path: Option<&str>, dry_run: bool) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use anyhow::Result;
     use std::fs;
     use tempfile::TempDir;
-    use anyhow::Result;
 
     // Helper function to create a temporary directory with test files
     async fn setup_test_dir() -> Result<TempDir> {
@@ -1079,14 +1107,14 @@ mod tests {
     #[tokio::test]
     async fn test_deploy_valid_project() -> Result<()> {
         let temp_dir = setup_test_dir().await?;
-        
+
         // Create buster.yml
         let buster_yml = r#"
                 data_source_name: "test_source"
                 schema: "test_schema"
         "#;
         create_test_yaml(temp_dir.path(), "buster.yml", buster_yml).await?;
-        
+
         // Create a valid model file
         let model_yml = r#"
             version: 1
@@ -1106,25 +1134,25 @@ mod tests {
                     description: "First measure"
         "#;
         create_test_yaml(temp_dir.path(), "test_model.yml", model_yml).await?;
-        
+
         // Test dry run
         let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true).await;
         assert!(result.is_ok());
-        
+
         Ok(())
     }
 
     #[tokio::test]
     async fn test_deploy_cross_project_references() -> Result<()> {
         let temp_dir = setup_test_dir().await?;
-        
+
         // Create main project buster.yml
         let main_buster_yml = r#"
             data_source_name: "test_source"
             schema: "test_schema"
         "#;
         create_test_yaml(temp_dir.path(), "buster.yml", main_buster_yml).await?;
-        
+
         // Create referenced project directory and buster.yml
         let ref_dir = temp_dir.path().join("referenced_project");
         fs::create_dir(&ref_dir)?;
@@ -1133,7 +1161,7 @@ mod tests {
             schema: "other_schema"
         "#;
         create_test_yaml(&ref_dir, "buster.yml", ref_buster_yml).await?;
-        
+
         // Create model with cross-project reference
         let model_yml = r#"
             version: 1
@@ -1150,25 +1178,25 @@ mod tests {
                 measures: []
         "#;
         create_test_yaml(temp_dir.path(), "test_model.yml", model_yml).await?;
-        
+
         // Test dry run
         let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true).await;
         assert!(result.is_ok());
-        
+
         Ok(())
     }
 
     #[tokio::test]
     async fn test_deploy_invalid_cross_project_reference() -> Result<()> {
         let temp_dir = setup_test_dir().await?;
-        
+
         // Create main project buster.yml
         let main_buster_yml = r#"
             data_source_name: "test_source"
             schema: "test_schema"
         "#;
         create_test_yaml(temp_dir.path(), "buster.yml", main_buster_yml).await?;
-        
+
         // Create referenced project directory and buster.yml with different data source
         let ref_dir = temp_dir.path().join("referenced_project");
         fs::create_dir(&ref_dir)?;
@@ -1177,7 +1205,7 @@ mod tests {
             schema: "other_schema"
         "#;
         create_test_yaml(&ref_dir, "buster.yml", ref_buster_yml).await?;
-        
+
         // Create model with cross-project reference
         let model_yml = r#"
             version: 1
@@ -1194,25 +1222,25 @@ mod tests {
                 measures: []
         "#;
         create_test_yaml(temp_dir.path(), "test_model.yml", model_yml).await?;
-        
+
         // Test dry run - should fail due to data source mismatch
         let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true).await;
         assert!(result.is_err());
-        
+
         Ok(())
     }
 
     #[tokio::test]
     async fn test_deploy_missing_referenced_project() -> Result<()> {
         let temp_dir = setup_test_dir().await?;
-        
+
         // Create main project buster.yml
         let main_buster_yml = r#"
             data_source_name: "test_source"
             schema: "test_schema"
         "#;
         create_test_yaml(temp_dir.path(), "buster.yml", main_buster_yml).await?;
-        
+
         // Create model with reference to non-existent project
         let model_yml = r#"
             version: 1
@@ -1229,28 +1257,29 @@ mod tests {
                 measures: []
         "#;
         create_test_yaml(temp_dir.path(), "test_model.yml", model_yml).await?;
-        
+
         // Test dry run - should fail due to missing project
         let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true).await;
         assert!(result.is_err());
-        
+
         Ok(())
     }
 
     #[tokio::test]
     async fn test_deploy_multiple_models() -> Result<()> {
         let temp_dir = setup_test_dir().await?;
-        
+
         // Create buster.yml
         let buster_yml = r#"
             data_source_name: "test_source"
             schema: "test_schema"
         "#;
         create_test_yaml(temp_dir.path(), "buster.yml", buster_yml).await?;
-        
+
         // Create multiple model files
         for i in 1..=3 {
-            let model_yml = format!(r#"
+            let model_yml = format!(
+                r#"
             version: 1
             models:
                   - name: test_model_{}
@@ -1266,50 +1295,57 @@ mod tests {
                     expr: "col2"
                     agg: "sum"
                     description: "First measure"
-            "#, i, i);
-            create_test_yaml(temp_dir.path(), &format!("test_model_{}.yml", i), &model_yml).await?;
+            "#,
+                i, i
+            );
+            create_test_yaml(
+                temp_dir.path(),
+                &format!("test_model_{}.yml", i),
+                &model_yml,
+            )
+            .await?;
         }
-        
+
         // Test dry run
         let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true).await;
         assert!(result.is_ok());
-        
+
         Ok(())
     }
 
     #[tokio::test]
     async fn test_deploy_invalid_yaml() -> Result<()> {
         let temp_dir = setup_test_dir().await?;
-        
+
         // Create buster.yml
         let buster_yml = r#"
                 data_source_name: "test_source"
                 schema: "test_schema"
         "#;
         create_test_yaml(temp_dir.path(), "buster.yml", buster_yml).await?;
-        
+
         // Create invalid YAML file
         let invalid_yml = "this is not valid yaml: : : :";
         create_test_yaml(temp_dir.path(), "invalid_model.yml", invalid_yml).await?;
-        
+
         // Test dry run - should fail due to invalid YAML
         let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true).await;
         assert!(result.is_err());
-        
+
         Ok(())
     }
 
     #[tokio::test]
     async fn test_deploy_with_ref_field() -> Result<()> {
         let temp_dir = setup_test_dir().await?;
-        
+
         // Create buster.yml
         let buster_yml = r#"
                 data_source_name: "test_source"
                 schema: "test_schema"
         "#;
         create_test_yaml(temp_dir.path(), "buster.yml", buster_yml).await?;
-        
+
         // Create referenced model
         let referenced_model_yml = r#"
             version: 1
@@ -1320,8 +1356,13 @@ mod tests {
                 dimensions: []
                 measures: []
         "#;
-        create_test_yaml(temp_dir.path(), "referenced_model.yml", referenced_model_yml).await?;
-        
+        create_test_yaml(
+            temp_dir.path(),
+            "referenced_model.yml",
+            referenced_model_yml,
+        )
+        .await?;
+
         // Create model with ref field
         let model_yml = r#"
             version: 1
@@ -1338,25 +1379,25 @@ mod tests {
                 measures: []
         "#;
         create_test_yaml(temp_dir.path(), "test_model.yml", model_yml).await?;
-        
+
         // Test dry run - should succeed because actual_model exists
         let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true).await;
         assert!(result.is_ok());
-        
+
         Ok(())
     }
 
     #[tokio::test]
     async fn test_deploy_with_invalid_ref() -> Result<()> {
         let temp_dir = setup_test_dir().await?;
-        
+
         // Create buster.yml
         let buster_yml = r#"
             data_source_name: "test_source"
                 schema: "test_schema"
         "#;
         create_test_yaml(temp_dir.path(), "buster.yml", buster_yml).await?;
-        
+
         // Create model with invalid ref
         let model_yml = r#"
             version: 1
@@ -1373,11 +1414,11 @@ mod tests {
                 measures: []
         "#;
         create_test_yaml(temp_dir.path(), "test_model.yml", model_yml).await?;
-        
+
         // Test dry run - should fail because referenced model doesn't exist
         let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true).await;
         assert!(result.is_err());
-        
+
         Ok(())
     }
-} 
+}

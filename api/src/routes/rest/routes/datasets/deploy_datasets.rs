@@ -285,13 +285,14 @@ async fn deploy_datasets_handler(
     let mut data_source_groups: HashMap<(String, Option<String>), Vec<&DeployDatasetsRequest>> = HashMap::new();
     for req in &requests {
         data_source_groups
-            .entry((req.data_source_name.clone(), req.model.clone()))
+            .entry((req.data_source_name.clone(), req.database.clone()))
             .or_default()
             .push(req);
     }
 
     // Process each data source group
     for ((data_source_name, database), group) in data_source_groups {
+
         // Get data source
         let data_source = match data_sources::table
             .filter(data_sources::name.eq(&data_source_name))
@@ -347,8 +348,9 @@ async fn deploy_datasets_handler(
             .collect();
 
         tracing::info!(
-            "Validating tables for data source '{}': {:?}",
+            "Validating tables for data source '{:?}.{:?}': {:?}",
             data_source_name,
+            database,
             tables_to_validate
         );
 
