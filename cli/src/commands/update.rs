@@ -101,7 +101,11 @@ impl UpdateCommand {
         // Download and verify checksum
         let checksum_path = temp_dir.path().join(format!("{}.sha256", package_name));
         match self.download_file(&checksum_url, &checksum_path).await {
-            Ok(_) => println!("✓ Checksum file downloaded"),
+            Ok(_) => {
+                println!("✓ Checksum file downloaded");
+                self.verify_checksum(&package_path, &checksum_path)?;
+                println!("✓ Checksum verified");
+            },
             Err(e) => {
                 if env::var("BUSTER_DEV").is_ok() {
                     println!("Skipping checksum verification in development mode");
