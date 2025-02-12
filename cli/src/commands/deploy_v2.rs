@@ -311,6 +311,48 @@ impl ModelFile {
         }
     }
 
+    fn validate_model_exists(
+        entity_name: &str,
+        current_dir: &Path,
+        current_model: &str,
+    ) -> Result<(), ValidationError> {
+        let target_file = current_dir.join(format!("{}.yml", entity_name));
+        
+        if !target_file.exists() {
+            return Err(ValidationError {
+                error_type: ValidationErrorType::ModelNotFound,
+                message: format!(
+                    "Model '{}' references non-existent model '{}' - file {}.yml not found", 
+                    current_model, entity_name, entity_name
+                ),
+                column_name: None,
+                suggestion: Some(format!("Create {}.yml file with model definition", entity_name)),
+            });
+        }
+
+        // Quick verification that model exists in file
+        if let Ok(content) = std::fs::read_to_string(&target_file) {
+            if let Ok(model_def) = serde_yaml::from_str::<BusterModel>(&content) {
+                if !model_def.models.iter().any(|m| m.name == entity_name) {
+                    return Err(ValidationError {
+                        error_type: ValidationErrorType::ModelNotFound,
+                        message: format!(
+                            "Model '{}' references model '{}' but no model with that name found in {}.yml",
+                            current_model, entity_name, entity_name
+                        ),
+                        column_name: None,
+                        suggestion: Some(format!(
+                            "Add model definition for '{}' in {}.yml",
+                            entity_name, entity_name
+                        )),
+                    });
+                }
+            }
+        }
+
+        Ok(())
+    }
+
     async fn validate(&self, config: Option<&BusterConfig>) -> Result<(), Vec<String>> {
         let mut errors = Vec::new();
 
@@ -337,14 +379,17 @@ impl ModelFile {
                     // Get the model reference from ref_ field if present, otherwise use name
                     let referenced_model = entity.ref_.as_ref().unwrap_or(&entity.name);
 
-                    // If no project_path, the model should exist in the current project
-                    if entity.project_path.is_none() && !model_names.contains(referenced_model) {
-                        errors.push(format!(
-                            "Model '{}' references non-existent model '{}' (via {})",
-                            model.name,
-                            referenced_model,
-                            if entity.ref_.is_some() { "ref" } else { "name" }
-                        ));
+                    // If project_path specified, use cross-project validation
+                    if entity.project_path.is_some() {
+                        if let Err(validation_errors) = self.validate_cross_project_references(config).await {
+                            errors.extend(validation_errors.into_iter().map(|e| e.message));
+                        }
+                    } else {
+                        // Same-project validation using file-based check
+                        let current_dir = self.yml_path.parent().unwrap_or(Path::new("."));
+                        if let Err(e) = Self::validate_model_exists(referenced_model, current_dir, &model.name) {
+                            errors.push(e.message);
+                        }
                     }
                 }
             }
@@ -361,16 +406,6 @@ impl ModelFile {
                     model.name
                 );
             }
-        }
-
-        // If we have critical errors, fail fast
-        if !errors.is_empty() {
-            return Err(errors);
-        }
-
-        // Cross-project validation
-        if let Err(validation_errors) = self.validate_cross_project_references(config).await {
-            errors.extend(validation_errors.into_iter().map(|e| e.message));
         }
 
         if errors.is_empty() {
