@@ -11,6 +11,7 @@ use inquire::{Text, required};
 use crate::utils::{
     buster_credentials::get_and_validate_buster_credentials,
     BusterClient, GenerateApiRequest, GenerateApiResponse,
+    yaml_diff_merger::YamlDiffMerger,
 };
 
 #[derive(Debug)]
@@ -177,16 +178,45 @@ impl GenerateCommand {
 
         match client.generate_datasets(request).await {
             Ok(response) => {
-                // Process successful generations
+                // Process each model's YAML
                 for (model_name, yml_content) in response.yml_contents {
                     let file_path = self.destination_path.join(format!("{}.yml", model_name));
-                    match fs::write(&file_path, yml_content) {
-                        Ok(_) => {
-                            progress.log_success();
-                            println!("✅ Created {}.yml", model_name);
+                    
+                    if file_path.exists() {
+                        // Use YAML diff merger for existing files
+                        let merger = YamlDiffMerger::new(file_path.clone(), yml_content);
+                        
+                        match merger.compute_diff() {
+                            Ok(diff_result) => {
+                                // Preview changes
+                                println!("\nProcessing model: {}", model_name);
+                                merger.preview_changes(&diff_result);
+
+                                // Apply changes
+                                match merger.apply_changes(&diff_result) {
+                                    Ok(_) => {
+                                        progress.log_success();
+                                        println!("✅ Updated {}.yml", model_name);
+                                    }
+                                    Err(e) => {
+                                        progress.log_error(&format!("Failed to update {}.yml: {}", model_name, e));
+                                    }
+                                }
+                            }
+                            Err(e) => {
+                                progress.log_error(&format!("Failed to compute diff for {}.yml: {}", model_name, e));
+                            }
                         }
-                        Err(e) => {
-                            progress.log_error(&format!("Failed to write {}.yml: {}", model_name, e));
+                    } else {
+                        // Create new file for models that don't exist yet
+                        match fs::write(&file_path, yml_content) {
+                            Ok(_) => {
+                                progress.log_success();
+                                println!("✅ Created new file {}.yml", model_name);
+                            }
+                            Err(e) => {
+                                progress.log_error(&format!("Failed to write {}.yml: {}", model_name, e));
+                            }
                         }
                     }
                 }
