@@ -1,7 +1,8 @@
 [package]
 name = "buster-cli"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
+build = "build.rs"
 
 [lib]
 name = "buster_cli"
@@ -11,24 +12,33 @@ path = "src/lib.rs"
 
 [dependencies]
 anyhow = "1.0.79"
-clap = { version = "4.4.18", features = ["derive"] }
+clap = { version = "4.4.18", features = ["derive", "env"] }
 confy = "0.6.0"
 dirs = "5.0.1"
+futures = "0.3.29"
 indicatif = "0.17.8"
 inquire = "0.7.5"
 lazy_static = "1.4.0"
 ratatui = "0.29.0"
 regex = "1.10.3"
-reqwest = { version = "0.12.9", features = ["json", "rustls-tls"] }
+reqwest = { version = "0.12.9", features = ["json", "rustls-tls", "stream"] }
 rpassword = "7.3.1"
 serde = { version = "1.0.196", features = ["derive"] }
 serde_json = "1.0.113"
 serde_yaml = "0.9.34"
+tempfile = "3.10.0"
 thiserror = "2.0.3"
 tokio = { version = "1.36.0", features = ["full"] }
+tokio-util = { version = "0.7.10", features = ["io"] }
+futures-util = "0.3.30"
 uuid = { version = "1.7.0", features = ["v4", "serde"] }
 colored = "3.0"
-rustls = { version = "0.22", features = ["tls12"] }
+rustls = { version = "0.23", features = ["tls12"] }
+url = "2.5.0"
+zip = "2.2.2"
 
 [dev-dependencies]
 tempfile = "3.16.0"
+
+[build-dependencies]
+chrono = "0.4"
