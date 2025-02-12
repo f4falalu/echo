@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
-use serde_yaml::Value;
+use serde_yaml::{Value, Mapping};
 use anyhow::{Result, Context};
 use std::fs;
 use colored::*;
@@ -113,6 +113,67 @@ impl YamlDiffMerger {
             new_content,
             backup_path,
         }
+    }
+
+    fn parse_yaml_preserving_style(content: &str) -> Result<Value> {
+        serde_yaml::from_str(content).context("Failed to parse YAML content")
+    }
+
+    fn update_model_preserving_style(&self, existing_model: &mut Value, new_model: &Model) -> Result<()> {
+        if let Value::Mapping(map) = existing_model {
+            // Update dimensions while preserving style
+            if let Some(existing_dims) = map.get_mut("dimensions") {
+                if let Value::Sequence(dims) = existing_dims {
+                    // Create a map of existing dimensions by name
+                    let mut dim_map: HashMap<String, &Value> = HashMap::new();
+                    for dim in dims.iter() {
+                        if let Some(name) = dim.get("name").and_then(|n| n.as_str()) {
+                            dim_map.insert(name.to_string(), dim);
+                        }
+                    }
+
+                    // Update dimensions while preserving order and style
+                    let mut new_dims = Vec::new();
+                    for dim in &new_model.dimensions {
+                        if let Some(&existing_dim) = dim_map.get(&dim.name) {
+                            // Preserve existing dimension's style
+                            new_dims.push(existing_dim.clone());
+                        } else {
+                            // Add new dimension
+                            new_dims.push(serde_yaml::to_value(dim)?);
+                        }
+                    }
+                    *dims = new_dims;
+                }
+            }
+
+            // Update measures while preserving style
+            if let Some(existing_measures) = map.get_mut("measures") {
+                if let Value::Sequence(measures) = existing_measures {
+                    // Create a map of existing measures by name
+                    let mut measure_map: HashMap<String, &Value> = HashMap::new();
+                    for measure in measures.iter() {
+                        if let Some(name) = measure.get("name").and_then(|n| n.as_str()) {
+                            measure_map.insert(name.to_string(), measure);
+                        }
+                    }
+
+                    // Update measures while preserving order and style
+                    let mut new_measures = Vec::new();
+                    for measure in &new_model.measures {
+                        if let Some(&existing_measure) = measure_map.get(&measure.name) {
+                            // Preserve existing measure's style
+                            new_measures.push(existing_measure.clone());
+                        } else {
+                            // Add new measure
+                            new_measures.push(serde_yaml::to_value(measure)?);
+                        }
+                    }
+                    *measures = new_measures;
+                }
+            }
+        }
+        Ok(())
     }
 
     pub fn compute_diff(&self) -> Result<DiffResult> {
@@ -295,26 +356,28 @@ impl YamlDiffMerger {
         fs::copy(&self.existing_yaml, &self.backup_path)
             .context("Failed to create backup file")?;
 
-        // Read and parse existing YAML
+        // Read existing YAML preserving style
         let existing_content = fs::read_to_string(&self.existing_yaml)
             .context("Failed to read existing YAML file")?;
-        let mut yaml_file: YamlFile = serde_yaml::from_str(&existing_content)
-            .context("Failed to parse existing YAML")?;
+        let mut existing_yaml = Self::parse_yaml_preserving_style(&existing_content)?;
 
-        // Get the model (we know there's only one)
-        let model = &mut yaml_file.models[0];
+        // Parse new content
+        let new_yaml: YamlFile = serde_yaml::from_str(&self.new_content)
+            .context("Failed to parse new YAML content")?;
 
-        // Remove dimensions and measures that should be removed
-        model.dimensions.retain(|d| !diff_result.changes.removed_dimensions.contains(&d.name));
-        model.measures.retain(|m| !diff_result.changes.removed_measures.contains(&m.name));
+        // Update the existing YAML while preserving style
+        if let Value::Mapping(map) = &mut existing_yaml {
+            if let Some(Value::Sequence(models)) = map.get_mut("models") {
+                if !models.is_empty() {
+                    // Update the first model
+                    self.update_model_preserving_style(&mut models[0], &new_yaml.models[0])?;
+                }
+            }
+        }
 
-        // Add new dimensions and measures
-        model.dimensions.extend(diff_result.changes.added_dimensions.clone());
-        model.measures.extend(diff_result.changes.added_measures.clone());
-
-        // Write to temporary file
+        // Write to temporary file using the original style
         let temp_path = self.existing_yaml.with_extension("yml.tmp");
-        let yaml_str = serde_yaml::to_string(&yaml_file)?;
+        let yaml_str = serde_yaml::to_string(&existing_yaml)?;
         fs::write(&temp_path, yaml_str)
             .context("Failed to write temporary file")?;
 
