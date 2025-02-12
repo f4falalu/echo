@@ -61,6 +61,22 @@ export const AppSidebarPrimary: React.FC<
     () =>
       [
         {
+          key: BusterRoutes.APP_CHAT,
+          label: (
+            <Link
+              prefetch={true}
+              href={disableLink(
+                createBusterRoute({
+                  route: BusterRoutes.APP_CHAT
+                })
+              )}>
+              Chats
+            </Link>
+          ),
+          icon: <AppMaterialIcons icon="forum" />,
+          show: true
+        },
+        {
           key: BusterRoutes.APP_METRIC,
           label: (
             <Link

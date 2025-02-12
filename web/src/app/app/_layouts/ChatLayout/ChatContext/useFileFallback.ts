@@ -118,6 +118,7 @@ const fallbackToFileChatMessage = ({
         file_name: title || `New ${type}`,
         version_number: versionNumber,
         version_id: id,
+        filter_version_id: null,
         metadata: [
           {
             status: 'completed',

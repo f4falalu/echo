@@ -1,8 +1,8 @@
-import { SelectedFile } from '@/app/app/_layouts/ChatLayout';
+import type { SelectedFile } from '@appLayouts/ChatLayout';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemo } from 'react';
-import { IBusterChat, IBusterChatMessage } from '../../interfaces';
+import type { IBusterChat, IBusterChatMessage } from '../../interfaces';
 import { FileType } from '@/api/asset_interfaces';
 
 export const useFileFallback = ({
@@ -105,6 +105,7 @@ const fallbackToFileChatMessage = ({
         file_name: title || `New ${type}`,
         version_number: versionNumber,
         version_id: id,
+        filter_version_id: null,
         metadata: [
           {
             status: 'completed',

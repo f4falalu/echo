@@ -42,7 +42,7 @@ function measureDevicePerformance(): Promise<number> {
   });
 }
 
-export async function detectDeviceCapabilities(): Promise<DeviceCapabilities> {
+async function detectDeviceCapabilities(): Promise<DeviceCapabilities> {
   // Check if running in browser
   if (typeof window === 'undefined') {
     return DEVICE_TIERS.medium;

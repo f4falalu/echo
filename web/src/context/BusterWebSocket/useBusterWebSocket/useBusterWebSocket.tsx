@@ -2,35 +2,27 @@
 
 import { useMemoizedFn } from 'ahooks';
 import React, { useMemo, useRef } from 'react';
-import { useBusterNotifications } from '../BusterNotifications/BusterNotifications';
-import {
+import { useBusterNotifications } from '../../BusterNotifications';
+import type {
   BusterSocketRequest,
   BusterSocketResponse,
   BusterSocketResponseRoute
 } from '@/api/buster_socket';
-import { useWebSocket } from './useWebSocketCustom';
+import { useWebSocket } from '@/hooks/useWebSocket';
 import { BusterSocketResponseBase } from '@/api/buster_socket/base_interfaces';
-import { useSupabaseContext } from '../Supabase';
+import { useSupabaseContext } from '../../Supabase';
 import {
   ContextSelector,
   createContext,
   useContextSelector
 } from '@fluentui/react-context-selector';
-import { SupabaseContextReturnType } from '../Supabase';
-
-const BUSTER_WS_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/v1/ws`;
+import type { SupabaseContextReturnType } from '../../Supabase';
+import { BUSTER_WS_URL } from './config';
 
 export type BusterOnCallback = {
   callback: BusterSocketResponse['callback'];
   onError?: BusterSocketResponse['onError'];
 };
-
-export enum ReadyState {
-  Connecting = 0,
-  Open = 1,
-  Closing = 2,
-  Closed = 3
-}
 
 interface BusterSocket {
   on: (d: BusterSocketResponse) => void;

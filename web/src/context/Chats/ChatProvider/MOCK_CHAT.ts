@@ -81,6 +81,7 @@ export const createMockResponseMessageFile = (): BusterChatMessage_file => {
     type: 'file',
     file_type: 'metric',
     version_number: 1,
+    filter_version_id: null,
     version_id: faker.string.uuid(),
     file_name: faker.company.name(),
     metadata: randomMetadata

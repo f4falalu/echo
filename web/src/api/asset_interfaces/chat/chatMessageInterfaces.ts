@@ -38,6 +38,7 @@ export type BusterChatMessage_file = {
   file_name: string;
   version_number: number;
   version_id: string;
+  filter_version_id: string | null;
   metadata?: BusterChatMessage_fileMetadata[];
 };
 

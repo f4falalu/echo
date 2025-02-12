@@ -1,11 +1,11 @@
 import { useMemoizedFn, useMount, useNetwork, useThrottleFn } from 'ahooks';
 import { useEffect, useRef, useState } from 'react';
-import { ReadyState } from './useBusterWebSocket';
-import { BusterSocketResponseBase } from '@/api/buster_socket/base_interfaces';
+import { ReadyState } from './config';
+import type { BusterSocketResponseBase } from '@/api/buster_socket/base_interfaces';
 import { createBusterResponse } from './helpers';
-import { DeviceCapabilities, getDeviceCapabilities } from './deviceCapabilities';
-import { useWindowFocus } from '@/hooks';
-import { SupabaseContextReturnType } from '../Supabase';
+import { type DeviceCapabilities, getDeviceCapabilities } from './deviceCapabilities';
+import type { SupabaseContextReturnType } from '@/context/Supabase';
+import { useWindowFocus } from '../dom/useWindowFocus';
 
 type WebSocketHookProps = {
   canConnect: boolean;
@@ -20,7 +20,6 @@ interface QueuedMessage {
 }
 
 const BASE_DELAY = 3000;
-const STAGING_DEBUGGER = process.env.NEXT_PUBLIC_WS_DEBUG === 'true';
 
 const useWebSocket = ({ url, checkTokenValidity, canConnect, onMessage }: WebSocketHookProps) => {
   const { online } = useNetwork();

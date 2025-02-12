@@ -7,7 +7,6 @@ import {
 } from '@appLayouts/ChatLayout/ChatLayoutContext';
 import { MetricViewComponents } from './config';
 import { useBusterMetricIndividual } from '@/context/Metrics';
-import { useBusterNewChatContextSelector } from '@/context/Chats';
 import { FileIndeterminateLoader } from '@appComponents/FileIndeterminateLoader';
 
 export const MetricController: React.FC<{

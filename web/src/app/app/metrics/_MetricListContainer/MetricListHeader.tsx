@@ -2,11 +2,9 @@
 
 import React, { useMemo } from 'react';
 import { AppContentHeader } from '../../../../components/layout/AppContentHeader';
-import { Button } from 'antd';
-import { AppMaterialIcons, AppSegmented } from '@/components';
+import { AppSegmented } from '@/components';
 import { VerificationStatus } from '@/api/asset_interfaces';
 import { Text } from '@/components';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn } from 'ahooks';
 import { SegmentedValue } from 'antd/lib/segmented';
 
@@ -16,12 +14,7 @@ export const MetricListHeader: React.FC<{
   onSetFilters: (filters: VerificationStatus[]) => void;
 }> = ({ type, filters, onSetFilters }) => {
   const title = type === 'logs' ? 'Logs' : 'Metrics';
-  const onToggleChatsModal = useAppLayoutContextSelector((s) => s.onToggleChatsModal);
   const showFilters: boolean = true;
-
-  const onToggleChatsModalPreflight = useMemoizedFn(() => {
-    onToggleChatsModal();
-  });
 
   return (
     <AppContentHeader>
@@ -31,14 +24,6 @@ export const MetricListHeader: React.FC<{
           {showFilters && (
             <MetricsFilters type={type} filters={filters} onSetFilters={onSetFilters} />
           )}
-        </div>
-        <div className="flex items-center">
-          <Button
-            icon={<AppMaterialIcons icon="edit_square" />}
-            type="default"
-            onClick={onToggleChatsModalPreflight}>
-            New Chat
-          </Button>
         </div>
       </div>
     </AppContentHeader>

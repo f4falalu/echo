@@ -23,14 +23,15 @@ export enum BusterAppRoutes {
   APP_TERMS_ID = '/app/terms/:termId',
 
   //NEW CHAT
-  APP_CHAT_ID = '/app/chat/:chatId',
-  APP_CHAT_ID_REASONING_ID = '/app/chat/:chatId/reasoning/:messageId',
-  APP_CHAT_ID_METRIC_ID = '/app/chat/:chatId/metric/:metricId',
-  APP_CHAT_ID_COLLECTION_ID = '/app/chat/:chatId/collection/:collectionId',
-  APP_CHAT_ID_DASHBOARD_ID = '/app/chat/:chatId/dashboard/:dashboardId',
-  APP_CHAT_ID_DATASET_ID = '/app/chat/:chatId/dataset/:datasetId',
-  APP_CHAT_ID_TERM_ID = '/app/chat/:chatId/term/:termId',
-  APP_CHAT_ID_VALUE_ID = '/app/chat/:chatId/value/:valueId',
+  APP_CHAT = '/app/chats',
+  APP_CHAT_ID = '/app/chats/:chatId',
+  APP_CHAT_ID_REASONING_ID = '/app/chats/:chatId/reasoning/:messageId',
+  APP_CHAT_ID_METRIC_ID = '/app/chats/:chatId/metric/:metricId',
+  APP_CHAT_ID_COLLECTION_ID = '/app/chats/:chatId/collection/:collectionId',
+  APP_CHAT_ID_DASHBOARD_ID = '/app/chats/:chatId/dashboard/:dashboardId',
+  APP_CHAT_ID_DATASET_ID = '/app/chats/:chatId/dataset/:datasetId',
+  APP_CHAT_ID_TERM_ID = '/app/chats/:chatId/term/:termId',
+  APP_CHAT_ID_VALUE_ID = '/app/chats/:chatId/value/:valueId',
   APP_VALUE_ID = '/app/value/:valueId',
 
   SETTINGS = '/app/settings',
@@ -206,6 +207,7 @@ export type BusterAppRoutesWithArgs = {
   };
   [BusterAppRoutes.APP_SETTINGS_ATTRIBUTES]: { route: BusterAppRoutes.APP_SETTINGS_ATTRIBUTES };
   [BusterAppRoutes.APP_SETTINGS_SECURITY]: { route: BusterAppRoutes.APP_SETTINGS_SECURITY };
+  [BusterAppRoutes.APP_CHAT]: { route: BusterAppRoutes.APP_CHAT };
   [BusterAppRoutes.APP_CHAT_ID]: { route: BusterAppRoutes.APP_CHAT_ID; chatId: string };
   [BusterAppRoutes.APP_CHAT_ID_REASONING_ID]: {
     route: BusterAppRoutes.APP_CHAT_ID_REASONING_ID;
