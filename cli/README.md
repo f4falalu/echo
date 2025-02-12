@@ -8,13 +8,23 @@ Choose the installation command for your operating system:
 
 ### macOS (x86_64)
 ```bash
-curl -L https://github.com/buster-so/buster/releases/download/v0.0.1/buster-cli-darwin-x86_64.tar.gz | tar xz && sudo mv buster-cli /usr/local/bin/buster && sudo chmod +x /usr/local/bin/buster
+mkdir -p ~/.local/bin && curl -L https://github.com/buster-so/buster/releases/download/v0.0.1/buster-cli-darwin-x86_64.tar.gz | tar xz && mv buster-cli ~/.local/bin/buster && chmod +x ~/.local/bin/buster
+```
+
+### macOS (ARM/Apple Silicon)
+```bash
+mkdir -p ~/.local/bin && curl -L https://github.com/buster-so/buster/releases/download/v0.0.1/buster-cli-darwin-arm64.tar.gz | tar xz && mv buster-cli ~/.local/bin/buster && chmod +x ~/.local/bin/buster
 ```
 
 ### Linux (x86_64)
 ```bash
-curl -L https://github.com/buster-so/buster/releases/download/v0.0.1/buster-cli-linux-x86_64.tar.gz | tar xz && sudo mv buster-cli /usr/local/bin/buster && sudo chmod +x /usr/local/bin/buster
+mkdir -p ~/.local/bin && curl -L https://github.com/buster-so/buster/releases/download/v0.0.1/buster-cli-linux-x86_64.tar.gz | tar xz && mv buster-cli ~/.local/bin/buster && chmod +x ~/.local/bin/buster
 ```
+
+> **Note**: After installation, make sure `~/.local/bin` is in your PATH. Add this to your shell's config file (`.bashrc`, `.zshrc`, etc.):
+> ```bash
+> export PATH="$HOME/.local/bin:$PATH"
+> ```
 
 ### Windows (x86_64)
 1. Download the Windows binary:
