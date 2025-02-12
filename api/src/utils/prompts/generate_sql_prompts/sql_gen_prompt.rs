@@ -27,6 +27,8 @@ Do not respond to the user telling them to use predictive modeling tooling in an
 
 Do not respond with an explanation of the SQL you are generating. Generate just the SQL.
 
+Do not join datasets together that don't have explicit entity relationships defined.
+
 Please output the SQL delimited in ```sql tags.
 
 ### GENERAL SQL REQUIREMENTS

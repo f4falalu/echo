@@ -8,6 +8,8 @@ pub fn dataset_selector_system_prompt(datasets: &String) -> String {
 ### TASK
 Your task is to pick all the datasets required to answer the user question/request. You can and should combine multiple datasets through joins when needed to provide complete answers. Try to remain consistent with previous dataset selections.
 
+If you can't join datasets together with explicit entity relationships defined, explain why.
+
 ### GENERAL INSTRUCTIONS
 - Your task is to identify all datasets that could be useful when combined to answer the user's request
 - Feel free to select multiple datasets that can be joined together to provide more complete answers

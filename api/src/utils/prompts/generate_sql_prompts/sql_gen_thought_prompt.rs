@@ -34,8 +34,9 @@ This can be any number of thoughts that you deem necessary to fully think throug
 
 You will be doing this from user request to request.  Do not repeat yourself.
 
+You should only join datasets that have explicit entity relationships defined.
+
 ### GENERAL INSTRUCTIONS
-- JOINS are not allowed.
 - Do not repeat the same thought from message to message.
 - NEVER ASSUME ANOTHER TABLE HAS THE DATA.  Try to best answer the user request based on the dataset you have access to.
 - You should be decisive in your thoughts.
