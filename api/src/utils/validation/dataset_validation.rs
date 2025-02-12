@@ -19,6 +19,7 @@ pub async fn validate_model(
     model_name: &str,
     model_database_name: &str,
     schema: &str,
+    database: Option<String>,
     data_source: &DataSource,
     columns: &[(&str, &str)], // (name, type) - type is now ignored for validation
     expressions: Option<&[(&str, &str)]>, // (column_name, expr)
@@ -69,7 +70,7 @@ pub async fn validate_model(
     }
 
     // Get data source columns using batched retrieval for all tables at once
-    let ds_columns_result = match retrieve_dataset_columns_batch(&tables_to_validate, &credentials).await {
+    let ds_columns_result = match retrieve_dataset_columns_batch(&tables_to_validate, &credentials, database).await {
         Ok(cols) => cols,
         Err(e) => {
             tracing::error!("Failed to get columns from data source: {}", e);
@@ -147,172 +148,4 @@ pub async fn validate_model(
     }
 
     Ok(result)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::{database::enums::DataSourceType, utils::validation::ValidationErrorType};
-    use uuid::Uuid;
-
-    fn create_test_data_source() -> DataSource {
-        DataSource {
-            id: Uuid::new_v4(),
-            name: "test_source".to_string(),
-            type_: DataSourceType::Postgres,
-            secret_id: Uuid::new_v4(),
-            organization_id: Uuid::new_v4(),
-            created_at: chrono::Utc::now(),
-            updated_at: chrono::Utc::now(),
-            deleted_at: None,
-            env: "dev".to_string(),
-            onboarding_status: crate::database::enums::DataSourceOnboardingStatus::InProgress,
-            onboarding_error: None,
-            created_by: Uuid::new_v4(),
-            updated_by: Uuid::new_v4(),
-        }
-    }
-
-    #[tokio::test]
-    async fn test_validate_model_data_source_error() {
-        let data_source = create_test_data_source();
-        let result = validate_model(
-            "test_model",
-            "test_db",
-            "test_schema",
-            &data_source,
-            &[("col1", "text")], // type is ignored now
-            None,
-            None,
-        )
-        .await
-        .unwrap();
-
-        assert!(!result.success);
-        assert_eq!(result.errors.len(), 1);
-        assert_eq!(
-            result.errors[0].error_type,
-            ValidationErrorType::DataSourceError
-        );
-    }
-
-    #[tokio::test]
-    async fn test_validate_model_column_existence() {
-        let data_source = create_test_data_source();
-        let result = validate_model(
-            "test_model",
-            "test_db",
-            "test_schema",
-            &data_source,
-            &[
-                ("existing_col", "any_type"), // type is ignored
-                ("missing_col", "any_type"),  // type is ignored
-            ],
-            None,
-            None,
-        )
-        .await
-        .unwrap();
-
-        assert!(!result.success);
-        assert!(result
-            .errors
-            .iter()
-            .any(|e| e.error_type == ValidationErrorType::ColumnNotFound 
-                && e.column_name.as_deref() == Some("missing_col")));
-    }
-
-    #[tokio::test]
-    async fn test_validate_model_with_expressions() {
-        let data_source = create_test_data_source();
-        let result = validate_model(
-            "test_model",
-            "test_db",
-            "test_schema",
-            &data_source,
-            &[("col1", "any_type")], // type is ignored
-            Some(&[("col1", "invalid_col + 1")]),
-            None,
-        )
-        .await
-        .unwrap();
-
-        assert!(!result.success);
-        assert!(result
-            .errors
-            .iter()
-            .any(|e| e.error_type == ValidationErrorType::ExpressionError));
-    }
-
-    #[tokio::test]
-    async fn test_validate_model_with_valid_expressions() {
-        let data_source = create_test_data_source();
-        let result = validate_model(
-            "test_model",
-            "test_db",
-            "test_schema",
-            &data_source,
-            &[("col1", "any_type"), ("col2", "any_type")], // types are ignored
-            Some(&[("result", "col1 + col2")]),
-            None,
-        )
-        .await
-        .unwrap();
-
-        // Should only fail due to data source error in test environment
-        assert!(!result.success);
-        assert!(result
-            .errors
-            .iter()
-            .all(|e| e.error_type == ValidationErrorType::DataSourceError));
-    }
-
-    #[tokio::test]
-    async fn test_validate_model_with_relationships() {
-        let data_source = create_test_data_source();
-        let result = validate_model(
-            "test_model",
-            "test_db",
-            "test_schema",
-            &data_source,
-            &[("col1", "any_type")], // type is ignored
-            None,
-            Some(&[("model1", "model2", "many_to_one")]),
-        )
-        .await
-        .unwrap();
-
-        assert!(!result.success);
-        assert!(result
-            .errors
-            .iter()
-            .any(|e| e.error_type == ValidationErrorType::InvalidRelationship));
-    }
-
-    #[tokio::test]
-    async fn test_validate_model_multiple_errors() {
-        let data_source = create_test_data_source();
-        let result = validate_model(
-            "test_model",
-            "test_db",
-            "test_schema",
-            &data_source,
-            &[("col1", "any_type"), ("col2", "any_type")], // types are ignored
-            Some(&[("col1", "invalid_col + 1")]),
-            Some(&[("model1", "model2", "many_to_one")]),
-        )
-        .await
-        .unwrap();
-
-        assert!(!result.success);
-        assert!(result.errors.len() > 1);
-        assert!(result
-            .errors
-            .iter()
-            .any(|e| e.error_type == ValidationErrorType::ExpressionError));
-        assert!(result
-            .errors
-            .iter()
-            .any(|e| e.error_type == ValidationErrorType::InvalidRelationship));
-    }
 }

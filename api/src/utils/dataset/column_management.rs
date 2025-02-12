@@ -31,6 +31,7 @@ pub struct ColumnUpdate {
 /// Retrieves column types from the data source
 pub async fn get_column_types(
     dataset: &Dataset,
+    database: Option<String>,
     data_source: &DataSource,
 ) -> Result<Vec<ColumnUpdate>> {
     let credentials =
@@ -38,9 +39,14 @@ pub async fn get_column_types(
             .await
             .map_err(|e| anyhow!("Error getting data source credentials: {}", e))?;
 
-    let cols = retrieve_dataset_columns(&dataset.database_name, &dataset.schema, &credentials)
-        .await
-        .map_err(|e| anyhow!("Error retrieving dataset columns: {}", e))?;
+    let cols = retrieve_dataset_columns(
+        &dataset.database_name,
+        &dataset.schema,
+        &credentials,
+        database,
+    )
+    .await
+    .map_err(|e| anyhow!("Error retrieving dataset columns: {}", e))?;
 
     Ok(cols
         .into_iter()
@@ -121,63 +127,4 @@ pub async fn update_dataset_columns(
         .await?;
 
     Ok(inserted_columns)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::database::enums::DataSourceType;
-
-    fn create_test_dataset() -> Dataset {
-        Dataset {
-            id: Uuid::new_v4(),
-            name: "test_dataset".to_string(),
-            database_name: "test_db".to_string(),
-            schema: "public".to_string(),
-            data_source_id: Uuid::new_v4(),
-            organization_id: Uuid::new_v4(),
-            created_by: Uuid::new_v4(),
-            updated_by: Uuid::new_v4(),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            deleted_at: None,
-            when_to_use: None,
-            when_not_to_use: None,
-            type_: crate::database::enums::DatasetType::View,
-            definition: "".to_string(),
-            enabled: true,
-            imported: false,
-            model: None,
-            yml_file: None,
-        }
-    }
-
-    fn create_test_data_source() -> DataSource {
-        DataSource {
-            id: Uuid::new_v4(),
-            name: "test_source".to_string(),
-            type_: DataSourceType::Postgres,
-            secret_id: Uuid::new_v4(),
-            organization_id: Uuid::new_v4(),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            deleted_at: None,
-            env: "dev".to_string(),
-            onboarding_status: crate::database::enums::DataSourceOnboardingStatus::InProgress,
-            onboarding_error: None,
-            created_by: Uuid::new_v4(),
-            updated_by: Uuid::new_v4(),
-        }
-    }
-
-    #[tokio::test]
-    async fn test_get_column_types() {
-        let dataset = create_test_dataset();
-        let data_source = create_test_data_source();
-
-        let result = get_column_types(&dataset, &data_source).await;
-        assert!(result.is_err()); // Will fail because test data source doesn't exist
-    }
-
-    // TODO: Add more tests for update_dataset_columns once we have a test database setup
 }

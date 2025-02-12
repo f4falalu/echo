@@ -141,6 +141,7 @@ async fn update_dataset(user_id: &Uuid, dataset_id: &Uuid, name: &String) -> Res
         &dataset.dataset.database_name,
         &dataset.dataset.schema,
         &credentials,
+        None,
     )
     .await
     {

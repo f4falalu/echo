@@ -64,9 +64,10 @@ pub async fn import_dataset_columns(
     dataset_database_name: &String,
     dataset_schema_name: &String,
     credentials: &Credential,
+    database: Option<String>,
 ) -> Result<()> {
     let cols =
-        match retrieve_dataset_columns(&dataset_database_name, &dataset_schema_name, credentials)
+        match retrieve_dataset_columns(&dataset_database_name, &dataset_schema_name, credentials, database)
             .await
         {
             Ok(cols) => cols,
@@ -142,6 +143,7 @@ pub async fn retrieve_dataset_columns(
     dataset_name: &String,
     schema_name: &String,
     credentials: &Credential,
+    database: Option<String>,
 ) -> Result<Vec<DatasetColumnRecord>> {
     let cols_result = match credentials {
         Credential::Postgres(credentials) => {
@@ -181,6 +183,7 @@ pub async fn retrieve_dataset_columns(
             match get_snowflake_columns_batch(
                 &[(dataset_name.clone(), schema_name.clone())],
                 credentials,
+                database,
             )
             .await
             {
@@ -197,6 +200,7 @@ pub async fn retrieve_dataset_columns(
 pub async fn retrieve_dataset_columns_batch(
     datasets: &[(String, String)], // Vec of (dataset_name, schema_name)
     credentials: &Credential,
+    database: Option<String>,
 ) -> Result<Vec<DatasetColumnRecord>> {
     match credentials {
         Credential::Postgres(credentials) => {
@@ -207,7 +211,7 @@ pub async fn retrieve_dataset_columns_batch(
             get_bigquery_columns_batch(datasets, credentials).await
         }
         Credential::Snowflake(credentials) => {
-            get_snowflake_columns_batch(datasets, credentials).await
+            get_snowflake_columns_batch(datasets, credentials, database).await
         }
         _ => Err(anyhow!("Unsupported data source type")),
     }
@@ -216,8 +220,9 @@ pub async fn retrieve_dataset_columns_batch(
 async fn get_snowflake_columns_batch(
     datasets: &[(String, String)],
     credentials: &SnowflakeCredentials,
+    database: Option<String>,
 ) -> Result<Vec<DatasetColumnRecord>> {
-    let snowflake_client = get_snowflake_client(credentials).await?;
+    let snowflake_client = get_snowflake_client(credentials, database).await?;
 
     // Build the IN clause for (schema, table) pairs
     let table_pairs: Vec<String> = datasets
@@ -642,7 +647,7 @@ async fn get_snowflake_columns(
     schema_name: &String,
     credentials: &SnowflakeCredentials,
 ) -> Result<Vec<DatasetColumnRecord>> {
-    let snowflake_client = get_snowflake_client(credentials).await?;
+    let snowflake_client = get_snowflake_client(credentials, None).await?;
 
     let uppercase_dataset_name = dataset_name.to_uppercase();
     let uppercase_schema_name = schema_name.to_uppercase();

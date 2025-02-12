@@ -116,6 +116,7 @@ pub struct BusterModel {
 pub struct Model {
     pub name: String,
     pub data_source_name: Option<String>,
+    pub database: Option<String>,
     pub schema: Option<String>,
     pub env: String,
     pub description: String,
@@ -279,17 +280,17 @@ async fn deploy_datasets_handler(
     let mut conn = get_pg_pool().get().await?;
     let mut results = Vec::new();
 
-    // Group requests by data source for efficient validation
-    let mut data_source_groups: HashMap<String, Vec<&DeployDatasetsRequest>> = HashMap::new();
+    // Group requests by data source and database for efficient validation
+    let mut data_source_groups: HashMap<(String, Option<String>), Vec<&DeployDatasetsRequest>> = HashMap::new();
     for req in &requests {
         data_source_groups
-            .entry(req.data_source_name.clone())
+            .entry((req.data_source_name.clone(), req.model.clone()))
             .or_default()
             .push(req);
     }
 
     // Process each data source group
-    for (data_source_name, group) in data_source_groups {
+    for ((data_source_name, database), group) in data_source_groups {
         // Get data source
         let data_source = match data_sources::table
             .filter(data_sources::name.eq(&data_source_name))
@@ -351,7 +352,7 @@ async fn deploy_datasets_handler(
         );
 
         // Get all columns in one batch - this acts as our validation
-        let ds_columns = match retrieve_dataset_columns_batch(&tables_to_validate, &credentials).await {
+        let ds_columns = match retrieve_dataset_columns_batch(&tables_to_validate, &credentials, database).await {
             Ok(cols) => {
                 // Add debug logging
                 tracing::info!(
@@ -622,9 +623,9 @@ async fn batch_validate_datasets(
     let mut failures = Vec::new();
     let organization_id = get_user_organization_id(user_id).await?;
 
-    // Group requests by data source for efficient validation
+    // Group requests by data source and database for efficient validation
     let mut data_source_groups: HashMap<
-        String,
+        (String, Option<String>),
         Vec<(&DatasetValidationRequest, Vec<(&str, &str)>)>,
     > = HashMap::new();
 
@@ -636,13 +637,13 @@ async fn batch_validate_datasets(
             .collect();
 
         data_source_groups
-            .entry(request.data_source_name.clone())
+            .entry((request.data_source_name.clone(), None)) // Using None for database since it's not in the validation request
             .or_default()
             .push((request, columns));
     }
 
     // Process each data source group
-    for (data_source_name, group) in data_source_groups {
+    for ((data_source_name, database), group) in data_source_groups {
         let mut conn = get_pg_pool().get().await?;
 
         // Get data source
@@ -702,7 +703,7 @@ async fn batch_validate_datasets(
 
         // Get all columns in one batch
         let ds_columns =
-            match retrieve_dataset_columns_batch(&tables_to_validate, &credentials).await {
+            match retrieve_dataset_columns_batch(&tables_to_validate, &credentials, database).await {
                 Ok(cols) => cols,
                 Err(e) => {
                     for (request, _) in group {
