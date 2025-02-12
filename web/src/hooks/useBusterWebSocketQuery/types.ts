@@ -1,13 +1,22 @@
-import { UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
-import {
-  BusterSocketRequestBase,
-  BusterSocketResponseBase
-} from '@/api/buster_socket/base_interfaces';
+import type { BusterSocketResponse, BusterSocketResponseRoute } from '@/api/buster_socket';
+import { UseQueryResult } from '@tanstack/react-query';
 
-export interface UseBusterSocketQueryOptions<TData, TError = unknown>
-  extends Omit<UseQueryOptions<TData, TError>, 'queryKey' | 'queryFn'> {
-  socketRequest: BusterSocketRequestBase;
-  socketResponse: Omit<BusterSocketResponseBase, 'callback' | 'onError'>;
-}
+/**
+ * Infers the response data type from a BusterSocket route
+ */
+export type InferBusterSocketResponseData<TRoute extends BusterSocketResponseRoute> = Extract<
+  BusterSocketResponse,
+  { route: TRoute }
+>['callback'] extends (d: infer D) => void
+  ? D
+  : never;
+
+/**
+ * Socket response configuration with optional error handler
+ */
+export type BusterSocketResponseConfig<TRoute extends BusterSocketResponseRoute> = {
+  route: TRoute;
+  onError?: (d: unknown) => void;
+};
 
 export type UseBusterSocketQueryResult<TData, TError = unknown> = UseQueryResult<TData, TError>;

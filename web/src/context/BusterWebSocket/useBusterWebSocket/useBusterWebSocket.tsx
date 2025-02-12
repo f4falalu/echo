@@ -35,7 +35,7 @@ interface BusterSocket {
   }) => Promise<Parameters<T['callback']>[0]>;
 }
 
-export const useBusterWebSocketHook = ({
+const useBusterWebSocketHook = ({
   socketURL,
   accessToken,
   checkTokenValidity
@@ -195,13 +195,13 @@ export const BusterWebSocketProvider: React.FC<{
   const accessToken = useSupabaseContext((state) => state.accessToken);
   const checkTokenValidity = useSupabaseContext((state) => state.checkTokenValidity);
 
-  const value = useBusterWebSocketHook({
+  const busterSocketHook = useBusterWebSocketHook({
     socketURL: BUSTER_WS_URL,
     accessToken,
     checkTokenValidity
   });
 
-  return <BusterWebSocket.Provider value={value}>{children}</BusterWebSocket.Provider>;
+  return <BusterWebSocket.Provider value={busterSocketHook}>{children}</BusterWebSocket.Provider>;
 });
 BusterWebSocketProvider.displayName = 'BusterWebSocketProvider';
 
@@ -211,8 +211,4 @@ const useBusterWebSocketSelector = <T,>(
 
 export const useBusterWebSocket = () => {
   return useBusterWebSocketSelector((state) => state.busterSocket);
-};
-
-export const useBusterWebSocketConnectionStatus = () => {
-  return useBusterWebSocketSelector((state) => state.connectionStatus);
 };

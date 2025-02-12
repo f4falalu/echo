@@ -1,13 +1,11 @@
-import { useQuery, QueryKey, UseQueryOptions } from '@tanstack/react-query';
+import { QueryKey, UseQueryOptions } from '@tanstack/react-query';
 import type {
   BusterSocketRequest,
   BusterSocketResponse,
   BusterSocketResponseRoute
 } from '@/api/buster_socket';
-import { useBusterWebSocket } from '../useBusterWebSocket';
-import { transformError } from './helpers';
+import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import type {
-  UseBusterSocketQueryOptions,
   UseBusterSocketQueryResult,
   InferBusterSocketResponseData,
   BusterSocketResponseConfig
@@ -18,7 +16,10 @@ export function useBusterWebSocketQuery<TRoute extends BusterSocketResponseRoute
   queryKey: QueryKey,
   socketRequest: BusterSocketRequest,
   socketResponse: BusterSocketResponseConfig<TRoute>,
-  options?: UseQueryOptions<InferBusterSocketResponseData<TRoute>, TError>
+  options?: Omit<
+    UseQueryOptions<InferBusterSocketResponseData<TRoute>, TError>,
+    'queryKey' | 'queryFn'
+  >
 ): UseBusterSocketQueryResult<InferBusterSocketResponseData<TRoute>, TError> {
   const busterSocket = useBusterWebSocket();
 
@@ -39,30 +40,19 @@ export function useBusterWebSocketQuery<TRoute extends BusterSocketResponseRoute
     }
   };
 
-  // return useCreateReactQuery<InferBusterSocketResponseData<TRoute>>({
-  //   queryKey,
-  //   queryFn,
-  //   isUseSession: false
-  // });
-
-  return useQuery<
-    InferBusterSocketResponseData<TRoute>,
-    TError,
-    InferBusterSocketResponseData<TRoute>
-  >({
+  return useCreateReactQuery<InferBusterSocketResponseData<TRoute>, TError>({
     queryKey,
     queryFn,
-    ...options
+    isUseSession: false,
+    options
   });
 }
 
 // Example usage with automatic type inference
-export const ExampleUsage = () => {
+const ExampleUsage = () => {
   const { data, isLoading, error } = useBusterWebSocketQuery(
     ['chats', 'get', '123'],
     { route: '/chats/get', payload: { id: '123' } },
     { route: '/chats/get:getChat' }
   );
-
-  useCreateReactQuery;
 };

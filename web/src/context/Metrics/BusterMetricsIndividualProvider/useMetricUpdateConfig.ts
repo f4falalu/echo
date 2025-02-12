@@ -203,7 +203,7 @@ export const useUpdateMetricConfig = ({
           route: '/metrics/update:updateMetricState',
           callback: onInitializeMetric
         }
-      }) as Promise<[BusterMetric]>;
+      });
     }
   );
 
