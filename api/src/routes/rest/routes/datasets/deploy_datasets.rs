@@ -493,6 +493,7 @@ async fn deploy_datasets_handler(
                     organization_id: organization_id.clone(),
                     model: req.model.clone(),
                     yml_file: req.yml_file.clone(),
+                    database_identifier: req.database.clone(),
                 })
                 .collect();
 
@@ -833,6 +834,7 @@ async fn create_or_update_dataset(
                 organization_id: organization_id.clone(),
                 yml_file: None,
                 model: None,
+                database_identifier: None,
             };
 
             diesel::insert_into(datasets::table)
