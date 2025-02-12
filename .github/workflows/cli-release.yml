@@ -16,7 +16,22 @@ permissions:
 
 jobs:
   build:
-    runs-on: blacksmith-16vcpu-ubuntu-2204
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact_name: buster-cli-linux-x86_64.tar.gz
+            use_tar: true
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            artifact_name: buster-cli-darwin-x86_64.tar.gz
+            use_tar: true
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact_name: buster-cli-windows-x86_64.zip
+            use_tar: false
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,6 +42,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+          target: ${{ matrix.target }}
           profile: minimal
           override: true
 
@@ -45,32 +61,40 @@ jobs:
 
       - name: Build optimized release
         working-directory: ./cli
-        run: cargo build --release
+        run: cargo build --release --target ${{ matrix.target }}
 
-      - name: Compress binary
+      - name: Compress binary (Unix)
+        if: matrix.use_tar
         working-directory: ./cli
         run: |
-          cd target/release
-          tar czf buster-cli-linux-x86_64.tar.gz buster-cli
-          sha256sum buster-cli-linux-x86_64.tar.gz > buster-cli-linux-x86_64.tar.gz.sha256
+          cd target/${{ matrix.target }}/release
+          tar czf ${{ matrix.artifact_name }} buster-cli
+          sha256sum ${{ matrix.artifact_name }} > ${{ matrix.artifact_name }}.sha256
+
+      - name: Compress binary (Windows)
+        if: matrix.use_tar == false
+        working-directory: ./cli
+        shell: pwsh
+        run: |
+          cd target/${{ matrix.target }}/release
+          Compress-Archive -Path buster-cli.exe -DestinationPath ${{ matrix.artifact_name }}
+          Get-FileHash -Algorithm SHA256 ${{ matrix.artifact_name }} | Select-Object -ExpandProperty Hash > ${{ matrix.artifact_name }}.sha256
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: buster-cli
+          name: buster-cli-${{ matrix.target }}
           path: |
-            cli/target/release/buster-cli-linux-x86_64.tar.gz
-            cli/target/release/buster-cli-linux-x86_64.tar.gz.sha256
+            cli/target/${{ matrix.target }}/release/${{ matrix.artifact_name }}
+            cli/target/${{ matrix.target }}/release/${{ matrix.artifact_name }}.sha256
           retention-days: 1
 
   release:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifacts
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
-        with:
-          name: buster-cli
 
       - name: Get version
         id: get_version
@@ -84,8 +108,12 @@ jobs:
           tag_name: v${{ steps.get_version.outputs.version }}
           name: Release v${{ steps.get_version.outputs.version }}
           files: |
-            buster-cli-linux-x86_64.tar.gz
-            buster-cli-linux-x86_64.tar.gz.sha256
+            **/buster-cli-linux-x86_64.tar.gz
+            **/buster-cli-linux-x86_64.tar.gz.sha256
+            **/buster-cli-darwin-x86_64.tar.gz
+            **/buster-cli-darwin-x86_64.tar.gz.sha256
+            **/buster-cli-windows-x86_64.zip
+            **/buster-cli-windows-x86_64.zip.sha256
           draft: false
           prerelease: false
           generate_release_notes: true
