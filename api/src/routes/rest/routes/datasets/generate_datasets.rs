@@ -174,7 +174,7 @@ async fn enhance_yaml_with_descriptions(yaml: String) -> Result<String> {
         LlmMessage::new(
             "developer".to_string(),
             "You are a YAML description enhancer. Your output must be wrapped in markdown code blocks using ```yml format.
-            Your task is to ONLY replace text matching exactly \"{NEED DESCRIPTION HERE}\" with appropriate descriptions.
+            Your task is to ONLY replace text matching exactly \"{NEED DESCRIPTION HERE}\" with appropriate descriptions. Do not modify any other parts of the YAML or other descriptions without the placeholder. You should still return the entire YAML in your output.
             DO NOT modify any other part of the YAML.
             DO NOT add any explanations or text outside the ```yml block.
             Return the complete YAML wrapped in markdown, with only the placeholders replaced.".to_string(),
@@ -190,7 +190,7 @@ async fn enhance_yaml_with_descriptions(yaml: String) -> Result<String> {
         &messages,
         0.1,
         2048,
-        30,
+        120,
         None,
         false,
         None,

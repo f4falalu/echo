@@ -124,19 +124,19 @@ impl YamlDiffMerger {
             // Update dimensions while preserving style
             if let Some(existing_dims) = map.get_mut("dimensions") {
                 if let Value::Sequence(dims) = existing_dims {
-                    // Create a map of existing dimensions by name
+                    // Create a map of existing dimensions by name (case insensitive)
                     let mut dim_map: HashMap<String, &Value> = HashMap::new();
                     for dim in dims.iter() {
                         if let Some(name) = dim.get("name").and_then(|n| n.as_str()) {
-                            dim_map.insert(name.to_string(), dim);
+                            dim_map.insert(name.to_lowercase(), dim);
                         }
                     }
 
                     // Update dimensions while preserving order and style
                     let mut new_dims = Vec::new();
                     for dim in &new_model.dimensions {
-                        if let Some(&existing_dim) = dim_map.get(&dim.name) {
-                            // Preserve existing dimension's style
+                        if let Some(&existing_dim) = dim_map.get(&dim.name.to_lowercase()) {
+                            // Preserve existing dimension's style and casing
                             new_dims.push(existing_dim.clone());
                         } else {
                             // Add new dimension
@@ -150,19 +150,19 @@ impl YamlDiffMerger {
             // Update measures while preserving style
             if let Some(existing_measures) = map.get_mut("measures") {
                 if let Value::Sequence(measures) = existing_measures {
-                    // Create a map of existing measures by name
+                    // Create a map of existing measures by name (case insensitive)
                     let mut measure_map: HashMap<String, &Value> = HashMap::new();
                     for measure in measures.iter() {
                         if let Some(name) = measure.get("name").and_then(|n| n.as_str()) {
-                            measure_map.insert(name.to_string(), measure);
+                            measure_map.insert(name.to_lowercase(), measure);
                         }
                     }
 
                     // Update measures while preserving order and style
                     let mut new_measures = Vec::new();
                     for measure in &new_model.measures {
-                        if let Some(&existing_measure) = measure_map.get(&measure.name) {
-                            // Preserve existing measure's style
+                        if let Some(&existing_measure) = measure_map.get(&measure.name.to_lowercase()) {
+                            // Preserve existing measure's style and casing
                             new_measures.push(existing_measure.clone());
                         } else {
                             // Add new measure
@@ -233,13 +233,13 @@ impl YamlDiffMerger {
 
         // Create maps for quick lookups
         let existing_dims: HashMap<_, _> = existing_model.dimensions.iter()
-            .map(|d| (d.name.clone(), d)).collect();
+            .map(|d| (d.name.to_lowercase(), d)).collect();
         let existing_measures: HashMap<_, _> = existing_model.measures.iter()
-            .map(|m| (m.name.clone(), m)).collect();
+            .map(|m| (m.name.to_lowercase(), m)).collect();
         let new_dims: HashMap<_, _> = new_model.dimensions.iter()
-            .map(|d| (d.name.clone(), d)).collect();
+            .map(|d| (d.name.to_lowercase(), d)).collect();
         let new_measures: HashMap<_, _> = new_model.measures.iter()
-            .map(|m| (m.name.clone(), m)).collect();
+            .map(|m| (m.name.to_lowercase(), m)).collect();
 
         let mut changes = ModelDiff {
             added_dimensions: Vec::new(),
@@ -258,9 +258,9 @@ impl YamlDiffMerger {
                 changes.added_dimensions.push((*dim).clone());
             }
         }
-        for name in existing_dims.keys() {
+        for (name, dim) in existing_dims.iter() {
             if !new_dims.contains_key(name) {
-                changes.removed_dimensions.push(name.clone());
+                changes.removed_dimensions.push(dim.name.clone());
             }
         }
 
@@ -272,9 +272,9 @@ impl YamlDiffMerger {
                 changes.added_measures.push((*measure).clone());
             }
         }
-        for name in existing_measures.keys() {
+        for (name, measure) in existing_measures.iter() {
             if !new_measures.contains_key(name) {
-                changes.removed_measures.push(name.clone());
+                changes.removed_measures.push(measure.name.clone());
             }
         }
 

@@ -1,0 +1,93 @@
+name: CLI Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'cli/**'
+      - '.github/workflows/cli-release.yml'
+  workflow_dispatch:
+
+# Add permissions for creating releases
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: blacksmith-16vcpu-ubuntu-2204
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Configure Cargo for optimized build
+        run: |
+          mkdir -p .cargo
+          echo '[profile.release]' > .cargo/config.toml
+          echo 'lto = true' >> .cargo/config.toml
+          echo 'codegen-units = 1' >> .cargo/config.toml
+          echo 'panic = "abort"' >> .cargo/config.toml
+          echo 'opt-level = 3' >> .cargo/config.toml
+          echo 'strip = true' >> .cargo/config.toml
+
+      - name: Build optimized release
+        working-directory: ./cli
+        run: cargo build --release
+
+      - name: Compress binary
+        working-directory: ./cli
+        run: |
+          cd target/release
+          tar czf buster-cli-linux-x86_64.tar.gz buster
+          sha256sum buster-cli-linux-x86_64.tar.gz > buster-cli-linux-x86_64.tar.gz.sha256
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: buster-cli
+          path: |
+            cli/target/release/buster-cli-linux-x86_64.tar.gz
+            cli/target/release/buster-cli-linux-x86_64.tar.gz.sha256
+          retention-days: 1
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: buster-cli
+
+      - name: Get version
+        id: get_version
+        run: |
+          VERSION=$(cat version.txt)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          name: Release v${{ steps.get_version.outputs.version }}
+          files: |
+            buster-cli-linux-x86_64.tar.gz
+            buster-cli-linux-x86_64.tar.gz.sha256
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
