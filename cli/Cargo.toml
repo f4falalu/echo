@@ -3,6 +3,10 @@ name = "buster-cli"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+name = "buster_cli"
+path = "src/lib.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -12,7 +16,9 @@ confy = "0.6.0"
 dirs = "5.0.1"
 indicatif = "0.17.8"
 inquire = "0.7.5"
+lazy_static = "1.4.0"
 ratatui = "0.29.0"
+regex = "1.10.3"
 reqwest = { version = "0.12.9", features = ["json"] }
 rpassword = "7.3.1"
 serde = { version = "1.0.196", features = ["derive"] }
@@ -21,3 +27,7 @@ serde_yaml = "0.9.34"
 thiserror = "2.0.3"
 tokio = { version = "1.36.0", features = ["full"] }
 uuid = { version = "1.7.0", features = ["v4", "serde"] }
+colored = "3.0"
+
+[dev-dependencies]
+tempfile = "3.16.0"

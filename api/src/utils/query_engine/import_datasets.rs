@@ -302,21 +302,29 @@ async fn get_bigquery_tables_and_views(
     if let Some(rows) = table_and_views_records.rows {
         for row in rows {
             if let Some(cols) = row.columns {
-                let name = cols[0].value.as_ref()
+                let name = cols[0]
+                    .value
+                    .as_ref()
                     .and_then(|v| v.as_str())
                     .ok_or_else(|| anyhow!("Error fetching table name"))?
                     .to_string();
 
-                let schema = cols[1].value.as_ref()
+                let schema = cols[1]
+                    .value
+                    .as_ref()
                     .and_then(|v| v.as_str())
                     .ok_or_else(|| anyhow!("Error fetching table schema"))?
                     .to_string();
 
-                let definition = cols[2].value.as_ref()
+                let definition = cols[2]
+                    .value
+                    .as_ref()
                     .and_then(|v| v.as_str())
                     .map(String::from);
 
-                let type_ = cols[3].value.as_ref()
+                let type_ = cols[3]
+                    .value
+                    .as_ref()
                     .and_then(|v| v.as_str())
                     .ok_or_else(|| anyhow!("Error fetching table type"))?
                     .to_string();
@@ -337,7 +345,7 @@ async fn get_bigquery_tables_and_views(
 async fn get_snowflake_tables_and_views(
     credentials: &SnowflakeCredentials,
 ) -> Result<Vec<DatasetRecord>> {
-    let snowflake_client = get_snowflake_client(credentials).await?;
+    let snowflake_client = get_snowflake_client(credentials, None).await?;
 
     let schema_list = credentials.schemas.clone().unwrap_or_else(|| vec![]);
     let schema_string = if !schema_list.is_empty() {
