@@ -32,7 +32,7 @@ export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(
       chatId,
       defaultSelectedFile
     });
-    const { isPureChat, isPureFile, onSetSelectedFile } = useChatLayoutProps;
+    const { renderViewLayoutKey, onSetSelectedFile } = useChatLayoutProps;
 
     const useChatContextValue = useChatIndividualContext({
       chatId,
@@ -47,12 +47,12 @@ export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(
         <ChatContextProvider value={useChatContextValue}>
           <AppSplitter
             ref={appSplitterRef}
-            leftChildren={isPureFile ? null : <ChatContainer ref={chatContentRef} />}
+            leftChildren={<ChatContainer ref={chatContentRef} />}
             rightChildren={<FileContainer children={children} />}
             autoSaveId="chat-splitter"
             defaultLayout={defaultSplitterLayout}
-            rightHidden={isPureChat}
-            leftHidden={isPureFile}
+            rightHidden={renderViewLayoutKey === 'chat'}
+            leftHidden={renderViewLayoutKey === 'file'}
             preserveSide="left"
             leftPanelMinSize={hasFile ? DEFAULT_CHAT_OPTION : undefined}
           />

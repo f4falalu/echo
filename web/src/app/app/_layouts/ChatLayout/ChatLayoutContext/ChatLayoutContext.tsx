@@ -40,8 +40,7 @@ export const useChatLayout = ({
       } else if (side === 'both') {
         //&& (isSideClosed('right') || isSideClosed('left'))
         animateWidth(DEFAULT_CHAT_OPTION, 'left');
-        setIsPureChat(false);
-        setIsPureFile(false);
+        setRenderViewLayoutKey('both');
         fileLayoutContext?.closeSecondaryView();
       }
     }
@@ -57,6 +56,7 @@ export const useChatLayout = ({
         : createFileRoute({ assetId: fileId, type: fileType });
 
     if (route) {
+      setRenderViewLayoutKey('both');
       onChangePage(route);
       startTransition(() => {
         animateOpenSplitter('both');
@@ -77,16 +77,14 @@ export const useChatLayout = ({
       animateOpenSplitter(!isCloseAction && defaultSelectedFile ? 'both' : 'right');
     } else {
       // For other layouts, toggle between 'right' and 'both'
-      animateOpenSplitter(!isCloseAction ? 'right' : 'both');
+      animateOpenSplitter(isCloseAction ? 'left' : 'both');
     }
   });
 
   const {
-    setIsPureChat,
     setIsCollapseOpen,
-    isPureFile,
-    isPureChat,
-    setIsPureFile,
+    setRenderViewLayoutKey,
+    renderViewLayoutKey,
     collapseDirection,
     isCollapseOpen
   } = useInitialChatLayout({
@@ -103,10 +101,9 @@ export const useChatLayout = ({
 
   return {
     ...fileLayoutContext,
+    renderViewLayoutKey,
     collapseDirection,
     isCollapseOpen,
-    isPureFile,
-    isPureChat,
     onSetSelectedFile,
     onCollapseFileClick,
     animateOpenSplitter

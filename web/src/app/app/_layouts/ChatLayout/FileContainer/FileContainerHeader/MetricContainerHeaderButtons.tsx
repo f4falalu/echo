@@ -17,7 +17,7 @@ import { SelectableButton } from './SelectableButton';
 import { useMetricFetched } from '@/context/Metrics';
 
 export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(() => {
-  const isPureFile = useChatLayoutContextSelector((x) => x.isPureFile);
+  const renderViewLayoutKey = useChatLayoutContextSelector((x) => x.renderViewLayoutKey);
   const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
   const metricId = selectedFileId;
   const { fetched } = useMetricFetched({ metricId });
@@ -31,7 +31,7 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
       <SaveToCollectionButton metricId={metricId} />
       <SaveToDashboardButton />
       <ShareMetricButton metricId={metricId} />
-      <HideButtonContainer show={isPureFile}>
+      <HideButtonContainer show={renderViewLayoutKey === 'file'}>
         <CreateChatButton />
       </HideButtonContainer>
     </FileButtonContainer>

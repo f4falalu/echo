@@ -16,11 +16,10 @@ export const useInitialChatLayout = ({
 }) => {
   const getChatMemoized = useBusterChatContextSelector((x) => x.getChatMemoized);
   const isReasoningFile = defaultSelectedFile?.type === 'reasoning';
-  const [isPureFile, setIsPureFile] = useState(defaultSelectedLayout === 'file');
-  const [isPureChat, setIsPureChat] = useState(defaultSelectedLayout === 'chat');
-  const [isCollapseOpen, setIsCollapseOpen] = useState(
-    isPureChat || isReasoningFile ? true : false
+  const [renderViewLayoutKey, setRenderViewLayoutKey] = useState<'chat' | 'file' | 'both'>(
+    defaultSelectedLayout || 'chat'
   );
+  const [isCollapseOpen, setIsCollapseOpen] = useState(isReasoningFile ? true : false);
 
   const collapseDirection: 'left' | 'right' = useMemo(() => {
     if (defaultSelectedFile?.type === 'reasoning') return 'right';
@@ -30,12 +29,10 @@ export const useInitialChatLayout = ({
 
   const resetChatForNewChat = useMemoizedFn(() => {
     onCollapseFileClick(true);
-    setIsPureChat(true);
   });
 
   useUpdateLayoutEffect(() => {
-    if (isPureFile === true) setIsPureFile(defaultSelectedLayout === 'file');
-    if (isPureChat === true) setIsPureChat(defaultSelectedLayout === 'chat');
+    if (defaultSelectedLayout === 'both') setRenderViewLayoutKey('both');
   }, [defaultSelectedLayout]);
 
   useUpdateEffect(() => {
@@ -44,17 +41,15 @@ export const useInitialChatLayout = ({
     }
   }, [chatId]);
 
-  // useEffect(() => {
-  //   if (isReasoningFile) {
-  //     setIsCollapseOpen(false);
-  //   }
-  // }, [isReasoningFile]);
+  useEffect(() => {
+    if (isReasoningFile && !isCollapseOpen) {
+      setIsCollapseOpen(true);
+    }
+  }, [isReasoningFile]);
 
   return {
-    isPureFile,
-    isPureChat,
-    setIsPureChat,
-    setIsPureFile,
+    renderViewLayoutKey,
+    setRenderViewLayoutKey,
     collapseDirection,
     setIsCollapseOpen,
     isCollapseOpen

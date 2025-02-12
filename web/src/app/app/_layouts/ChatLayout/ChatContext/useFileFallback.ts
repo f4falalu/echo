@@ -82,7 +82,8 @@ const fallbackToFileChat = ({ id }: { id: string }): IBusterChat => {
     created_by: '',
     created_by_id: '',
     created_by_name: '',
-    created_by_avatar: ''
+    created_by_avatar: '',
+    isNewChat: false
   };
 };
 

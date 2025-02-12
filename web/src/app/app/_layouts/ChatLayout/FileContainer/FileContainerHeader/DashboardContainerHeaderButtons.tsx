@@ -17,7 +17,7 @@ import { BusterRoutes } from '@/routes';
 
 export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(
   () => {
-    const isPureFile = useChatLayoutContextSelector((x) => x.isPureFile);
+    const renderViewLayoutKey = useChatLayoutContextSelector((x) => x.renderViewLayoutKey);
     const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
 
     return (
@@ -25,7 +25,7 @@ export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps
         <SaveToCollectionButton />
         <ShareDashboardButton dashboardId={selectedFileId} /> <AddContentToDashboardButton />
         <ThreeDotMenu dashboardId={selectedFileId} />
-        <HideButtonContainer show={isPureFile}>
+        <HideButtonContainer show={renderViewLayoutKey === 'file'}>
           <CreateChatButton />
         </HideButtonContainer>
       </FileButtonContainer>
