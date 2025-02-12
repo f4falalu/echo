@@ -7,22 +7,16 @@ import {
   useQuery,
   UseQueryOptions,
   keepPreviousData,
-  useInfiniteQuery
+  useInfiniteQuery,
+  QueryKey
 } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { RustApiError } from './buster_rest/errors';
 import { useMemoizedFn } from 'ahooks';
 
-export interface BaseCreateQueryProps {
-  refetchOnWindowFocus?: boolean;
-  refetchOnMount?: boolean;
-  enabled?: boolean;
-  staleTime?: number;
-  accessToken?: string;
-}
-interface CreateQueryProps<T> extends UseQueryOptions<T> {
-  queryKey: (string | number | object)[];
+interface CreateQueryProps<T> extends UseQueryOptions {
+  queryKey: QueryKey;
   isUseSession?: boolean;
   useErrorNotification?: boolean;
 }
@@ -40,7 +34,7 @@ export const useCreateReactQuery = <T>({
   useErrorNotification = true,
   staleTime,
   ...rest
-}: CreateQueryProps<T> & BaseCreateQueryProps) => {
+}: CreateQueryProps<T>) => {
   const { openErrorNotification } = useBusterNotifications();
   const accessToken = useSupabaseContext((state) => state.accessToken);
   const baseEnabled = isUseSession ? !!accessToken : true;
@@ -124,7 +118,7 @@ export const useCreateReactQueryPaginated = <T>({
   page = 0,
   pageSize = 25,
   ...rest
-}: PaginatedQueryProps<T> & BaseCreateQueryProps) => {
+}: PaginatedQueryProps<T>) => {
   const accessToken = useSupabaseContext((state) => state.accessToken);
   const baseEnabled = isUseSession ? !!accessToken : true;
 
@@ -152,7 +146,7 @@ export const useCreateReactInfiniteQuery = <T>({
   initialPageParam = 0,
   getNextPageParam,
   ...rest
-}: Parameters<typeof useInfiniteQuery>[0] & BaseCreateQueryProps) => {
+}: Parameters<typeof useInfiniteQuery>[0]) => {
   const accessToken = useSupabaseContext((state) => state.accessToken);
   const baseEnabled = !!accessToken;
 

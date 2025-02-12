@@ -1,32 +1,28 @@
-import { useQuery, QueryKey } from '@tanstack/react-query';
-import {
+import { useQuery, QueryKey, UseQueryOptions } from '@tanstack/react-query';
+import type {
   BusterSocketRequest,
   BusterSocketResponse,
   BusterSocketResponseRoute
 } from '@/api/buster_socket';
 import { useBusterWebSocket } from '../useBusterWebSocket';
 import { transformError } from './helpers';
-import { UseBusterSocketQueryOptions, UseBusterSocketQueryResult } from './types';
+import type {
+  UseBusterSocketQueryOptions,
+  UseBusterSocketQueryResult,
+  InferBusterSocketResponseData,
+  BusterSocketResponseConfig
+} from './types';
+import { useCreateReactQuery } from '@/api/createReactQuery';
 
 export function useBusterWebSocketQuery<TRoute extends BusterSocketResponseRoute, TError = unknown>(
   queryKey: QueryKey,
   socketRequest: BusterSocketRequest,
-  socketResponse: { route: TRoute; onError?: (d: unknown) => void },
-  options: UseBusterSocketQueryOptions<
-    Extract<BusterSocketResponse, { route: TRoute }>['callback'] extends (d: infer D) => void
-      ? D
-      : never,
-    TError
-  > = {}
-): UseBusterSocketQueryResult<
-  Extract<BusterSocketResponse, { route: TRoute }>['callback'] extends (d: infer D) => void
-    ? D
-    : never,
-  TError
-> {
+  socketResponse: BusterSocketResponseConfig<TRoute>,
+  options?: UseQueryOptions<InferBusterSocketResponseData<TRoute>, TError>
+): UseBusterSocketQueryResult<InferBusterSocketResponseData<TRoute>, TError> {
   const busterSocket = useBusterWebSocket();
 
-  const queryFn = async () => {
+  const queryFn = async (): Promise<InferBusterSocketResponseData<TRoute>> => {
     try {
       const result = await busterSocket.emitAndOnce({
         emitEvent: socketRequest,
@@ -37,19 +33,26 @@ export function useBusterWebSocketQuery<TRoute extends BusterSocketResponseRoute
         } as BusterSocketResponse
       });
 
-      return result as Extract<BusterSocketResponse, { route: TRoute }>['callback'] extends (
-        d: infer D
-      ) => void
-        ? D
-        : never;
+      return result as InferBusterSocketResponseData<TRoute>;
     } catch (error) {
-      throw transformError(error);
+      throw error;
     }
   };
 
-  return useQuery({
+  // return useCreateReactQuery<InferBusterSocketResponseData<TRoute>>({
+  //   queryKey,
+  //   queryFn,
+  //   isUseSession: false
+  // });
+
+  return useQuery<
+    InferBusterSocketResponseData<TRoute>,
+    TError,
+    InferBusterSocketResponseData<TRoute>
+  >({
     queryKey,
-    queryFn
+    queryFn,
+    ...options
   });
 }
 
@@ -60,4 +63,6 @@ export const ExampleUsage = () => {
     { route: '/chats/get', payload: { id: '123' } },
     { route: '/chats/get:getChat' }
   );
+
+  useCreateReactQuery;
 };
