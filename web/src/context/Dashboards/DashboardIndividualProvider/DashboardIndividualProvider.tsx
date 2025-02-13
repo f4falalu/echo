@@ -1,38 +1,25 @@
-import React, { PropsWithChildren, useLayoutEffect, useState } from 'react';
-import { useMemoizedFn, useUnmount } from 'ahooks';
+import React, { PropsWithChildren, useState } from 'react';
+import { useMemoizedFn } from 'ahooks';
 import {
   useContextSelector,
   createContext,
   ContextSelector
 } from '@fluentui/react-context-selector';
-import { BusterDashboardResponse } from '@/api/asset_interfaces';
+import { queryKeys } from '@/api/asset_interfaces';
 import { useDashboardAssosciations } from './useDashboardAssosciations';
 import { useDashboardCreate } from './useDashboardCreate';
 import { useDashboardUpdateConfig } from './useDashboardUpdateConfig';
-import { createQueryKey } from '@/hooks';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const useBusterDashboards = () => {
   const [openAddContentModal, setOpenAddContentModal] = useState(false);
   const queryClient = useQueryClient();
-  const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
-
-  const getDashboard = useQuery({
-    queryKey: ['/dashboards/get:getDashboardState', { id: '1' }],
-    queryFn: () => {
-      return { id: '1' };
-    },
-    enabled: false
-  });
 
   const getDashboardMemoized = useMemoizedFn((dashboardId: string) => {
-    const { password } = getAssetPassword(dashboardId);
-    const queryKey = createQueryKey(
-      { route: '/dashboards/get:getDashboardState' },
-      { route: '/dashboards/get', payload: { id: dashboardId, password } }
-    );
-    return queryClient.getQueryData<BusterDashboardResponse>(queryKey);
+    const options = queryKeys['/dashboards/get:getDashboardState'](dashboardId);
+    const queryKey = options.queryKey;
+    const data = queryClient.getQueryData(queryKey);
+    return data;
   });
 
   const dashboardUpdateConfig = useDashboardUpdateConfig({ getDashboardMemoized });

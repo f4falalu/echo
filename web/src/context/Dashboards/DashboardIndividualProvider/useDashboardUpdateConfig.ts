@@ -1,13 +1,15 @@
-import type {
-  BusterDashboard,
-  BusterDashboardResponse,
-  VerificationStatus
+import {
+  queryKeys,
+  type BusterDashboard,
+  type BusterDashboardResponse,
+  type VerificationStatus
 } from '@/api/asset_interfaces';
 import { DashboardUpdate } from '@/api/buster_socket/dashboards';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
-import { useSocketQueryMutation } from '@/hooks';
+import { useSocketQueryMutation } from '@/api/buster_socket_query';
 import { useMemoizedFn } from 'ahooks';
 import { create } from 'mutative';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const useDashboardUpdateConfig = ({
   getDashboardMemoized
@@ -15,24 +17,25 @@ export const useDashboardUpdateConfig = ({
   getDashboardMemoized: (dashboardId: string) => BusterDashboardResponse | undefined;
 }) => {
   const busterSocket = useBusterWebSocket();
+  const queryClient = useQueryClient();
 
   const { mutateAsync: updateDashboard, isPending: isUpdatingDashboard } = useSocketQueryMutation(
     { route: '/dashboards/update' },
     { route: '/dashboards/update:updateDashboard' },
-    {
-      preSetQueryData: [
-        {
-          responseRoute: '/dashboards/get:getDashboardState',
-          callback: (data, variables) => {
-            const newObject: BusterDashboardResponse = create(data!, (draft) => {
-              Object.assign(draft.dashboard, variables, {
-                config: { ...draft.dashboard.config, ...variables.config }
-              });
-            });
-            return newObject;
-          }
-        }
-      ]
+    null,
+    (_, variables) => {
+      const options = queryKeys['/dashboards/get:getDashboardState'](variables.id);
+      const queryKey = options.queryKey;
+      const currentData = queryClient.getQueryData(queryKey);
+      if (currentData) {
+        const newObject: BusterDashboardResponse = create(currentData, (draft) => {
+          Object.assign(draft.dashboard, variables, {
+            config: { ...draft.dashboard.config, ...variables.config }
+          });
+        });
+        queryClient.setQueryData(queryKey, newObject);
+      }
+      return null;
     }
   );
 
@@ -93,6 +96,7 @@ export const useDashboardUpdateConfig = ({
   });
 
   return {
+    isUpdatingDashboard,
     onShareDashboard,
     onUpdateDashboardConfig,
     onUpdateDashboard,

@@ -1,20 +1,31 @@
 import { useMemoizedFn } from 'ahooks';
-import { useBusterWebSocket } from '../../BusterWebSocket';
-import { useSocketQueryEmitAndOnce, useSocketQueryMutation } from '@/api/buster_socket_query';
+import { useSocketQueryMutation } from '@/api/buster_socket_query';
+import { queryKeys } from '@/api/asset_interfaces';
+
+const getChatsListOptions = queryKeys['/chats/list:getChatsList']();
 
 export const useChatAssosciations = () => {
-  const busterSocket = useBusterWebSocket();
-  const x = useSocketQueryMutation('');
+  const { mutate: deleteChat } = useSocketQueryMutation(
+    { route: '/chats/delete' },
+    { route: '/chats/delete:deleteChat' },
+    getChatsListOptions,
+    (currentData, deleteDataIds) => {
+      //TODO: maybe use query client to remove all the chats from the query cache?
+      const allDeleteDataIds = deleteDataIds.map((d) => d.id);
+      return currentData?.filter((chat) => !allDeleteDataIds.includes(chat.id)) || [];
+    }
+  );
 
   const onDeleteChat = useMemoizedFn(async (chatId: string) => {
-    //
-    // await busterSocket.emit({
-    //   route: '/chats/delete',
-    //   payload: { id: chatId }
-    // });
+    deleteChat([{ id: chatId }]);
+  });
+
+  const onDeleteChats = useMemoizedFn(async (chatIds: string[]) => {
+    deleteChat(chatIds.map((id) => ({ id })));
   });
 
   return {
-    onDeleteChat
+    onDeleteChat,
+    onDeleteChats
   };
 };

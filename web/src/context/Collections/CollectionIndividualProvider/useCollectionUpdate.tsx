@@ -1,35 +1,37 @@
-import type { BusterCollection } from '@/api/asset_interfaces';
 import type { CollectionUpdateCollection } from '@/api/buster_socket/collections';
-import { useSocketQueryMutation } from '@/hooks';
+import { useSocketQueryMutation } from '@/api/buster_socket_query';
 import { useMemoizedFn } from 'ahooks';
+import { BusterCollection, BusterCollectionListItem, queryKeys } from '@/api/asset_interfaces';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const useCollectionUpdate = () => {
+  const queryClient = useQueryClient();
+
   const { mutateAsync: updateCollection, isPending: isUpdatingCollection } = useSocketQueryMutation(
     { route: '/collections/update' },
     { route: '/collections/update:collectionState' },
-    {
-      preSetQueryData: [
-        {
-          responseRoute: '/collections/get:collectionState',
-          callback: (data, _variables) => {
-            const variables = _variables as Partial<BusterCollection>;
-            const newObject: BusterCollection = { ...data!, ...variables };
-            return newObject;
-          }
-        },
-        {
-          responseRoute: '/collections/list:listCollections',
-          callback: (data, _variables) => {
-            const existingData = data || [];
-            const variables = _variables as Partial<BusterCollection>;
-            return existingData.map((collection) =>
-              collection.id === variables.id
-                ? { ...collection, name: variables.name || collection.name }
-                : collection
-            );
-          }
-        }
-      ]
+    null,
+    (_, variables) => {
+      const collectionId = variables.id!;
+      const collectionOptions = queryKeys['/collections/get:collectionState'](collectionId);
+      const queryKey = collectionOptions.queryKey;
+      const collection = queryClient.getQueryData(queryKey);
+      if (collection) {
+        const newCollection: BusterCollection = {
+          ...collection!,
+          ...(variables as Partial<BusterCollection>)
+        };
+        queryClient.setQueryData(queryKey, newCollection);
+      }
+
+      const collectionListOptions = queryKeys['/collections/list:getCollectionsList']();
+      const collectionList = queryClient.getQueryData(collectionListOptions.queryKey);
+      if (collectionList && variables.name) {
+        const newCollectionList: BusterCollectionListItem[] = collectionList.map((collection) =>
+          collection.id === collectionId ? { ...collection, name: variables.name! } : collection
+        );
+        queryClient.setQueryData(collectionListOptions.queryKey, newCollectionList);
+      }
     }
   );
 

@@ -1,9 +1,7 @@
-import type { BusterDashboardResponse } from '@/api/asset_interfaces';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
 import { useBusterDashboardListContextSelector } from '../DashboardListProvider/DashboardListProvider';
-import { useSocketQueryMutation } from '@/hooks';
 
 export const useDashboardAssosciations = () => {
   const busterSocket = useBusterWebSocket();
