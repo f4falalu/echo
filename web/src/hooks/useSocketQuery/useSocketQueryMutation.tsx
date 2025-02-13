@@ -18,10 +18,25 @@ import { createQueryKey } from './helpers';
 
 type QueryDataStrategy = 'replace' | 'append' | 'prepend' | 'merge' | 'ignore';
 
-type PreSetQueryDataItem<PRoute extends BusterSocketResponseRoute, TVariables> = {
-  responseRoute: BusterSocketResponseConfig<PRoute>['route'];
+// For array items, each item's callback data type is inferred from its responseRoute
+type PreSetQueryDataItem<TVariables> = {
+  [Route in BusterSocketResponseRoute]: {
+    responseRoute: Route;
+    requestRoute?: BusterSocketRequestRoute;
+    callback: (
+      data: InferBusterSocketResponseData<Route>,
+      variables: TVariables
+    ) => InferBusterSocketResponseData<Route>;
+  };
+}[BusterSocketResponseRoute];
+
+// For single items, callback data type is either from provided responseRoute or main route
+type SinglePreSetQueryDataItem<TRoute extends BusterSocketResponseRoute, TVariables> = {
   requestRoute?: BusterSocketRequestRoute;
-  callback: (data: InferBusterSocketResponseData<PRoute>, variables: TVariables) => unknown;
+  callback: (
+    data: InferBusterSocketResponseData<TRoute>,
+    variables: TVariables
+  ) => InferBusterSocketResponseData<TRoute>;
 };
 
 type SocketQueryMutationOptions<
@@ -33,32 +48,29 @@ type SocketQueryMutationOptions<
   'mutationFn'
 > & {
   /**
-   * Array of configurations for optimistically updating query data before the mutation completes.
-   * Each item in the array specifies a different route's data to update.
-   * The callback for each item will automatically infer the correct data type based on the route.
+   * Configuration for optimistically updating query data before the mutation completes.
+   * Can be either a single item or an array of items.
+   *
+   * For array items: callback data type is inferred from each item's responseRoute
+   * For single item:
+   * - If responseRoute provided: callback data type is inferred from that route
+   * - If no responseRoute: callback data type is inferred from main response route
    *
    * @example
-   * // Example: When creating a favorite, update multiple related queries
+   * // Single item without responseRoute (uses main response route's type)
    * useSocketQueryMutation(
    *   { route: '/users/favorites/post' },
    *   { route: '/users/favorites/post:createFavorite' },
    *   {
-   *     preSetQueryData: [
-   *       {
-   *         responseRoute: '/users/favorites/list:listFavorites',
-   *         callback: (existingFavorites, variables) => [...(existingFavorites || []), variables]
-   *       },
-   *       {
-   *         responseRoute: '/users/favorites/post:createFavorite',
-   *         callback: (_, variables) => [variables]
-   *       }
-   *     ]
+   *     preSetQueryData: {
+   *       callback: (existingFavorites, variables) => [...(existingFavorites || []), variables]
+   *     }
    *   }
    * )
    */
   preSetQueryData?:
-    | Array<PreSetQueryDataItem<TRoute, TVariables>>
-    | PreSetQueryDataItem<TRoute, TVariables>;
+    | Array<PreSetQueryDataItem<TVariables>>
+    | SinglePreSetQueryDataItem<TRoute, TVariables>;
 
   /**
    * When true, adds a small delay before applying preSetQueryData to ensure React Query's cache
@@ -166,7 +178,14 @@ export const useSocketQueryMutation = <
     const queryKey = createQueryKey(socketResponse, request);
     const arrayOfPreSetQueryData = Array.isArray(preSetQueryData)
       ? preSetQueryData
-      : [preSetQueryData];
+      : preSetQueryData
+        ? [
+            {
+              ...preSetQueryData,
+              responseRoute: socketResponse.route
+            }
+          ]
+        : [];
 
     if (preSetQueryData && arrayOfPreSetQueryData.filter(Boolean).length > 0) {
       if (options?.awaitPrefetchQueryData) {
@@ -178,7 +197,7 @@ export const useSocketQueryMutation = <
         const requestPayload: undefined | BusterSocketRequest = requestRoute
           ? ({ route: requestRoute, payload: request.payload } as BusterSocketRequest)
           : undefined;
-        const presetQueryKey = createQueryKey({ route: responseRoute }, requestPayload);
+        const presetQueryKey = createQueryKey({ route: responseRoute! }, requestPayload);
         await queryClient.setQueryData(presetQueryKey, (prev: any) => {
           return callback(prev, variables);
         });
@@ -247,10 +266,25 @@ const Example = () => {
         {
           responseRoute: '/chats/list:getChatsList',
           callback: (data, variables) => {
-            return [variables, ...(data || [])];
+            data[0].id;
+            return [...(data || [])];
           }
         }
       ]
+    }
+  );
+
+  const { mutate: mutate3 } = useSocketQueryMutation(
+    { route: '/dashboards/delete' },
+    { route: '/chats/get:getChat' },
+    {
+      preSetQueryData: {
+        //  responseRoute: '/chats/list:getChatsList',
+        callback: (data, variables) => {
+          data.id;
+          return { ...data };
+        }
+      }
     }
   );
 
