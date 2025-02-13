@@ -1,9 +1,0 @@
----
-description: This rule is helpful for understanding how to build our REST routes. Structure, common patterns, where to look for types, etc.
-globs: src/routes/rest/*
----
-
-# Your rule content
-
-- You can @ files here
-- You can use markdown but dont have to
