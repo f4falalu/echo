@@ -93,7 +93,7 @@ export type ChatDeleteChat = BusterSocketRequestBase<
   {
     /** The unique identifier of the chat to delete */
     id: string;
-  }
+  }[]
 >;
 
 /**
