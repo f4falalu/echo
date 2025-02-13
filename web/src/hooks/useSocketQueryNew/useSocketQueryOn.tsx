@@ -21,6 +21,7 @@ import {
 } from './types';
 import { useMount } from 'ahooks';
 import { queryOptionsConfig } from './queryKeyConfig';
+import { BusterChat } from '@/api/asset_interfaces';
 
 export const useSocketQueryOn = <
   TRoute extends BusterSocketResponseRoute,
@@ -29,7 +30,7 @@ export const useSocketQueryOn = <
   TQueryKey extends QueryKey = QueryKey
 >(
   socketResponse: TRoute,
-  options: UseQueryOptions<InferBusterSocketResponseData<TRoute>, TError, TData, TQueryKey>,
+  options: UseQueryOptions<TData, TError, TData, TQueryKey>,
   callback?: (d: InferBusterSocketResponseData<TRoute>) => TData
 ): UseQueryResult<TData, TError> => {
   const busterSocket = useBusterWebSocket();
@@ -40,8 +41,9 @@ export const useSocketQueryOn = <
     busterSocket.on({
       route: socketResponse,
       callback: (d: unknown) => {
+        const socketData = d as InferBusterSocketResponseData<TRoute>;
         const transformer = callback || ((d: InferBusterSocketResponseData<TRoute>) => d as TData);
-        const transformedData: TData = transformer(d as InferBusterSocketResponseData<TRoute>);
+        const transformedData = transformer(socketData);
         queryClient.setQueryData<TData>(queryKey, transformedData);
       }
     } as BusterSocketResponse);
@@ -61,5 +63,22 @@ const ExampleComponent = () => {
   const { data: data2 } = useSocketQueryOn('/chats/list:getChatsList', options2);
 
   const options3 = queryOptionsConfig['/chats/delete:deleteChat']('123');
-  const { data: data3 } = useSocketQueryOn('/chats/delete:deleteChat', options3);
+
+  const { data: data3 } = useSocketQueryOn('/chats/delete:deleteChat', options3, (d) => {
+    return deleteChatInitialData;
+  });
+};
+
+// Create fresh options for delete chat that match the expected BusterChat type
+const deleteChatInitialData: BusterChat = {
+  id: '123',
+  title: '',
+  is_favorited: false,
+  messages: [],
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  created_by: '',
+  created_by_id: '',
+  created_by_name: '',
+  created_by_avatar: null
 };

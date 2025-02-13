@@ -20,13 +20,15 @@ const chatsGetList = (filters?: ChatListEmitPayload) =>
     }
   });
 
-const deleteChat = (chatId: string) =>
-  queryOptions({
-    queryKey: ['chats', 'get', chatId] as const,
-    queryFn: () => {
-      return [chatId];
+const deleteChat = (chatId: string) => {
+  const queryKey = chatsGetChat(chatId)?.queryKey;
+  return queryOptions({
+    queryKey,
+    queryFn: async () => {
+      return Promise.resolve({ id: chatId });
     }
   });
+};
 
 export const queryOptionsConfig = {
   '/chats/get:getChat': chatsGetChat,
