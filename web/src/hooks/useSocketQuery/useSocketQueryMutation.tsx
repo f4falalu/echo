@@ -13,37 +13,52 @@ import {
   BusterSocketRequestConfig,
   BusterSocketRequestRoute
 } from './types';
-import { ShareAssetType } from '@/api/asset_interfaces';
+import { ShareAssetType, BusterUserFavorite } from '@/api/asset_interfaces';
 import { createQueryKey } from './helpers';
 
 type QueryDataStrategy = 'replace' | 'append' | 'prepend' | 'merge' | 'ignore';
 
+type PreSetQueryDataItem<PRoute extends BusterSocketResponseRoute, TVariables> = {
+  responseRoute: BusterSocketResponseConfig<PRoute>['route'];
+  requestRoute?: BusterSocketRequestRoute;
+  callback: (data: InferBusterSocketResponseData<PRoute>, variables: TVariables) => unknown;
+};
+
 type SocketQueryMutationOptions<
   TRoute extends BusterSocketResponseRoute,
   TError,
-  TVariables,
-  TPresetResponseRoute extends BusterSocketResponseRoute = TRoute,
-  TPresetRequestRoute extends BusterSocketRequestRoute = BusterSocketRequestRoute
+  TVariables
 > = Omit<
   UseMutationOptions<InferBusterSocketResponseData<TRoute>, TError, TVariables>,
   'mutationFn'
 > & {
   /**
-   * Function to optimistically update the mutation's own query data before the mutation completes.
-   * This is useful for providing immediate UI feedback while waiting for the server response.
+   * Array of configurations for optimistically updating query data before the mutation completes.
+   * Each item in the array specifies a different route's data to update.
+   * The callback for each item will automatically infer the correct data type based on the route.
    *
    * @example
-   * // Example: Optimistically add a new item to a list
-   * preSetQueryData: (existingData, newItem) => [...existingData, newItem]
-   *
-   * @param data - The current data in the cache for this mutation's query key
-   * @param variables - The variables passed to the mutation
-   * @returns The updated data to be temporarily stored in the cache
+   * // Example: When creating a favorite, update multiple related queries
+   * useSocketQueryMutation(
+   *   { route: '/users/favorites/post' },
+   *   { route: '/users/favorites/post:createFavorite' },
+   *   {
+   *     preSetQueryData: [
+   *       {
+   *         responseRoute: '/users/favorites/list:listFavorites',
+   *         callback: (existingFavorites, variables) => [...(existingFavorites || []), variables]
+   *       },
+   *       {
+   *         responseRoute: '/users/favorites/post:createFavorite',
+   *         callback: (_, variables) => [variables]
+   *       }
+   *     ]
+   *   }
+   * )
    */
-  preSetQueryData?: (
-    data: InferBusterSocketResponseData<TRoute> | undefined,
-    variables: TVariables
-  ) => InferBusterSocketResponseData<TRoute>;
+  preSetQueryData?:
+    | Array<PreSetQueryDataItem<TRoute, TVariables>>
+    | PreSetQueryDataItem<TRoute, TVariables>;
 
   /**
    * When true, adds a small delay before applying preSetQueryData to ensure React Query's cache
@@ -70,37 +85,6 @@ type SocketQueryMutationOptions<
    * @default 'ignore'
    */
   queryDataStrategy?: QueryDataStrategy;
-  /**
-   * Configuration for updating query data for a different response route than the mutation's response.
-   * This is useful when a mutation needs to update cached data for a different query than its own response.
-   *
-   * @example
-   * // Example: When creating a favorite, update both the create response and the list of favorites
-   * useSocketQueryMutation(
-   *   { route: '/users/favorites/post' },
-   *   { route: '/users/favorites/post:createFavorite' },
-   *   {
-   *     preSetQueryDataFunction: {
-   *       responseRoute: '/users/favorites/get:listFavorites', // Different route to update
-   *       requestRoute: '/users/favorites/get',
-   *       callback: (existingFavorites) => [...existingFavorites, newFavorite]
-   *     }
-   *   }
-   * )
-   *
-   * @property responseRoute - The route of the query data to update (different from the mutation response route)
-   * @property requestRoute - Optional request route associated with the query to update
-   * @property callback - Function to transform the existing data for the specified route
-   *                     Takes the current data and mutation variables as arguments
-   */
-  preSetQueryDataFunction?: {
-    responseRoute: TPresetResponseRoute;
-    requestRoute?: TPresetRequestRoute;
-    callback: (
-      data: InferBusterSocketResponseData<TPresetResponseRoute> | undefined,
-      variables: TVariables
-    ) => InferBusterSocketResponseData<TPresetResponseRoute>;
-  };
 };
 
 /**
@@ -121,30 +105,17 @@ export const useSocketQueryMutation = <
   TRequestRoute extends BusterSocketRequestRoute,
   TRoute extends BusterSocketResponseRoute,
   TError = unknown,
-  TVariables = InferBusterSocketRequestPayload<TRequestRoute>,
-  TPresetResponseRoute extends BusterSocketResponseRoute = TRoute,
-  TPresetRequestRoute extends BusterSocketRequestRoute = TRequestRoute
+  TVariables = InferBusterSocketRequestPayload<TRequestRoute>
 >(
   socketRequest: BusterSocketRequestConfig<TRequestRoute>,
   socketResponse: BusterSocketResponseConfig<TRoute> & {
     callback?: (data: unknown) => InferBusterSocketResponseData<TRoute>;
   },
-  options?: SocketQueryMutationOptions<
-    TRoute,
-    TError,
-    TVariables,
-    TPresetResponseRoute,
-    TPresetRequestRoute
-  >
+  options?: SocketQueryMutationOptions<TRoute, TError, TVariables>
 ) => {
   const busterSocket = useBusterWebSocket();
   const queryClient = useQueryClient();
-  const {
-    preSetQueryData,
-    queryDataStrategy = 'ignore',
-    preSetQueryDataFunction,
-    ...mutationOptions
-  } = options || {};
+  const { preSetQueryData, queryDataStrategy = 'ignore', ...mutationOptions } = options || {};
 
   const updateQueryData = useMemoizedFn(
     async (queryKey: QueryKey, data: InferBusterSocketResponseData<TRoute>) => {
@@ -193,28 +164,25 @@ export const useSocketQueryMutation = <
     } as BusterSocketRequest;
 
     const queryKey = createQueryKey(socketResponse, request);
+    const arrayOfPreSetQueryData = Array.isArray(preSetQueryData)
+      ? preSetQueryData
+      : [preSetQueryData];
 
-    if (preSetQueryData) {
+    if (preSetQueryData && arrayOfPreSetQueryData.filter(Boolean).length > 0) {
       if (options?.awaitPrefetchQueryData) {
         await new Promise((resolve) => requestAnimationFrame(resolve));
       }
-      await queryClient.setQueryData<InferBusterSocketResponseData<TRoute>>(queryKey, (prev) =>
-        preSetQueryData(prev, variables)
-      );
-    }
-    if (preSetQueryDataFunction) {
-      const { responseRoute, requestRoute, callback } = preSetQueryDataFunction;
 
-      const requestPayload: undefined | BusterSocketRequest = requestRoute
-        ? ({ route: requestRoute, payload: request.payload } as BusterSocketRequest)
-        : undefined;
-      const presetFunctionQueryKey = createQueryKey({ route: responseRoute }, requestPayload);
-      await queryClient.setQueryData<InferBusterSocketResponseData<TPresetResponseRoute>>(
-        presetFunctionQueryKey,
-        (prev) => {
+      for (const item of arrayOfPreSetQueryData) {
+        const { responseRoute, requestRoute, callback } = item!;
+        const requestPayload: undefined | BusterSocketRequest = requestRoute
+          ? ({ route: requestRoute, payload: request.payload } as BusterSocketRequest)
+          : undefined;
+        const presetQueryKey = createQueryKey({ route: responseRoute }, requestPayload);
+        await queryClient.setQueryData(presetQueryKey, (prev: any) => {
           return callback(prev, variables);
-        }
-      );
+        });
+      }
     }
 
     const response = await busterSocket.emitAndOnce({
@@ -242,16 +210,26 @@ export const useSocketQueryMutation = <
 };
 
 const Example = () => {
-  // Example 1: Favorites mutation
-  const { mutate, mutateAsync } = useSocketQueryMutation(
+  // Example: Favorites mutation with multiple preSetQueryData updates
+  const { mutate } = useSocketQueryMutation(
     { route: '/users/favorites/post' },
     { route: '/users/favorites/post:createFavorite' },
     {
-      preSetQueryDataFunction: {
-        responseRoute: '/users/favorites/post:createFavorite',
-        requestRoute: '/users/favorites/post',
-        callback: (data) => data || []
-      }
+      preSetQueryData: [
+        {
+          responseRoute: '/users/favorites/list:listFavorites',
+          callback: (data, variables) => {
+            const favorites = Array.isArray(data) ? data : [];
+            return [variables, ...favorites];
+          }
+        },
+        {
+          responseRoute: '/users/favorites/post:createFavorite',
+          callback: (_: unknown, variables: BusterUserFavorite) => {
+            return [variables];
+          }
+        }
+      ]
     }
   );
 
@@ -260,6 +238,21 @@ const Example = () => {
     asset_type: ShareAssetType.DASHBOARD,
     name: 'some-title'
   });
+
+  const { mutate: mutate2 } = useSocketQueryMutation(
+    { route: '/dashboards/delete' },
+    { route: '/dashboards/delete:deleteDashboard' },
+    {
+      preSetQueryData: [
+        {
+          responseRoute: '/chats/list:getChatsList',
+          callback: (data, variables) => {
+            return [variables, ...(data || [])];
+          }
+        }
+      ]
+    }
+  );
 
   return null;
 };
