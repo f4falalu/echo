@@ -23,6 +23,7 @@ import type {
   InferBusterSocketRequestPayload,
   InferBusterSocketResponseData
 } from './types';
+import type { BusterChatListItem } from '@/api/asset_interfaces/chat';
 
 export function useSocketMutation<
   TRequestRoute extends BusterSocketRequestRoute,
@@ -30,12 +31,15 @@ export function useSocketMutation<
   TError = unknown,
   TData = InferBusterSocketResponseData<TRoute>,
   TPayload = InferBusterSocketRequestPayload<TRequestRoute>,
-  TQueryKey extends QueryKey = QueryKey
+  TQueryData = unknown
 >(
   socketRequest: BusterSocketRequestConfig<TRequestRoute>,
   socketResponse: BusterSocketResponseConfig<TRoute>,
-  options?: UseQueryOptions<TData, TError, TData, TQueryKey>,
-  callback?: (currentData: TData | null, newData: InferBusterSocketResponseData<TRoute>) => TData
+  options?: UseQueryOptions<TQueryData, any, TQueryData, any>,
+  callback?: (
+    currentData: TQueryData | null,
+    newData: InferBusterSocketResponseData<TRoute>
+  ) => TQueryData
 ) {
   const busterSocket = useBusterWebSocket();
   const queryClient = useQueryClient();
@@ -57,10 +61,10 @@ export function useSocketMutation<
       if (options?.queryKey && callback) {
         const queryKey = options.queryKey;
         const socketData = result as InferBusterSocketResponseData<TRoute>;
-        const currentData = queryClient.getQueryData<TData>(queryKey) ?? null;
-        const transformedData: TData = callback(currentData, socketData);
-        queryClient.setQueryData<TData>(queryKey, transformedData);
-        return transformedData;
+        const currentData = queryClient.getQueryData<TQueryData>(queryKey) ?? null;
+        const transformedData = callback(currentData, socketData);
+        queryClient.setQueryData(queryKey, transformedData);
+        return result as TData;
       }
 
       return result as TData;
@@ -76,13 +80,26 @@ export function useSocketMutation<
 
 const ExampleComponent = () => {
   const queryClient = useQueryClient();
-  const options = queryOptionsConfig['/chats/delete:deleteChat']('123');
+  const options = queryOptionsConfig['/chats/list:getChatsList']();
   const data = queryClient.getQueryData(options.queryKey);
+  data?.[0].created_by_avatar;
 
-  const { mutate } = useSocketMutation<'/chats/delete', '/chats/delete:deleteChat'>(
+  const { mutate } = useSocketMutation<
+    '/chats/delete',
+    '/chats/delete:deleteChat',
+    unknown,
+    { id: string }[],
+    { id: string }[],
+    BusterChatListItem[]
+  >(
     { route: '/chats/delete' },
-    { route: '/chats/delete:deleteChat' }
+    { route: '/chats/delete:deleteChat' },
+    options,
+    (currentData, newData) => {
+      currentData?.[0].created_by_avatar; // This should now be properly typed
+      return currentData ?? [];
+    }
   );
 
-  // mutate([{ id: '123' }]);
+  mutate([{ id: '123' }]);
 };
