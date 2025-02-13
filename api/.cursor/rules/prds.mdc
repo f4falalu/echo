@@ -1,0 +1,9 @@
+---
+description: This is helpful for building and designing prds for our application and how to write them
+globs: src/routes/rest/*
+---
+
+# Your rule content
+
+- You can @ files here
+- You can use markdown but dont have to
