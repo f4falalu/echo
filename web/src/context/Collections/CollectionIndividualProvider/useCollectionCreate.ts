@@ -31,12 +31,14 @@ export const useCollectionCreate = () => {
       { route: '/collections/delete' },
       { route: '/collections/delete:deleteCollections' },
       {
-        preSetQueryDataFunction: {
-          responseRoute: '/collections/list:listCollections',
-          callback: (data, variables) => {
-            return data?.filter((collection) => !variables.ids.includes(collection.id)) || [];
+        preSetQueryData: [
+          {
+            responseRoute: '/collections/list:listCollections',
+            callback: (data, variables) => {
+              return data?.filter((collection) => !variables.ids.includes(collection.id)) || [];
+            }
           }
-        }
+        ]
       }
     );
 

@@ -8,23 +8,28 @@ export const useCollectionUpdate = () => {
     { route: '/collections/update' },
     { route: '/collections/update:collectionState' },
     {
-      preSetQueryData(data, _variables) {
-        const variables = _variables as Partial<BusterCollection>;
-        const newObject: BusterCollection = { ...data!, ...variables };
-        return newObject;
-      },
-      preSetQueryDataFunction: {
-        responseRoute: '/collections/list:listCollections',
-        callback: (data, _variables) => {
-          const existingData = data || [];
-          const variables = _variables as Partial<BusterCollection>;
-          return existingData.map((collection) =>
-            collection.id === variables.id
-              ? { ...collection, name: variables.name || collection.name }
-              : collection
-          );
+      preSetQueryData: [
+        {
+          responseRoute: '/collections/get:collectionState',
+          callback: (data, _variables) => {
+            const variables = _variables as Partial<BusterCollection>;
+            const newObject: BusterCollection = { ...data!, ...variables };
+            return newObject;
+          }
+        },
+        {
+          responseRoute: '/collections/list:listCollections',
+          callback: (data, _variables) => {
+            const existingData = data || [];
+            const variables = _variables as Partial<BusterCollection>;
+            return existingData.map((collection) =>
+              collection.id === variables.id
+                ? { ...collection, name: variables.name || collection.name }
+                : collection
+            );
+          }
         }
-      }
+      ]
     }
   );
 

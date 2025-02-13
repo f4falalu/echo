@@ -20,17 +20,19 @@ export const useDashboardUpdateConfig = ({
     { route: '/dashboards/update' },
     { route: '/dashboards/update:updateDashboard' },
     {
-      preSetQueryDataFunction: {
-        responseRoute: '/dashboards/get:getDashboardState',
-        callback: (data, variables) => {
-          const newObject: BusterDashboardResponse = create(data!, (draft) => {
-            Object.assign(draft.dashboard, variables, {
-              config: { ...draft.dashboard.config, ...variables.config }
+      preSetQueryData: [
+        {
+          responseRoute: '/dashboards/get:getDashboardState',
+          callback: (data, variables) => {
+            const newObject: BusterDashboardResponse = create(data!, (draft) => {
+              Object.assign(draft.dashboard, variables, {
+                config: { ...draft.dashboard.config, ...variables.config }
+              });
             });
-          });
-          return newObject;
+            return newObject;
+          }
         }
-      }
+      ]
     }
   );
 

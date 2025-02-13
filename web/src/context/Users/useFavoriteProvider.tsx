@@ -10,15 +10,26 @@ export const useFavoriteProvider = () => {
   const { mutate: addItemToFavorite } = useSocketQueryMutation(
     { route: '/users/favorites/post' },
     { route: '/users/favorites/post:createFavorite' },
-    { preSetQueryData: (prev, mutationParams) => [mutationParams, ...(prev || [])] }
+    {
+      preSetQueryData: [
+        {
+          responseRoute: '/users/favorites/list:listFavorites',
+          callback: (prev, mutationParams) => [mutationParams, ...(prev || [])]
+        }
+      ]
+    }
   );
 
   const { mutate: removeItemFromFavorite } = useSocketQueryMutation(
     { route: '/users/favorites/delete' },
     { route: '/users/favorites/post:createFavorite' },
     {
-      preSetQueryData: (prev, mutationParams) =>
-        prev?.filter((f) => f.id !== mutationParams.id) || []
+      preSetQueryData: [
+        {
+          responseRoute: '/users/favorites/list:listFavorites',
+          callback: (prev, mutationParams) => prev?.filter((f) => f.id !== mutationParams.id) || []
+        }
+      ]
     }
   );
 
@@ -27,12 +38,17 @@ export const useFavoriteProvider = () => {
     { route: '/users/favorites/update:updateFavorite' },
     {
       awaitPrefetchQueryData: true,
-      preSetQueryData: (prev, mutationParams) => {
-        return mutationParams.favorites.map((id, index) => {
-          let favorite = (prev || []).find((f) => f.id === id || f.collection_id === id)!;
-          return { ...favorite, index };
-        });
-      }
+      preSetQueryData: [
+        {
+          responseRoute: '/users/favorites/list:listFavorites',
+          callback: (prev, mutationParams) => {
+            return mutationParams.favorites.map((id, index) => {
+              let favorite = (prev || []).find((f) => f.id === id || f.collection_id === id)!;
+              return { ...favorite, index };
+            });
+          }
+        }
+      ]
     }
   );
 
