@@ -76,19 +76,6 @@ mod tests {
 - Test database transactions and rollbacks
 - Test database connection error handling
 
-## WebSocket Testing
-- Test WebSocket connection establishment
-- Test message sending and receiving
-- Test connection closure handling
-- Test reconnection logic
-- Test concurrent WebSocket connections
-
-## Performance Testing
-- Include basic performance tests for critical paths
-- Test response times under normal conditions
-- Test handling of concurrent requests
-- Test resource cleanup
-
 ## Test Output
 - Tests should provide clear error messages
 - Use descriptive assert messages
