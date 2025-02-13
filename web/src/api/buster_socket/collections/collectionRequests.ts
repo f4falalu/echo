@@ -1,22 +1,17 @@
 import { ShareAssetType } from '../../asset_interfaces';
 import { BusterSocketRequestBase } from '../base_interfaces';
 import { ShareRequest } from '../shared_interfaces';
+import type {
+  GetCollectionListParams,
+  GetCollectionParams
+} from '../../request_interfaces/collections';
 
 /**
  * WebSocket request for listing collections with pagination support.
  */
 export type CollectionsListEmit = BusterSocketRequestBase<
   '/collections/list',
-  {
-    /** Current page number (1-based indexing) */
-    page: number;
-    /** Number of items to display per page */
-    page_size: number;
-    /** When true, returns only collections shared with the current user */
-    shared_with_me?: boolean;
-    /** When true, returns only collections owned by the current user */
-    owned_by_me?: boolean;
-  }
+  GetCollectionListParams
 >;
 
 /**
@@ -24,10 +19,7 @@ export type CollectionsListEmit = BusterSocketRequestBase<
  */
 export type CollectionGetIndividual = BusterSocketRequestBase<
   '/collections/get',
-  {
-    /** Unique identifier of the collection to retrieve */
-    id: string;
-  }
+  GetCollectionParams
 >;
 
 /**

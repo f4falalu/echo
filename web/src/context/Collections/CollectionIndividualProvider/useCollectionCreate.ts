@@ -31,18 +31,10 @@ export const useCollectionCreate = () => {
     useSocketQueryMutation(
       { route: '/collections/delete' },
       { route: '/collections/delete:deleteCollections' },
-      queryKeys
-
-      // {
-      //   preSetQueryData: [
-      //     {
-      //       responseRoute: '/collections/list:listCollections',
-      //       callback: (data, variables) => {
-      //         return data?.filter((collection) => !variables.ids.includes(collection.id)) || [];
-      //       }
-      //     }
-      //   ]
-      // }
+      queryKeys['/collections/list:getCollectionsList'](),
+      (data, variables) => {
+        return data?.filter((collection) => !variables.ids.includes(collection.id)) || [];
+      }
     );
 
   const deleteCollection = useMemoizedFn(async (id: string | string[], useConfirmModal = true) => {
