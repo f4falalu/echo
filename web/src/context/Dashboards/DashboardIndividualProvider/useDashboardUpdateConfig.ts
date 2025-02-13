@@ -19,25 +19,39 @@ export const useDashboardUpdateConfig = ({
   const busterSocket = useBusterWebSocket();
   const queryClient = useQueryClient();
 
-  const { mutateAsync: updateDashboard, isPending: isUpdatingDashboard } = useSocketQueryMutation(
-    { route: '/dashboards/update' },
-    { route: '/dashboards/update:updateDashboard' },
-    null,
-    (_, variables) => {
-      const options = queryKeys['/dashboards/get:getDashboardState'](variables.id);
-      const queryKey = options.queryKey;
-      const currentData = queryClient.getQueryData(queryKey);
-      if (currentData) {
-        const newObject: BusterDashboardResponse = create(currentData, (draft) => {
-          Object.assign(draft.dashboard, variables, {
-            config: { ...draft.dashboard.config, ...variables.config }
+  const { mutateAsync: updateDashboardMutation, isPending: isUpdatingDashboard } =
+    useSocketQueryMutation(
+      { route: '/dashboards/update' },
+      { route: '/dashboards/update:updateDashboard' },
+      null,
+      (_, variables) => {
+        const options = queryKeys['/dashboards/get:getDashboardState'](variables.id);
+        const queryKey = options.queryKey;
+        const currentData = getDashboardMemoized(variables.id);
+        if (currentData) {
+          const newObject: BusterDashboardResponse = create(currentData, (draft) => {
+            Object.assign(draft.dashboard, variables, {
+              config: { ...draft.dashboard.config, ...variables.config }
+            });
           });
-        });
-        queryClient.setQueryData(queryKey, newObject);
+
+          if (variables.add_to_collections) {
+            // currentData.collections.push({
+            //   id: collectionId,
+            //   name: 'New Collection'
+            // });
+            // queryClient.setQueryData(queryKey, currentData);
+          }
+
+          if (variables.remove_from_collections) {
+            //
+          }
+
+          queryClient.setQueryData(queryKey, newObject);
+        }
+        return null;
       }
-      return null;
-    }
-  );
+    );
 
   const onUpdateDashboard = useMemoizedFn(
     (newDashboard: Partial<BusterDashboard> & { id: string }) => {
@@ -45,7 +59,7 @@ export const useDashboardUpdateConfig = ({
       const newDashboardState: BusterDashboard = create(currentDashboard?.dashboard!, (draft) => {
         Object.assign(draft, newDashboard);
       });
-      return updateDashboard({
+      return updateDashboardMutation({
         id: newDashboard.id,
         name: newDashboardState.name,
         description: newDashboardState.description,
@@ -68,7 +82,7 @@ export const useDashboardUpdateConfig = ({
         | 'remove_teams'
       >
     ) => {
-      return updateDashboard(props);
+      return updateDashboardMutation(props);
     }
   );
 
@@ -97,6 +111,7 @@ export const useDashboardUpdateConfig = ({
 
   return {
     isUpdatingDashboard,
+    updateDashboardMutation,
     onShareDashboard,
     onUpdateDashboardConfig,
     onUpdateDashboard,

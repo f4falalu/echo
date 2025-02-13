@@ -27,6 +27,10 @@ export interface BusterDashboardResponse extends BusterShare {
   dashboard: BusterDashboard;
   permission: ShareRole;
   public_password: string | null;
+  collections: {
+    id: string;
+    name: string;
+  }[];
 }
 
 export interface BusterDashboard

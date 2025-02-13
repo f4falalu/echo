@@ -12,31 +12,33 @@ import { useDashboardUpdateConfig } from './useDashboardUpdateConfig';
 import { useQueryClient } from '@tanstack/react-query';
 
 export const useBusterDashboards = () => {
-  const [openAddContentModal, setOpenAddContentModal] = useState(false);
   const queryClient = useQueryClient();
 
   const getDashboardMemoized = useMemoizedFn((dashboardId: string) => {
     const options = queryKeys['/dashboards/get:getDashboardState'](dashboardId);
     const queryKey = options.queryKey;
-    const data = queryClient.getQueryData(queryKey);
-    return data;
+    return queryClient.getQueryData(queryKey);
   });
 
   const dashboardUpdateConfig = useDashboardUpdateConfig({ getDashboardMemoized });
+  const onUpdateDashboard = dashboardUpdateConfig.onUpdateDashboard;
+  const updateDashboardMutation = dashboardUpdateConfig.updateDashboardMutation;
 
-  const dashboardAssosciations = useDashboardAssosciations();
+  const dashboardAssosciations = useDashboardAssosciations({
+    getDashboardMemoized,
+    updateDashboardMutation
+  });
 
   const dashboardCreate = useDashboardCreate({
-    onUpdateDashboard: dashboardUpdateConfig.onUpdateDashboard
+    onUpdateDashboard
   });
 
   return {
     ...dashboardAssosciations,
     ...dashboardCreate,
     ...dashboardUpdateConfig,
-    openAddContentModal,
-    getDashboardMemoized,
-    setOpenAddContentModal
+
+    getDashboardMemoized
   };
 };
 

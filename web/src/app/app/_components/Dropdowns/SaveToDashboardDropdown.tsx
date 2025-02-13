@@ -4,7 +4,6 @@ import {
   useBusterDashboardListByFilter,
   useBusterDashboardListContextSelector
 } from '@/context/Dashboards';
-import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';
 import React, { useEffect, useMemo, useState } from 'react';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
@@ -21,11 +20,8 @@ export const SaveToDashboardDropdown: React.FC<{
   onRemoveFromDashboard: (dashboardId: string) => void;
 }> = ({ children, onRemoveFromDashboard, onSaveToDashboard, selectedDashboards }) => {
   const onCreateNewDashboard = useBusterDashboardContextSelector((x) => x.onCreateNewDashboard);
-  const creatingDashboard = useBusterDashboardContextSelector((x) => x.creatingDashboard);
+  const isCreatingDashboard = useBusterDashboardContextSelector((x) => x.isCreatingDashboard);
   const getDashboardsList = useBusterDashboardListContextSelector((x) => x.getDashboardsList);
-  const saveMetricToDashboard = useBusterMetricsIndividualContextSelector(
-    (state) => state.saveMetricToDashboard
-  );
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const { list: dashboardsList } = useBusterDashboardListByFilter({});
 
@@ -101,14 +97,14 @@ export const SaveToDashboardDropdown: React.FC<{
       <Button
         type="text"
         className="!justify-start"
-        loading={creatingDashboard}
+        loading={isCreatingDashboard}
         block
         icon={<AppMaterialIcons icon="add" />}
         onClick={onClickNewDashboardButton}>
         New dashboard
       </Button>
     );
-  }, [creatingDashboard, onClickNewDashboardButton]);
+  }, [isCreatingDashboard, onClickNewDashboardButton]);
 
   return (
     <>

@@ -2,19 +2,16 @@
 
 import React, { useMemo, useState } from 'react';
 import { AppContent } from '../../../../components/layout/AppContent';
-import {
-  useBusterDashboardContextSelector,
-  useBusterDashboardListByFilter
-} from '@/context/Dashboards';
+import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { BusterUserAvatar } from '@/components';
 import { formatDate } from '@/utils';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { getShareStatus } from '../../_components/Lists';
 import { ListEmptyStateWithButton } from '../../../../components/list';
-import { useMemoizedFn, useUnmount } from 'ahooks';
+import { useMemoizedFn } from 'ahooks';
 import { DashboardSelectedOptionPopup } from './DashboardSelectedPopup';
-import { BusterDashboard, BusterDashboardListItem } from '@/api/asset_interfaces';
+import type { BusterDashboardListItem } from '@/api/asset_interfaces';
 
 const columns: BusterListColumn[] = [
   {
@@ -61,7 +58,9 @@ export const DashboardListContent: React.FC<{
   const onCreateNewDashboard = useBusterDashboardContextSelector(
     (state) => state.onCreateNewDashboard
   );
-  const creatingDashboard = useBusterDashboardContextSelector((state) => state.creatingDashboard);
+  const isCreatingDashboard = useBusterDashboardContextSelector(
+    (state) => state.isCreatingDashboard
+  );
   const [selectedDashboardIds, setSelectedDashboardIds] = useState<string[]>([]);
 
   const rows: BusterListRow[] = useMemo(() => {
@@ -97,7 +96,7 @@ export const DashboardListContent: React.FC<{
                   buttonText="New dashboard"
                   description={`You don’t have any dashboards. As soon as you do, they will start to  appear here.`}
                   onClick={onClickEmptyState}
-                  loading={creatingDashboard}
+                  loading={isCreatingDashboard}
                 />
               ) : (
                 <></>

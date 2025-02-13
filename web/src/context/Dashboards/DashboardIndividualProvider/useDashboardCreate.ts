@@ -1,20 +1,35 @@
-import type { BusterDashboard } from '@/api/asset_interfaces';
+import { queryKeys, type BusterDashboard } from '@/api/asset_interfaces';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { useMemoizedFn } from 'ahooks';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useSocketQueryMutation } from '@/api/buster_socket_query';
 
 export const useDashboardCreate = ({
   onUpdateDashboard
 }: {
   onUpdateDashboard: (dashboard: BusterDashboard) => void;
 }) => {
-  const busterSocket = useBusterWebSocket();
   const router = useRouter();
-  const [creatingDashboard, setCreatingDashboard] = useState<boolean>(false);
-  const { openErrorNotification } = useBusterNotifications();
+  const { mutateAsync: deleteDashboard, isPending: isDeletingDashboard } = useSocketQueryMutation(
+    { route: '/dashboards/delete' },
+    { route: '/dashboards/delete:deleteDashboard' },
+    queryKeys['/dashboards/list:getDashboardsList'],
+    (currentData, variables) => {
+      return currentData?.filter((t) => !variables.ids.includes(t.id)) || [];
+    }
+  );
+  const { openConfirmModal } = useBusterNotifications();
+
+  const { mutateAsync: createDashboard, isPending: isCreatingDashboard } = useSocketQueryMutation(
+    { route: '/dashboards/post' },
+    { route: '/dashboards/post:postDashboard' },
+    null,
+    null,
+    (res) => {
+      onUpdateDashboard(res);
+    }
+  );
 
   const onCreateNewDashboard = useMemoizedFn(
     async (newDashboard: {
@@ -22,49 +37,50 @@ export const useDashboardCreate = ({
       description?: string | null;
       rerouteToDashboard?: boolean;
     }) => {
-      if (creatingDashboard) {
+      if (isCreatingDashboard) {
         return;
       }
       const { rerouteToDashboard, ...rest } = newDashboard;
-      setCreatingDashboard(true);
 
-      const res = await busterSocket.emitAndOnce({
-        emitEvent: {
-          route: '/dashboards/post',
-          payload: { ...rest, name: rest.name || '' }
-        },
-        responseEvent: {
-          route: '/dashboards/post:postDashboard',
-          callback: (v) => {
-            setTimeout(() => {
-              onUpdateDashboard(v);
-            }, 700);
+      const res = await createDashboard({ ...rest, name: rest.name || '' });
 
-            if (rerouteToDashboard) {
-              router.push(
-                createBusterRoute({
-                  route: BusterRoutes.APP_DASHBOARD_ID,
-                  dashboardId: v.id
-                })
-              );
-            }
-
-            return v;
-          },
-          onError: (e) => openErrorNotification(e)
-        }
-      });
-
-      setTimeout(() => {
-        setCreatingDashboard(false);
-      }, 500);
+      if (rerouteToDashboard) {
+        router.push(
+          createBusterRoute({
+            route: BusterRoutes.APP_DASHBOARD_ID,
+            dashboardId: res.id
+          })
+        );
+      }
 
       return res as BusterDashboard;
     }
   );
 
+  const onDeleteDashboard = useMemoizedFn(
+    async (dashboardId: string | string[], ignoreConfirm?: boolean) => {
+      const method = () => {
+        const ids = typeof dashboardId === 'string' ? [dashboardId] : dashboardId;
+        deleteDashboard({ ids });
+      };
+      if (ignoreConfirm) {
+        return method();
+      }
+      return await openConfirmModal({
+        title: 'Delete Dashboard',
+        content: 'Are you sure you want to delete this dashboard?',
+        onOk: () => {
+          method();
+        },
+        useReject: true
+      });
+    }
+  );
+
   return {
     onCreateNewDashboard,
-    creatingDashboard
+    isCreatingDashboard,
+    onDeleteDashboard,
+    isDeletingDashboard
   };
 };

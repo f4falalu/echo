@@ -89,14 +89,15 @@ export function useSocketQueryMutation<
   socketRequest: BusterSocketRequestConfig<TRequestRoute>,
   socketResponse: BusterSocketResponseConfig<TRoute>,
   options?: UseQueryOptions<TQueryData, any, TQueryData, any> | null,
-  preCallback?: (
-    currentData: TQueryData | null,
-    variables: TPayload
-  ) => TQueryData | Promise<TQueryData>,
-  callback?: (
-    newData: InferBusterSocketResponseData<TRoute>,
-    currentData: TQueryData | null
-  ) => TQueryData
+  preCallback?:
+    | ((currentData: TQueryData | null, variables: TPayload) => TQueryData | Promise<TQueryData>)
+    | null,
+  callback?:
+    | ((
+        newData: InferBusterSocketResponseData<TRoute>,
+        currentData: TQueryData | null
+      ) => TQueryData)
+    | null
 ) {
   const busterSocket = useBusterWebSocket();
   const queryClient = useQueryClient();

@@ -23,7 +23,9 @@ export const DashboardHeader: React.FC<{
   const onCreateNewDashboard = useBusterDashboardContextSelector(
     (state) => state.onCreateNewDashboard
   );
-  const creatingDashboard = useBusterDashboardContextSelector((state) => state.creatingDashboard);
+  const isCreatingDashboard = useBusterDashboardContextSelector(
+    (state) => state.isCreatingDashboard
+  );
   const dashboardTitle = 'Dashboards';
   const showFilters = true;
 
@@ -63,7 +65,7 @@ export const DashboardHeader: React.FC<{
           <Button
             type="default"
             icon={<AppMaterialIcons icon="add" />}
-            loading={creatingDashboard}
+            loading={isCreatingDashboard}
             onClick={onClickNewDashboardButton}>
             New Dashboard
           </Button>

@@ -1,6 +1,8 @@
+'use client';
+
 import { useUserConfigContextSelector } from '@/context/Users';
 import { DashboardViewProps } from '../config';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   useBusterDashboardContextSelector,
   useBusterDashboardIndividual
@@ -19,7 +21,7 @@ export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
   const onUpdateDashboardConfig = useBusterDashboardContextSelector(
     (x) => x.onUpdateDashboardConfig
   );
-  const setOpenAddContentModal = useBusterDashboardContextSelector((x) => x.setOpenAddContentModal);
+  const [openAddContentModal, setOpenAddContentModal] = useState(false);
 
   const allowEdit = dashboardResponse?.permission !== ShareRole.VIEWER && !isAnonymousUser;
 
@@ -41,7 +43,7 @@ export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
         metrics={metrics}
         dashboard={dashboard}
         onUpdateDashboardConfig={onUpdateDashboardConfig}
-        openAddContentModal={onOpenAddContentModal}
+        onOpenAddContentModal={onOpenAddContentModal}
       />
     </div>
   );

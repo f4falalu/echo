@@ -24,10 +24,10 @@ export const DashboardContentController: React.FC<{
   metrics: BusterDashboardResponse['metrics'] | undefined;
   dashboard: BusterDashboardResponse['dashboard'] | undefined;
   onUpdateDashboardConfig: ReturnType<typeof useBusterDashboards>['onUpdateDashboardConfig'];
-  openAddContentModal: () => void;
+  onOpenAddContentModal: () => void;
 }> = React.memo(
   ({
-    openAddContentModal,
+    onOpenAddContentModal,
     dashboard,
     allowEdit,
     metrics = DEFAULT_EMPTY_METRICS,
@@ -126,7 +126,7 @@ export const DashboardContentController: React.FC<{
             />
           </DashboardContentControllerProvider>
         ) : (
-          <DashboardEmptyState openAddContentModal={openAddContentModal} />
+          <DashboardEmptyState onOpenAddContentModal={onOpenAddContentModal} />
         )}
       </div>
     );

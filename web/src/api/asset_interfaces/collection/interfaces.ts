@@ -1,6 +1,6 @@
 import { BusterShare, ShareAssetType, ShareRole } from '../share';
 
-export interface BusterCollectionListItem {
+export type BusterCollectionListItem = {
   id: string;
   name: string;
   description: string;
@@ -13,9 +13,9 @@ export interface BusterCollectionListItem {
     name: string;
   };
   member: [];
-}
+};
 
-export interface BusterCollection extends BusterShare {
+export type BusterCollection = {
   id: string;
   name: string;
   type: string;
@@ -33,9 +33,9 @@ export interface BusterCollection extends BusterShare {
   sharing_key: string;
   updated_at: string;
   updated_by: string;
-}
+} & BusterShare;
 
-export interface BusterCollectionItemAsset {
+export type BusterCollectionItemAsset = {
   asset_type: ShareAssetType;
   id: string;
   created_at: string;
@@ -46,7 +46,7 @@ export interface BusterCollectionItemAsset {
     name: string;
     avatar_url: string;
   };
-}
+};
 
 export enum BusterCollectionSharing {
   PRIVATE = 'private',

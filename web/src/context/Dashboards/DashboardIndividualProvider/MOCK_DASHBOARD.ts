@@ -123,7 +123,8 @@ refresh_interval: 300`,
     password_secret_id: null,
     public_expiry_date: null,
     public_enabled_by: null,
-    publicly_accessible: false
+    publicly_accessible: false,
+    collections: []
   };
 
   return { dashboard, response };

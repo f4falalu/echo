@@ -19,7 +19,7 @@ export const useBusterDashboardIndividual = ({
     { route: '/dashboards/get', payload: { id: dashboardId, password } },
     '/dashboards/get:getDashboardState',
     queryKeys['/dashboards/get:getDashboardState'](dashboardId || ''),
-    (currentData, newData) => {
+    (_, newData) => {
       initializeDashboardMetrics(newData.metrics);
       return newData;
     },

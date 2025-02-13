@@ -126,7 +126,6 @@ export const useDashboardLists = () => {
     dashboardListIds,
     dashboardsList,
     getDashboardsList,
-    removeItemFromDashboardsList,
     onUpdateDashboardListItem
   };
 };

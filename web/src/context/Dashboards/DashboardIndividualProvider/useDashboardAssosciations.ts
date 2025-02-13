@@ -1,15 +1,14 @@
-import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
-import { useBusterDashboardListContextSelector } from '../DashboardListProvider/DashboardListProvider';
+import { type BusterDashboardResponse } from '@/api/asset_interfaces';
+import { useDashboardUpdateConfig } from './useDashboardUpdateConfig';
 
-export const useDashboardAssosciations = () => {
-  const busterSocket = useBusterWebSocket();
-  const { openConfirmModal } = useBusterNotifications();
-  const removeItemFromDashboardsList = useBusterDashboardListContextSelector(
-    (state) => state.removeItemFromDashboardsList
-  );
-
+export const useDashboardAssosciations = ({
+  getDashboardMemoized,
+  updateDashboardMutation
+}: {
+  getDashboardMemoized: (dashboardId: string) => BusterDashboardResponse | undefined;
+  updateDashboardMutation: ReturnType<typeof useDashboardUpdateConfig>['updateDashboardMutation'];
+}) => {
   const onAddToCollection = useMemoizedFn(
     async ({
       dashboardId,
@@ -18,12 +17,9 @@ export const useDashboardAssosciations = () => {
       collectionId: string | string[];
       dashboardId: string;
     }) => {
-      busterSocket.emit({
-        route: '/dashboards/update',
-        payload: {
-          add_to_collections: typeof collectionId === 'string' ? [collectionId] : collectionId,
-          id: dashboardId
-        }
+      updateDashboardMutation({
+        id: dashboardId,
+        add_to_collections: typeof collectionId === 'string' ? [collectionId] : collectionId
       });
     }
   );
@@ -36,66 +32,33 @@ export const useDashboardAssosciations = () => {
       collectionId: string | string[];
       dashboardId: string;
     }) => {
-      busterSocket.emit({
-        route: '/dashboards/update',
-        payload: {
-          remove_from_collections: typeof collectionId === 'string' ? [collectionId] : collectionId,
-          id: dashboardId
-        }
+      updateDashboardMutation({
+        id: dashboardId,
+        remove_from_collections: typeof collectionId === 'string' ? [collectionId] : collectionId
       });
     }
   );
 
   const onBulkAddRemoveToDashboard = useMemoizedFn(
     async ({ metricIds, dashboardId }: { dashboardId: string; metricIds: string[] }) => {
-      busterSocket.emit({
-        route: '/dashboards/update',
-        payload: {
-          id: dashboardId,
-          metrics: metricIds
-        }
+      updateDashboardMutation({
+        id: dashboardId,
+        metrics: metricIds
       });
     }
   );
 
   const removeItemFromIndividualDashboard = useMemoizedFn(
     ({ dashboardId, metricId }: { dashboardId: string; metricId: string }) => {
-      // setDashboard((prevDashboards) => {
-      //   const dashboardResponse: BusterDashboardResponse | undefined = prevDashboards[dashboardId];
-      //   if (!dashboardResponse) return prevDashboards;
-      //   const newMetrics = dashboardResponse.metrics.filter((t) => t.id !== metricId);
-      //   return {
-      //     ...prevDashboards,
-      //     [dashboardId]: {
-      //       ...prevDashboards[dashboardId],
-      //       metrics: newMetrics
-      //     }
-      //   };
-      // });
-    }
-  );
+      const prev = getDashboardMemoized(dashboardId);
+      if (!prev) return;
 
-  const onDeleteDashboard = useMemoizedFn(
-    async (dashboardId: string | string[], ignoreConfirm?: boolean) => {
-      const method = () => {
-        removeItemFromDashboardsList({ dashboardId });
-        const ids = typeof dashboardId === 'string' ? [dashboardId] : dashboardId;
-        busterSocket.emit({
-          route: '/dashboards/delete',
-          payload: { ids }
-        });
-      };
-      if (ignoreConfirm) {
-        return method();
-      }
+      const newMetrics = prev.metrics.filter((t) => t.id !== metricId);
 
-      return await openConfirmModal({
-        title: 'Delete Dashboard',
-        content: 'Are you sure you want to delete this dashboard?',
-        onOk: () => {
-          method();
-        },
-        useReject: true
+      //TODO: do I need to update the config for rows?
+      updateDashboardMutation({
+        id: dashboardId,
+        metrics: newMetrics.map((t) => t.id)
       });
     }
   );
@@ -104,7 +67,6 @@ export const useDashboardAssosciations = () => {
     removeItemFromIndividualDashboard,
     onAddToCollection,
     onRemoveFromCollection,
-    onBulkAddRemoveToDashboard,
-    onDeleteDashboard
+    onBulkAddRemoveToDashboard
   };
 };
