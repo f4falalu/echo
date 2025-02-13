@@ -18,15 +18,17 @@ import { useMemo } from 'react';
 
 export const useSockeQueryOn = <TRoute extends BusterSocketResponseRoute, TError = unknown>(
   socketResponse: BusterSocketResponseConfig<TRoute>,
-  options?: Partial<UseQueryOptions<InferBusterSocketResponseData<TRoute>, TError>>
+  options?: {
+    queryKey?: QueryKey;
+  }
 ): UseBusterSocketQueryResult<InferBusterSocketResponseData<TRoute>, TError> => {
   const busterSocket = useBusterWebSocket();
   const queryClient = useQueryClient();
 
-  const queryKey = useMemo(
-    () => options?.queryKey || createQueryKey(socketResponse),
-    [options?.queryKey, socketResponse?.route]
-  );
+  // const queryKey = useMemo(
+  //   () => options?.queryKey || createQueryKey(socketResponse),
+  //   [options?.queryKey, socketResponse?.route]
+  // );
 
   useMount(() => {
     busterSocket.on({

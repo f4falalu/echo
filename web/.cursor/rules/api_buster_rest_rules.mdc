@@ -2,7 +2,6 @@
 description: Rules for the buster_rest API directory
 globs: src/api/buster_rest/**/*
 ---
-
 # Buster REST API Rules
 
 - Follow RESTful design principles
