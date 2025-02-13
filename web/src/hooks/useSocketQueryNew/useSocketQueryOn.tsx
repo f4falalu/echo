@@ -94,8 +94,8 @@ const _ExampleComponent = () => {
   } as unknown as BusterChat;
 
   const { data: data3 } = useSocketQueryOn('/chats/delete:deleteChat', options3, (d, x) => {
-    d?.id;
+    d?.[0].is_favorited;
     x[0].id;
-    return deleteChatInitialData;
+    return [];
   });
 };

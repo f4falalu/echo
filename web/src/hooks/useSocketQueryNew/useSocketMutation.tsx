@@ -29,11 +29,13 @@ export function useSocketMutation<
   TRoute extends BusterSocketResponseRoute,
   TError = unknown,
   TData = InferBusterSocketResponseData<TRoute>,
-  TPayload = InferBusterSocketRequestPayload<TRequestRoute>
+  TPayload = InferBusterSocketRequestPayload<TRequestRoute>,
+  TQueryKey extends QueryKey = QueryKey
 >(
   socketRequest: BusterSocketRequestConfig<TRequestRoute>,
   socketResponse: BusterSocketResponseConfig<TRoute>,
-  options?: Omit<UseMutationOptions<TData, TError, TPayload>, 'mutationFn'>
+  options?: UseQueryOptions<TData, TError, TData, TQueryKey>,
+  callback?: (currentData: TData | null, newData: InferBusterSocketResponseData<TRoute>) => TData
 ) {
   const busterSocket = useBusterWebSocket();
   const queryClient = useQueryClient();
@@ -52,6 +54,15 @@ export function useSocketMutation<
         } as BusterSocketResponse
       });
 
+      if (options?.queryKey && callback) {
+        const queryKey = options.queryKey;
+        const socketData = result as InferBusterSocketResponseData<TRoute>;
+        const currentData = queryClient.getQueryData<TData>(queryKey) ?? null;
+        const transformedData: TData = callback(currentData, socketData);
+        queryClient.setQueryData<TData>(queryKey, transformedData);
+        return transformedData;
+      }
+
       return result as TData;
     } catch (error) {
       throw error;
@@ -59,21 +70,19 @@ export function useSocketMutation<
   });
 
   return useMutation<TData, TError, TPayload>({
-    mutationFn,
-    ...options
+    mutationFn
   });
 }
 
 const ExampleComponent = () => {
+  const queryClient = useQueryClient();
+  const options = queryOptionsConfig['/chats/delete:deleteChat']('123');
+  const data = queryClient.getQueryData(options.queryKey);
+
   const { mutate } = useSocketMutation<'/chats/delete', '/chats/delete:deleteChat'>(
     { route: '/chats/delete' },
-    { route: '/chats/delete:deleteChat' },
-    {
-      onSuccess: (data) => {
-        console.log(data);
-      }
-    }
+    { route: '/chats/delete:deleteChat' }
   );
 
-  mutate([{ id: '123' }]);
+  // mutate([{ id: '123' }]);
 };

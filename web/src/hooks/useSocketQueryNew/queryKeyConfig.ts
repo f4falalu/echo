@@ -15,8 +15,8 @@ const chatsGetList = (filters?: ChatListEmitPayload) =>
   });
 
 const deleteChat = (chatId: string) => {
-  const queryKey = chatsGetChat(chatId)?.queryKey;
-  return queryOptions<BusterChat>({
+  const queryKey = ['chats', 'list'] as const;
+  return queryOptions<BusterChatListItem[]>({
     queryKey
   });
 };
