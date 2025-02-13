@@ -1,14 +1,14 @@
 import { AppMaterialIcons } from '@/components/icons';
 import { BusterListSelectedOptionPopupContainer } from '@/components/list';
-import { useCollectionsContextSelector } from '@/context/Collections';
+import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
+import { useMemoizedFn } from 'ahooks';
 import { Button } from 'antd';
 import React from 'react';
 
-export const CollectionIndividualSelectedPopup: React.FC<{
+export const CollectionListSelectedPopup: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
-  onDeleteClick: () => Promise<void>;
-}> = ({ selectedRowKeys, onSelectChange, onDeleteClick }) => {
+}> = ({ selectedRowKeys, onSelectChange }) => {
   const show = selectedRowKeys.length > 0;
 
   return (
@@ -20,7 +20,6 @@ export const CollectionIndividualSelectedPopup: React.FC<{
           key="delete"
           selectedRowKeys={selectedRowKeys}
           onSelectChange={onSelectChange}
-          onDeleteClick={onDeleteClick}
         />
       ]}
       show={show}
@@ -31,11 +30,18 @@ export const CollectionIndividualSelectedPopup: React.FC<{
 const CollectionDeleteButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
-  onDeleteClick: () => Promise<void>;
-}> = ({ selectedRowKeys, onSelectChange, onDeleteClick }) => {
-  const onBulkAddRemoveToCollection = useCollectionsContextSelector(
-    (x) => x.onBulkAddRemoveToCollection
-  );
+}> = ({ selectedRowKeys, onSelectChange }) => {
+  const deleteCollection = useBusterCollectionIndividualContextSelector((x) => x.deleteCollection);
+
+  const onDeleteClick = useMemoizedFn(async () => {
+    try {
+      const deletePromises = selectedRowKeys.map((v) => deleteCollection(v, false));
+      await Promise.all(deletePromises);
+      onSelectChange([]);
+    } catch (error) {
+      //  openErrorMessage('Failed to delete collection');
+    }
+  });
 
   return (
     <Button icon={<AppMaterialIcons icon="delete" />} type="default" onClick={onDeleteClick}>

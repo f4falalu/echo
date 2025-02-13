@@ -8,7 +8,7 @@ import { createStyles } from 'antd-style';
 import { createDayjsDate } from '@/utils/date';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { useCollectionsContextSelector } from '@/context/Collections';
+import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { Text } from '@/components';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -34,7 +34,9 @@ export const ShareMenuContentPublish: React.FC<{
     const { openInfoMessage } = useBusterNotifications();
     const onShareMetric = useBusterMetricsIndividualContextSelector((state) => state.onShareMetric);
     const onShareDashboard = useBusterDashboardContextSelector((state) => state.onShareDashboard);
-    const onShareCollection = useCollectionsContextSelector((state) => state.onShareCollection);
+    const onShareCollection = useBusterCollectionIndividualContextSelector(
+      (state) => state.onShareCollection
+    );
     const [isPublishing, setIsPublishing] = useState<boolean>(false);
     const [isPasswordProtected, setIsPasswordProtected] = useState<boolean>(!!password);
     const [_password, _setPassword] = React.useState<string>(password || '');

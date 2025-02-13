@@ -1,8 +1,11 @@
+import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useSocketQueryMutation } from '@/hooks';
 import { timeout } from '@/utils';
 import { useMemoizedFn } from 'ahooks';
 
 export const useCollectionCreate = () => {
+  const { openConfirmModal } = useBusterNotifications();
+
   const { mutateAsync: createCollection, isPending: isCreatingCollection } = useSocketQueryMutation(
     { route: '/collections/post' },
     { route: '/collections/post:collectionState' }
@@ -23,8 +26,42 @@ export const useCollectionCreate = () => {
     }
   );
 
+  const { mutateAsync: deleteCollectionMutation, isPending: isDeletingCollection } =
+    useSocketQueryMutation(
+      { route: '/collections/delete' },
+      { route: '/collections/delete:deleteCollections' },
+      {
+        preSetQueryDataFunction: {
+          responseRoute: '/collections/list:listCollections',
+          callback: (data, variables) => {
+            return data?.filter((collection) => !variables.ids.includes(collection.id)) || [];
+          }
+        }
+      }
+    );
+
+  const deleteCollection = useMemoizedFn(async (id: string | string[], useConfirmModal = true) => {
+    const ids = Array.isArray(id) ? id : [id];
+    const deleteMethod = async () => {
+      await deleteCollectionMutation({ ids });
+    };
+
+    if (useConfirmModal) {
+      return await openConfirmModal({
+        title: 'Delete Collection',
+        content: 'Are you sure you want to delete this collection?',
+        onOk: deleteMethod,
+        useReject: true
+      });
+    }
+
+    return deleteMethod();
+  });
+
   return {
     createNewCollection,
-    isCreatingCollection
+    isCreatingCollection,
+    deleteCollection,
+    isDeletingCollection
   };
 };

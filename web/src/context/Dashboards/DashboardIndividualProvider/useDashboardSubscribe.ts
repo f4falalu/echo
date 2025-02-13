@@ -2,21 +2,22 @@ import { BusterDashboardResponse } from '@/api/asset_interfaces';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useMemoizedFn, useMount } from 'ahooks';
-import React, { useRef } from 'react';
-import { MOCK_DASHBOARD_RESPONSE } from './MOCK_DASHBOARD';
+import React, { useEffect, useRef } from 'react';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
+import { useSocketQueryEmitOn } from '@/hooks';
 
-export const useDashboardSubscribe = ({
-  setDashboard
-}: {
-  setDashboard: React.Dispatch<React.SetStateAction<Record<string, BusterDashboardResponse>>>;
-}) => {
-  const busterSocket = useBusterWebSocket();
+export const useDashboardIndividual = ({ dashboardId }: { dashboardId: string }) => {
   const onInitializeMetric = useBusterMetricsIndividualContextSelector(
     (state) => state.onInitializeMetric
   );
   const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
-  const dashboardsSubscribed = useRef<Record<string, boolean>>({});
+  const { password } = getAssetPassword(dashboardId);
+
+  const { data, refetch: refreshDashboard } = useSocketQueryEmitOn(
+    { route: '/dashboards/get', payload: { id: dashboardId, password } },
+    { route: '/dashboards/get:getDashboardState' },
+    { enabled: !!dashboardId }
+  );
 
   const initializeDashboard = useMemoizedFn((d: BusterDashboardResponse) => {
     const metrics = d.metrics;
@@ -24,57 +25,15 @@ export const useDashboardSubscribe = ({
     for (const metric of metrics) {
       onInitializeMetric(metric);
     }
-
-    setDashboard((prevDashboards) => {
-      return {
-        ...prevDashboards,
-        [d.dashboard.id]: d
-      };
-    });
   });
 
-  const refreshDashboard = useMemoizedFn(async (dashboardId: string) => {
-    const { password } = getAssetPassword(dashboardId);
-    busterSocket.emit({
-      route: '/dashboards/get',
-      payload: {
-        id: dashboardId,
-        password
-      }
-    });
-  });
-
-  const subscribeToDashboard = useMemoizedFn(({ dashboardId }: { dashboardId: string }) => {
-    if (dashboardId && !dashboardsSubscribed.current[dashboardId]) {
-      refreshDashboard(dashboardId);
-      dashboardsSubscribed.current[dashboardId] = true;
+  useEffect(() => {
+    if (data) {
+      initializeDashboard(data);
     }
-  });
-
-  const unSubscribeToDashboard = useMemoizedFn(({ dashboardId }: { dashboardId: string }) => {
-    busterSocket.emit({
-      route: '/dashboards/unsubscribe',
-      payload: {
-        id: dashboardId
-      }
-    });
-    dashboardsSubscribed.current[dashboardId] = false;
-  });
-
-  useMount(() => {
-    setTimeout(() => {
-      initializeDashboard(MOCK_DASHBOARD_RESPONSE);
-    }, 500);
-
-    busterSocket.on({
-      route: '/dashboards/get:getDashboardState',
-      callback: initializeDashboard
-    });
-  });
+  }, [data]);
 
   return {
-    subscribeToDashboard,
-    unSubscribeToDashboard,
     refreshDashboard,
     initializeDashboard
   };

@@ -1,11 +1,7 @@
-import { CollectionContent } from './_CollectionContent';
-import { CollectionsIndividualHeader } from './_CollectionIndividualHeader';
+import { CollectionIndividualController } from '../../_controllers/CollectionIndividualController';
 
-export default function CollectionIdPage() {
-  return (
-    <>
-      <CollectionsIndividualHeader />
-      <CollectionContent />
-    </>
-  );
+export default function CollectionIdPage({ params }: { params: { collectionId: string } }) {
+  const { collectionId } = params;
+
+  return <CollectionIndividualController collectionId={collectionId} />;
 }

@@ -12,10 +12,13 @@ import {
 } from '@/context/Dashboards';
 import type { ShareRequest } from '@/api/buster_socket';
 import { useMemoizedFn } from 'ahooks';
-import { useCollectionsContextSelector, useIndividualCollection } from '@/context/Collections';
 import { Text } from '@/components';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
+import {
+  useBusterCollectionIndividualContextSelector,
+  useCollectionIndividual
+} from '@/context/Collections';
 
 export const ShareWithGroupAndTeam: React.FC<{
   goBack: () => void;
@@ -28,12 +31,14 @@ export const ShareWithGroupAndTeam: React.FC<{
   const onShareMetric = useBusterMetricsIndividualContextSelector((state) => state.onShareMetric);
   const getMetric = useBusterMetricsIndividualContextSelector((state) => state.getMetricMemoized);
   const onShareDashboard = useBusterDashboardContextSelector((state) => state.onShareDashboard);
-  const onShareCollection = useCollectionsContextSelector((state) => state.onShareCollection);
+  const onShareCollection = useBusterCollectionIndividualContextSelector(
+    (x) => x.onShareCollection
+  );
 
   const { dashboardResponse } = useBusterDashboardIndividual({
     dashboardId: assetType === ShareAssetType.DASHBOARD ? assetId : undefined
   });
-  const { collection } = useIndividualCollection({
+  const { collection } = useCollectionIndividual({
     collectionId: assetType === ShareAssetType.COLLECTION ? assetId : undefined
   });
 

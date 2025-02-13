@@ -1,49 +1,48 @@
 'use client';
 
-import React, { useContext, useMemo } from 'react';
-import { AppContentHeader } from '../../../components/layout/AppContentHeader';
+import React, { useMemo } from 'react';
 import { Breadcrumb, Button } from 'antd';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import {
-  initialFilterOptionKey,
-  useBusterCollections,
-  useCollectionsContextSelector,
-  useIndividualCollection
+  useBusterCollectionListContextSelector,
+  useCollectionIndividual,
+  useCollectionLists
 } from '@/context/Collections';
-import { AppMaterialIcons, AppSegmented, AppTooltip } from '@/components';
+import { AppContentHeader, AppMaterialIcons, AppSegmented, AppTooltip } from '@/components';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { SegmentedLabeledOption, SegmentedValue } from 'antd/es/segmented';
 import { CollectionsListEmit } from '@/api/buster_socket/collections';
 import isEmpty from 'lodash/isEmpty';
 import omit from 'lodash/omit';
+import { useMemoizedFn } from 'ahooks';
 
-export const CollectionHeader: React.FC<{}> = React.memo(() => {
-  const onSetCollectionListFilters = useCollectionsContextSelector(
-    (x) => x.onSetCollectionListFilters
+export const CollectionListHeader: React.FC<{
+  collectionId?: string;
+  setOpenNewCollectionModal: (open: boolean) => void;
+}> = React.memo(({ collectionId, setOpenNewCollectionModal }) => {
+  const onSetCollectionListFilters = useBusterCollectionListContextSelector(
+    (x) => x.setCollectionListFilters
   );
-  const collectionListFilters = useCollectionsContextSelector((x) => x.collectionListFilters);
-  const openedCollectionId = useCollectionsContextSelector((x) => x.openedCollectionId);
-  const setOpenNewCollectionModal = useCollectionsContextSelector(
-    (x) => x.setOpenNewCollectionModal
+  const collectionListFilters = useBusterCollectionListContextSelector(
+    (x) => x.collectionListFilters
   );
-  const collectionStatus = useCollectionsContextSelector(
-    (x) => x.collectionStatus[initialFilterOptionKey]
+
+  const collectionsList = useBusterCollectionListContextSelector((x) => x.collectionsList);
+  const isCollectionListFetched = useBusterCollectionListContextSelector(
+    (x) => x.isCollectionListFetched
   );
-  const collectionsList = useCollectionsContextSelector((x) => x.collectionsList);
-  const { collection } = useIndividualCollection({
-    collectionId: openedCollectionId,
-    ignoreSubscribe: true
+  const { collection } = useCollectionIndividual({
+    collectionId: collectionId
   });
 
   const collectionTitle = collection?.name || 'Collections';
 
   const showFilters = useMemo(
     () =>
-      (collectionStatus?.fetched && collectionsList.length !== 0) ||
+      (isCollectionListFetched && collectionsList?.length !== 0) ||
       !isEmpty(collectionsList) ||
       !isEmpty(omit(collectionListFilters, 'page', 'page_size')),
-    [collectionStatus?.fetched, collectionsList, collectionListFilters]
+    [isCollectionListFetched, collectionsList?.length, collectionListFilters]
   );
 
   const breadcrumbItems = useMemo(
@@ -54,10 +53,10 @@ export const CollectionHeader: React.FC<{}> = React.memo(() => {
             <Link
               suppressHydrationWarning
               href={
-                openedCollectionId
+                collectionId
                   ? createBusterRoute({
                       route: BusterRoutes.APP_COLLECTIONS_ID,
-                      collectionId: openedCollectionId
+                      collectionId: collectionId
                     })
                   : createBusterRoute({ route: BusterRoutes.APP_COLLECTIONS })
               }>
@@ -66,7 +65,7 @@ export const CollectionHeader: React.FC<{}> = React.memo(() => {
           )
         }
       ].filter((item) => item.title),
-    [openedCollectionId, collectionTitle]
+    [collectionId, collectionTitle]
   );
 
   useHotkeys('c', () => {
@@ -81,7 +80,7 @@ export const CollectionHeader: React.FC<{}> = React.memo(() => {
           {showFilters && (
             <CollectionFilters
               collectionListFilters={collectionListFilters}
-              onChangeFilter={onSetCollectionListFilters}
+              setCollectionListFilters={onSetCollectionListFilters}
             />
           )}
         </div>
@@ -100,7 +99,7 @@ export const CollectionHeader: React.FC<{}> = React.memo(() => {
     </>
   );
 });
-CollectionHeader.displayName = 'CollectionHeader';
+CollectionListHeader.displayName = 'CollectionListHeader';
 
 const filters = [
   {
@@ -118,13 +117,17 @@ const filters = [
 ];
 
 const CollectionFilters: React.FC<{
-  onChangeFilter: ReturnType<typeof useBusterCollections>['onSetCollectionListFilters'];
+  setCollectionListFilters: ReturnType<typeof useCollectionLists>['setCollectionListFilters'];
   collectionListFilters?: Omit<CollectionsListEmit['payload'], 'page' | 'page_size'>;
-}> = React.memo(({ onChangeFilter, collectionListFilters }) => {
+}> = React.memo(({ setCollectionListFilters, collectionListFilters }) => {
   const value = useMemo(() => {
     const activeFiltersValue = JSON.stringify(collectionListFilters);
     return filters.find((f) => f.value === activeFiltersValue)?.value || filters[0].value;
   }, [filters, collectionListFilters]);
+
+  const onChangeFilter = useMemoizedFn((v: string) => {
+    setCollectionListFilters(JSON.parse(v as string));
+  });
 
   return (
     <div className="flex items-center space-x-1">

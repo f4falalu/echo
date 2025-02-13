@@ -1,6 +1,6 @@
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { AppMaterialIcons } from '@/components/icons';
-import { useCollectionsContextSelector } from '@/context/Collections';
+import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useAntToken } from '@/styles/useAntToken';
@@ -21,7 +21,9 @@ export const ShareMenuContentEmbed: React.FC<{
   const token = useAntToken();
   const onShareDashboard = useBusterDashboardContextSelector((state) => state.onShareDashboard);
   const onShareMetric = useBusterMetricsIndividualContextSelector((state) => state.onShareMetric);
-  const onShareCollection = useCollectionsContextSelector((state) => state.onShareCollection);
+  const onShareCollection = useBusterCollectionIndividualContextSelector(
+    (state) => state.onShareCollection
+  );
   const { openSuccessMessage } = useBusterNotifications();
 
   const embedURL = useMemo(() => {

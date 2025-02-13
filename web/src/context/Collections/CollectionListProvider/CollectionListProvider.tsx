@@ -13,7 +13,7 @@ export const useCollectionLists = () => {
   const [collectionListFilters, setCollectionListFilters] = useState<CollectionListFilters>({});
 
   const {
-    data: collectionList,
+    data: collectionsList,
     isFetched: isCollectionListFetched,
     refetch: refetchCollectionList
   } = useSocketQueryEmitOn(
@@ -22,7 +22,7 @@ export const useCollectionLists = () => {
   );
 
   return {
-    collectionList,
+    collectionsList,
     isCollectionListFetched,
     collectionListFilters,
     setCollectionListFilters,

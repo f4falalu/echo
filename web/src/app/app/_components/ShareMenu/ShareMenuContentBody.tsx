@@ -1,24 +1,24 @@
-import { BusterShare, ShareRole } from '@/api/asset_interfaces';
-import { ShareMenuTopBarOptions } from './ShareMenuTopBar';
-import { ShareAssetType } from '@/api/asset_interfaces';
 import React from 'react';
-import { ShareMenuContentPublish } from './ShareMenuContentPublish';
-import { ShareMenuContentEmbed } from './ShareMenuContentEmbed';
-import { ShareWithGroupAndTeam } from './ShareWithTeamAndGroup';
-import { Text } from '@/components/text';
-import { useUserConfigContextSelector } from '@/context/Users';
-import { useBusterDashboardContextSelector } from '@/context/Dashboards';
-import { useCollectionsContextSelector } from '@/context/Collections';
-import { inputHasText } from '@/utils/text';
+
 import { validate } from 'email-validator';
 import { useMemoizedFn } from 'ahooks';
-import type { ShareRequest } from '@/api/buster_socket/shared_interfaces';
 import { Button, Divider, Input } from 'antd';
+import { BusterShare, ShareRole, ShareAssetType } from '@/api/asset_interfaces';
+import type { ShareRequest } from '@/api/buster_socket/shared_interfaces';
+import { Text } from '@/components/text';
+import { AppMaterialIcons } from '@/components/icons';
 import { AccessDropdown } from './AccessDropdown';
 import { IndividualSharePerson } from './IndividualSharePerson';
-import { useStyles } from './useStyles';
-import { AppMaterialIcons } from '@/components/icons';
+import { ShareMenuContentEmbed } from './ShareMenuContentEmbed';
+import { ShareMenuContentPublish } from './ShareMenuContentPublish';
+import { ShareWithGroupAndTeam } from './ShareWithTeamAndGroup';
+import { ShareMenuTopBarOptions } from './ShareMenuTopBar';
+import { useUserConfigContextSelector } from '@/context/Users';
+import { useBusterDashboardContextSelector } from '@/context/Dashboards';
+import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
+import { useStyles } from './useStyles';
+import { inputHasText } from '@/utils/text';
 
 export const ShareMenuContentBody: React.FC<{
   selectedOptions: ShareMenuTopBarOptions;
@@ -78,7 +78,9 @@ const ShareMenuContentShare: React.FC<{
   const userTeams = useUserConfigContextSelector((state) => state.userTeams);
   const onShareMetric = useBusterMetricsIndividualContextSelector((state) => state.onShareMetric);
   const onShareDashboard = useBusterDashboardContextSelector((state) => state.onShareDashboard);
-  const onShareCollection = useCollectionsContextSelector((state) => state.onShareCollection);
+  const onShareCollection = useBusterCollectionIndividualContextSelector(
+    (state) => state.onShareCollection
+  );
   const [inputValue, setInputValue] = React.useState<string>('');
   const [isInviting, setIsInviting] = React.useState<boolean>(false);
   const [defaultPermissionLevel, setDefaultPermissionLevel] = React.useState<ShareRole>(

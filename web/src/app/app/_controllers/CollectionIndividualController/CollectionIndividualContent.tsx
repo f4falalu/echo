@@ -1,6 +1,9 @@
 'use client';
 
-import { useCollectionsContextSelector, useIndividualCollection } from '@/context/Collections';
+import {
+  useBusterCollectionIndividualContextSelector,
+  useCollectionIndividual
+} from '@/context/Collections';
 import React, { useMemo, useState } from 'react';
 import { AppMaterialIcons, BusterUserAvatar } from '@/components';
 import { createBusterRoute, BusterRoutes } from '@/routes';
@@ -16,13 +19,14 @@ import { AddTypeModal } from '../../_components/AddTypeModal';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/list';
-import { CollectionIndividualSelectedPopup } from './_CollectionsIndividualPopup';
+import { CollectionIndividualSelectedPopup } from './CollectionsIndividualPopup';
 
-export const CollectionContent: React.FC<{}> = () => {
-  const openedCollectionId = useCollectionsContextSelector((x) => x.openedCollectionId);
-  const openAddTypeModal = useCollectionsContextSelector((x) => x.openAddTypeModal);
-  const setOpenAddTypeModal = useCollectionsContextSelector((x) => x.setOpenAddTypeModal);
-  const { collection } = useIndividualCollection({ collectionId: openedCollectionId });
+export const CollectionIndividualContent: React.FC<{
+  collectionId: string;
+  openAddTypeModal: boolean;
+  setOpenAddTypeModal: (open: boolean) => void;
+}> = React.memo(({ collectionId, openAddTypeModal, setOpenAddTypeModal }) => {
+  const { collection } = useCollectionIndividual({ collectionId });
   const loadedAsset = collection?.id;
 
   const onCloseModal = useMemoizedFn(() => {
@@ -30,7 +34,7 @@ export const CollectionContent: React.FC<{}> = () => {
   });
 
   if (!loadedAsset) {
-    return <CollectionListSkeleton />;
+    return <></>;
   }
 
   const assetList = collection?.assets || [];
@@ -53,7 +57,8 @@ export const CollectionContent: React.FC<{}> = () => {
       />
     </>
   );
-};
+});
+CollectionIndividualContent.displayName = 'CollectionIndividualContent';
 
 const columns: BusterListColumn[] = [
   {
@@ -105,8 +110,8 @@ const CollectionList: React.FC<{
   setOpenAddTypeModal: (value: boolean) => void;
   selectedCollection: BusterCollection;
   loadedAsset: string;
-}> = ({ setOpenAddTypeModal, selectedCollection, assetList, loadedAsset }) => {
-  const onBulkAddRemoveToCollection = useCollectionsContextSelector(
+}> = React.memo(({ setOpenAddTypeModal, selectedCollection, assetList, loadedAsset }) => {
+  const onBulkAddRemoveToCollection = useBusterCollectionIndividualContextSelector(
     (x) => x.onBulkAddRemoveToCollection
   );
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
@@ -173,15 +178,12 @@ const CollectionList: React.FC<{
       />
     </div>
   );
-};
+});
+CollectionList.displayName = 'CollectionList';
 
 const CollectionIconRecord: Record<string, React.ReactNode> = {
   dashboard: <AppMaterialIcons icon="grid_view" />,
   metric: <AppMaterialIcons icon="monitoring" />
-};
-
-const CollectionListSkeleton: React.FC<{}> = () => {
-  return null;
 };
 
 const createAssetLink = (asset: BusterCollectionItemAsset, collectionId: string) => {

@@ -1,11 +1,5 @@
-import { CollectionHeader } from './_CollectionHeader';
-import { CollectionsListContent } from './_CollectionsListContent';
+import { CollectionListController } from '@appControllers/CollectionListController';
 
-export default function LibraryPage() {
-  return (
-    <>
-      <CollectionHeader />
-      <CollectionsListContent />
-    </>
-  );
+export default function CollectionsPage() {
+  return <CollectionListController />;
 }

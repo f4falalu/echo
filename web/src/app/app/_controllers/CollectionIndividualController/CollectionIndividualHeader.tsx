@@ -4,8 +4,8 @@ import React, { useMemo } from 'react';
 import { AppContentHeader } from '@/components/layout';
 import {
   canEditCollection,
-  useCollectionsContextSelector,
-  useIndividualCollection
+  useBusterCollectionIndividualContextSelector,
+  useCollectionIndividual
 } from '@/context/Collections';
 import { Breadcrumb, Button, Dropdown, MenuProps } from 'antd';
 import Link from 'next/link';
@@ -22,15 +22,15 @@ import { BreadcrumbSeperator } from '@/components/breadcrumb';
 import { measureTextWidth } from '@/utils/canvas';
 import { useParams } from 'next/navigation';
 
-export const CollectionsIndividualHeader: React.FC<{}> = () => {
-  const selectedCollectionId = useParams().collectionId as string | undefined;
+export const CollectionsIndividualHeader: React.FC<{
+  openAddTypeModal: boolean;
+  setOpenAddTypeModal: (open: boolean) => void;
+  collectionId: string;
+}> = ({ openAddTypeModal, setOpenAddTypeModal, collectionId }) => {
   const createPageLink = useAppLayoutContextSelector((s) => s.createPageLink);
-  const openedCollectionId = useCollectionsContextSelector((x) => x.openedCollectionId);
-  const updateCollection = useCollectionsContextSelector((x) => x.updateCollection);
-  const openAddTypeModal = useCollectionsContextSelector((x) => x.openAddTypeModal);
-  const setOpenAddTypeModal = useCollectionsContextSelector((x) => x.setOpenAddTypeModal);
+  const updateCollection = useBusterCollectionIndividualContextSelector((x) => x.updateCollection);
   const [editingTitle, setEditingTitle] = React.useState(false);
-  const { collection } = useIndividualCollection({ collectionId: openedCollectionId });
+  const { collection } = useCollectionIndividual({ collectionId });
 
   const collectionTitle = collection?.name || 'No collection title';
 
@@ -38,18 +38,11 @@ export const CollectionsIndividualHeader: React.FC<{}> = () => {
     return measureTextWidth(collectionTitle);
   }, [collectionTitle, editingTitle]);
 
-  const collectionBaseTitle = selectedCollectionId ? collection?.name : 'Collections';
+  const collectionBaseTitle = collectionId ? collection?.name : 'Collections';
 
   const onSetTitleValue = useMemoizedFn((value: string) => {
     updateCollection({
-      id: collection.id,
-      name: value
-    });
-  });
-
-  const onChangeTitle = useMemoizedFn((value: string) => {
-    updateCollection({
-      id: collection.id,
+      id: collection?.id!,
       name: value
     });
   });
@@ -75,7 +68,7 @@ export const CollectionsIndividualHeader: React.FC<{}> = () => {
               showBottomBorder
               style={{ width: textWidth.width }}
               onSetValue={onSetTitleValue}
-              onChange={onChangeTitle}
+              onChange={onSetTitleValue}
               onEdit={setEditingTitle}
               className="w-full">
               {collectionTitle}
@@ -157,7 +150,7 @@ const ThreeDotDropdown: React.FC<{
   collection: BusterCollection;
   setEditingTitle: (editing: boolean) => void;
 }> = React.memo(({ collection, setEditingTitle }) => {
-  const deleteCollection = useCollectionsContextSelector((x) => x.deleteCollection);
+  const deleteCollection = useBusterCollectionIndividualContextSelector((x) => x.deleteCollection);
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
   const token = useAntToken();
 

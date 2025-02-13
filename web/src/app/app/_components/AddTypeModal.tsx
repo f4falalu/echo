@@ -15,7 +15,7 @@ import { BusterCollection } from '@/api/asset_interfaces';
 import { useBusterSearchContextSelector } from '@/context/Search';
 import isEmpty from 'lodash/isEmpty';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
-import { useCollectionsContextSelector } from '@/context/Collections';
+import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { SegmentedValue } from 'antd/es/segmented';
 import { BusterSearchRequest } from '@/api/buster_socket/search';
 import { busterAppStyleConfig } from '@/styles/busterAntDStyleConfig';
@@ -40,7 +40,7 @@ export const AddTypeModal: React.FC<{
   const onBulkAddRemoveToDashboard = useBusterDashboardContextSelector(
     (state) => state.onBulkAddRemoveToDashboard
   );
-  const onBulkAddRemoveToCollection = useCollectionsContextSelector(
+  const onBulkAddRemoveToCollection = useBusterCollectionIndividualContextSelector(
     (state) => state.onBulkAddRemoveToCollection
   );
   const [selectedFilter, setSelectedFilter] = React.useState<string>(filterOptions[0]!.value);

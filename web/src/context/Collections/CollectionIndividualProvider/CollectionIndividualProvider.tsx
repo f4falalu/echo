@@ -5,27 +5,29 @@ import {
   createContext
 } from '@fluentui/react-context-selector';
 import { useCollectionAssociations } from './useCollectionAssosciations';
-import { useCollectionSubscribe } from './useCollectionSubscribe';
 import { useCollectionCreate } from './useCollectionCreate';
+import { useCollectionUpdate } from './useCollectionUpdate';
 
-export const useCollectionIndividual = () => {
+const useCollectionIndividualMethods = () => {
   const collectionAssociations = useCollectionAssociations();
   const createNewCollection = useCollectionCreate();
+  const updateCollection = useCollectionUpdate();
 
   return {
     ...collectionAssociations,
-    ...createNewCollection
+    ...createNewCollection,
+    ...updateCollection
   };
 };
 
-const BusterCollectionIndividual = createContext<ReturnType<typeof useCollectionIndividual>>(
-  {} as ReturnType<typeof useCollectionIndividual>
+const BusterCollectionIndividual = createContext<ReturnType<typeof useCollectionIndividualMethods>>(
+  {} as ReturnType<typeof useCollectionIndividualMethods>
 );
 
 export const BusterCollectionIndividualProvider = React.memo<{
   children: React.ReactNode;
 }>(({ children }) => {
-  const value = useCollectionIndividual();
+  const value = useCollectionIndividualMethods();
 
   return (
     <BusterCollectionIndividual.Provider value={value}>
@@ -36,5 +38,5 @@ export const BusterCollectionIndividualProvider = React.memo<{
 BusterCollectionIndividualProvider.displayName = 'BusterCollectionIndividualProvider';
 
 export const useBusterCollectionIndividualContextSelector = <T,>(
-  selector: ContextSelector<ReturnType<typeof useCollectionIndividual>, T>
+  selector: ContextSelector<ReturnType<typeof useCollectionIndividualMethods>, T>
 ) => useContextSelector(BusterCollectionIndividual, selector);

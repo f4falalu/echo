@@ -3,8 +3,7 @@ import { AppMaterialIcons } from '@/components/icons';
 import { BusterListSelectedOptionPopupContainer } from '@/components/list';
 import { Button, Dropdown, DropdownProps } from 'antd';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { useCollectionsContextSelector } from '@/context/Collections';
-import { useMemoizedFn, useMount } from 'ahooks';
+import { useMemoizedFn } from 'ahooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { SaveToCollectionsDropdown } from '@/app/app/_components/Dropdowns/SaveToCollectionsDropdown';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
@@ -50,11 +49,6 @@ const CollectionsButton: React.FC<{
     (state) => state.onRemoveFromCollection
   );
 
-  const collectionsList = useCollectionsContextSelector((state) => state.collectionsList);
-  const getInitialCollections = useCollectionsContextSelector(
-    (state) => state.getInitialCollections
-  );
-
   const [selectedCollections, setSelectedCollections] = useState<
     Parameters<typeof SaveToCollectionsDropdown>[0]['selectedCollections']
   >([]);
@@ -79,10 +73,6 @@ const CollectionsButton: React.FC<{
 
     await Promise.all(allRemoves);
     openInfoMessage('Dashboards removed from collections');
-  });
-
-  useMount(() => {
-    if (!collectionsList.length) getInitialCollections();
   });
 
   return (

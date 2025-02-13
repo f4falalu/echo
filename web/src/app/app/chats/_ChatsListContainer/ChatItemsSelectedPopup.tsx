@@ -6,7 +6,10 @@ import { StatusBadgeButton } from '../../_components/Lists';
 import { VerificationStatus } from '@/api/asset_interfaces';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { useCollectionsContextSelector } from '@/context/Collections';
+import {
+  useBusterCollectionIndividualContextSelector,
+  useBusterCollectionListContextSelector
+} from '@/context/Collections';
 import { useMemoizedFn, useMount } from 'ahooks';
 import { SaveToCollectionsDropdown } from '@/app/app/_components/Dropdowns/SaveToCollectionsDropdown';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -64,10 +67,7 @@ const CollectionsButton: React.FC<{
     (state) => state.removeMetricFromCollection
   );
 
-  const collectionsList = useCollectionsContextSelector((state) => state.collectionsList);
-  const getInitialCollections = useCollectionsContextSelector(
-    (state) => state.getInitialCollections
-  );
+  const collectionsList = useBusterCollectionListContextSelector((state) => state.collectionsList);
 
   const [selectedCollections, setSelectedCollections] = useState<
     Parameters<typeof SaveToCollectionsDropdown>[0]['selectedCollections']
@@ -99,10 +99,6 @@ const CollectionsButton: React.FC<{
     });
     await Promise.all(allRemoves);
     openInfoMessage('Metrics removed from collections');
-  });
-
-  useMount(() => {
-    if (!collectionsList.length) getInitialCollections();
   });
 
   return (

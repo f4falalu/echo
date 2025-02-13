@@ -13,6 +13,7 @@ import { useSockeQueryOn } from './useSocketQueryOn';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useMemoizedFn, useMount } from 'ahooks';
 import { createQueryKey } from './helpers';
+import { useEffect } from 'react';
 
 /**
  * A hook that emits a socket request on mount and listens for responses.
@@ -29,16 +30,17 @@ import { createQueryKey } from './helpers';
 export const useSocketQueryEmitOn = <TRoute extends BusterSocketResponseRoute, TError = unknown>(
   socketRequest: BusterSocketRequest,
   socketResponse: BusterSocketResponseConfig<TRoute>,
-  options?: Omit<
+  optionsProps?: Omit<
     UseQueryOptions<InferBusterSocketResponseData<TRoute>, TError>,
     'queryKey' | 'queryFn'
-  >
+  > & { enabled?: boolean | string }
 ): UseBusterSocketQueryResult<InferBusterSocketResponseData<TRoute>, TError> => {
   const busterSocket = useBusterWebSocket();
+  const { enabled = true, ...options } = optionsProps || {};
 
   const queryKey = createQueryKey(socketResponse, socketRequest);
 
-  const emitEvent = useMemoizedFn(async () => {
+  const queryFn = useMemoizedFn(async () => {
     const res = await busterSocket.emitAndOnce({
       emitEvent: socketRequest,
       responseEvent: {
@@ -50,13 +52,15 @@ export const useSocketQueryEmitOn = <TRoute extends BusterSocketResponseRoute, T
     return res;
   }) as () => Promise<InferBusterSocketResponseData<TRoute>>;
 
-  useMount(() => {
-    emitEvent();
-  });
+  useEffect(() => {
+    if (enabled) {
+      queryFn();
+    }
+  }, [enabled]);
 
   return useSockeQueryOn(socketResponse, {
     ...options,
     queryKey,
-    queryFn: emitEvent
+    queryFn
   });
 };

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { SaveToCollectionsDropdown } from '../Dropdowns/SaveToCollectionsDropdown';
 import { useMemoizedFn, useMount } from 'ahooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useCollectionsContextSelector } from '@/context/Collections';
+import { useBusterCollectionListContextSelector } from '@/context/Collections';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { CollectionButton } from './CollectionButton';
 
@@ -12,10 +12,8 @@ export const SaveDashboardToCollectionButton: React.FC<{
   useText?: boolean;
 }> = React.memo(({ dashboardIds, buttonType = 'text', useText = false }) => {
   const { openInfoMessage } = useBusterNotifications();
-  const collectionsList = useCollectionsContextSelector((state) => state.collectionsList);
-  const getInitialCollections = useCollectionsContextSelector(
-    (state) => state.getInitialCollections
-  );
+  const collectionsList = useBusterCollectionListContextSelector((state) => state.collectionsList);
+
   const [selectedCollections, setSelectedCollections] = useState<
     Parameters<typeof SaveToCollectionsDropdown>[0]['selectedCollections']
   >([]);
@@ -52,10 +50,6 @@ export const SaveDashboardToCollectionButton: React.FC<{
     // });
     // await Promise.all(allRemoves);
     openInfoMessage('Metrics removed from collections');
-  });
-
-  useMount(() => {
-    if (!collectionsList.length) getInitialCollections();
   });
 
   return (

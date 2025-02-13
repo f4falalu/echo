@@ -1,39 +1,32 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { AppContent } from '../../../components/layout/AppContent';
-import { BusterUserAvatar } from '@/components';
+import { AppContent, BusterUserAvatar } from '@/components';
 import { formatDate, makeHumanReadble } from '@/utils';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { initialFilterOptionKey, useCollectionsContextSelector } from '@/context/Collections';
+import { useBusterCollectionListContextSelector } from '@/context/Collections';
 import {
   BusterList,
   BusterListColumn,
   BusterListRow,
   ListEmptyStateWithButton
 } from '@/components/list';
-import { useMemoizedFn, useMount, useUnmount } from 'ahooks';
-import { NewCollectionModal } from './_NewCollectionModal';
+import { useMemoizedFn } from 'ahooks';
+import { NewCollectionModal } from '../../_components/NewCollectionModal';
 import { BusterCollectionListItem } from '@/api/asset_interfaces';
-import { CollectionSelectedPopup } from './_CollectionSelectedPopup';
+import { CollectionListSelectedPopup } from './CollectionListSelectedPopup';
 
-export const CollectionsListContent: React.FC<{}> = () => {
-  const getInitialCollections = useCollectionsContextSelector((x) => x.getInitialCollections);
-  const collectionStatus = useCollectionsContextSelector(
-    (x) => x.collectionStatus[initialFilterOptionKey]
+export const CollectionsListContent: React.FC<{
+  openNewCollectionModal: boolean;
+  setOpenNewCollectionModal: (open: boolean) => void;
+}> = React.memo(({ openNewCollectionModal, setOpenNewCollectionModal }) => {
+  const isCollectionListFetched = useBusterCollectionListContextSelector(
+    (x) => x.isCollectionListFetched
   );
-  const collectionsList = useCollectionsContextSelector((x) => x.collectionsList);
-  const setOpenNewCollectionModal = useCollectionsContextSelector(
-    (x) => x.setOpenNewCollectionModal
-  );
-  const openNewCollectionModal = useCollectionsContextSelector((x) => x.openNewCollectionModal);
+  const collectionsList = useBusterCollectionListContextSelector((x) => x.collectionsList) || [];
 
   const onCloseNewCollectionModal = useMemoizedFn(() => {
     setOpenNewCollectionModal(false);
-  });
-
-  useMount(() => {
-    getInitialCollections();
   });
 
   return (
@@ -42,7 +35,7 @@ export const CollectionsListContent: React.FC<{}> = () => {
         <CollectionList
           collectionsList={collectionsList}
           setOpenNewCollectionModal={setOpenNewCollectionModal}
-          loadedCollections={collectionStatus?.fetched ?? false}
+          loadedCollections={isCollectionListFetched}
         />
       </AppContent>
 
@@ -53,7 +46,8 @@ export const CollectionsListContent: React.FC<{}> = () => {
       />
     </>
   );
-};
+});
+CollectionsListContent.displayName = 'CollectionsListContent';
 
 const columns: BusterListColumn[] = [
   { dataIndex: 'title', title: 'Title' },
@@ -91,7 +85,7 @@ const CollectionList: React.FC<{
   collectionsList: BusterCollectionListItem[];
   setOpenNewCollectionModal: (v: boolean) => void;
   loadedCollections: boolean;
-}> = ({ collectionsList, setOpenNewCollectionModal, loadedCollections }) => {
+}> = React.memo(({ collectionsList, setOpenNewCollectionModal, loadedCollections }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
   const collections: BusterListRow[] = useMemo(() => {
@@ -142,7 +136,11 @@ const CollectionList: React.FC<{
         }
       />
 
-      <CollectionSelectedPopup selectedRowKeys={selectedRowKeys} onSelectChange={onSelectChange} />
+      <CollectionListSelectedPopup
+        selectedRowKeys={selectedRowKeys}
+        onSelectChange={onSelectChange}
+      />
     </div>
   );
-};
+});
+CollectionList.displayName = 'CollectionList';

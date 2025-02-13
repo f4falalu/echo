@@ -41,6 +41,6 @@ export const useSockeQueryOn = <TRoute extends BusterSocketResponseRoute, TError
   return useQuery({
     queryKey,
     ...options,
-    enabled: false
+    enabled: false //must be disabled to prevent automatic fetching
   });
 };

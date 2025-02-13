@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react';
+'use client';
+
+import React, { useEffect, useMemo } from 'react';
 import { Input, InputRef } from 'antd';
 import { AppModal } from '@/components';
-import { useCollectionsContextSelector } from '@/context/Collections';
+import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
 import { inputHasText } from '@/utils';
@@ -15,13 +17,35 @@ export const NewCollectionModal: React.FC<{
 }> = React.memo(({ onCollectionCreated, onClose, open, useChangePage = true }) => {
   const [title, setTitle] = React.useState('');
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
-  const createNewCollection = useCollectionsContextSelector((x) => x.createNewCollection);
-  const creatingCollection = useCollectionsContextSelector((x) => x.creatingCollection);
+  const createNewCollection = useBusterCollectionIndividualContextSelector(
+    (x) => x.createNewCollection
+  );
+  const isCreatingCollection = useBusterCollectionIndividualContextSelector(
+    (x) => x.isCreatingCollection
+  );
   const inputRef = React.useRef<InputRef>(null);
   const disableSubmit = !inputHasText(title);
 
+  const memoizedHeader = useMemo(() => {
+    return {
+      title: 'New collection',
+      description: 'Once created, you will be able to add dashboards and metric to the collection'
+    };
+  }, []);
+
+  const memoizedFooter = useMemo(() => {
+    return {
+      primaryButton: {
+        text: 'Create a collection',
+        onClick: onCreateNewCollection,
+        loading: isCreatingCollection,
+        disabled: disableSubmit
+      }
+    };
+  }, [isCreatingCollection, disableSubmit]);
+
   const onCreateNewCollection = useMemoizedFn(async () => {
-    if (creatingCollection || disableSubmit) return;
+    if (isCreatingCollection || disableSubmit) return;
     const res = await createNewCollection({ name: title, onCollectionCreated });
     if (useChangePage) {
       onChangePage({
@@ -43,21 +67,7 @@ export const NewCollectionModal: React.FC<{
   }, [open]);
 
   return (
-    <AppModal
-      open={open}
-      onClose={onClose}
-      header={{
-        title: 'New collection',
-        description: 'Once created, you will be able to add dashboards and metric to the collection'
-      }}
-      footer={{
-        primaryButton: {
-          text: 'Create a collection',
-          onClick: onCreateNewCollection,
-          loading: creatingCollection,
-          disabled: disableSubmit
-        }
-      }}>
+    <AppModal open={open} onClose={onClose} header={memoizedHeader} footer={memoizedFooter}>
       <Input
         ref={inputRef}
         placeholder="Collection title"
