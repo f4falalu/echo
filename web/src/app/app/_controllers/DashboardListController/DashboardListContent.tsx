@@ -12,6 +12,7 @@ import { ListEmptyStateWithButton } from '../../../../components/list';
 import { useMemoizedFn } from 'ahooks';
 import { DashboardSelectedOptionPopup } from './DashboardSelectedPopup';
 import type { BusterDashboardListItem } from '@/api/asset_interfaces';
+import { AddTypeModal } from '../../_components/AddTypeModal';
 
 const columns: BusterListColumn[] = [
   {

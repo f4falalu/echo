@@ -1,5 +1,5 @@
-import { DashboardListContainer } from './_DashboardListContainer';
+import { DashboardListController } from '../_controllers/DashboardListController';
 
 export default function DashboardPage() {
-  return <DashboardListContainer />;
+  return <DashboardListController />;
 }
