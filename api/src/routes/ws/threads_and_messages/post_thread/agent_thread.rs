@@ -1,5 +1,7 @@
 use anyhow::{Error, Result};
 use chrono::Utc;
+use diesel::{insert_into, ExpressionMethods, QueryDsl};
+use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -8,10 +10,16 @@ use tracing;
 use uuid::Uuid;
 
 use crate::{
-    database::models::User,
+    database::{
+        lib::get_pg_pool,
+        models::{Message, MessageToFile, Thread, User},
+        schema::{messages, messages_to_files, threads},
+    },
     routes::ws::{
         threads_and_messages::{
-            post_thread::agent_message_transformer::transform_message,
+            post_thread::agent_message_transformer::{
+                transform_message, BusterContainer, ReasoningMessage,
+            },
             threads_router::{ThreadEvent, ThreadRoute},
         },
         ws::{WsEvent, WsResponseMessage, WsSendMethod},
@@ -20,7 +28,7 @@ use crate::{
     },
     utils::{
         agent::{Agent, AgentThread},
-        clients::ai::litellm::Message,
+        clients::ai::litellm::Message as AgentMessage,
         tools::{
             file_tools::{
                 CreateFilesTool, ModifyFilesTool, OpenFilesTool, SearchDataCatalogTool,
@@ -124,9 +132,17 @@ impl AgentThreadHandler {
         let chat_id = request.chat_id.unwrap_or_else(|| Uuid::new_v4());
         let message_id = request.message_id.unwrap_or_else(|| Uuid::new_v4());
 
+        let user_org_id = match user.attributes.get("organization_id") {
+            Some(Value::String(org_id)) => Uuid::parse_str(&org_id).unwrap_or_default(),
+            _ => {
+                tracing::error!("User has no organization ID");
+                return Err(anyhow::anyhow!("User has no organization ID"));
+            }
+        };
+
         let init_response = TempInitChat {
             id: chat_id.clone(),
-            title: "New Chat".to_string(),
+            title: request.prompt.clone(), // Use prompt as title
             is_favorited: false,
             messages: vec![TempInitChatMessage {
                 id: message_id.clone(),
@@ -162,7 +178,15 @@ impl AgentThreadHandler {
 
         let rx = self.process_chat_request(request.clone()).await?;
         tokio::spawn(async move {
-            Self::process_stream(rx, &user.id, &chat_id, &message_id).await;
+            Self::process_stream(
+                rx,
+                &user.id,
+                &user_org_id,
+                &chat_id,
+                &message_id,
+                request.prompt,
+            )
+            .await;
         });
         Ok(())
     }
@@ -170,29 +194,61 @@ impl AgentThreadHandler {
     async fn process_chat_request(
         &self,
         request: ChatCreateNewChat,
-    ) -> Result<Receiver<Result<Message, Error>>> {
+    ) -> Result<Receiver<Result<AgentMessage, Error>>> {
         let thread = AgentThread::new(
             request.chat_id,
             vec![
-                Message::developer(AGENT_PROMPT.to_string()),
-                Message::user(request.prompt),
+                AgentMessage::developer(AGENT_PROMPT.to_string()),
+                AgentMessage::user(request.prompt),
             ],
         );
         self.agent.stream_process_thread(&thread).await
     }
 
     async fn process_stream(
-        mut rx: Receiver<Result<Message, Error>>,
+        mut rx: Receiver<Result<AgentMessage, Error>>,
         user_id: &Uuid,
+        organization_id: &Uuid,
         chat_id: &Uuid,
         message_id: &Uuid,
+        request: String,
     ) {
         let subscription = user_id.to_string();
+        let mut all_transformed_messages = Vec::new();
+
+        // Create thread first
+        let thread = Thread {
+            id: chat_id.clone(),
+            title: request.clone(), // Use request as title
+            organization_id: organization_id.clone(),
+            created_by: user_id.clone(),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            deleted_at: None,
+        };
+
+        // Insert thread into database
+        if let Err(e) = async {
+            let mut conn = get_pg_pool().get().await?;
+            insert_into(threads::table)
+                .values(&thread)
+                .execute(&mut conn)
+                .await?;
+            Ok::<_, Error>(())
+        }
+        .await
+        {
+            tracing::error!("Failed to create thread: {}", e);
+        }
 
         while let Some(msg_result) = rx.recv().await {
             if let Ok(msg) = msg_result {
                 match transform_message(chat_id, message_id, msg) {
                     Ok((transformed_messages, event)) => {
+                        // Store transformed messages for later database insertion
+                        all_transformed_messages.extend(transformed_messages.clone());
+
+                        // Send websocket messages as before
                         for transformed in transformed_messages {
                             let response = WsResponseMessage::new_no_user(
                                 WsRoutes::Threads(ThreadRoute::Post),
@@ -210,6 +266,65 @@ impl AgentThreadHandler {
                     }
                     Err(e) => {
                         tracing::error!("Failed to transform message: {}", e);
+                    }
+                }
+            }
+        }
+
+        // After all messages are received, store them in the database
+        if !all_transformed_messages.is_empty() {
+            // Create message record
+            let message = Message {
+                id: message_id.clone(),
+                request: request.clone(),
+                response: serde_json::to_value(&all_transformed_messages).unwrap_or_default(),
+                thread_id: thread.id,
+                created_by: user_id.clone(),
+                created_at: Utc::now(),
+                updated_at: Utc::now(),
+                deleted_at: None,
+            };
+
+            // Insert message into database
+            if let Err(e) = async {
+                let mut conn = get_pg_pool().get().await?;
+                insert_into(messages::table)
+                    .values(&message)
+                    .execute(&mut conn)
+                    .await?;
+                Ok::<_, Error>(())
+            }
+            .await
+            {
+                tracing::error!("Failed to create message: {}", e);
+            }
+
+            // Process file messages and create MessageToFile records
+            for container in all_transformed_messages {
+                if let BusterContainer::ReasoningMessage(reasoning) = container {
+                    if let ReasoningMessage::File(file_msg) = reasoning.reasoning {
+                        let message_to_file = MessageToFile {
+                            id: Uuid::new_v4(),
+                            message_id: message.id,
+                            file_id: Uuid::parse_str(&file_msg.id).unwrap_or_default(),
+                            created_at: Utc::now(),
+                            updated_at: Utc::now(),
+                            deleted_at: None,
+                        };
+
+                        // Insert message_to_file into database
+                        if let Err(e) = async {
+                            let mut conn = get_pg_pool().get().await?;
+                            insert_into(messages_to_files::table)
+                                .values(&message_to_file)
+                                .execute(&mut conn)
+                                .await?;
+                            Ok::<_, Error>(())
+                        }
+                        .await
+                        {
+                            tracing::error!("Failed to create message_to_file: {}", e);
+                        }
                     }
                 }
             }

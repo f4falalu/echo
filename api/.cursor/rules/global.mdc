@@ -1,6 +1,6 @@
 ---
 description: These are global rules and recommendations for the rust server.
-globs: 
+globs: *
 ---
 
 # Global Rules and Project Structure
@@ -16,6 +16,9 @@ This is a Rust web server project built with Axum, focusing on high performance,
     - `ws/` - WebSocket handlers and related functionality
   - `database/` - Database models, schema, and connection management
   - `main.rs` - Application entry point and server setup
+
+## Implementation
+When working with prds, you should always mark your progress off in them as you build.
 
 ## Database Connectivity
 - The primary database connection is managed through `get_pg_pool()`, which returns a lazy static `PgPool`
@@ -141,3 +144,4 @@ Remember to always consider:
 2. Transaction boundaries for data consistency
 3. Error propagation and cleanup
 4. Memory usage and ownership
+5. Please use comments to help document your code and make it more readable.

@@ -205,28 +205,28 @@ pub enum BusterThreadMessage {
     File(BusterFileMessage),
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct BusterChatMessageContainer {
     pub response_message: BusterChatMessage,
     pub chat_id: Uuid,
     pub message_id: Uuid,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(untagged)]
 pub enum ReasoningMessage {
     Thought(BusterThought),
     File(BusterFileMessage),
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct BusterReasoningMessageContainer {
     pub reasoning: ReasoningMessage,
     pub chat_id: Uuid,
     pub message_id: Uuid,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct BusterChatMessage {
     pub id: String,
     #[serde(rename = "type")]
@@ -235,7 +235,7 @@ pub struct BusterChatMessage {
     pub message_chunk: Option<String>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct BusterThought {
     pub id: String,
     #[serde(rename = "type")]
@@ -246,13 +246,13 @@ pub struct BusterThought {
     pub status: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct BusterThoughtPillContainer {
     pub title: String,
     pub thought_pills: Vec<BusterThoughtPill>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct BusterThoughtPill {
     pub id: String,
     pub text: String,
@@ -260,7 +260,7 @@ pub struct BusterThoughtPill {
     pub thought_file_type: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct BusterFileMessage {
     pub id: String,
     #[serde(rename = "type")]
@@ -279,7 +279,7 @@ pub struct BusterFileLine {
     pub text: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(untagged)]
 pub enum BusterContainer {
     ChatMessage(BusterChatMessageContainer),
