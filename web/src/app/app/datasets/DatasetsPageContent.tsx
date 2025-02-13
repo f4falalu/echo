@@ -6,10 +6,12 @@ import { useUserConfigContextSelector } from '@/context/Users';
 import { useMemo, useState } from 'react';
 import { DatasetListContent } from './_DatasetListContent';
 import { DatasetHeader } from './_DatasetsHeader';
+import { NewDatasetModal } from '../_components/NewDatasetModal';
 
 export const DatasetsPageContent: React.FC<{}> = ({}) => {
   const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
   const [datasetFilter, setDatasetFilter] = useState<'all' | 'published' | 'drafts'>('all');
+  const [openDatasetModal, setOpenDatasetModal] = useState<boolean>(false);
 
   const datasetsParams: Parameters<typeof useGetDatasets>[0] = useMemo(() => {
     if (datasetFilter === 'drafts') {
@@ -35,12 +37,20 @@ export const DatasetsPageContent: React.FC<{}> = ({}) => {
 
   return (
     <>
-      <DatasetHeader datasetFilter={datasetFilter} setDatasetFilter={setDatasetFilter} />
+      <DatasetHeader
+        datasetFilter={datasetFilter}
+        setDatasetFilter={setDatasetFilter}
+        openNewDatasetModal={openDatasetModal}
+        setOpenNewDatasetModal={setOpenDatasetModal}
+      />
       <DatasetListContent
         datasetsList={datasetsList || []}
         isFetchedDatasets={isFetchedDatasets}
         isAdmin={isAdmin}
+        setOpenNewDatasetModal={setOpenDatasetModal}
       />
+
+      <NewDatasetModal open={openDatasetModal} onClose={() => setOpenDatasetModal(false)} />
     </>
   );
 };

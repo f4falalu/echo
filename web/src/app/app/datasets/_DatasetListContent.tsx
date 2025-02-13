@@ -8,7 +8,6 @@ import { BusterList, BusterListColumn, BusterListRow } from '@/components/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import type { BusterDatasetListItem } from '@/api/asset_interfaces';
 import { ListEmptyStateWithButton } from '../../../components/list';
-import { useDatasetContextSelector } from '@/context/Datasets';
 import { useMemoizedFn } from 'ahooks';
 import { DatasetSelectedOptionPopup } from './_DatasetSelectedPopup';
 
@@ -60,9 +59,8 @@ export const DatasetListContent: React.FC<{
   datasetsList: BusterDatasetListItem[];
   isFetchedDatasets: boolean;
   isAdmin: boolean;
-}> = React.memo(({ datasetsList, isFetchedDatasets, isAdmin }) => {
-  const setOpenNewDatasetModal = useDatasetContextSelector((state) => state.setOpenNewDatasetModal);
-
+  setOpenNewDatasetModal: (open: boolean) => void;
+}> = React.memo(({ datasetsList, isFetchedDatasets, isAdmin, setOpenNewDatasetModal }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
   const rows: BusterListRow[] = useMemo(() => {

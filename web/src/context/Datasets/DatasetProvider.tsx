@@ -1,5 +1,4 @@
-import React, { PropsWithChildren, useState } from 'react';
-import { useParams } from 'next/navigation';
+import React, { PropsWithChildren } from 'react';
 import {
   ContextSelector,
   createContext,
@@ -7,14 +6,7 @@ import {
 } from '@fluentui/react-context-selector';
 
 export const useDatasets = () => {
-  const { openedDatasetId } = useParams<{ openedDatasetId: string }>();
-  const [openNewDatasetModal, setOpenNewDatasetModal] = useState(false);
-
-  return {
-    openedDatasetId,
-    openNewDatasetModal,
-    setOpenNewDatasetModal
-  };
+  return {};
 };
 
 const BusterDatasets = createContext<ReturnType<typeof useDatasets>>(
