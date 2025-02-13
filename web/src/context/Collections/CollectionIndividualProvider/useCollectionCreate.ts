@@ -1,7 +1,8 @@
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useSocketQueryMutation } from '@/hooks';
+import { useSocketQueryMutation } from '@/api/buster_socket_query';
 import { timeout } from '@/utils';
 import { useMemoizedFn } from 'ahooks';
+import { queryKeys } from '@/api/asset_interfaces';
 
 export const useCollectionCreate = () => {
   const { openConfirmModal } = useBusterNotifications();
@@ -30,16 +31,18 @@ export const useCollectionCreate = () => {
     useSocketQueryMutation(
       { route: '/collections/delete' },
       { route: '/collections/delete:deleteCollections' },
-      {
-        preSetQueryData: [
-          {
-            responseRoute: '/collections/list:listCollections',
-            callback: (data, variables) => {
-              return data?.filter((collection) => !variables.ids.includes(collection.id)) || [];
-            }
-          }
-        ]
-      }
+      queryKeys
+
+      // {
+      //   preSetQueryData: [
+      //     {
+      //       responseRoute: '/collections/list:listCollections',
+      //       callback: (data, variables) => {
+      //         return data?.filter((collection) => !variables.ids.includes(collection.id)) || [];
+      //       }
+      //     }
+      //   ]
+      // }
     );
 
   const deleteCollection = useMemoizedFn(async (id: string | string[], useConfirmModal = true) => {

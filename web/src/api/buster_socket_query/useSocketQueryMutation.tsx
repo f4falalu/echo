@@ -25,7 +25,7 @@ import type {
 } from './types';
 import type { BusterChatListItem } from '@/api/asset_interfaces/chat';
 
-export function useSocketMutation<
+export function useSocketQueryMutation<
   TRequestRoute extends BusterSocketRequestRoute,
   TRoute extends BusterSocketResponseRoute,
   TError = unknown,
@@ -92,7 +92,7 @@ const ExampleComponent = () => {
   const data = queryClient.getQueryData(options.queryKey);
   data?.[0].created_by_avatar;
 
-  const { mutate } = useSocketMutation<
+  const { mutate } = useSocketQueryMutation<
     '/chats/delete',
     '/chats/delete:deleteChat',
     unknown,

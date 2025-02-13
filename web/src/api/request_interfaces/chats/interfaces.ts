@@ -1,4 +1,4 @@
-export interface ChatListParams {
+export interface GetChatListParams {
   /** Pagination token indicating the page number */
   page_token: number;
   /** Number of chat items to return per page */

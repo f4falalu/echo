@@ -1,3 +1,4 @@
+import { GetChatParams, GetChatListParams } from '../../request_interfaces/chats';
 import type { BusterSocketRequestBase } from '../base_interfaces';
 
 /**
@@ -45,13 +46,7 @@ export type ChatStopChat = BusterSocketRequestBase<
  * @interface ChatGetChat
  * @extends BusterSocketRequestBase
  */
-export type ChatGetChat = BusterSocketRequestBase<
-  '/chats/get',
-  {
-    /** The unique identifier of the chat to retrieve */
-    id: string;
-  }
->;
+export type ChatGetChat = BusterSocketRequestBase<'/chats/get', GetChatParams>;
 
 /**
  * Request type for unsubscribing from real-time updates of a specific chat.
@@ -71,17 +66,7 @@ export type ChatUnsubscribeFromChat = BusterSocketRequestBase<
  * @interface ChatListEmitPayload
  * @extends BusterSocketRequestBase
  */
-export type ChatListEmitPayload = BusterSocketRequestBase<
-  '/chats/list',
-  {
-    /** Pagination token indicating the page number */
-    page_token: number;
-    /** Number of chat items to return per page */
-    page_size: number;
-    /** When true, shows all organization chats (admin only). When false, shows only user's chats */
-    admin_view: boolean;
-  }
->;
+export type ChatListEmitPayload = BusterSocketRequestBase<'/chats/list', GetChatListParams>;
 
 /**
  * Request type for deleting a specific chat.

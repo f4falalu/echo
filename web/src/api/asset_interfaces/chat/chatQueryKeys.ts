@@ -1,7 +1,6 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { BusterChat, BusterChatListItem } from '@/api/asset_interfaces/chat';
-import { queryOptions } from '@tanstack/react-query';
-import { ChatListEmitPayload } from '@/api/buster_socket/chats';
+import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { BusterChat, BusterChatListItem } from './chatInterfaces';
+import type { GetChatListParams } from '@/api/request_interfaces/chats';
 
 const chatsGetChat = (chatId: string) =>
   queryOptions<BusterChat>({
@@ -9,19 +8,19 @@ const chatsGetChat = (chatId: string) =>
     staleTime: 10 * 1000
   });
 
-const chatsGetList = (filters?: ChatListEmitPayload) =>
+const chatsGetList = (filters?: GetChatListParams) =>
   queryOptions<BusterChatListItem[]>({
     queryKey: ['chats', 'list', filters] as const
   });
 
-const deleteChat = (chatId: string) => {
+const deleteChat = () => {
   const queryKey = ['chats', 'list'] as const;
   return queryOptions<BusterChatListItem[]>({
     queryKey
   });
 };
 
-export const queryOptionsConfig = {
+export const chatQueryKeys = {
   '/chats/get:getChat': chatsGetChat,
   '/chats/list:getChatsList': chatsGetList,
   '/chats/delete:deleteChat': deleteChat
@@ -29,7 +28,7 @@ export const queryOptionsConfig = {
 
 const ExampleComponent = () => {
   const queryClient = useQueryClient();
-  const options = queryOptionsConfig['/chats/get:getChat']!('123');
+  const options = chatQueryKeys['/chats/get:getChat']!('123');
   const queryKey = options.queryKey;
 
   const data = queryClient.getQueryData(queryKey);
@@ -40,7 +39,7 @@ const ExampleComponent = () => {
     return d;
   });
 
-  const options2 = queryOptionsConfig['/chats/delete:deleteChat']!('123');
+  const options2 = chatQueryKeys['/chats/delete:deleteChat']!();
   const queryKey2 = options2.queryKey;
 
   const data3 = queryClient.getQueryData(queryKey2);
