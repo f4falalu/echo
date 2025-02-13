@@ -14,7 +14,6 @@ import type {
 } from '@/api/buster_socket';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
-import { queryOptionsConfig } from './queryKeyConfig';
 import type { BusterChat } from '@/api/asset_interfaces';
 import { InferBusterSocketResponseData } from './types';
 
@@ -63,19 +62,19 @@ export function useSocketQueryEmitAndOnce<
   });
 }
 
-const ExampleComponent = () => {
-  const options = queryOptionsConfig['/chats/get:getChat']('123');
+// const ExampleComponent = () => {
+//   const options = queryOptionsConfig['/chats/get:getChat']('123');
 
-  const deleteChatInitialData = {
-    id: '123'
-  } as unknown as BusterChat;
+//   const deleteChatInitialData = {
+//     id: '123'
+//   } as unknown as BusterChat;
 
-  const { data } = useSocketQueryEmitAndOnce(
-    { route: '/chats/get', payload: { id: '123' } },
-    '/chats/get:getChat',
-    options,
-    (d, x) => {
-      return deleteChatInitialData;
-    }
-  );
-};
+//   const { data } = useSocketQueryEmitAndOnce(
+//     { route: '/chats/get', payload: { id: '123' } },
+//     '/chats/get:getChat',
+//     options,
+//     (d, x) => {
+//       return deleteChatInitialData;
+//     }
+//   );
+// };

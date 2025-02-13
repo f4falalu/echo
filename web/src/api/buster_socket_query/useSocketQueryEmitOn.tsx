@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { useMemoizedFn } from 'ahooks';
 import { useSocketQueryOn } from './useSocketQueryOn';
 
-export const useSocketEmitOn = <
+export const useSocketQueryEmitOn = <
   TRoute extends BusterSocketResponseRoute,
   TError = unknown,
   TData = InferBusterSocketResponseData<TRoute>,

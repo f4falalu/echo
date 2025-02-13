@@ -12,8 +12,11 @@ import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useMemo, useRef, useTransition } from 'react';
 import type { InferBusterSocketResponseData } from './types';
 import { useMemoizedFn, useMount, useUnmount } from 'ahooks';
-import { queryOptionsConfig } from './queryKeyConfig';
-import { BusterChat } from '@/api/asset_interfaces';
+
+import { queryKeys } from '../asset_interfaces';
+
+//TEST
+import type { BusterChat } from '@/api/asset_interfaces';
 
 type UseSocketQueryOnResult<TData, TError> = UseQueryResult<TData, TError>;
 
@@ -79,23 +82,23 @@ const defaultCallback = <TData, TRoute extends BusterSocketResponseRoute>(
   d: InferBusterSocketResponseData<TRoute>
 ) => d as TData;
 
-const _ExampleComponent = () => {
-  const options = queryOptionsConfig['/chats/get:getChat']('123');
-  const { data } = useSocketQueryOn('/chats/get:getChat', options);
+// const _ExampleComponent = () => {
+//   const options = queryKeys['/chats/get:getChat']('123');
+//   const { data } = useSocketQueryOn('/chats/get:getChat', options);
 
-  const options2 = queryOptionsConfig['/chats/list:getChatsList']();
-  const { data: data2 } = useSocketQueryOn('/chats/list:getChatsList', options2);
+//   const options2 = queryKeys['/chats/list:getChatsList']();
+//   const { data: data2 } = useSocketQueryOn('/chats/list:getChatsList', options2);
 
-  const options3 = queryOptionsConfig['/chats/delete:deleteChat']('123');
+//   const options3 = queryKeys['/chats/delete:deleteChat']('123');
 
-  // Create fresh options for delete chat that match the expected BusterChat type
-  const deleteChatInitialData = {
-    id: '123'
-  } as unknown as BusterChat;
+//   // Create fresh options for delete chat that match the expected BusterChat type
+//   const deleteChatInitialData = {
+//     id: '123'
+//   } as unknown as BusterChat;
 
-  const { data: data3 } = useSocketQueryOn('/chats/delete:deleteChat', options3, (d, x) => {
-    d?.[0].is_favorited;
-    x[0].id;
-    return [];
-  });
-};
+//   const { data: data3 } = useSocketQueryOn('/chats/delete:deleteChat', options3, (d, x) => {
+//     d?.[0].is_favorited;
+//     x[0].id;
+//     return [];
+//   });
+// };

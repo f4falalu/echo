@@ -1,4 +1,4 @@
-import { useUpdateUserPermissionGroups } from '@/api';
+import { useUpdateUserPermissionGroups } from '@/api/buster_rest';
 import { PermissionAssignedButton } from '@/app/app/_components/PermissionComponents';
 import { BusterListSelectedOptionPopupContainer } from '@/components/list';
 import React from 'react';

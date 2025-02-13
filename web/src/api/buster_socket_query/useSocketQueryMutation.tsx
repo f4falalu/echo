@@ -15,7 +15,7 @@ import type {
 } from '@/api/buster_socket';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
-import { queryOptionsConfig } from './queryKeyConfig';
+import { queryKeys } from '../asset_interfaces';
 import type {
   BusterSocketRequestConfig,
   BusterSocketRequestRoute,
@@ -86,28 +86,28 @@ export function useSocketQueryMutation<
   });
 }
 
-const ExampleComponent = () => {
-  const queryClient = useQueryClient();
-  const options = queryOptionsConfig['/chats/list:getChatsList']();
-  const data = queryClient.getQueryData(options.queryKey);
-  data?.[0].created_by_avatar;
+// const ExampleComponent = () => {
+//   const queryClient = useQueryClient();
+//   const options = queryKeys['/chats/list:getChatsList']();
+//   const data = queryClient.getQueryData(options.queryKey);
+//   data?.[0].created_by_avatar;
 
-  const { mutate } = useSocketQueryMutation<
-    '/chats/delete',
-    '/chats/delete:deleteChat',
-    unknown,
-    { id: string }[],
-    { id: string }[],
-    BusterChatListItem[]
-  >(
-    { route: '/chats/delete' },
-    { route: '/chats/delete:deleteChat' },
-    options,
-    (currentData, newData) => {
-      currentData?.[0].created_by_avatar; // This should now be properly typed
-      return currentData ?? [];
-    }
-  );
+//   const { mutate } = useSocketQueryMutation<
+//     '/chats/delete',
+//     '/chats/delete:deleteChat',
+//     unknown,
+//     { id: string }[],
+//     { id: string }[],
+//     BusterChatListItem[]
+//   >(
+//     { route: '/chats/delete' },
+//     { route: '/chats/delete:deleteChat' },
+//     options,
+//     (currentData, newData) => {
+//       currentData?.[0].created_by_avatar; // This should now be properly typed
+//       return currentData ?? [];
+//     }
+//   );
 
-  mutate([{ id: '123' }]);
-};
+//   mutate([{ id: '123' }]);
+// };

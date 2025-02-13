@@ -1,6 +1,6 @@
 'use client';
 
-import { useGetDatasetGroupUsers, useGetPermissionGroupUsers } from '@/api';
+import { useGetDatasetGroupUsers } from '@/api/buster_rest';
 import { AppMaterialIcons } from '@/components/icons';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
