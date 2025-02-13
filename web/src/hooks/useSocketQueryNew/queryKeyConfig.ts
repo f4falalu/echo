@@ -4,29 +4,20 @@ import { queryOptions } from '@tanstack/react-query';
 import { ChatListEmitPayload } from '@/api/buster_socket/chats';
 
 const chatsGetChat = (chatId: string) =>
-  queryOptions({
+  queryOptions<BusterChat>({
     queryKey: ['chats', 'get', chatId] as const,
-    queryFn: () => {
-      return Promise.resolve({ id: chatId } as BusterChat);
-    },
     staleTime: 10 * 1000
   });
 
 const chatsGetList = (filters?: ChatListEmitPayload) =>
-  queryOptions({
-    queryKey: ['chats', 'list', filters] as const,
-    queryFn: () => {
-      return Promise.resolve([] as BusterChatListItem[]);
-    }
+  queryOptions<BusterChatListItem[]>({
+    queryKey: ['chats', 'list', filters] as const
   });
 
 const deleteChat = (chatId: string) => {
   const queryKey = chatsGetChat(chatId)?.queryKey;
-  return queryOptions({
-    queryKey,
-    queryFn: async () => {
-      return Promise.resolve({ id: chatId });
-    }
+  return queryOptions<BusterChat>({
+    queryKey
   });
 };
 

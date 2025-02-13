@@ -1,16 +1,16 @@
 'use client';
 
 import {
-  QueryKey,
+  type QueryKey,
   useQuery,
   useQueryClient,
-  UseQueryOptions,
-  UseQueryResult
+  type UseQueryOptions,
+  type UseQueryResult
 } from '@tanstack/react-query';
 import type { BusterSocketResponse, BusterSocketResponseRoute } from '@/api/buster_socket';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
-import { useRef, useTransition } from 'react';
-import { InferBusterSocketResponseData } from './types';
+import { useMemo, useRef, useTransition } from 'react';
+import type { InferBusterSocketResponseData } from './types';
 import { useMemoizedFn, useMount, useUnmount } from 'ahooks';
 import { queryOptionsConfig } from './queryKeyConfig';
 import { BusterChat } from '@/api/asset_interfaces';
@@ -25,7 +25,6 @@ export const useSocketQueryOn = <
 >(
   socketResponse: TRoute,
   options: UseQueryOptions<TData, TError, TData, TQueryKey>,
-  // callback?: (d: InferBusterSocketResponseData<TRoute>) => TData,
   callback?: (currentData: TData | null, newData: InferBusterSocketResponseData<TRoute>) => TData
 ): UseSocketQueryOnResult<TData, TError> => {
   const busterSocket = useBusterWebSocket();
@@ -52,22 +51,25 @@ export const useSocketQueryOn = <
     }
   });
 
-  useMount(() => {
-    busterSocket.on({
+  const socketConfig = useMemo(() => {
+    return {
       route: socketResponse,
       callback: socketCallback
-    } as BusterSocketResponse);
+    } as BusterSocketResponse;
+  }, [socketResponse, socketCallback]);
+
+  useMount(() => {
+    busterSocket.on(socketConfig);
   });
 
   useUnmount(() => {
-    busterSocket.off({
-      route: socketResponse,
-      callback: socketCallback
-    });
+    busterSocket.off(socketConfig);
   });
 
   return useQuery({
     ...options,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
     enabled: false // must be disabled, because it will be enabled by the socket
   });
 };
@@ -77,7 +79,7 @@ const defaultCallback = <TData, TRoute extends BusterSocketResponseRoute>(
   d: InferBusterSocketResponseData<TRoute>
 ) => d as TData;
 
-const ExampleComponent = () => {
+const _ExampleComponent = () => {
   const options = queryOptionsConfig['/chats/get:getChat']('123');
   const { data } = useSocketQueryOn('/chats/get:getChat', options);
 
@@ -86,12 +88,14 @@ const ExampleComponent = () => {
 
   const options3 = queryOptionsConfig['/chats/delete:deleteChat']('123');
 
-  const { data: data3 } = useSocketQueryOn('/chats/delete:deleteChat', options3, (d) => {
+  // Create fresh options for delete chat that match the expected BusterChat type
+  const deleteChatInitialData = {
+    id: '123'
+  } as unknown as BusterChat;
+
+  const { data: data3 } = useSocketQueryOn('/chats/delete:deleteChat', options3, (d, x) => {
+    d?.id;
+    x[0].id;
     return deleteChatInitialData;
   });
 };
-
-// Create fresh options for delete chat that match the expected BusterChat type
-const deleteChatInitialData = {
-  id: '123'
-} as unknown as BusterChat;

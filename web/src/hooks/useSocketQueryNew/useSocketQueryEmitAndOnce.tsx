@@ -1,0 +1,89 @@
+'use client';
+
+import {
+  QueryFunction,
+  QueryKey,
+  useQuery,
+  useQueryClient,
+  UseQueryOptions
+} from '@tanstack/react-query';
+import type {
+  BusterSocketRequest,
+  BusterSocketResponse,
+  BusterSocketResponseRoute
+} from '@/api/buster_socket';
+import { useBusterWebSocket } from '@/context/BusterWebSocket';
+import type {
+  UseBusterSocketQueryResult,
+  InferBusterSocketResponseData,
+  BusterSocketResponseConfig
+} from '../useSocketQuery/types';
+import { useMemoizedFn } from 'ahooks';
+import { createQueryKey } from '../useSocketQuery/helpers';
+import { useMemo } from 'react';
+import { queryOptionsConfig } from './queryKeyConfig';
+import { BusterChat } from '@/api/asset_interfaces';
+
+export function useSocketQueryEmitAndOnce<
+  TRoute extends BusterSocketResponseRoute,
+  TError = unknown,
+  TData = InferBusterSocketResponseData<TRoute>,
+  TQueryKey extends QueryKey = QueryKey
+>(
+  socketRequest: BusterSocketRequest,
+  socketResponse: TRoute,
+  options: UseQueryOptions<TData, TError, TData, TQueryKey>,
+  callback?: (currentData: TData | null, newData: InferBusterSocketResponseData<TRoute>) => TData
+): UseBusterSocketQueryResult<TData, TError> {
+  const busterSocket = useBusterWebSocket();
+  const queryClient = useQueryClient();
+
+  const queryFn: QueryFunction<TData> = useMemoizedFn(
+    async ({ queryKey, ...rest }): Promise<TData> => {
+      try {
+        const result = await busterSocket.emitAndOnce({
+          emitEvent: socketRequest,
+          responseEvent: {
+            route: socketResponse,
+            callback: (d: unknown) => {
+              const socketData = d as InferBusterSocketResponseData<TRoute>;
+              if (callback) {
+                const currentData = queryClient.getQueryData<TData>(queryKey) ?? null;
+                return callback(currentData, socketData);
+              }
+              return socketData as TData;
+            }
+          } as BusterSocketResponse
+        });
+
+        return result as TData;
+      } catch (error) {
+        throw error;
+      }
+    }
+  );
+
+  return useQuery({
+    queryFn,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    ...options
+  });
+}
+
+const ExampleComponent = () => {
+  const options = queryOptionsConfig['/chats/get:getChat']('123');
+
+  const deleteChatInitialData = {
+    id: '123'
+  } as unknown as BusterChat;
+
+  const { data } = useSocketQueryEmitAndOnce(
+    { route: '/chats/get', payload: { id: '123' } },
+    '/chats/get:getChat',
+    options,
+    (d, x) => {
+      return deleteChatInitialData;
+    }
+  );
+};
