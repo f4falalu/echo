@@ -36,6 +36,7 @@ export function useSocketMutation<
   socketRequest: BusterSocketRequestConfig<TRequestRoute>,
   socketResponse: BusterSocketResponseConfig<TRoute>,
   options?: UseQueryOptions<TQueryData, any, TQueryData, any>,
+  preCallback?: (currentData: TQueryData | null, variables: TPayload) => TQueryData,
   callback?: (
     currentData: TQueryData | null,
     newData: InferBusterSocketResponseData<TRoute>
@@ -45,6 +46,14 @@ export function useSocketMutation<
   const queryClient = useQueryClient();
 
   const mutationFn = useMemoizedFn(async (variables: TPayload): Promise<TData> => {
+    const queryKey = options?.queryKey;
+
+    if (queryKey && preCallback) {
+      const currentData = queryClient.getQueryData<TQueryData>(queryKey) ?? null;
+      const transformedData = preCallback(currentData, variables);
+      queryClient.setQueryData(queryKey, transformedData);
+    }
+
     try {
       const result = await busterSocket.emitAndOnce({
         emitEvent: {
@@ -58,8 +67,7 @@ export function useSocketMutation<
         } as BusterSocketResponse
       });
 
-      if (options?.queryKey && callback) {
-        const queryKey = options.queryKey;
+      if (queryKey && callback) {
         const socketData = result as InferBusterSocketResponseData<TRoute>;
         const currentData = queryClient.getQueryData<TQueryData>(queryKey) ?? null;
         const transformedData = callback(currentData, socketData);
