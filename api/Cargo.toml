@@ -100,3 +100,9 @@ tokio = { version = "1.0", features = ["full", "test-util"] }
 
 [profile.release]
 debug = false
+
+[profile.dev]
+opt-level = 0
+incremental = true
+debug = 1
+
