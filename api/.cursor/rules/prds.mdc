@@ -123,8 +123,5 @@ Reference these example PRDs for guidance:
 - [ ] Implementation phases are clear
 - [ ] Testing strategy is defined
 - [ ] Security considerations addressed
-- [ ] Performance implications documented
-- [ ] Rollout plan included
-- [ ] Monitoring metrics defined
-- [ ] Dependencies listed
-- [ ] References included
+- [ ] Dependencies and Files listed
+- [ ] File References included

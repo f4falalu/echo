@@ -1,7 +1,7 @@
 use anyhow::{Error, Result};
 use chrono::Utc;
 use diesel::{insert_into, ExpressionMethods, QueryDsl};
-use diesel_async::RunQueryDsl;
+use diesel_async::{AsyncConnection, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -11,9 +11,10 @@ use uuid::Uuid;
 
 use crate::{
     database::{
+        enums::Verification,
         lib::get_pg_pool,
-        models::{Message, MessageToFile, Thread, User},
-        schema::{messages, messages_to_files, threads},
+        models::{DashboardFile, Message, MessageToFile, MetricFile, Thread, User},
+        schema::{dashboard_files, messages, messages_to_files, metric_files, threads},
     },
     routes::ws::{
         threads_and_messages::{
@@ -239,6 +240,7 @@ impl AgentThreadHandler {
         .await
         {
             tracing::error!("Failed to create thread: {}", e);
+            return;
         }
 
         while let Some(msg_result) = rx.recv().await {
@@ -286,47 +288,113 @@ impl AgentThreadHandler {
             };
 
             // Insert message into database
-            if let Err(e) = async {
-                let mut conn = get_pg_pool().get().await?;
-                insert_into(messages::table)
-                    .values(&message)
-                    .execute(&mut conn)
-                    .await?;
-                Ok::<_, Error>(())
-            }
-            .await
-            {
-                tracing::error!("Failed to create message: {}", e);
-            }
-
-            // Process file messages and create MessageToFile records
-            for container in all_transformed_messages {
-                if let BusterContainer::ReasoningMessage(reasoning) = container {
-                    if let ReasoningMessage::File(file_msg) = reasoning.reasoning {
-                        let message_to_file = MessageToFile {
-                            id: Uuid::new_v4(),
-                            message_id: message.id,
-                            file_id: Uuid::parse_str(&file_msg.id).unwrap_or_default(),
-                            created_at: Utc::now(),
-                            updated_at: Utc::now(),
-                            deleted_at: None,
-                        };
-
-                        // Insert message_to_file into database
-                        if let Err(e) = async {
-                            let mut conn = get_pg_pool().get().await?;
-                            insert_into(messages_to_files::table)
-                                .values(&message_to_file)
-                                .execute(&mut conn)
-                                .await?;
-                            Ok::<_, Error>(())
-                        }
-                        .await
-                        {
-                            tracing::error!("Failed to create message_to_file: {}", e);
-                        }
-                    }
+            let mut conn = match get_pg_pool().get().await {
+                Ok(conn) => conn,
+                Err(e) => {
+                    tracing::error!("Failed to get database connection: {}", e);
+                    return;
                 }
+            };
+
+            // Use a transaction to ensure all operations succeed or fail together
+            if let Err(e) = conn
+                .transaction(|conn| {
+                    let fut = async move {
+                        // First insert the message
+                        insert_into(messages::table)
+                            .values(&message)
+                            .execute(conn)
+                            .await?;
+
+                        // Then process any completed metric or dashboard files
+                        for container in all_transformed_messages {
+                            match container {
+                                BusterContainer::ReasoningMessage(msg) => match msg.reasoning {
+                                    ReasoningMessage::File(file) if file.file_type == "metric" => {
+                                        let metric_file = MetricFile {
+                                            id: Uuid::new_v4(),
+                                            name: file.file_name.clone(),
+                                            file_name: format!("{}.yml", file.file_name.to_lowercase().replace(' ', "_")),
+                                            content: serde_json::to_value(&file.file.unwrap_or_default()).unwrap_or_default(),
+                                            verification: Verification::NotRequested,
+                                            evaluation_obj: None,
+                                            evaluation_summary: None,
+                                            evaluation_score: None,
+                                            organization_id: organization_id.clone(),
+                                            created_by: user_id.clone(),
+                                            created_at: Utc::now(),
+                                            updated_at: Utc::now(),
+                                            deleted_at: None,
+                                        };
+
+                                        // Insert metric file
+                                        insert_into(metric_files::table)
+                                            .values(&metric_file)
+                                            .execute(conn)
+                                            .await?;
+
+                                        // Create message to file link
+                                        let message_to_file = MessageToFile {
+                                            id: Uuid::new_v4(),
+                                            message_id: message.id,
+                                            file_id: metric_file.id,
+                                            created_at: Utc::now(),
+                                            updated_at: Utc::now(),
+                                            deleted_at: None,
+                                        };
+
+                                        insert_into(messages_to_files::table)
+                                            .values(&message_to_file)
+                                            .execute(conn)
+                                            .await?;
+                                    }
+                                    ReasoningMessage::File(file) if file.file_type == "dashboard" => {
+                                        let dashboard_file = DashboardFile {
+                                            id: Uuid::new_v4(),
+                                            name: file.file_name.clone(),
+                                            file_name: format!("{}.yml", file.file_name.to_lowercase().replace(' ', "_")),
+                                            content: serde_json::to_value(&file.file.unwrap_or_default()).unwrap_or_default(),
+                                            filter: None,
+                                            organization_id: organization_id.clone(),
+                                            created_by: user_id.clone(),
+                                            created_at: Utc::now(),
+                                            updated_at: Utc::now(),
+                                            deleted_at: None,
+                                        };
+
+                                        // Insert dashboard file
+                                        insert_into(dashboard_files::table)
+                                            .values(&dashboard_file)
+                                            .execute(conn)
+                                            .await?;
+
+                                        // Create message to file link
+                                        let message_to_file = MessageToFile {
+                                            id: Uuid::new_v4(),
+                                            message_id: message.id,
+                                            file_id: dashboard_file.id,
+                                            created_at: Utc::now(),
+                                            updated_at: Utc::now(),
+                                            deleted_at: None,
+                                        };
+
+                                        insert_into(messages_to_files::table)
+                                            .values(&message_to_file)
+                                            .execute(conn)
+                                            .await?;
+                                    }
+                                    _ => (), // Skip non-file messages or other file types
+                                },
+                                _ => (), // Skip non-reasoning messages
+                            }
+                        }
+                        Ok::<_, diesel::result::Error>(())
+                    };
+                    std::pin::Pin::from(Box::new(fut))
+                })
+                .await
+            {
+                tracing::error!("Database transaction failed: {}", e);
             }
         }
     }
