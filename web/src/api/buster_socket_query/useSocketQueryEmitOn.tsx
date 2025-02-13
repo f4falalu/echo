@@ -16,9 +16,10 @@ export const useSocketQueryEmitOn = <
   socketResponse: TRoute,
   options: UseQueryOptions<TData, TError, TData, TQueryKey>,
   callback?: (currentData: TData | null, newData: InferBusterSocketResponseData<TRoute>) => TData,
-  enabledTrigger?: boolean | string
+  enabledTriggerProp?: boolean | string
 ) => {
   const busterSocket = useBusterWebSocket();
+  const enabledTrigger = enabledTriggerProp ?? true;
 
   const emitQueryFn = useMemoizedFn(async () => {
     busterSocket.emit(socketRequest);
@@ -30,5 +31,7 @@ export const useSocketQueryEmitOn = <
     }
   }, [enabledTrigger]);
 
-  return useSocketQueryOn(socketResponse, options, callback);
+  const queryResult = useSocketQueryOn(socketResponse, options, callback);
+
+  return { ...queryResult, refetch: emitQueryFn };
 };

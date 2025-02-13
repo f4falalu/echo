@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  type QueryFunction,
-  type QueryKey,
-  type UseQueryOptions,
-  type UseMutationOptions,
-  useMutation,
-  useQueryClient
-} from '@tanstack/react-query';
+import { type UseQueryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
 import type {
   BusterSocketRequest,
   BusterSocketResponse,
@@ -15,7 +8,6 @@ import type {
 } from '@/api/buster_socket';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
-import { queryKeys } from '../asset_interfaces';
 import type {
   BusterSocketRequestConfig,
   BusterSocketRequestRoute,
@@ -23,7 +15,6 @@ import type {
   InferBusterSocketRequestPayload,
   InferBusterSocketResponseData
 } from './types';
-import type { BusterChatListItem } from '@/api/asset_interfaces/chat';
 
 export function useSocketQueryMutation<
   TRequestRoute extends BusterSocketRequestRoute,
@@ -36,10 +27,13 @@ export function useSocketQueryMutation<
   socketRequest: BusterSocketRequestConfig<TRequestRoute>,
   socketResponse: BusterSocketResponseConfig<TRoute>,
   options?: UseQueryOptions<TQueryData, any, TQueryData, any>,
-  preCallback?: (currentData: TQueryData | null, variables: TPayload) => TQueryData,
-  callback?: (
+  preCallback?: (
     currentData: TQueryData | null,
-    newData: InferBusterSocketResponseData<TRoute>
+    variables: TPayload
+  ) => TQueryData | Promise<TQueryData>,
+  callback?: (
+    newData: InferBusterSocketResponseData<TRoute>,
+    currentData: TQueryData | null
   ) => TQueryData
 ) {
   const busterSocket = useBusterWebSocket();
@@ -50,7 +44,7 @@ export function useSocketQueryMutation<
 
     if (queryKey && preCallback) {
       const currentData = queryClient.getQueryData<TQueryData>(queryKey) ?? null;
-      const transformedData = preCallback(currentData, variables);
+      const transformedData = await preCallback(currentData, variables);
       queryClient.setQueryData(queryKey, transformedData);
     }
 
@@ -70,7 +64,7 @@ export function useSocketQueryMutation<
       if (queryKey && callback) {
         const socketData = result as InferBusterSocketResponseData<TRoute>;
         const currentData = queryClient.getQueryData<TQueryData>(queryKey) ?? null;
-        const transformedData = callback(currentData, socketData);
+        const transformedData = callback(socketData, currentData);
         queryClient.setQueryData(queryKey, transformedData);
         return result as TData;
       }
@@ -85,29 +79,3 @@ export function useSocketQueryMutation<
     mutationFn
   });
 }
-
-// const ExampleComponent = () => {
-//   const queryClient = useQueryClient();
-//   const options = queryKeys['/chats/list:getChatsList']();
-//   const data = queryClient.getQueryData(options.queryKey);
-//   data?.[0].created_by_avatar;
-
-//   const { mutate } = useSocketQueryMutation<
-//     '/chats/delete',
-//     '/chats/delete:deleteChat',
-//     unknown,
-//     { id: string }[],
-//     { id: string }[],
-//     BusterChatListItem[]
-//   >(
-//     { route: '/chats/delete' },
-//     { route: '/chats/delete:deleteChat' },
-//     options,
-//     (currentData, newData) => {
-//       currentData?.[0].created_by_avatar; // This should now be properly typed
-//       return currentData ?? [];
-//     }
-//   );
-
-//   mutate([{ id: '123' }]);
-// };

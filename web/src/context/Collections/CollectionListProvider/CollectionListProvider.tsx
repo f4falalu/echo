@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { useSocketQueryEmitOn } from '@/hooks';
+import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
 import type { CollectionsListEmit } from '@/api/buster_socket/collections';
 import {
   ContextSelector,
   useContextSelector,
   createContext
 } from '@fluentui/react-context-selector';
+import { queryKeys } from '@/api/asset_interfaces';
 
 type CollectionListFilters = Omit<CollectionsListEmit['payload'], 'page' | 'page_size'>;
 
@@ -18,7 +19,8 @@ export const useCollectionLists = () => {
     refetch: refetchCollectionList
   } = useSocketQueryEmitOn(
     { route: '/collections/list', payload: { page: 0, page_size: 1000, ...collectionListFilters } },
-    { route: '/collections/list:listCollections' }
+    '/collections/list:listCollections',
+    queryKeys['/collections/list:getCollectionsList']()
   );
 
   return {

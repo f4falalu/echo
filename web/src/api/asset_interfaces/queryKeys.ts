@@ -1,7 +1,11 @@
-import { chatQueryKeys } from './chat/chatQueryKeys';
-import { collectionQueryKeys } from './collection/collectionQueryKeys';
+import { chatQueryKeys } from './chat/queryKeys';
+import { collectionQueryKeys } from './collection/queryKeys';
+import { userQueryKeys } from './users/queryKeys';
+import { dashboardQueryKeys } from './dashboard/queryKeys';
 
 export const queryKeys = {
   ...chatQueryKeys,
-  ...collectionQueryKeys
+  ...collectionQueryKeys,
+  ...userQueryKeys,
+  ...dashboardQueryKeys
 };

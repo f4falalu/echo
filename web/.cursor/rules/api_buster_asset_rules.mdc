@@ -2,7 +2,6 @@
 description: Rules and guidelines for the asset_interfaces directory containing TypeScript interface definitions for all API responses
 globs: src/api/asset_interfaces/**/*
 ---
-
 # API Asset Interfaces Directory Rules
 
 This directory (`src/api/asset_interfaces`) contains TypeScript interface definitions for all API responses. Each subdirectory represents a distinct API namespace.
@@ -13,7 +12,8 @@ src/api/asset_interfaces/
 ├── [namespace]/
 │   ├── index.ts        # Exports all interfaces and types
 │   ├── interfaces.ts   # Contains type definitions
-│   └── [other].ts     # Optional additional type files
+│   ├── queryKeys.ts    # Contains query key definitions for TanStack Query
+│   └── [other].ts      # Optional additional type files
 ```
 
 ## Rules and Guidelines
@@ -21,6 +21,7 @@ src/api/asset_interfaces/
 1. Each namespace MUST have:
    - An `index.ts` file that exports all types
    - An `interfaces.ts` file containing type definitions
+   - A `queryKeys.ts` file that defines query key options for TanStack Query
 
 2. Interface File (`interfaces.ts`) Requirements:
    - Must contain TypeScript interfaces, types, and enums for API responses
@@ -32,12 +33,28 @@ src/api/asset_interfaces/
      - Types: `TPascalCase`
      - Enums: `EPascalCase`
 
-3. Index File (`index.ts`) Requirements:
+3. Query Keys File (`queryKeys.ts`) Requirements:
+   - Defines reusable query keys and query options for TanStack React Query
+   - Uses `queryOptions` to create predefined query configurations
+   - Ensures consistent and structured key usage across API queries
+   - Example:
+     ```typescript
+     import { queryOptions } from '@tanstack/react-query';
+     import type { BusterChat } from './chatInterfaces';
+
+     const chatsGetChat = (chatId: string) =>
+       queryOptions<BusterChat>({
+         queryKey: ['chats', 'get', chatId] as const,
+         staleTime: 10 * 1000
+       });
+     ```
+
+4. Index File (`index.ts`) Requirements:
    - Must re-export all types from `interfaces.ts`
    - Should not contain any type definitions
    - May include type utility functions if needed
 
-4. General Guidelines:
+5. General Guidelines:
    - Keep interfaces focused and single-responsibility
    - Use TypeScript's built-in utility types when appropriate
    - Document breaking changes in type definitions
@@ -54,10 +71,22 @@ export interface IApiResponse<T> {
   readonly message?: string;
 }
 
+// queryKeys.ts
+import { queryOptions } from '@tanstack/react-query';
+import type { IApiResponse } from './interfaces';
+
+const fetchDataQuery = (id: string) =>
+  queryOptions<IApiResponse<any>>({
+    queryKey: ['data', 'fetch', id] as const,
+    staleTime: 60 * 1000
+  });
+
 // index.ts
 export * from './interfaces';
+export * from './queryKeys';
 ```
 
 ## Purpose
 
-This directory serves as the single source of truth for API response types across the application. It ensures type safety and provides proper TypeScript intellisense when working with API responses.
+This directory serves as the single source of truth for API response types and query keys across the application. It ensures type safety, consistency, and provides proper TypeScript intellisense when working with API responses and queries.
+
