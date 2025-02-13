@@ -312,9 +312,7 @@ pub fn transform_message(
                         .into_iter()
                         .map(BusterContainer::ChatMessage)
                         .collect(),
-                    Err(e) => {
-                        return Err(e);
-                    }
+                    Err(_) => vec![], // Silently ignore errors by returning empty vec
                 };
 
                 return Ok((messages, ThreadEvent::GeneratingResponseMessage));
@@ -333,15 +331,13 @@ pub fn transform_message(
                         .into_iter()
                         .map(BusterContainer::ReasoningMessage)
                         .collect(),
-                    Err(e) => {
-                        return Err(e);
-                    }
+                    Err(_) => vec![], // Silently ignore errors by returning empty vec
                 };
 
                 return Ok((messages, ThreadEvent::GeneratingReasoningMessage));
             }
 
-            Err(anyhow::anyhow!("Assistant message missing required fields"))
+            Ok((vec![], ThreadEvent::GeneratingResponseMessage)) // Return empty vec instead of error
         }
         Message::Tool {
             id,
@@ -363,17 +359,15 @@ pub fn transform_message(
                         .into_iter()
                         .map(BusterContainer::ReasoningMessage)
                         .collect(),
-                    Err(e) => {
-                        return Err(e);
-                    }
+                    Err(_) => vec![], // Silently ignore errors by returning empty vec
                 };
 
                 return Ok((messages, ThreadEvent::GeneratingReasoningMessage));
             }
 
-            Err(anyhow::anyhow!("Tool message missing name field"))
+            Ok((vec![], ThreadEvent::GeneratingReasoningMessage)) // Return empty vec instead of error
         }
-        _ => Err(anyhow::anyhow!("Unsupported message type")),
+        _ => Ok((vec![], ThreadEvent::GeneratingResponseMessage)), // Return empty vec instead of error
     }
 }
 
@@ -534,28 +528,17 @@ fn tool_data_catalog_search(
     if let Some(progress) = progress {
         let data_catalog_result = match serde_json::from_str::<SearchDataCatalogOutput>(&content) {
             Ok(result) => result,
-            Err(e) => {
-                return Err(anyhow::anyhow!(
-                    "Failed to parse data catalog search result: {}",
-                    e
-                ));
-            }
+            Err(_) => return Ok(vec![]), // Silently ignore parsing errors
         };
 
         let duration = (data_catalog_result.duration.clone() as f64 / 1000.0 * 10.0).round() / 10.0;
         let result_count = data_catalog_result.results.len();
         let query_params = data_catalog_result.query_params.clone();
 
-        let thought_pill_containters =
-            match proccess_data_catalog_search_results(data_catalog_result) {
-                Ok(object) => object,
-                Err(e) => {
-                    return Err(anyhow::anyhow!(
-                        "Failed to process data catalog search results: {}",
-                        e
-                    ));
-                }
-            };
+        let thought_pill_containters = match proccess_data_catalog_search_results(data_catalog_result) {
+            Ok(object) => object,
+            Err(_) => return Ok(vec![]), // Silently ignore processing errors
+        };
 
         let buster_thought = if result_count > 0 {
             BusterThreadMessage::Thought(BusterThought {
@@ -741,9 +724,7 @@ fn tool_file_search(
     if let Some(progress) = progress {
         let file_search_result = match serde_json::from_str::<SearchFilesOutput>(&content) {
             Ok(result) => result,
-            Err(e) => {
-                return Err(anyhow::anyhow!("Failed to parse file search result: {}", e));
-            }
+            Err(_) => return Ok(vec![]), // Silently ignore parsing errors
         };
 
         let query_params = file_search_result.query_params.clone();
@@ -752,12 +733,7 @@ fn tool_file_search(
 
         let thought_pill_containers = match process_file_search_results(file_search_result) {
             Ok(containers) => containers,
-            Err(e) => {
-                return Err(anyhow::anyhow!(
-                    "Failed to process file search results: {}",
-                    e
-                ));
-            }
+            Err(_) => return Ok(vec![]), // Silently ignore processing errors
         };
 
         let buster_thought = if result_count > 0 {
@@ -873,9 +849,7 @@ fn tool_open_files(
     if let Some(progress) = progress {
         let open_files_result = match serde_json::from_str::<OpenFilesOutput>(&content) {
             Ok(result) => result,
-            Err(e) => {
-                return Err(anyhow::anyhow!("Failed to parse open files result: {}", e));
-            }
+            Err(_) => return Ok(vec![]), // Silently ignore parsing errors
         };
 
         let duration = (open_files_result.duration as f64 / 1000.0 * 10.0).round() / 10.0;
@@ -953,12 +927,10 @@ fn process_assistant_create_file(tool_call: &ToolCall) -> Result<Vec<BusterThrea
     let mut parser = StreamingParser::new();
 
     // Process the arguments from the tool call
-    if let Some(message) = parser.process_chunk(&tool_call.function.arguments)? {
-        return Ok(vec![message]);
+    match parser.process_chunk(&tool_call.function.arguments)? {
+        Some(message) => Ok(vec![message]),
+        None => Ok(vec![]) // Return empty vec instead of error when waiting for file data
     }
-
-    // If we couldn't parse a message, return an error
-    Err(anyhow::anyhow!("Still waiting for file data"))
 }
 
 fn assistant_modify_file(
@@ -1019,7 +991,10 @@ fn tool_create_file(
         match progress {
             MessageProgress::Complete => {
                 // Parse the content to get file information using CreateFilesOutput
-                let create_files_result = serde_json::from_str::<CreateFilesOutput>(&content)?;
+                let create_files_result = match serde_json::from_str::<CreateFilesOutput>(&content) {
+                    Ok(result) => result,
+                    Err(_) => return Ok(vec![]), // Silently ignore parsing errors
+                };
                 let mut messages = Vec::new();
 
                 for file in create_files_result.files {
@@ -1043,10 +1018,6 @@ fn tool_create_file(
                         status: "completed".to_string(),
                         file: Some(current_lines),
                     }));
-                }
-
-                if messages.is_empty() {
-                    return Err(anyhow::anyhow!("No valid files found in response"));
                 }
 
                 Ok(messages)

@@ -247,11 +247,27 @@ impl AgentThreadHandler {
             if let Ok(msg) = msg_result {
                 match transform_message(chat_id, message_id, msg) {
                     Ok((transformed_messages, event)) => {
+                        // Skip empty messages
+                        let non_empty_messages: Vec<_> = transformed_messages
+                            .into_iter()
+                            .filter(|msg| match msg {
+                                BusterContainer::ChatMessage(chat) => chat.response_message.message.is_some() || chat.response_message.message_chunk.is_some(),
+                                BusterContainer::ReasoningMessage(reasoning) => match &reasoning.reasoning {
+                                    ReasoningMessage::Thought(thought) => thought.thoughts.is_some(),
+                                    ReasoningMessage::File(file) => file.file.is_some(),
+                                },
+                            })
+                            .collect();
+
+                        if non_empty_messages.is_empty() {
+                            continue;
+                        }
+
                         // Store transformed messages for later database insertion
-                        all_transformed_messages.extend(transformed_messages.clone());
+                        all_transformed_messages.extend(non_empty_messages.clone());
 
                         // Send websocket messages as before
-                        for transformed in transformed_messages {
+                        for transformed in non_empty_messages {
                             let response = WsResponseMessage::new_no_user(
                                 WsRoutes::Threads(ThreadRoute::Post),
                                 WsEvent::Threads(event.clone()),
