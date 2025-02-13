@@ -38,7 +38,7 @@ export interface BusterUserFavorite {
   id: string;
   asset_type: ShareAssetType;
   index?: number;
-  title: string;
+  name: string;
   //collections - TODO: type this better
   collection_name?: string;
   collection_id?: string;

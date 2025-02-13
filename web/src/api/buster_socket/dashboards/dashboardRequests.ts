@@ -87,8 +87,8 @@ export type DashboardUpdate = BusterSocketRequestBase<
   {
     /** The unique identifier of the dashboard */
     id: string;
-    /** New title for the dashboard */
-    title?: string;
+    /** New name for the dashboard */
+    name?: string;
     /** New description for the dashboard */
     description?: string | null;
     /** Updated dashboard configuration */

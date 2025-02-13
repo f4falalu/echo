@@ -11,8 +11,8 @@ export const DashboardEditTitles: React.FC<{
   allowEdit?: boolean;
   dashboardId: string;
 }> = React.memo(({ onUpdateDashboard, allowEdit, title, description, dashboardId }) => {
-  const onChangeTitle = useMemoizedFn((title: string) => {
-    onUpdateDashboard({ title, id: dashboardId });
+  const onChangeTitle = useMemoizedFn((name: string) => {
+    onUpdateDashboard({ name, id: dashboardId });
   });
 
   const onChangeDescription = useMemoizedFn((description: string) => {

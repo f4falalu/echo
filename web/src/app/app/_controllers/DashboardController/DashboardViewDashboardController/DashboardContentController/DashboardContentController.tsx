@@ -21,8 +21,8 @@ const DEFAULT_EMPTY_CONFIG: DashboardConfig = {};
 
 export const DashboardContentController: React.FC<{
   allowEdit?: boolean;
-  metrics: BusterDashboardResponse['metrics'];
-  dashboard: BusterDashboardResponse['dashboard'];
+  metrics: BusterDashboardResponse['metrics'] | undefined;
+  dashboard: BusterDashboardResponse['dashboard'] | undefined;
   onUpdateDashboardConfig: ReturnType<typeof useBusterDashboards>['onUpdateDashboardConfig'];
   openAddContentModal: () => void;
 }> = React.memo(
@@ -33,7 +33,7 @@ export const DashboardContentController: React.FC<{
     metrics = DEFAULT_EMPTY_METRICS,
     onUpdateDashboardConfig
   }) => {
-    const dashboardConfig = dashboard.config || DEFAULT_EMPTY_CONFIG;
+    const dashboardConfig = dashboard?.config || DEFAULT_EMPTY_CONFIG;
     const configRows = dashboardConfig?.rows || DEFAULT_EMPTY_ROWS;
     const hasMetrics = !isEmpty(metrics);
     const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -52,7 +52,7 @@ export const DashboardContentController: React.FC<{
           }))
         };
       });
-      onUpdateDashboardConfig({ rows: formattedRows }, dashboard.id);
+      onUpdateDashboardConfig({ rows: formattedRows }, dashboard!.id);
     });
 
     const remapMetrics = useMemo(() => {
@@ -77,7 +77,7 @@ export const DashboardContentController: React.FC<{
                   <DashboardMetricItem
                     key={item.id}
                     metricId={item.id}
-                    dashboardId={dashboard.id}
+                    dashboardId={dashboard!.id}
                     allowEdit={allowEdit}
                     numberOfMetrics={metrics.length}
                   />
@@ -97,14 +97,14 @@ export const DashboardContentController: React.FC<{
     });
 
     useEffect(() => {
-      if (remapMetrics && dashboard.id) {
+      if (remapMetrics && dashboard?.id) {
         debouncedForInitialRenderOnUpdateDashboardConfig({ rows }, dashboard.id);
       }
-    }, [dashboard.id, remapMetrics]);
+    }, [dashboard?.id, remapMetrics]);
 
     return (
       <div className="dashboard-content-controller">
-        {hasMetrics && !!dashboardRows.length ? (
+        {hasMetrics && !!dashboardRows.length && !!dashboard ? (
           <DashboardContentControllerProvider dashboard={dashboard}>
             <BusterResizeableGrid
               rows={dashboardRows}

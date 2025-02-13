@@ -2,14 +2,10 @@ import type { BusterDashboardResponse } from '@/api/asset_interfaces';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
-import React from 'react';
 import { useBusterDashboardListContextSelector } from '../DashboardListProvider/DashboardListProvider';
+import { useSocketQueryMutation } from '@/hooks';
 
-export const useDashboardAssosciations = ({
-  setDashboard
-}: {
-  setDashboard: React.Dispatch<React.SetStateAction<Record<string, BusterDashboardResponse>>>;
-}) => {
+export const useDashboardAssosciations = () => {
   const busterSocket = useBusterWebSocket();
   const { openConfirmModal } = useBusterNotifications();
   const removeItemFromDashboardsList = useBusterDashboardListContextSelector(
@@ -66,18 +62,18 @@ export const useDashboardAssosciations = ({
 
   const removeItemFromIndividualDashboard = useMemoizedFn(
     ({ dashboardId, metricId }: { dashboardId: string; metricId: string }) => {
-      setDashboard((prevDashboards) => {
-        const dashboardResponse: BusterDashboardResponse | undefined = prevDashboards[dashboardId];
-        if (!dashboardResponse) return prevDashboards;
-        const newMetrics = dashboardResponse.metrics.filter((t) => t.id !== metricId);
-        return {
-          ...prevDashboards,
-          [dashboardId]: {
-            ...prevDashboards[dashboardId],
-            metrics: newMetrics
-          }
-        };
-      });
+      // setDashboard((prevDashboards) => {
+      //   const dashboardResponse: BusterDashboardResponse | undefined = prevDashboards[dashboardId];
+      //   if (!dashboardResponse) return prevDashboards;
+      //   const newMetrics = dashboardResponse.metrics.filter((t) => t.id !== metricId);
+      //   return {
+      //     ...prevDashboards,
+      //     [dashboardId]: {
+      //       ...prevDashboards[dashboardId],
+      //       metrics: newMetrics
+      //     }
+      //   };
+      // });
     }
   );
 

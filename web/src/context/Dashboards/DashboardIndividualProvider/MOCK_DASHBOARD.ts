@@ -72,7 +72,7 @@ export const generateMockDashboard = (numMetrics: number): DashboardMockResponse
 
   const dashboard: BusterDashboard = {
     id: '123',
-    title: 'Mock Dashboard',
+    name: 'Mock Dashboard',
     file: `title: Mock Dashboard
 description: A sample dashboard configuration
 version: 1.0

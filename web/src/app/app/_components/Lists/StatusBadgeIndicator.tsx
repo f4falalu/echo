@@ -38,13 +38,16 @@ export const StatusBadgeButton: React.FC<{
       if ((!isAdmin && !userStatus.includes(newStatus)) || newStatus === status) {
         return;
       }
+      const ids = Array.isArray(id) ? id : [id];
+
       const verifyFunction =
         type === 'dashboard'
           ? (id: string) => onVerifiedDashboard({ dashboardId: id, status: newStatus })
           : (id: string) => onVerifiedMetric({ metricId: id, status: newStatus });
 
-      const ids = Array.isArray(id) ? id : [id];
-      await Promise.all(ids.map(verifyFunction));
+      const allPromises = ids.map((id) => verifyFunction(id));
+
+      await Promise.all(allPromises);
       setIsOpen(false);
       onChangedStatus?.();
     });

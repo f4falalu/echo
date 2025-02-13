@@ -143,12 +143,10 @@ const useMetricParams = (fileId: string) => {
 };
 
 const useDashboardParams = (fileId: string) => {
-  const dashboardTitle = useBusterDashboardContextSelector(
-    (x) => x.dashboards[fileId]?.dashboard?.title
-  );
-  const dashboardVersionNumber = useBusterDashboardContextSelector(
-    (x) => x.dashboards[fileId]?.dashboard?.version_number
-  );
+  const getDashboardMemoized = useBusterDashboardContextSelector((x) => x.getDashboardMemoized);
+  const dashboard = getDashboardMemoized(fileId);
+  const dashboardTitle = dashboard?.dashboard?.name;
+  const dashboardVersionNumber = dashboard?.dashboard?.version_number;
 
   return { dashboardTitle, dashboardVersionNumber };
 };

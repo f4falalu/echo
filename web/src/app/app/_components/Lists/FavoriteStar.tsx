@@ -32,7 +32,7 @@ export const FavoriteStar: React.FC<{
   title: string;
   className?: string;
   iconStyle?: 'default' | 'tertiary';
-}> = React.memo(({ title, id, type, className = '', iconStyle = 'default' }) => {
+}> = React.memo(({ title: name, id, type, className = '', iconStyle = 'default' }) => {
   const userFavorites = useUserConfigContextSelector((state) => state.userFavorites);
   const removeItemFromFavorite = useUserConfigContextSelector(
     (state) => state.removeItemFromFavorite
@@ -51,7 +51,7 @@ export const FavoriteStar: React.FC<{
       return await addItemToFavorite({
         asset_type: type,
         id,
-        title
+        name
       });
 
     await removeItemFromFavorite({

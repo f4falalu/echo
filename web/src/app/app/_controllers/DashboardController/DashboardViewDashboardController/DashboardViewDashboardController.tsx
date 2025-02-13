@@ -2,8 +2,8 @@ import { useUserConfigContextSelector } from '@/context/Users';
 import { DashboardViewProps } from '../config';
 import React from 'react';
 import {
-  useBusterDashboardIndividual,
-  useBusterDashboardContextSelector
+  useBusterDashboardContextSelector,
+  useBusterDashboardIndividual
 } from '@/context/Dashboards';
 import { ShareRole } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
@@ -12,7 +12,7 @@ import { DashboardContentController } from './DashboardContentController';
 
 export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({ dashboardId }) => {
   const isAnonymousUser = useUserConfigContextSelector((state) => state.isAnonymousUser);
-  const { dashboardResponse: dashboardResponse } = useBusterDashboardIndividual({
+  const { dashboardResponse, metrics, dashboard } = useBusterDashboardIndividual({
     dashboardId
   });
   const onUpdateDashboard = useBusterDashboardContextSelector((x) => x.onUpdateDashboard);
@@ -21,8 +21,6 @@ export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
   );
   const setOpenAddContentModal = useBusterDashboardContextSelector((x) => x.setOpenAddContentModal);
 
-  const metrics = dashboardResponse?.metrics;
-  const dashboard = dashboardResponse?.dashboard;
   const allowEdit = dashboardResponse?.permission !== ShareRole.VIEWER && !isAnonymousUser;
 
   const onOpenAddContentModal = useMemoizedFn(() => {
@@ -35,7 +33,7 @@ export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
         onUpdateDashboard={onUpdateDashboard}
         dashboardId={dashboardId}
         allowEdit={allowEdit}
-        title={dashboardResponse?.dashboard?.title || ''}
+        title={dashboardResponse?.dashboard?.name || ''}
         description={dashboardResponse?.dashboard?.description || ''}
       />
 

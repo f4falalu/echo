@@ -46,6 +46,8 @@ export const useUpdateMetricConfig = ({
           _prepareMetricAndSaveToServer(newMetric, currentMetric);
         }
       });
+
+      return newMetric;
     }
   );
 

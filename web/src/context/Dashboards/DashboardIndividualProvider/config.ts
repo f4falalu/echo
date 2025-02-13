@@ -8,7 +8,7 @@ export const defaultBusterDashboard: BusterDashboard = {
   created_at: '',
   deleted_at: '',
   description: '',
-  title: '',
+  name: '',
   updated_at: '',
   created_by: '',
   updated_by: '',

@@ -31,7 +31,7 @@ export type UsersFavoritePost = BusterSocketRequestBase<
     id: string;
     asset_type: ShareAssetType;
     index?: number;
-    title: string; //sooo... this is a bit of hack...
+    name: string;
   }
 >;
 

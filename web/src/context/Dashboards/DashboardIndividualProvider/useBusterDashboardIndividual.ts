@@ -1,19 +1,22 @@
 import { BusterDashboardResponse } from '@/api/asset_interfaces';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
-import { useBusterWebSocket } from '@/context/BusterWebSocket';
-import { useMemoizedFn, useMount } from 'ahooks';
-import React, { useEffect, useRef } from 'react';
+import { useMemoizedFn } from 'ahooks';
+import React, { useEffect } from 'react';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useSocketQueryEmitOn } from '@/hooks';
 
-export const useDashboardIndividual = ({ dashboardId }: { dashboardId: string }) => {
+export const useBusterDashboardIndividual = ({
+  dashboardId = ''
+}: {
+  dashboardId: string | undefined;
+}) => {
   const onInitializeMetric = useBusterMetricsIndividualContextSelector(
     (state) => state.onInitializeMetric
   );
   const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
   const { password } = getAssetPassword(dashboardId);
 
-  const { data, refetch: refreshDashboard } = useSocketQueryEmitOn(
+  const { data: dashboardResponse, refetch: refreshDashboard } = useSocketQueryEmitOn(
     { route: '/dashboards/get', payload: { id: dashboardId, password } },
     { route: '/dashboards/get:getDashboardState' },
     { enabled: !!dashboardId }
@@ -28,13 +31,18 @@ export const useDashboardIndividual = ({ dashboardId }: { dashboardId: string })
   });
 
   useEffect(() => {
-    if (data) {
-      initializeDashboard(data);
+    if (dashboardResponse) {
+      initializeDashboard(dashboardResponse);
     }
-  }, [data]);
+  }, [dashboardResponse]);
+
+  const dashboard = dashboardResponse?.dashboard;
+  const metrics = dashboardResponse?.metrics || [];
 
   return {
-    refreshDashboard,
-    initializeDashboard
+    dashboard,
+    metrics,
+    dashboardResponse,
+    refreshDashboard
   };
 };

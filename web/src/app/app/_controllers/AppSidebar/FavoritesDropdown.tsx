@@ -111,19 +111,20 @@ const createListItem = ({
   let icon = asset_typeToIcon(item.asset_type, {
     open: openedIds.includes(item.collection_id || '')
   });
-  let name = item.title || item.collection_name;
+  let name = item.name || item.collection_name;
+  const assetType = item.asset_type;
 
-  if (item.title === ShareAssetType.METRIC) {
+  if (assetType === ShareAssetType.METRIC) {
     link = createBusterRoute({
       route: BusterRoutes.APP_METRIC_ID,
       metricId: item.id
     });
-  } else if (item.title === ShareAssetType.DASHBOARD) {
+  } else if (assetType === ShareAssetType.DASHBOARD) {
     link = createBusterRoute({
       route: BusterRoutes.APP_DASHBOARD_ID,
       dashboardId: item.id
     });
-  } else if (item.title === ShareAssetType.COLLECTION) {
+  } else if (assetType === ShareAssetType.COLLECTION) {
     link = createBusterRoute({
       route: BusterRoutes.APP_COLLECTIONS_ID,
       collectionId: item.collection_id!

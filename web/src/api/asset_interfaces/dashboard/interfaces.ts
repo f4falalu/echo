@@ -40,7 +40,7 @@ export interface BusterDashboard
   deleted_at: string | null;
   description: string | null;
   id: string;
-  title: string;
+  name: string;
   updated_at: string | null;
   updated_by: string;
   status: VerificationStatus;

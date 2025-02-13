@@ -14,7 +14,10 @@ import { CircleSpinnerLoaderContainer } from '@/components/loaders';
 import { BusterCollection } from '@/api/asset_interfaces';
 import { useBusterSearchContextSelector } from '@/context/Search';
 import isEmpty from 'lodash/isEmpty';
-import { useBusterDashboardContextSelector } from '@/context/Dashboards';
+import {
+  useBusterDashboardContextSelector,
+  useBusterDashboardIndividual
+} from '@/context/Dashboards';
 import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { SegmentedValue } from 'antd/es/segmented';
 import { BusterSearchRequest } from '@/api/buster_socket/search';

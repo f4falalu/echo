@@ -258,7 +258,7 @@ const Example = () => {
   mutate({
     id: 'some-asset-id',
     asset_type: ShareAssetType.DASHBOARD,
-    title: 'some-title'
+    name: 'some-title'
   });
 
   return null;

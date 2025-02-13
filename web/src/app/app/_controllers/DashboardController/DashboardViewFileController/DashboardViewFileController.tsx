@@ -15,7 +15,7 @@ export const DashboardViewFileController: React.FC<DashboardViewProps> = React.m
     const { openSuccessMessage } = useBusterNotifications();
     const onUpdateDashboard = useBusterDashboardContextSelector((x) => x.onUpdateDashboard);
 
-    const { file: fileProp, file_name } = dashboard;
+    const { file: fileProp, file_name } = dashboard || {};
 
     const [file, setFile] = React.useState(fileProp);
 
@@ -40,9 +40,9 @@ export const DashboardViewFileController: React.FC<DashboardViewProps> = React.m
     return (
       <div className="relative h-full overflow-hidden p-3">
         <CodeCard
-          code={file}
+          code={file || ''}
           language="yaml"
-          fileName={file_name}
+          fileName={file_name || ''}
           onChange={setFile}
           onMetaEnter={onSaveFile}
         />

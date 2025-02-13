@@ -8,38 +8,45 @@ import {
 import { BusterDashboardResponse } from '@/api/asset_interfaces';
 import { useDashboardAssosciations } from './useDashboardAssosciations';
 import { useDashboardCreate } from './useDashboardCreate';
-import { useShareDashboard } from './useDashboardShare';
-import { useDashboardSubscribe } from './useDashboardSubscribe';
 import { useDashboardUpdateConfig } from './useDashboardUpdateConfig';
+import { createQueryKey } from '@/hooks';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 
 export const useBusterDashboards = () => {
   const [openAddContentModal, setOpenAddContentModal] = useState(false);
+  const queryClient = useQueryClient();
+  const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
 
-  const [dashboards, setDashboard] = useState<Record<string, BusterDashboardResponse>>({});
+  const getDashboard = useQuery({
+    queryKey: ['/dashboards/get:getDashboardState', { id: '1' }],
+    queryFn: () => {
+      return { id: '1' };
+    },
+    enabled: false
+  });
 
-  const dashboardSubscribe = useDashboardSubscribe({ setDashboard });
+  const getDashboardMemoized = useMemoizedFn((dashboardId: string) => {
+    const { password } = getAssetPassword(dashboardId);
+    const queryKey = createQueryKey(
+      { route: '/dashboards/get:getDashboardState' },
+      { route: '/dashboards/get', payload: { id: dashboardId, password } }
+    );
+    return queryClient.getQueryData<BusterDashboardResponse>(queryKey);
+  });
 
-  const dashboardUpdateConfig = useDashboardUpdateConfig({ dashboards, setDashboard });
+  const dashboardUpdateConfig = useDashboardUpdateConfig({ getDashboardMemoized });
 
-  const dashboardAssosciations = useDashboardAssosciations({ setDashboard });
+  const dashboardAssosciations = useDashboardAssosciations();
 
   const dashboardCreate = useDashboardCreate({
     onUpdateDashboard: dashboardUpdateConfig.onUpdateDashboard
   });
 
-  const dashboardShare = useShareDashboard({
-    initializeDashboard: dashboardSubscribe.initializeDashboard
-  });
-
-  const getDashboardMemoized = useMemoizedFn((id: string) => dashboards[id]);
-
   return {
     ...dashboardAssosciations,
     ...dashboardCreate,
     ...dashboardUpdateConfig,
-    ...dashboardSubscribe,
-    ...dashboardShare,
-    dashboards,
     openAddContentModal,
     getDashboardMemoized,
     setOpenAddContentModal
@@ -59,34 +66,3 @@ export const BusterDashboardIndividualProvider: React.FC<PropsWithChildren> = ({
 export const useBusterDashboardContextSelector = <T,>(
   selector: ContextSelector<ReturnType<typeof useBusterDashboards>, T>
 ) => useContextSelector(BusterDashboards, selector);
-
-export const useBusterDashboardIndividual = ({
-  dashboardId
-}: {
-  dashboardId: string | undefined;
-}) => {
-  const dashboardResponse = useBusterDashboardContextSelector(
-    (state) => state.dashboards[dashboardId || '']
-  );
-  const subscribeToDashboard = useBusterDashboardContextSelector(
-    (state) => state.subscribeToDashboard
-  );
-  const unSubscribeToDashboard = useBusterDashboardContextSelector((x) => x.unSubscribeToDashboard);
-
-  useLayoutEffect(() => {
-    if (dashboardId) subscribeToDashboard({ dashboardId });
-  }, [dashboardId]);
-
-  useUnmount(() => {
-    if (dashboardId) unSubscribeToDashboard({ dashboardId });
-  });
-
-  const dashboard = dashboardResponse?.dashboard;
-  const metrics = dashboardResponse?.metrics;
-
-  return {
-    dashboard,
-    metrics,
-    dashboardResponse
-  };
-};
