@@ -1,11 +1,9 @@
 import { BusterTerm } from '@/api/buster_rest';
 import { AppTooltip, AppMaterialIcons } from '@/components';
 import { AppDropdownSelectProps, AppDropdownSelect } from '@/components/dropdown';
-import { useDatasetContextSelector } from '@/context/Datasets';
-import { useMount } from 'ahooks';
 import { createStyles } from 'antd-style';
-import React, { useContext, useMemo } from 'react';
-import { Button, PopoverProps } from 'antd';
+import React, { useMemo } from 'react';
+import { Button } from 'antd';
 import { Text } from '@/components';
 import { useGetDatasets } from '@/api/buster_rest/datasets';
 

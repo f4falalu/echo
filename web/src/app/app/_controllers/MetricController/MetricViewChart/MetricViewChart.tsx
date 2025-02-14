@@ -11,17 +11,18 @@ import { inputHasText } from '@/utils/text';
 import { MetricChartEvaluation } from './MetricChartEvaluation';
 import { ChartType } from '@/components/charts/interfaces/enum';
 import { AnimatePresence, motion } from 'framer-motion';
-import type { MetricViewProps } from '../config';
 
 export const MetricViewChart: React.FC<{ metricId: string }> = React.memo(({ metricId }) => {
   const { styles, cx } = useStyles();
   const onUpdateMetric = useBusterMetricsIndividualContextSelector((x) => x.onUpdateMetric);
-  const { metric, metricData } = useBusterMetricIndividual({ metricId });
+  const { metric, metricData, metricDataError, isFetchedMetricData } = useBusterMetricIndividual({
+    metricId
+  });
   const { title, description, time_frame, evaluation_score, evaluation_summary } = metric;
   const isTable = metric.chart_config.selectedChartType === ChartType.Table;
 
-  const loadingData = !metricData.fetched;
-  const errorData = !!metricData.error;
+  const loadingData = !isFetchedMetricData;
+  const errorData = !!metricDataError;
   const showEvaluation = !!evaluation_score && !!evaluation_summary;
 
   const onSetTitle = useMemoizedFn((title: string) => {
@@ -50,10 +51,10 @@ export const MetricViewChart: React.FC<{ metricId: string }> = React.memo(({ met
         <div className={cx(styles.divider)} />
         <MetricViewChartContent
           chartConfig={metric.chart_config}
-          metricData={metricData.data}
-          dataMetadata={metricData.data_metadata}
-          fetchedData={metricData.fetched}
-          errorMessage={metricData.error}
+          metricData={metricData?.data || []}
+          dataMetadata={metricData?.data_metadata || {}}
+          fetchedData={isFetchedMetricData}
+          errorMessage={metricDataError?.message}
         />
       </MetricViewChartCard>
 

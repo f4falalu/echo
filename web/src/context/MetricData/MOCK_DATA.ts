@@ -1,6 +1,6 @@
 import { DataMetadata } from '@/api/asset_interfaces';
-import type { BusterMetricData } from '../Metrics';
 import { faker } from '@faker-js/faker';
+import { BusterMetricData } from './interfaces';
 
 const mockData = (): Record<string, string | number | null>[] => {
   return Array.from({ length: faker.number.int({ min: 2, max: 100 }) }, (x, index) => ({
@@ -42,10 +42,7 @@ const dataMetadata: DataMetadata = {
 };
 
 const MOCK_DATA: Required<BusterMetricData> = {
-  fetched: true,
-  fetching: false,
   error: null,
-  fetchedAt: Date.now(),
   data: mockData(),
   metricId: faker.string.uuid(),
   data_metadata: dataMetadata,

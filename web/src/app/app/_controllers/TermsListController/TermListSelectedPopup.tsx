@@ -2,8 +2,8 @@ import React from 'react';
 import { BusterListSelectedOptionPopupContainer } from '@/components/list';
 import { Button } from 'antd';
 import { useMemoizedFn } from 'ahooks';
-import { useTermsContextSelector } from '@/context/Terms';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { useBusterTermsIndividualContextSelector } from '@/context/Terms';
 
 export const TermListSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];
@@ -29,18 +29,11 @@ const DeleteButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
-  const deleteTerm = useTermsContextSelector((x) => x.deleteTerm);
-  const { openConfirmModal } = useBusterNotifications();
+  const onDeleteTerm = useBusterTermsIndividualContextSelector((x) => x.onDeleteTerm);
 
   const onDeleteClick = useMemoizedFn(async () => {
-    return openConfirmModal({
-      title: 'Delete terms',
-      content: 'Are you sure you want to delete these terms?',
-      onOk: async () => {
-        await Promise.all(selectedRowKeys.map((id) => deleteTerm({ id }, true)));
-        onSelectChange([]);
-      }
-    });
+    await onDeleteTerm({ ids: selectedRowKeys });
+    onSelectChange([]);
   });
 
   return (

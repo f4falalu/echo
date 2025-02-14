@@ -10,22 +10,22 @@ export const useFavoriteProvider = () => {
   );
 
   const { mutate: addItemToFavorite } = useSocketQueryMutation(
-    { route: '/users/favorites/post' },
-    { route: '/users/favorites/post:createFavorite' },
+    '/users/favorites/post',
+    '/users/favorites/post:createFavorite',
     queryKeys['/favorites/list:getFavoritesList'],
     (prev, mutationParams) => [mutationParams, ...(prev || [])]
   );
 
   const { mutate: removeItemFromFavorite } = useSocketQueryMutation(
-    { route: '/users/favorites/delete' },
-    { route: '/users/favorites/post:createFavorite' },
+    '/users/favorites/delete',
+    '/users/favorites/post:createFavorite',
     queryKeys['/favorites/list:getFavoritesList'],
     (prev, mutationParams) => prev?.filter((f) => f.id !== mutationParams.id) || []
   );
 
   const { mutate: updateFavorites } = useSocketQueryMutation(
-    { route: '/users/favorites/update' },
-    { route: '/users/favorites/update:updateFavorite' },
+    '/users/favorites/update',
+    '/users/favorites/update:updateFavorite',
     queryKeys['/favorites/list:getFavoritesList'],
     (prev, mutationParams) => {
       return mutationParams.favorites.map((id, index) => {

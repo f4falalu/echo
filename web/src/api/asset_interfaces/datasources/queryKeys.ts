@@ -6,3 +6,7 @@ export const datasourceGetList = () =>
     queryKey: ['datasources', 'list'] as const,
     staleTime: 30 * 1000 // 30 seconds
   });
+
+export const datasourceQueryKeys = {
+  '/datasources/list:getDatasourcesList': datasourceGetList
+};

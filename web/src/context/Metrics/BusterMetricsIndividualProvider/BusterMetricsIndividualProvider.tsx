@@ -9,12 +9,12 @@ import type { IBusterMetric } from '../interfaces';
 import { BusterMetric } from '@/api/asset_interfaces';
 import { useTransition } from 'react';
 import { resolveEmptyMetric, upgradeMetricToIMetric } from '../helpers';
-import { useBusterMetricDataContextSelector } from '../../MetricData';
 import { useUpdateMetricConfig } from './useMetricUpdateConfig';
 import { useUpdateMetricAssosciations } from './useMetricUpdateAssosciations';
 import { useShareMetric } from './useMetricShare';
 import { useMetricSubscribe } from './useMetricSubscribe';
 import { useParams } from 'next/navigation';
+import { useMetricDataIndividual } from '@/context/MetricData/useMetricDataIndividual';
 
 export const useBusterMetricsIndividual = () => {
   const [isPending, startTransition] = useTransition();
@@ -118,19 +118,18 @@ export const useBusterMetricsIndividualContextSelector = <T,>(
 
 export const useBusterMetricIndividual = ({ metricId }: { metricId: string }) => {
   const subscribeToMetric = useBusterMetricsIndividualContextSelector((x) => x.subscribeToMetric);
-  const fetchDataByMetricId = useBusterMetricDataContextSelector((x) => x.fetchDataByMetricId);
   const metric = useBusterMetricsIndividualContextSelector((x) => x.metrics[metricId]);
-  const metricData = useBusterMetricDataContextSelector(({ getDataByMetricId }) =>
-    getDataByMetricId(metricId)
-  );
+
+  const metricIndividualData = useMetricDataIndividual({
+    metricId
+  });
 
   useMount(() => {
     subscribeToMetric({ metricId });
-    fetchDataByMetricId({ metricId });
   });
 
   return {
     metric: resolveEmptyMetric(metric, metricId),
-    metricData
+    ...metricIndividualData
   };
 };

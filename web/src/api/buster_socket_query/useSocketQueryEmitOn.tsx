@@ -15,7 +15,9 @@ export const useSocketQueryEmitOn = <
   socketRequest: BusterSocketRequest,
   socketResponse: TRoute,
   options: UseQueryOptions<TData, TError, TData, TQueryKey>,
-  callback?: (currentData: TData | null, newData: InferBusterSocketResponseData<TRoute>) => TData,
+  callback?:
+    | ((currentData: TData | null, newData: InferBusterSocketResponseData<TRoute>) => TData)
+    | null,
   enabledTriggerProp?: boolean | string
 ) => {
   const busterSocket = useBusterWebSocket();

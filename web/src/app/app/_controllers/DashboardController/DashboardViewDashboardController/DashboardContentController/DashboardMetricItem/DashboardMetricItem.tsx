@@ -30,12 +30,14 @@ const _DashboardMetricItem: React.FC<{
     metric,
     metricData,
     initialAnimationEnded,
-    setInitialAnimationEnded
+    setInitialAnimationEnded,
+    metricDataUpdatedAt,
+    isFetchedMetricData
   } = useDashboardMetric({ metricId });
 
-  const loadingMetricData = !!metric && !metricData.fetched;
+  const loadingMetricData = !!metric && !isFetchedMetricData;
   const chartOptions = metric.chart_config;
-  const data = metricData.data || null;
+  const data = metricData?.data || null;
   const loading = loadingMetricData;
   const dataLength = metricData?.data?.length || 1;
   const animate =

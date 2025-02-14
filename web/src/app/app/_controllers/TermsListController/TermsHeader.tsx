@@ -1,26 +1,27 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { AppContentHeader } from '../../../components/layout/AppContentHeader';
+import { AppContentHeader } from '../../../../components/layout/AppContentHeader';
 import { Breadcrumb, Button } from 'antd';
 import { BreadcrumbProps } from 'antd/lib';
 import { BreadcrumbSeperator } from '@/components';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { useTermsIndividual, useTermsContextSelector } from '@/context/Terms';
 import { AppMaterialIcons, AppTooltip } from '@/components';
-import { NewTermModal } from './NewTermModal';
+import { NewTermModal } from '../../terms/NewTermModal';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useUserConfigContextSelector } from '@/context/Users';
+import { useBusterTermsIndividual, useBusterTermsListContextSelector } from '@/context/Terms';
+import { useMemoizedFn } from 'ahooks';
 
-export const TermsHeader: React.FC<{ termId?: string }> = ({ termId }) => {
-  const openNewTermsModal = useTermsContextSelector((x) => x.openNewTermsModal);
-  const loadedTermsList = useTermsContextSelector((x) => x.loadedTermsList);
-  const onSetOpenNewTermsModal = useTermsContextSelector((x) => x.onSetOpenNewTermsModal);
-
+export const TermsHeader: React.FC<{
+  termId?: string;
+  openNewTermsModal?: boolean;
+  setOpenNewTermsModal?: (open: boolean) => void;
+}> = React.memo(({ termId, openNewTermsModal, setOpenNewTermsModal }) => {
   const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
-  const { term: selectedTerm } = useTermsIndividual({ termId });
-  const showSkeletonLoader = termId ? !selectedTerm : !loadedTermsList;
+
+  const { term: selectedTerm } = useBusterTermsIndividual({ termId: termId || '' });
 
   const items = useMemo<BreadcrumbProps['items']>(
     () =>
@@ -42,9 +43,14 @@ export const TermsHeader: React.FC<{ termId?: string }> = ({ termId }) => {
     [termId, selectedTerm]
   );
 
-  useHotkeys('t', () => {
-    onSetOpenNewTermsModal(true);
+  const onOpenNewTermsModal = useMemoizedFn(() => {
+    setOpenNewTermsModal?.(true);
   });
+  const onCloseNewTermsModal = useMemoizedFn(() => {
+    setOpenNewTermsModal?.(false);
+  });
+
+  useHotkeys('t', onOpenNewTermsModal);
 
   return (
     <>
@@ -55,11 +61,7 @@ export const TermsHeader: React.FC<{ termId?: string }> = ({ termId }) => {
           <div className="flex items-center space-x-0">
             {isAdmin && (
               <AppTooltip title={'Create a new term'} shortcuts={['t']}>
-                <Button
-                  onClick={() => {
-                    onSetOpenNewTermsModal(true);
-                  }}
-                  icon={<AppMaterialIcons icon="add" />}>
+                <Button onClick={onOpenNewTermsModal} icon={<AppMaterialIcons icon="add" />}>
                   New term
                 </Button>
               </AppTooltip>
@@ -68,7 +70,9 @@ export const TermsHeader: React.FC<{ termId?: string }> = ({ termId }) => {
         </div>
       </AppContentHeader>
 
-      <NewTermModal open={openNewTermsModal} onClose={() => onSetOpenNewTermsModal(false)} />
+      <NewTermModal open={!!openNewTermsModal} onClose={onCloseNewTermsModal} />
     </>
   );
-};
+});
+
+TermsHeader.displayName = 'TermsHeader';

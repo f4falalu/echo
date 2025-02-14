@@ -4,7 +4,8 @@ import { useInViewport } from 'ahooks';
 import { useBusterMetricIndividual } from '@/context/Metrics';
 
 export const useDashboardMetric = ({ metricId }: { metricId: string }) => {
-  const { metric, metricData } = useBusterMetricIndividual({ metricId });
+  const { metric, metricData, metricDataUpdatedAt, isFetchedMetricData } =
+    useBusterMetricIndividual({ metricId });
   const dashboard = useDashboardContentControllerContextSelector(({ dashboard }) => dashboard);
   const metricMetadata = useDashboardContentControllerContextSelector(
     ({ metricMetadata }) => metricMetadata[metricId]
@@ -43,6 +44,8 @@ export const useDashboardMetric = ({ metricId }: { metricId: string }) => {
     conatinerRef,
     metricData,
     initialAnimationEnded,
-    setInitialAnimationEnded
+    setInitialAnimationEnded,
+    metricDataUpdatedAt,
+    isFetchedMetricData
   };
 };

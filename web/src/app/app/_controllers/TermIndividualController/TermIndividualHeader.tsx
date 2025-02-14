@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import { AppContentHeader } from '../../../../components/layout/AppContentHeader';
-import { TermsHeader } from '../_TermsHeader';
+import { TermsHeader } from '../TermsListController/TermsHeader';
 
 export const TermIndividualHeader: React.FC<{
   termId: string;

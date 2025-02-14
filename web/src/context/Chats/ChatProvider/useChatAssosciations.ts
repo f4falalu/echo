@@ -6,8 +6,8 @@ const getChatsListOptions = queryKeys['/chats/list:getChatsList']();
 
 export const useChatAssosciations = () => {
   const { mutate: deleteChat } = useSocketQueryMutation(
-    { route: '/chats/delete' },
-    { route: '/chats/delete:deleteChat' },
+    '/chats/delete',
+    '/chats/delete:deleteChat',
     getChatsListOptions,
     (currentData, deleteDataIds) => {
       //TODO: maybe use query client to remove all the chats from the query cache?

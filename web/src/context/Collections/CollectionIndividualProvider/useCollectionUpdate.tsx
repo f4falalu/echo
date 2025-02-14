@@ -8,8 +8,8 @@ export const useCollectionUpdate = () => {
   const queryClient = useQueryClient();
 
   const { mutateAsync: updateCollection, isPending: isUpdatingCollection } = useSocketQueryMutation(
-    { route: '/collections/update' },
-    { route: '/collections/update:collectionState' },
+    '/collections/update',
+    '/collections/update:collectionState',
     null,
     (_, variables) => {
       const collectionId = variables.id!;

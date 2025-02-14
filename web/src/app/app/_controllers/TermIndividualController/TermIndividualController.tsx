@@ -2,25 +2,19 @@
 
 import React from 'react';
 import { AppContentHeader } from '../../../../components/layout/AppContentHeader';
-import { TermIndividualHeader } from './_TermIndividualHeader';
-import { TermIndividualContent } from './_TermIndividualContent';
+import { TermIndividualHeader } from './TermIndividualHeader';
 import { AppSplitter } from '@/components/layout';
 import { AppContent } from '../../../../components/layout/AppContent';
-import { useMount } from 'ahooks';
-import { TermIndividualHeaderSider } from './_TermIndividualHeaderSider';
-import { TermIndividualContentSider } from './_TermIndividualContentSider';
-import { useTermsContextSelector } from '@/context/Terms';
+import { TermIndividualHeaderSider } from './TermIndividualHeaderSider';
+import { TermIndividualContentSider } from './TermIndividualContentSider';
+import { useBusterTermsListContextSelector } from '@/context/Terms';
+import { TermIndividualContent } from './TermIndividualContent';
 
-export const TermIndividualContainer: React.FC<{
+export const TermIndividualController: React.FC<{
   termPageIdLayout: string[];
   termId: string;
 }> = ({ termPageIdLayout, termId }) => {
-  const loadedTermsList = useTermsContextSelector((x) => x.loadedTermsList);
-  const getInitialTerms = useTermsContextSelector((x) => x.getInitialTerms);
-
-  useMount(() => {
-    getInitialTerms();
-  });
+  const isFetchedTermsList = useBusterTermsListContextSelector((x) => x.isFetchedTermsList);
 
   return (
     <AppSplitter
@@ -35,7 +29,7 @@ export const TermIndividualContainer: React.FC<{
           <TermIndividualContent termId={termId} />
         </>
       }
-      rightHidden={!loadedTermsList}
+      rightHidden={!isFetchedTermsList}
       rightChildren={
         <>
           <AppContentHeader>

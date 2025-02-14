@@ -1,14 +1,14 @@
 import React from 'react';
 
-import { useTermsContextSelector, useTermsIndividual } from '@/context/Terms';
+import { useBusterTermsIndividualContextSelector, useBusterTermsIndividual } from '@/context/Terms';
 import { BusterUserAvatar } from '@/components';
 import { formatDate } from '@/utils';
-import { DatasetList } from './_TermDatasetSelect';
 import { Text } from '@/components';
+import { DatasetList } from './TermDatasetSelect';
 
 export const TermIndividualContentSider: React.FC<{ termId: string }> = ({ termId }) => {
-  const updateTerm = useTermsContextSelector((x) => x.updateTerm);
-  const { term: selectedTerm } = useTermsIndividual({ termId });
+  const updateTerm = useBusterTermsIndividualContextSelector((x) => x.updateTerm);
+  const { term: selectedTerm } = useBusterTermsIndividual({ termId });
 
   const datasets = selectedTerm?.datasets || [];
 
@@ -16,9 +16,10 @@ export const TermIndividualContentSider: React.FC<{ termId: string }> = ({ termI
     const add_to_dataset = datasets.filter(
       (item) => !selectedTerm?.datasets?.some((dataset) => dataset.id === item)
     );
-    const remove_from_dataset = selectedTerm?.datasets
-      ?.filter((dataset) => !datasets.includes(dataset.id))
-      .map((item) => item.id);
+    const remove_from_dataset =
+      selectedTerm?.datasets
+        ?.filter((dataset) => !datasets.includes(dataset.id))
+        .map((item) => item.id) || [];
 
     await updateTerm({
       id: termId,

@@ -15,12 +15,11 @@ import type {
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
 import type {
-  BusterSocketRequestConfig,
   BusterSocketRequestRoute,
-  BusterSocketResponseConfig,
   InferBusterSocketRequestPayload,
   InferBusterSocketResponseData
 } from './types';
+import isEmpty from 'lodash/isEmpty';
 
 /**
  * A custom hook that combines WebSocket communication with React Query's mutation capabilities.
@@ -86,16 +85,17 @@ export function useSocketQueryMutation<
   TPayload = InferBusterSocketRequestPayload<TRequestRoute>,
   TQueryData = unknown
 >(
-  socketRequest: BusterSocketRequestConfig<TRequestRoute>,
-  socketResponse: BusterSocketResponseConfig<TRoute>,
-  options?: UseQueryOptions<TQueryData, any, TQueryData, any> | null,
+  socketRequest: TRequestRoute,
+  socketResponse: TRoute,
+  options?: (UseQueryOptions<TQueryData, any, TQueryData, any> & { queryKey?: QueryKey }) | null,
   preCallback?:
     | ((currentData: TQueryData | null, variables: TPayload) => TQueryData | Promise<TQueryData>)
     | null,
   callback?:
     | ((
         newData: InferBusterSocketResponseData<TRoute>,
-        currentData: TQueryData | null
+        currentData: TQueryData | null,
+        variables: TPayload
       ) => TQueryData)
     | null
 ) {
@@ -111,18 +111,17 @@ export function useSocketQueryMutation<
           ? (queryClient.getQueryData<TQueryData>(queryKey) ?? null)
           : null;
         const transformedData = await preCallback(currentData, variables);
-        if (queryKey) queryClient.setQueryData(queryKey, transformedData);
+        if (!isEmpty(queryKey)) queryClient.setQueryData(queryKey, transformedData);
       }
 
       try {
         const result = await busterSocket.emitAndOnce({
           emitEvent: {
-            route: socketRequest.route,
+            route: socketRequest,
             payload: variables
           } as BusterSocketRequest,
           responseEvent: {
-            route: socketResponse.route,
-            onError: socketResponse.onError,
+            route: socketResponse,
             callback: (d: unknown) => d
           } as BusterSocketResponse
         });
@@ -132,8 +131,8 @@ export function useSocketQueryMutation<
           const currentData = queryKey
             ? (queryClient.getQueryData<TQueryData>(queryKey) ?? null)
             : null;
-          const transformedData = callback(socketData, currentData);
-          if (queryKey) queryClient.setQueryData(queryKey, transformedData);
+          const transformedData = callback(socketData, currentData, variables);
+          if (!isEmpty(queryKey)) queryClient.setQueryData(queryKey, transformedData);
           return result as TData;
         }
 

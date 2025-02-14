@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { InputRef, Input } from 'antd';
-import { useTermsContextSelector } from '@/context/Terms';
-import { useDatasetContextSelector } from '@/context/Datasets';
+import { useBusterTermsIndividualContextSelector } from '@/context/Terms';
 import { AppModal, AppSelectMultiple, Text } from '@/components';
 import { useMemoizedFn } from 'ahooks';
 import { useGetDatasets } from '@/api/buster_rest/datasets';
@@ -11,7 +10,7 @@ export const NewTermModal: React.FC<{
   onClose: () => void;
 }> = React.memo(({ open, onClose }) => {
   const titleRef = React.useRef<InputRef>(null);
-  const createTerm = useTermsContextSelector((x) => x.createTerm);
+  const createTerm = useBusterTermsIndividualContextSelector((x) => x.createTerm);
   const [creatingTerm, setCreatingTerm] = React.useState(false);
   const [title, setTitle] = React.useState('');
   const [definition, setDefinition] = React.useState('');

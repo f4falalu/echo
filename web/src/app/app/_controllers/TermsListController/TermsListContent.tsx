@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { AppContent } from '../../../components/layout/AppContent';
+import { AppContent } from '../../../../components/layout/AppContent';
 import { BusterUserAvatar } from '@/components';
 import { formatDate } from '@/utils';
 import {
@@ -14,8 +14,8 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 import { BusterTermListItem } from '@/api/buster_rest';
 import { useMemoizedFn, useMount } from 'ahooks';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { useTermsContextSelector } from '@/context/Terms';
-import { TermListSelectedOptionPopup } from './_TermListSelectedPopup';
+import { TermListSelectedOptionPopup } from './TermListSelectedPopup';
+import { useBusterTermsListContextSelector } from '@/context/Terms';
 
 const columns: BusterListColumn[] = [
   {
@@ -44,11 +44,12 @@ const columns: BusterListColumn[] = [
   }
 ];
 
-export const TermsContent: React.FC = () => {
-  const loadedTermsList = useTermsContextSelector((x) => x.loadedTermsList);
-  const termsList = useTermsContextSelector((x) => x.termsList);
-  const getInitialTerms = useTermsContextSelector((x) => x.getInitialTerms);
-  const onSetOpenNewTermsModal = useTermsContextSelector((x) => x.onSetOpenNewTermsModal);
+export const TermsListContent: React.FC<{
+  openNewTermsModal: boolean;
+  setOpenNewTermsModal: (open: boolean) => void;
+}> = ({ openNewTermsModal, setOpenNewTermsModal }) => {
+  const termsList = useBusterTermsListContextSelector((x) => x.termsList) || [];
+  const isFetchedTermsList = useBusterTermsListContextSelector((x) => x.isFetchedTermsList);
   const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
 
   const [selectedTermIds, setSelectedTermIds] = useState<string[]>([]);
@@ -65,11 +66,7 @@ export const TermsContent: React.FC = () => {
   }, [termsList]);
 
   const onOpenNewTermModal = useMemoizedFn(() => {
-    onSetOpenNewTermsModal(true);
-  });
-
-  useMount(() => {
-    getInitialTerms();
+    setOpenNewTermsModal(true);
   });
 
   return (
@@ -80,7 +77,7 @@ export const TermsContent: React.FC = () => {
         selectedRowKeys={selectedTermIds}
         onSelectChange={setSelectedTermIds}
         emptyState={
-          loadedTermsList ? (
+          isFetchedTermsList ? (
             <ListEmptyStateWithButton
               isAdmin={isAdmin}
               title="You don’t have any terms yet."

@@ -28,7 +28,9 @@ export const useSocketQueryOn = <
 >(
   socketResponse: TRoute,
   options: UseQueryOptions<TData, TError, TData, TQueryKey>,
-  callback?: (currentData: TData | null, newData: InferBusterSocketResponseData<TRoute>) => TData
+  callback?:
+    | ((currentData: TData | null, newData: InferBusterSocketResponseData<TRoute>) => TData)
+    | null
 ): UseSocketQueryOnResult<TData, TError> => {
   const busterSocket = useBusterWebSocket();
   const queryClient = useQueryClient();

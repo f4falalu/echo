@@ -84,13 +84,3 @@ export type ColumnMetaData = {
 };
 
 export type IDataResult = Record<string, null | string | number>[] | null;
-
-export type MetricData = {
-  data?: IDataResult;
-  data_metadata: DataMetadata;
-  code: string | null;
-  error: string | null;
-  progress: 'completed' | 'running' | 'failed';
-  metric_id: string;
-  dataFromRerun?: IDataResult;
-};

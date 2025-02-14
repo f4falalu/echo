@@ -12,8 +12,8 @@ export const useDashboardCreate = ({
 }) => {
   const router = useRouter();
   const { mutateAsync: deleteDashboard, isPending: isDeletingDashboard } = useSocketQueryMutation(
-    { route: '/dashboards/delete' },
-    { route: '/dashboards/delete:deleteDashboard' },
+    '/dashboards/delete',
+    '/dashboards/delete:deleteDashboard',
     queryKeys['/dashboards/list:getDashboardsList'],
     (currentData, variables) => {
       return currentData?.filter((t) => !variables.ids.includes(t.id)) || [];
@@ -22,8 +22,8 @@ export const useDashboardCreate = ({
   const { openConfirmModal } = useBusterNotifications();
 
   const { mutateAsync: createDashboard, isPending: isCreatingDashboard } = useSocketQueryMutation(
-    { route: '/dashboards/post' },
-    { route: '/dashboards/post:postDashboard' },
+    '/dashboards/post',
+    '/dashboards/post:postDashboard',
     null,
     null,
     (res) => {

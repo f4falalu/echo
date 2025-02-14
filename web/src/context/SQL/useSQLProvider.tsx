@@ -1,35 +1,44 @@
 import React, { useRef, useState } from 'react';
 import { useMemoizedFn } from 'ahooks';
-import { BusterMetricData, useBusterMetricsIndividualContextSelector } from '../Metrics';
+import { useBusterMetricsIndividualContextSelector } from '../Metrics';
 import {
   createContext,
   useContextSelector,
   ContextSelector
 } from '@fluentui/react-context-selector';
-import { useBusterMetricDataContextSelector } from '../MetricData';
 import { useBusterNotifications } from '../BusterNotifications';
 import { didColumnDataChange, simplifyChatConfigForSQLChange } from './helpers';
-import { timeout } from '@/utils';
-import type { IBusterMetricChartConfig, RunSQLResponse } from '@/api/asset_interfaces';
+import {
+  queryKeys,
+  type IBusterMetricChartConfig,
+  type RunSQLResponse
+} from '@/api/asset_interfaces';
 import { MetricUpdateMetric } from '@/api/buster_socket/metrics';
 import { runSQL as runSQLRest } from '@/api/buster_rest';
+import { BusterMetricData } from '../MetricData';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const useSQLProvider = () => {
+  const queryClient = useQueryClient();
   const { openSuccessNotification } = useBusterNotifications();
   const onUpdateMetric = useBusterMetricsIndividualContextSelector((x) => x.onUpdateMetric);
-  const onSetDataForMetric = useBusterMetricDataContextSelector((x) => x.onSetDataForMetric);
-  const getDataByMetricIdMemoized = useBusterMetricDataContextSelector(
-    (x) => x.getDataByMetricIdMemoized
-  );
   const updateMetricToServer = useBusterMetricsIndividualContextSelector(
     (x) => x.updateMetricToServer
   );
-  const getMetric = useBusterMetricsIndividualContextSelector((x) => x.getMetricMemoized);
+  const getMetricMemoized = useBusterMetricsIndividualContextSelector((x) => x.getMetricMemoized);
   const onSaveMetricChanges = useBusterMetricsIndividualContextSelector(
     (x) => x.onSaveMetricChanges
   );
 
   const [warnBeforeNavigating, setWarnBeforeNavigating] = useState(false);
+
+  const getDataByMetricIdMemoized = useMemoizedFn(
+    (metricId: string): BusterMetricData | undefined => {
+      const options = queryKeys['/metrics/get:fetchingData'](metricId);
+      const metricData = queryClient.getQueryData(options.queryKey);
+      return metricData;
+    }
+  );
 
   const originalConfigs = useRef<
     Record<
@@ -43,11 +52,35 @@ export const useSQLProvider = () => {
     >
   >({});
 
+  const onSetDataForMetric = ({
+    metricId,
+    data,
+    data_metadata,
+    code,
+    isDataFromRerun
+  }: {
+    metricId: string;
+    data: BusterMetricData['data'];
+    data_metadata: BusterMetricData['data_metadata'];
+    code: string;
+    isDataFromRerun: boolean;
+  }) => {
+    const options = queryKeys['/metrics/get:fetchingData'](metricId);
+    const currentData = getDataByMetricIdMemoized(metricId);
+    const setter = isDataFromRerun ? 'dataFromRerun' : 'data';
+    queryClient.setQueryData(options.queryKey, {
+      ...currentData!,
+      [setter]: data,
+      data_metadata,
+      code
+    });
+  };
+
   const _onResponseRunSQL = useMemoizedFn(
     (d: RunSQLResponse, sql: string, { metricId }: { metricId?: string }) => {
       if (metricId) {
         const { data, data_metadata } = d;
-        const metricMessage = getMetric({ metricId });
+        const metricMessage = getMetricMemoized({ metricId });
         const currentMessageData = getDataByMetricIdMemoized(metricId);
         if (!originalConfigs.current[metricId]) {
           originalConfigs.current[metricId] = {
@@ -139,7 +172,7 @@ export const useSQLProvider = () => {
       dataSourceId?: string;
     }) => {
       const ogConfigs = originalConfigs.current[metricId];
-      const currentMetric = getMetric({ metricId });
+      const currentMetric = getMetricMemoized({ metricId });
       const dataSourceId = dataSourceIdProp || currentMetric?.data_source_id;
 
       if ((!ogConfigs || ogConfigs.code !== sql) && dataSourceId) {

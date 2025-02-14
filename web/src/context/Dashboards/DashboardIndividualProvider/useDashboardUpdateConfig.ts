@@ -21,8 +21,8 @@ export const useDashboardUpdateConfig = ({
 
   const { mutateAsync: updateDashboardMutation, isPending: isUpdatingDashboard } =
     useSocketQueryMutation(
-      { route: '/dashboards/update' },
-      { route: '/dashboards/update:updateDashboard' },
+      '/dashboards/update',
+      '/dashboards/update:updateDashboard',
       null,
       (_, variables) => {
         const options = queryKeys['/dashboards/get:getDashboardState'](variables.id);

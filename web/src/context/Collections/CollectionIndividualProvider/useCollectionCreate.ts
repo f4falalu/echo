@@ -8,8 +8,8 @@ export const useCollectionCreate = () => {
   const { openConfirmModal } = useBusterNotifications();
 
   const { mutateAsync: createCollection, isPending: isCreatingCollection } = useSocketQueryMutation(
-    { route: '/collections/post' },
-    { route: '/collections/post:collectionState' }
+    '/collections/post',
+    '/collections/post:collectionState'
   );
 
   const createNewCollection = useMemoizedFn(
@@ -29,8 +29,8 @@ export const useCollectionCreate = () => {
 
   const { mutateAsync: deleteCollectionMutation, isPending: isDeletingCollection } =
     useSocketQueryMutation(
-      { route: '/collections/delete' },
-      { route: '/collections/delete:deleteCollections' },
+      '/collections/delete',
+      '/collections/delete:deleteCollections',
       queryKeys['/collections/list:getCollectionsList'](),
       (data, variables) => {
         return data?.filter((collection) => !variables.ids.includes(collection.id)) || [];

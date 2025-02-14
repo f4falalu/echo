@@ -37,7 +37,6 @@ export const useBusterDashboards = () => {
     ...dashboardAssosciations,
     ...dashboardCreate,
     ...dashboardUpdateConfig,
-
     getDashboardMemoized
   };
 };

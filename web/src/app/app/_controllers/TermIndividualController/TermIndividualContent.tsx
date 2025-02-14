@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { AppContent } from '../../../../components/layout/AppContent';
-import { useTermsContextSelector, useTermsIndividual } from '@/context/Terms';
+import { useBusterTermsIndividualContextSelector, useBusterTermsIndividual } from '@/context/Terms';
 import { Dropdown, Input, Skeleton } from 'antd';
 import { useDebounceFn, useUnmount } from 'ahooks';
 import { formatDate } from '@/utils';
@@ -19,16 +19,15 @@ import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 export const TermIndividualContent: React.FC<{
   termId: string;
 }> = ({ termId }) => {
-  const updateTerm = useTermsContextSelector((x) => x.updateTerm);
-  const unsubscribeFromTerm = useTermsContextSelector((x) => x.unsubscribeFromTerm);
-  const { term: selectedTerm } = useTermsIndividual({ termId });
+  const updateTerm = useBusterTermsIndividualContextSelector((x) => x.updateTerm);
+  const { term: selectedTerm } = useBusterTermsIndividual({ termId });
   const loadingSelectedTerm = !selectedTerm?.id;
 
-  const [editingTermName, setEditingTermName] = React.useState(false);
-  const [termName, setTermName] = React.useState(selectedTerm?.name);
-  const [termDefinition, setTermDefinition] = React.useState(selectedTerm?.definition);
-  const [termSQL, setTermSQL] = React.useState(selectedTerm?.sql_snippet);
-  const [sqlHeight, setSqlHeight] = React.useState(300);
+  const [editingTermName, setEditingTermName] = useState(false);
+  const [termName, setTermName] = useState(selectedTerm?.name || '');
+  const [termDefinition, setTermDefinition] = useState(selectedTerm?.definition || '');
+  const [termSQL, setTermSQL] = useState(selectedTerm?.sql_snippet || '');
+  const [sqlHeight, setSqlHeight] = useState(300);
 
   const onSetTermName = (value: string) => {
     setTermName(value);
@@ -57,14 +56,10 @@ export const TermIndividualContent: React.FC<{
     { wait: 500 }
   );
 
-  useUnmount(() => {
-    unsubscribeFromTerm(termId);
-  });
-
   useEffect(() => {
-    setTermName(selectedTerm?.name);
-    setTermDefinition(selectedTerm?.definition);
-    setTermSQL(selectedTerm?.sql_snippet);
+    setTermName(selectedTerm?.name || '');
+    setTermDefinition(selectedTerm?.definition || '');
+    setTermSQL(selectedTerm?.sql_snippet || '');
   }, [selectedTerm?.name, selectedTerm?.definition]);
 
   return (
@@ -160,11 +155,11 @@ const MoreDropdown: React.FC<{ termId: string; setEditingTermName: (value: boole
   setEditingTermName
 }) => {
   const token = useAntToken();
-  const deleteTerm = useTermsContextSelector((x) => x.deleteTerm);
+  const onDeleteTerm = useBusterTermsIndividualContextSelector((x) => x.onDeleteTerm);
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
 
-  const onDeleteTerms = async () => {
-    await deleteTerm({ id: termId })
+  const onDeleteTermsPreflight = async () => {
+    await onDeleteTerm({ ids: [termId] })
       .then(() => {
         onChangePage({
           route: BusterRoutes.APP_TERMS
@@ -175,31 +170,34 @@ const MoreDropdown: React.FC<{ termId: string; setEditingTermName: (value: boole
       });
   };
 
-  const dropdownItems: MenuProps['items'] = [
-    {
-      key: 'edit',
-      icon: <AppMaterialIcons size={14} icon="edit" />,
-      label: 'Edit term title',
-      onClick: () => {
-        setEditingTermName(true);
+  const dropdownItems: MenuProps['items'] = useMemo(
+    () => [
+      {
+        key: 'edit',
+        icon: <AppMaterialIcons size={14} icon="edit" />,
+        label: 'Edit term title',
+        onClick: () => {
+          setEditingTermName(true);
+        }
+      },
+      {
+        key: 'delete',
+        icon: <AppMaterialIcons size={14} icon="delete" />,
+        label: 'Delete term',
+        onClick: onDeleteTermsPreflight
       }
-    },
-    {
-      key: 'delete',
-      icon: <AppMaterialIcons size={14} icon="delete" />,
-      label: 'Delete term',
-      onClick: () => {
-        onDeleteTerms();
-      }
-    }
-  ];
+    ],
+    [setEditingTermName, onDeleteTermsPreflight]
+  );
+
+  const menu = useMemo(() => {
+    return {
+      items: dropdownItems
+    };
+  }, [dropdownItems]);
 
   return (
-    <Dropdown
-      trigger={['click']}
-      menu={{
-        items: dropdownItems
-      }}>
+    <Dropdown trigger={['click']} menu={menu}>
       <div
         className="!h-fit cursor-pointer"
         style={{
