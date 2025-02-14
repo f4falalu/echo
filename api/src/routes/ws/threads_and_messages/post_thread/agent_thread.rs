@@ -1,7 +1,9 @@
 use anyhow::{Error, Result};
 use chrono::Utc;
 use diesel::{insert_into, ExpressionMethods, QueryDsl};
-use diesel_async::{AsyncConnection, RunQueryDsl};
+use diesel_async::{RunQueryDsl};
+use handlers::messages::types::{ThreadMessage, ThreadUserMessage};
+use handlers::threads::types::ThreadWithMessages;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -42,37 +44,6 @@ use crate::{
 
 use super::agent_message_transformer::transform_message;
 use litellm::Message as AgentMessage;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TempInitChat {
-    pub id: Uuid,
-    pub title: String,
-    pub is_favorited: bool,
-    pub messages: Vec<TempInitChatMessage>,
-    pub created_at: String,
-    pub updated_at: String,
-    pub created_by: String,
-    pub created_by_id: String,
-    pub created_by_name: String,
-    pub created_by_avatar: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TempInitChatMessage {
-    pub id: Uuid,
-    pub request_message: TempRequestMessage,
-    pub response_messages: Vec<String>,
-    pub reasoning: Vec<String>,
-    pub created_at: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TempRequestMessage {
-    pub request: String,
-    pub sender_id: Uuid,
-    pub sender_name: String,
-    pub sender_avatar: Option<String>,
-}
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct ChatCreateNewChat {
@@ -155,13 +126,13 @@ impl AgentThreadHandler {
             deleted_at: None,
         };
 
-        let init_response = TempInitChat {
+        let init_response = ThreadWithMessages {
             id: chat_id.clone(),
             title: request.prompt.clone(),
             is_favorited: false,
-            messages: vec![TempInitChatMessage {
+            messages: vec![ThreadMessage {
                 id: message_id.clone(),
-                request_message: TempRequestMessage {
+                request_message: ThreadUserMessage {
                     request: request.prompt.clone(),
                     sender_id: user.id,
                     sender_name: user.name.clone().unwrap_or_default(),
