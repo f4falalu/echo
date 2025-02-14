@@ -9,7 +9,7 @@ interface MetricViewChartContentProps {
   className?: string;
   chartConfig: IBusterMetric['chart_config'];
   metricData: BusterMetricData['data'];
-  dataMetadata: DataMetadata;
+  dataMetadata: DataMetadata | undefined;
   fetchedData: boolean;
   errorMessage: string | null | undefined;
 }

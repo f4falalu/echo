@@ -42,7 +42,6 @@ const dataMetadata: DataMetadata = {
 };
 
 const MOCK_DATA: Required<BusterMetricData> = {
-  error: null,
   data: mockData(),
   metricId: faker.string.uuid(),
   data_metadata: dataMetadata,

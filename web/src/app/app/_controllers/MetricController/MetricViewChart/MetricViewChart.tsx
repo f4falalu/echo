@@ -52,7 +52,7 @@ export const MetricViewChart: React.FC<{ metricId: string }> = React.memo(({ met
         <MetricViewChartContent
           chartConfig={metric.chart_config}
           metricData={metricData?.data || []}
-          dataMetadata={metricData?.data_metadata || {}}
+          dataMetadata={metricData?.data_metadata}
           fetchedData={isFetchedMetricData}
           errorMessage={metricDataError?.message}
         />

@@ -1,20 +1,20 @@
 import isEmpty from 'lodash/isEmpty';
-import { BusterMetricData, IBusterMetric } from '../interfaces';
+import { IBusterMetric } from '../interfaces';
 import { isNumericColumnType } from '@/utils';
 import { BusterChartConfigProps } from '@/components/charts';
-import { BusterMetricListItem, VerificationStatus } from '@/api/asset_interfaces';
 import { defaultIBusterMetric } from '../config';
+import { BusterMetricData } from '@/context/MetricData';
 
 export const canEditChart = (
   metricId: string | undefined | null,
-  messageData: BusterMetricData,
+  isFetchedMetricData: boolean,
+  metricData: BusterMetricData | undefined,
   columnLabelFormats: BusterChartConfigProps['columnLabelFormats']
 ): boolean => {
   return (
     !!metricId &&
-    !messageData?.fetching &&
-    !!messageData?.fetched &&
-    !isEmpty(messageData?.data) &&
+    !isFetchedMetricData &&
+    !isEmpty(metricData?.data) &&
     !columnLabelFormats &&
     !!Object.values(columnLabelFormats! || {}).some((column) =>
       isNumericColumnType(column.columnType)

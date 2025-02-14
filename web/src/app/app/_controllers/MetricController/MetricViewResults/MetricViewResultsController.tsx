@@ -27,7 +27,7 @@ export const MetricViewResults: React.FC<MetricViewProps> = React.memo(({ metric
   const [fetchingData, setFetchingData] = React.useState(false);
 
   const dataSourceId = metric?.data_source_id;
-  const data: IDataResult = metricData.dataFromRerun || metricData.data || null;
+  const data: IDataResult = metricData?.dataFromRerun || metricData?.data || null;
 
   const disableSave = useMemo(() => {
     return !sql || fetchingData || sql === metric.code;

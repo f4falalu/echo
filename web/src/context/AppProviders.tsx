@@ -24,7 +24,6 @@ import { BusterPosthogProvider } from './Posthog/usePosthog';
 import { BusterNotificationsProvider } from './BusterNotifications';
 import { BusterChatProvider } from './Chats';
 import { RoutePrefetcher } from './RoutePrefetcher';
-import { BusterMetricDataProvider } from './MetricData';
 import { BusterMetricsProvider } from './Metrics';
 import type { BusterUserResponse } from '@/api/asset_interfaces';
 
@@ -65,26 +64,24 @@ export const AppProviders: React.FC<
                     <DataSourceProvider>
                       <DatasetProviders>
                         <BusterCollectionsProvider>
-                          <BusterMetricDataProvider>
-                            <BusterMetricsProvider>
-                              <BusterDashboardProvider>
-                                <BusterSQLProvider>
-                                  <BusterTermsProvider>
-                                    <BusterPermissionsProvider>
-                                      <BusterChatProvider>
-                                        <AppHotKeysProvider>
-                                          <BusterPosthogProvider>
-                                            {children}
-                                            <RoutePrefetcher />
-                                          </BusterPosthogProvider>
-                                        </AppHotKeysProvider>
-                                      </BusterChatProvider>
-                                    </BusterPermissionsProvider>
-                                  </BusterTermsProvider>
-                                </BusterSQLProvider>
-                              </BusterDashboardProvider>
-                            </BusterMetricsProvider>
-                          </BusterMetricDataProvider>
+                          <BusterMetricsProvider>
+                            <BusterDashboardProvider>
+                              <BusterSQLProvider>
+                                <BusterTermsProvider>
+                                  <BusterPermissionsProvider>
+                                    <BusterChatProvider>
+                                      <AppHotKeysProvider>
+                                        <BusterPosthogProvider>
+                                          {children}
+                                          <RoutePrefetcher />
+                                        </BusterPosthogProvider>
+                                      </AppHotKeysProvider>
+                                    </BusterChatProvider>
+                                  </BusterPermissionsProvider>
+                                </BusterTermsProvider>
+                              </BusterSQLProvider>
+                            </BusterDashboardProvider>
+                          </BusterMetricsProvider>
                         </BusterCollectionsProvider>
                       </DatasetProviders>
                     </DataSourceProvider>
