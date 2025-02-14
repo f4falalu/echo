@@ -12,7 +12,7 @@ import {
 
 const useBusterTerms = () => {
   const { openConfirmModal } = useBusterNotifications();
-  const busterSocket = useBusterWebSocket();
+
   const [termsList, setTermsList] = React.useState<BusterTermListItem[]>([]);
   const [loadedTermsList, setLoadedTermsList] = React.useState(false);
   const [openNewTermsModal, setOpenNewTermsModal] = React.useState(false);

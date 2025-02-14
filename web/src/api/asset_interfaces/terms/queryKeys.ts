@@ -12,3 +12,8 @@ export const termsGetTerm = (termId: string) =>
     queryKey: ['terms', 'get', termId] as const,
     staleTime: 10 * 1000
   });
+
+export const termsQueryKeys = {
+  '/terms/list:getTermsList': termsGetList,
+  '/terms/get:getTerm': termsGetTerm
+};

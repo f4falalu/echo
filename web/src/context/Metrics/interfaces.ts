@@ -12,14 +12,14 @@ export interface IBusterMetric extends Required<BusterMetric> {
   fetchedAt: number;
 }
 
-export interface BusterMetricData {
-  metricId: string;
-  data?: IDataResult;
-  dataFromRerun?: IDataResult;
-  fetched: boolean;
-  fetching: boolean;
-  fetchedAt: number;
-  data_metadata: DataMetadata;
-  code: string | null;
-  error: string | null;
-}
+// export interface BusterMetricData {
+//   metricId: string;
+//   data?: IDataResult;
+//   dataFromRerun?: IDataResult;
+//   fetched: boolean;
+//   fetching: boolean;
+//   fetchedAt: number;
+//   data_metadata: DataMetadata;
+//   code: string | null;
+//   error: string | null;
+// }
