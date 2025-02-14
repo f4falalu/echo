@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::utils::clients::ai::litellm::Message;
+use litellm::Message;
 
 /// A Thread represents a conversation between a user and the AI agent.
 /// It contains a sequence of messages in chronological order.

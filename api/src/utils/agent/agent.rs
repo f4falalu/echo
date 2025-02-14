@@ -1,15 +1,14 @@
-use crate::utils::{
-    clients::ai::litellm::{
-        ChatCompletionRequest, DeltaFunctionCall, DeltaToolCall, FunctionCall, LiteLLMClient,
-        Message, MessageProgress, Tool, ToolCall, ToolChoice,
-    },
-    tools::ToolExecutor,
+use litellm::{
+    ChatCompletionRequest, DeltaFunctionCall, DeltaToolCall, FunctionCall, LiteLLMClient,
+    Message, MessageProgress, Tool, ToolCall, ToolChoice,
 };
 use anyhow::Result;
 use serde::Serialize;
 use serde_json::Value;
 use std::{collections::HashMap, env, sync::Arc};
 use tokio::sync::mpsc;
+
+use crate::utils::tools::ToolExecutor;
 
 use super::types::AgentThread;
 
@@ -517,8 +516,6 @@ impl PendingToolCall {
 
 #[cfg(test)]
 mod tests {
-    use crate::utils::clients::ai::litellm::ToolCall;
-
     use super::*;
     use axum::async_trait;
     use dotenv::dotenv;

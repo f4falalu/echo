@@ -17,7 +17,7 @@ use crate::{
         models::{DashboardFile, MetricFile},
         schema::{dashboard_files, metric_files},
     },
-    utils::{clients::ai::litellm::ToolCall, tools::ToolExecutor},
+    utils::tools::ToolExecutor,
 };
 use super::{
     file_types::{
@@ -27,6 +27,8 @@ use super::{
     },
     FileModificationTool,
 };
+
+use litellm::ToolCall;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Modification {

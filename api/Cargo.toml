@@ -1,7 +1,8 @@
 [workspace]
 members = [
     ".",
-    "libs/handlers"
+    "libs/handlers",
+    "libs/litellm"
 ]
 
 # Define shared dependencies for all workspace members
@@ -38,6 +39,7 @@ diesel-async = { workspace = true }
 
 # Local dependencies
 handlers = { path = "libs/handlers" }
+litellm = { path = "libs/litellm" }
 
 # Other dependencies specific to the main app
 arrow = { version = "54.0.0", features = ["json"] }

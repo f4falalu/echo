@@ -12,13 +12,10 @@ use uuid::Uuid;
 
 use crate::{
     database::{lib::get_pg_pool, schema::datasets},
-    utils::{
-        clients::ai::litellm::{
-            ChatCompletionRequest, LiteLLMClient, Message, ResponseFormat, Tool, ToolCall,
-        },
-        tools::ToolExecutor,
-    },
+    utils::tools::ToolExecutor,
 };
+
+use litellm::{ChatCompletionRequest, LiteLLMClient, Message, ResponseFormat, Tool, ToolCall};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct SearchDataCatalogParams {

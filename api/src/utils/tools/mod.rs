@@ -2,8 +2,8 @@ use anyhow::Result;
 use async_trait::async_trait;
 use serde::Serialize;
 use serde_json::Value;
+use litellm::ToolCall;
 
-use crate::utils::clients::ai::litellm::ToolCall;
 
 pub mod file_tools;
 

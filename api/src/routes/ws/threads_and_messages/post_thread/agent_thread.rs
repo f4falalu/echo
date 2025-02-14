@@ -30,7 +30,6 @@ use crate::{
     },
     utils::{
         agent::{Agent, AgentThread},
-        clients::ai::litellm::Message as AgentMessage,
         tools::{
             file_tools::{
                 CreateFilesTool, ModifyFilesTool, OpenFilesTool, SearchDataCatalogTool,
@@ -42,6 +41,7 @@ use crate::{
 };
 
 use super::agent_message_transformer::transform_message;
+use litellm::Message as AgentMessage;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TempInitChat {

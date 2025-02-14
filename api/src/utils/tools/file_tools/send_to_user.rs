@@ -3,7 +3,8 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::utils::{clients::ai::litellm::ToolCall, tools::ToolExecutor};
+use crate::utils::tools::ToolExecutor;
+use litellm::ToolCall;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct SendToUserParams {

@@ -7,7 +7,7 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use crate::routes::ws::threads_and_messages::threads_router::ThreadEvent;
-use crate::utils::clients::ai::litellm::{Message, MessageProgress, ToolCall};
+use litellm::{Message, MessageProgress, ToolCall};
 
 use crate::utils::tools::file_tools::create_files::CreateFilesOutput;
 use crate::utils::tools::file_tools::file_types::file::FileEnum;
