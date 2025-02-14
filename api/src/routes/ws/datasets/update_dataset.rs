@@ -213,6 +213,7 @@ async fn update_dataset_handler(
                 &dataset_def.database_name,
                 &dataset_def.schema,
                 &credentials,
+                None,
             )
             .await
             {

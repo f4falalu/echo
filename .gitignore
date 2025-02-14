@@ -62,3 +62,5 @@ Cargo.lock
 node_modules/
 
 .secrets
+
+/prds

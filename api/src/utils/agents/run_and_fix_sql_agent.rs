@@ -204,6 +204,7 @@ pub async fn run_and_fix_sql_agent(options: RunAndFixSqlAgentOptions) -> Result<
                         &options.dataset,
                     ),
                     prompt_name: "fix_sql".to_string(),
+                    model: "gpt-4o".to_string(),
                     ..Default::default()
                 };
 

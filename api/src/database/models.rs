@@ -272,6 +272,7 @@ pub struct Dataset {
     pub deleted_at: Option<DateTime<Utc>>,
     pub model: Option<String>,
     pub yml_file: Option<String>,
+    pub database_identifier: Option<String>,
 }
 
 #[derive(Insertable, Queryable, Associations, Debug)]

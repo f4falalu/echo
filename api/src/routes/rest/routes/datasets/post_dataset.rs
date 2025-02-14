@@ -127,6 +127,7 @@ async fn post_dataset_handler(
         deleted_at: None,
         model: None,
         yml_file: None,
+        database_identifier: None,
     };
 
     diesel::insert_into(datasets::table)
