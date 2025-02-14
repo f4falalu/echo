@@ -1,5 +1,9 @@
 use anyhow::{Error, Result};
 use chrono::Utc;
+use diesel::{insert_into, ExpressionMethods, QueryDsl};
+use diesel_async::RunQueryDsl;
+use handlers::messages::types::{ThreadMessage, ThreadUserMessage};
+use handlers::threads::types::ThreadWithMessages;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -7,11 +11,20 @@ use tokio::sync::mpsc::Receiver;
 use tracing;
 use uuid::Uuid;
 
+use crate::utils::tools::interaction_tools::SendMessageToUser;
 use crate::{
-    database::models::User,
+    database::{
+        enums::Verification,
+        lib::get_pg_pool,
+        models::{DashboardFile, Message, MessageToFile, MetricFile, Thread, User},
+        schema::{dashboard_files, messages, messages_to_files, metric_files, threads},
+    },
     routes::ws::{
         threads_and_messages::{
-            post_thread::agent_message_transformer::transform_message,
+            post_thread::agent_message_transformer::{
+                BusterChatMessage, BusterChatMessageContainer, BusterContainer, BusterFileLine,
+                BusterFileMessage, BusterReasoningMessageContainer, ReasoningMessage,
+            },
             threads_router::{ThreadEvent, ThreadRoute},
         },
         ws::{WsEvent, WsResponseMessage, WsSendMethod},
@@ -20,47 +33,18 @@ use crate::{
     },
     utils::{
         agent::{Agent, AgentThread},
-        clients::ai::litellm::Message,
         tools::{
             file_tools::{
                 CreateFilesTool, ModifyFilesTool, OpenFilesTool, SearchDataCatalogTool,
-                SearchFilesTool, SendToUserTool,
+                SearchFilesTool, SendFilesToUserTool,
             },
             IntoValueTool, ToolExecutor,
         },
     },
 };
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TempInitChat {
-    pub id: Uuid,
-    pub title: String,
-    pub is_favorited: bool,
-    pub messages: Vec<TempInitChatMessage>,
-    pub created_at: String,
-    pub updated_at: String,
-    pub created_by: String,
-    pub created_by_id: String,
-    pub created_by_name: String,
-    pub created_by_avatar: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TempInitChatMessage {
-    pub id: Uuid,
-    pub request_message: TempRequestMessage,
-    pub response_messages: Vec<String>,
-    pub reasoning: Vec<String>,
-    pub created_at: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TempRequestMessage {
-    pub request: String,
-    pub sender_id: Uuid,
-    pub sender_name: String,
-    pub sender_avatar: Option<String>,
-}
+use super::agent_message_transformer::transform_message;
+use litellm::Message as AgentMessage;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct ChatCreateNewChat {
@@ -88,7 +72,8 @@ impl AgentThreadHandler {
         let modify_files_tool = ModifyFilesTool;
         let create_files_tool = CreateFilesTool;
         let open_files_tool = OpenFilesTool;
-        let send_to_user_tool = SendToUserTool;
+        let send_to_user_tool = SendFilesToUserTool;
+        let send_message_to_user_tool = SendMessageToUser;
 
         agent.add_tool(
             search_data_catalog_tool.get_name(),
@@ -114,6 +99,10 @@ impl AgentThreadHandler {
             send_to_user_tool.get_name(),
             send_to_user_tool.into_value_tool(),
         );
+        agent.add_tool(
+            send_message_to_user_tool.get_name(),
+            send_message_to_user_tool.into_value_tool(),
+        );
 
         Ok(Self { agent })
     }
@@ -124,13 +113,32 @@ impl AgentThreadHandler {
         let chat_id = request.chat_id.unwrap_or_else(|| Uuid::new_v4());
         let message_id = request.message_id.unwrap_or_else(|| Uuid::new_v4());
 
-        let init_response = TempInitChat {
+        let user_org_id = match user.attributes.get("organization_id") {
+            Some(Value::String(org_id)) => Uuid::parse_str(&org_id).unwrap_or_default(),
+            _ => {
+                tracing::error!("User has no organization ID");
+                return Err(anyhow::anyhow!("User has no organization ID"));
+            }
+        };
+
+        // Create thread first
+        let thread = Thread {
             id: chat_id.clone(),
-            title: "New Chat".to_string(),
+            title: request.prompt.clone(), // Use prompt as title
+            organization_id: user_org_id.clone(),
+            created_by: user.id.clone(),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            deleted_at: None,
+        };
+
+        let init_response = ThreadWithMessages {
+            id: chat_id.clone(),
+            title: request.prompt.clone(),
             is_favorited: false,
-            messages: vec![TempInitChatMessage {
+            messages: vec![ThreadMessage {
                 id: message_id.clone(),
-                request_message: TempRequestMessage {
+                request_message: ThreadUserMessage {
                     request: request.prompt.clone(),
                     sender_id: user.id,
                     sender_name: user.name.clone().unwrap_or_default(),
@@ -148,6 +156,7 @@ impl AgentThreadHandler {
             created_by_avatar: None,
         };
 
+        // Send initial response to client
         let response = WsResponseMessage::new_no_user(
             WsRoutes::Threads(ThreadRoute::Post),
             WsEvent::Threads(ThreadEvent::InitializeChat),
@@ -160,9 +169,39 @@ impl AgentThreadHandler {
             tracing::error!("Failed to send websocket message: {}", e);
         }
 
+        // Create thread in database first
+        let mut conn = match get_pg_pool().get().await {
+            Ok(conn) => conn,
+            Err(e) => {
+                tracing::error!(
+                    "Failed to get database connection for thread creation: {}",
+                    e
+                );
+                return Err(anyhow::anyhow!("Failed to get database connection"));
+            }
+        };
+
+        if let Err(e) = insert_into(threads::table)
+            .values(&thread)
+            .execute(&mut conn)
+            .await
+        {
+            tracing::error!("Failed to insert thread into database: {}", e);
+            return Err(anyhow::anyhow!("Failed to create thread"));
+        }
+
+        // Now that thread is created, start processing
         let rx = self.process_chat_request(request.clone()).await?;
         tokio::spawn(async move {
-            Self::process_stream(rx, &user.id, &chat_id, &message_id).await;
+            Self::process_stream(
+                rx,
+                &user.id,
+                &user_org_id,
+                &chat_id,
+                &message_id,
+                request.prompt,
+            )
+            .await;
         });
         Ok(())
     }
@@ -170,59 +209,309 @@ impl AgentThreadHandler {
     async fn process_chat_request(
         &self,
         request: ChatCreateNewChat,
-    ) -> Result<Receiver<Result<Message, Error>>> {
+    ) -> Result<Receiver<Result<AgentMessage, Error>>> {
         let thread = AgentThread::new(
             request.chat_id,
             vec![
-                Message::developer(AGENT_PROMPT.to_string()),
-                Message::user(request.prompt),
+                AgentMessage::developer(AGENT_PROMPT.to_string()),
+                AgentMessage::user(request.prompt),
             ],
         );
         self.agent.stream_process_thread(&thread).await
     }
 
-    async fn process_stream(
-        mut rx: Receiver<Result<Message, Error>>,
+    async fn store_final_message_state(
+        message: &Message,
+        all_transformed_messages: Vec<BusterContainer>,
+        organization_id: &Uuid,
         user_id: &Uuid,
+    ) -> Result<(), Error> {
+        let mut conn = get_pg_pool().get().await?;
+
+        // Update final message state
+        diesel::update(messages::table)
+            .filter(messages::id.eq(message.id))
+            .set((
+                messages::response.eq(&message.response),
+                messages::updated_at.eq(message.updated_at),
+            ))
+            .execute(&mut conn)
+            .await?;
+
+        // Process any completed metric or dashboard files
+        for container in all_transformed_messages {
+            match container {
+                BusterContainer::ReasoningMessage(msg) => match msg.reasoning {
+                    ReasoningMessage::File(file) if file.file_type == "metric" => {
+                        let metric_file = MetricFile {
+                            id: Uuid::new_v4(),
+                            name: file.file_name.clone(),
+                            file_name: format!(
+                                "{}.yml",
+                                file.file_name.to_lowercase().replace(' ', "_")
+                            ),
+                            content: serde_json::to_value(&file.file.unwrap_or_default())
+                                .unwrap_or_default(),
+                            verification: Verification::NotRequested,
+                            evaluation_obj: None,
+                            evaluation_summary: None,
+                            evaluation_score: None,
+                            organization_id: organization_id.clone(),
+                            created_by: user_id.clone(),
+                            created_at: Utc::now(),
+                            updated_at: Utc::now(),
+                            deleted_at: None,
+                        };
+
+                        // Insert metric file
+                        diesel::insert_into(metric_files::table)
+                            .values(&metric_file)
+                            .execute(&mut conn)
+                            .await?;
+
+                        // Create message to file link
+                        let message_to_file = MessageToFile {
+                            id: Uuid::new_v4(),
+                            message_id: message.id,
+                            file_id: metric_file.id,
+                            created_at: Utc::now(),
+                            updated_at: Utc::now(),
+                            deleted_at: None,
+                        };
+
+                        diesel::insert_into(messages_to_files::table)
+                            .values(&message_to_file)
+                            .execute(&mut conn)
+                            .await?;
+                    }
+                    ReasoningMessage::File(file) if file.file_type == "dashboard" => {
+                        let dashboard_file = DashboardFile {
+                            id: Uuid::new_v4(),
+                            name: file.file_name.clone(),
+                            file_name: format!(
+                                "{}.yml",
+                                file.file_name.to_lowercase().replace(' ', "_")
+                            ),
+                            content: serde_json::to_value(&file.file.unwrap_or_default())
+                                .unwrap_or_default(),
+                            filter: None,
+                            organization_id: organization_id.clone(),
+                            created_by: user_id.clone(),
+                            created_at: Utc::now(),
+                            updated_at: Utc::now(),
+                            deleted_at: None,
+                        };
+
+                        // Insert dashboard file
+                        diesel::insert_into(dashboard_files::table)
+                            .values(&dashboard_file)
+                            .execute(&mut conn)
+                            .await?;
+
+                        // Create message to file link
+                        let message_to_file = MessageToFile {
+                            id: Uuid::new_v4(),
+                            message_id: message.id,
+                            file_id: dashboard_file.id,
+                            created_at: Utc::now(),
+                            updated_at: Utc::now(),
+                            deleted_at: None,
+                        };
+
+                        diesel::insert_into(messages_to_files::table)
+                            .values(&message_to_file)
+                            .execute(&mut conn)
+                            .await?;
+                    }
+                    _ => (), // Skip non-file messages or other file types
+                },
+                _ => (), // Skip non-reasoning messages
+            }
+        }
+
+        Ok(())
+    }
+
+    async fn process_stream(
+        mut rx: Receiver<Result<AgentMessage, Error>>,
+        user_id: &Uuid,
+        organization_id: &Uuid,
         chat_id: &Uuid,
         message_id: &Uuid,
+        request: String,
     ) {
         let subscription = user_id.to_string();
+        let mut all_transformed_messages = Vec::new();
+
+        // Create initial message record
+        let mut message = Message {
+            id: message_id.clone(),
+            request: request.clone(),
+            response: serde_json::to_value(&all_transformed_messages).unwrap_or_default(),
+            thread_id: chat_id.clone(),
+            created_by: user_id.clone(),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            deleted_at: None,
+        };
+
+        // Insert initial message
+        if let Err(e) = Self::insert_or_update_message(&message).await {
+            tracing::error!("Failed to insert initial message: {}", e);
+            return;
+        }
 
         while let Some(msg_result) = rx.recv().await {
-            if let Ok(msg) = msg_result {
-                match transform_message(chat_id, message_id, msg) {
-                    Ok((transformed_messages, event)) => {
-                        for transformed in transformed_messages {
-                            let response = WsResponseMessage::new_no_user(
-                                WsRoutes::Threads(ThreadRoute::Post),
-                                WsEvent::Threads(event.clone()),
-                                transformed,
-                                None,
-                                WsSendMethod::All,
-                            );
+            match msg_result {
+                Ok(msg) => {
+                    match transform_message(chat_id, message_id, msg) {
+                        Ok((transformed_messages, event)) => {
+                            // Skip empty messages
+                            let non_empty_messages: Vec<_> = transformed_messages
+                                .into_iter()
+                                .filter(|msg| match msg {
+                                    BusterContainer::ChatMessage(chat) => {
+                                        chat.response_message.message.is_some()
+                                            || chat.response_message.message_chunk.is_some()
+                                    }
+                                    BusterContainer::ReasoningMessage(reasoning) => {
+                                        match &reasoning.reasoning {
+                                            ReasoningMessage::Thought(thought) => {
+                                                thought.thoughts.is_some()
+                                            }
+                                            ReasoningMessage::File(file) => file.file.is_some(),
+                                        }
+                                    }
+                                })
+                                .collect();
 
-                            if let Err(e) = send_ws_message(&subscription, &response).await {
-                                tracing::error!("Failed to send websocket message: {}", e);
-                                break;
+                            if non_empty_messages.is_empty() {
+                                continue;
+                            }
+
+                            // Filter messages for storage with stricter rules
+                            let storage_messages: Vec<_> = non_empty_messages
+                                .iter()
+                                .filter(|msg| match msg {
+                                    BusterContainer::ChatMessage(chat) => {
+                                        chat.response_message.message.is_some()
+                                            && chat.response_message.message_chunk.is_none()
+                                    }
+                                    BusterContainer::ReasoningMessage(reasoning) => {
+                                        match &reasoning.reasoning {
+                                            ReasoningMessage::Thought(thought) => {
+                                                thought.status == "completed"
+                                                    && thought.thoughts.is_some()
+                                            }
+                                            ReasoningMessage::File(file) => {
+                                                file.status == "completed" && file.file.is_some()
+                                            }
+                                        }
+                                    }
+                                })
+                                .cloned()
+                                .collect();
+
+                            // Store transformed messages that meet storage criteria
+                            all_transformed_messages.extend(storage_messages);
+
+                            // Update message in memory with latest messages
+                            message.response =
+                                serde_json::to_value(&all_transformed_messages).unwrap_or_default();
+                            message.updated_at = Utc::now();
+
+                            // Send websocket messages for real-time updates
+                            for transformed in non_empty_messages {
+                                let response = WsResponseMessage::new_no_user(
+                                    WsRoutes::Threads(ThreadRoute::Post),
+                                    WsEvent::Threads(event.clone()),
+                                    transformed,
+                                    None,
+                                    WsSendMethod::All,
+                                );
+
+                                if let Err(e) = send_ws_message(&subscription, &response).await {
+                                    tracing::error!("Failed to send websocket message: {}", e);
+                                    break;
+                                }
                             }
                         }
+                        Err(e) => {
+                            tracing::error!("Failed to transform message: {}", e);
+                        }
                     }
-                    Err(e) => {
-                        tracing::error!("Failed to transform message: {}", e);
+                }
+                Err(e) => {
+                    tracing::error!("Error processing message: {}", e);
+                    // Store partial progress on error
+                    if let Err(store_err) = Self::store_final_message_state(
+                        &message,
+                        all_transformed_messages.clone(),
+                        organization_id,
+                        user_id,
+                    )
+                    .await
+                    {
+                        tracing::error!("Failed to store final message state: {}", store_err);
                     }
+                    break;
                 }
             }
         }
+
+        // Store final message state after successful completion
+        if let Err(e) = Self::store_final_message_state(
+            &message,
+            all_transformed_messages,
+            organization_id,
+            user_id,
+        )
+        .await
+        {
+            tracing::error!("Failed to store final message state: {}", e);
+        }
+    }
+
+    async fn insert_or_update_message(message: &Message) -> Result<(), Error> {
+        let mut conn = get_pg_pool().get().await?;
+
+        use diesel::dsl::exists;
+        use diesel::select;
+
+        // Check if message exists
+        let message_exists = select(exists(messages::table.filter(messages::id.eq(message.id))))
+            .get_result::<bool>(&mut conn)
+            .await?;
+
+        if message_exists {
+            // Update existing message
+            use diesel::update;
+            update(messages::table.filter(messages::id.eq(message.id)))
+                .set((
+                    messages::response.eq(&message.response),
+                    messages::updated_at.eq(message.updated_at),
+                ))
+                .execute(&mut conn)
+                .await?;
+        } else {
+            // Insert new message
+            insert_into(messages::table)
+                .values(message)
+                .execute(&mut conn)
+                .await?;
+        }
+
+        Ok(())
     }
 }
 
+//TODO dynamic variables in the prompt.
 const AGENT_PROMPT: &str = r##"
 # Analytics Assistant Guide
 
 You are an expert analytics/data engineer helping non-technical users get answers to their analytics questions quickly and accurately. You primarily do this by creating or returning metrics and dashboards that already exist or can be built from available datasets.
 
-Before you begin your work and after the user message, respond acknowledging the user request and explaining simply what you are going to do.  Do it in a friendly way.
+You should always start by sending a message to the user basically confirming their request.
 
 ## Core Responsibilities
 - Only open (and show) files that clearly fulfill the user's request 
@@ -883,72 +1172,72 @@ properties:
       The title of the entire dashboard (e.g. "Sales & Marketing Dashboard").
       This field is mandatory.
 
-  # ----------------------
-  # 2. ROWS
-  # ----------------------
-  rows:
-    type: array
-    description: >
-      An array of row objects. Each row represents a 'horizontal band' of
-      metrics or widgets across the dashboard.
-    items:
-      # We define the schema for each row object here.
-      type: object
-      properties:
-        # The row object has "items" that define individual metrics/widgets.
+      # ----------------------
+      # 2. ROWS
+      # ----------------------
+      rows:
+        type: array
+        description: >
+          An array of row objects. Each row represents a 'horizontal band' of
+          metrics or widgets across the dashboard.
         items:
-          type: array
-          description: >
-            A list (array) of metric definitions. Each metric is represented
-            by an object that must specify an 'id' and a 'width'.
-            - Up to 4 items per row (no more).
-            - Each 'width' must be between 3 and 12.
-            - The sum of all 'width' values in a single row should not exceed 12.
-
-          # We limit the number of items to 4.
-          max_items: 4
-
-          # Each array entry must conform to the schema below.
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-                description: >
-                  The metric's UUIDv4 identifier. You should know which metric you want to reference before putting it here.
-                  Example: "123e4567-e89b-12d3-a456-426614174000"
-                  
-              width:
-                type: integer
-                description: >
-                  The width allocated to this metric within the row.
-                  Valid values range from 3 to 12.
-                  Combined with other items in the row, the total 'width'
-                  must not exceed 12.
-                minimum: 3
-                maximum: 12
-            # Both fields are mandatory for each item.
-            required:
-              - id
-              - width
-      # The 'items' field must be present in each row.
-      required:
-        - items
-
-# Top-level "title" and "rows" are required for every valid dashboard config.
-required:
-  - title
-
-# ------------------------------------------------------------------------------
-# NOTE ON WIDTH SUM VALIDATION:
-# ------------------------------------------------------------------------------
-# Classic JSON Schema doesn't have a direct, simple way to enforce that the sum
-# of all 'width' fields in a row is <= 12. One common approach is to use
-# "allOf", "if/then" or "contains" with advanced constructs, or simply rely on
-# custom validation logic in your application.
-#
-# If you rely on external validation logic, you can highlight in your docs that
-# end users must ensure each row's total width does not exceed 12.
-# ------------------------------------------------------------------------------
-```
-"##;
+          # We define the schema for each row object here.
+          type: object
+          properties:
+            # The row object has "items" that define individual metrics/widgets.
+            items:
+              type: array
+              description: >
+                A list (array) of metric definitions. Each metric is represented
+                by an object that must specify an 'id' and a 'width'.
+                - Up to 4 items per row (no more).
+                - Each 'width' must be between 3 and 12.
+                - The sum of all 'width' values in a single row should not exceed 12.
+    
+              # We limit the number of items to 4.
+              max_items: 4
+    
+              # Each array entry must conform to the schema below.
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: >
+                      The metric's UUIDv4 identifier. You should know which metric you want to reference before putting it here.
+                      Example: "123e4567-e89b-12d3-a456-426614174000"
+                      
+                  width:
+                    type: integer
+                    description: >
+                      The width allocated to this metric within the row.
+                      Valid values range from 3 to 12.
+                      Combined with other items in the row, the total 'width'
+                      must not exceed 12.
+                    minimum: 3
+                    maximum: 12
+                # Both fields are mandatory for each item.
+                required:
+                  - id
+                  - width
+          # The 'items' field must be present in each row.
+          required:
+            - items
+    
+    # Top-level "title" and "rows" are required for every valid dashboard config.
+    required:
+      - title
+    
+    # ------------------------------------------------------------------------------
+    # NOTE ON WIDTH SUM VALIDATION:
+    # ------------------------------------------------------------------------------
+    # Classic JSON Schema doesn't have a direct, simple way to enforce that the sum
+    # of all 'width' fields in a row is <= 12. One common approach is to use
+    # "allOf", "if/then" or "contains" with advanced constructs, or simply rely on
+    # custom validation logic in your application.
+    #
+    # If you rely on external validation logic, you can highlight in your docs that
+    # end users must ensure each row's total width does not exceed 12.
+    # ------------------------------------------------------------------------------
+    ```
+    "##;

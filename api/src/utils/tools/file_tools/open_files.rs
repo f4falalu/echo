@@ -19,13 +19,14 @@ use crate::{
         schema::{dashboard_files, metric_files},
     },
     utils::{
-        clients::ai::litellm::ToolCall,
         tools::file_tools::file_types::{
             dashboard_yml::DashboardYml, file::FileEnum, metric_yml::MetricYml,
         },
         tools::ToolExecutor,
     },
 };
+
+use litellm::ToolCall;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct FileRequest {

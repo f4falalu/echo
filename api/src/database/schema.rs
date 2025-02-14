@@ -603,14 +603,11 @@ diesel::joinable!(datasets_to_dataset_groups -> dataset_groups (dataset_group_id
 diesel::joinable!(datasets_to_dataset_groups -> datasets (dataset_id));
 diesel::joinable!(datasets_to_permission_groups -> datasets (dataset_id));
 diesel::joinable!(datasets_to_permission_groups -> permission_groups (permission_group_id));
-diesel::joinable!(messages -> threads_deprecated (thread_id));
 diesel::joinable!(messages -> users (created_by));
 diesel::joinable!(messages_deprecated -> datasets (dataset_id));
 diesel::joinable!(messages_deprecated -> threads_deprecated (thread_id));
 diesel::joinable!(messages_deprecated -> users (sent_by));
-diesel::joinable!(messages_to_files -> dashboard_files (file_id));
-diesel::joinable!(messages_to_files -> messages_deprecated (message_id));
-diesel::joinable!(messages_to_files -> metric_files (file_id));
+diesel::joinable!(messages_to_files -> messages (message_id));
 diesel::joinable!(permission_groups -> organizations (organization_id));
 diesel::joinable!(permission_groups_to_users -> permission_groups (permission_group_id));
 diesel::joinable!(permission_groups_to_users -> users (user_id));

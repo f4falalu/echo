@@ -1,15 +1,14 @@
-use crate::utils::{
-    clients::ai::litellm::{
-        ChatCompletionRequest, DeltaFunctionCall, DeltaToolCall, FunctionCall, LiteLLMClient,
-        Message, MessageProgress, Tool, ToolCall, ToolChoice,
-    },
-    tools::ToolExecutor,
+use litellm::{
+    ChatCompletionRequest, DeltaFunctionCall, DeltaToolCall, FunctionCall, LiteLLMClient,
+    Message, MessageProgress, Tool, ToolCall, ToolChoice,
 };
 use anyhow::Result;
 use serde::Serialize;
 use serde_json::Value;
 use std::{collections::HashMap, env, sync::Arc};
 use tokio::sync::mpsc;
+
+use crate::utils::tools::ToolExecutor;
 
 use super::types::AgentThread;
 
@@ -108,39 +107,10 @@ impl Agent {
             })
             .collect();
 
-        // First, make request with tool_choice set to none
-        let initial_request = ChatCompletionRequest {
-            model: self.model.clone(),
-            messages: thread.messages.clone(),
-            tools: if tools.is_empty() {
-                None
-            } else {
-                Some(tools.clone())
-            },
-            tool_choice: Some(ToolChoice::None("none".to_string())),
-            ..Default::default()
-        };
-
-        // Get initial response
-        let initial_response = self.llm_client.chat_completion(initial_request).await?;
-        let initial_message = &initial_response.choices[0].message;
-
-        // Ensure we have content from the initial message
-        let initial_content = match initial_message {
-            Message::Assistant { content, .. } => content.clone().unwrap_or_default(),
-            _ => return Err(anyhow::anyhow!("Expected assistant message from LLM")),
-        };
-
-        // Create a new thread with the initial response
-        let mut tool_thread = thread.clone();
-        tool_thread
-            .messages
-            .push(Message::assistant(None, Some(initial_content), None, None, None));
-
         // Create the tool-enabled request
         let request = ChatCompletionRequest {
             model: self.model.clone(),
-            messages: tool_thread.messages.clone(),
+            messages: thread.messages.clone(),
             tools: if tools.is_empty() { None } else { Some(tools) },
             tool_choice: Some(ToolChoice::Auto("auto".to_string())),
             ..Default::default()
@@ -255,98 +225,10 @@ impl Agent {
                     })
                     .collect();
 
-                let mut tool_thread = thread.clone();
-
-                // Only do initial message phase if this is the first call (recursion_depth = 0)
-                if recursion_depth == 0 {
-                    // First, make request with tool_choice set to none
-                    let initial_request = ChatCompletionRequest {
-                        model: model.to_string(),
-                        messages: thread.messages.clone(),
-                        tools: if tools.is_empty() {
-                            None
-                        } else {
-                            Some(tools.clone())
-                        },
-                        tool_choice: Some(ToolChoice::None("none".to_string())),
-                        stream: Some(true),
-                        ..Default::default()
-                    };
-
-                    // Get streaming response for initial thoughts
-                    let mut initial_stream = llm_client.stream_chat_completion(initial_request).await?;
-                    let mut initial_message = Message::assistant(
-                        None,
-                        Some(String::new()),
-                        None,
-                        None,
-                        None,
-                    );
-
-                    // Process initial stream chunks
-                    while let Some(chunk_result) = initial_stream.recv().await {
-                        match chunk_result {
-                            Ok(chunk) => {
-                                initial_message.set_id(chunk.id.clone());
-
-                                let delta = &chunk.choices[0].delta;
-
-                                // Handle content updates - send delta directly
-                                if let Some(content) = &delta.content {
-                                    // Send the delta chunk immediately with InProgress
-                                    let _ = tx
-                                        .send(Ok(Message::assistant(
-                                            Some("initial_message".to_string()),
-                                            Some(content.clone()),
-                                            None,
-                                            Some(MessageProgress::InProgress),
-                                            None,
-                                        )))
-                                        .await;
-
-                                    // Also accumulate for our thread history
-                                    if let Message::Assistant {
-                                        content: msg_content,
-                                        ..
-                                    } = &mut initial_message
-                                    {
-                                        if let Some(existing) = msg_content {
-                                            existing.push_str(content);
-                                        }
-                                    }
-                                }
-                            }
-                            Err(e) => {
-                                let _ = tx.send(Err(anyhow::Error::from(e))).await;
-                                return Ok(());
-                            }
-                        }
-                    }
-
-                    // Ensure we have content in the initial message
-                    let initial_content = match &initial_message {
-                        Message::Assistant { content, .. } => content.clone().unwrap_or_default(),
-                        _ => String::new(),
-                    };
-
-                    // Send the complete message with accumulated content
-                    if !initial_content.trim().is_empty() {
-                        let _ = tx
-                            .send(Ok(Message::assistant(
-                                Some("initial_message".to_string()),
-                                Some(initial_content.clone()),
-                                None,
-                                Some(MessageProgress::Complete),
-                                None,
-                            )))
-                            .await;
-                    }
-                }
-
                 // Create the tool-enabled request
                 let request = ChatCompletionRequest {
                     model: model.to_string(),
-                    messages: tool_thread.messages.clone(),
+                    messages: thread.messages.clone(),
                     tools: if tools.is_empty() { None } else { Some(tools) },
                     tool_choice: Some(ToolChoice::Auto("auto".to_string())),
                     stream: Some(true),
@@ -355,7 +237,8 @@ impl Agent {
 
                 // Get streaming response
                 let mut stream = llm_client.stream_chat_completion(request).await?;
-                let mut current_message = Message::assistant(None, Some(String::new()), None, None, None);
+                let mut current_message =
+                    Message::assistant(None, Some(String::new()), None, None, None);
                 let mut current_pending_tool: Option<PendingToolCall> = None;
                 let mut has_tool_calls = false;
                 let mut tool_results = Vec::new();
@@ -380,7 +263,7 @@ impl Agent {
                                         // Create and preserve the assistant message with the tool call
                                         let is_first = !first_tool_message_sent;
                                         first_tool_message_sent = true;
-                                        
+
                                         let assistant_tool_message = Message::assistant(
                                             Some(chunk.id.clone()),
                                             None,
@@ -633,8 +516,6 @@ impl PendingToolCall {
 
 #[cfg(test)]
 mod tests {
-    use crate::utils::clients::ai::litellm::ToolCall;
-
     use super::*;
     use axum::async_trait;
     use dotenv::dotenv;
@@ -753,4 +634,3 @@ mod tests {
         println!("Response: {:?}", response);
     }
 }
-

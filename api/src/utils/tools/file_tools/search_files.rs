@@ -16,13 +16,10 @@ use crate::{
         models::{DashboardFile, MetricFile},
         schema::{dashboard_files, metric_files},
     },
-    utils::{
-        clients::ai::litellm::{
-            ChatCompletionRequest, LiteLLMClient, Message, ResponseFormat, Tool, ToolCall,
-        },
-        tools::ToolExecutor,
-    },
+    utils::tools::ToolExecutor,
 };
+
+use litellm::{ChatCompletionRequest, LiteLLMClient, Message, ResponseFormat, ToolCall};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct SearchFilesParams {
