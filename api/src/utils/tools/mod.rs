@@ -6,6 +6,7 @@ use litellm::ToolCall;
 
 
 pub mod file_tools;
+pub mod interaction_tools;
 
 /// A trait that defines how tools should be implemented.
 /// Any struct that wants to be used as a tool must implement this trait.

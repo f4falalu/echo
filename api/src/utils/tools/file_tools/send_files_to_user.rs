@@ -16,16 +16,16 @@ pub struct SendToUserOutput {
     success: bool,
 }
 
-pub struct SendToUserTool;
+pub struct SendFilesToUserTool;
 
-impl SendToUserTool {
+impl SendFilesToUserTool {
     pub fn new() -> Self {
         Self
     }
 }
 
 #[async_trait]
-impl ToolExecutor for SendToUserTool {
+impl ToolExecutor for SendFilesToUserTool {
     type Output = SendToUserOutput;
 
     fn get_name(&self) -> String {

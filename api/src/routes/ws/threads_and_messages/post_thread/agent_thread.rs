@@ -1,7 +1,7 @@
 use anyhow::{Error, Result};
 use chrono::Utc;
 use diesel::{insert_into, ExpressionMethods, QueryDsl};
-use diesel_async::{RunQueryDsl};
+use diesel_async::RunQueryDsl;
 use handlers::messages::types::{ThreadMessage, ThreadUserMessage};
 use handlers::threads::types::ThreadWithMessages;
 use serde::{Deserialize, Serialize};
@@ -11,6 +11,7 @@ use tokio::sync::mpsc::Receiver;
 use tracing;
 use uuid::Uuid;
 
+use crate::utils::tools::interaction_tools::SendMessageToUser;
 use crate::{
     database::{
         enums::Verification,
@@ -35,7 +36,7 @@ use crate::{
         tools::{
             file_tools::{
                 CreateFilesTool, ModifyFilesTool, OpenFilesTool, SearchDataCatalogTool,
-                SearchFilesTool, SendToUserTool,
+                SearchFilesTool, SendFilesToUserTool,
             },
             IntoValueTool, ToolExecutor,
         },
@@ -71,7 +72,8 @@ impl AgentThreadHandler {
         let modify_files_tool = ModifyFilesTool;
         let create_files_tool = CreateFilesTool;
         let open_files_tool = OpenFilesTool;
-        let send_to_user_tool = SendToUserTool;
+        let send_to_user_tool = SendFilesToUserTool;
+        let send_message_to_user_tool = SendMessageToUser;
 
         agent.add_tool(
             search_data_catalog_tool.get_name(),
@@ -96,6 +98,10 @@ impl AgentThreadHandler {
         agent.add_tool(
             send_to_user_tool.get_name(),
             send_to_user_tool.into_value_tool(),
+        );
+        agent.add_tool(
+            send_message_to_user_tool.get_name(),
+            send_message_to_user_tool.into_value_tool(),
         );
 
         Ok(Self { agent })
@@ -503,6 +509,8 @@ const AGENT_PROMPT: &str = r##"
 # Analytics Assistant Guide
 
 You are an expert analytics/data engineer helping non-technical users get answers to their analytics questions quickly and accurately. You primarily do this by creating or returning metrics and dashboards that already exist or can be built from available datasets.
+
+You should always start by sending a message to the user basically confirming their request.
 
 ## Core Responsibilities
 - Only open (and show) files that clearly fulfill the user's request 

@@ -15,6 +15,7 @@ use crate::utils::tools::file_tools::modify_files::ModifyFilesParams;
 use crate::utils::tools::file_tools::open_files::OpenFilesOutput;
 use crate::utils::tools::file_tools::search_data_catalog::SearchDataCatalogOutput;
 use crate::utils::tools::file_tools::search_files::SearchFilesOutput;
+use crate::utils::tools::interaction_tools::send_message_to_user::{SendMessageToUserInput, SendMessageToUserOutput};
 
 struct StreamingParser {
     buffer: String,
@@ -431,6 +432,7 @@ fn transform_tool_message(
         "create_files" => tool_create_file(id, content, progress),
         "modify_files" => tool_modify_file(id, content, progress),
         "open_files" => tool_open_files(id, content, progress),
+        "send_message_to_user" => tool_send_message_to_user(id, content, progress),
         _ => Err(anyhow::anyhow!("Unsupported tool name")),
     }?;
 
@@ -464,6 +466,7 @@ fn transform_assistant_tool_message(
             "create_files" => assistant_create_file(id, tool_calls, progress),
             "modify_files" => assistant_modify_file(id, tool_calls, progress),
             "open_files" => assistant_open_files(id, progress, initial),
+            "send_message_to_user" => assistant_send_message_to_user(id, tool_calls, progress),
             _ => Err(anyhow::anyhow!("Unsupported tool name")),
         }?;
 
@@ -1059,5 +1062,70 @@ fn tool_modify_file(
         }
     } else {
         Err(anyhow::anyhow!("Tool modify file requires progress."))
+    }
+}
+
+fn assistant_send_message_to_user(
+    id: Option<String>,
+    tool_calls: Vec<ToolCall>,
+    progress: Option<MessageProgress>,
+) -> Result<Vec<BusterThreadMessage>> {
+    if let Some(progress) = progress {
+        if let Some(tool_call) = tool_calls.first() {
+            // Try to parse the message from the tool call arguments
+            if let Ok(input) = serde_json::from_str::<SendMessageToUserInput>(&tool_call.function.arguments) {
+                match progress {
+                    MessageProgress::InProgress => {
+                        Ok(vec![BusterThreadMessage::ChatMessage(BusterChatMessage {
+                            id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
+                            message_type: "text".to_string(),
+                            message: None,
+                            message_chunk: Some(input.message),
+                        })])
+                    }
+                    _ => Err(anyhow::anyhow!(
+                        "Assistant send message to user only supports in progress."
+                    )),
+                }
+            } else {
+                Err(anyhow::anyhow!("Failed to parse send message to user input"))
+            }
+        } else {
+            Err(anyhow::anyhow!("No tool call found"))
+        }
+    } else {
+        Err(anyhow::anyhow!(
+            "Assistant send message to user requires progress."
+        ))
+    }
+}
+
+fn tool_send_message_to_user(
+    id: Option<String>,
+    content: String,
+    progress: Option<MessageProgress>,
+) -> Result<Vec<BusterThreadMessage>> {
+    if let Some(progress) = progress {
+        // Parse the output to get the message
+        let output = match serde_json::from_str::<SendMessageToUserOutput>(&content) {
+            Ok(result) => result,
+            Err(_) => return Ok(vec![]), // Silently ignore parsing errors
+        };
+
+        match progress {
+            MessageProgress::Complete => {
+                Ok(vec![BusterThreadMessage::ChatMessage(BusterChatMessage {
+                    id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
+                    message_type: "text".to_string(),
+                    message: Some(output.message),
+                    message_chunk: None,
+                })])
+            }
+            _ => Err(anyhow::anyhow!(
+                "Tool send message to user only supports complete."
+            )),
+        }
+    } else {
+        Err(anyhow::anyhow!("Tool send message to user requires progress."))
     }
 }
