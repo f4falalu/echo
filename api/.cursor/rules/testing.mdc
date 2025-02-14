@@ -1,6 +1,6 @@
 ---
 description: This is designed to help understand how to do testing in this project.
-globs: src/*
+globs: */tests/*
 ---
 # Testing Rules and Best Practices
 
