@@ -1,6 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
-import type { BusterMetric } from './interfaces';
-import type { BusterMetricListItem } from './listInterfaces';
+import type { BusterMetric, BusterMetricListItem } from '@/api/asset_interfaces';
 import type { MetricListRequest } from '@/api/request_interfaces/metrics';
 import type { BusterMetricData } from '@/context/MetricData';
 

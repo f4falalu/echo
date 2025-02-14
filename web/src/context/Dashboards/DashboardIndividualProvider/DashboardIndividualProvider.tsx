@@ -5,7 +5,7 @@ import {
   createContext,
   ContextSelector
 } from '@fluentui/react-context-selector';
-import { queryKeys } from '@/api/asset_interfaces';
+import { queryKeys } from '@/api/query_keys';
 import { useDashboardAssosciations } from './useDashboardAssosciations';
 import { useDashboardCreate } from './useDashboardCreate';
 import { useDashboardUpdateConfig } from './useDashboardUpdateConfig';

@@ -1,6 +1,6 @@
 import { useMemoizedFn } from 'ahooks';
 import { useSocketQueryEmitOn, useSocketQueryMutation } from '@/api/buster_socket_query';
-import { queryKeys } from '@/api/asset_interfaces';
+import { queryKeys } from '@/api/query_keys';
 
 export const useFavoriteProvider = () => {
   const { data: userFavorites, refetch: refreshFavoritesList } = useSocketQueryEmitOn(

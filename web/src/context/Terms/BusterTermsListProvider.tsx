@@ -1,5 +1,5 @@
 import React from 'react';
-import { queryKeys } from '@/api/asset_interfaces';
+import { queryKeys } from '@/api/query_keys';
 import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
 import {
   createContext,

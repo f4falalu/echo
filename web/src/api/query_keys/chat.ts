@@ -1,5 +1,5 @@
 import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { BusterChat, BusterChatListItem } from './chatInterfaces';
+import type { BusterChat, BusterChatListItem } from '@/api/asset_interfaces';
 import type { GetChatListParams } from '@/api/request_interfaces/chats';
 
 const chatsGetChat = (chatId: string) =>

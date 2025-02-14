@@ -13,11 +13,6 @@ import { useMemo, useRef, useTransition } from 'react';
 import type { InferBusterSocketResponseData } from './types';
 import { useMemoizedFn, useMount, useUnmount } from 'ahooks';
 
-import { queryKeys } from '../asset_interfaces';
-
-//TEST
-import type { BusterChat } from '@/api/asset_interfaces';
-
 type UseSocketQueryOnResult<TData, TError> = UseQueryResult<TData, TError>;
 
 export const useSocketQueryOn = <

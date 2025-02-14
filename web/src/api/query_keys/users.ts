@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
-import { BusterUserFavorite } from './interfaces';
+import type { BusterUserFavorite } from '@/api/asset_interfaces';
 
 const favoritesGetList = queryOptions<BusterUserFavorite[]>({
   queryKey: ['users', 'favorites', 'list'] as const

@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
-import type { BusterDashboard, BusterDashboardResponse } from './interfaces';
+import type { BusterDashboard, BusterDashboardResponse } from '@/api/asset_interfaces';
 
 const dashboardGetList = queryOptions<BusterDashboard[]>({
   queryKey: ['dashboard', 'list'] as const,

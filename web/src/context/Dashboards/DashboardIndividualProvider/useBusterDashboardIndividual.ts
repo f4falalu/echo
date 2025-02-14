@@ -1,4 +1,5 @@
-import { BusterDashboardResponse, queryKeys } from '@/api/asset_interfaces';
+import type { BusterDashboardResponse } from '@/api/asset_interfaces';
+import { queryKeys } from '@/api/query_keys';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { useMemoizedFn } from 'ahooks';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';

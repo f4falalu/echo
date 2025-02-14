@@ -1,5 +1,6 @@
 import { useSocketQueryMutation } from '@/api/buster_socket_query';
-import { type BusterTerm, queryKeys } from '@/api/asset_interfaces';
+import { type BusterTerm } from '@/api/asset_interfaces';
+import { queryKeys } from '@/api/query_keys';
 import { queryOptions } from '@tanstack/react-query';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from 'ahooks';

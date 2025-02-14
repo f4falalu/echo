@@ -1,4 +1,5 @@
-import { queryKeys, type BusterDashboard } from '@/api/asset_interfaces';
+import { type BusterDashboard } from '@/api/asset_interfaces';
+import { queryKeys } from '@/api/query_keys';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { useMemoizedFn } from 'ahooks';

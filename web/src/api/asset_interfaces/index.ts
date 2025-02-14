@@ -14,4 +14,3 @@ export * from './sql';
 export * from './permission_groups';
 export * from './dataset_groups';
 export * from './api_keys';
-export * from './queryKeys';

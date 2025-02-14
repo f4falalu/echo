@@ -1,6 +1,6 @@
 import { queryOptions } from '@tanstack/react-query';
-import { BusterCollectionListItem, BusterCollection } from './interfaces';
-import type { GetCollectionListParams } from '../../request_interfaces/collections';
+import type { BusterCollectionListItem, BusterCollection } from '@/api/asset_interfaces';
+import type { GetCollectionListParams } from '@/api/request_interfaces/collections';
 
 const collectionsGetList = (filters?: GetCollectionListParams) =>
   queryOptions<BusterCollectionListItem[]>({

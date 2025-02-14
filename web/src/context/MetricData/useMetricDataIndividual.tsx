@@ -1,4 +1,4 @@
-import { queryKeys } from '@/api/asset_interfaces';
+import { queryKeys } from '@/api/query_keys';
 import { useSocketQueryEmitAndOnce } from '@/api/buster_socket_query';
 import { BusterMetricData } from './interfaces';
 

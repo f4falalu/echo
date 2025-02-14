@@ -1,9 +1,9 @@
 import {
-  queryKeys,
   type BusterDashboard,
   type BusterDashboardResponse,
   type VerificationStatus
 } from '@/api/asset_interfaces';
+import { queryKeys } from '@/api/query_keys';
 import { DashboardUpdate } from '@/api/buster_socket/dashboards';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useSocketQueryMutation } from '@/api/buster_socket_query';

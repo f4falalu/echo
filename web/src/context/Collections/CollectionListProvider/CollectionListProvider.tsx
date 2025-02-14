@@ -6,7 +6,7 @@ import {
   useContextSelector,
   createContext
 } from '@fluentui/react-context-selector';
-import { queryKeys } from '@/api/asset_interfaces';
+import { queryKeys } from '@/api/query_keys';
 
 type CollectionListFilters = Omit<CollectionsListEmit['payload'], 'page' | 'page_size'>;
 

@@ -8,11 +8,8 @@ import {
 } from '@fluentui/react-context-selector';
 import { useBusterNotifications } from '../BusterNotifications';
 import { didColumnDataChange, simplifyChatConfigForSQLChange } from './helpers';
-import {
-  queryKeys,
-  type IBusterMetricChartConfig,
-  type RunSQLResponse
-} from '@/api/asset_interfaces';
+import { type IBusterMetricChartConfig, type RunSQLResponse } from '@/api/asset_interfaces';
+import { queryKeys } from '@/api/query_keys';
 import { MetricUpdateMetric } from '@/api/buster_socket/metrics';
 import { runSQL as runSQLRest } from '@/api/buster_rest';
 import { BusterMetricData } from '../MetricData';

@@ -2,7 +2,7 @@ import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useSocketQueryMutation } from '@/api/buster_socket_query';
 import { timeout } from '@/utils';
 import { useMemoizedFn } from 'ahooks';
-import { queryKeys } from '@/api/asset_interfaces';
+import { queryKeys } from '@/api/query_keys';
 
 export const useCollectionCreate = () => {
   const { openConfirmModal } = useBusterNotifications();

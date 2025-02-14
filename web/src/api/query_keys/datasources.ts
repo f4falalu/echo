@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
-import type { DataSourceListItem } from './interfaces';
+import type { DataSourceListItem } from '@/api/asset_interfaces';
 
 export const datasourceGetList = () =>
   queryOptions<DataSourceListItem[]>({
