@@ -240,6 +240,118 @@ impl AgentThreadHandler {
         self.agent.stream_process_thread(&thread).await
     }
 
+    async fn store_final_message_state(
+        message: &Message,
+        all_transformed_messages: Vec<BusterContainer>,
+        organization_id: &Uuid,
+        user_id: &Uuid,
+    ) -> Result<(), Error> {
+        let mut conn = get_pg_pool().get().await?;
+        
+        // Update final message state
+        diesel::update(messages::table)
+            .filter(messages::id.eq(message.id))
+            .set((
+                messages::response.eq(&message.response),
+                messages::updated_at.eq(message.updated_at),
+            ))
+            .execute(&mut conn)
+            .await?;
+        
+        // Process any completed metric or dashboard files
+        for container in all_transformed_messages {
+            match container {
+                BusterContainer::ReasoningMessage(msg) => match msg.reasoning {
+                    ReasoningMessage::File(file) if file.file_type == "metric" => {
+                        let metric_file = MetricFile {
+                            id: Uuid::new_v4(),
+                            name: file.file_name.clone(),
+                            file_name: format!(
+                                "{}.yml",
+                                file.file_name.to_lowercase().replace(' ', "_")
+                            ),
+                            content: serde_json::to_value(&file.file.unwrap_or_default())
+                                .unwrap_or_default(),
+                            verification: Verification::NotRequested,
+                            evaluation_obj: None,
+                            evaluation_summary: None,
+                            evaluation_score: None,
+                            organization_id: organization_id.clone(),
+                            created_by: user_id.clone(),
+                            created_at: Utc::now(),
+                            updated_at: Utc::now(),
+                            deleted_at: None,
+                        };
+
+                        // Insert metric file
+                        diesel::insert_into(metric_files::table)
+                            .values(&metric_file)
+                            .execute(&mut conn)
+                            .await?;
+
+                        // Create message to file link
+                        let message_to_file = MessageToFile {
+                            id: Uuid::new_v4(),
+                            message_id: message.id,
+                            file_id: metric_file.id,
+                            created_at: Utc::now(),
+                            updated_at: Utc::now(),
+                            deleted_at: None,
+                        };
+
+                        diesel::insert_into(messages_to_files::table)
+                            .values(&message_to_file)
+                            .execute(&mut conn)
+                            .await?;
+                    }
+                    ReasoningMessage::File(file) if file.file_type == "dashboard" => {
+                        let dashboard_file = DashboardFile {
+                            id: Uuid::new_v4(),
+                            name: file.file_name.clone(),
+                            file_name: format!(
+                                "{}.yml",
+                                file.file_name.to_lowercase().replace(' ', "_")
+                            ),
+                            content: serde_json::to_value(&file.file.unwrap_or_default())
+                                .unwrap_or_default(),
+                            filter: None,
+                            organization_id: organization_id.clone(),
+                            created_by: user_id.clone(),
+                            created_at: Utc::now(),
+                            updated_at: Utc::now(),
+                            deleted_at: None,
+                        };
+
+                        // Insert dashboard file
+                        diesel::insert_into(dashboard_files::table)
+                            .values(&dashboard_file)
+                            .execute(&mut conn)
+                            .await?;
+
+                        // Create message to file link
+                        let message_to_file = MessageToFile {
+                            id: Uuid::new_v4(),
+                            message_id: message.id,
+                            file_id: dashboard_file.id,
+                            created_at: Utc::now(),
+                            updated_at: Utc::now(),
+                            deleted_at: None,
+                        };
+
+                        diesel::insert_into(messages_to_files::table)
+                            .values(&message_to_file)
+                            .execute(&mut conn)
+                            .await?;
+                    }
+                    _ => (), // Skip non-file messages or other file types
+                },
+                _ => (), // Skip non-reasoning messages
+            }
+        }
+        
+        Ok(())
+    }
+
     async fn process_stream(
         mut rx: Receiver<Result<AgentMessage, Error>>,
         user_id: &Uuid,
@@ -270,200 +382,107 @@ impl AgentThreadHandler {
         }
 
         while let Some(msg_result) = rx.recv().await {
-            if let Ok(msg) = msg_result {
-                match transform_message(chat_id, message_id, msg) {
-                    Ok((transformed_messages, event)) => {
-                        // Skip empty messages
-                        let non_empty_messages: Vec<_> = transformed_messages
-                            .into_iter()
-                            .filter(|msg| match msg {
-                                BusterContainer::ChatMessage(chat) => {
-                                    chat.response_message.message.is_some()
-                                        || chat.response_message.message_chunk.is_some()
-                                }
-                                BusterContainer::ReasoningMessage(reasoning) => {
-                                    match &reasoning.reasoning {
-                                        ReasoningMessage::Thought(thought) => {
-                                            thought.thoughts.is_some()
-                                        }
-                                        ReasoningMessage::File(file) => file.file.is_some(),
+            match msg_result {
+                Ok(msg) => {
+                    match transform_message(chat_id, message_id, msg) {
+                        Ok((transformed_messages, event)) => {
+                            // Skip empty messages
+                            let non_empty_messages: Vec<_> = transformed_messages
+                                .into_iter()
+                                .filter(|msg| match msg {
+                                    BusterContainer::ChatMessage(chat) => {
+                                        chat.response_message.message.is_some()
+                                            || chat.response_message.message_chunk.is_some()
                                     }
-                                }
-                            })
-                            .collect();
-
-                        if non_empty_messages.is_empty() {
-                            continue;
-                        }
-
-                        // Filter messages for database storage with stricter rules
-                        let storage_messages: Vec<_> = non_empty_messages
-                            .iter()
-                            .filter(|msg| match msg {
-                                BusterContainer::ChatMessage(chat) => {
-                                    chat.response_message.message.is_some()
-                                        && chat.response_message.message_chunk.is_none()
-                                }
-                                BusterContainer::ReasoningMessage(reasoning) => {
-                                    match &reasoning.reasoning {
-                                        ReasoningMessage::Thought(thought) => {
-                                            thought.status == "completed" && thought.thoughts.is_some()
-                                        }
-                                        ReasoningMessage::File(file) => {
-                                            file.status == "completed" && file.file.is_some()
+                                    BusterContainer::ReasoningMessage(reasoning) => {
+                                        match &reasoning.reasoning {
+                                            ReasoningMessage::Thought(thought) => {
+                                                thought.thoughts.is_some()
+                                            }
+                                            ReasoningMessage::File(file) => file.file.is_some(),
                                         }
                                     }
+                                })
+                                .collect();
+
+                            if non_empty_messages.is_empty() {
+                                continue;
+                            }
+
+                            // Filter messages for storage with stricter rules
+                            let storage_messages: Vec<_> = non_empty_messages
+                                .iter()
+                                .filter(|msg| match msg {
+                                    BusterContainer::ChatMessage(chat) => {
+                                        chat.response_message.message.is_some()
+                                            && chat.response_message.message_chunk.is_none()
+                                    }
+                                    BusterContainer::ReasoningMessage(reasoning) => {
+                                        match &reasoning.reasoning {
+                                            ReasoningMessage::Thought(thought) => {
+                                                thought.status == "completed" && thought.thoughts.is_some()
+                                            }
+                                            ReasoningMessage::File(file) => {
+                                                file.status == "completed" && file.file.is_some()
+                                            }
+                                        }
+                                    }
+                                })
+                                .cloned()
+                                .collect();
+
+                            // Store transformed messages that meet storage criteria
+                            all_transformed_messages.extend(storage_messages);
+
+                            // Update message in memory with latest messages
+                            message.response = serde_json::to_value(&all_transformed_messages).unwrap_or_default();
+                            message.updated_at = Utc::now();
+
+                            // Send websocket messages for real-time updates
+                            for transformed in non_empty_messages {
+                                let response = WsResponseMessage::new_no_user(
+                                    WsRoutes::Threads(ThreadRoute::Post),
+                                    WsEvent::Threads(event.clone()),
+                                    transformed,
+                                    None,
+                                    WsSendMethod::All,
+                                );
+
+                                if let Err(e) = send_ws_message(&subscription, &response).await {
+                                    tracing::error!("Failed to send websocket message: {}", e);
+                                    break;
                                 }
-                            })
-                            .cloned()
-                            .collect();
-
-                        // Store transformed messages that meet storage criteria
-                        all_transformed_messages.extend(storage_messages);
-
-                        // Update message in database with latest messages
-                        message.response = serde_json::to_value(&all_transformed_messages).unwrap_or_default();
-                        message.updated_at = Utc::now();
-
-                        if let Err(e) = Self::insert_or_update_message(&message).await {
-                            tracing::error!("Failed to update message: {}", e);
-                            continue;
-                        }
-
-                        // Send websocket messages as before
-                        for transformed in non_empty_messages {
-                            let response = WsResponseMessage::new_no_user(
-                                WsRoutes::Threads(ThreadRoute::Post),
-                                WsEvent::Threads(event.clone()),
-                                transformed,
-                                None,
-                                WsSendMethod::All,
-                            );
-
-                            if let Err(e) = send_ws_message(&subscription, &response).await {
-                                tracing::error!("Failed to send websocket message: {}", e);
-                                break;
                             }
                         }
+                        Err(e) => {
+                            tracing::error!("Failed to transform message: {}", e);
+                        }
                     }
-                    Err(e) => {
-                        tracing::error!("Failed to transform message: {}", e);
+                }
+                Err(e) => {
+                    tracing::error!("Error processing message: {}", e);
+                    // Store partial progress on error
+                    if let Err(store_err) = Self::store_final_message_state(
+                        &message,
+                        all_transformed_messages.clone(),
+                        organization_id,
+                        user_id,
+                    ).await {
+                        tracing::error!("Failed to store final message state: {}", store_err);
                     }
+                    break;
                 }
             }
         }
 
-        let mut conn = match get_pg_pool().get().await {
-            Ok(conn) => conn,
-            Err(e) => {
-                tracing::error!("Failed to get database connection: {}", e);
-                return;
-            }
-        };
-
-        // Process any completed metric or dashboard files
-        for container in all_transformed_messages {
-            match container {
-                BusterContainer::ReasoningMessage(msg) => match msg.reasoning {
-                    ReasoningMessage::File(file) if file.file_type == "metric" => {
-                        let metric_file = MetricFile {
-                            id: Uuid::new_v4(),
-                            name: file.file_name.clone(),
-                            file_name: format!(
-                                "{}.yml",
-                                file.file_name.to_lowercase().replace(' ', "_")
-                            ),
-                            content: serde_json::to_value(&file.file.unwrap_or_default())
-                                .unwrap_or_default(),
-                            verification: Verification::NotRequested,
-                            evaluation_obj: None,
-                            evaluation_summary: None,
-                            evaluation_score: None,
-                            organization_id: organization_id.clone(),
-                            created_by: user_id.clone(),
-                            created_at: Utc::now(),
-                            updated_at: Utc::now(),
-                            deleted_at: None,
-                        };
-
-                        // Insert metric file
-                        if let Err(e) = insert_into(metric_files::table)
-                            .values(&metric_file)
-                            .execute(&mut conn)
-                            .await
-                        {
-                            tracing::error!("Failed to insert metric file: {}", e);
-                            continue;
-                        }
-
-                        // Create message to file link
-                        let message_to_file = MessageToFile {
-                            id: Uuid::new_v4(),
-                            message_id: message.id,
-                            file_id: metric_file.id,
-                            created_at: Utc::now(),
-                            updated_at: Utc::now(),
-                            deleted_at: None,
-                        };
-
-                        if let Err(e) = insert_into(messages_to_files::table)
-                            .values(&message_to_file)
-                            .execute(&mut conn)
-                            .await
-                        {
-                            tracing::error!("Failed to insert message to file link: {}", e);
-                        }
-                    }
-                    ReasoningMessage::File(file) if file.file_type == "dashboard" => {
-                        let dashboard_file = DashboardFile {
-                            id: Uuid::new_v4(),
-                            name: file.file_name.clone(),
-                            file_name: format!(
-                                "{}.yml",
-                                file.file_name.to_lowercase().replace(' ', "_")
-                            ),
-                            content: serde_json::to_value(&file.file.unwrap_or_default())
-                                .unwrap_or_default(),
-                            filter: None,
-                            organization_id: organization_id.clone(),
-                            created_by: user_id.clone(),
-                            created_at: Utc::now(),
-                            updated_at: Utc::now(),
-                            deleted_at: None,
-                        };
-
-                        // Insert dashboard file
-                        if let Err(e) = insert_into(dashboard_files::table)
-                            .values(&dashboard_file)
-                            .execute(&mut conn)
-                            .await
-                        {
-                            tracing::error!("Failed to insert dashboard file: {}", e);
-                            continue;
-                        }
-
-                        // Create message to file link
-                        let message_to_file = MessageToFile {
-                            id: Uuid::new_v4(),
-                            message_id: message.id,
-                            file_id: dashboard_file.id,
-                            created_at: Utc::now(),
-                            updated_at: Utc::now(),
-                            deleted_at: None,
-                        };
-
-                        if let Err(e) = insert_into(messages_to_files::table)
-                            .values(&message_to_file)
-                            .execute(&mut conn)
-                            .await
-                        {
-                            tracing::error!("Failed to insert message to file link: {}", e);
-                        }
-                    }
-                    _ => (), // Skip non-file messages or other file types
-                },
-                _ => (), // Skip non-reasoning messages
-            }
+        // Store final message state after successful completion
+        if let Err(e) = Self::store_final_message_state(
+            &message,
+            all_transformed_messages,
+            organization_id,
+            user_id,
+        ).await {
+            tracing::error!("Failed to store final message state: {}", e);
         }
     }
 

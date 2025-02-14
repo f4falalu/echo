@@ -38,13 +38,6 @@ let mut conn = get_pg_pool().get().await?;
 ### Database Operations
 - Use Diesel for database migrations and query building
 - Migrations are stored in the `migrations/` directory
-- Always use transactions for operations that modify multiple tables:
-```rust
-conn.transaction(|conn| {
-    // Your database operations here
-    Ok(())
-})
-```
 
 ### Concurrency Guidelines
 - Prioritize concurrent operations, especially for:
