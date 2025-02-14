@@ -603,7 +603,6 @@ diesel::joinable!(datasets_to_dataset_groups -> dataset_groups (dataset_group_id
 diesel::joinable!(datasets_to_dataset_groups -> datasets (dataset_id));
 diesel::joinable!(datasets_to_permission_groups -> datasets (dataset_id));
 diesel::joinable!(datasets_to_permission_groups -> permission_groups (permission_group_id));
-diesel::joinable!(messages -> threads_deprecated (thread_id));
 diesel::joinable!(messages -> users (created_by));
 diesel::joinable!(messages_deprecated -> datasets (dataset_id));
 diesel::joinable!(messages_deprecated -> threads_deprecated (thread_id));

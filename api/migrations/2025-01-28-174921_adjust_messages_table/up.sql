@@ -14,6 +14,8 @@ CREATE TABLE messages (
     created_by UUID NOT NULL REFERENCES users(id)
 );
 
+ALTER TABLE messages DROP CONSTRAINT messages_thread_id_fkey1;
+
 -- Create indexes for common query patterns
 CREATE INDEX messages_thread_id_idx ON messages(thread_id);
 CREATE INDEX messages_created_by_idx ON messages(created_by);
