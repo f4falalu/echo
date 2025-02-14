@@ -19,7 +19,8 @@ use crate::{
     routes::ws::{
         threads_and_messages::{
             post_thread::agent_message_transformer::{
-                transform_message, BusterContainer, ReasoningMessage,
+                BusterChatMessage, BusterChatMessageContainer, BusterContainer, BusterFileLine,
+                BusterFileMessage, BusterReasoningMessageContainer, ReasoningMessage,
             },
             threads_router::{ThreadEvent, ThreadRoute},
         },
@@ -39,6 +40,8 @@ use crate::{
         },
     },
 };
+
+use super::agent_message_transformer::transform_message;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TempInitChat {
@@ -247,7 +250,7 @@ impl AgentThreadHandler {
         user_id: &Uuid,
     ) -> Result<(), Error> {
         let mut conn = get_pg_pool().get().await?;
-        
+
         // Update final message state
         diesel::update(messages::table)
             .filter(messages::id.eq(message.id))
@@ -257,7 +260,7 @@ impl AgentThreadHandler {
             ))
             .execute(&mut conn)
             .await?;
-        
+
         // Process any completed metric or dashboard files
         for container in all_transformed_messages {
             match container {
@@ -348,7 +351,7 @@ impl AgentThreadHandler {
                 _ => (), // Skip non-reasoning messages
             }
         }
-        
+
         Ok(())
     }
 
@@ -420,7 +423,8 @@ impl AgentThreadHandler {
                                     BusterContainer::ReasoningMessage(reasoning) => {
                                         match &reasoning.reasoning {
                                             ReasoningMessage::Thought(thought) => {
-                                                thought.status == "completed" && thought.thoughts.is_some()
+                                                thought.status == "completed"
+                                                    && thought.thoughts.is_some()
                                             }
                                             ReasoningMessage::File(file) => {
                                                 file.status == "completed" && file.file.is_some()
@@ -435,7 +439,8 @@ impl AgentThreadHandler {
                             all_transformed_messages.extend(storage_messages);
 
                             // Update message in memory with latest messages
-                            message.response = serde_json::to_value(&all_transformed_messages).unwrap_or_default();
+                            message.response =
+                                serde_json::to_value(&all_transformed_messages).unwrap_or_default();
                             message.updated_at = Utc::now();
 
                             // Send websocket messages for real-time updates
@@ -467,7 +472,9 @@ impl AgentThreadHandler {
                         all_transformed_messages.clone(),
                         organization_id,
                         user_id,
-                    ).await {
+                    )
+                    .await
+                    {
                         tracing::error!("Failed to store final message state: {}", store_err);
                     }
                     break;
@@ -481,7 +488,9 @@ impl AgentThreadHandler {
             all_transformed_messages,
             organization_id,
             user_id,
-        ).await {
+        )
+        .await
+        {
             tracing::error!("Failed to store final message state: {}", e);
         }
     }
@@ -523,8 +532,6 @@ const AGENT_PROMPT: &str = r##"
 # Analytics Assistant Guide
 
 You are an expert analytics/data engineer helping non-technical users get answers to their analytics questions quickly and accurately. You primarily do this by creating or returning metrics and dashboards that already exist or can be built from available datasets.
-
-Before you begin your work and after the user message, respond acknowledging the user request and explaining simply what you are going to do.  Do it in a friendly way.
 
 ## Core Responsibilities
 - Only open (and show) files that clearly fulfill the user's request 
