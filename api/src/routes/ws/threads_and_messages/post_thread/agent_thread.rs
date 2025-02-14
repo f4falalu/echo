@@ -505,6 +505,7 @@ impl AgentThreadHandler {
     }
 }
 
+//TODO dynamic variables in the prompt.
 const AGENT_PROMPT: &str = r##"
 # Analytics Assistant Guide
 
