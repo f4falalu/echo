@@ -31,10 +31,6 @@ All PRDs should be stored in the `/prds` directory with the following structure:
   - `fix_` for bug fixes
   - `refactor_` for code refactoring
   - `api_` for API changes
-Examples:
-- `feature_user_authentication.md`
-- `enhancement_query_performance.md`
-- `api_deployment_alignment.md`
 
 ## Using the Template
 
@@ -112,8 +108,7 @@ The template [template.md](mdc:prds/template.md) provides comprehensive sections
 
 ## Example PRDs
 Reference these example PRDs for guidance:
-- @prds/completed/2024/api-deployment-alignment.md
-- @prds/completed/2024/feature-stored-values.md
+[template.md](mdc:prds/template.md)
 
 ## Checklist Before Submission
 - [ ] All template sections completed
