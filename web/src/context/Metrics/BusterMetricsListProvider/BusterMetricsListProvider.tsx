@@ -1,16 +1,14 @@
 'use client';
 
 import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react';
-import { BusterMetricListItem, VerificationStatus } from '@/api/asset_interfaces';
-import isEmpty from 'lodash/isEmpty';
-import { useBusterWebSocket } from '../../BusterWebSocket';
-import { useMemoizedFn, useThrottleFn } from 'ahooks';
-import { createFilterRecord, metricsArrayToRecord } from './helpers';
+import { VerificationStatus } from '@/api/asset_interfaces';
 import {
   createContext,
   useContextSelector,
   ContextSelector
 } from '@fluentui/react-context-selector';
+import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
+import { queryKeys } from '@/api/query_keys';
 
 interface IMetricsList {
   fetching: boolean;
@@ -20,111 +18,29 @@ interface IMetricsList {
 }
 
 const useMetricsList = () => {
-  const busterSocket = useBusterWebSocket();
+  const [metricListFilters, setMetricListFilters] = useState<{
+    filters?: VerificationStatus[];
+    admin_view: boolean;
+  }>({ filters: undefined, admin_view: false });
 
-  const [metricsListItems, setMetricsListItems] = useState<Record<string, BusterMetricListItem>>(
-    {}
-  );
-  const [metricListIds, setMetricListIds] = useState<Record<string, IMetricsList>>({});
-
-  const _onInitializeListMetrics = useMemoizedFn(
-    (metrics: BusterMetricListItem[], filters: VerificationStatus[], admin_view: boolean) => {
-      const newMetrics = metricsArrayToRecord(metrics);
-      const filterKey = createFilterRecord({ filters, admin_view });
-
-      setMetricsListItems((prev) => ({
-        ...prev,
-        ...newMetrics
-      }));
-
-      setMetricListIds((prev) => ({
-        ...prev,
-        [filterKey]: {
-          fetching: false,
-          fetched: true,
-          fetchedAt: Date.now(),
-          metricListIds: Object.keys(newMetrics)
-        }
-      }));
-    }
-  );
-
-  const onUpdateMetricListItem = useMemoizedFn(
-    (newMetric: Partial<BusterMetricListItem> & { id: string }) => {
-      setMetricsListItems((prevMetrics) => {
-        return {
-          ...prevMetrics,
-          [newMetric.id]: {
-            ...prevMetrics[newMetric.id],
-            ...newMetric
-          }
-        };
-      });
-    }
-  );
-
-  const removeItemFromMetricsList = useMemoizedFn(({ metricId }: { metricId: string }) => {
-    setMetricListIds((prevMetricListIds) => {
-      const newMetricListIds = { ...prevMetricListIds };
-      Object.keys(newMetricListIds).forEach((key) => {
-        newMetricListIds[key] = {
-          ...newMetricListIds[key],
-          metricListIds: newMetricListIds[key].metricListIds.filter((id) => id !== metricId)
-        };
-      });
-      return newMetricListIds;
-    });
-  });
-
-  const _getMetricsList = useMemoizedFn(
-    ({ filters, admin_view }: { admin_view: boolean; filters?: VerificationStatus[] }) => {
-      const recordKey = createFilterRecord({ filters, admin_view });
-
-      if (metricListIds[recordKey]?.fetching) {
-        return;
+  const { data: metricList, isFetching: fetchingMetricList } = useSocketQueryEmitOn(
+    {
+      route: '/metrics/list',
+      payload: {
+        page_token: 0,
+        page_size: 3000, //TODO: make a pagination,
+        ...metricListFilters
       }
-
-      setMetricListIds((prev) => {
-        const foundRecord = prev[recordKey];
-        return {
-          ...prev,
-          [recordKey]: {
-            fetching: true,
-            metricListIds: foundRecord?.metricListIds || [],
-            fetched: foundRecord?.fetched || false,
-            fetchedAt: foundRecord?.fetchedAt || 0
-          }
-        };
-      });
-
-      const status = isEmpty(filters) ? null : filters!;
-
-      return busterSocket.emitAndOnce({
-        emitEvent: {
-          route: '/metrics/list',
-          payload: {
-            page_token: 0,
-            page_size: 3000, //TODO: make a pagination
-            admin_view,
-            status
-          }
-        },
-        responseEvent: {
-          route: '/metrics/list:getMetricList',
-          callback: (v) => _onInitializeListMetrics(v, filters || [], admin_view)
-        }
-      });
-    }
+    },
+    '/metrics/list:getMetricList',
+    queryKeys['/metrics/list:getMetricsList']()
   );
-
-  const { run: getMetricsList } = useThrottleFn(_getMetricsList, { wait: 350, leading: true });
 
   return {
-    metricListIds,
-    metricsListItems,
-    getMetricsList,
-    removeItemFromMetricsList,
-    onUpdateMetricListItem
+    metricList,
+    metricListFilters,
+    fetchingMetricList,
+    setMetricListFilters
   };
 };
 
@@ -149,39 +65,34 @@ export const useBusterMetricListByFilter = (params: {
   filters: VerificationStatus[];
   admin_view: boolean;
 }) => {
-  const filterRecord = useMemo(() => createFilterRecord(params), [params]);
-  const metricListIds = useBusterMetricsListContextSelector((x) => x.metricListIds);
-  const metricsListItems = useBusterMetricsListContextSelector((x) => x.metricsListItems);
+  const metricListFilters = useMemo(
+    () => ({
+      filters: params.filters,
+      admin_view: params.admin_view
+    }),
+    [params.filters.join(','), params.admin_view]
+  );
 
-  const getMetricsList = useBusterMetricsListContextSelector((x) => x.getMetricsList);
-
-  const assosciatedMetricList: IMetricsList = useMemo(() => {
-    const listIds: IMetricsList | undefined = metricListIds[createFilterRecord(params)];
-    return (
-      listIds || {
-        fetching: false,
-        fetched: false,
-        fetchedAt: 0,
-        metricListIds: []
+  const {
+    data: metricList,
+    isFetching,
+    isFetched
+  } = useSocketQueryEmitOn(
+    {
+      route: '/metrics/list',
+      payload: {
+        page_token: 0,
+        page_size: 3000, //TODO: make a pagination,
+        ...metricListFilters
       }
-    );
-  }, [metricListIds, metricsListItems, filterRecord]);
+    },
+    '/metrics/list:getMetricList',
+    queryKeys['/metrics/list:getMetricsList']()
+  );
 
-  const list = useMemo(() => {
-    return assosciatedMetricList.metricListIds.map((id) => metricsListItems[id]);
-  }, [assosciatedMetricList.metricListIds, metricsListItems]);
-
-  useEffect(() => {
-    const wasFetchedMoreThanXSecondsAgo =
-      Date.now() - (assosciatedMetricList?.fetchedAt || 0) > 3500;
-
-    if (
-      (!assosciatedMetricList.fetched || wasFetchedMoreThanXSecondsAgo) &&
-      !assosciatedMetricList?.fetching
-    ) {
-      getMetricsList(params);
-    }
-  }, [filterRecord]);
-
-  return { list, fetched: assosciatedMetricList.fetched, fetching: assosciatedMetricList.fetching };
+  return {
+    metricList,
+    isFetching,
+    isFetched
+  };
 };
