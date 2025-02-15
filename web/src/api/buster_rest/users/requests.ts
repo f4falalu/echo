@@ -40,7 +40,7 @@ export const getUser = async ({ userId }: { userId: string }) => {
 };
 
 export const getUser_server = async ({ userId }: { userId: string }) => {
-  return serverFetch<BusterUserResponse>(`/users/${userId}`);
+  return serverFetch<OrganizationUser>(`/users/${userId}`);
 };
 
 export const updateOrganizationUser = async ({

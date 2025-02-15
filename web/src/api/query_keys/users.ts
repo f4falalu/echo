@@ -1,5 +1,9 @@
 import { queryOptions } from '@tanstack/react-query';
-import type { BusterUserFavorite, BusterUserResponse } from '@/api/asset_interfaces';
+import type {
+  BusterUserFavorite,
+  BusterUserResponse,
+  OrganizationUser
+} from '@/api/asset_interfaces';
 
 const favoritesGetList = queryOptions<BusterUserFavorite[]>({
   queryKey: ['users', 'favorites', 'list'] as const
@@ -10,8 +14,8 @@ const userGetUserMyself = queryOptions<BusterUserResponse>({
 });
 
 const userGetUser = (userId: string) =>
-  queryOptions<BusterUserResponse>({
-    queryKey: ['users', userId] as const
+  queryOptions<OrganizationUser>({
+    queryKey: ['users', 'organization', userId] as const
   });
 
 export const userQueryKeys = {

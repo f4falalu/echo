@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Input } from 'antd';
 import { Title, Text } from '@/components/text';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -33,8 +33,7 @@ export const NewUserController = () => {
     try {
       await onCreateUserOrganization({
         name,
-        company,
-        alreadyHasCompany: !!userOrganizations?.name
+        company
       });
 
       onChangePage({

@@ -4,10 +4,10 @@ import { BusterUserResponse } from '@/api/asset_interfaces';
 
 export const useUserOrganization = ({
   userResponse,
-  refreshUserInfo
+  refetchUserResponse
 }: {
-  userResponse: BusterUserResponse | null;
-  refreshUserInfo: () => Promise<void>;
+  userResponse: BusterUserResponse | null | undefined;
+  refetchUserResponse: () => Promise<unknown>;
 }) => {
   const { mutateAsync: createOrganization } = useSocketQueryMutation(
     '/organizations/post',
@@ -27,7 +27,7 @@ export const useUserOrganization = ({
           updateUserInfo({ name, id: userResponse?.user?.id })
         ]);
 
-        await refreshUserInfo();
+        await refetchUserResponse();
       }
     }
   );

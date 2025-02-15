@@ -27,7 +27,6 @@ export const ShareWithGroupAndTeam: React.FC<{
   assetId: string;
 }> = ({ assetType, assetId, goBack, onCopyLink }) => {
   const userTeams = useUserConfigContextSelector((state) => state.userTeams);
-  const loadedUserTeams = useUserConfigContextSelector((state) => state.loadedUserTeams);
   const onShareMetric = useBusterMetricsIndividualContextSelector((state) => state.onShareMetric);
   const getMetric = useBusterMetricsIndividualContextSelector((state) => state.getMetricMemoized);
   const onShareDashboard = useBusterDashboardContextSelector((state) => state.onShareDashboard);
@@ -116,11 +115,9 @@ export const ShareWithGroupAndTeam: React.FC<{
           />
         ))}
 
-        {userTeams.length === 0 && !loadedUserTeams && (
+        {userTeams.length === 0 && (
           <div className="flex w-full items-center justify-center p-3">
-            <Text type="secondary">
-              {loadedUserTeams ? 'Not currently a member of any teams' : 'Loading teams...'}
-            </Text>
+            <Text type="secondary">Not currently a member of any teams</Text>
           </div>
         )}
 

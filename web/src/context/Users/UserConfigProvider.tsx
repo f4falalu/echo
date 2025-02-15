@@ -2,27 +2,31 @@
 
 import type { BusterUserResponse } from '@/api/asset_interfaces';
 import React, { PropsWithChildren, useState } from 'react';
-import { useBusterWebSocket } from '../BusterWebSocket';
-import { useMemoizedFn } from 'ahooks';
 import { useFavoriteProvider } from './useFavoriteProvider';
-import { getMyUserInfo } from '@/api/buster_rest/users';
+import { getMyUserInfo_server, useGetMyUserInfo } from '@/api/buster_rest/users';
 import { useSupabaseContext } from '../Supabase';
 import {
   ContextSelector,
   createContext,
   useContextSelector
 } from '@fluentui/react-context-selector';
-import { useBusterNotifications } from '../BusterNotifications';
-import { timeout } from '@/utils';
 import { checkIfUserIsAdmin } from './helpers';
+import { useUserOrganization } from './useUserOrganization';
+import { useInviteUser } from './useInviteUser';
 
 export const useUserConfigProvider = ({ userInfo }: { userInfo: BusterUserResponse | null }) => {
-  // const busterSocket = useBusterWebSocket();
-  const { openSuccessMessage } = useBusterNotifications();
   const isAnonymousUser = useSupabaseContext((state) => state.isAnonymousUser);
-  const accessToken = useSupabaseContext((state) => state.accessToken);
 
-  const [userResponse, setUserResponse] = useState<BusterUserResponse | null>(userInfo);
+  const { data: userResponse, refetch: refetchUserResponse } = useGetMyUserInfo();
+
+  const favoriteConfig = useFavoriteProvider();
+
+  const inviteUsers = useInviteUser();
+
+  const { onCreateUserOrganization } = useUserOrganization({
+    userResponse,
+    refetchUserResponse
+  });
 
   const user = userResponse?.user;
   const userTeams = userResponse?.teams || [];
@@ -33,35 +37,16 @@ export const useUserConfigProvider = ({ userInfo }: { userInfo: BusterUserRespon
 
   const isAdmin = checkIfUserIsAdmin(userResponse);
 
-  const inviteUsers = useMemoizedFn(async (emails: string[], team_ids?: string[]) => {
-    busterSocket.emit({
-      route: '/users/invite',
-      payload: { emails, team_ids }
-    });
-    await timeout(350);
-    openSuccessMessage('Invites sent');
-  });
-
-  const updateUserInfo = useMemoizedFn(async () => {
-    const res = await getMyUserInfo({ jwtToken: accessToken });
-    if (res) {
-      setUserResponse(res);
-    }
-  });
-
-  const favoriteConfig = useFavoriteProvider();
-
   return {
     onCreateUserOrganization,
-    inviteUsers,
     userTeams,
-    loadedUserTeams: !!userResponse,
     user,
     userRole,
     isAdmin,
     userOrganizations,
     isUserRegistered,
     isAnonymousUser,
+    ...inviteUsers,
     ...favoriteConfig
   };
 };
