@@ -17,7 +17,7 @@ import { timeout } from '@/utils';
 import { checkIfUserIsAdmin } from './helpers';
 
 export const useUserConfigProvider = ({ userInfo }: { userInfo: BusterUserResponse | null }) => {
-  const busterSocket = useBusterWebSocket();
+  // const busterSocket = useBusterWebSocket();
   const { openSuccessMessage } = useBusterNotifications();
   const isAnonymousUser = useSupabaseContext((state) => state.isAnonymousUser);
   const accessToken = useSupabaseContext((state) => state.accessToken);
@@ -41,44 +41,6 @@ export const useUserConfigProvider = ({ userInfo }: { userInfo: BusterUserRespon
     await timeout(350);
     openSuccessMessage('Invites sent');
   });
-
-  const onCreateUserOrganization = useMemoizedFn(
-    async ({
-      name,
-      company,
-      alreadyHasCompany
-    }: {
-      name: string;
-      company: string;
-      alreadyHasCompany?: boolean;
-    }) => {
-      if (!alreadyHasCompany) {
-        const orgRes = await busterSocket.emitAndOnce({
-          emitEvent: {
-            route: '/organizations/post',
-            payload: { name: company }
-          },
-          responseEvent: {
-            route: '/organizations/post:post',
-            callback: (v) => v
-          }
-        });
-      }
-      const userRes = await busterSocket.emitAndOnce({
-        emitEvent: {
-          route: '/permissions/users/update',
-          payload: { name, id: user?.id! }
-        },
-        responseEvent: {
-          route: '/permissions/users/update:updateUserPermission',
-          callback: (v) => v
-        }
-      });
-      await updateUserInfo();
-
-      return;
-    }
-  );
 
   const updateUserInfo = useMemoizedFn(async () => {
     const res = await getMyUserInfo({ jwtToken: accessToken });

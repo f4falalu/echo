@@ -3,7 +3,11 @@ import type { OrganizationUser, BusterUserResponse } from '@/api/asset_interface
 import { mainApi } from '../instances';
 import { serverFetch } from '../../createServerInstance';
 
-export const getMyUserInfo = async ({
+export const getMyUserInfo = async (): Promise<BusterUserResponse> => {
+  return mainApi.get<BusterUserResponse>(`/users`).then((response) => response.data);
+};
+
+export const getMyUserInfo_server = async ({
   jwtToken
 }: {
   jwtToken: string | undefined;

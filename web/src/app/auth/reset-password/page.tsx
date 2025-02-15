@@ -4,7 +4,7 @@ import { useBusterSupabaseAuthMethods } from '@/hooks/useBusterSupabaseAuthMetho
 import { redirect } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { useSupabaseServerContext } from '@/context/Supabase/useSupabaseContext';
-import { getMyUserInfo } from '@/api/buster_rest';
+import { getMyUserInfo_server } from '@/api/buster_rest';
 
 export default async function ResetPassword() {
   const supabaseContext = await useSupabaseServerContext();
@@ -20,7 +20,7 @@ export default async function ResetPassword() {
     );
   }
 
-  const busterUser = await getMyUserInfo({ jwtToken: supabaseContext.accessToken });
+  const busterUser = await getMyUserInfo_server({ jwtToken: supabaseContext.accessToken });
 
   if (!busterUser?.user?.email) {
     return redirect(
