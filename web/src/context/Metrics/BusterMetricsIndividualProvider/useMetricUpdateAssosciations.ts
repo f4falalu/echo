@@ -8,12 +8,8 @@ import { useBusterNotifications } from '../../BusterNotifications';
 import { useBusterDashboardContextSelector } from '../../Dashboards';
 
 export const useUpdateMetricAssosciations = ({
-  metricsRef,
-  setMetrics,
   getMetricMemoized
 }: {
-  metricsRef: MutableRefObject<Record<string, IBusterMetric>>;
-  setMetrics: (metrics: Record<string, IBusterMetric>) => void;
   getMetricMemoized: ({ metricId }: { metricId?: string }) => IBusterMetric;
 }) => {
   const busterSocket = useBusterWebSocket();

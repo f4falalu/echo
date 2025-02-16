@@ -2,9 +2,10 @@ import { queryOptions } from '@tanstack/react-query';
 import type { BusterMetric, BusterMetricListItem } from '@/api/asset_interfaces';
 import type { MetricListRequest } from '@/api/request_interfaces/metrics';
 import type { BusterMetricData } from '@/context/MetricData';
+import { IBusterMetric } from '@/context/Metrics';
 
 export const metricsGetMetric = (metricId: string) =>
-  queryOptions<BusterMetric>({
+  queryOptions<IBusterMetric>({
     queryKey: ['metrics', 'get', metricId] as const,
     staleTime: 10 * 1000,
     enabled: false

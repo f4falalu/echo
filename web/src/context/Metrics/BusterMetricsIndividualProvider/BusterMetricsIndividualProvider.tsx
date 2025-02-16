@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useRef } from 'react';
+import React, { PropsWithChildren } from 'react';
 import {
   createContext,
   ContextSelector,
@@ -12,73 +12,44 @@ import { resolveEmptyMetric, upgradeMetricToIMetric } from '../helpers';
 import { useUpdateMetricConfig } from './useMetricUpdateConfig';
 import { useUpdateMetricAssosciations } from './useMetricUpdateAssosciations';
 import { useShareMetric } from './useMetricShare';
-import { useMetricSubscribe } from './useMetricSubscribe';
 import { useParams } from 'next/navigation';
-import { useMetricDataIndividual } from '@/context/MetricData/useMetricDataIndividual';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/query_keys';
 
 export const useBusterMetricsIndividual = () => {
   const [isPending, startTransition] = useTransition();
   const { metricId: selectedMetricId } = useParams<{ metricId: string }>();
-  const metricsRef = useRef<Record<string, IBusterMetric>>({});
+  const queryClient = useQueryClient();
 
   const getMetricId = useMemoizedFn((metricId?: string): string => {
     return metricId || selectedMetricId;
-  });
-
-  const setMetrics = useMemoizedFn((newMetrics: Record<string, IBusterMetric>) => {
-    metricsRef.current = { ...metricsRef.current, ...newMetrics };
-    startTransition(() => {
-      //trigger a rerender
-    });
-  });
-
-  const resetMetric = useMemoizedFn(({ metricId }: { metricId: string }) => {
-    const prev = metricsRef.current;
-    delete prev[metricId];
-    setMetrics(prev);
   });
 
   //UI SELECTORS
 
   const getMetricMemoized = useMemoizedFn(({ metricId }: { metricId?: string }): IBusterMetric => {
     const _metricId = getMetricId(metricId);
-    const metrics = metricsRef.current || {};
-    const currentMetric = metrics[_metricId];
-    return resolveEmptyMetric(currentMetric, _metricId);
+    const options = queryKeys['/metrics/get:getMetric'](_metricId);
+    const data = queryClient.getQueryData(options.queryKey);
+    return resolveEmptyMetric(data, _metricId);
   });
 
   //STATE UPDATERS
 
   const onInitializeMetric = useMemoizedFn((newMetric: BusterMetric) => {
-    const metrics = metricsRef.current || {};
-
-    const oldMetric = metrics[newMetric.id] as IBusterMetric | undefined; //HMMM is this right?
-
+    const oldMetric = getMetricMemoized({ metricId: newMetric.id });
     const upgradedMetric = upgradeMetricToIMetric(newMetric, oldMetric);
-
     metricUpdateConfig.onUpdateMetric(upgradedMetric, false);
   });
 
   // EMITTERS
 
-  const metricSubscribe = useMetricSubscribe({
-    metricsRef,
-    setMetrics,
-    onInitializeMetric
-  });
-
   const metricShare = useShareMetric({ onInitializeMetric });
 
-  const metricAssosciations = useUpdateMetricAssosciations({
-    metricsRef,
-    setMetrics,
-    getMetricMemoized
-  });
+  const metricAssosciations = useUpdateMetricAssosciations({ getMetricMemoized });
 
   const metricUpdateConfig = useUpdateMetricConfig({
     getMetricId,
-    setMetrics,
-    startTransition,
     onInitializeMetric,
     getMetricMemoized
   });
@@ -87,11 +58,8 @@ export const useBusterMetricsIndividual = () => {
     ...metricAssosciations,
     ...metricShare,
     ...metricUpdateConfig,
-    ...metricSubscribe,
-    resetMetric,
     onInitializeMetric,
-    getMetricMemoized,
-    metrics: metricsRef.current
+    getMetricMemoized
   };
 };
 
@@ -114,22 +82,4 @@ export const useBusterMetricsIndividualContextSelector = <T,>(
   selector: ContextSelector<ReturnType<typeof useBusterMetricsIndividual>, T>
 ) => {
   return useContextSelector(BusterMetricsIndividual, selector);
-};
-
-export const useBusterMetricIndividual = ({ metricId }: { metricId: string }) => {
-  const subscribeToMetric = useBusterMetricsIndividualContextSelector((x) => x.subscribeToMetric);
-  const metric = useBusterMetricsIndividualContextSelector((x) => x.metrics[metricId]);
-
-  const metricIndividualData = useMetricDataIndividual({
-    metricId
-  });
-
-  useMount(() => {
-    subscribeToMetric({ metricId });
-  });
-
-  return {
-    metric: resolveEmptyMetric(metric, metricId),
-    ...metricIndividualData
-  };
 };

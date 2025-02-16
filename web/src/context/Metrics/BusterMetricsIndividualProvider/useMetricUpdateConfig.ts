@@ -8,24 +8,29 @@ import {
   VerificationStatus
 } from '@/api/asset_interfaces';
 import { prepareMetricUpdateMetric } from '../helpers';
-import { MetricUpdateMetric } from '@/api/buster_socket/metrics';
 import { ColumnSettings, IColumnLabelFormat } from '@/components/charts';
-import { useBusterWebSocket } from '../../BusterWebSocket';
+import { useTransition } from 'react';
+import { queryKeys } from '@/api/query_keys';
+import { useQueryClient } from '@tanstack/react-query';
+import { useSocketQueryMutation } from '@/api/buster_socket_query';
 
 export const useUpdateMetricConfig = ({
   getMetricId,
   getMetricMemoized,
-  setMetrics,
-  startTransition,
   onInitializeMetric
 }: {
   getMetricMemoized: ({ metricId }: { metricId?: string }) => IBusterMetric;
   onInitializeMetric: (metric: BusterMetric) => void;
   getMetricId: (metricId?: string) => string;
-  setMetrics: (metrics: Record<string, IBusterMetric>) => void;
-  startTransition: (fn: () => void) => void;
 }) => {
-  const busterSocket = useBusterWebSocket();
+  const [isPending, startTransition] = useTransition();
+  const queryClient = useQueryClient();
+
+  const setMetricToState = useMemoizedFn((metric: IBusterMetric) => {
+    const metricId = getMetricId(metric.id);
+    const options = queryKeys['/metrics/get:getMetric'](metricId);
+    queryClient.setQueryData(options.queryKey, metric);
+  });
 
   const onUpdateMetric = useMemoizedFn(
     async (newMetricPartial: Partial<IBusterMetric>, saveToServer: boolean = true) => {
@@ -35,10 +40,7 @@ export const useUpdateMetricConfig = ({
         ...currentMetric,
         ...newMetricPartial
       };
-      setMetrics({
-        [metricId]: newMetric
-      });
-
+      setMetricToState(newMetric);
       //This will trigger a rerender and push prepareMetricUpdateMetric off UI metric
       startTransition(() => {
         const isReadyOnly = currentMetric.permission === ShareRole.VIEWER;
@@ -46,48 +48,39 @@ export const useUpdateMetricConfig = ({
           _prepareMetricAndSaveToServer(newMetric, currentMetric);
         }
       });
-
       return newMetric;
     }
   );
 
-  const _CheckUpdateMetric = useMemoizedFn((metric: BusterMetric) => {
-    const draftSessionId = metric.draft_session_id;
-    const currentMessage = getMetricMemoized({ metricId: metric.id });
-    if (draftSessionId && !currentMessage?.draft_session_id) {
-      onUpdateMetric({
-        id: metric.id,
-        draft_session_id: draftSessionId
-      });
-    }
-    return metric;
-  });
-
-  const updateMetricToServer = useMemoizedFn((payload: MetricUpdateMetric['payload']) => {
-    return busterSocket.emitAndOnce({
-      emitEvent: {
-        route: '/metrics/update',
-        payload
-      },
-      responseEvent: {
-        route: '/metrics/update:updateMetricState',
-        callback: _CheckUpdateMetric
+  const { mutateAsync: updateMetricToServer } = useSocketQueryMutation(
+    '/metrics/update',
+    '/metrics/update:updateMetricState',
+    null,
+    null,
+    (metric, currentData, variables) => {
+      const draftSessionId = metric.draft_session_id;
+      const currentMessage = getMetricMemoized({ metricId: metric.id });
+      if (draftSessionId && !currentMessage?.draft_session_id) {
+        onUpdateMetric(
+          {
+            id: metric.id,
+            draft_session_id: draftSessionId
+          },
+          false
+        );
       }
-    });
-  });
-
-  const { run: _updateMetricToServer } = useDebounceFn(updateMetricToServer, {
-    wait: 300
-  });
+      return metric;
+    }
+  );
 
   const { run: _prepareMetricAndSaveToServer } = useDebounceFn(
     useMemoizedFn((newMetric: IBusterMetric, oldMetric: IBusterMetric) => {
       const changedValues = prepareMetricUpdateMetric(newMetric, oldMetric);
       if (changedValues) {
-        _updateMetricToServer(changedValues);
+        updateMetricToServer(changedValues);
       }
     }),
-    { wait: 700 }
+    { wait: 750 }
   );
 
   const onUpdateMetricChartConfig = useMemoizedFn(
@@ -185,26 +178,10 @@ export const useUpdateMetricConfig = ({
   );
 
   const onSaveMetricChanges = useMemoizedFn(
-    async ({
-      metricId,
-      ...params
-    }: {
-      metricId: string;
-      save_draft: boolean;
-      save_as_metric_state?: string;
-    }) => {
-      return busterSocket.emitAndOnce({
-        emitEvent: {
-          route: '/metrics/update',
-          payload: {
-            id: metricId,
-            ...params
-          }
-        },
-        responseEvent: {
-          route: '/metrics/update:updateMetricState',
-          callback: onInitializeMetric
-        }
+    async (params: { metricId: string; save_draft: boolean; save_as_metric_state?: string }) => {
+      return updateMetricToServer({
+        id: params.metricId,
+        ...params
       });
     }
   );

@@ -20,6 +20,7 @@ import type {
   InferBusterSocketResponseData
 } from './types';
 import isEmpty from 'lodash/isEmpty';
+import { RustApiError } from '../buster_rest/errors';
 
 /**
  * A custom hook that combines WebSocket communication with React Query's mutation capabilities.
@@ -122,6 +123,9 @@ export function useSocketQueryMutation<
           } as BusterSocketRequest,
           responseEvent: {
             route: socketResponse,
+            onError: (error: RustApiError) => {
+              throw error;
+            },
             callback: (d: unknown) => d
           } as BusterSocketResponse
         });
@@ -144,6 +148,7 @@ export function useSocketQueryMutation<
   );
 
   return useMutation<TData, TError, TPayload>({
-    mutationFn
+    mutationFn,
+    throwOnError: true
   });
 }
