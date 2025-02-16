@@ -17,7 +17,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
 
 export const useBusterMetricsIndividual = () => {
-  const [isPending, startTransition] = useTransition();
   const { metricId: selectedMetricId } = useParams<{ metricId: string }>();
   const queryClient = useQueryClient();
 

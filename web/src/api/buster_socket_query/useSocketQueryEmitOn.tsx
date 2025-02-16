@@ -1,5 +1,10 @@
 import type { BusterSocketResponseRoute, BusterSocketRequest } from '@/api/buster_socket';
-import type { QueryKey, UseQueryOptions } from '@tanstack/react-query';
+import {
+  queryOptions,
+  useQueryClient,
+  type QueryKey,
+  type UseQueryOptions
+} from '@tanstack/react-query';
 import type { InferBusterSocketResponseData } from './types';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useEffect } from 'react';
@@ -20,20 +25,29 @@ export const useSocketQueryEmitOn = <
     | null,
   enabledTriggerProp?: boolean | string
 ) => {
+  const queryClient = useQueryClient();
   const busterSocket = useBusterWebSocket();
   const enabledTrigger = enabledTriggerProp ?? true;
 
   const emitQueryFn = useMemoizedFn(async () => {
-    busterSocket.emit(socketRequest);
+    const queryState = queryClient.getQueryState(options.queryKey);
+    if (!queryState) {
+      busterSocket.emit(socketRequest);
+    }
   });
 
+  const queryResult = useSocketQueryOn(socketResponse, options, callback);
+
   useEffect(() => {
-    if (enabledTrigger) {
+    const queryState = queryClient.getQueryState(options.queryKey);
+    const staleTime = (options.staleTime as number) ?? 0;
+    const isStale =
+      !queryState?.dataUpdatedAt || Date.now() - queryState.dataUpdatedAt >= staleTime;
+
+    if (enabledTrigger && (isStale || !queryState)) {
       emitQueryFn();
     }
   }, [enabledTrigger]);
-
-  const queryResult = useSocketQueryOn(socketResponse, options, callback);
 
   return { ...queryResult, refetch: emitQueryFn };
 };
