@@ -1,15 +1,12 @@
 import { useMemoizedFn } from 'ahooks';
-import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import type { MetricUpdateMetric } from '@/api/buster_socket/metrics';
-import { BusterMetric } from '@/api/asset_interfaces';
+import { useUpdateMetricConfig } from './useMetricUpdateConfig';
 
 export const useShareMetric = ({
-  onInitializeMetric
+  updateMetricMutation
 }: {
-  onInitializeMetric: (metric: BusterMetric) => void;
+  updateMetricMutation: ReturnType<typeof useUpdateMetricConfig>['updateMetricMutation'];
 }) => {
-  const busterSocket = useBusterWebSocket();
-
   const onShareMetric = useMemoizedFn(
     async (
       payload: Pick<
@@ -24,17 +21,7 @@ export const useShareMetric = ({
         | 'remove_teams'
       >
     ) => {
-      //keep this seperate from _updateMetricToServer because we need to do some extra stuff
-      return busterSocket.emitAndOnce({
-        emitEvent: {
-          route: '/metrics/update',
-          payload
-        },
-        responseEvent: {
-          route: '/metrics/update:updateMetricState',
-          callback: onInitializeMetric
-        }
-      });
+      return updateMetricMutation(payload);
     }
   );
 

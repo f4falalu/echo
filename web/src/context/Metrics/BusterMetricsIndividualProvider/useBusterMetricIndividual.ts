@@ -1,19 +1,11 @@
 import { useMetricDataIndividual } from '@/context/MetricData';
-import { useBusterMetricsIndividualContextSelector } from './BusterMetricsIndividualProvider';
 import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
 import { queryKeys } from '@/api/query_keys';
 import { resolveEmptyMetric, upgradeMetricToIMetric } from '../helpers';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
-import { useEffect } from 'react';
 
 export const useBusterMetricIndividual = ({ metricId }: { metricId: string }) => {
-  const onInitializeMetric = useBusterMetricsIndividualContextSelector((x) => x.onInitializeMetric);
-  const getMetricMemoized = useBusterMetricsIndividualContextSelector((x) => x.getMetricMemoized);
   const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
-  const setAssetPasswordError = useBusterAssetsContextSelector(
-    (state) => state.setAssetPasswordError
-  );
-
   const assetPassword = getAssetPassword(metricId);
 
   const {
@@ -34,18 +26,11 @@ export const useBusterMetricIndividual = ({ metricId }: { metricId: string }) =>
     metricId
   });
 
-  useEffect(() => {
-    if (metricError) {
-      setAssetPasswordError(metricId, metricError.message || 'An error occurred');
-    } else {
-      setAssetPasswordError(metricId, null);
-    }
-  }, [metricError]);
-
   return {
     metric: resolveEmptyMetric(metric, metricId),
     isMetricFetched,
     refetchMetric,
+    metricError,
     ...metricIndividualData
   };
 };

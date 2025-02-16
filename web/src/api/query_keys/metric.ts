@@ -1,15 +1,26 @@
+'use client';
+
 import { queryOptions } from '@tanstack/react-query';
-import type { BusterMetric, BusterMetricListItem } from '@/api/asset_interfaces';
+import type { BusterMetricListItem } from '@/api/asset_interfaces';
 import type { MetricListRequest } from '@/api/request_interfaces/metrics';
 import type { BusterMetricData } from '@/context/MetricData';
 import { IBusterMetric } from '@/context/Metrics';
+import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 
-export const metricsGetMetric = (metricId: string) =>
-  queryOptions<IBusterMetric>({
+export const useMetricsGetMetric = (metricId: string) => {
+  const setAssetPasswordError = useBusterAssetsContextSelector(
+    (state) => state.setAssetPasswordError
+  );
+  return queryOptions<IBusterMetric>({
     queryKey: ['metrics', 'get', metricId] as const,
-    staleTime: 10 * 1000,
-    enabled: false
+    staleTime: 30 * 60 * 1000,
+    enabled: false,
+    throwOnError: (error, query) => {
+      setAssetPasswordError(metricId, error.message || 'An error occurred');
+      return false;
+    }
   });
+};
 
 export const metricsGetList = (filters?: MetricListRequest) =>
   queryOptions<BusterMetricListItem[]>({
@@ -24,7 +35,7 @@ export const metricsGetDataByMessageId = (messageId: string) =>
   });
 
 export const metricsQueryKeys = {
-  '/metrics/get:getMetric': metricsGetMetric,
+  '/metrics/get:getMetric': useMetricsGetMetric,
   '/metrics/list:getMetricsList': metricsGetList,
   '/metrics/get:fetchingData': metricsGetDataByMessageId
 };

@@ -44,9 +44,9 @@ export type MetricUpdateRequest = {
   /** New title for the metric */
   title?: string;
   /** Dashboard ID to save the metric to */
-  save_to_dashboard?: string;
+  save_to_dashboard?: string[];
   /** Dashboard ID to remove the metric from */
-  remove_from_dashboard?: string;
+  remove_from_dashboard?: string[];
   /** Array of collection IDs to add the metric to */
   add_to_collections?: string[];
   /** Array of collection IDs to remove the metric from */

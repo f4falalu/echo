@@ -7,7 +7,7 @@ import {
   ShareRole,
   VerificationStatus
 } from '@/api/asset_interfaces';
-import { prepareMetricUpdateMetric } from '../helpers';
+import { prepareMetricUpdateMetric, upgradeMetricToIMetric } from '../helpers';
 import { ColumnSettings, IColumnLabelFormat } from '@/components/charts';
 import { useTransition } from 'react';
 import { queryKeys } from '@/api/query_keys';
@@ -16,11 +16,9 @@ import { useSocketQueryMutation } from '@/api/buster_socket_query';
 
 export const useUpdateMetricConfig = ({
   getMetricId,
-  getMetricMemoized,
-  onInitializeMetric
+  getMetricMemoized
 }: {
   getMetricMemoized: ({ metricId }: { metricId?: string }) => IBusterMetric;
-  onInitializeMetric: (metric: BusterMetric) => void;
   getMetricId: (metricId?: string) => string;
 }) => {
   const [isPending, startTransition] = useTransition();
@@ -52,7 +50,7 @@ export const useUpdateMetricConfig = ({
     }
   );
 
-  const { mutateAsync: updateMetricToServer } = useSocketQueryMutation(
+  const { mutateAsync: updateMetricMutation } = useSocketQueryMutation(
     '/metrics/update',
     '/metrics/update:updateMetricState',
     null,
@@ -77,7 +75,7 @@ export const useUpdateMetricConfig = ({
     useMemoizedFn((newMetric: IBusterMetric, oldMetric: IBusterMetric) => {
       const changedValues = prepareMetricUpdateMetric(newMetric, oldMetric);
       if (changedValues) {
-        updateMetricToServer(changedValues);
+        updateMetricMutation(changedValues);
       }
     }),
     { wait: 750 }
@@ -179,7 +177,7 @@ export const useUpdateMetricConfig = ({
 
   const onSaveMetricChanges = useMemoizedFn(
     async (params: { metricId: string; save_draft: boolean; save_as_metric_state?: string }) => {
-      return updateMetricToServer({
+      return updateMetricMutation({
         id: params.metricId,
         ...params
       });
@@ -195,6 +193,12 @@ export const useUpdateMetricConfig = ({
     }
   );
 
+  const onInitializeMetric = useMemoizedFn((newMetric: BusterMetric) => {
+    const oldMetric = getMetricMemoized({ metricId: newMetric.id });
+    const upgradedMetric = upgradeMetricToIMetric(newMetric, oldMetric);
+    onUpdateMetric(upgradedMetric, false);
+  });
+
   return {
     onUpdateMetric,
     onVerifiedMetric,
@@ -202,6 +206,7 @@ export const useUpdateMetricConfig = ({
     onUpdateColumnLabelFormat,
     onUpdateColumnSetting,
     onSaveMetricChanges,
-    updateMetricToServer
+    onInitializeMetric,
+    updateMetricMutation
   };
 };

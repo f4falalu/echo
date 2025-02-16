@@ -4,19 +4,18 @@ import {
   ContextSelector,
   useContextSelector
 } from '@fluentui/react-context-selector';
-import { useMemoizedFn, useMount } from 'ahooks';
+import { useMemoizedFn } from 'ahooks';
 import type { IBusterMetric } from '../interfaces';
-import { BusterMetric } from '@/api/asset_interfaces';
-import { useTransition } from 'react';
-import { resolveEmptyMetric, upgradeMetricToIMetric } from '../helpers';
+import { resolveEmptyMetric } from '../helpers';
 import { useUpdateMetricConfig } from './useMetricUpdateConfig';
 import { useUpdateMetricAssosciations } from './useMetricUpdateAssosciations';
 import { useShareMetric } from './useMetricShare';
 import { useParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
+import { useMetricDelete } from './useMetricDelete';
 
-export const useBusterMetricsIndividual = () => {
+const useBusterMetricsIndividual = () => {
   const { metricId: selectedMetricId } = useParams<{ metricId: string }>();
   const queryClient = useQueryClient();
 
@@ -35,28 +34,28 @@ export const useBusterMetricsIndividual = () => {
 
   //STATE UPDATERS
 
-  const onInitializeMetric = useMemoizedFn((newMetric: BusterMetric) => {
-    const oldMetric = getMetricMemoized({ metricId: newMetric.id });
-    const upgradedMetric = upgradeMetricToIMetric(newMetric, oldMetric);
-    metricUpdateConfig.onUpdateMetric(upgradedMetric, false);
-  });
-
   // EMITTERS
-
-  const metricShare = useShareMetric({ onInitializeMetric });
-
-  const metricAssosciations = useUpdateMetricAssosciations({ getMetricMemoized });
 
   const metricUpdateConfig = useUpdateMetricConfig({
     getMetricId,
-    onInitializeMetric,
     getMetricMemoized
   });
+  const { updateMetricMutation, onInitializeMetric } = metricUpdateConfig;
+
+  const metricAssosciations = useUpdateMetricAssosciations({
+    updateMetricMutation,
+    getMetricMemoized
+  });
+
+  const metricShare = useShareMetric({ updateMetricMutation });
+
+  const metricDelete = useMetricDelete();
 
   return {
     ...metricAssosciations,
     ...metricShare,
     ...metricUpdateConfig,
+    ...metricDelete,
     onInitializeMetric,
     getMetricMemoized
   };
