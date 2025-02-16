@@ -2,6 +2,7 @@ import type { BusterSocketResponseRoute, BusterSocketRequest } from '@/api/buste
 import {
   queryOptions,
   useQueryClient,
+  useMutation,
   type QueryKey,
   type UseQueryOptions
 } from '@tanstack/react-query';
@@ -29,10 +30,12 @@ export const useSocketQueryEmitOn = <
   const busterSocket = useBusterWebSocket();
   const enabledTrigger = enabledTriggerProp ?? true;
 
-  const emitQueryFn = useMemoizedFn(async () => {
-    const queryState = queryClient.getQueryState(options.queryKey);
-    if (!queryState) {
+  // Use mutation for deduped socket emissions
+  const { mutate: emitQueryFn } = useMutation({
+    mutationKey: ['socket-emit', ...options.queryKey],
+    mutationFn: async () => {
       busterSocket.emit(socketRequest);
+      return null;
     }
   });
 
