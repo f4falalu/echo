@@ -5,7 +5,7 @@ import { StylingAppColors } from './StylingAppColors';
 import { StylingAppStyling } from './StylingAppStyling';
 import { StylingAppVisualize } from './StylingAppVisualize';
 import { BarAndLineAxis, ChartEncodes, ChartType, ScatterAxis } from '@/components/charts';
-import { useBusterMetricIndividual } from '@/context/Metrics';
+import { useMetricIndividual } from '@/context/Metrics';
 
 export const MetricStylingApp: React.FC<{
   metricId: string;
@@ -13,7 +13,7 @@ export const MetricStylingApp: React.FC<{
   const [segment, setSegment] = useState<MetricStylingAppSegments>(
     MetricStylingAppSegments.VISUALIZE
   );
-  const { metric, metricData } = useBusterMetricIndividual({ metricId });
+  const { metric, metricData } = useMetricIndividual({ metricId });
 
   if (!metric) return null;
 

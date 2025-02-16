@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import type { MetricViewProps } from '../config';
-import { useBusterMetricIndividual } from '@/context/Metrics';
+import { useMetricIndividual } from '@/context/Metrics';
 import { AppVerticalCodeSplitter } from '@/components/layout/AppVerticalCodeSplitter';
 import { useMemoizedFn, useUnmount } from 'ahooks';
 import { IDataResult } from '@/api/asset_interfaces';
@@ -21,7 +21,7 @@ export const MetricViewResults: React.FC<MetricViewProps> = React.memo(({ metric
   const resetRunSQLData = useSQLContextSelector((x) => x.resetRunSQLData);
   const saveSQL = useSQLContextSelector((x) => x.saveSQL);
 
-  const { metric, metricData } = useBusterMetricIndividual({ metricId });
+  const { metric, metricData } = useMetricIndividual({ metricId });
 
   const [sql, setSQL] = React.useState(metric.code || '');
   const [fetchingData, setFetchingData] = React.useState(false);

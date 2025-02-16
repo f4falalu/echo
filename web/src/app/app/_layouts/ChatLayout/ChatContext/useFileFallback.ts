@@ -1,9 +1,6 @@
 import { SelectedFile } from '@appLayouts/ChatLayout';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
-import {
-  useBusterMetricIndividual,
-  useBusterMetricsIndividualContextSelector
-} from '@/context/Metrics';
+import { useMetricIndividual } from '@/context/Metrics';
 import { useEffect, useMemo } from 'react';
 import { FileType } from '@/api/asset_interfaces';
 import {
@@ -137,7 +134,7 @@ const fallbackToFileChatMessage = ({
 };
 
 const useMetricParams = (fileId: string) => {
-  const { metric } = useBusterMetricIndividual({ metricId: fileId });
+  const { metric } = useMetricIndividual({ metricId: fileId });
   const metricTitle = metric?.title;
   const metricVersionNumber = metric?.version_number;
 

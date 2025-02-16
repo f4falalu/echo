@@ -1,10 +1,10 @@
 import { useMetricDataIndividual } from '@/context/MetricData';
-import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
+import { useSocketQueryEmitOn, useSocketQueryEmitAndOnce } from '@/api/buster_socket_query';
 import { queryKeys } from '@/api/query_keys';
 import { resolveEmptyMetric, upgradeMetricToIMetric } from '../helpers';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 
-export const useBusterMetricIndividual = ({ metricId }: { metricId: string }) => {
+export const useMetricIndividual = ({ metricId }: { metricId: string }) => {
   const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
   const assetPassword = getAssetPassword(metricId);
 

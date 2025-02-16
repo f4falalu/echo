@@ -14,7 +14,6 @@ import type {
 } from '@/api/buster_socket';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
-import type { BusterChat } from '@/api/asset_interfaces';
 import { InferBusterSocketResponseData } from './types';
 
 export function useSocketQueryEmitAndOnce<

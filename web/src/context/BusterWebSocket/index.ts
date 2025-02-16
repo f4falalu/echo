@@ -1,1 +1,1 @@
-export * from './useBusterWebSocket';
+export * from './BusterWebSocketProvider';

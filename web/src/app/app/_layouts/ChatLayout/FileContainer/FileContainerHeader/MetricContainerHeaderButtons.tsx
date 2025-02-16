@@ -14,13 +14,13 @@ import { HideButtonContainer } from './HideButtonContainer';
 import { FileButtonContainer } from './FileButtonContainer';
 import { CreateChatButton } from './CreateChatButtont';
 import { SelectableButton } from './SelectableButton';
-import { useBusterMetricIndividual } from '@/context/Metrics';
+import { useMetricIndividual } from '@/context/Metrics';
 
 export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(() => {
   const renderViewLayoutKey = useChatLayoutContextSelector((x) => x.renderViewLayoutKey);
   const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
   const metricId = selectedFileId;
-  const { isMetricFetched } = useBusterMetricIndividual({ metricId });
+  const { isMetricFetched } = useMetricIndividual({ metricId });
 
   if (!isMetricFetched) return null;
 
