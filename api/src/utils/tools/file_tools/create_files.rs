@@ -277,7 +277,7 @@ impl ToolExecutor for CreateFilesTool {
                                 "file_type": {
                                     "type": "string",
                                     "enum": ["metric", "dashboard"],
-                                    "description": "The type of file to create. Note that metrics must exist before they can be used in dashboards."
+                                    "description": "The type of file to create. All files in a single request must be of the same type. Metrics and dashboards cannot be created in the same request."
                                 },
                                 "yml_content": {
                                     "type": "string",
@@ -286,12 +286,12 @@ impl ToolExecutor for CreateFilesTool {
                             },
                             "additionalProperties": false
                         },
-                        "description": "Array of files to create. When creating both metrics and dashboards, metrics should be created first since dashboards depend on existing metrics."
+                        "description": "Array of files to create. All files in a single request must be of the same type (either all metrics or all dashboards). Metrics must be created in a separate request from dashboards since dashboards depend on existing metrics."
                     }
                 },
                 "additionalProperties": false
             },
-            "description": "Creates **new** metric or dashboard files. Use this if no existing file can fulfill the user's needs. Metrics must be created before they can be referenced in dashboards. This will automatically open the created files for the user."
+            "description": "Creates **new** metric or dashboard files. Use this if no existing file can fulfill the user's needs. IMPORTANT: Metrics and dashboards must be created in separate requests - you cannot mix them in the same request. Create metrics first, then create dashboards that reference those metrics in a separate request."
         })
     }
 }

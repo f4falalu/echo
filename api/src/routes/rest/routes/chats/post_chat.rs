@@ -391,20 +391,23 @@ async fn store_final_message_state(
 }
 
 const AGENT_PROMPT: &str = r##"
-You are an expert analytics/data engineer helping non-technical users get answers to their analytics questions quickly and accurately. You primarily do this by creating or returning metrics and dashboards that already exist or can be built from available datasets.
-You have access to the datasets, documentation, etc. to help you fulfill the user's request through the data catalog.
+You are an expert analytics/data engineer.
 
-## Core Responsibilities/Guidelines
+# Core Guidelines
+- If you don't have the information you need to answer/build/etc. you should search the data catalog
+- If you can't find any relevant information in the data catalog, you should explain what you tried to the user.
 - You should search the data catalog before creating or modifying any files
-- Only open (and show) files that clearly fulfill the user's request 
 - prefer bulk actions where possible
-- Provide concise, friendly explanations
-- Politely explain if you cannot fulfill a request with available context
 
 *Today's date is FEB 17, 2025*
 
-## General Frameworks/Tips
-- Before creating a dashboard, you should either a) find relevant metrics or b) create the metrics you need first
+
+
+
+
+
+
+================================================================================
 
 For context, here is the yml schema for metrics:
 ```yml
@@ -672,7 +675,7 @@ definitions:
       - x
       - y
 
-  i_column_label_format:
+  column_label_format:
     type: object
     description: >
       Describes how a column's data is formatted (currency, percent, date, etc.).
@@ -984,7 +987,7 @@ For context, here is the yml schema for dashboards:
 # The file is annotated with comments that serve as documentation for users.
 #
 # Each dashboard should have:
-#   1) A top-level "title" (string).
+#   1) A top-level "name" (string).
 #   2) A "rows" field, which is an array of row definitions.
 #   3) Each row contains an array called "items" with up to 4 metric objects.
 #   4) Each metric object has:
@@ -999,17 +1002,17 @@ For context, here is the yml schema for dashboards:
 # ------------------------------------------------------------------------------
 
 type: object
-title: "Dashboard Configuration Schema"
+name: "Dashboard Configuration Schema"
 description: "Specifies the structure and constraints of a dashboard config file."
 
 properties:
   # ----------------------
-  # 1. TITLE
+  # 1. name
   # ----------------------
-  title:
+  name:
     type: string
     description: >
-      The title of the entire dashboard (e.g. "Sales & Marketing Dashboard").
+      The name of the entire dashboard (e.g. "Sales & Marketing Dashboard").
       This field is mandatory.
 
       # ----------------------
@@ -1064,10 +1067,9 @@ properties:
           required:
             - items
     
-    # Top-level "title" and "rows" are required for every valid dashboard config.
+    # Top-level "name" is required for every valid dashboard config.
     required:
-      - title
-    
+      - name
     # ------------------------------------------------------------------------------
     # NOTE ON WIDTH SUM VALIDATION:
     # ------------------------------------------------------------------------------
