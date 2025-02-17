@@ -2,7 +2,7 @@ import { useCreateReactQuery } from '@/api/createReactQuery';
 import { getOrganizationUsers, getOrganizationUsers_server } from './requests';
 import { useMemoizedFn } from 'ahooks';
 import { QueryClient } from '@tanstack/react-query';
-import { organizationQueryKeys } from '@/api/query_keys/organiations';
+import { organizationQueryKeys } from '@/api/query_keys/organization';
 
 export const useGetOrganizationUsers = (organizationId: string) => {
   const queryFn = useMemoizedFn(() => {

@@ -17,7 +17,6 @@ import { BusterCollectionsProvider } from './Collections/CollectionsProvider';
 import { DataSourceProvider } from './DataSources';
 import { BusterSQLProvider } from './SQL/useSQLProvider';
 import { BusterTermsProvider } from './Terms/BusterTermsProvider';
-import { BusterPermissionsProvider } from './Permissions';
 import { BusterSearchProvider } from './Search';
 import { BusterAssetsProvider } from './Assets/BusterAssetsProvider';
 import { BusterPosthogProvider } from './Posthog/usePosthog';
@@ -68,16 +67,14 @@ export const AppProviders: React.FC<
                             <BusterDashboardProvider>
                               <BusterSQLProvider>
                                 <BusterTermsProvider>
-                                  <BusterPermissionsProvider>
-                                    <BusterChatProvider>
-                                      <AppHotKeysProvider>
-                                        <BusterPosthogProvider>
-                                          {children}
-                                          <RoutePrefetcher />
-                                        </BusterPosthogProvider>
-                                      </AppHotKeysProvider>
-                                    </BusterChatProvider>
-                                  </BusterPermissionsProvider>
+                                  <BusterChatProvider>
+                                    <AppHotKeysProvider>
+                                      <BusterPosthogProvider>
+                                        {children}
+                                        <RoutePrefetcher />
+                                      </BusterPosthogProvider>
+                                    </AppHotKeysProvider>
+                                  </BusterChatProvider>
                                 </BusterTermsProvider>
                               </BusterSQLProvider>
                             </BusterDashboardProvider>

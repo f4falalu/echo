@@ -1,8 +1,8 @@
 import { Input, InputRef } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useMemoizedFn } from 'ahooks';
-import { usePermissionsContextSelector } from '@/context/Permissions';
 import { AppModal } from '@/components/modal';
+import { useCreateTeam } from '@/api/buster_rest';
 
 export const NewTeamModal: React.FC<{
   isOpen: boolean;
@@ -12,15 +12,13 @@ export const NewTeamModal: React.FC<{
   const inputRef = useRef<InputRef>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [creatingTeam, setCreatingTeam] = useState(false);
-  const createNewTeam = usePermissionsContextSelector((x) => x.createNewTeam);
+  const { mutateAsync: createTeam, isPending: creatingTeam } = useCreateTeam();
 
   const disableSubmit = !title;
 
   const createNewTeamPreflight = useMemoizedFn(async () => {
     if (creatingTeam || disableSubmit) return;
-    setCreatingTeam(true);
-    const res = await createNewTeam({
+    await createTeam({
       name: title,
       description
     });
@@ -28,7 +26,6 @@ export const NewTeamModal: React.FC<{
       onClose();
       setTitle('');
       setDescription('');
-      setCreatingTeam(false);
     }, 250);
   });
 
