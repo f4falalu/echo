@@ -62,8 +62,7 @@ export const NewChatModal = React.memo<{
 
   const getSuggestedChatPrompts = useMemoizedFn(async (prompt: string) => {
     const res = await onBusterSearch({
-      query: prompt,
-      include: ['exclude_metrics']
+      query: prompt
     });
     return res;
   });

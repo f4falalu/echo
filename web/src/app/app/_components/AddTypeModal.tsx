@@ -36,7 +36,6 @@ export const AddTypeModal: React.FC<{
   collection?: BusterCollection;
 }> = React.memo(({ type = 'collection', open, onClose, collection, dashboardResponse }) => {
   const onBusterSearch = useBusterSearchContextSelector((state) => state.onBusterSearch);
-  const refreshDashboard = useBusterDashboardContextSelector((state) => state.refreshDashboard);
   const onBulkAddRemoveToDashboard = useBusterDashboardContextSelector(
     (state) => state.onBulkAddRemoveToDashboard
   );
@@ -159,14 +158,12 @@ export const AddTypeModal: React.FC<{
         }
 
         results = await onBusterSearch({
-          query,
-          include
+          query
         });
       } else if (type === 'dashboard') {
         include = ['exclude_metrics'];
         results = await onBusterSearch({
-          query,
-          include
+          query
         });
       }
       if (isEmpty(initialSearchItems) && !query) {
@@ -226,7 +223,6 @@ export const AddTypeModal: React.FC<{
         dashboardId: dashboard!.id,
         metricIds: selectedIds
       });
-      await refreshDashboard(dashboard!.id);
     }
     setSubmitting(false);
     return;

@@ -106,17 +106,12 @@ export const useDashboardUpdateConfig = ({
     }
   );
 
-  const refreshDashboard = useMemoizedFn((dashboardId: string) => {
-    busterSocket.emit({ route: '/dashboards/get', payload: { id: dashboardId } });
-  });
-
   return {
     isUpdatingDashboard,
     updateDashboardMutation,
     onShareDashboard,
     onUpdateDashboardConfig,
     onUpdateDashboard,
-    onVerifiedDashboard,
-    refreshDashboard
+    onVerifiedDashboard
   };
 };
