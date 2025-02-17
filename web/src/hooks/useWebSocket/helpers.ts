@@ -6,7 +6,6 @@ import { UserResponses } from '@/api/buster_socket/user';
 import { CollectionResponses } from '@/api/buster_socket/collections';
 import { DatasourceResponses } from '@/api/buster_socket/datasources/datasourceResponses';
 import { TermsResponses } from '@/api/buster_socket/terms/termsResponses';
-import { PermissionsResponses } from '@/api/buster_socket/permissions';
 import { TeamResponses } from '@/api/buster_socket/teams/teamResponses';
 import { SearchResponses } from '@/api/buster_socket/search';
 import { OrganizationResponses } from '@/api/buster_socket/organizations';
@@ -43,7 +42,6 @@ const isKnownMessageRoute = (parsedMessage: BusterSocketResponseMessage) => {
     ...DatasourceResponses,
     ...SQLResponses,
     ...TermsResponses,
-    ...PermissionsResponses,
     ...TeamResponses,
     ...SearchResponses,
     ...OrganizationResponses,

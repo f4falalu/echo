@@ -49,7 +49,7 @@ export const updateOrganizationUser = async ({
 }: {
   userId: string;
   name?: string;
-  role: OrganizationUser['role'];
+  role?: OrganizationUser['role'];
 }) => {
   return mainApi
     .put<OrganizationUser>(`/users/${userId}`, params)
