@@ -64,7 +64,12 @@ impl ToolExecutor for OpenFilesTool {
         "open_files".to_string()
     }
 
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+    async fn execute(
+        &self,
+        tool_call: &ToolCall,
+        user_id: &Uuid,
+        session_id: &Uuid,
+    ) -> Result<Self::Output> {
         let start_time = Instant::now();
 
         debug!("Starting file open operation");

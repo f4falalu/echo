@@ -166,7 +166,7 @@ impl AgentThreadHandler {
         }
 
         // Now that thread is created, start processing
-        let rx = self.process_chat_request(request.clone()).await?;
+        let rx = self.process_chat_request(request.clone(), user.id).await?;
         tokio::spawn(async move {
             Self::process_stream(
                 rx,
@@ -184,9 +184,11 @@ impl AgentThreadHandler {
     async fn process_chat_request(
         &self,
         request: ChatCreateNewChat,
+        user_id: Uuid,
     ) -> Result<Receiver<Result<AgentMessage, Error>>> {
         let thread = AgentThread::new(
             request.chat_id,
+            user_id,
             vec![
                 AgentMessage::developer(AGENT_PROMPT.to_string()),
                 AgentMessage::user(request.prompt),

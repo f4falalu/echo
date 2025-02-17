@@ -9,14 +9,16 @@ use litellm::Message;
 pub struct AgentThread {
     /// Unique identifier for the thread
     pub id: Uuid,
+    pub user_id: Uuid,
     /// Ordered sequence of messages in the conversation
     pub messages: Vec<Message>,
 }
 
 impl AgentThread {
-    pub fn new(id: Option<Uuid>, messages: Vec<Message>) -> Self {
+    pub fn new(id: Option<Uuid>, user_id: Uuid, messages: Vec<Message>) -> Self {
         Self {
             id: id.unwrap_or(Uuid::new_v4()),
+            user_id,
             messages,
         }
     }

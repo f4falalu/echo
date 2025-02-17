@@ -1,9 +1,9 @@
 use anyhow::Result;
 use async_trait::async_trait;
+use litellm::ToolCall;
 use serde::Serialize;
 use serde_json::Value;
-use litellm::ToolCall;
-
+use uuid::Uuid;
 
 pub mod file_tools;
 pub mod interaction_tools;
@@ -16,7 +16,12 @@ pub trait ToolExecutor: Send + Sync {
     type Output: Serialize + Send;
 
     /// Execute the tool with given arguments and return a result
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output>;
+    async fn execute(
+        &self,
+        tool_call: &ToolCall,
+        user_id: &Uuid,
+        session_id: &Uuid,
+    ) -> Result<Self::Output>;
 
     /// Return the JSON schema that describes this tool's interface
     fn get_schema(&self) -> serde_json::Value;
@@ -32,8 +37,13 @@ pub struct ValueToolExecutor<T: ToolExecutor>(T);
 impl<T: ToolExecutor> ToolExecutor for ValueToolExecutor<T> {
     type Output = Value;
 
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
-        let result = self.0.execute(tool_call).await?;
+    async fn execute(
+        &self,
+        tool_call: &ToolCall,
+        user_id: &Uuid,
+        session_id: &Uuid,
+    ) -> Result<Self::Output> {
+        let result = self.0.execute(tool_call, user_id, session_id).await?;
         Ok(serde_json::to_value(result)?)
     }
 
@@ -48,7 +58,9 @@ impl<T: ToolExecutor> ToolExecutor for ValueToolExecutor<T> {
 
 /// Extension trait to add value conversion methods to ToolExecutor
 pub trait IntoValueTool {
-    fn into_value_tool(self) -> ValueToolExecutor<Self> where Self: ToolExecutor + Sized;
+    fn into_value_tool(self) -> ValueToolExecutor<Self>
+    where
+        Self: ToolExecutor + Sized;
 }
 
 // Implement IntoValueTool for all types that implement ToolExecutor

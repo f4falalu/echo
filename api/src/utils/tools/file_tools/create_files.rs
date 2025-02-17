@@ -70,7 +70,12 @@ impl ToolExecutor for CreateFilesTool {
         "create_files".to_string()
     }
 
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+    async fn execute(
+        &self,
+        tool_call: &ToolCall,
+        user_id: &Uuid,
+        session_id: &Uuid,
+    ) -> Result<Self::Output> {
         let start_time = Instant::now();
 
         let params: CreateFilesParams =
@@ -267,26 +272,26 @@ impl ToolExecutor for CreateFilesTool {
                             "properties": {
                                 "name": {
                                     "type": "string",
-                                    "description": "The name of the file to be created. This should exlude the file extension. (i.e. '.yml')"
+                                    "description": "The name of the file to be created. This should exclude the file extension. (i.e. '.yml')"
                                 },
                                 "file_type": {
                                     "type": "string",
                                     "enum": ["metric", "dashboard"],
-                                    "description": ""
+                                    "description": "The type of file to create. Note that metrics must exist before they can be used in dashboards."
                                 },
                                 "yml_content": {
                                     "type": "string",
-                                    "description": "The YAML content to be included in the created file"
+                                    "description": "The YAML content defining the metric or dashboard configuration"
                                 }
                             },
                             "additionalProperties": false
                         },
-                        "description": "Array of files to create"
+                        "description": "Array of files to create. When creating both metrics and dashboards, metrics should be created first since dashboards depend on existing metrics."
                     }
                 },
                 "additionalProperties": false
             },
-            "description": "Creates **new** metric or dashboard files. Use this if no existing file can fulfill the user's needs. This will automatically open the metric/dashboard for the user."
+            "description": "Creates **new** metric or dashboard files. Use this if no existing file can fulfill the user's needs. Metrics must be created before they can be referenced in dashboards. This will automatically open the created files for the user."
         })
     }
 }

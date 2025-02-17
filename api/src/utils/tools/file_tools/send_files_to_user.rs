@@ -2,6 +2,7 @@ use anyhow::Result;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use uuid::Uuid;
 
 use crate::utils::tools::ToolExecutor;
 use litellm::ToolCall;
@@ -32,7 +33,12 @@ impl ToolExecutor for SendFilesToUserTool {
         "send_to_user".to_string()
     }
 
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+    async fn execute(
+        &self,
+        tool_call: &ToolCall,
+        user_id: &Uuid,
+        session_id: &Uuid,
+    ) -> Result<Self::Output> {
         let params: SendToUserParams = serde_json::from_str(&tool_call.function.arguments.clone())?;
         // TODO: Implement actual send to user logic
         Ok(SendToUserOutput { success: true })
