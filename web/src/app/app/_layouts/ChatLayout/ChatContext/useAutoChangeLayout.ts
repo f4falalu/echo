@@ -1,4 +1,4 @@
-import { useBusterChatContextSelector } from '@/context/Chats';
+import { useMessageIndividual } from '@/context/Chats';
 import type { SelectedFile } from '../interfaces';
 import { usePrevious } from 'ahooks';
 import { useEffect } from 'react';
@@ -11,7 +11,7 @@ export const useAutoChangeLayout = ({
   lastMessageId: string;
   onSetSelectedFile: (file: SelectedFile) => void;
 }) => {
-  const message = useBusterChatContextSelector((x) => x.chatsMessages[lastMessageId]);
+  const message = useMessageIndividual(lastMessageId);
   const reasoningMessagesLength = message?.reasoning?.length;
   const previousReasoningMessagesLength = usePrevious(reasoningMessagesLength);
   const isCompletedStream = message?.isCompletedStream;

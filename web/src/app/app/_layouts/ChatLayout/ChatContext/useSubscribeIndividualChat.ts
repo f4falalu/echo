@@ -1,8 +1,6 @@
 import type { IBusterChat } from '@/context/Chats/interfaces';
 import type { SelectedFile } from '../interfaces';
-import { useBusterChatContextSelector } from '@/context/Chats';
-import { useEffect } from 'react';
-import { useUnmount } from 'ahooks';
+import { useChatIndividual } from '@/context/Chats';
 import { useFileFallback } from './useFileFallback';
 
 export const useSubscribeIndividualChat = ({
@@ -12,23 +10,11 @@ export const useSubscribeIndividualChat = ({
   chatId?: string;
   defaultSelectedFile?: SelectedFile;
 }): IBusterChat | undefined => {
-  const chat: IBusterChat | undefined = useBusterChatContextSelector((x) => x.chats[chatId || '']);
-  const subscribeToChat = useBusterChatContextSelector((x) => x.subscribeToChat);
-  const unsubscribeFromChat = useBusterChatContextSelector((x) => x.unsubscribeFromChat);
+  const { chat } = useChatIndividual(chatId || '');
 
-  const { memoizedFallbackToChat } = useFileFallback({
-    defaultSelectedFile
-  });
+  const { memoizedFallbackToChat } = useFileFallback({ defaultSelectedFile });
 
   const selectedChat: IBusterChat | undefined = chatId ? chat : memoizedFallbackToChat;
-
-  useEffect(() => {
-    if (chatId) subscribeToChat({ chatId });
-  }, [chatId]);
-
-  useUnmount(() => {
-    if (chatId) unsubscribeFromChat({ chatId });
-  });
 
   return selectedChat;
 };

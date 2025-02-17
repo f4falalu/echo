@@ -20,18 +20,23 @@ export const useSocketQueryOn = <
   TError = unknown,
   TData = InferBusterSocketResponseData<TRoute>,
   TQueryKey extends QueryKey = QueryKey
->(
-  socketResponse: TRoute,
-  options: UseQueryOptions<TData, TError, TData, TQueryKey>,
+>({
+  socketResponse,
+  options,
+  callback
+}: {
+  socketResponse: TRoute;
+  options?: UseQueryOptions<TData, TError, TData, TQueryKey> | null;
   callback?:
-    | ((currentData: TData | null, newData: InferBusterSocketResponseData<TRoute>) => TData)
-    | null
-): UseSocketQueryOnResult<TData, TError> => {
+    | ((
+        currentData: TData | null,
+        newData: InferBusterSocketResponseData<TRoute>
+      ) => TData | undefined | void)
+    | null;
+}): UseSocketQueryOnResult<TData, TError> => {
   const busterSocket = useBusterWebSocket();
   const queryClient = useQueryClient();
-  const queryKey = options.queryKey;
-  const bufferRef = useRef<TData | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const queryKey = options?.queryKey ?? '';
 
   const hasBufferCallback = !!callback;
 
@@ -39,15 +44,13 @@ export const useSocketQueryOn = <
     const socketData = d as InferBusterSocketResponseData<TRoute>;
 
     const transformer = callback || defaultCallback<TData, TRoute>;
-    const transformedData = transformer(bufferRef.current, socketData);
+    const currentData = queryKey ? queryClient.getQueryData<TData>(queryKey)! : (null as TData);
+    const transformedData = transformer(currentData, socketData);
 
-    if (hasBufferCallback) {
-      bufferRef.current = transformedData;
-      startTransition(() => {
-        queryClient.setQueryData<TData>(queryKey, transformedData);
-      });
-    } else {
-      queryClient.setQueryData<TData>(queryKey, transformedData);
+    if (hasBufferCallback && transformedData) {
+      if (queryKey) queryClient.setQueryData<TData>(queryKey, transformedData);
+    } else if (transformedData) {
+      if (queryKey) queryClient.setQueryData<TData>(queryKey, transformedData);
     }
   });
 
@@ -69,6 +72,7 @@ export const useSocketQueryOn = <
 
   return useQuery({
     ...options,
+    queryKey: queryKey as TQueryKey,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     enabled: false // must be disabled, because it will be enabled by the socket

@@ -15,7 +15,8 @@ export enum ChatsResponses {
   '/chats/post:generatingResponseMessage' = '/chats/post:generatingResponseMessage',
   '/chats/post:generatingReasoningMessage' = '/chats/post:generatingReasoningMessage',
   '/chats/post:complete' = '/chats/post:complete',
-  '/chats/delete:deleteChat' = '/chats/delete:deleteChat'
+  '/chats/delete:deleteChat' = '/chats/delete:deleteChat',
+  '/chats/update:updateChat' = '/chats/update:updateChat'
 }
 
 export type ChatList_getChatsList = {
@@ -46,6 +47,12 @@ export type Chat_unsubscribe = {
 export type Chat_deleteChat = {
   route: '/chats/delete:deleteChat';
   callback: (d: { id: string }[]) => void;
+  onError?: (d: unknown | RustApiError) => void;
+};
+
+export type Chat_updateChat = {
+  route: '/chats/update:updateChat';
+  callback: (d: BusterChat) => void;
   onError?: (d: unknown | RustApiError) => void;
 };
 

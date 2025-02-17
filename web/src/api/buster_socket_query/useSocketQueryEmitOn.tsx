@@ -9,7 +9,6 @@ import {
 import type { InferBusterSocketResponseData } from './types';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useEffect } from 'react';
-import { useMemoizedFn } from 'ahooks';
 import { useSocketQueryOn } from './useSocketQueryOn';
 import { timeout } from '@/utils';
 
@@ -41,7 +40,7 @@ export const useSocketQueryEmitOn = <
     }
   });
 
-  const queryResult = useSocketQueryOn(socketResponse, options, callback);
+  const queryResult = useSocketQueryOn({ socketResponse, options, callback });
 
   useEffect(() => {
     const queryState = queryClient.getQueryState(options.queryKey);

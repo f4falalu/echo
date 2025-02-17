@@ -2,7 +2,7 @@
 import React from 'react';
 import { useChatIndividualContextSelector } from '../../_layouts/ChatLayout/ChatContext';
 import { ReasoningMessageContainer } from './ReasoningMessageContainer';
-import { useBusterChatContextSelector } from '@/context/Chats';
+import { useMessageIndividual } from '@/context/Chats';
 
 interface ReasoningControllerProps {
   chatId: string;
@@ -11,7 +11,7 @@ interface ReasoningControllerProps {
 
 export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId, messageId }) => {
   const hasChat = useChatIndividualContextSelector((state) => state.hasChat);
-  const message = useBusterChatContextSelector((state) => state.chatsMessages[messageId]);
+  const message = useMessageIndividual(messageId);
 
   if (!hasChat || !message) return null;
 

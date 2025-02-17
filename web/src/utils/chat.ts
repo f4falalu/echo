@@ -12,28 +12,23 @@ const chatUpgrader = (chat: BusterChat, { isNewChat }: { isNewChat: boolean }): 
 const chatMessageUpgrader = (
   message: BusterChatMessage[],
   options?: { isCompletedStream: boolean; messageId: string }
-): Record<string, IBusterChatMessage> => {
+): IBusterChatMessage[] => {
   const lastMessageId = message[message.length - 1].id;
   const { isCompletedStream = true, messageId } = options || {};
   const optionMessageId = messageId || lastMessageId;
 
-  return message.reduce(
-    (acc, message) => {
-      if (message.id === optionMessageId) {
-        acc[message.id] = {
-          ...message,
-          isCompletedStream
-        };
-      } else {
-        acc[message.id] = {
-          ...message,
-          isCompletedStream: true
-        };
-      }
-      return acc;
-    },
-    {} as Record<string, IBusterChatMessage>
-  );
+  return message.map((message) => {
+    if (message.id === optionMessageId) {
+      return {
+        ...message,
+        isCompletedStream
+      };
+    }
+    return {
+      ...message,
+      isCompletedStream: true
+    };
+  });
 };
 
 export const updateChatToIChat = (chat: BusterChat, isNewChat: boolean) => {

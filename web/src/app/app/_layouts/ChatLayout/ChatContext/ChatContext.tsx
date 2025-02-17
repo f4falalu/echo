@@ -5,9 +5,9 @@ import {
   useContextSelector
 } from '@fluentui/react-context-selector';
 import type { SelectedFile } from '../interfaces';
-import { useSubscribeIndividualChat } from './useSubscribeIndividualChat';
 import { useAutoChangeLayout } from './useAutoChangeLayout';
-import { useBusterChatContextSelector } from '@/context/Chats';
+import { useMessageIndividual } from '@/context/Chats';
+import { useSubscribeIndividualChat } from './useSubscribeIndividualChat';
 
 export const useChatIndividualContext = ({
   chatId,
@@ -36,9 +36,8 @@ export const useChatIndividualContext = ({
 
   //MESSAGES
   const currentMessageId = chatMessageIds[chatMessageIds.length - 1];
-  const isLoading = useBusterChatContextSelector(
-    (x) => !x.chatsMessages[currentMessageId]?.isCompletedStream
-  );
+  const message = useMessageIndividual(currentMessageId);
+  const isLoading = !message?.isCompletedStream;
 
   useAutoChangeLayout({
     lastMessageId: currentMessageId,
