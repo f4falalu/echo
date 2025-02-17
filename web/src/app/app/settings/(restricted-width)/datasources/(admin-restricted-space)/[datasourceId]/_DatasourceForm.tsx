@@ -8,11 +8,14 @@ import { formatDate } from '@/utils';
 import { Button, Divider, Dropdown, MenuProps } from 'antd';
 import React from 'react';
 import { DataSourceFormContent } from './_DatasourceFormContent';
-import { useDataSourceContextSelector, useDataSourceIndividual } from '@/context/DataSources';
 import { Text, Title } from '@/components';
+import {
+  useDataSourceIndividual,
+  useDataSourceIndividualContextSelector
+} from '@/context/DataSources';
 
 export const DatasourceForm: React.FC<{ datasourceId: string }> = ({ datasourceId }) => {
-  const { dataSource } = useDataSourceIndividual({ dataSourceId: datasourceId });
+  const { dataSource } = useDataSourceIndividual(datasourceId);
   const loadingDataSource = !dataSource?.id;
 
   if (loadingDataSource) {
@@ -54,7 +57,9 @@ const DataSourceFormHeader: React.FC<{ dataSource: DataSource }> = ({ dataSource
 };
 
 const ThreeDotsMenu: React.FC<{ dataSource: DataSource }> = ({ dataSource }) => {
-  const onDeleteDataSource = useDataSourceContextSelector((state) => state.onDeleteDataSource);
+  const onDeleteDataSource = useDataSourceIndividualContextSelector(
+    (state) => state.onDeleteDataSource
+  );
   const token = useAntToken();
   const items: MenuProps['items'] = [
     {
@@ -104,7 +109,9 @@ const ThreeDotsMenu: React.FC<{ dataSource: DataSource }> = ({ dataSource }) => 
 const DataSourceFormStatus: React.FC<{ dataSource: DataSource }> = ({ dataSource }) => {
   const token = useAntToken();
   const [isOpenDropdown, setIsOpenDropdown] = React.useState(false);
-  const onDeleteDataSource = useDataSourceContextSelector((state) => state.onDeleteDataSource);
+  const onDeleteDataSource = useDataSourceIndividualContextSelector(
+    (state) => state.onDeleteDataSource
+  );
 
   const dropdownItems: MenuProps['items'] = [
     {

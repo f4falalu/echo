@@ -27,7 +27,7 @@ export type DashboardResponses_getDashboardState = {
 
 export type DashboardResponses_postDashboard = {
   route: '/dashboards/post:postDashboard';
-  callback: (d: BusterDashboard) => void;
+  callback: (d: BusterDashboardResponse) => void;
   onError?: (d: unknown) => void;
 };
 

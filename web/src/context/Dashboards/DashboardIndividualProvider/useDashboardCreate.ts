@@ -5,13 +5,11 @@ import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { useMemoizedFn } from 'ahooks';
 import { useRouter } from 'next/navigation';
 import { useSocketQueryMutation } from '@/api/buster_socket_query';
+import { useQueryClient } from '@tanstack/react-query';
 
-export const useDashboardCreate = ({
-  onUpdateDashboard
-}: {
-  onUpdateDashboard: (dashboard: BusterDashboard) => void;
-}) => {
+export const useDashboardCreate = ({}: {}) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { mutateAsync: deleteDashboard, isPending: isDeletingDashboard } = useSocketQueryMutation(
     '/dashboards/delete',
     '/dashboards/delete:deleteDashboard',
@@ -27,7 +25,12 @@ export const useDashboardCreate = ({
     '/dashboards/post:postDashboard',
     null,
     null,
-    (res) => onUpdateDashboard(res)
+    (newData, currentData, variables) => {
+      const dashboardId = newData.dashboard.id;
+      const options = queryKeys['/dashboards/get:getDashboardState'](dashboardId);
+      queryClient.setQueryData(options.queryKey, newData);
+      return currentData;
+    }
   );
 
   const onCreateNewDashboard = useMemoizedFn(
@@ -47,12 +50,12 @@ export const useDashboardCreate = ({
         router.push(
           createBusterRoute({
             route: BusterRoutes.APP_DASHBOARD_ID,
-            dashboardId: res.id
+            dashboardId: res.dashboard.id
           })
         );
       }
 
-      return res as BusterDashboard;
+      return res.dashboard;
     }
   );
 

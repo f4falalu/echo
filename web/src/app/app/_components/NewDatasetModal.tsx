@@ -1,12 +1,12 @@
 import React, { useLayoutEffect, useMemo } from 'react';
 import { Input, Select, SelectProps } from 'antd';
 import { useMemoizedFn, useMount } from 'ahooks';
-import { useDataSourceContextSelector } from '@/context/DataSources';
 import { useCreateDataset } from '@/api/buster_rest/datasets';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useRouter } from 'next/navigation';
 import { AppModal, Text } from '@/components';
+import { useDataSourceListContextSelector } from '@/context/DataSources';
 
 const headerConfig = {
   title: 'Create a dataset',
@@ -22,13 +22,11 @@ export const NewDatasetModal: React.FC<{
 }> = React.memo(({ open, onClose, beforeCreate, afterCreate, datasourceId }) => {
   const router = useRouter();
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
-  const forceInitDataSourceList = useDataSourceContextSelector(
-    (state) => state.forceInitDataSourceList
-  );
   const { mutateAsync: createDataset, isPending: creatingDataset } = useCreateDataset();
   const [selectedDatasource, setSelectedDatasource] = React.useState<string | null>(
     datasourceId || null
   );
+  const refetchDatasourcesList = useDataSourceListContextSelector((x) => x.refetchDatasourcesList);
   const [datasetName, setDatasetName] = React.useState<string>('');
 
   const disableSubmit = !selectedDatasource || !datasetName;
@@ -47,7 +45,7 @@ export const NewDatasetModal: React.FC<{
         route: BusterRoutes.APP_DATASETS_ID_OVERVIEW,
         datasetId: res.id
       });
-      forceInitDataSourceList();
+      refetchDatasourcesList();
       setTimeout(() => {
         onClose();
         afterCreate?.();
@@ -110,11 +108,11 @@ const SelectDataSourceDropdown: React.FC<{
   selectedDatasource: string | null;
 }> = React.memo(({ setSelectedDatasource, selectedDatasource }) => {
   const router = useRouter();
-  const dataSourcesList = useDataSourceContextSelector((state) => state.dataSourcesList);
-  const initDataSourceList = useDataSourceContextSelector((state) => state.initDataSourceList);
+  const dataSourcesList = useDataSourceListContextSelector((x) => x.dataSourcesList);
+  const refetchDatasourcesList = useDataSourceListContextSelector((x) => x.refetchDatasourcesList);
 
   const selectOptions: SelectProps['options'] = useMemo(() => {
-    return dataSourcesList.map((dataSource) => ({
+    return (dataSourcesList || []).map((dataSource) => ({
       label: dataSource.name,
       value: dataSource.id
     }));
@@ -129,7 +127,7 @@ const SelectDataSourceDropdown: React.FC<{
   });
 
   useMount(() => {
-    initDataSourceList();
+    refetchDatasourcesList();
     router.prefetch(
       createBusterRoute({
         route: BusterRoutes.APP_DATASETS_ID_OVERVIEW,
