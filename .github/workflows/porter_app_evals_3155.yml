@@ -43,7 +43,7 @@ jobs:
             DATABASE_URL: ${{ secrets.EVAL_DB_URL }}
             PGSSLMODE: disable
     porter-deploy:
-      runs-on: ubuntu-latest
+      runs-on: blacksmith-16vcpu-ubuntu-2204
       steps:
         - name: Checkout code
           uses: actions/checkout@v4
