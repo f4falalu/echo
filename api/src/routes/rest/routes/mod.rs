@@ -1,5 +1,6 @@
 mod api_keys;
 mod assets;
+mod chats;
 mod data_sources;
 mod dataset_groups;
 mod datasets;
@@ -25,6 +26,7 @@ pub fn router() -> Router {
                 .nest("/dataset_groups", dataset_groups::router())
                 .nest("/sql", sql::router())
                 .nest("/organizations", organizations::router())
+                .nest("/chats", chats::router())
                 .route_layer(middleware::from_fn(auth)),
         )
 }
