@@ -13,6 +13,8 @@ import { BusterRoutes } from '@/routes';
 import { useSocketQueryOn } from '@/api/buster_socket_query';
 import { useRef } from 'react';
 import { IBusterChat, IBusterChatMessage } from '../interfaces';
+import { queryKeys } from '@/api/query_keys';
+import { useQueryClient } from '@tanstack/react-query';
 
 type ChatMessageResponseMessage = IBusterChatMessage['response_messages'][number] & {
   index: number;
@@ -36,7 +38,7 @@ type ChatMessageReasoningMessageRef = Record<
 >;
 
 export const useChatStreamMessage = () => {
-  // const busterSocket = useBusterWebSocket();
+  const queryClient = useQueryClient();
   const getChatMessage = useBusterChatContextSelector((x) => x.getChatMessageMemoized);
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const onUpdateChat = useBusterChatContextSelector((x) => x.onUpdateChat);
@@ -49,9 +51,17 @@ export const useChatStreamMessage = () => {
 
   const { autoAppendThought } = useAutoAppendThought();
 
+  const normalizeChatMessage = useMemoizedFn((iChatMessages: IBusterChatMessage[]) => {
+    for (const message of iChatMessages) {
+      const options = queryKeys['chatsMessages'](message.id);
+      const queryKey = options.queryKey;
+      queryClient.setQueryData(queryKey, message);
+    }
+  });
+
   const completeChatCallback = useMemoizedFn((d: BusterChat) => {
     const { iChat, iChatMessages } = updateChatToIChat(d, false);
-    //  onBulkSetChatMessages(iChatMessages);
+    normalizeChatMessage(iChatMessages);
     onUpdateChat(iChat);
   });
 
@@ -64,7 +74,7 @@ export const useChatStreamMessage = () => {
 
   const initializeNewChatCallback = useMemoizedFn((d: BusterChat) => {
     const { iChat, iChatMessages } = updateChatToIChat(d, true);
-    //onBulkSetChatMessages(iChatMessages);
+    normalizeChatMessage(iChatMessages);
     onUpdateChat(iChat);
     onChangePage({
       route: BusterRoutes.APP_CHAT_ID,
@@ -103,11 +113,6 @@ export const useChatStreamMessage = () => {
       id: chat_id,
       title: newTitle
     });
-  });
-
-  useSocketQueryOn({
-    socketResponse: '/chats/post:generatingTitle',
-    callback: _generatingTitleCallback
   });
 
   const _generatingResponseMessageCallback = useMemoizedFn(
@@ -149,11 +154,6 @@ export const useChatStreamMessage = () => {
     }
   );
 
-  useSocketQueryOn({
-    socketResponse: '/chats/post:generatingResponseMessage',
-    callback: _generatingResponseMessageCallback
-  });
-
   const _generatingReasoningMessageCallback = useMemoizedFn(
     (_: null, d: ChatEvent_GeneratingReasoningMessage) => {
       const { message_id, reasoning, chat_id } = d;
@@ -187,6 +187,16 @@ export const useChatStreamMessage = () => {
       });
     }
   );
+
+  useSocketQueryOn({
+    socketResponse: '/chats/post:generatingTitle',
+    callback: _generatingTitleCallback
+  });
+
+  useSocketQueryOn({
+    socketResponse: '/chats/post:generatingResponseMessage',
+    callback: _generatingResponseMessageCallback
+  });
 
   useSocketQueryOn({
     socketResponse: '/chats/post:generatingReasoningMessage',
