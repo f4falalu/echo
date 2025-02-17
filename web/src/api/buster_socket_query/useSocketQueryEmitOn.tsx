@@ -1,5 +1,11 @@
 import type { BusterSocketResponseRoute, BusterSocketRequest } from '@/api/buster_socket';
-import type { QueryKey, UseQueryOptions } from '@tanstack/react-query';
+import {
+  queryOptions,
+  useQueryClient,
+  useMutation,
+  type QueryKey,
+  type UseQueryOptions
+} from '@tanstack/react-query';
 import type { InferBusterSocketResponseData } from './types';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useEffect } from 'react';
@@ -20,20 +26,31 @@ export const useSocketQueryEmitOn = <
     | null,
   enabledTriggerProp?: boolean | string
 ) => {
+  const queryClient = useQueryClient();
   const busterSocket = useBusterWebSocket();
   const enabledTrigger = enabledTriggerProp ?? true;
 
-  const emitQueryFn = useMemoizedFn(async () => {
-    busterSocket.emit(socketRequest);
+  // Use mutation for deduped socket emissions
+  const { mutate: emitQueryFn } = useMutation({
+    mutationKey: ['socket-emit', ...options.queryKey],
+    mutationFn: async () => {
+      busterSocket.emit(socketRequest);
+      return null;
+    }
   });
 
+  const queryResult = useSocketQueryOn(socketResponse, options, callback);
+
   useEffect(() => {
-    if (enabledTrigger) {
+    const queryState = queryClient.getQueryState(options.queryKey);
+    const staleTime = (options.staleTime as number) ?? 0;
+    const isStale =
+      !queryState?.dataUpdatedAt || Date.now() - queryState.dataUpdatedAt >= staleTime;
+
+    if (enabledTrigger && (isStale || !queryState)) {
       emitQueryFn();
     }
   }, [enabledTrigger]);
-
-  const queryResult = useSocketQueryOn(socketResponse, options, callback);
 
   return { ...queryResult, refetch: emitQueryFn };
 };

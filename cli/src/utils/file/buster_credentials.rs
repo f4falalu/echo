@@ -5,7 +5,7 @@ use tokio::fs;
 
 use crate::{error::BusterError, utils::BusterClient};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct BusterCredentials {
     pub url: String,
     pub api_key: String,
@@ -14,7 +14,7 @@ pub struct BusterCredentials {
 impl Default for BusterCredentials {
     fn default() -> Self {
         Self {
-            url: String::from("https://api.platform.buster.so"),
+            url: String::from("https://api2.buster.so"),
             api_key: String::from(""),
         }
     }

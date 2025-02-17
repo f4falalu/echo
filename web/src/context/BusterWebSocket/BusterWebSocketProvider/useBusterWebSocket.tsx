@@ -33,6 +33,7 @@ interface BusterSocket {
     emitEvent: BusterSocketRequest;
     responseEvent: T;
   }) => Promise<Parameters<T['callback']>[0]>;
+  getCurrentListeners: (route: BusterSocketResponseRoute) => BusterOnCallback[];
 }
 
 const useBusterWebSocketHook = ({
@@ -173,7 +174,8 @@ const useBusterSocketListeners = (props: {
       off,
       emit,
       once,
-      emitAndOnce
+      emitAndOnce,
+      getCurrentListeners: getCurrentListeners
     }),
     []
   );

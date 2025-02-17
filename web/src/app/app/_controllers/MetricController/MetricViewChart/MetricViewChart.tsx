@@ -2,10 +2,7 @@ import { createStyles } from 'antd-style';
 import React, { useMemo } from 'react';
 import { MetricViewChartContent } from './MetricViewChartContent';
 import { MetricViewChartHeader } from './MetricViewChartHeader';
-import {
-  useBusterMetricIndividual,
-  useBusterMetricsIndividualContextSelector
-} from '@/context/Metrics';
+import { useMetricIndividual, useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';
 import { inputHasText } from '@/utils/text';
 import { MetricChartEvaluation } from './MetricChartEvaluation';
@@ -15,7 +12,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 export const MetricViewChart: React.FC<{ metricId: string }> = React.memo(({ metricId }) => {
   const { styles, cx } = useStyles();
   const onUpdateMetric = useBusterMetricsIndividualContextSelector((x) => x.onUpdateMetric);
-  const { metric, metricData, metricDataError, isFetchedMetricData } = useBusterMetricIndividual({
+  const { metric, metricData, metricDataError, isFetchedMetricData } = useMetricIndividual({
     metricId
   });
   const { title, description, time_frame, evaluation_score, evaluation_summary } = metric;

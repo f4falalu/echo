@@ -17,10 +17,10 @@ export const ChatListContainer: React.FC<{
   const type = 'logs';
 
   const adminView = type === 'logs';
-  const { list, fetched } = useBusterMetricListByFilter({
-    filters,
-    admin_view: adminView
-  });
+  // const { list, fetched } = useBusterMetricListByFilter({
+  //   filters,
+  //   admin_view: adminView
+  // });
 
   const onSetFilters = useMemoizedFn((newFilters: VerificationStatus[]) => {
     setFilters(newFilters);
@@ -36,8 +36,8 @@ export const ChatListContainer: React.FC<{
       <AppContent>
         <ChatItemsContainer
           type={type}
-          metrics={list}
-          loading={!fetched}
+          metrics={[]}
+          loading={false}
           openNewMetricModal={onToggleChatsModal}
           className="flex-col overflow-hidden"
         />

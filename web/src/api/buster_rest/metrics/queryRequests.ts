@@ -4,15 +4,19 @@ import { useMemoizedFn } from 'ahooks';
 import { getMetric, getMetric_server, listMetrics, listMetrics_server } from './requests';
 import type { GetMetricParams, ListMetricsParams } from './interfaces';
 import { BusterMetric, BusterMetricListItem } from '@/api/asset_interfaces';
+import { IBusterMetric } from '@/context/Metrics';
+import { upgradeMetricToIMetric } from '@/context/Metrics/helpers';
 
 export const useGetMetric = (params: GetMetricParams) => {
-  const queryFn = useMemoizedFn(() => {
-    return getMetric(params);
+  const queryFn = useMemoizedFn(async () => {
+    const result = await getMetric(params);
+    return upgradeMetricToIMetric(result, null);
   });
 
-  return useCreateReactQuery<BusterMetric>({
+  return useCreateReactQuery<IBusterMetric>({
     queryKey: ['metric', params],
-    queryFn
+    queryFn,
+    enabled: false //this is handle via a socket query? maybe it should not be?
   });
 };
 

@@ -90,12 +90,11 @@ const CollectionsButton: React.FC<{
     const allSelectedButLast = selectedRowKeys.slice(0, -1);
     const lastMetricId = selectedRowKeys[selectedRowKeys.length - 1];
     const allRemoves: Promise<void>[] = allSelectedButLast.map((metricId) => {
-      return removeMetricFromCollection({ metricId, collectionId, ignoreFavoriteUpdates: true });
+      return removeMetricFromCollection({ metricId, collectionId });
     });
     await removeMetricFromCollection({
       metricId: lastMetricId,
-      collectionId,
-      ignoreFavoriteUpdates: false
+      collectionId
     });
     await Promise.all(allRemoves);
     openInfoMessage('Metrics removed from collections');
@@ -147,17 +146,10 @@ const DeleteButton: React.FC<{
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
   const deleteMetric = useBusterMetricsIndividualContextSelector((state) => state.deleteMetric);
-  const { openConfirmModal } = useBusterNotifications();
 
   const onDeleteClick = async () => {
-    openConfirmModal({
-      title: 'Delete metric',
-      content: 'Are you sure you want to delete these metrics?',
-      onOk: async () => {
-        await deleteMetric({ metricIds: selectedRowKeys });
-        onSelectChange([]);
-      }
-    });
+    await deleteMetric({ ids: selectedRowKeys });
+    onSelectChange([]);
   };
 
   return (

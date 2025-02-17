@@ -6,13 +6,13 @@ import {
   useChatLayoutContextSelector
 } from '@appLayouts/ChatLayout/ChatLayoutContext';
 import { MetricViewComponents } from './config';
-import { useBusterMetricIndividual } from '@/context/Metrics';
+import { useMetricIndividual } from '@/context/Metrics';
 import { FileIndeterminateLoader } from '@appComponents/FileIndeterminateLoader';
 
 export const MetricController: React.FC<{
   metricId: string;
 }> = React.memo(({ metricId }) => {
-  const { metric, isFetchedMetricData } = useBusterMetricIndividual({ metricId });
+  const { metric, isFetchedMetricData } = useMetricIndividual({ metricId });
   const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView) || 'chart';
 
   const isFetchedConfig = metric.fetched;

@@ -19,8 +19,8 @@ export const useSQLProvider = () => {
   const queryClient = useQueryClient();
   const { openSuccessNotification } = useBusterNotifications();
   const onUpdateMetric = useBusterMetricsIndividualContextSelector((x) => x.onUpdateMetric);
-  const updateMetricToServer = useBusterMetricsIndividualContextSelector(
-    (x) => x.updateMetricToServer
+  const updateMetricMutation = useBusterMetricsIndividualContextSelector(
+    (x) => x.updateMetricMutation
   );
   const getMetricMemoized = useBusterMetricsIndividualContextSelector((x) => x.getMetricMemoized);
   const onSaveMetricChanges = useBusterMetricsIndividualContextSelector(
@@ -189,8 +189,8 @@ export const useSQLProvider = () => {
         sql: sql
       };
 
-      const res = await updateMetricToServer(payload);
-      const metricRes = await onSaveMetricChanges({
+      await updateMetricMutation(payload);
+      await onSaveMetricChanges({
         metricId,
         save_draft: true,
         save_as_metric_state: metricId

@@ -8,8 +8,8 @@ pub async fn get_snowflake_client(
 ) -> Result<SnowflakeApi, Error> {
     let snowflake_client = match SnowflakeApi::with_password_auth(
         &credentials.account_id,
-        Some(credentials.warehouse_id.as_str()),
-        Some(credentials.database_id.as_str()),
+        Some(&credentials.warehouse_id),
+        credentials.database_id.as_deref(),
         None,
         &credentials.username,
         credentials.role.as_deref(),

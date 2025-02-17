@@ -1,16 +1,10 @@
-import { BusterPermissionUser } from '../permission';
+import type { BusterOrganization } from '../organizations';
+import type { BusterPermissionUser } from '../permission';
 import type { ShareAssetType } from '../share';
 
 export interface BusterUserPalette {
   id: string;
   palette: string[];
-}
-
-export enum BusterOrganizationRole {
-  WORKSPACE_ADMIN = 'workspaceAdmin',
-  DATA_ADMIN = 'dataAdmin',
-  QUERIER = 'querier',
-  RESTRICTED_QUERIER = 'restrictedQuerier'
 }
 
 export enum TeamRole {
@@ -72,19 +66,29 @@ export interface BusterUserResponse {
   organizations: BusterOrganization[] | null;
 }
 
-export interface BusterOrganization {
-  created_at: string;
-  id: string;
-  deleted_at: string | null;
-  domain: string;
-  name: string;
-  updated_at: string;
-  role: BusterOrganizationRole;
-}
-
 export interface BusterUserListItem {
   email: string;
   id: string;
   name: string;
   role: null;
+}
+
+export interface OrganizationUser {
+  id: string;
+  email: string;
+  name: string;
+  status: 'active' | 'inactive';
+  role: 'dataAdmin' | 'workspaceAdmin' | 'querier' | 'restrictedQuerier' | 'viewer';
+  datasets: OrganizationUserDataset[];
+}
+
+export interface OrganizationUserDataset {
+  can_query: boolean;
+  id: string;
+  name: string;
+  lineage: {
+    name: string;
+    id: string;
+    type: 'user' | 'datasets' | 'permissionGroups';
+  }[][];
 }

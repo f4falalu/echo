@@ -267,6 +267,7 @@ diesel::table! {
         deleted_at -> Nullable<Timestamptz>,
         model -> Nullable<Text>,
         yml_file -> Nullable<Text>,
+        database_identifier -> Nullable<Text>,
     }
 }
 

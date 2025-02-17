@@ -4,87 +4,55 @@ import { IBusterMetric } from '../interfaces';
 import { useBusterWebSocket } from '../../BusterWebSocket';
 import { BusterMetric } from '@/api/asset_interfaces';
 import { RustApiError } from '@/api/buster_rest/errors';
-import { resolveEmptyMetric } from '../helpers';
+import { resolveEmptyMetric, upgradeMetricToIMetric } from '../helpers';
 import React from 'react';
+import { useSocketQueryMutation } from '@/api/buster_socket_query';
+import { queryKeys } from '@/api/query_keys';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const useMetricSubscribe = ({
-  metricsRef,
-  onInitializeMetric,
-  setMetrics
+  getMetricMemoized,
+  onInitializeMetric
 }: {
-  metricsRef: React.MutableRefObject<Record<string, IBusterMetric>>;
+  getMetricMemoized: ({ metricId }: { metricId?: string }) => IBusterMetric;
   onInitializeMetric: (metric: BusterMetric) => void;
-  setMetrics: (newMetrics: Record<string, IBusterMetric>) => void;
 }) => {
-  const busterSocket = useBusterWebSocket();
   const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
   const setAssetPasswordError = useBusterAssetsContextSelector(
     (state) => state.setAssetPasswordError
   );
+  const queryClient = useQueryClient();
 
-  const _onGetMetricState = useMemoizedFn((metric: BusterMetric) => {
-    onInitializeMetric(metric);
-  });
+  const { mutate: subscribeToMetricMutation } = useSocketQueryMutation(
+    '/metrics/get',
+    '/metrics/get:updateMetricState',
+    null,
+    null,
+    (newData, currentData, variables) => {
+      onInitializeMetric(newData);
+    }
+  );
 
   const _onGetMetricStateError = useMemoizedFn((_error: any, metricId: string) => {
     const error = _error as RustApiError;
     setAssetPasswordError(metricId, error.message || 'An error occurred');
   });
 
-  const _setLoadingMetric = useMemoizedFn((metricId: string) => {
-    const metrics = metricsRef.current || {};
-    metrics[metricId] = resolveEmptyMetric(
-      {
-        ...metrics[metricId],
-        fetching: true
-      },
-      metricId
-    );
-
-    setMetrics(metrics);
-
-    return metrics[metricId];
-  });
-
   const subscribeToMetric = useMemoizedFn(async ({ metricId }: { metricId: string }) => {
     const { password } = getAssetPassword(metricId);
-    const foundMetric: undefined | IBusterMetric = metricsRef.current[metricId];
 
-    if (foundMetric && (foundMetric?.fetching || foundMetric?.fetched)) {
-      return foundMetric;
+    try {
+      const result = await subscribeToMetricMutation({
+        id: metricId,
+        password
+      });
+    } catch (_error) {
+      const error = _error as RustApiError;
+      setAssetPasswordError(metricId, error.message || 'An error occurred');
     }
-
-    _setLoadingMetric(metricId);
-
-    return await busterSocket.emitAndOnce({
-      emitEvent: {
-        route: '/metrics/get',
-        payload: {
-          id: metricId,
-          password
-        }
-      },
-      responseEvent: {
-        route: '/metrics/get:updateMetricState',
-        callback: _onGetMetricState,
-        onError: (error) => _onGetMetricStateError(error, metricId)
-      }
-    });
-  });
-
-  const unsubscribeToMetricEvents = useMemoizedFn(({ metricId }: { metricId: string }) => {
-    busterSocket.off({
-      route: '/metrics/get:updateMetricState',
-      callback: onInitializeMetric
-    });
-    busterSocket.off({
-      route: '/metrics/update:updateMetricState',
-      callback: onInitializeMetric
-    });
   });
 
   return {
-    unsubscribeToMetricEvents,
     subscribeToMetric
   };
 };

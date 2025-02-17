@@ -16,7 +16,7 @@ export const MetricListContainer: React.FC<{
   const onToggleChatsModal = useAppLayoutContextSelector((s) => s.onToggleChatsModal);
   const [filters, setFilters] = useState<VerificationStatus[]>([]);
   const adminView = type === 'logs';
-  const { list, fetched } = useBusterMetricListByFilter({
+  const { metricList, isFetched } = useBusterMetricListByFilter({
     filters,
     admin_view: adminView
   });
@@ -35,8 +35,8 @@ export const MetricListContainer: React.FC<{
       <AppContent>
         <MetricItemsContainer
           type={type}
-          metrics={list}
-          loading={!fetched}
+          metrics={metricList || []}
+          loading={!isFetched}
           openNewMetricModal={onToggleChatsModal}
           className="flex-col overflow-hidden"
         />

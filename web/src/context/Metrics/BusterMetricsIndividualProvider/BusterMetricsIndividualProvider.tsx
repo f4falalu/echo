@@ -1,97 +1,63 @@
-import React, { PropsWithChildren, useRef } from 'react';
+import React, { PropsWithChildren } from 'react';
 import {
   createContext,
   ContextSelector,
   useContextSelector
 } from '@fluentui/react-context-selector';
-import { useMemoizedFn, useMount } from 'ahooks';
+import { useMemoizedFn } from 'ahooks';
 import type { IBusterMetric } from '../interfaces';
-import { BusterMetric } from '@/api/asset_interfaces';
-import { useTransition } from 'react';
-import { resolveEmptyMetric, upgradeMetricToIMetric } from '../helpers';
+import { resolveEmptyMetric } from '../helpers';
 import { useUpdateMetricConfig } from './useMetricUpdateConfig';
 import { useUpdateMetricAssosciations } from './useMetricUpdateAssosciations';
 import { useShareMetric } from './useMetricShare';
-import { useMetricSubscribe } from './useMetricSubscribe';
 import { useParams } from 'next/navigation';
-import { useMetricDataIndividual } from '@/context/MetricData/useMetricDataIndividual';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/query_keys';
+import { useMetricDelete } from './useMetricDelete';
 
-export const useBusterMetricsIndividual = () => {
-  const [isPending, startTransition] = useTransition();
+const useBusterMetricsIndividual = () => {
   const { metricId: selectedMetricId } = useParams<{ metricId: string }>();
-  const metricsRef = useRef<Record<string, IBusterMetric>>({});
+  const queryClient = useQueryClient();
 
   const getMetricId = useMemoizedFn((metricId?: string): string => {
     return metricId || selectedMetricId;
-  });
-
-  const setMetrics = useMemoizedFn((newMetrics: Record<string, IBusterMetric>) => {
-    metricsRef.current = { ...metricsRef.current, ...newMetrics };
-    startTransition(() => {
-      //trigger a rerender
-    });
-  });
-
-  const resetMetric = useMemoizedFn(({ metricId }: { metricId: string }) => {
-    const prev = metricsRef.current;
-    delete prev[metricId];
-    setMetrics(prev);
   });
 
   //UI SELECTORS
 
   const getMetricMemoized = useMemoizedFn(({ metricId }: { metricId?: string }): IBusterMetric => {
     const _metricId = getMetricId(metricId);
-    const metrics = metricsRef.current || {};
-    const currentMetric = metrics[_metricId];
-    return resolveEmptyMetric(currentMetric, _metricId);
+    const options = queryKeys['/metrics/get:getMetric'](_metricId);
+    const data = queryClient.getQueryData(options.queryKey);
+    return resolveEmptyMetric(data, _metricId);
   });
 
   //STATE UPDATERS
 
-  const onInitializeMetric = useMemoizedFn((newMetric: BusterMetric) => {
-    const metrics = metricsRef.current || {};
-
-    const oldMetric = metrics[newMetric.id] as IBusterMetric | undefined; //HMMM is this right?
-
-    const upgradedMetric = upgradeMetricToIMetric(newMetric, oldMetric);
-
-    metricUpdateConfig.onUpdateMetric(upgradedMetric, false);
-  });
-
   // EMITTERS
-
-  const metricSubscribe = useMetricSubscribe({
-    metricsRef,
-    setMetrics,
-    onInitializeMetric
-  });
-
-  const metricShare = useShareMetric({ onInitializeMetric });
-
-  const metricAssosciations = useUpdateMetricAssosciations({
-    metricsRef,
-    setMetrics,
-    getMetricMemoized
-  });
 
   const metricUpdateConfig = useUpdateMetricConfig({
     getMetricId,
-    setMetrics,
-    startTransition,
-    onInitializeMetric,
     getMetricMemoized
   });
+  const { updateMetricMutation, onInitializeMetric } = metricUpdateConfig;
+
+  const metricAssosciations = useUpdateMetricAssosciations({
+    updateMetricMutation,
+    getMetricMemoized
+  });
+
+  const metricShare = useShareMetric({ updateMetricMutation });
+
+  const metricDelete = useMetricDelete();
 
   return {
     ...metricAssosciations,
     ...metricShare,
     ...metricUpdateConfig,
-    ...metricSubscribe,
-    resetMetric,
+    ...metricDelete,
     onInitializeMetric,
-    getMetricMemoized,
-    metrics: metricsRef.current
+    getMetricMemoized
   };
 };
 
@@ -114,22 +80,4 @@ export const useBusterMetricsIndividualContextSelector = <T,>(
   selector: ContextSelector<ReturnType<typeof useBusterMetricsIndividual>, T>
 ) => {
   return useContextSelector(BusterMetricsIndividual, selector);
-};
-
-export const useBusterMetricIndividual = ({ metricId }: { metricId: string }) => {
-  const subscribeToMetric = useBusterMetricsIndividualContextSelector((x) => x.subscribeToMetric);
-  const metric = useBusterMetricsIndividualContextSelector((x) => x.metrics[metricId]);
-
-  const metricIndividualData = useMetricDataIndividual({
-    metricId
-  });
-
-  useMount(() => {
-    subscribeToMetric({ metricId });
-  });
-
-  return {
-    metric: resolveEmptyMetric(metric, metricId),
-    ...metricIndividualData
-  };
 };

@@ -59,7 +59,8 @@ export const useSocketQueryOn = <
   }, [socketResponse, socketCallback]);
 
   useMount(() => {
-    busterSocket.on(socketConfig);
+    const hasCallbacks = busterSocket.getCurrentListeners(socketResponse).length > 0;
+    if (!hasCallbacks) busterSocket.on(socketConfig);
   });
 
   useUnmount(() => {

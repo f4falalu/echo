@@ -140,6 +140,7 @@ async fn update_dataset(user_id: &Uuid, dataset_id: &Uuid, name: &String) -> Res
         &dataset.dataset.database_name,
         &dataset.dataset.schema,
         &credentials,
+        None,
     )
     .await
     {
@@ -234,6 +235,7 @@ async fn create_dataset(user_id: &Uuid, name: &String, data_source_id: &Uuid) ->
         organization_id: user_org_id,
         yml_file: None,
         model: None,
+        database_identifier: None,
     };
 
     let mut conn = match get_pg_pool().get().await {

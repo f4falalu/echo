@@ -12,3 +12,15 @@ pub mod sharing;
 pub mod stored_values;
 pub mod tools;
 pub mod user;
+pub mod validation;
+pub mod dataset;
+
+pub use agents::*;
+pub use prompts::*;
+pub use query_engine::*;
+pub use search_engine::*;
+pub use security::*;
+pub use stored_values::*;
+pub use user::*;
+pub use validation::*;
+pub use dataset::*;

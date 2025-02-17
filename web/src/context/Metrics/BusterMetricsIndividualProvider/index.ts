@@ -1,2 +1,2 @@
 export * from './BusterMetricsIndividualProvider';
-export * from './useMetricFetched';
+export * from './useMetricIndividual';

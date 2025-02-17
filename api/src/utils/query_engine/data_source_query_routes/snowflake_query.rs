@@ -116,7 +116,7 @@ pub async fn snowflake_query(
     mut snowflake_client: SnowflakeApi,
     query: String,
 ) -> Result<Vec<IndexMap<std::string::String, DataType>>, Error> {
-    const MAX_ROWS: usize = 5_000;
+    const MAX_ROWS: usize = 1_000;
 
     let query_no_semicolon = query.trim_end_matches(';');
     let limited_query = if !query_no_semicolon.to_lowercase().contains("limit") {

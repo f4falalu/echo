@@ -1,11 +1,11 @@
 import React from 'react';
 import { ShareButton } from './ShareButton';
-import { useBusterMetricIndividual } from '@/context/Metrics';
 import { ShareMenu } from '../ShareMenu';
 import { ShareAssetType } from '@/api/asset_interfaces';
+import { useMetricIndividual } from '@/context/Metrics/BusterMetricsIndividualProvider';
 
 export const ShareMetricButton = React.memo(({ metricId }: { metricId: string }) => {
-  const { metric } = useBusterMetricIndividual({ metricId });
+  const { metric } = useMetricIndividual({ metricId });
 
   return (
     <ShareMenu

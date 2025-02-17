@@ -1,16 +1,13 @@
 import React, { useEffect } from 'react';
 import type { MetricViewProps } from '../config';
 import { CodeCard } from '@/components/card';
-import {
-  useBusterMetricIndividual,
-  useBusterMetricsIndividualContextSelector
-} from '@/context/Metrics';
+import { useMetricIndividual, useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';
 import { SaveResetFilePopup } from '@appComponents/Popups/SaveResetFilePopup';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 
 export const MetricViewFile: React.FC<MetricViewProps> = React.memo(({ metricId }) => {
-  const { metric } = useBusterMetricIndividual({ metricId });
+  const { metric } = useMetricIndividual({ metricId });
   const { openSuccessMessage } = useBusterNotifications();
   const onUpdateMetric = useBusterMetricsIndividualContextSelector((x) => x.onUpdateMetric);
 
