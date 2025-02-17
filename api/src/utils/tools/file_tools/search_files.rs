@@ -238,7 +238,7 @@ impl ToolExecutor for SearchFilesTool {
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "search_files",
+            "name": "search_files", 
             "strict": true,
             "parameters": {
                 "type": "object",
@@ -255,7 +255,7 @@ impl ToolExecutor for SearchFilesTool {
                 },
                 "additionalProperties": false
             },
-            "description": "Searches for metric and dashboard files using natural-language queries. Returns up to 10 most relevant files ordered by relevance."
+            "description": "Searches for existing metric and dashboard files. Only use when user explicitly asks about existing/previous/old files. Returns up to 10 most relevant files ordered by relevance."
         })
     }
 }
