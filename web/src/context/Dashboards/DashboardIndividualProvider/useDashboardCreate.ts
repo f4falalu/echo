@@ -15,7 +15,7 @@ export const useDashboardCreate = ({
   const { mutateAsync: deleteDashboard, isPending: isDeletingDashboard } = useSocketQueryMutation(
     '/dashboards/delete',
     '/dashboards/delete:deleteDashboard',
-    queryKeys['/dashboards/list:getDashboardsList'],
+    queryKeys['/dashboards/list:getDashboardsList']({}),
     (currentData, variables) => {
       return currentData?.filter((t) => !variables.ids.includes(t.id)) || [];
     }
@@ -27,9 +27,7 @@ export const useDashboardCreate = ({
     '/dashboards/post:postDashboard',
     null,
     null,
-    (res) => {
-      onUpdateDashboard(res);
-    }
+    (res) => onUpdateDashboard(res)
   );
 
   const onCreateNewDashboard = useMemoizedFn(

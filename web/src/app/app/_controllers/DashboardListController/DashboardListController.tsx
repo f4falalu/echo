@@ -10,7 +10,7 @@ export const DashboardListController: React.FC = () => {
     shared_with_me?: boolean;
     only_my_dashboards?: boolean;
   }>({});
-  const { list, fetched } = useBusterDashboardListByFilter(dashboardListFilters);
+  const { list, isFetchedDashboardsList } = useBusterDashboardListByFilter(dashboardListFilters);
 
   return (
     <>
@@ -19,7 +19,7 @@ export const DashboardListController: React.FC = () => {
         onSetDashboardListFilters={setDashboardListFilters}
       />
 
-      <DashboardListContent loading={!fetched} dashboardsList={list} />
+      <DashboardListContent loading={!isFetchedDashboardsList} dashboardsList={list || []} />
     </>
   );
 };

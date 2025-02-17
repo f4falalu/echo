@@ -1,11 +1,10 @@
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import {
   useBusterDashboardContextSelector,
-  useBusterDashboardListByFilter,
-  useBusterDashboardListContextSelector
+  useBusterDashboardListByFilter
 } from '@/context/Dashboards';
 import { useMemoizedFn } from 'ahooks';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { Button } from 'antd';
 import { AppDropdownSelect, AppDropdownSelectProps } from '@/components/dropdown';
@@ -21,7 +20,6 @@ export const SaveToDashboardDropdown: React.FC<{
 }> = ({ children, onRemoveFromDashboard, onSaveToDashboard, selectedDashboards }) => {
   const onCreateNewDashboard = useBusterDashboardContextSelector((x) => x.onCreateNewDashboard);
   const isCreatingDashboard = useBusterDashboardContextSelector((x) => x.isCreatingDashboard);
-  const getDashboardsList = useBusterDashboardListContextSelector((x) => x.getDashboardsList);
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const { list: dashboardsList } = useBusterDashboardListByFilter({});
 
@@ -39,7 +37,7 @@ export const SaveToDashboardDropdown: React.FC<{
 
   const items = useMemo(
     () =>
-      dashboardsList.map((dashboard) => {
+      (dashboardsList || [])?.map((dashboard) => {
         return {
           key: dashboard.id,
           label: dashboard.name || 'New dashboard',
@@ -83,12 +81,6 @@ export const SaveToDashboardDropdown: React.FC<{
   const onOpenChange = useMemoizedFn((open: boolean) => {
     setShowDropdown(open);
   });
-
-  useEffect(() => {
-    if (showDropdown) {
-      getDashboardsList();
-    }
-  }, [showDropdown]);
 
   const memoizedTrigger = useMemo<AppDropdownSelectProps['trigger']>(() => ['click'], []);
 

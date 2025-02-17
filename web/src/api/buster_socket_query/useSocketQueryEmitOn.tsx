@@ -11,6 +11,7 @@ import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useEffect } from 'react';
 import { useMemoizedFn } from 'ahooks';
 import { useSocketQueryOn } from './useSocketQueryOn';
+import { timeout } from '@/utils';
 
 export const useSocketQueryEmitOn = <
   TRoute extends BusterSocketResponseRoute,
@@ -35,6 +36,7 @@ export const useSocketQueryEmitOn = <
     mutationKey: ['socket-emit', ...options.queryKey],
     mutationFn: async () => {
       busterSocket.emit(socketRequest);
+      await timeout(250);
       return null;
     }
   });

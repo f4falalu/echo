@@ -1,9 +1,6 @@
-import {
-  useBusterDashboardContextSelector,
-  useBusterDashboardListContextSelector
-} from '@/context/Dashboards';
+import { useBusterDashboardListByFilter } from '@/context/Dashboards';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
-import { useMemoizedFn, useMount, useUnmount } from 'ahooks';
+import { useMemoizedFn, useMount } from 'ahooks';
 import React from 'react';
 import { SaveToDashboardDropdown } from '../Dropdowns/SaveToDashboardDropdown';
 import { Button } from 'antd';
@@ -24,9 +21,6 @@ export const SaveMetricToDashboardButton: React.FC<{
     const removeMetricFromDashboard = useBusterMetricsIndividualContextSelector(
       (state) => state.removeMetricFromDashboard
     );
-    const getDashboardsList = useBusterDashboardListContextSelector(
-      (state) => state.getDashboardsList
-    );
 
     const onSaveToDashboard = useMemoizedFn(async (dashboardIds: string[]) => {
       console.warn('TODO: save metric to dashboard', dashboardIds);
@@ -38,16 +32,6 @@ export const SaveMetricToDashboardButton: React.FC<{
       //  return await removeMetricFromDashboard({ metricId, dashboardId, useConfirmModal: false });
     });
 
-    const onClick = useMemoizedFn(() => {
-      getDashboardsList();
-    });
-
-    useMount(() => {
-      setTimeout(() => {
-        getDashboardsList();
-      }, 8000);
-    });
-
     return (
       <SaveToDashboardDropdown
         selectedDashboards={selectedDashboards}
@@ -57,7 +41,6 @@ export const SaveMetricToDashboardButton: React.FC<{
           type="text"
           disabled={disabled}
           icon={<AppMaterialIcons icon="dashboard_customize" />}
-          onClick={onClick}
         />
       </SaveToDashboardDropdown>
     );
