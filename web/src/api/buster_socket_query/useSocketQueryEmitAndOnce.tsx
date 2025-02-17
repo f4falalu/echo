@@ -60,20 +60,3 @@ export function useSocketQueryEmitAndOnce<
     ...options
   });
 }
-
-// const ExampleComponent = () => {
-//   const options = queryOptionsConfig['/chats/get:getChat']('123');
-
-//   const deleteChatInitialData = {
-//     id: '123'
-//   } as unknown as BusterChat;
-
-//   const { data } = useSocketQueryEmitAndOnce(
-//     { route: '/chats/get', payload: { id: '123' } },
-//     '/chats/get:getChat',
-//     options,
-//     (d, x) => {
-//       return deleteChatInitialData;
-//     }
-//   );
-// };

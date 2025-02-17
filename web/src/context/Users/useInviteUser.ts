@@ -1,18 +1,14 @@
 import { useMemoizedFn } from 'ahooks';
-import { useBusterWebSocket } from '../BusterWebSocket';
 import { timeout } from '@/utils';
 import { useBusterNotifications } from '../BusterNotifications';
+import { inviteUser as inviteUserRest } from '@/api/buster_rest';
 
 export const useInviteUser = () => {
-  const busterSocket = useBusterWebSocket();
   const { openSuccessMessage } = useBusterNotifications();
 
   const inviteUsers = useMemoizedFn(async (emails: string[], team_ids?: string[]) => {
-    busterSocket.emit({
-      route: '/users/invite',
-      payload: { emails, team_ids }
-    });
-    await timeout(350);
+    await inviteUserRest({ emails, team_ids });
+    await timeout(100);
     openSuccessMessage('Invites sent');
   });
 

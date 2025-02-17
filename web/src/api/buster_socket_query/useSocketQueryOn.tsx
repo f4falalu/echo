@@ -79,24 +79,3 @@ const defaultCallback = <TData, TRoute extends BusterSocketResponseRoute>(
   currentData: TData | null,
   d: InferBusterSocketResponseData<TRoute>
 ) => d as TData;
-
-// const _ExampleComponent = () => {
-//   const options = queryKeys['/chats/get:getChat']('123');
-//   const { data } = useSocketQueryOn('/chats/get:getChat', options);
-
-//   const options2 = queryKeys['/chats/list:getChatsList']();
-//   const { data: data2 } = useSocketQueryOn('/chats/list:getChatsList', options2);
-
-//   const options3 = queryKeys['/chats/delete:deleteChat']('123');
-
-//   // Create fresh options for delete chat that match the expected BusterChat type
-//   const deleteChatInitialData = {
-//     id: '123'
-//   } as unknown as BusterChat;
-
-//   const { data: data3 } = useSocketQueryOn('/chats/delete:deleteChat', options3, (d, x) => {
-//     d?.[0].is_favorited;
-//     x[0].id;
-//     return [];
-//   });
-// };

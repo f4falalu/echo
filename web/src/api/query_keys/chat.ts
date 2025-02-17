@@ -1,11 +1,18 @@
 import { queryOptions } from '@tanstack/react-query';
-import type { BusterChat, BusterChatListItem } from '@/api/asset_interfaces';
+import type { BusterChatListItem } from '@/api/asset_interfaces';
 import type { GetChatListParams } from '@/api/request_interfaces/chats';
+import { IBusterChat, IBusterChatMessage } from '@/context/Chats';
 
 const chatsGetChat = (chatId: string) =>
-  queryOptions<BusterChat>({
+  queryOptions<IBusterChat>({
     queryKey: ['chats', 'get', chatId] as const,
-    staleTime: 10 * 1000
+    staleTime: 60 * 1000 // 1 minute
+  });
+
+const chatsMessages = (messageId: string) =>
+  queryOptions<IBusterChatMessage>({
+    queryKey: ['chats', 'messages', messageId] as const,
+    staleTime: Infinity
   });
 
 const chatsGetList = (filters?: GetChatListParams) =>
@@ -15,27 +22,7 @@ const chatsGetList = (filters?: GetChatListParams) =>
   });
 
 export const chatQueryKeys = {
-  '/chats/get:getChat': chatsGetChat,
-  '/chats/list:getChatsList': chatsGetList
+  chatsGetChat,
+  chatsGetList,
+  chatsMessages
 };
-
-// const ExampleComponent = () => {
-//   const queryClient = useQueryClient();
-//   const options = chatQueryKeys['/chats/get:getChat']!('123');
-//   const queryKey = options.queryKey;
-
-//   const data = queryClient.getQueryData(queryKey);
-
-//   const { data: data2 } = useQuery(options);
-
-//   queryClient.setQueryData(queryKey, (d) => {
-//     return d;
-//   });
-
-//   const options2 = chatQueryKeys['/chats/list:getChatsList']!();
-//   const queryKey2 = options2.queryKey;
-
-//   const data3 = queryClient.getQueryData(queryKey2);
-
-//   //
-// };

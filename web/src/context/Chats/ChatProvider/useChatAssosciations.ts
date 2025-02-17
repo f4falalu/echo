@@ -2,7 +2,7 @@ import { useMemoizedFn } from 'ahooks';
 import { useSocketQueryMutation } from '@/api/buster_socket_query';
 import { queryKeys } from '@/api/query_keys';
 
-const getChatsListOptions = queryKeys['/chats/list:getChatsList']();
+const getChatsListOptions = queryKeys['chatsGetList']();
 
 export const useChatAssosciations = () => {
   const { mutate: deleteChat } = useSocketQueryMutation(

@@ -55,3 +55,16 @@ export const updateOrganizationUser = async ({
     .put<OrganizationUser>(`/users/${userId}`, params)
     .then((response) => response.data);
 };
+
+export const inviteUser = async ({
+  emails,
+  team_ids
+}: {
+  emails: string[];
+  team_ids?: string[];
+}) => {
+  return mainApi.post(`/users/invite`, {
+    emails,
+    team_ids
+  });
+};

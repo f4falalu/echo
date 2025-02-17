@@ -1,2 +1,2 @@
-export * from './DashboardListProvider';
+export * from './useBusterDashboardListByFilter';
 export * from './interfaces';

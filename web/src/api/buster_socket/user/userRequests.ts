@@ -61,11 +61,6 @@ export type UserRequestUserList = BusterSocketRequestBase<
   }
 >;
 
-export type UserInvite = BusterSocketRequestBase<
-  '/users/invite',
-  { emails: string[]; team_ids?: null | string[] }
->;
-
 export type UserEmits =
   | UserColorsList
   | UserColorsCreate
@@ -75,5 +70,4 @@ export type UserEmits =
   | UsersFavoriteList
   | UserFavoriteDelete
   | UserUpdateFavorites
-  | UserRequestUserList
-  | UserInvite;
+  | UserRequestUserList;
