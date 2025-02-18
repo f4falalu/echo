@@ -1,0 +1,31 @@
+import React from 'react';
+
+type iconProps = {
+	fill?: string,
+	secondaryfill?: string,
+	strokewidth?: number,
+	width?: string,
+	height?: string,
+	title?: string
+}
+
+function 18px_pickaxe(props: iconProps) {
+	const fill = props.fill || 'currentColor';
+	const secondaryfill = props.secondaryfill || fill;
+	const strokewidth = props.strokewidth || 1;
+	const width = props.width || '1em';
+	const height = props.height || '1em';
+	const title = props.title || "18px pickaxe";
+
+	return (
+		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+	<title>{title}</title>
+	<g fill={fill}>
+		<path d="M15.352,6.399c.342-.487,.318-1.156-.117-1.591l-2.043-2.043c-.435-.435-1.104-.459-1.591-.117-2.935-1.659-5.902-1.358-6.492-1.275-.301,.042-.546,.261-.623,.555s.033,.605,.275,.788c1.319,.992,2.593,2.063,3.813,3.173-.104,.413-.016,.865,.307,1.188l2.043,2.043c.244,.244,.563,.366,.884,.366,.103,0,.203-.034,.304-.059,1.11,1.22,2.181,2.494,3.173,3.813,.144,.191,.368,.299,.6,.299,.062,0,.125-.008,.188-.024,.294-.076,.513-.322,.555-.623,.083-.591,.383-3.558-1.275-6.492Zm-5.233-.207l2.189-2.189,1.689,1.689-2.189,2.189-1.689-1.689Z" fill={fill}/>
+		<path d="M9.863,10.18l-2.043-2.043c-.083-.083-.153-.173-.223-.264L2.149,13.321c-.338,.338-.524,.787-.524,1.265s.186,.927,.524,1.265,.787,.524,1.265,.524,.927-.186,1.265-.524l5.448-5.448c-.091-.071-.181-.141-.264-.223Z" fill={secondaryfill}/>
+	</g>
+</svg>
+	);
+};
+
+export default 18px_pickaxe;

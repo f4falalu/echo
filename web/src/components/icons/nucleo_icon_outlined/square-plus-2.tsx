@@ -1,0 +1,32 @@
+import React from 'react';
+
+type iconProps = {
+	fill?: string,
+	secondaryfill?: string,
+	strokewidth?: number,
+	width?: string,
+	height?: string,
+	title?: string
+}
+
+function 18px_squarePlus2(props: iconProps) {
+	const fill = props.fill || 'currentColor';
+	const secondaryfill = props.secondaryfill || fill;
+	const strokewidth = props.strokewidth || 1;
+	const width = props.width || '1em';
+	const height = props.height || '1em';
+	const title = props.title || "18px square plus 2";
+
+	return (
+		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+	<title>{title}</title>
+	<g fill={fill}>
+		<path d="M14.75 0.75L14.75 5.75" fill="none" stroke={secondaryfill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
+		<path d="m9.8004,2.75h-5.0504c-1.1046,0-2,.8955-2,2v8.5c0,1.1045.8954,2,2,2h8.5c1.1046,0,2-.8955,2-2v-5.0503" fill="none" stroke={fill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
+		<path d="M17.25 3.25L12.25 3.25" fill="none" stroke={secondaryfill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
+	</g>
+</svg>
+	);
+};
+
+export default 18px_squarePlus2;

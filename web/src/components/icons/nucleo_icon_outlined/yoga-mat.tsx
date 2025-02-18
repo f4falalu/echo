@@ -1,0 +1,31 @@
+import React from 'react';
+
+type iconProps = {
+	fill?: string,
+	secondaryfill?: string,
+	strokewidth?: number,
+	width?: string,
+	height?: string,
+	title?: string
+}
+
+function 18px_yogaMat(props: iconProps) {
+	const fill = props.fill || 'currentColor';
+	const secondaryfill = props.secondaryfill || fill;
+	const strokewidth = props.strokewidth || 1;
+	const width = props.width || '1em';
+	const height = props.height || '1em';
+	const title = props.title || "18px yoga mat";
+
+	return (
+		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+	<title>{title}</title>
+	<g fill={fill}>
+		<path d="M1.75,12.25c0,1.381,1.119,2.5,2.5,2.5H15.25c.552,0,1-.448,1-1V5.25c0-.552-.448-1-1-1h-5.75" fill="none" stroke={secondaryfill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
+		<path d="M6.75,4.75v7.5c0-1.381-1.119-2.5-2.5-2.5s-2.5,1.119-2.5,2.5V4.75c0-1.381,1.119-2.5,2.5-2.5s2.5,1.119,2.5,2.5Z" fill="none" stroke={fill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
+	</g>
+</svg>
+	);
+};
+
+export default 18px_yogaMat;

@@ -1,0 +1,34 @@
+import React from 'react';
+
+type iconProps = {
+	fill?: string,
+	secondaryfill?: string,
+	strokewidth?: number,
+	width?: string,
+	height?: string,
+	title?: string
+}
+
+function 18px_incognito(props: iconProps) {
+	const fill = props.fill || 'currentColor';
+	const secondaryfill = props.secondaryfill || fill;
+	const strokewidth = props.strokewidth || 1;
+	const width = props.width || '1em';
+	const height = props.height || '1em';
+	const title = props.title || "18px incognito";
+
+	return (
+		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+	<title>{title}</title>
+	<g fill={fill}>
+		<circle cx="5.25" cy="13.75" fill="none" r="2.5" stroke={secondaryfill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
+		<circle cx="12.75" cy="13.75" fill="none" r="2.5" stroke={secondaryfill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
+		<path d="M11.883,1.75H6.117c-.498,0-.92,.366-.99,.859l-.377,2.641-3,3h14.5l-3-3-.377-2.641c-.07-.493-.492-.859-.99-.859Z" fill="none" stroke={fill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
+		<path d="M4.75 5.25L13.25 5.25" fill="none" stroke={fill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
+		<path d="M7.58,12.842c.362-.365,.865-.592,1.42-.592,.555,0,1.058,.226,1.42,.592" fill="none" stroke={secondaryfill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
+	</g>
+</svg>
+	);
+};
+
+export default 18px_incognito;

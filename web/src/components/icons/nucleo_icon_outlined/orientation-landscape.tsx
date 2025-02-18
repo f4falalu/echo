@@ -1,0 +1,34 @@
+import React from 'react';
+
+type iconProps = {
+	fill?: string,
+	secondaryfill?: string,
+	strokewidth?: number,
+	width?: string,
+	height?: string,
+	title?: string
+}
+
+function 18px_orientationLandscape(props: iconProps) {
+	const fill = props.fill || 'currentColor';
+	const secondaryfill = props.secondaryfill || fill;
+	const strokewidth = props.strokewidth || 1;
+	const width = props.width || '1em';
+	const height = props.height || '1em';
+	const title = props.title || "18px orientation landscape";
+
+	return (
+		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+	<title>{title}</title>
+	<g fill={fill}>
+		<path d="M2.75 13.25L2.75 5" fill="none" stroke={secondaryfill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
+		<path d="M0.75 6.75L2.75 4.75 4.75 6.75" fill="none" stroke={secondaryfill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
+		<path d="M9,7.284v3.431c0,.557,.6,.945,1.087,.675,.842-.466,1.413-1.359,1.413-2.391s-.571-1.925-1.413-2.391c-.487-.27-1.087,.118-1.087,.675Z" fill={secondaryfill}/>
+		<circle cx="13.25" cy="9" fill={secondaryfill} r="1.25"/>
+		<rect height="12.5" width="9" fill="none" rx="2" ry="2" stroke={fill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth} x="7.25" y="2.75"/>
+	</g>
+</svg>
+	);
+};
+
+export default 18px_orientationLandscape;

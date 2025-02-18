@@ -1,0 +1,39 @@
+import React from 'react';
+
+type iconProps = {
+	fill?: string,
+	secondaryfill?: string,
+	strokewidth?: number,
+	width?: string,
+	height?: string,
+	title?: string
+}
+
+function 18px_calculator(props: iconProps) {
+	const fill = props.fill || 'currentColor';
+	const secondaryfill = props.secondaryfill || fill;
+	const strokewidth = props.strokewidth || 1;
+	const width = props.width || '1em';
+	const height = props.height || '1em';
+	const title = props.title || "18px calculator";
+
+	return (
+		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+	<title>{title}</title>
+	<g fill={fill}>
+		<rect height="14.5" width="10.5" fill="none" rx="2" ry="2" stroke={fill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth} x="3.75" y="1.75"/>
+		<circle cx="6.25" cy="11" fill={secondaryfill} r=".75"/>
+		<circle cx="6.25" cy="8.25" fill={secondaryfill} r=".75"/>
+		<circle cx="9" cy="8.25" fill={secondaryfill} r=".75"/>
+		<circle cx="11.75" cy="8.25" fill={secondaryfill} r=".75"/>
+		<circle cx="9" cy="11" fill={secondaryfill} r=".75"/>
+		<circle cx="6.25" cy="13.75" fill={secondaryfill} r=".75"/>
+		<circle cx="9" cy="13.75" fill={secondaryfill} r=".75"/>
+		<path d="M6.25 4.25H11.75V5.25H6.25z" fill={secondaryfill} stroke={secondaryfill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
+		<path d="M11.75 11L11.75 13.75" fill="none" stroke={secondaryfill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
+	</g>
+</svg>
+	);
+};
+
+export default 18px_calculator;

@@ -16,6 +16,7 @@ This directory contains multiple folders and files that organize different aspec
 ├── buster_socket_query/
 ├── next/
 ├── other/
+├── query_keys/
 ├── request_interfaces/
 ├── createInstance.ts
 ├── createReactQuery.ts
@@ -40,7 +41,10 @@ Extends `buster_socket/` by integrating WebSocket requests with React Query. Thi
 Houses Next.js-related utilities and configurations, ensuring proper integration with the Next.js framework. It also contains Axios instances for the Next API.
 
 #### `other/`
-A miscellaneous folder for additional utilities, helpers, or files that don’t fit neatly into other categories. It contains Axios instances for interacting with external APIs. It is rare we should use this.
+A miscellaneous folder for additional utilities, helpers, or files that don't fit neatly into other categories. It contains Axios instances for interacting with external APIs. It is rare we should use this.
+
+#### `query_keys/`
+Contains all TanStack Query key definitions organized by namespace. These query keys are used across the application to maintain consistent cache keys for data fetching operations. Each file corresponds to a specific API namespace (e.g., chat, terms, metrics).
 
 #### `request_interfaces/`
 Defines TypeScript interfaces for various request payloads used across `buster_rest/`, `buster_socket/`, and `buster_socket_query/`. These interfaces standardize request structures and improve type safety.

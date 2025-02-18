@@ -1,0 +1,36 @@
+import React from 'react';
+
+type iconProps = {
+	fill?: string,
+	secondaryfill?: string,
+	strokewidth?: number,
+	width?: string,
+	height?: string,
+	title?: string
+}
+
+function 18px_gridEmptyObjBottomLeft(props: iconProps) {
+	const fill = props.fill || 'currentColor';
+	const secondaryfill = props.secondaryfill || fill;
+	const strokewidth = props.strokewidth || 1;
+	const width = props.width || '1em';
+	const height = props.height || '1em';
+	const title = props.title || "18px grid empty obj bottom left";
+
+	return (
+		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+	<title>{title}</title>
+	<g fill={fill}>
+		<rect height="6.5" width="6.5" fill={fill} rx="1.75" ry="1.75" x="10" y="1.5"/>
+		<rect height="6.5" width="6.5" fill={fill} rx="1.75" ry="1.75" x="10" y="10"/>
+		<rect height="6.5" width="6.5" fill={fill} rx="1.75" ry="1.75" x="1.5" y="1.5"/>
+		<path d="M7.25,12.75c.414,0,.75-.336,.75-.75v-.25c0-.965-.785-1.75-1.75-1.75h-.25c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h.25c.138,0,.25,.112,.25,.25v.25c0,.414,.336,.75,.75,.75Z" fill={secondaryfill}/>
+		<path d="M6,16.5h.25c.965,0,1.75-.785,1.75-1.75v-.25c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75v.25c0,.138-.112,.25-.25,.25h-.25c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75Z" fill={secondaryfill}/>
+		<path d="M3.25,16.5h.25c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75h-.25c-.138,0-.25-.112-.25-.25v-.25c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75v.25c0,.965,.785,1.75,1.75,1.75Z" fill={secondaryfill}/>
+		<path d="M2.25,12.75c.414,0,.75-.336,.75-.75v-.25c0-.138,.112-.25,.25-.25h.25c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75h-.25c-.965,0-1.75,.785-1.75,1.75v.25c0,.414,.336,.75,.75,.75Z" fill={secondaryfill}/>
+	</g>
+</svg>
+	);
+};
+
+export default 18px_gridEmptyObjBottomLeft;

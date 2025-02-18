@@ -1,0 +1,31 @@
+import React from 'react';
+
+type iconProps = {
+	fill?: string,
+	secondaryfill?: string,
+	strokewidth?: number,
+	width?: string,
+	height?: string,
+	title?: string
+}
+
+function 18px_boxCart(props: iconProps) {
+	const fill = props.fill || 'currentColor';
+	const secondaryfill = props.secondaryfill || fill;
+	const strokewidth = props.strokewidth || 1;
+	const width = props.width || '1em';
+	const height = props.height || '1em';
+	const title = props.title || "18px box cart";
+
+	return (
+		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+	<title>{title}</title>
+	<g fill={fill}>
+		<path d="M12.75,3h-1.5v2.75c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75V3h-1.5c-1.24,0-2.25,1.009-2.25,2.25v4.5c0,1.241,1.01,2.25,2.25,2.25h4.5c1.24,0,2.25-1.009,2.25-2.25V5.25c0-1.241-1.01-2.25-2.25-2.25Z" fill={secondaryfill}/>
+		<path d="M14.75,12.5c-.53,0-1.011,.192-1.397,.5H6.147c-.323-.258-.715-.426-1.147-.475V2.75c0-.965-.785-1.75-1.75-1.75H1.833c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h1.417c.138,0,.25,.112,.25,.25V12.881c-.602,.404-1,1.091-1,1.869,0,1.241,1.01,2.25,2.25,2.25s2.25-1.009,2.25-2.25c0-.086-.016-.167-.025-.25h5.551c-.009,.083-.025,.164-.025,.25,0,1.241,1.01,2.25,2.25,2.25s2.25-1.009,2.25-2.25-1.01-2.25-2.25-2.25Zm-10,3c-.413,0-.75-.336-.75-.75s.337-.75,.75-.75,.75,.336,.75,.75-.337,.75-.75,.75Zm10,0c-.413,0-.75-.336-.75-.75s.337-.75,.75-.75,.75,.336,.75,.75-.337,.75-.75,.75Z" fill={fill}/>
+	</g>
+</svg>
+	);
+};
+
+export default 18px_boxCart;

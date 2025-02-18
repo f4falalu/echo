@@ -1,0 +1,30 @@
+import React from 'react';
+
+type iconProps = {
+	fill?: string,
+	secondaryfill?: string,
+	strokewidth?: number,
+	width?: string,
+	height?: string,
+	title?: string
+}
+
+function 18px_faceSmile(props: iconProps) {
+	const fill = props.fill || 'currentColor';
+	const secondaryfill = props.secondaryfill || fill;
+	const strokewidth = props.strokewidth || 1;
+	const width = props.width || '1em';
+	const height = props.height || '1em';
+	const title = props.title || "18px face smile";
+
+	return (
+		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+	<title>{title}</title>
+	<g fill={fill}>
+		<path d="M9,1C4.589,1,1,4.589,1,9s3.589,8,8,8,8-3.589,8-8S13.411,1,9,1Zm2,6c.552,0,1,.448,1,1s-.448,1-1,1-1-.448-1-1,.448-1,1-1Zm-4,0c.552,0,1,.448,1,1s-.448,1-1,1-1-.448-1-1,.448-1,1-1Zm6.41,4.354c-.874,1.632-2.563,2.646-4.41,2.646s-3.537-1.014-4.41-2.646c-.196-.365-.058-.82,.307-1.015,.365-.196,.819-.059,1.015,.307,.612,1.144,1.795,1.854,3.088,1.854s2.476-.71,3.088-1.854c.196-.366,.65-.503,1.015-.307,.365,.195,.503,.65,.307,1.015Z" fill={fill}/>
+	</g>
+</svg>
+	);
+};
+
+export default 18px_faceSmile;

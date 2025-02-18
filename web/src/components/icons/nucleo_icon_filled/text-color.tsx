@@ -1,0 +1,31 @@
+import React from 'react';
+
+type iconProps = {
+	fill?: string,
+	secondaryfill?: string,
+	strokewidth?: number,
+	width?: string,
+	height?: string,
+	title?: string
+}
+
+function 18px_textColor(props: iconProps) {
+	const fill = props.fill || 'currentColor';
+	const secondaryfill = props.secondaryfill || fill;
+	const strokewidth = props.strokewidth || 1;
+	const width = props.width || '1em';
+	const height = props.height || '1em';
+	const title = props.title || "18px text color";
+
+	return (
+		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+	<title>{title}</title>
+	<g fill={fill}>
+		<path d="M13.269,9.979L9.972,1.479c-.112-.289-.39-.479-.699-.479h-.546c-.31,0-.587,.19-.699,.479l-3.297,8.5c-.15,.386,.042,.82,.428,.97,.383,.148,.82-.042,.97-.428l.784-2.021h4.173l.784,2.021c.115,.297,.399,.479,.699,.479,.09,0,.182-.016,.271-.051,.386-.15,.578-.584,.428-.97Zm-5.774-2.979l1.505-3.88,1.505,3.88h-3.01Z" fill={fill}/>
+		<rect height="5" width="16" fill={secondaryfill} rx="1.75" ry="1.75" x="1" y="12"/>
+	</g>
+</svg>
+	);
+};
+
+export default 18px_textColor;

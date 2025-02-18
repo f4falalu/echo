@@ -1,0 +1,35 @@
+import React from 'react';
+
+type iconProps = {
+	fill?: string,
+	secondaryfill?: string,
+	strokewidth?: number,
+	width?: string,
+	height?: string,
+	title?: string
+}
+
+function 18px_appStore(props: iconProps) {
+	const fill = props.fill || 'currentColor';
+	const secondaryfill = props.secondaryfill || fill;
+	const strokewidth = props.strokewidth || 1;
+	const width = props.width || '1em';
+	const height = props.height || '1em';
+	const title = props.title || "18px app store";
+
+	return (
+		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+	<title>{title}</title>
+	<g fill={fill}>
+		<path d="M16,12.5h-3.28c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h3.28c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z" fill={secondaryfill}/>
+		<path d="M9,6.086c-.258,0-.51-.134-.649-.374l-1.5-2.586c-.208-.358-.085-.817,.272-1.025,.358-.207,.817-.086,1.025,.272l1.5,2.586c.208,.358,.085,.817-.272,1.025-.119,.068-.248,.101-.376,.101Z" fill={fill}/>
+		<path d="M14.75,16c-.258,0-.51-.134-.649-.374l-4.305-7.422c-.208-.358-.085-.817,.272-1.025,.358-.206,.817-.086,1.025,.272l4.305,7.422c.208,.358,.085,.817-.272,1.025-.119,.068-.248,.101-.376,.101Z" fill={fill}/>
+		<path d="M5.279,12.5c-.128,0-.257-.033-.376-.101-.358-.208-.48-.667-.272-1.025L9.851,2.374c.208-.358,.668-.479,1.025-.272,.358,.208,.48,.667,.272,1.025L5.929,12.126c-.139,.24-.391,.374-.649,.374Z" fill={fill}/>
+		<path d="M3.25,16c-.128,0-.257-.033-.376-.101-.358-.208-.48-.667-.272-1.025l.58-1c.208-.358,.667-.479,1.025-.272,.358,.208,.48,.667,.272,1.025l-.58,1c-.139,.24-.391,.374-.649,.374Z" fill={fill}/>
+		<path d="M9.83,12.5H2c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h7.83c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z" fill={secondaryfill}/>
+	</g>
+</svg>
+	);
+};
+
+export default 18px_appStore;

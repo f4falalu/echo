@@ -1,0 +1,34 @@
+import React from 'react';
+
+type iconProps = {
+	fill?: string,
+	secondaryfill?: string,
+	strokewidth?: number,
+	width?: string,
+	height?: string,
+	title?: string
+}
+
+function 18px_chair3(props: iconProps) {
+	const fill = props.fill || 'currentColor';
+	const secondaryfill = props.secondaryfill || fill;
+	const strokewidth = props.strokewidth || 1;
+	const width = props.width || '1em';
+	const height = props.height || '1em';
+	const title = props.title || "18px chair 3";
+
+	return (
+		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+	<title>{title}</title>
+	<g fill={fill}>
+		<path d="M13.535,15.557l-3.785-1.559v-2.748c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75v2.748l-3.785,1.559c-.384,.158-.566,.596-.408,.979,.119,.29,.398,.464,.693,.464,.096,0,.192-.018,.285-.057l3.215-1.324v1.63c0,.414,.336,.75,.75,.75s.75-.336,.75-.75v-1.63l3.215,1.324c.093,.039,.189,.057,.285,.057,.295,0,.574-.175,.693-.464,.158-.383-.024-.821-.408-.979Z" fill={fill}/>
+		<path d="M2.75,8c-.414,0-.75-.336-.75-.75v-2.25c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v2.25c0,.414-.336,.75-.75,.75Z" fill={fill}/>
+		<path d="M15.25,8c-.414,0-.75-.336-.75-.75v-2.25c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v2.25c0,.414-.336,.75-.75,.75Z" fill={fill}/>
+		<path d="M4.75,7H13.25c.049,0,.095,.012,.143,.014l-.337-5.374c-.058-.919-.824-1.64-1.746-1.64H6.689c-.922,0-1.688,.721-1.747,1.641l-.336,5.374c.049-.002,.094-.015,.143-.015Z" fill={secondaryfill}/>
+		<path d="M13.25,8.5H4.75c-.965,0-1.75,.785-1.75,1.75s.785,1.75,1.75,1.75H13.25c.965,0,1.75-.785,1.75-1.75s-.785-1.75-1.75-1.75Z" fill={fill}/>
+	</g>
+</svg>
+	);
+};
+
+export default 18px_chair3;

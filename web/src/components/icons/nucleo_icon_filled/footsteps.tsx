@@ -1,0 +1,33 @@
+import React from 'react';
+
+type iconProps = {
+	fill?: string,
+	secondaryfill?: string,
+	strokewidth?: number,
+	width?: string,
+	height?: string,
+	title?: string
+}
+
+function 18px_footsteps(props: iconProps) {
+	const fill = props.fill || 'currentColor';
+	const secondaryfill = props.secondaryfill || fill;
+	const strokewidth = props.strokewidth || 1;
+	const width = props.width || '1em';
+	const height = props.height || '1em';
+	const title = props.title || "18px footsteps";
+
+	return (
+		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+	<title>{title}</title>
+	<g fill={fill}>
+		<path d="M3.646,11.626c.306,1.186,.678,2.009,1.345,2.396,.262,.151,.555,.227,.879,.227,.249,0,.517-.045,.801-.135,1.806-.572,1.367-2.417,.981-3.678l-4.005,1.19Z" fill={fill}/>
+		<path d="M3.124,10.217l4.237-1.259c.006-.218,.022-.45,.042-.7,.075-.94,.169-2.109-.332-3.506-.864-2.404-2.271-3.71-3.742-3.478C1.603,1.538,.773,3.345,1.052,6.233c.131,1.352,.97,2.48,1.644,3.387,.155,.208,.301,.409,.429,.596Z" fill={fill}/>
+		<path d="M10.348,12.936c-.386,1.261-.825,3.105,.981,3.678,.284,.09,.552,.135,.801,.135,.324,0,.618-.076,.879-.227,.667-.387,1.038-1.209,1.345-2.396l-4.006-1.19Z" fill={secondaryfill}/>
+		<path d="M14.671,3.774c-1.478-.229-2.878,1.074-3.742,3.478-.501,1.396-.407,2.565-.332,3.505,.02,.25,.036,.482,.042,.7l4.237,1.259c.127-.187,.274-.387,.429-.596,.674-.907,1.513-2.036,1.644-3.387,.278-2.888-.551-4.696-2.277-4.959Z" fill={secondaryfill}/>
+	</g>
+</svg>
+	);
+};
+
+export default 18px_footsteps;

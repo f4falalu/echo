@@ -1,0 +1,32 @@
+import React from 'react';
+
+type iconProps = {
+	fill?: string,
+	secondaryfill?: string,
+	strokewidth?: number,
+	width?: string,
+	height?: string,
+	title?: string
+}
+
+function 18px_walletCoin(props: iconProps) {
+	const fill = props.fill || 'currentColor';
+	const secondaryfill = props.secondaryfill || fill;
+	const strokewidth = props.strokewidth || 1;
+	const width = props.width || '1em';
+	const height = props.height || '1em';
+	const title = props.title || "18px wallet coin";
+
+	return (
+		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+	<title>{title}</title>
+	<g fill={fill}>
+		<path d="M3.75,10c-2.068,0-3.75,1.682-3.75,3.75s1.682,3.75,3.75,3.75,3.75-1.682,3.75-3.75-1.682-3.75-3.75-3.75Zm.75,4.5c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75v-1.5c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v1.5Z" fill={secondaryfill}/>
+		<path d="M2.25,5.5c-.414,0-.75-.336-.75-.75,0-1.517,1.233-2.75,2.75-2.75H12.75c.965,0,1.75,.785,1.75,1.75v.5c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75v-.5c0-.138-.112-.25-.25-.25H4.25c-.689,0-1.25,.561-1.25,1.25,0,.414-.336,.75-.75,.75Z" fill={fill}/>
+		<path d="M14.75,6H4.25c-.689,0-1.25-.561-1.25-1.25,0-.414-.336-.75-.75-.75s-.75,.336-.75,.75v4.276c.685-.328,1.442-.526,2.25-.526,2.895,0,5.25,2.355,5.25,5.25,0,.808-.199,1.565-.526,2.25h6.276c.965,0,1.75-.785,1.75-1.75V7.75c0-.965-.785-1.75-1.75-1.75Zm-2,6.25c-.689,0-1.25-.561-1.25-1.25s.561-1.25,1.25-1.25,1.25,.561,1.25,1.25-.561,1.25-1.25,1.25Z" fill={fill}/>
+	</g>
+</svg>
+	);
+};
+
+export default 18px_walletCoin;

@@ -1,0 +1,31 @@
+import React from 'react';
+
+type iconProps = {
+	fill?: string,
+	secondaryfill?: string,
+	strokewidth?: number,
+	width?: string,
+	height?: string,
+	title?: string
+}
+
+function 18px_handPointingCube(props: iconProps) {
+	const fill = props.fill || 'currentColor';
+	const secondaryfill = props.secondaryfill || fill;
+	const strokewidth = props.strokewidth || 1;
+	const width = props.width || '1em';
+	const height = props.height || '1em';
+	const title = props.title || "18px hand pointing cube";
+
+	return (
+		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+	<title>{title}</title>
+	<g fill={fill}>
+		<path d="M8.739,2.456s0,0,0-.001c-.001-.002-.003-.003-.004-.005-.168-.289-.408-.535-.706-.707L5.479,.263c-.604-.35-1.354-.35-1.957,0L.972,1.742c-.297,.172-.538,.418-.706,.707-.001,.002-.003,.003-.004,.005,0,0,0,0,0,.001-.168,.292-.261,.627-.261,.974v2.967c0,.693,.372,1.339,.972,1.687l2.55,1.479c.298,.172,.636,.263,.979,.263,.414,0,.75-.336,.75-.75v-3.731l2.25-1.305v.21c0,.414,.336,.75,.75,.75s.75-.336,.75-.75v-.821c0-.347-.093-.682-.261-.974ZM1.725,6.786c-.139-.081-.225-.229-.225-.39v-2.357l2.25,1.305v2.616l-2.025-1.175Z" fill={secondaryfill}/>
+		<path d="M16.554,10.604c-.989-.756-3.222-.922-5.323-.423l-1.111-2.363c-.371-.789-1.252-1.271-2.091-1.035-1.068,.3-1.572,1.467-1.122,2.43l2.147,4.576-1.67-.307c-.729-.134-1.512,.149-1.888,.788-.299,.509-.325,1.103-.083,1.62,.195,.418,.543,.734,.98,.892l2.109,.743c.895,.315,1.837,.476,2.786,.476h2.617c2.635,0,3.922-2.359,3.791-4.28-.111-1.638-.495-2.621-1.144-3.116Z" fill={fill}/>
+	</g>
+</svg>
+	);
+};
+
+export default 18px_handPointingCube;

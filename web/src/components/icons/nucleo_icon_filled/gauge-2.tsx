@@ -1,0 +1,30 @@
+import React from 'react';
+
+type iconProps = {
+	fill?: string,
+	secondaryfill?: string,
+	strokewidth?: number,
+	width?: string,
+	height?: string,
+	title?: string
+}
+
+function 18px_gauge2(props: iconProps) {
+	const fill = props.fill || 'currentColor';
+	const secondaryfill = props.secondaryfill || fill;
+	const strokewidth = props.strokewidth || 1;
+	const width = props.width || '1em';
+	const height = props.height || '1em';
+	const title = props.title || "18px gauge 2";
+
+	return (
+		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+	<title>{title}</title>
+	<g fill={fill}>
+		<path d="M9,1C4.589,1,1,4.589,1,9s3.589,8,8,8,8-3.589,8-8S13.411,1,9,1Zm0,9.75c-.965,0-1.75-.785-1.75-1.75,0-.205,.042-.399,.107-.582l-2.754-2.754c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l2.754,2.754c.183-.065,.377-.107,.582-.107,.965,0,1.75,.785,1.75,1.75s-.785,1.75-1.75,1.75Z" fill={fill}/>
+	</g>
+</svg>
+	);
+};
+
+export default 18px_gauge2;
