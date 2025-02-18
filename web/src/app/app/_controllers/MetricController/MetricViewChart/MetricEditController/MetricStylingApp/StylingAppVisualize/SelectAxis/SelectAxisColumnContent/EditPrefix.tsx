@@ -11,7 +11,7 @@ export const EditPrefix: React.FC<{
     return (
       <LabelAndInput label="Prefix">
         <Input
-          className="!w-full"
+          className="w-full!"
           min={0}
           placeholder="$"
           defaultValue={prefix}

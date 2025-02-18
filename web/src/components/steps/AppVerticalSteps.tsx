@@ -63,7 +63,7 @@ export const AppVerticalSteps: React.FC<{
             }}
           />
         </div>
-        <div className={`content -mt-1 w-full flex-grow space-y-1.5 ${isLast ? 'pb-0' : 'pb-5'}`}>
+        <div className={`content -mt-1 w-full grow space-y-1.5 ${isLast ? 'pb-0' : 'pb-5'}`}>
           <div className="flex space-x-2">
             <div>{title}</div>
           </div>

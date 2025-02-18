@@ -93,7 +93,7 @@ const CollapseDeleteHeader = React.memo(
         className={cx(
           styles.titleContainer,
           'group flex cursor-pointer select-none items-center justify-between space-x-1',
-          isDragging && '!cursor-grabbing shadow-lg'
+          isDragging && 'cursor-grabbing! shadow-lg'
         )}>
         <div
           {...listeners}
@@ -173,8 +173,8 @@ const DropdownIcon: React.FC<{
             'opacity-0 duration-200',
             open ? 'opacity-100' : '',
             'group-hover:flex group-hover:opacity-90',
-            'hover:!text-black hover:opacity-100',
-            isDragging && '!hidden'
+            'hover:text-black! hover:opacity-100',
+            isDragging && 'hidden!'
           )}
           type="text"
           icon={<AppMaterialIcons icon="delete" />}
@@ -188,7 +188,7 @@ const DropdownIcon: React.FC<{
         type="text"
         icon={
           <motion.div
-            className={cx(styles.icon, 'flex items-center justify-center', isDragging && '!hidden')}
+            className={cx(styles.icon, 'flex items-center justify-center', isDragging && 'hidden!')}
             {...memoizedAnimation}
             onClick={onClickToggleDropdown}>
             <AppMaterialIcons icon="chevron_right" className={styles.icon} />

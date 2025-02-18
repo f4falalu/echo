@@ -633,10 +633,10 @@ export const useBusterAppComponentConfig = (): Pick<
   return {
     modal: {
       classNames: {
-        body: cx('!px-8 !pt-4 !pb-6'),
-        header: '!mb-0 !px-8 !pt-6',
-        content: cx('!p-0', styles.modalContent),
-        footer: cx('!mt-0 !px-3 !py-3', styles.modalFooter)
+        body: cx('px-8! pt-4! pb-6!'),
+        header: 'mb-0! px-8! pt-6!',
+        content: cx('p-0!', styles.modalContent),
+        footer: cx('mt-0! px-3! py-3!', styles.modalFooter)
       }
     },
     breadcrumb: {

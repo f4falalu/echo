@@ -17,7 +17,7 @@ export const BusterChartTooltip: React.FC<{
   return (
     <div
       className={`flex max-h-[500px] max-w-[300px] flex-col overflow-hidden ${
-        tooltipItems.length === 0 ? '!hidden' : ''
+        tooltipItems.length === 0 ? 'hidden!' : ''
       }`}>
       {title && <TooltipTitle title={title} />}
 

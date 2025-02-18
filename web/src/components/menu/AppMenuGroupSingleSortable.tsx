@@ -262,7 +262,7 @@ const SortableItem: React.FC<{
         {onDelete && (
           <Button
             onClick={() => onDelete(id)}
-            className={cx(styles.icon, '!hidden cursor-pointer group-hover:!flex')}
+            className={cx(styles.icon, 'hidden! cursor-pointer group-hover:flex!')}
             icon={<AppMaterialIcons icon="close" />}
             type="text"
           />

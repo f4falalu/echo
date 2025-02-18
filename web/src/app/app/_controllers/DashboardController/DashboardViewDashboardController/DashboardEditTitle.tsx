@@ -39,7 +39,7 @@ export const DashboardEditTitles: React.FC<{
       {(description || allowEdit) && (
         <Input
           variant="borderless"
-          className={'!pl-0'}
+          className={'pl-0!'}
           disabled={!allowEdit}
           onChange={onChangeDashboardDescription}
           defaultValue={description}

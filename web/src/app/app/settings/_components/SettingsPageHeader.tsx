@@ -16,7 +16,7 @@ export const SettingsPageHeader: React.FC<{
         <Text type="secondary">{description}</Text>
       </div>
 
-      <Divider className="!my-6" />
+      <Divider className="my-6!" />
     </div>
   );
 });

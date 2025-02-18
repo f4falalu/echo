@@ -40,7 +40,7 @@ export const SelectAxisDropZone: React.FC<{
   return (
     <div ref={setNodeRef}>
       <StylingLabel
-        className="!space-y-2"
+        className="space-y-2!"
         label={zone.title}
         labelExtra={<SelectAxisSettingsButton zoneId={zone.id} />}>
         {hasItems && (
@@ -75,7 +75,7 @@ const EmptyDropZone: React.FC<{
   return (
     <div
       className={cx(
-        'flex h-[32px] w-full items-center justify-center rounded',
+        'flex h-[32px] w-full items-center justify-center rounded-sm',
         styles.container,
         className ? className : 'empty'
       )}>

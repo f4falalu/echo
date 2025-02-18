@@ -51,7 +51,7 @@ export const MetricTitle: React.FC<{
             <Title
               {...titleConfig}
               level={4}
-              className="max-w-[calc(100%_-_22px)] !text-md"
+              className="max-w-[calc(100%_-_22px)] text-md!"
               style={{ fontSize: '14px' }}>
               {`${title}`}
             </Title>

@@ -144,7 +144,7 @@ export default function ChartJS() {
   const [yAxisStartAxisAtZero, setYAxisStartAxisAtZero] = useState<boolean>(true);
 
   return (
-    <div className="flex h-[1000px] w-[75vw] flex-col rounded bg-white">
+    <div className="flex h-[1000px] w-[75vw] flex-col rounded-sm bg-white">
       <div className="h-[500px] w-full p-3">
         <BusterChart
           data={chartData}

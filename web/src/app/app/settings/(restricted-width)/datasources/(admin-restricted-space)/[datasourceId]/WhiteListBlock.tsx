@@ -28,7 +28,7 @@ export const WhiteListBlock: React.FC = () => {
       <Text type="secondary">{`If you would like to whitelist our IP addresses, they are: `}</Text>
 
       <div
-        className="flex w-fit rounded p-1.5"
+        className="flex w-fit rounded-sm p-1.5"
         style={{
           border: `0.5px solid ${token.colorBorder}`,
           borderRadius: `${token.borderRadius}px`

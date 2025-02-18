@@ -160,7 +160,7 @@ export const AppSelectColorPalette: React.FC<AppSelectColorPaletteProps> = ({
         {!!children && children}
         {defaultOptions.map((option) => (
           <Option
-            className="m-0 flex w-full flex-row !px-[0px] !py-[0px]"
+            className="m-0 flex w-full flex-row px-[0px]! py-[0px]!"
             key={option.id}
             value={option.id}>
             <ColorOption
@@ -246,7 +246,7 @@ const ColorOption: React.FC<{
       className={cx(
         'cursor-pointer',
         styles.customOption,
-        'm-0 flex w-full flex-row !px-[8px] !py-[3px]',
+        'm-0 flex w-full flex-row px-[8px]! py-[3px]!',
         isSelected ? 'selected' : ''
       )}>
       <CustomColorPopover

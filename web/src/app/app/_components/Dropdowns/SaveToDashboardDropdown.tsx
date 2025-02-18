@@ -88,7 +88,7 @@ export const SaveToDashboardDropdown: React.FC<{
     return (
       <Button
         type="text"
-        className="!justify-start"
+        className="justify-start!"
         loading={isCreatingDashboard}
         block
         icon={<AppMaterialIcons icon="add" />}

@@ -47,7 +47,7 @@ export const SQLContainer: React.FC<{
           onChange={setDatasetSQL}
           onMetaEnter={onRunQueryPreflight}
         />
-        <Divider className="!my-0" />
+        <Divider className="my-0!" />
         <div className="relative flex items-center justify-between px-4 py-2.5">
           <Button type="default" onClick={onCopySQL}>
             Copy SQL
@@ -111,7 +111,7 @@ const ErrorContainer: React.FC<{
               onClick={() => onClose()}
               className={cx(
                 styles.closeButton,
-                'rounded p-0.5 transition-colors hover:bg-black/5'
+                'rounded-sm p-0.5 transition-colors hover:bg-black/5'
               )}>
               <AppMaterialIcons icon="close" className="text-sm" />
             </button>

@@ -57,7 +57,7 @@ const VerticalBar: React.FC<{ show?: boolean }> = ({ show }) => {
       className={cx(
         'flex w-full flex-1 items-center justify-center overflow-hidden',
         'opacity-0 transition-opacity duration-300',
-        show && '!opacity-100'
+        show && 'opacity-100!'
       )}>
       <div className={cx(styles.verticalBar, 'mt-1 overflow-hidden')} />
     </div>

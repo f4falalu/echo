@@ -56,7 +56,7 @@ export const DatasetsIndividualHeader: React.FC<{}> = React.memo(({}) => {
           <div className="flex items-center">
             <DatasetIndividualThreeDotMenu datasetId={datasetId} />
 
-            <Divider type="vertical" className="!h-4" />
+            <Divider type="vertical" className="h-4!" />
 
             <div className="flex items-center space-x-2">
               <Button type="text" onClick={onReset} disabled={!isChangedSQL || isDeployingDataset}>

@@ -57,7 +57,7 @@ export const StylingMetric: React.FC<{
         />
       </div>
 
-      <Divider className="!my-3 !mb-0" />
+      <Divider className="my-3! mb-0!" />
 
       <div className={className}>
         <HeaderMetricStyling
@@ -70,7 +70,7 @@ export const StylingMetric: React.FC<{
         />
       </div>
 
-      <Divider className="!my-3 !mb-0" />
+      <Divider className="my-3! mb-0!" />
 
       <div className={className}>
         <HeaderMetricStyling

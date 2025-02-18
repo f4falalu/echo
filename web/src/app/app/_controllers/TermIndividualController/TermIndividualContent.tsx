@@ -199,7 +199,7 @@ const MoreDropdown: React.FC<{ termId: string; setEditingTermName: (value: boole
   return (
     <Dropdown trigger={['click']} menu={menu}>
       <div
-        className="!h-fit cursor-pointer"
+        className="h-fit! cursor-pointer"
         style={{
           height: 18,
           color: token.colorIcon

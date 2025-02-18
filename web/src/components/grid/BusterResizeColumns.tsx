@@ -162,7 +162,7 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
           {items.map((item, index) => (
             <Pane
               className={cx(
-                '!overflow-visible',
+                'overflow-visible!',
                 index !== items.length - 1 ? 'pr-1.5' : 'pr-0',
                 index !== 0 ? 'pl-1.5' : 'pl-0'
               )}

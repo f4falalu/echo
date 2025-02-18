@@ -74,7 +74,7 @@ export const SaveToCollectionsDropdown: React.FC<{
       <Button
         type="text"
         block
-        className="!justify-start"
+        className="justify-start!"
         icon={<AppMaterialIcons icon="add" />}
         onClick={onClick}>
         New collection
@@ -87,7 +87,7 @@ export const SaveToCollectionsDropdown: React.FC<{
       <AppDropdownSelect
         trigger={['click']}
         placement="bottomRight"
-        className="!flex !h-fit items-center"
+        className="flex! h-fit! items-center"
         headerContent={'Save to a collection'}
         open={showDropdown}
         onOpenChange={onOpenChange}

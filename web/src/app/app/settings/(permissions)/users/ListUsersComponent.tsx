@@ -99,7 +99,7 @@ export const ListUsersComponent: React.FC<{
         rows={rows}
         showHeader={true}
         showSelectAll={false}
-        rowClassName="!pl-[30px]"
+        rowClassName="pl-[30px]!"
         // onSelectChange={setSelectedRowKeys}
         // selectedRowKeys={selectedRowKeys}
         columnRowVariant="default"

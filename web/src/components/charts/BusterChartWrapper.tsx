@@ -24,7 +24,7 @@ export const BusterChartWrapper = React.memo<{
           className,
           'flex h-full w-full flex-col',
           'transition duration-300',
-          loading ? '!bg-transparent' : undefined,
+          loading ? 'bg-transparent!' : undefined,
           'overflow-hidden'
         )}>
         {children}

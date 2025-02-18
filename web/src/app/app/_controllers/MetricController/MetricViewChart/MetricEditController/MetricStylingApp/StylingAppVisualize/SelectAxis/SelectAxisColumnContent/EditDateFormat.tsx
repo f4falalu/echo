@@ -62,7 +62,7 @@ export const EditDateFormat: React.FC<{
         <div className="w-full overflow-hidden">
           <Select
             key={convertNumberTo}
-            className="!w-full"
+            className="w-full!"
             popupMatchSelectWidth={false}
             options={selectOptions}
             defaultValue={selectedOption}

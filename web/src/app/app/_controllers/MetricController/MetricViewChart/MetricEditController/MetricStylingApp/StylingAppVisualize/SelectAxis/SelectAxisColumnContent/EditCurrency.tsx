@@ -18,7 +18,7 @@ export const EditCurrency: React.FC<{
         currencies?.map((currency) => ({
           label: (
             <div className="flex items-center gap-1.5 overflow-hidden">
-              <div className="rounded">{currency.flag}</div>
+              <div className="rounded-sm">{currency.flag}</div>
               <Text className="truncate">{currency.description}</Text>
             </div>
           ),
@@ -55,7 +55,7 @@ export const EditCurrency: React.FC<{
             disabled={!isFetched}
             onChange={onChange}
             defaultValue={selectedCurrency}
-            className="!w-full"
+            className="w-full!"
             popupMatchSelectWidth={false}
             showSearch
             labelInValue

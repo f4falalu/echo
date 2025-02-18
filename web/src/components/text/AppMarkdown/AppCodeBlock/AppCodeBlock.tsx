@@ -45,7 +45,7 @@ export const AppCodeBlock: React.FC<{
           {language ? (
             <SyntaxHighlighter
               {...rest}
-              className={`${className} !p-3 transition ${!style ? 'opacity-100' : '!m-0 !border-none !p-0 opacity-100'}`}
+              className={`${className} p-3! transition ${!style ? 'opacity-100' : 'm-0! border-none! p-0! opacity-100'}`}
               language={language}
               style={style}>
               {code}

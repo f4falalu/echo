@@ -26,7 +26,7 @@ export const SettingsEmptyState: React.FC<{
   return (
     <Card
       classNames={{
-        body: 'flex justify-center items-center flex-col  !py-10 '
+        body: 'flex justify-center items-center flex-col  py-10! '
       }}>
       <div className="flex max-w-[300px] flex-col items-center justify-center space-y-5">
         <div className="flex flex-col items-center space-y-3 text-center">

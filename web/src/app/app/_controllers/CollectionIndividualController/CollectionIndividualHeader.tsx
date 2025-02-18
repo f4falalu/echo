@@ -54,7 +54,7 @@ export const CollectionsIndividualHeader: React.FC<{
           title: (
             <Link
               suppressHydrationWarning
-              className={`!flex !h-full cursor-pointer items-center truncate`}
+              className={`flex! h-full! cursor-pointer items-center truncate`}
               href={createPageLink({ route: BusterRoutes.APP_COLLECTIONS })}>
               {collectionBaseTitle}
             </Link>

@@ -223,7 +223,7 @@ const ResizeRowHandle: React.FC<{
           id={id}
           className={cx(
             showDropzone && allowEdit && dropzoneStyles.dropzone,
-            'h-[4px] w-2 w-full select-none rounded',
+            'h-[4px] w-2 w-full select-none rounded-sm',
             allowEdit && styles.dragger,
             !top && 'dragger absolute',
             showActive && 'active'

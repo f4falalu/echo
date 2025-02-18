@@ -66,10 +66,10 @@ export const FavoriteStar: React.FC<{
     <AppTooltip title={tooltipText} performant key={tooltipText}>
       <Button
         classNames={{
-          icon: '!text-inherit !mt-[-2px]'
+          icon: 'text-inherit! mt-[-2px]!'
         }}
         className={cx(className, 'flex', styles.icon, iconStyle, {
-          'is-favorited opacity-100 !transition-none': isFavorited
+          'is-favorited opacity-100 transition-none!': isFavorited
         })}
         onClick={onFavoriteClick}
         type="text"

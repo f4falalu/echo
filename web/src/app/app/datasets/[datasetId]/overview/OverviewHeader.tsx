@@ -23,7 +23,7 @@ export const OverviewHeader: React.FC<{ datasetId: string; description: string; 
             <EditableTitle onChange={onEditTitle} level={3}>
               {name}
             </EditableTitle>
-            <Text className="!text-md" type="secondary">
+            <Text className="text-md!" type="secondary">
               {description}
             </Text>
           </div>

@@ -125,7 +125,7 @@ const MemoizedSyntaxHighlighter = React.memo(
         startingLineNumber={lineNumber}
         lineNumberStyle={lineNumberStyles}
         lineNumberContainerStyle={{ color: 'red' }}
-        className={`!m-0 !w-fit !border-none !p-0`}>
+        className={`m-0! w-fit! border-none! p-0!`}>
         {text}
       </SyntaxHighlighter>
     );

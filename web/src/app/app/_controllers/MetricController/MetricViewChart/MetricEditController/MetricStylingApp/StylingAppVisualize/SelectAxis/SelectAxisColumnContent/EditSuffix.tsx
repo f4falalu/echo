@@ -11,7 +11,7 @@ export const EditSuffix: React.FC<{
     return (
       <LabelAndInput label="Suffix">
         <Input
-          className="!w-full"
+          className="w-full!"
           min={0}
           defaultValue={suffix}
           placeholder="dollars"

@@ -263,7 +263,7 @@ const TrendlineItemContent: React.FC<{
 
         {show && (
           <>
-            <Divider className="!mb-1" />
+            <Divider className="mb-1!" />
 
             <div className="flex flex-col space-y-2.5 p-2.5">
               <TrendlineLabel

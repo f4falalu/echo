@@ -102,7 +102,7 @@ export const BusterTimestamp: React.FC<BusterTimestampProps> = ({
           {title}
         </Text>
         {time && (
-          <Text size="xxs" className="!w-fit whitespace-nowrap" type="tertiary">
+          <Text size="xxs" className="w-fit! whitespace-nowrap" type="tertiary">
             {time}
           </Text>
         )}

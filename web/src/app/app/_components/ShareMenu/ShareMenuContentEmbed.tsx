@@ -79,7 +79,7 @@ export const ShareMenuContentEmbed: React.FC<{
     <div className="flex flex-col">
       <div className="w-full p-3">
         <Space.Compact className="w-full">
-          <Input className="!h-[24px]" value={createIframe(embedURL)} />
+          <Input className="h-[24px]!" value={createIframe(embedURL)} />
           <Button className="flex" type="default" onClick={onCopyLink}>
             <AppMaterialIcons icon="link" />
           </Button>
@@ -105,7 +105,7 @@ export const ShareMenuContentEmbed: React.FC<{
             background: token.controlItemBgHover,
             borderRadius: `0 0 ${token.borderRadiusLG}px ${token.borderRadiusLG}px `
           }}>
-          <Text type="secondary" className="!text-xs">
+          <Text type="secondary" className="text-xs!">
             {`Your dashboard currently isn’t published.`}
 
             <span

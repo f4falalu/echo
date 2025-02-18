@@ -97,7 +97,7 @@ export const EditTrendlineOption = React.memo(
       <LabelAndInput label="Type">
         <div className="flex w-full justify-end overflow-hidden">
           <Select
-            className="!w-full"
+            className="w-full!"
             options={allowedOptions}
             defaultValue={selectedType}
             onChange={onChangeSelect}

@@ -170,7 +170,7 @@ export const AppSidebarSettings: React.FC<{
         label: (
           <div onClick={onAddTeam} className={cx(styles.addButton, 'flex items-center space-x-1')}>
             <AppMaterialIcons size={16} className="-ml-1" icon="add" />
-            <Text className="!text-inherit">Add team</Text>
+            <Text className="text-inherit!">Add team</Text>
           </div>
         )
       }

@@ -75,7 +75,7 @@ export const AppMenuGroupSingle: React.FC<
   const menuItems: CollapseProps['items'] = [
     {
       key: DEFAULT_KEY,
-      label: <span className="select-none !text-sm">{label}</span>,
+      label: <span className="select-none text-sm!">{label}</span>,
       children: (
         <Menu
           className={cx(styles.menu, 'overflow-hidden')}

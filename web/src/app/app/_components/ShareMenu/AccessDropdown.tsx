@@ -97,7 +97,7 @@ export const AccessDropdown: React.FC<{
             background: token.controlItemBgHover,
             borderRadius: `0 0 ${token.borderRadiusLG}px ${token.borderRadiusLG}px `
           }}>
-          <Text type="secondary" className="!text-xs">
+          <Text type="secondary" className="text-xs!">
             Sharing cannot override permissions set by your account admins.
           </Text>
         </div>
@@ -126,7 +126,7 @@ export const AccessDropdown: React.FC<{
       <Text
         type="secondary"
         size="xxs"
-        className={`!flex cursor-pointer !items-center space-x-1 ${className}`}>
+        className={`flex! cursor-pointer items-center! space-x-1 ${className}`}>
         <div>{selectedLabel}</div>
         {!disabled && <AppMaterialIcons icon="keyboard_arrow_down" />}
       </Text>

@@ -155,7 +155,7 @@ const ChartButton: React.FC<{
             'flex aspect-square h-[35px] w-full items-center justify-center',
             styles.containerItem,
             isSelected && 'selected',
-            disabled && '!cursor-not-allowed'
+            disabled && 'cursor-not-allowed!'
           )}>
           <Icon colors={colors} disabled={disabled} />
         </div>
