@@ -9,7 +9,7 @@ import {
 } from '@tanstack/react-query';
 import type { BusterSocketResponse, BusterSocketResponseRoute } from '@/api/buster_socket';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
-import { useMemo, useRef, useTransition } from 'react';
+import { useMemo } from 'react';
 import type { InferBusterSocketResponseData } from './types';
 import { useMemoizedFn, useMount, useUnmount } from 'ahooks';
 
@@ -21,11 +21,11 @@ export const useSocketQueryOn = <
   TData = InferBusterSocketResponseData<TRoute>,
   TQueryKey extends QueryKey = QueryKey
 >({
-  socketResponse,
+  responseEvent,
   options,
   callback
 }: {
-  socketResponse: TRoute;
+  responseEvent: TRoute;
   options?: UseQueryOptions<TData, TError, TData, TQueryKey> | null;
   callback?:
     | ((
@@ -56,13 +56,13 @@ export const useSocketQueryOn = <
 
   const socketConfig = useMemo(() => {
     return {
-      route: socketResponse,
+      route: responseEvent,
       callback: socketCallback
     } as BusterSocketResponse;
-  }, [socketResponse, socketCallback]);
+  }, [responseEvent, socketCallback]);
 
   useMount(() => {
-    const hasCallbacks = busterSocket.getCurrentListeners(socketResponse).length > 0;
+    const hasCallbacks = busterSocket.getCurrentListeners(responseEvent).length > 0;
     if (!hasCallbacks) busterSocket.on(socketConfig);
   });
 

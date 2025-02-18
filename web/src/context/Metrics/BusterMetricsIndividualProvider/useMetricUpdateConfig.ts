@@ -50,12 +50,10 @@ export const useUpdateMetricConfig = ({
     }
   );
 
-  const { mutateAsync: updateMetricMutation } = useSocketQueryMutation(
-    '/metrics/update',
-    '/metrics/update:updateMetricState',
-    null,
-    null,
-    (metric, currentData, variables) => {
+  const { mutateAsync: updateMetricMutation } = useSocketQueryMutation({
+    emitEvent: '/metrics/update',
+    responseEvent: '/metrics/update:updateMetricState',
+    callback: (metric, currentData, variables) => {
       const draftSessionId = metric.draft_session_id;
       const currentMessage = getMetricMemoized({ metricId: metric.id });
       if (draftSessionId && !currentMessage?.draft_session_id) {
@@ -69,7 +67,7 @@ export const useUpdateMetricConfig = ({
       }
       return metric;
     }
-  );
+  });
 
   const { run: _prepareMetricAndSaveToServer } = useDebounceFn(
     useMemoizedFn((newMetric: IBusterMetric, oldMetric: IBusterMetric) => {

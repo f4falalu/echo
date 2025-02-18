@@ -3,8 +3,8 @@ import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
 import { queryKeys } from '@/api/query_keys';
 
 export const useBusterDashboardListByFilter = (filters: DashboardListFilters) => {
-  const { data: dashboardsList, isFetched: isFetchedDashboardsList } = useSocketQueryEmitOn(
-    {
+  const { data: dashboardsList, isFetched: isFetchedDashboardsList } = useSocketQueryEmitOn({
+    emitEvent: {
       route: '/dashboards/list',
       payload: {
         page_token: 0,
@@ -12,9 +12,9 @@ export const useBusterDashboardListByFilter = (filters: DashboardListFilters) =>
         ...filters
       }
     },
-    '/dashboards/list:getDashboardsList',
-    queryKeys['/dashboards/list:getDashboardsList'](filters)
-  );
+    responseEvent: '/dashboards/list:getDashboardsList',
+    options: queryKeys['/dashboards/list:getDashboardsList'](filters)
+  });
 
   //ACTIONS
 

@@ -5,17 +5,15 @@ import { useQueryClient } from '@tanstack/react-query';
 
 export const useDatasourceUpdate = () => {
   const queryClient = useQueryClient();
-  const { mutateAsync: onUpdateDataSource } = useSocketQueryMutation(
-    '/data_sources/update',
-    '/data_sources/get:getDataSource',
-    null,
-    null,
-    (newData, currentData, variables) => {
+  const { mutateAsync: onUpdateDataSource } = useSocketQueryMutation({
+    emitEvent: '/data_sources/update',
+    responseEvent: '/data_sources/get:getDataSource',
+    callback: (newData, currentData, variables) => {
       const options = queryKeys['/data_sources/get:getDataSource'](newData.id);
       queryClient.setQueryData(options.queryKey, newData);
       return currentData;
     }
-  );
+  });
 
   return {
     onUpdateDataSource

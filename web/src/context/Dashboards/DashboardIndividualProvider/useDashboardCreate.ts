@@ -10,28 +10,26 @@ import { useQueryClient } from '@tanstack/react-query';
 export const useDashboardCreate = ({}: {}) => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { mutateAsync: deleteDashboard, isPending: isDeletingDashboard } = useSocketQueryMutation(
-    '/dashboards/delete',
-    '/dashboards/delete:deleteDashboard',
-    queryKeys['/dashboards/list:getDashboardsList']({}),
-    (currentData, variables) => {
+  const { mutateAsync: deleteDashboard, isPending: isDeletingDashboard } = useSocketQueryMutation({
+    emitEvent: '/dashboards/delete',
+    responseEvent: '/dashboards/delete:deleteDashboard',
+    options: queryKeys['/dashboards/list:getDashboardsList']({}),
+    preCallback: (currentData, variables) => {
       return currentData?.filter((t) => !variables.ids.includes(t.id)) || [];
     }
-  );
+  });
   const { openConfirmModal } = useBusterNotifications();
 
-  const { mutateAsync: createDashboard, isPending: isCreatingDashboard } = useSocketQueryMutation(
-    '/dashboards/post',
-    '/dashboards/post:postDashboard',
-    null,
-    null,
-    (newData, currentData, variables) => {
+  const { mutateAsync: createDashboard, isPending: isCreatingDashboard } = useSocketQueryMutation({
+    emitEvent: '/dashboards/post',
+    responseEvent: '/dashboards/post:postDashboard',
+    callback: (newData, currentData, variables) => {
       const dashboardId = newData.dashboard.id;
       const options = queryKeys['/dashboards/get:getDashboardState'](dashboardId);
       queryClient.setQueryData(options.queryKey, newData);
       return currentData;
     }
-  );
+  });
 
   const onCreateNewDashboard = useMemoizedFn(
     async (newDashboard: {

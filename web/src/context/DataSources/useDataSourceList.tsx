@@ -12,17 +12,17 @@ export const useDataSourceList = () => {
     data: dataSourcesList,
     isFetched: isFetchedDatasourcesList,
     refetch: refetchDatasourcesList
-  } = useSocketQueryEmitOn(
-    {
+  } = useSocketQueryEmitOn({
+    emitEvent: {
       route: '/data_sources/list',
       payload: {
         page_size: 1000,
         page: 0
       }
     },
-    '/data_sources/list:listDataSources',
-    queryKeys['/data_sources/list:getDatasourcesList']
-  );
+    responseEvent: '/data_sources/list:listDataSources',
+    options: queryKeys['/data_sources/list:getDatasourcesList']
+  });
 
   return {
     dataSourcesList,

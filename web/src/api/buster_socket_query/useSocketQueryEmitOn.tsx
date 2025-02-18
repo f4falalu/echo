@@ -17,15 +17,21 @@ export const useSocketQueryEmitOn = <
   TError = unknown,
   TData = InferBusterSocketResponseData<TRoute>,
   TQueryKey extends QueryKey = QueryKey
->(
-  socketRequest: BusterSocketRequest,
-  socketResponse: TRoute,
-  options: UseQueryOptions<TData, TError, TData, TQueryKey>,
+>({
+  emitEvent,
+  responseEvent,
+  options,
+  callback,
+  enabledTrigger: enabledTriggerProp
+}: {
+  emitEvent: BusterSocketRequest;
+  responseEvent: TRoute;
+  options: UseQueryOptions<TData, TError, TData, TQueryKey>;
   callback?:
     | ((currentData: TData | null, newData: InferBusterSocketResponseData<TRoute>) => TData)
-    | null,
-  enabledTriggerProp?: boolean | string
-) => {
+    | null;
+  enabledTrigger?: boolean | string;
+}) => {
   const queryClient = useQueryClient();
   const busterSocket = useBusterWebSocket();
   const enabledTrigger = enabledTriggerProp ?? true;
@@ -34,13 +40,13 @@ export const useSocketQueryEmitOn = <
   const { mutate: emitQueryFn } = useMutation({
     mutationKey: ['socket-emit', ...options.queryKey],
     mutationFn: async () => {
-      busterSocket.emit(socketRequest);
+      busterSocket.emit(emitEvent);
       await timeout(250);
       return null;
     }
   });
 
-  const queryResult = useSocketQueryOn({ socketResponse, options, callback });
+  const queryResult = useSocketQueryOn({ responseEvent, options, callback });
 
   useEffect(() => {
     const queryState = queryClient.getQueryState(options.queryKey);

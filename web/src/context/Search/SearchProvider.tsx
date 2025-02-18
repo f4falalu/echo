@@ -11,8 +11,6 @@ import {
 } from '@fluentui/react-context-selector';
 
 export const useBusterSearch = () => {
-  const busterSocket = useBusterWebSocket();
-
   const onBusterSearch = useMemoizedFn(async ({ query }: { query: string }) => {
     const payload: BusterSearchRequest['payload'] = {
       query

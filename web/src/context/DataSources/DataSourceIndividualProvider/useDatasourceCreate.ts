@@ -11,26 +11,24 @@ export const useDatasourceCreate = () => {
   const queryClient = useQueryClient();
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
 
-  const { mutateAsync: onCreateDataSource } = useSocketQueryMutation(
-    '/data_sources/post',
-    '/data_sources/get:getDataSource',
-    null,
-    null,
-    (newData, currentData, variables) => {
+  const { mutateAsync: onCreateDataSource } = useSocketQueryMutation({
+    emitEvent: '/data_sources/post',
+    responseEvent: '/data_sources/get:getDataSource',
+    callback: (newData, currentData, variables) => {
       const options = queryKeys['/data_sources/get:getDataSource'](newData.id);
       queryClient.setQueryData(options.queryKey, newData);
       return currentData;
     }
-  );
+  });
 
-  const { mutateAsync: deleteDataSourceMutation } = useSocketQueryMutation(
-    '/data_sources/delete',
-    '/data_sources/delete:deleteDataSource',
-    queryKeys['/data_sources/list:getDatasourcesList'],
-    (currentData, variables) => {
+  const { mutateAsync: deleteDataSourceMutation } = useSocketQueryMutation({
+    emitEvent: '/data_sources/delete',
+    responseEvent: '/data_sources/delete:deleteDataSource',
+    options: queryKeys['/data_sources/list:getDatasourcesList'],
+    preCallback: (currentData, variables) => {
       return currentData?.filter((d) => d.id !== variables.id) || [];
     }
-  );
+  });
 
   //DATA SOURCES INDIVIDUAL
 

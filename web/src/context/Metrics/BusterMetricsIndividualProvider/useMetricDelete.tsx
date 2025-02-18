@@ -4,18 +4,17 @@ import { useQueryClient } from '@tanstack/react-query';
 
 export const useMetricDelete = () => {
   const queryClient = useQueryClient();
-  const { mutateAsync: deleteMetric } = useSocketQueryMutation(
-    '/metrics/delete',
-    '/metrics/delete:deleteMetricState',
-    null,
-    null,
-    (newData, currentData, variables) => {
+  const { mutateAsync: deleteMetric } = useSocketQueryMutation({
+    emitEvent: '/metrics/delete',
+    responseEvent: '/metrics/delete:deleteMetricState',
+    callback: (newData, currentData, variables) => {
       const queryOptions = queryKeys['/metrics/list:getMetricsList']();
       queryClient.setQueryData(queryOptions.queryKey, (oldData) => {
         return oldData?.filter((metric) => metric.id !== variables.ids[0]) || [];
       });
+      return currentData;
     }
-  );
+  });
 
   return { deleteMetric };
 };

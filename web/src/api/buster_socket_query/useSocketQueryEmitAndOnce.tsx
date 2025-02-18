@@ -21,21 +21,26 @@ export function useSocketQueryEmitAndOnce<
   TError = unknown,
   TData = InferBusterSocketResponseData<TRoute>,
   TQueryKey extends QueryKey = QueryKey
->(
-  socketRequest: BusterSocketRequest,
-  socketResponse: TRoute,
-  options: UseQueryOptions<TData, TError, TData, TQueryKey>,
-  callback?: (currentData: TData | null, newData: InferBusterSocketResponseData<TRoute>) => TData
-) {
+>({
+  emitEvent,
+  responseEvent,
+  options,
+  callback
+}: {
+  emitEvent: BusterSocketRequest;
+  responseEvent: TRoute;
+  options: UseQueryOptions<TData, TError, TData, TQueryKey>;
+  callback?: (currentData: TData | null, newData: InferBusterSocketResponseData<TRoute>) => TData;
+}) {
   const busterSocket = useBusterWebSocket();
   const queryClient = useQueryClient();
 
   const queryFn: QueryFunction<TData> = useMemoizedFn(async ({ queryKey }): Promise<TData> => {
     try {
       const result = await busterSocket.emitAndOnce({
-        emitEvent: socketRequest,
+        emitEvent,
         responseEvent: {
-          route: socketResponse,
+          route: responseEvent,
           callback: (d: unknown) => {
             const socketData = d as InferBusterSocketResponseData<TRoute>;
             if (callback) {

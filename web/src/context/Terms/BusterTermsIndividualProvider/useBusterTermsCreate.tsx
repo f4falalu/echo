@@ -1,6 +1,7 @@
 import { useSocketQueryMutation } from '@/api/buster_socket_query';
 import { type BusterTerm } from '@/api/asset_interfaces';
 import { queryKeys } from '@/api/query_keys';
+
 import { queryOptions } from '@tanstack/react-query';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from 'ahooks';
@@ -11,27 +12,26 @@ export const useBusterTermsCreate = () => {
   const { openConfirmModal } = useBusterNotifications();
   const refetchTermsList = useBusterTermsListContextSelector((x) => x.refetchTermsList);
 
-  const { mutateAsync: createTerm } = useSocketQueryMutation(
-    '/terms/post',
-    '/terms/post:PostTerm',
-    queryOptions<BusterTerm>({
+  const { mutateAsync: createTerm } = useSocketQueryMutation({
+    emitEvent: '/terms/post',
+    responseEvent: '/terms/post:PostTerm',
+    options: queryOptions<BusterTerm>({
       queryKey: []
     }),
-    null,
-    (newData, currentData, variables) => {
+    callback: (newData, currentData, variables) => {
       refetchTermsList();
       return newData;
     }
-  );
+  });
 
-  const { mutate: deleteTermMutation } = useSocketQueryMutation(
-    '/terms/delete',
-    '/terms/delete:DeleteTerm',
-    queryKeys['/terms/list:getTermsList'],
-    (currentData, variables) => {
+  const { mutate: deleteTermMutation } = useSocketQueryMutation({
+    emitEvent: '/terms/delete',
+    responseEvent: '/terms/delete:DeleteTerm',
+    options: queryKeys['/terms/list:getTermsList'],
+    preCallback: (currentData, variables) => {
       return (currentData || []).filter((term) => !variables.ids.includes(term.id));
     }
-  );
+  });
 
   const onDeleteTerm = useMemoizedFn(({ ids }: TermDeleteParams, ignoreConfirm = false) => {
     const method = async () => {

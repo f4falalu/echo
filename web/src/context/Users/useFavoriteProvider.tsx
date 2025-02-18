@@ -3,37 +3,37 @@ import { useSocketQueryEmitOn, useSocketQueryMutation } from '@/api/buster_socke
 import { queryKeys } from '@/api/query_keys';
 
 export const useFavoriteProvider = () => {
-  const { data: userFavorites, refetch: refreshFavoritesList } = useSocketQueryEmitOn(
-    { route: '/users/favorites/list', payload: {} },
-    '/users/favorites/list:listFavorites',
-    queryKeys['/favorites/list:getFavoritesList']
-  );
+  const { data: userFavorites, refetch: refreshFavoritesList } = useSocketQueryEmitOn({
+    emitEvent: { route: '/users/favorites/list', payload: {} },
+    responseEvent: '/users/favorites/list:listFavorites',
+    options: queryKeys['/favorites/list:getFavoritesList']
+  });
 
-  const { mutate: addItemToFavorite } = useSocketQueryMutation(
-    '/users/favorites/post',
-    '/users/favorites/post:createFavorite',
-    queryKeys['/favorites/list:getFavoritesList'],
-    (prev, mutationParams) => [mutationParams, ...(prev || [])]
-  );
+  const { mutate: addItemToFavorite } = useSocketQueryMutation({
+    emitEvent: '/users/favorites/post',
+    responseEvent: '/users/favorites/post:createFavorite',
+    options: queryKeys['/favorites/list:getFavoritesList'],
+    preCallback: (prev, mutationParams) => [mutationParams, ...(prev || [])]
+  });
 
-  const { mutate: removeItemFromFavorite } = useSocketQueryMutation(
-    '/users/favorites/delete',
-    '/users/favorites/post:createFavorite',
-    queryKeys['/favorites/list:getFavoritesList'],
-    (prev, mutationParams) => prev?.filter((f) => f.id !== mutationParams.id) || []
-  );
+  const { mutate: removeItemFromFavorite } = useSocketQueryMutation({
+    emitEvent: '/users/favorites/delete',
+    responseEvent: '/users/favorites/post:createFavorite',
+    options: queryKeys['/favorites/list:getFavoritesList'],
+    preCallback: (prev, mutationParams) => prev?.filter((f) => f.id !== mutationParams.id) || []
+  });
 
-  const { mutate: updateFavorites } = useSocketQueryMutation(
-    '/users/favorites/update',
-    '/users/favorites/update:updateFavorite',
-    queryKeys['/favorites/list:getFavoritesList'],
-    (prev, mutationParams) => {
+  const { mutate: updateFavorites } = useSocketQueryMutation({
+    emitEvent: '/users/favorites/update',
+    responseEvent: '/users/favorites/update:updateFavorite',
+    options: queryKeys['/favorites/list:getFavoritesList'],
+    preCallback: (prev, mutationParams) => {
       return mutationParams.favorites.map((id, index) => {
         const favorite = (prev || []).find((f) => f.id === id || f.collection_id === id)!;
         return { ...favorite, index };
       });
     }
-  );
+  });
 
   const bulkEditFavorites = useMemoizedFn(async (favorites: string[]) => {
     return updateFavorites({ favorites });

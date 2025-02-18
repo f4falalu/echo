@@ -17,11 +17,14 @@ export const useCollectionLists = () => {
     data: collectionsList,
     isFetched: isCollectionListFetched,
     refetch: refetchCollectionList
-  } = useSocketQueryEmitOn(
-    { route: '/collections/list', payload: { page: 0, page_size: 1000, ...collectionListFilters } },
-    '/collections/list:listCollections',
-    queryKeys['/collections/list:getCollectionsList']()
-  );
+  } = useSocketQueryEmitOn({
+    emitEvent: {
+      route: '/collections/list',
+      payload: { page: 0, page_size: 1000, ...collectionListFilters }
+    },
+    responseEvent: '/collections/list:listCollections',
+    options: queryKeys['/collections/list:getCollectionsList']()
+  });
 
   return {
     collectionsList,

@@ -6,14 +6,14 @@ import { useQueryClient } from '@tanstack/react-query';
 export const useChatIndividual = (chatId: string) => {
   const queryClient = useQueryClient();
 
-  const { data: chat, isFetched: isFetchedChat } = useSocketQueryEmitOn(
-    {
+  const { data: chat, isFetched: isFetchedChat } = useSocketQueryEmitOn({
+    emitEvent: {
       route: '/chats/get',
       payload: { id: chatId }
     },
-    '/chats/get:getChat',
-    queryKeys['chatsGetChat'](chatId),
-    (_currentData, newData) => {
+    responseEvent: '/chats/get:getChat',
+    options: queryKeys['chatsGetChat'](chatId),
+    callback: (_currentData, newData) => {
       const { iChat, iChatMessages } = updateChatToIChat(newData, false);
       for (const message of iChatMessages) {
         const options = queryKeys['chatsMessages'](message.id);
@@ -22,7 +22,7 @@ export const useChatIndividual = (chatId: string) => {
       }
       return iChat;
     }
-  );
+  });
 
   return {
     chat,

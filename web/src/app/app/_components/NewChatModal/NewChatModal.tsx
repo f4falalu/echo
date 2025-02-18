@@ -200,7 +200,7 @@ const NewChatInput: React.FC<{
     const onStartNewChatPreflight = useMemoizedFn(async () => {
       setLoadingNewChat(true);
       await onStartNewChat({ prompt, datasetId: selectedChatDataSource?.id });
-      await timeout(380);
+      await timeout(250);
       setPrompt('');
       setLoadingNewChat(false);
     });

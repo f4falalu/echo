@@ -16,16 +16,19 @@ export const useBusterDashboardIndividual = ({
   const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
   const { password } = getAssetPassword(dashboardId);
 
-  const { data: dashboardResponse, refetch: refreshDashboard } = useSocketQueryEmitOn(
-    { route: '/dashboards/get', payload: { id: dashboardId, password } },
-    '/dashboards/get:getDashboardState',
-    queryKeys['/dashboards/get:getDashboardState'](dashboardId || ''),
-    (_, newData) => {
+  const { data: dashboardResponse, refetch: refreshDashboard } = useSocketQueryEmitOn({
+    emitEvent: {
+      route: '/dashboards/get',
+      payload: { id: dashboardId, password }
+    },
+    responseEvent: '/dashboards/get:getDashboardState',
+    options: queryKeys['/dashboards/get:getDashboardState'](dashboardId || ''),
+    callback: (_, newData) => {
       initializeDashboardMetrics(newData.metrics);
       return newData;
     },
-    !!dashboardId
-  );
+    enabledTrigger: !!dashboardId
+  });
 
   const initializeDashboardMetrics = useMemoizedFn(
     (metrics: BusterDashboardResponse['metrics']) => {

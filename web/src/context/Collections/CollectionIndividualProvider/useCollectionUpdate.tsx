@@ -9,29 +9,30 @@ export const useCollectionUpdate = () => {
   const queryClient = useQueryClient();
 
   const { mutateAsync: updateCollection, isPending: isUpdatingCollection } = useSocketQueryMutation(
-    '/collections/update',
-    '/collections/update:collectionState',
-    null,
-    (_, variables) => {
-      const collectionId = variables.id!;
-      const collectionOptions = queryKeys['/collections/get:collectionState'](collectionId);
-      const queryKey = collectionOptions.queryKey;
-      const collection = queryClient.getQueryData(queryKey);
-      if (collection) {
-        const newCollection: BusterCollection = {
-          ...collection!,
-          ...(variables as Partial<BusterCollection>)
-        };
-        queryClient.setQueryData(queryKey, newCollection);
-      }
+    {
+      emitEvent: '/collections/update',
+      responseEvent: '/collections/update:collectionState',
+      preCallback: (_, variables) => {
+        const collectionId = variables.id!;
+        const collectionOptions = queryKeys['/collections/get:collectionState'](collectionId);
+        const queryKey = collectionOptions.queryKey;
+        const collection = queryClient.getQueryData(queryKey);
+        if (collection) {
+          const newCollection: BusterCollection = {
+            ...collection!,
+            ...(variables as Partial<BusterCollection>)
+          };
+          queryClient.setQueryData(queryKey, newCollection);
+        }
 
-      const collectionListOptions = queryKeys['/collections/list:getCollectionsList']();
-      const collectionList = queryClient.getQueryData(collectionListOptions.queryKey);
-      if (collectionList && variables.name) {
-        const newCollectionList: BusterCollectionListItem[] = collectionList.map((collection) =>
-          collection.id === collectionId ? { ...collection, name: variables.name! } : collection
-        );
-        queryClient.setQueryData(collectionListOptions.queryKey, newCollectionList);
+        const collectionListOptions = queryKeys['/collections/list:getCollectionsList']();
+        const collectionList = queryClient.getQueryData(collectionListOptions.queryKey);
+        if (collectionList && variables.name) {
+          const newCollectionList: BusterCollectionListItem[] = collectionList.map((collection) =>
+            collection.id === collectionId ? { ...collection, name: variables.name! } : collection
+          );
+          queryClient.setQueryData(collectionListOptions.queryKey, newCollectionList);
+        }
       }
     }
   );

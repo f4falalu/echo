@@ -11,7 +11,7 @@ import { useAutoAppendThought } from './useAutoAppendThought';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
 import { useSocketQueryOn } from '@/api/buster_socket_query';
-import { useRef } from 'react';
+import { useRef, useTransition } from 'react';
 import { IBusterChat, IBusterChatMessage } from '../interfaces';
 import { queryKeys } from '@/api/query_keys';
 import { useQueryClient } from '@tanstack/react-query';
@@ -44,6 +44,20 @@ export const useChatStreamMessage = () => {
   const onUpdateChat = useBusterChatContextSelector((x) => x.onUpdateChat);
   const onUpdateChatMessage = useBusterChatContextSelector((x) => x.onUpdateChatMessage);
   const onToggleChatsModal = useAppLayoutContextSelector((s) => s.onToggleChatsModal);
+  const [isPending, startTransition] = useTransition();
+
+  const onUpdateChatMessageTransition = useMemoizedFn(
+    (iChatMessage: Parameters<typeof onUpdateChatMessage>[0]) => {
+      startTransition(() => {
+        onUpdateChatMessage(iChatMessage);
+      });
+    }
+  );
+
+  /*
+  We need to use refs here because events stream back faster than the query client can update the data. 
+  So we need to store the data in a ref and then update the query client when the data is updated.
+  */
   const chatMessageResponseMessagesRef = useRef<ChatMessageResponseMessagesRef>({});
   const chatMessageReasoningMessageRef = useRef<ChatMessageReasoningMessageRef>({});
   const chatMessagesRef = useRef<Record<string, Partial<IBusterChatMessage>>>({});
@@ -141,7 +155,7 @@ export const useChatStreamMessage = () => {
 
       const messageToUse = chatMessageResponseMessagesRef.current[message_id][responseMessageId];
 
-      onUpdateChatMessage({
+      onUpdateChatMessageTransition({
         id: message_id,
         response_messages: isNewMessage
           ? [...currentResponseMessages, messageToUse]
@@ -180,7 +194,7 @@ export const useChatStreamMessage = () => {
             ...currentReasoning.slice(foundReasoningMessage.index + 1)
           ];
 
-      onUpdateChatMessage({
+      onUpdateChatMessageTransition({
         id: message_id,
         reasoning: autoAppendThought(updatedReasoning, chat_id),
         isCompletedStream: false
@@ -189,17 +203,17 @@ export const useChatStreamMessage = () => {
   );
 
   useSocketQueryOn({
-    socketResponse: '/chats/post:generatingTitle',
+    responseEvent: '/chats/post:generatingTitle',
     callback: _generatingTitleCallback
   });
 
   useSocketQueryOn({
-    socketResponse: '/chats/post:generatingResponseMessage',
+    responseEvent: '/chats/post:generatingResponseMessage',
     callback: _generatingResponseMessageCallback
   });
 
   useSocketQueryOn({
-    socketResponse: '/chats/post:generatingReasoningMessage',
+    responseEvent: '/chats/post:generatingReasoningMessage',
     callback: _generatingReasoningMessageCallback
   });
 

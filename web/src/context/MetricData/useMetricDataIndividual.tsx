@@ -9,11 +9,14 @@ export const useMetricDataIndividual = ({ metricId }: { metricId: string }) => {
     refetch: refetchMetricData,
     dataUpdatedAt: metricDataUpdatedAt,
     error: metricDataError
-  } = useSocketQueryEmitAndOnce(
-    { route: '/metrics/data', payload: { id: metricId } },
-    '/metrics/get:fetchingData',
-    queryKeys['/metrics/get:fetchingData'](metricId),
-    (currentData, responseData) => {
+  } = useSocketQueryEmitAndOnce({
+    emitEvent: {
+      route: '/metrics/data',
+      payload: { id: metricId }
+    },
+    responseEvent: '/metrics/get:fetchingData',
+    options: queryKeys['/metrics/get:fetchingData'](metricId),
+    callback: (currentData, responseData) => {
       const metricId = responseData.metric_id;
       const newMetricData: BusterMetricData = {
         ...currentData,
@@ -24,7 +27,7 @@ export const useMetricDataIndividual = ({ metricId }: { metricId: string }) => {
       };
       return newMetricData;
     }
-  );
+  });
 
   return {
     metricData,

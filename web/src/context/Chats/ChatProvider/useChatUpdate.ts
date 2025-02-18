@@ -11,11 +11,10 @@ export const useChatUpdate = () => {
   const [isPending, startTransition] = useTransition();
   const queryClient = useQueryClient();
 
-  const { mutate: updateChat } = useSocketQueryMutation(
-    '/chats/update',
-    '/chats/update:updateChat',
-    null
-  );
+  const { mutate: updateChat } = useSocketQueryMutation({
+    emitEvent: '/chats/update',
+    responseEvent: '/chats/update:updateChat'
+  });
 
   const onUpdateChat = useMemoizedFn(
     async (newChatConfig: Partial<IBusterChat> & { id: string }, saveToServer: boolean = false) => {
@@ -50,12 +49,6 @@ export const useChatUpdate = () => {
         ...newMessageConfig
       };
       queryClient.setQueryData(queryKey, iChatMessage);
-
-      //TODO: update the message in the server
-
-      startTransition(() => {
-        //just used to trigger UI update
-      });
     }
   );
 

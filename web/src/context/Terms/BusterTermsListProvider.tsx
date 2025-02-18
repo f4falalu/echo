@@ -12,11 +12,11 @@ export const useBusterTermsList = () => {
     data: termsList,
     refetch: refetchTermsList,
     isFetched: isFetchedTermsList
-  } = useSocketQueryEmitOn(
-    { route: '/terms/list', payload: { page: 0, page_size: 3000 } },
-    '/terms/list:ListTerms',
-    queryKeys['/terms/list:getTermsList']
-  );
+  } = useSocketQueryEmitOn({
+    emitEvent: { route: '/terms/list', payload: { page: 0, page_size: 3000 } },
+    responseEvent: '/terms/list:ListTerms',
+    options: queryKeys['/terms/list:getTermsList']
+  });
 
   return {
     termsList,
