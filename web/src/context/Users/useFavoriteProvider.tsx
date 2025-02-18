@@ -1,6 +1,10 @@
 import { useMemoizedFn } from 'ahooks';
 import { useSocketQueryEmitOn, useSocketQueryMutation } from '@/api/buster_socket_query';
 import { queryKeys } from '@/api/query_keys';
+import type { BusterUserFavorite } from '@/api/asset_interfaces';
+import isEmpty from 'lodash/isEmpty';
+
+const DEFAULT_FAVORITES: BusterUserFavorite[] = [];
 
 export const useFavoriteProvider = () => {
   const { data: userFavorites, refetch: refreshFavoritesList } = useSocketQueryEmitOn({
@@ -42,7 +46,7 @@ export const useFavoriteProvider = () => {
   return {
     bulkEditFavorites,
     refreshFavoritesList,
-    userFavorites: userFavorites || [],
+    userFavorites: isEmpty(userFavorites) ? DEFAULT_FAVORITES : userFavorites,
     addItemToFavorite,
     removeItemFromFavorite
   };
