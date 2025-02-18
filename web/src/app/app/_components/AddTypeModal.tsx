@@ -9,7 +9,7 @@ import {
   type BusterSearchResult,
   ShareAssetType
 } from '@/api/asset_interfaces';
-import { asset_typeToIcon } from '@/app/_helpers';
+import { asset_typeToIcon } from '@/app/app/_helpers';
 import { CircleSpinnerLoaderContainer } from '@/components/loaders';
 import { BusterCollection } from '@/api/asset_interfaces';
 import { useBusterSearchContextSelector } from '@/context/Search';

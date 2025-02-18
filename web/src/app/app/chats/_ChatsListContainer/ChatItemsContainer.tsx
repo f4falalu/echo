@@ -1,12 +1,5 @@
-import { ShareAssetType, VerificationStatus, BusterMetricListItem } from '@/api/asset_interfaces';
-import {
-  getNow,
-  isDateSame,
-  isDateBefore,
-  isDateAfter,
-  makeHumanReadble,
-  formatDate
-} from '@/utils';
+import { ShareAssetType, VerificationStatus, BusterChatListItem } from '@/api/asset_interfaces';
+import { makeHumanReadble, formatDate } from '@/utils';
 import React, { memo, useMemo, useRef, useState } from 'react';
 import { StatusBadgeIndicator, getShareStatus } from '../../_components/Lists';
 import { BusterUserAvatar, Text } from '@/components';
@@ -16,62 +9,14 @@ import { BusterListColumn, BusterListRow } from '@/components/list';
 import { ChatSelectedOptionPopup } from './ChatItemsSelectedPopup';
 import { BusterList, ListEmptyStateWithButton } from '@/components/list';
 import { FavoriteStar } from '../../_components/Lists';
-
-const createLogRecord = (
-  data: BusterMetricListItem[]
-): {
-  TODAY: BusterMetricListItem[];
-  YESTERDAY: BusterMetricListItem[];
-  LAST_WEEK: BusterMetricListItem[];
-  ALL_OTHERS: BusterMetricListItem[];
-} => {
-  const today = getNow();
-  const TODAY = data.filter((d) =>
-    isDateSame({
-      date: d.last_edited,
-      compareDate: today,
-      interval: 'day'
-    })
-  );
-  const YESTERDAY = data.filter((d) =>
-    isDateSame({
-      date: d.last_edited,
-      compareDate: today.subtract(1, 'day'),
-      interval: 'day'
-    })
-  );
-  const LAST_WEEK = data.filter(
-    (d) =>
-      isDateBefore({
-        date: d.last_edited,
-        compareDate: today.subtract(2, 'day').startOf('day'),
-        interval: 'day'
-      }) &&
-      isDateAfter({
-        date: d.last_edited,
-        compareDate: today.subtract(8, 'day').startOf('day'),
-        interval: 'day'
-      })
-  );
-  const ALL_OTHERS = data.filter(
-    (d) => !TODAY.includes(d) && !YESTERDAY.includes(d) && !LAST_WEEK.includes(d)
-  );
-
-  return {
-    TODAY,
-    YESTERDAY,
-    LAST_WEEK,
-    ALL_OTHERS
-  };
-};
+import { useCreateListByDate } from '@/components/list/useCreateListByDate';
 
 export const ChatItemsContainer: React.FC<{
-  metrics: BusterMetricListItem[];
+  chats: BusterChatListItem[];
   className?: string;
   openNewMetricModal: () => void;
-  type: 'logs' | 'metrics';
   loading: boolean;
-}> = ({ type, metrics = [], className = '', loading, openNewMetricModal }) => {
+}> = ({ chats = [], className = '', loading, openNewMetricModal }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const renderedDates = useRef<Record<string, string>>({});
   const renderedOwners = useRef<Record<string, React.ReactNode>>({});
@@ -82,9 +27,9 @@ export const ChatItemsContainer: React.FC<{
   });
   const hasSelected = selectedRowKeys.length > 0;
 
-  const logsRecord = useMemo(() => createLogRecord(metrics), [metrics]);
+  const logsRecord = useCreateListByDate({ data: chats });
 
-  const metricsByDate: BusterListRow[] = useMemo(() => {
+  const chatsByDate: BusterListRow[] = useMemo(() => {
     return Object.entries(logsRecord).flatMap(([key, metrics]) => {
       const records = metrics.map((metric) => ({
         id: metric.id,
@@ -95,9 +40,9 @@ export const ChatItemsContainer: React.FC<{
         })
       }));
       const hasRecords = records.length > 0;
-      if (!hasRecords) {
-        return [];
-      }
+
+      if (!hasRecords) return [];
+
       return [
         {
           id: key,
@@ -160,18 +105,18 @@ export const ChatItemsContainer: React.FC<{
     []
   );
 
+  console.log(chatsByDate, loading);
+
   return (
     <div
       ref={tableContainerRef}
       className={`${className} relative flex h-full flex-col items-center`}>
       <BusterList
-        rows={metricsByDate}
+        rows={chatsByDate}
         columns={columns}
         onSelectChange={onSelectChange}
         selectedRowKeys={selectedRowKeys}
-        emptyState={
-          <EmptyState loading={loading} type={type} openNewMetricModal={openNewMetricModal} />
-        }
+        emptyState={<EmptyState loading={loading} openNewMetricModal={openNewMetricModal} />}
       />
 
       <ChatSelectedOptionPopup
@@ -185,36 +130,23 @@ export const ChatItemsContainer: React.FC<{
 
 const EmptyState: React.FC<{
   loading: boolean;
-  type: 'logs' | 'metrics';
   openNewMetricModal: () => void;
-}> = React.memo(({ loading, type, openNewMetricModal }) => {
+}> = React.memo(({ loading, openNewMetricModal }) => {
   if (loading) {
     return <></>;
   }
 
-  return <ChatsEmptyState openNewMetricModal={openNewMetricModal} type={type} />;
+  return <ChatsEmptyState openNewMetricModal={openNewMetricModal} />;
 });
 EmptyState.displayName = 'EmptyState';
 
 const ChatsEmptyState: React.FC<{
   openNewMetricModal: () => void;
-  type: 'logs' | 'metrics';
-}> = ({ openNewMetricModal, type }) => {
-  if (type === 'logs') {
-    return (
-      <ListEmptyStateWithButton
-        title="You don't have any logs yet."
-        description="You don't have any logs. As soon as you do, they will start to appear here."
-        buttonText="New chat"
-        onClick={openNewMetricModal}
-      />
-    );
-  }
-
+}> = ({ openNewMetricModal }) => {
   return (
     <ListEmptyStateWithButton
-      title="You don't have any metrics yet."
-      description="You don't have any metrics. As soon as you do, they will start to appear here."
+      title="You don't have any chats yet."
+      description="You don't have any chats. As soon as you do, they will start to appear here."
       buttonText="New chat"
       onClick={openNewMetricModal}
     />

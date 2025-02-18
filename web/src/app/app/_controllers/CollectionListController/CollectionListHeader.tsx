@@ -68,7 +68,7 @@ export const CollectionListHeader: React.FC<{
     [collectionId, collectionTitle]
   );
 
-  useHotkeys('c', () => {
+  useHotkeys('n', () => {
     setOpenNewCollectionModal(true);
   });
 
@@ -86,7 +86,7 @@ export const CollectionListHeader: React.FC<{
         </div>
 
         <div className="flex items-center">
-          <AppTooltip title={'Create new collection'} shortcuts={['C']}>
+          <AppTooltip title={'Create new collection'} shortcuts={['N']}>
             <Button
               type="default"
               icon={<AppMaterialIcons icon="add" />}

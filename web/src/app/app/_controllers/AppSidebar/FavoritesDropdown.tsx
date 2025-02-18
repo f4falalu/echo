@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import React, { useMemo, useState } from 'react';
 import isEmpty from 'lodash/isEmpty';
-import { asset_typeToIcon } from '@/app/_helpers';
+import { asset_typeToIcon } from '@/app/app/_helpers';
 import { useMemoizedFn } from 'ahooks';
 
 export const FavoritesDropdown: React.FC<{}> = React.memo(() => {

@@ -33,17 +33,6 @@ export const NewCollectionModal: React.FC<{
     };
   }, []);
 
-  const memoizedFooter = useMemo(() => {
-    return {
-      primaryButton: {
-        text: 'Create a collection',
-        onClick: onCreateNewCollection,
-        loading: isCreatingCollection,
-        disabled: disableSubmit
-      }
-    };
-  }, [isCreatingCollection, disableSubmit]);
-
   const onCreateNewCollection = useMemoizedFn(async () => {
     if (isCreatingCollection || disableSubmit) return;
     const res = await createNewCollection({ name: title, onCollectionCreated });
@@ -57,6 +46,17 @@ export const NewCollectionModal: React.FC<{
       onClose();
     }, 200);
   });
+
+  const memoizedFooter = useMemo(() => {
+    return {
+      primaryButton: {
+        text: 'Create a collection',
+        onClick: onCreateNewCollection,
+        loading: isCreatingCollection,
+        disabled: disableSubmit
+      }
+    };
+  }, [isCreatingCollection, disableSubmit]);
 
   useEffect(() => {
     if (open) {
