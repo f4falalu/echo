@@ -284,7 +284,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                 },
                 "additionalProperties": false
             },
-            "description": "IMPORTANT: This should be used BEFORE creating or modifying any metrics/dashboards to understand available data. Searches for datasets using multiple natural language queries that describe different aspects of the problem/question. Analyzes YML content for relevance and returns all relevant datasets ordered by relevance. The results provide critical context for writing accurate metrics and dashboards."
+            "description": "IMPORTANT: Always use this tool before creating or modifying any metrics/dashboards. Its results provide the essential context needed to write accurate SQL and understand data relationships. If the search returns insufficient context, pause further actions and ask the user for clarification."
         })
     }
 }

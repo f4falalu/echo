@@ -255,7 +255,7 @@ impl ToolExecutor for SearchFilesTool {
                 },
                 "additionalProperties": false
             },
-            "description": "Useful for when a user explicitly asks about old metrics or dashboars. Searches for existing metric and dashboard files. Only use when user explicitly asks about existing/previous/old files. Returns up to 10 most relevant files ordered by relevance."
+            "description": "Use this tool only when a user explicitly requests to view or find existing metrics/dashboards. This tool is not a substitute for the data catalog search needed to understand available data structures.Guard Rail: Do not execute any file creation or modifications until a thorough data catalog search has been completed and reviewed."
         })
     }
 }

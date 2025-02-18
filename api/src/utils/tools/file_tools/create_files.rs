@@ -362,7 +362,7 @@ impl ToolExecutor for CreateFilesTool {
                 },
                 "additionalProperties": false
             },
-            "description": "Creates **new** metric or dashboard files. Use this if no existing file can fulfill the user's needs. IMPORTANT: Metrics and dashboards must be created in separate requests - you cannot mix them in the same request. Create metrics first, then create dashboards that reference those metrics in a separate request."
+            "description": "Creates **new** metric or dashboard files. Use this if no existing file can fulfill the user's needs. IMPORTANT: Metrics and dashboards must be created in separate requests - you cannot mix them in the same request. Create metrics first, then create dashboards that reference those metrics in a separate request.Guard Rail: Do not execute any file creation or modifications until a thorough data catalog search has been completed and reviewed."
         })
     }
 }

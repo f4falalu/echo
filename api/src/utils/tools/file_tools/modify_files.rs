@@ -537,7 +537,7 @@ impl ToolExecutor for ModifyFilesTool {
                 },
                 "additionalProperties": false
             },
-            "description": "Makes multiple line-level modifications to one or more existing YAML files in a single call. Line numbers are specified as [start,end] ranges. If you need to update SQL, chart config, or other sections within a file, use this."
+            "description": "Makes multiple line-level modifications to one or more existing YAML files in a single call. Line numbers are specified as [start,end] ranges. If you need to update SQL, chart config, or other sections within a file, use this.Guard Rail: Do not execute any file creation or modifications until a thorough data catalog search has been completed and reviewed."
         })
     }
 }
