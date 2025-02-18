@@ -17,7 +17,8 @@ import { useInviteUser } from './useInviteUser';
 export const useUserConfigProvider = ({ userInfo }: { userInfo: BusterUserResponse | null }) => {
   const isAnonymousUser = useSupabaseContext((state) => state.isAnonymousUser);
 
-  const { data: userResponse, refetch: refetchUserResponse, isFetched } = useGetMyUserInfo();
+  const { data: userResponseData, refetch: refetchUserResponse } = useGetMyUserInfo();
+  const userResponse = userResponseData || userInfo;
 
   const favoriteConfig = useFavoriteProvider();
 
