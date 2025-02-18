@@ -84,7 +84,7 @@ export const useCreateDataset = () => {
   const queryClient = useQueryClient();
 
   const onSuccess = useMemoizedFn(() => {
-    queryClient.invalidateQueries({ queryKey: queryKeys.datasetsList().queryKey });
+    queryClient.invalidateQueries({ queryKey: queryKeys.datasetsList().queryKey, exact: true });
   });
 
   return useCreateReactMutation({
@@ -102,7 +102,7 @@ export const useDeployDataset = () => {
   return useCreateReactMutation({
     mutationFn,
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.datasetsList().queryKey });
+      queryClient.invalidateQueries({ queryKey: queryKeys.datasetsList().queryKey, exact: true });
     }
   });
 };
@@ -116,7 +116,7 @@ export const useUpdateDataset = () => {
 export const useDeleteDataset = () => {
   const queryClient = useQueryClient();
   const onSuccess = useMemoizedFn(() => {
-    queryClient.invalidateQueries({ queryKey: queryKeys.datasetsList().queryKey });
+    queryClient.invalidateQueries({ queryKey: queryKeys.datasetsList().queryKey, exact: true });
   });
   return useCreateReactMutation({
     mutationFn: deleteDataset,

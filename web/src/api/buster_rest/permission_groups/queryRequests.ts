@@ -26,7 +26,6 @@ import type { GetPermissionGroupResponse } from '@/api/asset_interfaces';
 import isEmpty from 'lodash/isEmpty';
 import { updateDatasetPermissionGroups } from '../datasets';
 import type { ListPermissionGroupsResponse } from '../../asset_interfaces';
-import { USER_PERMISSIONS_PERMISSION_GROUPS_QUERY_KEY } from '../users/permissions/config';
 import { queryKeys } from '@/api/query_keys';
 
 export const useListAllPermissionGroups = () => {
@@ -87,7 +86,8 @@ export const useCreatePermissionGroup = (userId?: string) => {
 
       if (userId) {
         await queryClient.invalidateQueries({
-          queryKey: USER_PERMISSIONS_PERMISSION_GROUPS_QUERY_KEY(userId)
+          queryKey: queryKeys.userGetUserPermissionsGroups(userId).queryKey,
+          exact: true
         });
       }
 
@@ -128,7 +128,7 @@ export const useDeletePermissionGroup = () => {
     onSuccess: (data, variables, context) => {
       const options = queryKeys.permissionGroupList;
       const queryKey = options.queryKey;
-      queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({ queryKey, exact: true });
       //TODO delete the permission group from the dataset
     }
   });
@@ -141,7 +141,7 @@ export const useUpdatePermissionGroup = () => {
     const res = await updatePermissionGroups(params);
     const options = queryKeys.permissionGroupList;
     const queryKey = options.queryKey;
-    queryClient.invalidateQueries({ queryKey });
+    queryClient.invalidateQueries({ queryKey, exact: true });
     return res;
   });
 

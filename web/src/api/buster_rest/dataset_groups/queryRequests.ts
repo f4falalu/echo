@@ -18,7 +18,6 @@ import {
 } from './requests';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { useMemoizedFn } from 'ahooks';
-import { USER_PERMISSIONS_DATASET_GROUPS_QUERY_KEY } from '../users/permissions/config';
 import type {
   GetDatasetGroupDatasetsResponse,
   GetDatasetGroupPermissionGroupsResponse,
@@ -109,7 +108,7 @@ export const useCreateDatasetGroup = (datasetId?: string, userId?: string) => {
 
       if (datasetId) {
         await queryClient.invalidateQueries({
-          queryKey: [queryKeys.datasetGroupsList.queryKey, datasetId],
+          ...queryKeys.datasetPermissionGroupsList(datasetId),
           exact: true
         });
       }
@@ -120,7 +119,7 @@ export const useCreateDatasetGroup = (datasetId?: string, userId?: string) => {
 
       if (userId) {
         await queryClient.invalidateQueries({
-          queryKey: USER_PERMISSIONS_DATASET_GROUPS_QUERY_KEY(userId),
+          queryKey: queryKeys.userGetUserDatasetGroups(userId).queryKey,
           exact: true
         });
       }

@@ -31,8 +31,8 @@ const chatsGetList = (filters?: GetChatListParams) =>
   });
 
 export const chatQueryKeys = {
-  '/chats/get:getChat': chatsGetChat,
-  '/chats/list:getChatsList': chatsGetList
+ chatsGetChat,
+ chatsGetList
 };
 ```
 
