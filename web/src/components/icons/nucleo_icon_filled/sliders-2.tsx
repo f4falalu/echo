@@ -9,13 +9,13 @@ type iconProps = {
 	title?: string
 }
 
-function 18px_sliders2(props: iconProps) {
+function sliders2(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
 	const width = props.width || '1em';
 	const height = props.height || '1em';
-	const title = props.title || "18px sliders 2";
+	const title = props.title || "sliders 2";
 
 	return (
 		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -32,4 +32,4 @@ function 18px_sliders2(props: iconProps) {
 	);
 };
 
-export default 18px_sliders2;
+export default sliders2;

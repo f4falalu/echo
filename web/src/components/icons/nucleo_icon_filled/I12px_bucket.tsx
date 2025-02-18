@@ -9,7 +9,7 @@ type iconProps = {
 	title?: string
 }
 
-function 12px_bucket(props: iconProps) {
+function bucket(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -27,4 +27,4 @@ function 12px_bucket(props: iconProps) {
 	);
 };
 
-export default 12px_bucket;
+export default bucket;

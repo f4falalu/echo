@@ -9,13 +9,13 @@ type iconProps = {
 	title?: string
 }
 
-function 18px_userVoice(props: iconProps) {
+function userVoice(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
 	const width = props.width || '1em';
 	const height = props.height || '1em';
-	const title = props.title || "18px user voice";
+	const title = props.title || "user voice";
 
 	return (
 		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -30,4 +30,4 @@ function 18px_userVoice(props: iconProps) {
 	);
 };
 
-export default 18px_userVoice;
+export default userVoice;

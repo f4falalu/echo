@@ -9,7 +9,7 @@ type iconProps = {
 	title?: string
 }
 
-function 12px_bulletList(props: iconProps) {
+function bulletList(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -32,4 +32,4 @@ function 12px_bulletList(props: iconProps) {
 	);
 };
 
-export default 12px_bulletList;
+export default bulletList;

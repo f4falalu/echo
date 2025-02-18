@@ -9,13 +9,13 @@ type iconProps = {
 	title?: string
 }
 
-function 18px_chevronUpRightDownLeft(props: iconProps) {
+function chevronUpRightDownLeft(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
 	const width = props.width || '1em';
 	const height = props.height || '1em';
-	const title = props.title || "18px chevron up right down left";
+	const title = props.title || "chevron up right down left";
 
 	return (
 		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -30,4 +30,4 @@ function 18px_chevronUpRightDownLeft(props: iconProps) {
 	);
 };
 
-export default 18px_chevronUpRightDownLeft;
+export default chevronUpRightDownLeft;

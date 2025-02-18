@@ -9,7 +9,7 @@ type iconProps = {
 	title?: string
 }
 
-function 12px_radioUnchecked(props: iconProps) {
+function radioUnchecked(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -27,4 +27,4 @@ function 12px_radioUnchecked(props: iconProps) {
 	);
 };
 
-export default 12px_radioUnchecked;
+export default radioUnchecked;

@@ -9,7 +9,7 @@ type iconProps = {
 	title?: string
 }
 
-function 12px_borderTop(props: iconProps) {
+function borderTop(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -35,4 +35,4 @@ function 12px_borderTop(props: iconProps) {
 	);
 };
 
-export default 12px_borderTop;
+export default borderTop;

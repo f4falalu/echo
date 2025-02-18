@@ -9,13 +9,13 @@ type iconProps = {
 	title?: string
 }
 
-function 18px_arrowsExpandX(props: iconProps) {
+function arrowsExpandX(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
 	const width = props.width || '1em';
 	const height = props.height || '1em';
-	const title = props.title || "18px arrows expand x";
+	const title = props.title || "arrows expand x";
 
 	return (
 		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -28,4 +28,4 @@ function 18px_arrowsExpandX(props: iconProps) {
 	);
 };
 
-export default 18px_arrowsExpandX;
+export default arrowsExpandX;

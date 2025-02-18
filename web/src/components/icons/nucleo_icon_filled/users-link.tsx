@@ -9,13 +9,13 @@ type iconProps = {
 	title?: string
 }
 
-function 18px_usersLink(props: iconProps) {
+function usersLink(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
 	const width = props.width || '1em';
 	const height = props.height || '1em';
-	const title = props.title || "18px users link";
+	const title = props.title || "users link";
 
 	return (
 		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -32,4 +32,4 @@ function 18px_usersLink(props: iconProps) {
 	);
 };
 
-export default 18px_usersLink;
+export default usersLink;

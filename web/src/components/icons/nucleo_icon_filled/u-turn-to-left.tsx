@@ -9,13 +9,13 @@ type iconProps = {
 	title?: string
 }
 
-function 18px_uTurnToLeft(props: iconProps) {
+function uTurnToLeft(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
 	const width = props.width || '1em';
 	const height = props.height || '1em';
-	const title = props.title || "18px u turn to left";
+	const title = props.title || "u turn to left";
 
 	return (
 		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -28,4 +28,4 @@ function 18px_uTurnToLeft(props: iconProps) {
 	);
 };
 
-export default 18px_uTurnToLeft;
+export default uTurnToLeft;

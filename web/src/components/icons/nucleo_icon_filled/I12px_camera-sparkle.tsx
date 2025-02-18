@@ -9,7 +9,7 @@ type iconProps = {
 	title?: string
 }
 
-function 12px_cameraSparkle(props: iconProps) {
+function cameraSparkle(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -29,4 +29,4 @@ function 12px_cameraSparkle(props: iconProps) {
 	);
 };
 
-export default 12px_cameraSparkle;
+export default cameraSparkle;

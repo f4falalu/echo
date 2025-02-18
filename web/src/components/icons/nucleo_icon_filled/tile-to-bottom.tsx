@@ -9,13 +9,13 @@ type iconProps = {
 	title?: string
 }
 
-function 18px_tileToBottom(props: iconProps) {
+function tileToBottom(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
 	const width = props.width || '1em';
 	const height = props.height || '1em';
-	const title = props.title || "18px tile to bottom";
+	const title = props.title || "tile to bottom";
 
 	return (
 		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -27,4 +27,4 @@ function 18px_tileToBottom(props: iconProps) {
 	);
 };
 
-export default 18px_tileToBottom;
+export default tileToBottom;

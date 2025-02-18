@@ -9,13 +9,13 @@ type iconProps = {
 	title?: string
 }
 
-function 18px_caretLeftFromLine(props: iconProps) {
+function caretLeftFromLine(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
 	const width = props.width || '1em';
 	const height = props.height || '1em';
-	const title = props.title || "18px caret left from line";
+	const title = props.title || "caret left from line";
 
 	return (
 		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -28,4 +28,4 @@ function 18px_caretLeftFromLine(props: iconProps) {
 	);
 };
 
-export default 18px_caretLeftFromLine;
+export default caretLeftFromLine;

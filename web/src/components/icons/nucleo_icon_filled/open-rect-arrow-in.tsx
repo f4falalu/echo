@@ -9,13 +9,13 @@ type iconProps = {
 	title?: string
 }
 
-function 18px_openRectArrowIn(props: iconProps) {
+function openRectArrowIn(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
 	const width = props.width || '1em';
 	const height = props.height || '1em';
-	const title = props.title || "18px open rect arrow in";
+	const title = props.title || "open rect arrow in";
 
 	return (
 		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -28,4 +28,4 @@ function 18px_openRectArrowIn(props: iconProps) {
 	);
 };
 
-export default 18px_openRectArrowIn;
+export default openRectArrowIn;

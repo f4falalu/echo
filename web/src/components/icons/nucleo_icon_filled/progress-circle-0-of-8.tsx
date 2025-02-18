@@ -9,13 +9,13 @@ type iconProps = {
 	title?: string
 }
 
-function 18px_progressCircle0Of8(props: iconProps) {
+function progressCircle0Of8(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
 	const width = props.width || '1em';
 	const height = props.height || '1em';
-	const title = props.title || "18px progress circle 0 of 8";
+	const title = props.title || "progress circle 0 of 8";
 
 	return (
 		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -35,4 +35,4 @@ function 18px_progressCircle0Of8(props: iconProps) {
 	);
 };
 
-export default 18px_progressCircle0Of8;
+export default progressCircle0Of8;

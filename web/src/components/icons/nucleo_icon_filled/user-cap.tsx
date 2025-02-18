@@ -9,13 +9,13 @@ type iconProps = {
 	title?: string
 }
 
-function 18px_userCap(props: iconProps) {
+function userCap(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
 	const width = props.width || '1em';
 	const height = props.height || '1em';
-	const title = props.title || "18px user cap";
+	const title = props.title || "user cap";
 
 	return (
 		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -28,4 +28,4 @@ function 18px_userCap(props: iconProps) {
 	);
 };
 
-export default 18px_userCap;
+export default userCap;

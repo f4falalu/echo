@@ -9,7 +9,7 @@ type iconProps = {
 	title?: string
 }
 
-function 12px_link4(props: iconProps) {
+function link4(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -29,4 +29,4 @@ function 12px_link4(props: iconProps) {
 	);
 };
 
-export default 12px_link4;
+export default link4;

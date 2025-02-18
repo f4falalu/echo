@@ -9,7 +9,7 @@ type iconProps = {
 	title?: string
 }
 
-function 12px_align2Top(props: iconProps) {
+function align2Top(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -28,4 +28,4 @@ function 12px_align2Top(props: iconProps) {
 	);
 };
 
-export default 12px_align2Top;
+export default align2Top;

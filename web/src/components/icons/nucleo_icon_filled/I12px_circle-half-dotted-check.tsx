@@ -9,7 +9,7 @@ type iconProps = {
 	title?: string
 }
 
-function 12px_circleHalfDottedCheck(props: iconProps) {
+function circleHalfDottedCheck(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -33,4 +33,4 @@ function 12px_circleHalfDottedCheck(props: iconProps) {
 	);
 };
 
-export default 12px_circleHalfDottedCheck;
+export default circleHalfDottedCheck;

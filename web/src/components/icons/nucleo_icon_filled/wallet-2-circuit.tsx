@@ -9,13 +9,13 @@ type iconProps = {
 	title?: string
 }
 
-function 18px_wallet2Circuit(props: iconProps) {
+function wallet2Circuit(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
 	const width = props.width || '1em';
 	const height = props.height || '1em';
-	const title = props.title || "18px wallet 2 circuit";
+	const title = props.title || "wallet 2 circuit";
 
 	return (
 		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -31,4 +31,4 @@ function 18px_wallet2Circuit(props: iconProps) {
 	);
 };
 
-export default 18px_wallet2Circuit;
+export default wallet2Circuit;

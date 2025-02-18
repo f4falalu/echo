@@ -9,13 +9,13 @@ type iconProps = {
 	title?: string
 }
 
-function 18px_caretAllDirections(props: iconProps) {
+function caretAllDirections(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
 	const width = props.width || '1em';
 	const height = props.height || '1em';
-	const title = props.title || "18px caret all directions";
+	const title = props.title || "caret all directions";
 
 	return (
 		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -31,4 +31,4 @@ function 18px_caretAllDirections(props: iconProps) {
 	);
 };
 
-export default 18px_caretAllDirections;
+export default caretAllDirections;

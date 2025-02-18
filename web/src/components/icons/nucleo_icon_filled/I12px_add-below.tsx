@@ -9,7 +9,7 @@ type iconProps = {
 	title?: string
 }
 
-function 12px_addBelow(props: iconProps) {
+function addBelow(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -31,4 +31,4 @@ function 12px_addBelow(props: iconProps) {
 	);
 };
 
-export default 12px_addBelow;
+export default addBelow;

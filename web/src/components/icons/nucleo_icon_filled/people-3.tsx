@@ -9,13 +9,13 @@ type iconProps = {
 	title?: string
 }
 
-function 18px_people3(props: iconProps) {
+function people3(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
 	const width = props.width || '1em';
 	const height = props.height || '1em';
-	const title = props.title || "18px people 3";
+	const title = props.title || "people 3";
 
 	return (
 		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -30,4 +30,4 @@ function 18px_people3(props: iconProps) {
 	);
 };
 
-export default 18px_people3;
+export default people3;

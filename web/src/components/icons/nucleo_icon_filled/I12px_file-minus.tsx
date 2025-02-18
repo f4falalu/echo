@@ -9,7 +9,7 @@ type iconProps = {
 	title?: string
 }
 
-function 12px_fileMinus(props: iconProps) {
+function fileMinus(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -28,4 +28,4 @@ function 12px_fileMinus(props: iconProps) {
 	);
 };
 
-export default 12px_fileMinus;
+export default fileMinus;
