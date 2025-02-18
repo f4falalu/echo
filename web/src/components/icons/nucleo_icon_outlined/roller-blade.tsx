@@ -1,15 +1,9 @@
 import React from 'react';
+import { iconProps } from './iconProps';
 
-type iconProps = {
-	fill?: string,
-	secondaryfill?: string,
-	strokewidth?: number,
-	width?: string,
-	height?: string,
-	title?: string
-}
 
-function 18px_rollerBlade(props: iconProps) {
+
+function rollerBlade(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -30,4 +24,4 @@ function 18px_rollerBlade(props: iconProps) {
 	);
 };
 
-export default 18px_rollerBlade;
+export default rollerBlade;

@@ -1,15 +1,9 @@
 import React from 'react';
+import { iconProps } from './iconProps';
 
-type iconProps = {
-	fill?: string,
-	secondaryfill?: string,
-	strokewidth?: number,
-	width?: string,
-	height?: string,
-	title?: string
-}
 
-function 18px_equalGreaterThan(props: iconProps) {
+
+function equalGreaterThan(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -28,4 +22,4 @@ function 18px_equalGreaterThan(props: iconProps) {
 	);
 };
 
-export default 18px_equalGreaterThan;
+export default equalGreaterThan;

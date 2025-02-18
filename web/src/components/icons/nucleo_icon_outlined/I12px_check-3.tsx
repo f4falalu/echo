@@ -1,15 +1,9 @@
 import React from 'react';
+import { iconProps } from './iconProps';
 
-type iconProps = {
-	fill?: string,
-	secondaryfill?: string,
-	strokewidth?: number,
-	width?: string,
-	height?: string,
-	title?: string
-}
 
-function 12px_check3(props: iconProps) {
+
+function check3(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -27,4 +21,4 @@ function 12px_check3(props: iconProps) {
 	);
 };
 
-export default 12px_check3;
+export default check3;

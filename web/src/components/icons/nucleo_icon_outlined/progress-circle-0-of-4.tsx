@@ -1,15 +1,9 @@
 import React from 'react';
+import { iconProps } from './iconProps';
 
-type iconProps = {
-	fill?: string,
-	secondaryfill?: string,
-	strokewidth?: number,
-	width?: string,
-	height?: string,
-	title?: string
-}
 
-function 18px_progressCircle0Of4(props: iconProps) {
+
+function progressCircle0Of4(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -31,4 +25,4 @@ function 18px_progressCircle0Of4(props: iconProps) {
 	);
 };
 
-export default 18px_progressCircle0Of4;
+export default progressCircle0Of4;

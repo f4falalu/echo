@@ -1,15 +1,9 @@
 import React from 'react';
+import { iconProps } from './iconProps';
 
-type iconProps = {
-	fill?: string,
-	secondaryfill?: string,
-	strokewidth?: number,
-	width?: string,
-	height?: string,
-	title?: string
-}
 
-function 18px_brain(props: iconProps) {
+
+function brain(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -35,4 +29,4 @@ function 18px_brain(props: iconProps) {
 	);
 };
 
-export default 18px_brain;
+export default brain;

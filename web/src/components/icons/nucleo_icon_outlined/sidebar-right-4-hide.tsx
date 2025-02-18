@@ -1,15 +1,9 @@
 import React from 'react';
+import { iconProps } from './iconProps';
 
-type iconProps = {
-	fill?: string,
-	secondaryfill?: string,
-	strokewidth?: number,
-	width?: string,
-	height?: string,
-	title?: string
-}
 
-function 18px_sidebarRight4Hide(props: iconProps) {
+
+function sidebarRight4Hide(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -30,4 +24,4 @@ function 18px_sidebarRight4Hide(props: iconProps) {
 	);
 };
 
-export default 18px_sidebarRight4Hide;
+export default sidebarRight4Hide;

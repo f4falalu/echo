@@ -1,15 +1,9 @@
 import React from 'react';
+import { iconProps } from './iconProps';
 
-type iconProps = {
-	fill?: string,
-	secondaryfill?: string,
-	strokewidth?: number,
-	width?: string,
-	height?: string,
-	title?: string
-}
 
-function 18px_tableDownload(props: iconProps) {
+
+function tableDownload(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -31,4 +25,4 @@ function 18px_tableDownload(props: iconProps) {
 	);
 };
 
-export default 18px_tableDownload;
+export default tableDownload;
