@@ -6,6 +6,7 @@ use diesel_async::RunQueryDsl;
 use serde_json::Value;
 use tokio;
 use uuid::Uuid;
+use serde_yaml;
 
 use crate::messages::types::ThreadMessage;
 use crate::threads::types::ThreadWithMessages;

@@ -58,53 +58,37 @@ pub async fn get_metric(metric_id: &Uuid, user_id: &Uuid) -> Result<BusterMetric
             _ => anyhow!("Database error: {}", e),
         })?;
 
-    // Join the content lines into a single YAML string
-    let yaml_content = metric_file
-        .content
-        .as_array()
-        .ok_or_else(|| anyhow!("Invalid content format"))?
-        .iter()
-        .filter_map(|line| line.get("text").and_then(Value::as_str))
-        .collect::<Vec<&str>>()
-        .join("\n");
-
-    // Parse the YAML content into a Value
-    let yaml_value: Value = serde_yaml::from_str(&yaml_content)
-        .map_err(|e| anyhow!("Failed to parse YAML content: {}", e))?;
-
-    // Extract fields from the YAML
-    let title = yaml_value
+    // Extract fields directly from the JSON content
+    let content = &metric_file.content;
+    
+    let title = content
         .get("title")
         .and_then(Value::as_str)
         .unwrap_or("Untitled")
         .to_string();
 
-    let description = yaml_value
+    let description = content
         .get("description")
         .and_then(|v| match v {
             Value::Null => None,
             v => v.as_str().map(String::from),
         });
 
-    let sql = yaml_value
+    let sql = content
         .get("sql")
         .and_then(Value::as_str)
         .unwrap_or_default()
         .to_string();
 
-    // Parse chart config
-    let chart_config = yaml_value.get("chart_config").cloned().unwrap_or(json!({}));
+    // Get chart config directly
+    let chart_config = content.get("chart_config").cloned().unwrap_or(json!({}));
 
     // Parse data metadata if it exists
-    let data_metadata = yaml_value.get("data_metadata").map(|metadata| {
+    let data_metadata = content.get("data_metadata").map(|metadata| {
         DataMetadata {
-            column_count: metadata
-                .get("column_count")
-                .and_then(Value::as_i64)
-                .unwrap_or(1) as i32,
+            column_count: metadata.as_array().map(|arr| arr.len() as i32).unwrap_or(1),
             column_metadata: metadata
-                .get("column_metadata")
-                .and_then(Value::as_array)
+                .as_array()
                 .map(|columns| {
                     columns
                         .iter()
@@ -114,22 +98,28 @@ pub async fn get_metric(metric_id: &Uuid, user_id: &Uuid) -> Result<BusterMetric
                                 .and_then(Value::as_str)
                                 .unwrap_or("unknown")
                                 .to_string(),
-                            min_value: MinMaxValue::Number(0.0), // You might want to parse this from the YAML
-                            max_value: MinMaxValue::Number(0.0), // You might want to parse this from the YAML
-                            unique_values: col
-                                .get("unique_values")
-                                .and_then(Value::as_i64)
-                                .unwrap_or(0) as i32,
-                            simple_type: SimpleType::Number, // You might want to parse this from the YAML
-                            column_type: ColumnType::Number, // You might want to parse this from the YAML
+                            min_value: MinMaxValue::Number(0.0), // Default value
+                            max_value: MinMaxValue::Number(0.0), // Default value
+                            unique_values: 0, // Default value
+                            simple_type: match col.get("data_type").and_then(Value::as_str) {
+                                Some("string") => SimpleType::Text,
+                                Some("number") => SimpleType::Number,
+                                Some("boolean") => SimpleType::Boolean,
+                                Some("date") => SimpleType::Date,
+                                _ => SimpleType::Number,
+                            },
+                            column_type: match col.get("data_type").and_then(Value::as_str) {
+                                Some("string") => ColumnType::Text,
+                                Some("number") => ColumnType::Number,
+                                Some("boolean") => ColumnType::Boolean,
+                                Some("date") => ColumnType::Date,
+                                _ => ColumnType::Number,
+                            },
                         })
                         .collect()
                 })
                 .unwrap_or_default(),
-            row_count: metadata
-                .get("row_count")
-                .and_then(Value::as_i64)
-                .unwrap_or(1) as i32,
+            row_count: 1, // Default value since it's not in your JSON structure
         }
     });
 
@@ -141,9 +131,9 @@ pub async fn get_metric(metric_id: &Uuid, user_id: &Uuid) -> Result<BusterMetric
         version_number: 1,
         description,
         file_name: metric_file.file_name,
-        time_frame: "all".to_string(),  // Default value
-        dataset_id: "".to_string(),     // Would need to be populated if required
-        data_source_id: "".to_string(), // Would need to be populated if required
+        time_frame: "TODO".to_string(),
+        dataset_id: "TODO".to_string(),
+        data_source_id: "TODO".to_string(),
         dataset_name: None,
         error: None,
         chart_config: Some(chart_config),
@@ -151,11 +141,11 @@ pub async fn get_metric(metric_id: &Uuid, user_id: &Uuid) -> Result<BusterMetric
         status: metric_file.verification,
         evaluation_score: metric_file.evaluation_score.map(|score| score.to_string()),
         evaluation_summary: metric_file.evaluation_summary.unwrap_or_default(),
-        file: yaml_content,  // Store the original YAML content
+        file: serde_json::to_string(&content).unwrap_or_default(),
         created_at: metric_file.created_at.to_string(),
         updated_at: metric_file.updated_at.to_string(),
         sent_by_id: metric_file.created_by.to_string(),
-        sent_by_name: "".to_string(), // Would need to join with users table to get this
+        sent_by_name: "".to_string(),
         sent_by_avatar_url: None,
         code: None,
         dashboards: vec![],

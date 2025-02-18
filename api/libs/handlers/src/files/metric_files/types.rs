@@ -94,6 +94,8 @@ pub enum SimpleType {
     Number,
     #[serde(rename = "date")]
     Date,
+    #[serde(rename = "boolean")]
+    Boolean,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

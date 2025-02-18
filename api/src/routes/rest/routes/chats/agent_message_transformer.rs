@@ -737,16 +737,14 @@ fn assistant_create_file(
 ) -> Result<Vec<BusterThreadMessage>> {
     if let Some(progress) = progress {
         match progress {
-            MessageProgress::InProgress | MessageProgress::Complete => {
-                // Try to parse the tool call arguments to get file metadata
+            MessageProgress::InProgress => Ok(vec![]),
+            MessageProgress::Complete => {
                 if let Some(tool_call) = tool_calls.first() {
                     return process_assistant_create_file(tool_call);
                 }
                 Err(anyhow::anyhow!("No tool call found"))
             }
-            _ => Err(anyhow::anyhow!(
-                "Assistant create file only supports in progress and complete."
-            )),
+            _ => Err(anyhow::anyhow!("Assistant create file only supports in progress and complete.")),
         }
     } else {
         Err(anyhow::anyhow!("Assistant create file requires progress."))
