@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function refreshClockwise(props: iconProps) {
+function I12px_refreshClockwise(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function refreshClockwise(props: iconProps) {
 	);
 };
 
-export default refreshClockwise;
+export default I12px_refreshClockwise;

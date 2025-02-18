@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function cloudUpload2(props: iconProps) {
+function I12px_cloudUpload2(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function cloudUpload2(props: iconProps) {
 	);
 };
 
-export default cloudUpload2;
+export default I12px_cloudUpload2;

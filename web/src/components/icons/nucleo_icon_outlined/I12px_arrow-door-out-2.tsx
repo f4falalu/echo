@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function arrowDoorOut2(props: iconProps) {
+function I12px_arrowDoorOut2(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function arrowDoorOut2(props: iconProps) {
 	);
 };
 
-export default arrowDoorOut2;
+export default I12px_arrowDoorOut2;

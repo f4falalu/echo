@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function sidebarLeft(props: iconProps) {
+function I12px_sidebarLeft(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function sidebarLeft(props: iconProps) {
 	);
 };
 
-export default sidebarLeft;
+export default I12px_sidebarLeft;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function doubleChevronDown(props: iconProps) {
+function I12px_doubleChevronDown(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function doubleChevronDown(props: iconProps) {
 	);
 };
 
-export default doubleChevronDown;
+export default I12px_doubleChevronDown;

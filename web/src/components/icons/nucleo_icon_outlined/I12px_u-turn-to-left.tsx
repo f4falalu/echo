@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function uTurnToLeft(props: iconProps) {
+function I12px_uTurnToLeft(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function uTurnToLeft(props: iconProps) {
 	);
 };
 
-export default uTurnToLeft;
+export default I12px_uTurnToLeft;

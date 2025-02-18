@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function scaleFromBottomRight(props: iconProps) {
+function I12px_scaleFromBottomRight(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function scaleFromBottomRight(props: iconProps) {
 	);
 };
 
-export default scaleFromBottomRight;
+export default I12px_scaleFromBottomRight;

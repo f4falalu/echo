@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function arrowsOppositeDirectionY(props: iconProps) {
+function I12px_arrowsOppositeDirectionY(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function arrowsOppositeDirectionY(props: iconProps) {
 	);
 };
 
-export default arrowsOppositeDirectionY;
+export default I12px_arrowsOppositeDirectionY;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function calendar(props: iconProps) {
+function I12px_calendar(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -25,4 +25,4 @@ function calendar(props: iconProps) {
 	);
 };
 
-export default calendar;
+export default I12px_calendar;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function box(props: iconProps) {
+function I12px_box(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function box(props: iconProps) {
 	);
 };
 
-export default box;
+export default I12px_box;

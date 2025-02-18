@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function chartColumn(props: iconProps) {
+function I12px_chartColumn(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function chartColumn(props: iconProps) {
 	);
 };
 
-export default chartColumn;
+export default I12px_chartColumn;

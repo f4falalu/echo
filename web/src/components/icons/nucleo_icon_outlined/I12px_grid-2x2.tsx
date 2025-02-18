@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function grid2x2(props: iconProps) {
+function I12px_grid2x2(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function grid2x2(props: iconProps) {
 	);
 };
 
-export default grid2x2;
+export default I12px_grid2x2;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function squareLock(props: iconProps) {
+function I12px_squareLock(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function squareLock(props: iconProps) {
 	);
 };
 
-export default squareLock;
+export default I12px_squareLock;

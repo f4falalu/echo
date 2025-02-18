@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function thumbsUp(props: iconProps) {
+function I12px_thumbsUp(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function thumbsUp(props: iconProps) {
 	);
 };
 
-export default thumbsUp;
+export default I12px_thumbsUp;

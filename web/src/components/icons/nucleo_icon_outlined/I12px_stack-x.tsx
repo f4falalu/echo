@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function stackX(props: iconProps) {
+function I12px_stackX(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function stackX(props: iconProps) {
 	);
 };
 
-export default stackX;
+export default I12px_stackX;

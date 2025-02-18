@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function borderBottomRight(props: iconProps) {
+function I12px_borderBottomRight(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -26,4 +26,4 @@ function borderBottomRight(props: iconProps) {
 	);
 };
 
-export default borderBottomRight;
+export default I12px_borderBottomRight;

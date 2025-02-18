@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function rocket(props: iconProps) {
+function I12px_rocket(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -27,4 +27,4 @@ function rocket(props: iconProps) {
 	);
 };
 
-export default rocket;
+export default I12px_rocket;

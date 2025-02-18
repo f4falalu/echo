@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function powerOff(props: iconProps) {
+function I12px_powerOff(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function powerOff(props: iconProps) {
 	);
 };
 
-export default powerOff;
+export default I12px_powerOff;

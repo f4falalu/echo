@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function openRectArrowOut(props: iconProps) {
+function I12px_openRectArrowOut(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function openRectArrowOut(props: iconProps) {
 	);
 };
 
-export default openRectArrowOut;
+export default I12px_openRectArrowOut;

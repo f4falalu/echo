@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function arrowsExpandY(props: iconProps) {
+function I12px_arrowsExpandY(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function arrowsExpandY(props: iconProps) {
 	);
 };
 
-export default arrowsExpandY;
+export default I12px_arrowsExpandY;

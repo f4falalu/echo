@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function chartBarAxisY(props: iconProps) {
+function I12px_chartBarAxisY(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function chartBarAxisY(props: iconProps) {
 	);
 };
 
-export default chartBarAxisY;
+export default I12px_chartBarAxisY;

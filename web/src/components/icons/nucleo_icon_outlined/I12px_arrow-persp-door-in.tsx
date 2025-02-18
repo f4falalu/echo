@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function arrowPerspDoorIn(props: iconProps) {
+function I12px_arrowPerspDoorIn(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function arrowPerspDoorIn(props: iconProps) {
 	);
 };
 
-export default arrowPerspDoorIn;
+export default I12px_arrowPerspDoorIn;

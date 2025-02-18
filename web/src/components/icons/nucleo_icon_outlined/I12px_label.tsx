@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function label(props: iconProps) {
+function I12px_label(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function label(props: iconProps) {
 	);
 };
 
-export default label;
+export default I12px_label;

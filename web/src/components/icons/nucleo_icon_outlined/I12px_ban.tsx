@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function ban(props: iconProps) {
+function I12px_ban(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function ban(props: iconProps) {
 	);
 };
 
-export default ban;
+export default I12px_ban;

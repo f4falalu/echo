@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function trash(props: iconProps) {
+function I12px_trash(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function trash(props: iconProps) {
 	);
 };
 
-export default trash;
+export default I12px_trash;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function cameraSparkle(props: iconProps) {
+function I12px_cameraSparkle(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function cameraSparkle(props: iconProps) {
 	);
 };
 
-export default cameraSparkle;
+export default I12px_cameraSparkle;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function gripDots(props: iconProps) {
+function I12px_gripDots(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -26,4 +26,4 @@ function gripDots(props: iconProps) {
 	);
 };
 
-export default gripDots;
+export default I12px_gripDots;

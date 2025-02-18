@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function suitcase2(props: iconProps) {
+function I12px_suitcase2(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function suitcase2(props: iconProps) {
 	);
 };
 
-export default suitcase2;
+export default I12px_suitcase2;

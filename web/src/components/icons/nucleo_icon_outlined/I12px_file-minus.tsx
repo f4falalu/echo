@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function fileMinus(props: iconProps) {
+function I12px_fileMinus(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function fileMinus(props: iconProps) {
 	);
 };
 
-export default fileMinus;
+export default I12px_fileMinus;

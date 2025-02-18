@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function arrowsCross(props: iconProps) {
+function I12px_arrowsCross(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -25,4 +25,4 @@ function arrowsCross(props: iconProps) {
 	);
 };
 
-export default arrowsCross;
+export default I12px_arrowsCross;

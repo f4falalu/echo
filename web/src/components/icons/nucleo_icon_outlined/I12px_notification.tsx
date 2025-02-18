@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function notification(props: iconProps) {
+function I12px_notification(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function notification(props: iconProps) {
 	);
 };
 
-export default notification;
+export default I12px_notification;

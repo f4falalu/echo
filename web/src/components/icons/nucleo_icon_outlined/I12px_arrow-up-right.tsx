@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function arrowUpRight(props: iconProps) {
+function I12px_arrowUpRight(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function arrowUpRight(props: iconProps) {
 	);
 };
 
-export default arrowUpRight;
+export default I12px_arrowUpRight;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function caretReduceY(props: iconProps) {
+function I12px_caretReduceY(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function caretReduceY(props: iconProps) {
 	);
 };
 
-export default caretReduceY;
+export default I12px_caretReduceY;

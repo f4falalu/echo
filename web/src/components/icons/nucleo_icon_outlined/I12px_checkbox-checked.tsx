@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function checkboxChecked(props: iconProps) {
+function I12px_checkboxChecked(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function checkboxChecked(props: iconProps) {
 	);
 };
 
-export default checkboxChecked;
+export default I12px_checkboxChecked;

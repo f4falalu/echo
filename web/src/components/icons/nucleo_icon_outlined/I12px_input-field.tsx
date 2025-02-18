@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function inputField(props: iconProps) {
+function I12px_inputField(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -27,4 +27,4 @@ function inputField(props: iconProps) {
 	);
 };
 
-export default inputField;
+export default I12px_inputField;

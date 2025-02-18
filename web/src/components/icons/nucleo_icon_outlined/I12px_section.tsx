@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function section(props: iconProps) {
+function I12px_section(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function section(props: iconProps) {
 	);
 };
 
-export default section;
+export default I12px_section;

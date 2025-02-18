@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function followObjDown(props: iconProps) {
+function I12px_followObjDown(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function followObjDown(props: iconProps) {
 	);
 };
 
-export default followObjDown;
+export default I12px_followObjDown;

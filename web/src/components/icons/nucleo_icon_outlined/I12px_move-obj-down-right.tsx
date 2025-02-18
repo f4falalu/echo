@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function moveObjDownRight(props: iconProps) {
+function I12px_moveObjDownRight(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function moveObjDownRight(props: iconProps) {
 	);
 };
 
-export default moveObjDownRight;
+export default I12px_moveObjDownRight;

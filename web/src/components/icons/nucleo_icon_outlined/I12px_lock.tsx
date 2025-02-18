@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function lock(props: iconProps) {
+function I12px_lock(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function lock(props: iconProps) {
 	);
 };
 
-export default lock;
+export default I12px_lock;

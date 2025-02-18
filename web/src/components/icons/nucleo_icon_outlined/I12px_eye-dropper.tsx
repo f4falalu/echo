@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function eyeDropper(props: iconProps) {
+function I12px_eyeDropper(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function eyeDropper(props: iconProps) {
 	);
 };
 
-export default eyeDropper;
+export default I12px_eyeDropper;

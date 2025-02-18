@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function squareDashedMinus(props: iconProps) {
+function I12px_squareDashedMinus(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -25,4 +25,4 @@ function squareDashedMinus(props: iconProps) {
 	);
 };
 
-export default squareDashedMinus;
+export default I12px_squareDashedMinus;

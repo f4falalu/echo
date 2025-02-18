@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function dotsVertical(props: iconProps) {
+function I12px_dotsVertical(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function dotsVertical(props: iconProps) {
 	);
 };
 
-export default dotsVertical;
+export default I12px_dotsVertical;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function layoutBottom(props: iconProps) {
+function I12px_layoutBottom(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function layoutBottom(props: iconProps) {
 	);
 };
 
-export default layoutBottom;
+export default I12px_layoutBottom;

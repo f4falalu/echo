@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function layers(props: iconProps) {
+function I12px_layers(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function layers(props: iconProps) {
 	);
 };
 
-export default layers;
+export default I12px_layers;

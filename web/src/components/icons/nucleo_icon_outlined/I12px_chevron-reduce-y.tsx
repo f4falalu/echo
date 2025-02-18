@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function chevronReduceY(props: iconProps) {
+function I12px_chevronReduceY(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function chevronReduceY(props: iconProps) {
 	);
 };
 
-export default chevronReduceY;
+export default I12px_chevronReduceY;

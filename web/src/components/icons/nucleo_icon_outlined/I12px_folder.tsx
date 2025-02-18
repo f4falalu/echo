@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function folder(props: iconProps) {
+function I12px_folder(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function folder(props: iconProps) {
 	);
 };
 
-export default folder;
+export default I12px_folder;

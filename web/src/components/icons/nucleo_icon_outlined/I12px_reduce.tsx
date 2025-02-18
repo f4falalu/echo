@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function reduce(props: iconProps) {
+function I12px_reduce(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function reduce(props: iconProps) {
 	);
 };
 
-export default reduce;
+export default I12px_reduce;

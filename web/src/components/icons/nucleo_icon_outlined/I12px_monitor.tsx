@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function monitor(props: iconProps) {
+function I12px_monitor(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function monitor(props: iconProps) {
 	);
 };
 
-export default monitor;
+export default I12px_monitor;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function stackPerspective(props: iconProps) {
+function I12px_stackPerspective(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function stackPerspective(props: iconProps) {
 	);
 };
 
-export default stackPerspective;
+export default I12px_stackPerspective;

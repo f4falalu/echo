@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function addBelow(props: iconProps) {
+function I12px_addBelow(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -28,4 +28,4 @@ function addBelow(props: iconProps) {
 	);
 };
 
-export default addBelow;
+export default I12px_addBelow;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function chartDonut(props: iconProps) {
+function I12px_chartDonut(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -25,4 +25,4 @@ function chartDonut(props: iconProps) {
 	);
 };
 
-export default chartDonut;
+export default I12px_chartDonut;

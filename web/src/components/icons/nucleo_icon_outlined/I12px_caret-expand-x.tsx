@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function caretExpandX(props: iconProps) {
+function I12px_caretExpandX(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function caretExpandX(props: iconProps) {
 	);
 };
 
-export default caretExpandX;
+export default I12px_caretExpandX;

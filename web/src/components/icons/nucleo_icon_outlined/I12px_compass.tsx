@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function compass(props: iconProps) {
+function I12px_compass(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function compass(props: iconProps) {
 	);
 };
 
-export default compass;
+export default I12px_compass;

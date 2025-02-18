@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function stepsIndicator(props: iconProps) {
+function I12px_stepsIndicator(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function stepsIndicator(props: iconProps) {
 	);
 };
 
-export default stepsIndicator;
+export default I12px_stepsIndicator;

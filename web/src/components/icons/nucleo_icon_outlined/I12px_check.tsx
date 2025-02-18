@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function check(props: iconProps) {
+function I12px_check(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -21,4 +21,4 @@ function check(props: iconProps) {
 	);
 };
 
-export default check;
+export default I12px_check;

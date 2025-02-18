@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function house6(props: iconProps) {
+function I12px_house6(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function house6(props: iconProps) {
 	);
 };
 
-export default house6;
+export default I12px_house6;

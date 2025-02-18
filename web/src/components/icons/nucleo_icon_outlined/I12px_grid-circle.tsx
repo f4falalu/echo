@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function gridCircle(props: iconProps) {
+function I12px_gridCircle(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function gridCircle(props: iconProps) {
 	);
 };
 
-export default gridCircle;
+export default I12px_gridCircle;

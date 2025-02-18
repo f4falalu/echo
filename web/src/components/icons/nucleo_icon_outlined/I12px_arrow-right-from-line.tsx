@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function arrowRightFromLine(props: iconProps) {
+function I12px_arrowRightFromLine(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function arrowRightFromLine(props: iconProps) {
 	);
 };
 
-export default arrowRightFromLine;
+export default I12px_arrowRightFromLine;

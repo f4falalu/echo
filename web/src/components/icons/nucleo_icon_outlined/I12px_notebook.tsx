@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function notebook(props: iconProps) {
+function I12px_notebook(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -25,4 +25,4 @@ function notebook(props: iconProps) {
 	);
 };
 
-export default notebook;
+export default I12px_notebook;

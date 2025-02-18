@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function layoutRight(props: iconProps) {
+function I12px_layoutRight(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function layoutRight(props: iconProps) {
 	);
 };
 
-export default layoutRight;
+export default I12px_layoutRight;

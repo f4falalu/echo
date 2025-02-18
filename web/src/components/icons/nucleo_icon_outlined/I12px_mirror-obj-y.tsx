@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function mirrorObjY(props: iconProps) {
+function I12px_mirrorObjY(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function mirrorObjY(props: iconProps) {
 	);
 };
 
-export default mirrorObjY;
+export default I12px_mirrorObjY;

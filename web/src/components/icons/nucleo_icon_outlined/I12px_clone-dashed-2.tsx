@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function cloneDashed2(props: iconProps) {
+function I12px_cloneDashed2(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function cloneDashed2(props: iconProps) {
 	);
 };
 
-export default cloneDashed2;
+export default I12px_cloneDashed2;

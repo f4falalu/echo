@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function textA(props: iconProps) {
+function I12px_textA(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function textA(props: iconProps) {
 	);
 };
 
-export default textA;
+export default I12px_textA;

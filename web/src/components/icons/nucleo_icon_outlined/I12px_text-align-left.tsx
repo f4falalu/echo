@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function textAlignLeft(props: iconProps) {
+function I12px_textAlignLeft(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function textAlignLeft(props: iconProps) {
 	);
 };
 
-export default textAlignLeft;
+export default I12px_textAlignLeft;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function xmark(props: iconProps) {
+function I12px_xmark(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function xmark(props: iconProps) {
 	);
 };
 
-export default xmark;
+export default I12px_xmark;

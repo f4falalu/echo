@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function microphone(props: iconProps) {
+function I12px_microphone(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function microphone(props: iconProps) {
 	);
 };
 
-export default microphone;
+export default I12px_microphone;

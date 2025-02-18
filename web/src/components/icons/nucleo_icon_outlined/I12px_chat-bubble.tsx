@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function chatBubble(props: iconProps) {
+function I12px_chatBubble(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -21,4 +21,4 @@ function chatBubble(props: iconProps) {
 	);
 };
 
-export default chatBubble;
+export default I12px_chatBubble;

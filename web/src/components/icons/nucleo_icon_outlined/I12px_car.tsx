@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function car(props: iconProps) {
+function I12px_car(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -26,4 +26,4 @@ function car(props: iconProps) {
 	);
 };
 
-export default car;
+export default I12px_car;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function externalLink(props: iconProps) {
+function I12px_externalLink(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function externalLink(props: iconProps) {
 	);
 };
 
-export default externalLink;
+export default I12px_externalLink;

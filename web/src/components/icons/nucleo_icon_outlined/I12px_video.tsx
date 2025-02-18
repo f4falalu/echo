@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function video(props: iconProps) {
+function I12px_video(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function video(props: iconProps) {
 	);
 };
 
-export default video;
+export default I12px_video;

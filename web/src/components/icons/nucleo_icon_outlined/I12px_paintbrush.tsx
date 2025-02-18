@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function paintbrush(props: iconProps) {
+function I12px_paintbrush(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function paintbrush(props: iconProps) {
 	);
 };
 
-export default paintbrush;
+export default I12px_paintbrush;

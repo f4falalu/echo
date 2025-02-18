@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function arrowsReduceDiagonal(props: iconProps) {
+function I12px_arrowsReduceDiagonal(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function arrowsReduceDiagonal(props: iconProps) {
 	);
 };
 
-export default arrowsReduceDiagonal;
+export default I12px_arrowsReduceDiagonal;

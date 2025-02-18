@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function checkboxUnchecked(props: iconProps) {
+function I12px_checkboxUnchecked(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -21,4 +21,4 @@ function checkboxUnchecked(props: iconProps) {
 	);
 };
 
-export default checkboxUnchecked;
+export default I12px_checkboxUnchecked;

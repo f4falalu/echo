@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function gridLayout4(props: iconProps) {
+function I12px_gridLayout4(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function gridLayout4(props: iconProps) {
 	);
 };
 
-export default gridLayout4;
+export default I12px_gridLayout4;

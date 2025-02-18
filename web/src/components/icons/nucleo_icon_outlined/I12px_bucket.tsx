@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function bucket(props: iconProps) {
+function I12px_bucket(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function bucket(props: iconProps) {
 	);
 };
 
-export default bucket;
+export default I12px_bucket;

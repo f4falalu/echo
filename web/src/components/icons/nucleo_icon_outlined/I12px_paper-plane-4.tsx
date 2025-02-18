@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function paperPlane4(props: iconProps) {
+function I12px_paperPlane4(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function paperPlane4(props: iconProps) {
 	);
 };
 
-export default paperPlane4;
+export default I12px_paperPlane4;

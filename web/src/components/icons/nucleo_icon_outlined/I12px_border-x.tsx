@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function borderX(props: iconProps) {
+function I12px_borderX(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -25,4 +25,4 @@ function borderX(props: iconProps) {
 	);
 };
 
-export default borderX;
+export default I12px_borderX;

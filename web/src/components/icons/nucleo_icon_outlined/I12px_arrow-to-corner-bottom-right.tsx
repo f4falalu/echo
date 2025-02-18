@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function arrowToCornerBottomRight(props: iconProps) {
+function I12px_arrowToCornerBottomRight(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function arrowToCornerBottomRight(props: iconProps) {
 	);
 };
 
-export default arrowToCornerBottomRight;
+export default I12px_arrowToCornerBottomRight;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function chartColumnHorizontal(props: iconProps) {
+function I12px_chartColumnHorizontal(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function chartColumnHorizontal(props: iconProps) {
 	);
 };
 
-export default chartColumnHorizontal;
+export default I12px_chartColumnHorizontal;

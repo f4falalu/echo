@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function addItem(props: iconProps) {
+function I12px_addItem(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function addItem(props: iconProps) {
 	);
 };
 
-export default addItem;
+export default I12px_addItem;

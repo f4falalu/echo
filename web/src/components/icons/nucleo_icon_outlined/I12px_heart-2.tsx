@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function heart2(props: iconProps) {
+function I12px_heart2(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -21,4 +21,4 @@ function heart2(props: iconProps) {
 	);
 };
 
-export default heart2;
+export default I12px_heart2;

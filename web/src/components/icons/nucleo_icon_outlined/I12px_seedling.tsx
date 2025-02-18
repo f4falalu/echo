@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function seedling(props: iconProps) {
+function I12px_seedling(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function seedling(props: iconProps) {
 	);
 };
 
-export default seedling;
+export default I12px_seedling;

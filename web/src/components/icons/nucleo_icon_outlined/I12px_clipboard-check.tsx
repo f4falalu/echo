@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function clipboardCheck(props: iconProps) {
+function I12px_clipboardCheck(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function clipboardCheck(props: iconProps) {
 	);
 };
 
-export default clipboardCheck;
+export default I12px_clipboardCheck;

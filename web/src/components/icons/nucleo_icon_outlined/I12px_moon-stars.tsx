@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function moonStars(props: iconProps) {
+function I12px_moonStars(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function moonStars(props: iconProps) {
 	);
 };
 
-export default moonStars;
+export default I12px_moonStars;

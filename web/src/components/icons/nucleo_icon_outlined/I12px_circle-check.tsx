@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function circleCheck(props: iconProps) {
+function I12px_circleCheck(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function circleCheck(props: iconProps) {
 	);
 };
 
-export default circleCheck;
+export default I12px_circleCheck;

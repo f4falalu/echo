@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function radioChecked(props: iconProps) {
+function I12px_radioChecked(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function radioChecked(props: iconProps) {
 	);
 };
 
-export default radioChecked;
+export default I12px_radioChecked;

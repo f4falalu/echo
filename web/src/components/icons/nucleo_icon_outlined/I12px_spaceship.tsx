@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function spaceship(props: iconProps) {
+function I12px_spaceship(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -25,4 +25,4 @@ function spaceship(props: iconProps) {
 	);
 };
 
-export default spaceship;
+export default I12px_spaceship;

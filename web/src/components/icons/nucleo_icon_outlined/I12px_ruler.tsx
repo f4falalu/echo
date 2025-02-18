@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function ruler(props: iconProps) {
+function I12px_ruler(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function ruler(props: iconProps) {
 	);
 };
 
-export default ruler;
+export default I12px_ruler;

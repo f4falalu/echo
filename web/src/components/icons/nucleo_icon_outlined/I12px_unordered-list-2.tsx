@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function unorderedList2(props: iconProps) {
+function I12px_unorderedList2(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -26,4 +26,4 @@ function unorderedList2(props: iconProps) {
 	);
 };
 
-export default unorderedList2;
+export default I12px_unorderedList2;

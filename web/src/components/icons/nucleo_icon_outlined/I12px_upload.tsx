@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function upload(props: iconProps) {
+function I12px_upload(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function upload(props: iconProps) {
 	);
 };
 
-export default upload;
+export default I12px_upload;

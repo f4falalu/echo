@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function barsFilter(props: iconProps) {
+function I12px_barsFilter(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function barsFilter(props: iconProps) {
 	);
 };
 
-export default barsFilter;
+export default I12px_barsFilter;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function menu(props: iconProps) {
+function I12px_menu(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function menu(props: iconProps) {
 	);
 };
 
-export default menu;
+export default I12px_menu;

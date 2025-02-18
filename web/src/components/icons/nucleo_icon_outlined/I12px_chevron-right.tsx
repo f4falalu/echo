@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function chevronRight(props: iconProps) {
+function I12px_chevronRight(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -21,4 +21,4 @@ function chevronRight(props: iconProps) {
 	);
 };
 
-export default chevronRight;
+export default I12px_chevronRight;

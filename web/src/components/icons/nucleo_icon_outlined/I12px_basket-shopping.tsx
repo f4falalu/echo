@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function basketShopping(props: iconProps) {
+function I12px_basketShopping(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function basketShopping(props: iconProps) {
 	);
 };
 
-export default basketShopping;
+export default I12px_basketShopping;

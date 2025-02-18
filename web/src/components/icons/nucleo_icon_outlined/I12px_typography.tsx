@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function typography(props: iconProps) {
+function I12px_typography(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function typography(props: iconProps) {
 	);
 };
 
-export default typography;
+export default I12px_typography;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function marketingTarget(props: iconProps) {
+function I12px_marketingTarget(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function marketingTarget(props: iconProps) {
 	);
 };
 
-export default marketingTarget;
+export default I12px_marketingTarget;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function circleHalfDottedClock(props: iconProps) {
+function I12px_circleHalfDottedClock(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -28,4 +28,4 @@ function circleHalfDottedClock(props: iconProps) {
 	);
 };
 
-export default circleHalfDottedClock;
+export default I12px_circleHalfDottedClock;

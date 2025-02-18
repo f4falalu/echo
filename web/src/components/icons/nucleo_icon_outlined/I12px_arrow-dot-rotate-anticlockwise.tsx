@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function arrowDotRotateAnticlockwise(props: iconProps) {
+function I12px_arrowDotRotateAnticlockwise(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function arrowDotRotateAnticlockwise(props: iconProps) {
 	);
 };
 
-export default arrowDotRotateAnticlockwise;
+export default I12px_arrowDotRotateAnticlockwise;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function chartActivity(props: iconProps) {
+function I12px_chartActivity(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -21,4 +21,4 @@ function chartActivity(props: iconProps) {
 	);
 };
 
-export default chartActivity;
+export default I12px_chartActivity;

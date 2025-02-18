@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function paperclip2(props: iconProps) {
+function I12px_paperclip2(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -21,4 +21,4 @@ function paperclip2(props: iconProps) {
 	);
 };
 
-export default paperclip2;
+export default I12px_paperclip2;

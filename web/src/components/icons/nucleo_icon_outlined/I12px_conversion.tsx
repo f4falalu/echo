@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function conversion(props: iconProps) {
+function I12px_conversion(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function conversion(props: iconProps) {
 	);
 };
 
-export default conversion;
+export default I12px_conversion;

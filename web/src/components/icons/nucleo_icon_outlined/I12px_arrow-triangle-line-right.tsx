@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function arrowTriangleLineRight(props: iconProps) {
+function I12px_arrowTriangleLineRight(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function arrowTriangleLineRight(props: iconProps) {
 	);
 };
 
-export default arrowTriangleLineRight;
+export default I12px_arrowTriangleLineRight;

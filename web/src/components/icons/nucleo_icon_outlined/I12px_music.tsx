@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function music(props: iconProps) {
+function I12px_music(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -25,4 +25,4 @@ function music(props: iconProps) {
 	);
 };
 
-export default music;
+export default I12px_music;

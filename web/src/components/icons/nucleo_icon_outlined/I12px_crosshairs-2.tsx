@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function crosshairs2(props: iconProps) {
+function I12px_crosshairs2(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -25,4 +25,4 @@ function crosshairs2(props: iconProps) {
 	);
 };
 
-export default crosshairs2;
+export default I12px_crosshairs2;

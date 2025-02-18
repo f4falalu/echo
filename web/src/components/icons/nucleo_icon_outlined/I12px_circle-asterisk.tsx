@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function circleAsterisk(props: iconProps) {
+function I12px_circleAsterisk(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function circleAsterisk(props: iconProps) {
 	);
 };
 
-export default circleAsterisk;
+export default I12px_circleAsterisk;

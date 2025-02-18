@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function circleDashed(props: iconProps) {
+function I12px_circleDashed(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -28,4 +28,4 @@ function circleDashed(props: iconProps) {
 	);
 };
 
-export default circleDashed;
+export default I12px_circleDashed;

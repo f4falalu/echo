@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function heightMax(props: iconProps) {
+function I12px_heightMax(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -28,4 +28,4 @@ function heightMax(props: iconProps) {
 	);
 };
 
-export default heightMax;
+export default I12px_heightMax;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function circleWarning(props: iconProps) {
+function I12px_circleWarning(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function circleWarning(props: iconProps) {
 	);
 };
 
-export default circleWarning;
+export default I12px_circleWarning;

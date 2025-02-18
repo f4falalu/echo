@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function arrowTurnDown(props: iconProps) {
+function I12px_arrowTurnDown(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function arrowTurnDown(props: iconProps) {
 	);
 };
 
-export default arrowTurnDown;
+export default I12px_arrowTurnDown;

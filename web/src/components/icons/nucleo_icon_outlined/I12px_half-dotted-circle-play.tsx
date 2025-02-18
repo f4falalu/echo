@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function halfDottedCirclePlay(props: iconProps) {
+function I12px_halfDottedCirclePlay(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -28,4 +28,4 @@ function halfDottedCirclePlay(props: iconProps) {
 	);
 };
 
-export default halfDottedCirclePlay;
+export default I12px_halfDottedCirclePlay;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function followObjUp(props: iconProps) {
+function I12px_followObjUp(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function followObjUp(props: iconProps) {
 	);
 };
 
-export default followObjUp;
+export default I12px_followObjUp;

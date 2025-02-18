@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function chartPie(props: iconProps) {
+function I12px_chartPie(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function chartPie(props: iconProps) {
 	);
 };
 
-export default chartPie;
+export default I12px_chartPie;

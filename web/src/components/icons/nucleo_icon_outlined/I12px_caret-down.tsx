@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function caretDown(props: iconProps) {
+function I12px_caretDown(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -21,4 +21,4 @@ function caretDown(props: iconProps) {
 	);
 };
 
-export default caretDown;
+export default I12px_caretDown;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function widthMax(props: iconProps) {
+function I12px_widthMax(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -28,4 +28,4 @@ function widthMax(props: iconProps) {
 	);
 };
 
-export default widthMax;
+export default I12px_widthMax;

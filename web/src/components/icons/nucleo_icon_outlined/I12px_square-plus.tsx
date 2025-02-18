@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function squarePlus(props: iconProps) {
+function I12px_squarePlus(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function squarePlus(props: iconProps) {
 	);
 };
 
-export default squarePlus;
+export default I12px_squarePlus;

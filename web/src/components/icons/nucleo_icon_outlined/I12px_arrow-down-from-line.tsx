@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function arrowDownFromLine(props: iconProps) {
+function I12px_arrowDownFromLine(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -23,4 +23,4 @@ function arrowDownFromLine(props: iconProps) {
 	);
 };
 
-export default arrowDownFromLine;
+export default I12px_arrowDownFromLine;

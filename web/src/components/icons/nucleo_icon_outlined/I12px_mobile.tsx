@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function mobile(props: iconProps) {
+function I12px_mobile(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -22,4 +22,4 @@ function mobile(props: iconProps) {
 	);
 };
 
-export default mobile;
+export default I12px_mobile;

@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function shapeSquare(props: iconProps) {
+function I12px_shapeSquare(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -21,4 +21,4 @@ function shapeSquare(props: iconProps) {
 	);
 };
 
-export default shapeSquare;
+export default I12px_shapeSquare;

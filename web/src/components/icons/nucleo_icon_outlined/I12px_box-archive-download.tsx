@@ -3,7 +3,7 @@ import { iconProps } from './iconProps';
 
 
 
-function boxArchiveDownload(props: iconProps) {
+function I12px_boxArchiveDownload(props: iconProps) {
 	const fill = props.fill || 'currentColor';
 	const secondaryfill = props.secondaryfill || fill;
 	const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function boxArchiveDownload(props: iconProps) {
 	);
 };
 
-export default boxArchiveDownload;
+export default I12px_boxArchiveDownload;
