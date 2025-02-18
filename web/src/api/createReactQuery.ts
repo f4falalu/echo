@@ -15,46 +15,30 @@ import { useBusterNotifications } from '@/context/BusterNotifications';
 import { RustApiError } from './buster_rest/errors';
 import { useMemoizedFn } from 'ahooks';
 
-interface CreateQueryProps<TData, TError = unknown> {
-  queryKey: QueryKey;
-  queryFn: () => Promise<TData>;
-  isUseSession?: boolean;
+type CreateQueryProps<TData = unknown, TError = unknown> = UseQueryOptions<TData, TError, TData> & {
   useErrorNotification?: boolean;
-  enabled?: boolean;
-  initialData?: TData;
-  refetchOnWindowFocus?: boolean;
-  refetchOnMount?: boolean;
-  staleTime?: number;
-  options?: Omit<UseQueryOptions<TData, TError, TData>, 'queryKey' | 'queryFn'>;
-}
+  isUseSession?: boolean;
+};
 
 export const PREFETCH_STALE_TIME = 1000 * 10;
 
-export const useCreateReactQuery = <TData, TError = unknown>({
-  queryKey,
-  queryFn,
+export const useCreateReactQuery = <TData = unknown, TError = unknown>({
   isUseSession = true,
   enabled = true,
-  initialData,
   refetchOnWindowFocus = false,
   refetchOnMount = true,
   useErrorNotification = true,
-  staleTime,
-  options = {}
+  ...options
 }: CreateQueryProps<TData, TError>) => {
   const { openErrorNotification } = useBusterNotifications();
   const accessToken = useSupabaseContext((state) => state.accessToken);
   const baseEnabled = isUseSession ? !!accessToken : true;
 
-  const q = useQuery<TData, TError>({
-    queryKey: queryKey,
-    queryFn,
+  const q = useQuery({
     enabled: baseEnabled && !!enabled,
-    initialData,
     retry: 0,
     refetchOnWindowFocus,
     refetchOnMount,
-    staleTime,
     ...options
   });
 
