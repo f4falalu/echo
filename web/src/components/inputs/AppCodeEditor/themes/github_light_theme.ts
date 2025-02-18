@@ -1,8 +1,7 @@
-import tailwind from '../../../../../tailwind.config';
 import type { editor } from 'monaco-editor';
-const colors = tailwind.theme.extend.colors;
 
 const editorBackground = '#ffffff';
+const primaryColor = '#7C3AED';
 
 const theme: editor.IStandaloneThemeData = {
   base: 'vs',
@@ -57,15 +56,15 @@ const theme: editor.IStandaloneThemeData = {
       token: 'entity.name.tag'
     },
     {
-      foreground: colors.buster.primary,
+      foreground: primaryColor,
       token: 'keyword'
     },
     {
-      foreground: colors.buster.primary,
+      foreground: primaryColor,
       token: 'storage'
     },
     {
-      foreground: colors.buster.primary,
+      foreground: primaryColor,
       token: 'storage.type'
     },
     {
@@ -126,7 +125,7 @@ const theme: editor.IStandaloneThemeData = {
     },
     {
       foreground: 'fafbfc',
-      background: colors.buster.primary,
+      background: primaryColor,
       fontStyle: 'italic underline',
       token: 'carriage-return'
     },
@@ -342,7 +341,7 @@ const theme: editor.IStandaloneThemeData = {
       foreground: '24292e',
       token: 'string.yaml'
     },
-    { foreground: colors.buster.primary, token: 'type' },
+    { foreground: primaryColor, token: 'type' },
     { foreground: '24292e', token: 'keyword.yaml' }, //booleans
     { foreground: 'b31d28', token: 'number.yaml' }
   ],

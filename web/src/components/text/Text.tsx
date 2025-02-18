@@ -3,9 +3,7 @@
 import React, { useMemo } from 'react';
 import { useFontStyles } from './useFontStyles';
 import { createStyles } from 'antd-style';
-import tailwind from '../../../tailwind.config';
 import { AppTooltip } from '../tooltip';
-const sizes = tailwind.theme.fontSize;
 
 interface TextProps {
   type?: 'secondary' | 'tertiary' | 'default' | 'danger' | 'primary' | 'inherit' | 'link';
@@ -21,25 +19,25 @@ interface TextProps {
 const useTextStyles = createStyles(({ css, token }) => {
   return {
     '2xl': css`
-      font-size: ${sizes['2xl']};
+      @apply text-2xl;
     `,
     lg: css`
-      font-size: ${sizes.lg};
+      @apply text-lg;
     `,
     md: css`
-      font-size: ${sizes.md};
+      @apply text-md;
     `,
     sm: css`
-      font-size: ${sizes.sm};
+      @apply text-sm;
     `,
     base: css`
-      font-size: ${sizes.base};
+      @apply text-base;
     `,
     xs: css`
-      font-size: ${sizes.xs};
+      @apply text-xs;
     `,
     xxs: css`
-      font-size: ${sizes.xxs};
+      @apply text-xxs;
     `
   };
 });

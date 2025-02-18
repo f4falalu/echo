@@ -13,26 +13,13 @@ import { ThemeProvider } from 'antd-style';
 import { ThemeProvider as NextThemeProvider, useTheme as useNextTheme } from 'next-themes';
 import StyleRegistry from './StyleRegistry';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
-import { configResponsive } from 'ahooks';
 import {
   useContextSelector,
   createContext,
   ContextSelector
 } from '@fluentui/react-context-selector';
-import tailwind from '../../../tailwind.config';
-
-const screens = tailwind.theme.screens;
 
 const { defaultAlgorithm, darkAlgorithm } = theme;
-
-configResponsive({
-  xs: parseInt(screens.xs),
-  sm: parseInt(screens.sm),
-  md: parseInt(screens.md),
-  lg: parseInt(screens.lg),
-  xl: parseInt(screens.xl),
-  '2xl': parseInt(screens['2xl'])
-});
 
 export const ENABLE_DARK_MODE = false;
 
