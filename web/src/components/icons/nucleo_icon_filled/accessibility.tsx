@@ -1,13 +1,6 @@
 import React from 'react';
+import { iconProps } from './iconProps';
 
-type iconProps = {
-	fill?: string,
-	secondaryfill?: string,
-	strokewidth?: number,
-	width?: string,
-	height?: string,
-	title?: string
-}
 
 function 18px_accessibility(props: iconProps) {
 	const fill = props.fill || 'currentColor';
