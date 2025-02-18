@@ -5,6 +5,7 @@ use serde::Serialize;
 use serde_json::Value;
 use uuid::Uuid;
 
+pub mod database_tools;
 pub mod file_tools;
 pub mod interaction_tools;
 

@@ -2,12 +2,11 @@ use anyhow::Result;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use uuid::Uuid;
 use sqlx::PgPool;
+use uuid::Uuid;
 
 use crate::utils::tools::ToolCall;
 use crate::utils::tools::ToolExecutor;
-use crate::database::get_pg_pool;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct QueryResults {
@@ -19,7 +18,7 @@ pub struct QueryResults {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct QueryResult {
     query: String,
-    status: String,  // "success" or "failed"
+    status: String, // "success" or "failed"
     results: Option<QueryResults>,
 }
 
@@ -46,21 +45,17 @@ impl ToolExecutor for SampleQuery {
         session_id: &Uuid,
     ) -> Result<Self::Output> {
         let input: SampleQueryInput = serde_json::from_str(&tool_call.function.arguments)?;
-        let pool = get_pg_pool();
         let mut results = Vec::new();
 
         for query in input.queries {
             // Basic validation - ensure it's a SELECT query and has LIMIT
-            if !is_valid_query(&query) {
-                results.push(QueryResult {
-                    query: query.clone(),
-                    status: "failed".to_string(),
-                    results: None,
-                });
-                continue;
-            }
+            results.push(QueryResult {
+                query: query.clone(),
+                status: "failed".to_string(),
+                results: None,
+            });
 
-            match execute_query(&pool, &query).await {
+            match execute_query(&query).await {
                 Ok(query_results) => {
                     results.push(QueryResult {
                         query: query.clone(),
@@ -107,42 +102,11 @@ impl ToolExecutor for SampleQuery {
     }
 }
 
-async fn execute_query(pool: &PgPool, query: &str) -> Result<QueryResults> {
+async fn execute_query(query: &str) -> Result<QueryResults> {
     // Execute the query and get results
-    let rows = sqlx::query(query)
-        .fetch_all(pool)
-        .await?;
-
-    if rows.is_empty() {
-        return Ok(QueryResults {
-            columns: Vec::new(),
-            rows: Vec::new(),
-            row_count: 0,
-        });
-    }
-
-    // Extract column names from the first row
-    let columns: Vec<String> = rows[0]
-        .columns()
-        .iter()
-        .map(|col| col.name().to_string())
-        .collect();
-
-    // Convert rows to Vec<Vec<Value>>
-    let rows: Vec<Vec<Value>> = rows
-        .iter()
-        .map(|row| {
-            columns
-                .iter()
-                .enumerate()
-                .map(|(i, _)| row.try_get(i).unwrap_or(Value::Null))
-                .collect()
-        })
-        .collect();
-
     Ok(QueryResults {
-        columns,
-        rows: rows,
-        row_count: rows.len() as i32,
+        columns: Vec::new(),
+        rows: Vec::new(),
+        row_count: 0,
     })
 }

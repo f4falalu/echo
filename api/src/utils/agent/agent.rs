@@ -117,7 +117,7 @@ impl Agent {
             model: self.model.clone(),
             messages: thread.messages.clone(),
             tools: if tools.is_empty() { None } else { Some(tools) },
-            tool_choice: Some(ToolChoice::Auto("auto".to_string())),
+            tool_choice: Some(ToolChoice::Required),
             metadata: Some(Metadata {
                 generation_name: "agent".to_string(),
                 user_id: thread.user_id.to_string(),
@@ -241,7 +241,7 @@ impl Agent {
                     model: model.to_string(),
                     messages: thread.messages.clone(),
                     tools: if tools.is_empty() { None } else { Some(tools) },
-                    tool_choice: Some(ToolChoice::Auto("auto".to_string())),
+                    tool_choice: Some(ToolChoice::Required),
                     stream: Some(true),
                     metadata: Some(Metadata {
                         generation_name: "agent".to_string(),

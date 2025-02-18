@@ -262,9 +262,17 @@ pub struct Tool {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum ToolChoice {
-    None(String),
-    Auto(String),
-    Function { function: FunctionToolChoice },
+    #[serde(rename = "none")]
+    None,
+    #[serde(rename = "auto")]
+    Auto,
+    #[serde(rename = "required")]
+    Required,
+    Function {
+        #[serde(rename = "type")]
+        type_: String,
+        function: FunctionToolChoice,
+    },
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

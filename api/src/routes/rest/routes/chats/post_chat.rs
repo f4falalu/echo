@@ -14,6 +14,7 @@ use std::collections::HashMap;
 use uuid::Uuid;
 
 use crate::routes::rest::ApiResponse;
+use crate::utils::tools::database_tools::SampleQuery;
 use crate::utils::tools::ToolExecutor;
 use crate::{
     database::{
@@ -107,7 +108,8 @@ async fn process_chat(request: ChatCreateNewChat, user: User) -> Result<ThreadWi
     let open_files_tool = OpenFilesTool;
     let send_to_user_tool = SendFilesToUserTool;
     let send_message_to_user_tool = SendMessageToUser;
-
+    let sample_query_tool = SampleQuery;
+    
     agent.add_tool(
         search_data_catalog_tool.get_name(),
         search_data_catalog_tool.into_value_tool(),
@@ -131,6 +133,10 @@ async fn process_chat(request: ChatCreateNewChat, user: User) -> Result<ThreadWi
     agent.add_tool(
         send_to_user_tool.get_name(),
         send_to_user_tool.into_value_tool(),
+    );
+    agent.add_tool(
+        sample_query_tool.get_name(),
+        sample_query_tool.into_value_tool(),
     );
 
     // Process chat request
@@ -391,7 +397,7 @@ async fn store_final_message_state(
 }
 
 const AGENT_PROMPT: &str = r##"
-You are an expert analytics/data engineer. 
+You're an exploratory data analyst, your goal is to help users understand their data.
 
 Your goal is to gather as much information as possible from the data catalog to help you fulfill the user's request. You do this by using the `search_data_catalog` tool.
 
