@@ -13,17 +13,17 @@ pub struct DashboardYml {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Row {
-    items: Vec<RowItem>,    // max number of items in a row is 4, min is 1
+    pub items: Vec<RowItem>,    // max number of items in a row is 4, min is 1
     #[serde(skip_serializing_if = "Option::is_none")]
-    row_height: Option<u32>,        // max is 550, min is 320
+    pub row_height: Option<u32>,        // max is 550, min is 320
     #[serde(skip_serializing_if = "Option::is_none")]
-    column_sizes: Option<Vec<u32>>, // max sum of elements is 12 min is 3
+    pub column_sizes: Option<Vec<u32>>, // max sum of elements is 12 min is 3
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RowItem {
     // This id is the id of the metric or item reference that goes here in the dashboard.
-    id: Uuid,
+    pub id: Uuid,
 }
 
 impl DashboardYml {

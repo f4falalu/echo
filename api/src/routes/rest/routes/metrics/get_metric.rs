@@ -7,7 +7,7 @@ use handlers::files::metric_files::types::BusterMetric;
 use handlers::files::metric_files::helpers::get_metric::get_metric;
 use uuid::Uuid;
 
-pub async fn get_metrics_rest_handler(
+pub async fn get_metric_rest_handler(
     Extension(user): Extension<User>,
     Path(id): Path<Uuid>,
 ) -> Result<ApiResponse<BusterMetric>, (StatusCode, &'static str)> {

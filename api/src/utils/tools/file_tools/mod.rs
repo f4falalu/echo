@@ -5,6 +5,7 @@ pub mod open_files;
 pub mod search_data_catalog;
 pub mod search_files;
 pub mod send_files_to_user;
+pub mod common;
 
 pub use modify_files::ModifyFilesTool;
 pub use create_files::CreateFilesTool;

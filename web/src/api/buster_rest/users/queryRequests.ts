@@ -15,7 +15,9 @@ import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
 
 export const useGetMyUserInfo = () => {
-  const queryFn = useMemoizedFn(async () => getMyUserInfo());
+  const queryFn = useMemoizedFn(async () => {
+    return getMyUserInfo();
+  });
   return useCreateReactQuery({
     ...queryKeys.userGetUserMyself,
     queryFn,
@@ -32,6 +34,7 @@ export const prefetchGetMyUserInfo = async (
   const initialData = await getMyUserInfo_server(params);
   await queryClient.prefetchQuery({
     ...queryKeys.userGetUserMyself,
+    queryFn: () => initialData!,
     initialData
   });
   return { queryClient, initialData };

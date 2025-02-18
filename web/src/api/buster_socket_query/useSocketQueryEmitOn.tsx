@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-query';
 import type { InferBusterSocketResponseData } from './types';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSocketQueryOn } from './useSocketQueryOn';
 import { timeout } from '@/utils';
 
@@ -36,9 +36,15 @@ export const useSocketQueryEmitOn = <
   const busterSocket = useBusterWebSocket();
   const enabledTrigger = enabledTriggerProp ?? true;
 
+  const mutationKey = useMemo(() => {
+    return ['socket-emit', ...options.queryKey];
+  }, [options.queryKey]);
+
+  console.log(mutationKey);
+
   // Use mutation for deduped socket emissions
-  const { mutate: emitQueryFn } = useMutation({
-    mutationKey: ['socket-emit', ...options.queryKey],
+  const { mutateAsync: emitQueryFn } = useMutation({
+    mutationKey,
     mutationFn: async () => {
       busterSocket.emit(emitEvent);
       await timeout(250);
@@ -53,6 +59,8 @@ export const useSocketQueryEmitOn = <
     const staleTime = (options.staleTime as number) ?? 0;
     const isStale =
       !queryState?.dataUpdatedAt || Date.now() - queryState.dataUpdatedAt >= staleTime;
+
+    console.log(isStale, queryState);
 
     if (enabledTrigger && (isStale || !queryState)) {
       emitQueryFn();

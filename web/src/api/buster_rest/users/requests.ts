@@ -13,10 +13,15 @@ export const getMyUserInfo_server = async ({
   jwtToken: string | undefined;
 }): Promise<BusterUserResponse | undefined> => {
   if (!jwtToken) {
-    const res = await serverFetch<BusterUserResponse>(`/users`, {
-      method: 'GET'
-    });
-    return res;
+    try {
+      //If Anonymous user, it will fail, so we catch the error and return undefined
+      const res = await serverFetch<BusterUserResponse>(`/users`, {
+        method: 'GET'
+      });
+      return res;
+    } catch (error) {
+      return undefined;
+    }
   }
 
   //use fetch instead of serverFetch because...

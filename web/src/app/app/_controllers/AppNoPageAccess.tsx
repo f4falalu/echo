@@ -1,7 +1,7 @@
 'use client';
 
 import { ShareAssetType } from '@/api/asset_interfaces';
-import { asset_typeToTranslation } from '@/app/_helpers';
+import { asset_typeToTranslation } from '@/app/app/_helpers';
 import { BusterLogo } from '@/assets/svg/BusterLogo';
 import { Title } from '@/components/text';
 import { useBusterNotifications } from '@/context/BusterNotifications';

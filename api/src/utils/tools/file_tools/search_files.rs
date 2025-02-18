@@ -255,7 +255,7 @@ impl ToolExecutor for SearchFilesTool {
                 },
                 "additionalProperties": false
             },
-            "description": "Searches for existing metric and dashboard files. Only use when user explicitly asks about existing/previous/old files. Returns up to 10 most relevant files ordered by relevance."
+            "description": "Useful for when a user explicitly asks about old metrics or dashboars. Searches for existing metric and dashboard files. Only use when user explicitly asks about existing/previous/old files. Returns up to 10 most relevant files ordered by relevance."
         })
     }
 }
