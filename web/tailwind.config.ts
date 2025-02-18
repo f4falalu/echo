@@ -1,4 +1,3 @@
-import type { Config } from 'tailwindcss';
 import colors from 'tailwindcss/colors';
 
 // @ts-ignore
@@ -129,4 +128,4 @@ const config = {
 };
 
 export default config;
-export { config, colors as tailwindColors, busterColors, busterColorsDark };
+export { config, colors as tailwindColors };
