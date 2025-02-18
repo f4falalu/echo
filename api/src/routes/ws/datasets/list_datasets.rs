@@ -12,7 +12,7 @@ use tokio;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    database::{
+    database_dep::{
         enums::{IdentityType, UserOrganizationRole},
         lib::get_pg_pool,
         models::{User, UserToOrganization},

@@ -9,7 +9,7 @@ use serde::Deserialize;
 use uuid::Uuid;
 
 use crate::{
-    database::{
+    database_dep::{
         enums::{SharingSetting, TeamToUserRole, UserOrganizationRole, UserOrganizationStatus},
         lib::{get_pg_pool, UserConfig},
         models::{TeamToUser, User, UserToOrganization},

@@ -1,5 +1,6 @@
-use super::enums::*;
-use crate::database::schema::*;
+
+use crate::schema::*;
+use crate::enums::*;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};

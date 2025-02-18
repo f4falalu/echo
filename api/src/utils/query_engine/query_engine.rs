@@ -4,10 +4,10 @@ use diesel_async::RunQueryDsl;
 use indexmap::IndexMap;
 use uuid::Uuid;
 
-use crate::database::enums::UserOrganizationRole;
-use crate::database::lib::get_pg_pool;
-use crate::database::models::DataSource;
-use crate::database::schema::{data_sources, users_to_organizations};
+use crate::database_dep::enums::UserOrganizationRole;
+use crate::database_dep::lib::get_pg_pool;
+use crate::database_dep::models::DataSource;
+use crate::database_dep::schema::{data_sources, users_to_organizations};
 
 use super::data_source_query_routes::query_router::query_router;
 use super::data_types::DataType;

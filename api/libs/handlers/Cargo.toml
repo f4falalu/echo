@@ -9,10 +9,14 @@ anyhow = { workspace = true }
 chrono = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+serde_yaml = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
 uuid = { workspace = true }
 diesel = { workspace = true }
 diesel-async = { workspace = true }
+
+# Local dependencies
+database = { path = "../database" }
 
 # Add any handler-specific dependencies here 

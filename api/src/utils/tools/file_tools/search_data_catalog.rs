@@ -11,11 +11,11 @@ use tracing::{debug, error, warn};
 use uuid::Uuid;
 
 use crate::{
-    database::{lib::get_pg_pool, schema::datasets},
+    database_dep::{lib::get_pg_pool, schema::datasets},
     utils::tools::ToolExecutor,
 };
 
-use litellm::{ChatCompletionRequest, LiteLLMClient, Message, ResponseFormat, Tool, ToolCall};
+use litellm::{ChatCompletionRequest, LiteLLMClient, Message, Metadata, ResponseFormat, ToolCall};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct SearchDataCatalogParams {
@@ -96,7 +96,11 @@ impl SearchDataCatalogTool {
             ))
     }
 
-    async fn perform_llm_search(prompt: String) -> Result<Vec<DatasetSearchResult>> {
+    async fn perform_llm_search(
+        prompt: String,
+        user_id: &Uuid,
+        session_id: &Uuid,
+    ) -> Result<Vec<DatasetSearchResult>> {
         debug!("Performing LLM search");
 
         // Setup LiteLLM client
@@ -112,6 +116,11 @@ impl SearchDataCatalogTool {
             response_format: Some(ResponseFormat {
                 type_: "json_object".to_string(),
                 json_schema: None,
+            }),
+            metadata: Some(Metadata {
+                generation_name: "search_data_catalog".to_string(),
+                user_id: user_id.to_string(),
+                session_id: session_id.to_string(),
             }),
             ..Default::default()
         };
@@ -196,7 +205,12 @@ impl ToolExecutor for SearchDataCatalogTool {
         "search_data_catalog".to_string()
     }
 
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+    async fn execute(
+        &self,
+        tool_call: &ToolCall,
+        user_id: &Uuid,
+        session_id: &Uuid,
+    ) -> Result<Self::Output> {
         let start_time = Instant::now();
 
         debug!("Starting dataset search operation");
@@ -217,7 +231,7 @@ impl ToolExecutor for SearchDataCatalogTool {
 
         // Format prompt and perform search
         let prompt = Self::format_search_prompt(&params.query_params, &datasets)?;
-        let search_results = match Self::perform_llm_search(prompt).await {
+        let search_results = match Self::perform_llm_search(prompt, user_id, session_id).await {
             Ok(results) => results,
             Err(e) => {
                 let duration = start_time.elapsed().as_millis();
@@ -253,7 +267,7 @@ impl ToolExecutor for SearchDataCatalogTool {
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "search_data_catalog",
+            "name": "search_data_catalog", 
             "strict": true,
             "parameters": {
                 "type": "object",
@@ -270,7 +284,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                 },
                 "additionalProperties": false
             },
-            "description": "Searches for datasets using multiple natural language queries that describe different aspects of the problem/question. Analyzes YML content for relevance and returns all relevant datasets ordered by relevance."
+            "description": "IMPORTANT: This should be used BEFORE creating or modifying any metrics/dashboards to understand available data. Searches for datasets using multiple natural language queries that describe different aspects of the problem/question. Analyzes YML content for relevance and returns all relevant datasets ordered by relevance. The results provide critical context for writing accurate metrics and dashboards."
         })
     }
 }

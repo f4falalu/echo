@@ -11,7 +11,7 @@ use uuid::Uuid;
 use tracing::{debug, error, info, warn};
 
 use crate::{
-    database::{
+    database_dep::{
         enums::Verification,
         lib::get_pg_pool,
         models::{DashboardFile, MetricFile},
@@ -244,7 +244,12 @@ impl ToolExecutor for ModifyFilesTool {
         "modify_files".to_string()
     }
 
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+    async fn execute(
+        &self,
+        tool_call: &ToolCall,
+        user_id: &Uuid,
+        session_id: &Uuid,
+    ) -> Result<Self::Output> {
         let start_time = Instant::now();
 
         debug!("Starting file modification execution");
@@ -308,7 +313,7 @@ impl ToolExecutor for ModifyFilesTool {
 
         // Fetch metric files
         if !metric_ids.is_empty() {
-            use crate::database::schema::metric_files::dsl::*;
+            use crate::database_dep::schema::metric_files::dsl::*;
             match metric_files
                 .filter(id.eq_any(metric_ids))
                 .filter(deleted_at.is_null())
@@ -347,7 +352,7 @@ impl ToolExecutor for ModifyFilesTool {
 
         // Fetch dashboard files
         if !dashboard_ids.is_empty() {
-            use crate::database::schema::dashboard_files::dsl::*;
+            use crate::database_dep::schema::dashboard_files::dsl::*;
             match dashboard_files
                 .filter(id.eq_any(dashboard_ids))
                 .filter(deleted_at.is_null())

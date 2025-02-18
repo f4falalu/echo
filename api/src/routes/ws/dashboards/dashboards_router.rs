@@ -6,7 +6,7 @@ use serde_json::Value;
 
 use uuid::Uuid;
 
-use crate::{database::models::User, routes::ws::ws::SubscriptionRwLock};
+use crate::{database_dep::models::User, routes::ws::ws::SubscriptionRwLock};
 
 use super::{
     delete_dashboard::delete_dashboard, get_dashboard::get_dashboard,

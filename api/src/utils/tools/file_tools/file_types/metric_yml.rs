@@ -320,7 +320,7 @@ mod tests {
 
         // Verify the basic fields
         assert_eq!(metric.title, "Average Time to Close by Rep");
-        
+
         // Compare SQL with normalized whitespace
         let expected_sql = normalize_whitespace("SELECT rep_id, AVG(time_to_close) AS average_time_to_close FROM deal_metrics GROUP BY rep_id ORDER BY average_time_to_close DESC");
         let actual_sql = normalize_whitespace(&metric.sql);

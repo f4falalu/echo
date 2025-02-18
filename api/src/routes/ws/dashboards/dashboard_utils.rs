@@ -10,7 +10,7 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use crate::{
-    database::{
+    database_dep::{
         enums::{AssetPermissionRole, AssetType},
         lib::get_pg_pool,
         models::{Dashboard, MessageDeprecated},

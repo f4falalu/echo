@@ -1,4 +1,4 @@
-use crate::database::schema::*;
+use crate::schema::*;
 use diesel::deserialize::{self, FromSql};
 use diesel::pg::{Pg, PgValue};
 use diesel::serialize::{self, IsNull, Output, ToSql};

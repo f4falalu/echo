@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{database::models::User, routes::ws::ws::SubscriptionRwLock};
+use crate::{database_dep::models::User, routes::ws::ws::SubscriptionRwLock};
 use anyhow::Result;
 
 use super::agent_thread::{AgentThreadHandler, ChatCreateNewChat};

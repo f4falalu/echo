@@ -4,7 +4,7 @@ use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    database::models::User,
+    database_dep::models::User,
     routes::ws::{
         data_sources::data_sources_router::{DataSourceEvent, DataSourceRoute},
         ws::{WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},

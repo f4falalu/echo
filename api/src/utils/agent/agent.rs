@@ -1,12 +1,13 @@
-use litellm::{
-    ChatCompletionRequest, DeltaFunctionCall, DeltaToolCall, FunctionCall, LiteLLMClient,
-    Message, MessageProgress, Tool, ToolCall, ToolChoice,
-};
 use anyhow::Result;
+use litellm::{
+    ChatCompletionRequest, DeltaFunctionCall, DeltaToolCall, FunctionCall, LiteLLMClient, Message,
+    MessageProgress, Metadata, Tool, ToolCall, ToolChoice,
+};
 use serde::Serialize;
 use serde_json::Value;
 use std::{collections::HashMap, env, sync::Arc};
 use tokio::sync::mpsc;
+use uuid::Uuid;
 
 use crate::utils::tools::ToolExecutor;
 
@@ -78,8 +79,12 @@ impl Agent {
     ///
     /// # Returns
     /// * A Result containing the final Message from the assistant
-    pub async fn process_thread(&self, thread: &AgentThread) -> Result<Message> {
-        self.process_thread_with_depth(thread, 0).await
+    pub async fn process_thread(
+        &self,
+        thread: &AgentThread,
+    ) -> Result<Message> {
+        self.process_thread_with_depth(thread, 0)
+            .await
     }
 
     async fn process_thread_with_depth(
@@ -112,7 +117,12 @@ impl Agent {
             model: self.model.clone(),
             messages: thread.messages.clone(),
             tools: if tools.is_empty() { None } else { Some(tools) },
-            tool_choice: Some(ToolChoice::Auto("auto".to_string())),
+            tool_choice: Some(ToolChoice::Required),
+            metadata: Some(Metadata {
+                generation_name: "agent".to_string(),
+                user_id: thread.user_id.to_string(),
+                session_id: thread.id.to_string(),
+            }),
             ..Default::default()
         };
 
@@ -153,7 +163,7 @@ impl Agent {
             // Execute each requested tool
             for tool_call in tool_calls {
                 if let Some(tool) = self.tools.get(&tool_call.function.name) {
-                    let result = tool.execute(tool_call).await?;
+                    let result = tool.execute(tool_call, &thread.user_id, &thread.id).await?;
                     let result_str = serde_json::to_string(&result)?;
                     results.push(Message::tool(
                         None,
@@ -170,7 +180,8 @@ impl Agent {
             new_thread.messages.push(message);
             new_thread.messages.extend(results);
 
-            Box::pin(self.process_thread_with_depth(&new_thread, recursion_depth + 1)).await
+            Box::pin(self.process_thread_with_depth(&new_thread, recursion_depth + 1))
+                .await
         } else {
             Ok(message)
         }
@@ -230,8 +241,13 @@ impl Agent {
                     model: model.to_string(),
                     messages: thread.messages.clone(),
                     tools: if tools.is_empty() { None } else { Some(tools) },
-                    tool_choice: Some(ToolChoice::Auto("auto".to_string())),
+                    tool_choice: Some(ToolChoice::Required),
                     stream: Some(true),
+                    metadata: Some(Metadata {
+                        generation_name: "agent".to_string(),
+                        user_id: thread.user_id.to_string(),
+                        session_id: thread.id.to_string(),
+                    }),
                     ..Default::default()
                 };
 
@@ -276,7 +292,10 @@ impl Agent {
                                         // Execute the tool
                                         if let Some(tool) = tools_ref.get(&tool_call.function.name)
                                         {
-                                            match tool.execute(&tool_call).await {
+                                            match tool
+                                                .execute(&tool_call, &thread.user_id, &thread.id)
+                                                .await
+                                            {
                                                 Ok(result) => {
                                                     let result_str =
                                                         serde_json::to_string(&result)?;
@@ -531,7 +550,7 @@ mod tests {
     impl ToolExecutor for WeatherTool {
         type Output = Value;
 
-        async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+        async fn execute(&self, tool_call: &ToolCall, user_id: &Uuid, session_id: &Uuid) -> Result<Self::Output> {
             Ok(json!({
                 "temperature": 20,
                 "unit": "fahrenheit"
@@ -572,7 +591,7 @@ mod tests {
         // Create LLM client and agent
         let agent = Agent::new("o1".to_string(), HashMap::new());
 
-        let thread = AgentThread::new(None, vec![Message::user("Hello, world!".to_string())]);
+        let thread = AgentThread::new(None, Uuid::new_v4(), vec![Message::user("Hello, world!".to_string())]);
 
         let response = match agent.process_thread(&thread).await {
             Ok(response) => response,
@@ -595,6 +614,7 @@ mod tests {
 
         let thread = AgentThread::new(
             None,
+            Uuid::new_v4(),
             vec![Message::user(
                 "What is the weather in vineyard ut?".to_string(),
             )],
@@ -621,6 +641,7 @@ mod tests {
 
         let thread = AgentThread::new(
             None,
+            Uuid::new_v4(),
             vec![Message::user(
                 "What is the weather in vineyard ut and san francisco?".to_string(),
             )],

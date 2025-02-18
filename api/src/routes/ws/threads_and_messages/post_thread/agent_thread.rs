@@ -13,7 +13,7 @@ use uuid::Uuid;
 
 use crate::utils::tools::interaction_tools::SendMessageToUser;
 use crate::{
-    database::{
+    database_dep::{
         enums::Verification,
         lib::get_pg_pool,
         models::{DashboardFile, Message, MessageToFile, MetricFile, Thread, User},
@@ -191,7 +191,7 @@ impl AgentThreadHandler {
         }
 
         // Now that thread is created, start processing
-        let rx = self.process_chat_request(request.clone()).await?;
+        let rx = self.process_chat_request(request.clone(), user.id).await?;
         tokio::spawn(async move {
             Self::process_stream(
                 rx,
@@ -209,9 +209,11 @@ impl AgentThreadHandler {
     async fn process_chat_request(
         &self,
         request: ChatCreateNewChat,
+        user_id: Uuid,
     ) -> Result<Receiver<Result<AgentMessage, Error>>> {
         let thread = AgentThread::new(
             request.chat_id,
+            user_id,
             vec![
                 AgentMessage::developer(AGENT_PROMPT.to_string()),
                 AgentMessage::user(request.prompt),

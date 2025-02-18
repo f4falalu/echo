@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::{
-    database::{
+    database_dep::{
         enums::{AssetType, IdentityType, Verification},
         lib::get_pg_pool,
         models::User,

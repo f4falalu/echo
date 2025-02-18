@@ -2,7 +2,7 @@ use anyhow::Result;
 use tracing;
 
 use crate::{
-    database::models::DataSource,
+    database_dep::models::DataSource,
     utils::{
         query_engine::{
             credentials::get_data_source_credentials,

@@ -2,7 +2,7 @@ use anyhow::Result;
 use serde_json::Value;
 use uuid::Uuid;
 
-use crate::database::models::User;
+use crate::database_dep::models::User;
 
 /// Checks if a user has workspace admin or data admin privileges
 ///

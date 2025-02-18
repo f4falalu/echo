@@ -7,7 +7,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::{
-    database::{
+    database_dep::{
         enums::{IdentityType, SharingSetting, TeamToUserRole},
         lib::get_pg_pool,
         models::{PermissionGroupToIdentity, TeamToUser, User},

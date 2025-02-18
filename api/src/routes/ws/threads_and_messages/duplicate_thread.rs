@@ -7,7 +7,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::{
-    database::{
+    database_dep::{
         enums::{AssetPermissionRole, AssetType, IdentityType},
         lib::{get_pg_pool, FetchingData, StepProgress},
         models::{AssetPermission, MessageDeprecated, User},

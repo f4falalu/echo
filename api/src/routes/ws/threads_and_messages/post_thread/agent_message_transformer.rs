@@ -15,7 +15,9 @@ use crate::utils::tools::file_tools::modify_files::ModifyFilesParams;
 use crate::utils::tools::file_tools::open_files::OpenFilesOutput;
 use crate::utils::tools::file_tools::search_data_catalog::SearchDataCatalogOutput;
 use crate::utils::tools::file_tools::search_files::SearchFilesOutput;
-use crate::utils::tools::interaction_tools::send_message_to_user::{SendMessageToUserInput, SendMessageToUserOutput};
+use crate::utils::tools::interaction_tools::send_message_to_user::{
+    SendMessageToUserInput, SendMessageToUserOutput,
+};
 
 struct StreamingParser {
     buffer: String,
@@ -538,10 +540,11 @@ fn tool_data_catalog_search(
         let result_count = data_catalog_result.results.len();
         let query_params = data_catalog_result.query_params.clone();
 
-        let thought_pill_containters = match proccess_data_catalog_search_results(data_catalog_result) {
-            Ok(object) => object,
-            Err(_) => return Ok(vec![]), // Silently ignore processing errors
-        };
+        let thought_pill_containters =
+            match proccess_data_catalog_search_results(data_catalog_result) {
+                Ok(object) => object,
+                Err(_) => return Ok(vec![]), // Silently ignore processing errors
+            };
 
         let buster_thought = if result_count > 0 {
             BusterThreadMessage::Thought(BusterThought {
@@ -596,34 +599,25 @@ fn proccess_data_catalog_search_results(
         }]);
     }
 
-    let mut file_results: HashMap<String, Vec<BusterThoughtPill>> = HashMap::new();
-
-    for result in results.results {
-        file_results
-            .entry(result.name.clone())
-            .or_insert_with(Vec::new)
-            .push(BusterThoughtPill {
-                id: result.id.to_string(),
-                text: result.name.clone(),
-                thought_file_type: result.name,
-            });
-    }
-
-    let buster_thought_pill_containers = file_results
+    let thought_pills: Vec<BusterThoughtPill> = results
+        .results
         .into_iter()
-        .map(|(title, thought_pills)| {
-            let count = thought_pills.len();
-            BusterThoughtPillContainer {
-                title: format!(
-                    "{count} {} found",
-                    title.chars().next().unwrap().to_uppercase().to_string() + &title[1..]
-                ),
-                thought_pills,
-            }
+        .map(|result| BusterThoughtPill {
+            id: result.id.to_string(),
+            text: result.name.clone(),
+            thought_file_type: "dataset".to_string(),
         })
         .collect();
 
-    Ok(buster_thought_pill_containers)
+    let result_count = thought_pills.len();
+    Ok(vec![BusterThoughtPillContainer {
+        title: format!(
+            "{} dataset{} found",
+            result_count,
+            if result_count == 1 { "" } else { "s" }
+        ),
+        thought_pills,
+    }])
 }
 
 fn assistant_stored_values_search(
@@ -932,7 +926,7 @@ fn process_assistant_create_file(tool_call: &ToolCall) -> Result<Vec<BusterThrea
     // Process the arguments from the tool call
     match parser.process_chunk(&tool_call.function.arguments)? {
         Some(message) => Ok(vec![message]),
-        None => Ok(vec![]) // Return empty vec instead of error when waiting for file data
+        None => Ok(vec![]), // Return empty vec instead of error when waiting for file data
     }
 }
 
@@ -994,7 +988,8 @@ fn tool_create_file(
         match progress {
             MessageProgress::Complete => {
                 // Parse the content to get file information using CreateFilesOutput
-                let create_files_result = match serde_json::from_str::<CreateFilesOutput>(&content) {
+                let create_files_result = match serde_json::from_str::<CreateFilesOutput>(&content)
+                {
                     Ok(result) => result,
                     Err(_) => return Ok(vec![]), // Silently ignore parsing errors
                 };
@@ -1073,7 +1068,9 @@ fn assistant_send_message_to_user(
     if let Some(progress) = progress {
         if let Some(tool_call) = tool_calls.first() {
             // Try to parse the message from the tool call arguments
-            if let Ok(input) = serde_json::from_str::<SendMessageToUserInput>(&tool_call.function.arguments) {
+            if let Ok(input) =
+                serde_json::from_str::<SendMessageToUserInput>(&tool_call.function.arguments)
+            {
                 match progress {
                     MessageProgress::InProgress => {
                         Ok(vec![BusterThreadMessage::ChatMessage(BusterChatMessage {
@@ -1088,7 +1085,9 @@ fn assistant_send_message_to_user(
                     )),
                 }
             } else {
-                Err(anyhow::anyhow!("Failed to parse send message to user input"))
+                Err(anyhow::anyhow!(
+                    "Failed to parse send message to user input"
+                ))
             }
         } else {
             Err(anyhow::anyhow!("No tool call found"))
@@ -1126,6 +1125,8 @@ fn tool_send_message_to_user(
             )),
         }
     } else {
-        Err(anyhow::anyhow!("Tool send message to user requires progress."))
+        Err(anyhow::anyhow!(
+            "Tool send message to user requires progress."
+        ))
     }
 }

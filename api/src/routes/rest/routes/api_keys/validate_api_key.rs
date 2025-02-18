@@ -6,8 +6,8 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::database::lib::get_pg_pool;
-use crate::database::schema::api_keys;
+use crate::database_dep::lib::get_pg_pool;
+use crate::database_dep::schema::api_keys;
 use crate::routes::rest::ApiResponse;
 
 #[derive(Debug, Deserialize)]

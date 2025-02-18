@@ -1,4 +1,4 @@
-use crate::database::enums::DataSourceType;
+use crate::database_dep::enums::DataSourceType;
 
 use super::{
     credentials::Credential,

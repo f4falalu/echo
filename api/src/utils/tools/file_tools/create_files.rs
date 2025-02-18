@@ -10,7 +10,7 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use crate::{
-    database::{
+    database_dep::{
         enums::Verification,
         lib::get_pg_pool,
         models::{DashboardFile, MetricFile},
@@ -70,7 +70,12 @@ impl ToolExecutor for CreateFilesTool {
         "create_files".to_string()
     }
 
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+    async fn execute(
+        &self,
+        tool_call: &ToolCall,
+        user_id: &Uuid,
+        session_id: &Uuid,
+    ) -> Result<Self::Output> {
         let start_time = Instant::now();
 
         let params: CreateFilesParams =
@@ -267,26 +272,26 @@ impl ToolExecutor for CreateFilesTool {
                             "properties": {
                                 "name": {
                                     "type": "string",
-                                    "description": "The name of the file to be created. This should exlude the file extension. (i.e. '.yml')"
+                                    "description": "The name of the file to be created. This should exclude the file extension. (i.e. '.yml')"
                                 },
                                 "file_type": {
                                     "type": "string",
                                     "enum": ["metric", "dashboard"],
-                                    "description": ""
+                                    "description": "The type of file to create. All files in a single request must be of the same type. Metrics and dashboards cannot be created in the same request."
                                 },
                                 "yml_content": {
                                     "type": "string",
-                                    "description": "The YAML content to be included in the created file"
+                                    "description": "The YAML content defining the metric or dashboard configuration"
                                 }
                             },
                             "additionalProperties": false
                         },
-                        "description": "Array of files to create"
+                        "description": "Array of files to create. All files in a single request must be of the same type (either all metrics or all dashboards). Metrics must be created in a separate request from dashboards since dashboards depend on existing metrics."
                     }
                 },
                 "additionalProperties": false
             },
-            "description": "Creates **new** metric or dashboard files. Use this if no existing file can fulfill the user's needs. This will automatically open the metric/dashboard for the user."
+            "description": "Creates **new** metric or dashboard files. Use this if no existing file can fulfill the user's needs. IMPORTANT: Metrics and dashboards must be created in separate requests - you cannot mix them in the same request. Create metrics first, then create dashboards that reference those metrics in a separate request."
         })
     }
 }

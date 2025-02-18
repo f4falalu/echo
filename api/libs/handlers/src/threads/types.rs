@@ -3,7 +3,6 @@ use uuid::Uuid;
 
 use crate::messages::types::ThreadMessage;
 
-// Add more thread-related types as needed
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ThreadWithMessages {
     pub id: Uuid,

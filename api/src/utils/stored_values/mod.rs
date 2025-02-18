@@ -7,8 +7,8 @@ use chrono::Utc;
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use uuid::Uuid;
-use crate::database::enums::StoredValuesStatus;
-use crate::database::{lib::get_pg_pool, schema::dataset_columns};
+use crate::database_dep::enums::StoredValuesStatus;
+use crate::database_dep::{lib::get_pg_pool, schema::dataset_columns};
 use crate::utils::clients::ai::embedding_router::embedding_router;
 use diesel::sql_types::{Text, Uuid as SqlUuid, Array, Float4, Timestamptz, Integer};
 

@@ -1,5 +1,5 @@
-use crate::database::lib::get_pg_pool;
-use crate::database::schema::{datasets, messages_deprecated};
+use crate::database_dep::lib::get_pg_pool;
+use crate::database_dep::schema::{datasets, messages_deprecated};
 use crate::routes::rest::ApiResponse;
 use crate::utils::clients::sentry_utils::send_sentry_error;
 use crate::utils::clients::typesense::{

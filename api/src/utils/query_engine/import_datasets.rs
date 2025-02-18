@@ -8,7 +8,7 @@ use sqlx::FromRow;
 use uuid::Uuid;
 
 use crate::{
-    database::{enums::DatasetType, lib::get_pg_pool, models::Dataset, schema::datasets},
+    database_dep::{enums::DatasetType, lib::get_pg_pool, models::Dataset, schema::datasets},
     utils::{query_engine::credentials::Credential, user::user_info::get_user_organization_id},
 };
 

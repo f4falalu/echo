@@ -3,7 +3,7 @@ use indexmap::IndexMap;
 use anyhow::{anyhow, Result};
 
 use crate::{
-    database::{enums::DataSourceType, models::DataSource},
+    database_dep::{enums::DataSourceType, models::DataSource},
     utils::{
         clients::supabase_vault::read_secret,
         query_engine::{

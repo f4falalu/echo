@@ -11,7 +11,7 @@ use tracing::{debug, error, info, warn};
 use uuid::Uuid;
 
 use crate::{
-    database::{
+    database_dep::{
         lib::get_pg_pool,
         models::{DashboardFile, MetricFile},
         schema::{dashboard_files, metric_files},
@@ -19,7 +19,7 @@ use crate::{
     utils::tools::ToolExecutor,
 };
 
-use litellm::{ChatCompletionRequest, LiteLLMClient, Message, ResponseFormat, ToolCall};
+use litellm::{ChatCompletionRequest, LiteLLMClient, Message, Metadata, ResponseFormat, ToolCall};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct SearchFilesParams {
@@ -96,7 +96,11 @@ impl SearchFilesTool {
             .replace("{files_array_as_json}", &files_json))
     }
 
-    async fn perform_llm_search(prompt: String) -> Result<LLMSearchResponse> {
+    async fn perform_llm_search(
+        prompt: String,
+        user_id: &Uuid,
+        session_id: &Uuid,
+    ) -> Result<LLMSearchResponse> {
         debug!("Performing LLM search");
 
         // Setup LiteLLM client
@@ -112,6 +116,11 @@ impl SearchFilesTool {
             response_format: Some(ResponseFormat {
                 type_: "json_object".to_string(),
                 json_schema: None,
+            }),
+            metadata: Some(Metadata {
+                generation_name: "search_files".to_string(),
+                user_id: user_id.to_string(),
+                session_id: session_id.to_string(),
             }),
             ..Default::default()
         };
@@ -153,7 +162,12 @@ impl ToolExecutor for SearchFilesTool {
         "search_files".to_string()
     }
 
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+    async fn execute(
+        &self,
+        tool_call: &ToolCall,
+        user_id: &Uuid,
+        session_id: &Uuid,
+    ) -> Result<Self::Output> {
         let start_time = Instant::now();
 
         debug!("Starting file search operation");
@@ -187,7 +201,7 @@ impl ToolExecutor for SearchFilesTool {
 
         // Format prompt and perform search
         let prompt = Self::format_search_prompt(&params.query_params, &files_array)?;
-        let search_response = match Self::perform_llm_search(prompt).await {
+        let search_response = match Self::perform_llm_search(prompt, user_id, session_id).await {
             Ok(response) => response,
             Err(e) => {
                 let duration = start_time.elapsed().as_millis() as i64;
@@ -224,7 +238,7 @@ impl ToolExecutor for SearchFilesTool {
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "search_files",
+            "name": "search_files", 
             "strict": true,
             "parameters": {
                 "type": "object",
@@ -241,7 +255,7 @@ impl ToolExecutor for SearchFilesTool {
                 },
                 "additionalProperties": false
             },
-            "description": "Searches for metric and dashboard files using natural-language queries. Returns up to 10 most relevant files ordered by relevance."
+            "description": "Searches for existing metric and dashboard files. Only use when user explicitly asks about existing/previous/old files. Returns up to 10 most relevant files ordered by relevance."
         })
     }
 }

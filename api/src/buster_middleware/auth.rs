@@ -6,7 +6,7 @@ use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::database::{lib::get_pg_pool, models::User};
+use crate::database_dep::{lib::get_pg_pool, models::User};
 
 /// Authentication is done via Bearer token with a JWT issued from Supabase.  We also offer API access that
 /// is done via a Bearer token with a JWT issued from us.

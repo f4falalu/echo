@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::{
-    database::{
+    database_dep::{
         enums::{SharingSetting, UserOrganizationRole, UserOrganizationStatus},
         lib::get_pg_pool,
         models::{Organization, User, UserToOrganization},

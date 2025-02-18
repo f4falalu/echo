@@ -8,7 +8,7 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    database::{
+    database_dep::{
         enums::UserOrganizationRole,
         lib::{get_pg_pool, ColumnMetadata, DataMetadataJsonBody, MinMaxValue},
         models::User,

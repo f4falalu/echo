@@ -6,8 +6,8 @@ use uuid::Uuid;
 
 use serde::Deserialize;
 
-use crate::database::lib::get_sqlx_pool;
-use crate::database::models::User;
+use crate::database_dep::lib::get_sqlx_pool;
+use crate::database_dep::models::User;
 use crate::routes::ws::ws::WsSendMethod;
 use crate::utils::search_engine::search_engine::{
     MessageSearchResult, SearchObject, SearchObjectType,
