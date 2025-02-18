@@ -4,9 +4,11 @@ import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { SelectAxisSortableItem } from './SelectAxisSortableItem';
 import { createStyles } from 'antd-style';
-import { green } from 'tailwindcss/colors';
 import { StylingLabel } from '../../../Common';
 import { SelectAxisSettingsButton } from '../SelectAxisSettingsContent';
+import colors from 'tailwindcss/colors';
+
+const { green } = colors;
 
 export const SelectAxisDropZone: React.FC<{
   zone: DropZoneInternal;
