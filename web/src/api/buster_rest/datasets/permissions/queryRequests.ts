@@ -15,9 +15,7 @@ import {
 } from './requests';
 import { useMemoizedFn } from 'ahooks';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
-import type { ListPermissionUsersResponse } from '../../../asset_interfaces';
-import { PERMISSION_GROUP_QUERY_KEY } from '../../permission_groups';
-import { LIST_DATASET_GROUPS_QUERY_KEY } from './config';
+import { queryKeys } from '@/api/query_keys';
 
 export const useGetDatasetPermissionsOverview = (dataset_id: string) => {
   const queryFn = useMemoizedFn(() => {
@@ -25,7 +23,7 @@ export const useGetDatasetPermissionsOverview = (dataset_id: string) => {
   });
 
   return useCreateReactQuery({
-    queryKey: ['dataset_permissions_overview', dataset_id],
+    ...queryKeys.datasetPermissionsOverview(dataset_id),
     queryFn,
     staleTime: PREFETCH_STALE_TIME
   });
@@ -37,7 +35,7 @@ export const prefetchGetDatasetPermissionsOverview = async (
 ) => {
   const queryClient = queryClientProp || new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: ['dataset_permissions_overview', datasetId],
+    ...queryKeys.datasetPermissionsOverview(datasetId),
     queryFn: () => getDatasetPermissionsOverview_server(datasetId)
   });
   return queryClient;
@@ -49,7 +47,7 @@ export const useDatasetListPermissionGroups = (dataset_id: string) => {
   });
 
   return useCreateReactQuery({
-    queryKey: [PERMISSION_GROUP_QUERY_KEY, dataset_id],
+    ...queryKeys.datasetPermissionGroupsList(dataset_id),
     queryFn,
     enabled: !!dataset_id
   });
@@ -63,13 +61,15 @@ export const useDatasetUpdatePermissionGroups = (dataset_id: string) => {
       keyedChanges[id] = { id, assigned };
     });
     queryClient.setQueryData(
-      [PERMISSION_GROUP_QUERY_KEY, dataset_id],
-      (oldData: ListPermissionUsersResponse[]) => {
-        return oldData?.map((group) => {
-          const updatedGroup = keyedChanges[group.id];
-          if (updatedGroup) return { ...group, assigned: updatedGroup.assigned };
-          return group;
-        });
+      queryKeys.datasetPermissionUsersList(dataset_id).queryKey,
+      (oldData) => {
+        return (
+          oldData?.map((group) => {
+            const updatedGroup = keyedChanges[group.id];
+            if (updatedGroup) return { ...group, assigned: updatedGroup.assigned };
+            return group;
+          }) || []
+        );
       }
     );
 
@@ -85,7 +85,7 @@ export const useDatasetListDatasetGroups = (dataset_id: string) => {
   const queryFn = useMemoizedFn(() => listDatasetDatasetGroups({ dataset_id }));
 
   return useCreateReactQuery({
-    queryKey: [LIST_DATASET_GROUPS_QUERY_KEY, dataset_id],
+    ...queryKeys.datasetGroupsList,
     queryFn,
     enabled: !!dataset_id
   });
@@ -95,7 +95,7 @@ export const useDatasetListPermissionUsers = (dataset_id: string) => {
   const queryFn = useMemoizedFn(() => listDatasetPermissionUsers({ dataset_id }));
 
   return useCreateReactQuery({
-    queryKey: ['list_permission_users', dataset_id],
+    ...queryKeys.datasetPermissionUsersList(dataset_id),
     queryFn,
     enabled: !!dataset_id
   });
@@ -109,13 +109,15 @@ export const useDatasetUpdateDatasetGroups = (dataset_id: string) => {
       keyedChanges[id] = { id, assigned };
     });
     queryClient.setQueryData(
-      [LIST_DATASET_GROUPS_QUERY_KEY, dataset_id],
-      (oldData: ListPermissionUsersResponse[]) => {
-        return oldData?.map((group) => {
-          const updatedGroup = keyedChanges[group.id];
-          if (updatedGroup) return { ...group, assigned: updatedGroup.assigned };
-          return group;
-        });
+      queryKeys.datasetPermissionGroupsList(dataset_id).queryKey,
+      (oldData) => {
+        return (
+          oldData?.map((group) => {
+            const updatedGroup = keyedChanges[group.id];
+            if (updatedGroup) return { ...group, assigned: updatedGroup.assigned };
+            return group;
+          }) || []
+        );
       }
     );
     return updateDatasetDatasetGroups({ dataset_id, groups });
@@ -134,13 +136,15 @@ export const useDatasetUpdatePermissionUsers = (dataset_id: string) => {
       keyedChanges[id] = { id, assigned };
     });
     queryClient.setQueryData(
-      ['list_permission_users', dataset_id],
-      (oldData: ListPermissionUsersResponse[]) => {
-        return oldData?.map((user) => {
-          const updatedUser = keyedChanges[user.id];
-          if (updatedUser) return { ...user, assigned: updatedUser.assigned };
-          return user;
-        });
+      queryKeys.datasetPermissionUsersList(dataset_id).queryKey,
+      (oldData) => {
+        return (
+          oldData?.map((user) => {
+            const updatedUser = keyedChanges[user.id];
+            if (updatedUser) return { ...user, assigned: updatedUser.assigned };
+            return user;
+          }) || []
+        );
       }
     );
     return updateDatasetPermissionUsers({ dataset_id, users });

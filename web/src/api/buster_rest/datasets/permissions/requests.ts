@@ -5,7 +5,6 @@ import type {
   ListPermissionGroupsResponse,
   ListPermissionUsersResponse
 } from '../../../asset_interfaces';
-import * as config from './config';
 import { serverFetch } from '../../../createServerInstance';
 
 export const listIndividualDatasetPermissionGroups = async ({
@@ -16,12 +15,10 @@ export const listIndividualDatasetPermissionGroups = async ({
   return await mainApi.get(`/datasets/${dataset_id}/permission_groups`).then((res) => res.data);
 };
 
-export const listDatasetDatasetGroups = async ({
-  dataset_id
-}: {
-  dataset_id: string;
-}): Promise<ListDatasetGroupsResponse[]> => {
-  return await mainApi.get(`/datasets/${dataset_id}/dataset_groups`).then((res) => res.data);
+export const listDatasetDatasetGroups = async ({ dataset_id }: { dataset_id: string }) => {
+  return await mainApi
+    .get<ListDatasetGroupsResponse[]>(`/datasets/${dataset_id}/dataset_groups`)
+    .then((res) => res.data);
 };
 
 export const listDatasetPermissionUsers = async ({
@@ -70,17 +67,19 @@ export const updateDatasetDatasetGroups = async ({
   return await mainApi.put(`/datasets/${dataset_id}/dataset_groups`, groups);
 };
 
+const GET_PERMISSIONS_OVERVIEW = (datasetId: string) => `/datasets/${datasetId}/overview`;
+
 export const getDatasetPermissionsOverview = async ({
   dataset_id
 }: {
   dataset_id: string;
 }): Promise<DatasetPermissionsOverviewResponse> => {
-  return await mainApi.get(config.GET_PERMISSIONS_OVERVIEW(dataset_id)).then((res) => res.data);
+  return await mainApi.get(GET_PERMISSIONS_OVERVIEW(dataset_id)).then((res) => res.data);
 };
 
 export const getDatasetPermissionsOverview_server = async (datasetId: string) => {
   const response = await serverFetch<DatasetPermissionsOverviewResponse>(
-    config.GET_PERMISSIONS_OVERVIEW(datasetId)
+    GET_PERMISSIONS_OVERVIEW(datasetId)
   );
   return response;
 };

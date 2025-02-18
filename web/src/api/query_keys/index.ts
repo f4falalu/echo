@@ -6,6 +6,7 @@ import { metricsQueryKeys } from './metric';
 import { searchQueryKeys } from './search';
 import { termsQueryKeys } from './terms';
 import { datasourceQueryKeys } from './datasources';
+import { datasetGroupQueryKeys } from './dataset_groups';
 
 export const queryKeys = {
   ...chatQueryKeys,
@@ -15,5 +16,6 @@ export const queryKeys = {
   ...metricsQueryKeys,
   ...searchQueryKeys,
   ...termsQueryKeys,
-  ...datasourceQueryKeys
+  ...datasourceQueryKeys,
+  ...datasetGroupQueryKeys
 };
