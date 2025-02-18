@@ -12,6 +12,7 @@ anyhow = "1.0.86"
 chrono = { version = "0.4.38", features = ["serde"] }
 serde = { version = "1.0.117", features = ["derive"] }
 serde_json = { version = "1.0.117", features = ["preserve_order"] }
+serde_yaml = "0.9.34"
 tokio = { version = "1.38.0", features = ["full"] }
 tracing = "0.1.40"
 uuid = { version = "1.8", features = ["serde", "v4"] }
