@@ -1,10 +1,9 @@
-'use client';
-
 import { queryOptions } from '@tanstack/react-query';
-import type { BusterDataset, BusterDatasetListItem, IDataResult } from '../asset_interfaces';
-import type { GetDatasetsParams } from '../request_interfaces/dataset';
+import type { BusterDataset, BusterDatasetListItem } from '../asset_interfaces/datasets/interfaces';
+import type { IDataResult } from '../asset_interfaces/metric/interfaces';
+import type { GetDatasetsParams } from '../request_interfaces/dataset/interfaces';
 
-const datasetsList = (params?: GetDatasetsParams) =>
+const datasetsListQueryOptions = (params?: GetDatasetsParams) =>
   queryOptions<BusterDatasetListItem[]>({
     queryKey: ['datasets', params]
   });
@@ -21,7 +20,7 @@ const datasetMetadata = (datasetId: string) =>
   });
 
 export const datasetQueryKeys = {
-  datasetsList,
+  datasetsListQueryOptions,
   datasetData,
   datasetMetadata
 };

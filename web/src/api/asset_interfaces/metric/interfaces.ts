@@ -1,5 +1,5 @@
 import type { BusterChartConfigProps } from '@/components/charts';
-import { BusterShare, VerificationStatus } from '../share';
+import { type BusterShare, type VerificationStatus } from '../share';
 
 export type BusterMetric = {
   id: string;

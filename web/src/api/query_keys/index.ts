@@ -11,6 +11,7 @@ import { datasetQueryKeys } from './datasets';
 import { permissionGroupQueryKeys } from './permission_groups';
 
 export const queryKeys = {
+  ...datasetQueryKeys,
   ...chatQueryKeys,
   ...collectionQueryKeys,
   ...userQueryKeys,
@@ -20,6 +21,5 @@ export const queryKeys = {
   ...termsQueryKeys,
   ...datasourceQueryKeys,
   ...datasetGroupQueryKeys,
-  ...datasetQueryKeys,
   ...permissionGroupQueryKeys
 };
