@@ -8,6 +8,7 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
+use tracing::{debug, error};
 
 use crate::{
     database_dep::{
@@ -22,6 +23,7 @@ use crate::{
 use super::{
     file_types::{dashboard_yml::DashboardYml, file::FileEnum, metric_yml::MetricYml},
     FileModificationTool,
+    common::{validate_sql, validate_metric_ids},
 };
 
 use litellm::ToolCall;
@@ -106,6 +108,12 @@ impl ToolExecutor for CreateFilesTool {
                     match MetricYml::new(file.yml_content.clone()) {
                         Ok(metric_yml) => {
                             if let Some(metric_id) = &metric_yml.id {
+                                // Validate SQL before creating the record
+                                if let Err(e) = validate_sql(&metric_yml.sql, metric_id).await {
+                                    failed_files.push((file.name, format!("SQL validation failed: {}", e)));
+                                    continue;
+                                }
+
                                 let metric_file = MetricFile {
                                     id: metric_id.clone(),
                                     name: metric_yml.title.clone(),
@@ -136,6 +144,27 @@ impl ToolExecutor for CreateFilesTool {
                     match DashboardYml::new(file.yml_content.clone()) {
                         Ok(dashboard_yml) => {
                             if let Some(dashboard_id) = &dashboard_yml.id {
+                                // Collect and validate metric IDs from rows
+                                let metric_ids: Vec<Uuid> = dashboard_yml.rows
+                                    .iter()
+                                    .flat_map(|row| row.items.iter())
+                                    .map(|item| item.id)
+                                    .collect();
+
+                                if !metric_ids.is_empty() {
+                                    match validate_metric_ids(&metric_ids).await {
+                                        Ok(missing_ids) if !missing_ids.is_empty() => {
+                                            failed_files.push((file.name, format!("Referenced metrics not found: {:?}", missing_ids)));
+                                            continue;
+                                        }
+                                        Err(e) => {
+                                            failed_files.push((file.name, format!("Failed to validate metric IDs: {}", e)));
+                                            continue;
+                                        }
+                                        Ok(_) => (), // All metrics exist
+                                    }
+                                }
+
                                 let dashboard_file = DashboardFile {
                                     id: dashboard_id.clone(),
                                     name: dashboard_yml.name.clone(),

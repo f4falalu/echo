@@ -26,6 +26,7 @@ use super::{
         metric_yml::MetricYml,
     },
     FileModificationTool,
+    common::{validate_sql, validate_metric_ids},
 };
 
 use litellm::ToolCall;
@@ -628,6 +629,33 @@ async fn process_metric_file(
                         file_name = %modification.file_name,
                         "Successfully modified and validated metric file"
                     );
+
+                    // Validate SQL if it was modified
+                    let sql_changed = current_yml.sql != new_yml.sql;
+                    if sql_changed {
+                        if let Err(e) = validate_sql(&new_yml.sql, &file.id).await {
+                            let error = format!("SQL validation failed: {}", e);
+                            error!(
+                                file_id = %file.id,
+                                file_name = %modification.file_name,
+                                error = %error,
+                                "SQL validation error"
+                            );
+                            results.push(ModificationResult {
+                                file_id: file.id,
+                                file_type: "metric".to_string(),
+                                file_name: modification.file_name.clone(),
+                                success: false,
+                                original_lines: original_lines.clone(),
+                                adjusted_lines: adjusted_lines.clone(),
+                                error: Some(error.clone()),
+                                modification_type: "sql_validation".to_string(),
+                                timestamp: Utc::now(),
+                                duration,
+                            });
+                            return Err(anyhow::anyhow!(error));
+                        }
+                    }
                     
                     // Update file record
                     file.content = serde_json::to_value(&new_yml)?;
@@ -704,6 +732,12 @@ async fn process_dashboard_file(
     modification: &FileModification,
     duration: i64,
 ) -> Result<(DashboardFile, DashboardYml, Vec<ModificationResult>)> {
+    debug!(
+        file_id = %file.id,
+        file_name = %modification.file_name,
+        "Processing dashboard file modifications"
+    );
+    
     let mut results = Vec::new();
     
     // Parse existing content
@@ -775,32 +809,72 @@ async fn process_dashboard_file(
             // Create and validate new YML object
             match DashboardYml::new(modified_content) {
                 Ok(new_yml) => {
-                    // Update file record
-                    file.content = match serde_json::to_value(&new_yml) {
-                        Ok(content) => content,
-                        Err(e) => {
-                            let error = format!("Failed to serialize modified dashboard YAML: {}", e);
-                            error!(
-                                file_id = %file.id,
-                                file_name = %modification.file_name,
-                                error = %error,
-                                "YAML serialization error"
-                            );
-                            results.push(ModificationResult {
-                                file_id: file.id,
-                                file_type: "dashboard".to_string(),
-                                file_name: modification.file_name.clone(),
-                                success: false,
-                                original_lines,
-                                adjusted_lines: vec![],
-                                error: Some(error.clone()),
-                                modification_type: "serialization".to_string(),
-                                timestamp: Utc::now(),
-                                duration,
-                            });
-                            return Err(anyhow::anyhow!(error));
+                    debug!(
+                        file_id = %file.id,
+                        file_name = %modification.file_name,
+                        "Successfully modified and validated dashboard file"
+                    );
+
+                    // Collect all metric IDs from rows
+                    let metric_ids: Vec<Uuid> = new_yml.rows
+                        .iter()
+                        .flat_map(|row| row.items.iter())
+                        .map(|item| item.id)
+                        .collect();
+
+                    // Validate metric IDs if any exist
+                    if !metric_ids.is_empty() {
+                        match validate_metric_ids(&metric_ids).await {
+                            Ok(missing_ids) if !missing_ids.is_empty() => {
+                                let error = format!("Referenced metrics not found: {:?}", missing_ids);
+                                error!(
+                                    file_id = %file.id,
+                                    file_name = %modification.file_name,
+                                    error = %error,
+                                    "Metric validation error"
+                                );
+                                results.push(ModificationResult {
+                                    file_id: file.id,
+                                    file_type: "dashboard".to_string(),
+                                    file_name: modification.file_name.clone(),
+                                    success: false,
+                                    original_lines: original_lines.clone(),
+                                    adjusted_lines: adjusted_lines.clone(),
+                                    error: Some(error.clone()),
+                                    modification_type: "metric_validation".to_string(),
+                                    timestamp: Utc::now(),
+                                    duration,
+                                });
+                                return Err(anyhow::anyhow!(error));
+                            },
+                            Err(e) => {
+                                let error = format!("Failed to validate metric IDs: {}", e);
+                                error!(
+                                    file_id = %file.id,
+                                    file_name = %modification.file_name,
+                                    error = %error,
+                                    "Metric validation error"
+                                );
+                                results.push(ModificationResult {
+                                    file_id: file.id,
+                                    file_type: "dashboard".to_string(),
+                                    file_name: modification.file_name.clone(),
+                                    success: false,
+                                    original_lines: original_lines.clone(),
+                                    adjusted_lines: adjusted_lines.clone(),
+                                    error: Some(error.clone()),
+                                    modification_type: "metric_validation".to_string(),
+                                    timestamp: Utc::now(),
+                                    duration,
+                                });
+                                return Err(anyhow::anyhow!(error));
+                            },
+                            Ok(_) => (), // All metrics exist
                         }
-                    };
+                    }
+                    
+                    // Update file record
+                    file.content = serde_json::to_value(&new_yml)?;
                     file.updated_at = Utc::now();
                     
                     // Track successful modification
@@ -820,7 +894,7 @@ async fn process_dashboard_file(
                     Ok((file, new_yml, results))
                 }
                 Err(e) => {
-                    let error = format!("Failed to validate modified dashboard YAML: {}", e);
+                    let error = format!("Failed to validate modified YAML: {}", e);
                     error!(
                         file_id = %file.id,
                         file_name = %modification.file_name,
@@ -839,7 +913,7 @@ async fn process_dashboard_file(
                         timestamp: Utc::now(),
                         duration,
                     });
-                    return Err(anyhow::anyhow!(error));
+                    Err(anyhow::anyhow!(error))
                 }
             }
         }
@@ -863,7 +937,7 @@ async fn process_dashboard_file(
                 timestamp: Utc::now(),
                 duration,
             });
-            return Err(anyhow::anyhow!(error));
+            Err(anyhow::anyhow!(error))
         }
     }
 }
