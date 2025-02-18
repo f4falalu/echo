@@ -1,31 +1,30 @@
 import React from 'react';
 
-type iconProps = {
-	fill?: string,
-	secondaryfill?: string,
-	strokewidth?: number,
-	width?: string,
-	height?: string,
-	title?: string
-}
+import { iconProps } from './iconProps';
 
 function squareChartPen(props: iconProps) {
-	const fill = props.fill || 'currentColor';
-	const secondaryfill = props.secondaryfill || fill;
-	const strokewidth = props.strokewidth || 1;
-	const width = props.width || '1em';
-	const height = props.height || '1em';
-	const title = props.title || "square chart pen";
+  const fill = props.fill || 'currentColor';
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || '1em';
+  const height = props.height || '1em';
+  const title = props.title || 'square chart pen';
 
-	return (
-		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-	<title>{title}</title>
-	<g fill={fill}>
-		<path d="M14.286,7.537l-1.514,.59c-.262,.102-.536,.154-.817,.154-.597,0-1.18-.243-1.6-.667-.633-.639-.824-1.592-.486-2.426l.63-1.559c.169-.416,.41-.779,.72-1.085l.042-.042H3.75c-1.517,0-2.75,1.233-2.75,2.75V13.75c0,1.517,1.233,2.75,2.75,2.75H12.25c1.517,0,2.75-1.233,2.75-2.75V7.134c-.223,.161-.458,.303-.714,.403ZM5.5,12.75c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75v-4.25c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v4.25Zm3.25,0c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75V6.25c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v6.5Zm3.25,0c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75v-2c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v2Z" fill={fill}/>
-		<path d="M17.561,.423c-.564-.562-1.536-.564-2.098-.004l-3.189,3.191c-.164,.162-.293,.356-.383,.578,0,0,0,.001,0,.002l-.63,1.561c-.112,.277-.049,.595,.162,.808,.144,.145,.337,.223,.533,.223,.092,0,.184-.017,.272-.051l1.514-.59c.226-.088,.427-.219,.603-.393l3.223-3.224c.281-.281,.436-.655,.434-1.051-.002-.394-.157-.765-.439-1.048Zm-4.975,4.047h0Z" fill={secondaryfill}/>
-	</g>
-</svg>
-	);
-};
+  return (
+    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <title>{title}</title>
+      <g fill={fill}>
+        <path
+          d="M14.286,7.537l-1.514,.59c-.262,.102-.536,.154-.817,.154-.597,0-1.18-.243-1.6-.667-.633-.639-.824-1.592-.486-2.426l.63-1.559c.169-.416,.41-.779,.72-1.085l.042-.042H3.75c-1.517,0-2.75,1.233-2.75,2.75V13.75c0,1.517,1.233,2.75,2.75,2.75H12.25c1.517,0,2.75-1.233,2.75-2.75V7.134c-.223,.161-.458,.303-.714,.403ZM5.5,12.75c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75v-4.25c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v4.25Zm3.25,0c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75V6.25c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v6.5Zm3.25,0c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75v-2c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v2Z"
+          fill={fill}
+        />
+        <path
+          d="M17.561,.423c-.564-.562-1.536-.564-2.098-.004l-3.189,3.191c-.164,.162-.293,.356-.383,.578,0,0,0,.001,0,.002l-.63,1.561c-.112,.277-.049,.595,.162,.808,.144,.145,.337,.223,.533,.223,.092,0,.184-.017,.272-.051l1.514-.59c.226-.088,.427-.219,.603-.393l3.223-3.224c.281-.281,.436-.655,.434-1.051-.002-.394-.157-.765-.439-1.048Zm-4.975,4.047h0Z"
+          fill={secondaryfill}
+        />
+      </g>
+    </svg>
+  );
+}
 
 export default squareChartPen;

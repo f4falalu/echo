@@ -1,30 +1,27 @@
 import React from 'react';
 
-type iconProps = {
-	fill?: string,
-	secondaryfill?: string,
-	strokewidth?: number,
-	width?: string,
-	height?: string,
-	title?: string
-}
+import { iconProps } from './iconProps';
 
 function toggle2(props: iconProps) {
-	const fill = props.fill || 'currentColor';
-	const secondaryfill = props.secondaryfill || fill;
-	const strokewidth = props.strokewidth || 1;
-	const width = props.width || '1em';
-	const height = props.height || '1em';
-	const title = props.title || "12px toggle 2";
+  const fill = props.fill || 'currentColor';
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || '1em';
+  const height = props.height || '1em';
+  const title = props.title || '12px toggle 2';
 
-	return (
-		<svg height={height} width={width} viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-	<title>{title}</title>
-	<g fill={fill}>
-		<path d="m7.5,1.5h-3C2.019,1.5,0,3.519,0,6s2.019,4.5,4.5,4.5h3c2.481,0,4.5-2.019,4.5-4.5S9.981,1.5,7.5,1.5Zm-3,7c-1.381,0-2.5-1.119-2.5-2.5s1.119-2.5,2.5-2.5,2.5,1.119,2.5,2.5-1.119,2.5-2.5,2.5Z" fill={fill} strokeWidth="0"/>
-	</g>
-</svg>
-	);
-};
+  return (
+    <svg height={height} width={width} viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+      <title>{title}</title>
+      <g fill={fill}>
+        <path
+          d="m7.5,1.5h-3C2.019,1.5,0,3.519,0,6s2.019,4.5,4.5,4.5h3c2.481,0,4.5-2.019,4.5-4.5S9.981,1.5,7.5,1.5Zm-3,7c-1.381,0-2.5-1.119-2.5-2.5s1.119-2.5,2.5-2.5,2.5,1.119,2.5,2.5-1.119,2.5-2.5,2.5Z"
+          fill={fill}
+          strokeWidth="0"
+        />
+      </g>
+    </svg>
+  );
+}
 
 export default toggle2;

@@ -1,5 +1,4 @@
 import os
-import re
 
 def replace_in_files():
     # Get the directory of the current script
@@ -8,8 +7,15 @@ def replace_in_files():
     # Counter for modified files
     modified_count = 0
     
-    # The type definition pattern to look for
-    type_pattern = re.compile(r'type\s+iconProps\s*=\s*{[^}]+};', re.MULTILINE | re.DOTALL)
+    # The exact text to replace
+    old_text = '''type iconProps = {
+	fill?: string,
+	secondaryfill?: string,
+	strokewidth?: number,
+	width?: string,
+	height?: string,
+	title?: string
+}'''
     
     # Iterate through all files in the directory
     for filename in os.listdir(directory):
@@ -21,10 +27,10 @@ def replace_in_files():
                 with open(file_path, 'r', encoding='utf-8') as file:
                     content = file.read()
                 
-                # Check if the file has the type definition
-                if type_pattern.search(content):
+                # Check if the file has the text to replace
+                if old_text in content:
                     # Replace the type definition with import
-                    new_content = type_pattern.sub('', content)
+                    new_content = content.replace(old_text, '')
                     
                     # Add import statement if it doesn't exist
                     if "import { iconProps } from './iconProps'" not in new_content:

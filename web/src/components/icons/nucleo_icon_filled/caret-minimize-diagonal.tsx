@@ -1,31 +1,30 @@
 import React from 'react';
 
-type iconProps = {
-	fill?: string,
-	secondaryfill?: string,
-	strokewidth?: number,
-	width?: string,
-	height?: string,
-	title?: string
-}
+import { iconProps } from './iconProps';
 
 function caretMinimizeDiagonal(props: iconProps) {
-	const fill = props.fill || 'currentColor';
-	const secondaryfill = props.secondaryfill || fill;
-	const strokewidth = props.strokewidth || 1;
-	const width = props.width || '1em';
-	const height = props.height || '1em';
-	const title = props.title || "caret minimize diagonal";
+  const fill = props.fill || 'currentColor';
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || '1em';
+  const height = props.height || '1em';
+  const title = props.title || 'caret minimize diagonal';
 
-	return (
-		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-	<title>{title}</title>
-	<g fill={fill}>
-		<path d="M11.207,2.146c-.287-.287-.714-.373-1.09-.217-.375,.155-.617,.518-.617,.924V7.5c0,.551,.449,1,1,1h4.646c.406,0,.769-.242,.924-.617s.07-.803-.217-1.09L11.207,2.146Z" fill={fill}/>
-		<path d="M7.5,9.5H2.854c-.406,0-.769,.242-.924,.617s-.07,.803,.217,1.09l4.646,4.646c.192,.192,.446,.293,.706,.293,.129,0,.259-.025,.384-.077,.375-.155,.617-.518,.617-.924v-4.646c0-.551-.449-1-1-1Z" fill={secondaryfill}/>
-	</g>
-</svg>
-	);
-};
+  return (
+    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <title>{title}</title>
+      <g fill={fill}>
+        <path
+          d="M11.207,2.146c-.287-.287-.714-.373-1.09-.217-.375,.155-.617,.518-.617,.924V7.5c0,.551,.449,1,1,1h4.646c.406,0,.769-.242,.924-.617s.07-.803-.217-1.09L11.207,2.146Z"
+          fill={fill}
+        />
+        <path
+          d="M7.5,9.5H2.854c-.406,0-.769,.242-.924,.617s-.07,.803,.217,1.09l4.646,4.646c.192,.192,.446,.293,.706,.293,.129,0,.259-.025,.384-.077,.375-.155,.617-.518,.617-.924v-4.646c0-.551-.449-1-1-1Z"
+          fill={secondaryfill}
+        />
+      </g>
+    </svg>
+  );
+}
 
 export default caretMinimizeDiagonal;

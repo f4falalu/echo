@@ -1,32 +1,31 @@
 import React from 'react';
 
-type iconProps = {
-	fill?: string,
-	secondaryfill?: string,
-	strokewidth?: number,
-	width?: string,
-	height?: string,
-	title?: string
-}
+import { iconProps } from './iconProps';
 
 function yoga(props: iconProps) {
-	const fill = props.fill || 'currentColor';
-	const secondaryfill = props.secondaryfill || fill;
-	const strokewidth = props.strokewidth || 1;
-	const width = props.width || '1em';
-	const height = props.height || '1em';
-	const title = props.title || "yoga";
+  const fill = props.fill || 'currentColor';
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || '1em';
+  const height = props.height || '1em';
+  const title = props.title || 'yoga';
 
-	return (
-		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-	<title>{title}</title>
-	<g fill={fill}>
-		<path d="M15.75,17.5H2.25c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75H15.75c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z" fill={secondaryfill}/>
-		<path d="M12.366,8.927c.244,.244,.563,.366,.884,.366s.64-.122,.884-.366l1.646-1.646c.293-.293,.293-.768,0-1.061s-.768-.293-1.061,0l-1.47,1.47-1.384-1.384c-.52-.52-1.21-.806-1.945-.806h-1.843c-.735,0-1.425,.286-1.945,.806l-1.384,1.384-1.47-1.47c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l1.646,1.646c.487,.487,1.28,.487,1.768,0l.866-.866v2.933l-1.953,.787c-.636,.255-1.047,.864-1.047,1.549,0,.921,.75,1.67,1.67,1.67h3.08c.965,0,1.75-.785,1.75-1.75,0-.414,.336-.75,.75-.75s.75,.336,.75,.75c0,.645-.194,1.244-.52,1.75h1.85c.921,0,1.67-.75,1.67-1.67,0-.686-.411-1.294-1.046-1.549l-1.954-.787v-2.933l.866,.866Z" fill={fill}/>
-		<circle cx="9" cy="2.5" fill={fill} r="2"/>
-	</g>
-</svg>
-	);
-};
+  return (
+    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <title>{title}</title>
+      <g fill={fill}>
+        <path
+          d="M15.75,17.5H2.25c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75H15.75c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"
+          fill={secondaryfill}
+        />
+        <path
+          d="M12.366,8.927c.244,.244,.563,.366,.884,.366s.64-.122,.884-.366l1.646-1.646c.293-.293,.293-.768,0-1.061s-.768-.293-1.061,0l-1.47,1.47-1.384-1.384c-.52-.52-1.21-.806-1.945-.806h-1.843c-.735,0-1.425,.286-1.945,.806l-1.384,1.384-1.47-1.47c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l1.646,1.646c.487,.487,1.28,.487,1.768,0l.866-.866v2.933l-1.953,.787c-.636,.255-1.047,.864-1.047,1.549,0,.921,.75,1.67,1.67,1.67h3.08c.965,0,1.75-.785,1.75-1.75,0-.414,.336-.75,.75-.75s.75,.336,.75,.75c0,.645-.194,1.244-.52,1.75h1.85c.921,0,1.67-.75,1.67-1.67,0-.686-.411-1.294-1.046-1.549l-1.954-.787v-2.933l.866,.866Z"
+          fill={fill}
+        />
+        <circle cx="9" cy="2.5" fill={fill} r="2" />
+      </g>
+    </svg>
+  );
+}
 
 export default yoga;

@@ -1,33 +1,38 @@
 import React from 'react';
 
-type iconProps = {
-	fill?: string,
-	secondaryfill?: string,
-	strokewidth?: number,
-	width?: string,
-	height?: string,
-	title?: string
-}
+import { iconProps } from './iconProps';
 
 function presentationScreenVideo(props: iconProps) {
-	const fill = props.fill || 'currentColor';
-	const secondaryfill = props.secondaryfill || fill;
-	const strokewidth = props.strokewidth || 1;
-	const width = props.width || '1em';
-	const height = props.height || '1em';
-	const title = props.title || "presentation screen video";
+  const fill = props.fill || 'currentColor';
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || '1em';
+  const height = props.height || '1em';
+  const title = props.title || 'presentation screen video';
 
-	return (
-		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-	<title>{title}</title>
-	<g fill={fill}>
-		<path d="M5.75,17c-.079,0-.159-.012-.237-.039-.393-.131-.605-.556-.474-.949l1-3c.13-.393,.556-.607,.949-.474,.393,.131,.605,.556,.474,.949l-1,3c-.104,.314-.397,.513-.711,.513Z" fill={secondaryfill}/>
-		<path d="M12.25,17c-.314,0-.607-.199-.711-.513l-1-3c-.131-.393,.081-.818,.474-.949,.394-.131,.818,.082,.949,.474l1,3c.131,.393-.081,.818-.474,.949-.079,.026-.159,.039-.237,.039Z" fill={secondaryfill}/>
-		<path d="M16.083,6.981l-.495-.297c-.693,.808-1.718,1.316-2.838,1.316h-2.5c-2.068,0-3.75-1.682-3.75-3.75v-1.5c0-.257,.026-.508,.076-.75H3.75c-1.517,0-2.75,1.233-2.75,2.75v6.5c0,1.517,1.233,2.75,2.75,2.75H14.25c1.517,0,2.75-1.233,2.75-2.75v-3.976c-.323-.037-.638-.123-.917-.293Z" fill={fill}/>
-		<path d="M17.619,1.288c-.234-.133-.525-.129-.754,.011l-1.896,1.137c-.155-1.091-1.085-1.936-2.218-1.936h-2.5c-1.241,0-2.25,1.01-2.25,2.25v1.5c0,1.24,1.009,2.25,2.25,2.25h2.5c1.133,0,2.064-.845,2.218-1.936l1.895,1.136c.119,.072,.253,.108,.387,.108,.127,0,.254-.032,.368-.097,.235-.133,.381-.383,.381-.653V1.941c0-.271-.146-.521-.381-.653Z" fill={secondaryfill}/>
-	</g>
-</svg>
-	);
-};
+  return (
+    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <title>{title}</title>
+      <g fill={fill}>
+        <path
+          d="M5.75,17c-.079,0-.159-.012-.237-.039-.393-.131-.605-.556-.474-.949l1-3c.13-.393,.556-.607,.949-.474,.393,.131,.605,.556,.474,.949l-1,3c-.104,.314-.397,.513-.711,.513Z"
+          fill={secondaryfill}
+        />
+        <path
+          d="M12.25,17c-.314,0-.607-.199-.711-.513l-1-3c-.131-.393,.081-.818,.474-.949,.394-.131,.818,.082,.949,.474l1,3c.131,.393-.081,.818-.474,.949-.079,.026-.159,.039-.237,.039Z"
+          fill={secondaryfill}
+        />
+        <path
+          d="M16.083,6.981l-.495-.297c-.693,.808-1.718,1.316-2.838,1.316h-2.5c-2.068,0-3.75-1.682-3.75-3.75v-1.5c0-.257,.026-.508,.076-.75H3.75c-1.517,0-2.75,1.233-2.75,2.75v6.5c0,1.517,1.233,2.75,2.75,2.75H14.25c1.517,0,2.75-1.233,2.75-2.75v-3.976c-.323-.037-.638-.123-.917-.293Z"
+          fill={fill}
+        />
+        <path
+          d="M17.619,1.288c-.234-.133-.525-.129-.754,.011l-1.896,1.137c-.155-1.091-1.085-1.936-2.218-1.936h-2.5c-1.241,0-2.25,1.01-2.25,2.25v1.5c0,1.24,1.009,2.25,2.25,2.25h2.5c1.133,0,2.064-.845,2.218-1.936l1.895,1.136c.119,.072,.253,.108,.387,.108,.127,0,.254-.032,.368-.097,.235-.133,.381-.383,.381-.653V1.941c0-.271-.146-.521-.381-.653Z"
+          fill={secondaryfill}
+        />
+      </g>
+    </svg>
+  );
+}
 
 export default presentationScreenVideo;

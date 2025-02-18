@@ -1,31 +1,30 @@
 import React from 'react';
 
-type iconProps = {
-	fill?: string,
-	secondaryfill?: string,
-	strokewidth?: number,
-	width?: string,
-	height?: string,
-	title?: string
-}
+import { iconProps } from './iconProps';
 
 function refresh(props: iconProps) {
-	const fill = props.fill || 'currentColor';
-	const secondaryfill = props.secondaryfill || fill;
-	const strokewidth = props.strokewidth || 1;
-	const width = props.width || '1em';
-	const height = props.height || '1em';
-	const title = props.title || "refresh";
+  const fill = props.fill || 'currentColor';
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || '1em';
+  const height = props.height || '1em';
+  const title = props.title || 'refresh';
 
-	return (
-		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-	<title>{title}</title>
-	<g fill={fill}>
-		<path d="M16.72,7.97l-.735,.735c-.157-3.722-3.225-6.705-6.985-6.705-2.056,0-4,.899-5.334,2.466-.269,.315-.23,.789,.085,1.057,.316,.269,.79,.231,1.058-.085,1.048-1.231,2.576-1.938,4.191-1.938,3.032,0,5.5,2.467,5.5,5.5,0,.06-.01,.118-.012,.178l-1.208-1.208c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l2.25,2.25c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22l2.25-2.25c.293-.293,.293-.768,0-1.061s-.768-.293-1.061,0Z" fill={fill}/>
-		<path d="M13.191,12.562c-1.048,1.231-2.576,1.938-4.191,1.938-3.032,0-5.5-2.467-5.5-5.5,0-.06,.01-.118,.012-.178l1.208,1.208c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22c.293-.293,.293-.768,0-1.061l-2.25-2.25c-.293-.293-.768-.293-1.061,0L.22,8.97c-.293,.293-.293,.768,0,1.061s.768,.293,1.061,0l.735-.735c.157,3.722,3.225,6.705,6.985,6.705,2.056,0,4-.899,5.334-2.466,.269-.315,.23-.789-.085-1.057-.316-.268-.788-.229-1.058,.085Z" fill={secondaryfill}/>
-	</g>
-</svg>
-	);
-};
+  return (
+    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <title>{title}</title>
+      <g fill={fill}>
+        <path
+          d="M16.72,7.97l-.735,.735c-.157-3.722-3.225-6.705-6.985-6.705-2.056,0-4,.899-5.334,2.466-.269,.315-.23,.789,.085,1.057,.316,.269,.79,.231,1.058-.085,1.048-1.231,2.576-1.938,4.191-1.938,3.032,0,5.5,2.467,5.5,5.5,0,.06-.01,.118-.012,.178l-1.208-1.208c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l2.25,2.25c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22l2.25-2.25c.293-.293,.293-.768,0-1.061s-.768-.293-1.061,0Z"
+          fill={fill}
+        />
+        <path
+          d="M13.191,12.562c-1.048,1.231-2.576,1.938-4.191,1.938-3.032,0-5.5-2.467-5.5-5.5,0-.06,.01-.118,.012-.178l1.208,1.208c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22c.293-.293,.293-.768,0-1.061l-2.25-2.25c-.293-.293-.768-.293-1.061,0L.22,8.97c-.293,.293-.293,.768,0,1.061s.768,.293,1.061,0l.735-.735c.157,3.722,3.225,6.705,6.985,6.705,2.056,0,4-.899,5.334-2.466,.269-.315,.23-.789-.085-1.057-.316-.268-.788-.229-1.058,.085Z"
+          fill={secondaryfill}
+        />
+      </g>
+    </svg>
+  );
+}
 
 export default refresh;

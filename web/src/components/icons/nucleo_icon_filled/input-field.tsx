@@ -1,32 +1,34 @@
 import React from 'react';
 
-type iconProps = {
-	fill?: string,
-	secondaryfill?: string,
-	strokewidth?: number,
-	width?: string,
-	height?: string,
-	title?: string
-}
+import { iconProps } from './iconProps';
 
 function inputField(props: iconProps) {
-	const fill = props.fill || 'currentColor';
-	const secondaryfill = props.secondaryfill || fill;
-	const strokewidth = props.strokewidth || 1;
-	const width = props.width || '1em';
-	const height = props.height || '1em';
-	const title = props.title || "input field";
+  const fill = props.fill || 'currentColor';
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || '1em';
+  const height = props.height || '1em';
+  const title = props.title || 'input field';
 
-	return (
-		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-	<title>{title}</title>
-	<g fill={fill}>
-		<path d="M9,11.872c-.873-.31-1.5-1.144-1.5-2.122s.627-1.812,1.5-2.122v-3.628H3.75c-1.517,0-2.75,1.233-2.75,2.75v4.5c0,1.517,1.233,2.75,2.75,2.75h5.25v-2.128Z" fill={fill}/>
-		<path d="M14.25,4h-.75v3.628c.873,.31,1.5,1.144,1.5,2.122s-.627,1.812-1.5,2.122v2.128h.75c1.517,0,2.75-1.233,2.75-2.75V6.75c0-1.517-1.233-2.75-2.75-2.75Z" fill={fill}/>
-		<path d="M13.25,15.5c-.689,0-1.25-.561-1.25-1.25v-3.75h.75c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75h-.75V3.75c0-.689,.561-1.25,1.25-1.25,.414,0,.75-.336,.75-.75s-.336-.75-.75-.75c-.79,0-1.498,.339-2,.875-.502-.535-1.21-.875-2-.875-.414,0-.75,.336-.75,.75s.336,.75,.75,.75c.689,0,1.25,.561,1.25,1.25v5.25h-.75c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h.75v3.75c0,.689-.561,1.25-1.25,1.25-.414,0-.75,.336-.75,.75s.336,.75,.75,.75c.79,0,1.498-.339,2-.875,.502,.535,1.21,.875,2,.875,.414,0,.75-.336,.75-.75s-.336-.75-.75-.75Z" fill={secondaryfill}/>
-	</g>
-</svg>
-	);
-};
+  return (
+    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <title>{title}</title>
+      <g fill={fill}>
+        <path
+          d="M9,11.872c-.873-.31-1.5-1.144-1.5-2.122s.627-1.812,1.5-2.122v-3.628H3.75c-1.517,0-2.75,1.233-2.75,2.75v4.5c0,1.517,1.233,2.75,2.75,2.75h5.25v-2.128Z"
+          fill={fill}
+        />
+        <path
+          d="M14.25,4h-.75v3.628c.873,.31,1.5,1.144,1.5,2.122s-.627,1.812-1.5,2.122v2.128h.75c1.517,0,2.75-1.233,2.75-2.75V6.75c0-1.517-1.233-2.75-2.75-2.75Z"
+          fill={fill}
+        />
+        <path
+          d="M13.25,15.5c-.689,0-1.25-.561-1.25-1.25v-3.75h.75c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75h-.75V3.75c0-.689,.561-1.25,1.25-1.25,.414,0,.75-.336,.75-.75s-.336-.75-.75-.75c-.79,0-1.498,.339-2,.875-.502-.535-1.21-.875-2-.875-.414,0-.75,.336-.75,.75s.336,.75,.75,.75c.689,0,1.25,.561,1.25,1.25v5.25h-.75c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h.75v3.75c0,.689-.561,1.25-1.25,1.25-.414,0-.75,.336-.75,.75s.336,.75,.75,.75c.79,0,1.498-.339,2-.875,.502,.535,1.21,.875,2,.875,.414,0,.75-.336,.75-.75s-.336-.75-.75-.75Z"
+          fill={secondaryfill}
+        />
+      </g>
+    </svg>
+  );
+}
 
 export default inputField;

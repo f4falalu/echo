@@ -1,33 +1,35 @@
 import React from 'react';
 
-type iconProps = {
-	fill?: string,
-	secondaryfill?: string,
-	strokewidth?: number,
-	width?: string,
-	height?: string,
-	title?: string
-}
+import { iconProps } from './iconProps';
 
 function userVoice(props: iconProps) {
-	const fill = props.fill || 'currentColor';
-	const secondaryfill = props.secondaryfill || fill;
-	const strokewidth = props.strokewidth || 1;
-	const width = props.width || '1em';
-	const height = props.height || '1em';
-	const title = props.title || "user voice";
+  const fill = props.fill || 'currentColor';
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || '1em';
+  const height = props.height || '1em';
+  const title = props.title || 'user voice';
 
-	return (
-		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-	<title>{title}</title>
-	<g fill={fill}>
-		<circle cx="7.5" cy="5" fill={fill} r="3"/>
-		<path d="M11.81,2.879c-.292,.293-.292,.768,0,1.061,.283,.283,.439,.659,.439,1.06s-.156,.777-.439,1.06c-.293,.293-.293,.768,0,1.061,.146,.147,.339,.22,.531,.22s.384-.073,.53-.219c.567-.566,.879-1.32,.879-2.122s-.312-1.555-.879-2.122c-.292-.292-.768-.293-1.061,0Z" fill={secondaryfill}/>
-		<path d="M14.109,.581c-.293,.293-.293,.768,0,1.061,.897,.897,1.391,2.09,1.391,3.359s-.494,2.462-1.391,3.359c-.293,.293-.293,.768,0,1.061,.146,.146,.338,.22,.53,.22s.384-.073,.53-.22c1.181-1.18,1.831-2.75,1.831-4.419s-.65-3.239-1.831-4.419c-.293-.293-.768-.293-1.061,0Z" fill={secondaryfill}/>
-		<path d="M7.5,9c-2.369,0-4.505,1.315-5.575,3.432-.282,.557-.307,1.213-.069,1.801,.246,.607,.741,1.079,1.358,1.293,1.384,.48,2.826,.724,4.286,.724s2.902-.244,4.286-.724c.618-.214,1.113-.686,1.358-1.293,.238-.588,.212-1.244-.069-1.801-1.07-2.117-3.207-3.432-5.575-3.432Z" fill={fill}/>
-	</g>
-</svg>
-	);
-};
+  return (
+    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <title>{title}</title>
+      <g fill={fill}>
+        <circle cx="7.5" cy="5" fill={fill} r="3" />
+        <path
+          d="M11.81,2.879c-.292,.293-.292,.768,0,1.061,.283,.283,.439,.659,.439,1.06s-.156,.777-.439,1.06c-.293,.293-.293,.768,0,1.061,.146,.147,.339,.22,.531,.22s.384-.073,.53-.219c.567-.566,.879-1.32,.879-2.122s-.312-1.555-.879-2.122c-.292-.292-.768-.293-1.061,0Z"
+          fill={secondaryfill}
+        />
+        <path
+          d="M14.109,.581c-.293,.293-.293,.768,0,1.061,.897,.897,1.391,2.09,1.391,3.359s-.494,2.462-1.391,3.359c-.293,.293-.293,.768,0,1.061,.146,.146,.338,.22,.53,.22s.384-.073,.53-.22c1.181-1.18,1.831-2.75,1.831-4.419s-.65-3.239-1.831-4.419c-.293-.293-.768-.293-1.061,0Z"
+          fill={secondaryfill}
+        />
+        <path
+          d="M7.5,9c-2.369,0-4.505,1.315-5.575,3.432-.282,.557-.307,1.213-.069,1.801,.246,.607,.741,1.079,1.358,1.293,1.384,.48,2.826,.724,4.286,.724s2.902-.244,4.286-.724c.618-.214,1.113-.686,1.358-1.293,.238-.588,.212-1.244-.069-1.801-1.07-2.117-3.207-3.432-5.575-3.432Z"
+          fill={fill}
+        />
+      </g>
+    </svg>
+  );
+}
 
 export default userVoice;

@@ -1,33 +1,32 @@
 import React from 'react';
 
-type iconProps = {
-	fill?: string,
-	secondaryfill?: string,
-	strokewidth?: number,
-	width?: string,
-	height?: string,
-	title?: string
-}
+import { iconProps } from './iconProps';
 
 function ballotCircle(props: iconProps) {
-	const fill = props.fill || 'currentColor';
-	const secondaryfill = props.secondaryfill || fill;
-	const strokewidth = props.strokewidth || 1;
-	const width = props.width || '1em';
-	const height = props.height || '1em';
-	const title = props.title || "ballot circle";
+  const fill = props.fill || 'currentColor';
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || '1em';
+  const height = props.height || '1em';
+  const title = props.title || 'ballot circle';
 
-	return (
-		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-	<title>{title}</title>
-	<g fill={fill}>
-		<path d="M10.5,6h4.75c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75h-4.75c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75Z" fill={secondaryfill}/>
-		<path d="M15.25,12h-4.75c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h4.75c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75Z" fill={secondaryfill}/>
-		<circle cx="5" cy="5" fill={fill} r="3"/>
-		<circle cx="5" cy="13" fill={fill} r="3"/>
-	</g>
-</svg>
-	);
-};
+  return (
+    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <title>{title}</title>
+      <g fill={fill}>
+        <path
+          d="M10.5,6h4.75c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75h-4.75c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75Z"
+          fill={secondaryfill}
+        />
+        <path
+          d="M15.25,12h-4.75c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h4.75c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75Z"
+          fill={secondaryfill}
+        />
+        <circle cx="5" cy="5" fill={fill} r="3" />
+        <circle cx="5" cy="13" fill={fill} r="3" />
+      </g>
+    </svg>
+  );
+}
 
 export default ballotCircle;

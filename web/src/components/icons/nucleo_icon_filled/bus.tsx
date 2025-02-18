@@ -1,34 +1,42 @@
 import React from 'react';
 
-type iconProps = {
-	fill?: string,
-	secondaryfill?: string,
-	strokewidth?: number,
-	width?: string,
-	height?: string,
-	title?: string
-}
+import { iconProps } from './iconProps';
 
 function bus(props: iconProps) {
-	const fill = props.fill || 'currentColor';
-	const secondaryfill = props.secondaryfill || fill;
-	const strokewidth = props.strokewidth || 1;
-	const width = props.width || '1em';
-	const height = props.height || '1em';
-	const title = props.title || "bus";
+  const fill = props.fill || 'currentColor';
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || '1em';
+  const height = props.height || '1em';
+  const title = props.title || 'bus';
 
-	return (
-		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-	<title>{title}</title>
-	<g fill={fill}>
-		<path d="M4.75,13.5h-1.5c-.414,0-.75,.336-.75,.75v1.5c0,.689,.561,1.25,1.25,1.25h.5c.689,0,1.25-.561,1.25-1.25v-1.5c0-.414-.336-.75-.75-.75Z" fill={secondaryfill}/>
-		<path d="M14.75,13.5h-1.5c-.414,0-.75,.336-.75,.75v1.5c0,.689,.561,1.25,1.25,1.25h.5c.689,0,1.25-.561,1.25-1.25v-1.5c0-.414-.336-.75-.75-.75Z" fill={secondaryfill}/>
-		<path d="M.75,8.5c-.414,0-.75-.336-.75-.75v-2c0-.965,.785-1.75,1.75-1.75h1.5c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75H1.75c-.138,0-.25,.112-.25,.25v2c0,.414-.336,.75-.75,.75Z" fill={secondaryfill}/>
-		<path d="M17.25,8.5c-.414,0-.75-.336-.75-.75v-2c0-.138-.112-.25-.25-.25h-1.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h1.5c.965,0,1.75,.785,1.75,1.75v2c0,.414-.336,.75-.75,.75Z" fill={secondaryfill}/>
-		<path d="M9,1c-2.271,0-6.5,0-6.5,3.5V14.25c0,.414,.336,.75,.75,.75H14.75c.414,0,.75-.336,.75-.75V4.5c0-3.5-4.229-3.5-6.5-3.5Zm-3.5,12c-.552,0-1-.448-1-1s.448-1,1-1,1,.448,1,1-.448,1-1,1Zm7,0c-.552,0-1-.448-1-1s.448-1,1-1,1,.448,1,1-.448,1-1,1Zm1.5-4H4V5H14v4Z" fill={fill}/>
-	</g>
-</svg>
-	);
-};
+  return (
+    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <title>{title}</title>
+      <g fill={fill}>
+        <path
+          d="M4.75,13.5h-1.5c-.414,0-.75,.336-.75,.75v1.5c0,.689,.561,1.25,1.25,1.25h.5c.689,0,1.25-.561,1.25-1.25v-1.5c0-.414-.336-.75-.75-.75Z"
+          fill={secondaryfill}
+        />
+        <path
+          d="M14.75,13.5h-1.5c-.414,0-.75,.336-.75,.75v1.5c0,.689,.561,1.25,1.25,1.25h.5c.689,0,1.25-.561,1.25-1.25v-1.5c0-.414-.336-.75-.75-.75Z"
+          fill={secondaryfill}
+        />
+        <path
+          d="M.75,8.5c-.414,0-.75-.336-.75-.75v-2c0-.965,.785-1.75,1.75-1.75h1.5c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75H1.75c-.138,0-.25,.112-.25,.25v2c0,.414-.336,.75-.75,.75Z"
+          fill={secondaryfill}
+        />
+        <path
+          d="M17.25,8.5c-.414,0-.75-.336-.75-.75v-2c0-.138-.112-.25-.25-.25h-1.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h1.5c.965,0,1.75,.785,1.75,1.75v2c0,.414-.336,.75-.75,.75Z"
+          fill={secondaryfill}
+        />
+        <path
+          d="M9,1c-2.271,0-6.5,0-6.5,3.5V14.25c0,.414,.336,.75,.75,.75H14.75c.414,0,.75-.336,.75-.75V4.5c0-3.5-4.229-3.5-6.5-3.5Zm-3.5,12c-.552,0-1-.448-1-1s.448-1,1-1,1,.448,1,1-.448,1-1,1Zm7,0c-.552,0-1-.448-1-1s.448-1,1-1,1,.448,1,1-.448,1-1,1Zm1.5-4H4V5H14v4Z"
+          fill={fill}
+        />
+      </g>
+    </svg>
+  );
+}
 
 export default bus;

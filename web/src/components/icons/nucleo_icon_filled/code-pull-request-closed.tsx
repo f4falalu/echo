@@ -1,35 +1,37 @@
 import React from 'react';
 
-type iconProps = {
-	fill?: string,
-	secondaryfill?: string,
-	strokewidth?: number,
-	width?: string,
-	height?: string,
-	title?: string
-}
+import { iconProps } from './iconProps';
 
 function codePullRequestClosed(props: iconProps) {
-	const fill = props.fill || 'currentColor';
-	const secondaryfill = props.secondaryfill || fill;
-	const strokewidth = props.strokewidth || 1;
-	const width = props.width || '1em';
-	const height = props.height || '1em';
-	const title = props.title || "code pull request closed";
+  const fill = props.fill || 'currentColor';
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || '1em';
+  const height = props.height || '1em';
+  const title = props.title || 'code pull request closed';
 
-	return (
-		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-	<title>{title}</title>
-	<g fill={fill}>
-		<path d="M13.25,13c-.414,0-.75-.336-.75-.75V7.5c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v4.75c0,.414-.336,.75-.75,.75Z" fill={secondaryfill}/>
-		<path d="M4.75,13c-.414,0-.75-.336-.75-.75V5.75c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v6.5c0,.414-.336,.75-.75,.75Z" fill={secondaryfill}/>
-		<path d="M14.311,3.75l1.47-1.47c.293-.293,.293-.768,0-1.061s-.768-.293-1.061,0l-1.47,1.47-1.47-1.47c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l1.47,1.47-1.47,1.47c-.293,.293-.293,.768,0,1.061,.146,.146,.338,.22,.53,.22s.384-.073,.53-.22l1.47-1.47,1.47,1.47c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22c.293-.293,.293-.768,0-1.061l-1.47-1.47Z" fill={fill}/>
-		<circle cx="4.75" cy="14.25" fill={fill} r="2.5"/>
-		<circle cx="4.75" cy="3.75" fill={fill} r="2.5"/>
-		<circle cx="13.25" cy="14.25" fill={fill} r="2.5"/>
-	</g>
-</svg>
-	);
-};
+  return (
+    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <title>{title}</title>
+      <g fill={fill}>
+        <path
+          d="M13.25,13c-.414,0-.75-.336-.75-.75V7.5c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v4.75c0,.414-.336,.75-.75,.75Z"
+          fill={secondaryfill}
+        />
+        <path
+          d="M4.75,13c-.414,0-.75-.336-.75-.75V5.75c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v6.5c0,.414-.336,.75-.75,.75Z"
+          fill={secondaryfill}
+        />
+        <path
+          d="M14.311,3.75l1.47-1.47c.293-.293,.293-.768,0-1.061s-.768-.293-1.061,0l-1.47,1.47-1.47-1.47c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l1.47,1.47-1.47,1.47c-.293,.293-.293,.768,0,1.061,.146,.146,.338,.22,.53,.22s.384-.073,.53-.22l1.47-1.47,1.47,1.47c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22c.293-.293,.293-.768,0-1.061l-1.47-1.47Z"
+          fill={fill}
+        />
+        <circle cx="4.75" cy="14.25" fill={fill} r="2.5" />
+        <circle cx="4.75" cy="3.75" fill={fill} r="2.5" />
+        <circle cx="13.25" cy="14.25" fill={fill} r="2.5" />
+      </g>
+    </svg>
+  );
+}
 
 export default codePullRequestClosed;

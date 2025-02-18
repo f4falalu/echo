@@ -1,32 +1,34 @@
 import React from 'react';
 
-type iconProps = {
-	fill?: string,
-	secondaryfill?: string,
-	strokewidth?: number,
-	width?: string,
-	height?: string,
-	title?: string
-}
+import { iconProps } from './iconProps';
 
 function backpack5(props: iconProps) {
-	const fill = props.fill || 'currentColor';
-	const secondaryfill = props.secondaryfill || fill;
-	const strokewidth = props.strokewidth || 1;
-	const width = props.width || '1em';
-	const height = props.height || '1em';
-	const title = props.title || "backpack 5";
+  const fill = props.fill || 'currentColor';
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || '1em';
+  const height = props.height || '1em';
+  const title = props.title || 'backpack 5';
 
-	return (
-		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-	<title>{title}</title>
-	<g fill={fill}>
-		<path d="M11.25,5c-.414,0-.75-.336-.75-.75v-1.25c0-.827-.673-1.5-1.5-1.5s-1.5,.673-1.5,1.5v1.25c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75v-1.25c0-1.654,1.346-3,3-3s3,1.346,3,3v1.25c0,.414-.336,.75-.75,.75Z" fill={secondaryfill}/>
-		<path d="M16.463,8.616c-.189,2.17-1.995,3.884-4.213,3.884h-.25v1c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75v-1h-3v1c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75v-1h-.25c-2.218,0-4.024-1.714-4.213-3.884-.627,.504-1.037,1.269-1.037,2.134v3.5c0,1.431,1.102,2.596,2.5,2.725v-2.225c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v2.25H13.5v-2.25c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v2.225c1.398-.128,2.5-1.294,2.5-2.725v-3.5c0-.866-.41-1.63-1.037-2.134Z" fill={fill}/>
-		<path d="M12.25,3.5H5.75c-1.517,0-2.75,1.233-2.75,2.75v2c0,1.517,1.233,2.75,2.75,2.75h.25v-1c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v1h3v-1c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v1h.25c1.517,0,2.75-1.233,2.75-2.75v-2c0-1.517-1.233-2.75-2.75-2.75Z" fill={fill}/>
-	</g>
-</svg>
-	);
-};
+  return (
+    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <title>{title}</title>
+      <g fill={fill}>
+        <path
+          d="M11.25,5c-.414,0-.75-.336-.75-.75v-1.25c0-.827-.673-1.5-1.5-1.5s-1.5,.673-1.5,1.5v1.25c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75v-1.25c0-1.654,1.346-3,3-3s3,1.346,3,3v1.25c0,.414-.336,.75-.75,.75Z"
+          fill={secondaryfill}
+        />
+        <path
+          d="M16.463,8.616c-.189,2.17-1.995,3.884-4.213,3.884h-.25v1c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75v-1h-3v1c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75v-1h-.25c-2.218,0-4.024-1.714-4.213-3.884-.627,.504-1.037,1.269-1.037,2.134v3.5c0,1.431,1.102,2.596,2.5,2.725v-2.225c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v2.25H13.5v-2.25c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v2.225c1.398-.128,2.5-1.294,2.5-2.725v-3.5c0-.866-.41-1.63-1.037-2.134Z"
+          fill={fill}
+        />
+        <path
+          d="M12.25,3.5H5.75c-1.517,0-2.75,1.233-2.75,2.75v2c0,1.517,1.233,2.75,2.75,2.75h.25v-1c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v1h3v-1c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v1h.25c1.517,0,2.75-1.233,2.75-2.75v-2c0-1.517-1.233-2.75-2.75-2.75Z"
+          fill={fill}
+        />
+      </g>
+    </svg>
+  );
+}
 
 export default backpack5;
