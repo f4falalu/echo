@@ -9,7 +9,7 @@ use uuid::Uuid;
 const MAX_UNIQUE_VALUES: usize = 100;
 
 use crate::{
-    database::lib::{ColumnMetadata, DataMetadataJsonBody, MinMaxValue},
+    database_dep::lib::{ColumnMetadata, DataMetadataJsonBody, MinMaxValue},
     utils::{
         agent_builder::nodes::{
             error_node::ErrorNode,

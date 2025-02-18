@@ -2,7 +2,7 @@ use anyhow::Result;
 use indexmap::IndexMap;
 use uuid::Uuid;
 
-use crate::database::models::DataSource;
+use crate::database_dep::models::DataSource;
 
 use super::data_source_query_routes::query_router::query_router;
 use super::data_types::DataType;

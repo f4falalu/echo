@@ -1,5 +1,5 @@
 mod buster_middleware;
-pub mod database;
+pub mod database_dep;
 mod routes;
 mod types;
 pub mod utils;
@@ -9,6 +9,7 @@ use std::sync::Arc;
 
 use axum::{Extension, Router};
 use buster_middleware::cors::cors;
+use database::{self, pool::init_pool};
 use diesel::{Connection, PgConnection};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use dotenv::dotenv;
@@ -45,8 +46,13 @@ async fn main() {
         .init();
 
     // Initialize global pools
-    if let Err(e) = database::lib::init_pools().await {
+    if let Err(e) = database_dep::lib::init_pools().await {
         tracing::error!("Failed to initialize global pools: {}", e);
+        return;
+    }
+
+    if let Err(e) = init_pool().await {
+        tracing::error!("Failed to initialize database pools: {}", e);
         return;
     }
 

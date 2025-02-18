@@ -13,7 +13,7 @@ use uuid::Uuid;
 
 use crate::utils::tools::interaction_tools::SendMessageToUser;
 use crate::{
-    database::{
+    database_dep::{
         enums::Verification,
         lib::get_pg_pool,
         models::{DashboardFile, Message, MessageToFile, MetricFile, Thread, User},

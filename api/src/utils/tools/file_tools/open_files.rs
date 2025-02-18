@@ -13,7 +13,7 @@ use uuid::Uuid;
 
 use super::FileModificationTool;
 use crate::{
-    database::{
+    database_dep::{
         lib::get_pg_pool,
         models::{DashboardFile, MetricFile},
         schema::{dashboard_files, metric_files},
@@ -570,7 +570,7 @@ mod tests {
             name: metric.title.clone(),
             file_name: "test.yml".to_string(),
             content: serde_json::to_value(&metric).unwrap(),
-            verification: crate::database::enums::Verification::NotRequested,
+            verification: crate::database_dep::enums::Verification::NotRequested,
             evaluation_obj: None,
             evaluation_summary: None,
             evaluation_score: None,

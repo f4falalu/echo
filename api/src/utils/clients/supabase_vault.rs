@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::database::lib::get_pg_pool;
+use crate::database_dep::lib::get_pg_pool;
 use anyhow::{anyhow, Result};
 use diesel::{deserialize::QueryableByName, sql_types::Text};
 use diesel_async::RunQueryDsl;

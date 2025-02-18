@@ -8,7 +8,7 @@ use tokio::sync::mpsc;
 use uuid::Uuid;
 
 use crate::{
-    database::{
+    database_dep::{
         lib::get_pg_pool,
         models::EntityRelationship,
         schema::{data_sources, datasets::data_source_id, entity_relationship},

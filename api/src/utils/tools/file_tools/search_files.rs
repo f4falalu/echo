@@ -11,7 +11,7 @@ use tracing::{debug, error, info, warn};
 use uuid::Uuid;
 
 use crate::{
-    database::{
+    database_dep::{
         lib::get_pg_pool,
         models::{DashboardFile, MetricFile},
         schema::{dashboard_files, metric_files},

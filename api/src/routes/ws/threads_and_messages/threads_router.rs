@@ -5,36 +5,36 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::{
-    database::models::User,
+    database_dep::models::User,
     routes::ws::{threads_and_messages::unsubscribe::unsubscribe, ws::SubscriptionRwLock},
 };
 
 use super::{
     delete_thread::delete_thread, duplicate_thread::duplicate_thread,
-    get_message_data::get_message_data, get_thread::get_thread, list_threads::list_threads,
+    get_message_data::get_message_data, get_thread::get_thread_ws, list_threads::list_threads,
     post_thread::post_thread::post_thread, update_message::update_message,
     update_thread::update_thread,
 };
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum ThreadRoute {
-    #[serde(rename = "/threads/list")]
+    #[serde(rename = "/chats/list")]
     List,
-    #[serde(rename = "/threads/get")]
+    #[serde(rename = "/chats/get")]
     Get,
     #[serde(rename = "/chats/post")]
     Post,
-    #[serde(rename = "/threads/unsubscribe")]
+    #[serde(rename = "/chats/unsubscribe")]
     Unsubscribe,
-    #[serde(rename = "/threads/update")]
+    #[serde(rename = "/chats/update")]
     Update,
-    #[serde(rename = "/threads/delete")]
+    #[serde(rename = "/chats/delete")]
     Delete,
-    #[serde(rename = "/threads/messages/update")]
+    #[serde(rename = "/chats/messages/update")]
     UpdateMessage,
-    #[serde(rename = "/threads/messages/data")]
+    #[serde(rename = "/chats/messages/data")]
     MessageData,
-    #[serde(rename = "/threads/duplicate")]
+    #[serde(rename = "/chats/duplicate")]
     DuplicateThread,
 }
 
@@ -93,7 +93,7 @@ pub async fn threads_router(
         ThreadRoute::Get => {
             let req = serde_json::from_value(data)?;
 
-            get_thread(subscriptions, user_group, user, req).await?;
+            get_thread_ws(subscriptions, user_group, user, req).await?;
         }
         ThreadRoute::Unsubscribe => {
             let req = serde_json::from_value(data)?;
@@ -138,16 +138,15 @@ pub async fn threads_router(
 impl ThreadRoute {
     pub fn from_str(path: &str) -> Result<Self> {
         match path {
-            "/threads/list" => Ok(Self::List),
-            "/threads/get" => Ok(Self::Get),
-            "/threads/post" => Ok(Self::Post),
-            "/threads/unsubscribe" => Ok(Self::Unsubscribe),
-            "/threads/update" => Ok(Self::Update),
-            "/threads/delete" => Ok(Self::Delete),
-            "/threads/duplicate" => Ok(Self::DuplicateThread),
-            "/threads/messages/update" => Ok(Self::UpdateMessage),
-            "/threads/messages/data" => Ok(Self::MessageData),
+            "/chats/list" => Ok(Self::List),
+            "/chats/get" => Ok(Self::Get),
             "/chats/post" => Ok(Self::Post),
+            "/chats/unsubscribe" => Ok(Self::Unsubscribe),
+            "/chats/update" => Ok(Self::Update),
+            "/chats/delete" => Ok(Self::Delete),
+            "/chats/duplicate" => Ok(Self::DuplicateThread),
+            "/chats/messages/update" => Ok(Self::UpdateMessage),
+            "/chats/messages/data" => Ok(Self::MessageData),
             _ => Err(anyhow!("Invalid path")),
         }
     }

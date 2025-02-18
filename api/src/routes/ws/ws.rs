@@ -5,7 +5,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-use crate::database::{lib::get_redis_pool, models::User};
+use crate::database_dep::{lib::get_redis_pool, models::User};
 use async_compression::tokio::bufread::GzipDecoder;
 use axum::{
     extract::{

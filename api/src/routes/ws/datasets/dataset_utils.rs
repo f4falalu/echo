@@ -9,7 +9,7 @@ use serde_json::Value;
 use std::{collections::HashMap, sync::Arc};
 
 use crate::{
-    database::{
+    database_dep::{
         enums::UserOrganizationRole,
         lib::get_pg_pool,
         models::DatasetColumn,
@@ -27,7 +27,7 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::database::models::{DataSource, Dataset};
+use crate::database_dep::models::{DataSource, Dataset};
 
 #[derive(Serialize, Clone, Debug)]
 pub struct DatasetState {

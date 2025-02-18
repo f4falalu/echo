@@ -9,9 +9,9 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use uuid::Uuid;
 
-use crate::database::lib::get_pg_pool;
-use crate::database::models::{ApiKey, User};
-use crate::database::schema::api_keys;
+use crate::database_dep::lib::get_pg_pool;
+use crate::database_dep::models::{ApiKey, User};
+use crate::database_dep::schema::api_keys;
 use crate::routes::rest::ApiResponse;
 use crate::utils::user::user_info::get_user_organization_id;
 

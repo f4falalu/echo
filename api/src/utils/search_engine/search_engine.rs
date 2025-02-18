@@ -7,7 +7,7 @@ use diesel::QueryDsl;
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::database::lib::get_sqlx_pool;
+use crate::database_dep::lib::get_sqlx_pool;
 
 #[derive(Serialize, Debug)]
 pub struct MessageSearchResult {

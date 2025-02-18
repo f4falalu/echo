@@ -7,7 +7,7 @@ use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    database::{
+    database_dep::{
         enums::{DataSourceOnboardingStatus, DataSourceType, UserOrganizationRole},
         lib::get_pg_pool,
         models::{DataSource, User},

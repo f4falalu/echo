@@ -1,0 +1,1 @@
+// Database enums will be defined here 

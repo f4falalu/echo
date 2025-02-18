@@ -17,7 +17,7 @@ use crate::routes::rest::ApiResponse;
 use crate::utils::tools::database_tools::SampleQuery;
 use crate::utils::tools::ToolExecutor;
 use crate::{
-    database::{
+    database_dep::{
         enums::Verification,
         lib::get_pg_pool,
         models::{DashboardFile, Message, MessageToFile, MetricFile, Thread, User},

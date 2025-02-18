@@ -10,7 +10,7 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use crate::{
-    database::{
+    database_dep::{
         enums::Verification,
         lib::get_pg_pool,
         models::{DashboardFile, MetricFile},

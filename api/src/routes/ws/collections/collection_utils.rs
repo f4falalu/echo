@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::{
-    database::{
+    database_dep::{
         enums::{AssetPermissionRole, AssetType},
         lib::get_pg_pool,
         models::Collection,

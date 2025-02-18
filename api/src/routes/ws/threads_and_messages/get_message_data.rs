@@ -3,7 +3,7 @@ use serde::Deserialize;
 use uuid::Uuid;
 
 use crate::{
-    database::{
+    database_dep::{
         lib::{FetchingData, StepProgress},
         models::User,
     },

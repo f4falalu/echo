@@ -883,7 +883,7 @@ mod tests {
                     }
                 }),
             }]),
-            tool_choice: Some(ToolChoice::Auto("auto".to_string())),
+            tool_choice: Some(ToolChoice::Required),
             ..Default::default()
         };
 

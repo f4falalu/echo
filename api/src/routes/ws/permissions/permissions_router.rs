@@ -3,7 +3,7 @@ use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::database::models::User;
+use crate::database_dep::models::User;
 
 use super::{
     delete_permission_group::delete_permission_group, delete_team::delete_team_permission,

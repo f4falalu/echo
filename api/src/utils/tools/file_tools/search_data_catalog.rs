@@ -11,7 +11,7 @@ use tracing::{debug, error, warn};
 use uuid::Uuid;
 
 use crate::{
-    database::{lib::get_pg_pool, schema::datasets},
+    database_dep::{lib::get_pg_pool, schema::datasets},
     utils::tools::ToolExecutor,
 };
 

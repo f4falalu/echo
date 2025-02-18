@@ -6,7 +6,7 @@ use serde::Deserialize;
 use uuid::Uuid;
 
 use crate::{
-    database::{
+    database_dep::{
         enums::AssetType,
         lib::get_pg_pool,
         models::{User, UserFavorite},

@@ -8,10 +8,10 @@ use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use uuid::Uuid;
 
-use crate::database::lib::get_pg_pool;
-use crate::database::models::{ApiKey, User};
-use crate::database::schema::api_keys;
-use crate::database::schema::users;
+use crate::database_dep::lib::get_pg_pool;
+use crate::database_dep::models::{ApiKey, User};
+use crate::database_dep::schema::api_keys;
+use crate::database_dep::schema::users;
 use crate::routes::rest::ApiResponse;
 use super::list_api_keys::ApiKeyInfo;
 

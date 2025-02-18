@@ -11,7 +11,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::{
-    database::{
+    database_dep::{
         enums::AssetType,
         lib::get_pg_pool,
         models::{MessageDeprecated, ThreadToDashboard, User},

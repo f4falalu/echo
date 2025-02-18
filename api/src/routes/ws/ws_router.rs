@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::{
-    database::models::User,
+    database_dep::models::User,
     routes::ws::{
         dashboards::dashboards_router::dashboards_router,
         datasets::datasets_router::datasets_router,
@@ -53,7 +53,7 @@ impl WsRoutes {
             .ok_or_else(|| anyhow!("Invalid path"))?;
 
         match first_segment {
-            "threads" => Ok(Self::Threads(ThreadRoute::from_str(path)?)),
+            "chats" => Ok(Self::Threads(ThreadRoute::from_str(path)?)),
             "dashboards" => Ok(Self::Dashboards(DashboardRoute::from_str(path)?)),
             "datasets" => Ok(Self::Datasets(DatasetRoute::from_str(path)?)),
             "users" => Ok(Self::Users(UserRoute::from_str(path)?)),
@@ -65,7 +65,6 @@ impl WsRoutes {
             "terms" => Ok(Self::Terms(TermRoute::from_str(path)?)),
             "search" => Ok(Self::Search(SearchRoute::from_str(path)?)),
             "organizations" => Ok(Self::Organizations(OrganizationRoute::from_str(path)?)),
-            "chats" => Ok(Self::Threads(ThreadRoute::from_str(path)?)),
             _ => Err(anyhow!("Invalid path")),
         }
     }

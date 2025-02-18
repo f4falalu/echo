@@ -15,4 +15,7 @@ uuid = { workspace = true }
 diesel = { workspace = true }
 diesel-async = { workspace = true }
 
+# Local dependencies
+database = { path = "../database" }
+
 # Add any handler-specific dependencies here 
