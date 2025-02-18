@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function focus(props: iconProps) {
+function I12px_focus(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -40,4 +40,4 @@ function focus(props: iconProps) {
   );
 }
 
-export default focus;
+export default I12px_focus;

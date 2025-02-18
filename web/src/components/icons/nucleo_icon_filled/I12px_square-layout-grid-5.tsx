@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function squareLayoutGrid5(props: iconProps) {
+function I12px_squareLayoutGrid5(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -39,4 +39,4 @@ function squareLayoutGrid5(props: iconProps) {
   );
 }
 
-export default squareLayoutGrid5;
+export default I12px_squareLayoutGrid5;

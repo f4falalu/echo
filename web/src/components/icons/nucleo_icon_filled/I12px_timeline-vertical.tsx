@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function timelineVertical(props: iconProps) {
+function I12px_timelineVertical(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -26,4 +26,4 @@ function timelineVertical(props: iconProps) {
   );
 }
 
-export default timelineVertical;
+export default I12px_timelineVertical;

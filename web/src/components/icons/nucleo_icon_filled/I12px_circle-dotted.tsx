@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function circleDotted(props: iconProps) {
+function I12px_circleDotted(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -31,4 +31,4 @@ function circleDotted(props: iconProps) {
   );
 }
 
-export default circleDotted;
+export default I12px_circleDotted;

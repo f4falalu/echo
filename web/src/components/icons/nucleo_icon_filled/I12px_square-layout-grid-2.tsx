@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function squareLayoutGrid2(props: iconProps) {
+function I12px_squareLayoutGrid2(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -34,4 +34,4 @@ function squareLayoutGrid2(props: iconProps) {
   );
 }
 
-export default squareLayoutGrid2;
+export default I12px_squareLayoutGrid2;

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function plus(props: iconProps) {
+function I12px_plus(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -29,4 +29,4 @@ function plus(props: iconProps) {
   );
 }
 
-export default plus;
+export default I12px_plus;

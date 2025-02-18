@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function stackY(props: iconProps) {
+function I12px_stackY(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -30,4 +30,4 @@ function stackY(props: iconProps) {
   );
 }
 
-export default stackY;
+export default I12px_stackY;

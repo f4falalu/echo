@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function menu3(props: iconProps) {
+function I12px_menu3(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -34,4 +34,4 @@ function menu3(props: iconProps) {
   );
 }
 
-export default menu3;
+export default I12px_menu3;

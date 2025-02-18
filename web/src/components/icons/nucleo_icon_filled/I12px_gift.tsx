@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function gift(props: iconProps) {
+function I12px_gift(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -44,4 +44,4 @@ function gift(props: iconProps) {
   );
 }
 
-export default gift;
+export default I12px_gift;

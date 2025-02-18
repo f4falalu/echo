@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function alertInfo(props: iconProps) {
+function I12px_alertInfo(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -25,4 +25,4 @@ function alertInfo(props: iconProps) {
   );
 }
 
-export default alertInfo;
+export default I12px_alertInfo;

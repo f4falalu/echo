@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function maskCircle(props: iconProps) {
+function I12px_maskCircle(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function maskCircle(props: iconProps) {
   );
 }
 
-export default maskCircle;
+export default I12px_maskCircle;

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function sparkle4(props: iconProps) {
+function I12px_sparkle4(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function sparkle4(props: iconProps) {
   );
 }
 
-export default sparkle4;
+export default I12px_sparkle4;

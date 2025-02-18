@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function expand(props: iconProps) {
+function I12px_expand(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -39,4 +39,4 @@ function expand(props: iconProps) {
   );
 }
 
-export default expand;
+export default I12px_expand;

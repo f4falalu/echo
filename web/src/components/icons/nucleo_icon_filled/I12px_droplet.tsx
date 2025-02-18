@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function droplet(props: iconProps) {
+function I12px_droplet(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function droplet(props: iconProps) {
   );
 }
 
-export default droplet;
+export default I12px_droplet;

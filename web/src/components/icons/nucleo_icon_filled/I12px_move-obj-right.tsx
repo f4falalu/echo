@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function moveObjRight(props: iconProps) {
+function I12px_moveObjRight(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -25,4 +25,4 @@ function moveObjRight(props: iconProps) {
   );
 }
 
-export default moveObjRight;
+export default I12px_moveObjRight;

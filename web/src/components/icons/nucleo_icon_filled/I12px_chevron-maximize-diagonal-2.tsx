@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function chevronMaximizeDiagonal2(props: iconProps) {
+function I12px_chevronMaximizeDiagonal2(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -29,4 +29,4 @@ function chevronMaximizeDiagonal2(props: iconProps) {
   );
 }
 
-export default chevronMaximizeDiagonal2;
+export default I12px_chevronMaximizeDiagonal2;

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function ballTennis(props: iconProps) {
+function I12px_ballTennis(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -34,4 +34,4 @@ function ballTennis(props: iconProps) {
   );
 }
 
-export default ballTennis;
+export default I12px_ballTennis;

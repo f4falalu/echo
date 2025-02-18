@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function arrowDoorIn(props: iconProps) {
+function I12px_arrowDoorIn(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -29,4 +29,4 @@ function arrowDoorIn(props: iconProps) {
   );
 }
 
-export default arrowDoorIn;
+export default I12px_arrowDoorIn;

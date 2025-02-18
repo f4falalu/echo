@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function cloud(props: iconProps) {
+function I12px_cloud(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function cloud(props: iconProps) {
   );
 }
 
-export default cloud;
+export default I12px_cloud;

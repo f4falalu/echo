@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function bracketsSquare(props: iconProps) {
+function I12px_bracketsSquare(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -29,4 +29,4 @@ function bracketsSquare(props: iconProps) {
   );
 }
 
-export default bracketsSquare;
+export default I12px_bracketsSquare;

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function dividerYDotted(props: iconProps) {
+function I12px_dividerYDotted(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -33,4 +33,4 @@ function dividerYDotted(props: iconProps) {
   );
 }
 
-export default dividerYDotted;
+export default I12px_dividerYDotted;

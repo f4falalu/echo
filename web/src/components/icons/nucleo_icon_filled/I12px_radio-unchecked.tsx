@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function radioUnchecked(props: iconProps) {
+function I12px_radioUnchecked(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -20,4 +20,4 @@ function radioUnchecked(props: iconProps) {
   );
 }
 
-export default radioUnchecked;
+export default I12px_radioUnchecked;

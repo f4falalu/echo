@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function crop(props: iconProps) {
+function I12px_crop(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -34,4 +34,4 @@ function crop(props: iconProps) {
   );
 }
 
-export default crop;
+export default I12px_crop;

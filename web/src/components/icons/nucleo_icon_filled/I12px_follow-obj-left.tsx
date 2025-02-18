@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function followObjLeft(props: iconProps) {
+function I12px_followObjLeft(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -25,4 +25,4 @@ function followObjLeft(props: iconProps) {
   );
 }
 
-export default followObjLeft;
+export default I12px_followObjLeft;

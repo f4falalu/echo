@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function doubleChevronUp(props: iconProps) {
+function I12px_doubleChevronUp(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -29,4 +29,4 @@ function doubleChevronUp(props: iconProps) {
   );
 }
 
-export default doubleChevronUp;
+export default I12px_doubleChevronUp;

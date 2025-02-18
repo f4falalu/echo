@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function ballotRect(props: iconProps) {
+function I12px_ballotRect(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -31,4 +31,4 @@ function ballotRect(props: iconProps) {
   );
 }
 
-export default ballotRect;
+export default I12px_ballotRect;

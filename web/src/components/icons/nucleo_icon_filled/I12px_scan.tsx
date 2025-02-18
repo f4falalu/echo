@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function scan(props: iconProps) {
+function I12px_scan(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -44,4 +44,4 @@ function scan(props: iconProps) {
   );
 }
 
-export default scan;
+export default I12px_scan;

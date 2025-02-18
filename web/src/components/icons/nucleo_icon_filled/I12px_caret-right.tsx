@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function caretRight(props: iconProps) {
+function I12px_caretRight(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function caretRight(props: iconProps) {
   );
 }
 
-export default caretRight;
+export default I12px_caretRight;

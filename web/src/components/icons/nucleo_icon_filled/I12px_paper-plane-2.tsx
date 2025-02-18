@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function paperPlane2(props: iconProps) {
+function I12px_paperPlane2(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function paperPlane2(props: iconProps) {
   );
 }
 
-export default paperPlane2;
+export default I12px_paperPlane2;

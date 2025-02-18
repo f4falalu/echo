@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function clone2(props: iconProps) {
+function I12px_clone2(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -25,4 +25,4 @@ function clone2(props: iconProps) {
   );
 }
 
-export default clone2;
+export default I12px_clone2;

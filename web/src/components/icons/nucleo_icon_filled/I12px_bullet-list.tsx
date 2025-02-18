@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function bulletList(props: iconProps) {
+function I12px_bulletList(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -41,4 +41,4 @@ function bulletList(props: iconProps) {
   );
 }
 
-export default bulletList;
+export default I12px_bulletList;

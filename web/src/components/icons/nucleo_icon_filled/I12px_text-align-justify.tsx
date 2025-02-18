@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function textAlignJustify(props: iconProps) {
+function I12px_textAlignJustify(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -34,4 +34,4 @@ function textAlignJustify(props: iconProps) {
   );
 }
 
-export default textAlignJustify;
+export default I12px_textAlignJustify;

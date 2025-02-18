@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function gear4(props: iconProps) {
+function I12px_gear4(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function gear4(props: iconProps) {
   );
 }
 
-export default gear4;
+export default I12px_gear4;

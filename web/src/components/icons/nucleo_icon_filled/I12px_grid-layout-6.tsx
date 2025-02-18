@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function gridLayout6(props: iconProps) {
+function I12px_gridLayout6(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -40,4 +40,4 @@ function gridLayout6(props: iconProps) {
   );
 }
 
-export default gridLayout6;
+export default I12px_gridLayout6;

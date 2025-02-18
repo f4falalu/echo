@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function circlePlay(props: iconProps) {
+function I12px_circlePlay(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function circlePlay(props: iconProps) {
   );
 }
 
-export default circlePlay;
+export default I12px_circlePlay;

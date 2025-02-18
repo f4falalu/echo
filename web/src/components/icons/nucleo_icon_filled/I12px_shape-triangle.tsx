@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function shapeTriangle(props: iconProps) {
+function I12px_shapeTriangle(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function shapeTriangle(props: iconProps) {
   );
 }
 
-export default shapeTriangle;
+export default I12px_shapeTriangle;

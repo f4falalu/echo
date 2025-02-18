@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function grid(props: iconProps) {
+function I12px_grid(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -50,4 +50,4 @@ function grid(props: iconProps) {
   );
 }
 
-export default grid;
+export default I12px_grid;

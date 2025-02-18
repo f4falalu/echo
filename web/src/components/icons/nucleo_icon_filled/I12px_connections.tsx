@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function connections(props: iconProps) {
+function I12px_connections(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -39,4 +39,4 @@ function connections(props: iconProps) {
   );
 }
 
-export default connections;
+export default I12px_connections;

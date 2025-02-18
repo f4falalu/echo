@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function ballotCircle(props: iconProps) {
+function I12px_ballotCircle(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -31,4 +31,4 @@ function ballotCircle(props: iconProps) {
   );
 }
 
-export default ballotCircle;
+export default I12px_ballotCircle;

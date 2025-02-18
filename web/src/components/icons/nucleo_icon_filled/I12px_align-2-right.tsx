@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function align2Right(props: iconProps) {
+function I12px_align2Right(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -25,4 +25,4 @@ function align2Right(props: iconProps) {
   );
 }
 
-export default align2Right;
+export default I12px_align2Right;

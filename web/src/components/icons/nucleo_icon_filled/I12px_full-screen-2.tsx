@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function fullScreen2(props: iconProps) {
+function I12px_fullScreen2(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -49,4 +49,4 @@ function fullScreen2(props: iconProps) {
   );
 }
 
-export default fullScreen2;
+export default I12px_fullScreen2;

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function borderY(props: iconProps) {
+function I12px_borderY(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -32,4 +32,4 @@ function borderY(props: iconProps) {
   );
 }
 
-export default borderY;
+export default I12px_borderY;

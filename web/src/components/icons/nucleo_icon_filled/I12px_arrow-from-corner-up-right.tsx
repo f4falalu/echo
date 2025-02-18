@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function arrowFromCornerUpRight(props: iconProps) {
+function I12px_arrowFromCornerUpRight(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -29,4 +29,4 @@ function arrowFromCornerUpRight(props: iconProps) {
   );
 }
 
-export default arrowFromCornerUpRight;
+export default I12px_arrowFromCornerUpRight;

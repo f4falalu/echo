@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function rectCenterX(props: iconProps) {
+function I12px_rectCenterX(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -30,4 +30,4 @@ function rectCenterX(props: iconProps) {
   );
 }
 
-export default rectCenterX;
+export default I12px_rectCenterX;

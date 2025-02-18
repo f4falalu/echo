@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function msg(props: iconProps) {
+function I12px_msg(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function msg(props: iconProps) {
   );
 }
 
-export default msg;
+export default I12px_msg;

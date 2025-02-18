@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function faceSmile(props: iconProps) {
+function I12px_faceSmile(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function faceSmile(props: iconProps) {
   );
 }
 
-export default faceSmile;
+export default I12px_faceSmile;

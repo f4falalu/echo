@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function creditCard(props: iconProps) {
+function I12px_creditCard(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -29,4 +29,4 @@ function creditCard(props: iconProps) {
   );
 }
 
-export default creditCard;
+export default I12px_creditCard;

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function chevronAllDirections(props: iconProps) {
+function I12px_chevronAllDirections(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -40,4 +40,4 @@ function chevronAllDirections(props: iconProps) {
   );
 }
 
-export default chevronAllDirections;
+export default I12px_chevronAllDirections;

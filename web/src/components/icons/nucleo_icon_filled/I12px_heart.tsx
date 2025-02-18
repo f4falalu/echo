@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function heart(props: iconProps) {
+function I12px_heart(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -24,4 +24,4 @@ function heart(props: iconProps) {
   );
 }
 
-export default heart;
+export default I12px_heart;

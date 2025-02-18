@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function magnifier(props: iconProps) {
+function I12px_magnifier(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -30,4 +30,4 @@ function magnifier(props: iconProps) {
   );
 }
 
-export default magnifier;
+export default I12px_magnifier;

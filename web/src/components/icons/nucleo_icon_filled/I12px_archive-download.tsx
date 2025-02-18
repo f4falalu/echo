@@ -2,7 +2,7 @@ import React from 'react';
 
 import { iconProps } from './iconProps';
 
-function archiveDownload(props: iconProps) {
+function I12px_archiveDownload(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
@@ -29,4 +29,4 @@ function archiveDownload(props: iconProps) {
   );
 }
 
-export default archiveDownload;
+export default I12px_archiveDownload;
