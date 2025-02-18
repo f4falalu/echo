@@ -2,6 +2,7 @@ import { queryOptions } from '@tanstack/react-query';
 import type { BusterChatListItem } from '@/api/asset_interfaces';
 import type { GetChatListParams } from '@/api/request_interfaces/chats';
 import { IBusterChat, IBusterChatMessage } from '@/context/Chats';
+import { BusterMetricData } from '@/context/MetricData';
 
 const chatsGetChat = (chatId: string) =>
   queryOptions<IBusterChat>({
@@ -15,6 +16,12 @@ const chatsMessages = (messageId: string) =>
     staleTime: Infinity
   });
 
+const chatsMessagesFetchingData = (messageId: string) =>
+  queryOptions<BusterMetricData>({
+    queryKey: ['chats', 'messages-data', messageId] as const,
+    staleTime: Infinity
+  });
+
 const chatsGetList = (filters?: GetChatListParams) =>
   queryOptions<BusterChatListItem[]>({
     queryKey: ['chats', 'list', filters] as const,
@@ -24,5 +31,6 @@ const chatsGetList = (filters?: GetChatListParams) =>
 export const chatQueryKeys = {
   chatsGetChat,
   chatsGetList,
-  chatsMessages
+  chatsMessages,
+  chatsMessagesFetchingData
 };

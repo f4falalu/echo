@@ -19,7 +19,7 @@ export const useMetricIndividual = ({ metricId }: { metricId: string }) => {
       payload: { id: metricId, password: assetPassword.password }
     },
     responseEvent: '/metrics/get:updateMetricState',
-    options: queryKeys['/metrics/get:getMetric'](metricId),
+    options: queryKeys.useMetricsGetMetric(metricId),
     callback: (currentData, newData) => {
       return upgradeMetricToIMetric(newData, currentData);
     }

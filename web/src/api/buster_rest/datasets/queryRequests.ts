@@ -14,17 +14,17 @@ import {
   getDatasets_server,
   getDatasetMetadata_server
 } from './requests';
-import type { BusterDataset, BusterDatasetListItem, IDataResult } from '../../asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/query_keys';
 
 export const useGetDatasets = (params?: Parameters<typeof getDatasets>[0]) => {
   const queryFn = useMemoizedFn(() => {
     return getDatasets(params);
   });
 
-  const res = useCreateReactQuery<BusterDatasetListItem[]>({
-    queryKey: ['datasets', params || {}],
+  const res = useCreateReactQuery({
+    ...queryKeys.datasetsList(params),
     queryFn
   });
 
@@ -41,7 +41,7 @@ export const prefetchGetDatasets = async (
   const queryClient = queryClientProp || new QueryClient();
 
   await queryClient.prefetchQuery({
-    queryKey: ['datasets', params || {}],
+    ...queryKeys.datasetsList(params),
     queryFn: () => getDatasets_server(params)
   });
 
@@ -50,8 +50,8 @@ export const prefetchGetDatasets = async (
 
 export const useGetDatasetData = (datasetId: string) => {
   const queryFn = useMemoizedFn(() => getDatasetDataSample(datasetId));
-  return useCreateReactQuery<IDataResult>({
-    queryKey: ['datasetData', datasetId],
+  return useCreateReactQuery({
+    ...queryKeys.datasetData(datasetId),
     queryFn,
     enabled: !!datasetId,
     refetchOnMount: false
@@ -60,11 +60,10 @@ export const useGetDatasetData = (datasetId: string) => {
 
 export const useGetDatasetMetadata = (datasetId: string) => {
   const queryFn = useMemoizedFn(() => getDatasetMetadata(datasetId));
-  const res = useCreateReactQuery<BusterDataset>({
-    queryKey: ['datasetMetadata', datasetId],
+  const res = useCreateReactQuery({
+    ...queryKeys.datasetMetadata(datasetId),
     queryFn,
-    enabled: !!datasetId,
-    staleTime: PREFETCH_STALE_TIME
+    enabled: !!datasetId
   });
   return res;
 };
@@ -75,7 +74,7 @@ export const prefetchGetDatasetMetadata = async (
 ) => {
   const queryClient = queryClientProp || new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: ['datasetMetadata', datasetId],
+    ...queryKeys.datasetMetadata(datasetId),
     queryFn: () => getDatasetMetadata_server(datasetId)
   });
   return queryClient;
@@ -85,7 +84,7 @@ export const useCreateDataset = () => {
   const queryClient = useQueryClient();
 
   const onSuccess = useMemoizedFn(() => {
-    queryClient.invalidateQueries({ queryKey: ['datasets', {}] });
+    queryClient.invalidateQueries({ queryKey: queryKeys.datasetsList().queryKey });
   });
 
   return useCreateReactMutation({
@@ -103,7 +102,7 @@ export const useDeployDataset = () => {
   return useCreateReactMutation({
     mutationFn,
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: ['datasets', {}] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.datasetsList().queryKey });
     }
   });
 };
@@ -117,7 +116,7 @@ export const useUpdateDataset = () => {
 export const useDeleteDataset = () => {
   const queryClient = useQueryClient();
   const onSuccess = useMemoizedFn(() => {
-    queryClient.invalidateQueries({ queryKey: ['datasets', {}] });
+    queryClient.invalidateQueries({ queryKey: queryKeys.datasetsList().queryKey });
   });
   return useCreateReactMutation({
     mutationFn: deleteDataset,

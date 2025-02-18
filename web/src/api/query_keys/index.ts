@@ -7,6 +7,8 @@ import { searchQueryKeys } from './search';
 import { termsQueryKeys } from './terms';
 import { datasourceQueryKeys } from './datasources';
 import { datasetGroupQueryKeys } from './dataset_groups';
+import { datasetQueryKeys } from './datasets';
+import { permissionGroupQueryKeys } from './permission_groups';
 
 export const queryKeys = {
   ...chatQueryKeys,
@@ -17,5 +19,7 @@ export const queryKeys = {
   ...searchQueryKeys,
   ...termsQueryKeys,
   ...datasourceQueryKeys,
-  ...datasetGroupQueryKeys
+  ...datasetGroupQueryKeys,
+  ...datasetQueryKeys,
+  ...permissionGroupQueryKeys
 };

@@ -5,12 +5,13 @@ import type {
   GetPermissionGroupDatasetGroupsResponse,
   GetPermissionGroupDatasetsResponse,
   GetPermissionGroupResponse,
-  GetPermissionGroupUsersResponse
+  GetPermissionGroupUsersResponse,
+  ListPermissionGroupsResponse
 } from '../../asset_interfaces';
 
-export const listAllPermissionGroups = async (): Promise<GetPermissionGroupResponse[]> => {
+export const listAllPermissionGroups = async (): Promise<ListPermissionGroupsResponse[]> => {
   return await mainApi
-    .get<GetPermissionGroupResponse[]>(`/permission_groups`)
+    .get<ListPermissionGroupsResponse[]>(`/permission_groups`)
     .then((res) => res.data);
 };
 
@@ -80,7 +81,7 @@ export const getPermissionGroupDatasets_server = async ({
   id
 }: {
   id: string;
-}): Promise<GetPermissionGroupDatasetsResponse> => {
+}): Promise<GetPermissionGroupDatasetsResponse[]> => {
   return await serverFetch(`/permission_groups/${id}/datasets`);
 };
 
@@ -96,7 +97,7 @@ export const getPermissionGroupDatasetGroups_server = async ({
   id
 }: {
   id: string;
-}): Promise<GetPermissionGroupDatasetGroupsResponse> => {
+}): Promise<GetPermissionGroupDatasetGroupsResponse[]> => {
   return await serverFetch(`/permission_groups/${id}/dataset_groups`);
 };
 

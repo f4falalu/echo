@@ -31,7 +31,7 @@ export const useBusterMetricListByFilter = (params: {
       }
     },
     responseEvent: '/metrics/list:getMetricList',
-    options: queryKeys['/metrics/list:getMetricsList']()
+    options: queryKeys.metricsGetList()
   });
 
   return {

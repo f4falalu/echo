@@ -26,7 +26,7 @@ export const useUpdateMetricConfig = ({
 
   const setMetricToState = useMemoizedFn((metric: IBusterMetric) => {
     const metricId = getMetricId(metric.id);
-    const options = queryKeys['/metrics/get:getMetric'](metricId);
+    const options = queryKeys.metricsGetMetric(metricId);
     queryClient.setQueryData(options.queryKey, metric);
   });
 

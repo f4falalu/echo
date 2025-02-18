@@ -8,7 +8,7 @@ export const useMetricDelete = () => {
     emitEvent: '/metrics/delete',
     responseEvent: '/metrics/delete:deleteMetricState',
     callback: (newData, currentData, variables) => {
-      const queryOptions = queryKeys['/metrics/list:getMetricsList']();
+      const queryOptions = queryKeys.metricsGetList();
       queryClient.setQueryData(queryOptions.queryKey, (oldData) => {
         return oldData?.filter((metric) => metric.id !== variables.ids[0]) || [];
       });

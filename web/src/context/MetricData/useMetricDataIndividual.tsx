@@ -15,7 +15,7 @@ export const useMetricDataIndividual = ({ metricId }: { metricId: string }) => {
       payload: { id: metricId }
     },
     responseEvent: '/metrics/get:fetchingData',
-    options: queryKeys['/metrics/get:fetchingData'](metricId),
+    options: queryKeys.chatsMessagesFetchingData(metricId),
     callback: (currentData, responseData) => {
       const metricId = responseData.metric_id;
       const newMetricData: BusterMetricData = {

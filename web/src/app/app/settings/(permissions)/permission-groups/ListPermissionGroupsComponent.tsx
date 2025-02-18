@@ -7,10 +7,10 @@ import {
 } from '@/components/list';
 import React, { useMemo } from 'react';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import type { GetPermissionGroupResponse } from '@/api/asset_interfaces';
+import type { ListPermissionGroupsResponse } from '@/api/asset_interfaces';
 
 export const ListPermissionGroupsComponent: React.FC<{
-  permissionGroups: GetPermissionGroupResponse[];
+  permissionGroups: ListPermissionGroupsResponse[];
   isFetched: boolean;
 }> = React.memo(({ permissionGroups, isFetched }) => {
   const columns: BusterListColumn[] = useMemo(
