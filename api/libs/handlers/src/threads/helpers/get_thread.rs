@@ -1,14 +1,39 @@
 use anyhow::{anyhow, Result};
+use chrono::{DateTime, Utc};
+use diesel::prelude::Queryable;
 use diesel::{ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
+use serde_json::Value;
 use tokio;
 use uuid::Uuid;
 
 use crate::messages::types::ThreadMessage;
 use crate::threads::types::ThreadWithMessages;
-use database::models::{MessageWithUser, ThreadWithUser};
 use database::pool::get_pg_pool;
 use database::schema::{messages, threads, users};
+
+#[derive(Queryable)]
+pub struct ThreadWithUser {
+    pub id: Uuid,
+    pub title: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub user_id: Uuid,
+    pub user_name: Option<String>,
+    pub user_email: String,
+    pub user_attributes: Value,
+}
+
+#[derive(Queryable)]
+pub struct MessageWithUser {
+    pub id: Uuid,
+    pub request: String,
+    pub response: Value,
+    pub created_at: DateTime<Utc>,
+    pub user_id: Uuid,
+    pub user_name: Option<String>,
+    pub user_attributes: Value,
+}
 
 pub async fn get_thread(thread_id: &Uuid, user_id: &Uuid) -> Result<ThreadWithMessages> {
     // Run thread and messages queries concurrently
@@ -100,17 +125,21 @@ pub async fn get_thread(thread_id: &Uuid, user_id: &Uuid) -> Result<ThreadWithMe
                 .map(String::from);
 
             // Parse the response JSON to extract reasoning and response messages
-            let (reasoning, response_messages) = msg.response.as_array()
+            let (reasoning, response_messages) = msg
+                .response
+                .as_array()
                 .map(|arr| {
-                    arr.iter()
-                        .fold((Vec::new(), Vec::new()), |(mut reasoning, mut responses), item| {
+                    arr.iter().fold(
+                        (Vec::new(), Vec::new()),
+                        |(mut reasoning, mut responses), item| {
                             if let Some(reasoning_obj) = item.get("reasoning") {
                                 reasoning.push(reasoning_obj.clone());
                             } else if let Some(response_obj) = item.get("response_message") {
                                 responses.push(response_obj.clone());
                             }
                             (reasoning, responses)
-                        })
+                        },
+                    )
                 })
                 .unwrap_or_default();
 
