@@ -12,6 +12,7 @@ pub struct MetricYml {
     pub sql: String,
     pub chart_config: ChartConfig,
     pub data_metadata: Option<Vec<DataMetadata>>,
+    pub dataset_ids: Vec<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

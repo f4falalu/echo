@@ -70,15 +70,24 @@ async fn process_metric_file(file: FileParams) -> Result<(MetricFile, MetricYml)
     debug!("Processing metric file creation: {}", file.name);
 
     let metric_yml = MetricYml::new(file.yml_content.clone())
-        .map_err(|e| format!("Failed to parse metric YAML: {}", e))?;
+        .map_err(|e| format!("Invalid YAML format: {}", e))?;
 
     let metric_id = metric_yml.id.ok_or_else(|| {
-        "Metric YML file does not have an id. This should never happen.".to_string()
+        "Missing required field 'id'".to_string()
     })?;
 
-    // Validate SQL
-    if let Err(e) = validate_sql(&metric_yml.sql, &metric_id).await {
-        return Err(format!("SQL validation failed: {}", e));
+    // Check if dataset_ids is empty
+    if metric_yml.dataset_ids.is_empty() {
+        return Err("Missing required field 'dataset_ids'".to_string());
+    }
+
+    // Use the first dataset_id for SQL validation
+    let dataset_id = metric_yml.dataset_ids[0];
+    debug!("Validating SQL using dataset_id: {}", dataset_id);
+
+    // Validate SQL with the selected dataset_id
+    if let Err(e) = validate_sql(&metric_yml.sql, &dataset_id).await {
+        return Err(format!("Invalid SQL query: {}", e));
     }
 
     let metric_file = MetricFile {
@@ -86,7 +95,7 @@ async fn process_metric_file(file: FileParams) -> Result<(MetricFile, MetricYml)
         name: metric_yml.title.clone(),
         file_name: format!("{}.yml", file.name),
         content: serde_json::to_value(metric_yml.clone())
-            .map_err(|e| format!("Failed to serialize metric content: {}", e))?,
+            .map_err(|e| format!("Failed to process metric: {}", e))?,
         created_by: Uuid::new_v4(),
         verification: Verification::NotRequested,
         evaluation_obj: None,
@@ -107,10 +116,10 @@ async fn process_dashboard_file(file: FileParams) -> Result<(DashboardFile, Dash
     debug!("Processing dashboard file creation: {}", file.name);
 
     let dashboard_yml = DashboardYml::new(file.yml_content.clone())
-        .map_err(|e| format!("Failed to parse dashboard YAML: {}", e))?;
+        .map_err(|e| format!("Invalid YAML format: {}", e))?;
 
     let dashboard_id = dashboard_yml.id.ok_or_else(|| {
-        "Dashboard YML file does not have an id. This should never happen.".to_string()
+        "Missing required field 'id'".to_string()
     })?;
 
     // Collect and validate metric IDs from rows
@@ -124,10 +133,10 @@ async fn process_dashboard_file(file: FileParams) -> Result<(DashboardFile, Dash
     if !metric_ids.is_empty() {
         match validate_metric_ids(&metric_ids).await {
             Ok(missing_ids) if !missing_ids.is_empty() => {
-                return Err(format!("Referenced metrics not found: {:?}", missing_ids));
+                return Err(format!("Invalid metric references: {:?}", missing_ids));
             }
             Err(e) => {
-                return Err(format!("Failed to validate metric IDs: {}", e));
+                return Err(format!("Failed to validate metrics: {}", e));
             }
             Ok(_) => (), // All metrics exist
         }
@@ -138,7 +147,7 @@ async fn process_dashboard_file(file: FileParams) -> Result<(DashboardFile, Dash
         name: dashboard_yml.name.clone(),
         file_name: format!("{}.yml", file.name),
         content: serde_json::to_value(dashboard_yml.clone())
-            .map_err(|e| format!("Failed to serialize dashboard content: {}", e))?,
+            .map_err(|e| format!("Failed to process dashboard: {}", e))?,
         filter: None,
         organization_id: Uuid::new_v4(),
         created_by: Uuid::new_v4(),
@@ -297,12 +306,16 @@ impl ToolExecutor for CreateFilesTool {
                 .map(|(name, error)| format!("Failed to create '{}': {}", name, error))
                 .collect();
 
-            format!(
-                "{}Failed to create {} files: {}",
-                success_msg,
-                failed_files.len(),
-                failures.join("; ")
-            )
+            if failures.len() == 1 {
+                format!("{}{}.", success_msg.trim(), failures[0])
+            } else {
+                format!(
+                    "{}Failed to create {} files:\n{}",
+                    success_msg,
+                    failures.len(),
+                    failures.join("\n")
+                )
+            }
         };
 
         let duration = start_time.elapsed().as_millis() as i64;

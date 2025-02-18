@@ -428,10 +428,11 @@ For context, here is the yml schema for metrics:
 # 
 # REQUIRED at the top level:
 #   1) title: string
-#   2) sql:   multi-line string (YAML pipe recommended)
-#   3) chart_config: must match exactly one of the possible chart sub-schemas 
+#   2) dataset_ids: array of strings
+#   3) sql:   multi-line string (YAML pipe recommended)
+#   4) chart_config: must match exactly one of the possible chart sub-schemas 
 #                  (bar/line, scatter, pie, combo, metric, table).
-#   4) data_metadata: array of columns. Each with { name, data_type }.
+#   5) data_metadata: array of columns. Each with { name, data_type }.
 # 
 # "columnLabelFormats" is a required field under chartConfig (in the base).
 #
@@ -454,7 +455,19 @@ properties:
       Always required.
 
   # ----------------------
-  # 2. SQL (REQUIRED, multi-line recommended)
+  # 2. DATASET_IDS (REQUIRED)
+  # ----------------------
+  dataset_ids:
+    type: array
+    description: >
+      An array of UUIDs identifying the datasets used in this metric.
+      Always required.
+    items:
+      type: string
+      description: "UUID of a dataset"
+
+  # ----------------------
+  # 3. SQL (REQUIRED, multi-line recommended)
   # ----------------------
   sql:
     type: string
@@ -472,7 +485,7 @@ properties:
       Always required.
 
   # ----------------------
-  # 3. CHART CONFIG (REQUIRED, EXACTLY ONE TYPE)
+  # 4. CHART CONFIG (REQUIRED, EXACTLY ONE TYPE)
   # ----------------------
   chart_config:
     description: >
@@ -487,7 +500,7 @@ properties:
       - $ref: "#/definitions/table_chart_config"
 
   # ----------------------
-  # 4. DATA METADATA (REQUIRED)
+  # 5. DATA METADATA (REQUIRED)
   # ----------------------
   data_metadata:
     type: array
@@ -509,8 +522,10 @@ properties:
 
 required:
   - title
+  - dataset_ids
   - sql
   - chart_config
+  - data_metadata
 
 definitions:
 
