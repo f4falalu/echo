@@ -1,9 +1,9 @@
 'use client';
 
 import type { BusterUserResponse } from '@/api/asset_interfaces';
-import React, { PropsWithChildren, useState } from 'react';
+import React, { PropsWithChildren } from 'react';
 import { useFavoriteProvider } from './useFavoriteProvider';
-import { getMyUserInfo_server, useGetMyUserInfo } from '@/api/buster_rest/users';
+import { useGetMyUserInfo } from '@/api/buster_rest/users';
 import { useSupabaseContext } from '../Supabase';
 import {
   ContextSelector,
@@ -17,7 +17,7 @@ import { useInviteUser } from './useInviteUser';
 export const useUserConfigProvider = ({ userInfo }: { userInfo: BusterUserResponse | null }) => {
   const isAnonymousUser = useSupabaseContext((state) => state.isAnonymousUser);
 
-  const { data: userResponse, refetch: refetchUserResponse } = useGetMyUserInfo();
+  const { data: userResponse, refetch: refetchUserResponse, isFetched } = useGetMyUserInfo();
 
   const favoriteConfig = useFavoriteProvider();
 

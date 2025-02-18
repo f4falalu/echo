@@ -3,10 +3,17 @@ import {
   useCreateReactMutation,
   useCreateReactQuery
 } from '@/api/createReactQuery';
-import { getUser, getUser_server, updateOrganizationUser, getMyUserInfo } from './requests';
+import {
+  getUser,
+  getUser_server,
+  updateOrganizationUser,
+  getMyUserInfo,
+  getMyUserInfo_server
+} from './requests';
 import { useMemoizedFn } from 'ahooks';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
+import { BusterUserResponse } from '@/api/asset_interfaces';
 
 export const useGetMyUserInfo = () => {
   const queryFn = useMemoizedFn(async () => getMyUserInfo());
@@ -18,12 +25,17 @@ export const useGetMyUserInfo = () => {
   });
 };
 
-export const prefetchGetMyUserInfo = async (queryClientProp?: QueryClient) => {
+export const prefetchGetMyUserInfo = async (
+  params: Parameters<typeof getMyUserInfo_server>[0],
+  queryClientProp?: QueryClient
+) => {
   const queryClient = queryClientProp || new QueryClient();
+  const initialData = await getMyUserInfo_server(params);
   await queryClient.prefetchQuery({
     ...queryKeys['/users/response:getUserMyself'],
-    queryFn: () => getMyUserInfo()
+    initialData
   });
+  return { queryClient, initialData };
 };
 
 export const useGetUser = (params: Parameters<typeof getUser>[0]) => {

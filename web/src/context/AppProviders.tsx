@@ -25,6 +25,7 @@ import { BusterChatProvider } from './Chats';
 import { RoutePrefetcher } from './RoutePrefetcher';
 import { BusterMetricsProvider } from './Metrics';
 import type { BusterUserResponse } from '@/api/asset_interfaces';
+import { QueryClient } from '@tanstack/react-query';
 
 // scan({
 //   enabled: true,

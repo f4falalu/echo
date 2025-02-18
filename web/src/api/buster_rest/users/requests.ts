@@ -28,6 +28,9 @@ export const getMyUserInfo_server = async ({
     }
   })
     .then((response) => {
+      if (!response.ok) {
+        return undefined;
+      }
       return response.json();
     })
     .catch((error) => {
