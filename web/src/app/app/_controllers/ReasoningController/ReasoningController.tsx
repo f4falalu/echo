@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { useChatIndividualContextSelector } from '../../_layouts/ChatLayout/ChatContext';
+import { useChatIndividualContextSelector } from '@chatLayout/ChatContext';
 import { ReasoningMessageContainer } from './ReasoningMessageContainer';
 import { useMessageIndividual } from '@/context/Chats';
 

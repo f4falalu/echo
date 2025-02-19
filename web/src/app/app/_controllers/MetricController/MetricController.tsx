@@ -4,7 +4,7 @@ import React from 'react';
 import {
   MetricFileView,
   useChatLayoutContextSelector
-} from '@appLayouts/ChatLayout/ChatLayoutContext';
+} from '@layouts/ChatLayout/ChatLayoutContext';
 import { MetricViewComponents } from './config';
 import { useMetricIndividual } from '@/context/Metrics';
 import { FileIndeterminateLoader } from '@appComponents/FileIndeterminateLoader';

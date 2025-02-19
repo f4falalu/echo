@@ -1,4 +1,4 @@
-import { AppAssetCheckLayout } from '@appLayouts/AppAssetCheckLayout';
+import { AppAssetCheckLayout } from '@layouts/AppAssetCheckLayout';
 
 export default function DashboardPage({
   params: { dashboardId }

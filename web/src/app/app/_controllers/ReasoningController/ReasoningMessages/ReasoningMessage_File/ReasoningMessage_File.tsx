@@ -8,7 +8,6 @@ import {
 import { useBusterStylesContext } from '@/context/BusterStyles';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { AnimatePresence, motion } from 'framer-motion';
-import { itemAnimationConfig } from '../animationConfig';
 import { LoaderDot } from './LoaderDot';
 import { ReasoningFileButtons } from './ReasoningFileButtons';
 import { ReasoningFileTitle } from './ReasoningFileTitle';

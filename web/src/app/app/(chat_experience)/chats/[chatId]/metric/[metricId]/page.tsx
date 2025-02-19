@@ -1,5 +1,5 @@
 import { MetricController } from '@appControllers/MetricController';
-import { AppAssetCheckLayout } from '@appLayouts/AppAssetCheckLayout';
+import { AppAssetCheckLayout } from '@layouts/AppAssetCheckLayout';
 
 export default function Page({
   params: { chatId, metricId }

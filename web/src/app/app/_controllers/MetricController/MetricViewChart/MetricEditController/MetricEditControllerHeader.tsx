@@ -3,7 +3,7 @@ import React from 'react';
 import { Text } from '@/components/text';
 import { Button } from 'antd';
 import { AppMaterialIcons } from '@/components/icons';
-import { useChatLayoutContextSelector } from '@/app/app/_layouts/ChatLayout';
+import { useChatLayoutContextSelector } from '@chatLayout/ChatLayoutContext';
 
 export const MetricEditControllerHeader: React.FC = React.memo(() => {
   const { styles, cx } = useStyles();

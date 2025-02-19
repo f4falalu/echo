@@ -6,7 +6,7 @@ import { useMemoizedFn, useUnmount } from 'ahooks';
 import { IDataResult } from '@/api/asset_interfaces';
 import { useMetricLayout } from '../useMetricLayout';
 import { AppSplitterRef } from '@/components';
-import { useChatLayoutContextSelector } from '@/app/app/_layouts/ChatLayout';
+import { useChatLayoutContextSelector } from '@chatLayout/ChatLayoutContext';
 import { useSQLContextSelector } from '@/context/SQL';
 
 const autoSaveId = 'metric-view-results';

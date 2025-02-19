@@ -1,10 +1,10 @@
 import type { FileType } from '@/api/asset_interfaces';
-import { createChatAssetRoute } from '@appLayouts/ChatLayout/ChatLayoutContext/helpers';
+import { createChatAssetRoute } from '@layouts/ChatLayout/ChatLayoutContext/helpers';
 import { AppTooltip } from '@/components/tooltip';
 import { AppMaterialIcons } from '@/components/icons';
 import { Button } from 'antd';
 import React from 'react';
-import { useChatLayoutContextSelector } from '@/app/app/_layouts/ChatLayout';
+import { useChatLayoutContextSelector } from '@chatLayout/ChatLayoutContext';
 import { useMemoizedFn } from 'ahooks';
 
 export const ReasoningFileButtons = React.memo(

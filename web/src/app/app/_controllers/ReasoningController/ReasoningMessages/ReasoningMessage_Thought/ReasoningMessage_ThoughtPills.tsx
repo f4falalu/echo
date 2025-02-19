@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useMemoizedFn } from 'ahooks';
 import { AppPopover } from '@/components';
 import { PopoverProps } from 'antd';
-import { isOpenableFile, SelectedFile, useChatLayoutContextSelector } from '@appLayouts/ChatLayout';
+import { isOpenableFile, SelectedFile, useChatLayoutContextSelector } from '@layouts/ChatLayout';
 
 const duration = 0.25;
 

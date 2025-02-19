@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useBusterDashboardIndividual } from '@/context/Dashboards';
 import { FileIndeterminateLoader } from '@appComponents/FileIndeterminateLoader';
-import { DashboardFileView, useChatLayoutContextSelector } from '@appLayouts/ChatLayout';
+import { DashboardFileView, useChatLayoutContextSelector } from '@layouts/ChatLayout';
 import { DashboardViewComponents } from './config';
 import { AddTypeModal } from '../../_components/AddTypeModal';
 import { useMemoizedFn } from 'ahooks';

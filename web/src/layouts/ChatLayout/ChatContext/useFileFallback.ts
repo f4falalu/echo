@@ -1,4 +1,4 @@
-import { SelectedFile } from '@appLayouts/ChatLayout';
+import { SelectedFile } from '@layouts/ChatLayout';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { useBusterMetricsIndividualContextSelector, useMetricIndividual } from '@/context/Metrics';
 import { useEffect, useMemo } from 'react';
