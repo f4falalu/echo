@@ -16,7 +16,7 @@ export const useBusterChatListByFilter = (
       route: '/chats/list',
       payload: filters
     },
-    responseEvent: '/chats/list:getChatsList',
+    responseEvent: '/chats/list:getThreadsList',
     options: queryKeys['chatsGetList'](filters)
   });
 

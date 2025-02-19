@@ -7,11 +7,14 @@ import {
   createContext
 } from '@fluentui/react-context-selector';
 import { queryKeys } from '@/api/query_keys';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 
 type CollectionListFilters = Omit<CollectionsListEmit['payload'], 'page' | 'page_size'>;
 
 export const useCollectionLists = () => {
   const [collectionListFilters, setCollectionListFilters] = useState<CollectionListFilters>({});
+  const currentSegment = useAppLayoutContextSelector((x) => x.currentSegment);
+  const enabled = currentSegment === 'collections';
 
   const payload = useMemo(() => {
     return { page: 0, page_size: 1000, ...collectionListFilters };
@@ -27,7 +30,8 @@ export const useCollectionLists = () => {
       payload
     },
     responseEvent: '/collections/list:listCollections',
-    options: queryKeys.collectionsGetList(payload)
+    options: queryKeys.collectionsGetList(payload),
+    enabledTrigger: enabled
   });
 
   return {

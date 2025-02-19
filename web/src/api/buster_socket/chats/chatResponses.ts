@@ -7,7 +7,7 @@ import {
 } from './eventInterfaces';
 
 export enum ChatsResponses {
-  '/chats/list:getChatsList' = '/chats/list:getChatsList',
+  '/chats/list:getThreadsList' = '/chats/list:getThreadsList',
   '/chats/unsubscribe:unsubscribe' = '/chats/unsubscribe:unsubscribe',
   '/chats/get:getChat' = '/chats/get:getChat',
   '/chats/post:initializeChat' = '/chats/post:initializeChat',
@@ -20,7 +20,7 @@ export enum ChatsResponses {
 }
 
 export type ChatList_getChatsList = {
-  route: '/chats/list:getChatsList';
+  route: '/chats/list:getThreadsList';
   callback: (d: BusterChatListItem[]) => void;
   onError?: (d: unknown | RustApiError) => void;
 };

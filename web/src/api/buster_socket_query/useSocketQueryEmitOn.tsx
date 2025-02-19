@@ -56,7 +56,10 @@ export const useSocketQueryEmitOn = <
     } as UseQueryOptions<TData, TError, TData, TQueryKey>;
   }, [options.queryKey, enabledTrigger]);
 
-  const queryResult = useSocketQueryOn({ responseEvent, options: emitOptions, callback });
-
-  return { ...queryResult };
+  return useSocketQueryOn({
+    responseEvent,
+    options: emitOptions,
+    callback,
+    isEmitOn: true
+  });
 };

@@ -9,7 +9,7 @@ export const useBusterTermsIndividual = ({ termId }: { termId: string }) => {
   } = useSocketQueryEmitOn({
     emitEvent: { route: '/terms/get', payload: { id: termId } },
     responseEvent: '/terms/get:GetTerm',
-    options: queryKeys['/terms/get:getTerm'](termId),
+    options: queryKeys.termsGetTerm(termId),
     enabledTrigger: termId
   });
 

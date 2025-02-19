@@ -30,13 +30,13 @@ export const ChatItemsContainer: React.FC<{
   const logsRecord = useCreateListByDate({ data: chats });
 
   const chatsByDate: BusterListRow[] = useMemo(() => {
-    return Object.entries(logsRecord).flatMap(([key, metrics]) => {
-      const records = metrics.map((metric) => ({
-        id: metric.id,
-        data: metric,
+    return Object.entries(logsRecord).flatMap(([key, chats]) => {
+      const records = chats.map((chat) => ({
+        id: chat.id,
+        data: chat,
         link: createBusterRoute({
-          route: BusterRoutes.APP_METRIC_ID,
-          metricId: metric.id
+          route: BusterRoutes.APP_CHAT_ID,
+          chatId: chat.id
         })
       }));
       const hasRecords = records.length > 0;
@@ -63,7 +63,7 @@ export const ChatItemsContainer: React.FC<{
         dataIndex: 'title',
         title: 'Title',
         render: (title, record) => (
-          <TitleCell title={title} status={record?.status} metricId={record?.id} />
+          <TitleCell title={title} status={record?.status} chatId={record?.id} />
         )
       },
       {
@@ -104,8 +104,6 @@ export const ChatItemsContainer: React.FC<{
     ],
     []
   );
-
-  console.log(chatsByDate, loading);
 
   return (
     <div
@@ -153,8 +151,8 @@ const ChatsEmptyState: React.FC<{
   );
 };
 
-const TitleCell = React.memo<{ title: string; status: VerificationStatus; metricId: string }>(
-  ({ title, status, metricId }) => {
+const TitleCell = React.memo<{ title: string; status: VerificationStatus; chatId: string }>(
+  ({ title, status, chatId }) => {
     const onFavoriteDivClick = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
       e.stopPropagation();
     });
@@ -167,7 +165,7 @@ const TitleCell = React.memo<{ title: string; status: VerificationStatus; metric
         <Text ellipsis={true}>{title}</Text>
         <div className="flex items-center" onClick={onFavoriteDivClick}>
           <FavoriteStar
-            id={metricId}
+            id={chatId}
             type={ShareAssetType.METRIC}
             iconStyle="tertiary"
             title={title}

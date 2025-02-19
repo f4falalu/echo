@@ -66,7 +66,7 @@ This example demonstrates:
 ```typescript
 // Example of required response routes enum
 export enum ChatsResponses {
-  '/chats/list:getChatsList' = '/chats/list:getChatsList',
+  '/chats/list:getThreadsList' = '/chats/list:getThreadsList',
   '/chats/unsubscribe:unsubscribe' = '/chats/unsubscribe:unsubscribe',
   '/chats/get:getChat' = '/chats/get:getChat',
   '/chats/post:initializeChat' = '/chats/post:initializeChat',
@@ -79,7 +79,7 @@ export enum ChatsResponses {
  */
 export type ChatList_getChatsList = {
   /** The route identifier for getting the chats list */
-  route: '/chats/list:getChatsList';
+  route: '/chats/list:getThreadsList';
   /** Callback function that receives the chat list data */
   callback: (chats: ChatListItem[]) => void;
   /** Optional error handler for when the request fails */

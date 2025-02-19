@@ -1,6 +1,6 @@
 import { SelectedFile } from '@appLayouts/ChatLayout';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
-import { useMetricIndividual } from '@/context/Metrics';
+import { useBusterMetricsIndividualContextSelector, useMetricIndividual } from '@/context/Metrics';
 import { useEffect, useMemo } from 'react';
 import { FileType } from '@/api/asset_interfaces';
 import {
@@ -16,9 +16,14 @@ export const useFileFallback = ({
   defaultSelectedFile?: SelectedFile;
 }) => {
   const fileId = defaultSelectedFile?.id || '';
+
   const onUpdateChatMessage = useBusterChatContextSelector((x) => x.onUpdateChatMessage);
-  const { metricTitle, metricVersionNumber } = useMetricParams(fileId);
-  const { dashboardTitle, dashboardVersionNumber } = useDashboardParams(fileId);
+  const { metricTitle, metricVersionNumber } = useMetricParams(
+    defaultSelectedFile?.type === 'metric' ? fileId : ''
+  );
+  const { dashboardTitle, dashboardVersionNumber } = useDashboardParams(
+    defaultSelectedFile?.type === 'dashboard' ? fileId : ''
+  );
 
   const fileType: FileType = useMemo(() => {
     if (defaultSelectedFile?.type === 'metric') {
@@ -133,17 +138,18 @@ const fallbackToFileChatMessage = ({
   };
 };
 
-const useMetricParams = (fileId: string) => {
-  const { metric } = useMetricIndividual({ metricId: fileId });
+const useMetricParams = (metricId: string) => {
+  const getMetricMemoized = useBusterMetricsIndividualContextSelector((x) => x.getMetricMemoized);
+  const metric = getMetricMemoized({ metricId });
   const metricTitle = metric?.title;
   const metricVersionNumber = metric?.version_number;
 
   return { metricTitle, metricVersionNumber };
 };
 
-const useDashboardParams = (fileId: string) => {
+const useDashboardParams = (dashboardId: string) => {
   const getDashboardMemoized = useBusterDashboardContextSelector((x) => x.getDashboardMemoized);
-  const dashboard = getDashboardMemoized(fileId);
+  const dashboard = getDashboardMemoized(dashboardId);
   const dashboardTitle = dashboard?.dashboard?.name;
   const dashboardVersionNumber = dashboard?.dashboard?.version_number;
 

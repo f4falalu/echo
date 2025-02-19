@@ -23,7 +23,8 @@ export const useSocketQueryOn = <
 >({
   responseEvent,
   options,
-  callback
+  callback,
+  isEmitOn
 }: {
   responseEvent: TRoute;
   options?: UseQueryOptions<TData, TError, TData, TQueryKey> | null;
@@ -33,6 +34,7 @@ export const useSocketQueryOn = <
         newData: InferBusterSocketResponseData<TRoute>
       ) => TData | undefined | void)
     | null;
+  isEmitOn?: boolean;
 }): UseSocketQueryOnResult<TData, TError> => {
   const busterSocket = useBusterWebSocket();
   const queryClient = useQueryClient();
@@ -63,7 +65,7 @@ export const useSocketQueryOn = <
 
   useMount(() => {
     const hasCallbacks = busterSocket.getCurrentListeners(responseEvent).length > 0;
-    if (!hasCallbacks) busterSocket.on(socketConfig);
+    if (!hasCallbacks || isEmitOn) busterSocket.on(socketConfig);
   });
 
   useUnmount(() => {

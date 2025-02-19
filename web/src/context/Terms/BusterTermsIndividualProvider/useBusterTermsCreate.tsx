@@ -27,7 +27,7 @@ export const useBusterTermsCreate = () => {
   const { mutate: deleteTermMutation } = useSocketQueryMutation({
     emitEvent: '/terms/delete',
     responseEvent: '/terms/delete:DeleteTerm',
-    options: queryKeys['/terms/list:getTermsList'],
+    options: queryKeys.termsGetList,
     preCallback: (currentData, variables) => {
       return (currentData || []).filter((term) => !variables.ids.includes(term.id));
     }

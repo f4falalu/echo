@@ -14,7 +14,6 @@ export const MetricController: React.FC<{
 }> = React.memo(({ metricId }) => {
   const { metric, isFetchedMetricData } = useMetricIndividual({ metricId });
   const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView) || 'chart';
-
   const isFetchedConfig = metric.fetched;
 
   const showLoader = !isFetchedConfig || !isFetchedMetricData;
