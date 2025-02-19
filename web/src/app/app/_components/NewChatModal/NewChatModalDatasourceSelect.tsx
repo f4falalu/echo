@@ -3,7 +3,6 @@ import { AppMaterialIcons } from '@/components/icons';
 import { SelectProps, Select } from 'antd';
 import isEmpty from 'lodash/isEmpty';
 import React, { useMemo } from 'react';
-import { BsStars } from 'react-icons/bs';
 import { Text } from '@/components/text';
 import { useMemoizedFn } from 'ahooks';
 import { createStyles } from 'antd-style';
@@ -20,7 +19,7 @@ export const NewChatModalDataSourceSelect: React.FC<{
     () => ({
       label: (
         <div className="flex items-center space-x-1">
-          <BsStars size={14} className={`min-w-[14px] ${styles.icon}`} />
+          <AppMaterialIcons size={14} className={`min-w-[14px] ${styles.icon}`} icon="stars" />
           <span>Auto-select</span>
         </div>
       ),
