@@ -8,6 +8,7 @@ use uuid::Uuid;
 pub mod database_tools;
 pub mod file_tools;
 pub mod interaction_tools;
+pub mod agents_as_tools;
 
 /// A trait that defines how tools should be implemented.
 /// Any struct that wants to be used as a tool must implement this trait.

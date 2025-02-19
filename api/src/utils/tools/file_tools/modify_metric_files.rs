@@ -223,18 +223,18 @@ pub struct ModifyFilesOutput {
     files: Vec<FileEnum>,
 }
 
-pub struct ModifyFilesTool;
+pub struct ModifyMetricFilesTool;
 
-impl ModifyFilesTool {
+impl ModifyMetricFilesTool {
     pub fn new() -> Self {
         Self
     }
 }
 
-impl FileModificationTool for ModifyFilesTool {}
+impl FileModificationTool for ModifyMetricFilesTool {}
 
 #[async_trait]
-impl ToolExecutor for ModifyFilesTool {
+impl ToolExecutor for ModifyMetricFilesTool {
     type Output = ModifyFilesOutput;
 
     fn get_name(&self) -> String {
@@ -796,7 +796,7 @@ mod tests {
 
     #[test]
     fn test_tool_parameter_validation() {
-        let tool = ModifyFilesTool;
+        let tool = ModifyMetricFilesTool;
         
         // Test valid parameters
         let valid_params = json!({

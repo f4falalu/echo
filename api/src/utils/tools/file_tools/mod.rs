@@ -17,6 +17,10 @@ pub use open_files::OpenFilesTool;
 pub use search_data_catalog::SearchDataCatalogTool;
 pub use search_files::SearchFilesTool;
 pub use send_files_to_user::SendFilesToUserTool;
+pub use create_dashboard_files::CreateDashboardFilesTool;
+pub use create_metric_files::CreateMetricFilesTool;
+pub use modify_dashboard_files::ModifyDashboardFilesTool;
+pub use modify_metric_files::ModifyMetricFilesTool;
 
 use crate::utils::tools::ToolExecutor;
 
