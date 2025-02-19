@@ -49,7 +49,8 @@ export const BusterListHeader: React.FC<{
             key={column.dataIndex}
             style={{
               width: column.width || '100%',
-              flex: column.width ? 'none' : 1
+              flex: column.width ? 'none' : 1,
+              paddingLeft: showCheckboxColumn ? undefined : '0px'
             }}>
             {column.headerRender ? (
               column.headerRender(column.title)
@@ -77,7 +78,7 @@ const useStyles = createStyles(({ token, css }) => ({
     border-bottom: 0.5px solid ${token.colorBorder};
 
     .header-cell {
-      padding: 0 4px;
+      padding: 0 0px;
       height: 100%;
 
       // &:first-child {

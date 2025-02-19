@@ -20,9 +20,9 @@ export const CheckboxColumn: React.FC<{
     <div
       onClick={onClickStopPropagation}
       className={cx(
+        className,
         styles.checkboxColumn,
         'flex items-center justify-center opacity-0',
-        className,
         'group-hover:opacity-100',
         showBox ? 'opacity-100' : ''
       )}>

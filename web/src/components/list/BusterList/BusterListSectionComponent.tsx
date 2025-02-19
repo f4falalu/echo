@@ -65,7 +65,7 @@ export const BusterListSectionComponent = React.memo(
             <CheckboxColumn checkStatus={checkStatus} onChange={onChange} />
           )}
 
-          <div className={cx('flex items-center space-x-2 leading-none', 'pl-[4px]')}>
+          <div className={cx('flex items-center space-x-2 pl-[0px] leading-none')}>
             <Text size="sm">{rowSection.title}</Text>
             <Text size="sm" type="tertiary">
               {rowSection.secondaryTitle}
