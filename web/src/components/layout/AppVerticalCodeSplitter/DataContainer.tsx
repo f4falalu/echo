@@ -18,7 +18,7 @@ export const DataContainer: React.FC<{
       <IndeterminateLinearLoader
         className={cx(
           'absolute left-0 top-0 z-10 w-full',
-          fetchingData && hasData ? 'block' : '!hidden'
+          fetchingData && hasData ? 'block' : 'hidden!'
         )}
       />
 

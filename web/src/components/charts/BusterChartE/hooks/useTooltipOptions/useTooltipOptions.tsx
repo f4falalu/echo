@@ -148,7 +148,7 @@ const tooltipBuilders: Record<ChartType, () => any> = {
   [ChartType.Bar]: () => ({
     trigger: 'axis',
     axisPointer: {
-      type: 'shadow'
+      type: 'shadow-sm'
     }
   }),
   [ChartType.Scatter]: () => ({

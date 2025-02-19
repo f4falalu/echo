@@ -1,5 +1,4 @@
-import tailwind from '../../../../../tailwind.config';
-const colors = tailwind.theme.extend.colors;
+const primaryColor = '#7C3AED';
 
 const theme = {
   base: 'vs',
@@ -30,7 +29,7 @@ const theme = {
       token: 'constant.numeric'
     },
     {
-      foreground: colors.buster.primary,
+      foreground: primaryColor,
       token: 'constant.language'
     },
     {
@@ -42,15 +41,15 @@ const theme = {
       token: 'constant.other'
     },
     {
-      foreground: colors.buster.primary,
+      foreground: primaryColor,
       token: 'variable.language'
     },
     {
-      foreground: colors.buster.primary,
+      foreground: primaryColor,
       token: 'variable.other'
     },
     {
-      foreground: colors.buster.primary,
+      foreground: primaryColor,
       token: 'keyword'
     },
     {

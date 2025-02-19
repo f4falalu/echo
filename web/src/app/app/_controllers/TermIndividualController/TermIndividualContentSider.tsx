@@ -31,7 +31,7 @@ export const TermIndividualContentSider: React.FC<{ termId: string }> = ({ termI
   return (
     <div className="h-full space-y-5 p-4">
       <div className="flex flex-col space-y-2.5">
-        <Text type="secondary" className="!text-sm">
+        <Text type="secondary" className="text-sm!">
           Datasets that reference this term
         </Text>
 
@@ -39,7 +39,7 @@ export const TermIndividualContentSider: React.FC<{ termId: string }> = ({ termI
       </div>
 
       <div className="space-y-2.5">
-        <Text type="secondary" className="!text-sm">
+        <Text type="secondary" className="text-sm!">
           Created by
         </Text>
 

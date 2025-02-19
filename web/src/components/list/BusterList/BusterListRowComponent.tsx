@@ -5,7 +5,7 @@ import { BusterListRow, BusterListColumn, BusterListRowItem, BusterListProps } f
 import Link from 'next/link';
 import { CheckboxColumn } from './CheckboxColumn';
 import { createStyles } from 'antd-style';
-import { HEIGHT_OF_ROW, sizes } from './config';
+import { HEIGHT_OF_ROW } from './config';
 
 export const BusterListRowComponent = React.memo(
   React.forwardRef<
@@ -185,11 +185,12 @@ export const useStyles = createStyles(({ css, token }) => ({
   `,
   cell: css`
     color: ${token.colorText};
-    font-size: ${sizes.base};
+    font-size: 13px;
+    @apply text-base;
 
     &.secondary {
       color: ${token.colorTextTertiary};
-      font-size: ${sizes.sm};
+      @apply text-xs;
     }
   `
 }));

@@ -58,7 +58,7 @@ export const EditDateType: React.FC<{
       <LabelAndInput label="Type">
         <div className="w-full overflow-hidden">
           <Select
-            className="!w-full"
+            className="w-full!"
             options={options}
             defaultValue={selectedOption}
             onChange={onChange}

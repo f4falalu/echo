@@ -85,7 +85,7 @@ export const AppSelectTagInput: React.FC<AppSelectTagInputProps> = ({
           `buster-select-multiple app-select-tag-input w-full`,
           className,
           inputType === 'textarea' && styles.textarea,
-          '!cursor-text',
+          'cursor-text!',
           {
             focused: isFocused
           }
@@ -93,7 +93,7 @@ export const AppSelectTagInput: React.FC<AppSelectTagInputProps> = ({
         mode="tags"
         suffixIcon={<></>}
         tagRender={memoizedTagRender}
-        dropdownRender={(menu) => <div className="!hidden">{menu}</div>}
+        dropdownRender={(menu) => <div className="hidden!">{menu}</div>}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         variant={inputType === 'textarea' ? 'borderless' : undefined}
@@ -125,9 +125,9 @@ const ColoredTagRender = ({
   return (
     <Tag
       {...props}
-      className={`${className} !flex items-center`}
+      className={`${className} flex! items-center`}
       color={chosenColor}
-      closeIcon={<AppMaterialIcons size={10} className="!text-inherit" icon="close" />}
+      closeIcon={<AppMaterialIcons size={10} className="text-inherit!" icon="close" />}
       onMouseDown={onPreventMouseDown}
       closable={!disabled && closable}
       onClose={onClose}

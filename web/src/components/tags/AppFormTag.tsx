@@ -1,8 +1,5 @@
-import { Tag } from 'antd';
 import { createStyles } from 'antd-style';
 import React from 'react';
-import tailwind from '../../../tailwind.config';
-const sizes = tailwind.theme.fontSize;
 
 const useStyles = createStyles(({ css, token }) => {
   return {
@@ -15,7 +12,7 @@ const useStyles = createStyles(({ css, token }) => {
       height: ${token.controlHeight}px;
       padding: 0px 8px;
       color: ${token.colorTextTertiary};
-      font-size: ${sizes.sm};
+      font-size: 11px;
     `
   };
 });

@@ -87,7 +87,7 @@ const AppPasswordInputComponent: React.FC<{
                 type="password"
               />
               {error ? (
-                <Text className="!mb-1" type="danger">
+                <Text className="mb-1!" type="danger">
                   {error}
                 </Text>
               ) : null}

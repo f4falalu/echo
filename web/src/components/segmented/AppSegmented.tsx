@@ -70,7 +70,7 @@ export const AppSegmented = React.memo<AppSegmentedProps>(
           className={cx(
             styles.segmented,
             props.className,
-            '!shadow-none',
+            'shadow-none!',
             !bordered && 'no-border'
           )}
         />

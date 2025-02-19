@@ -19,7 +19,7 @@ export const OverflowButton: React.FC<{
       mouseEnterDelay={0.75}
       trigger={'click'}
       destroyTooltipOnHide
-      className="max-h-[420px] min-w-[200px] !max-w-[265px] overflow-y-auto overflow-x-hidden px-0"
+      className="max-h-[420px] min-w-[200px] max-w-[265px]! overflow-y-auto overflow-x-hidden px-0"
       content={
         <div className="flex flex-col space-y-1 p-0.5">
           {legendItems.map((item) => {

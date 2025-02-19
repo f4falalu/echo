@@ -13,9 +13,9 @@ export const DropdownLabel: React.FC<{ title: string; subtitle?: string }> = ({
   return (
     <div className="dropdown-label flex space-x-2 py-1">
       <div className="flex flex-col space-y-0.5">
-        <Text className="!text-sm !font-normal">{title}</Text>
+        <Text className="text-sm! font-normal!">{title}</Text>
         {subtitle && (
-          <Text className="subtitle !text-sm !font-normal" type="secondary">
+          <Text className="subtitle text-sm! font-normal!" type="secondary">
             {subtitle}
           </Text>
         )}

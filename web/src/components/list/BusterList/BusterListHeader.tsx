@@ -37,8 +37,8 @@ export const BusterListHeader: React.FC<{
             onChange={onGlobalSelectChange}
             className={cx({
               'opacity-100': showGlobalCheckbox,
-              '!invisible': rowsLength === 0,
-              'pointer-events-none !invisible': !showSelectAll
+              'invisible!': rowsLength === 0,
+              'pointer-events-none invisible!': !showSelectAll
             })}
           />
         )}

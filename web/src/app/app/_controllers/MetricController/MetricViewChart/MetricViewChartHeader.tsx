@@ -18,22 +18,22 @@ export const MetricViewChartHeader: React.FC<{
     <div className={cx('flex flex-col space-y-0 py-2', styles.header, className)}>
       {hasTitleOrDescription ? (
         <>
-          <EditableTitle level={4} className="mb-0" inputClassName="!text-md" onChange={onSetTitle}>
+          <EditableTitle level={4} className="mb-0" inputClassName="text-md!" onChange={onSetTitle}>
             {title}
           </EditableTitle>
           <div className="flex items-center space-x-1">
             {!!timeFrame && (
               <>
-                <Text type="secondary" className="!text-sm">
+                <Text type="secondary" className="text-sm!">
                   {timeFrame}
                 </Text>
-                <Text type="secondary" className="!text-sm">
+                <Text type="secondary" className="text-sm!">
                   •
                 </Text>
               </>
             )}
 
-            <Text type="secondary" className="truncate !text-sm">
+            <Text type="secondary" className="truncate text-sm!">
               {description}
             </Text>
           </div>
@@ -84,13 +84,13 @@ const SkeletonText: React.FC = () => {
       </ConfigProvider>
       {/* <Skeleton.Input
         active
-        className="!h-4 !w-1/2 overflow-hidden rounded-md"
-        rootClassName="!w-full"
+        className="h-4! w-1/2! overflow-hidden rounded-md"
+        rootClassName="w-full!"
       />
       <Skeleton.Input
         active
-        className="!h-2 !w-3/4 overflow-hidden rounded-md"
-        rootClassName="!w-full"
+        className="h-2! w-3/4! overflow-hidden rounded-md"
+        rootClassName="w-full!"
       /> */}
     </div>
   );

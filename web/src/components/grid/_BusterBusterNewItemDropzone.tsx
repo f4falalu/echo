@@ -27,7 +27,7 @@ export const BusterNewItemDropzone: React.FC = () => {
       ref={setNodeRef}
       style={{ maxHeight: HEIGHT_OF_DROPZONE, minHeight: HEIGHT_OF_DROPZONE }}
       className={cx(
-        'flex h-full w-full items-center justify-center rounded border-dashed',
+        'flex h-full w-full items-center justify-center rounded-sm border-dashed',
         'transition-colors duration-200 ease-in-out',
         styles.dropzone,
         isOver && styles.activeDropzone

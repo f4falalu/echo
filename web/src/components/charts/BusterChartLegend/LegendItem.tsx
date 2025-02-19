@@ -114,7 +114,7 @@ const LegendItemStandard = React.memo(
             <motion.div {...headlineAnimation} className="flex items-center space-x-1.5">
               <Title
                 level={4}
-                className="!font-semibold leading-none"
+                className="font-semibold! leading-none"
                 type={!inactive ? 'default' : 'tertiary'}>
                 {headline?.titleAmount}
               </Title>
@@ -136,7 +136,7 @@ const LegendItemStandard = React.memo(
 
           <Text
             size="sm"
-            className="!flex select-none items-center truncate transition-all duration-100"
+            className="flex! select-none items-center truncate transition-all duration-100"
             type={!inactive ? 'default' : 'tertiary'}>
             <AnimatePresence mode="wait" initial={false}>
               {headlinePreText && (

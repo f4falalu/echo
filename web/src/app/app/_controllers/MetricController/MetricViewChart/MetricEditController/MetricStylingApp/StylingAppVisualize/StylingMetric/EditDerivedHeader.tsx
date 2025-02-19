@@ -166,7 +166,7 @@ const DerivedTitleSuffix: React.FC<{
             type={type}
           />
         }>
-        <Button className="!h-[18px]" type="text" icon={<AppMaterialIcons icon={buttonIcon} />} />
+        <Button className="h-[18px]!" type="text" icon={<AppMaterialIcons icon={buttonIcon} />} />
       </AppPopover>
     </div>
   );

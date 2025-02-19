@@ -157,9 +157,9 @@ const ListItem: React.FC<{
 const SkeletonLoader: React.FC<{}> = () => {
   return (
     <div className="flex flex-col space-y-4">
-      <Skeleton.Input className="!h-[50px] !w-full" />
-      <Skeleton.Input className="!h-[50px] !w-full" />
-      <Skeleton.Input className="!h-[50px] !w-full" />
+      <Skeleton.Input className="h-[50px]! w-full!" />
+      <Skeleton.Input className="h-[50px]! w-full!" />
+      <Skeleton.Input className="h-[50px]! w-full!" />
     </div>
   );
 };

@@ -254,7 +254,7 @@ const HeaderContentContainer: React.FC<{
       }}>
       {headerIsText ? (
         <Input
-          className="!pl-0"
+          className="pl-0!"
           variant="borderless"
           placeholder={headerContent as string}
           value={filterText}

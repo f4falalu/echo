@@ -67,7 +67,7 @@ export const ChatInput: React.FC<{}> = React.memo(({}) => {
           variant="borderless"
           onBlur={onBlurInput}
           onFocus={onFocusInput}
-          className="inline-block w-full !pb-2 !pl-3.5 !pr-9 !pt-2 align-middle"
+          className="inline-block w-full pb-2! pl-3.5! pr-9! pt-2! align-middle"
           placeholder="Ask a follow up..."
           value={inputValue}
           autoFocus={true}

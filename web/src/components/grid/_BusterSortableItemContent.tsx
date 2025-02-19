@@ -37,7 +37,7 @@ export const BusterSortableItemContent = React.memo(
         ref={setNodeRef}
         style={style}
         className={cx(
-          'relative h-full w-full overflow-hidden rounded',
+          'relative h-full w-full overflow-hidden rounded-sm',
           styles.item,
           isDragOverlay && 'dragOverlay',
           isDragging && 'dragging',

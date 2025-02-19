@@ -68,7 +68,7 @@ export const AppSelectItem: React.FC<{
           <div className="flex items-center space-x-1">
             {!hideCheckmark && validIndex && hideCheckbox && selected && (
               <AppMaterialIcons
-                className={!disabled ? '' : '!text-inherit'}
+                className={!disabled ? '' : 'text-inherit!'}
                 style={{
                   color: !disabled ? token.colorIcon : 'text-inherit'
                 }}

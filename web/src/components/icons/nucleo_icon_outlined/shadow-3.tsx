@@ -9,7 +9,7 @@ function shadow3(props: iconProps) {
 	const strokewidth = props.strokewidth || 1;
 	const width = props.width || '1em';
 	const height = props.height || '1em';
-	const title = props.title || "18px shadow 3";
+	const title = props.title || "18px shadow-sm 3";
 
 	return (
 		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">

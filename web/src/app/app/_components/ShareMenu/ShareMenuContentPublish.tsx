@@ -126,8 +126,8 @@ export const ShareMenuContentPublish: React.FC<{
             <>
               <IsPublishedInfo isPublished={publicly_accessible} />
 
-              <Space.Compact className="!w-full">
-                <Input className="!h-[24px]" value={url} />
+              <Space.Compact className="w-full!">
+                <Input className="h-[24px]!" value={url} />
                 <Button type="default" className="flex" onClick={onCopyLink}>
                   <AppMaterialIcons icon="link" />
                 </Button>
@@ -333,7 +333,7 @@ const SetAPassword: React.FC<{
 
                 <Button
                   type="default"
-                  className="!h-full"
+                  className="h-full!"
                   icon={
                     !visibilityToggle ? (
                       <AppMaterialIcons icon="visibility" />

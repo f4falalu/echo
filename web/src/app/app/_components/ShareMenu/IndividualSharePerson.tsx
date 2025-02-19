@@ -30,7 +30,7 @@ export const IndividualSharePerson: React.FC<{
           <Text className="">{name || email}</Text>
 
           {isSameEmailName ? null : (
-            <Text className="!text-sm" type="secondary">
+            <Text className="text-sm!" type="secondary">
               {email}
             </Text>
           )}

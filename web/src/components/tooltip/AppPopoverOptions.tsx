@@ -109,7 +109,7 @@ export const AppPopoverOptions: React.FC<{
                   styles.item,
                   rowClass,
                   `${option.selected ? selectedClass : ''}`,
-                  `flex select-none items-center justify-between space-x-2 rounded p-1`
+                  `flex select-none items-center justify-between space-x-2 rounded-sm p-1`
                 )}
                 onClick={() => {
                   option.onClick();

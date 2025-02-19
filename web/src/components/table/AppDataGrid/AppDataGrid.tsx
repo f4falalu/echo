@@ -388,7 +388,7 @@ const HeaderCell: React.FC<
   const { name, sortable, key } = column;
   return (
     <div className="flex items-center overflow-hidden">
-      <Text className="!block" ellipsis>
+      <Text className="block!" ellipsis>
         {headerFormat(name, key)}
       </Text>
       {sortable && sortDirection && (

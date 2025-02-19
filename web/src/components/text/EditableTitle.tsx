@@ -95,7 +95,7 @@ export const EditableTitle = React.memo(
             ref={inputRef}
             disabled={disabled}
             variant="borderless"
-            className={cx('w-full !px-0 !py-0', inputClassName, styles.input, {
+            className={cx('w-full px-0! py-0!', inputClassName, styles.input, {
               [styles.level1]: level === 1,
               [styles.level2]: level === 2,
               [styles.level3]: level === 3,

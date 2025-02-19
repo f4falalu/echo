@@ -29,7 +29,7 @@ export const BusterUserAvatar = React.memo(
         performant={useToolTip}>
         <Avatar
           {...props}
-          className={`${props.className || ''} flex ${props.image ? '!bg-transparent' : ''}`}
+          className={`${props.className || ''} flex ${props.image ? 'bg-transparent!' : ''}`}
           size={size}
           style={{
             minWidth: size as number,

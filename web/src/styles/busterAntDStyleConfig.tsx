@@ -1,9 +1,6 @@
 import type { ConfigProviderProps, ThemeConfig } from 'antd';
-import tailwindConfig from '../../tailwind.config';
 import { createStyles } from 'antd-style';
 import { AppMaterialIcons } from '@/components/icons/AppMaterialIcons';
-
-const screens = tailwindConfig.theme.screens;
 
 export const busterAppStyleConfig: ThemeConfig = {
   token: {
@@ -32,12 +29,6 @@ export const busterAppStyleConfig: ThemeConfig = {
     colorSplit: '#E0E0E0',
     colorBgSpotlight: 'rgb(255, 255, 255)',
     colorBgMask: 'rgba(0, 0, 0, 0.125)',
-    screenXS: parseInt(screens.xs),
-    screenSM: parseInt(screens.sm),
-    screenMD: parseInt(screens.md),
-    screenLG: parseInt(screens.lg),
-    screenXL: parseInt(screens.xl),
-    screenXXL: parseInt(screens.xxl),
     borderRadius: 4,
     controlHeightSM: 24,
     controlHeight: 28,
@@ -633,10 +624,10 @@ export const useBusterAppComponentConfig = (): Pick<
   return {
     modal: {
       classNames: {
-        body: cx('!px-8 !pt-4 !pb-6'),
-        header: '!mb-0 !px-8 !pt-6',
-        content: cx('!p-0', styles.modalContent),
-        footer: cx('!mt-0 !px-3 !py-3', styles.modalFooter)
+        body: cx('px-8! pt-4! pb-6!'),
+        header: 'mb-0! px-8! pt-6!',
+        content: cx('p-0!', styles.modalContent),
+        footer: cx('mt-0! px-3! py-3!', styles.modalFooter)
       }
     },
     breadcrumb: {

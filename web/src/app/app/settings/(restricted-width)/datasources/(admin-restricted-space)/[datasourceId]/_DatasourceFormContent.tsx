@@ -86,7 +86,7 @@ export const DataSourceFormContent: React.FC<{
               datasourceId: res.id
             });
           },
-          cancelButtonProps: { className: '!hidden' }
+          cancelButtonProps: { className: 'hidden!' }
         });
       }
     } catch (error) {

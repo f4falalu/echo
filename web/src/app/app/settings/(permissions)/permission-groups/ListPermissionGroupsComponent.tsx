@@ -53,7 +53,7 @@ export const ListPermissionGroupsComponent: React.FC<{
         rows={permissionGroupsRows}
         showHeader={true}
         showSelectAll={false}
-        rowClassName="!pl-[30px]"
+        rowClassName="pl-[30px]!"
         columnRowVariant="default"
         emptyState={<EmptyStateList text="No permission groups found" />}
       />

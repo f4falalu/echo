@@ -246,8 +246,8 @@ export const AddTypeModal: React.FC<{
 
   const memoizedModalClassNames = useMemo(() => {
     return {
-      body: '!p-0 mb-[-1px]',
-      footer: '!mt-0 !px-3 !py-3'
+      body: 'p-0! mb-[-1px]',
+      footer: 'mt-0! px-3! py-3!'
     };
   }, []);
 
@@ -369,7 +369,7 @@ const ModalContent: React.FC<{
           </div>
         )}
 
-        <Divider className="!my-0" />
+        <Divider className="my-0!" />
 
         <div className="flex h-[48px] items-center space-x-2">
           <Input

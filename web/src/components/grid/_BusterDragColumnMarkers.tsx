@@ -24,7 +24,7 @@ export const BusterDragColumnMarkers: React.FC<{
 
   return (
     <div
-      className="buster-column-markers pointer-events-none absolute !mx-0 flex h-2 w-full items-center justify-between"
+      className="buster-column-markers pointer-events-none absolute mx-0! flex h-2 w-full items-center justify-between"
       style={{
         top: -2,
         transform: `translateY(-100%)`

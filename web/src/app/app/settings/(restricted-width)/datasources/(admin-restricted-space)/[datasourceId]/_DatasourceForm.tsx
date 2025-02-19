@@ -148,7 +148,7 @@ const DataSourceFormStatus: React.FC<{ dataSource: DataSource }> = ({ dataSource
             items: dropdownItems
           }}
           onOpenChange={(open) => setIsOpenDropdown(open)}>
-          <div className="!flex cursor-pointer items-center space-x-2 pl-2">
+          <div className="flex! cursor-pointer items-center space-x-2 pl-2">
             <PulseLoader color={token.colorSuccess} size={10} />
             <Text className="select-none">Connected</Text>
             <AppMaterialIcons

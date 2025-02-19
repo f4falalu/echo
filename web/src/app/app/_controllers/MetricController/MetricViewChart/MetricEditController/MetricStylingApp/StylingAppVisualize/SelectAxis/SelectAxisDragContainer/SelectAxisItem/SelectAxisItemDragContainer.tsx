@@ -22,7 +22,7 @@ export const SelectAxisItemDragContainer = React.forwardRef<
       ref={ref}
       style={style}
       className={cx(
-        'flex items-center space-x-1 overflow-hidden rounded',
+        'flex items-center space-x-1 overflow-hidden rounded-sm',
         styles.container,
         isDragging && 'isDragging cursor-grabbing shadow-lg',
         className

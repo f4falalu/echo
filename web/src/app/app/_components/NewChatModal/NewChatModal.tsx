@@ -26,7 +26,7 @@ const themeConfig: ThemeConfig = {
 };
 
 const modalClassNames = {
-  body: '!p-0'
+  body: 'p-0!'
 };
 
 export const NewChatModal = React.memo<{
@@ -142,7 +142,7 @@ export const NewChatModal = React.memo<{
           <NoDatasets onClose={onClose} setOpenNewDatasetModal={setOpenNewDatasetModal} />
         )}
 
-        {/* {hasDatasets && showSuggested && <Divider className="!m-0" />} */}
+        {/* {hasDatasets && showSuggested && <Divider className="m-0!" />} */}
 
         {/* {hasDatasets && (
           <SuggestedPromptsContainer
@@ -258,7 +258,7 @@ const NewChatInput: React.FC<{
         <TextArea
           ref={inputRef}
           size="large"
-          className="w-full !pl-0"
+          className="w-full pl-0!"
           autoSize={autoSizeMemoized}
           disabled={loadingNewChat}
           variant="borderless"

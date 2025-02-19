@@ -189,12 +189,12 @@ const getIcon = (status: BusterMetricListItem['status']) => {
 };
 
 const statusRecordColors: Record<VerificationStatus, string> = {
-  verified: '!text-[#34A32D]',
-  requested: '!text-[#F2BE01]',
-  inReview: '!text-[#7C3AED]',
-  backlogged: '!text-[#575859]',
-  notVerified: '!text-[#575859]',
-  notRequested: '!text-[#575859]'
+  verified: 'text-[#34A32D]!',
+  requested: 'text-[#F2BE01]!',
+  inReview: 'text-[#7C3AED]!',
+  backlogged: 'text-[#575859]!',
+  notVerified: 'text-[#575859]!',
+  notRequested: 'text-[#575859]!'
 };
 const getColorClasses = (status: BusterMetricListItem['status']) => {
   return statusRecordColors[status] || statusRecordColors.notRequested;

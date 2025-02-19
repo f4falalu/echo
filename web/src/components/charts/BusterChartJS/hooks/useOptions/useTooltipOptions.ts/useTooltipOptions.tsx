@@ -189,7 +189,7 @@ const getOrCreateInitialTooltipContainer = (chart: ChartJSOrUndefined) => {
     tooltipEl = document.createElement('div');
     tooltipEl.id = 'buster-chartjs-tooltip';
     tooltipEl.className =
-      'pointer-events-none fixed left-0 shadow-lg top-0 bg-white dark:bg-black rounded transition-all';
+      'pointer-events-none fixed left-0 shadow-lg top-0 bg-white dark:bg-black rounded-sm transition-all';
     tooltipEl.style.zIndex = '999';
 
     tooltipEl.innerHTML = `
@@ -234,7 +234,7 @@ const externalTooltip = (
 
   if (matchedCacheItem) {
     tooltipEl.querySelector('.tooltip-content')!.innerHTML = matchedCacheItem;
-    const isHidden = matchedCacheItem.includes('!hidden');
+    const isHidden = matchedCacheItem.includes('hidden!');
     tooltipEl.style.display = isHidden ? 'none' : 'block';
   } else if (tooltip.body) {
     const dataPoints = tooltip.dataPoints;

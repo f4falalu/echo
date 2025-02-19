@@ -114,7 +114,7 @@ export const busterLightTheme = {
     categoryAxis: {
       axisPointer: {
         show: true,
-        type: 'shadow',
+        type: 'shadow-sm',
         triggerEmphasis: false
       },
       axisLine: {
@@ -268,7 +268,7 @@ export const busterLightTheme = {
           backgroundColor: token.colorBgContainer
         }
       },
-      className: 'buster-tooltip !p-0'
+      className: 'buster-tooltip p-0!'
     },
     timeline: {},
     visualMap: {
