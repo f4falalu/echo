@@ -1,4 +1,4 @@
-import { ReasoningController } from '@appControllers/ReasoningController';
+import { ReasoningController } from '@controllers/ReasoningController';
 
 export default function Page({
   params: { chatId, messageId }

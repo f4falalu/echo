@@ -1,18 +1,17 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { AppContent } from '../../../../components/layout/AppContent';
+import { AppContent } from '@/components/layout/AppContent';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { BusterUserAvatar } from '@/components';
 import { formatDate } from '@/utils';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { getShareStatus } from '../../_components/Lists';
-import { ListEmptyStateWithButton } from '../../../../components/list';
+import { getShareStatus } from '@appComponents/Lists';
+import { ListEmptyStateWithButton } from '@/components/list';
 import { useMemoizedFn } from 'ahooks';
 import { DashboardSelectedOptionPopup } from './DashboardSelectedPopup';
 import type { BusterDashboardListItem } from '@/api/asset_interfaces';
-import { AddTypeModal } from '../../_components/AddTypeModal';
 
 const columns: BusterListColumn[] = [
   {

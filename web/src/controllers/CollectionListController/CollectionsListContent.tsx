@@ -12,7 +12,7 @@ import {
   ListEmptyStateWithButton
 } from '@/components/list';
 import { useMemoizedFn } from 'ahooks';
-import { NewCollectionModal } from '../../_components/NewCollectionModal';
+import { NewCollectionModal } from '@appComponents/NewCollectionModal';
 import { BusterCollectionListItem } from '@/api/asset_interfaces';
 import { CollectionListSelectedPopup } from './CollectionListSelectedPopup';
 

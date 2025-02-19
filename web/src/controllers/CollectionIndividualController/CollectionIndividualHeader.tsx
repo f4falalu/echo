@@ -4,16 +4,15 @@ import React, { useMemo } from 'react';
 import { AppContentHeader } from '@/components/layout';
 import {
   canEditCollection,
-  useBusterCollectionIndividualContextSelector,
-  useCollectionIndividual
+  useBusterCollectionIndividualContextSelector
 } from '@/context/Collections';
 import { Breadcrumb, Button, Dropdown, MenuProps } from 'antd';
 import Link from 'next/link';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
 import { AppMaterialIcons, EditableTitle } from '@/components';
-import { FavoriteStar } from '../../_components/Lists/FavoriteStar';
-import { ShareMenu } from '../../_components/ShareMenu';
+import { FavoriteStar } from '@appComponents/Lists/FavoriteStar';
+import { ShareMenu } from '@appComponents/ShareMenu';
 import { BusterCollection, ShareAssetType } from '@/api/asset_interfaces';
 import { Text } from '@/components';
 import { useAntToken } from '@/styles/useAntToken';

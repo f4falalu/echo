@@ -6,8 +6,8 @@ import { useBusterSupabaseAuthMethods } from '@/hooks/useBusterSupabaseAuthMetho
 import { ClientSideAnonCheck } from './ClientSideAnonCheck';
 import { redirect } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { AppPasswordAccess } from '@/app/app/_controllers/AppPasswordAccess';
-import { AppNoPageAccess } from '@/app/app/_controllers/AppNoPageAccess';
+import { AppPasswordAccess } from '@controllers/AppPasswordAccess';
+import { AppNoPageAccess } from '@controllers/AppNoPageAccess';
 
 export type AppAssetCheckLayoutProps = {
   metricId?: string;

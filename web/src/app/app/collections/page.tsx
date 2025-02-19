@@ -1,4 +1,4 @@
-import { CollectionListController } from '@appControllers/CollectionListController';
+import { CollectionListController } from '@controllers/CollectionListController';
 
 export default function CollectionsPage() {
   return <CollectionListController />;

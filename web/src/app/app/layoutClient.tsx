@@ -2,11 +2,10 @@
 
 import { AppProviders } from '@/context/AppProviders';
 import React from 'react';
-import { AppLayout } from './_controllers/AppLayout';
+import { AppLayout } from '@/controllers/AppLayout';
 import type { BusterUserResponse } from '@/api/asset_interfaces';
 import { useSupabaseServerContext } from '@/context/Supabase/useSupabaseContext';
 import { GlobalErrorComponent } from '../../components/error';
-import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 
 export const AppLayoutClient = ({
   children,

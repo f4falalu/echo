@@ -23,7 +23,7 @@
       "@utils/*": ["./src/utils/*"],
       "@appComponents/*": ["./src/app/app/_components/*"],
       "@layouts/*": ["./src/layouts/*"],
-      "@appControllers/*": ["./src/app/app/_controllers/*"],
+      "@controllers/*": ["./src/controllers/*"],
       "@chatLayout/*": ["./src/layouts/ChatLayout/*"]
     },
     "target": "ES2017"

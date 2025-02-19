@@ -1,10 +1,8 @@
 'use client';
 
 import React from 'react';
-import { AppContentHeader } from '../../../../components/layout/AppContentHeader';
 import { TermIndividualHeader } from './TermIndividualHeader';
-import { AppSplitter } from '@/components/layout';
-import { AppContent } from '../../../../components/layout/AppContent';
+import { AppContentHeader, AppContent, AppSplitter } from '@/components/layout';
 import { TermIndividualHeaderSider } from './TermIndividualHeaderSider';
 import { TermIndividualContentSider } from './TermIndividualContentSider';
 import { useBusterTermsListContextSelector } from '@/context/Terms';

@@ -19,7 +19,7 @@ export const AppNoPageAccess: React.FC<{
   const { openInfoMessage } = useBusterNotifications();
 
   return (
-    <div className="flex h-[85vh] h-full w-full flex-col items-center justify-center space-y-6">
+    <div className="flex h-[85vh] w-full flex-col items-center justify-center space-y-6">
       <BusterLogo className="h-16 w-16" />
 
       <div className="max-w-[340px] text-center">

@@ -5,7 +5,7 @@ import { useBusterDashboardIndividual } from '@/context/Dashboards';
 import { FileIndeterminateLoader } from '@appComponents/FileIndeterminateLoader';
 import { DashboardFileView, useChatLayoutContextSelector } from '@layouts/ChatLayout';
 import { DashboardViewComponents } from './config';
-import { AddTypeModal } from '../../_components/AddTypeModal';
+import { AddTypeModal } from '@appComponents/AddTypeModal';
 import { useMemoizedFn } from 'ahooks';
 
 export const DashboardController: React.FC<{ dashboardId: string }> = ({ dashboardId }) => {

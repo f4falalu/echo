@@ -1,4 +1,4 @@
-import { MetricController } from '@appControllers/MetricController';
+import { MetricController } from '@controllers/MetricController';
 import { AppAssetCheckLayout } from '@layouts/AppAssetCheckLayout';
 
 export default function MetricPage({

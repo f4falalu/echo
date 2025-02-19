@@ -1,18 +1,18 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { AppContentHeader } from '../../../../components/layout/AppContentHeader';
+import { AppContentHeader } from '@/components/layout/AppContentHeader';
 import { Breadcrumb, Button } from 'antd';
 import { BreadcrumbProps } from 'antd/lib';
 import { BreadcrumbSeperator } from '@/components';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { AppMaterialIcons, AppTooltip } from '@/components';
-import { NewTermModal } from '../../terms/NewTermModal';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { useBusterTermsIndividual, useBusterTermsListContextSelector } from '@/context/Terms';
+import { useBusterTermsIndividual } from '@/context/Terms';
 import { useMemoizedFn } from 'ahooks';
+import { NewTermModal } from '@appComponents/NewTermModal';
 
 export const TermsHeader: React.FC<{
   termId?: string;

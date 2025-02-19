@@ -1,4 +1,4 @@
-import { DashboardController } from '@appControllers/DashboardController';
+import { DashboardController } from '@controllers/DashboardController';
 import { AppAssetCheckLayout } from '@layouts/AppAssetCheckLayout';
 
 export default function Page({ params: { dashboardId } }: { params: { dashboardId: string } }) {
