@@ -10,7 +10,7 @@ export const useCollectionIndividual = ({ collectionId }: { collectionId: string
       payload: { id }
     },
     responseEvent: '/collections/get:collectionState',
-    options: queryKeys['/collections/get:collectionState'](id),
+    options: queryKeys.collectionsGetCollection(id),
     callback: undefined,
     enabledTrigger: !!id
   });

@@ -20,17 +20,16 @@ import { useAntToken } from '@/styles/useAntToken';
 import { useMemoizedFn } from 'ahooks';
 import { BreadcrumbSeperator } from '@/components/breadcrumb';
 import { measureTextWidth } from '@/utils/canvas';
-import { useParams } from 'next/navigation';
 
 export const CollectionsIndividualHeader: React.FC<{
   openAddTypeModal: boolean;
   setOpenAddTypeModal: (open: boolean) => void;
-  collectionId: string;
-}> = ({ openAddTypeModal, setOpenAddTypeModal, collectionId }) => {
+  collection: BusterCollection | undefined;
+  isFetched: boolean;
+}> = ({ openAddTypeModal, setOpenAddTypeModal, collection, isFetched }) => {
   const createPageLink = useAppLayoutContextSelector((s) => s.createPageLink);
   const updateCollection = useBusterCollectionIndividualContextSelector((x) => x.updateCollection);
   const [editingTitle, setEditingTitle] = React.useState(false);
-  const { collection } = useCollectionIndividual({ collectionId });
 
   const collectionTitle = collection?.name || 'No collection title';
 
@@ -38,7 +37,7 @@ export const CollectionsIndividualHeader: React.FC<{
     return measureTextWidth(collectionTitle);
   }, [collectionTitle, editingTitle]);
 
-  const collectionBaseTitle = collectionId ? collection?.name : 'Collections';
+  const collectionBaseTitle = 'Collections';
 
   const onSetTitleValue = useMemoizedFn((value: string) => {
     updateCollection({
@@ -47,43 +46,47 @@ export const CollectionsIndividualHeader: React.FC<{
     });
   });
 
+  const collectionItemBreadcrumb = useMemo(() => {
+    if (!isFetched) return { title: '' };
+    return {
+      title: editingTitle ? (
+        <EditableTitle
+          level={5}
+          editing={editingTitle}
+          showBottomBorder
+          style={{ width: textWidth.width }}
+          onSetValue={onSetTitleValue}
+          onChange={onSetTitleValue}
+          onEdit={setEditingTitle}
+          className="w-full">
+          {collectionTitle}
+        </EditableTitle>
+      ) : (
+        <Text
+          ellipsis={{
+            tooltip: true
+          }}>
+          {collectionTitle}
+        </Text>
+      )
+    };
+  }, [collectionTitle, editingTitle, textWidth.width, onSetTitleValue, setEditingTitle, isFetched]);
+
   const items = useMemo(
-    () =>
-      [
-        {
-          title: (
-            <Link
-              suppressHydrationWarning
-              className={`!flex !h-full cursor-pointer items-center truncate`}
-              href={createPageLink({ route: BusterRoutes.APP_COLLECTIONS })}>
-              {collectionBaseTitle}
-            </Link>
-          )
-        },
-        {
-          title: editingTitle ? (
-            <EditableTitle
-              level={5}
-              editing={editingTitle}
-              showBottomBorder
-              style={{ width: textWidth.width }}
-              onSetValue={onSetTitleValue}
-              onChange={onSetTitleValue}
-              onEdit={setEditingTitle}
-              className="w-full">
-              {collectionTitle}
-            </EditableTitle>
-          ) : (
-            <Text
-              ellipsis={{
-                tooltip: true
-              }}>
-              {collectionTitle}
-            </Text>
-          )
-        }
-      ].filter((item) => item.title),
-    [collectionBaseTitle, editingTitle, textWidth.width, collectionTitle, createPageLink]
+    () => [
+      {
+        title: (
+          <Link
+            suppressHydrationWarning
+            className={`!flex !h-full cursor-pointer items-center truncate`}
+            href={createPageLink({ route: BusterRoutes.APP_COLLECTIONS })}>
+            {collectionBaseTitle}
+          </Link>
+        )
+      },
+      collectionItemBreadcrumb
+    ],
+    [collectionBaseTitle, collectionItemBreadcrumb, isFetched, createPageLink]
   );
 
   return (

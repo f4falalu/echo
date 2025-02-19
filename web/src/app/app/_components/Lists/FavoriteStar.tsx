@@ -41,7 +41,7 @@ export const FavoriteStar: React.FC<{
   const { cx, styles } = useStyles();
 
   const isFavorited = useMemo(() => {
-    return userFavorites.some((favorite) => favorite.id === id || favorite.collection_id === id);
+    return userFavorites?.some((favorite) => favorite.id === id || favorite.collection_id === id);
   }, [userFavorites, id]);
 
   const onFavoriteClick = useMemoizedFn(async (e: React.MouseEvent<HTMLButtonElement>) => {

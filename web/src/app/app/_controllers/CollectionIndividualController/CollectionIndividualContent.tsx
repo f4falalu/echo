@@ -22,11 +22,10 @@ import { BusterList, BusterListColumn, BusterListRow } from '@/components/list';
 import { CollectionIndividualSelectedPopup } from './CollectionsIndividualPopup';
 
 export const CollectionIndividualContent: React.FC<{
-  collectionId: string;
+  collection: BusterCollection | undefined;
   openAddTypeModal: boolean;
   setOpenAddTypeModal: (open: boolean) => void;
-}> = React.memo(({ collectionId, openAddTypeModal, setOpenAddTypeModal }) => {
-  const { collection } = useCollectionIndividual({ collectionId });
+}> = React.memo(({ collection, openAddTypeModal, setOpenAddTypeModal }) => {
   const loadedAsset = collection?.id;
 
   const onCloseModal = useMemoizedFn(() => {

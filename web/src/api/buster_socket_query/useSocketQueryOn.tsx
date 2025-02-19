@@ -75,7 +75,7 @@ export const useSocketQueryOn = <
     queryKey: queryKey as TQueryKey,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
-    enabled: false // must be disabled, because it will be enabled by the socket
+    enabled: options?.enabled ?? (options?.queryFn ? true : false) // must be disabled, because it will be enabled by the socket
   });
 };
 

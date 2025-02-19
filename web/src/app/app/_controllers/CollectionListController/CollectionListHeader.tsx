@@ -15,6 +15,7 @@ import { CollectionsListEmit } from '@/api/buster_socket/collections';
 import isEmpty from 'lodash/isEmpty';
 import omit from 'lodash/omit';
 import { useMemoizedFn } from 'ahooks';
+import { SegmentedValue } from 'antd/es/segmented';
 
 export const CollectionListHeader: React.FC<{
   collectionId?: string;
@@ -26,14 +27,11 @@ export const CollectionListHeader: React.FC<{
   const collectionListFilters = useBusterCollectionListContextSelector(
     (x) => x.collectionListFilters
   );
-
   const collectionsList = useBusterCollectionListContextSelector((x) => x.collectionsList);
   const isCollectionListFetched = useBusterCollectionListContextSelector(
     (x) => x.isCollectionListFetched
   );
-  const { collection } = useCollectionIndividual({
-    collectionId: collectionId
-  });
+  const { collection } = useCollectionIndividual({ collectionId });
 
   const collectionTitle = collection?.name || 'Collections';
 
@@ -46,25 +44,24 @@ export const CollectionListHeader: React.FC<{
   );
 
   const breadcrumbItems = useMemo(
-    () =>
-      [
-        {
-          title: (
-            <Link
-              suppressHydrationWarning
-              href={
-                collectionId
-                  ? createBusterRoute({
-                      route: BusterRoutes.APP_COLLECTIONS_ID,
-                      collectionId: collectionId
-                    })
-                  : createBusterRoute({ route: BusterRoutes.APP_COLLECTIONS })
-              }>
-              {collectionTitle}
-            </Link>
-          )
-        }
-      ].filter((item) => item.title),
+    () => [
+      {
+        title: (
+          <Link
+            suppressHydrationWarning
+            href={
+              collectionId
+                ? createBusterRoute({
+                    route: BusterRoutes.APP_COLLECTIONS_ID,
+                    collectionId: collectionId
+                  })
+                : createBusterRoute({ route: BusterRoutes.APP_COLLECTIONS })
+            }>
+            {collectionTitle}
+          </Link>
+        )
+      }
+    ],
     [collectionId, collectionTitle]
   );
 
@@ -125,19 +122,19 @@ const CollectionFilters: React.FC<{
     return filters.find((f) => f.value === activeFiltersValue)?.value || filters[0].value;
   }, [filters, collectionListFilters]);
 
-  const onChangeFilter = useMemoizedFn((v: string) => {
-    setCollectionListFilters(JSON.parse(v as string));
+  const onChangeFilter = useMemoizedFn((v: SegmentedValue) => {
+    let parsedValue;
+    try {
+      parsedValue = JSON.parse(v as string);
+    } catch (error) {
+      console.error('error', error);
+    }
+    setCollectionListFilters(parsedValue);
   });
 
   return (
     <div className="flex items-center space-x-1">
-      <AppSegmented
-        options={filters}
-        value={value}
-        onChange={(v) => {
-          onChangeFilter(JSON.parse(v as string));
-        }}
-      />
+      <AppSegmented options={filters} value={value} onChange={onChangeFilter} />
     </div>
   );
 });

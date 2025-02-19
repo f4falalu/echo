@@ -46,7 +46,7 @@ export const useFavoriteProvider = () => {
   return {
     bulkEditFavorites,
     refreshFavoritesList,
-    userFavorites: isEmpty(userFavorites) ? DEFAULT_FAVORITES : userFavorites,
+    userFavorites: isEmpty(userFavorites) ? DEFAULT_FAVORITES : userFavorites!,
     addItemToFavorite,
     removeItemFromFavorite
   };

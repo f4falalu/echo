@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
 import type { CollectionsListEmit } from '@/api/buster_socket/collections';
 import {
@@ -13,6 +13,10 @@ type CollectionListFilters = Omit<CollectionsListEmit['payload'], 'page' | 'page
 export const useCollectionLists = () => {
   const [collectionListFilters, setCollectionListFilters] = useState<CollectionListFilters>({});
 
+  const payload = useMemo(() => {
+    return { page: 0, page_size: 1000, ...collectionListFilters };
+  }, [collectionListFilters]);
+
   const {
     data: collectionsList,
     isFetched: isCollectionListFetched,
@@ -20,10 +24,10 @@ export const useCollectionLists = () => {
   } = useSocketQueryEmitOn({
     emitEvent: {
       route: '/collections/list',
-      payload: { page: 0, page_size: 1000, ...collectionListFilters }
+      payload
     },
     responseEvent: '/collections/list:listCollections',
-    options: queryKeys['/collections/list:getCollectionsList']()
+    options: queryKeys.collectionsGetList(payload)
   });
 
   return {

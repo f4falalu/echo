@@ -1,16 +1,18 @@
 import type { BusterSocketResponseRoute, BusterSocketRequest } from '@/api/buster_socket';
 import {
-  queryOptions,
+  useIsMutating,
   useQueryClient,
   useMutation,
+  useMutationState,
   type QueryKey,
   type UseQueryOptions
 } from '@tanstack/react-query';
 import type { InferBusterSocketResponseData } from './types';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useSocketQueryOn } from './useSocketQueryOn';
 import { timeout } from '@/utils';
+import { useMemoizedFn } from 'ahooks';
 
 export const useSocketQueryEmitOn = <
   TRoute extends BusterSocketResponseRoute,
@@ -32,40 +34,29 @@ export const useSocketQueryEmitOn = <
     | null;
   enabledTrigger?: boolean | string;
 }) => {
-  const queryClient = useQueryClient();
   const busterSocket = useBusterWebSocket();
+
   const enabledTrigger = enabledTriggerProp ?? true;
 
-  const mutationKey = useMemo(() => {
-    return ['socket-emit', ...options.queryKey];
-  }, [options.queryKey]);
-
-  console.log(mutationKey);
-
-  // Use mutation for deduped socket emissions
-  const { mutateAsync: emitQueryFn } = useMutation({
-    mutationKey,
-    mutationFn: async () => {
-      busterSocket.emit(emitEvent);
-      await timeout(250);
-      return null;
-    }
+  const queryFn = useMemoizedFn(async () => {
+    return await busterSocket.emitAndOnce({
+      emitEvent,
+      responseEvent: {
+        route: responseEvent as '/chats/get:getChat',
+        callback: (data: unknown) => data
+      }
+    });
   });
 
-  const queryResult = useSocketQueryOn({ responseEvent, options, callback });
+  const emitOptions: UseQueryOptions<TData, TError, TData, TQueryKey> = useMemo(() => {
+    return {
+      ...options,
+      queryFn,
+      enabled: !!enabledTrigger
+    } as UseQueryOptions<TData, TError, TData, TQueryKey>;
+  }, [options.queryKey, enabledTrigger]);
 
-  useEffect(() => {
-    const queryState = queryClient.getQueryState(options.queryKey);
-    const staleTime = (options.staleTime as number) ?? 0;
-    const isStale =
-      !queryState?.dataUpdatedAt || Date.now() - queryState.dataUpdatedAt >= staleTime;
+  const queryResult = useSocketQueryOn({ responseEvent, options: emitOptions, callback });
 
-    console.log(isStale, queryState);
-
-    if (enabledTrigger && (isStale || !queryState)) {
-      emitQueryFn();
-    }
-  }, [enabledTrigger]);
-
-  return { ...queryResult, refetch: emitQueryFn };
+  return { ...queryResult };
 };

@@ -33,7 +33,7 @@ export const useCollectionCreate = () => {
     useSocketQueryMutation({
       emitEvent: '/collections/delete',
       responseEvent: '/collections/delete:deleteCollections',
-      options: queryKeys['/collections/list:getCollectionsList'](),
+      options: queryKeys.collectionsGetList(),
       preCallback: (data, variables) => {
         return data?.filter((collection) => !variables.ids.includes(collection.id)) || [];
       }
