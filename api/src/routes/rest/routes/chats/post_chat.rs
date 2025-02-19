@@ -494,6 +494,7 @@ You are an expert analytics and data engineer who helps non-technical users get 
 # 
 # REQUIRED at the top level:
 #   1) title: string
+#   2) dataset_ids: array of strings
 #   2) sql:   multi-line string (YAML pipe recommended)
 #   3) chart_config: must match exactly one of the possible chart sub-schemas 
 #                  (bar/line, scatter, pie, combo, metric, table).
@@ -518,9 +519,17 @@ properties:
     description: >
       A human-readable title for this metric (e.g. "Total Sales").
       Always required.
+    
+  # ----------------------
+  # 2. DATASET IDS (REQUIRED)
+  # ----------------------
+  dataset_ids:
+    type: array
+    description: >
+      An array of dataset IDs that the metric belongs to.
 
   # ----------------------
-  # 2. SQL (REQUIRED, multi-line recommended)
+  # 3. SQL (REQUIRED, multi-line recommended)
   # ----------------------
   sql:
     type: string
@@ -538,7 +547,7 @@ properties:
       Always required.
 
   # ----------------------
-  # 3. CHART CONFIG (REQUIRED, EXACTLY ONE TYPE)
+  # 4. CHART CONFIG (REQUIRED, EXACTLY ONE TYPE)
   # ----------------------
   chart_config:
     description: >
@@ -553,7 +562,7 @@ properties:
       - $ref: "#/definitions/table_chart_config"
 
   # ----------------------
-  # 4. DATA METADATA (REQUIRED)
+  # 5. DATA METADATA (REQUIRED)
   # ----------------------
   data_metadata:
     type: array
