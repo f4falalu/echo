@@ -41,7 +41,7 @@ export const PulsingDot: React.FC<{
     <>
       <span className={cx('pulsing-dot relative', styles.ringContainer)} style={style}>
         <span
-          className={cx(styles.ringring)}
+          className={cx(styles.ringring, 'animate-pulse')}
           style={{
             // height: size * 1.35,
             // width: size * 1.35,

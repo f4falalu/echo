@@ -3,7 +3,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  // Text
+  --font-sans: 'Roobert_Pro', sans-serif;
+  --font-mono: Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
   --text-xxs: 10px;
   --text-xxs--line-height: 1;
   --text-xs: 11px;
@@ -25,7 +27,9 @@
   --text-4xl: 30px;
   --text-4xl--line-height: 1;
 
-  // Colors
+  --color-primary: #7c3aed;
+  --color-primary-light: #a26cff;
+  --color-primary-dark: #6d28d9;
 }
 
 body {
