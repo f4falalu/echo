@@ -5,7 +5,7 @@ import {
   PermissionSearch,
   PermissionSearchAndListWrapper,
   HeaderExplanation
-} from '@/app/app/_components/PermissionComponents';
+} from '@/components/features/PermissionComponents';
 import { useDatasetListPermissionUsers } from '@/api/buster_rest';
 import { useDebounceSearch } from '@/hooks';
 import { Button } from 'antd';

@@ -7,7 +7,7 @@ import {
   InfiniteListContainer
 } from '@/components/ui/list';
 import type { OrganizationUserDataset } from '@/api/asset_interfaces';
-import { PermissionLineageBreadcrumb } from '@appComponents/PermissionComponents';
+import { PermissionLineageBreadcrumb } from '@/components/features/PermissionComponents';
 
 export const UserDatasetListContainer = React.memo(
   ({ filteredDatasets }: { filteredDatasets: OrganizationUserDataset[] }) => {

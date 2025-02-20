@@ -5,7 +5,7 @@ import { useMemoizedFn } from 'ahooks';
 import React, { useMemo, useState } from 'react';
 import { PermissionGroupSelectedPopup } from './PermissionGroupSelectedPopup';
 import { BusterInfiniteList, InfiniteListContainer } from '@/components/ui/list';
-import { PermissionAssignedCell } from '@/app/app/_components/PermissionComponents';
+import { PermissionAssignedCell } from '@/components/features/PermissionComponents';
 
 export const PermissionListPermissionGroupContainer: React.FC<{
   filteredPermissionGroups: ListPermissionGroupsResponse[];

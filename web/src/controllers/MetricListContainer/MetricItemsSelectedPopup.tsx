@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { AppMaterialIcons } from '@/components/ui';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { Button, Dropdown, DropdownProps } from 'antd';
-import { StatusBadgeButton } from '@appComponents/Lists';
+import { StatusBadgeButton } from '@/components/features/Lists';
 import { VerificationStatus } from '@/api/asset_interfaces';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useMemoizedFn } from 'ahooks';
-import { SaveToCollectionsDropdown } from '@/app/app/_components/Dropdowns/SaveToCollectionsDropdown';
+import { SaveToCollectionsDropdown } from '@/components/features/Dropdowns/SaveToCollectionsDropdown';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 
 export const MetricSelectedOptionPopup: React.FC<{

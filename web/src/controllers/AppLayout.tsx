@@ -3,13 +3,13 @@
 import { ConfigProvider, Layout } from 'antd';
 import React, { PropsWithChildren, useMemo } from 'react';
 import { AppSidebar } from './AppSidebar';
-import { NewChatModal } from '@appComponents/NewChatModal';
-import { InvitePeopleModal } from '@/app/app/_components/Modals/InvitePeopleModal';
+import { NewChatModal } from '@/components/features/NewChatModal';
+import { InvitePeopleModal } from '@/components/features/Modals/InvitePeopleModal';
 import { AppSplitter } from '@/components/ui/layout';
 import { createStyles } from 'antd-style';
 import { useBusterStylesContext } from '@/context/BusterStyles/BusterStyles';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { SupportModal } from '@/app/app/_components/Modals/SupportModal';
+import { SupportModal } from '@/components/features/Modals/SupportModal';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn } from 'ahooks';
 import { ThemeConfig } from 'antd/lib';

@@ -4,7 +4,7 @@ import { useGetDatasetGroupUsers } from '@/api/buster_rest';
 import { AppMaterialIcons } from '@/components/ui';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
-import { PermissionSearchAndListWrapper } from '@appComponents/PermissionComponents';
+import { PermissionSearchAndListWrapper } from '@/components/features/PermissionComponents';
 import { Button } from 'antd';
 import React, { useMemo } from 'react';
 import { DatasetGroupUsersListContainer } from './DatasetGroupUsersListContainer';

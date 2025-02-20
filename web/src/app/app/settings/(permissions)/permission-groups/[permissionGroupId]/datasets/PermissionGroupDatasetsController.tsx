@@ -2,13 +2,13 @@
 
 import { useGetPermissionGroupDatasets } from '@/api/buster_rest';
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
-import { PermissionSearchAndListWrapper } from '@appComponents/PermissionComponents';
+import { PermissionSearchAndListWrapper } from '@/components/features/PermissionComponents';
 import React, { useMemo, useState } from 'react';
 import { Button } from 'antd';
 import { AppMaterialIcons } from '@/components/ui';
 import { PermissionGroupDatasetsListContainer } from './PermissionGroupDatasetsListContainer';
 import { useMemoizedFn } from 'ahooks';
-import { NewDatasetModal } from '@/app/app/_components/Modals/NewDatasetModal';
+import { NewDatasetModal } from '@/components/features/Modals/NewDatasetModal';
 
 export const PermissionGroupDatasetsController: React.FC<{
   permissionGroupId: string;

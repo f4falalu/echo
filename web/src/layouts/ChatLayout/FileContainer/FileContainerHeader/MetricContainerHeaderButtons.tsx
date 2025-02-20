@@ -1,20 +1,16 @@
 import React from 'react';
 import { FileContainerButtonsProps } from './interfaces';
-import {
-  type MetricFileView,
-  MetricFileViewSecondary,
-  useChatLayoutContextSelector
-} from '../../ChatLayoutContext';
+import { MetricFileViewSecondary, useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { useMemoizedFn } from 'ahooks';
-import { SaveMetricToCollectionButton } from '@appComponents/Buttons/SaveMetricToCollectionButton';
-import { SaveMetricToDashboardButton } from '@appComponents/Buttons/SaveMetricToDashboardButton';
-import { ShareMetricButton } from '@appComponents/Buttons/ShareMetricButton';
 import { useChatIndividualContextSelector } from '../../ChatContext';
 import { HideButtonContainer } from './HideButtonContainer';
 import { FileButtonContainer } from './FileButtonContainer';
 import { CreateChatButton } from './CreateChatButtont';
 import { SelectableButton } from './SelectableButton';
 import { useMetricIndividual } from '@/context/Metrics';
+import { SaveMetricToCollectionButton } from '../../../../components/features/Buttons/SaveMetricToCollectionButton';
+import { SaveMetricToDashboardButton } from '../../../../components/features/Buttons/SaveMetricToDashboardButton';
+import { ShareMetricButton } from '../../../../components/features/Buttons/ShareMetricButton';
 
 export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(() => {
   const renderViewLayoutKey = useChatLayoutContextSelector((x) => x.renderViewLayoutKey);

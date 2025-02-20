@@ -5,7 +5,7 @@ import { useDebounceSearch } from '@/hooks';
 import {
   NewPermissionGroupModal,
   PermissionSearchAndListWrapper
-} from '@appComponents/PermissionComponents';
+} from '@/components/features/PermissionComponents';
 import React, { useMemo, useState } from 'react';
 import { UserPermissionGroupsListContainer } from './UserPermissionGroupsListContainer';
 import { Button } from 'antd';

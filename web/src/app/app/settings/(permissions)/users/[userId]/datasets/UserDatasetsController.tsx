@@ -2,13 +2,13 @@
 
 import { useGetUserDatasets } from '@/api/buster_rest';
 import { useDebounceSearch } from '@/hooks';
-import { PermissionSearchAndListWrapper } from '@appComponents/PermissionComponents';
+import { PermissionSearchAndListWrapper } from '@/components/features/PermissionComponents';
 import React, { useMemo, useState } from 'react';
 import { UserDatasetsListContainer } from './UserDatasetsListContainer';
 import { Button } from 'antd';
 import { useMemoizedFn } from 'ahooks';
 import { AppMaterialIcons } from '@/components/ui';
-import { NewDatasetModal } from '@/app/app/_components/Modals/NewDatasetModal';
+import { NewDatasetModal } from '@/components/features/Modals/NewDatasetModal';
 
 export const UserDatasetsController: React.FC<{ userId: string }> = ({ userId }) => {
   const { data: datasets } = useGetUserDatasets({ userId });

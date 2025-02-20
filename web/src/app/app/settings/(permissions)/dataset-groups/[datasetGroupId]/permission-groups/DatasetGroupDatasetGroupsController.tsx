@@ -8,7 +8,7 @@ import { useDebounceSearch } from '@/hooks/useDebounceSearch';
 import {
   NewDatasetGroupModal,
   PermissionSearchAndListWrapper
-} from '@appComponents/PermissionComponents';
+} from '@/components/features/PermissionComponents';
 import React, { useMemo, useState } from 'react';
 import { Button } from 'antd';
 import { AppMaterialIcons } from '@/components/ui';

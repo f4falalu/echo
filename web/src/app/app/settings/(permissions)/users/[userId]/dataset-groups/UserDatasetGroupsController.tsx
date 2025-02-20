@@ -5,7 +5,7 @@ import { useDebounceSearch } from '@/hooks';
 import {
   NewDatasetGroupModal,
   PermissionSearchAndListWrapper
-} from '@appComponents/PermissionComponents';
+} from '@/components/features/PermissionComponents';
 import React, { useMemo, useState } from 'react';
 import { UserDatasetGroupListContainer } from './UserDatasetGroupListContainer';
 import { Button } from 'antd';

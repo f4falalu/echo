@@ -3,7 +3,7 @@ import type {
   GetPermissionGroupUsersResponse
 } from '@/api/asset_interfaces';
 import { useUpdatePermissionGroupDatasets } from '@/api/buster_rest';
-import { PermissionAssignedCell } from '@/app/app/_components/PermissionComponents';
+import { PermissionAssignedCell } from '@/components/features/PermissionComponents';
 import {
   BusterInfiniteList,
   BusterListColumn,

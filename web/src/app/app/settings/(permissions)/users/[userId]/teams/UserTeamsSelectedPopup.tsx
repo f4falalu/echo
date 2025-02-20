@@ -3,7 +3,7 @@ import type { TeamRole } from '@/api/asset_interfaces';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { useMemoizedFn } from 'ahooks';
 import React from 'react';
-import { PermissionAssignTeamRoleButton } from '@appComponents/PermissionComponents';
+import { PermissionAssignTeamRoleButton } from '@/components/features/PermissionComponents';
 
 export const UserTeamsSelectedPopup: React.FC<{
   selectedRowKeys: string[];

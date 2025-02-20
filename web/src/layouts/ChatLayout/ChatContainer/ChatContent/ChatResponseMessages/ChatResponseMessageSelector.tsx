@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { ChatResponseMessage_File } from './ChatResponseMessage_File';
-import { StreamingMessage_Text } from '@appComponents/Streaming/StreamingMessage_Text';
+import { StreamingMessage_Text } from '@/components/features/Streaming/StreamingMessage_Text';
 import type { BusterChatMessage_text, BusterChatMessageResponse } from '@/api/asset_interfaces';
 import { createStyles } from 'antd-style';
 import { useMemoizedFn } from 'ahooks';

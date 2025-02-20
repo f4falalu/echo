@@ -7,7 +7,7 @@ import {
 } from '@layouts/ChatLayout/ChatLayoutContext';
 import { MetricViewComponents } from './config';
 import { useMetricIndividual } from '@/context/Metrics';
-import { FileIndeterminateLoader } from '@appComponents/FileIndeterminateLoader';
+import { FileIndeterminateLoader } from '@/components/features/FileIndeterminateLoader';
 
 export const MetricController: React.FC<{
   metricId: string;

@@ -1,7 +1,10 @@
 'use client';
 import React, { useState } from 'react';
 import { SettingsPageHeader } from '../../_components/SettingsPageHeader';
-import { PermissionSearch, NewPermissionGroupModal } from '@appComponents/PermissionComponents';
+import {
+  PermissionSearch,
+  NewPermissionGroupModal
+} from '@/components/features/PermissionComponents';
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
 import { useListAllPermissionGroups } from '@/api/buster_rest';
 import { ListPermissionGroupsComponent } from './ListPermissionGroupsComponent';

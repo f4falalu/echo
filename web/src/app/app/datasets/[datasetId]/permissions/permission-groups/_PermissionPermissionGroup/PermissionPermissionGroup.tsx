@@ -9,7 +9,7 @@ import {
   PermissionSearchAndListWrapper,
   HeaderExplanation,
   NewPermissionGroupModal
-} from '@appComponents/PermissionComponents';
+} from '@/components/features/PermissionComponents';
 import { useDebounceSearch } from '@/hooks';
 import { useDatasetListPermissionGroups } from '@/api/buster_rest';
 
