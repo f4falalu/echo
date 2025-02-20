@@ -45,28 +45,21 @@ impl ToolExecutor for ExploratoryAgentTool {
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "exploratory_agent",
-            "description": "Performs exploratory analysis on data sources and structures",
+            "name": "exploratory_analysis",
+            "description": "Use for open-ended, exploratory requests or deep-dive data investigations. Within this action, you can run multiple queries, analyze results, and decide which metrics or insights are noteworthy. Do not use for straightforward metric or chart requests.",
+            "strict": true,
             "parameters": {
-                "type": "object",
-                "properties": {
-                    "target": {
-                        "type": "string",
-                        "description": "The target data source or structure to explore"
-                    },
-                    "focus_areas": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "description": "Specific areas or aspects to focus the exploration on"
-                    },
-                    "constraints": {
-                        "type": "string",
-                        "description": "Any limitations or requirements for the exploration"
-                    }
-                },
-                "required": ["target"]
+              "type": "object",
+              "required": [
+                "ticket_description"
+              ],
+              "properties": {
+                "ticket_description": {
+                  "type": "string",
+                  "description": "A brief description for the action. This should essentially be a ticket description that can be appended to a ticket. The ticket description should explain which parts of the user's request this action addresses. Copy the user's request exactly without adding instructions, thoughts, or assumptions. Write it as a command, not a question, typically starting with an imperative verb like 'Investigate...', 'Explore...', etc."
+                }
+              },
+              "additionalProperties": false
             }
         })
     }

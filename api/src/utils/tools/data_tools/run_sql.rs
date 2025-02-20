@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sqlx::PgPool;
 use uuid::Uuid;
+use regex;
 
 use crate::utils::tools::ToolCall;
 use crate::utils::tools::ToolExecutor;
@@ -19,24 +20,25 @@ pub struct QueryResults {
 pub struct QueryResult {
     query: String,
     status: String, // "success" or "failed"
+    error: Option<String>,
     results: Option<QueryResults>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct SampleQueryOutput {
+pub struct SqlQueryOutput {
     queries: Vec<QueryResult>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct SampleQueryInput {
+pub struct SqlQueryInput {
     queries: Vec<String>,
 }
 
-pub struct SampleQuery;
+pub struct SqlQuery;
 
 #[async_trait]
-impl ToolExecutor for SampleQuery {
-    type Output = SampleQueryOutput;
+impl ToolExecutor for SqlQuery {
+    type Output = SqlQueryOutput;
 
     async fn execute(
         &self,
@@ -44,42 +46,57 @@ impl ToolExecutor for SampleQuery {
         user_id: &Uuid,
         session_id: &Uuid,
     ) -> Result<Self::Output> {
-        let input: SampleQueryInput = serde_json::from_str(&tool_call.function.arguments)?;
+        let input: SqlQueryInput = serde_json::from_str(&tool_call.function.arguments)?;
         let mut results = Vec::new();
 
         for query in input.queries {
-            // Basic validation - ensure it's a SELECT query and has LIMIT
-            results.push(QueryResult {
-                query: query.clone(),
-                status: "failed".to_string(),
-                results: None,
-            });
+            // Basic validation - ensure it's a SELECT query
+            if !query.trim().to_lowercase().starts_with("select") {
+                results.push(QueryResult {
+                    query: query.clone(),
+                    status: "failed".to_string(),
+                    error: Some("Only SELECT queries are allowed".to_string()),
+                    results: None,
+                });
+                continue;
+            }
 
-            match execute_query(&query).await {
+            // Enforce 25 record limit by appending/replacing LIMIT clause
+            let query_with_limit = if query.to_lowercase().contains("limit") {
+                // Replace existing LIMIT with LIMIT 25
+                let re = regex::Regex::new(r"limit\s+\d+").unwrap();
+                re.replace(&query.to_lowercase(), "LIMIT 25").to_string()
+            } else {
+                format!("{} LIMIT 25", query)
+            };
+
+            match execute_query(&query_with_limit).await {
                 Ok(query_results) => {
                     results.push(QueryResult {
-                        query: query.clone(),
+                        query: query_with_limit,
                         status: "success".to_string(),
+                        error: None,
                         results: Some(query_results),
                     });
                 }
-                Err(_) => {
+                Err(e) => {
                     results.push(QueryResult {
-                        query: query.clone(),
+                        query: query_with_limit,
                         status: "failed".to_string(),
+                        error: Some(e.to_string()),
                         results: None,
                     });
                 }
             }
         }
 
-        Ok(SampleQueryOutput { queries: results })
+        Ok(SqlQueryOutput { queries: results })
     }
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "sample_query",
-            "description": "Executes a set of exploratory SQL queries, each limited to 25 records. Queries must be SELECT statements only. Used for exploring and understanding data patterns.",
+            "name": "run_sql",
+            "description": "Executes SQL SELECT queries with an enforced 25-record limit for data exploration. Non-SELECT queries are rejected.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -87,9 +104,9 @@ impl ToolExecutor for SampleQuery {
                         "type": "array",
                         "items": {
                             "type": "string",
-                            "description": "SQL SELECT query with LIMIT clause"
+                            "description": "SQL SELECT query (LIMIT 25 will be automatically applied)"
                         },
-                        "description": "Array of SQL queries to execute"
+                        "description": "Array of SQL SELECT queries to execute"
                     }
                 },
                 "required": ["queries"]
@@ -98,7 +115,7 @@ impl ToolExecutor for SampleQuery {
     }
 
     fn get_name(&self) -> String {
-        "sample_query".to_string()
+        "run_sql".to_string()
     }
 }
 

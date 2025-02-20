@@ -45,48 +45,21 @@ impl ToolExecutor for DashboardAgentTool {
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "dashboard_agent",
-            "description": "Creates and modifies dashboard definitions and their associated metrics",
+            "name": "create_or_modify_dashboards",
+            "description": "Use to create or update dashboards (which can include multiple metrics, charts, or visualizations). This is suitable for building or editing an entire dashboard (or creating/updating/adding/removing the individual metrics on a dashboard.",
+            "strict": true,
             "parameters": {
-                "type": "object",
-                "properties": {
-                    "operation": {
-                        "type": "string",
-                        "enum": ["create", "modify", "analyze"],
-                        "description": "The operation to perform on the dashboard"
-                    },
-                    "dashboard_name": {
-                        "type": "string",
-                        "description": "Name of the dashboard to create or modify"
-                    },
-                    "dashboard_id": {
-                        "type": "string",
-                        "description": "UUID of the dashboard to modify"
-                    },
-                    "requirements": {
-                        "type": "string",
-                        "description": "Requirements or specifications for the dashboard"
-                    },
-                    "modifications": {
-                        "type": "string",
-                        "description": "Specific modifications to apply to the dashboard"
-                    },
-                    "metric_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "description": "UUIDs of existing metrics to include in the dashboard"
-                    },
-                    "new_metrics": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "description": "Names of new metrics to create for the dashboard"
-                    }
-                },
-                "required": ["operation"]
+              "type": "object",
+              "required": [
+                "ticket_description"
+              ],
+              "properties": {
+                "ticket_description": {
+                  "type": "string",
+                  "description": "A brief description for the action. This should essentially be a ticket description that can be appended to a ticket. The ticket description should explain which parts of the user's request this action addresses. Copy the user's request exactly without adding instructions, thoughts, or assumptions. Write it as a command, e.g., 'Create a new sales dashboard with...', 'Add monthly revenue chart to the existing dashboard...', etc."
+                }
+              },
+              "additionalProperties": false
             }
         })
     }

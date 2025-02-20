@@ -45,34 +45,21 @@ impl ToolExecutor for MetricAgentTool {
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "metric_agent",
-            "description": "Creates and modifies metric definitions",
+            "name": "create_or_modify_metrics",
+            "description": "Use to create or update individual metrics, charts, or tables. This is suitable for a single chart/visualization (or several individual metrics) that does not require building an entire dashboard.",
+            "strict": true,
             "parameters": {
-                "type": "object",
-                "properties": {
-                    "operation": {
-                        "type": "string",
-                        "enum": ["create", "modify", "analyze"],
-                        "description": "The operation to perform on the metric"
-                    },
-                    "metric_name": {
-                        "type": "string",
-                        "description": "Name of the metric to create or modify"
-                    },
-                    "metric_id": {
-                        "type": "string",
-                        "description": "UUID of the metric to modify"
-                    },
-                    "requirements": {
-                        "type": "string",
-                        "description": "Requirements or specifications for the metric"
-                    },
-                    "modifications": {
-                        "type": "string",
-                        "description": "Specific modifications to apply to the metric"
-                    }
-                },
-                "required": ["operation"]
+              "type": "object",
+              "required": [
+                "ticket_description"
+              ],
+              "properties": {
+                "ticket_description": {
+                  "type": "string",
+                  "description": "A brief description for the action. This should essentially be a ticket description that can be appended to a ticket. The ticket description should explain which parts of the user's request this action addresses. Copy the user's request exactly without adding instructions, thoughts, or assumptions. Write it as a command, e.g., 'Create a bar chart showing...', 'Add a metric for...', etc."
+                }
+              },
+              "additionalProperties": false
             }
         })
     }
