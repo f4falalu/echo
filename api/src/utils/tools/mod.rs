@@ -1,14 +1,16 @@
 use anyhow::Result;
-use async_trait::async_trait;
-use litellm::ToolCall;
+use axum::async_trait;
+use litellm::{Message, ToolCall};
 use serde::Serialize;
 use serde_json::Value;
+use tokio::sync::mpsc;
 use uuid::Uuid;
 
+
+pub mod agents_as_tools;
 pub mod data_tools;
 pub mod file_tools;
 pub mod interaction_tools;
-pub mod agents_as_tools;
 
 /// A trait that defines how tools should be implemented.
 /// Any struct that wants to be used as a tool must implement this trait.
@@ -17,19 +19,32 @@ pub trait ToolExecutor: Send + Sync {
     /// The type of the output of the tool
     type Output: Serialize + Send;
 
-    /// Execute the tool with given arguments and return a result
+    /// Execute the tool with the given parameters and optionally stream progress
     async fn execute(
         &self,
         tool_call: &ToolCall,
         user_id: &Uuid,
         session_id: &Uuid,
+        stream_tx: Option<mpsc::Sender<Result<Message>>>,
     ) -> Result<Self::Output>;
 
-    /// Return the JSON schema that describes this tool's interface
-    fn get_schema(&self) -> serde_json::Value;
+    /// Get the JSON schema for this tool
+    fn get_schema(&self) -> Value;
 
-    /// Return the name of the tool
+    /// Get the name of this tool
     fn get_name(&self) -> String;
+
+    /// Helper method to send a progress message if streaming is enabled
+    async fn send_progress(
+        &self,
+        stream_tx: &Option<mpsc::Sender<Result<Message>>>,
+        message: Message,
+    ) -> Result<()> {
+        if let Some(tx) = stream_tx {
+            tx.send(Ok(message)).await?;
+        }
+        Ok(())
+    }
 }
 
 /// A wrapper type that converts any ToolExecutor to one that outputs Value
@@ -44,8 +59,12 @@ impl<T: ToolExecutor> ToolExecutor for ValueToolExecutor<T> {
         tool_call: &ToolCall,
         user_id: &Uuid,
         session_id: &Uuid,
+        stream_tx: Option<mpsc::Sender<Result<Message>>>,
     ) -> Result<Self::Output> {
-        let result = self.0.execute(tool_call, user_id, session_id).await?;
+        let result = self
+            .0
+            .execute(tool_call, user_id, session_id, stream_tx)
+            .await?;
         Ok(serde_json::to_value(result)?)
     }
 

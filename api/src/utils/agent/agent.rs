@@ -1,13 +1,11 @@
 use anyhow::Result;
 use litellm::{
-    ChatCompletionRequest, DeltaFunctionCall, DeltaToolCall, FunctionCall, LiteLLMClient, Message,
-    MessageProgress, Metadata, Tool, ToolCall, ToolChoice,
+    ChatCompletionRequest, DeltaToolCall, FunctionCall, LiteLLMClient, Message, Metadata, Tool,
+    ToolCall, ToolChoice,
 };
-use serde::Serialize;
 use serde_json::Value;
 use std::{collections::HashMap, env, sync::Arc};
-use tokio::sync::mpsc;
-use uuid::Uuid;
+use tokio::sync::{mpsc, RwLock};
 
 use crate::utils::tools::ToolExecutor;
 
@@ -24,6 +22,12 @@ pub struct Agent {
     tools: Arc<HashMap<String, Box<dyn ToolExecutor<Output = Value>>>>,
     /// The model identifier to use (e.g., "gpt-4")
     model: String,
+    /// Flexible state storage for maintaining memory across interactions
+    state: Arc<RwLock<HashMap<String, Value>>>,
+    /// The current thread being processed, if any
+    current_thread: Arc<RwLock<Option<AgentThread>>>,
+    /// Sender for streaming messages from this agent and sub-agents
+    stream_tx: Arc<RwLock<mpsc::Sender<Result<Message>>>>,
 }
 
 impl Agent {
@@ -37,11 +41,74 @@ impl Agent {
 
         let llm_client = LiteLLMClient::new(Some(llm_api_key), Some(llm_base_url));
 
+        // Create a default channel that just drops messages
+        let (tx, _rx) = mpsc::channel(1);
+
         Self {
             llm_client,
             tools: Arc::new(tools),
             model,
+            state: Arc::new(RwLock::new(HashMap::new())),
+            current_thread: Arc::new(RwLock::new(None)),
+            stream_tx: Arc::new(RwLock::new(tx)),
         }
+    }
+
+    /// Update the stream sender for this agent
+    pub async fn set_stream_sender(&self, tx: mpsc::Sender<Result<Message>>) {
+        *self.stream_tx.write().await = tx;
+    }
+
+    /// Get a clone of the current stream sender
+    pub async fn get_stream_sender(&self) -> mpsc::Sender<Result<Message>> {
+        self.stream_tx.read().await.clone()
+    }
+
+    /// Get a value from the agent's state by key
+    pub async fn get_state_value(&self, key: &str) -> Option<Value> {
+        self.state.read().await.get(key).cloned()
+    }
+
+    /// Set a value in the agent's state
+    pub async fn set_state_value(&self, key: String, value: Value) {
+        self.state.write().await.insert(key, value);
+    }
+
+    /// Update multiple state values at once using a closure
+    pub async fn update_state<F>(&self, f: F)
+    where
+        F: FnOnce(&mut HashMap<String, Value>),
+    {
+        let mut state = self.state.write().await;
+        f(&mut state);
+    }
+
+    /// Clear all state values
+    pub async fn clear_state(&self) {
+        self.state.write().await.clear();
+    }
+
+    /// Get the current thread being processed, if any
+    pub async fn get_current_thread(&self) -> Option<AgentThread> {
+        self.current_thread.read().await.clone()
+    }
+
+    /// Get the complete conversation history of the current thread
+    pub async fn get_conversation_history(&self) -> Option<Vec<Message>> {
+        self.current_thread
+            .read()
+            .await
+            .as_ref()
+            .map(|thread| thread.messages.clone())
+    }
+
+    /// Update the current thread with a new message
+    async fn update_current_thread(&self, message: Message) -> Result<()> {
+        let mut thread_lock = self.current_thread.write().await;
+        if let Some(thread) = thread_lock.as_mut() {
+            thread.messages.push(message);
+        }
+        Ok(())
     }
 
     /// Add a new tool with the agent
@@ -74,32 +141,79 @@ impl Agent {
     /// Process a thread of conversation, potentially executing tools and continuing
     /// the conversation recursively until a final response is reached.
     ///
+    /// This is a convenience wrapper around process_thread_streaming that collects
+    /// all streamed messages into a final response.
+    ///
     /// # Arguments
     /// * `thread` - The conversation thread to process
     ///
     /// # Returns
     /// * A Result containing the final Message from the assistant
-    pub async fn process_thread(
+    pub async fn process_thread(&self, thread: &AgentThread) -> Result<Message> {
+        let mut rx = self.process_thread_streaming(thread).await?;
+
+        let mut final_message = None;
+        while let Some(msg) = rx.recv().await {
+            final_message = Some(msg?);
+        }
+
+        final_message.ok_or_else(|| anyhow::anyhow!("No messages received from processing"))
+    }
+
+    /// Process a thread of conversation with streaming responses. This is the primary
+    /// interface for processing conversations.
+    ///
+    /// # Arguments
+    /// * `thread` - The conversation thread to process
+    ///
+    /// # Returns
+    /// * A Result containing a receiver for streamed messages
+    pub async fn process_thread_streaming(
         &self,
         thread: &AgentThread,
-    ) -> Result<Message> {
-        self.process_thread_with_depth(thread, 0)
-            .await
+    ) -> Result<mpsc::Receiver<Result<Message>>> {
+        // Create new channel for this processing session
+        let (tx, rx) = mpsc::channel(100);
+        self.set_stream_sender(tx).await;
+
+        // Spawn the processing task
+        let agent_clone = self.clone();
+        let thread_clone = thread.clone();
+
+        tokio::spawn(async move {
+            if let Err(e) = agent_clone
+                .process_thread_with_depth(&thread_clone, 0)
+                .await
+            {
+                let err_msg = format!("Error processing thread: {:?}", e);
+                let _ = agent_clone.get_stream_sender().await.send(Err(e)).await;
+            }
+        });
+
+        Ok(rx)
     }
 
     async fn process_thread_with_depth(
         &self,
         thread: &AgentThread,
         recursion_depth: u32,
-    ) -> Result<Message> {
+    ) -> Result<()> {
+        // Set the initial thread
+        {
+            let mut current = self.current_thread.write().await;
+            *current = Some(thread.clone());
+        }
+
         if recursion_depth >= 30 {
-            return Ok(Message::assistant(
+            let message = Message::assistant(
                 Some("max_recursion_depth_message".to_string()),
                 Some("I apologize, but I've reached the maximum number of actions (30). Please try breaking your request into smaller parts.".to_string()),
                 None,
                 None,
                 None,
-            ));
+            );
+            self.get_stream_sender().await.send(Ok(message)).await?;
+            return Ok(());
         }
 
         // Collect all registered tools and their schemas
@@ -144,12 +258,15 @@ impl Agent {
             _ => return Err(anyhow::anyhow!("Expected assistant message from LLM")),
         };
 
+        // Update thread with assistant message
+        self.update_current_thread(message.clone()).await?;
+
         // If this is an auto response without tool calls, it means we're done
         if let Message::Assistant {
             tool_calls: None, ..
         } = &llm_message
         {
-            return Ok(message);
+            return Ok(());
         }
 
         // If the LLM wants to use tools, execute them and continue
@@ -163,15 +280,21 @@ impl Agent {
             // Execute each requested tool
             for tool_call in tool_calls {
                 if let Some(tool) = self.tools.get(&tool_call.function.name) {
-                    let result = tool.execute(tool_call, &thread.user_id, &thread.id).await?;
+                    let result = tool
+                        .execute(tool_call, &thread.user_id, &thread.id, None)
+                        .await?;
                     let result_str = serde_json::to_string(&result)?;
-                    results.push(Message::tool(
+                    let tool_message = Message::tool(
                         None,
                         result_str,
                         tool_call.id.clone(),
                         Some(tool_call.function.name.clone()),
                         None,
-                    ));
+                    );
+
+                    // Update thread with tool response
+                    self.update_current_thread(tool_message.clone()).await?;
+                    results.push(tool_message);
                 }
             }
 
@@ -180,304 +303,10 @@ impl Agent {
             new_thread.messages.push(message);
             new_thread.messages.extend(results);
 
-            Box::pin(self.process_thread_with_depth(&new_thread, recursion_depth + 1))
-                .await
+            Box::pin(self.process_thread_with_depth(&new_thread, recursion_depth + 1)).await
         } else {
-            Ok(message)
+            Ok(())
         }
-    }
-
-    /// Process a thread of conversation with streaming responses
-    ///
-    /// # Arguments
-    /// * `thread` - The conversation thread to process
-    ///
-    /// # Returns
-    /// * A Result containing a receiver for streamed messages
-    pub async fn stream_process_thread(
-        &self,
-        thread: &AgentThread,
-    ) -> Result<mpsc::Receiver<Result<Message>>> {
-        let (tx, rx) = mpsc::channel(100);
-        let tools_ref = self.tools.clone();
-        let model = self.model.clone();
-        let llm_client = self.llm_client.clone();
-
-        // Clone thread for task ownership
-        let thread = thread.clone();
-
-        tokio::spawn(async move {
-            async fn process_stream_recursive(
-                llm_client: &LiteLLMClient,
-                model: &str,
-                tools_ref: &Arc<HashMap<String, Box<dyn ToolExecutor<Output = Value>>>>,
-                thread: &AgentThread,
-                tx: &mpsc::Sender<Result<Message>>,
-                recursion_depth: u32,
-            ) -> Result<()> {
-                if recursion_depth >= 30 {
-                    let limit_message = Message::assistant(
-                        Some("max_recursion_depth_message".to_string()),
-                        Some("I apologize, but I've reached the maximum number of actions (30). Please try breaking your request into smaller parts.".to_string()),
-                        None,
-                        None,
-                        None,
-                    );
-                    let _ = tx.send(Ok(limit_message)).await;
-                    return Ok(());
-                }
-
-                // Collect all registered tools and their schemas
-                let tools: Vec<Tool> = tools_ref
-                    .iter()
-                    .map(|(name, tool)| Tool {
-                        tool_type: "function".to_string(),
-                        function: tool.get_schema(),
-                    })
-                    .collect();
-
-                // Create the tool-enabled request
-                let request = ChatCompletionRequest {
-                    model: model.to_string(),
-                    messages: thread.messages.clone(),
-                    tools: if tools.is_empty() { None } else { Some(tools) },
-                    tool_choice: Some(ToolChoice::Required),
-                    stream: Some(true),
-                    metadata: Some(Metadata {
-                        generation_name: "agent".to_string(),
-                        user_id: thread.user_id.to_string(),
-                        session_id: thread.id.to_string(),
-                    }),
-                    ..Default::default()
-                };
-
-                // Get streaming response
-                let mut stream = llm_client.stream_chat_completion(request).await?;
-                let mut current_message =
-                    Message::assistant(None, Some(String::new()), None, None, None);
-                let mut current_pending_tool: Option<PendingToolCall> = None;
-                let mut has_tool_calls = false;
-                let mut tool_results = Vec::new();
-                let mut first_tool_message_sent = false;
-
-                // Process stream chunks
-                while let Some(chunk_result) = stream.recv().await {
-                    match chunk_result {
-                        Ok(chunk) => {
-                            current_message.set_id(chunk.id.clone());
-
-                            let delta = &chunk.choices[0].delta;
-
-                            // Check for tool call completion
-                            if let Some(finish_reason) = &chunk.choices[0].finish_reason {
-                                if finish_reason == "tool_calls" {
-                                    has_tool_calls = true;
-                                    // Tool call is complete - execute it
-                                    if let Some(pending) = current_pending_tool.take() {
-                                        let tool_call = pending.into_tool_call();
-
-                                        // Create and preserve the assistant message with the tool call
-                                        let is_first = !first_tool_message_sent;
-                                        first_tool_message_sent = true;
-
-                                        let assistant_tool_message = Message::assistant(
-                                            Some(chunk.id.clone()),
-                                            None,
-                                            Some(vec![tool_call.clone()]),
-                                            Some(MessageProgress::Complete),
-                                            Some(is_first),
-                                        );
-                                        let _ = tx.send(Ok(assistant_tool_message.clone())).await;
-
-                                        // Execute the tool
-                                        if let Some(tool) = tools_ref.get(&tool_call.function.name)
-                                        {
-                                            match tool
-                                                .execute(&tool_call, &thread.user_id, &thread.id)
-                                                .await
-                                            {
-                                                Ok(result) => {
-                                                    let result_str =
-                                                        serde_json::to_string(&result)?;
-                                                    let tool_result = Message::tool(
-                                                        Some(chunk.id.clone()),
-                                                        result_str,
-                                                        tool_call.id.clone(),
-                                                        Some(tool_call.function.name.clone()),
-                                                        Some(MessageProgress::Complete),
-                                                    );
-                                                    let _ = tx.send(Ok(tool_result.clone())).await;
-
-                                                    // Store both the assistant tool message and the tool result
-                                                    tool_results.push(assistant_tool_message);
-                                                    tool_results.push(tool_result);
-                                                }
-                                                Err(e) => {
-                                                    let error_msg =
-                                                        format!("Tool execution failed: {:?}", e);
-                                                    let tool_error = Message::tool(
-                                                        Some(chunk.id.clone()),
-                                                        error_msg,
-                                                        tool_call.id.clone(),
-                                                        Some(tool_call.function.name.clone()),
-                                                        Some(MessageProgress::Complete),
-                                                    );
-                                                    let _ = tx.send(Ok(tool_error.clone())).await;
-
-                                                    // Store both the assistant tool message and the error
-                                                    tool_results.push(assistant_tool_message);
-                                                    tool_results.push(tool_error);
-                                                }
-                                            }
-                                        }
-                                    }
-                                    continue;
-                                }
-                            }
-
-                            // Handle content updates - only send if we have actual content
-                            if let Some(content) = &delta.content {
-                                if !content.trim().is_empty() {
-                                    if let Message::Assistant {
-                                        content: msg_content,
-                                        ..
-                                    } = &mut current_message
-                                    {
-                                        if let Some(existing) = msg_content {
-                                            existing.push_str(content);
-                                        }
-                                    }
-                                    let _ = tx
-                                        .send(Ok(Message::assistant(
-                                            Some(chunk.id.clone()),
-                                            Some(content.clone()),
-                                            None,
-                                            Some(MessageProgress::InProgress),
-                                            None,
-                                        )))
-                                        .await;
-                                }
-                            }
-
-                            // Handle tool calls - only send when we have meaningful tool call data
-                            if let Some(tool_calls) = &delta.tool_calls {
-                                has_tool_calls = true;
-
-                                if current_pending_tool.is_none() {
-                                    current_pending_tool = Some(PendingToolCall::new());
-                                }
-
-                                if let Some(pending) = &mut current_pending_tool {
-                                    for tool_call in tool_calls {
-                                        pending.update_from_delta(tool_call);
-
-                                        // Send an update if we have a name, regardless of arguments
-                                        if let Some(name) = &pending.function_name {
-                                            let temp_tool_call = ToolCall {
-                                                id: pending.id.clone().unwrap_or_default(),
-                                                function: FunctionCall {
-                                                    name: name.clone(),
-                                                    arguments: pending.arguments.clone(),
-                                                },
-                                                call_type: pending
-                                                    .call_type
-                                                    .clone()
-                                                    .unwrap_or_default(),
-                                                code_interpreter: None,
-                                                retrieval: None,
-                                            };
-
-                                            let is_first = !first_tool_message_sent;
-                                            first_tool_message_sent = true;
-
-                                            let _ = tx
-                                                .send(Ok(Message::assistant(
-                                                    Some(chunk.id.clone()),
-                                                    None,
-                                                    Some(vec![temp_tool_call]),
-                                                    Some(MessageProgress::InProgress),
-                                                    Some(is_first),
-                                                )))
-                                                .await;
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Check for completion
-                            if let Some(finish_reason) = &chunk.choices[0].finish_reason {
-                                if finish_reason == "stop" {
-                                    if let Message::Assistant {
-                                        content: Some(content),
-                                        ..
-                                    } = &current_message
-                                    {
-                                        if !content.trim().is_empty() {
-                                            let _ = tx
-                                                .send(Ok(Message::assistant(
-                                                    Some(chunk.id.clone()),
-                                                    Some(content.clone()),
-                                                    None,
-                                                    Some(MessageProgress::Complete),
-                                                    None,
-                                                )))
-                                                .await;
-                                        }
-                                    }
-                                    // If this was a content-only message, stop recursion
-                                    if !has_tool_calls {
-                                        return Ok(());
-                                    }
-                                }
-                            }
-                        }
-                        Err(e) => {
-                            let _ = tx.send(Err(anyhow::Error::from(e))).await;
-                            return Ok(());
-                        }
-                    }
-                }
-
-                // If we have tool calls, create new thread and recurse
-                if has_tool_calls {
-                    // Create new thread with tool results and recurse
-                    let mut new_thread = thread.clone();
-                    // Only include current_message if it has content
-                    if let Message::Assistant {
-                        content: Some(content),
-                        ..
-                    } = &current_message
-                    {
-                        if !content.trim().is_empty() {
-                            new_thread.messages.push(current_message);
-                        }
-                    }
-                    new_thread.messages.extend(tool_results);
-
-                    // Recurse with new thread
-                    Box::pin(process_stream_recursive(
-                        llm_client,
-                        model,
-                        tools_ref,
-                        &new_thread,
-                        tx,
-                        recursion_depth + 1,
-                    ))
-                    .await?;
-                }
-
-                Ok(())
-            }
-
-            // Start recursive processing
-            if let Err(e) =
-                process_stream_recursive(&llm_client, &model, &tools_ref, &thread, &tx, 0).await
-            {
-                let _ = tx.send(Err(e)).await;
-            }
-        });
-
-        Ok(rx)
     }
 }
 
@@ -511,10 +340,10 @@ impl PendingToolCall {
                 self.arguments.push_str(args);
             }
         }
-        if let Some(code_interpreter) = &tool_call.code_interpreter {
+        if let Some(_) = &tool_call.code_interpreter {
             self.code_interpreter = None;
         }
-        if let Some(retrieval) = &tool_call.retrieval {
+        if let Some(_) = &tool_call.retrieval {
             self.retrieval = None;
         }
     }
@@ -538,7 +367,9 @@ mod tests {
     use super::*;
     use axum::async_trait;
     use dotenv::dotenv;
+    use litellm::MessageProgress;
     use serde_json::{json, Value};
+    use uuid::Uuid;
 
     fn setup() {
         dotenv().ok();
@@ -550,11 +381,46 @@ mod tests {
     impl ToolExecutor for WeatherTool {
         type Output = Value;
 
-        async fn execute(&self, tool_call: &ToolCall, user_id: &Uuid, session_id: &Uuid) -> Result<Self::Output> {
-            Ok(json!({
+        async fn execute(
+            &self,
+            tool_call: &ToolCall,
+            user_id: &Uuid,
+            session_id: &Uuid,
+            stream_tx: Option<mpsc::Sender<Result<Message>>>,
+        ) -> Result<Self::Output> {
+            // Simulate some progress messages if streaming is enabled
+            if let Some(tx) = &stream_tx {
+                let progress = Message::tool(
+                    None,
+                    "Fetching weather data...".to_string(),
+                    tool_call.id.clone(),
+                    Some(tool_call.function.name.clone()),
+                    Some(MessageProgress::InProgress),
+                );
+                tx.send(Ok(progress)).await?;
+            }
+
+            // Simulate a delay
+            tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+
+            let result = json!({
                 "temperature": 20,
                 "unit": "fahrenheit"
-            }))
+            });
+
+            // Send completion message if streaming
+            if let Some(tx) = &stream_tx {
+                let complete = Message::tool(
+                    None,
+                    serde_json::to_string(&result)?,
+                    tool_call.id.clone(),
+                    Some(tool_call.function.name.clone()),
+                    Some(MessageProgress::Complete),
+                );
+                tx.send(Ok(complete)).await?;
+            }
+
+            Ok(result)
         }
 
         fn get_schema(&self) -> Value {
@@ -591,7 +457,11 @@ mod tests {
         // Create LLM client and agent
         let agent = Agent::new("o1".to_string(), HashMap::new());
 
-        let thread = AgentThread::new(None, Uuid::new_v4(), vec![Message::user("Hello, world!".to_string())]);
+        let thread = AgentThread::new(
+            None,
+            Uuid::new_v4(),
+            vec![Message::user("Hello, world!".to_string())],
+        );
 
         let response = match agent.process_thread(&thread).await {
             Ok(response) => response,
@@ -653,5 +523,40 @@ mod tests {
         };
 
         println!("Response: {:?}", response);
+    }
+
+    #[tokio::test]
+    async fn test_agent_state_management() {
+        setup();
+
+        // Create agent
+        let agent = Agent::new("o1".to_string(), HashMap::new());
+
+        // Test setting single values
+        agent
+            .set_state_value("test_key".to_string(), json!("test_value"))
+            .await;
+        let value = agent.get_state_value("test_key").await;
+        assert_eq!(value, Some(json!("test_value")));
+
+        // Test updating multiple values
+        agent
+            .update_state(|state| {
+                state.insert("key1".to_string(), json!(1));
+                state.insert("key2".to_string(), json!({"nested": "value"}));
+            })
+            .await;
+
+        assert_eq!(agent.get_state_value("key1").await, Some(json!(1)));
+        assert_eq!(
+            agent.get_state_value("key2").await,
+            Some(json!({"nested": "value"}))
+        );
+
+        // Test clearing state
+        agent.clear_state().await;
+        assert_eq!(agent.get_state_value("test_key").await, None);
+        assert_eq!(agent.get_state_value("key1").await, None);
+        assert_eq!(agent.get_state_value("key2").await, None);
     }
 }
