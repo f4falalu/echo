@@ -21,7 +21,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@utils/*": ["./src/utils/*"],
-      "@/components/features/*": ["./src/app/app/_components/*"],
+      "@components/*": ["./src/components/*"],
       "@layouts/*": ["./src/layouts/*"],
       "@controllers/*": ["./src/controllers/*"],
       "@chatLayout/*": ["./src/layouts/ChatLayout/*"]
