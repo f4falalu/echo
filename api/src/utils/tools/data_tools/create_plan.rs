@@ -37,13 +37,14 @@ impl CreatePlan {
 #[async_trait]
 impl ToolExecutor for CreatePlan {
     type Output = PlanOutput;
+    type Params = PlanInput;
 
     fn get_name(&self) -> String {
         "create_plan".to_string()
     }
 
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
-        let input: PlanInput = serde_json::from_str(&tool_call.function.arguments)?;
+    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
+        let input = params;
         
         // TODO: Implement actual plan creation logic here
         // This would typically involve:

@@ -1,5 +1,5 @@
-use std::time::Instant;
 use std::sync::Arc;
+use std::time::Instant;
 
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
@@ -17,10 +17,7 @@ use crate::{
         models::{DashboardFile, MetricFile},
         schema::{dashboard_files, metric_files},
     },
-    utils::{
-        tools::ToolExecutor,
-        agent::Agent,
-    },
+    utils::{agent::Agent, tools::ToolExecutor},
 };
 
 use litellm::{ChatCompletionRequest, LiteLLMClient, Message, Metadata, ResponseFormat, ToolCall};
@@ -85,7 +82,7 @@ struct LLMSearchResponse {
 }
 
 pub struct SearchFilesTool {
-    agent: Arc<Agent>
+    agent: Arc<Agent>,
 }
 
 impl SearchFilesTool {
@@ -160,28 +157,17 @@ impl SearchFilesTool {
     }
 }
 
-
 #[async_trait]
 impl ToolExecutor for SearchFilesTool {
     type Output = SearchFilesOutput;
+    type Params = SearchFilesParams;
 
     fn get_name(&self) -> String {
         "search_files".to_string()
     }
 
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         let start_time = Instant::now();
-
-        let params: SearchFilesParams = match serde_json::from_str(&tool_call.function.arguments.clone()) {
-            Ok(params) => params,
-            Err(e) => {
-                return Err(anyhow!("Failed to parse search parameters: {}", e));
-            }
-        };
-
-        // Get current thread for context
-        let current_thread = self.agent.get_current_thread().await
-            .ok_or_else(|| anyhow::anyhow!("No current thread"))?;
 
         let mut conn = get_pg_pool().get().await?;
 
@@ -212,7 +198,13 @@ impl ToolExecutor for SearchFilesTool {
 
         // Format prompt and perform search
         let prompt = Self::format_search_prompt(&params.query_params, &files_array)?;
-        let search_response = match Self::perform_llm_search(prompt, &current_thread.user_id, &current_thread.id).await {
+        let search_response = match Self::perform_llm_search(
+            prompt,
+            &self.agent.get_user_id(),
+            &self.agent.get_session_id(),
+        )
+        .await
+        {
             Ok(response) => response,
             Err(e) => {
                 let duration = start_time.elapsed().as_millis() as i64;
@@ -249,7 +241,7 @@ impl ToolExecutor for SearchFilesTool {
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "search_files", 
+            "name": "search_files",
             "strict": true,
             "parameters": {
                 "type": "object",

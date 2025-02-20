@@ -13,6 +13,10 @@ pub struct MetricAgentTool {
     agent: Arc<Agent>,
 }
 
+pub struct MetricAgentInput {
+    pub ticket_description: String,
+}
+
 impl MetricAgentTool {
     pub fn new(agent: Arc<Agent>) -> Self {
         Self { agent }
@@ -22,12 +26,13 @@ impl MetricAgentTool {
 #[async_trait]
 impl ToolExecutor for MetricAgentTool {
     type Output = Value;
+    type Params = MetricAgentInput;
 
     fn get_name(&self) -> String {
         "metric_agent".to_string()
     }
 
-    async fn execute(&self, tool_call: &litellm::ToolCall) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         // Create and initialize the agent
         let metric_agent = MetricAgent::from_existing(&self.agent)?;
 
@@ -39,7 +44,7 @@ impl ToolExecutor for MetricAgentTool {
             .ok_or_else(|| anyhow::anyhow!("No current thread"))?;
 
         // Parse input parameters
-        let input = serde_json::from_str(&tool_call.function.arguments)?;
+        let input = params;
 
         // Execute the agent with the executing agent's context
         let output = metric_agent

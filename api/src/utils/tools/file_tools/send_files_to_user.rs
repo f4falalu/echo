@@ -28,18 +28,15 @@ impl SendFilesToUserTool {
 #[async_trait]
 impl ToolExecutor for SendFilesToUserTool {
     type Output = SendToUserOutput;
+    type Params = SendToUserParams;
+
+    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
+        // TODO: Implement actual send to user logic
+        Ok(SendToUserOutput { success: true })
+    }
 
     fn get_name(&self) -> String {
         "send_to_user".to_string()
-    }
-
-    async fn execute(
-        &self,
-        tool_call: &ToolCall,
-    ) -> Result<Self::Output> {
-        let params: SendToUserParams = serde_json::from_str(&tool_call.function.arguments.clone())?;
-        // TODO: Implement actual send to user logic
-        Ok(SendToUserOutput { success: true })
     }
 
     fn get_schema(&self) -> Value {

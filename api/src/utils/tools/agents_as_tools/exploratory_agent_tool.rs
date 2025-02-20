@@ -12,6 +12,10 @@ pub struct ExploratoryAgentTool {
     agent: Arc<Agent>,
 }
 
+pub struct ExploratoryAgentInput {
+    pub ticket_description: String,
+}
+
 impl ExploratoryAgentTool {
     pub fn new(agent: Arc<Agent>) -> Self {
         Self { agent }
@@ -21,17 +25,17 @@ impl ExploratoryAgentTool {
 #[async_trait]
 impl ToolExecutor for ExploratoryAgentTool {
     type Output = Value;
-
+    type Params = ExploratoryAgentInput;
     fn get_name(&self) -> String {
         "exploratory_agent".to_string()
     }
 
-    async fn execute(&self, tool_call: &litellm::ToolCall) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         // Create and initialize the agent
         let exploratory_agent = ExploratoryAgent::from_existing(&self.agent)?;
 
         // Parse input parameters
-        let input = serde_json::from_str(&tool_call.function.arguments)?;
+        let input = params;
 
         // TODO: Implement the exploratory agent result
 

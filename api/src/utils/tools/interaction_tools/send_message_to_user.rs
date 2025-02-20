@@ -22,12 +22,10 @@ pub struct SendMessageToUser;
 #[async_trait]
 impl ToolExecutor for SendMessageToUser {
     type Output = SendMessageToUserOutput;
+    type Params = SendMessageToUserInput;
 
-    async fn execute(
-        &self,
-        tool_call: &ToolCall,
-    ) -> Result<Self::Output> {
-        let input: SendMessageToUserInput = serde_json::from_str(&tool_call.function.arguments)?;
+    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
+        let input = params;
 
         // For now, we'll consider it a success if we can parse the message
         // In a real implementation, we might have additional delivery logic

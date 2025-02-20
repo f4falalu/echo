@@ -51,13 +51,14 @@ impl SqlQuery {
 #[async_trait]
 impl ToolExecutor for SqlQuery {
     type Output = SqlQueryOutput;
+    type Params = SqlQueryInput;
 
     fn get_name(&self) -> String {
         "run_sql".to_string()
     }
 
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
-        let input: SqlQueryInput = serde_json::from_str(&tool_call.function.arguments)?;
+    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
+        let input = params;
         let mut results = Vec::new();
 
         for query in input.queries {

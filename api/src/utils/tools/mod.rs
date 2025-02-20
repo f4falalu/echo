@@ -1,7 +1,7 @@
-use anyhow::Result;
+use anyhow::{Result, anyhow};
 use axum::async_trait;
 use litellm::{Message, ToolCall};
-use serde::Serialize;
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use serde_json::Value;
 use uuid::Uuid;
 
@@ -19,10 +19,12 @@ pub mod interaction_tools;
 pub trait ToolExecutor: Send + Sync {
     /// The type of the output of the tool
     type Output: Serialize + Send;
+    
+    /// The type of the parameters for this tool
+    type Params: DeserializeOwned + Send;
 
     /// Execute the tool with the given parameters.
-    /// The tool has access to its agent's capabilities through its stored agent reference.
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output>;
+    async fn execute(&self, params: Self::Params) -> Result<Self::Output>;
 
     /// Get the JSON schema for this tool
     fn get_schema(&self) -> Value;
@@ -45,9 +47,10 @@ impl<T: ToolExecutor> ValueToolExecutor<T> {
 #[async_trait]
 impl<T: ToolExecutor> ToolExecutor for ValueToolExecutor<T> {
     type Output = Value;
+    type Params = T::Params;
 
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
-        let result = self.inner.execute(tool_call).await?;
+    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
+        let result = self.inner.execute(params).await?;
         Ok(serde_json::to_value(result)?)
     }
 

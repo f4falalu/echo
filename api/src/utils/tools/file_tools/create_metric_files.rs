@@ -107,28 +107,14 @@ async fn process_metric_file(file: MetricFileParams) -> Result<(MetricFile, Metr
 #[async_trait]
 impl ToolExecutor for CreateMetricFilesTool {
     type Output = CreateMetricFilesOutput;
+    type Params = CreateMetricFilesParams;
 
     fn get_name(&self) -> String {
         "create_metric_files".to_string()
     }
 
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         let start_time = Instant::now();
-
-        let params: CreateMetricFilesParams =
-            match serde_json::from_str(&tool_call.function.arguments.clone()) {
-                Ok(params) => params,
-                Err(e) => {
-                    return Err(anyhow!("Failed to parse create files parameters: {}", e));
-                }
-            };
-
-        // Get current thread for context
-        let current_thread = self
-            .agent
-            .get_current_thread()
-            .await
-            .ok_or_else(|| anyhow::anyhow!("No current thread"))?;
 
         let files = params.files;
         let mut created_files = vec![];

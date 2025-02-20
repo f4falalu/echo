@@ -1,14 +1,14 @@
 use std::sync::Arc;
 use std::time::Instant;
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use tracing::{debug, error, warn};
+use tracing::{debug, error, info, warn};
 use uuid::Uuid;
 
 use crate::{
@@ -203,21 +203,10 @@ impl SearchDataCatalogTool {
 #[async_trait]
 impl ToolExecutor for SearchDataCatalogTool {
     type Output = SearchDataCatalogOutput;
+    type Params = SearchDataCatalogParams;
 
-    fn get_name(&self) -> String {
-        "search_data_catalog".to_string()
-    }
-
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         let start_time = Instant::now();
-
-        let params: SearchDataCatalogParams =
-            match serde_json::from_str(&tool_call.function.arguments.clone()) {
-                Ok(params) => params,
-                Err(e) => {
-                    return Err(anyhow::anyhow!("Failed to parse search parameters: {}", e));
-                }
-            };
 
         let mut conn = get_pg_pool().get().await?;
 
@@ -276,26 +265,26 @@ impl ToolExecutor for SearchDataCatalogTool {
         })
     }
 
+    fn get_name(&self) -> String {
+        "search_data_catalog".to_string()
+    }
+
     fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": "search_data_catalog",
             "strict": true,
             "parameters": {
                 "type": "object",
-                "required": ["query_params"],
+                "required": ["query"],
                 "properties": {
-                    "query_params": {
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                            "description": "A descriptive search query representing an aspect of the problem or question to be answered"
-                        },
-                        "description": "Array of natural language queries that collectively describe the problem or question that needs to be answered"
+                    "query": {
+                        "type": "string",
+                        "description": "The search query to match against file contents"
                     }
                 },
                 "additionalProperties": false
             },
-            "description": "IMPORTANT: Always use this tool before creating or modifying any metrics/dashboards. Its results provide the essential context needed to write accurate SQL and understand data relationships. If the search returns insufficient context, pause further actions and ask the user for clarification."
+            "description": "Searches for files by their content. The search is case-insensitive and matches partial content."
         })
     }
 }
