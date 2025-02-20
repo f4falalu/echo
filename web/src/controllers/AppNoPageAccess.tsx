@@ -1,21 +1,20 @@
 'use client';
 
+import React from 'react';
 import { ShareAssetType } from '@/api/asset_interfaces';
-import { asset_typeToTranslation } from '@/app/app/_helpers';
 import { BusterLogo } from '@/assets/svg/BusterLogo';
+import { asset_typeToTranslation } from '@/components/icons';
 import { Title } from '@/components/text';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { Button } from 'antd';
 import Link from 'next/link';
 
-import React from 'react';
-
 export const AppNoPageAccess: React.FC<{
   asset_type: ShareAssetType;
   metricId?: string;
   dashboardId?: string;
-}> = React.memo(({ asset_type, metricId, dashboardId }) => {
+}> = React.memo(({ asset_type }) => {
   const { openInfoMessage } = useBusterNotifications();
 
   return (

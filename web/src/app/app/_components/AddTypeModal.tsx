@@ -1,6 +1,6 @@
 import React, { useLayoutEffect, useMemo, useRef } from 'react';
 import { Modal, Button, Divider, Input, InputRef } from 'antd';
-import { AppMaterialIcons, AppSegmented, Text } from '@/components';
+import { AppMaterialIcons, AppSegmented, asset_typeToIcon, Text } from '@/components';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/list';
 import { useMemoizedFn, useThrottleFn } from 'ahooks';
 import { boldHighlights, formatDate } from '@/utils';
@@ -9,7 +9,6 @@ import {
   type BusterSearchResult,
   ShareAssetType
 } from '@/api/asset_interfaces';
-import { asset_typeToIcon } from '@/app/app/_helpers';
 import { CircleSpinnerLoaderContainer } from '@/components/loaders';
 import { BusterCollection } from '@/api/asset_interfaces';
 import { useBusterSearchContextSelector } from '@/context/Search';
@@ -76,7 +75,7 @@ export const AddTypeModal: React.FC<{
         title: 'Name',
         dataIndex: 'name',
         render: (_, record: BusterSearchResult) => {
-          const { name, updated_at, type, highlights } = record;
+          const { name, type, highlights } = record;
           const icon = asset_typeToIcon(type, {
             size: 17
           });
