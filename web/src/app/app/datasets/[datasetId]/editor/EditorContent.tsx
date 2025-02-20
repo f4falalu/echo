@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useRef, useState } from 'react';
-import { useDatasetPageContextSelector } from '../_DatasetPageContext';
+import { useDatasetPageContextSelector } from '../../../../../layouts/DatasetsLayout/DatasetPageContext';
 import { useMemoizedFn, useRequest } from 'ahooks';
 import type { IDataResult } from '@/api/asset_interfaces';
 import { EditorApps, EditorContainerSubHeader } from './EditorContainerSubHeader';

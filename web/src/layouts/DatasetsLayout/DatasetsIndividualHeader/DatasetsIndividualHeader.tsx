@@ -5,13 +5,13 @@ import { Button, Divider } from 'antd';
 import { PreventNavigation } from '@/components/ui';
 import { useDatasetContextSelector } from '@/context/Datasets';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { AppContentHeader } from '../../../../../components/ui/layout/AppContentHeader';
+import { AppContentHeader } from '../../../components/ui/layout/AppContentHeader';
 import { useMemoizedFn } from 'ahooks';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { DatasetsHeaderOptions } from './DatasetHeaderOptions';
 import { DatasetBreadcrumb } from './DatasetBreadcrumb';
 import { DatasetIndividualThreeDotMenu } from './DatasetIndividualThreeDotMenu';
-import { useDatasetPageContextSelector } from '../_DatasetPageContext';
+import { useDatasetPageContextSelector } from '../DatasetPageContext';
 
 export const DatasetsIndividualHeader: React.FC<{}> = React.memo(({}) => {
   const selectedApp = useDatasetPageContextSelector((state) => state.selectedApp);

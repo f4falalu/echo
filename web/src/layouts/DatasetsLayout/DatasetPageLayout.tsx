@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { DatasetsIndividualHeader } from './_DatasetsIndividualHeader';
-import { AppContent } from '../../../../components/ui/layout/AppContent';
-import { DatasetPageProvider, useDatasetPageContextSelector } from './_DatasetPageContext';
+import { AppContent } from '@/components/ui/layout/AppContent';
+import { DatasetsIndividualHeader } from './DatasetsIndividualHeader';
+import { DatasetPageProvider } from './DatasetPageContext';
 
 export const DatasetPageLayout: React.FC<{ children: React.ReactNode; datasetId: string }> = ({
   children,

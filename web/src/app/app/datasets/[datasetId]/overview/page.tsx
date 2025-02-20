@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useDatasetPageContextSelector } from '../_DatasetPageContext';
+import { useDatasetPageContextSelector } from '../../../../../layouts/DatasetsLayout/DatasetPageContext';
 import { OverviewHeader } from './OverviewHeader';
 import { OverviewData } from './OverviewData';
 import { Divider } from 'antd';
@@ -18,7 +18,7 @@ export default function Page() {
   const showSkeletonLoader = !dataset?.id || !isFetchedDataset;
 
   return (
-    <div className="mx-auto overflow-y-auto px-14 pb-12 pt-12">
+    <div className="mx-auto overflow-y-auto px-14 pt-12 pb-12">
       <>
         {showSkeletonLoader ? (
           <></>

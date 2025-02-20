@@ -1,5 +1,5 @@
 import React from 'react';
-import { DatasetPageLayout } from './DatasetPageLayout';
+import { DatasetPageLayout } from '../../../../layouts/DatasetsLayout/DatasetPageLayout';
 import { prefetchGetDatasetMetadata } from '@/api/buster_rest/datasets';
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 

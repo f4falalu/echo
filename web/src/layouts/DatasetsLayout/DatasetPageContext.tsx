@@ -3,7 +3,7 @@
 import { useIndividualDataset } from '@/context/Datasets';
 import { useSelectedLayoutSegment } from 'next/navigation';
 import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react';
-import { DatasetApps } from './_config';
+import { DatasetApps } from './config';
 import {
   createContext,
   ContextSelector,
