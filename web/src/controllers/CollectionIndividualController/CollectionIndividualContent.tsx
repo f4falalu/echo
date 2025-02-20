@@ -15,7 +15,7 @@ import {
 } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui';
 import { ListEmptyStateWithButton } from '@/components/ui/list';
-import { AddTypeModal } from '@appComponents/AddTypeModal';
+import { AddTypeModal } from '@/app/app/_components/Modals/AddTypeModal';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';

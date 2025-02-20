@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation';
 import { createBusterRoute } from '@/routes';
 import { Result } from 'antd';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { PolicyCheck } from '@appComponents/LoginComponents/PolicyCheck';
+import { PolicyCheck } from '@/app/auth/_LoginComponents/PolicyCheck';
 
 export const ResetPasswordForm: React.FC<{
   supabaseUser: User;

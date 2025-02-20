@@ -6,7 +6,7 @@ import { useUserConfigContextSelector } from '@/context/Users';
 import { useMemo, useState } from 'react';
 import { DatasetListContent } from './_DatasetListContent';
 import { DatasetHeader } from './_DatasetsHeader';
-import { NewDatasetModal } from '../_components/NewDatasetModal';
+import { NewDatasetModal } from '../_components/Modals/NewDatasetModal';
 
 export const DatasetsPageContent: React.FC<{}> = ({}) => {
   const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);

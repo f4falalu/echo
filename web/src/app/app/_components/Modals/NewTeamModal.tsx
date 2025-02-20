@@ -7,8 +7,7 @@ import { useCreateTeam } from '@/api/buster_rest';
 export const NewTeamModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
-  userId?: string;
-}> = React.memo(({ isOpen, onClose, userId }) => {
+}> = React.memo(({ isOpen, onClose }) => {
   const inputRef = useRef<InputRef>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');

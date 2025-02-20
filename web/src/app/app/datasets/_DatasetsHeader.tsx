@@ -5,7 +5,7 @@ import { Breadcrumb, Button } from 'antd';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { AppMaterialIcons, AppSegmented, AppTooltip } from '@/components/ui';
-import { NewDatasetModal } from '@appComponents/NewDatasetModal';
+import { NewDatasetModal } from '@/app/app/_components/Modals/NewDatasetModal';
 import { AppContentHeader } from '../../../components/ui/layout/AppContentHeader';
 import { useIndividualDataset } from '@/context/Datasets';
 import { useHotkeys } from 'react-hotkeys-hook';

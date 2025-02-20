@@ -4,7 +4,7 @@ import { BusterLogo } from '@/assets/svg/BusterLogo';
 import React, { useRef } from 'react';
 import { Title } from '@/components/ui';
 import { Button, Input, InputRef, Typography } from 'antd';
-import { LoginConfigProvider } from '@appComponents/LoginComponents/LoginConfigProvider';
+import { LoginConfigProvider } from '@/app/auth/_LoginComponents/LoginConfigProvider';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { useMemoizedFn } from 'ahooks';

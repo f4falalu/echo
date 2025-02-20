@@ -1,6 +1,6 @@
 import React from 'react';
 import { NewUserController } from './_NewUserController';
-import { LoginConfigProvider } from '../_components/LoginComponents/LoginConfigProvider';
+import { LoginConfigProvider } from '../../auth/_LoginComponents/LoginConfigProvider';
 
 export default function NewUserPage() {
   return (

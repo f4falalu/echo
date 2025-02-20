@@ -12,7 +12,7 @@ import { useMemoizedFn } from 'ahooks';
 import { StatusIndicator } from '@/components/ui/indicators';
 import { useChatLayoutContextSelector } from '../../../../ChatLayoutContext';
 import { useChatIndividualContextSelector } from '../../../../ChatContext';
-import { VersionPill } from '@appComponents/Text/VersionPill';
+import { VersionPill } from '@/components/ui/tags/VersionPill';
 
 export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = React.memo(
   ({ responseMessage: responseMessageProp, isCompletedStream }) => {

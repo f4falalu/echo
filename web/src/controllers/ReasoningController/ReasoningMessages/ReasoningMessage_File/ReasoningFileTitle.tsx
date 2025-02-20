@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text } from '@/components/ui';
-import { VersionPill } from '@appComponents/Text/VersionPill';
+import { VersionPill } from '@/components/ui/tags/VersionPill';
 
 export const ReasoningFileTitle = React.memo(
   ({ file_name, version_number }: { file_name: string; version_number: number }) => {

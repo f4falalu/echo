@@ -5,7 +5,7 @@ import React, { useImperativeHandle, useLayoutEffect } from 'react';
 import { WhiteListBlock } from '../WhiteListBlock';
 import type { DatasourceCreateCredentials } from '@/api/buster_socket/datasources';
 import type { DataSource } from '@/api/asset_interfaces';
-import { NewDatasetModal } from '@appComponents/NewDatasetModal';
+import { NewDatasetModal } from '@/app/app/_components/Modals/NewDatasetModal';
 
 const layout = {
   labelCol: { span: 7, offset: 0 },

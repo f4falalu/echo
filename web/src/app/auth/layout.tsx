@@ -1,7 +1,7 @@
 import React, { PropsWithChildren } from 'react';
-import { WelcomeToBuster } from '@appComponents/LoginComponents/WelcomeSidebar';
+import { WelcomeToBuster } from '@/app/auth/_LoginComponents/WelcomeSidebar';
 import { Metadata } from 'next';
-import { LoginConfigProvider } from '@appComponents/LoginComponents/LoginConfigProvider';
+import { LoginConfigProvider } from '@/app/auth/_LoginComponents/LoginConfigProvider';
 
 export const metadata: Metadata = {
   title: 'Buster Login'

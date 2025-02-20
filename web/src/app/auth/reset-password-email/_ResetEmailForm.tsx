@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { Title, Text } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useStyles } from '@appComponents/LoginComponents/LoginForm';
+import { useStyles } from '@/app/auth/_LoginComponents/LoginForm';
 
 export const ResetEmailForm: React.FC<{
   queryEmail: string;
