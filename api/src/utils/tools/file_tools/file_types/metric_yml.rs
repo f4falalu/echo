@@ -7,6 +7,7 @@ use uuid::Uuid;
 pub struct MetricYml {
     pub id: Option<Uuid>,
     pub updated_at: Option<DateTime<Utc>>,
+    #[serde(alias = "name")]
     pub title: String,
     pub description: Option<String>,
     pub sql: String,

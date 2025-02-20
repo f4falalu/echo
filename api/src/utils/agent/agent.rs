@@ -12,6 +12,60 @@ use crate::utils::tools::ToolExecutor;
 
 use super::types::AgentThread;
 
+/// A wrapper type that converts ToolCall parameters to Value before executing
+struct ToolCallExecutor<T: ToolExecutor> {
+    inner: Box<T>,
+}
+
+impl<T: ToolExecutor> ToolCallExecutor<T> {
+    fn new(inner: T) -> Self {
+        Self { inner: Box::new(inner) }
+    }
+}
+
+#[async_trait::async_trait]
+impl<T: ToolExecutor + Send + Sync> ToolExecutor for ToolCallExecutor<T> 
+where
+    T::Params: serde::de::DeserializeOwned,
+    T::Output: serde::Serialize,
+{
+    type Output = Value;
+    type Params = Value;
+
+    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
+        let params = serde_json::from_value(params)?;
+        let result = self.inner.execute(params).await?;
+        Ok(serde_json::to_value(result)?)
+    }
+
+    fn get_schema(&self) -> Value {
+        self.inner.get_schema()
+    }
+
+    fn get_name(&self) -> String {
+        self.inner.get_name()
+    }
+}
+
+// Add this near the top of the file, with other trait implementations
+#[async_trait::async_trait]
+impl<T: ToolExecutor<Output = Value, Params = Value> + Send + Sync> ToolExecutor for Box<T> {
+    type Output = Value;
+    type Params = Value;
+
+    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
+        (**self).execute(params).await
+    }
+
+    fn get_schema(&self) -> Value {
+        (**self).get_schema()
+    }
+
+    fn get_name(&self) -> String {
+        (**self).get_name()
+    }
+}
+
 #[derive(Clone)]
 /// The Agent struct is responsible for managing conversations with the LLM
 /// and coordinating tool executions. It maintains a registry of available tools
@@ -20,7 +74,7 @@ pub struct Agent {
     /// Client for communicating with the LLM provider
     llm_client: LiteLLMClient,
     /// Registry of available tools, mapped by their names
-    tools: Arc<HashMap<String, Box<dyn ToolExecutor<Output = Value>>>>,
+    tools: Arc<RwLock<HashMap<String, Box<dyn ToolExecutor<Output = Value, Params = Value> + Send + Sync>>>>,
     /// The model identifier to use (e.g., "gpt-4")
     model: String,
     /// Flexible state storage for maintaining memory across interactions
@@ -39,7 +93,7 @@ impl Agent {
     /// Create a new Agent instance with a specific LLM client and model
     pub fn new(
         model: String,
-        tools: HashMap<String, Box<dyn ToolExecutor<Output = Value>>>,
+        tools: HashMap<String, Box<dyn ToolExecutor<Output = Value, Params = Value> + Send + Sync>>,
         user_id: Uuid,
         session_id: Uuid,
     ) -> Self {
@@ -53,13 +107,32 @@ impl Agent {
 
         Self {
             llm_client,
-            tools: Arc::new(tools),
+            tools: Arc::new(RwLock::new(tools)),
             model,
             state: Arc::new(RwLock::new(HashMap::new())),
             current_thread: Arc::new(RwLock::new(None)),
             stream_tx: Arc::new(RwLock::new(tx)),
             user_id,
             session_id,
+        }
+    }
+
+    /// Create a new Agent that shares state and stream with an existing agent
+    pub fn from_existing(existing_agent: &Agent) -> Self {
+        let llm_api_key = env::var("LLM_API_KEY").expect("LLM_API_KEY must be set");
+        let llm_base_url = env::var("LLM_BASE_URL").expect("LLM_API_BASE must be set");
+
+        let llm_client = LiteLLMClient::new(Some(llm_api_key), Some(llm_base_url));
+
+        Self {
+            llm_client,
+            tools: Arc::new(RwLock::new(HashMap::new())), // Start with empty tools
+            model: existing_agent.model.clone(),
+            state: Arc::clone(&existing_agent.state),
+            current_thread: Arc::clone(&existing_agent.current_thread),
+            stream_tx: Arc::clone(&existing_agent.stream_tx),
+            user_id: existing_agent.user_id,
+            session_id: existing_agent.session_id,
         }
     }
 
@@ -110,6 +183,10 @@ impl Agent {
         self.session_id
     }
 
+    pub fn get_model_name(&self) -> &str {
+        &self.model
+    }
+
     /// Get the complete conversation history of the current thread
     pub async fn get_conversation_history(&self) -> Option<Vec<Message>> {
         self.current_thread
@@ -133,25 +210,22 @@ impl Agent {
     /// # Arguments
     /// * `name` - The name of the tool, used to identify it in tool calls
     /// * `tool` - The tool implementation that will be executed
-    pub fn add_tool(&mut self, name: String, tool: impl ToolExecutor<Output = Value> + 'static) {
-        // Get a mutable reference to the HashMap inside the Arc
-        Arc::get_mut(&mut self.tools)
-            .expect("Failed to get mutable reference to tools")
-            .insert(name, Box::new(tool));
+    pub async fn add_tool(&self, name: String, tool: impl ToolExecutor<Output = Value> + 'static) {
+        let mut tools = self.tools.write().await;
+        tools.insert(name, Box::new(ToolCallExecutor::new(tool)));
     }
 
     /// Add multiple tools to the agent at once
     ///
     /// # Arguments
     /// * `tools` - HashMap of tool names and their implementations
-    pub fn add_tools<E: ToolExecutor<Output = Value> + 'static>(
-        &mut self,
+    pub async fn add_tools<E: ToolExecutor<Output = Value> + 'static>(
+        &self,
         tools: HashMap<String, E>,
     ) {
-        let tools_map =
-            Arc::get_mut(&mut self.tools).expect("Failed to get mutable reference to tools");
+        let mut tools_map = self.tools.write().await;
         for (name, tool) in tools {
-            tools_map.insert(name, Box::new(tool));
+            tools_map.insert(name, Box::new(ToolCallExecutor::new(tool)));
         }
     }
 
@@ -236,6 +310,8 @@ impl Agent {
         // Collect all registered tools and their schemas
         let tools: Vec<Tool> = self
             .tools
+            .read()
+            .await
             .iter()
             .map(|(name, tool)| Tool {
                 tool_type: "function".to_string(),
@@ -296,8 +372,9 @@ impl Agent {
 
             // Execute each requested tool
             for tool_call in tool_calls {
-                if let Some(tool) = self.tools.get(&tool_call.function.name) {
-                    let result = tool.execute(tool_call).await?;
+                if let Some(tool) = self.tools.read().await.get(&tool_call.function.name) {
+                    let params: Value = serde_json::from_str(&tool_call.function.arguments)?;
+                    let result = tool.execute(params).await?;
                     let result_str = serde_json::to_string(&result)?;
                     let tool_message = Message::tool(
                         None,
@@ -377,6 +454,24 @@ impl PendingToolCall {
     }
 }
 
+/// A trait that provides convenient access to Agent functionality
+/// when the agent is stored behind an Arc
+pub trait AgentExt {
+    fn get_agent(&self) -> &Arc<Agent>;
+
+    async fn stream_process_thread(&self, thread: &AgentThread) -> Result<mpsc::Receiver<Result<Message>>> {
+        (*self.get_agent()).process_thread_streaming(thread).await
+    }
+
+    async fn process_thread(&self, thread: &AgentThread) -> Result<Message> {
+        (*self.get_agent()).process_thread(thread).await
+    }
+
+    async fn get_current_thread(&self) -> Option<AgentThread> {
+        (*self.get_agent()).get_current_thread().await
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -403,8 +498,9 @@ mod tests {
     #[async_trait]
     impl ToolExecutor for WeatherTool {
         type Output = Value;
+        type Params = Value;
 
-        async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+        async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
             // Send progress using agent's stream sender
             self.agent
                 .get_stream_sender()
@@ -412,7 +508,7 @@ mod tests {
                 .send(Ok(Message::tool(
                     None,
                     "Fetching weather data...".to_string(),
-                    tool_call.id.clone(),
+                    "123".to_string(),
                     Some(self.get_name()),
                     Some(MessageProgress::InProgress),
                 )))
@@ -433,7 +529,7 @@ mod tests {
                 .send(Ok(Message::tool(
                     None,
                     serde_json::to_string(&result)?,
-                    tool_call.id.clone(),
+                    "123".to_string(),
                     Some(self.get_name()),
                     Some(MessageProgress::Complete),
                 )))

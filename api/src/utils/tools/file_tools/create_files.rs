@@ -165,24 +165,10 @@ async fn process_dashboard_file(file: FileParams) -> Result<(DashboardFile, Dash
 #[async_trait]
 impl ToolExecutor for CreateFilesTool {
     type Output = CreateFilesOutput;
+    type Params = CreateFilesParams;
 
-    fn get_name(&self) -> String {
-        "create_files".to_string()
-    }
-
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         let start_time = Instant::now();
-
-        let params: CreateFilesParams = match serde_json::from_str(&tool_call.function.arguments.clone()) {
-            Ok(params) => params,
-            Err(e) => {
-                return Err(anyhow!("Failed to parse create files parameters: {}", e));
-            }
-        };
-
-        // Get current thread for context
-        let current_thread = self.agent.get_current_thread().await
-            .ok_or_else(|| anyhow::anyhow!("No current thread"))?;
 
         let files = params.files;
         let mut created_files = vec![];
@@ -326,6 +312,10 @@ impl ToolExecutor for CreateFilesTool {
             duration,
             files: created_files,
         })
+    }
+
+    fn get_name(&self) -> String {
+        "create_files".to_string()
     }
 
     fn get_schema(&self) -> Value {

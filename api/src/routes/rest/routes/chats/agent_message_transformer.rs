@@ -14,7 +14,9 @@ use crate::utils::tools::file_tools::modify_files::ModifyFilesParams;
 use crate::utils::tools::file_tools::open_files::OpenFilesOutput;
 use crate::utils::tools::file_tools::search_data_catalog::SearchDataCatalogOutput;
 use crate::utils::tools::file_tools::search_files::SearchFilesOutput;
-use crate::utils::tools::interaction_tools::send_message_to_user::{SendMessageToUserInput, SendMessageToUserOutput};
+use crate::utils::tools::interaction_tools::send_message_to_user::{
+    SendMessageToUserInput, SendMessageToUserOutput,
+};
 
 #[derive(Debug, Serialize)]
 #[serde(untagged)]
@@ -363,12 +365,13 @@ fn tool_data_catalog_search(
 
         let duration = (data_catalog_result.duration.clone() as f64 / 1000.0 * 10.0).round() / 10.0;
         let result_count = data_catalog_result.results.len();
-        let query_params = data_catalog_result.query_params.clone();
+        let query_params = data_catalog_result.ticket_description.clone();
 
-        let thought_pill_containters = match proccess_data_catalog_search_results(data_catalog_result) {
-            Ok(object) => object,
-            Err(_) => return Ok(vec![]), // Silently ignore processing errors
-        };
+        let thought_pill_containters =
+            match proccess_data_catalog_search_results(data_catalog_result) {
+                Ok(object) => object,
+                Err(_) => return Ok(vec![]), // Silently ignore processing errors
+            };
 
         let buster_thought = if result_count > 0 {
             BusterThreadMessage::Thought(BusterThought {
@@ -387,14 +390,11 @@ fn tool_data_catalog_search(
                 thought_secondary_title: format!("{} seconds", duration),
                 thoughts: Some(vec![BusterThoughtPillContainer {
                     title: "No results found".to_string(),
-                    thought_pills: query_params
-                        .iter()
-                        .map(|param| BusterThoughtPill {
-                            id: "".to_string(),
-                            text: param.clone(),
-                            thought_file_type: "empty".to_string(),
-                        })
-                        .collect(),
+                    thought_pills: vec![BusterThoughtPill {
+                        id: "".to_string(),
+                        text: query_params,
+                        thought_file_type: "empty".to_string(),
+                    }],
                 }]),
                 status: "completed".to_string(),
             })
@@ -744,7 +744,9 @@ fn assistant_create_file(
                 }
                 Err(anyhow::anyhow!("No tool call found"))
             }
-            _ => Err(anyhow::anyhow!("Assistant create file only supports in progress and complete.")),
+            _ => Err(anyhow::anyhow!(
+                "Assistant create file only supports in progress and complete."
+            )),
         }
     } else {
         Err(anyhow::anyhow!("Assistant create file requires progress."))
@@ -760,7 +762,10 @@ fn process_assistant_create_file(tool_call: &ToolCall) -> Result<Vec<BusterThrea
                 if let Some(file) = files.first().and_then(Value::as_object) {
                     let name = file.get("name").and_then(Value::as_str).unwrap_or("");
                     let file_type = file.get("file_type").and_then(Value::as_str).unwrap_or("");
-                    let yml_content = file.get("yml_content").and_then(Value::as_str).unwrap_or("");
+                    let yml_content = file
+                        .get("yml_content")
+                        .and_then(Value::as_str)
+                        .unwrap_or("");
 
                     let current_lines: Vec<BusterFileLine> = yml_content
                         .lines()
@@ -847,7 +852,8 @@ fn tool_create_file(
         match progress {
             MessageProgress::Complete => {
                 // Parse the content to get file information using CreateFilesOutput
-                let create_files_result = match serde_json::from_str::<CreateFilesOutput>(&content) {
+                let create_files_result = match serde_json::from_str::<CreateFilesOutput>(&content)
+                {
                     Ok(result) => result,
                     Err(_) => return Ok(vec![]), // Silently ignore parsing errors
                 };
@@ -926,7 +932,9 @@ fn assistant_send_message_to_user(
     if let Some(progress) = progress {
         if let Some(tool_call) = tool_calls.first() {
             // Try to parse the message from the tool call arguments
-            if let Ok(input) = serde_json::from_str::<SendMessageToUserInput>(&tool_call.function.arguments) {
+            if let Ok(input) =
+                serde_json::from_str::<SendMessageToUserInput>(&tool_call.function.arguments)
+            {
                 match progress {
                     MessageProgress::InProgress => {
                         Ok(vec![BusterThreadMessage::ChatMessage(BusterChatMessage {
@@ -941,7 +949,9 @@ fn assistant_send_message_to_user(
                     )),
                 }
             } else {
-                Err(anyhow::anyhow!("Failed to parse send message to user input"))
+                Err(anyhow::anyhow!(
+                    "Failed to parse send message to user input"
+                ))
             }
         } else {
             Err(anyhow::anyhow!("No tool call found"))
@@ -979,6 +989,8 @@ fn tool_send_message_to_user(
             )),
         }
     } else {
-        Err(anyhow::anyhow!("Tool send message to user requires progress."))
+        Err(anyhow::anyhow!(
+            "Tool send message to user requires progress."
+        ))
     }
 }

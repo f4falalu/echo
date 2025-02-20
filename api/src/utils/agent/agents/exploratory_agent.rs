@@ -1,4 +1,5 @@
 use std::time::Instant;
+use std::sync::Arc;
 
 use anyhow::Result;
 use async_trait::async_trait;
@@ -11,7 +12,7 @@ use tracing::{debug, info};
 use uuid::Uuid;
 
 use crate::utils::{
-    agent::{Agent, AgentThread},
+    agent::{Agent, AgentThread, AgentExt},
     tools::ToolExecutor,
 };
 
@@ -40,14 +41,39 @@ pub struct ExploratoryAgentInput {
 }
 
 pub struct ExploratoryAgent {
-    agent: Agent,
+    agent: Arc<Agent>,
+}
+
+impl AgentExt for ExploratoryAgent {
+    fn get_agent(&self) -> &Arc<Agent> {
+        &self.agent
+    }
 }
 
 impl ExploratoryAgent {
-    pub fn new() -> Result<Self> {
-        let mut agent = Agent::new("o3-mini".to_string(), HashMap::new());
+    pub fn new(user_id: Uuid, session_id: Uuid) -> Result<Self> {
+        // Create agent and immediately wrap in Arc
+        let mut agent = Arc::new(Agent::new(
+            "o3-mini".to_string(), 
+            HashMap::new(),
+            user_id,
+            session_id
+        ));
 
-        // TODO: Add tools here.
+        // TODO: Add tools here with Arc::clone(&agent)
+        let tools_map = Arc::get_mut(&mut agent)
+            .expect("Failed to get mutable reference to agent");
+
+        Ok(Self { agent })
+    }
+
+    pub fn from_existing(existing_agent: &Arc<Agent>) -> Result<Self> {
+        // Create a new agent with the same core properties and shared state/stream
+        let mut agent = Arc::new(Agent::from_existing(existing_agent));
+
+        // TODO: Add tools here with Arc::clone(&agent)
+        let tools_map = Arc::get_mut(&mut agent)
+            .expect("Failed to get mutable reference to agent");
 
         Ok(Self { agent })
     }
@@ -71,8 +97,8 @@ impl ExploratoryAgent {
             ],
         );
 
-        // Process using agent's streaming functionality
-        let mut rx = self.agent.stream_process_thread(&thread).await?;
+        // Process using agent's streaming functionality - now using the trait method
+        let mut rx = self.stream_process_thread(&thread).await?;
         let findings = self.process_stream(rx).await?;
 
         let duration = start_time.elapsed().as_millis() as i64;

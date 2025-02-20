@@ -1,15 +1,27 @@
 use anyhow::Result;
 use async_trait::async_trait;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::sync::Arc;
 
 use crate::utils::{
     agent::{Agent, DashboardAgent},
-    tools::ToolExecutor,
+    tools::{file_tools::file_types::file::FileEnum, ToolExecutor},
 };
 
 pub struct DashboardAgentTool {
     agent: Arc<Agent>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DashboardAgentParams {
+    pub ticket_description: String,
+}
+
+pub struct DashboardAgentOutput {
+    pub message: String,
+    pub duration: i64,
+    pub files: Vec<FileEnum>,
 }
 
 impl DashboardAgentTool {
@@ -21,17 +33,18 @@ impl DashboardAgentTool {
 #[async_trait]
 impl ToolExecutor for DashboardAgentTool {
     type Output = Value;
+    type Params = DashboardAgentParams;
 
     fn get_name(&self) -> String {
         "dashboard_agent".to_string()
     }
 
-    async fn execute(&self, tool_call: &litellm::ToolCall) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         // Create and initialize the agent
-        let dashboard_agent = DashboardAgent::new()?;
+        let dashboard_agent = DashboardAgent::from_existing(&self.agent).await?;
 
         // Parse input parameters
-        let input = serde_json::from_str(&tool_call.function.arguments)?;
+        let input = params;
 
         // TODO: Implement the dashboard agent result
         // Return dummy value for now

@@ -5,7 +5,9 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{
-    collections::{HashMap, HashSet}, sync::Arc, time::Instant
+    collections::{HashMap, HashSet},
+    sync::Arc,
+    time::Instant,
 };
 use tracing::{debug, error, info, warn};
 use uuid::Uuid;
@@ -18,9 +20,13 @@ use crate::{
         schema::{dashboard_files, metric_files},
     },
     utils::{
-        agent::Agent, tools::{file_tools::file_types::{
-            dashboard_yml::DashboardYml, file::FileEnum, metric_yml::MetricYml,
-        }, ToolExecutor}
+        agent::Agent,
+        tools::{
+            file_tools::file_types::{
+                dashboard_yml::DashboardYml, file::FileEnum, metric_yml::MetricYml,
+            },
+            ToolExecutor,
+        },
     },
 };
 
@@ -33,7 +39,7 @@ struct FileRequest {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct OpenFilesParams {
+pub struct OpenFilesParams {
     files: Vec<FileRequest>,
 }
 
@@ -44,7 +50,9 @@ pub struct OpenFilesOutput {
     pub results: Vec<FileEnum>,
 }
 
-pub struct OpenFilesTool;
+pub struct OpenFilesTool {
+    agent: Arc<Agent>,
+}
 
 impl OpenFilesTool {
     pub fn new(agent: Arc<Agent>) -> Self {
@@ -57,18 +65,12 @@ impl FileModificationTool for OpenFilesTool {}
 #[async_trait]
 impl ToolExecutor for OpenFilesTool {
     type Output = OpenFilesOutput;
+    type Params = OpenFilesParams;
 
-    fn get_name(&self) -> String {
-        "open_files".to_string()
-    }
-
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         let start_time = Instant::now();
-        let input: OpenFilesParams = serde_json::from_str(&tool_call.function.arguments)?;
 
         // No need for agent/thread context as this is just opening files
-        // ... rest of implementation ...
-
         let mut results = Vec::new();
         let mut error_messages = Vec::new();
 
@@ -77,7 +79,7 @@ impl ToolExecutor for OpenFilesTool {
         let mut found_ids: HashMap<String, HashSet<Uuid>> = HashMap::new();
 
         // Group requests by file type and track requested IDs
-        let grouped_requests = input
+        let grouped_requests = params
             .files
             .into_iter()
             .filter_map(|req| match Uuid::parse_str(&req.id) {
@@ -99,90 +101,132 @@ impl ToolExecutor for OpenFilesTool {
                 acc
             });
 
-        // Process dashboard files
-        if let Some(dashboard_ids) = grouped_requests.get("dashboard") {
-            match get_dashboard_files(dashboard_ids).await {
-                Ok(dashboard_files) => {
-                    for (dashboard_yml, id, _) in dashboard_files {
-                        found_ids
-                            .entry("dashboard".to_string())
-                            .or_default()
-                            .insert(id);
-                        results.push(FileEnum::Dashboard(dashboard_yml));
-                    }
-                }
-                Err(e) => {
-                    error!(error = %e, "Failed to process dashboard files");
-                    error_messages.push(format!("Error processing dashboard files: {}", e));
-                }
+        // Get database connection
+        let mut conn = match get_pg_pool().get().await {
+            Ok(conn) => conn,
+            Err(e) => {
+                let duration = start_time.elapsed().as_millis() as i64;
+                return Ok(OpenFilesOutput {
+                    message: format!("Failed to connect to database: {}", e),
+                    results: Vec::new(),
+                    duration,
+                });
             }
-        }
+        };
 
         // Process metric files
         if let Some(metric_ids) = grouped_requests.get("metric") {
-            match get_metric_files(metric_ids).await {
-                Ok(metric_files) => {
-                    for (metric_yml, id, _) in metric_files {
+            use crate::database_dep::schema::metric_files::dsl::*;
+            match metric_files
+                .filter(id.eq_any(metric_ids))
+                .filter(deleted_at.is_null())
+                .load::<MetricFile>(&mut conn)
+                .await
+            {
+                Ok(files) => {
+                    for file in files {
                         found_ids
                             .entry("metric".to_string())
                             .or_default()
-                            .insert(id);
-                        results.push(FileEnum::Metric(metric_yml));
+                            .insert(file.id);
+
+                        match serde_json::from_value::<MetricYml>(file.content.clone()) {
+                            Ok(yml) => {
+                                results.push(FileEnum::Metric(yml));
+                            }
+                            Err(e) => {
+                                error_messages.push(format!(
+                                    "Failed to parse metric file {}: {}",
+                                    file.id, e
+                                ));
+                            }
+                        }
                     }
                 }
                 Err(e) => {
-                    error!(error = %e, "Failed to process metric files");
-                    error_messages.push(format!("Error processing metric files: {}", e));
+                    error_messages.push(format!("Failed to fetch metric files: {}", e));
                 }
             }
         }
 
-        // Generate message about missing files
-        let mut missing_files = Vec::new();
+        // Process dashboard files
+        if let Some(dashboard_ids) = grouped_requests.get("dashboard") {
+            use crate::database_dep::schema::dashboard_files::dsl::*;
+            match dashboard_files
+                .filter(id.eq_any(dashboard_ids))
+                .filter(deleted_at.is_null())
+                .load::<DashboardFile>(&mut conn)
+                .await
+            {
+                Ok(files) => {
+                    for file in files {
+                        found_ids
+                            .entry("dashboard".to_string())
+                            .or_default()
+                            .insert(file.id);
+
+                        match serde_json::from_value::<DashboardYml>(file.content.clone()) {
+                            Ok(yml) => {
+                                results.push(FileEnum::Dashboard(yml));
+                            }
+                            Err(e) => {
+                                error_messages.push(format!(
+                                    "Failed to parse dashboard file {}: {}",
+                                    file.id, e
+                                ));
+                            }
+                        }
+                    }
+                }
+                Err(e) => {
+                    error_messages.push(format!("Failed to fetch dashboard files: {}", e));
+                }
+            }
+        }
+
+        // Check for missing files
         for (file_type, ids) in requested_ids.iter() {
-            let found = found_ids.get(file_type).cloned().unwrap_or_default();
-            let missing: Vec<_> = ids.difference(&found).collect();
+            let found_set = found_ids.get(file_type).unwrap();
+            let missing: Vec<_> = ids.difference(found_set).collect();
             if !missing.is_empty() {
-                warn!(
-                    file_type = %file_type,
-                    missing_count = missing.len(),
-                    missing_ids = ?missing,
-                    "Files not found"
-                );
-                missing_files.push(format!(
-                    "{} {}s: {}",
-                    missing.len(),
-                    file_type,
-                    missing
-                        .iter()
-                        .map(|id| id.to_string())
-                        .collect::<Vec<_>>()
-                        .join(", ")
+                error_messages.push(format!(
+                    "Could not find {} files with IDs: {:?}",
+                    file_type, missing
                 ));
             }
         }
 
-        let message = build_status_message(&results, &missing_files, &error_messages);
-        info!(
-            total_requested = requested_ids.values().map(|ids| ids.len()).sum::<usize>(),
-            total_found = results.len(),
-            error_count = error_messages.len(),
-            "Completed file open operation"
-        );
-
-        let duration = start_time.elapsed().as_millis();
+        let duration = start_time.elapsed().as_millis() as i64;
+        let message = if error_messages.is_empty() {
+            format!("Successfully opened {} files", results.len())
+        } else {
+            let success_msg = if !results.is_empty() {
+                format!("Successfully opened {} files. ", results.len())
+            } else {
+                String::new()
+            };
+            format!(
+                "{}Errors occurred: {}",
+                success_msg,
+                error_messages.join("; ")
+            )
+        };
 
         Ok(OpenFilesOutput {
             message,
-            duration: duration as i64,
+            duration,
             results,
         })
+    }
+
+    fn get_name(&self) -> String {
+        "open_files".to_string()
     }
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": "open_files",
-            "description": "Opens one or more dashboard or metric files and returns their YML contents",
+            "strict": true,
             "parameters": {
                 "type": "object",
                 "required": ["files"],
@@ -195,19 +239,22 @@ impl ToolExecutor for OpenFilesTool {
                             "properties": {
                                 "id": {
                                     "type": "string",
-                                    "description": "The UUID of the file"
+                                    "description": "The UUID of the file to open"
                                 },
                                 "file_type": {
                                     "type": "string",
-                                    "enum": ["dashboard", "metric"],
-                                    "description": "The type of file to read"
+                                    "enum": ["metric", "dashboard"],
+                                    "description": "The type of file to open"
                                 }
-                            }
+                            },
+                            "additionalProperties": false
                         },
-                        "description": "List of files to be opened"
+                        "description": "Array of files to open"
                     }
-                }
-            }
+                },
+                "additionalProperties": false
+            },
+            "description": "Opens one or more existing files by their IDs. Use this to view the current content of files."
         })
     }
 }

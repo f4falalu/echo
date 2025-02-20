@@ -41,13 +41,14 @@ impl ReviewPlan {
 #[async_trait]
 impl ToolExecutor for ReviewPlan {
     type Output = PlanReviewOutput;
+    type Params = PlanReviewInput;
 
     fn get_name(&self) -> String {
         "review_plan".to_string()
     }
 
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
-        let input: PlanReviewInput = serde_json::from_str(&tool_call.function.arguments)?;
+    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
+        let input = params;
         
         // TODO: Implement actual plan review logic here
         // This would typically involve:

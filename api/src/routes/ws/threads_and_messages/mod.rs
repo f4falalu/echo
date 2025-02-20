@@ -4,7 +4,7 @@ mod get_message_data;
 mod get_thread;
 mod list_threads;
 mod messages_utils;
-mod post_thread;
+// mod post_thread;
 mod thread_utils;
 pub mod threads_router;
 mod unsubscribe;

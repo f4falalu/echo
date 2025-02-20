@@ -4,7 +4,6 @@ use axum::{
 };
 
 mod agent_message_transformer;
-mod agent_thread;
 mod get_chat;
 mod post_chat;
 

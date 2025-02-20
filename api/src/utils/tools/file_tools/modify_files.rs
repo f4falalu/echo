@@ -247,27 +247,12 @@ impl FileModificationTool for ModifyFilesTool {}
 #[async_trait]
 impl ToolExecutor for ModifyFilesTool {
     type Output = ModifyFilesOutput;
+    type Params = ModifyFilesParams;
 
-    fn get_name(&self) -> String {
-        "modify_files".to_string()
-    }
-
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         let start_time = Instant::now();
 
         debug!("Starting file modification execution");
-
-        let params: ModifyFilesParams = match serde_json::from_str(&tool_call.function.arguments.clone()) {
-            Ok(params) => params,
-            Err(e) => {
-                let duration = start_time.elapsed().as_millis() as i64;
-                return Ok(ModifyFilesOutput {
-                    message: format!("Failed to parse modification parameters: {}", e),
-                    files: Vec::new(),
-                    duration,
-                });
-            }
-        };
         
         info!("Processing {} files for modification", params.files.len());
         
@@ -480,6 +465,10 @@ impl ToolExecutor for ModifyFilesTool {
         }
 
         Ok(output)
+    }
+
+    fn get_name(&self) -> String {
+        "modify_files".to_string()
     }
 
     fn get_schema(&self) -> Value {

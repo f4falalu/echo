@@ -1,14 +1,14 @@
 use std::sync::Arc;
 use std::time::Instant;
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use tracing::{debug, error, warn};
+use tracing::{debug, error, info, warn};
 use uuid::Uuid;
 
 use crate::{
@@ -19,14 +19,14 @@ use crate::{
 use litellm::{ChatCompletionRequest, LiteLLMClient, Message, Metadata, ResponseFormat, ToolCall};
 
 #[derive(Debug, Serialize, Deserialize)]
-struct SearchDataCatalogParams {
-    query_params: Vec<String>,
+pub struct SearchDataCatalogParams {
+    ticket_description: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SearchDataCatalogOutput {
     pub message: String,
-    pub query_params: Vec<String>,
+    pub ticket_description: String,
     pub duration: i64,
     pub results: Vec<DatasetSearchResult>,
 }
@@ -45,7 +45,7 @@ struct RawLLMResponse {
 
 const CATALOG_SEARCH_PROMPT: &str = r#"
 You are a dataset search assistant. You have access to a collection of datasets with their YML content.
-Your task is to identify all relevant datasets based on the following search queries:
+Your task is to identify all relevant datasets based on the following search request:
 
 {queries_joined_with_newlines}
 
@@ -203,21 +203,10 @@ impl SearchDataCatalogTool {
 #[async_trait]
 impl ToolExecutor for SearchDataCatalogTool {
     type Output = SearchDataCatalogOutput;
+    type Params = SearchDataCatalogParams;
 
-    fn get_name(&self) -> String {
-        "search_data_catalog".to_string()
-    }
-
-    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         let start_time = Instant::now();
-
-        let params: SearchDataCatalogParams =
-            match serde_json::from_str(&tool_call.function.arguments.clone()) {
-                Ok(params) => params,
-                Err(e) => {
-                    return Err(anyhow::anyhow!("Failed to parse search parameters: {}", e));
-                }
-            };
 
         let mut conn = get_pg_pool().get().await?;
 
@@ -228,14 +217,14 @@ impl ToolExecutor for SearchDataCatalogTool {
 
             return Ok(SearchDataCatalogOutput {
                 message: "No datasets available to search".to_string(),
-                query_params: params.query_params,
+                ticket_description: params.ticket_description,
                 duration: duration as i64,
                 results: vec![],
             });
         }
 
         // Format prompt and perform search
-        let prompt = Self::format_search_prompt(&params.query_params, &datasets)?;
+        let prompt = Self::format_search_prompt(&[params.ticket_description.clone()], &datasets)?;
         let search_results = match Self::perform_llm_search(
             prompt,
             &self.agent.get_user_id(),
@@ -249,7 +238,7 @@ impl ToolExecutor for SearchDataCatalogTool {
 
                 return Ok(SearchDataCatalogOutput {
                     message: format!("Search failed: {}", e),
-                    query_params: params.query_params,
+                    ticket_description: params.ticket_description.clone(),
                     duration: duration as i64,
                     results: vec![],
                 });
@@ -259,43 +248,41 @@ impl ToolExecutor for SearchDataCatalogTool {
         let message = if search_results.is_empty() {
             "No relevant datasets found".to_string()
         } else {
-            format!(
-                "Found {} relevant datasets for {} queries",
-                search_results.len(),
-                params.query_params.len()
-            )
+            format!("Found {} relevant datasets", search_results.len())
         };
 
         let duration = start_time.elapsed().as_millis();
 
         Ok(SearchDataCatalogOutput {
             message,
-            query_params: params.query_params,
+            ticket_description: params.ticket_description,
             duration: duration as i64,
             results: search_results,
         })
     }
 
+    fn get_name(&self) -> String {
+        "search_data_catalog".to_string()
+    }
+
     fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": "search_data_catalog",
+            "description": "Use to search across a user’s data catalog for metadata, documentation, column definitions, or business terminology.",
             "strict": true,
             "parameters": {
-                "type": "object",
-                "required": ["query_params"],
-                "properties": {
-                    "query_params": {
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                            "description": "A descriptive search query representing an aspect of the problem or question to be answered"
-                        },
-                        "description": "Array of natural language queries that collectively describe the problem or question that needs to be answered"
-                    }
-                },
-                "additionalProperties": false
-            },
-            "description": "IMPORTANT: Always use this tool before creating or modifying any metrics/dashboards. Its results provide the essential context needed to write accurate SQL and understand data relationships. If the search returns insufficient context, pause further actions and ask the user for clarification."
+              "type": "object",
+              "required": [
+                "ticket_description"
+              ],
+              "properties": {
+                "ticket_description": {
+                  "type": "string",
+                  "description": "A brief description for the action. This should essentially be a ticket description that can be appended to a ticket. This ticket will be used to keep track of your current task. The ticket description should explain which parts of the user's request this action addresses. Copy the user's request exactly without adding instructions, thoughts, or assumptions. Write it as a command, not a question, typically starting with an imperative verb like 'Retrieve...', 'Provide...', 'Filter...', etc."
+                }
+              },
+              "additionalProperties": false
+            }
         })
     }
 }
