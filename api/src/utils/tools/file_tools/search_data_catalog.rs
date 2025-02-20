@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use std::time::Instant;
 
 use anyhow::Result;
@@ -12,7 +13,7 @@ use uuid::Uuid;
 
 use crate::{
     database_dep::{lib::get_pg_pool, schema::datasets},
-    utils::tools::ToolExecutor,
+    utils::{agent::Agent, tools::ToolExecutor},
 };
 
 use litellm::{ChatCompletionRequest, LiteLLMClient, Message, Metadata, ResponseFormat, ToolCall};
@@ -75,11 +76,13 @@ Requirements:
 5. If no datasets are relevant, return {"results": []}
 "#;
 
-pub struct SearchDataCatalogTool;
+pub struct SearchDataCatalogTool {
+    agent: Arc<Agent>,
+}
 
 impl SearchDataCatalogTool {
-    pub fn new() -> Self {
-        Self
+    pub fn new(agent: Arc<Agent>) -> Self {
+        Self { agent }
     }
 
     fn format_search_prompt(query_params: &[String], datasets: &[DatasetRecord]) -> Result<String> {
@@ -205,16 +208,18 @@ impl ToolExecutor for SearchDataCatalogTool {
         "search_data_catalog".to_string()
     }
 
-    async fn execute(
-        &self,
-        tool_call: &ToolCall,
-        user_id: &Uuid,
-        session_id: &Uuid,
-    ) -> Result<Self::Output> {
+    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
         let start_time = Instant::now();
 
-        debug!("Starting dataset search operation");
-        let params: SearchDataCatalogParams = serde_json::from_str(&tool_call.function.arguments)?;
+        let params: SearchDataCatalogParams =
+            match serde_json::from_str(&tool_call.function.arguments.clone()) {
+                Ok(params) => params,
+                Err(e) => {
+                    return Err(anyhow::anyhow!("Failed to parse search parameters: {}", e));
+                }
+            };
+
+        let mut conn = get_pg_pool().get().await?;
 
         // Fetch all non-deleted datasets
         let datasets = Self::get_datasets().await?;
@@ -231,7 +236,13 @@ impl ToolExecutor for SearchDataCatalogTool {
 
         // Format prompt and perform search
         let prompt = Self::format_search_prompt(&params.query_params, &datasets)?;
-        let search_results = match Self::perform_llm_search(prompt, user_id, session_id).await {
+        let search_results = match Self::perform_llm_search(
+            prompt,
+            &self.agent.get_user_id(),
+            &self.agent.get_session_id(),
+        )
+        .await
+        {
             Ok(results) => results,
             Err(e) => {
                 let duration = start_time.elapsed().as_millis();
@@ -267,7 +278,7 @@ impl ToolExecutor for SearchDataCatalogTool {
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "search_data_catalog", 
+            "name": "search_data_catalog",
             "strict": true,
             "parameters": {
                 "type": "object",
@@ -284,7 +295,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                 },
                 "additionalProperties": false
             },
-            "description": "IMPORTANT: This should be used BEFORE creating or modifying any metrics/dashboards to understand available data. Searches for datasets using multiple natural language queries that describe different aspects of the problem/question. Analyzes YML content for relevance and returns all relevant datasets ordered by relevance. The results provide critical context for writing accurate metrics and dashboards."
+            "description": "IMPORTANT: Always use this tool before creating or modifying any metrics/dashboards. Its results provide the essential context needed to write accurate SQL and understand data relationships. If the search returns insufficient context, pause further actions and ask the user for clarification."
         })
     }
 }

@@ -1,4 +1,5 @@
 use std::time::Instant;
+use std::sync::Arc;
 
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
@@ -17,7 +18,7 @@ use crate::{
         models::{DashboardFile, MetricFile},
         schema::{dashboard_files, metric_files},
     },
-    utils::tools::ToolExecutor,
+    utils::{agent::Agent, tools::ToolExecutor},
 };
 
 use super::{
@@ -54,11 +55,13 @@ pub struct CreateFilesFile {
     pub yml_content: String,
 }
 
-pub struct CreateFilesTool;
+pub struct CreateFilesTool {
+    agent: Arc<Agent>
+}
 
 impl CreateFilesTool {
-    pub fn new() -> Self {
-        Self
+    pub fn new(agent: Arc<Agent>) -> Self {
+        Self { agent }
     }
 }
 
@@ -167,21 +170,19 @@ impl ToolExecutor for CreateFilesTool {
         "create_files".to_string()
     }
 
-    async fn execute(
-        &self,
-        tool_call: &ToolCall,
-        user_id: &Uuid,
-        session_id: &Uuid,
-    ) -> Result<Self::Output> {
+    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
         let start_time = Instant::now();
 
-        let params: CreateFilesParams =
-            match serde_json::from_str(&tool_call.function.arguments.clone()) {
-                Ok(params) => params,
-                Err(e) => {
-                    return Err(anyhow!("Failed to parse create files parameters: {}", e));
-                }
-            };
+        let params: CreateFilesParams = match serde_json::from_str(&tool_call.function.arguments.clone()) {
+            Ok(params) => params,
+            Err(e) => {
+                return Err(anyhow!("Failed to parse create files parameters: {}", e));
+            }
+        };
+
+        // Get current thread for context
+        let current_thread = self.agent.get_current_thread().await
+            .ok_or_else(|| anyhow::anyhow!("No current thread"))?;
 
         let files = params.files;
         let mut created_files = vec![];
@@ -362,7 +363,7 @@ impl ToolExecutor for CreateFilesTool {
                 },
                 "additionalProperties": false
             },
-            "description": "Creates **new** metric or dashboard files. Use this if no existing file can fulfill the user's needs. IMPORTANT: Metrics and dashboards must be created in separate requests - you cannot mix them in the same request. Create metrics first, then create dashboards that reference those metrics in a separate request."
+            "description": "Creates **new** metric or dashboard files. Use this if no existing file can fulfill the user's needs. IMPORTANT: Metrics and dashboards must be created in separate requests - you cannot mix them in the same request. Create metrics first, then create dashboards that reference those metrics in a separate request.Guard Rail: Do not execute any file creation or modifications until a thorough data catalog search has been completed and reviewed."
         })
     }
 }

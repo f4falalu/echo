@@ -36,8 +36,6 @@ impl ToolExecutor for SendFilesToUserTool {
     async fn execute(
         &self,
         tool_call: &ToolCall,
-        user_id: &Uuid,
-        session_id: &Uuid,
     ) -> Result<Self::Output> {
         let params: SendToUserParams = serde_json::from_str(&tool_call.function.arguments.clone())?;
         // TODO: Implement actual send to user logic

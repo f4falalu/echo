@@ -1,18 +1,26 @@
-pub mod modify_files;
+pub mod common;
+pub mod create_dashboard_files;
 pub mod create_files;
+pub mod create_metric_files;
 pub mod file_types;
+pub mod modify_dashboard_files;
+pub mod modify_files;
+pub mod modify_metric_files;
 pub mod open_files;
 pub mod search_data_catalog;
 pub mod search_files;
 pub mod send_files_to_user;
-pub mod common;
 
-pub use modify_files::ModifyFilesTool;
 pub use create_files::CreateFilesTool;
+pub use modify_files::ModifyFilesTool;
 pub use open_files::OpenFilesTool;
 pub use search_data_catalog::SearchDataCatalogTool;
 pub use search_files::SearchFilesTool;
 pub use send_files_to_user::SendFilesToUserTool;
+pub use create_dashboard_files::CreateDashboardFilesTool;
+pub use create_metric_files::CreateMetricFilesTool;
+pub use modify_dashboard_files::ModifyDashboardFilesTool;
+pub use modify_metric_files::ModifyMetricFilesTool;
 
 use crate::utils::tools::ToolExecutor;
 
@@ -24,10 +32,10 @@ pub trait FileModificationTool: ToolExecutor {
 }
 
 /// Adds line numbers to content in the format "line_number | content"
-/// 
+///
 /// The padding for line numbers is calculated based on the total number of lines
 /// to ensure consistent alignment throughout the file.
-/// 
+///
 /// Example output:
 /// ```text
 ///   1 | fn main() {
@@ -38,16 +46,15 @@ pub fn add_line_numbers(content: &str) -> String {
     let lines: Vec<&str> = content.lines().collect();
     let total_lines = lines.len();
     let padding = total_lines.to_string().len();
-    
+
     let mut result = String::with_capacity(content.len() + (padding + 3) * total_lines);
-    
+
     for (i, line) in lines.into_iter().enumerate() {
         if i > 0 {
             result.push('\n');
         }
         result.push_str(&format!("{:>width$} | {}", i + 1, line, width = padding));
     }
-    
+
     result
 }
-

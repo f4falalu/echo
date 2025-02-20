@@ -5,8 +5,7 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{
-    collections::{HashMap, HashSet},
-    time::Instant,
+    collections::{HashMap, HashSet}, sync::Arc, time::Instant
 };
 use tracing::{debug, error, info, warn};
 use uuid::Uuid;
@@ -19,10 +18,9 @@ use crate::{
         schema::{dashboard_files, metric_files},
     },
     utils::{
-        tools::file_tools::file_types::{
+        agent::Agent, tools::{file_tools::file_types::{
             dashboard_yml::DashboardYml, file::FileEnum, metric_yml::MetricYml,
-        },
-        tools::ToolExecutor,
+        }, ToolExecutor}
     },
 };
 
@@ -49,8 +47,8 @@ pub struct OpenFilesOutput {
 pub struct OpenFilesTool;
 
 impl OpenFilesTool {
-    pub fn new() -> Self {
-        Self
+    pub fn new(agent: Arc<Agent>) -> Self {
+        Self { agent }
     }
 }
 
@@ -64,20 +62,12 @@ impl ToolExecutor for OpenFilesTool {
         "open_files".to_string()
     }
 
-    async fn execute(
-        &self,
-        tool_call: &ToolCall,
-        user_id: &Uuid,
-        session_id: &Uuid,
-    ) -> Result<Self::Output> {
+    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
         let start_time = Instant::now();
+        let input: OpenFilesParams = serde_json::from_str(&tool_call.function.arguments)?;
 
-        debug!("Starting file open operation");
-        let params: OpenFilesParams = serde_json::from_str(&tool_call.function.arguments.clone())
-            .map_err(|e| {
-            error!(error = %e, "Failed to parse tool parameters");
-            anyhow::anyhow!("Failed to parse tool parameters: {}", e)
-        })?;
+        // No need for agent/thread context as this is just opening files
+        // ... rest of implementation ...
 
         let mut results = Vec::new();
         let mut error_messages = Vec::new();
@@ -87,7 +77,7 @@ impl ToolExecutor for OpenFilesTool {
         let mut found_ids: HashMap<String, HashSet<Uuid>> = HashMap::new();
 
         // Group requests by file type and track requested IDs
-        let grouped_requests = params
+        let grouped_requests = input
             .files
             .into_iter()
             .filter_map(|req| match Uuid::parse_str(&req.id) {
@@ -430,6 +420,7 @@ mod tests {
                     data_type: "string".to_string(),
                 },
             ]),
+            dataset_ids: vec![],
         }
     }
 

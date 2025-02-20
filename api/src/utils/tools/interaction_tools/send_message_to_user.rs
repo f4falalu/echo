@@ -2,7 +2,6 @@ use anyhow::Result;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use uuid::Uuid;
 
 use crate::utils::tools::ToolCall;
 use crate::utils::tools::ToolExecutor;
@@ -27,8 +26,6 @@ impl ToolExecutor for SendMessageToUser {
     async fn execute(
         &self,
         tool_call: &ToolCall,
-        user_id: &Uuid,
-        session_id: &Uuid,
     ) -> Result<Self::Output> {
         let input: SendMessageToUserInput = serde_json::from_str(&tool_call.function.arguments)?;
 
