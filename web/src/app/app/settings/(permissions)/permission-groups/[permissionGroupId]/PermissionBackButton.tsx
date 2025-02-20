@@ -1,7 +1,7 @@
 import { BackButton } from '@/components/ui/buttons/BackButton';
 import { createBusterRoute, BusterRoutes } from '@/routes/busterRoutes';
 
-export const UsersBackButton = ({}: {}) => {
+export const PermissionGroupBackButton = ({}: {}) => {
   const route = createBusterRoute({ route: BusterRoutes.SETTINGS_PERMISSION_GROUPS });
   const text = 'Permission groups';
 
