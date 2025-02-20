@@ -1,3 +1,5 @@
+'use client';
+
 import { ConfigProvider } from 'antd';
 import { ThemeConfig } from 'antd/lib';
 import React from 'react';

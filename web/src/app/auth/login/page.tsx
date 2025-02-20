@@ -1,4 +1,4 @@
-import { LoginForm } from './_components/LoginForm';
+import { LoginForm } from '@appComponents/LoginComponents/LoginForm';
 import { useBusterSupabaseAuthMethods } from '@/hooks/useBusterSupabaseAuthMethods';
 import { redirect } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes';

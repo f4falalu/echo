@@ -3,7 +3,6 @@
 import { Title } from '@/components/ui';
 import React, { useState } from 'react';
 import { Button, Input } from 'antd';
-import { PolicyCheck } from '../login/_components/PolicyCheck';
 import { useMemoizedFn } from 'ahooks';
 import { BusterAppRoutes } from '@/routes/busterRoutes/busterAppRoutes';
 import type { User } from '@supabase/supabase-js';
@@ -12,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { createBusterRoute } from '@/routes';
 import { Result } from 'antd';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { PolicyCheck } from '@appComponents/LoginComponents/PolicyCheck';
 
 export const ResetPasswordForm: React.FC<{
   supabaseUser: User;

@@ -1,6 +1,6 @@
 import type { ConfigProviderProps, ThemeConfig } from 'antd';
 import { createStyles } from 'antd-style';
-import { AppMaterialIcons } from '@/components/ui';
+import { AppMaterialIcons } from '@/components/ui/icons/AppMaterialIcons';
 
 export const busterAppStyleConfig: ThemeConfig = {
   token: {

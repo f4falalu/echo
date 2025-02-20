@@ -2,7 +2,7 @@
 
 import 'react-material-symbols/rounded';
 import React, { PropsWithChildren } from 'react';
-import { usePreventBackwardNavigation } from '@/hooks';
+import { usePreventBackwardNavigation } from '@/hooks/dom/usePreventBackwardsNavigation';
 import { App, ConfigProvider, theme, ThemeConfig } from 'antd';
 import {
   busterAppStyleConfig,

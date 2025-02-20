@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import confetti from 'canvas-confetti';
 import { Options } from 'canvas-confetti';

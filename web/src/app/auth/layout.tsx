@@ -1,13 +1,13 @@
 import React, { PropsWithChildren } from 'react';
-import { WelcomeToBuster } from './login/_components/WelcomeSidebar';
+import { WelcomeToBuster } from '@appComponents/LoginComponents/WelcomeSidebar';
 import { Metadata } from 'next';
-import { LoginConfigProvider } from './login/_components/LoginConfigProvider';
+import { LoginConfigProvider } from '@appComponents/LoginComponents/LoginConfigProvider';
 
 export const metadata: Metadata = {
   title: 'Buster Login'
 };
 
-const LoginLayout: React.FC<PropsWithChildren<{}>> = ({ children }) => {
+const LoginLayout: React.FC<PropsWithChildren<{}>> = async ({ children }) => {
   return (
     <LoginConfigProvider>
       <section className="h-[100vh]">

@@ -4,11 +4,11 @@ import { createBusterRoute, BusterRoutes } from '@/routes';
 import { isValidEmail, timeout } from '@/utils';
 import { Button, Input, Result } from 'antd';
 import Link from 'next/link';
-import React, { useContext, useState } from 'react';
-import { useStyles } from '../login/_components/LoginForm';
+import React, { useState } from 'react';
 import { Title, Text } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { useStyles } from '@appComponents/LoginComponents/LoginForm';
 
 export const ResetEmailForm: React.FC<{
   queryEmail: string;
