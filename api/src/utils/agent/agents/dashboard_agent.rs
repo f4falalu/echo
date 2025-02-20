@@ -111,8 +111,6 @@ impl DashboardAgent {
     pub async fn process_dashboard(
         &self,
         input: DashboardAgentInput,
-        parent_thread_id: Uuid,
-        user_id: Uuid,
     ) -> Result<DashboardAgentOutput> {
         let start_time = Instant::now();
         debug!("Starting dashboard operation: {:?}", input.operation);

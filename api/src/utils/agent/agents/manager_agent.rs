@@ -50,6 +50,7 @@ impl ManagerAgent {
         let create_files_tool = CreateFilesTool;
         let open_files_tool = OpenFilesTool;
         let send_message_to_user_tool = SendMessageToUser;
+        let exploratory_agent_tool = ExploratoryAgentTool;
 
         agent.add_tool(
             search_data_catalog_tool.get_name(),
@@ -74,6 +75,10 @@ impl ManagerAgent {
         agent.add_tool(
             send_message_to_user_tool.get_name(),
             send_message_to_user_tool.into_value_tool(),
+        );
+        agent.add_tool(
+            exploratory_agent_tool.get_name(),
+            exploratory_agent_tool.into_value_tool(),
         );
 
         Ok(Self { agent })

@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use std::time::Instant;
 
 use anyhow::Result;
@@ -5,11 +6,16 @@ use async_trait::async_trait;
 use chrono::Utc;
 use diesel::{upsert::excluded, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
-use serde_json::Value;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+use serde_json::Value;
 use tracing::{debug, error, info, warn};
+use uuid::Uuid;
 
+use super::{
+    common::{validate_metric_ids, validate_sql},
+    file_types::{dashboard_yml::DashboardYml, file::FileEnum, metric_yml::MetricYml},
+    FileModificationTool,
+};
 use crate::{
     database_dep::{
         enums::Verification,
@@ -17,16 +23,7 @@ use crate::{
         models::{DashboardFile, MetricFile},
         schema::{dashboard_files, metric_files},
     },
-    utils::tools::ToolExecutor,
-};
-use super::{
-    file_types::{
-        dashboard_yml::DashboardYml,
-        file::FileEnum,
-        metric_yml::MetricYml,
-    },
-    FileModificationTool,
-    common::{validate_sql, validate_metric_ids},
+    utils::{agent::Agent, tools::ToolExecutor},
 };
 
 use litellm::ToolCall;
@@ -82,7 +79,7 @@ impl LineAdjustment {
     fn new(original_start: i64, original_end: i64, new_length: i64) -> Self {
         let original_length = original_end - original_start + 1;
         let offset = new_length - original_length;
-        
+
         Self {
             original_start,
             original_end,
@@ -148,7 +145,11 @@ fn expand_line_range(line_numbers: &[i64]) -> Vec<i64> {
     (start..=end).collect()
 }
 
-fn apply_modifications_to_content(content: &str, modifications: &[Modification], file_name: &str) -> Result<String> {
+fn apply_modifications_to_content(
+    content: &str,
+    modifications: &[Modification],
+    file_name: &str,
+) -> Result<String> {
     let mut lines: Vec<&str> = content.lines().collect();
     let mut modified_lines = lines.clone();
     let mut total_offset = 0;
@@ -178,7 +179,7 @@ fn apply_modifications_to_content(content: &str, modifications: &[Modification],
 
         // Expand range into sequential numbers for processing
         let line_range = expand_line_range(&modification.line_numbers);
-        
+
         // Adjust line numbers based on previous modifications
         let original_start = line_range[0] as usize - 1;
         let original_end = line_range[line_range.len() - 1] as usize - 1;
@@ -205,12 +206,8 @@ fn apply_modifications_to_content(content: &str, modifications: &[Modification],
         // Apply the modification
         let prefix = modified_lines[..adjusted_start].to_vec();
         let suffix = modified_lines[adjusted_start + old_length..].to_vec();
-        
-        modified_lines = [
-            prefix,
-            new_lines,
-            suffix,
-        ].concat();
+
+        modified_lines = [prefix, new_lines, suffix].concat();
     }
 
     Ok(modified_lines.join("\n"))
@@ -223,11 +220,13 @@ pub struct ModifyFilesOutput {
     files: Vec<FileEnum>,
 }
 
-pub struct ModifyMetricFilesTool;
+pub struct ModifyMetricFilesTool {
+    agent: Arc<Agent>,
+}
 
 impl ModifyMetricFilesTool {
-    pub fn new() -> Self {
-        Self
+    pub fn new(agent: Arc<Agent>) -> Self {
+        Self { agent }
     }
 }
 
@@ -241,12 +240,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
         "modify_metric_files".to_string()
     }
 
-    async fn execute(
-        &self,
-        tool_call: &ToolCall,
-        user_id: &Uuid,
-        session_id: &Uuid,
-    ) -> Result<Self::Output> {
+    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
         let start_time = Instant::now();
 
         debug!("Starting file modification execution");
@@ -262,9 +256,9 @@ impl ToolExecutor for ModifyMetricFilesTool {
                 });
             }
         };
-        
+
         info!("Processing {} files for modification", params.files.len());
-        
+
         // Initialize batch processing structures
         let mut batch = FileModificationBatch {
             metric_files: Vec::new(),
@@ -275,7 +269,8 @@ impl ToolExecutor for ModifyMetricFilesTool {
 
         // Collect file IDs and create map
         let metric_ids: Vec<Uuid> = params.files.iter().map(|f| f.id).collect();
-        let file_map: std::collections::HashMap<_, _> = params.files.iter().map(|f| (f.id, f)).collect();
+        let file_map: std::collections::HashMap<_, _> =
+            params.files.iter().map(|f| (f.id, f)).collect();
 
         // Get database connection
         let mut conn = match get_pg_pool().get().await {
@@ -302,17 +297,22 @@ impl ToolExecutor for ModifyMetricFilesTool {
                 Ok(files) => {
                     for file in files {
                         if let Some(modifications) = file_map.get(&file.id) {
-                            match process_metric_file(file, modifications, start_time.elapsed().as_millis() as i64).await {
+                            match process_metric_file(
+                                file,
+                                modifications,
+                                start_time.elapsed().as_millis() as i64,
+                            )
+                            .await
+                            {
                                 Ok((metric_file, metric_yml, results)) => {
                                     batch.metric_files.push(metric_file);
                                     batch.metric_ymls.push(metric_yml);
                                     batch.modification_results.extend(results);
                                 }
                                 Err(e) => {
-                                    batch.failed_modifications.push((
-                                        modifications.file_name.clone(),
-                                        e.to_string(),
-                                    ));
+                                    batch
+                                        .failed_modifications
+                                        .push((modifications.file_name.clone(), e.to_string()));
                                 }
                             }
                         }
@@ -353,7 +353,9 @@ impl ToolExecutor for ModifyMetricFilesTool {
                 .await
             {
                 Ok(_) => {
-                    output.files.extend(batch.metric_ymls.into_iter().map(FileEnum::Metric));
+                    output
+                        .files
+                        .extend(batch.metric_ymls.into_iter().map(FileEnum::Metric));
                 }
                 Err(e) => {
                     batch.failed_modifications.push((
@@ -458,9 +460,9 @@ async fn process_metric_file(
         file_name = %modification.file_name,
         "Processing metric file modifications"
     );
-    
+
     let mut results = Vec::new();
-    
+
     // Parse existing content
     let current_yml: MetricYml = match serde_json::from_value(file.content.clone()) {
         Ok(yml) => yml,
@@ -486,7 +488,7 @@ async fn process_metric_file(
             return Err(anyhow::anyhow!(error));
         }
     };
-    
+
     // Convert to YAML string for line modifications
     let current_content = match serde_yaml::to_string(&current_yml) {
         Ok(content) => content,
@@ -512,18 +514,22 @@ async fn process_metric_file(
             return Err(anyhow::anyhow!(error));
         }
     };
-    
+
     // Track original line numbers before modifications
     let mut original_lines = Vec::new();
     let mut adjusted_lines = Vec::new();
-    
+
     // Apply modifications
     for m in &modification.modifications {
         original_lines.extend(m.line_numbers.clone());
     }
-    
+
     // Apply modifications and track results
-    match apply_modifications_to_content(&current_content, &modification.modifications, &modification.file_name) {
+    match apply_modifications_to_content(
+        &current_content,
+        &modification.modifications,
+        &modification.file_name,
+    ) {
         Ok(modified_content) => {
             // Create and validate new YML object
             match MetricYml::new(modified_content) {
@@ -559,12 +565,12 @@ async fn process_metric_file(
                             return Err(anyhow::anyhow!(error));
                         }
                     }
-                    
+
                     // Update file record
                     file.content = serde_json::to_value(&new_yml)?;
                     file.updated_at = Utc::now();
                     file.verification = Verification::NotRequested;
-                    
+
                     // Track successful modification
                     results.push(ModificationResult {
                         file_id: file.id,
@@ -577,7 +583,7 @@ async fn process_metric_file(
                         timestamp: Utc::now(),
                         duration,
                     });
-                    
+
                     Ok((file, new_yml, results))
                 }
                 Err(e) => {
@@ -629,6 +635,8 @@ async fn process_metric_file(
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
     use super::*;
     use chrono::Utc;
     use serde_json::json;
@@ -649,7 +657,9 @@ mod tests {
 
         // Test invalid range (end < start)
         let invalid_range_err = validate_line_numbers(&[5, 3]).unwrap_err();
-        assert!(invalid_range_err.to_string().contains("must be greater than or equal to"));
+        assert!(invalid_range_err
+            .to_string()
+            .contains("must be greater than or equal to"));
 
         // Test starting below 1
         let invalid_start_err = validate_line_numbers(&[0, 2]).unwrap_err();
@@ -659,14 +669,17 @@ mod tests {
     #[test]
     fn test_apply_modifications_to_content() {
         let original_content = "line1\nline2\nline3\nline4\nline5";
-        
+
         // Test single modification replacing two lines
         let mods1 = vec![Modification {
             new_content: "new line2\nnew line3".to_string(),
             line_numbers: vec![2, 3], // Replace lines 2-3
         }];
         let result1 = apply_modifications_to_content(original_content, &mods1, "test.yml").unwrap();
-        assert_eq!(result1.trim_end(), "line1\nnew line2\nnew line3\nline4\nline5");
+        assert_eq!(
+            result1.trim_end(),
+            "line1\nnew line2\nnew line3\nline4\nline5"
+        );
 
         // Test multiple non-overlapping modifications
         let mods2 = vec![
@@ -680,10 +693,14 @@ mod tests {
             },
         ];
         let result2 = apply_modifications_to_content(original_content, &mods2, "test.yml").unwrap();
-        assert_eq!(result2.trim_end(), "line1\nnew line2\nline3\nnew line4\nline5");
+        assert_eq!(
+            result2.trim_end(),
+            "line1\nnew line2\nline3\nnew line4\nline5"
+        );
 
         // Test multiple modifications with line shifts
-        let content_with_more_lines = "line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10";
+        let content_with_more_lines =
+            "line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10";
         let mods_with_shifts = vec![
             Modification {
                 new_content: "new line2\nnew line2.1\nnew line2.2".to_string(),
@@ -698,7 +715,9 @@ mod tests {
                 line_numbers: vec![9, 9], // Replace line 9 with 2 lines (net +1 line)
             },
         ];
-        let result_with_shifts = apply_modifications_to_content(content_with_more_lines, &mods_with_shifts, "test.yml").unwrap();
+        let result_with_shifts =
+            apply_modifications_to_content(content_with_more_lines, &mods_with_shifts, "test.yml")
+                .unwrap();
         assert_eq!(
             result_with_shifts.trim_end(),
             "line1\nnew line2\nnew line2.1\nnew line2.2\nline4\nline5\nnew line6\nline8\nnew line9\nnew line9.1\nline10"
@@ -729,7 +748,8 @@ mod tests {
         assert!(result4.unwrap_err().to_string().contains("out of bounds"));
 
         // Test broader line ranges with sequential modifications
-        let content_with_many_lines = "line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10\nline11\nline12";
+        let content_with_many_lines =
+            "line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10\nline11\nline12";
         let broad_range_mods = vec![
             Modification {
                 new_content: "new block 1-6\nnew content".to_string(),
@@ -740,7 +760,9 @@ mod tests {
                 line_numbers: vec![9, 11], // Replace lines 9-11 with 3 lines (no net change)
             },
         ];
-        let result_broad_range = apply_modifications_to_content(content_with_many_lines, &broad_range_mods, "test.yml").unwrap();
+        let result_broad_range =
+            apply_modifications_to_content(content_with_many_lines, &broad_range_mods, "test.yml")
+                .unwrap();
         assert_eq!(
             result_broad_range.trim_end(),
             "new block 1-6\nnew content\nline7\nline8\nnew block 9-11\nextra line\nmore content\nline12"
@@ -757,9 +779,16 @@ mod tests {
                 line_numbers: vec![4, 8],
             },
         ];
-        let result_overlapping = apply_modifications_to_content(content_with_many_lines, &overlapping_broad_mods, "test.yml");
+        let result_overlapping = apply_modifications_to_content(
+            content_with_many_lines,
+            &overlapping_broad_mods,
+            "test.yml",
+        );
         assert!(result_overlapping.is_err());
-        assert!(result_overlapping.unwrap_err().to_string().contains("overlaps"));
+        assert!(result_overlapping
+            .unwrap_err()
+            .to_string()
+            .contains("overlaps"));
     }
 
     #[test]
@@ -796,8 +825,10 @@ mod tests {
 
     #[test]
     fn test_tool_parameter_validation() {
-        let tool = ModifyMetricFilesTool;
-        
+        let tool = ModifyMetricFilesTool {
+            agent: Arc::new(Agent::new("o3-mini".to_string(), HashMap::new(), Uuid::new_v4(), Uuid::new_v4())),
+        };
+
         // Test valid parameters
         let valid_params = json!({
             "files": [{
@@ -825,4 +856,4 @@ mod tests {
         let result = serde_json::from_str::<ModifyFilesParams>(&missing_args);
         assert!(result.is_err());
     }
-} 
+}

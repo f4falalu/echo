@@ -5,9 +5,13 @@ use serde_json::Value;
 use sqlx::PgPool;
 use uuid::Uuid;
 use regex;
+use std::sync::Arc;
 
-use crate::utils::tools::ToolCall;
-use crate::utils::tools::ToolExecutor;
+use crate::utils::{
+    tools::ToolExecutor,
+    agent::Agent,
+};
+use litellm::ToolCall;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct QueryResults {
@@ -34,18 +38,25 @@ pub struct SqlQueryInput {
     queries: Vec<String>,
 }
 
-pub struct SqlQuery;
+pub struct SqlQuery {
+    agent: Arc<Agent>
+}
+
+impl SqlQuery {
+    pub fn new(agent: Arc<Agent>) -> Self {
+        Self { agent }
+    }
+}
 
 #[async_trait]
 impl ToolExecutor for SqlQuery {
     type Output = SqlQueryOutput;
 
-    async fn execute(
-        &self,
-        tool_call: &ToolCall,
-        user_id: &Uuid,
-        session_id: &Uuid,
-    ) -> Result<Self::Output> {
+    fn get_name(&self) -> String {
+        "run_sql".to_string()
+    }
+
+    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
         let input: SqlQueryInput = serde_json::from_str(&tool_call.function.arguments)?;
         let mut results = Vec::new();
 
@@ -112,10 +123,6 @@ impl ToolExecutor for SqlQuery {
                 "required": ["queries"]
             }
         })
-    }
-
-    fn get_name(&self) -> String {
-        "run_sql".to_string()
     }
 }
 

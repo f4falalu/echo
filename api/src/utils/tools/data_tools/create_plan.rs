@@ -3,9 +3,13 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
+use std::sync::Arc;
 
-use crate::utils::tools::ToolCall;
-use crate::utils::tools::ToolExecutor;
+use crate::utils::{
+    tools::ToolExecutor,
+    agent::Agent,
+};
+use litellm::ToolCall;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PlanOutput {
@@ -20,24 +24,31 @@ pub struct PlanInput {
     title: String,
 }
 
-pub struct CreatePlan;
+pub struct CreatePlan {
+    agent: Arc<Agent>
+}
+
+impl CreatePlan {
+    pub fn new(agent: Arc<Agent>) -> Self {
+        Self { agent }
+    }
+}
 
 #[async_trait]
 impl ToolExecutor for CreatePlan {
     type Output = PlanOutput;
 
-    async fn execute(
-        &self,
-        tool_call: &ToolCall,
-        user_id: &Uuid,
-        session_id: &Uuid,
-    ) -> Result<Self::Output> {
+    fn get_name(&self) -> String {
+        "create_plan".to_string()
+    }
+
+    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
         let input: PlanInput = serde_json::from_str(&tool_call.function.arguments)?;
         
         // TODO: Implement actual plan creation logic here
         // This would typically involve:
         // 1. Validating the markdown content
-        // 2. Storing the plan in the database
+        // 2. Storing the plan in the database with current_thread.user_id
         // 3. Returning the plan ID or error
 
         Ok(PlanOutput {
@@ -66,9 +77,5 @@ impl ToolExecutor for CreatePlan {
                 "required": ["markdown_content", "title"]
             }
         })
-    }
-
-    fn get_name(&self) -> String {
-        "create_plan".to_string()
     }
 } 

@@ -1,6 +1,7 @@
 use std::time::Instant;
+use std::sync::Arc;
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
@@ -16,7 +17,10 @@ use crate::{
         models::{DashboardFile, MetricFile},
         schema::{dashboard_files, metric_files},
     },
-    utils::tools::ToolExecutor,
+    utils::{
+        tools::ToolExecutor,
+        agent::Agent,
+    },
 };
 
 use litellm::{ChatCompletionRequest, LiteLLMClient, Message, Metadata, ResponseFormat, ToolCall};
@@ -80,11 +84,13 @@ struct LLMSearchResponse {
     results: Vec<FileSearchResult>,
 }
 
-pub struct SearchFilesTool;
+pub struct SearchFilesTool {
+    agent: Arc<Agent>
+}
 
 impl SearchFilesTool {
-    pub fn new() -> Self {
-        Self
+    pub fn new(agent: Arc<Agent>) -> Self {
+        Self { agent }
     }
 
     fn format_search_prompt(query_params: &[String], files_array: &[Value]) -> Result<String> {
@@ -154,6 +160,7 @@ impl SearchFilesTool {
     }
 }
 
+
 #[async_trait]
 impl ToolExecutor for SearchFilesTool {
     type Output = SearchFilesOutput;
@@ -162,17 +169,21 @@ impl ToolExecutor for SearchFilesTool {
         "search_files".to_string()
     }
 
-    async fn execute(
-        &self,
-        tool_call: &ToolCall,
-        user_id: &Uuid,
-        session_id: &Uuid,
-    ) -> Result<Self::Output> {
+    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
         let start_time = Instant::now();
 
-        debug!("Starting file search operation");
-        let params: SearchFilesParams =
-            serde_json::from_str(&tool_call.function.arguments.clone())?;
+        let params: SearchFilesParams = match serde_json::from_str(&tool_call.function.arguments.clone()) {
+            Ok(params) => params,
+            Err(e) => {
+                return Err(anyhow!("Failed to parse search parameters: {}", e));
+            }
+        };
+
+        // Get current thread for context
+        let current_thread = self.agent.get_current_thread().await
+            .ok_or_else(|| anyhow::anyhow!("No current thread"))?;
+
+        let mut conn = get_pg_pool().get().await?;
 
         // Fetch all non-deleted records from both tables concurrently
         let (metric_files, dashboard_files) =
@@ -201,7 +212,7 @@ impl ToolExecutor for SearchFilesTool {
 
         // Format prompt and perform search
         let prompt = Self::format_search_prompt(&params.query_params, &files_array)?;
-        let search_response = match Self::perform_llm_search(prompt, user_id, session_id).await {
+        let search_response = match Self::perform_llm_search(prompt, &current_thread.user_id, &current_thread.id).await {
             Ok(response) => response,
             Err(e) => {
                 let duration = start_time.elapsed().as_millis() as i64;

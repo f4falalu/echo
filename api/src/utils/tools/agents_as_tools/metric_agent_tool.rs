@@ -1,18 +1,21 @@
 use anyhow::Result;
 use async_trait::async_trait;
 use serde_json::Value;
+use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::utils::{
-    agent::MetricAgent,
+    agent::{Agent, MetricAgent},
     tools::ToolExecutor,
 };
 
-pub struct MetricAgentTool;
+pub struct MetricAgentTool {
+    agent: Arc<Agent>
+}
 
 impl MetricAgentTool {
-    pub fn new() -> Self {
-        Self
+    pub fn new(agent: Arc<Agent>) -> Self {
+        Self { agent }
     }
 }
 
@@ -24,20 +27,23 @@ impl ToolExecutor for MetricAgentTool {
         "metric_agent".to_string()
     }
 
-    async fn execute(
-        &self,
-        tool_call: &litellm::ToolCall,
-        user_id: &Uuid,
-        session_id: &Uuid,
-    ) -> Result<Self::Output> {
+    async fn execute(&self, tool_call: &litellm::ToolCall) -> Result<Self::Output> {
         // Create and initialize the agent
-        let agent = MetricAgent::new()?;
+        let metric_agent = MetricAgent::new()?;
+
+        // Get current thread for context
+        let current_thread = self.agent.get_current_thread().await
+            .ok_or_else(|| anyhow::anyhow!("No current thread"))?;
 
         // Parse input parameters
         let input = serde_json::from_str(&tool_call.function.arguments)?;
 
-        // Execute the agent
-        let output = agent.process_metric(input, *session_id, *user_id).await?;
+        // Execute the agent with the executing agent's context
+        let output = metric_agent.process_metric(
+            input,
+            current_thread.id,
+            current_thread.user_id
+        ).await?;
 
         // Convert output to Value
         serde_json::to_value(output).map_err(Into::into)

@@ -1,4 +1,6 @@
 use std::time::Instant;
+use std::sync::Arc;
+use std::collections::HashMap;
 
 use anyhow::Result;
 use async_trait::async_trait;
@@ -17,7 +19,10 @@ use crate::{
         models::{DashboardFile, MetricFile},
         schema::{dashboard_files, metric_files},
     },
-    utils::tools::ToolExecutor,
+    utils::{
+        tools::ToolExecutor,
+        agent::Agent,
+    },
 };
 use super::{
     file_types::{
@@ -227,11 +232,13 @@ pub struct ModifyFilesOutput {
     files: Vec<FileEnum>,
 }
 
-pub struct ModifyFilesTool;
+pub struct ModifyFilesTool {
+    agent: Arc<Agent>
+}
 
 impl ModifyFilesTool {
-    pub fn new() -> Self {
-        Self
+    pub fn new(agent: Arc<Agent>) -> Self {
+        Self { agent }
     }
 }
 
@@ -245,12 +252,7 @@ impl ToolExecutor for ModifyFilesTool {
         "modify_files".to_string()
     }
 
-    async fn execute(
-        &self,
-        tool_call: &ToolCall,
-        user_id: &Uuid,
-        session_id: &Uuid,
-    ) -> Result<Self::Output> {
+    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
         let start_time = Instant::now();
 
         debug!("Starting file modification execution");
@@ -1112,7 +1114,12 @@ mod tests {
 
     #[test]
     fn test_tool_parameter_validation() {
-        let tool = ModifyFilesTool;
+        let tool = ModifyFilesTool::new(Arc::new(Agent::new(
+            "o1".to_string(),
+            HashMap::new(),
+            Uuid::new_v4(),
+            Uuid::new_v4(),
+        )));
         
         // Test valid parameters
         let valid_params = json!({

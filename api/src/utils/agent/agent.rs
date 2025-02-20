@@ -6,6 +6,7 @@ use litellm::{
 use serde_json::Value;
 use std::{collections::HashMap, env, sync::Arc};
 use tokio::sync::{mpsc, RwLock};
+use uuid::Uuid;
 
 use crate::utils::tools::ToolExecutor;
 
@@ -28,6 +29,10 @@ pub struct Agent {
     current_thread: Arc<RwLock<Option<AgentThread>>>,
     /// Sender for streaming messages from this agent and sub-agents
     stream_tx: Arc<RwLock<mpsc::Sender<Result<Message>>>>,
+    /// The user ID for the current thread
+    user_id: Uuid,
+    /// The session ID for the current thread
+    session_id: Uuid,
 }
 
 impl Agent {
@@ -35,6 +40,8 @@ impl Agent {
     pub fn new(
         model: String,
         tools: HashMap<String, Box<dyn ToolExecutor<Output = Value>>>,
+        user_id: Uuid,
+        session_id: Uuid,
     ) -> Self {
         let llm_api_key = env::var("LLM_API_KEY").expect("LLM_API_KEY must be set");
         let llm_base_url = env::var("LLM_BASE_URL").expect("LLM_API_BASE must be set");
@@ -51,6 +58,8 @@ impl Agent {
             state: Arc::new(RwLock::new(HashMap::new())),
             current_thread: Arc::new(RwLock::new(None)),
             stream_tx: Arc::new(RwLock::new(tx)),
+            user_id,
+            session_id,
         }
     }
 
@@ -91,6 +100,14 @@ impl Agent {
     /// Get the current thread being processed, if any
     pub async fn get_current_thread(&self) -> Option<AgentThread> {
         self.current_thread.read().await.clone()
+    }
+
+    pub fn get_user_id(&self) -> Uuid {
+        self.user_id
+    }
+
+    pub fn get_session_id(&self) -> Uuid {
+        self.session_id
     }
 
     /// Get the complete conversation history of the current thread
@@ -389,13 +406,17 @@ mod tests {
 
         async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
             // Send progress using agent's stream sender
-            self.agent.get_stream_sender().await.send(Ok(Message::tool(
-                None,
-                "Fetching weather data...".to_string(),
-                tool_call.id.clone(),
-                Some(self.get_name()),
-                Some(MessageProgress::InProgress),
-            ))).await?;
+            self.agent
+                .get_stream_sender()
+                .await
+                .send(Ok(Message::tool(
+                    None,
+                    "Fetching weather data...".to_string(),
+                    tool_call.id.clone(),
+                    Some(self.get_name()),
+                    Some(MessageProgress::InProgress),
+                )))
+                .await?;
 
             // Simulate a delay
             tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
@@ -406,13 +427,17 @@ mod tests {
             });
 
             // Send completion message using agent's stream sender
-            self.agent.get_stream_sender().await.send(Ok(Message::tool(
-                None,
-                serde_json::to_string(&result)?,
-                tool_call.id.clone(),
-                Some(self.get_name()),
-                Some(MessageProgress::Complete),
-            ))).await?;
+            self.agent
+                .get_stream_sender()
+                .await
+                .send(Ok(Message::tool(
+                    None,
+                    serde_json::to_string(&result)?,
+                    tool_call.id.clone(),
+                    Some(self.get_name()),
+                    Some(MessageProgress::Complete),
+                )))
+                .await?;
 
             Ok(result)
         }
@@ -449,7 +474,12 @@ mod tests {
         setup();
 
         // Create LLM client and agent
-        let agent = Agent::new("o1".to_string(), HashMap::new());
+        let agent = Agent::new(
+            "o1".to_string(),
+            HashMap::new(),
+            Uuid::new_v4(),
+            Uuid::new_v4(),
+        );
 
         let thread = AgentThread::new(
             None,
@@ -470,11 +500,16 @@ mod tests {
         setup();
 
         // Create agent first
-        let mut agent = Agent::new("o1".to_string(), HashMap::new());
-        
+        let mut agent = Agent::new(
+            "o1".to_string(),
+            HashMap::new(),
+            Uuid::new_v4(),
+            Uuid::new_v4(),
+        );
+
         // Create weather tool with reference to agent
         let weather_tool = WeatherTool::new(Arc::new(agent.clone()));
-        
+
         // Add tool to agent
         agent.add_tool(weather_tool.get_name(), weather_tool);
 
@@ -499,7 +534,12 @@ mod tests {
         setup();
 
         // Create LLM client and agent
-        let mut agent = Agent::new("o1".to_string(), HashMap::new());
+        let mut agent = Agent::new(
+            "o1".to_string(),
+            HashMap::new(),
+            Uuid::new_v4(),
+            Uuid::new_v4(),
+        );
 
         let weather_tool = WeatherTool::new(Arc::new(agent.clone()));
 
@@ -526,7 +566,12 @@ mod tests {
         setup();
 
         // Create agent
-        let agent = Agent::new("o1".to_string(), HashMap::new());
+        let agent = Agent::new(
+            "o1".to_string(),
+            HashMap::new(),
+            Uuid::new_v4(),
+            Uuid::new_v4(),
+        );
 
         // Test setting single values
         agent

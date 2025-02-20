@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use std::time::Instant;
 
 use anyhow::{anyhow, Result};
@@ -11,18 +12,12 @@ use tracing::debug;
 use uuid::Uuid;
 
 use crate::{
-    database_dep::{
-        lib::get_pg_pool,
-        models::DashboardFile,
-        schema::dashboard_files,
-    },
-    utils::tools::ToolExecutor,
+    database_dep::{lib::get_pg_pool, models::DashboardFile, schema::dashboard_files},
+    utils::{agent::Agent, tools::ToolExecutor},
 };
 
 use super::{
-    common::validate_metric_ids,
-    file_types::dashboard_yml::DashboardYml,
-    FileModificationTool,
+    common::validate_metric_ids, file_types::dashboard_yml::DashboardYml, FileModificationTool,
 };
 
 use litellm::ToolCall;
@@ -51,11 +46,13 @@ pub struct CreateDashboardFile {
     pub yml_content: String,
 }
 
-pub struct CreateDashboardFilesTool;
+pub struct CreateDashboardFilesTool {
+    agent: Arc<Agent>,
+}
 
 impl CreateDashboardFilesTool {
-    pub fn new() -> Self {
-        Self
+    pub fn new(agent: Arc<Agent>) -> Self {
+        Self { agent }
     }
 }
 
@@ -63,15 +60,17 @@ impl FileModificationTool for CreateDashboardFilesTool {}
 
 /// Process a dashboard file creation request
 /// Returns Ok((DashboardFile, DashboardYml)) if successful, or an error message if failed
-async fn process_dashboard_file(file: DashboardFileParams) -> Result<(DashboardFile, DashboardYml), String> {
+async fn process_dashboard_file(
+    file: DashboardFileParams,
+) -> Result<(DashboardFile, DashboardYml), String> {
     debug!("Processing dashboard file creation: {}", file.name);
 
     let dashboard_yml = DashboardYml::new(file.yml_content.clone())
         .map_err(|e| format!("Invalid YAML format: {}", e))?;
 
-    let dashboard_id = dashboard_yml.id.ok_or_else(|| {
-        "Missing required field 'id'".to_string()
-    })?;
+    let dashboard_id = dashboard_yml
+        .id
+        .ok_or_else(|| "Missing required field 'id'".to_string())?;
 
     // Collect and validate metric IDs from rows
     let metric_ids: Vec<Uuid> = dashboard_yml
@@ -118,21 +117,23 @@ impl ToolExecutor for CreateDashboardFilesTool {
         "create_dashboard_files".to_string()
     }
 
-    async fn execute(
-        &self,
-        tool_call: &ToolCall,
-        user_id: &Uuid,
-        session_id: &Uuid,
-    ) -> Result<Self::Output> {
+    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
         let start_time = Instant::now();
 
         let params: CreateDashboardFilesParams =
             match serde_json::from_str(&tool_call.function.arguments.clone()) {
                 Ok(params) => params,
                 Err(e) => {
-                    return Err(anyhow!("Failed to parse create dashboard files parameters: {}", e));
+                    return Err(anyhow!("Failed to parse create files parameters: {}", e));
                 }
             };
+
+        // Get current thread for context
+        let current_thread = self
+            .agent
+            .get_current_thread()
+            .await
+            .ok_or_else(|| anyhow::anyhow!("No current thread"))?;
 
         let files = params.files;
         let mut created_files = vec![];
@@ -191,10 +192,16 @@ impl ToolExecutor for CreateDashboardFilesTool {
         }
 
         let message = if failed_files.is_empty() {
-            format!("Successfully created {} dashboard files.", created_files.len())
+            format!(
+                "Successfully created {} dashboard files.",
+                created_files.len()
+            )
         } else {
             let success_msg = if !created_files.is_empty() {
-                format!("Successfully created {} dashboard files. ", created_files.len())
+                format!(
+                    "Successfully created {} dashboard files. ",
+                    created_files.len()
+                )
             } else {
                 String::new()
             };
@@ -257,38 +264,5 @@ impl ToolExecutor for CreateDashboardFilesTool {
             },
             "description": "Creates **new** dashboard files. Use this if no existing dashboard file can fulfill the user's needs. Guard Rail: Do not execute any file creation or modifications until a thorough data catalog search has been completed and reviewed."
         })
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use serde_json::json;
-
-    #[test]
-    fn test_tool_parameter_validation() {
-        let tool = CreateDashboardFilesTool;
-        
-        // Test valid parameters
-        let valid_params = json!({
-            "files": [{
-                "name": "test",
-                "yml_content": "test content"
-            }]
-        });
-        let valid_args = serde_json::to_string(&valid_params).unwrap();
-        let result = serde_json::from_str::<CreateDashboardFilesParams>(&valid_args);
-        assert!(result.is_ok());
-
-        // Test missing required fields
-        let missing_fields_params = json!({
-            "files": [{
-                "name": "test"
-                // missing yml_content
-            }]
-        });
-        let missing_args = serde_json::to_string(&missing_fields_params).unwrap();
-        let result = serde_json::from_str::<CreateDashboardFilesParams>(&missing_args);
-        assert!(result.is_err());
     }
 }

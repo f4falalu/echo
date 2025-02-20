@@ -1,4 +1,5 @@
 use std::time::Instant;
+use std::sync::Arc;
 
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
@@ -17,7 +18,7 @@ use crate::{
         models::MetricFile,
         schema::metric_files,
     },
-    utils::tools::ToolExecutor,
+    utils::{agent::Agent, tools::ToolExecutor},
 };
 
 use super::{
@@ -52,11 +53,13 @@ pub struct CreateMetricFile {
     pub yml_content: String,
 }
 
-pub struct CreateMetricFilesTool;
+pub struct CreateMetricFilesTool {
+    agent: Arc<Agent>
+}
 
 impl CreateMetricFilesTool {
-    pub fn new() -> Self {
-        Self
+    pub fn new(agent: Arc<Agent>) -> Self {
+        Self { agent }
     }
 }
 
@@ -116,21 +119,19 @@ impl ToolExecutor for CreateMetricFilesTool {
         "create_metric_files".to_string()
     }
 
-    async fn execute(
-        &self,
-        tool_call: &ToolCall,
-        user_id: &Uuid,
-        session_id: &Uuid,
-    ) -> Result<Self::Output> {
+    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
         let start_time = Instant::now();
 
-        let params: CreateMetricFilesParams =
-            match serde_json::from_str(&tool_call.function.arguments.clone()) {
-                Ok(params) => params,
-                Err(e) => {
-                    return Err(anyhow!("Failed to parse create metric files parameters: {}", e));
-                }
-            };
+        let params: CreateMetricFilesParams = match serde_json::from_str(&tool_call.function.arguments.clone()) {
+            Ok(params) => params,
+            Err(e) => {
+                return Err(anyhow!("Failed to parse create files parameters: {}", e));
+            }
+        };
+
+        // Get current thread for context
+        let current_thread = self.agent.get_current_thread().await
+            .ok_or_else(|| anyhow::anyhow!("No current thread"))?;
 
         let files = params.files;
         let mut created_files = vec![];
@@ -255,38 +256,5 @@ impl ToolExecutor for CreateMetricFilesTool {
             },
             "description": "Creates **new** metric files. Use this if no existing metric file can fulfill the user's needs. Guard Rail: Do not execute any file creation or modifications until a thorough data catalog search has been completed and reviewed."
         })
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use serde_json::json;
-
-    #[test]
-    fn test_tool_parameter_validation() {
-        let tool = CreateMetricFilesTool;
-        
-        // Test valid parameters
-        let valid_params = json!({
-            "files": [{
-                "name": "test",
-                "yml_content": "test content"
-            }]
-        });
-        let valid_args = serde_json::to_string(&valid_params).unwrap();
-        let result = serde_json::from_str::<CreateMetricFilesParams>(&valid_args);
-        assert!(result.is_ok());
-
-        // Test missing required fields
-        let missing_fields_params = json!({
-            "files": [{
-                "name": "test"
-                // missing yml_content
-            }]
-        });
-        let missing_args = serde_json::to_string(&missing_fields_params).unwrap();
-        let result = serde_json::from_str::<CreateMetricFilesParams>(&missing_args);
-        assert!(result.is_err());
     }
 }

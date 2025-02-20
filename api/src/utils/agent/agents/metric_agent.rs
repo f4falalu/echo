@@ -1,4 +1,4 @@
-use std::time::Instant;
+use std::{sync::Arc, time::Instant};
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
@@ -44,18 +44,20 @@ pub struct MetricAgentInput {
 }
 
 pub struct MetricAgent {
-    agent: Agent,
+    agent: Arc<Agent>,
 }
 
 impl MetricAgent {
-    pub fn new() -> Result<Self> {
-        let mut agent = Agent::new("o3-mini".to_string(), HashMap::new());
+    pub fn new(user_id: Uuid, session_id: Uuid) -> Result<Self> {
+        let agent = Agent::new("o3-mini".to_string(), HashMap::new(), user_id, session_id);
+
+        let mut agent = Arc::new(agent);
 
         // Add metric-specific tools
-        let create_files_tool = CreateFilesTool;
-        let modify_files_tool = ModifyFilesTool;
-        let open_files_tool = OpenFilesTool;
-        let search_files_tool = SearchFilesTool;
+        let create_files_tool = CreateFilesTool::new(agent.clone());
+        let modify_files_tool = ModifyFilesTool::new(agent.clone());
+        let open_files_tool = OpenFilesTool::new(agent.clone());
+        let search_files_tool = SearchFilesTool::new(agent.clone());
 
         agent.add_tool(
             create_files_tool.get_name(),

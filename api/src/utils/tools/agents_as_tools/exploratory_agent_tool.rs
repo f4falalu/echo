@@ -1,18 +1,20 @@
 use anyhow::Result;
 use async_trait::async_trait;
 use serde_json::Value;
-use uuid::Uuid;
+use std::sync::Arc;
 
 use crate::utils::{
-    agent::ExploratoryAgent,
+    agent::{Agent, ExploratoryAgent},
     tools::ToolExecutor,
 };
 
-pub struct ExploratoryAgentTool;
+pub struct ExploratoryAgentTool {
+    agent: Arc<Agent>,
+}
 
 impl ExploratoryAgentTool {
-    pub fn new() -> Self {
-        Self
+    pub fn new(agent: Arc<Agent>) -> Self {
+        Self { agent }
     }
 }
 
@@ -24,43 +26,37 @@ impl ToolExecutor for ExploratoryAgentTool {
         "exploratory_agent".to_string()
     }
 
-    async fn execute(
-        &self,
-        tool_call: &litellm::ToolCall,
-        user_id: &Uuid,
-        session_id: &Uuid,
-    ) -> Result<Self::Output> {
+    async fn execute(&self, tool_call: &litellm::ToolCall) -> Result<Self::Output> {
         // Create and initialize the agent
-        let agent = ExploratoryAgent::new()?;
+        let exploratory_agent = ExploratoryAgent::new_from_agent(self.agent.clone())?;
 
         // Parse input parameters
         let input = serde_json::from_str(&tool_call.function.arguments)?;
 
-        // Execute the agent
-        let output = agent.explore(input, *session_id, *user_id).await?;
+        // TODO: Implement the exploratory agent result
 
-        // Convert output to Value
-        serde_json::to_value(output).map_err(Into::into)
+        // Return dummy value for now
+        Ok(serde_json::json!("TODO"))
     }
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "exploratory_analysis",
-            "description": "Use for open-ended, exploratory requests or deep-dive data investigations. Within this action, you can run multiple queries, analyze results, and decide which metrics or insights are noteworthy. Do not use for straightforward metric or chart requests.",
+            "name": "explore_data",
+            "description": "Use to explore data and create insights. This is suitable for exploring data sources, understanding data relationships, and generating insights that can be used to create metrics or dashboards.",
             "strict": true,
             "parameters": {
-              "type": "object",
-              "required": [
-                "ticket_description"
-              ],
-              "properties": {
-                "ticket_description": {
-                  "type": "string",
-                  "description": "A brief description for the action. This should essentially be a ticket description that can be appended to a ticket. The ticket description should explain which parts of the user's request this action addresses. Copy the user's request exactly without adding instructions, thoughts, or assumptions. Write it as a command, not a question, typically starting with an imperative verb like 'Investigate...', 'Explore...', etc."
-                }
-              },
-              "additionalProperties": false
+                "type": "object",
+                "required": [
+                    "ticket_description"
+                ],
+                "properties": {
+                    "ticket_description": {
+                        "type": "string",
+                        "description": "A brief description for the action. This should essentially be a ticket description that can be appended to a ticket. The ticket description should explain which parts of the user's request this action addresses. Copy the user's request exactly without adding instructions, thoughts, or assumptions. Write it as a command, e.g., 'Explore sales data...', 'Analyze customer behavior...', etc."
+                    }
+                },
+                "additionalProperties": false
             }
         })
     }
-} 
+}

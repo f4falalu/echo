@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use std::time::Instant;
 
 use anyhow::Result;
@@ -5,26 +6,19 @@ use async_trait::async_trait;
 use chrono::Utc;
 use diesel::{upsert::excluded, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
-use serde_json::Value;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+use serde_json::Value;
 use tracing::{debug, error, info, warn};
+use uuid::Uuid;
 
-use crate::{
-    database_dep::{
-        lib::get_pg_pool,
-        models::DashboardFile,
-        schema::dashboard_files,
-    },
-    utils::tools::ToolExecutor,
-};
 use super::{
-    file_types::{
-        dashboard_yml::DashboardYml,
-        file::FileEnum,
-    },
-    FileModificationTool,
     common::validate_metric_ids,
+    file_types::{dashboard_yml::DashboardYml, file::FileEnum},
+    FileModificationTool,
+};
+use crate::{
+    database_dep::{lib::get_pg_pool, models::DashboardFile, schema::dashboard_files},
+    utils::{agent::Agent, tools::ToolExecutor},
 };
 
 use litellm::ToolCall;
@@ -80,7 +74,7 @@ impl LineAdjustment {
     fn new(original_start: i64, original_end: i64, new_length: i64) -> Self {
         let original_length = original_end - original_start + 1;
         let offset = new_length - original_length;
-        
+
         Self {
             original_start,
             original_end,
@@ -146,7 +140,11 @@ fn expand_line_range(line_numbers: &[i64]) -> Vec<i64> {
     (start..=end).collect()
 }
 
-fn apply_modifications_to_content(content: &str, modifications: &[Modification], file_name: &str) -> Result<String> {
+fn apply_modifications_to_content(
+    content: &str,
+    modifications: &[Modification],
+    file_name: &str,
+) -> Result<String> {
     let mut lines: Vec<&str> = content.lines().collect();
     let mut modified_lines = lines.clone();
     let mut total_offset = 0;
@@ -176,7 +174,7 @@ fn apply_modifications_to_content(content: &str, modifications: &[Modification],
 
         // Expand range into sequential numbers for processing
         let line_range = expand_line_range(&modification.line_numbers);
-        
+
         // Adjust line numbers based on previous modifications
         let original_start = line_range[0] as usize - 1;
         let original_end = line_range[line_range.len() - 1] as usize - 1;
@@ -203,12 +201,8 @@ fn apply_modifications_to_content(content: &str, modifications: &[Modification],
         // Apply the modification
         let prefix = modified_lines[..adjusted_start].to_vec();
         let suffix = modified_lines[adjusted_start + old_length..].to_vec();
-        
-        modified_lines = [
-            prefix,
-            new_lines,
-            suffix,
-        ].concat();
+
+        modified_lines = [prefix, new_lines, suffix].concat();
     }
 
     Ok(modified_lines.join("\n"))
@@ -221,11 +215,13 @@ pub struct ModifyFilesOutput {
     files: Vec<FileEnum>,
 }
 
-pub struct ModifyDashboardFilesTool;
+pub struct ModifyDashboardFilesTool {
+    agent: Arc<Agent>,
+}
 
 impl ModifyDashboardFilesTool {
-    pub fn new() -> Self {
-        Self
+    pub fn new(agent: Arc<Agent>) -> Self {
+        Self { agent }
     }
 }
 
@@ -239,30 +235,33 @@ impl ToolExecutor for ModifyDashboardFilesTool {
         "modify_dashboard_files".to_string()
     }
 
-    async fn execute(
-        &self,
-        tool_call: &ToolCall,
-        user_id: &Uuid,
-        session_id: &Uuid,
-    ) -> Result<Self::Output> {
+    async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
         let start_time = Instant::now();
 
-        debug!("Starting dashboard file modification execution");
+        debug!("Starting file modification execution");
 
-        let params: ModifyFilesParams = match serde_json::from_str(&tool_call.function.arguments.clone()) {
-            Ok(params) => params,
-            Err(e) => {
-                let duration = start_time.elapsed().as_millis() as i64;
-                return Ok(ModifyFilesOutput {
-                    message: format!("Failed to parse modification parameters: {}", e),
-                    files: Vec::new(),
-                    duration,
-                });
-            }
-        };
-        
-        info!("Processing {} dashboard files for modification", params.files.len());
-        
+        let params: ModifyFilesParams =
+            match serde_json::from_str(&tool_call.function.arguments.clone()) {
+                Ok(params) => params,
+                Err(e) => {
+                    let duration = start_time.elapsed().as_millis() as i64;
+                    return Ok(ModifyFilesOutput {
+                        message: format!("Failed to parse modification parameters: {}", e),
+                        files: Vec::new(),
+                        duration,
+                    });
+                }
+            };
+
+        // Get current thread for context
+        let current_thread = self
+            .agent
+            .get_current_thread()
+            .await
+            .ok_or_else(|| anyhow::anyhow!("No current thread"))?;
+
+        info!("Processing {} files for modification", params.files.len());
+
         // Initialize batch processing structures
         let mut batch = FileModificationBatch {
             dashboard_files: Vec::new(),
@@ -273,7 +272,8 @@ impl ToolExecutor for ModifyDashboardFilesTool {
 
         // Collect file IDs and create map
         let dashboard_ids: Vec<Uuid> = params.files.iter().map(|f| f.id).collect();
-        let file_map: std::collections::HashMap<_, _> = params.files.iter().map(|f| (f.id, f)).collect();
+        let file_map: std::collections::HashMap<_, _> =
+            params.files.iter().map(|f| (f.id, f)).collect();
 
         // Get database connection
         let mut conn = match get_pg_pool().get().await {
@@ -300,17 +300,22 @@ impl ToolExecutor for ModifyDashboardFilesTool {
                 Ok(files) => {
                     for file in files {
                         if let Some(modifications) = file_map.get(&file.id) {
-                            match process_dashboard_file(file, modifications, start_time.elapsed().as_millis() as i64).await {
+                            match process_dashboard_file(
+                                file,
+                                modifications,
+                                start_time.elapsed().as_millis() as i64,
+                            )
+                            .await
+                            {
                                 Ok((dashboard_file, dashboard_yml, results)) => {
                                     batch.dashboard_files.push(dashboard_file);
                                     batch.dashboard_ymls.push(dashboard_yml);
                                     batch.modification_results.extend(results);
                                 }
                                 Err(e) => {
-                                    batch.failed_modifications.push((
-                                        modifications.file_name.clone(),
-                                        e.to_string(),
-                                    ));
+                                    batch
+                                        .failed_modifications
+                                        .push((modifications.file_name.clone(), e.to_string()));
                                 }
                             }
                         }
@@ -350,7 +355,9 @@ impl ToolExecutor for ModifyDashboardFilesTool {
                 .await
             {
                 Ok(_) => {
-                    output.files.extend(batch.dashboard_ymls.into_iter().map(FileEnum::Dashboard));
+                    output
+                        .files
+                        .extend(batch.dashboard_ymls.into_iter().map(FileEnum::Dashboard));
                 }
                 Err(e) => {
                     batch.failed_modifications.push((
@@ -363,10 +370,16 @@ impl ToolExecutor for ModifyDashboardFilesTool {
 
         // Generate final message
         if batch.failed_modifications.is_empty() {
-            output.message = format!("Successfully modified {} dashboard files.", output.files.len());
+            output.message = format!(
+                "Successfully modified {} dashboard files.",
+                output.files.len()
+            );
         } else {
             let success_msg = if !output.files.is_empty() {
-                format!("Successfully modified {} dashboard files. ", output.files.len())
+                format!(
+                    "Successfully modified {} dashboard files. ",
+                    output.files.len()
+                )
             } else {
                 String::new()
             };
@@ -455,9 +468,9 @@ async fn process_dashboard_file(
         file_name = %modification.file_name,
         "Processing dashboard file modifications"
     );
-    
+
     let mut results = Vec::new();
-    
+
     // Parse existing content
     let current_yml: DashboardYml = match serde_json::from_value(file.content.clone()) {
         Ok(yml) => yml,
@@ -483,7 +496,7 @@ async fn process_dashboard_file(
             return Err(anyhow::anyhow!(error));
         }
     };
-    
+
     // Convert to YAML string for line modifications
     let current_content = match serde_yaml::to_string(&current_yml) {
         Ok(content) => content,
@@ -509,18 +522,22 @@ async fn process_dashboard_file(
             return Err(anyhow::anyhow!(error));
         }
     };
-    
+
     // Track original line numbers before modifications
     let mut original_lines = Vec::new();
     let mut adjusted_lines = Vec::new();
-    
+
     // Apply modifications
     for m in &modification.modifications {
         original_lines.extend(m.line_numbers.clone());
     }
-    
+
     // Apply modifications and track results
-    match apply_modifications_to_content(&current_content, &modification.modifications, &modification.file_name) {
+    match apply_modifications_to_content(
+        &current_content,
+        &modification.modifications,
+        &modification.file_name,
+    ) {
         Ok(modified_content) => {
             // Create and validate new YML object
             match DashboardYml::new(modified_content) {
@@ -532,7 +549,8 @@ async fn process_dashboard_file(
                     );
 
                     // Collect all metric IDs from rows
-                    let metric_ids: Vec<Uuid> = new_yml.rows
+                    let metric_ids: Vec<Uuid> = new_yml
+                        .rows
                         .iter()
                         .flat_map(|row| row.items.iter())
                         .map(|item| item.id)
@@ -542,7 +560,8 @@ async fn process_dashboard_file(
                     if !metric_ids.is_empty() {
                         match validate_metric_ids(&metric_ids).await {
                             Ok(missing_ids) if !missing_ids.is_empty() => {
-                                let error = format!("Referenced metrics not found: {:?}", missing_ids);
+                                let error =
+                                    format!("Referenced metrics not found: {:?}", missing_ids);
                                 error!(
                                     file_id = %file.id,
                                     file_name = %modification.file_name,
@@ -561,7 +580,7 @@ async fn process_dashboard_file(
                                     duration,
                                 });
                                 return Err(anyhow::anyhow!(error));
-                            },
+                            }
                             Err(e) => {
                                 let error = format!("Failed to validate metric IDs: {}", e);
                                 error!(
@@ -582,15 +601,15 @@ async fn process_dashboard_file(
                                     duration,
                                 });
                                 return Err(anyhow::anyhow!(error));
-                            },
+                            }
                             Ok(_) => (), // All metrics exist
                         }
                     }
-                    
+
                     // Update file record
                     file.content = serde_json::to_value(&new_yml)?;
                     file.updated_at = Utc::now();
-                    
+
                     // Track successful modification
                     results.push(ModificationResult {
                         file_id: file.id,
@@ -603,7 +622,7 @@ async fn process_dashboard_file(
                         timestamp: Utc::now(),
                         duration,
                     });
-                    
+
                     Ok((file, new_yml, results))
                 }
                 Err(e) => {
@@ -655,6 +674,8 @@ async fn process_dashboard_file(
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
     use super::*;
     use chrono::Utc;
     use serde_json::json;
@@ -675,7 +696,9 @@ mod tests {
 
         // Test invalid range (end < start)
         let invalid_range_err = validate_line_numbers(&[5, 3]).unwrap_err();
-        assert!(invalid_range_err.to_string().contains("must be greater than or equal to"));
+        assert!(invalid_range_err
+            .to_string()
+            .contains("must be greater than or equal to"));
 
         // Test starting below 1
         let invalid_start_err = validate_line_numbers(&[0, 2]).unwrap_err();
@@ -685,14 +708,17 @@ mod tests {
     #[test]
     fn test_apply_modifications_to_content() {
         let original_content = "line1\nline2\nline3\nline4\nline5";
-        
+
         // Test single modification replacing two lines
         let mods1 = vec![Modification {
             new_content: "new line2\nnew line3".to_string(),
             line_numbers: vec![2, 3], // Replace lines 2-3
         }];
         let result1 = apply_modifications_to_content(original_content, &mods1, "test.yml").unwrap();
-        assert_eq!(result1.trim_end(), "line1\nnew line2\nnew line3\nline4\nline5");
+        assert_eq!(
+            result1.trim_end(),
+            "line1\nnew line2\nnew line3\nline4\nline5"
+        );
 
         // Test multiple non-overlapping modifications
         let mods2 = vec![
@@ -706,7 +732,10 @@ mod tests {
             },
         ];
         let result2 = apply_modifications_to_content(original_content, &mods2, "test.yml").unwrap();
-        assert_eq!(result2.trim_end(), "line1\nnew line2\nline3\nnew line4\nline5");
+        assert_eq!(
+            result2.trim_end(),
+            "line1\nnew line2\nline3\nnew line4\nline5"
+        );
 
         // Test overlapping modifications (should fail)
         let mods3 = vec![
@@ -764,8 +793,15 @@ mod tests {
 
     #[test]
     fn test_tool_parameter_validation() {
-        let tool = ModifyDashboardFilesTool;
-        
+        let tool = ModifyDashboardFilesTool {
+            agent: Arc::new(Agent::new(
+                "o3-mini".to_string(),
+                HashMap::new(),
+                Uuid::new_v4(),
+                Uuid::new_v4(),
+            )),
+        };
+
         // Test valid parameters
         let valid_params = json!({
             "files": [{
@@ -792,4 +828,4 @@ mod tests {
         let result = serde_json::from_str::<ModifyFilesParams>(&missing_args);
         assert!(result.is_err());
     }
-} 
+}
