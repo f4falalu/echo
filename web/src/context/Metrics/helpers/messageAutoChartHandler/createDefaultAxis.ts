@@ -1,5 +1,5 @@
 import { DEFAULT_CHART_CONFIG, type ColumnMetaData } from '@/api/asset_interfaces';
-import type { BarAndLineAxis, PieChartAxis, ScatterAxis } from '@/components/charts';
+import type { BarAndLineAxis, PieChartAxis, ScatterAxis } from '@/components/ui/charts';
 
 export const createDefaultBarAndLineAxis = (
   columnsMetaData: ColumnMetaData[] | undefined

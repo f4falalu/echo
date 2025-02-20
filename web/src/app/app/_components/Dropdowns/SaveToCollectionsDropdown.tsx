@@ -1,6 +1,6 @@
-import { AppDropdownSelect } from '@/components/dropdown';
+import { AppDropdownSelect } from '@/components/ui/dropdown';
 import { AppMaterialIcons } from '@/components/icons';
-import { AppTooltip } from '@/components/tooltip';
+import { AppTooltip } from '@/components/ui/tooltip';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useBusterCollectionListContextSelector } from '@/context/Collections';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';

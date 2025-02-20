@@ -6,7 +6,7 @@ import { useMemoizedFn } from 'ahooks';
 import { EditMetricAggregate } from './EditMetricType';
 import { EditMetricHeader } from './EditMetricHeaderType';
 import { Divider } from 'antd';
-import { DerivedMetricTitle } from '@/components/charts';
+import { DerivedMetricTitle } from '@/components/ui/charts';
 import { EditHeaderTitle } from './EditHeaderTitle';
 import { createColumnFieldOptions } from './helpers';
 import { createStyles } from 'antd-style';

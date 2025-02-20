@@ -2,14 +2,14 @@ import React, { useMemo } from 'react';
 import { useSelectAxisContextSelector } from '../useSelectAxisContext';
 import { SelectAxisContainerId } from '../config';
 import { EditShowAxisTitle } from './EditShowAxisTitle';
-import type { ColumnLabelFormat } from '@/components/charts/interfaces';
+import type { ColumnLabelFormat } from '@/components/ui/charts/interfaces';
 import { formatLabel } from '@/utils';
 import { useMemoizedFn } from 'ahooks';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { EditShowAxisLabel } from './EditShowAxisLabel';
 import { EditAxisScale } from './EditAxisScale';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { AXIS_TITLE_SEPARATOR } from '@/components/charts/commonHelpers';
+import { AXIS_TITLE_SEPARATOR } from '@/components/ui/charts/commonHelpers';
 
 export const YAxisSettingContent: React.FC<{
   zoneId: SelectAxisContainerId;

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import type { MetricViewProps } from '../config';
-import { CodeCard } from '@/components/card';
+import { CodeCard } from '@/components/ui/card';
 import { useMetricIndividual, useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';
 import { SaveResetFilePopup } from '@appComponents/Popups/SaveResetFilePopup';

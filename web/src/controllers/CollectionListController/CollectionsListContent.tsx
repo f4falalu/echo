@@ -10,7 +10,7 @@ import {
   BusterListColumn,
   BusterListRow,
   ListEmptyStateWithButton
-} from '@/components/list';
+} from '@/components/ui/list';
 import { useMemoizedFn } from 'ahooks';
 import { NewCollectionModal } from '@appComponents/NewCollectionModal';
 import { BusterCollectionListItem } from '@/api/asset_interfaces';

@@ -1,4 +1,4 @@
-import type { IColumnLabelFormat } from '@/components/charts/interfaces/columnLabelInterfaces';
+import type { IColumnLabelFormat } from '@/components/ui/charts/interfaces/columnLabelInterfaces';
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 import { AppSegmented } from '@/components';

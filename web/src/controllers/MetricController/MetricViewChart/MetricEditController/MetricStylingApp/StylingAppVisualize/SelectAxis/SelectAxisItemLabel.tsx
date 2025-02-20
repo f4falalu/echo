@@ -1,4 +1,4 @@
-import { IColumnLabelFormat } from '@/components/charts';
+import { IColumnLabelFormat } from '@/components/ui/charts';
 import { formatLabel } from '@/utils';
 import React, { useMemo } from 'react';
 import { Text } from '@/components/text';

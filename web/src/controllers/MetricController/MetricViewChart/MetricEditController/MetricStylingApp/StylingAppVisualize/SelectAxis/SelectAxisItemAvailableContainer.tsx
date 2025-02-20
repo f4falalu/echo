@@ -8,7 +8,7 @@ import { AppMaterialIcons } from '@/components/icons';
 import { Button } from 'antd';
 import { useMemoizedFn } from 'ahooks';
 import { SelectAxisColumnPopover } from './SelectAxisColumnPopover';
-import type { ChartEncodes, IColumnLabelFormat } from '@/components/charts';
+import type { ChartEncodes, IColumnLabelFormat } from '@/components/ui/charts';
 import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { SelectAxisContainerId } from './config';
 

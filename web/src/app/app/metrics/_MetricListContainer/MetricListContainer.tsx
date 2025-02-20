@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { AppContent } from '../../../../components/layout/AppContent';
+import { AppContent } from '../../../../components/ui/layout/AppContent';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn, useMount } from 'ahooks';
 import { VerificationStatus } from '@/api/asset_interfaces';

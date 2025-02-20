@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useMemo, useRef } from 'react';
 import { Modal, Button, Divider, Input, InputRef } from 'antd';
 import { AppMaterialIcons, AppSegmented, asset_typeToIcon, Text } from '@/components';
-import { BusterList, BusterListColumn, BusterListRow } from '@/components/list';
+import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { useMemoizedFn, useThrottleFn } from 'ahooks';
 import { boldHighlights, formatDate } from '@/utils';
 import {
@@ -9,7 +9,7 @@ import {
   type BusterSearchResult,
   ShareAssetType
 } from '@/api/asset_interfaces';
-import { CircleSpinnerLoaderContainer } from '@/components/loaders';
+import { CircleSpinnerLoaderContainer } from '@/components/ui/loaders';
 import { BusterCollection } from '@/api/asset_interfaces';
 import { useBusterSearchContextSelector } from '@/context/Search';
 import isEmpty from 'lodash/isEmpty';

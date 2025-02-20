@@ -1,6 +1,6 @@
 import React from 'react';
 import { AppPopover } from '@/components';
-import { ChartEncodes, IColumnLabelFormat } from '@/components/charts';
+import { ChartEncodes, IColumnLabelFormat } from '@/components/ui/charts';
 import { SelectAxisDropdownContent } from './SelectAxisColumnContent';
 import { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { SelectAxisContainerId } from './config';
@@ -27,7 +27,7 @@ export const SelectAxisColumnPopover = React.memo(
         destroyTooltipOnHide
         placement="leftBottom"
         content={
-          <SelectAxisDropdownContent {...props} className="w-full min-w-[315px] max-w-[315px]" />
+          <SelectAxisDropdownContent {...props} className="w-full max-w-[315px] min-w-[315px]" />
         }>
         {children}
       </AppPopover>

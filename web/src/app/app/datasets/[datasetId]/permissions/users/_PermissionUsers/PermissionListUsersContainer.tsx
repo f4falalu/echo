@@ -8,8 +8,8 @@ import {
   BusterListRowItem,
   EmptyStateList,
   InfiniteListContainer
-} from '@/components/list';
-import { BusterInfiniteList } from '@/components/list/BusterInfiniteList';
+} from '@/components/ui/list';
+import { BusterInfiniteList } from '@/components/ui/list/BusterInfiniteList';
 import { useMemoizedFn } from 'ahooks';
 import { Select } from 'antd';
 import React, { useMemo, useState } from 'react';

@@ -5,11 +5,11 @@ import { StatusBadgeIndicator, getShareStatus } from '../../_components/Lists';
 import { BusterUserAvatar, Text } from '@/components';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
-import { BusterListColumn, BusterListRow } from '@/components/list';
+import { BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { ChatSelectedOptionPopup } from './ChatItemsSelectedPopup';
-import { BusterList, ListEmptyStateWithButton } from '@/components/list';
+import { BusterList, ListEmptyStateWithButton } from '@/components/ui/list';
 import { FavoriteStar } from '../../_components/Lists';
-import { useCreateListByDate } from '@/components/list/useCreateListByDate';
+import { useCreateListByDate } from '@/components/ui/list/useCreateListByDate';
 
 export const ChatItemsContainer: React.FC<{
   chats: BusterChatListItem[];

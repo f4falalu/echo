@@ -1,5 +1,5 @@
 import { AppMaterialIcons } from '@/components/icons/AppMaterialIcons';
-import { ChartType, type IColumnLabelFormat } from '@/components/charts';
+import { ChartType, type IColumnLabelFormat } from '@/components/ui/charts';
 import React from 'react';
 
 export const ColumnTypeIcon: Record<

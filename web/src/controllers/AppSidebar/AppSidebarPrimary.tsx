@@ -6,7 +6,7 @@ import type { MenuProps } from 'antd';
 import { AppMaterialIcons } from '@/components';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import Link from 'next/link';
-import { AppMenuGroupSingle } from '@/components/menu/AppMenuGroupSingle';
+import { AppMenuGroupSingle } from '@/components/ui/menu/AppMenuGroupSingle';
 import { FavoritesDropdown } from './FavoritesDropdown';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useMemoizedFn } from 'ahooks';

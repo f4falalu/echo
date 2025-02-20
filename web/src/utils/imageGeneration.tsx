@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { timeout } from './timeout';
 import { BusterLogoWithTextBW } from '@/assets/svg/BusterLogoWithTextBW';
 import React, { useEffect, useRef } from 'react';
-import { BusterChart } from '@/components/charts';
+import { BusterChart } from '@/components/ui/charts';
 import type { BusterMetricData } from '@/context/MetricData';
 
 export const generateChartDownloadImage = async (

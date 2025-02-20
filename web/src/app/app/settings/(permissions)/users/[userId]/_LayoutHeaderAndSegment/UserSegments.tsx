@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { AppSegmented } from '@/components/segmented';
+import { AppSegmented } from '@/components/ui/segmented';
 import { useMemoizedFn } from 'ahooks';
 import { SegmentedValue } from 'antd/es/segmented';
 import { Divider } from 'antd';

@@ -1,4 +1,4 @@
-import { BackButton } from '@/components/buttons/BackButton';
+import { BackButton } from '@/components/ui/buttons/BackButton';
 import { createBusterRoute, BusterRoutes } from '@/routes/busterRoutes';
 
 export const DatasetGroupBackButton = ({}: {}) => {

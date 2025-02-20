@@ -1,5 +1,5 @@
 import { BusterChatMessageReasoning_status } from '@/api/asset_interfaces';
-import { StatusIndicator } from '@/components/indicators';
+import { StatusIndicator } from '@/components/ui/indicators';
 import { createStyles } from 'antd-style';
 import { motion } from 'framer-motion';
 import { AnimatePresence } from 'framer-motion';

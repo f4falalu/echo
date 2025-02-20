@@ -1,17 +1,17 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { AppContent } from '@/components/layout/AppContent';
+import { AppContent } from '@/components/ui/layout/AppContent';
 import { useBusterTermsIndividualContextSelector, useBusterTermsIndividual } from '@/context/Terms';
 import { Dropdown, Input } from 'antd';
 import { useDebounceFn } from 'ahooks';
 import { formatDate } from '@/utils';
 import { AppMaterialIcons, EditableTitle } from '@/components';
 import { useAntToken } from '@/styles/useAntToken';
-import { AppCodeEditor } from '@/components/inputs/AppCodeEditor';
+import { AppCodeEditor } from '@/components/ui/inputs/AppCodeEditor';
 import clamp from 'lodash/clamp';
 import { MenuProps } from 'antd/lib';
-import { ItemContainer } from '@/components/card/ItemContainer';
+import { ItemContainer } from '@/components/ui/card/ItemContainer';
 import { Text } from '@/components';
 import { BusterRoutes } from '@/routes';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';

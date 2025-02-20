@@ -1,4 +1,4 @@
-import { BusterUserAvatar, BusterAvatar } from '@/components/image';
+import { BusterUserAvatar, BusterAvatar } from '@/components/ui/image';
 import { createStyles } from 'antd-style';
 import React from 'react';
 

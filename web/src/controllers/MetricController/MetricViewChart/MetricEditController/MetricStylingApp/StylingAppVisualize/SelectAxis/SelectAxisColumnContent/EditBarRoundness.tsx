@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 import { InputNumber, Slider } from 'antd';
-import { ColumnSettings } from '@/components/charts';
+import { ColumnSettings } from '@/components/ui/charts';
 import { useMemoizedFn } from 'ahooks';
 
 const BAR_ROUNDNESS_MIN = 0;

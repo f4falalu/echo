@@ -1,6 +1,6 @@
 import type { BusterMetric } from '@/api/asset_interfaces';
 import { AppMaterialIcons, Title, Text } from '@/components';
-import { SortableItemContext } from '@/components/grid/_BusterSortableItemDragContainer';
+import { SortableItemContext } from '@/components/ui/grid/_BusterSortableItemDragContainer';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';
 import { MenuProps, Dropdown, Button } from 'antd';
@@ -51,7 +51,7 @@ export const MetricTitle: React.FC<{
             <Title
               {...titleConfig}
               level={4}
-              className="max-w-[calc(100%_-_22px)] text-md!"
+              className="text-md! max-w-[calc(100%_-_22px)]"
               style={{ fontSize: '14px' }}>
               {`${title}`}
             </Title>
@@ -60,7 +60,7 @@ export const MetricTitle: React.FC<{
               <></>
             ) : (
               <ThreeDotMenu
-                className="absolute right-[12px] top-[5px] opacity-0 transition group-hover:opacity-100"
+                className="absolute top-[5px] right-[12px] opacity-0 transition group-hover:opacity-100"
                 dashboardId={dashboardId}
                 metricId={metricId}
               />
@@ -69,7 +69,7 @@ export const MetricTitle: React.FC<{
 
           <div className="flex w-full items-center overflow-hidden">
             <Text
-              className={`flex w-full text-nowrap pr-2 ${
+              className={`flex w-full pr-2 text-nowrap ${
                 timeFrame || description ? 'visible' : 'hidden'
               }`}
               size="sm"

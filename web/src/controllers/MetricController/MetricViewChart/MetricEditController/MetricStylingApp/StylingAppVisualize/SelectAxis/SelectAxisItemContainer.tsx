@@ -5,7 +5,7 @@ import { useMemoizedFn } from 'ahooks';
 import { chartTypeToAxis, SelectAxisContainerId, zoneIdToAxis } from './config';
 import { SelectAxisDropdownContent } from './SelectAxisColumnContent';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
-import { ChartEncodes, IColumnLabelFormat } from '@/components/charts';
+import { ChartEncodes, IColumnLabelFormat } from '@/components/ui/charts';
 import { CollapseDelete } from '../../Common/CollapseDelete';
 import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { DraggableAttributes } from '@dnd-kit/core';

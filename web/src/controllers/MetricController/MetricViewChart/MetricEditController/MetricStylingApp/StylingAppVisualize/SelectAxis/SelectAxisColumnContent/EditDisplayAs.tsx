@@ -2,7 +2,7 @@ import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 import { AppMaterialIcons, AppSegmented, AppTooltip } from '@/components';
-import { ChartType, ColumnSettings } from '@/components/charts/interfaces';
+import { ChartType, ColumnSettings } from '@/components/ui/charts/interfaces';
 import { useEditAppSegmented } from './useEditAppSegmented';
 
 const options = [

@@ -1,4 +1,4 @@
-import { Trendline } from '@/components/charts/interfaces';
+import { Trendline } from '@/components/ui/charts/interfaces';
 import { LoopTrendline } from './EditTrendline';
 
 export const trendlineOptions: {

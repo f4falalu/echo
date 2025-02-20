@@ -1,6 +1,6 @@
 import type { IBusterMetricChartConfig, ColumnMetaData } from '@/api/asset_interfaces';
 import { AppPopover, AppMaterialIcons } from '@/components';
-import type { IColumnLabelFormat, DerivedMetricTitle } from '@/components/charts';
+import type { IColumnLabelFormat, DerivedMetricTitle } from '@/components/ui/charts';
 import { formatLabel, isNumericColumnType, isNumericColumnStyle } from '@/utils';
 import { useMemoizedFn } from 'ahooks';
 import { Input, Button, Divider, Switch, Select } from 'antd';

@@ -9,7 +9,7 @@ import { Text } from '@/components/text';
 import { motion, AnimatePresence } from 'framer-motion';
 import { itemAnimationConfig } from '@appComponents/Streaming/animationConfig';
 import { useMemoizedFn } from 'ahooks';
-import { StatusIndicator } from '@/components/indicators';
+import { StatusIndicator } from '@/components/ui/indicators';
 import { useChatLayoutContextSelector } from '../../../../ChatLayoutContext';
 import { useChatIndividualContextSelector } from '../../../../ChatContext';
 import { VersionPill } from '@appComponents/Text/VersionPill';

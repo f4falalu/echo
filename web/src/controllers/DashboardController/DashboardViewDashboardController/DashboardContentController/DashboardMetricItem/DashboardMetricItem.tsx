@@ -2,7 +2,7 @@ import { createStyles } from 'antd-style';
 import React, { useMemo } from 'react';
 import { Card } from 'antd';
 import { useDashboardMetric } from './useDashboardMetric';
-import { BusterChart } from '@/components/charts';
+import { BusterChart } from '@/components/ui/charts';
 import { MetricTitle } from './MetricTitle';
 import { createBusterRoute, BusterRoutes } from '@/routes';
 import { useMemoizedFn } from 'ahooks';

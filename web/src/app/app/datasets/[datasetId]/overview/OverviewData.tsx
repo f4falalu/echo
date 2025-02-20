@@ -1,6 +1,6 @@
 import type { IDataResult } from '@/api/asset_interfaces';
 import { ShimmerText } from '@/components';
-import AppDataGrid from '@/components/table/AppDataGrid';
+import AppDataGrid from '@/components/ui/table/AppDataGrid';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useAntToken } from '@/styles/useAntToken';
 import React from 'react';

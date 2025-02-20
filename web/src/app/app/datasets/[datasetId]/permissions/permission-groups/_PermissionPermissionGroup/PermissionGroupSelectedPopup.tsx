@@ -1,4 +1,4 @@
-import { BusterListSelectedOptionPopupContainer } from '@/components/list';
+import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { Button, Dropdown, MenuProps } from 'antd';
 import React, { useMemo } from 'react';
 import { useMemoizedFn } from 'ahooks';

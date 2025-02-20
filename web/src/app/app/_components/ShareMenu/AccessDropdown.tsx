@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { Dropdown, Divider, MenuProps } from 'antd';
 import { AppMaterialIcons } from '@/components/icons';
 import { ShareRole } from '@/api/asset_interfaces';
-import { DropdownLabel } from '@/components/dropdown';
+import { DropdownLabel } from '@/components/ui/dropdown';
 import { Text } from '@/components';
 import { useMemoizedFn } from 'ahooks';
 

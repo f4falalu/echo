@@ -16,7 +16,7 @@ import {
   ComboChartAxis,
   PieChartAxis,
   ScatterAxis
-} from '@/components/charts';
+} from '@/components/ui/charts';
 
 const DEFAULT_COLUMN_SETTINGS_ENTRIES = Object.entries(DEFAULT_COLUMN_SETTINGS);
 const DEFAULT_COLUMN_LABEL_FORMATS_ENTRIES = Object.entries(DEFAULT_COLUMN_LABEL_FORMAT);

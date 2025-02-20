@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { AppContentHeader } from '@/components/layout';
+import { AppContentHeader } from '@/components/ui/layout';
 import {
   canEditCollection,
   useBusterCollectionIndividualContextSelector
@@ -17,7 +17,7 @@ import { BusterCollection, ShareAssetType } from '@/api/asset_interfaces';
 import { Text } from '@/components';
 import { useAntToken } from '@/styles/useAntToken';
 import { useMemoizedFn } from 'ahooks';
-import { BreadcrumbSeperator } from '@/components/breadcrumb';
+import { BreadcrumbSeperator } from '@/components/ui/breadcrumb';
 import { measureTextWidth } from '@/utils/canvas';
 
 export const CollectionsIndividualHeader: React.FC<{

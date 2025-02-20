@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import isEmpty from 'lodash/isEmpty';
-import { BusterResizeableGrid, BusterResizeableGridRow } from '@/components/grid';
+import { BusterResizeableGrid, BusterResizeableGridRow } from '@/components/ui/grid';
 import { useDebounceFn, useMemoizedFn } from 'ahooks';
 import { hasRemovedMetrics, hasUnmappedMetrics, normalizeNewMetricsIntoGrid } from './helpers';
 import { DashboardMetricItem } from './DashboardMetricItem';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
-import type { IColumnLabelFormat } from '@/components/charts/interfaces/columnLabelInterfaces';
+import type { IColumnLabelFormat } from '@/components/ui/charts/interfaces/columnLabelInterfaces';
 import { InputNumber } from 'antd';
 
 export const EditMultiplyBy: React.FC<{

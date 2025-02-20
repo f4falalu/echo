@@ -1,7 +1,7 @@
 import { Input, InputRef } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useMemoizedFn } from 'ahooks';
-import { AppModal } from '@/components/modal';
+import { AppModal } from '@/components/ui/modal';
 import { useCreateTeam } from '@/api/buster_rest';
 
 export const NewTeamModal: React.FC<{

@@ -10,8 +10,8 @@ import { MetadataContainer } from './MetadataContainer';
 import { runSQL } from '@/api/buster_rest';
 import type { RustApiError } from '@/api/buster_rest/errors';
 import isEmpty from 'lodash/isEmpty';
-import type { AppSplitterRef } from '@/components/layout/AppSplitter';
-import { AppVerticalCodeSplitter } from '@/components/layout/AppVerticalCodeSplitter';
+import type { AppSplitterRef } from '@/components/ui/layout/AppSplitter';
+import { AppVerticalCodeSplitter } from '@/components/ui/layout/AppVerticalCodeSplitter';
 
 export const EditorContent: React.FC<{
   defaultLayout: [string, string];

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { CodeCard } from '@/components/card';
+import { CodeCard } from '@/components/ui/card';
 import { useMemoizedFn } from 'ahooks';
 import { SaveResetFilePopup } from '@appComponents/Popups/SaveResetFilePopup';
 import { useBusterNotifications } from '@/context/BusterNotifications';

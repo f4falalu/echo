@@ -1,6 +1,6 @@
 import { BusterTerm } from '@/api/buster_rest';
 import { AppTooltip, AppMaterialIcons } from '@/components';
-import { AppDropdownSelectProps, AppDropdownSelect } from '@/components/dropdown';
+import { AppDropdownSelectProps, AppDropdownSelect } from '@/components/ui/dropdown';
 import { createStyles } from 'antd-style';
 import React, { useMemo } from 'react';
 import { Button } from 'antd';

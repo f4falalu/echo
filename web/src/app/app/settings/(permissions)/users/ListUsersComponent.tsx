@@ -5,7 +5,7 @@ import {
   BusterListRowItem,
   EmptyStateList,
   InfiniteListContainer
-} from '@/components/list';
+} from '@/components/ui/list';
 import React, { useMemo, useState } from 'react';
 import { Text } from '@/components/text';
 import { OrganizationUserRoleText } from './config';

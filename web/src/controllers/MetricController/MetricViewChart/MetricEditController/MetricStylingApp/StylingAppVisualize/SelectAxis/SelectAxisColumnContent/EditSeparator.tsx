@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { IColumnLabelFormat } from '@/components/charts/interfaces/columnLabelInterfaces';
+import type { IColumnLabelFormat } from '@/components/ui/charts/interfaces/columnLabelInterfaces';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 import { Select } from 'antd';
 

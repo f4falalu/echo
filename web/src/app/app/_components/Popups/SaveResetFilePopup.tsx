@@ -1,4 +1,4 @@
-import { PopupContainer, PopupSplitter } from '@/components/popup';
+import { PopupContainer, PopupSplitter } from '@/components/ui/popup';
 import React from 'react';
 import { Text } from '@/components/text';
 import { Button } from 'antd';

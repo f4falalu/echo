@@ -1,5 +1,5 @@
 import { AppMaterialIcons } from '@/components/icons';
-import { BusterListSelectedOptionPopupContainer } from '@/components/list';
+import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { Button } from 'antd';
 import React from 'react';

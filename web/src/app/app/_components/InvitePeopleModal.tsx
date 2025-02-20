@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { useMemoizedFn } from 'ahooks';
 import { AppModal } from '@/components';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { AppSelectTagInput } from '@/components/select/AppSelectTagInput';
+import { AppSelectTagInput } from '@/components/ui/select/AppSelectTagInput';
 import { Tag } from 'antd';
 
 export const InvitePeopleModal: React.FC<{

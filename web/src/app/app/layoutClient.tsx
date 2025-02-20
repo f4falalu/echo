@@ -5,7 +5,7 @@ import React from 'react';
 import { AppLayout } from '@/controllers/AppLayout';
 import type { BusterUserResponse } from '@/api/asset_interfaces';
 import { useSupabaseServerContext } from '@/context/Supabase/useSupabaseContext';
-import { GlobalErrorComponent } from '../../components/error';
+import { GlobalErrorComponent } from '../../components/ui/error';
 
 export const AppLayoutClient = ({
   children,

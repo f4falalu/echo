@@ -5,7 +5,7 @@ import { LabelAndInput } from '../../Common';
 import last from 'lodash/last';
 import { useMemoizedFn } from 'ahooks';
 import { isNumericColumnStyle, isNumericColumnType } from '@/utils';
-import { ColumnLabelFormat } from '@/components/charts';
+import { ColumnLabelFormat } from '@/components/ui/charts';
 
 export const AGGREGATE_OPTIONS: {
   label: string;

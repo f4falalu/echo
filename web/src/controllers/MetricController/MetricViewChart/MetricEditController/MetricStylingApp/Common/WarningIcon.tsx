@@ -1,5 +1,5 @@
 import { AppMaterialIcons } from '@/components/icons';
-import { AppPopover } from '@/components/tooltip';
+import { AppPopover } from '@/components/ui/tooltip';
 import type { PopoverProps } from 'antd';
 import { createStyles } from 'antd-style';
 import React from 'react';

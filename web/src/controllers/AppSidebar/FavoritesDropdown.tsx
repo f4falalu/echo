@@ -1,6 +1,6 @@
 import type { BusterUserFavorite } from '@/api/asset_interfaces';
 import { ShareAssetType } from '@/api/asset_interfaces';
-import { AppMenuGroupSingleSortable } from '@/components/menu';
+import { AppMenuGroupSingleSortable } from '@/components/ui/menu';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { BusterRoutes, createBusterRoute } from '@/routes';

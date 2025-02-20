@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import type { MetricViewProps } from '../config';
-import { AppSplitter, AppSplitterRef } from '@/components/layout';
+import { AppSplitter, AppSplitterRef } from '@/components/ui/layout';
 import { MetricViewChart } from './MetricViewChart';
 import { MetricEditController } from './MetricEditController';
 import { useMetricLayout } from '../useMetricLayout';

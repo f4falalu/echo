@@ -25,7 +25,7 @@ import {
   BLUE_THEME,
   BROWN_THEME,
   PINK_THEME
-} from '@/components/charts/configColors';
+} from '@/components/ui/charts/configColors';
 import { IColorTheme } from '../Common/interfaces';
 
 export enum ColorAppSegments {

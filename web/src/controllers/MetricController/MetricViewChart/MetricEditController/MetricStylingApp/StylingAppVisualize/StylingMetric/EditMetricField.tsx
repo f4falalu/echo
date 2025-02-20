@@ -8,7 +8,7 @@ import { useMemoizedFn } from 'ahooks';
 import { createColumnFieldOptions } from './helpers';
 import { AppMaterialIcons, AppPopover } from '@/components';
 import { SelectAxisDropdownContent } from '../SelectAxis/SelectAxisColumnContent';
-import { ChartType, DerivedMetricTitle } from '@/components/charts';
+import { ChartType, DerivedMetricTitle } from '@/components/ui/charts';
 import { SelectAxisContainerId } from '../SelectAxis/config';
 
 export const EditMetricField: React.FC<{
@@ -91,7 +91,7 @@ const StylingPopover: React.FC<{
       trigger="click"
       destroyTooltipOnHide
       content={
-        <div className="w-full min-w-[315px] max-w-[315px]">
+        <div className="w-full max-w-[315px] min-w-[315px]">
           <SelectAxisDropdownContent
             hideTitle
             columnLabelFormat={columnLabelFormat}

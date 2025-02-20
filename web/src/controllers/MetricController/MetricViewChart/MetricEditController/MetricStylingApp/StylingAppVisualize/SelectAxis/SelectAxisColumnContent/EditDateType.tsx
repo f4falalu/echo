@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 import { Select } from 'antd';
-import { IColumnLabelFormat } from '@/components/charts/interfaces';
+import { IColumnLabelFormat } from '@/components/ui/charts/interfaces';
 import { useMemoizedFn } from 'ahooks';
 import last from 'lodash/last';
 import first from 'lodash/first';

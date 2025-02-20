@@ -3,7 +3,7 @@ import {
   MySqlCreateCredentials
 } from '@/api/buster_socket/datasources/interface';
 import type { DataSource } from '@/api/asset_interfaces';
-import { AppSelectTagInput } from '@/components/select/AppSelectTagInput';
+import { AppSelectTagInput } from '@/components/ui/select/AppSelectTagInput';
 import { Form, Input, InputNumber } from 'antd';
 import React from 'react';
 import { FormWrapper } from './FormWrapper';

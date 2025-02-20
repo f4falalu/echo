@@ -1,4 +1,4 @@
-import { TextPulseLoader } from '@/components/loaders';
+import { TextPulseLoader } from '@/components/ui/loaders';
 import React from 'react';
 
 export const LoaderDot = React.memo(() => {

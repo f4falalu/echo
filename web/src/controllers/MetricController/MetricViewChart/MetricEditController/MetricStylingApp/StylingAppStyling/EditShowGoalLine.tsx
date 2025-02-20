@@ -5,7 +5,7 @@ import { CollapseDelete } from '../Common/CollapseDelete';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button, ColorPicker, Divider, Input, InputNumber, Switch } from 'antd';
 import { AppMaterialIcons } from '@/components/icons';
-import { ChartEncodes, GoalLine } from '@/components/charts';
+import { ChartEncodes, GoalLine } from '@/components/ui/charts';
 import { v4 as uuidv4 } from 'uuid';
 import { useMemoizedFn, useSet } from 'ahooks';
 import { ColumnMetaData } from '@/api/asset_interfaces';

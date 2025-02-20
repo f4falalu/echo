@@ -11,7 +11,7 @@ import {
   ChartType,
   MetricChartProps,
   ChartEncodes
-} from '@/components/charts';
+} from '@/components/ui/charts';
 import { ISelectAxisContext } from './SelectAxis/useSelectAxisContext';
 import { StylingMetric } from './StylingMetric';
 

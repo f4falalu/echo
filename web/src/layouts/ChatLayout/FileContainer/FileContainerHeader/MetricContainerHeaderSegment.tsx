@@ -1,6 +1,6 @@
 import React from 'react';
 import { FileContainerSegmentProps } from './interfaces';
-import { AppSegmented } from '@/components/segmented';
+import { AppSegmented } from '@/components/ui/segmented';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import type { FileView, MetricFileView } from '../../ChatLayoutContext/useChatFileLayout';
 import { SegmentedValue } from 'antd/es/segmented';

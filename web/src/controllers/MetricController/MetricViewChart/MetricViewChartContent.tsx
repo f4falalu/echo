@@ -1,5 +1,5 @@
 import type { DataMetadata } from '@/api/asset_interfaces';
-import { BusterChart, ChartType } from '@/components/charts';
+import { BusterChart, ChartType } from '@/components/ui/charts';
 import type { BusterMetricData } from '@/context/MetricData';
 import type { IBusterMetric } from '@/context/Metrics';
 import { createStyles } from 'antd-style';

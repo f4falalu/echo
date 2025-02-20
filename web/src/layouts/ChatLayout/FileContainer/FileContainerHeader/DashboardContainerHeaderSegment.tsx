@@ -1,7 +1,7 @@
 import React from 'react';
 import type { FileContainerSegmentProps } from './interfaces';
 import type { DashboardFileView, FileView } from '../../ChatLayoutContext/useChatFileLayout';
-import { AppSegmented } from '@/components/segmented';
+import { AppSegmented } from '@/components/ui/segmented';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { useMemoizedFn } from 'ahooks';
 import { SegmentedValue } from 'antd/es/segmented';

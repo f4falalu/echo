@@ -5,7 +5,7 @@ import {
   BusterListRowItem,
   EmptyStateList,
   InfiniteListContainer
-} from '@/components/list';
+} from '@/components/ui/list';
 import React, { useMemo } from 'react';
 
 export const UserAttributesListContainer: React.FC<{

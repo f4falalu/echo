@@ -7,7 +7,7 @@ import {
   ChartType,
   IColumnLabelFormat,
   Trendline
-} from '@/components/charts';
+} from '@/components/ui/charts';
 import { faker } from '@faker-js/faker';
 import { Checkbox, Select } from 'antd';
 import { useMemo, useState } from 'react';

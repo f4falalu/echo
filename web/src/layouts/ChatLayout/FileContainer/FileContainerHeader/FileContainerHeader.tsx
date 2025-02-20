@@ -1,4 +1,4 @@
-import { appContentHeaderHeight } from '@/components/layout';
+import { appContentHeaderHeight } from '@/components/ui/layout';
 import { createStyles } from 'antd-style';
 import React from 'react';
 import { CollapseFileButton } from './CollapseFileButton';

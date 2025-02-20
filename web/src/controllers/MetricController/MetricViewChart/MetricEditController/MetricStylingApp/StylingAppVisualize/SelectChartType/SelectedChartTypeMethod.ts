@@ -1,4 +1,4 @@
-import { ChartType } from '@/components/charts';
+import { ChartType } from '@/components/ui/charts';
 import { ChartIconType } from './config';
 import { SelectChartTypeProps } from './SelectChartType';
 import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';

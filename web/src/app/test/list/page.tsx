@@ -1,7 +1,7 @@
 'use client';
 
-import { BusterListColumn, BusterListRow } from '@/components/list';
-import { BusterListVirtua } from '@/components/list/BusterList/BusterListVirtua';
+import { BusterListColumn, BusterListRow } from '@/components/ui/list';
+import { BusterListVirtua } from '@/components/ui/list/BusterList/BusterListVirtua';
 import { faker } from '@faker-js/faker';
 import { useEffect, useState } from 'react';
 

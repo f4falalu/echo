@@ -1,4 +1,4 @@
-import { BusterChartConfigProps } from '@/components/charts';
+import { BusterChartConfigProps } from '@/components/ui/charts';
 import { BusterSocketRequestBase } from '../../buster_socket/base_interfaces';
 import { ShareRequest } from '../../buster_socket/shared_interfaces';
 import { VerificationStatus } from '@/api/asset_interfaces';

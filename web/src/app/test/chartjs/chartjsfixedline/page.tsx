@@ -1,7 +1,12 @@
 'use client';
 
 import { ColumnMetaData, DEFAULT_COLUMN_SETTINGS } from '@/api/asset_interfaces';
-import { BusterChart, BusterChartProps, ChartType, IColumnLabelFormat } from '@/components/charts';
+import {
+  BusterChart,
+  BusterChartProps,
+  ChartType,
+  IColumnLabelFormat
+} from '@/components/ui/charts';
 import { faker } from '@faker-js/faker';
 import { Button, Checkbox, Select, Slider } from 'antd';
 import { useMemo, useState } from 'react';

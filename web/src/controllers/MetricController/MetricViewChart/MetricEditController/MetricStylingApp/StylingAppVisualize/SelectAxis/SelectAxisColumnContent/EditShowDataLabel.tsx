@@ -1,4 +1,4 @@
-import type { ColumnSettings } from '@/components/charts';
+import type { ColumnSettings } from '@/components/ui/charts';
 import React from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 import { Switch } from 'antd';

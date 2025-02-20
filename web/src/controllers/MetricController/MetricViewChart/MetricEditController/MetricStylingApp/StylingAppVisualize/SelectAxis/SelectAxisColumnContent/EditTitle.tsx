@@ -1,4 +1,4 @@
-import { IColumnLabelFormat } from '@/components/charts';
+import { IColumnLabelFormat } from '@/components/ui/charts';
 import React from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 import { Input } from 'antd';

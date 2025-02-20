@@ -1,7 +1,7 @@
 import React from 'react';
 import { LabelAndInput } from '../Common';
 import { Switch } from 'antd';
-import { AppPopover } from '@/components/tooltip';
+import { AppPopover } from '@/components/ui/tooltip';
 import { AppMaterialIcons } from '@/components/icons';
 import { WarningIcon } from '../Common/WarningIcon';
 

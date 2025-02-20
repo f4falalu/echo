@@ -5,7 +5,7 @@ import React, { PropsWithChildren, useMemo } from 'react';
 import { AppSidebar } from './AppSidebar';
 import { NewChatModal } from '@appComponents/NewChatModal';
 import { InvitePeopleModal } from '@appComponents/InvitePeopleModal';
-import { AppSplitter } from '@/components/layout';
+import { AppSplitter } from '@/components/ui/layout';
 import { createStyles } from 'antd-style';
 import { useBusterStylesContext } from '@/context/BusterStyles/BusterStyles';
 import { useUserConfigContextSelector } from '@/context/Users';

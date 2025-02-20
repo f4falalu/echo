@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
-import type { IColumnLabelFormat } from '@/components/charts/interfaces/columnLabelInterfaces';
+import type { IColumnLabelFormat } from '@/components/ui/charts/interfaces/columnLabelInterfaces';
 import { InputNumber } from 'antd';
 import clamp from 'lodash/clamp';
 

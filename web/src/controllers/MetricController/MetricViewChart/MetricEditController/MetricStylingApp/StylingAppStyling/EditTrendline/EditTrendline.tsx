@@ -1,6 +1,6 @@
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import React, { useMemo, useState } from 'react';
-import type { ChartEncodes, Trendline } from '@/components/charts';
+import type { ChartEncodes, Trendline } from '@/components/ui/charts';
 import { v4 as uuidv4 } from 'uuid';
 import { useSet, useMemoizedFn } from 'ahooks';
 import { LabelAndInput } from '../../Common';

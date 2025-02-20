@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { AppContent } from '@/components/layout/AppContent';
+import { AppContent } from '@/components/ui/layout/AppContent';
 import { BusterUserAvatar } from '@/components';
 import { formatDate } from '@/utils';
 import {
@@ -9,7 +9,7 @@ import {
   BusterList,
   BusterListColumn,
   BusterListRow
-} from '@/components/list';
+} from '@/components/ui/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { BusterTermListItem } from '@/api/buster_rest';
 import { useMemoizedFn, useMount } from 'ahooks';

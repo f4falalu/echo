@@ -8,7 +8,7 @@ import {
   VerificationStatus
 } from '@/api/asset_interfaces';
 import { prepareMetricUpdateMetric, upgradeMetricToIMetric } from '../helpers';
-import { ColumnSettings, IColumnLabelFormat } from '@/components/charts';
+import { ColumnSettings, IColumnLabelFormat } from '@/components/ui/charts';
 import { useTransition } from 'react';
 import { queryKeys } from '@/api/query_keys';
 import { useQueryClient } from '@tanstack/react-query';

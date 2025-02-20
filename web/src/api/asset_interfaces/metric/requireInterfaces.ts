@@ -2,7 +2,7 @@ import type {
   BusterChartConfigProps,
   ColumnSettings,
   IColumnLabelFormat
-} from '@/components/charts/interfaces';
+} from '@/components/ui/charts/interfaces';
 
 export type IBusterMetricChartConfig = Required<
   Omit<BusterChartConfigProps, 'columnLabelFormats'>

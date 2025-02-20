@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { useMemoizedFn, useUpdateLayoutEffect } from 'ahooks';
-import { type AppSplitterRef } from '@/components/layout';
+import { type AppSplitterRef } from '@/components/ui/layout';
 import Cookies from 'js-cookie';
-import { createAutoSaveId } from '@/components/layout/AppSplitter/helper';
+import { createAutoSaveId } from '@/components/ui/layout/AppSplitter/helper';
 
 const defaultChartOpenLayout = ['auto', '310px'];
 const defaultSqlOpenLayout = ['30%', 'auto'];

@@ -5,7 +5,7 @@ import type {
   XAxisConfig,
   CategoryAxisStyleConfig,
   Y2AxisConfig
-} from '@/components/charts/interfaces';
+} from '@/components/ui/charts/interfaces';
 import {
   createContext,
   ContextSelector,

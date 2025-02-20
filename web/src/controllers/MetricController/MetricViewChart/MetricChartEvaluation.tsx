@@ -2,7 +2,7 @@ import { IBusterMetric } from '@/context/Metrics';
 import { createStyles } from 'antd-style';
 import React, { useMemo } from 'react';
 import { AppMaterialIcons } from '@/components/icons';
-import { AppPopover } from '@/components/tooltip';
+import { AppPopover } from '@/components/ui/tooltip';
 
 export const MetricChartEvaluation: React.FC<{
   evaluationScore: IBusterMetric['evaluation_score'];

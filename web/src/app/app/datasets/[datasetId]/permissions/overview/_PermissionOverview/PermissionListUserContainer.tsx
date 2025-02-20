@@ -5,8 +5,8 @@ import {
   BusterListRowItem,
   EmptyStateList,
   InfiniteListContainer
-} from '@/components/list';
-import { BusterInfiniteList } from '@/components/list';
+} from '@/components/ui/list';
+import { BusterInfiniteList } from '@/components/ui/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { PermissionLineageBreadcrumb } from '../../../../../_components/PermissionComponents';
 import { ListUserItem } from '@appComponents/Lists';

@@ -1,6 +1,6 @@
 'use client';
 
-import { AppSegmented } from '@/components/segmented';
+import { AppSegmented } from '@/components/ui/segmented';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { createBusterRoute, BusterRoutes } from '@/routes/busterRoutes';
 import { useDebounce } from 'ahooks';

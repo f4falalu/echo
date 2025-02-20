@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../../Common';
 import { Select } from 'antd';
-import { IColumnLabelFormat } from '@/components/charts';
+import { IColumnLabelFormat } from '@/components/ui/charts';
 
 export const MISSING_VALUES_OPTIONS: {
   label: string;

@@ -3,7 +3,7 @@ import {
   type ColumnMetaData,
   type IBusterMetricChartConfig
 } from '@/api/asset_interfaces';
-import type { ColumnLabelFormat, IColumnLabelFormat } from '@/components/charts';
+import type { ColumnLabelFormat, IColumnLabelFormat } from '@/components/ui/charts';
 import {
   isDateColumnType,
   isNumericColumnType,

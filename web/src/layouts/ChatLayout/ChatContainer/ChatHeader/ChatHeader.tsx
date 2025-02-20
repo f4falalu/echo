@@ -1,4 +1,4 @@
-import { appContentHeaderHeight } from '@/components/layout/AppContentHeader';
+import { appContentHeaderHeight } from '@/components/ui/layout/AppContentHeader';
 import { createStyles } from 'antd-style';
 import React from 'react';
 import { ChatHeaderOptions } from './ChatHeaderOptions';
@@ -15,7 +15,7 @@ export const ChatHeader: React.FC<{
   return (
     <div
       className={cx(
-        'z-2 relative flex w-full items-center justify-between space-x-2 px-4',
+        'relative z-2 flex w-full items-center justify-between space-x-2 px-4',
         styles.header,
         showScrollOverflow && styles.scrollIndicator
       )}>

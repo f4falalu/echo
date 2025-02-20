@@ -2,8 +2,8 @@
 
 import React, { PropsWithChildren } from 'react';
 import { PopoverProps } from 'antd';
-import { AppPopover } from '@/components/tooltip/AppPopover';
-import { AppTooltip } from '@/components/tooltip';
+import { AppPopover } from '@/components/ui/tooltip/AppPopover';
+import { AppTooltip } from '@/components/ui/tooltip';
 import { useMemoizedFn } from 'ahooks';
 import { BusterShare, ShareAssetType } from '@/api/asset_interfaces';
 import { ShareMenuContent } from './ShareMenuContent';

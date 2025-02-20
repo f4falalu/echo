@@ -1,6 +1,6 @@
 import { useDatasetUpdatePermissionUsers } from '@/api/buster_rest';
 import { AppMaterialIcons } from '@/components/icons';
-import { BusterListSelectedOptionPopupContainer } from '@/components/list';
+import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { useMemoizedFn } from 'ahooks';
 import { Button, Dropdown } from 'antd';
 import { MenuProps } from 'antd/lib';

@@ -10,7 +10,7 @@ import isNaN from 'lodash/isNaN';
 import { isNumeric } from './numbers';
 import { getBrowserLanguage } from './language';
 import { SupportedLanguages } from '../config/languages';
-import type { ColumnLabelFormat } from '../components/charts';
+import type { ColumnLabelFormat } from '../components/ui/charts';
 
 import relativeTime from 'dayjs/plugin/relativeTime';
 

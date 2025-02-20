@@ -4,7 +4,7 @@ import {
   BusterListRowItem,
   EmptyStateList,
   InfiniteListContainer
-} from '@/components/list';
+} from '@/components/ui/list';
 import React, { useMemo } from 'react';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import type { DatasetGroup } from '@/api/asset_interfaces';
