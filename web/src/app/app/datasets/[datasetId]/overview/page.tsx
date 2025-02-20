@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useDatasetPageContextSelector } from '../../../../../layouts/DatasetsLayout/DatasetPageContext';
+import { useDatasetPageContextSelector } from '../_DatasetsLayout/DatasetPageContext';
 import { OverviewHeader } from './OverviewHeader';
 import { OverviewData } from './OverviewData';
 import { Divider } from 'antd';

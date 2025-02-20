@@ -11,16 +11,8 @@ export const DatasetPageLayout: React.FC<{ children: React.ReactNode; datasetId:
 }) => {
   return (
     <DatasetPageProvider datasetId={datasetId}>
-      <LayoutContent>{children}</LayoutContent>
-    </DatasetPageProvider>
-  );
-};
-
-const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return (
-    <>
       <DatasetsIndividualHeader />
       <AppContent>{children}</AppContent>
-    </>
+    </DatasetPageProvider>
   );
 };
