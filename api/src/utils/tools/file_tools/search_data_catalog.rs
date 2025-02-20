@@ -19,14 +19,14 @@ use crate::{
 use litellm::{ChatCompletionRequest, LiteLLMClient, Message, Metadata, ResponseFormat, ToolCall};
 
 #[derive(Debug, Serialize, Deserialize)]
-struct SearchDataCatalogParams {
-    query_params: Vec<String>,
+pub struct SearchDataCatalogParams {
+    ticket_description: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SearchDataCatalogOutput {
     pub message: String,
-    pub query_params: Vec<String>,
+    pub ticket_description: String,
     pub duration: i64,
     pub results: Vec<DatasetSearchResult>,
 }
@@ -45,7 +45,7 @@ struct RawLLMResponse {
 
 const CATALOG_SEARCH_PROMPT: &str = r#"
 You are a dataset search assistant. You have access to a collection of datasets with their YML content.
-Your task is to identify all relevant datasets based on the following search queries:
+Your task is to identify all relevant datasets based on the following search request:
 
 {queries_joined_with_newlines}
 
@@ -217,14 +217,14 @@ impl ToolExecutor for SearchDataCatalogTool {
 
             return Ok(SearchDataCatalogOutput {
                 message: "No datasets available to search".to_string(),
-                query_params: params.query_params,
+                ticket_description: params.ticket_description,
                 duration: duration as i64,
                 results: vec![],
             });
         }
 
         // Format prompt and perform search
-        let prompt = Self::format_search_prompt(&params.query_params, &datasets)?;
+        let prompt = Self::format_search_prompt(&[params.ticket_description.clone()], &datasets)?;
         let search_results = match Self::perform_llm_search(
             prompt,
             &self.agent.get_user_id(),
@@ -238,7 +238,7 @@ impl ToolExecutor for SearchDataCatalogTool {
 
                 return Ok(SearchDataCatalogOutput {
                     message: format!("Search failed: {}", e),
-                    query_params: params.query_params,
+                    ticket_description: params.ticket_description.clone(),
                     duration: duration as i64,
                     results: vec![],
                 });
@@ -248,18 +248,14 @@ impl ToolExecutor for SearchDataCatalogTool {
         let message = if search_results.is_empty() {
             "No relevant datasets found".to_string()
         } else {
-            format!(
-                "Found {} relevant datasets for {} queries",
-                search_results.len(),
-                params.query_params.len()
-            )
+            format!("Found {} relevant datasets", search_results.len())
         };
 
         let duration = start_time.elapsed().as_millis();
 
         Ok(SearchDataCatalogOutput {
             message,
-            query_params: params.query_params,
+            ticket_description: params.ticket_description,
             duration: duration as i64,
             results: search_results,
         })
@@ -272,19 +268,21 @@ impl ToolExecutor for SearchDataCatalogTool {
     fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": "search_data_catalog",
+            "description": "Use to search across a user’s data catalog for metadata, documentation, column definitions, or business terminology.",
             "strict": true,
             "parameters": {
-                "type": "object",
-                "required": ["query"],
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "The search query to match against file contents"
-                    }
-                },
-                "additionalProperties": false
-            },
-            "description": "Searches for files by their content. The search is case-insensitive and matches partial content."
+              "type": "object",
+              "required": [
+                "ticket_description"
+              ],
+              "properties": {
+                "ticket_description": {
+                  "type": "string",
+                  "description": "A brief description for the action. This should essentially be a ticket description that can be appended to a ticket. This ticket will be used to keep track of your current task. The ticket description should explain which parts of the user's request this action addresses. Copy the user's request exactly without adding instructions, thoughts, or assumptions. Write it as a command, not a question, typically starting with an imperative verb like 'Retrieve...', 'Provide...', 'Filter...', etc."
+                }
+              },
+              "additionalProperties": false
+            }
         })
     }
 }

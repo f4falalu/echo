@@ -39,7 +39,7 @@ struct FileRequest {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct OpenFilesParams {
+pub struct OpenFilesParams {
     files: Vec<FileRequest>,
 }
 
@@ -186,8 +186,8 @@ impl ToolExecutor for OpenFilesTool {
 
         // Check for missing files
         for (file_type, ids) in requested_ids.iter() {
-            let found = found_ids.get(file_type).unwrap_or(&HashSet::new());
-            let missing: Vec<_> = ids.difference(found).collect();
+            let found_set = found_ids.get(file_type).unwrap();
+            let missing: Vec<_> = ids.difference(found_set).collect();
             if !missing.is_empty() {
                 error_messages.push(format!(
                     "Could not find {} files with IDs: {:?}",

@@ -23,7 +23,7 @@ use crate::{
 use litellm::{ChatCompletionRequest, LiteLLMClient, Message, Metadata, ResponseFormat, ToolCall};
 
 #[derive(Debug, Serialize, Deserialize)]
-struct SearchFilesParams {
+pub struct SearchFilesParams {
     query_params: Vec<String>,
 }
 

@@ -8,7 +8,7 @@ use crate::utils::tools::ToolExecutor;
 use litellm::ToolCall;
 
 #[derive(Debug, Serialize, Deserialize)]
-struct SendToUserParams {
+pub struct SendToUserParams {
     metric_id: String,
 }
 

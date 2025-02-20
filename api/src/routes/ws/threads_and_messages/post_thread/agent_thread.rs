@@ -32,19 +32,18 @@ use crate::{
         ws_utils::send_ws_message,
     },
     utils::{
-        agent::{Agent, AgentThread},
-        tools::{
-            file_tools::{
-                CreateFilesTool, ModifyFilesTool, OpenFilesTool, SearchDataCatalogTool,
-                SearchFilesTool, SendFilesToUserTool,
-            },
-            IntoValueTool, ToolExecutor,
-        },
+        agent::agents::manager_agent::{ManagerAgent, ManagerAgentInput},
+        agent::{AgentExt, AgentThread},
     },
 };
 
 use super::agent_message_transformer::transform_message;
 use litellm::Message as AgentMessage;
+
+use super::post_thread::{
+    create_initial_response, create_thread, send_initial_response, store_message_and_files,
+    store_thread,
+};
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct ChatCreateNewChat {
@@ -60,56 +59,16 @@ pub struct AgentResponse {
 }
 
 pub struct AgentThreadHandler {
-    agent: Agent,
+    agent: ManagerAgent,
 }
 
 impl AgentThreadHandler {
     pub fn new() -> Result<Self> {
-        let mut agent = Agent::new("o3-mini".to_string(), HashMap::new());
-
-        let search_data_catalog_tool = SearchDataCatalogTool;
-        let search_files_tool = SearchFilesTool;
-        let modify_files_tool = ModifyFilesTool;
-        let create_files_tool = CreateFilesTool;
-        let open_files_tool = OpenFilesTool;
-        let send_to_user_tool = SendFilesToUserTool;
-        let send_message_to_user_tool = SendMessageToUser;
-
-        agent.add_tool(
-            search_data_catalog_tool.get_name(),
-            search_data_catalog_tool.into_value_tool(),
-        );
-        agent.add_tool(
-            search_files_tool.get_name(),
-            search_files_tool.into_value_tool(),
-        );
-        agent.add_tool(
-            modify_files_tool.get_name(),
-            modify_files_tool.into_value_tool(),
-        );
-        agent.add_tool(
-            create_files_tool.get_name(),
-            create_files_tool.into_value_tool(),
-        );
-        agent.add_tool(
-            open_files_tool.get_name(),
-            open_files_tool.into_value_tool(),
-        );
-        agent.add_tool(
-            send_to_user_tool.get_name(),
-            send_to_user_tool.into_value_tool(),
-        );
-        agent.add_tool(
-            send_message_to_user_tool.get_name(),
-            send_message_to_user_tool.into_value_tool(),
-        );
-
+        let agent = ManagerAgent::new(Uuid::new_v4(), Uuid::new_v4())?;
         Ok(Self { agent })
     }
 
     pub async fn handle_request(&self, request: ChatCreateNewChat, user: User) -> Result<()> {
-        let subscription = &user.id.to_string();
-
         let chat_id = request.chat_id.unwrap_or_else(|| Uuid::new_v4());
         let message_id = request.message_id.unwrap_or_else(|| Uuid::new_v4());
 
@@ -122,87 +81,37 @@ impl AgentThreadHandler {
         };
 
         // Create thread first
-        let thread = Thread {
-            id: chat_id.clone(),
-            title: request.prompt.clone(), // Use prompt as title
-            organization_id: user_org_id.clone(),
-            created_by: user.id.clone(),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            deleted_at: None,
-        };
-
-        let init_response = ThreadWithMessages {
-            id: chat_id.clone(),
-            title: request.prompt.clone(),
-            is_favorited: false,
-            messages: vec![ThreadMessage {
-                id: message_id.clone(),
-                request_message: ThreadUserMessage {
-                    request: request.prompt.clone(),
-                    sender_id: user.id,
-                    sender_name: user.name.clone().unwrap_or_default(),
-                    sender_avatar: None,
-                },
-                response_messages: vec![],
-                reasoning: vec![],
-                created_at: Utc::now().to_string(),
-            }],
-            created_at: Utc::now().to_string(),
-            updated_at: Utc::now().to_string(),
-            created_by: user.id.to_string(),
-            created_by_id: user.id.to_string(),
-            created_by_name: user.name.clone().unwrap_or_default(),
-            created_by_avatar: None,
-        };
+        let thread = create_thread(&chat_id, &request.prompt, &user_org_id, &user.id)?;
+        let init_response = create_initial_response(&thread, &message_id, &request.prompt, &user)?;
 
         // Send initial response to client
-        let response = WsResponseMessage::new_no_user(
-            WsRoutes::Threads(ThreadRoute::Post),
-            WsEvent::Threads(ThreadEvent::InitializeChat),
-            init_response,
-            None,
-            WsSendMethod::All,
-        );
-
-        if let Err(e) = send_ws_message(subscription, &response).await {
-            tracing::error!("Failed to send websocket message: {}", e);
-        }
+        send_initial_response(&user.id.to_string(), &init_response).await?;
 
         // Create thread in database first
-        let mut conn = match get_pg_pool().get().await {
-            Ok(conn) => conn,
-            Err(e) => {
-                tracing::error!(
-                    "Failed to get database connection for thread creation: {}",
-                    e
-                );
-                return Err(anyhow::anyhow!("Failed to get database connection"));
-            }
+        let mut conn = get_pg_pool().get().await?;
+        store_thread(&mut conn, &thread).await?;
+
+        // Process request using manager agent
+        let input = ManagerAgentInput {
+            prompt: request.prompt.clone(),
+            thread_id: Some(chat_id),
+            message_id: Some(message_id),
         };
 
-        if let Err(e) = insert_into(threads::table)
-            .values(&thread)
-            .execute(&mut conn)
-            .await
-        {
-            tracing::error!("Failed to insert thread into database: {}", e);
-            return Err(anyhow::anyhow!("Failed to create thread"));
-        }
+        let output = self.agent.process_request(input, user.id).await?;
 
-        // Now that thread is created, start processing
-        let rx = self.process_chat_request(request.clone(), user.id).await?;
-        tokio::spawn(async move {
-            Self::process_stream(
-                rx,
-                &user.id,
-                &user_org_id,
-                &chat_id,
-                &message_id,
-                request.prompt,
-            )
-            .await;
-        });
+        // Store message and process files
+        store_message_and_files(
+            &mut conn,
+            message_id,
+            chat_id,
+            request.prompt,
+            &output.messages,
+            &user_org_id,
+            &user.id,
+        )
+        .await?;
+
         Ok(())
     }
 
@@ -224,7 +133,7 @@ impl AgentThreadHandler {
 
     async fn store_final_message_state(
         message: &Message,
-        all_transformed_messages: Vec<BusterContainer>,
+        all_transformed_messages: &Vec<BusterContainer>,
         organization_id: &Uuid,
         user_id: &Uuid,
     ) -> Result<(), Error> {
@@ -237,7 +146,7 @@ impl AgentThreadHandler {
                 messages::response.eq(&message.response),
                 messages::updated_at.eq(message.updated_at),
             ))
-            .execute(&mut conn)
+            .execute(conn)
             .await?;
 
         // Process any completed metric or dashboard files
@@ -268,7 +177,7 @@ impl AgentThreadHandler {
                         // Insert metric file
                         diesel::insert_into(metric_files::table)
                             .values(&metric_file)
-                            .execute(&mut conn)
+                            .execute(conn)
                             .await?;
 
                         // Create message to file link
@@ -283,7 +192,7 @@ impl AgentThreadHandler {
 
                         diesel::insert_into(messages_to_files::table)
                             .values(&message_to_file)
-                            .execute(&mut conn)
+                            .execute(conn)
                             .await?;
                     }
                     ReasoningMessage::File(file) if file.file_type == "dashboard" => {
@@ -307,7 +216,7 @@ impl AgentThreadHandler {
                         // Insert dashboard file
                         diesel::insert_into(dashboard_files::table)
                             .values(&dashboard_file)
-                            .execute(&mut conn)
+                            .execute(conn)
                             .await?;
 
                         // Create message to file link
@@ -322,7 +231,7 @@ impl AgentThreadHandler {
 
                         diesel::insert_into(messages_to_files::table)
                             .values(&message_to_file)
-                            .execute(&mut conn)
+                            .execute(conn)
                             .await?;
                     }
                     _ => (), // Skip non-file messages or other file types

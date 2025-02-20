@@ -1,5 +1,6 @@
 use anyhow::Result;
 use async_trait::async_trait;
+use serde::Deserialize;
 use serde_json::Value;
 use std::sync::Arc;
 use uuid::Uuid;
@@ -13,6 +14,7 @@ pub struct MetricAgentTool {
     agent: Arc<Agent>,
 }
 
+#[derive(Debug, Deserialize, Clone)]
 pub struct MetricAgentInput {
     pub ticket_description: String,
 }
@@ -34,7 +36,7 @@ impl ToolExecutor for MetricAgentTool {
 
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         // Create and initialize the agent
-        let metric_agent = MetricAgent::from_existing(&self.agent)?;
+        let metric_agent = MetricAgent::from_existing(&self.agent).await?;
 
         // Get current thread for context
         let current_thread = self
@@ -44,11 +46,17 @@ impl ToolExecutor for MetricAgentTool {
             .ok_or_else(|| anyhow::anyhow!("No current thread"))?;
 
         // Parse input parameters
-        let input = params;
+        let agent_input = crate::utils::agent::metric_agent::MetricAgentInput {
+            operation: "create".to_string(),
+            metric_name: None,
+            metric_id: None,
+            requirements: Some(params.ticket_description),
+            modifications: None,
+        };
 
         // Execute the agent with the executing agent's context
         let output = metric_agent
-            .process_metric(input, current_thread.id, current_thread.user_id)
+            .process_metric(agent_input, current_thread.id, current_thread.user_id)
             .await?;
 
         // Convert output to Value

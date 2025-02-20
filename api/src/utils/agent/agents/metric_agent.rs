@@ -51,7 +51,7 @@ pub struct MetricAgent {
 }
 
 impl MetricAgent {
-    pub fn new(user_id: Uuid, session_id: Uuid) -> Result<Self> {
+    pub async fn new(user_id: Uuid, session_id: Uuid) -> Result<Self> {
         // Create agent and immediately wrap in Arc
         let mut agent = Arc::new(Agent::new(
             "o3-mini".to_string(),
@@ -71,16 +71,16 @@ impl MetricAgent {
         tools_map.add_tool(
             create_metric_files_tool.get_name(),
             create_metric_files_tool.into_value_tool(),
-        );
+        ).await;
         tools_map.add_tool(
             modify_metric_files_tool.get_name(),
             modify_metric_files_tool.into_value_tool(),
-        );
+        ).await;
 
         Ok(Self { agent })
     }
 
-    pub fn from_existing(existing_agent: &Arc<Agent>) -> Result<Self> {
+    pub async fn from_existing(existing_agent: &Arc<Agent>) -> Result<Self> {
         // Create a new agent with the same core properties and shared state/stream
         let mut agent = Arc::new(Agent::from_existing(existing_agent));
 
@@ -95,11 +95,11 @@ impl MetricAgent {
         tools_map.add_tool(
             create_metric_files_tool.get_name(),
             create_metric_files_tool.into_value_tool(),
-        );
+        ).await;
         tools_map.add_tool(
             modify_metric_files_tool.get_name(),
             modify_metric_files_tool.into_value_tool(),
-        );
+        ).await;
 
         Ok(Self { agent })
     }
@@ -297,15 +297,6 @@ Follow these detailed instructions to decide whether to call create a new metric
 ──────────────────────────────
 Step 1. ANALYZE THE CONTEXT
 • Examine the list of existing metrics. Each metric is defined in its own YAML file that follows the format below:
-For context, here is the yml schema for metrics:
-1) id: uuid
-2) title: string 
-3) dataset_ids: array of strings
-4) sql: multi-line string (YAML pipe recommended)
-5) chart_config: must match exactly one of the possible chart sub-schemas
-6) data_metadata: array of objects with fields:
-   - name: string
-   - data_type: string (e.g. "string", "number", "boolean", "date")
 • Read the user response carefully. Identify the user’s intent:
  – Check if they are asking for a completely new metric (whether SQL-related or just non-SQL changes like chart configuration, colors, title, etc.).
  – Or determine if they want to update an existing metric with modifications such as a new SQL query, chart config adjustments, or visual styling changes.

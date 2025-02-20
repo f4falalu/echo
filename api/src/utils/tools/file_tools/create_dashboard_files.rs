@@ -123,7 +123,6 @@ impl ToolExecutor for CreateDashboardFilesTool {
 
         let files = params.files;
 
-        let files = params.files;
         let mut created_files = vec![];
         let mut failed_files = vec![];
 

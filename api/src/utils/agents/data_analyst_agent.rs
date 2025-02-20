@@ -1882,7 +1882,7 @@ async fn send_sql_evaluation_to_sub(
     });
 
     let thread_ws_response = WsResponseMessage::new_no_user(
-        WsRoutes::Threads(ThreadRoute::Post),
+        WsRoutes::Threads(ThreadRoute::Update),
         WsEvent::Threads(ThreadEvent::SqlEvaluation),
         Some(evaluation_json),
         None,

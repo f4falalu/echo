@@ -1,11 +1,12 @@
 use anyhow::Result;
 use async_trait::async_trait;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::sync::Arc;
 
 use crate::utils::{
     agent::{Agent, DashboardAgent},
-    tools::ToolExecutor,
+    tools::{file_tools::file_types::file::FileEnum, ToolExecutor},
 };
 
 pub struct DashboardAgentTool {
@@ -40,7 +41,7 @@ impl ToolExecutor for DashboardAgentTool {
 
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         // Create and initialize the agent
-        let dashboard_agent = DashboardAgent::from_existing(&self.agent)?;
+        let dashboard_agent = DashboardAgent::from_existing(&self.agent).await?;
 
         // Parse input parameters
         let input = params;

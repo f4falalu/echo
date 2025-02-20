@@ -73,7 +73,7 @@ impl AgentExt for DashboardAgent {
 }
 
 impl DashboardAgent {
-    pub fn new(user_id: Uuid, session_id: Uuid) -> Result<Self> {
+    pub async fn new(user_id: Uuid, session_id: Uuid) -> Result<Self> {
         // Create agent and immediately wrap in Arc
         let mut agent = Arc::new(Agent::new(
             "o3-mini".to_string(),
@@ -97,32 +97,32 @@ impl DashboardAgent {
         tools_map.add_tool(
             create_dashboard_tool.get_name(),
             create_dashboard_tool.into_value_tool(),
-        );
+        ).await;
         tools_map.add_tool(
             modify_dashboard_tool.get_name(),
             modify_dashboard_tool.into_value_tool(),
-        );
+        ).await;
         tools_map.add_tool(
             create_metric_tool.get_name(),
             create_metric_tool.into_value_tool(),
-        );
+        ).await;
         tools_map.add_tool(
             modify_metric_tool.get_name(),
             modify_metric_tool.into_value_tool(),
-        );
+        ).await;
         tools_map.add_tool(
             open_files_tool.get_name(),
             open_files_tool.into_value_tool(),
-        );
+        ).await;
         tools_map.add_tool(
             search_files_tool.get_name(),
             search_files_tool.into_value_tool(),
-        );
+        ).await;
 
         Ok(Self { agent })
     }
 
-    pub fn from_existing(existing_agent: &Arc<Agent>) -> Result<Self> {
+    pub async fn from_existing(existing_agent: &Arc<Agent>) -> Result<Self> {
         // Create a new agent with the same core properties and shared state/stream
         let mut agent = Arc::new(Agent::from_existing(existing_agent));
 
@@ -131,8 +131,6 @@ impl DashboardAgent {
         let modify_dashboard_tool = ModifyDashboardFilesTool::new(Arc::clone(&agent));
         let create_metric_tool = CreateMetricFilesTool::new(Arc::clone(&agent));
         let modify_metric_tool = ModifyMetricFilesTool::new(Arc::clone(&agent));
-        let open_files_tool = OpenFilesTool::new(Arc::clone(&agent));
-        let search_files_tool = SearchFilesTool::new(Arc::clone(&agent));
 
         // Get mutable access to add tools
         let tools_map = Arc::get_mut(&mut agent).expect("Failed to get mutable reference to agent");
@@ -141,27 +139,19 @@ impl DashboardAgent {
         tools_map.add_tool(
             create_dashboard_tool.get_name(),
             create_dashboard_tool.into_value_tool(),
-        );
+        ).await;
         tools_map.add_tool(
             modify_dashboard_tool.get_name(),
             modify_dashboard_tool.into_value_tool(),
-        );
+        ).await;
         tools_map.add_tool(
             create_metric_tool.get_name(),
             create_metric_tool.into_value_tool(),
-        );
+        ).await;
         tools_map.add_tool(
             modify_metric_tool.get_name(),
             modify_metric_tool.into_value_tool(),
-        );
-        tools_map.add_tool(
-            open_files_tool.get_name(),
-            open_files_tool.into_value_tool(),
-        );
-        tools_map.add_tool(
-            search_files_tool.get_name(),
-            search_files_tool.into_value_tool(),
-        );
+        ).await;
 
         Ok(Self { agent })
     }
