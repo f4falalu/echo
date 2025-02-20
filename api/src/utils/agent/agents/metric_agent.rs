@@ -9,7 +9,7 @@ use tracing::{debug, info};
 use uuid::Uuid;
 
 use crate::utils::{
-    agent::{Agent, AgentThread},
+    agent::{Agent, AgentThread, AgentExt},
     tools::{
         file_tools::{CreateFilesTool, ModifyFilesTool, OpenFilesTool, SearchFilesTool},
         IntoValueTool, ToolExecutor,
@@ -49,32 +49,52 @@ pub struct MetricAgent {
 
 impl MetricAgent {
     pub fn new(user_id: Uuid, session_id: Uuid) -> Result<Self> {
-        let agent = Agent::new("o3-mini".to_string(), HashMap::new(), user_id, session_id);
+        // Create agent and immediately wrap in Arc
+        let mut agent = Arc::new(Agent::new(
+            "o3-mini".to_string(), 
+            HashMap::new(), 
+            user_id, 
+            session_id
+        ));
 
-        let mut agent = Arc::new(agent);
+        // Use the SAME Arc<Agent> for tools
+        let create_files_tool = CreateFilesTool::new(Arc::clone(&agent));
+        let modify_files_tool = ModifyFilesTool::new(Arc::clone(&agent));
+        let open_files_tool = OpenFilesTool::new(Arc::clone(&agent));
+        let search_files_tool = SearchFilesTool::new(Arc::clone(&agent));
+
+        // Get mutable access to add tools
+        let tools_map = Arc::get_mut(&mut agent)
+            .expect("Failed to get mutable reference to agent");
+
+        // Add tools to the agent
+        tools_map.add_tool(create_files_tool.get_name(), create_files_tool.into_value_tool());
+        tools_map.add_tool(modify_files_tool.get_name(), modify_files_tool.into_value_tool());
+        tools_map.add_tool(open_files_tool.get_name(), open_files_tool.into_value_tool());
+        tools_map.add_tool(search_files_tool.get_name(), search_files_tool.into_value_tool());
+
+        Ok(Self { agent })
+    }
+
+    pub fn from_existing(existing_agent: &Arc<Agent>) -> Result<Self> {
+        // Create a new agent with the same core properties and shared state/stream
+        let mut agent = Arc::new(Agent::from_existing(existing_agent));
 
         // Add metric-specific tools
-        let create_files_tool = CreateFilesTool::new(agent.clone());
-        let modify_files_tool = ModifyFilesTool::new(agent.clone());
-        let open_files_tool = OpenFilesTool::new(agent.clone());
-        let search_files_tool = SearchFilesTool::new(agent.clone());
+        let create_files_tool = CreateFilesTool::new(Arc::clone(&agent));
+        let modify_files_tool = ModifyFilesTool::new(Arc::clone(&agent));
+        let open_files_tool = OpenFilesTool::new(Arc::clone(&agent));
+        let search_files_tool = SearchFilesTool::new(Arc::clone(&agent));
 
-        agent.add_tool(
-            create_files_tool.get_name(),
-            create_files_tool.into_value_tool(),
-        );
-        agent.add_tool(
-            modify_files_tool.get_name(),
-            modify_files_tool.into_value_tool(),
-        );
-        agent.add_tool(
-            open_files_tool.get_name(),
-            open_files_tool.into_value_tool(),
-        );
-        agent.add_tool(
-            search_files_tool.get_name(),
-            search_files_tool.into_value_tool(),
-        );
+        // Get mutable access to add tools
+        let tools_map = Arc::get_mut(&mut agent)
+            .expect("Failed to get mutable reference to agent");
+
+        // Add tools to the agent
+        tools_map.add_tool(create_files_tool.get_name(), create_files_tool.into_value_tool());
+        tools_map.add_tool(modify_files_tool.get_name(), modify_files_tool.into_value_tool());
+        tools_map.add_tool(open_files_tool.get_name(), open_files_tool.into_value_tool());
+        tools_map.add_tool(search_files_tool.get_name(), search_files_tool.into_value_tool());
 
         Ok(Self { agent })
     }
@@ -98,8 +118,8 @@ impl MetricAgent {
             ],
         );
 
-        // Process using agent's streaming functionality
-        let mut rx = self.agent.stream_process_thread(&thread).await?;
+        // Process using agent's streaming functionality - now using the trait method
+        let mut rx = self.stream_process_thread(&thread).await?;
         let metric_files = self.process_stream(rx).await?;
 
         let duration = start_time.elapsed().as_millis() as i64;
@@ -261,6 +281,12 @@ impl MetricAgent {
     }
 }
 
+impl AgentExt for MetricAgent {
+    fn get_agent(&self) -> &Arc<Agent> {
+        &self.agent
+    }
+}
+
 const METRIC_AGENT_PROMPT: &str = r##"
 You are an expert at determining if new metrics should be created or modified. Note that the dataset info (which includes database schema information such as table names and column details) will be passed into the function to help generate SQL.
 Follow these detailed instructions to decide whether to call create a new metric or modify an existing one:
@@ -276,7 +302,7 @@ For context, here is the yml schema for metrics:
 6) data_metadata: array of objects with fields:
    - name: string
    - data_type: string (e.g. "string", "number", "boolean", "date")
-• Read the user response carefully. Identify the user’s intent:
+• Read the user response carefully. Identify the user's intent:
  – Check if they are asking for a completely new metric (whether SQL-related or just non-SQL changes like chart configuration, colors, title, etc.).
  – Or determine if they want to update an existing metric with modifications such as a new SQL query, chart config adjustments, or visual styling changes.
 • Review any generated SQL statements provided. Determine if they present a new analytical query or if they overlap with the functionality of an existing metric.

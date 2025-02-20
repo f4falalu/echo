@@ -3,13 +3,15 @@ use async_trait::async_trait;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::sync::Arc;
 use tokio::sync::mpsc::Receiver;
 use tracing::{debug, info};
 use uuid::Uuid;
 
 use crate::utils::{
-    agent::{Agent, AgentThread},
+    agent::{Agent, AgentExt, AgentThread},
     tools::{
+        agents_as_tools::ExploratoryAgentTool,
         file_tools::{
             CreateFilesTool, ModifyFilesTool, OpenFilesTool, SearchDataCatalogTool, SearchFilesTool,
         },
@@ -36,47 +38,112 @@ pub struct ManagerAgentInput {
 }
 
 pub struct ManagerAgent {
-    agent: Agent,
+    agent: Arc<Agent>,
+}
+
+impl AgentExt for ManagerAgent {
+    fn get_agent(&self) -> &Arc<Agent> {
+        &self.agent
+    }
 }
 
 impl ManagerAgent {
-    pub fn new() -> Result<Self> {
-        let mut agent = Agent::new("o3-mini".to_string(), HashMap::new());
+    pub fn new(user_id: Uuid, session_id: Uuid) -> Result<Self> {
+        // Create agent and immediately wrap in Arc
+        let mut agent = Arc::new(Agent::new(
+            "o3-mini".to_string(),
+            HashMap::new(),
+            user_id,
+            session_id,
+        ));
 
         // Add manager-specific tools
-        let search_data_catalog_tool = SearchDataCatalogTool;
-        let search_files_tool = SearchFilesTool;
-        let modify_files_tool = ModifyFilesTool;
-        let create_files_tool = CreateFilesTool;
-        let open_files_tool = OpenFilesTool;
-        let send_message_to_user_tool = SendMessageToUser;
-        let exploratory_agent_tool = ExploratoryAgentTool;
+        let search_data_catalog_tool = SearchDataCatalogTool::new(Arc::clone(&agent));
+        let search_files_tool = SearchFilesTool::new(Arc::clone(&agent));
+        let modify_files_tool = ModifyFilesTool::new(Arc::clone(&agent));
+        let create_files_tool = CreateFilesTool::new(Arc::clone(&agent));
+        let open_files_tool = OpenFilesTool::new(Arc::clone(&agent));
+        let send_message_to_user_tool = SendMessageToUser::new(Arc::clone(&agent));
+        let exploratory_agent_tool = ExploratoryAgentTool::new(Arc::clone(&agent));
 
-        agent.add_tool(
+        // Get mutable access to add tools
+        let tools_map = Arc::get_mut(&mut agent).expect("Failed to get mutable reference to agent");
+
+        // Add tools to the agent
+        tools_map.add_tool(
             search_data_catalog_tool.get_name(),
             search_data_catalog_tool.into_value_tool(),
         );
-        agent.add_tool(
+        tools_map.add_tool(
             search_files_tool.get_name(),
             search_files_tool.into_value_tool(),
         );
-        agent.add_tool(
+        tools_map.add_tool(
             modify_files_tool.get_name(),
             modify_files_tool.into_value_tool(),
         );
-        agent.add_tool(
+        tools_map.add_tool(
             create_files_tool.get_name(),
             create_files_tool.into_value_tool(),
         );
-        agent.add_tool(
+        tools_map.add_tool(
             open_files_tool.get_name(),
             open_files_tool.into_value_tool(),
         );
-        agent.add_tool(
+        tools_map.add_tool(
             send_message_to_user_tool.get_name(),
             send_message_to_user_tool.into_value_tool(),
         );
-        agent.add_tool(
+        tools_map.add_tool(
+            exploratory_agent_tool.get_name(),
+            exploratory_agent_tool.into_value_tool(),
+        );
+
+        Ok(Self { agent })
+    }
+
+    pub fn from_existing(existing_agent: &Arc<Agent>) -> Result<Self> {
+        // Create a new agent with the same core properties and shared state/stream
+        let mut agent = Arc::new(Agent::from_existing(existing_agent));
+
+        // Add manager-specific tools
+        let search_data_catalog_tool = SearchDataCatalogTool::new(Arc::clone(&agent));
+        let search_files_tool = SearchFilesTool::new(Arc::clone(&agent));
+        let modify_files_tool = ModifyFilesTool::new(Arc::clone(&agent));
+        let create_files_tool = CreateFilesTool::new(Arc::clone(&agent));
+        let open_files_tool = OpenFilesTool::new(Arc::clone(&agent));
+        let send_message_to_user_tool = SendMessageToUser::new(Arc::clone(&agent));
+        let exploratory_agent_tool = ExploratoryAgentTool::new(Arc::clone(&agent));
+
+        // Get mutable access to add tools
+        let tools_map = Arc::get_mut(&mut agent).expect("Failed to get mutable reference to agent");
+
+        // Add tools to the agent
+        tools_map.add_tool(
+            search_data_catalog_tool.get_name(),
+            search_data_catalog_tool.into_value_tool(),
+        );
+        tools_map.add_tool(
+            search_files_tool.get_name(),
+            search_files_tool.into_value_tool(),
+        );
+        tools_map.add_tool(
+            modify_files_tool.get_name(),
+            modify_files_tool.into_value_tool(),
+        );
+        tools_map.add_tool(
+            create_files_tool.get_name(),
+            create_files_tool.into_value_tool(),
+        );
+        tools_map.add_tool(
+            open_files_tool.get_name(),
+            open_files_tool.into_value_tool(),
+        );
+        tools_map.add_tool(
+            send_message_to_user_tool.get_name(),
+            send_message_to_user_tool.into_value_tool(),
+        );
+        tools_map.add_tool(
             exploratory_agent_tool.get_name(),
             exploratory_agent_tool.into_value_tool(),
         );
@@ -106,8 +173,8 @@ impl ManagerAgent {
             ],
         );
 
-        // Process using agent's streaming functionality
-        let mut rx = self.agent.stream_process_thread(&thread).await?;
+        // Process using agent's streaming functionality - now using the trait method
+        let mut rx = self.stream_process_thread(&thread).await?;
         let messages = self.process_stream(&mut rx).await?;
 
         let duration = start_time.elapsed().as_millis() as i64;
@@ -211,18 +278,18 @@ impl ManagerAgent {
 const MANAGER_AGENT_PROMPT: &str = r##"
 ### Role & Task
 You are an expert analytics and data engineer who helps non-technical users get fast, accurate answers to their analytics questions. Your name is Buster.
-Your immediate task is to analyze the user’s request and determine which **action** (from the list below) to use to complete the workflow. Once the user’s request is adequately answered or fulfilled, you have finished your workflow and should provide your final response to the user.
-**Today’s Date:** FEB 7, 2025
+Your immediate task is to analyze the user's request and determine which **action** (from the list below) to use to complete the workflow. Once the user's request is adequately answered or fulfilled, you have finished your workflow and should provide your final response to the user.
+**Today's Date:** FEB 7, 2025
 ---
 ### Key Workflow Reminders
 1. **Always search the data catalog before analysis or creating/modifying assets**  
-   - If you don’t already have sufficient context, you must call `search_data_catalog` first.  
+   - If you don't already have sufficient context, you must call `search_data_catalog` first.  
    - If the data catalog is searched and no relevant data is found, politely inform the user and ask for more context.
-2. **Use the correct action based on the user’s request**  
+2. **Use the correct action based on the user's request**  
    - If the user wants a single metric or specific set of metrics (charts/visualizations), use `create_or_modify_metrics`.  
    - If the user wants a full dashboard (multiple charts/visualizations/tables), use `create_or_modify_dashboards`.  
    - If the user is asking for open-ended or deep-dive analysis, use `exploratory_analysis`.  
-   - If the user specifically asks to find or view an existing metric or dashboard you don’t have in the current chat context, use `search_existing_metrics_dashboards`.  
+   - If the user specifically asks to find or view an existing metric or dashboard you don't have in the current chat context, use `search_existing_metrics_dashboards`.  
    - If the user wants to know what capabilities you have, use `explain_capabilities`.  
 3. **Use `decide_assets_to_return` after creating or modifying any assets**  
    - If you create or modify metrics/dashboards, you must call `decide_assets_to_return` to specify what to show the user.  
@@ -233,7 +300,7 @@ Your immediate task is to analyze the user’s request and determine which **act
 ---
 ### Actions and Capabilities
 1. **search_data_catalog**  
-   - Use to search across a user’s data catalog for metadata, documentation, column definitions, or business terminology.  
+   - Use to search across a user's data catalog for metadata, documentation, column definitions, or business terminology.  
    - Must be done **before** creating or modifying metrics, creating or modifying dashboards, or performing exploratory analysis if you lack context.  
    - If you have sufficient context already, you may skip additional searches.
 2. **exploratory_analysis**  
@@ -255,11 +322,11 @@ Your immediate task is to analyze the user’s request and determine which **act
    - Only use if the user explicitly asks you to find or edit a previously built metric/dashboard you have not already referenced within your current conversation.
 6. **explain_capabilities**  
    - Use if the user asks about your specific capabilities, what kind of analysis can be performed, etc
-   - For example: “What can you do?” or “What sort of analysis can you perform?”  
+   - For example: "What can you do?" or "What sort of analysis can you perform?"  
 7. **decide_assets_to_return**  
    - Must be used **after** you've completed your creation (or edits) of metrics or dashboards.  
    - Specifies exactly which asset(s) to present in the final response.  
-   - If you haven’t created or modified any assets, do **not** call this action.
+   - If you haven't created or modified any assets, do **not** call this action.
 ---
 ### Final Response Message
 - Once you have completed all necessary actions, respond to the user with a concise and clear explanation of what was done and (if relevant) what they are seeing (e.g., the newly created or updated metrics/dashboards).  
@@ -267,10 +334,10 @@ Your immediate task is to analyze the user’s request and determine which **act
 - Use friendly, concise language; if you performed analysis, give a brief explanation of your steps.
 ---
 ### Guidelines, General Rules, and Edge Cases
-- **If it’s simpler to just respond, do so**  
-  - If the user’s request requires no action, reply with a normal response.  
+- **If it's simpler to just respond, do so**  
+  - If the user's request requires no action, reply with a normal response.  
 - **Assume data exists until proven otherwise**  
-  - You only know data does not exist if you’ve searched the data catalog and found nothing relevant. 
+  - You only know data does not exist if you've searched the data catalog and found nothing relevant. 
   - Even if a data request seems unlikey, silly, or irrelevant, you must search the data catalog to see if the data exists before responding.
 - **Chart types you can create**  
   - Supported: table, line (multi-axes/line/area), bar (horizontal/vertical/stacked/grouped), histogram, pie/donut, metric card, scatter plot.  
@@ -279,5 +346,5 @@ Your immediate task is to analyze the user’s request and determine which **act
 - **Non-supported requests**  
   - If asked to perform an action not listed (send emails, scheduling, etc.), politely decline.  
 - **If no data is found**  
-  - Explain that you couldn’t find relevant data.
+  - Explain that you couldn't find relevant data.
 "##;

@@ -28,7 +28,7 @@ impl ToolExecutor for DashboardAgentTool {
 
     async fn execute(&self, tool_call: &litellm::ToolCall) -> Result<Self::Output> {
         // Create and initialize the agent
-        let dashboard_agent = DashboardAgent::new()?;
+        let dashboard_agent = DashboardAgent::from_existing(&self.agent)?;
 
         // Parse input parameters
         let input = serde_json::from_str(&tool_call.function.arguments)?;

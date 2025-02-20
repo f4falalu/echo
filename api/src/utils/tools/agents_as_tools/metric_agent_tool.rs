@@ -10,7 +10,7 @@ use crate::utils::{
 };
 
 pub struct MetricAgentTool {
-    agent: Arc<Agent>
+    agent: Arc<Agent>,
 }
 
 impl MetricAgentTool {
@@ -29,21 +29,22 @@ impl ToolExecutor for MetricAgentTool {
 
     async fn execute(&self, tool_call: &litellm::ToolCall) -> Result<Self::Output> {
         // Create and initialize the agent
-        let metric_agent = MetricAgent::new()?;
+        let metric_agent = MetricAgent::from_existing(&self.agent)?;
 
         // Get current thread for context
-        let current_thread = self.agent.get_current_thread().await
+        let current_thread = self
+            .agent
+            .get_current_thread()
+            .await
             .ok_or_else(|| anyhow::anyhow!("No current thread"))?;
 
         // Parse input parameters
         let input = serde_json::from_str(&tool_call.function.arguments)?;
 
         // Execute the agent with the executing agent's context
-        let output = metric_agent.process_metric(
-            input,
-            current_thread.id,
-            current_thread.user_id
-        ).await?;
+        let output = metric_agent
+            .process_metric(input, current_thread.id, current_thread.user_id)
+            .await?;
 
         // Convert output to Value
         serde_json::to_value(output).map_err(Into::into)
@@ -69,4 +70,4 @@ impl ToolExecutor for MetricAgentTool {
             }
         })
     }
-} 
+}

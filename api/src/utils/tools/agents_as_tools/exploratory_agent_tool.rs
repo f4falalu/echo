@@ -28,7 +28,7 @@ impl ToolExecutor for ExploratoryAgentTool {
 
     async fn execute(&self, tool_call: &litellm::ToolCall) -> Result<Self::Output> {
         // Create and initialize the agent
-        let exploratory_agent = ExploratoryAgent::new_from_agent(self.agent.clone())?;
+        let exploratory_agent = ExploratoryAgent::from_existing(&self.agent)?;
 
         // Parse input parameters
         let input = serde_json::from_str(&tool_call.function.arguments)?;

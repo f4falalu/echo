@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use std::time::Instant;
 
 use anyhow::Result;
@@ -5,22 +6,19 @@ use async_trait::async_trait;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::collections::HashMap;
 use tokio::sync::mpsc::Receiver;
 use tracing::{debug, info};
 use uuid::Uuid;
-use std::collections::HashMap;
 
 use crate::utils::{
-    agent::{Agent, AgentThread},
+    agent::{Agent, AgentExt, AgentThread},
     tools::{
         file_tools::{
-            CreateDashboardFilesTool,
-            CreateMetricFilesTool,
-            ModifyDashboardFilesTool,
-            ModifyMetricFilesTool,
-            OpenFilesTool,
-            SearchFilesTool,
-        }, IntoValueTool, ToolExecutor
+            CreateDashboardFilesTool, CreateMetricFilesTool, ModifyDashboardFilesTool,
+            ModifyMetricFilesTool, OpenFilesTool, SearchFilesTool,
+        },
+        IntoValueTool, ToolExecutor,
     },
 };
 
@@ -38,10 +36,10 @@ pub struct DashboardAgentOutput {
 pub struct DashboardFileResult {
     pub file_id: Uuid,
     pub file_name: String,
-    pub action: String,  // "created", "modified", "opened"
-    pub status: String,  // "success", "error"
+    pub action: String, // "created", "modified", "opened"
+    pub status: String, // "success", "error"
     pub details: String,
-    pub metrics: Vec<Uuid>,  // Associated metric IDs
+    pub metrics: Vec<Uuid>, // Associated metric IDs
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -55,52 +53,112 @@ pub struct MetricFileResult {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DashboardAgentInput {
-    pub operation: String,  // "create", "modify", "analyze"
+    pub operation: String, // "create", "modify", "analyze"
     pub dashboard_name: Option<String>,
     pub dashboard_id: Option<Uuid>,
     pub requirements: Option<String>,
     pub modifications: Option<String>,
-    pub metric_ids: Option<Vec<Uuid>>,  // Existing metrics to include
-    pub new_metrics: Option<Vec<String>>,  // New metrics to create
+    pub metric_ids: Option<Vec<Uuid>>, // Existing metrics to include
+    pub new_metrics: Option<Vec<String>>, // New metrics to create
 }
 
 pub struct DashboardAgent {
-    agent: Agent,
+    agent: Arc<Agent>,
+}
+
+impl AgentExt for DashboardAgent {
+    fn get_agent(&self) -> &Arc<Agent> {
+        &self.agent
+    }
 }
 
 impl DashboardAgent {
-    pub fn new() -> Result<Self> {
-        let mut agent = Agent::new("o3-mini".to_string(), HashMap::new());
-        
-        // Add dashboard and metric tools
-        let create_dashboard_tool = CreateDashboardFilesTool;
-        let modify_dashboard_tool = ModifyDashboardFilesTool;
-        let create_metric_tool = CreateMetricFilesTool;
-        let modify_metric_tool = ModifyMetricFilesTool;
-        let open_files_tool = OpenFilesTool;
-        let search_files_tool = SearchFilesTool;
+    pub fn new(user_id: Uuid, session_id: Uuid) -> Result<Self> {
+        // Create agent and immediately wrap in Arc
+        let mut agent = Arc::new(Agent::new(
+            "o3-mini".to_string(),
+            HashMap::new(),
+            user_id,
+            session_id,
+        ));
 
-        agent.add_tool(
+        // Add dashboard and metric tools
+        let create_dashboard_tool = CreateDashboardFilesTool::new(Arc::clone(&agent));
+        let modify_dashboard_tool = ModifyDashboardFilesTool::new(Arc::clone(&agent));
+        let create_metric_tool = CreateMetricFilesTool::new(Arc::clone(&agent));
+        let modify_metric_tool = ModifyMetricFilesTool::new(Arc::clone(&agent));
+        let open_files_tool = OpenFilesTool::new(Arc::clone(&agent));
+        let search_files_tool = SearchFilesTool::new(Arc::clone(&agent));
+
+        // Get mutable access to add tools
+        let tools_map = Arc::get_mut(&mut agent).expect("Failed to get mutable reference to agent");
+
+        // Add tools to the agent
+        tools_map.add_tool(
             create_dashboard_tool.get_name(),
             create_dashboard_tool.into_value_tool(),
         );
-        agent.add_tool(
+        tools_map.add_tool(
             modify_dashboard_tool.get_name(),
             modify_dashboard_tool.into_value_tool(),
         );
-        agent.add_tool(
+        tools_map.add_tool(
             create_metric_tool.get_name(),
             create_metric_tool.into_value_tool(),
         );
-        agent.add_tool(
+        tools_map.add_tool(
             modify_metric_tool.get_name(),
             modify_metric_tool.into_value_tool(),
         );
-        agent.add_tool(
+        tools_map.add_tool(
             open_files_tool.get_name(),
             open_files_tool.into_value_tool(),
         );
-        agent.add_tool(
+        tools_map.add_tool(
+            search_files_tool.get_name(),
+            search_files_tool.into_value_tool(),
+        );
+
+        Ok(Self { agent })
+    }
+
+    pub fn from_existing(existing_agent: &Arc<Agent>) -> Result<Self> {
+        // Create a new agent with the same core properties and shared state/stream
+        let mut agent = Arc::new(Agent::from_existing(existing_agent));
+
+        // Add dashboard and metric tools
+        let create_dashboard_tool = CreateDashboardFilesTool::new(Arc::clone(&agent));
+        let modify_dashboard_tool = ModifyDashboardFilesTool::new(Arc::clone(&agent));
+        let create_metric_tool = CreateMetricFilesTool::new(Arc::clone(&agent));
+        let modify_metric_tool = ModifyMetricFilesTool::new(Arc::clone(&agent));
+        let open_files_tool = OpenFilesTool::new(Arc::clone(&agent));
+        let search_files_tool = SearchFilesTool::new(Arc::clone(&agent));
+
+        // Get mutable access to add tools
+        let tools_map = Arc::get_mut(&mut agent).expect("Failed to get mutable reference to agent");
+
+        // Add tools to the agent
+        tools_map.add_tool(
+            create_dashboard_tool.get_name(),
+            create_dashboard_tool.into_value_tool(),
+        );
+        tools_map.add_tool(
+            modify_dashboard_tool.get_name(),
+            modify_dashboard_tool.into_value_tool(),
+        );
+        tools_map.add_tool(
+            create_metric_tool.get_name(),
+            create_metric_tool.into_value_tool(),
+        );
+        tools_map.add_tool(
+            modify_metric_tool.get_name(),
+            modify_metric_tool.into_value_tool(),
+        );
+        tools_map.add_tool(
+            open_files_tool.get_name(),
+            open_files_tool.into_value_tool(),
+        );
+        tools_map.add_tool(
             search_files_tool.get_name(),
             search_files_tool.into_value_tool(),
         );
@@ -111,6 +169,8 @@ impl DashboardAgent {
     pub async fn process_dashboard(
         &self,
         input: DashboardAgentInput,
+        parent_thread_id: Uuid,
+        user_id: Uuid,
     ) -> Result<DashboardAgentOutput> {
         let start_time = Instant::now();
         debug!("Starting dashboard operation: {:?}", input.operation);
@@ -125,8 +185,8 @@ impl DashboardAgent {
             ],
         );
 
-        // Process using agent's streaming functionality
-        let mut rx = self.agent.stream_process_thread(&thread).await?;
+        // Process using agent's streaming functionality - now using the trait method
+        let mut rx = self.stream_process_thread(&thread).await?;
         let (dashboard_files, metric_files) = self.process_stream(rx).await?;
 
         let duration = start_time.elapsed().as_millis() as i64;
@@ -180,9 +240,16 @@ impl DashboardAgent {
         Ok((dashboard_results, metric_results))
     }
 
-    fn process_message(&self, message: AgentMessage) -> Result<Option<(Option<DashboardFileResult>, Option<MetricFileResult>)>> {
+    fn process_message(
+        &self,
+        message: AgentMessage,
+    ) -> Result<Option<(Option<DashboardFileResult>, Option<MetricFileResult>)>> {
         match message {
-            AgentMessage::Assistant { content: _, tool_calls, .. } => {
+            AgentMessage::Assistant {
+                content: _,
+                tool_calls,
+                ..
+            } => {
                 if let Some(tool_calls) = tool_calls {
                     for tool_call in tool_calls {
                         if let Some(result) = self.process_tool_result(&tool_call)? {
@@ -195,38 +262,63 @@ impl DashboardAgent {
             AgentMessage::Tool { content, name, .. } => {
                 // Process tool response
                 let result: Value = serde_json::from_str(&content)?;
-                
+
                 // Extract file information from the tool response
                 if let Some(file_info) = result.get("files").and_then(|f| f.as_array()) {
                     if let Some(file) = file_info.first() {
-                        let is_dashboard = name.as_deref().map_or(false, |n| n.contains("dashboard"));
-                        
+                        let is_dashboard =
+                            name.as_deref().map_or(false, |n| n.contains("dashboard"));
+
                         if is_dashboard {
-                            let metrics = file.get("metrics")
+                            let metrics = file
+                                .get("metrics")
                                 .and_then(|m| m.as_array())
                                 .map_or_else(Vec::new, |metrics| {
-                                    metrics.iter()
+                                    metrics
+                                        .iter()
                                         .filter_map(|m| m.get("id").and_then(|id| id.as_str()))
                                         .filter_map(|id| Uuid::parse_str(id).ok())
                                         .collect()
                                 });
 
-                            return Ok(Some((Some(DashboardFileResult {
-                                file_id: Uuid::parse_str(file.get("id").and_then(|id| id.as_str()).unwrap_or_default())?,
-                                file_name: file.get("name").and_then(|n| n.as_str()).unwrap_or_default().to_string(),
-                                action: name.unwrap_or_else(|| "unknown".to_string()),
-                                status: "success".to_string(),
-                                details: content.clone(),
-                                metrics,
-                            }), None)));
+                            return Ok(Some((
+                                Some(DashboardFileResult {
+                                    file_id: Uuid::parse_str(
+                                        file.get("id")
+                                            .and_then(|id| id.as_str())
+                                            .unwrap_or_default(),
+                                    )?,
+                                    file_name: file
+                                        .get("name")
+                                        .and_then(|n| n.as_str())
+                                        .unwrap_or_default()
+                                        .to_string(),
+                                    action: name.unwrap_or_else(|| "unknown".to_string()),
+                                    status: "success".to_string(),
+                                    details: content.clone(),
+                                    metrics,
+                                }),
+                                None,
+                            )));
                         } else {
-                            return Ok(Some((None, Some(MetricFileResult {
-                                file_id: Uuid::parse_str(file.get("id").and_then(|id| id.as_str()).unwrap_or_default())?,
-                                file_name: file.get("name").and_then(|n| n.as_str()).unwrap_or_default().to_string(),
-                                action: name.unwrap_or_else(|| "unknown".to_string()),
-                                status: "success".to_string(),
-                                details: content.clone(),
-                            }))));
+                            return Ok(Some((
+                                None,
+                                Some(MetricFileResult {
+                                    file_id: Uuid::parse_str(
+                                        file.get("id")
+                                            .and_then(|id| id.as_str())
+                                            .unwrap_or_default(),
+                                    )?,
+                                    file_name: file
+                                        .get("name")
+                                        .and_then(|n| n.as_str())
+                                        .unwrap_or_default()
+                                        .to_string(),
+                                    action: name.unwrap_or_else(|| "unknown".to_string()),
+                                    status: "success".to_string(),
+                                    details: content.clone(),
+                                }),
+                            )));
                         }
                     }
                 }
@@ -236,37 +328,53 @@ impl DashboardAgent {
         }
     }
 
-    fn process_tool_result(&self, tool_call: &ToolCall) -> Result<Option<(Option<DashboardFileResult>, Option<MetricFileResult>)>> {
+    fn process_tool_result(
+        &self,
+        tool_call: &ToolCall,
+    ) -> Result<Option<(Option<DashboardFileResult>, Option<MetricFileResult>)>> {
         match tool_call.function.name.as_str() {
             "create_dashboard_files" | "modify_dashboard_files" => {
                 let result: Value = serde_json::from_str(&tool_call.function.arguments)?;
                 if let Some(files) = result.get("files").and_then(|f| f.as_array()) {
                     if let Some(file) = files.first() {
-                        let metrics = file.get("metrics")
-                            .and_then(|m| m.as_array())
-                            .map_or_else(Vec::new, |metrics| {
-                                metrics.iter()
+                        let metrics = file.get("metrics").and_then(|m| m.as_array()).map_or_else(
+                            Vec::new,
+                            |metrics| {
+                                metrics
+                                    .iter()
                                     .filter_map(|m| m.get("id").and_then(|id| id.as_str()))
                                     .filter_map(|id| Uuid::parse_str(id).ok())
                                     .collect()
-                            });
+                            },
+                        );
 
-                        return Ok(Some((Some(DashboardFileResult {
-                            file_id: if tool_call.function.name.starts_with("create") {
-                                Uuid::new_v4()
-                            } else {
-                                Uuid::parse_str(file.get("id").and_then(|id| id.as_str()).unwrap_or_default())?
-                            },
-                            file_name: file.get("name").and_then(|n| n.as_str()).unwrap_or_default().to_string(),
-                            action: if tool_call.function.name.starts_with("create") {
-                                "created".to_string()
-                            } else {
-                                "modified".to_string()
-                            },
-                            status: "pending".to_string(),
-                            details: serde_json::to_string(&file)?,
-                            metrics,
-                        }), None)));
+                        return Ok(Some((
+                            Some(DashboardFileResult {
+                                file_id: if tool_call.function.name.starts_with("create") {
+                                    Uuid::new_v4()
+                                } else {
+                                    Uuid::parse_str(
+                                        file.get("id")
+                                            .and_then(|id| id.as_str())
+                                            .unwrap_or_default(),
+                                    )?
+                                },
+                                file_name: file
+                                    .get("name")
+                                    .and_then(|n| n.as_str())
+                                    .unwrap_or_default()
+                                    .to_string(),
+                                action: if tool_call.function.name.starts_with("create") {
+                                    "created".to_string()
+                                } else {
+                                    "modified".to_string()
+                                },
+                                status: "pending".to_string(),
+                                details: serde_json::to_string(&file)?,
+                                metrics,
+                            }),
+                            None,
+                        )));
                     }
                 }
             }
@@ -274,21 +382,32 @@ impl DashboardAgent {
                 let result: Value = serde_json::from_str(&tool_call.function.arguments)?;
                 if let Some(files) = result.get("files").and_then(|f| f.as_array()) {
                     if let Some(file) = files.first() {
-                        return Ok(Some((None, Some(MetricFileResult {
-                            file_id: if tool_call.function.name.starts_with("create") {
-                                Uuid::new_v4()
-                            } else {
-                                Uuid::parse_str(file.get("id").and_then(|id| id.as_str()).unwrap_or_default())?
-                            },
-                            file_name: file.get("name").and_then(|n| n.as_str()).unwrap_or_default().to_string(),
-                            action: if tool_call.function.name.starts_with("create") {
-                                "created".to_string()
-                            } else {
-                                "modified".to_string()
-                            },
-                            status: "pending".to_string(),
-                            details: serde_json::to_string(&file)?,
-                        }))));
+                        return Ok(Some((
+                            None,
+                            Some(MetricFileResult {
+                                file_id: if tool_call.function.name.starts_with("create") {
+                                    Uuid::new_v4()
+                                } else {
+                                    Uuid::parse_str(
+                                        file.get("id")
+                                            .and_then(|id| id.as_str())
+                                            .unwrap_or_default(),
+                                    )?
+                                },
+                                file_name: file
+                                    .get("name")
+                                    .and_then(|n| n.as_str())
+                                    .unwrap_or_default()
+                                    .to_string(),
+                                action: if tool_call.function.name.starts_with("create") {
+                                    "created".to_string()
+                                } else {
+                                    "modified".to_string()
+                                },
+                                status: "pending".to_string(),
+                                details: serde_json::to_string(&file)?,
+                            }),
+                        )));
                     }
                 }
             }
@@ -324,4 +443,4 @@ Remember to:
 - Include all required fields
 - Validate all modifications
 - Consider dashboard layout and user experience
-"##; 
+"##;

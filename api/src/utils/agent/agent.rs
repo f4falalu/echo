@@ -63,6 +63,25 @@ impl Agent {
         }
     }
 
+    /// Create a new Agent that shares state and stream with an existing agent
+    pub fn from_existing(existing_agent: &Agent) -> Self {
+        let llm_api_key = env::var("LLM_API_KEY").expect("LLM_API_KEY must be set");
+        let llm_base_url = env::var("LLM_BASE_URL").expect("LLM_API_BASE must be set");
+
+        let llm_client = LiteLLMClient::new(Some(llm_api_key), Some(llm_base_url));
+
+        Self {
+            llm_client,
+            tools: Arc::new(HashMap::new()), // Start with empty tools
+            model: existing_agent.model.clone(),
+            state: Arc::clone(&existing_agent.state),
+            current_thread: Arc::clone(&existing_agent.current_thread),
+            stream_tx: Arc::clone(&existing_agent.stream_tx),
+            user_id: existing_agent.user_id,
+            session_id: existing_agent.session_id,
+        }
+    }
+
     /// Update the stream sender for this agent
     pub async fn set_stream_sender(&self, tx: mpsc::Sender<Result<Message>>) {
         *self.stream_tx.write().await = tx;
@@ -108,6 +127,10 @@ impl Agent {
 
     pub fn get_session_id(&self) -> Uuid {
         self.session_id
+    }
+
+    pub fn get_model_name(&self) -> &str {
+        &self.model
     }
 
     /// Get the complete conversation history of the current thread
@@ -374,6 +397,24 @@ impl PendingToolCall {
             code_interpreter: None,
             retrieval: None,
         }
+    }
+}
+
+/// A trait that provides convenient access to Agent functionality
+/// when the agent is stored behind an Arc
+pub trait AgentExt {
+    fn get_agent(&self) -> &Arc<Agent>;
+
+    async fn stream_process_thread(&self, thread: &AgentThread) -> Result<mpsc::Receiver<Result<Message>>> {
+        (*self.get_agent()).process_thread_streaming(thread).await
+    }
+
+    async fn process_thread(&self, thread: &AgentThread) -> Result<Message> {
+        (*self.get_agent()).process_thread(thread).await
+    }
+
+    async fn get_current_thread(&self) -> Option<AgentThread> {
+        (*self.get_agent()).get_current_thread().await
     }
 }
 
