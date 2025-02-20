@@ -4,11 +4,11 @@ import React from 'react';
 import { useGetDatasets } from '@/api/buster_rest/datasets';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useMemo, useState } from 'react';
-import { DatasetListContent } from './_DatasetListContent';
-import { DatasetHeader } from './_DatasetsHeader';
-import { NewDatasetModal } from '../_components/Modals/NewDatasetModal';
+import { DatasetListContent } from './DatasetListContent';
+import { DatasetHeader } from './DatasetsHeader';
+import { NewDatasetModal } from '@appComponents/Modals/NewDatasetModal';
 
-export const DatasetsPageContent: React.FC<{}> = ({}) => {
+export const DatasetsListController: React.FC<{}> = ({}) => {
   const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
   const [datasetFilter, setDatasetFilter] = useState<'all' | 'published' | 'drafts'>('all');
   const [openDatasetModal, setOpenDatasetModal] = useState<boolean>(false);

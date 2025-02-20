@@ -1,15 +1,15 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { AppContent } from '../../../components/ui/layout/AppContent';
+import { AppContent } from '@/components/ui/layout/AppContent';
 import { BusterUserAvatar } from '@/components/ui';
 import { formatDate } from '@/utils';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import type { BusterDatasetListItem } from '@/api/asset_interfaces';
-import { ListEmptyStateWithButton } from '../../../components/ui/list';
+import { ListEmptyStateWithButton } from '@/components/ui/list';
 import { useMemoizedFn } from 'ahooks';
-import { DatasetSelectedOptionPopup } from './_DatasetSelectedPopup';
+import { DatasetSelectedOptionPopup } from './DatasetSelectedPopup';
 
 const columns: BusterListColumn[] = [
   {

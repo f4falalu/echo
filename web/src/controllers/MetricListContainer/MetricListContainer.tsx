@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { AppContent } from '../../../../components/ui/layout/AppContent';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn, useMount } from 'ahooks';
 import { VerificationStatus } from '@/api/asset_interfaces';
 import { useBusterMetricListByFilter } from '@/context/Metrics';
 import { MetricListHeader } from './MetricListHeader';
 import { MetricItemsContainer } from './MetricItemsContainer';
+import { AppContent } from '@/components/ui';
 
 export const MetricListContainer: React.FC<{
   className?: string;

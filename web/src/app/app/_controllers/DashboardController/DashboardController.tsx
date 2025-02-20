@@ -3,10 +3,10 @@
 import React, { useState } from 'react';
 import { useBusterDashboardIndividual } from '@/context/Dashboards';
 import { FileIndeterminateLoader } from '@appComponents/FileIndeterminateLoader';
-import { DashboardFileView, useChatLayoutContextSelector } from '@appLayouts/ChatLayout';
-import { DashboardViewComponents } from './config';
-import { AddTypeModal } from '../../_components/Modals/AddTypeModal';
 import { useMemoizedFn } from 'ahooks';
+import { DashboardFileView, useChatLayoutContextSelector } from '@/layouts/ChatLayout';
+import { DashboardViewComponents } from '@/controllers/DashboardController/config';
+import { AddTypeModal } from '@appComponents/Modals/AddTypeModal';
 
 export const DashboardController: React.FC<{ dashboardId: string }> = ({ dashboardId }) => {
   const { dashboardResponse } = useBusterDashboardIndividual({

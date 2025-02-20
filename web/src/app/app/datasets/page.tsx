@@ -1,5 +1,5 @@
 import { prefetchGetDatasets } from '@/api/buster_rest/datasets';
-import { DatasetsPageContent } from './DatasetsPageContent';
+import { DatasetsListController } from '../../../controllers/DatasetsListController';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 
 export default async function DashboardPage() {
@@ -7,7 +7,7 @@ export default async function DashboardPage() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <DatasetsPageContent />
+      <DatasetsListController />
     </HydrationBoundary>
   );
 }
