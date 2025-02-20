@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useSet, useMemoizedFn } from 'ahooks';
 import { LabelAndInput } from '../../Common';
 import { Button, Divider } from 'antd';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CollapseDelete } from '../../Common/CollapseDelete';
 import { formatLabel } from '@/utils';

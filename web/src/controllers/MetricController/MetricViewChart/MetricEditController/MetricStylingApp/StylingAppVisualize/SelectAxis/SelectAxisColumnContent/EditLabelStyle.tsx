@@ -1,7 +1,7 @@
 import type { IColumnLabelFormat } from '@/components/ui/charts/interfaces/columnLabelInterfaces';
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
-import { AppSegmented } from '@/components';
+import { AppSegmented } from '@/components/ui';
 import { ColumnTypeIcon } from '../config';
 import { useEditAppSegmented } from './useEditAppSegmented';
 import { createStyles } from 'antd-style';

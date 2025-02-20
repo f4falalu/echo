@@ -9,7 +9,7 @@ import { useParams } from 'next/navigation';
 import React, { useMemo, useState } from 'react';
 import isEmpty from 'lodash/isEmpty';
 import { useMemoizedFn } from 'ahooks';
-import { asset_typeToIcon } from '@/components/icons';
+import { asset_typeToIcon } from '@/components/ui';
 
 export const FavoritesDropdown: React.FC<{}> = React.memo(() => {
   const userFavorites = useUserConfigContextSelector((state) => state.userFavorites);

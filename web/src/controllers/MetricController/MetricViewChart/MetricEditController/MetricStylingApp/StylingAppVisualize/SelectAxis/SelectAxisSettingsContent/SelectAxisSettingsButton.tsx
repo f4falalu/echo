@@ -1,4 +1,4 @@
-import { AppMaterialIcons, AppPopover } from '@/components';
+import { AppMaterialIcons, AppPopover } from '@/components/ui';
 import { Button } from 'antd';
 import React, { useMemo } from 'react';
 import { SelectAxisContainerId } from '../config';

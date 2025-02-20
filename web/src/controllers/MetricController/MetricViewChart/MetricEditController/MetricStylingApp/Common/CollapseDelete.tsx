@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { createStyles } from 'antd-style';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { DraggableAttributes } from '@dnd-kit/core';
 import { Button } from 'antd';
@@ -92,7 +92,7 @@ const CollapseDeleteHeader = React.memo(
         style={{ ...style }}
         className={cx(
           styles.titleContainer,
-          'group flex cursor-pointer select-none items-center justify-between space-x-1',
+          'group flex cursor-pointer items-center justify-between space-x-1 select-none',
           isDragging && 'cursor-grabbing! shadow-lg'
         )}>
         <div

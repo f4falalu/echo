@@ -1,5 +1,5 @@
 import type { BusterSearchResult } from '@/api/asset_interfaces';
-import { CircleSpinnerLoader } from '@/components';
+import { CircleSpinnerLoader } from '@/components/ui';
 import { boldHighlights } from '@/utils/element';
 import { createStyles } from 'antd-style';
 import React, { useEffect } from 'react';

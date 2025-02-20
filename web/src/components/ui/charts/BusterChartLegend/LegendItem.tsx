@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useLayoutEffect } from 'react';
 import { BusterChartLegendItem, BusterChartLegendProps } from './interfaces';
-import { Text, Title } from '@/components/text';
+import { Text, Title } from '@/components/ui';
 import { createStyles } from 'antd-style';
 import { useMemoizedFn } from 'ahooks';
 import { LegendItemDot } from './LegendDot';
@@ -114,7 +114,7 @@ const LegendItemStandard = React.memo(
             <motion.div {...headlineAnimation} className="flex items-center space-x-1.5">
               <Title
                 level={4}
-                className="font-semibold! leading-none"
+                className="leading-none font-semibold!"
                 type={!inactive ? 'default' : 'tertiary'}>
                 {headline?.titleAmount}
               </Title>
@@ -136,7 +136,7 @@ const LegendItemStandard = React.memo(
 
           <Text
             size="sm"
-            className="flex! select-none items-center truncate transition-all duration-100"
+            className="flex! items-center truncate transition-all duration-100 select-none"
             type={!inactive ? 'default' : 'tertiary'}>
             <AnimatePresence mode="wait" initial={false}>
               {headlinePreText && (

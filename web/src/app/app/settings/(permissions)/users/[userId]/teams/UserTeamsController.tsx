@@ -6,7 +6,7 @@ import { PermissionSearchAndListWrapper } from '@appComponents/PermissionCompone
 import React, { useMemo, useState } from 'react';
 import { Button } from 'antd';
 import { useMemoizedFn } from 'ahooks';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { UserTeamsListContainer } from './UserTeamsListContainer';
 import { NewTeamModal } from '@appComponents/NewTeamModal';
 

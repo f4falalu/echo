@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { DashboardsListEmitPayload } from '@/api/buster_socket/dashboards';
-import { AppMaterialIcons, AppSegmented } from '@/components';
+import { AppMaterialIcons, AppSegmented } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 
 export const DashboardHeader: React.FC<{

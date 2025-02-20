@@ -4,8 +4,8 @@ import { LabelAndInput } from '../Common';
 import { Segmented } from 'antd';
 import { useEditAppSegmented } from '../StylingAppVisualize/SelectAxis/SelectAxisColumnContent/useEditAppSegmented';
 import { BarSortBy } from '@/components/ui/charts';
-import { AppMaterialIconIcon, AppMaterialIcons } from '@/components/icons';
-import { AppTooltip } from '@/components';
+import { AppMaterialIconIcon, AppMaterialIcons } from '@/components/ui';
+import { AppTooltip } from '@/components/ui';
 
 const allOptions: {
   value: BarSortBy[0];

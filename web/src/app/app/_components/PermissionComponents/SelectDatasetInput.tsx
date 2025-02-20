@@ -1,5 +1,5 @@
 import { useGetDatasets } from '@/api/buster_rest';
-import { AppSelectMultiple } from '@/components';
+import { AppSelectMultiple } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 import { Select } from 'antd';
 import React, { useMemo, useState } from 'react';

@@ -5,7 +5,7 @@ import type {
   BusterChatMessage_file,
   BusterChatMessage_fileMetadata
 } from '@/api/asset_interfaces';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import { motion, AnimatePresence } from 'framer-motion';
 import { itemAnimationConfig } from '@appComponents/Streaming/animationConfig';
 import { useMemoizedFn } from 'ahooks';

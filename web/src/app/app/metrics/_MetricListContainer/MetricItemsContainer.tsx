@@ -2,7 +2,7 @@ import { ShareAssetType, VerificationStatus, BusterMetricListItem } from '@/api/
 import { makeHumanReadble, formatDate } from '@/utils';
 import React, { memo, useMemo, useRef, useState } from 'react';
 import { StatusBadgeIndicator, getShareStatus } from '../../_components/Lists';
-import { BusterUserAvatar, Text } from '@/components';
+import { BusterUserAvatar, Text } from '@/components/ui';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
 import { BusterListColumn, BusterListRow } from '@/components/ui/list';

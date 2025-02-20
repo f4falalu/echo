@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Text, Title } from '@/components';
+import { Text, Title } from '@/components/ui';
 import { Divider } from 'antd';
 
 export const SettingsPageHeader: React.FC<{

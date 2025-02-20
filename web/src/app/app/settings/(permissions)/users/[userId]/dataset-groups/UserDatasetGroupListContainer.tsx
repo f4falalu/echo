@@ -13,7 +13,7 @@ import { useMemoizedFn } from 'ahooks';
 import React, { useMemo, useState } from 'react';
 import { UserDatasetGroupSelectedPopup } from './UserDatasetGroupSelectedPopup';
 import pluralize from 'pluralize';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 
 export const UserDatasetGroupListContainer: React.FC<{
   filteredDatasetGroups: BusterUserDatasetGroup[];

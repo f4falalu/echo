@@ -1,9 +1,9 @@
 import type { BusterDatasetListItem } from '@/api/asset_interfaces';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { SelectProps, Select } from 'antd';
 import isEmpty from 'lodash/isEmpty';
 import React, { useMemo } from 'react';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 import { createStyles } from 'antd-style';
 

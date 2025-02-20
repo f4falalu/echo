@@ -1,5 +1,4 @@
-import { BusterUserAvatar } from '@/components';
-import { Text } from '@/components/text';
+import { Text, BusterUserAvatar } from '@/components/ui';
 import React from 'react';
 
 export const ListUserItem = React.memo(({ name, email }: { name: string; email: string }) => {

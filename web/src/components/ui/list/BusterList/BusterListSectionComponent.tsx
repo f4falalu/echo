@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import { BusterListRow } from './interfaces';
 import { useMemoizedFn } from 'ahooks';
 import { CheckboxColumn } from './CheckboxColumn';

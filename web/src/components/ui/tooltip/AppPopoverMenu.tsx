@@ -1,9 +1,11 @@
+'use client';
+
 import React, { useLayoutEffect, useMemo } from 'react';
 import { Divider, Dropdown, MenuProps, DropdownProps, Input } from 'antd';
 import { useAntToken } from '@/styles/useAntToken';
 import { createStyles } from 'antd-style';
 import { AppSelectItem } from '../select/AppSelectItem';
-import { useMemoizedFn, useMount } from 'ahooks';
+import { useMemoizedFn } from 'ahooks';
 
 type Item = {
   label: React.ReactNode;

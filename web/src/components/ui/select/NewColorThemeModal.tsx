@@ -6,7 +6,7 @@ import pick from 'lodash/pick';
 import shuffle from 'lodash/shuffle';
 import { AppTooltip } from '../tooltip';
 import { AppMaterialIcons } from '../icons';
-import { Text } from '@/components';
+import { Text } from '@/components/ui';
 
 export const NewColorThemeModal: React.FC<{
   open: boolean;

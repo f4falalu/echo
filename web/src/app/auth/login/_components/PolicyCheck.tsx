@@ -1,6 +1,6 @@
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import React, { useEffect, useMemo } from 'react';
-import { AppPopover, Text } from '@/components';
+import { AppPopover, Text } from '@/components/ui';
 
 export const PolicyCheck: React.FC<{
   password: string;

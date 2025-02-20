@@ -13,7 +13,7 @@ import { useMemoizedFn } from 'ahooks';
 import React, { useMemo, useState } from 'react';
 import { UserPermissionGroupSelectedPopup } from './UserPermissionGroupSelectedPopup';
 import pluralize from 'pluralize';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 
 export const UserPermissionGroupsListContainer: React.FC<{
   filteredPermissionGroups: BusterUserPermissionGroup[];

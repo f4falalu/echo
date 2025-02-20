@@ -1,5 +1,5 @@
-import { AppMaterialIcons } from '@/components/icons';
-import { Text } from '@/components/text';
+import { AppMaterialIcons } from '@/components/ui';
+import { Text } from '@/components/ui';
 import { useAntToken } from '@/styles/useAntToken';
 import { createStyles } from 'antd-style';
 import React from 'react';

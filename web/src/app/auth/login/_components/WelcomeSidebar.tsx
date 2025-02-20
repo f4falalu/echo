@@ -2,14 +2,13 @@ import React from 'react';
 import { BusterFrameLogoWithText } from '@/assets/svg/BusterFrameLogoWithText';
 import Link from 'next/link';
 import { BUSTER_HOME_PAGE } from '@/routes/externalRoutes';
-
 import PodiumImage from '@/assets/png/podium.png';
 import ArtifactImage from '@/assets/png/artifact.png';
 import AdobeImage from '@/assets/png/adobe.png';
 import BambooImage from '@/assets/png/bamboo.png';
 import CartaImage from '@/assets/png/carta.png';
 import GuideCX from '@/assets/png/guidecx.png';
-import { Text } from '@/components/text/Text';
+import { Text } from '@/components/ui';
 
 export const WelcomeToBuster: React.FC<{
   hasUser: boolean;

@@ -6,7 +6,7 @@ import { Button, Select } from 'antd';
 import { DEFAULT_COLUMN_SETTINGS } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
 import { createColumnFieldOptions } from './helpers';
-import { AppMaterialIcons, AppPopover } from '@/components';
+import { AppMaterialIcons, AppPopover } from '@/components/ui';
 import { SelectAxisDropdownContent } from '../SelectAxis/SelectAxisColumnContent';
 import { ChartType, DerivedMetricTitle } from '@/components/ui/charts';
 import { SelectAxisContainerId } from '../SelectAxis/config';

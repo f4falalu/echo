@@ -1,4 +1,4 @@
-import { AppMaterialIcons, BackButton, Title } from '@/components';
+import { AppMaterialIcons, BackButton, Title } from '@/components/ui';
 import React from 'react';
 
 export const AppSidebarTopSettings: React.FC<{

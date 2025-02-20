@@ -1,7 +1,7 @@
 import React from 'react';
 import { SelectAxisContainerId } from '../config';
 import { ZoneIdToTitle } from '../helper';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import { Divider } from 'antd';
 import { zoneIdToAxisSettingContent } from './config';
 
@@ -11,7 +11,7 @@ export const SelectAxisSettingContent: React.FC<{ zoneId: SelectAxisContainerId 
   const SettingContentComponent = zoneIdToAxisSettingContent[zoneId];
 
   return (
-    <div className="flex min-w-[305px] max-w-[305px] flex-col">
+    <div className="flex max-w-[305px] min-w-[305px] flex-col">
       <TitleContent zoneId={zoneId} />
 
       {SettingContentComponent && (

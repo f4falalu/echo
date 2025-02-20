@@ -1,3 +1,5 @@
+'use client';
+
 import React, { PropsWithChildren, useState } from 'react';
 import { Popover, PopoverProps } from 'antd';
 import { createStyles } from 'antd-style';

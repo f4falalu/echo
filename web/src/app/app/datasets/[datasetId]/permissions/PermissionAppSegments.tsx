@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useRef } from 'react';
-import { AppSegmented } from '@/components';
+import { AppSegmented } from '@/components/ui';
 import { PermissionApps } from './config';
 import { useMemoizedFn, useSet } from 'ahooks';
 import { SegmentedValue } from 'antd/es/segmented';
@@ -72,7 +72,7 @@ export const PermissionAppSegments: React.FC<{
   );
 
   return (
-    <div ref={ref} className="flex flex-col justify-center space-x-0 space-y-2">
+    <div ref={ref} className="flex flex-col justify-center space-y-2 space-x-0">
       <AppSegmented options={options} value={selectedApp} />
       <Divider className="" />
     </div>

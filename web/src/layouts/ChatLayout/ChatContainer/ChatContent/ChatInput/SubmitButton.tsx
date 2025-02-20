@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { createStyles } from 'antd-style';
 import { AnimatePresence, motion } from 'framer-motion';
-import { AppTooltip } from '@/components';
+import { AppTooltip } from '@/components/ui';
 
 interface SubmitButtonProps {
   disableSendButton: boolean;

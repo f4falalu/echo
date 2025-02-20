@@ -1,4 +1,4 @@
-import { EditableTitle, Text } from '@/components';
+import { EditableTitle, Text } from '@/components/ui';
 import React from 'react';
 import { useMemoizedFn } from 'ahooks';
 import { useUpdateDataset } from '@/api/buster_rest';

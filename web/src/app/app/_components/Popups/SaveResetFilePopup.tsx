@@ -1,8 +1,8 @@
 import { PopupContainer, PopupSplitter } from '@/components/ui/popup';
 import React from 'react';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import { Button } from 'antd';
-import { AppMaterialIcons } from '@/components';
+import { AppMaterialIcons } from '@/components/ui';
 import { createStyles } from 'antd-style';
 
 export const SaveResetFilePopup: React.FC<{

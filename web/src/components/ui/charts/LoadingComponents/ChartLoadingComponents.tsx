@@ -1,6 +1,6 @@
 'use client';
 
-import { ShimmerText, Text } from '@/components/text';
+import { ShimmerText, Text } from '@/components/ui';
 import React from 'react';
 
 export const PreparingYourRequestLoader: React.FC<{

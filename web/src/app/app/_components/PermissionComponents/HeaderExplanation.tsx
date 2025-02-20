@@ -1,5 +1,5 @@
 import React from 'react';
-import { Title, Text } from '@/components';
+import { Title, Text } from '@/components/ui';
 
 export const HeaderExplanation: React.FC<{
   className?: string;

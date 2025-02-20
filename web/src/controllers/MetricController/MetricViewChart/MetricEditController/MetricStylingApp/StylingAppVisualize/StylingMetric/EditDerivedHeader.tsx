@@ -1,5 +1,5 @@
 import type { IBusterMetricChartConfig, ColumnMetaData } from '@/api/asset_interfaces';
-import { AppPopover, AppMaterialIcons } from '@/components';
+import { AppPopover, AppMaterialIcons } from '@/components/ui';
 import type { IColumnLabelFormat, DerivedMetricTitle } from '@/components/ui/charts';
 import { formatLabel, isNumericColumnType, isNumericColumnStyle } from '@/utils';
 import { useMemoizedFn } from 'ahooks';
@@ -9,7 +9,7 @@ import last from 'lodash/last';
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../Common';
 import { AGGREGATE_OPTIONS } from './EditMetricType';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import { createColumnFieldOptions } from './helpers';
 
 const DEFAULT_METRIC_HEADER: Required<IBusterMetricChartConfig['metricHeader']> = {

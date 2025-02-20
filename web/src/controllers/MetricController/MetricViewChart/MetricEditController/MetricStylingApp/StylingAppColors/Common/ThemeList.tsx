@@ -1,6 +1,6 @@
 import React from 'react';
 import { IColorTheme } from './interfaces';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import { createStyles } from 'antd-style';
 import { ThemeColorDots } from './ThemeColorDots';
 

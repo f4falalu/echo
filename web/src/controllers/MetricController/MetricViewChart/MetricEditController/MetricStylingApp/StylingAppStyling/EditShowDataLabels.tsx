@@ -2,7 +2,7 @@ import React from 'react';
 import { LabelAndInput } from '../Common';
 import { Switch } from 'antd';
 import { AppPopover } from '@/components/ui/tooltip';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { WarningIcon } from '../Common/WarningIcon';
 
 export const EditShowDataLabels: React.FC<{

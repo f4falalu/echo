@@ -16,7 +16,7 @@ import React, { useMemo, useState } from 'react';
 import { UserAttributesListContainer } from './UserAttributesListContainer';
 import { Button } from 'antd';
 import { useMemoizedFn } from 'ahooks';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 
 export const UserAttributesController: React.FC<{ userId: string }> = ({ userId }) => {
   const { data: attributes } = useGetUserAttributes({ userId });

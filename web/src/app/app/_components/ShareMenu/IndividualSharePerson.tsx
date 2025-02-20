@@ -1,9 +1,9 @@
-import { BusterUserAvatar } from '@/components';
+import { BusterUserAvatar } from '@/components/ui';
 import { AccessDropdown } from './AccessDropdown';
 
 import React from 'react';
 import { ShareRole } from '@/api/asset_interfaces';
-import { Text } from '@/components';
+import { Text } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 
 export const IndividualSharePerson: React.FC<{

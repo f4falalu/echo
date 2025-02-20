@@ -1,6 +1,6 @@
 'use client';
 
-import { AppSegmented } from '@/components';
+import { AppSegmented } from '@/components/ui';
 import { SegmentedProps } from 'antd';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';

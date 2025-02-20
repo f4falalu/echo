@@ -3,7 +3,7 @@
 import React, { PropsWithChildren, useMemo } from 'react';
 import { Menu } from 'antd';
 import type { MenuProps } from 'antd';
-import { AppMaterialIcons } from '@/components';
+import { AppMaterialIcons } from '@/components/ui';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import Link from 'next/link';
 import { AppMenuGroupSingle } from '@/components/ui/menu/AppMenuGroupSingle';

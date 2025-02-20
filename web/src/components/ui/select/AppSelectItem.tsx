@@ -1,8 +1,10 @@
+'use client';
+
 import React, { useEffect } from 'react';
 import { Button, Checkbox } from 'antd';
 import { useAntToken } from '@/styles/useAntToken';
 import { AppMaterialIcons } from '../icons';
-import { Text } from '@/components';
+import { Text } from '@/components/ui';
 import Link from 'next/link';
 
 export const AppSelectItem: React.FC<{

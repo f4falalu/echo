@@ -3,7 +3,7 @@ import { Button, Dropdown, MenuProps } from 'antd';
 import React, { useMemo } from 'react';
 import { useMemoizedFn } from 'ahooks';
 import { useDatasetUpdatePermissionGroups } from '@/api/buster_rest';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { PERMISSION_OPTIONS_ASSIGNED } from '@/app/app/_components/PermissionComponents';
 
 export const PermissionGroupSelectedPopup: React.FC<{

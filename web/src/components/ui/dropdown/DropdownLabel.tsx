@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppMaterialIcons, Text } from '@/components';
+import { AppMaterialIcons, Text } from '@/components/ui';
 import { useAntToken } from '@/styles/useAntToken';
 
 //antd.scss overrides label

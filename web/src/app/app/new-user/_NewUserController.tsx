@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button, Input } from 'antd';
-import { Title, Text } from '@/components/text';
+import { Title, Text } from '@/components/ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { inputHasText } from '@/utils';

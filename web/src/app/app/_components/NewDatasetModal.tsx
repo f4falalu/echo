@@ -5,7 +5,7 @@ import { useCreateDataset } from '@/api/buster_rest/datasets';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useRouter } from 'next/navigation';
-import { AppModal, Text } from '@/components';
+import { AppModal, Text } from '@/components/ui';
 import { useDataSourceListContextSelector } from '@/context/DataSources';
 
 const headerConfig = {

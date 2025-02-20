@@ -8,7 +8,7 @@ import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { CreateChatButton } from './CreateChatButtont';
 import { ShareDashboardButton } from '@appComponents/Buttons/ShareDashboardButton';
 import { Button, Dropdown } from 'antd';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { MenuProps } from 'antd/lib';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { useRouter } from 'next/router';

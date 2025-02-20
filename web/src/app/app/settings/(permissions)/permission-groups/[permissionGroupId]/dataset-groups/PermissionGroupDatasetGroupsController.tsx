@@ -8,7 +8,7 @@ import {
 } from '@appComponents/PermissionComponents';
 import React, { useMemo, useState } from 'react';
 import { Button } from 'antd';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { PermissionGroupDatasetGroupsListContainer } from './PermissionGroupDatasetsListContainer';
 import { useMemoizedFn } from 'ahooks';
 

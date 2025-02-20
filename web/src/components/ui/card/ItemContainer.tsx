@@ -1,7 +1,7 @@
 import { Checkbox } from 'antd';
 import { createStyles } from 'antd-style';
 import React from 'react';
-import { Text } from '@/components';
+import { Text } from '@/components/ui';
 
 const useStyles = createStyles(({ token, css }) => ({
   container: css`
@@ -29,7 +29,7 @@ export const ItemContainer: React.FC<{
 
   return (
     <div className={cx(styles.container, className)}>
-      <div className={cx(styles.header, 'flex items-center py-1 pl-4 pr-3')}>{title}</div>
+      <div className={cx(styles.header, 'flex items-center py-1 pr-3 pl-4')}>{title}</div>
       <div className={cx(styles.body, bodyClass || 'px-4 py-5')}>{children}</div>
     </div>
   );

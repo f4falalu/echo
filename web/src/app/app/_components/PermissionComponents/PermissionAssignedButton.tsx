@@ -1,4 +1,4 @@
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 import { MenuProps, Dropdown, Button } from 'antd';
 import React, { useMemo } from 'react';

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { AppContentHeader } from '../../../../components/ui/layout/AppContentHeader';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 
 export const ChatListHeader: React.FC<{}> = ({}) => {
   return (

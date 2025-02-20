@@ -4,7 +4,7 @@ import type { IColumnLabelFormat } from '@/components/ui/charts/interfaces/colum
 import { Select } from 'antd';
 import { useGetCurrencies } from '@/api/buster_rest/nextjs/currency';
 import { useMemoizedFn } from 'ahooks';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 
 export const EditCurrency: React.FC<{
   currency: IColumnLabelFormat['currency'];

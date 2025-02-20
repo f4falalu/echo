@@ -13,9 +13,8 @@ import {
   ScatterController
 } from 'chart.js';
 import type { ChartType, ChartComponentLike } from 'chart.js';
-
 import type { ChartProps, ChartJSOrUndefined, TypedChartComponent } from './types.js';
-import { Chart } from './chart.jsx';
+import { Chart } from './chart';
 
 function createTypedChart<T extends ChartType>(type: T, registerables: ChartComponentLike) {
   ChartJS.register(registerables);

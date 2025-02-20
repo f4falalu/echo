@@ -1,9 +1,9 @@
 import React from 'react';
 
 import { useBusterTermsIndividualContextSelector, useBusterTermsIndividual } from '@/context/Terms';
-import { BusterUserAvatar } from '@/components';
+import { BusterUserAvatar } from '@/components/ui';
 import { formatDate } from '@/utils';
-import { Text } from '@/components';
+import { Text } from '@/components/ui';
 import { DatasetList } from './TermDatasetSelect';
 
 export const TermIndividualContentSider: React.FC<{ termId: string }> = ({ termId }) => {

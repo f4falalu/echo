@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { IColorTheme } from './interfaces';
 import { useMemoizedFn, useSize } from 'ahooks';
 import { createStyles } from 'antd-style';

@@ -1,4 +1,4 @@
-import { AppSegmented, AppSegmentedProps } from '@/components';
+import { AppSegmented, AppSegmentedProps } from '@/components/ui';
 import React, { useMemo } from 'react';
 import { CopyLinkButton } from './CopyLinkButton';
 import { ShareAssetType } from '@/api/asset_interfaces';

@@ -6,13 +6,13 @@ import { useBusterTermsIndividualContextSelector, useBusterTermsIndividual } fro
 import { Dropdown, Input } from 'antd';
 import { useDebounceFn } from 'ahooks';
 import { formatDate } from '@/utils';
-import { AppMaterialIcons, EditableTitle } from '@/components';
+import { AppMaterialIcons, EditableTitle } from '@/components/ui';
 import { useAntToken } from '@/styles/useAntToken';
 import { AppCodeEditor } from '@/components/ui/inputs/AppCodeEditor';
 import clamp from 'lodash/clamp';
 import { MenuProps } from 'antd/lib';
 import { ItemContainer } from '@/components/ui/card/ItemContainer';
-import { Text } from '@/components';
+import { Text } from '@/components/ui';
 import { BusterRoutes } from '@/routes';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Segmented } from 'antd';
 import { StylingAppColorsTab } from './config';
-import { AppMaterialIconIcon, AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIconIcon, AppMaterialIcons } from '@/components/ui';
 
 export const SelectColorApp: React.FC<{
   selectedTab: StylingAppColorsTab;

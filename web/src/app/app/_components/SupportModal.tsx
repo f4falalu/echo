@@ -1,11 +1,11 @@
 import React, { useLayoutEffect, useMemo, useState } from 'react';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import { Input } from 'antd';
 import { useMemoizedFn } from 'ahooks';
 import { submitAppSupportRequest } from '@/api/buster_rest/nextjs/support';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { AppModal } from '@/components';
+import { AppModal } from '@/components/ui';
 
 export const SupportModal: React.FC<{
   open: boolean;

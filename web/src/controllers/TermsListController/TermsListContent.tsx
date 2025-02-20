@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { AppContent } from '@/components/ui/layout/AppContent';
-import { BusterUserAvatar } from '@/components';
+import { BusterUserAvatar } from '@/components/ui';
 import { formatDate } from '@/utils';
 import {
   ListEmptyStateWithButton,

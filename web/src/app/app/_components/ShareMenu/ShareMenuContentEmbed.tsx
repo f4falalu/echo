@@ -1,12 +1,12 @@
 import { ShareAssetType } from '@/api/asset_interfaces';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useAntToken } from '@/styles/useAntToken';
 import { Button, Divider, Input, Space } from 'antd';
 import React, { useMemo } from 'react';
-import { Text } from '@/components';
+import { Text } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';

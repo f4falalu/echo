@@ -1,10 +1,10 @@
 import { BusterTerm } from '@/api/buster_rest';
-import { AppTooltip, AppMaterialIcons } from '@/components';
+import { AppTooltip, AppMaterialIcons } from '@/components/ui';
 import { AppDropdownSelectProps, AppDropdownSelect } from '@/components/ui/dropdown';
 import { createStyles } from 'antd-style';
 import React, { useMemo } from 'react';
 import { Button } from 'antd';
-import { Text } from '@/components';
+import { Text } from '@/components/ui';
 import { useGetDatasets } from '@/api/buster_rest/datasets';
 
 const useStyles = createStyles(({ token, css }) => ({

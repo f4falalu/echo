@@ -4,7 +4,7 @@ import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { SelectAxisItemDragContainer } from './SelectAxisDragContainer';
 import { useSelectAxisContextSelector } from './useSelectAxisContext';
 import { SelectAxisItemLabel } from './SelectAxisItemLabel';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { Button } from 'antd';
 import { useMemoizedFn } from 'ahooks';
 import { SelectAxisColumnPopover } from './SelectAxisColumnPopover';

@@ -1,4 +1,4 @@
-import { AppModal } from '@/components';
+import { AppModal } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Input, InputRef } from 'antd';

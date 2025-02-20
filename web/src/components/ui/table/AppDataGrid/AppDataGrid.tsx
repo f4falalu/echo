@@ -11,7 +11,7 @@ import type {
 import isNumber from 'lodash/isNumber';
 import isDate from 'lodash/isDate';
 import isString from 'lodash/isString';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import round from 'lodash/round';
 import { ErrorBoundary } from '@/components/ui/error';
 

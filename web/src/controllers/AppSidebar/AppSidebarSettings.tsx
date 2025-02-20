@@ -1,6 +1,6 @@
 'use client';
 
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { BusterRoutes, createBusterRoute } from '@/routes';
@@ -8,7 +8,7 @@ import { Menu, MenuProps } from 'antd';
 import { createStyles } from 'antd-style';
 import Link from 'next/link';
 import React, { useMemo } from 'react';
-import { Text } from '@/components';
+import { Text } from '@/components/ui';
 import { SignOutButton } from './SignOutButton';
 import { useMemoizedFn } from 'ahooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';

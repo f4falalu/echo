@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Modal, Input, InputRef, ConfigProvider, ThemeConfig } from 'antd';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { useMemoizedFn, useMount, useThrottleFn } from 'ahooks';
 import { useAntToken } from '@/styles/useAntToken';
 import { useBusterNewChatContextSelector } from '@/context/Chats';

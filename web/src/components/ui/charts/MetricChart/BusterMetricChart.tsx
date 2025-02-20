@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { useMount } from 'ahooks';
 import { formatLabel, JsonDataFrameOperationsSingle, timeout } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Title } from '@/components';
+import { Title } from '@/components/ui';
 import { ColumnLabelFormat, MetricChartProps } from '../interfaces';
 import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces';
 import type { BusterMetricChartProps } from './interfaces';

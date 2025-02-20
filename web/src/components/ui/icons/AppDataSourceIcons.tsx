@@ -42,9 +42,5 @@ export const AppDataSourceIcon: React.FC<{
     return <AppMaterialIcons {...props} icon="database" />;
   }
 
-  return (
-    <>
-      <ChosenIcon {...props} />
-    </>
-  );
+  return <ChosenIcon {...props} />;
 };

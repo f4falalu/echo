@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { AnimatePresence } from 'framer-motion';
 import React from 'react';
 import { itemAnimationConfig } from './animationConfig';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 
 export const BarContainer: React.FC<{
   showBar: boolean;

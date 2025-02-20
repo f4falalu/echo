@@ -2,7 +2,7 @@
 
 import { Button } from 'antd';
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { Title } from '@/components/text';
+import { Title } from '@/components/ui';
 
 interface Props {
   children: ReactNode;
@@ -29,7 +29,7 @@ export class GlobalErrorComponent extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <div
-          className="flex min-h-screen w-screen flex-col items-center justify-center bg-opacity-90 bg-linear-to-br from-gray-50 to-gray-200 p-8 backdrop-blur-xs backdrop-brightness-95 backdrop-filter"
+          className="bg-opacity-90 flex min-h-screen w-screen flex-col items-center justify-center bg-linear-to-br from-gray-50 to-gray-200 p-8 backdrop-blur-xs backdrop-brightness-95 backdrop-filter"
           role="alert">
           <div className="-mt-4 max-w-md rounded-lg border border-gray-200 bg-white/90 p-10">
             <div className="mb-8 flex flex-col gap-4">

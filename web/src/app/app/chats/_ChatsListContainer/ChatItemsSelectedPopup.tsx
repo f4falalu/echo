@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { Button, Dropdown, DropdownProps } from 'antd';
 import { StatusBadgeButton } from '../../_components/Lists';

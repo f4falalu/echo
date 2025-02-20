@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Button, Divider, DatePicker, Input, Space, Switch } from 'antd';
-import { AppMaterialIcons, PulseLoader } from '@/components';
+import { AppMaterialIcons, PulseLoader } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 import { createStyles } from 'antd-style';
 import { createDayjsDate } from '@/utils/date';
@@ -10,7 +10,7 @@ import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { ShareAssetType } from '@/api/asset_interfaces';
-import { Text } from '@/components';
+import { Text } from '@/components/ui';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import type { Dayjs } from 'dayjs';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';

@@ -1,4 +1,4 @@
-import { AppSegmented } from '@/components';
+import { AppSegmented } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 import { createStyles } from 'antd-style';
 import { SegmentedValue } from 'antd/es/segmented';

@@ -2,9 +2,9 @@
 
 import React, { useMemo } from 'react';
 import { AppContentHeader } from '../../../../components/ui/layout/AppContentHeader';
-import { AppSegmented } from '@/components';
+import { AppSegmented } from '@/components/ui';
 import { VerificationStatus } from '@/api/asset_interfaces';
-import { Text } from '@/components';
+import { Text } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 import { SegmentedValue } from 'antd/lib/segmented';
 

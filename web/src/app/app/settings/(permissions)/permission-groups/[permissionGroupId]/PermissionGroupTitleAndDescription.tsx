@@ -2,7 +2,7 @@
 
 import { useGetPermissionGroup, useUpdatePermissionGroup } from '@/api/buster_rest';
 import React from 'react';
-import { EditableTitle } from '@/components/text';
+import { EditableTitle } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 
 export const PermissionGroupTitleAndDescription: React.FC<{

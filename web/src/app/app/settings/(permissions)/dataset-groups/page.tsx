@@ -7,7 +7,7 @@ import { useListDatasetGroups } from '@/api/buster_rest';
 import { ListDatasetGroupsComponent } from './ListDatasetGroupsComponent';
 import { useMemoizedFn } from 'ahooks';
 import { Button } from 'antd';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 
 export default function Page() {
   const { data: datasetGroups, isFetched } = useListDatasetGroups();

@@ -2,7 +2,7 @@ import React from 'react';
 import { DraggableAttributes } from '@dnd-kit/core';
 import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { createStyles } from 'antd-style';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 
 export const SelectAxisItemDragContainer = React.forwardRef<
   HTMLDivElement,

@@ -1,7 +1,7 @@
 'use client';
 
 import { BusterMetricListItem, VerificationStatus } from '@/api/asset_interfaces';
-import { AppMaterialIcons, AppPopoverMenu, AppTooltip } from '@/components';
+import { AppMaterialIcons, AppPopoverMenu, AppTooltip } from '@/components/ui';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';

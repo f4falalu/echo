@@ -1,6 +1,6 @@
 import React, { useLayoutEffect, useMemo, useRef } from 'react';
 import { Modal, Button, Divider, Input, InputRef } from 'antd';
-import { AppMaterialIcons, AppSegmented, asset_typeToIcon, Text } from '@/components';
+import { AppMaterialIcons, AppSegmented, asset_typeToIcon, Text } from '@/components/ui';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { useMemoizedFn, useThrottleFn } from 'ahooks';
 import { boldHighlights, formatDate } from '@/utils';

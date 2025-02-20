@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useMemo } from 'react';
 import { ConfigProvider, Segmented, SegmentedProps, ThemeConfig } from 'antd';
 import { createStyles } from 'antd-style';

@@ -1,6 +1,6 @@
 import { createStyles } from 'antd-style';
 import React from 'react';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import { AppCodeEditor } from '../inputs/AppCodeEditor';
 import { Button } from 'antd';
 import { AppMaterialIcons } from '../icons';

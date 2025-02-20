@@ -1,6 +1,6 @@
 'use client';
 
-import { BackButton } from '@/components';
+import { BackButton } from '@/components/ui';
 import { createBusterRoute, BusterRoutes } from '@/routes/busterRoutes';
 import { useMemo } from 'react';
 

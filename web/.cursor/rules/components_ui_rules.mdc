@@ -61,8 +61,8 @@ globs: src/components/ui/**/*
 - Use React.memo() for performance optimization when appropriate
 - Import text elements from dedicated components:
   ```typescript
-  import { Text } from '@/components/text';
-  import { Title } from '@/components/text';
+  import { Text } from '@/components/ui';
+  import { Title } from '@/components/ui';
   ```
 
 ## File Naming

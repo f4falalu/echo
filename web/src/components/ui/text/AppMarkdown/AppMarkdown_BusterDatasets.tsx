@@ -1,8 +1,8 @@
 import React from 'react';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import { createStyles } from 'antd-style';
 import { AppTooltip } from '@/components/ui/tooltip';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 
 export interface BusterDatasetsProps {
   //we need to use this because of the way markdown parses :(

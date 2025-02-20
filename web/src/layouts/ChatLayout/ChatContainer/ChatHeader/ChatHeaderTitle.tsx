@@ -1,4 +1,4 @@
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useChatIndividualContextSelector } from '../../ChatContext';

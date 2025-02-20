@@ -3,7 +3,7 @@ import { createStyles } from 'antd-style';
 import React from 'react';
 import { BusterChartLegendItem, BusterChartLegendProps } from './interfaces';
 import { LegendItem } from './LegendItem';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 
 export const OverflowButton: React.FC<{
   legendItems: BusterChartLegendItem[];

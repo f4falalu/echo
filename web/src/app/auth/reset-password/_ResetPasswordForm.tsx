@@ -1,6 +1,6 @@
 'use client';
 
-import { Title } from '@/components';
+import { Title } from '@/components/ui';
 import React, { useState } from 'react';
 import { Button, Input } from 'antd';
 import { PolicyCheck } from '../login/_components/PolicyCheck';

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { CopyLinkButton } from './CopyLinkButton';
 import { Button, Divider } from 'antd';
-import { AppMaterialIcons, BackButton } from '@/components';
+import { AppMaterialIcons, BackButton } from '@/components/ui';
 import { useStyles } from './useStyles';
 import { AccessDropdown } from './AccessDropdown';
 import { useUserConfigContextSelector } from '@/context/Users';
@@ -12,7 +12,7 @@ import {
 } from '@/context/Dashboards';
 import type { ShareRequest } from '@/api/buster_socket';
 import { useMemoizedFn } from 'ahooks';
-import { Text } from '@/components';
+import { Text } from '@/components/ui';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import {

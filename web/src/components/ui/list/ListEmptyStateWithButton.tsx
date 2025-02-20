@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppMaterialIcons, Text, Title } from '@/components';
+import { AppMaterialIcons, Text, Title } from '@/components/ui';
 import { Button } from 'antd';
 
 export const ListEmptyStateWithButton: React.FC<{

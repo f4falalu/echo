@@ -7,7 +7,7 @@ import React, { useMemo, useState } from 'react';
 import { UserDatasetsListContainer } from './UserDatasetsListContainer';
 import { Button } from 'antd';
 import { useMemoizedFn } from 'ahooks';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { NewDatasetModal } from '@appComponents/NewDatasetModal';
 
 export const UserDatasetsController: React.FC<{ userId: string }> = ({ userId }) => {

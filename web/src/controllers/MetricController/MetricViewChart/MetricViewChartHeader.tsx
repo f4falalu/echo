@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStyles } from 'antd-style';
-import { Text, EditableTitle } from '@/components/text';
+import { Text, EditableTitle } from '@/components/ui';
 import { ConfigProvider, Skeleton } from 'antd';
 
 export const MetricViewChartHeader: React.FC<{

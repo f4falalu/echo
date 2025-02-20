@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Button, ButtonProps } from 'antd';
-import { AppMaterialIconIcon, AppMaterialIcons, AppTooltip } from '@/components';
+import { AppMaterialIconIcon, AppMaterialIcons, AppTooltip } from '@/components/ui';
 
 export const SelectableButton = React.memo<{
   tooltipText: string;

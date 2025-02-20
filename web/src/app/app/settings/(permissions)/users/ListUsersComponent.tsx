@@ -7,7 +7,7 @@ import {
   InfiniteListContainer
 } from '@/components/ui/list';
 import React, { useMemo, useState } from 'react';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import { OrganizationUserRoleText } from './config';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { ListUserItem } from '@appComponents/Lists';

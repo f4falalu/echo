@@ -1,5 +1,5 @@
 import type { DatasetPermissionOverviewUser } from '@/api/asset_interfaces';
-import { AppMaterialIcons, AppPopover } from '@/components';
+import { AppMaterialIcons, AppPopover } from '@/components/ui';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
 import { createStyles } from 'antd-style';

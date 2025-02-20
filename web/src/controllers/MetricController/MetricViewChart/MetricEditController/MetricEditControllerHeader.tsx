@@ -1,8 +1,8 @@
 import { createStyles } from 'antd-style';
 import React from 'react';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import { Button } from 'antd';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { useChatLayoutContextSelector } from '@chatLayout/ChatLayoutContext';
 
 export const MetricEditControllerHeader: React.FC = React.memo(() => {

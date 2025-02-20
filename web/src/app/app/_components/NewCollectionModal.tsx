@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo } from 'react';
 import { Input, InputRef } from 'antd';
-import { AppModal } from '@/components';
+import { AppModal } from '@/components/ui';
 import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';

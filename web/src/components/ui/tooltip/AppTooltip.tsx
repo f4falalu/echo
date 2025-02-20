@@ -1,4 +1,6 @@
-import React, { PropsWithChildren, useCallback, useMemo, useState } from 'react';
+'use client';
+
+import React, { PropsWithChildren, useMemo, useState } from 'react';
 import { Tooltip } from 'antd';
 import type { TooltipProps } from 'antd';
 import { AppTooltipShortcutPill } from './AppTooltipShortcutPill';

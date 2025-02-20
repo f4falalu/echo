@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Text } from '../Text';
 import { createStyles } from 'antd-style';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { CircleSpinnerLoader } from '@/components/ui/loaders';
 import { useTimeout } from 'ahooks';
 import { commonStreamingCheck, ExtraPropsExtra } from './AppMarkdownCommon';

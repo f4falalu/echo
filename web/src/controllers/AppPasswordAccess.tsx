@@ -2,7 +2,7 @@
 
 import { BusterLogo } from '@/assets/svg/BusterLogo';
 import React, { useRef } from 'react';
-import { Title } from '@/components/text';
+import { Title } from '@/components/ui';
 import { Button, Input, InputRef, Typography } from 'antd';
 import { LoginConfigProvider } from '@/app/auth/login/_components/LoginConfigProvider';
 import { ShareAssetType } from '@/api/asset_interfaces';
@@ -76,7 +76,7 @@ const AppPasswordInputComponent: React.FC<{
               className="text-center">{`To access this page, enter the password below`}</Title>
           </div>
 
-          <div className="flex w-full flex-col space-x-0 space-y-2">
+          <div className="flex w-full flex-col space-y-2 space-x-0">
             <div className="flex flex-col space-y-1">
               <Input
                 ref={inputRef}

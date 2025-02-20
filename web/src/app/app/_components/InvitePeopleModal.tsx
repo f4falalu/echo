@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useMemoizedFn } from 'ahooks';
-import { AppModal } from '@/components';
+import { AppModal } from '@/components/ui';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { AppSelectTagInput } from '@/components/ui/select/AppSelectTagInput';
 import { Tag } from 'antd';

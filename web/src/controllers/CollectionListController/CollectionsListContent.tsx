@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { AppContent, BusterUserAvatar } from '@/components';
+import { AppContent, BusterUserAvatar } from '@/components/ui';
 import { formatDate, makeHumanReadble } from '@/utils';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useBusterCollectionListContextSelector } from '@/context/Collections';

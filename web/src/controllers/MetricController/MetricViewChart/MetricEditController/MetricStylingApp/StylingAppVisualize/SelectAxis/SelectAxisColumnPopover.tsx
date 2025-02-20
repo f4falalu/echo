@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppPopover } from '@/components';
+import { AppPopover } from '@/components/ui';
 import { ChartEncodes, IColumnLabelFormat } from '@/components/ui/charts';
 import { SelectAxisDropdownContent } from './SelectAxisColumnContent';
 import { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces';

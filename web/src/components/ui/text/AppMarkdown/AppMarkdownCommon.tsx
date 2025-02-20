@@ -1,7 +1,7 @@
 import React from 'react';
 import { ExtraProps } from 'react-markdown';
 import { AppCodeBlock } from './AppCodeBlock/AppCodeBlock';
-import { TextPulseLoader } from '@/components';
+import { TextPulseLoader } from '@/components/ui';
 import { Element } from 'hast';
 import { AppMarkdownComponentType, CustomComponents } from './config';
 import { BusterTimestamp } from './AppMarkdown_BusterTimestamp';

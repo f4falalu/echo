@@ -5,7 +5,7 @@ import {
   useCollectionIndividual
 } from '@/context/Collections';
 import React, { useMemo, useState } from 'react';
-import { AppMaterialIcons, BusterUserAvatar } from '@/components';
+import { AppMaterialIcons, BusterUserAvatar } from '@/components/ui';
 import { createBusterRoute, BusterRoutes } from '@/routes';
 import { formatDate } from '@/utils';
 import {
@@ -13,7 +13,7 @@ import {
   BusterCollectionItemAsset,
   BusterCollectionListItem
 } from '@/api/asset_interfaces';
-import { Text } from '@/components';
+import { Text } from '@/components/ui';
 import { ListEmptyStateWithButton } from '@/components/ui/list';
 import { AddTypeModal } from '@appComponents/AddTypeModal';
 import { ShareAssetType } from '@/api/asset_interfaces';

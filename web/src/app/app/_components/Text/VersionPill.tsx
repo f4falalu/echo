@@ -1,5 +1,5 @@
 import { createStyles } from 'antd-style';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import React from 'react';
 
 export const VersionPill: React.FC<{ version_number: number }> = React.memo(

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Title, Text } from '@/components/text';
+import { Title, Text } from '@/components/ui';
 
 export const PermissionTitleCard: React.FC<{}> = React.memo(({}) => {
   return (

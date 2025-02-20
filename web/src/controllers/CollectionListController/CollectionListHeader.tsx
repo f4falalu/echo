@@ -9,7 +9,7 @@ import {
   useCollectionIndividual,
   useCollectionLists
 } from '@/context/Collections';
-import { AppContentHeader, AppMaterialIcons, AppSegmented, AppTooltip } from '@/components';
+import { AppContentHeader, AppMaterialIcons, AppSegmented, AppTooltip } from '@/components/ui';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { CollectionsListEmit } from '@/api/buster_socket/collections';
 import isEmpty from 'lodash/isEmpty';

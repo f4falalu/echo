@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { AppMaterialIcons, AppTooltip, AppTooltipProps } from '@/components';
-import { Text } from '@/components';
+import { AppMaterialIcons, AppTooltip, AppTooltipProps } from '@/components/ui';
+import { Text } from '@/components/ui';
 
 const memoizedTrigger: AppTooltipProps['trigger'] = ['click'];
 

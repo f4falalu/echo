@@ -1,5 +1,5 @@
 import type { BusterMetric } from '@/api/asset_interfaces';
-import { AppMaterialIcons, Title, Text } from '@/components';
+import { AppMaterialIcons, Title, Text } from '@/components/ui';
 import { SortableItemContext } from '@/components/ui/grid/_BusterSortableItemDragContainer';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';

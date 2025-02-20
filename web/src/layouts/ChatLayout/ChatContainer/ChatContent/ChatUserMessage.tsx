@@ -1,7 +1,7 @@
 import type { BusterChatMessageRequest } from '@/api/asset_interfaces';
 import { createStyles } from 'antd-style';
 import React from 'react';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import { MessageContainer } from './MessageContainer';
 
 export const ChatUserMessage: React.FC<{ requestMessage: BusterChatMessageRequest }> = React.memo(

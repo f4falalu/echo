@@ -1,7 +1,7 @@
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { ChartType } from '@/components/ui/charts';
 import React, { useMemo } from 'react';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 
 export const StylingAppStylingNotSupported = React.memo(
   ({ selectedChartType }: { selectedChartType: IBusterMetricChartConfig['selectedChartType'] }) => {

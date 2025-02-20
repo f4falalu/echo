@@ -1,7 +1,7 @@
 import { Dropdown, MenuProps } from 'antd';
 import React, { useMemo } from 'react';
 import { useChatIndividualContextSelector } from '../../../ChatContext';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { useBusterChatContextSelector } from '@/context/Chats';
 
 export const ChatContainerHeaderDropdown: React.FC<{

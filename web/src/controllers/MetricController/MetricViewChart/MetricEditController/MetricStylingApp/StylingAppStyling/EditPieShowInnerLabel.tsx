@@ -2,7 +2,7 @@ import React from 'react';
 import { LabelAndInput } from '../Common';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { Switch } from 'antd';
-import { AppTooltip } from '@/components';
+import { AppTooltip } from '@/components/ui';
 
 export const EditPieShowInnerLabel = React.memo(
   ({

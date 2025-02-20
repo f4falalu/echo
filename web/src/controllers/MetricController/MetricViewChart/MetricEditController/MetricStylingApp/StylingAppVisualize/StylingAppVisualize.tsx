@@ -5,7 +5,6 @@ import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { SelectAxis } from './SelectAxis';
 import {
   YAxisConfig,
-  XAxisConfig,
   CategoryAxisStyleConfig,
   Y2AxisConfig,
   ChartType,

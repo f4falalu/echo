@@ -2,8 +2,8 @@
 
 import { Button, Card } from 'antd';
 import React, { useContext } from 'react';
-import { Text, Title } from '@/components/text';
-import { AppMaterialIcons } from '@/components/icons';
+import { Text, Title } from '@/components/ui';
+import { AppMaterialIcons } from '@/components/ui';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 
 export const SettingsEmptyState: React.FC<{

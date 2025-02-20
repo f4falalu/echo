@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { useAntToken } from '@/styles/useAntToken';
 import { Divider } from 'antd';
-import { Text } from '@/components';
+import { Text } from '@/components/ui';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from 'ahooks';
 

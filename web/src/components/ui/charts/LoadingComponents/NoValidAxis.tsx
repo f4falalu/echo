@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import { Text } from '@/components';
+import { Text } from '@/components/ui';
 import { useMount } from 'ahooks';
 import { BusterChartProps, ChartType } from '../interfaces';
 

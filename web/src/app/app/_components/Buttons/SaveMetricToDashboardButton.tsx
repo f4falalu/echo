@@ -4,7 +4,7 @@ import { useMemoizedFn, useMount } from 'ahooks';
 import React from 'react';
 import { SaveToDashboardDropdown } from '../Dropdowns/SaveToDashboardDropdown';
 import { Button } from 'antd';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import type { BusterMetric } from '@/api/asset_interfaces';
 
 const EMPTY_SELECTED_DASHBOARDS: BusterMetric['dashboards'] = [];

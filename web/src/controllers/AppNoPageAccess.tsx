@@ -3,8 +3,8 @@
 import React from 'react';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { BusterLogo } from '@/assets/svg/BusterLogo';
-import { asset_typeToTranslation } from '@/components/icons';
-import { Title } from '@/components/text';
+import { asset_typeToTranslation } from '@/components/ui';
+import { Title } from '@/components/ui';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { Button } from 'antd';

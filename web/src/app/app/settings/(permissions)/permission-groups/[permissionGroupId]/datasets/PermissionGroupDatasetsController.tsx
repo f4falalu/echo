@@ -5,7 +5,7 @@ import { useDebounceSearch } from '@/hooks/useDebounceSearch';
 import { PermissionSearchAndListWrapper } from '@appComponents/PermissionComponents';
 import React, { useMemo, useState } from 'react';
 import { Button } from 'antd';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { PermissionGroupDatasetsListContainer } from './PermissionGroupDatasetsListContainer';
 import { useMemoizedFn } from 'ahooks';
 import { NewDatasetModal } from '@/app/app/_components/NewDatasetModal';

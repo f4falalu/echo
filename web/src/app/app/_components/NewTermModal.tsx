@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { InputRef, Input } from 'antd';
 import { useBusterTermsIndividualContextSelector } from '@/context/Terms';
-import { AppModal, AppSelectMultiple, Text } from '@/components';
+import { AppModal, AppSelectMultiple, Text } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 import { useGetDatasets } from '@/api/buster_rest/datasets';
 

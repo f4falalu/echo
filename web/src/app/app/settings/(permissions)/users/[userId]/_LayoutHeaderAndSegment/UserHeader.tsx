@@ -1,5 +1,5 @@
 import React from 'react';
-import { BusterUserAvatar, Text, Title, AppMaterialIcons } from '@/components';
+import { BusterUserAvatar, Text, Title, AppMaterialIcons } from '@/components/ui';
 import type { OrganizationUser } from '@/api/asset_interfaces';
 import { Button } from 'antd';
 

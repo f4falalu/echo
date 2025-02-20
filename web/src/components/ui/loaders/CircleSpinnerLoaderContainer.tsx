@@ -1,6 +1,6 @@
 import React from 'react';
 import CircleSpinnerLoader from './CircleSpinnerLoader';
-import { Text } from '@/components';
+import { Text } from '@/components/ui';
 
 export const CircleSpinnerLoaderContainer: React.FC<{
   text?: string;

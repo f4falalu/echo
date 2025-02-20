@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { createStyles } from 'antd-style';
 import { ChartEncodes, ChartType } from '@/components/ui/charts';
 import { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { AppTooltip } from '@/components';
+import { AppTooltip } from '@/components/ui';
 import { CHART_ICON_LIST, ChartIconType, DETERMINE_SELECTED_CHART_TYPE_ORDER } from './config';
 import {
   selectedChartTypeMethod,

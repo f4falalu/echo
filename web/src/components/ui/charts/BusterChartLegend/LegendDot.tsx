@@ -1,7 +1,7 @@
 import { createStyles } from 'antd-style';
 import React, { useMemo } from 'react';
 import { useMemoizedFn } from 'ahooks';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { BusterChartLegendItem } from './interfaces';
 import { ChartType } from '../interfaces';
 

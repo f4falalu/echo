@@ -5,7 +5,7 @@ import { AppVerticalCodeSplitter } from '@/components/ui/layout/AppVerticalCodeS
 import { useMemoizedFn, useUnmount } from 'ahooks';
 import { IDataResult } from '@/api/asset_interfaces';
 import { useMetricLayout } from '../useMetricLayout';
-import { AppSplitterRef } from '@/components';
+import { AppSplitterRef } from '@/components/ui';
 import { useChatLayoutContextSelector } from '@chatLayout/ChatLayoutContext';
 import { useSQLContextSelector } from '@/context/SQL';
 

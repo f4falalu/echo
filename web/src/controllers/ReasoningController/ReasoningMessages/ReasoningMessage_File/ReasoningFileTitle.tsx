@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import { VersionPill } from '@appComponents/Text/VersionPill';
 
 export const ReasoningFileTitle = React.memo(

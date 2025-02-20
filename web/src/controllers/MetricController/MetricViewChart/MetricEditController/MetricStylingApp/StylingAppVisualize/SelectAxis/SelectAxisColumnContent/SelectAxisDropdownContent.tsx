@@ -20,7 +20,7 @@ import { EditSuffix } from './EditSuffix';
 import { EditCurrency } from './EditCurrency';
 import { EditDateType } from './EditDateType';
 import { EditDateFormat } from './EditDateFormat';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import { SelectAxisContainerId } from '../config';
 import { EditReplaceMissingData } from './EditReplaceMissingData';
 import { EditLineStyle } from './EditLineStyle';

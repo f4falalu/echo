@@ -1,10 +1,10 @@
 import { useAntToken } from '@/styles/useAntToken';
 import React, { useMemo } from 'react';
 import { Dropdown, Divider, MenuProps } from 'antd';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { ShareRole } from '@/api/asset_interfaces';
 import { DropdownLabel } from '@/components/ui/dropdown';
-import { Text } from '@/components';
+import { Text } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 
 export const AccessDropdown: React.FC<{

@@ -4,7 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { Breadcrumb, Button } from 'antd';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { AppMaterialIcons, AppSegmented, AppTooltip } from '@/components';
+import { AppMaterialIcons, AppSegmented, AppTooltip } from '@/components/ui';
 import { NewDatasetModal } from '@appComponents/NewDatasetModal';
 import { AppContentHeader } from '../../../components/ui/layout/AppContentHeader';
 import { useIndividualDataset } from '@/context/Datasets';

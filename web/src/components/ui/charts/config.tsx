@@ -1,4 +1,4 @@
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { ChartType } from './interfaces';
 
 export const chartOptions = [

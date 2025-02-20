@@ -3,8 +3,8 @@ import type { BusterChatMessageResponse } from '@/api/asset_interfaces';
 import { createStyles } from 'antd-style';
 import { ChatResponseMessageSelector } from './ChatResponseMessageSelector';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Text } from '@/components/text';
-import { AppMaterialIcons } from '@/components/icons';
+import { Text } from '@/components/ui';
+import { AppMaterialIcons } from '@/components/ui';
 import pluralize from 'pluralize';
 import { useMemoizedFn } from 'ahooks';
 

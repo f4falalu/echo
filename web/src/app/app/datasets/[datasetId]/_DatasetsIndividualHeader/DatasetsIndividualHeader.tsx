@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { Button, Divider } from 'antd';
-import { PreventNavigation } from '@/components';
+import { PreventNavigation } from '@/components/ui';
 import { useDatasetContextSelector } from '@/context/Datasets';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { AppContentHeader } from '../../../../../components/ui/layout/AppContentHeader';

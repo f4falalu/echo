@@ -1,5 +1,5 @@
 import { useDeleteDataset } from '@/api/buster_rest';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
 import { Button, Dropdown, MenuProps } from 'antd';

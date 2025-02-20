@@ -1,7 +1,7 @@
 import React from 'react';
 import { BusterListColumn } from './interfaces';
 import { CheckboxColumn } from './CheckboxColumn';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import { createStyles } from 'antd-style';
 import { HEIGHT_OF_HEADER } from './config';
 

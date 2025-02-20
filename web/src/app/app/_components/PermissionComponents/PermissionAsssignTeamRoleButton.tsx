@@ -3,7 +3,7 @@ import { TEAM_ROLE_OPTIONS } from './PermissionAssignTeamRole';
 import React, { useMemo } from 'react';
 import { Button, Dropdown, MenuProps } from 'antd';
 import { useMemoizedFn } from 'ahooks';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 
 export const PermissionAssignTeamRoleButton: React.FC<{
   onRoleChange: (role: TeamRole) => void;

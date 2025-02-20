@@ -1,14 +1,14 @@
 'use client';
 
 import type { DataSource } from '@/api/asset_interfaces';
-import { AppMaterialIcons, PulseLoader } from '@/components';
-import { AppDataSourceIcon } from '@/components/icons/AppDataSourceIcons';
+import { AppMaterialIcons, PulseLoader } from '@/components/ui';
+import { AppDataSourceIcon } from '@/components/ui';
 import { useAntToken } from '@/styles/useAntToken';
 import { formatDate } from '@/utils';
 import { Button, Divider, Dropdown, MenuProps } from 'antd';
 import React from 'react';
 import { DataSourceFormContent } from './_DatasourceFormContent';
-import { Text, Title } from '@/components';
+import { Text, Title } from '@/components/ui';
 import {
   useDataSourceIndividual,
   useDataSourceIndividualContextSelector

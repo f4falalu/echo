@@ -1,5 +1,5 @@
 import { AppDropdownSelect } from '@/components/ui/dropdown';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useBusterCollectionListContextSelector } from '@/context/Collections';

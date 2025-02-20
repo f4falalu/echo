@@ -3,7 +3,7 @@ import { createStyles } from 'antd-style';
 import React, { useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMemoizedFn } from 'ahooks';
-import { AppPopover } from '@/components';
+import { AppPopover } from '@/components/ui';
 import { PopoverProps } from 'antd';
 import { isOpenableFile, SelectedFile, useChatLayoutContextSelector } from '@layouts/ChatLayout';
 

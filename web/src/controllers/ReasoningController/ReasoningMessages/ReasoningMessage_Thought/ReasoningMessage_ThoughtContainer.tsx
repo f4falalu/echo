@@ -1,6 +1,6 @@
 import { BusterChatMessageReasoning_thoughtPillContainer } from '@/api/asset_interfaces';
 import React from 'react';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import { PillContainer } from './ReasoningMessage_ThoughtPills';
 import { itemAnimationConfig } from '../animationConfig';
 import { AnimatePresence, motion } from 'framer-motion';

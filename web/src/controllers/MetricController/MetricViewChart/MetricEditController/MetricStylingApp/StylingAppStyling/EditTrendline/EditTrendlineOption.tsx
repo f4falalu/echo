@@ -6,7 +6,7 @@ import React, { useMemo } from 'react';
 import type { ChartType, Trendline } from '@/components/ui/charts';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { isDateColumnType, isNumericColumnType } from '@/utils';
-import { AppMaterialIcons, AppTooltip } from '@/components';
+import { AppMaterialIcons, AppTooltip } from '@/components/ui';
 
 export const EditTrendlineOption = React.memo(
   ({

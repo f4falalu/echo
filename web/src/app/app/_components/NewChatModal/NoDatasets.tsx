@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from 'antd';
-import { Text, Title } from '@/components/text';
-import { AppMaterialIcons } from '@/components/icons';
+import { Text, Title } from '@/components/ui';
+import { AppMaterialIcons } from '@/components/ui';
 
 export const NoDatasets: React.FC<{
   onClose: () => void;

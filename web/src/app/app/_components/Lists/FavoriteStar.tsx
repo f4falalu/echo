@@ -1,5 +1,5 @@
 import { ShareAssetType } from '@/api/asset_interfaces';
-import { AppMaterialIcons, AppTooltip } from '@/components';
+import { AppMaterialIcons, AppTooltip } from '@/components/ui';
 import { useUserConfigContextSelector } from '@/context/Users';
 import React, { useMemo } from 'react';
 import { gold } from '@ant-design/colors/es/presets';

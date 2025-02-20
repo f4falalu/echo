@@ -2,7 +2,7 @@ import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { createStyles } from 'antd-style';
 import { CircleSpinnerLoader } from '@/components/ui/loaders/CircleSpinnerLoader';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 
 const animationConfig = {
   initial: { opacity: 0 },

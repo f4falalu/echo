@@ -9,7 +9,7 @@ import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { Button } from 'antd';
 import { AppDropdownSelect, AppDropdownSelectProps } from '@/components/ui/dropdown';
 import { AppTooltip } from '@/components/ui/tooltip';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import type { BusterMetric, BusterDashboardListItem } from '@/api/asset_interfaces';
 
 export const SaveToDashboardDropdown: React.FC<{

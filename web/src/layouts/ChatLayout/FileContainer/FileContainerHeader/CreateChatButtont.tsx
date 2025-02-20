@@ -1,10 +1,10 @@
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { Button } from 'antd';
 import React from 'react';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useMemoizedFn } from 'ahooks';
-import { AppTooltip } from '@/components';
+import { AppTooltip } from '@/components/ui';
 
 export const CreateChatButton = React.memo(() => {
   const onCollapseFileClick = useChatLayoutContextSelector((x) => x.onCollapseFileClick);

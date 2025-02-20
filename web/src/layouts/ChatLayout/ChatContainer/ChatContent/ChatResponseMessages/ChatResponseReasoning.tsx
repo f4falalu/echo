@@ -1,11 +1,11 @@
 import { BusterChatMessageReasoning } from '@/api/asset_interfaces';
 import React, { useMemo } from 'react';
 import last from 'lodash/last';
-import { ShimmerText } from '@/components/text';
+import { ShimmerText } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 import { motion } from 'framer-motion';
 import { AnimatePresence } from 'framer-motion';
-import { AppMaterialIcons, Text } from '@/components';
+import { AppMaterialIcons, Text } from '@/components/ui';
 import { createStyles } from 'antd-style';
 import { useChatLayoutContextSelector } from '../../../ChatLayoutContext';
 

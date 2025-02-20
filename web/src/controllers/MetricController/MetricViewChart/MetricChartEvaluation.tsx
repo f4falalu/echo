@@ -1,7 +1,7 @@
 import { IBusterMetric } from '@/context/Metrics';
 import { createStyles } from 'antd-style';
 import React, { useMemo } from 'react';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { AppPopover } from '@/components/ui/tooltip';
 
 export const MetricChartEvaluation: React.FC<{
