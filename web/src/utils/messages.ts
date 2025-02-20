@@ -1,4 +1,4 @@
-import type { ColumnMetaData } from '@/api/asset_interfaces';
+import type { ColumnMetaData, SimplifiedColumnType } from '@/api/asset_interfaces';
 import type { ColumnLabelFormat } from '@/components/ui/charts/interfaces';
 
 type ColumnDataType = ColumnMetaData['type'];
@@ -38,8 +38,6 @@ export const simplifyColumnType = (type: string): SimplifiedColumnType => {
 
   return 'string';
 };
-
-export type SimplifiedColumnType = 'number' | 'string' | 'date';
 
 export const isNumericColumnType = (type: SimplifiedColumnType) => {
   return type === 'number';

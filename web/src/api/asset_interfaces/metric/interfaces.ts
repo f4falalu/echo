@@ -1,4 +1,4 @@
-import type { BusterChartConfigProps } from '@/components/ui/charts';
+import type { BusterChartConfigProps } from '@/components/ui/charts/interfaces/chartConfigProps';
 import { type BusterShare, type VerificationStatus } from '../share';
 
 export type BusterMetric = {
@@ -84,3 +84,5 @@ export type ColumnMetaData = {
 };
 
 export type IDataResult = Record<string, null | string | number>[] | null;
+
+export type SimplifiedColumnType = 'number' | 'string' | 'date';

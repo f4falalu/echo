@@ -6,9 +6,6 @@ import { SelectAxisSortableItem } from './SelectAxisSortableItem';
 import { createStyles } from 'antd-style';
 import { StylingLabel } from '../../../Common';
 import { SelectAxisSettingsButton } from '../SelectAxisSettingsContent';
-import colors from 'tailwindcss/colors';
-
-const { green } = colors;
 
 export const SelectAxisDropZone: React.FC<{
   zone: DropZoneInternal;
@@ -102,9 +99,9 @@ const useStyles = createStyles(({ css, token }) => ({
     }
 
     &.showAddHover {
-      box-shadow: 0 0 3px 1px ${green[500]};
-      background: ${green[50]};
-      color: ${green[500]};
+      box-shadow: 0 0 3px 1px #32a852;
+      background: #e6fce6;
+      color: #32a852;
     }
 
     &.empty {

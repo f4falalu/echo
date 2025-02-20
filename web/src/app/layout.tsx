@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import React from 'react';
 import '../styles/styles.scss';
 
-import { BusterStyleProvider } from '@/context/BusterStyles/BusterStyles';
+// import { BusterStyleProvider } from '@/context/BusterStyles/BusterStyles';
 
 export const metadata: Metadata = {
   title: 'Buster',
@@ -25,7 +25,8 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <BusterStyleProvider>{children}</BusterStyleProvider>
+        {children}
+        {/* <BusterStyleProvider>{children}</BusterStyleProvider> */}
       </body>
     </html>
   );

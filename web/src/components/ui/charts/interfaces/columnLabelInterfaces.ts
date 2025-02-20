@@ -1,4 +1,4 @@
-import type { SimplifiedColumnType } from '@/utils/messages';
+import type { SimplifiedColumnType } from '@/api/asset_interfaces';
 
 type ColumnLabelFormatBase = {
   style?: 'currency' | 'percent' | 'number' | 'date' | 'string';

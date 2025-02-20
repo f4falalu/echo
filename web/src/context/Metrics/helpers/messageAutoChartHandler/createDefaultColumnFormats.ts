@@ -1,15 +1,11 @@
 import {
   DEFAULT_COLUMN_LABEL_FORMAT,
   type ColumnMetaData,
-  type IBusterMetricChartConfig
+  type IBusterMetricChartConfig,
+  type SimplifiedColumnType
 } from '@/api/asset_interfaces';
 import type { ColumnLabelFormat, IColumnLabelFormat } from '@/components/ui/charts';
-import {
-  isDateColumnType,
-  isNumericColumnType,
-  simplifyColumnType,
-  type SimplifiedColumnType
-} from '@/utils/messages';
+import { isDateColumnType, isNumericColumnType, simplifyColumnType } from '@/utils/messages';
 
 export const createDefaultColumnLabelFormats = (
   columnLabelFormats: Record<string, IColumnLabelFormat> | undefined,
