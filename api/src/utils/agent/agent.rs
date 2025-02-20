@@ -280,9 +280,7 @@ impl Agent {
             // Execute each requested tool
             for tool_call in tool_calls {
                 if let Some(tool) = self.tools.get(&tool_call.function.name) {
-                    let result = tool
-                        .execute(tool_call, &thread.user_id, &thread.id, None)
-                        .await?;
+                    let result = tool.execute(tool_call).await?;
                     let result_str = serde_json::to_string(&result)?;
                     let tool_message = Message::tool(
                         None,
@@ -375,30 +373,29 @@ mod tests {
         dotenv().ok();
     }
 
-    struct WeatherTool;
+    struct WeatherTool {
+        agent: Arc<Agent>,
+    }
+
+    impl WeatherTool {
+        fn new(agent: Arc<Agent>) -> Self {
+            Self { agent }
+        }
+    }
 
     #[async_trait]
     impl ToolExecutor for WeatherTool {
         type Output = Value;
 
-        async fn execute(
-            &self,
-            tool_call: &ToolCall,
-            user_id: &Uuid,
-            session_id: &Uuid,
-            stream_tx: Option<mpsc::Sender<Result<Message>>>,
-        ) -> Result<Self::Output> {
-            // Simulate some progress messages if streaming is enabled
-            if let Some(tx) = &stream_tx {
-                let progress = Message::tool(
-                    None,
-                    "Fetching weather data...".to_string(),
-                    tool_call.id.clone(),
-                    Some(tool_call.function.name.clone()),
-                    Some(MessageProgress::InProgress),
-                );
-                tx.send(Ok(progress)).await?;
-            }
+        async fn execute(&self, tool_call: &ToolCall) -> Result<Self::Output> {
+            // Send progress using agent's stream sender
+            self.agent.get_stream_sender().await.send(Ok(Message::tool(
+                None,
+                "Fetching weather data...".to_string(),
+                tool_call.id.clone(),
+                Some(self.get_name()),
+                Some(MessageProgress::InProgress),
+            ))).await?;
 
             // Simulate a delay
             tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
@@ -408,17 +405,14 @@ mod tests {
                 "unit": "fahrenheit"
             });
 
-            // Send completion message if streaming
-            if let Some(tx) = &stream_tx {
-                let complete = Message::tool(
-                    None,
-                    serde_json::to_string(&result)?,
-                    tool_call.id.clone(),
-                    Some(tool_call.function.name.clone()),
-                    Some(MessageProgress::Complete),
-                );
-                tx.send(Ok(complete)).await?;
-            }
+            // Send completion message using agent's stream sender
+            self.agent.get_stream_sender().await.send(Ok(Message::tool(
+                None,
+                serde_json::to_string(&result)?,
+                tool_call.id.clone(),
+                Some(self.get_name()),
+                Some(MessageProgress::Complete),
+            ))).await?;
 
             Ok(result)
         }
@@ -475,11 +469,13 @@ mod tests {
     async fn test_agent_convo_with_tools() {
         setup();
 
-        // Create LLM client and agent
+        // Create agent first
         let mut agent = Agent::new("o1".to_string(), HashMap::new());
-
-        let weather_tool = WeatherTool;
-
+        
+        // Create weather tool with reference to agent
+        let weather_tool = WeatherTool::new(Arc::new(agent.clone()));
+        
+        // Add tool to agent
         agent.add_tool(weather_tool.get_name(), weather_tool);
 
         let thread = AgentThread::new(
@@ -505,7 +501,7 @@ mod tests {
         // Create LLM client and agent
         let mut agent = Agent::new("o1".to_string(), HashMap::new());
 
-        let weather_tool = WeatherTool;
+        let weather_tool = WeatherTool::new(Arc::new(agent.clone()));
 
         agent.add_tool(weather_tool.get_name(), weather_tool);
 
