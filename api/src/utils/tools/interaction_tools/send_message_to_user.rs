@@ -55,4 +55,8 @@ impl ToolExecutor for SendMessageToUser {
     fn get_name(&self) -> String {
         "send_message_to_user".to_string()
     }
+
+    async fn is_enabled(&self) -> bool {
+        true
+    }
 }

@@ -85,6 +85,10 @@ impl SearchDataCatalogTool {
         Self { agent }
     }
 
+    async fn is_enabled(&self) -> bool {
+        true
+    }
+
     fn format_search_prompt(query_params: &[String], datasets: &[DatasetRecord]) -> Result<String> {
         let datasets_json = datasets
             .iter()
@@ -125,6 +129,7 @@ impl SearchDataCatalogTool {
                 user_id: user_id.to_string(),
                 session_id: session_id.to_string(),
             }),
+            reasoning_effort: Some("low".to_string()),
             ..Default::default()
         };
 
@@ -257,6 +262,10 @@ impl ToolExecutor for SearchDataCatalogTool {
             duration: duration as i64,
             results: search_results,
         })
+    }
+
+    async fn is_enabled(&self) -> bool {
+        true
     }
 
     fn get_name(&self) -> String {

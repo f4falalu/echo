@@ -1,6 +1,5 @@
 use anyhow::Result;
 use async_trait::async_trait;
-use litellm::Message as AgentMessage;
 use serde::Deserialize;
 use serde_json::Value;
 use std::sync::Arc;
@@ -33,6 +32,13 @@ impl ToolExecutor for ExploratoryAgentTool {
         "explore_data".to_string()
     }
 
+    async fn is_enabled(&self) -> bool {
+        match self.agent.get_state_value("data_context").await {
+            Some(_) => true,
+            None => false,
+        }
+    }
+
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         // Create and initialize the agent
         let exploratory_agent = ExploratoryAgent::from_existing(&self.agent).await?;
@@ -44,6 +50,8 @@ impl ToolExecutor for ExploratoryAgentTool {
             .ok_or_else(|| anyhow::anyhow!("No current thread"))?;
 
         current_thread.remove_last_assistant_message();
+
+        current_thread.add_user_message(params.ticket_description);
 
         // Run the exploratory agent and get the receiver
         let _rx = exploratory_agent.run(&mut current_thread).await?;

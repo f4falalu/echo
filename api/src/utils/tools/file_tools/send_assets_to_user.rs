@@ -43,47 +43,54 @@ impl ToolExecutor for SendAssetsToUserTool {
         "decide_assets_to_return".to_string()
     }
 
+    async fn is_enabled(&self) -> bool {
+        match self.agent.get_state_value("files_created").await {
+            Some(_) => true,
+            None => false,
+        }
+    }
+
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "decide_assets_to_return",
-            "description": "Use after you have created or modified any assets (metrics or dashboards) to specify exactly which assets to present in the final response. If you have not created or modified any assets, do not call this action.",
-            "strict": true,
-            "parameters": {
-              "type": "object",
-              "required": [
-                "assets_to_return",
-                "ticket_description"
-              ],
-              "properties": {
-                "assets_to_return": {
-                  "type": "array",
-                  "description": "List of assets to present in the final response, each with an ID and a name",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string",
-                        "description": "Unique identifier for the asset"
-                      },
-                      "name": {
-                        "type": "string",
-                        "description": "Name of the asset"
-                      }
+          "name": "decide_assets_to_return",
+          "description": "Use after you have created or modified any assets (metrics or dashboards) to specify exactly which assets to present in the final response. If you have not created or modified any assets, do not call this action.",
+          "strict": true,
+          "parameters": {
+            "type": "object",
+            "required": [
+              "assets_to_return",
+              "ticket_description"
+            ],
+            "properties": {
+              "assets_to_return": {
+                "type": "array",
+                "description": "List of assets to present in the final response, each with an ID and a name",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Unique identifier for the asset"
                     },
-                    "required": [
-                      "id",
-                      "name"
-                    ],
-                    "additionalProperties": false
-                  }
-                },
-                "ticket_description": {
-                  "type": "string",
-                  "description": "Description of the ticket related to the assets"
+                    "name": {
+                      "type": "string",
+                      "description": "Name of the asset"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name"
+                  ],
+                  "additionalProperties": false
                 }
               },
-              "additionalProperties": false
-            }
-          })
+              "ticket_description": {
+                "type": "string",
+                "description": "Description of the ticket related to the assets"
+              }
+            },
+            "additionalProperties": false
+          }
+        })
     }
 }

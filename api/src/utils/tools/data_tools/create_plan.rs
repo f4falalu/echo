@@ -2,13 +2,10 @@ use anyhow::Result;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use uuid::Uuid;
 use std::sync::Arc;
+use uuid::Uuid;
 
-use crate::utils::{
-    tools::ToolExecutor,
-    agent::Agent,
-};
+use crate::utils::{agent::Agent, tools::ToolExecutor};
 use litellm::ToolCall;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -25,7 +22,7 @@ pub struct PlanInput {
 }
 
 pub struct CreatePlan {
-    agent: Arc<Agent>
+    agent: Arc<Agent>,
 }
 
 impl CreatePlan {
@@ -45,7 +42,7 @@ impl ToolExecutor for CreatePlan {
 
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         let input = params;
-        
+
         // TODO: Implement actual plan creation logic here
         // This would typically involve:
         // 1. Validating the markdown content
@@ -57,6 +54,10 @@ impl ToolExecutor for CreatePlan {
             error: None,
             plan_id: Some("placeholder-id".to_string()),
         })
+    }
+
+    async fn is_enabled(&self) -> bool {
+        true
     }
 
     fn get_schema(&self) -> Value {
@@ -79,4 +80,4 @@ impl ToolExecutor for CreatePlan {
             }
         })
     }
-} 
+}

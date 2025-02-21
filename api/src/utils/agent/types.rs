@@ -26,7 +26,11 @@ impl AgentThread {
     /// Set the developer message in the thread
     pub fn set_developer_message(&mut self, message: String) {
         // Look for an existing developer message
-        if let Some(pos) = self.messages.iter().position(|msg| matches!(msg, Message::Developer { .. })) {
+        if let Some(pos) = self
+            .messages
+            .iter()
+            .position(|msg| matches!(msg, Message::Developer { .. }))
+        {
             // Update existing developer message
             self.messages[pos] = Message::developer(message);
         } else {
@@ -37,8 +41,17 @@ impl AgentThread {
 
     /// Remove the most recent assistant message from the thread
     pub fn remove_last_assistant_message(&mut self) {
-        if let Some(pos) = self.messages.iter().rposition(|msg| matches!(msg, Message::Assistant { .. })) {
+        if let Some(pos) = self
+            .messages
+            .iter()
+            .rposition(|msg| matches!(msg, Message::Assistant { .. }))
+        {
             self.messages.remove(pos);
         }
+    }
+
+    /// Add a user message to the thread
+    pub fn add_user_message(&mut self, content: String) {
+        self.messages.push(Message::user(content));
     }
 }

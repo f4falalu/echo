@@ -42,7 +42,14 @@ impl ToolExecutor for DashboardAgentTool {
     type Params = DashboardAgentParams;
 
     fn get_name(&self) -> String {
-        "create_or_modify_dashboard".to_string()
+        "create_or_modify_dashboards".to_string()
+    }
+
+    async fn is_enabled(&self) -> bool {
+        match self.agent.get_state_value("data_context").await {
+            Some(_) => true,
+            None => false,
+        }
     }
 
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
@@ -62,6 +69,8 @@ impl ToolExecutor for DashboardAgentTool {
         println!("DashboardAgentTool: Removing last assistant message");
         current_thread.remove_last_assistant_message();
         println!("DashboardAgentTool: Last assistant message removed");
+
+        current_thread.add_user_message(params.ticket_description);
 
         println!("DashboardAgentTool: Starting dashboard agent run");
         // Run the dashboard agent and get the output

@@ -35,6 +35,13 @@ impl ToolExecutor for MetricAgentTool {
         "create_or_modify_metrics".to_string()
     }
 
+    async fn is_enabled(&self) -> bool {
+        match self.agent.get_state_value("data_context").await {
+            Some(_) => true,
+            None => false,
+        }
+    }
+
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         // Create and initialize the agent
         let metric_agent = MetricAgent::from_existing(&self.agent).await?;
@@ -46,12 +53,9 @@ impl ToolExecutor for MetricAgentTool {
             .await
             .ok_or_else(|| anyhow::anyhow!("No current thread"))?;
 
-        // Parse input parameters
-        let agent_input = MetricAgentInput {
-            ticket_description: params.ticket_description,
-        };
-
         current_thread.remove_last_assistant_message();
+
+        current_thread.add_user_message(params.ticket_description);
 
         // Run the metric agent and get the receiver
         let _rx = metric_agent.run(&mut current_thread).await?;

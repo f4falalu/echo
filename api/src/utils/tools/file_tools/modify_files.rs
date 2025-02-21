@@ -249,6 +249,14 @@ impl ToolExecutor for ModifyFilesTool {
     type Output = ModifyFilesOutput;
     type Params = ModifyFilesParams;
 
+    fn get_name(&self) -> String {
+        "modify_files".to_string()
+    }
+
+    async fn is_enabled(&self) -> bool {
+        true
+    }
+
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         let start_time = Instant::now();
 
@@ -465,10 +473,6 @@ impl ToolExecutor for ModifyFilesTool {
         }
 
         Ok(output)
-    }
-
-    fn get_name(&self) -> String {
-        "modify_files".to_string()
     }
 
     fn get_schema(&self) -> Value {

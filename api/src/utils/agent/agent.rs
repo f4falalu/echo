@@ -19,12 +19,14 @@ struct ToolCallExecutor<T: ToolExecutor> {
 
 impl<T: ToolExecutor> ToolCallExecutor<T> {
     fn new(inner: T) -> Self {
-        Self { inner: Box::new(inner) }
+        Self {
+            inner: Box::new(inner),
+        }
     }
 }
 
 #[async_trait::async_trait]
-impl<T: ToolExecutor + Send + Sync> ToolExecutor for ToolCallExecutor<T> 
+impl<T: ToolExecutor + Send + Sync> ToolExecutor for ToolCallExecutor<T>
 where
     T::Params: serde::de::DeserializeOwned,
     T::Output: serde::Serialize,
@@ -45,6 +47,10 @@ where
     fn get_name(&self) -> String {
         self.inner.get_name()
     }
+
+    async fn is_enabled(&self) -> bool {
+        self.inner.is_enabled().await
+    }
 }
 
 // Add this near the top of the file, with other trait implementations
@@ -64,6 +70,10 @@ impl<T: ToolExecutor<Output = Value, Params = Value> + Send + Sync> ToolExecutor
     fn get_name(&self) -> String {
         (**self).get_name()
     }
+
+    async fn is_enabled(&self) -> bool {
+        (**self).is_enabled().await
+    }
 }
 
 #[derive(Clone)]
@@ -74,7 +84,11 @@ pub struct Agent {
     /// Client for communicating with the LLM provider
     llm_client: LiteLLMClient,
     /// Registry of available tools, mapped by their names
-    tools: Arc<RwLock<HashMap<String, Box<dyn ToolExecutor<Output = Value, Params = Value> + Send + Sync>>>>,
+    tools: Arc<
+        RwLock<
+            HashMap<String, Box<dyn ToolExecutor<Output = Value, Params = Value> + Send + Sync>>,
+        >,
+    >,
     /// The model identifier to use (e.g., "gpt-4")
     model: String,
     /// Flexible state storage for maintaining memory across interactions
@@ -134,6 +148,24 @@ impl Agent {
             user_id: existing_agent.user_id,
             session_id: existing_agent.session_id,
         }
+    }
+
+    pub async fn get_enabled_tools(&self) -> Vec<Tool> {
+        // Collect all registered tools and their schemas
+        let tools = self.tools.read().await;
+
+        let mut enabled_tools = Vec::new();
+
+        for (_, tool) in tools.iter() {
+            if tool.is_enabled().await {
+                enabled_tools.push(Tool {
+                    tool_type: "function".to_string(),
+                    function: tool.get_schema(),
+                });
+            }
+        }
+
+        enabled_tools
     }
 
     /// Update the stream sender for this agent
@@ -308,16 +340,7 @@ impl Agent {
         }
 
         // Collect all registered tools and their schemas
-        let tools: Vec<Tool> = self
-            .tools
-            .read()
-            .await
-            .iter()
-            .map(|(name, tool)| Tool {
-                tool_type: "function".to_string(),
-                function: tool.get_schema(),
-            })
-            .collect();
+        let tools = self.get_enabled_tools().await;
 
         // Create the tool-enabled request
         let request = ChatCompletionRequest {
@@ -382,6 +405,7 @@ impl Agent {
                         result_str,
                         tool_call.id.clone(),
                         Some(tool_call.function.name.clone()),
+                        // TODO: need the progress for streaming
                         None,
                     );
 
@@ -461,7 +485,10 @@ impl PendingToolCall {
 pub trait AgentExt {
     fn get_agent(&self) -> &Arc<Agent>;
 
-    async fn stream_process_thread(&self, thread: &AgentThread) -> Result<mpsc::Receiver<Result<Message>>> {
+    async fn stream_process_thread(
+        &self,
+        thread: &AgentThread,
+    ) -> Result<mpsc::Receiver<Result<Message>>> {
         (*self.get_agent()).process_thread_streaming(thread).await
     }
 
@@ -538,6 +565,10 @@ mod tests {
                 .await?;
 
             Ok(result)
+        }
+
+        async fn is_enabled(&self) -> bool {
+            true
         }
 
         fn get_schema(&self) -> Value {

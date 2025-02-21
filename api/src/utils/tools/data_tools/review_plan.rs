@@ -47,6 +47,10 @@ impl ToolExecutor for ReviewPlan {
         "review_plan".to_string()
     }
 
+    async fn is_enabled(&self) -> bool {
+        true
+    }
+
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         let input = params;
         

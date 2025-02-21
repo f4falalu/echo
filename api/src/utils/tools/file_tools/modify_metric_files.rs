@@ -249,6 +249,10 @@ impl ToolExecutor for ModifyMetricFilesTool {
         "modify_metric_files".to_string()
     }
 
+    async fn is_enabled(&self) -> bool {
+        true
+    }
+
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         let start_time = Instant::now();
 

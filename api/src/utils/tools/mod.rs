@@ -31,6 +31,9 @@ pub trait ToolExecutor: Send + Sync {
 
     /// Get the name of this tool
     fn get_name(&self) -> String;
+
+    /// Check if this tool is currently enabled
+    async fn is_enabled(&self) -> bool;
 }
 
 /// A wrapper type that converts any ToolExecutor to one that outputs Value
@@ -60,6 +63,10 @@ impl<T: ToolExecutor> ToolExecutor for ValueToolExecutor<T> {
 
     fn get_name(&self) -> String {
         self.inner.get_name()
+    }
+
+    async fn is_enabled(&self) -> bool {
+        self.inner.is_enabled().await
     }
 }
 

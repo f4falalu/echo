@@ -167,6 +167,14 @@ impl ToolExecutor for CreateFilesTool {
     type Output = CreateFilesOutput;
     type Params = CreateFilesParams;
 
+    fn get_name(&self) -> String {
+        "create_files".to_string()
+    }
+
+    async fn is_enabled(&self) -> bool {
+        true
+    }
+
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         let start_time = Instant::now();
 
@@ -312,10 +320,6 @@ impl ToolExecutor for CreateFilesTool {
             duration,
             files: created_files,
         })
-    }
-
-    fn get_name(&self) -> String {
-        "create_files".to_string()
     }
 
     fn get_schema(&self) -> Value {

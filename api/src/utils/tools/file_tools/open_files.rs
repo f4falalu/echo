@@ -67,6 +67,14 @@ impl ToolExecutor for OpenFilesTool {
     type Output = OpenFilesOutput;
     type Params = OpenFilesParams;
 
+    fn get_name(&self) -> String {
+        "open_files".to_string()
+    }
+
+    async fn is_enabled(&self) -> bool {
+        true
+    }
+
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         let start_time = Instant::now();
 
@@ -217,10 +225,6 @@ impl ToolExecutor for OpenFilesTool {
             duration,
             results,
         })
-    }
-
-    fn get_name(&self) -> String {
-        "open_files".to_string()
     }
 
     fn get_schema(&self) -> Value {

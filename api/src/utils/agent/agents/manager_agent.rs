@@ -1,27 +1,22 @@
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use tokio::sync::mpsc::Receiver;
-use tracing::{debug, info};
 use uuid::Uuid;
 
 use crate::utils::tools::agents_as_tools::{DashboardAgentTool, MetricAgentTool};
-use crate::utils::tools::file_tools::{send_assets_to_user, SendAssetsToUserTool};
+use crate::utils::tools::file_tools::SendAssetsToUserTool;
 use crate::utils::{
     agent::{Agent, AgentExt, AgentThread},
     tools::{
         agents_as_tools::ExploratoryAgentTool,
-        file_tools::{
-            CreateFilesTool, ModifyFilesTool, OpenFilesTool, SearchDataCatalogTool, SearchFilesTool,
-        },
+        file_tools::{SearchDataCatalogTool, SearchFilesTool},
         IntoValueTool, ToolExecutor,
     },
 };
 
-use litellm::{Message as AgentMessage, ToolCall};
-
-use super::MetricAgent;
+use litellm::Message as AgentMessage;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ManagerAgentOutput {
@@ -159,7 +154,21 @@ impl ManagerAgent {
     ) -> Result<Receiver<Result<AgentMessage, anyhow::Error>>> {
         thread.set_developer_message(MANAGER_AGENT_PROMPT.to_string());
 
-        self.stream_process_thread(thread).await
+        let mut rx = self.stream_process_thread(thread).await?;
+
+        while let Some(message) = rx.recv().await {
+            let message = message?;
+            if let AgentMessage::Tool {
+                id,
+                content,
+                tool_call_id,
+                name,
+                progress,
+            } = message
+            {}
+        }
+
+        Ok(rx)
     }
 }
 

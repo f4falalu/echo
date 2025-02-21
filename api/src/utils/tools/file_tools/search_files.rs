@@ -90,6 +90,10 @@ impl SearchFilesTool {
         Self { agent }
     }
 
+    async fn is_enabled(&self) -> bool {
+        true
+    }
+
     fn format_search_prompt(query_params: &[String], files_array: &[Value]) -> Result<String> {
         let queries_joined = query_params.join("\n");
         let files_json = serde_json::to_string_pretty(&files_array)?;
@@ -164,6 +168,10 @@ impl ToolExecutor for SearchFilesTool {
 
     fn get_name(&self) -> String {
         "search_files".to_string()
+    }
+
+    async fn is_enabled(&self) -> bool {
+        true
     }
 
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
