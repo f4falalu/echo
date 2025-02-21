@@ -60,7 +60,7 @@ const TestComponent = ({
   return (
     <div className="min-h-[250px]">
       <div
-        className="rounded-full bg-purple-700 p-3 text-white"
+        className="flex cursor-pointer items-center justify-center bg-black p-1 text-center text-white"
         style={{ width: 120 }}
         onClick={onClick}>
         Click me!
