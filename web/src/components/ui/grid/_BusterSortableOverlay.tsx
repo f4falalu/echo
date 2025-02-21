@@ -1,10 +1,8 @@
 import { DragOverlay, defaultDropAnimationSideEffects } from '@dnd-kit/core';
 import type { DropAnimation, Modifier } from '@dnd-kit/core';
-import { createStyles } from 'antd-style';
 import { BusterSortableItemContent } from './_BusterSortableItemContent';
 import { animate } from 'framer-motion';
-import React, { PropsWithChildren, useEffect, useMemo } from 'react';
-import classNames from 'classnames';
+import React, { useEffect, useMemo } from 'react';
 import { BusterResizeableGridRow } from './interfaces';
 import { snapCenterToCursor } from '@dnd-kit/modifiers';
 import { NUMBER_OF_COLUMNS } from './config';

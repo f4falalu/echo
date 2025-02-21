@@ -3,7 +3,7 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { BusterResizeableGridRow } from './interfaces';
 import { BusterResizeColumns } from './BusterResizeColumns';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { BusterNewItemDropzone } from './_BusterBusterNewItemDropzone';
 import { MIN_ROW_HEIGHT, TOP_SASH_ID, NEW_ROW_ID, MAX_ROW_HEIGHT } from './config';
 import { createStyles } from 'antd-style';
@@ -57,10 +57,10 @@ export const BusterResizeRows: React.FC<{
   return (
     <div
       ref={ref}
-      className={classNames(
+      className={clsx(
+        className,
         'buster-resize-row relative',
         'mb-10 flex h-full w-full flex-col space-y-3 transition',
-        className,
         'opacity-100'
       )}>
       <ResizeRowHandle
@@ -223,7 +223,7 @@ const ResizeRowHandle: React.FC<{
           id={id}
           className={cx(
             showDropzone && allowEdit && dropzoneStyles.dropzone,
-            'h-[4px] w-2 w-full select-none rounded-sm',
+            'h-[4px] w-full rounded-sm select-none',
             allowEdit && styles.dragger,
             !top && 'dragger absolute',
             showActive && 'active'

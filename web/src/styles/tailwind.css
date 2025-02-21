@@ -32,6 +32,8 @@
   --color-primary-dark: #6d28d9;
 }
 
+@import './tailwindAnimations.css';
+
 body {
   background: 'blue' !important;
 }

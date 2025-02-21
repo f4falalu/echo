@@ -1,5 +1,5 @@
-import { createStyles } from 'antd-style';
 import React from 'react';
+import { twMerge } from 'tailwind-merge';
 
 export const IndeterminateLinearLoader: React.FC<{
   className?: string;
@@ -8,27 +8,21 @@ export const IndeterminateLinearLoader: React.FC<{
   trackColor?: string;
   valueColor?: string;
 }> = React.memo(({ className = '', trackColor, valueColor, style, height = 2 }) => {
-  const { styles, cx } = useStyles();
+  // const { styles, cx } = useStyles();
 
   return (
     <div
-      className={`indeterminate-progress-bar ${className}`}
+      className={`h-1.5 w-full overflow-hidden bg-gray-200 ${className}`}
       style={{ ...style, height, backgroundColor: trackColor }}>
       <div
-        className={cx(styles.track, 'indeterminate-progress-bar-value')}
-        style={{
-          backgroundColor: valueColor
-        }}
+        className={twMerge(
+          'bg-primary',
+          'animate-indeterminate-progress-bar h-full w-full origin-left'
+        )}
+        style={{ backgroundColor: valueColor }}
       />
     </div>
   );
 });
 
 IndeterminateLinearLoader.displayName = 'IndeterminateLinearLoader';
-
-const useStyles = createStyles(({ css, token }) => ({
-  track: css`
-    background: ${token.colorPrimary};
-    opacity: 0.6;
-  `
-}));

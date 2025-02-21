@@ -48,6 +48,7 @@
     "chartjs-plugin-trendline": "^2.1.6",
     "chartjs-plugin-zoom": "^2.2.0",
     "chartjs-react": "^4.3.0",
+    "clsx": "^2.1.1",
     "cookies-next": "^4.2.1",
     "dayjs": "^1.11.13",
     "dom-to-image": "^2.6.0",

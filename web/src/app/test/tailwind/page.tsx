@@ -1,8 +1,9 @@
 import React from 'react';
+import { IndeterminateLinearLoader } from '@/components/ui/loaders/IndeterminateLinearLoader';
 
 export default function TestPage() {
   return (
-    <div className="flex flex-col gap-4 bg-red-500">
+    <div className="flex flex-col gap-4">
       <div className="flex flex-col space-y-5">
         <div>Test</div>
         <div>TESTING!</div>
@@ -16,6 +17,12 @@ export default function TestPage() {
         <p className="border-primary-dark border font-mono">Hello</p>
         <a>This is a not link</a>
         <a href="https://www.google.com">This is a link</a>
+      </div>
+      <div className="!mt-5 flex flex-col gap-4">
+        <IndeterminateLinearLoader />
+        <IndeterminateLinearLoader />
+        <IndeterminateLinearLoader />
+        <IndeterminateLinearLoader />
       </div>
     </div>
   );
