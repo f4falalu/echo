@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import React from 'react';
-import '../styles/styles.scss';
 import { BusterStyleProvider } from '@/context/BusterStyles';
+import '../styles/styles.scss';
 
 export const metadata: Metadata = {
   title: 'Buster',

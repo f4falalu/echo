@@ -1,7 +1,9 @@
 'use client';
 
+import React from 'react';
 import { useTheme } from 'next-themes';
 import { Toaster } from 'sonner';
+import { CircleCheck } from '@/components/ui/icons';
 
 type ToasterProps = React.ComponentProps<typeof Toaster>;
 
@@ -11,6 +13,12 @@ const AppToaster = ({ ...props }: ToasterProps) => {
   return (
     <Toaster
       position="top-center"
+      expand={true}
+      visibleToasts={5}
+      icons={{
+        success: <CircleCheck />
+      }}
+      swipeDirections={['right']}
       theme={theme as ToasterProps['theme']}
       className="toaster group"
       toastOptions={{

@@ -1,4 +1,6 @@
+import React from 'react';
 import type { Preview } from '@storybook/react';
+import { BusterStyleProvider } from '../src/context/BusterStyles/BusterStyles';
 import '../src/styles/styles.scss';
 
 const preview: Preview = {
@@ -9,7 +11,16 @@ const preview: Preview = {
         date: /Date$/i
       }
     }
-  }
+  },
+  decorators: [
+    (Story) => {
+      return (
+        <BusterStyleProvider>
+          <Story />
+        </BusterStyleProvider>
+      );
+    }
+  ]
 };
 
 export default preview;

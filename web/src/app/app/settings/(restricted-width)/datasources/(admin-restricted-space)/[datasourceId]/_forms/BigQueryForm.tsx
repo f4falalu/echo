@@ -47,14 +47,14 @@ export const BigQueryForm: React.FC<{
       onSubmit={(v) => {
         const value = v as unknown as RawBigQueryCreateCredentials;
         if (!creds) {
-          openErrorNotification('Credentials are required');
+          openErrorNotification({ title: 'Credentials are required' });
           return;
         }
         try {
           const parsedCredentials = JSON.parse(creds);
           onSubmit({ ...value, credentials_json: parsedCredentials });
         } catch (error) {
-          openErrorNotification('Invalid credentials JSON');
+          openErrorNotification({ title: 'Invalid credentials JSON' });
         }
       }}>
       <Form.Item name="project_id" label="Project ID" rules={[{ required: true }]}>

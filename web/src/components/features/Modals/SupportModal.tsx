@@ -36,7 +36,7 @@ export const SupportModal: React.FC<{
       openSuccessMessage('Help request submitted successfully');
       onClose();
     } catch (error) {
-      openErrorNotification('Failed to submit help request');
+      openErrorNotification({ title: 'Failed to submit help request' });
       setLoading(false);
     }
   });

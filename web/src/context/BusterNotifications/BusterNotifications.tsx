@@ -14,9 +14,12 @@ export type NotificationType = 'success' | 'info' | 'warning' | 'error';
 export interface NotificationProps {
   type?: NotificationType;
   title?: string;
-  message: string;
-  closeIcon?: React.ReactNode | boolean;
+  message?: string;
   duration?: number;
+  action?: {
+    label: string;
+    onClick: () => void | (() => Promise<void>);
+  };
 }
 
 // const useStyles = createStyles(({ token, css }) => ({
@@ -48,30 +51,30 @@ export const useBusterNotificationsInternal = () => {
   // const { message, notification, modal } = App.useApp();
   // const { cx, styles } = useStyles();
 
-  const openNotification = useMemoizedFn(
-    (props: { title?: string; message: string; type: NotificationType }) => {
-      const { title, message, type } = props;
+  const openNotification = useMemoizedFn((props: NotificationProps) => {
+    const { title, message, type } = props;
 
-      const toastOptions: ExternalToast = {
-        description: message,
-        position: 'top-center'
-      };
+    const hasTitle = !!title;
 
-      switch (type) {
-        case 'success':
-          return toast.success(title, toastOptions);
-        case 'info':
-          return toast.info(title, toastOptions);
-        case 'warning':
-          return toast.warning(title, toastOptions);
-        case 'error':
-          return toast.error(title, toastOptions);
-        default:
-          const _never: never = type;
-          return '';
-      }
+    const toastOptions: ExternalToast = {
+      ...props,
+      description: !hasTitle && message ? message : message,
+      position: 'top-center'
+    };
+
+    switch (type) {
+      case 'success':
+        return toast.success(title, toastOptions);
+      case 'info':
+        return toast.info(title, toastOptions);
+      case 'warning':
+        return toast.warning(title, toastOptions);
+      case 'error':
+        return toast.error(title, toastOptions);
+      default:
+        return toast(title, toastOptions);
     }
-  );
+  });
 
   const openErrorNotification = useMemoizedFn((data: NotificationProps | unknown) => {
     const values = data || ({} as any);
@@ -137,6 +140,9 @@ export const useBusterNotificationsInternal = () => {
       icon?: React.ReactNode;
       width?: string | number;
       useReject?: boolean;
+      cancelButtonProps?: {
+        className?: string;
+      };
     }): Promise<void> => {
       const useReject = props.useReject ?? true;
 
@@ -175,7 +181,8 @@ export const useBusterNotificationsInternal = () => {
     openErrorMessage,
     openInfoMessage,
     openSuccessMessage,
-    openConfirmModal
+    openConfirmModal,
+    openNotification
   };
 };
 
@@ -196,31 +203,5 @@ const useBusterNotificationsSelector = <T,>(
 };
 
 export const useBusterNotifications = () => {
-  const openConfirmModal = useBusterNotificationsSelector((state) => state.openConfirmModal);
-  const openErrorNotification = useBusterNotificationsSelector(
-    (state) => state.openErrorNotification
-  );
-  const openInfoNotification = useBusterNotificationsSelector(
-    (state) => state.openInfoNotification
-  );
-  const openSuccessNotification = useBusterNotificationsSelector(
-    (state) => state.openSuccessNotification
-  );
-  const openWarningNotification = useBusterNotificationsSelector(
-    (state) => state.openWarningNotification
-  );
-  const openErrorMessage = useBusterNotificationsSelector((state) => state.openErrorMessage);
-  const openInfoMessage = useBusterNotificationsSelector((state) => state.openInfoMessage);
-  const openSuccessMessage = useBusterNotificationsSelector((state) => state.openSuccessMessage);
-
-  return {
-    openConfirmModal,
-    openErrorNotification,
-    openInfoNotification,
-    openSuccessNotification,
-    openWarningNotification,
-    openErrorMessage,
-    openInfoMessage,
-    openSuccessMessage
-  };
+  return useBusterNotificationsSelector((state) => state);
 };
