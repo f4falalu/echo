@@ -9,6 +9,7 @@ import {
   createContext,
   ContextSelector
 } from '@fluentui/react-context-selector';
+import { AppToaster } from '@/components/ui/toaster';
 
 export const ENABLE_DARK_MODE = false;
 
@@ -31,7 +32,10 @@ export const BusterStyleProvider: React.FC<PropsWithChildren<{}>> = ({ children 
       enableSystem={ENABLE_DARK_MODE}
       themes={['light', 'dark']}
       disableTransitionOnChange>
-      <BaseBusterStyleProvider>{children}</BaseBusterStyleProvider>
+      <BaseBusterStyleProvider>
+        {children}
+        <AppToaster />
+      </BaseBusterStyleProvider>
     </NextThemeProvider>
   );
 };
