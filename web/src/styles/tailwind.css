@@ -33,7 +33,3 @@
 }
 
 @import './tailwindAnimations.css';
-
-body {
-  background: 'blue' !important;
-}

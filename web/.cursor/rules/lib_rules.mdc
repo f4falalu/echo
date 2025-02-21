@@ -1,6 +1,6 @@
 ---
 description: Rules for the components directory
-globs: src/utils/**/*
+globs: src/lib/**/*
 ---
 
 # Utils Directory Structure and Guidelines
