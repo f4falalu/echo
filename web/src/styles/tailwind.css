@@ -1,11 +1,13 @@
 @import 'tailwindcss';
-
+@plugin "tailwindcss-animate";
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  /* font */
   --font-sans: 'Roobert_Pro', sans-serif;
   --font-mono: Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 
+  /* font size */
   --text-xxs: 10px;
   --text-xxs--line-height: 1;
   --text-xs: 11px;
@@ -27,9 +29,20 @@
   --text-4xl: 30px;
   --text-4xl--line-height: 1;
 
+  /* radius */
+  --radius: 0.6rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* base color */
   --color-primary: #7c3aed;
   --color-primary-light: #a26cff;
   --color-primary-dark: #6d28d9;
+
+  /* component color */
+  --color-input: var(--color-primary);
 }
 
 @import './tailwindAnimations.css';

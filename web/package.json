@@ -24,6 +24,7 @@
     "@manufac/echarts-simple-transform": "^2.0.11",
     "@million/lint": "^1.0.14",
     "@monaco-editor/react": "^4.7.0",
+    "@radix-ui/react-switch": "^1.1.3",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/auth-helpers-react": "^0.5.0",
     "@supabase/ssr": "^0.5.2",
@@ -129,6 +130,7 @@
     "postcss": "8.5.3",
     "sass": "^1.83.4",
     "tailwindcss": "^4.0.8",
+    "tailwindcss-animate": "^1.0.7",
     "ts-jest": "^29.2.5",
     "typescript": "^5"
   },
