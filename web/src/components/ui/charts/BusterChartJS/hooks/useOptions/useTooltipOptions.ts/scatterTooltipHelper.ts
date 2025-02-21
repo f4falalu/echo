@@ -3,7 +3,7 @@ import { BusterChartConfigProps } from '@/components/ui/charts/interfaces';
 import type { ChartDataset, TooltipItem, ChartTypeRegistry } from 'chart.js';
 import { appendToKeyValueChain, extractFieldsFromChain } from '@/components/ui/charts/chartHooks';
 import { formatChartLabel } from '../../../helpers';
-import { formatLabel } from '@/utils';
+import { formatLabel } from '@/lib';
 
 export const scatterTooltipHelper = (
   datasets: ChartDataset[],

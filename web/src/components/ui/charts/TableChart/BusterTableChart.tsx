@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { BusterTableChartConfig } from './interfaces';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
-import { formatLabel } from '@/utils/columnFormatter';
+import { formatLabel } from '@/lib/columnFormatter';
 import isEqual from 'lodash/isEqual';
 import type { BusterChartPropsBase } from '../interfaces';
 import { type IBusterMetricChartConfig, DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces';

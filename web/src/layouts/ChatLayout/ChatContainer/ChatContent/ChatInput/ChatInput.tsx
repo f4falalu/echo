@@ -2,7 +2,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import { Input } from 'antd';
 import { createStyles } from 'antd-style';
 import { useMemoizedFn } from 'ahooks';
-import { inputHasText } from '@/utils';
+import { inputHasText } from '@/lib';
 import { AIWarning } from './AIWarning';
 import { SubmitButton } from './SubmitButton';
 import { useChatInputFlow } from './useChatInputFlow';
@@ -67,7 +67,7 @@ export const ChatInput: React.FC<{}> = React.memo(({}) => {
           variant="borderless"
           onBlur={onBlurInput}
           onFocus={onFocusInput}
-          className="inline-block w-full pb-2! pl-3.5! pr-9! pt-2! align-middle"
+          className="inline-block w-full pt-2! pr-9! pb-2! pl-3.5! align-middle"
           placeholder="Ask a follow up..."
           value={inputValue}
           autoFocus={true}
@@ -77,7 +77,7 @@ export const ChatInput: React.FC<{}> = React.memo(({}) => {
           autoSize={autoSize}
         />
 
-        <div className="absolute bottom-2 right-2">
+        <div className="absolute right-2 bottom-2">
           <SubmitButton
             disableSendButton={disableSendButton}
             loading={loading}

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useMount } from 'ahooks';
-import { formatLabel, JsonDataFrameOperationsSingle, timeout } from '@/utils';
+import { formatLabel, JsonDataFrameOperationsSingle, timeout } from '@/lib';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Title } from '@/components/ui';
 import { ColumnLabelFormat, MetricChartProps } from '../interfaces';

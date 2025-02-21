@@ -4,7 +4,7 @@ import type { ChartProps } from '../../core';
 import { SeriesBuilderProps } from './interfaces';
 import { LabelBuilderProps } from './useSeriesOptions';
 import { formatChartLabelDelimiter } from '../../../commonHelpers';
-import { addOpacityToColor, createDayjsDate } from '@/utils';
+import { addOpacityToColor, createDayjsDate } from '@/lib';
 import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOptionConfig';
 import { DEFAULT_COLUMN_SETTINGS } from '@/api/asset_interfaces';
 import type { ColumnSettings } from '@/components/ui/charts/interfaces';

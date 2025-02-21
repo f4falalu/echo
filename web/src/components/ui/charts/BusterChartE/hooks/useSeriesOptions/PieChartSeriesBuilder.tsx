@@ -6,8 +6,8 @@ import {
   PieChartAxis
 } from '../../../interfaces';
 import { busterAppStyleConfig } from '@/styles/busterAntDStyleConfig';
-import { DataFrameOperations } from '@/utils/math';
-import { formatLabel } from '@/utils';
+import { DataFrameOperations } from '@/lib/math';
+import { formatLabel } from '@/lib';
 import { DatasetOption, extractFieldsFromChain } from '../../../chartHooks';
 
 import busterLightTheme, { labelContrastFormatter } from '../useEChartsTheme/buster_light_theme';

@@ -5,7 +5,7 @@ import { Button, Input } from 'antd';
 import { Title, Text } from '@/components/ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { inputHasText } from '@/utils';
+import { inputHasText } from '@/lib';
 import { useMemoizedFn } from 'ahooks';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterAppRoutes } from '@/routes/busterRoutes/busterAppRoutes';

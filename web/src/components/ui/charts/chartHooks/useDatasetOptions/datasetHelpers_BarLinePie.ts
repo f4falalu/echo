@@ -1,7 +1,7 @@
 'use client';
 
 import { BusterChartProps, ChartType, BarSortBy, ColumnLabelFormat } from '../../interfaces';
-import { createDayjsDate } from '@/utils/date';
+import { createDayjsDate } from '@/lib/date';
 import { extractFieldsFromChain, appendToKeyValueChain } from './groupingHelpers';
 import { DATASET_IDS, GROUPING_SEPARATOR } from './config';
 import { DatasetOption } from './interfaces';

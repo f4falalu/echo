@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useBusterTermsIndividualContextSelector, useBusterTermsIndividual } from '@/context/Terms';
 import { BusterUserAvatar } from '@/components/ui';
-import { formatDate } from '@/utils';
+import { formatDate } from '@/lib';
 import { Text } from '@/components/ui';
 import { DatasetList } from './TermDatasetSelect';
 

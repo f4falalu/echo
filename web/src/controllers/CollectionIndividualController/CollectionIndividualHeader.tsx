@@ -18,7 +18,7 @@ import { Text } from '@/components/ui';
 import { useAntToken } from '@/styles/useAntToken';
 import { useMemoizedFn } from 'ahooks';
 import { BreadcrumbSeperator } from '@/components/ui/breadcrumb';
-import { measureTextWidth } from '@/utils/canvas';
+import { measureTextWidth } from '@/lib/canvas';
 
 export const CollectionsIndividualHeader: React.FC<{
   openAddTypeModal: boolean;

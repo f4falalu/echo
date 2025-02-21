@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { AppContent } from '@/components/ui/layout/AppContent';
 import { BusterUserAvatar } from '@/components/ui';
-import { formatDate } from '@/utils';
+import { formatDate } from '@/lib';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import type { BusterDatasetListItem } from '@/api/asset_interfaces';

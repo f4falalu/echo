@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Divider, Input, Result } from 'antd';
 import { User } from '@supabase/auth-js';
-import { inputHasText, isValidEmail } from '@/utils';
+import { inputHasText, isValidEmail } from '@/lib';
 import { useKeyPress, useMemoizedFn } from 'ahooks';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';

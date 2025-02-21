@@ -3,7 +3,7 @@ import { formatChartLabelDelimiter, formatChartValueDelimiter } from '../../../c
 import React, { useMemo } from 'react';
 import { TooltipFormatterParams } from './interfaces';
 import { busterAppStyleConfig } from '@/styles';
-import { formatLabel } from '@/utils';
+import { formatLabel } from '@/lib';
 import { appendToKeyValueChain, extractFieldsFromChain } from '../../../chartHooks';
 import last from 'lodash/last';
 import type { ITooltipItem } from '../../../BusterChartTooltip/interfaces';

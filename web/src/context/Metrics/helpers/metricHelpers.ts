@@ -1,6 +1,6 @@
 import isEmpty from 'lodash/isEmpty';
 import { IBusterMetric } from '../interfaces';
-import { isNumericColumnType } from '@/utils';
+import { isNumericColumnType } from '@/lib';
 import { BusterChartConfigProps } from '@/components/ui/charts';
 import { defaultIBusterMetric } from '../config';
 import { BusterMetricData } from '@/context/MetricData';

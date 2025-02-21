@@ -2,7 +2,7 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { Button, Divider, Popover, Select } from 'antd';
 import { CircleSpinnerLoaderContainer } from '../loaders/CircleSpinnerLoaderContainer';
-import { timeout } from '@/utils';
+import { timeout } from '@/lib';
 import { useMemoizedFn, useMount } from 'ahooks';
 import { createStyles } from 'antd-style';
 import isEqual from 'lodash/isEqual';
@@ -12,7 +12,7 @@ const NewColorThemeModal = dynamic(() => import('./NewColorThemeModal'), {
   ssr: false,
   loading: () => (
     <div
-      className="fixed bottom-0 left-0 right-0 top-0 z-10 h-full w-full"
+      className="fixed top-0 right-0 bottom-0 left-0 z-10 h-full w-full"
       style={{
         background: `rgba(0, 0, 0, 0.125)`
       }}>

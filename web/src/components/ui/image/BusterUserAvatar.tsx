@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Avatar, AvatarProps } from 'antd';
-import { getFirstTwoCapitalizedLetters } from '@/utils/text';
+import { getFirstTwoCapitalizedLetters } from '@/lib/text';
 import { AppTooltip } from '../tooltip';
 import type { GroupProps } from 'antd/es/avatar';
 import { useBusterStylesContext } from '@/context/BusterStyles/BusterStyles';

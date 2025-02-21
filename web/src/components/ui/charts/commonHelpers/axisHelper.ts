@@ -1,4 +1,4 @@
-import { formatLabel } from '@/utils/columnFormatter';
+import { formatLabel } from '@/lib/columnFormatter';
 import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
 import isNumber from 'lodash/isNumber';

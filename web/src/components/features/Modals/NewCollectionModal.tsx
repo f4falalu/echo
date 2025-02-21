@@ -6,7 +6,7 @@ import { AppModal } from '@/components/ui';
 import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
-import { inputHasText } from '@/utils';
+import { inputHasText } from '@/lib';
 import { useMemoizedFn } from 'ahooks';
 
 export const NewCollectionModal: React.FC<{

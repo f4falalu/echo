@@ -4,8 +4,8 @@ import type { ChartType as ChartJSChartType } from 'chart.js';
 import type { DeepPartial } from 'utility-types';
 import type { PluginChartOptions } from 'chart.js';
 import { AnnotationPluginOptions } from 'chartjs-plugin-annotation';
-import { ArrayOperations } from '@/utils/math';
-import { formatLabel } from '@/utils/columnFormatter';
+import { ArrayOperations } from '@/lib/math';
+import { formatLabel } from '@/lib/columnFormatter';
 import { busterAppStyleConfig } from '@/styles/busterAntDStyleConfig';
 import { getPieInnerLabelTitle } from '../../../commonHelpers';
 import { ChartJSOrUndefined } from '../../core/types';
@@ -14,7 +14,7 @@ import {
   BusterChartProps,
   ColumnLabelFormat
 } from '@/components/ui/charts/interfaces';
-import { determineFontColorContrast } from '@/utils/colors';
+import { determineFontColorContrast } from '@/lib/colors';
 import { Context } from 'chartjs-plugin-datalabels';
 const token = busterAppStyleConfig.token!;
 

@@ -1,5 +1,5 @@
 import { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { formatLabel } from '@/utils';
+import { formatLabel } from '@/lib';
 import { ColumnTypeIcon } from '../SelectAxis/config';
 
 export const createColumnFieldOptions = (

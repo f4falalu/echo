@@ -10,7 +10,7 @@ import { BarAndLineAxis, ChartEncodes, ComboChartAxis } from '../../../interface
 import { ColumnSettings } from '../../../interfaces';
 import { getYAxisColumnNames, seriesNameGenerator } from './helpers';
 import { DEFAULT_COLUMN_SETTINGS } from '@/api/asset_interfaces';
-import { formatLabel } from '@/utils';
+import { formatLabel } from '@/lib';
 import { createGradient } from './LineChartSeriesBuilder';
 
 const columnVisualizationToSeriesType: Record<

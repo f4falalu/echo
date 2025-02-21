@@ -4,7 +4,7 @@ import { AppMaterialIcons } from '@/components/ui';
 import { useMemoizedFn, useMount, useThrottleFn } from 'ahooks';
 import { useAntToken } from '@/styles/useAntToken';
 import { useBusterNewChatContextSelector } from '@/context/Chats';
-import { inputHasText, timeout } from '@/utils';
+import { inputHasText, timeout } from '@/lib';
 import { useBusterSearchContextSelector } from '@/context/Search';
 import type { BusterSearchResult } from '@/api/asset_interfaces';
 import { useBusterNotifications } from '@/context/BusterNotifications';

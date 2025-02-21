@@ -1,6 +1,6 @@
 import set from 'lodash/set';
 import clamp from 'lodash/clamp';
-import { makeHumanReadble } from '@/utils/text';
+import { makeHumanReadble } from '@/lib/text';
 
 export const MAX_WIDTH = 950;
 export const MIN_WIDTH = 100;

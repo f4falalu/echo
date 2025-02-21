@@ -17,7 +17,7 @@ import {
   createDayjsDate,
   DataFrameOperations,
   calculateLinearSlopeByDate
-} from '@/utils';
+} from '@/lib';
 import { extractFieldsFromChain } from './groupingHelpers';
 import last from 'lodash/last';
 import { DatasetOption } from './interfaces';

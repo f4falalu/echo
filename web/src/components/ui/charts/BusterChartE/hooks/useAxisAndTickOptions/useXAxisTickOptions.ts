@@ -6,7 +6,7 @@ import {
 } from '@/components/ui/charts/interfaces';
 import type { SingleAxisComponentOption } from 'echarts';
 import React, { useMemo } from 'react';
-import { isNumericColumnType, isNumericColumnStyle } from '@/utils';
+import { isNumericColumnType, isNumericColumnStyle } from '@/lib';
 import { formatXAxisLabel } from '@/components/ui/charts/commonHelpers';
 
 export const useXAxisTickOptions = ({

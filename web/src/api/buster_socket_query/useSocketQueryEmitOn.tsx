@@ -11,7 +11,7 @@ import type { InferBusterSocketResponseData } from './types';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useEffect, useMemo, useRef } from 'react';
 import { useSocketQueryOn } from './useSocketQueryOn';
-import { timeout } from '@/utils';
+import { timeout } from '@/lib';
 import { useMemoizedFn } from 'ahooks';
 
 export const useSocketQueryEmitOn = <

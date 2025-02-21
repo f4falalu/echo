@@ -4,7 +4,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { getListChats, getListChats_server, getChat, getChat_server } from './requests';
 import type { BusterChatListItem } from '@/api/asset_interfaces';
 import { queryKeys } from '@/api/query_keys';
-import { updateChatToIChat } from '@/utils/chat';
+import { updateChatToIChat } from '@/lib/chat';
 
 export const useGetListChats = (params?: Parameters<typeof getListChats>[0]) => {
   const queryFn = useMemoizedFn((): Promise<BusterChatListItem[]> => {

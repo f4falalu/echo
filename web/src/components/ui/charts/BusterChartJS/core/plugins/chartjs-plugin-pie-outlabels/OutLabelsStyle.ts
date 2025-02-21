@@ -3,7 +3,7 @@ import { FontOptions, OutLabelsOptions } from './OutLabelsOptions';
 import OutLabelsContext from './OutLabelsContext';
 import { ChartArea, FontSpec } from 'chart.js';
 import { defaults } from 'chart.js';
-import { determineFontColorContrast } from '@/utils';
+import { determineFontColorContrast } from '@/lib';
 
 // Same as options but we make sure we have defaults
 //

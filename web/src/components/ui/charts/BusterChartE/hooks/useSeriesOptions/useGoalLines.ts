@@ -3,7 +3,7 @@ import {
   ColumnLabelFormat,
   IColumnLabelFormat
 } from '@/components/ui/charts/interfaces';
-import { formatLabel } from '@/utils';
+import { formatLabel } from '@/lib';
 import type { SeriesOption, MarkLineComponentOption } from 'echarts';
 import { useMemo } from 'react';
 import { extractFieldsFromChain } from '../../../chartHooks';

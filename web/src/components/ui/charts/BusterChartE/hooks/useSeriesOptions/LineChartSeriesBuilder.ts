@@ -11,7 +11,7 @@ import {
   ColumnLabelFormat
 } from '../../../interfaces';
 import isEmpty from 'lodash/isEmpty';
-import { formatLabel } from '@/utils';
+import { formatLabel } from '@/lib';
 import { graphic } from 'echarts';
 import set from 'lodash/set';
 import { getYAxisColumnNames, seriesNameGenerator } from './helpers';

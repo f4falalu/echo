@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { AppContent, BusterUserAvatar } from '@/components/ui';
-import { formatDate, makeHumanReadble } from '@/utils';
+import { formatDate, makeHumanReadble } from '@/lib';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useBusterCollectionListContextSelector } from '@/context/Collections';
 import {

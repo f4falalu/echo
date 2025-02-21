@@ -5,7 +5,7 @@ import { DropZoneInternal } from './interfaces';
 import { useSelectAxisContextSelector } from '../useSelectAxisContext';
 import { ChartType, IColumnLabelFormat } from '@/components/ui/charts';
 import { Active } from '@dnd-kit/core';
-import { isNumericColumnStyle, isNumericColumnType } from '@/utils';
+import { isNumericColumnStyle, isNumericColumnType } from '@/lib';
 
 interface ZoneError {
   error: boolean;

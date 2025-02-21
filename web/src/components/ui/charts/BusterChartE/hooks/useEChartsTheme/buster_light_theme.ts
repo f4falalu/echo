@@ -1,4 +1,4 @@
-import { determineFontColorContrast } from '@/utils';
+import { determineFontColorContrast } from '@/lib';
 import { DEFAULT_CHART_THEME } from '../../../configColors';
 import { busterAppStyleConfig } from '@/styles/busterAntDStyleConfig';
 

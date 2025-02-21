@@ -4,7 +4,7 @@ import { MetricViewChartContent } from './MetricViewChartContent';
 import { MetricViewChartHeader } from './MetricViewChartHeader';
 import { useMetricIndividual, useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';
-import { inputHasText } from '@/utils/text';
+import { inputHasText } from '@/lib/text';
 import { MetricChartEvaluation } from './MetricChartEvaluation';
 import { ChartType } from '@/components/ui/charts/interfaces/enum';
 import { AnimatePresence, motion } from 'framer-motion';

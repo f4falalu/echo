@@ -1,7 +1,7 @@
 'use client';
 
 import { createBusterRoute, BusterRoutes } from '@/routes';
-import { isValidEmail, timeout } from '@/utils';
+import { isValidEmail, timeout } from '@/lib';
 import { Button, Input, Result } from 'antd';
 import Link from 'next/link';
 import React, { useState } from 'react';

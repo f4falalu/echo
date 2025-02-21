@@ -8,7 +8,7 @@ import { Button, Divider } from 'antd';
 import { AppMaterialIcons } from '@/components/ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CollapseDelete } from '../../Common/CollapseDelete';
-import { formatLabel } from '@/utils';
+import { formatLabel } from '@/lib';
 import { ColumnMetaData } from '@/api/asset_interfaces';
 import { TrendlineColumnId } from './EditTrendlineColumnId';
 import { TrendlineColorPicker } from './EditTrendlineColorPicker';

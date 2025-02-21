@@ -11,7 +11,7 @@ import {
 } from './SelectedChartTypeMethod';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';
-import { addOpacityToColor, NUMBER_TYPES } from '@/utils';
+import { addOpacityToColor, NUMBER_TYPES } from '@/lib';
 
 export interface SelectChartTypeProps {
   selectedChartType: ChartType;

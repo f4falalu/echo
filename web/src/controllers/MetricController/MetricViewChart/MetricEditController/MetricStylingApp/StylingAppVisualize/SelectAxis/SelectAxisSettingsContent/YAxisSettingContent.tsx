@@ -3,7 +3,7 @@ import { useSelectAxisContextSelector } from '../useSelectAxisContext';
 import { SelectAxisContainerId } from '../config';
 import { EditShowAxisTitle } from './EditShowAxisTitle';
 import type { ColumnLabelFormat } from '@/components/ui/charts/interfaces';
-import { formatLabel } from '@/utils';
+import { formatLabel } from '@/lib';
 import { useMemoizedFn } from 'ahooks';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { EditShowAxisLabel } from './EditShowAxisLabel';

@@ -1,5 +1,5 @@
 import { ShareAssetType, VerificationStatus, BusterMetricListItem } from '@/api/asset_interfaces';
-import { makeHumanReadble, formatDate } from '@/utils';
+import { makeHumanReadble, formatDate } from '@/lib';
 import React, { memo, useMemo, useRef, useState } from 'react';
 import { StatusBadgeIndicator, getShareStatus } from '@/components/features/Lists';
 import { BusterUserAvatar, Text } from '@/components/ui';

@@ -4,7 +4,7 @@ import { Form, Input, InputNumber, Select } from 'antd';
 import { useKeyPress } from 'ahooks';
 import { AppSelectTagInput } from '@/components/ui/select/AppSelectTagInput';
 import { FormWrapper, FormWrapperHandle } from './FormWrapper';
-import { formatDate } from '@/utils';
+import { formatDate } from '@/lib';
 import {
   DatasourceCreateCredentials,
   PostgresCreateCredentials

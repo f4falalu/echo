@@ -4,7 +4,7 @@ import { SelectAxisContainerId } from '../config';
 import { EditShowAxisTitle } from './EditShowAxisTitle';
 import type { ColumnLabelFormat, ComboChartAxis } from '@/components/ui/charts/interfaces';
 import { AXIS_TITLE_SEPARATOR } from '@/components/ui/charts/commonHelpers';
-import { formatLabel } from '@/utils';
+import { formatLabel } from '@/lib';
 import { useMemoizedFn } from 'ahooks';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { EditShowAxisLabel } from './EditShowAxisLabel';

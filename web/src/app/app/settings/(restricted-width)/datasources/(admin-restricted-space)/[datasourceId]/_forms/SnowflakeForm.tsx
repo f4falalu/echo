@@ -8,7 +8,7 @@ import type { DataSource } from '@/api/asset_interfaces';
 import { AppSelectTagInput } from '@/components/ui/select/AppSelectTagInput';
 import { Form, Input } from 'antd';
 import { RuleObject } from 'antd/es/form';
-import { makeHumanReadble } from '@/utils';
+import { makeHumanReadble } from '@/lib';
 
 export const SnowflakeForm: React.FC<{
   dataSource?: DataSource;

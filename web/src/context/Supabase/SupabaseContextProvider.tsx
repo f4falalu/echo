@@ -4,7 +4,7 @@ import React, { PropsWithChildren, useLayoutEffect, useRef, useState } from 'rea
 import { UseSupabaseContextType } from './useSupabaseContext';
 import { useMemoizedFn } from 'ahooks';
 import { User } from '@supabase/supabase-js';
-import { millisecondsFromUnixTimestamp } from '@/utils';
+import { millisecondsFromUnixTimestamp } from '@/lib';
 import {
   createContext,
   useContextSelector,

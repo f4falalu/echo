@@ -5,7 +5,7 @@ import { AppContent } from '@/components/ui/layout/AppContent';
 import { useBusterTermsIndividualContextSelector, useBusterTermsIndividual } from '@/context/Terms';
 import { Dropdown, Input } from 'antd';
 import { useDebounceFn } from 'ahooks';
-import { formatDate } from '@/utils';
+import { formatDate } from '@/lib';
 import { AppMaterialIcons, EditableTitle } from '@/components/ui';
 import { useAntToken } from '@/styles/useAntToken';
 import { AppCodeEditor } from '@/components/ui/inputs/AppCodeEditor';

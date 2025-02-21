@@ -1,9 +1,9 @@
 import { BusterChartLegendItem } from '@/components/ui/charts/BusterChartLegend';
 import { BusterChartProps, ShowLegendHeadline } from '@/components/ui/charts/interfaces';
-import { DataFrameOperations } from '@/utils/math';
-import { formatLabel } from '@/utils/columnFormatter';
+import { DataFrameOperations } from '@/lib/math';
+import { formatLabel } from '@/lib/columnFormatter';
 import { DatasetOption, extractFieldsFromChain } from '../chartHooks';
-import { createDayjsDate, getBestDateFormat } from '@/utils/date';
+import { createDayjsDate, getBestDateFormat } from '@/lib/date';
 import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 
 export const addLegendHeadlines = (

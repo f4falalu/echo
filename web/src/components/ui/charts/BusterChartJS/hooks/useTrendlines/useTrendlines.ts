@@ -7,7 +7,7 @@ import type {
 import { AnnotationOptions, AnnotationPluginOptions } from 'chartjs-plugin-annotation';
 import { useMemo } from 'react';
 import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOptionConfig';
-import { formatLabel } from '@/utils';
+import { formatLabel } from '@/lib';
 import { ChartProps } from '../../core';
 import { TypeToLabel } from './config';
 

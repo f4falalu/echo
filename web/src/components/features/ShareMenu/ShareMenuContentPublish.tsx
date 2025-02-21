@@ -5,7 +5,7 @@ import { Button, Divider, DatePicker, Input, Space, Switch } from 'antd';
 import { AppMaterialIcons, PulseLoader } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 import { createStyles } from 'antd-style';
-import { createDayjsDate } from '@/utils/date';
+import { createDayjsDate } from '@/lib/date';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';

@@ -11,7 +11,7 @@ import {
   IColumnLabelFormat,
   Trendline
 } from '@/components/ui/charts/interfaces';
-import { formatLabel } from '@/utils';
+import { formatLabel } from '@/lib';
 import { DATASET_IDS } from '../../../chartHooks';
 import type { TrendlineDataset } from '../../../chartHooks';
 import busterLightTheme from '../useEChartsTheme/buster_light_theme';

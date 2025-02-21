@@ -7,7 +7,7 @@ import {
 import React, { useMemo, useState } from 'react';
 import { AppMaterialIcons, BusterUserAvatar } from '@/components/ui';
 import { createBusterRoute, BusterRoutes } from '@/routes';
-import { formatDate } from '@/utils';
+import { formatDate } from '@/lib';
 import {
   BusterCollection,
   BusterCollectionItemAsset,

@@ -5,7 +5,7 @@ import { AppSegmented } from '@/components/ui';
 import { ColumnTypeIcon } from '../config';
 import { useEditAppSegmented } from './useEditAppSegmented';
 import { createStyles } from 'antd-style';
-import { isDateColumnType, isNumericColumnType } from '@/utils';
+import { isDateColumnType, isNumericColumnType } from '@/lib';
 
 export const EditLabelStyle: React.FC<{
   onUpdateColumnConfig: (columnLabelFormat: Partial<IColumnLabelFormat>) => void;

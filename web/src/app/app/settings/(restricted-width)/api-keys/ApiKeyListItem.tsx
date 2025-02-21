@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Button } from 'antd';
 import type { BusterApiKeyListItem } from '@/api/asset_interfaces';
 import { AppMaterialIcons } from '@/components/ui';
-import { formatDate } from '@/utils/date';
+import { formatDate } from '@/lib/date';
 import { Text } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 

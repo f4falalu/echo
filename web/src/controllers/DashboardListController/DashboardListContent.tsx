@@ -4,7 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { AppContent } from '@/components/ui/layout/AppContent';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { BusterUserAvatar } from '@/components/ui';
-import { formatDate } from '@/utils';
+import { formatDate } from '@/lib';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { getShareStatus } from '@/components/features/Lists';

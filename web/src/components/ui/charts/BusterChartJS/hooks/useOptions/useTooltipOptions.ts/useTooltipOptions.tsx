@@ -14,7 +14,7 @@ import { BusterChartJSTooltip } from './BusterChartJSTooltip';
 import { busterAppStyleConfig } from '@/styles';
 import { DatasetOption, extractFieldsFromChain } from '@/components/ui/charts/chartHooks';
 import React from 'react';
-import { isNumericColumnType } from '@/utils';
+import { isNumericColumnType } from '@/lib';
 
 const token = busterAppStyleConfig.token!;
 

@@ -1,6 +1,6 @@
 import type { BusterSearchResult } from '@/api/asset_interfaces';
 import { CircleSpinnerLoader } from '@/components/ui';
-import { boldHighlights } from '@/utils/element';
+import { boldHighlights } from '@/lib/element';
 import { createStyles } from 'antd-style';
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';

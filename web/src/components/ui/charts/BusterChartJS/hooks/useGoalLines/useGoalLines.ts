@@ -8,7 +8,7 @@ import { AnnotationOptions, AnnotationPluginOptions } from 'chartjs-plugin-annot
 import { useMemo } from 'react';
 import { ChartOptions, PluginChartOptions } from 'chart.js';
 import { busterAppStyleConfig } from '@/styles/busterAntDStyleConfig';
-import { formatLabel } from '@/utils/columnFormatter';
+import { formatLabel } from '@/lib/columnFormatter';
 import { yAxisSimilar } from '@/components/ui/charts/commonHelpers';
 import { extractFieldsFromChain } from '@/components/ui/charts/chartHooks';
 import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOptionConfig';
