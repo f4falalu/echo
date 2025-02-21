@@ -375,6 +375,7 @@ impl Agent {
                 if let Some(tool) = self.tools.read().await.get(&tool_call.function.name) {
                     let params: Value = serde_json::from_str(&tool_call.function.arguments)?;
                     let result = tool.execute(params).await?;
+                    println!("Tool Call result: {:?}", result);
                     let result_str = serde_json::to_string(&result)?;
                     let tool_message = Message::tool(
                         None,
@@ -456,6 +457,7 @@ impl PendingToolCall {
 
 /// A trait that provides convenient access to Agent functionality
 /// when the agent is stored behind an Arc
+#[async_trait::async_trait]
 pub trait AgentExt {
     fn get_agent(&self) -> &Arc<Agent>;
 

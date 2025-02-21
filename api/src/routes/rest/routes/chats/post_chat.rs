@@ -13,6 +13,7 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use crate::routes::rest::ApiResponse;
+use crate::utils::agent::AgentThread;
 use crate::{
     database_dep::{
         enums::Verification,
@@ -88,19 +89,27 @@ async fn process_chat(request: ChatCreateNewChat, user: User) -> Result<ThreadWi
 
     // Initialize agent and process request
     let agent = ManagerAgent::new(user.id, chat_id).await?;
-    let input = ManagerAgentInput {
-        prompt: request.prompt.clone(),
-        thread_id: Some(chat_id),
-        message_id: Some(message_id),
-    };
+    let mut thread = AgentThread::new(
+        Some(chat_id),
+        user.id,
+        vec![AgentMessage::user(request.prompt.clone())],
+    );
 
-    let output = agent.process_request(input, user.id).await?;
+    // Get the receiver and collect all messages
+    let mut rx = agent.run(&mut thread).await?;
+    let mut messages = Vec::new();
+    while let Some(msg_result) = rx.recv().await {
+        match msg_result {
+            Ok(msg) => messages.push(msg),
+            Err(e) => return Err(e.into()),
+        }
+    }
 
     // Create and store initial message
     let message = Message {
         id: message_id,
         request: request.prompt,
-        response: serde_json::to_value(&output.messages)?,
+        response: serde_json::to_value(&messages)?,
         thread_id: chat_id,
         created_by: user.id.clone(),
         created_at: Utc::now(),
@@ -118,7 +127,7 @@ async fn process_chat(request: ChatCreateNewChat, user: User) -> Result<ThreadWi
     store_final_message_state(
         &mut conn,
         &message,
-        &output.messages,
+        &messages,
         &user_org_id,
         &user.id,
     )
@@ -126,8 +135,7 @@ async fn process_chat(request: ChatCreateNewChat, user: User) -> Result<ThreadWi
 
     // Update thread_with_messages with processed messages
     if let Some(thread_message) = thread_with_messages.messages.first_mut() {
-        let transformed_messages: Vec<BusterContainer> = output
-            .messages
+        let transformed_messages: Vec<BusterContainer> = messages
             .iter()
             .filter_map(|msg| {
                 transform_message(&chat_id, &message_id, msg.clone())

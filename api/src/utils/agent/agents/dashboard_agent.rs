@@ -2,17 +2,15 @@ use std::sync::Arc;
 
 use anyhow::Result;
 use std::collections::HashMap;
-use tokio::sync::mpsc::Receiver;
 use uuid::Uuid;
 
 use crate::utils::{
     agent::{Agent, AgentExt, AgentThread},
     tools::{
-        file_tools::{
+        agents_as_tools::dashboard_agent_tool::DashboardAgentOutput, file_tools::{
             CreateDashboardFilesTool, CreateMetricFilesTool, ModifyDashboardFilesTool,
-            ModifyMetricFilesTool, OpenFilesTool, SearchFilesTool,
-        },
-        IntoValueTool, ToolExecutor,
+            ModifyMetricFilesTool,
+        }, IntoValueTool, ToolExecutor
     },
 };
 
@@ -37,8 +35,6 @@ impl DashboardAgent {
         let modify_dashboard_tool = ModifyDashboardFilesTool::new(Arc::clone(&agent));
         let create_metric_tool = CreateMetricFilesTool::new(Arc::clone(&agent));
         let modify_metric_tool = ModifyMetricFilesTool::new(Arc::clone(&agent));
-        let open_files_tool = OpenFilesTool::new(Arc::clone(&agent));
-        let search_files_tool = SearchFilesTool::new(Arc::clone(&agent));
 
         // Add tools directly to the Arc<Agent>
         agent
@@ -65,18 +61,6 @@ impl DashboardAgent {
                 modify_metric_tool.into_value_tool(),
             )
             .await;
-        agent
-            .add_tool(
-                open_files_tool.get_name(),
-                open_files_tool.into_value_tool(),
-            )
-            .await;
-        agent
-            .add_tool(
-                search_files_tool.get_name(),
-                search_files_tool.into_value_tool(),
-            )
-            .await;
 
         Ok(Self { agent })
     }
@@ -90,9 +74,6 @@ impl DashboardAgent {
         let modify_dashboard_tool = ModifyDashboardFilesTool::new(Arc::clone(&agent));
         let create_metric_tool = CreateMetricFilesTool::new(Arc::clone(&agent));
         let modify_metric_tool = ModifyMetricFilesTool::new(Arc::clone(&agent));
-        let open_files_tool = OpenFilesTool::new(Arc::clone(&agent));
-        let search_files_tool = SearchFilesTool::new(Arc::clone(&agent));
-
 
         // Add tools to the agent
         agent
@@ -119,32 +100,80 @@ impl DashboardAgent {
                 modify_metric_tool.into_value_tool(),
             )
             .await;
-        agent
-            .add_tool(
-                open_files_tool.get_name(),
-                open_files_tool.into_value_tool(),
-            )
-            .await;
-        agent
-            .add_tool(
-                search_files_tool.get_name(),
-                search_files_tool.into_value_tool(),
-            )
-            .await;
 
         Ok(Self { agent })
     }
 
-    pub async fn run(
-        &self,
-        thread: &mut AgentThread,
-    ) -> Result<Receiver<Result<AgentMessage, anyhow::Error>>> {
-        // Process using agent's streaming functionality
+    fn is_completion_signal(msg: &AgentMessage) -> bool {
+        matches!(msg, AgentMessage::Assistant { content: Some(content), tool_calls: None, .. } 
+            if content == "AGENT_COMPLETE")
+    }
+
+    pub async fn run(&self, thread: &mut AgentThread) -> Result<DashboardAgentOutput> {
+        println!("Running dashboard agent");
+        println!("Setting developer message");
         thread.set_developer_message(DASHBOARD_AGENT_PROMPT.to_string());
 
-        println!("Dashboard agent thread: {:?}", thread);
+        println!("Starting stream_process_thread");
+        let mut rx = self.stream_process_thread(thread).await?;
+        println!("Got receiver from stream_process_thread");
 
-        self.stream_process_thread(thread).await
+        println!("Starting message processing loop");
+        // Process messages internally until we determine we're done
+        while let Some(msg_result) = rx.recv().await {
+            println!("Received message from channel");
+            match msg_result {
+                Ok(msg) => {
+                    println!("Message content: {:?}", msg.get_content());
+                    println!("Message has tool calls: {:?}", msg.get_tool_calls());
+                    
+                    println!("Forwarding message to stream sender");
+                    if let Err(e) = self.get_agent().get_stream_sender().await.send(Ok(msg.clone())).await {
+                        println!("Error forwarding message: {:?}", e);
+                        // Continue processing even if we fail to forward
+                        continue;
+                    }
+                    
+                    if let Some(content) = msg.get_content() {
+                        println!("Message has content: {}", content);
+                        if content == "AGENT_COMPLETE" {
+                            println!("Found completion signal, breaking loop");
+                            break;
+                        }
+                    }
+                }
+                Err(e) => {
+                    println!("Error receiving message: {:?}", e);
+                    println!("Error details: {:?}", e.to_string());
+                    // Log error but continue processing instead of returning error
+                    continue;
+                }
+            }
+        }
+        println!("Exited message processing loop");
+
+        println!("Creating completion signal");
+        let completion_msg = AgentMessage::assistant(
+            None,
+            Some("AGENT_COMPLETE".to_string()),
+            None,
+            None,
+            None,
+        );
+
+        println!("Sending completion signal");
+        self.get_agent()
+            .get_stream_sender()
+            .await
+            .send(Ok(completion_msg))
+            .await?;
+
+        println!("Sent completion signal, returning output");
+        Ok(DashboardAgentOutput {
+            message: "Dashboard processing complete".to_string(),
+            duration: 0,
+            files: vec![],
+        })
     }
 }
 

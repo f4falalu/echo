@@ -7,6 +7,7 @@ use tracing::{debug, info};
 use uuid::Uuid;
 
 use crate::utils::tools::agents_as_tools::{DashboardAgentTool, MetricAgentTool};
+use crate::utils::tools::file_tools::{send_assets_to_user, SendAssetsToUserTool};
 use crate::utils::{
     agent::{Agent, AgentExt, AgentThread},
     tools::{
@@ -109,6 +110,7 @@ impl ManagerAgent {
         let create_or_modify_metrics_tool = MetricAgentTool::new(Arc::clone(&agent));
         let create_or_modify_dashboards_tool = DashboardAgentTool::new(Arc::clone(&agent));
         let exploratory_agent_tool = ExploratoryAgentTool::new(Arc::clone(&agent));
+        let send_assets_to_user = SendAssetsToUserTool::new(Arc::clone(&agent));
 
         // Add tools to the agent
         agent
@@ -141,62 +143,22 @@ impl ManagerAgent {
                 exploratory_agent_tool.into_value_tool(),
             )
             .await;
+        agent
+            .add_tool(
+                send_assets_to_user.get_name(),
+                send_assets_to_user.into_value_tool(),
+            )
+            .await;
 
         Ok(Self { agent })
     }
 
-    pub async fn process_request(
+    pub async fn run(
         &self,
-        input: ManagerAgentInput,
-        user_id: Uuid,
-    ) -> Result<ManagerAgentOutput> {
-        let start_time = std::time::Instant::now();
-        let thread_id = input.thread_id.unwrap_or_else(Uuid::new_v4);
-        info!("Starting manager request processing for thread: {}", thread_id);
+        thread: &mut AgentThread,
+    ) -> Result<Receiver<Result<AgentMessage, anyhow::Error>>> {
+        thread.set_developer_message(MANAGER_AGENT_PROMPT.to_string());
 
-        // Create thread with manager context
-        let thread = AgentThread::new(
-            Some(thread_id),
-            user_id,
-            vec![
-                AgentMessage::developer(MANAGER_AGENT_PROMPT.to_string()),
-                AgentMessage::user(input.prompt),
-            ],
-        );
-
-        // Process using agent's streaming functionality
-        let mut rx = self.run(&thread).await?;
-        let mut messages = Vec::new();
-
-        while let Some(msg_result) = rx.recv().await {
-            if let Ok(msg) = msg_result {
-                messages.push(msg);
-            }
-        }
-
-        let duration = start_time.elapsed().as_millis() as i64;
-        let message = format!(
-            "Completed request processing with {} messages",
-            messages.len()
-        );
-
-        info!(
-            duration_ms = duration,
-            messages_count = messages.len(),
-            thread_id = %thread_id,
-            "Completed manager request processing"
-        );
-
-        Ok(ManagerAgentOutput {
-            message,
-            duration,
-            thread_id,
-            messages,
-        })
-    }
-
-    pub async fn run(&self, thread: &AgentThread) -> Result<Receiver<Result<AgentMessage, anyhow::Error>>> {
-        // Process using agent's streaming functionality
         self.stream_process_thread(thread).await
     }
 }

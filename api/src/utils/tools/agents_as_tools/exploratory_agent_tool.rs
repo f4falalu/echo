@@ -43,27 +43,15 @@ impl ToolExecutor for ExploratoryAgentTool {
             .await
             .ok_or_else(|| anyhow::anyhow!("No current thread"))?;
 
-        // Add the ticket description to the thread
-        current_thread
-            .messages
-            .push(AgentMessage::user(params.ticket_description));
+        current_thread.remove_last_assistant_message();
 
         // Run the exploratory agent and get the receiver
-        let mut rx = exploratory_agent.run(&mut current_thread).await?;
+        let _rx = exploratory_agent.run(&mut current_thread).await?;
 
-        // Process all messages from the receiver
-        let mut messages = Vec::new();
-        while let Some(msg_result) = rx.recv().await {
-            match msg_result {
-                Ok(msg) => messages.push(msg),
-                Err(e) => return Err(e.into()),
-            }
-        }
-
-        // Return the messages as part of the output
+        // Return immediately with status
         Ok(serde_json::json!({
-            "messages": messages,
-            "status": "completed"
+            "status": "running",
+            "message": "Exploratory agent started successfully"
         }))
     }
 

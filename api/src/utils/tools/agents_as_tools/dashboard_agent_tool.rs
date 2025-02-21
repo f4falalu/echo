@@ -14,6 +14,11 @@ pub struct DashboardAgentTool {
     agent: Arc<Agent>,
 }
 
+fn is_completion_signal(msg: &AgentMessage) -> bool {
+    matches!(msg, AgentMessage::Assistant { content: Some(content), tool_calls: None, .. } 
+        if content == "AGENT_COMPLETE")
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DashboardAgentParams {
     pub ticket_description: String,
@@ -42,35 +47,34 @@ impl ToolExecutor for DashboardAgentTool {
 
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         // Create and initialize the agent
+        println!("DashboardAgentTool: Creating dashboard agent");
         let dashboard_agent = DashboardAgent::from_existing(&self.agent).await?;
+        println!("DashboardAgentTool: Dashboard agent created");
 
+        println!("DashboardAgentTool: Getting current thread");
         let mut current_thread = self
             .agent
             .get_current_thread()
             .await
             .ok_or_else(|| anyhow::anyhow!("No current thread"))?;
+        println!("DashboardAgentTool: Current thread retrieved");
 
-        // Add the ticket description to the thread
-        current_thread
-            .messages
-            .push(AgentMessage::user(params.ticket_description));
+        println!("DashboardAgentTool: Removing last assistant message");
+        current_thread.remove_last_assistant_message();
+        println!("DashboardAgentTool: Last assistant message removed");
 
-        // Run the dashboard agent and get the receiver
-        let mut rx = dashboard_agent.run(&mut current_thread).await?;
+        println!("DashboardAgentTool: Starting dashboard agent run");
+        // Run the dashboard agent and get the output
+        let output = dashboard_agent.run(&mut current_thread).await?;
+        println!("DashboardAgentTool: Dashboard agent run completed");
 
-        // Process all messages from the receiver
-        let mut messages = Vec::new();
-        while let Some(msg_result) = rx.recv().await {
-            match msg_result {
-                Ok(msg) => messages.push(msg),
-                Err(e) => return Err(e.into()),
-            }
-        }
-
-        // Return the messages as part of the output
+        println!("DashboardAgentTool: Preparing success response");
+        // Return success with the output
         Ok(serde_json::json!({
-            "messages": messages,
-            "status": "completed"
+            "status": "success",
+            "message": output.message,
+            "duration": output.duration,
+            "files": output.files
         }))
     }
 

@@ -66,9 +66,14 @@ impl LiteLLMClient {
             .post(&url)
             .json(&request)
             .send()
-            .await?
-            .json::<ChatCompletionResponse>()
             .await?;
+
+        // Print the raw response text
+        let response_text = response.text().await?;
+        println!("DEBUG: Raw response payload: {}", response_text);
+
+        // Parse the response text into the expected type
+        let response: ChatCompletionResponse = serde_json::from_str(&response_text)?;
 
         // Print tool calls if present
         if let Some(Message::Assistant {
@@ -128,7 +133,7 @@ impl LiteLLMClient {
                 match chunk_result {
                     Ok(chunk) => {
                         let chunk_str = String::from_utf8_lossy(&chunk);
-                        println!("DEBUG: Received raw stream chunk: {}", chunk_str);
+                        println!("DEBUG: Raw response payload: {}", chunk_str);
                         buffer.push_str(&chunk_str);
 
                         while let Some(pos) = buffer.find("\n\n") {

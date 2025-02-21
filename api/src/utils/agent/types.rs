@@ -34,4 +34,11 @@ impl AgentThread {
             self.messages.insert(0, Message::developer(message));
         }
     }
+
+    /// Remove the most recent assistant message from the thread
+    pub fn remove_last_assistant_message(&mut self) {
+        if let Some(pos) = self.messages.iter().rposition(|msg| matches!(msg, Message::Assistant { .. })) {
+            self.messages.remove(pos);
+        }
+    }
 }
