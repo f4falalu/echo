@@ -1,19 +1,17 @@
 'use client';
 
-import { ConfigProvider, Layout } from 'antd';
 import React, { PropsWithChildren, useMemo } from 'react';
 import { AppSidebar } from './AppSidebar';
 import { NewChatModal } from '@/components/features/NewChatModal';
 import { InvitePeopleModal } from '@/components/features/Modals/InvitePeopleModal';
 import { AppSplitter } from '@/components/ui/layout';
 import { createStyles } from 'antd-style';
-import { useBusterStylesContext } from '@/context/BusterStyles/BusterStyles';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { SupportModal } from '@/components/features/Modals/SupportModal';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn } from 'ahooks';
-import { ThemeConfig } from 'antd/lib';
 import { useSearchParams } from 'next/navigation';
+import { cn } from '@/lib/classMerge';
 
 const layoutStyle = {
   overflow: 'hidden',
@@ -73,7 +71,6 @@ const AppLayoutContent: React.FC<
     embedView?: boolean;
   }>
 > = React.memo(({ children, isAnonymousUser, hideSidePanel, embedView }) => {
-  const { cx, styles } = useStyles();
   const onToggleInviteModal = useAppLayoutContextSelector((s) => s.onToggleInviteModal);
   const openInviteModal = useAppLayoutContextSelector((s) => s.openInviteModal);
   const onToggleChatsModal = useAppLayoutContextSelector((s) => s.onToggleChatsModal);
@@ -81,9 +78,6 @@ const AppLayoutContent: React.FC<
   const onToggleSupportModal = useAppLayoutContextSelector((s) => s.onToggleSupportModal);
   const openSupportModal = useAppLayoutContextSelector((s) => s.openSupportModal);
   const userOrganizations = useUserConfigContextSelector((x) => x.userOrganizations);
-  const colorBgContainerDisabled = useBusterStylesContext(
-    (s) => s.theme.token?.colorBgContainerDisabled
-  );
 
   const onCloseChatsModal = useMemoizedFn(() => onToggleChatsModal(false));
   const onCloseInviteModal = useMemoizedFn(() => onToggleInviteModal(false));
@@ -91,30 +85,20 @@ const AppLayoutContent: React.FC<
 
   const hasOrganization = !!userOrganizations;
 
-  const themeConfig = useMemo<ThemeConfig>(
-    () => ({
-      components: {
-        Layout: {
-          bodyBg: colorBgContainerDisabled
-        }
-      }
-    }),
-    [colorBgContainerDisabled]
-  );
-
   const layoutClassName = useMemo(
     () =>
       embedView
         ? ''
-        : cx(`mr-2 mt-2 overflow-hidden rounded-md`, styles.layout, {
-            'ml-2': hideSidePanel
-          }),
-    [embedView, hideSidePanel, styles.layout]
+        : cn(
+            `mr-2 mt-2 overflow-hidden rounded-md border-[0.5px] border-border min-h-[calc(100vh_-_16px)] h-[calc(100vh_-_16px)] max-h-[calc(100vh_-_16px)]`,
+            { 'ml-2': hideSidePanel }
+          ),
+    [embedView, hideSidePanel]
   );
 
   return (
-    <ConfigProvider theme={themeConfig}>
-      <Layout className={layoutClassName}>{children}</Layout>
+    <>
+      <div className={layoutClassName}>{children}</div>
 
       {!isAnonymousUser && hasOrganization && (
         <>
@@ -123,7 +107,7 @@ const AppLayoutContent: React.FC<
           <SupportModal open={openSupportModal} onClose={onCloseSupportModal} />
         </>
       )}
-    </ConfigProvider>
+    </>
   );
 });
 AppLayoutContent.displayName = 'AppLayoutContent';

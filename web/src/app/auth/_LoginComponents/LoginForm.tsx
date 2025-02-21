@@ -267,19 +267,20 @@ const LoginOptions: React.FC<{
 
         <Divider plain>or</Divider>
 
-        <Input
-          type="email"
-          placeholder="What is your email address?"
-          name="email"
-          id="email"
-          value={email}
-          onChange={(v) => {
-            setEmail(v.target.value);
-          }}
-          disabled={!!loading}
-          autoComplete="email"
-        />
-
+        <div>
+          <Input
+            type="email"
+            placeholder="What is your email address?"
+            name="email"
+            id="email"
+            value={email}
+            onChange={(v) => {
+              setEmail(v.target.value);
+            }}
+            disabled={!!loading}
+            autoComplete="email"
+          />
+        </div>
         <div className="relative">
           <Input
             value={password}

@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Switch } from './AppSwitch';
+import { AppSwitch } from './AppSwitch';
 
-const meta: Meta<typeof Switch> = {
+const meta: Meta<typeof AppSwitch> = {
   title: 'Base/Switch',
-  component: Switch,
+  component: AppSwitch,
   tags: ['autodocs'],
   argTypes: {
     className: { control: 'text' },
@@ -14,7 +14,7 @@ const meta: Meta<typeof Switch> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof Switch>;
+type Story = StoryObj<typeof AppSwitch>;
 
 export const Default: Story = {
   args: {}
@@ -41,6 +41,7 @@ export const DisabledChecked: Story = {
 
 export const WithCustomClassName: Story = {
   args: {
-    className: 'data-[state=checked]:bg-green-500'
+    className: 'data-[state=checked]:bg-green-500',
+    defaultChecked: true
   }
 };

@@ -31,8 +31,8 @@ export const embedLanguageOptions = [
   {
     label: 'English (en)',
     value: SupportedLanguages.EN
-  },
-  {
+  }
+  /* {
     label: 'German (de)',
     value: SupportedLanguages.DE
   },
@@ -92,6 +92,7 @@ export const embedLanguageOptions = [
     label: 'Arabic (ar)',
     value: SupportedLanguages.AR
   }
+    */
 ];
 
 export const getLanguageLabel = (language: SupportedLanguages) =>
