@@ -1,24 +1,29 @@
 import React from 'react';
 import { iconProps } from './iconProps';
 
-
-
 function chartArea2(props: iconProps) {
-	const fill = props.fill || 'currentColor';
-	const secondaryfill = props.secondaryfill || fill;
-	const strokewidth = props.strokewidth || 1;
-	const width = props.width || '1em';
-	const height = props.height || '1em';
-	const title = props.title || "18px chart area 2";
+  const fill = props.fill || 'currentColor';
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || '1em';
+  const height = props.height || '16px';
+  const title = props.title || '18px chart area 2';
 
-	return (
-		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-	<title>{title}</title>
-	<g fill={fill}>
-		<path d="M14.25,14.25H3.75c-1.105,0-2-.895-2-2v-2.793c0-.133,.053-.26,.146-.354l2.809-2.809c.17-.17,.438-.195,.637-.058l3.36,2.31c.178,.122,.414,.117,.585-.014L15.448,3.859c.329-.25,.802-.015,.802,.398v7.993c0,1.105-.895,2-2,2Z" fill="none" stroke={fill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
-	</g>
-</svg>
-	);
-};
+  return (
+    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <title>{title}</title>
+      <g fill={fill}>
+        <path
+          d="M14.25,14.25H3.75c-1.105,0-2-.895-2-2v-2.793c0-.133,.053-.26,.146-.354l2.809-2.809c.17-.17,.438-.195,.637-.058l3.36,2.31c.178,.122,.414,.117,.585-.014L15.448,3.859c.329-.25,.802-.015,.802,.398v7.993c0,1.105-.895,2-2,2Z"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+      </g>
+    </svg>
+  );
+}
 
 export default chartArea2;

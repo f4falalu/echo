@@ -1,25 +1,43 @@
 import React from 'react';
 import { iconProps } from './iconProps';
 
-
-
 function I12px_copies2(props: iconProps) {
-	const fill = props.fill || 'currentColor';
-	const secondaryfill = props.secondaryfill || fill;
-	const strokewidth = props.strokewidth || 1;
-	const width = props.width || '1em';
-	const height = props.height || '1em';
-	const title = props.title || "12px copies 2";
+  const fill = props.fill || 'currentColor';
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || '1em';
+  const height = props.height || '16px';
+  const title = props.title || '12px copies 2';
 
-	return (
-		<svg height={height} width={width} viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-	<title>{title}</title>
-	<g fill={fill}>
-		<rect height="10.5" width="7" fill="none" rx="1.5" ry="1.5" stroke={fill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth} transform="rotate(-90 6 7.25)" x="2.5" y="2"/>
-		<path d="M9.25 0.75L2.75 0.75" fill="none" stroke={secondaryfill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
-	</g>
-</svg>
-	);
-};
+  return (
+    <svg height={height} width={width} viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+      <title>{title}</title>
+      <g fill={fill}>
+        <rect
+          height="10.5"
+          width="7"
+          fill="none"
+          rx="1.5"
+          ry="1.5"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+          transform="rotate(-90 6 7.25)"
+          x="2.5"
+          y="2"
+        />
+        <path
+          d="M9.25 0.75L2.75 0.75"
+          fill="none"
+          stroke={secondaryfill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+      </g>
+    </svg>
+  );
+}
 
 export default I12px_copies2;

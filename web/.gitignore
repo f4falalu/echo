@@ -46,3 +46,4 @@ next-env.d.ts
 .million/store.json
 
 *storybook.log
+/storybook-static

@@ -7,7 +7,7 @@ function microphone3Off(props: iconProps) {
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
   const width = props.width || '1em';
-  const height = props.height || '1em';
+  const height = props.height || '16px';
   const title = props.title || 'microphone 3 off';
 
   return (

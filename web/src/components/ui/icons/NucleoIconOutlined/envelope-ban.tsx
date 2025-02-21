@@ -1,27 +1,55 @@
 import React from 'react';
 import { iconProps } from './iconProps';
 
-
-
 function envelopeBan(props: iconProps) {
-	const fill = props.fill || 'currentColor';
-	const secondaryfill = props.secondaryfill || fill;
-	const strokewidth = props.strokewidth || 1;
-	const width = props.width || '1em';
-	const height = props.height || '1em';
-	const title = props.title || "18px envelope ban";
+  const fill = props.fill || 'currentColor';
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || '1em';
+  const height = props.height || '16px';
+  const title = props.title || '18px envelope ban';
 
-	return (
-		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-	<title>{title}</title>
-	<g fill={fill}>
-		<path d="m1.75,5.75l6.767,3.733c.301.166.665.166.966,0l6.767-3.733" fill="none" stroke={fill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
-		<path d="m16.25,8.7089v-3.4589c0-1.1045-.8954-2-2-2H3.75c-1.1046,0-2,.8955-2,2v7.5c0,1.1045.8954,2,2,2h4.549" fill="none" stroke={fill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
-		<path d="M11.702 16.298L16.292 11.708" fill="none" stroke={secondaryfill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
-		<circle cx="14" cy="14" fill="none" r="3.25" stroke={secondaryfill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
-	</g>
-</svg>
-	);
-};
+  return (
+    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <title>{title}</title>
+      <g fill={fill}>
+        <path
+          d="m1.75,5.75l6.767,3.733c.301.166.665.166.966,0l6.767-3.733"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="m16.25,8.7089v-3.4589c0-1.1045-.8954-2-2-2H3.75c-1.1046,0-2,.8955-2,2v7.5c0,1.1045.8954,2,2,2h4.549"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M11.702 16.298L16.292 11.708"
+          fill="none"
+          stroke={secondaryfill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <circle
+          cx="14"
+          cy="14"
+          fill="none"
+          r="3.25"
+          stroke={secondaryfill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+      </g>
+    </svg>
+  );
+}
 
 export default envelopeBan;

@@ -1,25 +1,37 @@
 import React from 'react';
 import { iconProps } from './iconProps';
 
-
-
 function I12px_arrowTriangleLineUp(props: iconProps) {
-	const fill = props.fill || 'currentColor';
-	const secondaryfill = props.secondaryfill || fill;
-	const strokewidth = props.strokewidth || 1;
-	const width = props.width || '1em';
-	const height = props.height || '1em';
-	const title = props.title || "12px arrow triangle line up";
+  const fill = props.fill || 'currentColor';
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || '1em';
+  const height = props.height || '16px';
+  const title = props.title || '12px arrow triangle line up';
 
-	return (
-		<svg height={height} width={width} viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-	<title>{title}</title>
-	<g fill={fill}>
-		<path d="M6 11L6 5.25" fill="none" stroke={secondaryfill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
-		<path d="m8.872,4.443l-2.478-3.186c-.2-.257-.589-.257-.789,0l-2.478,3.186c-.255.328-.021.807.395.807h4.955c.416,0,.65-.479.395-.807Z" fill="none" stroke={fill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
-	</g>
-</svg>
-	);
-};
+  return (
+    <svg height={height} width={width} viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+      <title>{title}</title>
+      <g fill={fill}>
+        <path
+          d="M6 11L6 5.25"
+          fill="none"
+          stroke={secondaryfill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="m8.872,4.443l-2.478-3.186c-.2-.257-.589-.257-.789,0l-2.478,3.186c-.255.328-.021.807.395.807h4.955c.416,0,.65-.479.395-.807Z"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+      </g>
+    </svg>
+  );
+}
 
 export default I12px_arrowTriangleLineUp;

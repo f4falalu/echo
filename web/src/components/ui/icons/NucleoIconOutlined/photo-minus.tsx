@@ -1,27 +1,46 @@
 import React from 'react';
 import { iconProps } from './iconProps';
 
-
-
 function photoMinus(props: iconProps) {
-	const fill = props.fill || 'currentColor';
-	const secondaryfill = props.secondaryfill || fill;
-	const strokewidth = props.strokewidth || 1;
-	const width = props.width || '1em';
-	const height = props.height || '1em';
-	const title = props.title || "18px photo minus";
+  const fill = props.fill || 'currentColor';
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || '1em';
+  const height = props.height || '16px';
+  const title = props.title || '18px photo minus';
 
-	return (
-		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-	<title>{title}</title>
-	<g fill={fill}>
-		<path d="m4,14.75l5.836-5.836c.781-.781,2.047-.781,2.828,0l3.586,3.586" fill="none" stroke={fill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
-		<path d="m9.3004,3.25H3.75c-1.1046,0-2,.8955-2,2v7.5c0,1.1045.8954,2,2,2h10.5c1.1046,0,2-.8955,2-2v-6.5" fill="none" stroke={fill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
-		<path d="M16.75 3.75L11.75 3.75" fill="none" stroke={secondaryfill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
-		<circle cx="5.75" cy="7.25" fill={fill} r="1.25" strokeWidth="0"/>
-	</g>
-</svg>
-	);
-};
+  return (
+    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <title>{title}</title>
+      <g fill={fill}>
+        <path
+          d="m4,14.75l5.836-5.836c.781-.781,2.047-.781,2.828,0l3.586,3.586"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="m9.3004,3.25H3.75c-1.1046,0-2,.8955-2,2v7.5c0,1.1045.8954,2,2,2h10.5c1.1046,0,2-.8955,2-2v-6.5"
+          fill="none"
+          stroke={fill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M16.75 3.75L11.75 3.75"
+          fill="none"
+          stroke={secondaryfill}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <circle cx="5.75" cy="7.25" fill={fill} r="1.25" strokeWidth="0" />
+      </g>
+    </svg>
+  );
+}
 
 export default photoMinus;

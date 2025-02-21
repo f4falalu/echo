@@ -1,14 +1,12 @@
 import React from 'react';
 import { iconProps } from './iconProps';
 
-
-
 function addAbove(props: iconProps) {
   const fill = props.fill || 'currentColor';
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
   const width = props.width || '1em';
-  const height = props.height || '1em';
+  const height = props.height || '16px';
   const title = props.title || 'add above';
 
   return (
