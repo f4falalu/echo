@@ -4,6 +4,7 @@ import { Switch } from './AppSwitch';
 const meta: Meta<typeof Switch> = {
   title: 'Base/Switch',
   component: Switch,
+  tags: ['autodocs'],
   argTypes: {
     className: { control: 'text' },
     defaultChecked: { control: 'boolean' },
@@ -40,6 +41,6 @@ export const DisabledChecked: Story = {
 
 export const WithCustomClassName: Story = {
   args: {
-    className: 'bg-blue-500 data-[state=checked]:bg-green-500'
+    className: 'data-[state=checked]:bg-green-500'
   }
 };

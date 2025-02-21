@@ -40,9 +40,23 @@
   --color-primary: #7c3aed;
   --color-primary-light: #a26cff;
   --color-primary-dark: #6d28d9;
+  --color-border: #e0e0e0;
+  --color-disabled: var(--color-border);
+  --color-light-gray: #969597;
+  --color-dark-gray: #575859;
+  --color-black: #000000;
+  --color-black-hover: #393939;
+  --color-background: #ffffff;
 
-  --color-background: hsl(0 0% 100%);
-  --color-foreground: hsl(0 0% 3.9%);
+  /* component color */
+  --color-input: hsl(0 0% 89.8%);
+  --color-page-background: #fcfcfc;
+  --color-item-hover: #f8f8f8;
+  --color-nav-background: #f3f3f3;
+  --color-nav-item-hover: #efeeee;
+  --color-nav-item-select: #e6e6e6;
+
+  /* --color-foreground: hsl(0 0% 3.9%);
   --color-card: hsl(0 0% 100%);
   --color-card-foreground: hsl(0 0% 3.9%);
   --color-popover: hsl(0 0% 100%);
@@ -54,12 +68,9 @@
   --color-accent: hsl(0 0% 96.1%);
   --color-accent-foreground: hsl(0 0% 9%);
   --color-destructive: hsl(0 84.2% 60.2%);
-  --color-destructive-foreground: hsl(0 0% 98%);
-  --color-border: hsl(0 0% 89.8%);
-  --color-ring: hsl(0 0% 3.9%);
-
-  /* component color */
-  --color-input: hsl(0 0% 89.8%);
+  --color-destructive-foreground: hsl(0 0% 98%); */
+  /* --color-border: hsl(0 0% 89.8%); */
+  /* --color-ring: hsl(0 0% 3.9%); */
 }
 
 @import './tailwindAnimations.css';
