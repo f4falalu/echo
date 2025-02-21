@@ -1,5 +1,6 @@
 use anyhow::Result;
 use async_trait::async_trait;
+use litellm::Message as AgentMessage;
 use serde::Deserialize;
 use serde_json::Value;
 use std::sync::Arc;
@@ -31,7 +32,7 @@ impl ToolExecutor for MetricAgentTool {
     type Params = MetricAgentInput;
 
     fn get_name(&self) -> String {
-        "metric_agent".to_string()
+        "create_or_modify_metrics".to_string()
     }
 
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
@@ -39,28 +40,38 @@ impl ToolExecutor for MetricAgentTool {
         let metric_agent = MetricAgent::from_existing(&self.agent).await?;
 
         // Get current thread for context
-        let current_thread = self
+        let mut current_thread = self
             .agent
             .get_current_thread()
             .await
             .ok_or_else(|| anyhow::anyhow!("No current thread"))?;
 
         // Parse input parameters
-        let agent_input = crate::utils::agent::metric_agent::MetricAgentInput {
-            operation: "create".to_string(),
-            metric_name: None,
-            metric_id: None,
-            requirements: Some(params.ticket_description),
-            modifications: None,
+        let agent_input = MetricAgentInput {
+            ticket_description: params.ticket_description,
         };
 
-        // Execute the agent with the executing agent's context
-        let output = metric_agent
-            .process_metric(agent_input, current_thread.id, current_thread.user_id)
-            .await?;
+        // current_thread
+        //     .messages
+        //     .push(AgentMessage::user(agent_input.ticket_description));
 
-        // Convert output to Value
-        serde_json::to_value(output).map_err(Into::into)
+        // Run the metric agent and get the receiver
+        let mut rx = metric_agent.run(&mut current_thread).await?;
+
+        // Process all messages from the receiver
+        let mut messages = Vec::new();
+        while let Some(msg_result) = rx.recv().await {
+            match msg_result {
+                Ok(msg) => messages.push(msg),
+                Err(e) => return Err(e.into()),
+            }
+        }
+
+        // Return the messages as part of the output
+        Ok(serde_json::json!({
+            "messages": messages,
+            "status": "completed"
+        }))
     }
 
     fn get_schema(&self) -> Value {

@@ -1,5 +1,6 @@
 use anyhow::Result;
 use async_trait::async_trait;
+use litellm::Message as AgentMessage;
 use serde::Deserialize;
 use serde_json::Value;
 use std::sync::Arc;
@@ -29,20 +30,41 @@ impl ToolExecutor for ExploratoryAgentTool {
     type Output = Value;
     type Params = ExploratoryAgentInput;
     fn get_name(&self) -> String {
-        "exploratory_agent".to_string()
+        "explore_data".to_string()
     }
 
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         // Create and initialize the agent
-        let exploratory_agent = ExploratoryAgent::from_existing(&self.agent)?;
+        let exploratory_agent = ExploratoryAgent::from_existing(&self.agent).await?;
 
-        // Parse input parameters
-        let input = params;
+        let mut current_thread = self
+            .agent
+            .get_current_thread()
+            .await
+            .ok_or_else(|| anyhow::anyhow!("No current thread"))?;
 
-        // TODO: Implement the exploratory agent result
+        // Add the ticket description to the thread
+        current_thread
+            .messages
+            .push(AgentMessage::user(params.ticket_description));
 
-        // Return dummy value for now
-        Ok(serde_json::json!("TODO"))
+        // Run the exploratory agent and get the receiver
+        let mut rx = exploratory_agent.run(&mut current_thread).await?;
+
+        // Process all messages from the receiver
+        let mut messages = Vec::new();
+        while let Some(msg_result) = rx.recv().await {
+            match msg_result {
+                Ok(msg) => messages.push(msg),
+                Err(e) => return Err(e.into()),
+            }
+        }
+
+        // Return the messages as part of the output
+        Ok(serde_json::json!({
+            "messages": messages,
+            "status": "completed"
+        }))
     }
 
     fn get_schema(&self) -> Value {

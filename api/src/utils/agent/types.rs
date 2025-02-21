@@ -22,4 +22,16 @@ impl AgentThread {
             messages,
         }
     }
+
+    /// Set the developer message in the thread
+    pub fn set_developer_message(&mut self, message: String) {
+        // Look for an existing developer message
+        if let Some(pos) = self.messages.iter().position(|msg| matches!(msg, Message::Developer { .. })) {
+            // Update existing developer message
+            self.messages[pos] = Message::developer(message);
+        } else {
+            // Insert new developer message at the start
+            self.messages.insert(0, Message::developer(message));
+        }
+    }
 }

@@ -208,8 +208,6 @@ impl ToolExecutor for SearchDataCatalogTool {
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         let start_time = Instant::now();
 
-        let mut conn = get_pg_pool().get().await?;
-
         // Fetch all non-deleted datasets
         let datasets = Self::get_datasets().await?;
         if datasets.is_empty() {
@@ -278,7 +276,7 @@ impl ToolExecutor for SearchDataCatalogTool {
               "properties": {
                 "ticket_description": {
                   "type": "string",
-                  "description": "A brief description for the action. This should essentially be a ticket description that can be appended to a ticket. This ticket will be used to keep track of your current task. The ticket description should explain which parts of the user's request this action addresses. Copy the user's request exactly without adding instructions, thoughts, or assumptions. Write it as a command, not a question, typically starting with an imperative verb like 'Retrieve...', 'Provide...', 'Filter...', etc."
+                  "description": "This should just be the user request, copied exactly."
                 }
               },
               "additionalProperties": false

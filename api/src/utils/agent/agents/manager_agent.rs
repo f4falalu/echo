@@ -152,10 +152,7 @@ impl ManagerAgent {
     ) -> Result<ManagerAgentOutput> {
         let start_time = std::time::Instant::now();
         let thread_id = input.thread_id.unwrap_or_else(Uuid::new_v4);
-        debug!(
-            "Starting manager request processing for thread: {}",
-            thread_id
-        );
+        info!("Starting manager request processing for thread: {}", thread_id);
 
         // Create thread with manager context
         let thread = AgentThread::new(
@@ -167,9 +164,15 @@ impl ManagerAgent {
             ],
         );
 
-        // Process using agent's streaming functionality - now using the trait method
-        let mut rx = self.stream_process_thread(&thread).await?;
-        let messages = self.process_stream(&mut rx).await?;
+        // Process using agent's streaming functionality
+        let mut rx = self.run(&thread).await?;
+        let mut messages = Vec::new();
+
+        while let Some(msg_result) = rx.recv().await {
+            if let Ok(msg) = msg_result {
+                messages.push(msg);
+            }
+        }
 
         let duration = start_time.elapsed().as_millis() as i64;
         let message = format!(
@@ -192,80 +195,9 @@ impl ManagerAgent {
         })
     }
 
-    async fn process_stream(
-        &self,
-        rx: &mut Receiver<Result<AgentMessage, anyhow::Error>>,
-    ) -> Result<Vec<AgentMessage>> {
-        let mut messages = Vec::new();
-
-        while let Some(msg_result) = rx.recv().await {
-            match msg_result {
-                Ok(msg) => {
-                    messages.push(msg.clone());
-                    if let Some(result) = self.process_message(msg)? {
-                        messages.push(result);
-                    }
-                }
-                Err(e) => {
-                    tracing::error!("Error processing manager message: {}", e);
-                }
-            }
-        }
-
-        Ok(messages)
-    }
-
-    fn process_message(&self, message: AgentMessage) -> Result<Option<AgentMessage>> {
-        match message {
-            AgentMessage::Assistant {
-                content,
-                tool_calls,
-                ..
-            } => {
-                if let Some(tool_calls) = tool_calls {
-                    for tool_call in tool_calls {
-                        if let Some(result) = self.process_tool_result(&tool_call)? {
-                            return Ok(Some(result));
-                        }
-                    }
-                }
-                Ok(None)
-            }
-            AgentMessage::Tool {
-                tool_call_id,
-                content,
-                name,
-                ..
-            } => Ok(Some(AgentMessage::tool(
-                None,
-                content,
-                tool_call_id,
-                None,
-                None,
-            ))),
-            _ => Ok(None),
-        }
-    }
-
-    fn process_tool_result(&self, tool_call: &ToolCall) -> Result<Option<AgentMessage>> {
-        // Process different tool results
-        match tool_call.function.name.as_str() {
-            "send_message_to_user" => {
-                let result: serde_json::Value =
-                    serde_json::from_str(&tool_call.function.arguments)?;
-                if let Some(message) = result.get("message") {
-                    return Ok(Some(AgentMessage::assistant(
-                        Some(message.as_str().unwrap_or_default().to_string()),
-                        None,
-                        None,
-                        None,
-                        None,
-                    )));
-                }
-            }
-            _ => {}
-        }
-        Ok(None)
+    pub async fn run(&self, thread: &AgentThread) -> Result<Receiver<Result<AgentMessage, anyhow::Error>>> {
+        // Process using agent's streaming functionality
+        self.stream_process_thread(thread).await
     }
 }
 
@@ -344,4 +276,8 @@ Your immediate task is to analyze the user's request and determine which **actio
   - Currently, you are not able to do things that require Python. You are only capable of querying historical data using SQL statements.
 - **If no data is found**  
   - Explain that you couldn't find relevant data.
+- **Do not ask clarifying questions**
+  - You should always try your best to assume the user's intent and complete the task.
+  - Oftentimes, the user may not know exactly what they want and you are responsible for helping them by exploring data, building dashboards and metrics, etc.
+  - The user will clarify their intent as you work on the task.
 "##;
