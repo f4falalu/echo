@@ -254,6 +254,10 @@ impl ToolExecutor for SearchDataCatalogTool {
             format!("Found {} relevant datasets", search_results.len())
         };
 
+        self.agent
+            .set_state_value(String::from("data_context"), Value::Bool(true))
+            .await;
+
         let duration = start_time.elapsed().as_millis();
 
         Ok(SearchDataCatalogOutput {

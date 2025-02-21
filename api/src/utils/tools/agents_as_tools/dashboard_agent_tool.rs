@@ -78,6 +78,11 @@ impl ToolExecutor for DashboardAgentTool {
         println!("DashboardAgentTool: Dashboard agent run completed");
 
         println!("DashboardAgentTool: Preparing success response");
+
+        self.agent
+            .set_state_value(String::from("files_created"), Value::Bool(false))
+            .await;
+
         // Return success with the output
         Ok(serde_json::json!({
             "status": "success",

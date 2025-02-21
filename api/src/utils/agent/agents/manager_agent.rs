@@ -1,7 +1,8 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::collections::HashMap;
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
 use tokio::sync::mpsc::Receiver;
 use uuid::Uuid;
 
@@ -155,18 +156,6 @@ impl ManagerAgent {
         thread.set_developer_message(MANAGER_AGENT_PROMPT.to_string());
 
         let mut rx = self.stream_process_thread(thread).await?;
-
-        while let Some(message) = rx.recv().await {
-            let message = message?;
-            if let AgentMessage::Tool {
-                id,
-                content,
-                tool_call_id,
-                name,
-                progress,
-            } = message
-            {}
-        }
 
         Ok(rx)
     }

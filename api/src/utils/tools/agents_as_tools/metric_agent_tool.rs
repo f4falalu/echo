@@ -60,6 +60,10 @@ impl ToolExecutor for MetricAgentTool {
         // Run the metric agent and get the receiver
         let _rx = metric_agent.run(&mut current_thread).await?;
 
+        self.agent
+            .set_state_value(String::from("files_created"), Value::Bool(false))
+            .await;
+
         // Return immediately with status
         Ok(serde_json::json!({
             "status": "running",
