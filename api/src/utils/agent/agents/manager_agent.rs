@@ -45,6 +45,59 @@ impl AgentExt for ManagerAgent {
 }
 
 impl ManagerAgent {
+    async fn load_tools(&self, include_send_assets: bool) -> Result<()> {
+        // Create tools using the shared Arc
+        let search_data_catalog_tool = SearchDataCatalogTool::new(Arc::clone(&self.agent));
+        let search_files_tool = SearchFilesTool::new(Arc::clone(&self.agent));
+        let create_or_modify_metrics_tool = MetricAgentTool::new(Arc::clone(&self.agent));
+        let create_or_modify_dashboards_tool = DashboardAgentTool::new(Arc::clone(&self.agent));
+        let exploratory_agent_tool = ExploratoryAgentTool::new(Arc::clone(&self.agent));
+
+        // Add tools to the agent
+        self.agent
+            .add_tool(
+                search_data_catalog_tool.get_name(),
+                search_data_catalog_tool.into_value_tool(),
+            )
+            .await;
+        self.agent
+            .add_tool(
+                search_files_tool.get_name(),
+                search_files_tool.into_value_tool(),
+            )
+            .await;
+        self.agent
+            .add_tool(
+                create_or_modify_metrics_tool.get_name(),
+                create_or_modify_metrics_tool.into_value_tool(),
+            )
+            .await;
+        self.agent
+            .add_tool(
+                create_or_modify_dashboards_tool.get_name(),
+                create_or_modify_dashboards_tool.into_value_tool(),
+            )
+            .await;
+        self.agent
+            .add_tool(
+                exploratory_agent_tool.get_name(),
+                exploratory_agent_tool.into_value_tool(),
+            )
+            .await;
+
+        if include_send_assets {
+            let send_assets_to_user = SendAssetsToUserTool::new(Arc::clone(&self.agent));
+            self.agent
+                .add_tool(
+                    send_assets_to_user.get_name(),
+                    send_assets_to_user.into_value_tool(),
+                )
+                .await;
+        }
+
+        Ok(())
+    }
+
     pub async fn new(user_id: Uuid, session_id: Uuid) -> Result<Self> {
         // Create agent with empty tools map
         let agent = Arc::new(Agent::new(
@@ -54,99 +107,17 @@ impl ManagerAgent {
             session_id,
         ));
 
-        // Create tools using the shared Arc
-        let search_data_catalog_tool = SearchDataCatalogTool::new(Arc::clone(&agent));
-        let search_files_tool = SearchFilesTool::new(Arc::clone(&agent));
-        let create_or_modify_metrics_tool = MetricAgentTool::new(Arc::clone(&agent));
-        let create_or_modify_dashboards_tool = DashboardAgentTool::new(Arc::clone(&agent));
-        let exploratory_agent_tool = ExploratoryAgentTool::new(Arc::clone(&agent));
-
-        // Add tools to the agent
-        agent
-            .add_tool(
-                search_data_catalog_tool.get_name(),
-                search_data_catalog_tool.into_value_tool(),
-            )
-            .await;
-        agent
-            .add_tool(
-                search_files_tool.get_name(),
-                search_files_tool.into_value_tool(),
-            )
-            .await;
-        agent
-            .add_tool(
-                create_or_modify_metrics_tool.get_name(),
-                create_or_modify_metrics_tool.into_value_tool(),
-            )
-            .await;
-        agent
-            .add_tool(
-                create_or_modify_dashboards_tool.get_name(),
-                create_or_modify_dashboards_tool.into_value_tool(),
-            )
-            .await;
-        agent
-            .add_tool(
-                exploratory_agent_tool.get_name(),
-                exploratory_agent_tool.into_value_tool(),
-            )
-            .await;
-
-        Ok(Self { agent })
+        let manager = Self { agent };
+        manager.load_tools(false).await?;
+        Ok(manager)
     }
 
     pub async fn from_existing(existing_agent: &Arc<Agent>) -> Result<Self> {
         // Create a new agent with the same core properties and shared state/stream
         let agent = Arc::new(Agent::from_existing(existing_agent));
-
-        // Add manager-specific tools
-        let search_data_catalog_tool = SearchDataCatalogTool::new(Arc::clone(&agent));
-        let search_files_tool = SearchFilesTool::new(Arc::clone(&agent));
-        let create_or_modify_metrics_tool = MetricAgentTool::new(Arc::clone(&agent));
-        let create_or_modify_dashboards_tool = DashboardAgentTool::new(Arc::clone(&agent));
-        let exploratory_agent_tool = ExploratoryAgentTool::new(Arc::clone(&agent));
-        let send_assets_to_user = SendAssetsToUserTool::new(Arc::clone(&agent));
-
-        // Add tools to the agent
-        agent
-            .add_tool(
-                search_data_catalog_tool.get_name(),
-                search_data_catalog_tool.into_value_tool(),
-            )
-            .await;
-        agent
-            .add_tool(
-                search_files_tool.get_name(),
-                search_files_tool.into_value_tool(),
-            )
-            .await;
-        agent
-            .add_tool(
-                create_or_modify_metrics_tool.get_name(),
-                create_or_modify_metrics_tool.into_value_tool(),
-            )
-            .await;
-        agent
-            .add_tool(
-                create_or_modify_dashboards_tool.get_name(),
-                create_or_modify_dashboards_tool.into_value_tool(),
-            )
-            .await;
-        agent
-            .add_tool(
-                exploratory_agent_tool.get_name(),
-                exploratory_agent_tool.into_value_tool(),
-            )
-            .await;
-        agent
-            .add_tool(
-                send_assets_to_user.get_name(),
-                send_assets_to_user.into_value_tool(),
-            )
-            .await;
-
-        Ok(Self { agent })
+        let manager = Self { agent };
+        manager.load_tools(true).await?;
+        Ok(manager)
     }
 
     pub async fn run(

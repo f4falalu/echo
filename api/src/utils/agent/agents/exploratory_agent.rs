@@ -19,33 +19,31 @@ pub struct ExploratoryAgent {
 }
 
 impl ExploratoryAgent {
+    async fn load_tools(&self) -> Result<()> {
+        // TODO: Add specific tools for exploratory analysis
+        Ok(())
+    }
+
     pub async fn new(user_id: Uuid, session_id: Uuid) -> Result<Self> {
         // Create agent and immediately wrap in Arc
-        let mut agent = Arc::new(Agent::new(
+        let agent = Arc::new(Agent::new(
             "o3-mini".to_string(),
             HashMap::new(),
             user_id,
             session_id,
         ));
 
-        // TODO: Add tools here with Arc::clone(&agent)
-
-        // Add tools to the agent
-        // TODO: Add specific tools for exploratory analysis
-
-        Ok(Self { agent })
+        let exploratory = Self { agent };
+        exploratory.load_tools().await?;
+        Ok(exploratory)
     }
 
     pub async fn from_existing(existing_agent: &Arc<Agent>) -> Result<Self> {
         // Create a new agent with the same core properties and shared state/stream
-        let mut agent = Arc::new(Agent::from_existing(existing_agent));
-
-        // TODO: Add tools here with Arc::clone(&agent)
-
-        // Add tools to the agent
-        // TODO: Add specific tools for exploratory analysis
-
-        Ok(Self { agent })
+        let agent = Arc::new(Agent::from_existing(existing_agent));
+        let exploratory = Self { agent };
+        exploratory.load_tools().await?;
+        Ok(exploratory)
     }
 
     pub async fn run(&self, thread: &mut AgentThread) -> Result<Receiver<Result<AgentMessage, anyhow::Error>>> {

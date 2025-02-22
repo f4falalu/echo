@@ -21,6 +21,42 @@ pub struct DashboardAgent {
 }
 
 impl DashboardAgent {
+    async fn load_tools(&self) -> Result<()> {
+        // Add dashboard and metric tools
+        let create_dashboard_tool = CreateDashboardFilesTool::new(Arc::clone(&self.agent));
+        let modify_dashboard_tool = ModifyDashboardFilesTool::new(Arc::clone(&self.agent));
+        let create_metric_tool = CreateMetricFilesTool::new(Arc::clone(&self.agent));
+        let modify_metric_tool = ModifyMetricFilesTool::new(Arc::clone(&self.agent));
+
+        // Add tools to the agent
+        self.agent
+            .add_tool(
+                create_dashboard_tool.get_name(),
+                create_dashboard_tool.into_value_tool(),
+            )
+            .await;
+        self.agent
+            .add_tool(
+                modify_dashboard_tool.get_name(),
+                modify_dashboard_tool.into_value_tool(),
+            )
+            .await;
+        self.agent
+            .add_tool(
+                create_metric_tool.get_name(),
+                create_metric_tool.into_value_tool(),
+            )
+            .await;
+        self.agent
+            .add_tool(
+                modify_metric_tool.get_name(),
+                modify_metric_tool.into_value_tool(),
+            )
+            .await;
+
+        Ok(())
+    }
+
     pub async fn new(user_id: Uuid, session_id: Uuid) -> Result<Self> {
         // Create agent first
         let agent = Arc::new(Agent::new(
@@ -30,78 +66,17 @@ impl DashboardAgent {
             session_id,
         ));
 
-        // Add dashboard and metric tools
-        let create_dashboard_tool = CreateDashboardFilesTool::new(Arc::clone(&agent));
-        let modify_dashboard_tool = ModifyDashboardFilesTool::new(Arc::clone(&agent));
-        let create_metric_tool = CreateMetricFilesTool::new(Arc::clone(&agent));
-        let modify_metric_tool = ModifyMetricFilesTool::new(Arc::clone(&agent));
-
-        // Add tools directly to the Arc<Agent>
-        agent
-            .add_tool(
-                create_dashboard_tool.get_name(),
-                create_dashboard_tool.into_value_tool(),
-            )
-            .await;
-        agent
-            .add_tool(
-                modify_dashboard_tool.get_name(),
-                modify_dashboard_tool.into_value_tool(),
-            )
-            .await;
-        agent
-            .add_tool(
-                create_metric_tool.get_name(),
-                create_metric_tool.into_value_tool(),
-            )
-            .await;
-        agent
-            .add_tool(
-                modify_metric_tool.get_name(),
-                modify_metric_tool.into_value_tool(),
-            )
-            .await;
-
-        Ok(Self { agent })
+        let dashboard = Self { agent };
+        dashboard.load_tools().await?;
+        Ok(dashboard)
     }
 
     pub async fn from_existing(existing_agent: &Arc<Agent>) -> Result<Self> {
         // Create a new agent with the same core properties and shared state/stream
         let agent = Arc::new(Agent::from_existing(existing_agent));
-
-        // Add dashboard and metric tools
-        let create_dashboard_tool = CreateDashboardFilesTool::new(Arc::clone(&agent));
-        let modify_dashboard_tool = ModifyDashboardFilesTool::new(Arc::clone(&agent));
-        let create_metric_tool = CreateMetricFilesTool::new(Arc::clone(&agent));
-        let modify_metric_tool = ModifyMetricFilesTool::new(Arc::clone(&agent));
-
-        // Add tools to the agent
-        agent
-            .add_tool(
-                create_dashboard_tool.get_name(),
-                create_dashboard_tool.into_value_tool(),
-            )
-            .await;
-        agent
-            .add_tool(
-                modify_dashboard_tool.get_name(),
-                modify_dashboard_tool.into_value_tool(),
-            )
-            .await;
-        agent
-            .add_tool(
-                create_metric_tool.get_name(),
-                create_metric_tool.into_value_tool(),
-            )
-            .await;
-        agent
-            .add_tool(
-                modify_metric_tool.get_name(),
-                modify_metric_tool.into_value_tool(),
-            )
-            .await;
-
-        Ok(Self { agent })
+        let dashboard = Self { agent };
+        dashboard.load_tools().await?;
+        Ok(dashboard)
     }
 
     fn is_completion_signal(msg: &AgentMessage) -> bool {
