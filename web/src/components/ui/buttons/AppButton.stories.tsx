@@ -11,7 +11,7 @@ const meta: Meta<typeof AppButton> = {
   argTypes: {
     buttonType: {
       control: 'select',
-      options: ['default', 'black', 'primary']
+      options: ['default', 'black', 'primary', 'ghost']
     },
     size: {
       control: 'select',
@@ -89,6 +89,13 @@ export const Loading: Story = {
 export const WithBorder: Story = {
   args: {
     buttonType: 'default',
+    size: 'default'
+  }
+};
+
+export const Ghost: Story = {
+  args: {
+    buttonType: 'ghost',
     size: 'default'
   }
 };

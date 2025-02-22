@@ -12,11 +12,14 @@ const buttonVariants = cva(
         default:
           'bg-white border hover:bg-item-hover disabled:bg-disabled disabled:text-light-gray active:bg-item-active data-[selected=true]:bg-nav-background',
         black: 'bg-black text-white hover:bg-black-hover disabled:bg-black-hover',
-        primary: 'bg-primary text-white hover:bg-primary-light '
+        primary:
+          'bg-primary text-white hover:bg-primary-light active:bg-primary-dark data-[selected=true]:bg-primary-dark',
+        ghost:
+          'bg-transparent text-dark-gray shadow-none hover:bg-item-hover disabled:bg-transparent disabled:text-light-gray active:bg-item-active data-[selected=true]:bg-nav-background'
       },
       size: {
         default: 'h-6',
-        tall: 'h-8'
+        tall: 'h-7'
       }
     },
     defaultVariants: {
@@ -73,7 +76,7 @@ const AppButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
 AppButton.displayName = 'AppButton';
 
 const LoadingIcon: React.FC<{
-  buttonType: 'default' | 'black' | 'primary' | null;
+  buttonType: 'default' | 'black' | 'primary' | 'ghost' | null;
 }> = ({ buttonType = 'default' }) => {
   return (
     <div
@@ -83,7 +86,13 @@ const LoadingIcon: React.FC<{
       )}>
       <CircleSpinnerLoader
         size={9}
-        fill={buttonType === 'black' ? 'var(--color-primary-light)' : 'var(--color-primary)'}
+        fill={
+          buttonType === 'black'
+            ? 'var(--color-white)'
+            : buttonType === 'primary'
+              ? 'var(--color-primary)'
+              : 'var(--color-primary)'
+        }
       />
     </div>
   );
