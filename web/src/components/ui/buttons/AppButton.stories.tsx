@@ -7,6 +7,24 @@ const meta: Meta<typeof AppButton> = {
   tags: ['autodocs'],
   args: {
     children: 'Button'
+  },
+  argTypes: {
+    buttonType: {
+      control: 'select',
+      options: ['default', 'black', 'primary']
+    },
+    size: {
+      control: 'select',
+      options: ['default', 'tall']
+    },
+    disabled: {
+      control: 'boolean',
+      defaultValue: false
+    },
+    loading: {
+      control: 'boolean',
+      defaultValue: false
+    }
   }
 };
 
@@ -15,35 +33,35 @@ type Story = StoryObj<typeof AppButton>;
 
 export const Default: Story = {
   args: {
-    variant: 'default',
+    buttonType: 'default',
     size: 'default'
   }
 };
 
 export const Black: Story = {
   args: {
-    variant: 'black',
+    buttonType: 'black',
     size: 'default'
   }
 };
 
 export const Primary: Story = {
   args: {
-    variant: 'primary',
+    buttonType: 'primary',
     size: 'default'
   }
 };
 
 export const Tall: Story = {
   args: {
-    variant: 'default',
+    buttonType: 'default',
     size: 'tall'
   }
 };
 
 export const Disabled: Story = {
   args: {
-    variant: 'default',
+    buttonType: 'default',
     size: 'default',
     disabled: true
   }
@@ -53,5 +71,13 @@ export const AsChild: Story = {
   args: {
     asChild: true,
     children: <a href="/">Link Button</a>
+  }
+};
+
+export const Loading: Story = {
+  args: {
+    buttonType: 'default',
+    size: 'default',
+    loading: true
   }
 };

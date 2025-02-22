@@ -7,6 +7,9 @@
   --font-sans: 'Roobert_Pro', sans-serif;
   --font-mono: Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 
+  /* shadows */
+  --shadow-btn: 0px 1px 4px 0px rgba(0, 0, 0, 0.05);
+
   /* font size */
   --text-xxs: 10px;
   --text-xxs--line-height: 1;
@@ -53,10 +56,13 @@
   --color-input: hsl(0 0% 89.8%);
   --color-page-background: #fcfcfc;
   --color-item-hover: #f8f8f8;
+  --color-item-hover-active: #f0f0f0;
+  --color-item-active: #e6e6e6;
   --color-nav-background: #f3f3f3;
   --color-nav-item-hover: #efeeee;
   --color-nav-item-select: #e6e6e6;
   --color-ring: hsl(0 0% 3.9%);
+  --color-disabled: var(--color-nav-background);
 
   /* --color-card: hsl(0 0% 100%);
   --color-card-foreground: hsl(0 0% 3.9%); */
