@@ -60,10 +60,10 @@ const TestComponent = ({
   return (
     <div className="min-h-[250px]">
       <div
-        className="flex cursor-pointer items-center justify-center bg-black p-1 text-center text-white"
+        className="flex cursor-pointer items-center justify-center p-1 text-center text-black"
         style={{ width: 120 }}
         onClick={onClick}>
-        Click me!
+        Open Toast
       </div>
     </div>
   );
@@ -102,5 +102,45 @@ export const Default: Story = {
     type: 'info',
     title: 'Hello, world!',
     message: 'This is a test notification'
+  }
+};
+
+export const Success: Story = {
+  args: {
+    type: 'success',
+    title: 'Success',
+    message: 'This is a success notification'
+  }
+};
+
+export const Error: Story = {
+  args: {
+    type: 'error',
+    title: 'Error',
+    message: 'This is an error notification'
+  }
+};
+
+export const Warning: Story = {
+  args: {
+    type: 'warning',
+    title: 'Warning',
+    message: 'This is a warning notification'
+  }
+};
+
+export const Info: Story = {
+  args: {
+    type: 'info',
+    title: 'Info',
+    message: 'This is an info notification'
+  }
+};
+
+export const DefaultToast: Story = {
+  args: {
+    type: 'default',
+    title: 'Default',
+    message: 'This is a default notification'
   }
 };
