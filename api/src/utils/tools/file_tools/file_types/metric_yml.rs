@@ -176,7 +176,7 @@ pub struct BarLineChartConfig {
 pub struct BarAndLineAxis {
     pub x: Vec<String>,
     pub y: Vec<String>,
-    pub category: Vec<String>,
+    pub category: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tooltip: Option<Vec<String>>,
 }
@@ -332,9 +332,9 @@ mod tests {
         match metric.chart_config {
             ChartConfig::Bar(config) => {
                 assert!(config.base.column_label_formats.is_empty());
-                assert_eq!(config.bar_and_line_axis.x, vec!["rep_id"]);
-                assert_eq!(config.bar_and_line_axis.y, vec!["average_time_to_close"]);
-                assert_eq!(config.bar_and_line_axis.category, vec!["rep_id"]);
+                assert_eq!(config.bar_and_line_axis.x, vec![String::from("rep_id")]);
+                assert_eq!(config.bar_and_line_axis.y, vec![String::from("average_time_to_close")]);
+                assert_eq!(config.bar_and_line_axis.category, Some(vec![String::from("rep_id")]));
                 assert_eq!(config.bar_layout.unwrap(), "vertical");
                 assert_eq!(config.bar_group_type.unwrap(), "group");
                 assert_eq!(

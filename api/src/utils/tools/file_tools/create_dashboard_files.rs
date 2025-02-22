@@ -220,7 +220,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
         let duration = start_time.elapsed().as_millis() as i64;
 
         self.agent
-            .set_state_value(String::from("files_created"), Value::Bool(true))
+            .set_state_value(String::from("files_available"), Value::Bool(true))
             .await;
 
         self.agent

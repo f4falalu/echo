@@ -60,8 +60,6 @@ impl OpenFilesTool {
     }
 }
 
-impl FileModificationTool for OpenFilesTool {}
-
 #[async_trait]
 impl ToolExecutor for OpenFilesTool {
     type Output = OpenFilesOutput;
@@ -72,7 +70,10 @@ impl ToolExecutor for OpenFilesTool {
     }
 
     async fn is_enabled(&self) -> bool {
-        true
+        match self.agent.get_state_value("files_available").await {
+            Some(_) => true,
+            None => false,
+        }
     }
 
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
@@ -243,22 +244,22 @@ impl ToolExecutor for OpenFilesTool {
                             "properties": {
                                 "id": {
                                     "type": "string",
-                                    "description": "The UUID of the file to open"
+                                    "description": "The UUID of the file from search results"
                                 },
                                 "file_type": {
                                     "type": "string",
                                     "enum": ["metric", "dashboard"],
-                                    "description": "The type of file to open"
+                                    "description": "The type of file identified in search results"
                                 }
                             },
                             "additionalProperties": false
                         },
-                        "description": "Array of files to open"
+                        "description": "Array of files from search results to open"
                     }
                 },
                 "additionalProperties": false
             },
-            "description": "Opens one or more existing files by their IDs. Use this to view the current content of files."
+            "description": "Opens files that were found in search results. Use this to view the content of files after finding them through search. Each file requires its UUID and type from the search results."
         })
     }
 }
@@ -452,7 +453,7 @@ mod tests {
                 bar_and_line_axis: BarAndLineAxis {
                     x: vec![],
                     y: vec![],
-                    category: vec![],
+                    category: None,
                     tooltip: None,
                 },
                 bar_layout: None,

@@ -34,8 +34,8 @@ pub struct SearchDataCatalogOutput {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DatasetSearchResult {
     pub id: Uuid,
-    pub name: String,
-    pub yml_content: String,
+    pub name: Option<String>,
+    pub yml_content: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -57,9 +57,7 @@ IMPORTANT: You must return your response in this exact JSON format:
 {
     "results": [
         {
-            "id": "uuid-string-here",
-            "name": "dataset-name-here",
-            "yml_content": "yml-content-here"
+            "id": "uuid-string-here"
         }
         // ... more results in order of relevance
     ]
@@ -72,7 +70,7 @@ Requirements:
 1. Return all relevant datasets (no limit)
 2. Order results from most to least relevant
 3. ALWAYS include the "results" key in your response, even if the array is empty
-4. Each result MUST have all fields: id, name, and yml_content
+4. Each result MUST ONLY include the "id" field containing the UUID string
 5. If no datasets are relevant, return {"results": []}
 "#;
 
@@ -113,7 +111,7 @@ impl SearchDataCatalogTool {
         // Setup LiteLLM client
         let llm_client = LiteLLMClient::new(None, None);
         let request = ChatCompletionRequest {
-            model: "o3-mini".to_string(),
+            model: "gemini-2".to_string(),
             messages: vec![Message::User {
                 id: None,
                 content: prompt,
@@ -129,7 +127,7 @@ impl SearchDataCatalogTool {
                 user_id: user_id.to_string(),
                 session_id: session_id.to_string(),
             }),
-            reasoning_effort: Some("low".to_string()),
+            // reasoning_effort: Some("low".to_string()),
             ..Default::default()
         };
 
@@ -248,6 +246,15 @@ impl ToolExecutor for SearchDataCatalogTool {
             }
         };
 
+        let search_results = search_results.into_iter().map(|result| {
+            let matching_dataset = datasets.iter().find(|dataset| dataset.id == result.id);
+            DatasetSearchResult {
+                id: result.id,
+                name: matching_dataset.map(|d| d.name.clone()),
+                yml_content: matching_dataset.map(|d| d.yml_content.clone()),
+            }
+        }).collect::<Vec<_>>();
+
         let message = if search_results.is_empty() {
             "No relevant datasets found".to_string()
         } else {
@@ -279,7 +286,7 @@ impl ToolExecutor for SearchDataCatalogTool {
     fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": "search_data_catalog",
-            "description": "Use to search across a user’s data catalog for metadata, documentation, column definitions, or business terminology.",
+            "description": "Use to search across a user's data catalog for metadata, documentation, column definitions, or business terminology.",
             "strict": true,
             "parameters": {
               "type": "object",
@@ -344,16 +351,8 @@ fn parse_search_result(result: &Value) -> Result<DatasetSearchResult> {
                 .and_then(|v| v.as_str())
                 .ok_or_else(|| anyhow::anyhow!("Missing id"))?,
         )?,
-        name: result
-            .get("name")
-            .and_then(|v| v.as_str())
-            .ok_or_else(|| anyhow::anyhow!("Missing name"))?
-            .to_string(),
-        yml_content: result
-            .get("yml_content")
-            .and_then(|v| v.as_str())
-            .ok_or_else(|| anyhow::anyhow!("Missing yml_content"))?
-            .to_string(),
+        name: None,
+        yml_content: None,
     })
 }
 
@@ -371,8 +370,6 @@ mod tests {
         });
 
         let parsed = parse_search_result(&result).unwrap();
-        assert_eq!(parsed.name, "Test Dataset");
-        assert!(parsed.yml_content.contains("description: Test dataset"));
     }
 
     #[test]

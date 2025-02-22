@@ -238,7 +238,7 @@ async fn generate_model_yaml(
                 dimensions.push(Dimension {
                     name: col.name.clone(),
                     expr: col.name.clone(),
-                    type_: semantic_type,
+                    type_: col.type_.clone(),
                     description: "{NEED DESCRIPTION HERE}".to_string(),
                     searchable: Some(false),
                 });
@@ -247,7 +247,7 @@ async fn generate_model_yaml(
                 measures.push(Measure {
                     name: col.name.clone(),
                     expr: col.name.clone(),
-                    type_: measure_type,
+                    type_: col.type_.clone(),
                     agg: Some("sum".to_string()),
                     description: "{NEED DESCRIPTION HERE}".to_string(),
                 });

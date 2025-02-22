@@ -427,12 +427,12 @@ fn proccess_data_catalog_search_results(
 
     for result in results.results {
         file_results
-            .entry(result.name.clone())
+            .entry(result.name.clone().unwrap_or_default())
             .or_insert_with(Vec::new)
             .push(BusterThoughtPill {
                 id: result.id.to_string(),
-                text: result.name.clone(),
-                thought_file_type: result.name,
+                text: result.name.clone().unwrap_or_default(),
+                thought_file_type: result.name.clone().unwrap_or_default(),
             });
     }
 

@@ -61,7 +61,7 @@ impl ToolExecutor for MetricAgentTool {
         let _rx = metric_agent.run(&mut current_thread).await?;
 
         self.agent
-            .set_state_value(String::from("files_created"), Value::Bool(false))
+            .set_state_value(String::from("files_available"), Value::Bool(false))
             .await;
 
         // Return immediately with status

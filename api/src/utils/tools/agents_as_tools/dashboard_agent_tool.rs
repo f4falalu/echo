@@ -80,7 +80,7 @@ impl ToolExecutor for DashboardAgentTool {
         println!("DashboardAgentTool: Preparing success response");
 
         self.agent
-            .set_state_value(String::from("files_created"), Value::Bool(false))
+            .set_state_value(String::from("files_available"), Value::Bool(false))
             .await;
 
         // Return success with the output
