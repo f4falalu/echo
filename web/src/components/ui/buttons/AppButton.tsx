@@ -60,6 +60,8 @@ export interface ButtonProps
   suffix?: React.ReactNode;
   loading?: boolean;
   selected?: boolean;
+  prefixClassName?: string;
+  suffixClassName?: string;
 }
 
 const AppButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -75,6 +77,8 @@ const AppButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
       loading = false,
       selected = false,
       disabled = false,
+      prefixClassName,
+      suffixClassName,
       ...props
     },
     ref
@@ -95,12 +99,18 @@ const AppButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
           <LoadingIcon buttonType={buttonType} />
         ) : (
           prefix && (
-            <span className={cn('text-icon', isSmallButton && 'text-icon-small')}>{prefix}</span>
+            <span
+              className={cn(prefixClassName ?? (isSmallButton ? 'text-icon-small' : 'text-icon'))}>
+              {prefix}
+            </span>
           )
         )}
         {hasChildren && <span className="text-base">{children}</span>}
         {suffix && (
-          <span className={cn('text-icon', isSmallButton && 'text-icon-small')}>{suffix}</span>
+          <span
+            className={cn(suffixClassName ?? (isSmallButton ? 'text-icon-small' : 'text-icon'))}>
+            {suffix}
+          </span>
         )}
       </Comp>
     );
