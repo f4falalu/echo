@@ -7,7 +7,7 @@ function I12px_cloneDashed2(props: iconProps) {
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
   const width = props.width || '1em';
-  const height = props.height || '16px';
+  const height = props.height || '12px';
   const title = props.title || '12px clone dashed 2';
 
   return (
