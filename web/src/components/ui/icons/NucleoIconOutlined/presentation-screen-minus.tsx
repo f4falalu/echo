@@ -6,7 +6,7 @@ function presentationScreenMinus(props: iconProps) {
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
   const width = props.width || '1em';
-  const height = props.height || '16px';
+  const height = props.height || '15px';
   const title = props.title || '18px presentation screen minus';
 
   return (

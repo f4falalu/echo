@@ -6,7 +6,7 @@ function tableRows3Cols3(props: iconProps) {
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
   const width = props.width || '1em';
-  const height = props.height || '16px';
+  const height = props.height || '15px';
   const title = props.title || '18px table rows 3 cols 3';
 
   return (
