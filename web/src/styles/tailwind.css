@@ -10,6 +10,9 @@
   /* shadows */
   --shadow-btn: 0px 1px 4px 0px rgba(0, 0, 0, 0.05);
 
+  /* border */
+  --default-border-width: 0.5px;
+
   /* font size */
   --text-xxs: 10px;
   --text-xxs--line-height: 1;
@@ -31,6 +34,10 @@
   --text-3xl--line-height: 1;
   --text-4xl: 30px;
   --text-4xl--line-height: 1;
+  --text-icon: 15px;
+  --text-icon--line-height: 1;
+  --text-icon-small: 12px;
+  --text-icon-small--line-height: 1;
 
   /* radius */
   --radius: 6px;

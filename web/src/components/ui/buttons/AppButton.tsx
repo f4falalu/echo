@@ -5,7 +5,7 @@ import { cn } from '@/lib/classMerge';
 import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-1.5 shadow-btn rounded transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none cursor-pointer disabled:cursor-not-allowed data-[loading=true]:cursor-progress px-2.5 py-1.5',
+  'inline-flex items-center overflow-hidden justify-center gap-1.5 shadow-btn rounded transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none cursor-pointer disabled:cursor-not-allowed data-[loading=true]:cursor-progress',
   {
     variants: {
       buttonType: {
@@ -19,12 +19,35 @@ const buttonVariants = cva(
       },
       size: {
         default: 'h-6',
-        tall: 'h-7'
+        tall: 'h-7',
+        small: 'h-[18px]'
+      },
+      iconButton: {
+        true: '',
+        false: 'px-2.5'
       }
     },
+    compoundVariants: [
+      {
+        iconButton: true,
+        size: 'default',
+        className: 'w-6'
+      },
+      {
+        iconButton: true,
+        size: 'tall',
+        className: 'w-7'
+      },
+      {
+        iconButton: true,
+        size: 'small',
+        className: 'w-[18px]'
+      }
+    ],
     defaultVariants: {
       buttonType: 'default',
-      size: 'default'
+      size: 'default',
+      iconButton: false
     }
   }
 );
@@ -57,17 +80,28 @@ const AppButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const Comp = asChild ? Slot : 'button';
+    const hasChildren = !!children;
+    const iconButton = !hasChildren && (!prefix || !suffix);
+    const isSmallButton = size === 'small';
     return (
       <Comp
-        className={cn(buttonVariants({ buttonType, size, className }))}
+        className={cn(buttonVariants({ buttonType, size, iconButton, className }))}
         ref={ref}
         disabled={disabled}
         data-loading={loading}
         data-selected={selected}
         {...props}>
-        {loading ? <LoadingIcon buttonType={buttonType} /> : prefix && <span>{prefix}</span>}
-        {children}
-        {suffix && <span>{suffix}</span>}
+        {loading ? (
+          <LoadingIcon buttonType={buttonType} />
+        ) : (
+          prefix && (
+            <span className={cn('text-icon', isSmallButton && 'text-icon-small')}>{prefix}</span>
+          )
+        )}
+        {hasChildren && <span className="text-base">{children}</span>}
+        {suffix && (
+          <span className={cn('text-icon', isSmallButton && 'text-icon-small')}>{suffix}</span>
+        )}
       </Comp>
     );
   }
@@ -81,11 +115,11 @@ const LoadingIcon: React.FC<{
   return (
     <div
       className={cn(
-        'animate-in fade-in text-black duration-400 dark:text-white',
+        'flex h-[15px] w-[1em] items-center justify-center text-black dark:text-white',
         buttonType === 'black' && 'dark'
       )}>
       <CircleSpinnerLoader
-        size={9}
+        size={9.5}
         fill={
           buttonType === 'black'
             ? 'var(--color-white)'
