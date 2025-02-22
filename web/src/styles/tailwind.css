@@ -62,7 +62,7 @@
   --color-nav-item-hover: #efeeee;
   --color-nav-item-select: #e6e6e6;
   --color-ring: hsl(0 0% 3.9%);
-  --color-disabled: var(--color-nav-background);
+  --color-disabled: #e6e6e6;
 
   /* --color-card: hsl(0 0% 100%);
   --color-card-foreground: hsl(0 0% 3.9%); */

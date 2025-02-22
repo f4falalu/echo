@@ -24,6 +24,10 @@ const meta: Meta<typeof AppButton> = {
     loading: {
       control: 'boolean',
       defaultValue: false
+    },
+    selected: {
+      control: 'boolean',
+      defaultValue: false
     }
   }
 };
@@ -79,5 +83,12 @@ export const Loading: Story = {
     buttonType: 'default',
     size: 'default',
     loading: true
+  }
+};
+
+export const WithBorder: Story = {
+  args: {
+    buttonType: 'default',
+    size: 'default'
   }
 };

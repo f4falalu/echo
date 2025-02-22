@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       buttonType: {
         default:
-          'bg-white border hover:bg-item-hover disabled:bg-disabled disabled:text-foreground active:bg-item-active data-[selected=true]:bg-disabled',
+          'bg-white border hover:bg-item-hover disabled:bg-disabled disabled:text-light-gray active:bg-item-active data-[selected=true]:bg-nav-background',
         black: 'bg-black text-white hover:bg-black-hover disabled:bg-black-hover',
         primary: 'bg-primary text-white hover:bg-primary-light '
       },
@@ -39,15 +39,16 @@ export interface ButtonProps
 const AppButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
-      className,
+      className = '',
       buttonType = 'default',
-      size,
+      size = 'default',
       asChild = false,
       prefix,
       suffix,
       children,
       loading = false,
       selected = false,
+      disabled = false,
       ...props
     },
     ref
@@ -57,7 +58,7 @@ const AppButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <Comp
         className={cn(buttonVariants({ buttonType, size, className }))}
         ref={ref}
-        disabled={props.disabled}
+        disabled={disabled}
         data-loading={loading}
         data-selected={selected}
         {...props}>
