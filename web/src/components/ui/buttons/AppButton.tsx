@@ -5,7 +5,7 @@ import { cn } from '@/lib/classMerge';
 import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
 
 const buttonVariants = cva(
-  'inline-flex items-center overflow-hidden justify-center gap-1.5 shadow-btn rounded transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none cursor-pointer disabled:cursor-not-allowed data-[loading=true]:cursor-progress',
+  'inline-flex items-center overflow-hidden justify-center gap-1.5 shadow-btn rounded transition-all duration-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none cursor-pointer disabled:cursor-not-allowed data-[loading=true]:cursor-progress',
   {
     variants: {
       buttonType: {
@@ -52,6 +52,22 @@ const buttonVariants = cva(
   }
 );
 
+const iconVariants = cva('', {
+  variants: {
+    buttonType: {
+      default: 'text-icon',
+      black: 'text-white',
+      primary: 'text-white',
+      ghost: 'text-icon'
+    },
+    size: {
+      default: 'text-icon-size',
+      tall: 'text-icon-size',
+      small: 'text-icon-size-small'
+    }
+  }
+});
+
 export interface ButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'prefix'>,
     VariantProps<typeof buttonVariants> {
@@ -86,7 +102,6 @@ const AppButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : 'button';
     const hasChildren = !!children;
     const iconButton = !hasChildren && (!prefix || !suffix);
-    const isSmallButton = size === 'small';
     return (
       <Comp
         className={cn(buttonVariants({ buttonType, size, iconButton, className }))}
@@ -99,18 +114,14 @@ const AppButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
           <LoadingIcon buttonType={buttonType} />
         ) : (
           prefix && (
-            <span
-              className={cn(prefixClassName ?? (isSmallButton ? 'text-icon-small' : 'text-icon'))}>
+            <span className={cn(iconVariants({ buttonType, size }), prefixClassName)}>
               {prefix}
             </span>
           )
         )}
         {hasChildren && <span className="text-base">{children}</span>}
         {suffix && (
-          <span
-            className={cn(suffixClassName ?? (isSmallButton ? 'text-icon-small' : 'text-icon'))}>
-            {suffix}
-          </span>
+          <span className={cn(iconVariants({ buttonType, size }), suffixClassName)}>{suffix}</span>
         )}
       </Comp>
     );

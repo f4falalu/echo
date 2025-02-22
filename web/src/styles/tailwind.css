@@ -34,10 +34,10 @@
   --text-3xl--line-height: 1;
   --text-4xl: 30px;
   --text-4xl--line-height: 1;
-  --text-icon: 15px;
-  --text-icon--line-height: 1;
-  --text-icon-small: 12px;
-  --text-icon-small--line-height: 1;
+  --text-icon-size: 15px;
+  --text-icon-size--line-height: 1;
+  --text-icon-size-small: 12px;
+  --text-icon-size-small--line-height: 1;
 
   /* radius */
   --radius: 6px;
@@ -70,6 +70,7 @@
   --color-nav-item-select: #e6e6e6;
   --color-ring: hsl(0 0% 3.9%);
   --color-disabled: #e6e6e6;
+  --color-icon: var(--color-dark-gray);
 
   /* --color-card: hsl(0 0% 100%);
   --color-card-foreground: hsl(0 0% 3.9%); */
