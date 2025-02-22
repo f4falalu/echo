@@ -11,7 +11,7 @@ const buttonVariants = cva(
       buttonType: {
         default:
           'bg-white border hover:bg-item-hover disabled:bg-disabled disabled:text-foreground active:bg-item-active data-[selected=true]:bg-disabled',
-        black: 'bg-black text-white hover:bg-gray-900',
+        black: 'bg-black text-white hover:bg-black-hover disabled:bg-black-hover',
         primary: 'bg-primary text-white hover:bg-primary-light '
       },
       size: {
@@ -40,7 +40,7 @@ const AppButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       className,
-      buttonType,
+      buttonType = 'default',
       size,
       asChild = false,
       prefix,
@@ -61,13 +61,7 @@ const AppButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
         data-loading={loading}
         data-selected={selected}
         {...props}>
-        {loading ? (
-          <div className="animate-in fade-in text-black duration-400 dark:text-white">
-            <CircleSpinnerLoader size={9} />
-          </div>
-        ) : (
-          prefix && <span>{prefix}</span>
-        )}
+        {loading ? <LoadingIcon buttonType={buttonType} /> : prefix && <span>{prefix}</span>}
         {children}
         {suffix && <span>{suffix}</span>}
       </Comp>
@@ -76,5 +70,22 @@ const AppButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 
 AppButton.displayName = 'AppButton';
+
+const LoadingIcon: React.FC<{
+  buttonType: 'default' | 'black' | 'primary' | null;
+}> = ({ buttonType = 'default' }) => {
+  return (
+    <div
+      className={cn(
+        'animate-in fade-in text-black duration-400 dark:text-white',
+        buttonType === 'black' && 'dark'
+      )}>
+      <CircleSpinnerLoader
+        size={9}
+        fill={buttonType === 'black' ? 'var(--color-primary-light)' : 'var(--color-primary)'}
+      />
+    </div>
+  );
+};
 
 export { AppButton, buttonVariants };
