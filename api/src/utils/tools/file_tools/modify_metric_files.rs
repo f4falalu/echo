@@ -250,7 +250,10 @@ impl ToolExecutor for ModifyMetricFilesTool {
     }
 
     async fn is_enabled(&self) -> bool {
-        true
+        match self.agent.get_state_value("metrics_available").await {
+            Some(_) => true,
+            None => false,
+        }
     }
 
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {

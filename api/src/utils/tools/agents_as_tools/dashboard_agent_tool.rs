@@ -94,7 +94,7 @@ impl ToolExecutor for DashboardAgentTool {
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "create_or_modify_dashboard",
+            "name": "create_or_modify_dashboards",
             "description": "Use to create or update entire dashboards. This is suitable when multiple related metrics or visualizations need to be organized together on a single page.",
             "strict": true,
             "parameters": {

@@ -237,7 +237,13 @@ impl ToolExecutor for ModifyDashboardFilesTool {
     }
 
     async fn is_enabled(&self) -> bool {
-        true
+        match (
+            self.agent.get_state_value("metrics_available").await,
+            self.agent.get_state_value("dashboards_available").await,
+        ) {
+            (Some(_), Some(_)) => true,
+            _ => false,
+        }
     }
 
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {

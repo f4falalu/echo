@@ -207,6 +207,14 @@ impl ToolExecutor for CreateMetricFilesTool {
 
         let duration = start_time.elapsed().as_millis() as i64;
 
+        self.agent
+            .set_state_value(String::from("metrics_available"), Value::Bool(true))
+            .await;
+
+        self.agent
+            .set_state_value(String::from("files_created"), Value::Bool(true))
+            .await;
+
         Ok(CreateMetricFilesOutput {
             message,
             duration,

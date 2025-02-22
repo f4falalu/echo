@@ -119,7 +119,10 @@ impl ToolExecutor for CreateDashboardFilesTool {
     }
 
     async fn is_enabled(&self) -> bool {
-        true
+        match self.agent.get_state_value("metrics_available").await {
+            Some(_) => true,
+            None => false,
+        }
     }
 
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
@@ -216,6 +219,14 @@ impl ToolExecutor for CreateDashboardFilesTool {
 
         let duration = start_time.elapsed().as_millis() as i64;
 
+        self.agent
+            .set_state_value(String::from("files_created"), Value::Bool(true))
+            .await;
+
+        self.agent
+            .set_state_value(String::from("dashboards_available"), Value::Bool(true))
+            .await;
+
         Ok(CreateDashboardFilesOutput {
             message,
             duration,
@@ -243,7 +254,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
                                 },
                                 "yml_content": {
                                     "type": "string",
-                                    "description": "The YAML content defining the dashboard configuration"
+                                    "description": "# DASHBOARD SCHEMA (DOCUMENTATION + SPEC)# --- # This YAML file demonstrates how to structure a 'dashboard configuration' file.# The file is annotated with comments that serve as documentation for users.## Each dashboard should have:#   1) A top-level 'title; (string).#   2) A 'rows' field, which is an array of row definitions.#   3) Each row contains an array called 'items' with up to 4 metric objects.#   4) Each metric object has:#         - id (string) : The UUIDv4 identifier of the metric. You should know which metric you want to reference before putting it here.#         - width (int) : must be at least 3 and at most 12#   5) The sum of all widths within a given row should not exceed 12.## This file uses a JSON Schema-like structure but written in YAML. You could# place this in a 'dashboard-schema.yml' for reference or use it as documentation# within your code repository.## ------------------------------------------------------------------------------type: objecttitle: 'Dashboard Configuration Schema'description: 'Specifies the structure and constraints of a dashboard config file.'properties:  # ----------------------  # 1. TITLE  # ----------------------  title:    type: string    description: >      The title of the entire dashboard (e.g. 'Sales & Marketing Dashboard').      This field is mandatory.      # ----------------------      # 2. ROWS      # ----------------------      rows:        type: array        description: >          An array of row objects. Each row represents a 'horizontal band' of          metrics or widgets across the dashboard.        items:          # We define the schema for each row object here.          type: object          properties:            # The row object has 'items' that define individual metrics/widgets.            items:              type: array              description: >                A list (array) of metric definitions. Each metric is represented                by an object that must specify an 'id' and a 'width'.                - Up to 4 items per row (no more).                - Each 'width' must be between 3 and 12.                - The sum of all 'width' values in a single row should not exceed 12.                  # We limit the number of items to 4.              max_items: 4                  # Each array entry must conform to the schema below.              items:                type: object                properties:                  id:                    type: string                    description: >                      The metric's UUIDv4 identifier. You should know which metric you want to reference before putting it here.                      Example: '123e4567-e89b-12d3-a456-426614174000'                                        width:                    type: integer                    description: >                      The width allocated to this metric within the row.                      Valid values range from 3 to 12.                      Combined with other items in the row, the total 'width'                      must not exceed 12.                    minimum: 3                    maximum: 12                # Both fields are mandatory for each item.                required:                  - id                  - width          # The 'items' field must be present in each row.          required:            - items        # Top-level 'title' and 'rows' are required for every valid dashboard config.    required:      - title        # ------------------------------------------------------------------------------    # NOTE ON WIDTH SUM VALIDATION:    # ------------------------------------------------------------------------------    # Classic JSON Schema doesn't have a direct, simple way to enforce that the sum    # of all 'width' fields in a row is <= 12. One common approach is to use    # 'allOf', 'if/then' or 'contains' with advanced constructs, or simply rely on    # custom validation logic in your application.    #    # If you rely on external validation logic, you can highlight in your docs that    # end users must ensure each row's total width does not exceed 12.    # ------------------------------------------------------------------------------    ```"
                                 }
                             },
                             "additionalProperties": false
