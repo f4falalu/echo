@@ -7,7 +7,7 @@ function handCheck2(props: iconProps) {
   const secondaryfill = props.secondaryfill || fill;
   const strokewidth = props.strokewidth || 1;
   const width = props.width || '1em';
-  const height = props.height || '15px';
+  const height = props.height || '1rem';
   const title = props.title || 'hand check 2';
 
   return (
