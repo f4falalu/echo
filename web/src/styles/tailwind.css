@@ -45,10 +45,12 @@
 
   /* radius */
   --radius: 6px;
+  --radius-xs: calc(var(--radius) - 4px);
   --radius-sm: calc(var(--radius) - 2px);
-  --radius-md: calc(var(--radius) - 1px);
-  --radius-lg: calc(var(--radius) + 2px);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-md: calc(var(--radius) + 2px);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 6px);
+  --radius-2xl: calc(var(--radius) + 8px);
 
   /* base color */
   --color-background: #ffffff;
@@ -72,7 +74,7 @@
   --color-nav-item-select: var(--color-disabled);
   --color-track-background: hsl(0 0% 89.8%);
 
-  --color-icon: var(--color-gray-dark);
+  --color-icon-color: var(--color-gray-dark);
   --color-ring: var(--color-foreground-hover);
 }
 

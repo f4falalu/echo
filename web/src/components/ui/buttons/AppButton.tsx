@@ -26,6 +26,13 @@ const buttonVariants = cva(
       iconButton: {
         true: '',
         false: 'px-2.5'
+      },
+      rounding: {
+        default: 'rounded',
+        full: 'rounded-full',
+        large: 'rounded-lg',
+        small: 'rounded-sm',
+        none: 'rounded-none'
       }
     },
     compoundVariants: [
@@ -56,11 +63,11 @@ const buttonVariants = cva(
 const iconVariants = cva('', {
   variants: {
     buttonType: {
-      default: 'text-icon',
-      black: 'text-white',
-      primary: 'text-white',
-      ghost: 'text-icon',
-      link: 'text-icon!'
+      default: 'text-icon-color!',
+      black: 'text-white!',
+      primary: 'text-white!',
+      ghost: 'text-icon-color!',
+      link: 'text-icon-color!'
     },
     size: {
       default: 'text-icon-size',
@@ -103,6 +110,7 @@ const AppButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
       disabled = false,
       prefixClassName,
       suffixClassName,
+      rounding = 'default',
       ...props
     },
     ref
@@ -110,9 +118,10 @@ const AppButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : 'button';
     const hasChildren = !!children;
     const iconButton = !hasChildren && (!prefix || !suffix);
+
     return (
       <Comp
-        className={cn(buttonVariants({ buttonType, size, iconButton, className }))}
+        className={cn(buttonVariants({ buttonType, size, iconButton, rounding, className }))}
         ref={ref}
         disabled={disabled}
         data-loading={loading}

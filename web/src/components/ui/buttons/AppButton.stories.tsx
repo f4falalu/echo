@@ -41,6 +41,10 @@ const meta: Meta<typeof AppButton> = {
     suffix: {
       control: 'select',
       options: IconSelect
+    },
+    rounding: {
+      control: 'select',
+      options: ['default', 'full', 'large', 'small', 'none']
     }
   },
   render: (args) => {
@@ -135,5 +139,14 @@ export const Small: Story = {
   args: {
     buttonType: 'default',
     size: 'small'
+  }
+};
+
+export const IconButton: Story = {
+  args: {
+    buttonType: 'default',
+    size: 'default',
+    prefix: 'ShapeSquare',
+    children: ''
   }
 };
