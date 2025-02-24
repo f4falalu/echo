@@ -30,14 +30,14 @@ export interface DropdownItem {
   disabled?: boolean;
   loading?: boolean;
   selected?: boolean;
-  items?: (DropdownItem | DropdownDivider)[];
+  items?: DropdownItems;
 }
 
 export interface DropdownDivider {
   type: 'divider';
 }
 
-export type DropdownItems = (DropdownItem | DropdownDivider)[];
+export type DropdownItems = (DropdownItem | DropdownDivider | React.ReactNode)[];
 
 export interface DropdownProps extends DropdownMenuProps {
   items?: DropdownItems;
@@ -52,9 +52,10 @@ export interface DropdownProps extends DropdownMenuProps {
   contentClassName?: string;
 }
 
-const dropdownItemKey = (item: DropdownItem | DropdownDivider, index: number) => {
+const dropdownItemKey = (item: DropdownItems[number], index: number) => {
   if ((item as DropdownDivider).type === 'divider') return `divider-${index}`;
-  return (item as DropdownItem).id;
+  if ((item as DropdownItem).id) return (item as DropdownItem).id;
+  return `item-${index}`;
 };
 
 export const Dropdown: React.FC<DropdownProps> = React.memo(
@@ -105,19 +106,21 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
 Dropdown.displayName = 'Dropdown';
 
 const DropdownItemSelector: React.FC<{
-  item: DropdownItem | DropdownDivider;
+  item: DropdownItems[number];
   index: number;
   onSelect: DropdownProps['onSelect'];
   closeOnSelect: boolean;
   selectType: NonNullable<DropdownProps['selectType']>;
 }> = React.memo(({ item, index, onSelect, closeOnSelect, selectType }) => {
   const isDivider = (item as DropdownDivider).type === 'divider';
+  const isReactNode = typeof item === 'object' && item !== null && !('id' in item);
+  const isDropdownItem = typeof item === 'object' && item !== null && 'id' in item;
   const id = dropdownItemKey(item, index);
   return (
     <React.Fragment key={id}>
-      {isDivider ? (
-        <DropdownMenuSeparator />
-      ) : (
+      {isDivider && <DropdownMenuSeparator />}
+      {isReactNode && (item as React.ReactNode)}
+      {isDropdownItem && (
         <DropdownItem
           {...(item as DropdownItem)}
           closeOnSelect={closeOnSelect}
