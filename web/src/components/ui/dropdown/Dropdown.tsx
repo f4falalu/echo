@@ -160,6 +160,7 @@ const DropdownItem = ({
     <Wrapper
       items={items}
       disabled={disabled}
+      checked={selected}
       onClick={onClickItem}
       closeOnSelect={closeOnSelect}
       selectType={selectType}>

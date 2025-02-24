@@ -210,7 +210,7 @@ export const WithSelection: Story = {
       {
         id: '1',
         label: 'Option 1',
-        selected: true,
+        selected: false,
         onClick: () => console.log('Option 1 clicked')
       },
       {
@@ -220,8 +220,9 @@ export const WithSelection: Story = {
       },
       {
         id: '3',
-        label: 'Option 3',
-        onClick: () => console.log('Option 3 clicked')
+        label: 'Option 3 - Selected',
+        onClick: () => console.log('Option 3 clicked'),
+        selected: true
       }
     ],
     children: <Button>Selection Menu</Button>
