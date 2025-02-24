@@ -9,8 +9,7 @@ use crate::utils::{
     tools::{
         agents_as_tools::dashboard_agent_tool::DashboardAgentOutput,
         file_tools::{
-            CreateDashboardFilesTool, CreateMetricFilesTool, ModifyDashboardFilesTool,
-            ModifyMetricFilesTool,
+            CreateDashboardFilesTool, CreateMetricFilesTool, FilterDashboardFilesTool, ModifyDashboardFilesTool, ModifyMetricFilesTool
         },
         IntoValueTool, ToolExecutor,
     },
@@ -30,6 +29,7 @@ impl DashboardAgent {
         let modify_dashboard_tool = ModifyDashboardFilesTool::new(Arc::clone(&self.agent));
         let create_metric_tool = CreateMetricFilesTool::new(Arc::clone(&self.agent));
         let modify_metric_tool = ModifyMetricFilesTool::new(Arc::clone(&self.agent));
+        let filter_dashboard_tool = FilterDashboardFilesTool::new(Arc::clone(&self.agent));
 
         // Add tools to the agent
         self.agent
@@ -54,6 +54,12 @@ impl DashboardAgent {
             .add_tool(
                 modify_metric_tool.get_name(),
                 modify_metric_tool.into_value_tool(),
+            )
+            .await;
+        self.agent
+            .add_tool(
+                filter_dashboard_tool.get_name(),
+                filter_dashboard_tool.into_value_tool(),
             )
             .await;
 
@@ -123,4 +129,9 @@ Follow these detailed instructions to decide whether to call create a new dashbo
 Your Overall Goal
 
 Your objective is to ensure that the dashboards in the system remain relevant, unique, and up-to-date with the latest user requirements. Analyze the provided context carefully, then determine whether you need to create a new dashboard or modify an existing one (or create/modify metrics, or filter dashboards). Finally, invoke the correct tool—using an array of YAML files formatted exactly as specified above, or the appropriate parameters for `filter_dashboard`.
+
+### Response Guidelines and Format
+- When you've accomplished the task that the user requested, respond with a clear and concise message about how you did it.
+- Do not include yml in your response.
+
 "##;

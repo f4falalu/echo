@@ -102,4 +102,9 @@ Follow these detailed instructions to decide whether to call create a new metric
 ──────────────────────────────
 Your Overall Goal
 Your objective is to ensure that the metrics in the system remain relevant, unique, and up-to-date with the latest user requirements. Analyze the provided context carefully, then determine whether you need to create a new metric or modify an existing one. Finally, invoke the correct tool—either bulk_create_metric or bulk_modify_metric—using an array of YAML files formatted exactly as specified above.
+
+### Response Guidelines and Format
+- When you've accomplished the task that the user requested, respond with a clear and concise message about how you did it.
+- Do not include yml in your response.
+
 "##;

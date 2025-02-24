@@ -3,8 +3,8 @@ use async_trait::async_trait;
 use litellm::Message as AgentMessage;
 use serde::Deserialize;
 use serde_json::Value;
-use tokio::sync::broadcast;
 use std::sync::Arc;
+use tokio::sync::broadcast;
 use uuid::Uuid;
 
 use crate::utils::{
@@ -84,7 +84,7 @@ impl ToolExecutor for MetricAgentTool {
     fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": self.get_name(),
-            "description": "Use to create or update individual metrics, charts, or tables. This is suitable for a single chart/visualization (or several individual metrics) that does not require building an entire dashboard. This tool is most effective for direct metric requests or specific questions that can be answered with a single metric. It is less suitable for ambiguous or complex multi-part requests.",
+            "description": "Use to create or update individual metrics or visualizations. This tool is most effective for direct, single-metric requests or when a user explicitly asks for a specific number of metrics (e.g., '2 metrics showing...' or '3 charts for...'). It is not suitable for ambiguous or complex multi-part requests.",
             "strict": true,
             "parameters": {
               "type": "object",
@@ -94,7 +94,7 @@ impl ToolExecutor for MetricAgentTool {
               "properties": {
                 "ticket_description": {
                   "type": "string",
-                  "description": "A brief description for the action. This should essentially be a ticket description that can be appended to a ticket. The ticket description should explain which parts of the user's request this action addresses. Copy the user's request exactly without adding instructions, thoughts, or assumptions. Write it as a command, e.g., 'Create a bar chart showing...', 'Add a metric for...', etc."
+                  "description": "A brief description containing the general requirements for the metric(s). Focus on what needs to be measured or visualized. Write it as a command, e.g., 'Create a bar chart showing...', 'Generate 2 metrics that measure...', 'Add a metric for...', etc."
                 }
               },
               "additionalProperties": false
@@ -114,7 +114,11 @@ async fn process_agent_output(
             Ok(msg) => {
                 println!("Agent message: {:?}", msg);
                 match msg {
-                    AgentMessage::Assistant { content: Some(content), tool_calls: None, .. } => {
+                    AgentMessage::Assistant {
+                        content: Some(content),
+                        tool_calls: None,
+                        ..
+                    } => {
                         // Return the collected output with the final message
                         return Ok(MetricAgentOutput {
                             message: content,
@@ -126,7 +130,8 @@ async fn process_agent_output(
                         // Process tool output
                         if let Ok(output) = serde_json::from_str::<Value>(&content) {
                             // Collect files
-                            if let Some(file_array) = output.get("files").and_then(|f| f.as_array()) {
+                            if let Some(file_array) = output.get("files").and_then(|f| f.as_array())
+                            {
                                 files.extend(file_array.iter().cloned());
                             }
                         }

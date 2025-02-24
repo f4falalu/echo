@@ -8,9 +8,7 @@ use uuid::Uuid;
 use crate::routes::ws::threads_and_messages::threads_router::ThreadEvent;
 use litellm::{Message, MessageProgress, ToolCall};
 
-use crate::utils::tools::file_tools::create_files::CreateFilesOutput;
 use crate::utils::tools::file_tools::file_types::file::FileEnum;
-use crate::utils::tools::file_tools::modify_files::ModifyFilesParams;
 use crate::utils::tools::file_tools::open_files::OpenFilesOutput;
 use crate::utils::tools::file_tools::search_data_catalog::SearchDataCatalogOutput;
 use crate::utils::tools::file_tools::search_files::SearchFilesOutput;
@@ -258,7 +256,7 @@ fn transform_tool_message(
         "search_data_catalog" => tool_data_catalog_search(id, content, progress),
         "stored_values_search" => tool_stored_values_search(id, content, progress),
         "search_files" => tool_file_search(id, content, progress),
-        "create_files" => tool_create_file(id, content, progress),
+        // "create_files" => tool_create_file(id, content, progress),
         "modify_files" => tool_modify_file(id, content, progress),
         "open_files" => tool_open_files(id, content, progress),
         "send_message_to_user" => tool_send_message_to_user(id, content, progress),
@@ -293,7 +291,7 @@ fn transform_assistant_tool_message(
             "stored_values_search" => assistant_stored_values_search(id, progress, initial),
             "search_files" => assistant_file_search(id, progress, initial),
             "create_files" => assistant_create_file(id, tool_calls, progress),
-            "modify_files" => assistant_modify_file(id, tool_calls, progress),
+            // "modify_files" => assistant_modify_file(id, tool_calls, progress),
             "open_files" => assistant_open_files(id, progress, initial),
             "send_message_to_user" => assistant_send_message_to_user(id, tool_calls, progress),
             _ => Err(anyhow::anyhow!("Unsupported tool name")),
@@ -794,102 +792,102 @@ fn process_assistant_create_file(tool_call: &ToolCall) -> Result<Vec<BusterThrea
     }
 }
 
-fn assistant_modify_file(
-    id: Option<String>,
-    tool_calls: Vec<ToolCall>,
-    progress: Option<MessageProgress>,
-) -> Result<Vec<BusterThreadMessage>> {
-    if let Some(progress) = progress {
-        match progress {
-            MessageProgress::InProgress => {
-                // Try to parse the tool call arguments to get file metadata
-                if let Some(tool_call) = tool_calls.first() {
-                    if let Ok(params) =
-                        serde_json::from_str::<ModifyFilesParams>(&tool_call.function.arguments)
-                    {
-                        if let Some(file) = params.files.first() {
-                            return Ok(vec![BusterThreadMessage::Thought(BusterThought {
-                                id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
-                                thought_type: "thought".to_string(),
-                                thought_title: format!(
-                                    "Modifying {} file '{}'...",
-                                    file.file_type, file.file_name
-                                ),
-                                thought_secondary_title: "".to_string(),
-                                thoughts: None,
-                                status: "loading".to_string(),
-                            })]);
-                        }
-                    }
-                }
-                // Fall back to generic message if we can't parse the metadata
-                let id = id.unwrap_or_else(|| Uuid::new_v4().to_string());
+// fn assistant_modify_file(
+//     id: Option<String>,
+//     tool_calls: Vec<ToolCall>,
+//     progress: Option<MessageProgress>,
+// ) -> Result<Vec<BusterThreadMessage>> {
+//     if let Some(progress) = progress {
+//         match progress {
+//             MessageProgress::InProgress => {
+//                 // Try to parse the tool call arguments to get file metadata
+//                 if let Some(tool_call) = tool_calls.first() {
+//                     if let Ok(params) =
+//                         serde_json::from_str::<ModifyFilesParams>(&tool_call.function.arguments)
+//                     {
+//                         if let Some(file) = params.files.first() {
+//                             return Ok(vec![BusterThreadMessage::Thought(BusterThought {
+//                                 id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
+//                                 thought_type: "thought".to_string(),
+//                                 thought_title: format!(
+//                                     "Modifying {} file '{}'...",
+//                                     file.file_type, file.file_name
+//                                 ),
+//                                 thought_secondary_title: "".to_string(),
+//                                 thoughts: None,
+//                                 status: "loading".to_string(),
+//                             })]);
+//                         }
+//                     }
+//                 }
+//                 // Fall back to generic message if we can't parse the metadata
+//                 let id = id.unwrap_or_else(|| Uuid::new_v4().to_string());
 
-                Ok(vec![BusterThreadMessage::Thought(BusterThought {
-                    id,
-                    thought_type: "thought".to_string(),
-                    thought_title: "Modifying file...".to_string(),
-                    thought_secondary_title: "".to_string(),
-                    thoughts: None,
-                    status: "loading".to_string(),
-                })])
-            }
-            _ => Err(anyhow::anyhow!(
-                "Assistant modify file only supports in progress."
-            )),
-        }
-    } else {
-        Err(anyhow::anyhow!("Assistant modify file requires progress."))
-    }
-}
+//                 Ok(vec![BusterThreadMessage::Thought(BusterThought {
+//                     id,
+//                     thought_type: "thought".to_string(),
+//                     thought_title: "Modifying file...".to_string(),
+//                     thought_secondary_title: "".to_string(),
+//                     thoughts: None,
+//                     status: "loading".to_string(),
+//                 })])
+//             }
+//             _ => Err(anyhow::anyhow!(
+//                 "Assistant modify file only supports in progress."
+//             )),
+//         }
+//     } else {
+//         Err(anyhow::anyhow!("Assistant modify file requires progress."))
+//     }
+// }
 
-fn tool_create_file(
-    id: Option<String>,
-    content: String,
-    progress: Option<MessageProgress>,
-) -> Result<Vec<BusterThreadMessage>> {
-    if let Some(progress) = progress {
-        match progress {
-            MessageProgress::Complete => {
-                // Parse the content to get file information using CreateFilesOutput
-                let create_files_result = match serde_json::from_str::<CreateFilesOutput>(&content)
-                {
-                    Ok(result) => result,
-                    Err(_) => return Ok(vec![]), // Silently ignore parsing errors
-                };
-                let mut messages = Vec::new();
+// fn tool_create_file(
+//     id: Option<String>,
+//     content: String,
+//     progress: Option<MessageProgress>,
+// ) -> Result<Vec<BusterThreadMessage>> {
+//     if let Some(progress) = progress {
+//         match progress {
+//             MessageProgress::Complete => {
+//                 // Parse the content to get file information using CreateFilesOutput
+//                 let create_files_result = match serde_json::from_str::<CreateFilesOutput>(&content)
+//                 {
+//                     Ok(result) => result,
+//                     Err(_) => return Ok(vec![]), // Silently ignore parsing errors
+//                 };
+//                 let mut messages = Vec::new();
 
-                for file in create_files_result.files {
-                    let (name, file_type, content) = (file.name, file.file_type, file.yml_content);
+//                 for file in create_files_result.files {
+//                     let (name, file_type, content) = (file.name, file.file_type, file.yml_content);
 
-                    let mut current_lines = Vec::new();
-                    for (i, line) in content.lines().enumerate() {
-                        current_lines.push(BusterFileLine {
-                            line_number: i + 1,
-                            text: line.to_string(),
-                        });
-                    }
+//                     let mut current_lines = Vec::new();
+//                     for (i, line) in content.lines().enumerate() {
+//                         current_lines.push(BusterFileLine {
+//                             line_number: i + 1,
+//                             text: line.to_string(),
+//                         });
+//                     }
 
-                    messages.push(BusterThreadMessage::File(BusterFileMessage {
-                        id: name.clone(),
-                        message_type: "file".to_string(),
-                        file_type,
-                        file_name: name,
-                        version_number: 1,
-                        version_id: Uuid::new_v4().to_string(),
-                        status: "completed".to_string(),
-                        file: Some(current_lines),
-                    }));
-                }
+//                     messages.push(BusterThreadMessage::File(BusterFileMessage {
+//                         id: name.clone(),
+//                         message_type: "file".to_string(),
+//                         file_type,
+//                         file_name: name,
+//                         version_number: 1,
+//                         version_id: Uuid::new_v4().to_string(),
+//                         status: "completed".to_string(),
+//                         file: Some(current_lines),
+//                     }));
+//                 }
 
-                Ok(messages)
-            }
-            _ => Err(anyhow::anyhow!("Tool create file only supports complete.")),
-        }
-    } else {
-        Err(anyhow::anyhow!("Tool create file requires progress."))
-    }
-}
+//                 Ok(messages)
+//             }
+//             _ => Err(anyhow::anyhow!("Tool create file only supports complete.")),
+//         }
+//     } else {
+//         Err(anyhow::anyhow!("Tool create file requires progress."))
+//     }
+// }
 
 fn tool_modify_file(
     id: Option<String>,

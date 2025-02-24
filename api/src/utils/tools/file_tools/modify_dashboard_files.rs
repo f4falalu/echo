@@ -349,7 +349,9 @@ impl ToolExecutor for ModifyDashboardFilesTool {
                     output.files.extend(
                         batch.dashboard_files.iter().zip(batch.dashboard_ymls.iter()).map(|(file, yml)| FileWithId {
                             id: file.id,
-                            content: FileEnum::Dashboard(yml.clone()),
+                            name: file.name.clone(),
+                            file_type: "dashboard".to_string(),
+                            yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
                         })
                     );
                 }

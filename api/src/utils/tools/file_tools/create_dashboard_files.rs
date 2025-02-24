@@ -167,7 +167,9 @@ impl ToolExecutor for CreateDashboardFilesTool {
                     for (i, yml) in dashboard_ymls.into_iter().enumerate() {
                         created_files.push(FileWithId {
                             id: dashboard_records[i].id,
-                            content: FileEnum::Dashboard(yml),
+                            name: dashboard_records[i].name.clone(),
+                            file_type: "dashboard".to_string(),
+                            yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
                         });
                     }
                 }

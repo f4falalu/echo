@@ -383,6 +383,7 @@ impl Agent {
                 user_id: thread.user_id.to_string(),
                 session_id: thread.id.to_string(),
             }),
+            store: Some(true),
             ..Default::default()
         };
 
@@ -442,7 +443,9 @@ impl Agent {
                     );
 
                     // Broadcast the tool message as soon as we receive it
-                    self.get_stream_sender().await.send(Ok(tool_message.clone()))?;
+                    self.get_stream_sender()
+                        .await
+                        .send(Ok(tool_message.clone()))?;
 
                     // Update thread with tool response
                     self.update_current_thread(tool_message.clone()).await?;
@@ -474,7 +477,12 @@ impl Agent {
     }
 
     /// Get a reference to the tools map
-    pub async fn get_tools(&self) -> tokio::sync::RwLockReadGuard<'_, HashMap<String, Box<dyn ToolExecutor<Output = Value, Params = Value> + Send + Sync>>> {
+    pub async fn get_tools(
+        &self,
+    ) -> tokio::sync::RwLockReadGuard<
+        '_,
+        HashMap<String, Box<dyn ToolExecutor<Output = Value, Params = Value> + Send + Sync>>,
+    > {
         self.tools.read().await
     }
 }
@@ -577,7 +585,12 @@ mod tests {
     }
 
     impl WeatherTool {
-        async fn send_progress(&self, content: String, tool_id: String, progress: MessageProgress) -> Result<()> {
+        async fn send_progress(
+            &self,
+            content: String,
+            tool_id: String,
+            progress: MessageProgress,
+        ) -> Result<()> {
             let message = Message::tool(
                 None,
                 content,
@@ -596,7 +609,12 @@ mod tests {
         type Params = Value;
 
         async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
-            self.send_progress("Fetching weather data...".to_string(), "123".to_string(), MessageProgress::InProgress).await?;
+            self.send_progress(
+                "Fetching weather data...".to_string(),
+                "123".to_string(),
+                MessageProgress::InProgress,
+            )
+            .await?;
 
             // Simulate a delay
             tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
@@ -606,7 +624,12 @@ mod tests {
                 "unit": "fahrenheit"
             });
 
-            self.send_progress(serde_json::to_string(&result)?, "123".to_string(), MessageProgress::Complete).await?;
+            self.send_progress(
+                serde_json::to_string(&result)?,
+                "123".to_string(),
+                MessageProgress::Complete,
+            )
+            .await?;
 
             Ok(result)
         }

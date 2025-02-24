@@ -91,7 +91,7 @@ impl ToolExecutor for DashboardAgentTool {
     fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": self.get_name(),
-            "description": "Use to create or update entire dashboards, including creating and configuring the underlying metrics and visualizations. This tool can handle both creating new metrics and organizing them into a cohesive dashboard layout. Ideal for when you need to create multiple related metrics and arrange them meaningfully on a single page.",
+            "description": "Specifically designed for creating or updating dashboards that require multiple related metrics. This tool excels at understanding complex dashboard requirements and automatically determining which metrics to create and how to organize them. Only use when you need to work with multiple metrics that should be displayed together on a single dashboard page.",
             "strict": true,
             "parameters": {
                 "type": "object",
@@ -101,7 +101,7 @@ impl ToolExecutor for DashboardAgentTool {
                 "properties": {
                     "ticket_description": {
                         "type": "string",
-                        "description": "A brief description for the action. This should be written as a command (e.g., 'Create a dashboard showing daily sales metrics...', 'Update the performance dashboard to include CPU metrics...'). The description should clearly state both the dashboard requirements and any metrics that need to be created. Copy the user's request exactly without adding instructions, thoughts, or assumptions."
+                        "description": "The high-level requirements for what needs to be monitored or analyzed via the dashboard. Focus on describing the business or technical needs (e.g., 'We need to monitor our application's overall health including memory usage, CPU, and error rates', or 'Create a sales overview dashboard that shows our daily revenue, top products, and regional performance'). The dashboard worker will determine the specific metrics needed and their optimal arrangement."
                     }
                 },
                 "additionalProperties": false

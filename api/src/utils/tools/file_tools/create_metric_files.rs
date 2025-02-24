@@ -27,8 +27,6 @@ use super::{
     FileModificationTool,
 };
 
-use litellm::ToolCall;
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct MetricFileParams {
     pub name: String,
@@ -168,7 +166,9 @@ impl ToolExecutor for CreateMetricFilesTool {
                     for (i, yml) in metric_ymls.into_iter().enumerate() {
                         created_files.push(FileWithId {
                             id: metric_records[i].id,
-                            content: FileEnum::Metric(yml),
+                            name: metric_records[i].name.clone(),
+                            file_type: "metric".to_string(),
+                            yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
                         });
                     }
                 }

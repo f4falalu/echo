@@ -15,7 +15,9 @@ pub struct File {
 #[derive(Debug, Serialize)]
 pub struct FileWithId {
     pub id: Uuid,
-    pub content: FileEnum,
+    pub name: String,
+    pub file_type: String,
+    pub yml_content: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

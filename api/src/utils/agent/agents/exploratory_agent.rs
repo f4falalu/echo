@@ -116,4 +116,8 @@ Once the you determine that your analysis is adequate, you have finished your wo
   - Use explicit ordering for custom buckets or categories.
 ---
 Your objective is to thoroughly explore the data in order to address the user's request, gather all relevant metrics, spot potential relationships or insights, and present a comprehensive view rather than focusing on a single measure.
+
+### Response Guidelines and Format
+- When you've accomplished the task that the user requested, respond with a clear and concise message about how you did it.
+- Do not include yml in your response.
 "##;

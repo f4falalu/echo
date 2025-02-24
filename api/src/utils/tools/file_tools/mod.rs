@@ -1,26 +1,24 @@
 pub mod common;
 pub mod create_dashboard_files;
-pub mod create_files;
 pub mod create_metric_files;
 pub mod file_types;
+pub mod filter_dashboard_files;
 pub mod modify_dashboard_files;
-pub mod modify_files;
 pub mod modify_metric_files;
 pub mod open_files;
 pub mod search_data_catalog;
 pub mod search_files;
 pub mod send_assets_to_user;
 
-pub use create_files::CreateFilesTool;
-pub use modify_files::ModifyFilesTool;
+pub use create_dashboard_files::CreateDashboardFilesTool;
+pub use create_metric_files::CreateMetricFilesTool;
+pub use filter_dashboard_files::FilterDashboardFilesTool;
+pub use modify_dashboard_files::ModifyDashboardFilesTool;
+pub use modify_metric_files::ModifyMetricFilesTool;
 pub use open_files::OpenFilesTool;
 pub use search_data_catalog::SearchDataCatalogTool;
 pub use search_files::SearchFilesTool;
 pub use send_assets_to_user::SendAssetsToUserTool;
-pub use create_dashboard_files::CreateDashboardFilesTool;
-pub use create_metric_files::CreateMetricFilesTool;
-pub use modify_dashboard_files::ModifyDashboardFilesTool;
-pub use modify_metric_files::ModifyMetricFilesTool;
 
 use crate::utils::tools::ToolExecutor;
 

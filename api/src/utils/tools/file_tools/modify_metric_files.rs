@@ -360,7 +360,9 @@ impl ToolExecutor for ModifyMetricFilesTool {
                     output.files.extend(
                         batch.metric_files.iter().zip(batch.metric_ymls.iter()).map(|(file, yml)| FileWithId {
                             id: file.id,
-                            content: FileEnum::Metric(yml.clone()),
+                            name: file.name.clone(),
+                            file_type: "metric".to_string(),
+                            yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
                         })
                     );
                 }
