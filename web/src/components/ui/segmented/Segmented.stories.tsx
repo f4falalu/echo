@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Segmented } from './Segmented';
+import { HouseModern } from '../icons';
 
 const meta: Meta<typeof Segmented> = {
   title: 'Base/Segmented',
@@ -14,9 +15,9 @@ export default meta;
 type Story = StoryObj<typeof Segmented>;
 
 const defaultItems = [
-  { value: 'tab1', label: 'Tab 1' },
-  { value: 'tab2', label: 'Tab 2', disabled: true },
-  { value: 'tab3', label: 'Tab 3' }
+  { value: 'tab1', label: 'Tab 1', icon: <HouseModern /> },
+  { value: 'tab2', label: 'Tab 2', disabled: true, icon: <HouseModern /> },
+  { value: 'tab3', label: 'Tab 3', icon: <HouseModern /> }
 ];
 
 export const Default: Story = {

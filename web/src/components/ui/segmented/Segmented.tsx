@@ -93,7 +93,8 @@ export const Segmented = React.forwardRef<HTMLDivElement, SegmentedProps>(
               onMouseEnter={() => !item.disabled && setHoveredValue(item.value)}
               onMouseLeave={() => setHoveredValue(null)}
               className={cn(
-                'relative z-10 flex items-center justify-center gap-2 rounded-md px-2.5 text-sm transition-colors',
+                'relative z-10 flex items-center justify-center gap-x-1.5 gap-y-1 rounded-md transition-colors',
+                size === 'default' ? 'px-2.5' : 'px-3',
                 innerHeight,
                 'focus-visible:ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
                 selectedValue === item.value
@@ -102,10 +103,11 @@ export const Segmented = React.forwardRef<HTMLDivElement, SegmentedProps>(
                 hoveredValue === item.value && selectedValue !== item.value && 'bg-gray-50/50',
                 item.disabled
                   ? 'text-foreground/30 hover:text-foreground/30 cursor-not-allowed'
-                  : 'cursor-pointer'
+                  : 'cursor-pointer',
+                size === 'large' ? 'flex-col' : 'flex-row'
               )}>
-              {item.icon && <span className="flex items-center">{item.icon}</span>}
-              {item.label}
+              {item.icon && <span className={cn('flex items-center text-sm')}>{item.icon}</span>}
+              <span className={cn('text-sm')}>{item.label}</span>
             </Tabs.Trigger>
           ))}
         </Tabs.List>
