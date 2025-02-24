@@ -63,6 +63,15 @@
   --color-gray-light: #969597;
   --color-gray-dark: #575859;
   --color-disabled: #e6e6e6;
+  --color-danger-background: #ffedef;
+  --color-danger-background-hover: #ffdade;
+  --color-danger-foreground: #c4242a;
+  --color-warning-background: #fef3e3;
+  --color-warning-foreground: #ff9e00;
+  --color-warning-background-hover: #ffebd4;
+  --color-success-background: #e6fce6;
+  --color-success-background-hover: #cdfbcd;
+  --color-success-foreground: #34a32d;
 
   /* component color */
   --color-page-background: #fcfcfc;

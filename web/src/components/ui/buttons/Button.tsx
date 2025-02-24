@@ -12,7 +12,13 @@ export const buttonTypeClasses = {
     'bg-primary text-white hover:bg-primary-light active:bg-primary-dark data-[selected=true]:bg-primary-dark',
   ghost:
     'bg-transparent text-gray-dark shadow-none hover:bg-item-hover hover:text-foreground disabled:bg-transparent disabled:text-gray-light active:bg-item-active data-[selected=true]:bg-item-select',
-  link: 'bg-transparent text-gray-dark shadow-none hover:text-foreground disabled:bg-transparent disabled:text-gray-light'
+  link: 'bg-transparent text-gray-dark shadow-none hover:text-foreground disabled:bg-transparent disabled:text-gray-light',
+  danger:
+    'bg-danger-background text-danger-foreground hover:bg-danger-background-hover active:bg-danger-background-hover data-[selected=true]:bg-danger-background-hover',
+  warning:
+    'bg-warning-background text-warning-foreground hover:bg-warning-background-hover active:bg-warning-background-hover data-[selected=true]:bg-warning-background-hover',
+  success:
+    'bg-success-background text-success-foreground hover:bg-success-background-hover active:bg-success-background-hover data-[selected=true]:bg-success-background-hover'
 };
 
 const roundingVariants = {
@@ -78,7 +84,10 @@ export const buttonIconVariants = cva('', {
       black: 'text-white!',
       primary: 'text-white!',
       ghost: 'text-icon-color!',
-      link: 'text-icon-color!'
+      link: 'text-icon-color!',
+      danger: 'text-danger-foreground!',
+      warning: 'text-warning-foreground!',
+      success: 'text-success-foreground!'
     },
     size: {
       default: 'text-icon-size',
