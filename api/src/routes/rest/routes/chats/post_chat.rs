@@ -102,20 +102,19 @@ async fn process_chat(request: ChatCreateNewChat, user: User) -> Result<ThreadWi
     let mut final_message = None;
 
     // Process messages from the agent
-    loop {
-        match rx.recv().await {
-            Ok(Ok(msg)) => {
+    while let Ok(message) = rx.recv().await {
+        match message {
+            Ok(msg) => {
                 match msg {
                     AgentMessage::Assistant { content: Some(content), tool_calls: None, .. } => {
-                        // Store the final message content
+                        // Store the final message and break immediately
                         final_message = Some(content);
+                        break;
                     }
                     _ => messages.push(msg),
                 }
             }
-            Ok(Err(e)) => return Err(e.into()),
-            Err(broadcast::error::RecvError::Closed) => break,
-            Err(e) => return Err(anyhow!(e)),
+            Err(e) => return Err(e.into()),
         }
     }
 
