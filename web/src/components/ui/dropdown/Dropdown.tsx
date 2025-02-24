@@ -112,24 +112,22 @@ const DropdownItemSelector: React.FC<{
   closeOnSelect: boolean;
   selectType: NonNullable<DropdownProps['selectType']>;
 }> = React.memo(({ item, index, onSelect, closeOnSelect, selectType }) => {
-  const isDivider = (item as DropdownDivider).type === 'divider';
-  const isReactNode = typeof item === 'object' && item !== null && !('id' in item);
-  const isDropdownItem = typeof item === 'object' && item !== null && 'id' in item;
-  const id = dropdownItemKey(item, index);
+  if ((item as DropdownDivider).type === 'divider') {
+    return <DropdownMenuSeparator />;
+  }
+
+  if (typeof item === 'object' && React.isValidElement(item)) {
+    return item;
+  }
+
   return (
-    <React.Fragment key={id}>
-      {isDivider && <DropdownMenuSeparator />}
-      {isReactNode && (item as React.ReactNode)}
-      {isDropdownItem && (
-        <DropdownItem
-          {...(item as DropdownItem)}
-          closeOnSelect={closeOnSelect}
-          onSelect={onSelect}
-          selectType={selectType}
-          index={index}
-        />
-      )}
-    </React.Fragment>
+    <DropdownItem
+      {...(item as DropdownItem)}
+      closeOnSelect={closeOnSelect}
+      onSelect={onSelect}
+      selectType={selectType}
+      index={index}
+    />
   );
 });
 
