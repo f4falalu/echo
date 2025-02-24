@@ -15,11 +15,6 @@ pub struct DashboardAgentTool {
     agent: Arc<Agent>,
 }
 
-fn is_completion_signal(msg: &AgentMessage) -> bool {
-    matches!(msg, AgentMessage::Assistant { content: Some(content), tool_calls: None, .. } 
-        if content == "AGENT_COMPLETE")
-}
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DashboardAgentParams {
     pub ticket_description: String,
@@ -28,7 +23,7 @@ pub struct DashboardAgentParams {
 pub struct DashboardAgentOutput {
     pub message: String,
     pub duration: i64,
-    pub files: Vec<FileEnum>,
+    pub files: Vec<Value>,
 }
 
 impl DashboardAgentTool {
@@ -78,18 +73,18 @@ impl ToolExecutor for DashboardAgentTool {
         let rx = dashboard_agent.run(&mut current_thread).await?;
         println!("DashboardAgentTool: Dashboard agent run completed");
 
-        process_agent_output(rx).await?;
+        let output = process_agent_output(rx).await?;
 
         self.agent
             .set_state_value(String::from("files_available"), Value::Bool(false))
             .await;
 
-        // Return success response
+        // Return success response with the collected output
         Ok(serde_json::json!({
             "status": "success",
-            "message": "Dashboard agent completed successfully",
-            "duration": 0,
-            "files": []
+            "message": output.message,
+            "duration": output.duration,
+            "files": output.files
         }))
     }
 
@@ -117,16 +112,37 @@ impl ToolExecutor for DashboardAgentTool {
 
 async fn process_agent_output(
     mut rx: broadcast::Receiver<Result<AgentMessage, AgentError>>,
-) -> Result<()> {
+) -> Result<DashboardAgentOutput> {
+    let mut files = Vec::new();
+    let start_time = std::time::Instant::now();
+
     while let Ok(msg_result) = rx.recv().await {
         match msg_result {
             Ok(msg) => {
                 println!("Agent message: {:?}", msg);
-                if let AgentMessage::Assistant {
-                    content: Some(_), ..
-                } = msg
-                {
-                    return Ok(());
+                match msg {
+                    AgentMessage::Assistant {
+                        content: Some(content),
+                        tool_calls: None,
+                        ..
+                    } => {
+                        // Return the collected output with the final message
+                        return Ok(DashboardAgentOutput {
+                            message: content,
+                            duration: start_time.elapsed().as_secs() as i64,
+                            files,
+                        });
+                    }
+                    AgentMessage::Tool { content, .. } => {
+                        // Process tool output
+                        if let Ok(output) = serde_json::from_str::<Value>(&content) {
+                            // Collect files
+                            if let Some(file_array) = output.get("files").and_then(|f| f.as_array()) {
+                                files.extend(file_array.iter().cloned());
+                            }
+                        }
+                    }
+                    _ => {}
                 }
             }
             Err(e) => {
