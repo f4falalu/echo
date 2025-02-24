@@ -16,7 +16,7 @@ pub struct SendToUserParams {
 
 #[derive(Debug, Serialize)]
 pub struct SendToUserOutput {
-    success: bool,
+    message: String,
 }
 
 pub struct SendAssetsToUserTool {
@@ -36,11 +36,13 @@ impl ToolExecutor for SendAssetsToUserTool {
 
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
         // TODO: Implement actual send to user logic
-        Ok(SendToUserOutput { success: true })
+        Ok(SendToUserOutput {
+            message: "Assets  successfully sent to user".to_string(),
+        })
     }
 
     fn get_name(&self) -> String {
-        "decide_assets_to_return".to_string()
+        "send_assets_to_user".to_string()
     }
 
     async fn is_enabled(&self) -> bool {
@@ -52,25 +54,24 @@ impl ToolExecutor for SendAssetsToUserTool {
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-          "name": "decide_assets_to_return",
+          "name": self.get_name(),
           "description": "Use after you have created or modified any assets (metrics or dashboards) to specify exactly which assets to present in the final response. If you have not created or modified any assets, do not call this action.",
           "strict": true,
           "parameters": {
             "type": "object",
             "required": [
-              "assets_to_return",
-              "ticket_description"
+              "assets_to_return"
             ],
             "properties": {
               "assets_to_return": {
                 "type": "array",
-                "description": "List of assets to present in the final response, each with an ID and a name",
+                "description": "List of assets to present in the final response, each with a UUID and a name",
                 "items": {
                   "type": "object",
                   "properties": {
                     "id": {
                       "type": "string",
-                      "description": "Unique identifier for the asset"
+                      "description": "UUID of the asset (e.g. '123e4567-e89b-12d3-a456-426614174000')"
                     },
                     "name": {
                       "type": "string",
@@ -83,10 +84,6 @@ impl ToolExecutor for SendAssetsToUserTool {
                   ],
                   "additionalProperties": false
                 }
-              },
-              "ticket_description": {
-                "type": "string",
-                "description": "Description of the ticket related to the assets"
               }
             },
             "additionalProperties": false
