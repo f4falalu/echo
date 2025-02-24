@@ -70,10 +70,13 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
     align = 'center',
     side = 'bottom',
     contentClassName,
+    open,
+    defaultOpen,
+    onOpenChange,
     ...props
   }) => {
     return (
-      <DropdownMenu>
+      <DropdownMenu open={open} defaultOpen={open} onOpenChange={onOpenChange} {...props}>
         <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
         <DropdownMenuContent className={cn('w-56', contentClassName)} align={align} side={side}>
           {menuLabel && (

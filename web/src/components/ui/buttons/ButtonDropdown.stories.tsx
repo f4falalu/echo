@@ -8,6 +8,27 @@ const meta: Meta<typeof ButtonDropdown> = {
   parameters: {
     layout: 'centered'
   },
+  args: {
+    dropdownProps: {
+      //  open: true,
+      items: [
+        {
+          id: '1',
+          label: 'Item 1'
+        },
+        {
+          id: '2',
+          label: 'Item 2',
+          disabled: true
+        },
+        {
+          id: '3',
+          label: 'Item 3',
+          icon: <PaintRoller />
+        }
+      ]
+    }
+  },
   argTypes: {
     buttonType: {
       control: 'select',
@@ -27,7 +48,11 @@ const meta: Meta<typeof ButtonDropdown> = {
     },
     rounding: {
       control: 'select',
+      defaultValue: 'default',
       options: ['default', 'full', 'large', 'small', 'none']
+    },
+    dropdownProps: {
+      control: 'object'
     }
   },
   tags: ['autodocs']
