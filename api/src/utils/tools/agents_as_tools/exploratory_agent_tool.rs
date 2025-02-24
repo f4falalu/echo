@@ -31,7 +31,7 @@ impl ToolExecutor for ExploratoryAgentTool {
     type Output = Value;
     type Params = ExploratoryAgentInput;
     fn get_name(&self) -> String {
-        "explore_data".to_string()
+        "exploratory_worker".to_string()
     }
 
     async fn is_enabled(&self) -> bool {
@@ -73,8 +73,8 @@ impl ToolExecutor for ExploratoryAgentTool {
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "explore_data",
-            "description": "Use to explore data and create insights. This is suitable for exploring data sources, understanding data relationships, and generating insights that can be used to create metrics or dashboards.",
+            "name": self.get_name(),
+            "description": "Use when requests are ambiguous and require data exploration to provide meaningful answers. This tool explores data sources, understands relationships, and generates insights to help clarify user needs and create appropriate metrics or dashboards.",
             "strict": true,
             "parameters": {
                 "type": "object",
@@ -84,7 +84,7 @@ impl ToolExecutor for ExploratoryAgentTool {
                 "properties": {
                     "ticket_description": {
                         "type": "string",
-                        "description": "A brief description for the action. This should essentially be a ticket description that can be appended to a ticket. The ticket description should explain which parts of the user's request this action addresses. Copy the user's request exactly without adding instructions, thoughts, or assumptions. Write it as a command, e.g., 'Explore sales data...', 'Analyze customer behavior...', etc."
+                        "description": "A brief description of the ambiguous request that needs exploration. Copy the user's request exactly without adding instructions, thoughts, or assumptions. The exploratory agent will investigate the data to understand context and possibilities before providing recommendations. Example formats: 'Explore what drives customer churn...', 'Investigate performance trends...'"
                     }
                 },
                 "additionalProperties": false
@@ -100,7 +100,10 @@ async fn process_agent_output(
         match msg_result {
             Ok(msg) => {
                 println!("Agent message: {:?}", msg);
-                if let AgentMessage::Assistant { content: Some(_), .. } = msg {
+                if let AgentMessage::Assistant {
+                    content: Some(_), ..
+                } = msg
+                {
                     return Ok(());
                 }
             }

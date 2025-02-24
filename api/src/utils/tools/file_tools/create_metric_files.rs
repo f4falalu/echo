@@ -18,7 +18,14 @@ use crate::{
     utils::{agent::Agent, tools::ToolExecutor},
 };
 
-use super::{common::validate_sql, file_types::metric_yml::MetricYml, FileModificationTool};
+use super::{
+    common::validate_sql,
+    file_types::{
+        file::{FileEnum, FileWithId},
+        metric_yml::MetricYml,
+    },
+    FileModificationTool,
+};
 
 use litellm::ToolCall;
 
@@ -33,11 +40,11 @@ pub struct CreateMetricFilesParams {
     pub files: Vec<MetricFileParams>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 pub struct CreateMetricFilesOutput {
     pub message: String,
     pub duration: i64,
-    pub files: Vec<CreateMetricFile>,
+    pub files: Vec<FileWithId>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -159,12 +166,9 @@ impl ToolExecutor for CreateMetricFilesTool {
             {
                 Ok(_) => {
                     for (i, yml) in metric_ymls.into_iter().enumerate() {
-                        created_files.push(CreateMetricFile {
-                            name: metric_records[i]
-                                .file_name
-                                .trim_end_matches(".yml")
-                                .to_string(),
-                            yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
+                        created_files.push(FileWithId {
+                            id: metric_records[i].id,
+                            content: FileEnum::Metric(yml),
                         });
                     }
                 }

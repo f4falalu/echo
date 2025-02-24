@@ -99,9 +99,20 @@ async fn process_chat(request: ChatCreateNewChat, user: User) -> Result<ThreadWi
     // Get the receiver and collect all messages
     let mut rx = agent.run(&mut thread).await?;
     let mut messages = Vec::new();
+    let mut final_message = None;
+
+    // Process messages from the agent
     loop {
         match rx.recv().await {
-            Ok(Ok(msg)) => messages.push(msg),
+            Ok(Ok(msg)) => {
+                match msg {
+                    AgentMessage::Assistant { content: Some(content), tool_calls: None, .. } => {
+                        // Store the final message content
+                        final_message = Some(content);
+                    }
+                    _ => messages.push(msg),
+                }
+            }
             Ok(Err(e)) => return Err(e.into()),
             Err(broadcast::error::RecvError::Closed) => break,
             Err(e) => return Err(anyhow!(e)),
@@ -168,12 +179,18 @@ async fn process_chat(request: ChatCreateNewChat, user: User) -> Result<ThreadWi
             })
             .unzip();
 
-        thread_message.response_messages = response_messages
+        // Add the final message if it exists
+        let mut final_response_messages = response_messages
             .into_iter()
             .flatten()
             .map(|m| serde_json::to_value(m).unwrap_or_default())
-            .collect();
+            .collect::<Vec<_>>();
 
+        if let Some(final_msg) = final_message {
+            final_response_messages.push(serde_json::to_value(final_msg).unwrap_or_default());
+        }
+
+        thread_message.response_messages = final_response_messages;
         thread_message.reasoning = reasoning_messages
             .into_iter()
             .flatten()

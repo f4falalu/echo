@@ -17,7 +17,7 @@ use crate::{
 };
 
 use super::{
-    common::validate_metric_ids, file_types::dashboard_yml::DashboardYml, FileModificationTool,
+    common::validate_metric_ids, file_types::{dashboard_yml::DashboardYml, file::{FileEnum, FileWithId}}, FileModificationTool,
 };
 
 use litellm::ToolCall;
@@ -33,11 +33,11 @@ pub struct CreateDashboardFilesParams {
     pub files: Vec<DashboardFileParams>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 pub struct CreateDashboardFilesOutput {
     pub message: String,
     pub duration: i64,
-    pub files: Vec<CreateDashboardFile>,
+    pub files: Vec<FileWithId>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -165,12 +165,9 @@ impl ToolExecutor for CreateDashboardFilesTool {
             {
                 Ok(_) => {
                     for (i, yml) in dashboard_ymls.into_iter().enumerate() {
-                        created_files.push(CreateDashboardFile {
-                            name: dashboard_records[i]
-                                .file_name
-                                .trim_end_matches(".yml")
-                                .to_string(),
-                            yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
+                        created_files.push(FileWithId {
+                            id: dashboard_records[i].id,
+                            content: FileEnum::Dashboard(yml),
                         });
                     }
                 }

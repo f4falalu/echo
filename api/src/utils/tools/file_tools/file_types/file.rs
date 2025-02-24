@@ -4,11 +4,18 @@ use uuid::Uuid;
 
 use super::dashboard_yml::DashboardYml;
 use super::metric_yml::MetricYml;
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct File {
     pub name: String,
     pub file_type: String,
     pub yml_content: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct FileWithId {
+    pub id: Uuid,
+    pub content: FileEnum,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

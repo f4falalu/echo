@@ -249,7 +249,7 @@ impl ToolExecutor for SearchFilesTool {
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "search_files",
+            "name": self.get_name(),
             "strict": true,
             "parameters": {
                 "type": "object",
@@ -259,14 +259,14 @@ impl ToolExecutor for SearchFilesTool {
                         "type": "array",
                         "items": {
                             "type": "string",
-                            "description": "A single search query represented as a string."
+                            "description": "A search term or phrase that matches the specific metric or dashboard the user is looking for."
                         },
-                        "description": "An array of natural language queries used to search for files."
+                        "description": "Search terms that describe the specific existing metric or dashboard the user wants to find."
                     }
                 },
                 "additionalProperties": false
             },
-            "description": "Use this tool only when a user explicitly requests to view or find existing metrics/dashboards. This tool is not a substitute for the data catalog search needed to understand available data structures.Guard Rail: Do not execute any file creation or modifications until a thorough data catalog search has been completed and reviewed."
+            "description": "IMPORTANT: Only use this tool when a user explicitly asks to find, search for, or view a specific existing metric or dashboard. Examples: 'Show me the revenue dashboard', 'Find metrics about user engagement', 'Can I see the existing sales metrics?'. Do NOT use this tool for general data exploration or when creating new metrics - use the data catalog search instead. This tool is strictly for locating previously created files."
         })
     }
 }

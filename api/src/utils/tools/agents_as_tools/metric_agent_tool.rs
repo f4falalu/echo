@@ -39,7 +39,7 @@ impl ToolExecutor for MetricAgentTool {
     type Params = MetricAgentInput;
 
     fn get_name(&self) -> String {
-        "create_or_modify_metrics".to_string()
+        "metric_worker".to_string()
     }
 
     async fn is_enabled(&self) -> bool {
@@ -83,8 +83,8 @@ impl ToolExecutor for MetricAgentTool {
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "create_or_modify_metrics",
-            "description": "Use to create or update individual metrics, charts, or tables. This is suitable for a single chart/visualization (or several individual metrics) that does not require building an entire dashboard.",
+            "name": self.get_name(),
+            "description": "Use to create or update individual metrics, charts, or tables. This is suitable for a single chart/visualization (or several individual metrics) that does not require building an entire dashboard. This tool is most effective for direct metric requests or specific questions that can be answered with a single metric. It is less suitable for ambiguous or complex multi-part requests.",
             "strict": true,
             "parameters": {
               "type": "object",

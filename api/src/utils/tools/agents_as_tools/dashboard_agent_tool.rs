@@ -38,7 +38,7 @@ impl ToolExecutor for DashboardAgentTool {
     type Params = DashboardAgentParams;
 
     fn get_name(&self) -> String {
-        "create_or_modify_dashboards".to_string()
+        "dashboard_worker".to_string()
     }
 
     async fn is_enabled(&self) -> bool {
@@ -90,8 +90,8 @@ impl ToolExecutor for DashboardAgentTool {
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "create_or_modify_dashboards",
-            "description": "Use to create or update entire dashboards. This is suitable when multiple related metrics or visualizations need to be organized together on a single page.",
+            "name": self.get_name(),
+            "description": "Use to create or update entire dashboards, including creating and configuring the underlying metrics and visualizations. This tool can handle both creating new metrics and organizing them into a cohesive dashboard layout. Ideal for when you need to create multiple related metrics and arrange them meaningfully on a single page.",
             "strict": true,
             "parameters": {
                 "type": "object",
@@ -101,7 +101,7 @@ impl ToolExecutor for DashboardAgentTool {
                 "properties": {
                     "ticket_description": {
                         "type": "string",
-                        "description": "A brief description for the action. This should essentially be a ticket description that can be appended to a ticket. The ticket description should explain which parts of the user's request this action addresses. Copy the user's request exactly without adding instructions, thoughts, or assumptions. Write it as a command, e.g., 'Create a dashboard showing...', 'Update the sales dashboard to include...', etc."
+                        "description": "A brief description for the action. This should be written as a command (e.g., 'Create a dashboard showing daily sales metrics...', 'Update the performance dashboard to include CPU metrics...'). The description should clearly state both the dashboard requirements and any metrics that need to be created. Copy the user's request exactly without adding instructions, thoughts, or assumptions."
                     }
                 },
                 "additionalProperties": false
@@ -137,7 +137,8 @@ async fn process_agent_output(
                         // Process tool output
                         if let Ok(output) = serde_json::from_str::<Value>(&content) {
                             // Collect files
-                            if let Some(file_array) = output.get("files").and_then(|f| f.as_array()) {
+                            if let Some(file_array) = output.get("files").and_then(|f| f.as_array())
+                            {
                                 files.extend(file_array.iter().cloned());
                             }
                         }

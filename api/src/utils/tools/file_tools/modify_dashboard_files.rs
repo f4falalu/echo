@@ -13,7 +13,7 @@ use uuid::Uuid;
 
 use super::{
     common::validate_metric_ids,
-    file_types::{dashboard_yml::DashboardYml, file::FileEnum},
+    file_types::{dashboard_yml::DashboardYml, file::{FileEnum, FileWithId}},
     FileModificationTool,
 };
 use crate::{
@@ -212,7 +212,7 @@ fn apply_modifications_to_content(
 pub struct ModifyFilesOutput {
     message: String,
     duration: i64,
-    files: Vec<FileEnum>,
+    files: Vec<FileWithId>,
 }
 
 pub struct ModifyDashboardFilesTool {
@@ -346,9 +346,12 @@ impl ToolExecutor for ModifyDashboardFilesTool {
                 .await
             {
                 Ok(_) => {
-                    output
-                        .files
-                        .extend(batch.dashboard_ymls.into_iter().map(FileEnum::Dashboard));
+                    output.files.extend(
+                        batch.dashboard_files.iter().zip(batch.dashboard_ymls.iter()).map(|(file, yml)| FileWithId {
+                            id: file.id,
+                            content: FileEnum::Dashboard(yml.clone()),
+                        })
+                    );
                 }
                 Err(e) => {
                     batch.failed_modifications.push((

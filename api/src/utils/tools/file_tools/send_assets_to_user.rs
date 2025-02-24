@@ -55,7 +55,7 @@ impl ToolExecutor for SendAssetsToUserTool {
     fn get_schema(&self) -> Value {
         serde_json::json!({
           "name": self.get_name(),
-          "description": "Use after you have created or modified any assets (metrics or dashboards) to specify exactly which assets to present in the final response. If you have not created or modified any assets, do not call this action.",
+          "description": "Use this to select which assets (metrics, dashboards, or files) should be presented to the user in the final response. This is particularly important when multiple assets were created - for example, if creating a dashboard generated multiple metrics, you might want to return just the dashboard rather than all the individual metrics. Only call this after creating or modifying assets.",
           "strict": true,
           "parameters": {
             "type": "object",
@@ -65,7 +65,7 @@ impl ToolExecutor for SendAssetsToUserTool {
             "properties": {
               "assets_to_return": {
                 "type": "array",
-                "description": "List of assets to present in the final response, each with a UUID and a name",
+                "description": "Carefully selected list of the most relevant assets to present to the user. Choose assets that provide the most value - prefer high-level assets (like dashboards) over their components (like individual metrics) unless the individual components are specifically requested.",
                 "items": {
                   "type": "object",
                   "properties": {
