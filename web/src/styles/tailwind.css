@@ -75,7 +75,7 @@
   --color-track-background: hsl(0 0% 89.8%);
 
   --color-icon-color: var(--color-gray-dark);
-  --color-ring: var(--color-foreground-hover);
+  --color-ring: var(--color-item-hover);
 }
 
 @import './tailwindAnimations.css';
