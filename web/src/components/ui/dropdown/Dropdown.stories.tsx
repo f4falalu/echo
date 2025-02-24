@@ -32,7 +32,19 @@ export const Basic: Story = {
         id: '3',
         label: 'Logout',
         onClick: () => console.log('Logout clicked'),
-        shortcut: '⌘L'
+        shortcut: '⌘L',
+        items: [
+          {
+            id: '3-1',
+            label: 'Logout',
+            onClick: () => console.log('Logout clicked')
+          },
+          {
+            id: '3-2',
+            label: 'Logout',
+            onClick: () => console.log('Logout clicked')
+          }
+        ]
       }
     ],
     children: <Button>Open Menu</Button>

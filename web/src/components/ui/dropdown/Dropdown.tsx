@@ -3,12 +3,16 @@ import React from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup, //Do I need this?
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuPortal,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuShortcut,
   DropdownMenuSub,
-  DropdownMenuPortal
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger
 } from './DropdownBase';
 import { useMemoizedFn } from 'ahooks';
 
@@ -23,76 +27,194 @@ export interface DropdownItem {
   link?: string;
   loading?: boolean;
   selected?: boolean;
-  items?: DropdownItem[];
+  items?: (DropdownItem | DropdownDivider)[];
 }
 
-export interface ButtonDropdownProps extends DropdownMenuProps {
-  items?: DropdownItem[];
+export interface DropdownDivider {
+  type: 'divider';
+}
+
+export type DropdownItems = (DropdownItem | DropdownDivider)[];
+
+export interface DropdownProps extends DropdownMenuProps {
+  items?: DropdownItems;
   selectType?: 'default' | 'single' | 'multiple';
   menuLabel?: string | React.ReactNode;
   minWidth?: number;
   maxWidth?: number;
   closeOnSelect?: boolean;
-  onSelect?: (item: DropdownItem) => void;
+  onSelect?: (itemId: string) => void;
 }
 
-export const Dropdown: React.FC<ButtonDropdownProps> = ({
-  items = [],
-  selectType = 'default',
-  menuLabel,
-  minWidth = 200,
-  maxWidth,
-  closeOnSelect = true,
-  onSelect,
-  children,
-  ...props
-}) => {
-  const renderItems = (items: DropdownItem[]) => {
-    return items.map((item) => {
-      if (item.items) {
-        return (
-          <DropdownMenuSub key={item.id}>
-            <DropdownMenuTrigger>
-              {item.icon && <span className="mr-2">{item.icon}</span>}
-              <span>{item.label}</span>
-            </DropdownMenuTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuContent>{renderItems(item.items)}</DropdownMenuContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
-        );
-      }
+const dropdownItemKey = (item: DropdownItem | DropdownDivider, index: number) => {
+  if ((item as DropdownDivider).type === 'divider') return `divider-${index}`;
+  return (item as DropdownItem).id;
+};
 
-      return (
-        <DropdownMenuItem
-          key={item.id}
-          disabled={item.disabled}
-          onClick={() => {
-            if (item.onClick) item.onClick();
-            if (onSelect) onSelect(item);
-          }}>
-          {item.icon && <span className="mr-2">{item.icon}</span>}
-          <span>{item.label}</span>
-          {item.shortcut && (
-            <span className="ml-auto text-xs tracking-widest opacity-60">{item.shortcut}</span>
+export const Dropdown: React.FC<DropdownProps> = React.memo(
+  ({
+    items = [],
+    selectType = 'default',
+    menuLabel,
+    minWidth = 200,
+    maxWidth,
+    closeOnSelect = true,
+    onSelect,
+    children,
+    ...props
+  }) => {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56">
+          {menuLabel && (
+            <>
+              <DropdownMenuLabel>{menuLabel}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+            </>
           )}
-        </DropdownMenuItem>
-      );
-    });
-  };
+
+          {items.map((item, index) => (
+            <DropdownItemSelector item={item} index={index} onSelect={onSelect} />
+          ))}
+          {/*
+ 
+   
+
+          <DropdownMenuGroup>
+            <DropdownMenuItem>
+              <Users />
+              <span>Team</span>
+            </DropdownMenuItem>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <UserPlus />
+                <span>Invite users</span>
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  <DropdownMenuItem>
+                    <Mail />
+                    <span>Email</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <MessageSquare />
+                    <span>Message</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <PlusCircle />
+                    <span>More...</span>
+                  </DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+            <DropdownMenuItem>
+              <Plus />
+              <span>New Team</span>
+              <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>
+            <Github />
+            <span>GitHub</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <LifeBuoy />
+            <span>Support</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem disabled>
+            <Cloud />
+            <span>API</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>
+            <LogOut />
+            <span>Log out</span>
+            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+          </DropdownMenuItem> */}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
+);
+
+const DropdownItemSelector: React.FC<{
+  item: DropdownItem | DropdownDivider;
+  index: number;
+  onSelect: DropdownProps['onSelect'];
+}> = React.memo(({ item, index, onSelect }) => {
+  const isDivider = (item as DropdownDivider).type === 'divider';
+  const id = dropdownItemKey(item, index);
+  return (
+    <React.Fragment key={id}>
+      {isDivider ? (
+        <DropdownMenuSeparator />
+      ) : (
+        <DropdownItem {...(item as DropdownItem)} onSelect={onSelect} />
+      )}
+    </React.Fragment>
+  );
+});
+
+DropdownItemSelector.displayName = 'DropdownItemSelector';
+
+const DropdownItem = ({
+  label,
+  id,
+  index,
+  shortcut,
+  onClick,
+  icon,
+  disabled,
+  link,
+  loading,
+  selected,
+  items,
+  onSelect
+}: DropdownItem & {
+  onSelect: DropdownProps['onSelect'];
+}) => {
+  const onClickItem = useMemoizedFn(() => {
+    if (onClick) onClick();
+    if (onSelect) onSelect(id);
+  });
+  const isSubItem = items && items.length > 0;
+  const Wrapper = isSubItem ? DropdownSubMenuWrapper : React.Fragment;
 
   return (
-    <DropdownMenu {...props}>
-      <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
-      <DropdownMenuContent
-        style={{
-          minWidth: minWidth,
-          maxWidth: maxWidth
-        }}>
-        {menuLabel && <DropdownMenuLabel>{menuLabel}</DropdownMenuLabel>}
-        {menuLabel && <DropdownMenuSeparator />}
-        {renderItems(items)}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <DropdownMenuItem onClick={onClickItem}>
+      <Wrapper items={items} onSelect={onSelect}>
+        {icon && <span className="text-icon-color">{icon}</span>}
+        {label}
+        {shortcut && <DropdownMenuShortcut>{shortcut}</DropdownMenuShortcut>}
+      </Wrapper>
+    </DropdownMenuItem>
   );
 };
+
+const DropdownSubMenuWrapper = React.memo(
+  ({
+    items,
+    children,
+    onSelect
+  }: {
+    items: DropdownItems;
+    children: React.ReactNode;
+    onSelect: DropdownProps['onSelect'];
+  }) => {
+    return (
+      <DropdownMenuSub>
+        <DropdownMenuSubTrigger> {children}</DropdownMenuSubTrigger>
+        <DropdownMenuPortal>
+          <DropdownMenuSubContent>
+            {items.map((item, index) => (
+              <DropdownItemSelector item={item} index={index} onSelect={onSelect} />
+            ))}
+          </DropdownMenuSubContent>
+        </DropdownMenuPortal>
+      </DropdownMenuSub>
+    );
+  }
+);
