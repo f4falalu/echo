@@ -5,6 +5,7 @@ import * as Tabs from '@radix-ui/react-tabs';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
 import { useEffect, useState } from 'react';
+import { cva } from 'class-variance-authority';
 
 export interface SegmentedItem {
   value: string;
@@ -22,6 +23,54 @@ interface SegmentedProps {
   block?: boolean;
 }
 
+const segmentedVariants = cva('relative inline-flex items-center rounded-md', {
+  variants: {
+    block: {
+      true: 'w-full',
+      false: ''
+    },
+    size: {
+      default: '',
+      large: ''
+    }
+  }
+});
+
+const triggerVariants = cva(
+  'relative z-10 flex items-center justify-center gap-x-1.5 gap-y-1 rounded-md transition-colors',
+  {
+    variants: {
+      size: {
+        default: 'px-2.5 flex-row',
+        large: 'px-3 flex-col'
+      },
+      block: {
+        true: 'flex-1',
+        false: ''
+      },
+      disabled: {
+        true: '!text-foreground/30 !hover:text-foreground/30 cursor-not-allowed',
+        false: 'cursor-pointer'
+      },
+      selected: {
+        true: 'text-foreground',
+        false: 'text-gray-dark hover:text-foreground'
+      },
+      hovered: {
+        true: '',
+        false: ''
+      }
+    },
+    compoundVariants: [
+      {
+        hovered: true,
+        selected: false,
+        className: 'bg-gray-50/50'
+      }
+    ]
+  }
+);
+
 export const Segmented = React.forwardRef<HTMLDivElement, SegmentedProps>(
   ({ items, value, onChange, className, size = 'default', block = false }, ref) => {
     const tabRefs = React.useRef<Map<string, HTMLButtonElement>>(new Map());
@@ -33,8 +82,6 @@ export const Segmented = React.forwardRef<HTMLDivElement, SegmentedProps>(
     });
 
     const height = size === 'default' ? 'h-[28px]' : 'h-[50px]';
-    const innerHeight = size === 'default' ? 'h-[28px]' : 'h-[50px]';
-    const padding = size === 'default' ? 'p-[0px]' : 'p-[0px]';
 
     useEffect(() => {
       if (value !== undefined && value !== selectedValue) {
@@ -63,15 +110,9 @@ export const Segmented = React.forwardRef<HTMLDivElement, SegmentedProps>(
         ref={ref}
         value={selectedValue}
         onValueChange={handleValueChange}
-        className={cn(
-          'bg-item-select relative inline-flex items-center rounded-lg',
-          height,
-          padding,
-          block && 'w-full',
-          className
-        )}>
+        className={cn(segmentedVariants({ block }), 'bg-item-select', height, className)}>
         <motion.div
-          className={cn('absolute rounded-md border border-gray-200 bg-white', innerHeight)}
+          className={cn('absolute rounded-md border border-gray-200 bg-white', height)}
           initial={false}
           animate={{
             width: gliderStyle.width,
@@ -87,33 +128,16 @@ export const Segmented = React.forwardRef<HTMLDivElement, SegmentedProps>(
           className="relative z-10 flex w-full items-center gap-1"
           aria-label="Segmented Control">
           {items.map((item) => (
-            <Tabs.Trigger
+            <SegmentedTrigger
               key={item.value}
-              value={item.value}
-              disabled={item.disabled}
-              ref={(el) => {
-                if (el) tabRefs.current.set(item.value, el);
-              }}
-              onMouseEnter={() => !item.disabled && setHoveredValue(item.value)}
-              onMouseLeave={() => setHoveredValue(null)}
-              className={cn(
-                'relative z-10 flex items-center justify-center gap-x-1.5 gap-y-1 rounded-md transition-colors',
-                size === 'default' ? 'px-2.5' : 'px-3',
-                innerHeight,
-                block && 'flex-1',
-                'focus-visible:ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-                selectedValue === item.value
-                  ? 'text-foreground'
-                  : 'text-gray-dark hover:text-foreground',
-                hoveredValue === item.value && selectedValue !== item.value && 'bg-gray-50/50',
-                item.disabled
-                  ? 'text-foreground/30 hover:text-foreground/30 cursor-not-allowed'
-                  : 'cursor-pointer',
-                size === 'large' ? 'flex-col' : 'flex-row'
-              )}>
-              {item.icon && <span className={cn('flex items-center text-sm')}>{item.icon}</span>}
-              <span className={cn('text-sm')}>{item.label}</span>
-            </Tabs.Trigger>
+              item={item}
+              selectedValue={selectedValue}
+              hoveredValue={hoveredValue}
+              size={size}
+              block={block}
+              setHoveredValue={setHoveredValue}
+              tabRefs={tabRefs}
+            />
           ))}
         </Tabs.List>
       </Tabs.Root>
@@ -122,3 +146,40 @@ export const Segmented = React.forwardRef<HTMLDivElement, SegmentedProps>(
 );
 
 Segmented.displayName = 'Segmented';
+
+const SegmentedTrigger = React.memo<{
+  item: SegmentedItem;
+  selectedValue: string;
+  hoveredValue: string | null;
+  size: SegmentedProps['size'];
+  block: SegmentedProps['block'];
+  setHoveredValue: (value: string | null) => void;
+  tabRefs: React.MutableRefObject<Map<string, HTMLButtonElement>>;
+}>(({ item, selectedValue, hoveredValue, size, block, setHoveredValue, tabRefs }) => {
+  return (
+    <Tabs.Trigger
+      key={item.value}
+      value={item.value}
+      disabled={item.disabled}
+      ref={(el) => {
+        if (el) tabRefs.current.set(item.value, el);
+      }}
+      onMouseEnter={() => !item.disabled && setHoveredValue(item.value)}
+      onMouseLeave={() => setHoveredValue(null)}
+      className={cn(
+        'focus-visible:ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+        triggerVariants({
+          size,
+          block,
+          disabled: item.disabled,
+          selected: selectedValue === item.value,
+          hovered: hoveredValue === item.value
+        })
+      )}>
+      {item.icon && <span className={cn('flex items-center text-sm')}>{item.icon}</span>}
+      <span className={cn('text-sm')}>{item.label}</span>
+    </Tabs.Trigger>
+  );
+});
+
+SegmentedTrigger.displayName = 'SegmentedTrigger';
