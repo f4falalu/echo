@@ -15,7 +15,8 @@ const buttonVariants = cva(
         primary:
           'bg-primary text-white hover:bg-primary-light active:bg-primary-dark data-[selected=true]:bg-primary-dark',
         ghost:
-          'bg-transparent text-gray-dark shadow-none hover:bg-item-hover hover:text-foreground disabled:bg-transparent disabled:text-gray-light active:bg-item-active data-[selected=true]:bg-item-select'
+          'bg-transparent text-gray-dark shadow-none hover:bg-item-hover hover:text-foreground disabled:bg-transparent disabled:text-gray-light active:bg-item-active data-[selected=true]:bg-item-select',
+        link: 'bg-transparent text-gray-dark shadow-none hover:text-foreground disabled:bg-transparent disabled:text-gray-light'
       },
       size: {
         default: 'h-6',
@@ -58,7 +59,8 @@ const iconVariants = cva('', {
       default: 'text-icon',
       black: 'text-white',
       primary: 'text-white',
-      ghost: 'text-icon'
+      ghost: 'text-icon',
+      link: 'text-icon!'
     },
     size: {
       default: 'text-icon-size',
