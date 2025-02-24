@@ -5,12 +5,25 @@ use litellm::{
 };
 use serde_json::Value;
 use std::{collections::HashMap, env, sync::Arc};
-use tokio::sync::{mpsc, RwLock};
+use tokio::sync::{broadcast, RwLock};
 use uuid::Uuid;
 
 use crate::utils::tools::ToolExecutor;
 
 use super::types::AgentThread;
+
+#[derive(Debug, Clone)]
+pub struct AgentError(pub String);
+
+impl std::error::Error for AgentError {}
+
+impl std::fmt::Display for AgentError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+type MessageResult = Result<Message, AgentError>;
 
 /// A wrapper type that converts ToolCall parameters to Value before executing
 struct ToolCallExecutor<T: ToolExecutor> {
@@ -96,11 +109,13 @@ pub struct Agent {
     /// The current thread being processed, if any
     current_thread: Arc<RwLock<Option<AgentThread>>>,
     /// Sender for streaming messages from this agent and sub-agents
-    stream_tx: Arc<RwLock<mpsc::Sender<Result<Message>>>>,
+    stream_tx: Arc<RwLock<broadcast::Sender<MessageResult>>>,
     /// The user ID for the current thread
     user_id: Uuid,
     /// The session ID for the current thread
     session_id: Uuid,
+    /// Shutdown signal sender
+    shutdown_tx: Arc<RwLock<broadcast::Sender<()>>>,
 }
 
 impl Agent {
@@ -116,8 +131,10 @@ impl Agent {
 
         let llm_client = LiteLLMClient::new(Some(llm_api_key), Some(llm_base_url));
 
-        // Create a default channel that just drops messages
-        let (tx, _rx) = mpsc::channel(1);
+        // Create a broadcast channel with buffer size 1000
+        let (tx, _rx) = broadcast::channel(1000);
+        // Create shutdown channel with buffer size 1
+        let (shutdown_tx, _) = broadcast::channel(1);
 
         Self {
             llm_client,
@@ -128,6 +145,7 @@ impl Agent {
             stream_tx: Arc::new(RwLock::new(tx)),
             user_id,
             session_id,
+            shutdown_tx: Arc::new(RwLock::new(shutdown_tx)),
         }
     }
 
@@ -140,13 +158,14 @@ impl Agent {
 
         Self {
             llm_client,
-            tools: Arc::new(RwLock::new(HashMap::new())), // Start with empty tools
+            tools: Arc::new(RwLock::new(HashMap::new())),
             model: existing_agent.model.clone(),
             state: Arc::clone(&existing_agent.state),
             current_thread: Arc::clone(&existing_agent.current_thread),
             stream_tx: Arc::clone(&existing_agent.stream_tx),
             user_id: existing_agent.user_id,
             session_id: existing_agent.session_id,
+            shutdown_tx: Arc::clone(&existing_agent.shutdown_tx),
         }
     }
 
@@ -168,13 +187,13 @@ impl Agent {
         enabled_tools
     }
 
-    /// Update the stream sender for this agent
-    pub async fn set_stream_sender(&self, tx: mpsc::Sender<Result<Message>>) {
-        *self.stream_tx.write().await = tx;
+    /// Get a new receiver for the broadcast channel
+    pub async fn get_stream_receiver(&self) -> broadcast::Receiver<MessageResult> {
+        self.stream_tx.read().await.subscribe()
     }
 
     /// Get a clone of the current stream sender
-    pub async fn get_stream_sender(&self) -> mpsc::Sender<Result<Message>> {
+    pub async fn get_stream_sender(&self) -> broadcast::Sender<MessageResult> {
         self.stream_tx.read().await.clone()
     }
 
@@ -276,7 +295,7 @@ impl Agent {
         let mut rx = self.process_thread_streaming(thread).await?;
 
         let mut final_message = None;
-        while let Some(msg) = rx.recv().await {
+        while let Ok(msg) = rx.recv().await {
             final_message = Some(msg?);
         }
 
@@ -294,26 +313,37 @@ impl Agent {
     pub async fn process_thread_streaming(
         &self,
         thread: &AgentThread,
-    ) -> Result<mpsc::Receiver<Result<Message>>> {
-        // Create new channel for this processing session
-        let (tx, rx) = mpsc::channel(100);
-        self.set_stream_sender(tx).await;
-
+    ) -> Result<broadcast::Receiver<MessageResult>> {
         // Spawn the processing task
         let agent_clone = self.clone();
         let thread_clone = thread.clone();
 
+        // Get shutdown receiver
+        let mut shutdown_rx = self.get_shutdown_receiver().await;
+
         tokio::spawn(async move {
-            if let Err(e) = agent_clone
-                .process_thread_with_depth(&thread_clone, 0)
-                .await
-            {
-                let err_msg = format!("Error processing thread: {:?}", e);
-                let _ = agent_clone.get_stream_sender().await.send(Err(e)).await;
+            tokio::select! {
+                result = agent_clone.process_thread_with_depth(&thread_clone, 0) => {
+                    if let Err(e) = result {
+                        let err_msg = format!("Error processing thread: {:?}", e);
+                        let _ = agent_clone.get_stream_sender().await.send(Err(AgentError(err_msg)));
+                    }
+                }
+                _ = shutdown_rx.recv() => {
+                    let _ = agent_clone.get_stream_sender().await.send(
+                        Ok(Message::assistant(
+                            Some("shutdown_message".to_string()),
+                            Some("Processing interrupted due to shutdown signal".to_string()),
+                            None,
+                            None,
+                            None,
+                        ))
+                    );
+                }
             }
         });
 
-        Ok(rx)
+        Ok(self.get_stream_receiver().await)
     }
 
     async fn process_thread_with_depth(
@@ -335,7 +365,7 @@ impl Agent {
                 None,
                 None,
             );
-            self.get_stream_sender().await.send(Ok(message)).await?;
+            self.get_stream_sender().await.send(Ok(message))?;
             return Ok(());
         }
 
@@ -425,6 +455,23 @@ impl Agent {
             Ok(())
         }
     }
+
+    /// Get a receiver for the shutdown signal
+    pub async fn get_shutdown_receiver(&self) -> broadcast::Receiver<()> {
+        self.shutdown_tx.read().await.subscribe()
+    }
+
+    /// Signal shutdown to all receivers
+    pub async fn shutdown(&self) -> Result<()> {
+        // Send shutdown signal
+        self.shutdown_tx.read().await.send(())?;
+        Ok(())
+    }
+
+    /// Get a reference to the tools map
+    pub async fn get_tools(&self) -> tokio::sync::RwLockReadGuard<'_, HashMap<String, Box<dyn ToolExecutor<Output = Value, Params = Value> + Send + Sync>>> {
+        self.tools.read().await
+    }
 }
 
 #[derive(Debug, Default)]
@@ -488,7 +535,7 @@ pub trait AgentExt {
     async fn stream_process_thread(
         &self,
         thread: &AgentThread,
-    ) -> Result<mpsc::Receiver<Result<Message>>> {
+    ) -> Result<broadcast::Receiver<MessageResult>> {
         (*self.get_agent()).process_thread_streaming(thread).await
     }
 
@@ -524,24 +571,27 @@ mod tests {
         }
     }
 
+    impl WeatherTool {
+        async fn send_progress(&self, content: String, tool_id: String, progress: MessageProgress) -> Result<()> {
+            let message = Message::tool(
+                None,
+                content,
+                tool_id,
+                Some(self.get_name()),
+                Some(progress),
+            );
+            self.agent.get_stream_sender().await.send(Ok(message))?;
+            Ok(())
+        }
+    }
+
     #[async_trait]
     impl ToolExecutor for WeatherTool {
         type Output = Value;
         type Params = Value;
 
         async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
-            // Send progress using agent's stream sender
-            self.agent
-                .get_stream_sender()
-                .await
-                .send(Ok(Message::tool(
-                    None,
-                    "Fetching weather data...".to_string(),
-                    "123".to_string(),
-                    Some(self.get_name()),
-                    Some(MessageProgress::InProgress),
-                )))
-                .await?;
+            self.send_progress("Fetching weather data...".to_string(), "123".to_string(), MessageProgress::InProgress).await?;
 
             // Simulate a delay
             tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
@@ -551,18 +601,7 @@ mod tests {
                 "unit": "fahrenheit"
             });
 
-            // Send completion message using agent's stream sender
-            self.agent
-                .get_stream_sender()
-                .await
-                .send(Ok(Message::tool(
-                    None,
-                    serde_json::to_string(&result)?,
-                    "123".to_string(),
-                    Some(self.get_name()),
-                    Some(MessageProgress::Complete),
-                )))
-                .await?;
+            self.send_progress(serde_json::to_string(&result)?, "123".to_string(), MessageProgress::Complete).await?;
 
             Ok(result)
         }

@@ -15,7 +15,7 @@ pub mod interaction_tools;
 /// A trait that defines how tools should be implemented.
 /// Any struct that wants to be used as a tool must implement this trait.
 /// Tools are constructed with a reference to their agent and can access its capabilities.
-#[async_trait]
+#[async_trait::async_trait]
 pub trait ToolExecutor: Send + Sync {
     /// The type of the output of the tool
     type Output: Serialize + Send;
@@ -34,21 +34,27 @@ pub trait ToolExecutor: Send + Sync {
 
     /// Check if this tool is currently enabled
     async fn is_enabled(&self) -> bool;
+
+    /// Handle shutdown signal. Default implementation does nothing.
+    /// Tools should override this if they need to perform cleanup on shutdown.
+    async fn handle_shutdown(&self) -> Result<()> {
+        Ok(())
+    }
 }
 
 /// A wrapper type that converts any ToolExecutor to one that outputs Value
-pub struct ValueToolExecutor<T: ToolExecutor> {
+pub struct ValueToolExecutor<T: ToolExecutor + Send + Sync> {
     inner: T,
 }
 
-impl<T: ToolExecutor> ValueToolExecutor<T> {
+impl<T: ToolExecutor + Send + Sync> ValueToolExecutor<T> {
     pub fn new(inner: T) -> Self {
         Self { inner }
     }
 }
 
-#[async_trait]
-impl<T: ToolExecutor> ToolExecutor for ValueToolExecutor<T> {
+#[async_trait::async_trait]
+impl<T: ToolExecutor + Send + Sync> ToolExecutor for ValueToolExecutor<T> {
     type Output = Value;
     type Params = T::Params;
 

@@ -3,13 +3,13 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::mpsc::Receiver;
+use tokio::sync::broadcast;
 use uuid::Uuid;
 
 use crate::utils::tools::agents_as_tools::{DashboardAgentTool, MetricAgentTool};
 use crate::utils::tools::file_tools::SendAssetsToUserTool;
 use crate::utils::{
-    agent::{Agent, AgentExt, AgentThread},
+    agent::{agent::AgentError, Agent, AgentExt, AgentThread},
     tools::{
         agents_as_tools::ExploratoryAgentTool,
         file_tools::{SearchDataCatalogTool, SearchFilesTool},
@@ -123,12 +123,56 @@ impl ManagerAgent {
     pub async fn run(
         &self,
         thread: &mut AgentThread,
-    ) -> Result<Receiver<Result<AgentMessage, anyhow::Error>>> {
+    ) -> Result<broadcast::Receiver<Result<AgentMessage, AgentError>>> {
         thread.set_developer_message(MANAGER_AGENT_PROMPT.to_string());
+        
+        // Use existing channel - important for sub-agents
+        let rx = self.get_agent().get_stream_receiver().await;
+        
+        // Get shutdown receiver
+        let mut shutdown_rx = self.get_agent().get_shutdown_receiver().await;
+        
+        // Clone only what we need
+        let agent = Arc::clone(self.get_agent());
+        let thread = thread.clone();
+        
+        tokio::spawn(async move {
+            tokio::select! {
+                result = agent.process_thread(&thread) => {
+                    if let Err(e) = result {
+                        let err_msg = format!("Manager agent processing failed: {:?}", e);
+                        let _ = agent.get_stream_sender().await.send(Err(AgentError(err_msg)));
+                    }
+                }
+                _ = shutdown_rx.recv() => {
+                    // Shutdown all tools
+                    let tools = agent.get_tools().await;
+                    for (_, tool) in tools.iter() {
+                        if let Err(e) = tool.handle_shutdown().await {
+                            let err_msg = format!("Error shutting down tool: {:?}", e);
+                            let _ = agent.get_stream_sender().await.send(Err(AgentError(err_msg)));
+                        }
+                    }
 
-        let mut rx = self.stream_process_thread(thread).await?;
+                    let _ = agent.get_stream_sender().await.send(
+                        Ok(AgentMessage::assistant(
+                            Some("shutdown_message".to_string()),
+                            Some("Manager agent shutting down gracefully".to_string()),
+                            None,
+                            None,
+                            None,
+                        ))
+                    );
+                }
+            }
+        });
 
         Ok(rx)
+    }
+
+    /// Shutdown the manager agent and all its tools
+    pub async fn shutdown(&self) -> Result<()> {
+        self.get_agent().shutdown().await
     }
 }
 

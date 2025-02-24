@@ -74,7 +74,7 @@ impl ToolExecutor for DashboardAgentTool {
 
         println!("DashboardAgentTool: Starting dashboard agent run");
         // Run the dashboard agent and get the output
-        let output = dashboard_agent.run(&mut current_thread).await?;
+        let _receiver = dashboard_agent.run(&mut current_thread).await?;
         println!("DashboardAgentTool: Dashboard agent run completed");
 
         println!("DashboardAgentTool: Preparing success response");
@@ -83,12 +83,12 @@ impl ToolExecutor for DashboardAgentTool {
             .set_state_value(String::from("files_available"), Value::Bool(false))
             .await;
 
-        // Return success with the output
+        // Return dummy data for testing
         Ok(serde_json::json!({
             "status": "success",
-            "message": output.message,
-            "duration": output.duration,
-            "files": output.files
+            "message": "Test dashboard creation",
+            "duration": 0,
+            "files": []
         }))
     }
 

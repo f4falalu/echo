@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use uuid::Uuid;
 
 use crate::utils::{
-    agent::{Agent, AgentExt, AgentThread},
+    agent::{agent::AgentError, Agent, AgentExt, AgentThread},
     tools::{
         agents_as_tools::dashboard_agent_tool::DashboardAgentOutput, file_tools::{
             CreateDashboardFilesTool, CreateMetricFilesTool, ModifyDashboardFilesTool,
@@ -15,6 +15,7 @@ use crate::utils::{
 };
 
 use litellm::Message as AgentMessage;
+use tokio::sync::broadcast;
 
 pub struct DashboardAgent {
     agent: Arc<Agent>,
@@ -84,71 +85,75 @@ impl DashboardAgent {
             if content == "AGENT_COMPLETE")
     }
 
-    pub async fn run(&self, thread: &mut AgentThread) -> Result<DashboardAgentOutput> {
-        println!("Running dashboard agent");
-        println!("Setting developer message");
+    pub async fn run(&self, thread: &mut AgentThread) -> Result<broadcast::Receiver<Result<AgentMessage, AgentError>>> {
         thread.set_developer_message(DASHBOARD_AGENT_PROMPT.to_string());
 
-        println!("Starting stream_process_thread");
+        // Get shutdown receiver
+        let mut shutdown_rx = self.get_agent().get_shutdown_receiver().await;
         let mut rx = self.stream_process_thread(thread).await?;
-        println!("Got receiver from stream_process_thread");
 
-        println!("Starting message processing loop");
+        let rx_return = rx.resubscribe();
+
         // Process messages internally until we determine we're done
-        while let Some(msg_result) = rx.recv().await {
-            println!("Received message from channel");
-            match msg_result {
-                Ok(msg) => {
-                    println!("Message content: {:?}", msg.get_content());
-                    println!("Message has tool calls: {:?}", msg.get_tool_calls());
-                    
-                    println!("Forwarding message to stream sender");
-                    if let Err(e) = self.get_agent().get_stream_sender().await.send(Ok(msg.clone())).await {
-                        println!("Error forwarding message: {:?}", e);
-                        // Continue processing even if we fail to forward
-                        continue;
-                    }
-                    
-                    if let Some(content) = msg.get_content() {
-                        println!("Message has content: {}", content);
-                        if content == "AGENT_COMPLETE" {
-                            println!("Found completion signal, breaking loop");
-                            break;
+        loop {
+            tokio::select! {
+                recv_result = rx.recv() => {
+                    match recv_result {
+                        Ok(msg_result) => {
+                            match msg_result {
+                                Ok(msg) => {
+                                    // Forward message to stream sender
+                                    let sender = self.get_agent().get_stream_sender().await;
+                                    if let Err(e) = sender.send(Ok(msg.clone())) {
+                                        let err_msg = format!("Error forwarding message: {:?}", e);
+                                        let _ = sender.send(Err(AgentError(err_msg)));
+                                        continue;
+                                    }
+                                    
+                                    if let Some(content) = msg.get_content() {
+                                        if content == "AGENT_COMPLETE" {
+                                            return Ok(rx_return);
+                                        }
+                                    }
+                                }
+                                Err(e) => {
+                                    let err_msg = format!("Error processing message: {:?}", e);
+                                    let _ = self.get_agent().get_stream_sender().await.send(Err(AgentError(err_msg)));
+                                    continue;
+                                }
+                            }
+                        }
+                        Err(e) => {
+                            let err_msg = format!("Error receiving message: {:?}", e);
+                            let _ = self.get_agent().get_stream_sender().await.send(Err(AgentError(err_msg)));
+                            continue;
                         }
                     }
                 }
-                Err(e) => {
-                    println!("Error receiving message: {:?}", e);
-                    println!("Error details: {:?}", e.to_string());
-                    // Log error but continue processing instead of returning error
-                    continue;
+                _ = shutdown_rx.recv() => {
+                    // Handle shutdown gracefully
+                    let tools = self.get_agent().get_tools().await;
+                    for (_, tool) in tools.iter() {
+                        if let Err(e) = tool.handle_shutdown().await {
+                            let err_msg = format!("Error shutting down tool: {:?}", e);
+                            let _ = self.get_agent().get_stream_sender().await.send(Err(AgentError(err_msg)));
+                        }
+                    }
+
+                    let _ = self.get_agent().get_stream_sender().await.send(
+                        Ok(AgentMessage::assistant(
+                            Some("shutdown_message".to_string()),
+                            Some("Dashboard agent shutting down gracefully".to_string()),
+                            None,
+                            None,
+                            None,
+                        ))
+                    );
+
+                    return Ok(rx_return);
                 }
             }
         }
-        println!("Exited message processing loop");
-
-        println!("Creating completion signal");
-        let completion_msg = AgentMessage::assistant(
-            None,
-            Some("AGENT_COMPLETE".to_string()),
-            None,
-            None,
-            None,
-        );
-
-        println!("Sending completion signal");
-        self.get_agent()
-            .get_stream_sender()
-            .await
-            .send(Ok(completion_msg))
-            .await?;
-
-        println!("Sent completion signal, returning output");
-        Ok(DashboardAgentOutput {
-            message: "Dashboard processing complete".to_string(),
-            duration: 0,
-            files: vec![],
-        })
     }
 }
 

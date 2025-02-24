@@ -10,6 +10,7 @@ use handlers::threads::types::ThreadWithMessages;
 use litellm::Message as AgentMessage;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use tokio::sync::broadcast;
 use uuid::Uuid;
 
 use crate::routes::rest::ApiResponse;
@@ -98,10 +99,12 @@ async fn process_chat(request: ChatCreateNewChat, user: User) -> Result<ThreadWi
     // Get the receiver and collect all messages
     let mut rx = agent.run(&mut thread).await?;
     let mut messages = Vec::new();
-    while let Some(msg_result) = rx.recv().await {
-        match msg_result {
-            Ok(msg) => messages.push(msg),
-            Err(e) => return Err(e.into()),
+    loop {
+        match rx.recv().await {
+            Ok(Ok(msg)) => messages.push(msg),
+            Ok(Err(e)) => return Err(e.into()),
+            Err(broadcast::error::RecvError::Closed) => break,
+            Err(e) => return Err(anyhow!(e)),
         }
     }
 
