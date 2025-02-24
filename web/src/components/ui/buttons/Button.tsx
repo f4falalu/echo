@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/classMerge';
 import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
 
-const buttonVariants = cva(
+export const buttonVariants = cva(
   'inline-flex items-center overflow-hidden justify-center gap-[5px] shadow-btn rounded transition-all duration-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none cursor-pointer disabled:cursor-not-allowed data-[loading=true]:cursor-progress',
   {
     variants: {
@@ -60,7 +60,7 @@ const buttonVariants = cva(
   }
 );
 
-const iconVariants = cva('', {
+export const buttonIconVariants = cva('', {
   variants: {
     buttonType: {
       default: 'text-icon-color!',
@@ -95,7 +95,7 @@ export interface ButtonProps
   suffixClassName?: string;
 }
 
-const AppButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       className = '',
@@ -131,21 +131,23 @@ const AppButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
           <LoadingIcon buttonType={buttonType} size={size} />
         ) : (
           prefix && (
-            <span className={cn(iconVariants({ buttonType, size }), prefixClassName)}>
+            <span className={cn(buttonIconVariants({ buttonType, size }), prefixClassName)}>
               {prefix}
             </span>
           )
         )}
         {hasChildren && <span className="text-base">{children}</span>}
         {suffix && (
-          <span className={cn(iconVariants({ buttonType, size }), suffixClassName)}>{suffix}</span>
+          <span className={cn(buttonIconVariants({ buttonType, size }), suffixClassName)}>
+            {suffix}
+          </span>
         )}
       </Comp>
     );
   }
 );
 
-AppButton.displayName = 'AppButton';
+Button.displayName = 'Button';
 
 const LoadingIcon: React.FC<{
   buttonType: ButtonProps['buttonType'];
@@ -171,5 +173,3 @@ const LoadingIcon: React.FC<{
     </div>
   );
 };
-
-export { AppButton, buttonVariants };

@@ -1,14 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { AppButton } from './AppButton';
+import { Button } from './Button';
 import * as OutlinedIcons from '../icons/NucleoIconOutlined';
 
 const IconSelect = Object.keys(OutlinedIcons).map((icon) => {
   return icon;
 });
 
-const meta: Meta<typeof AppButton> = {
-  title: 'Base/AppButton',
-  component: AppButton,
+const meta: Meta<typeof Button> = {
+  title: 'Base/Button',
+  component: Button,
   tags: ['autodocs'],
   args: {
     children: 'Button'
@@ -54,14 +54,14 @@ const meta: Meta<typeof AppButton> = {
     const SuffixComponent = SuffixIcon ? <SuffixIcon /> : null;
     return (
       <div className="flex gap-1 p-1">
-        <AppButton {...args} prefix={PrefixComponent} suffix={SuffixComponent} />
+        <Button {...args} prefix={PrefixComponent} suffix={SuffixComponent} />
       </div>
     );
   }
 };
 
 export default meta;
-type Story = StoryObj<typeof AppButton>;
+type Story = StoryObj<typeof Button>;
 
 export const Default: Story = {
   args: {

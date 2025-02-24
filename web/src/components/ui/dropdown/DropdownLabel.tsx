@@ -22,7 +22,7 @@ export const DropdownLabel: React.FC<{ title: string; subtitle?: string }> = ({
       </div>
 
       <div
-        className="check flex hidden w-full flex-col items-end justify-center"
+        className="check flex w-full flex-col items-end justify-center"
         style={{
           color: token.colorIcon
         }}>

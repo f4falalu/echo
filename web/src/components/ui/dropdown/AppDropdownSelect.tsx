@@ -1,4 +1,3 @@
-import { App, Dropdown, DropdownProps } from 'antd';
 import React from 'react';
 import { AppPopoverMenu, AppPopoverMenuProps } from '../tooltip';
 
