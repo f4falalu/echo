@@ -4,36 +4,42 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/classMerge';
 import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
 
+export const buttonTypeClasses = {
+  default:
+    'bg-white border hover:bg-item-hover disabled:bg-disabled disabled:text-gray-light active:bg-item-active data-[selected=true]:bg-item-select',
+  black: 'bg-black text-white hover:bg-foreground-hover disabled:bg-foreground-hover',
+  primary:
+    'bg-primary text-white hover:bg-primary-light active:bg-primary-dark data-[selected=true]:bg-primary-dark',
+  ghost:
+    'bg-transparent text-gray-dark shadow-none hover:bg-item-hover hover:text-foreground disabled:bg-transparent disabled:text-gray-light active:bg-item-active data-[selected=true]:bg-item-select',
+  link: 'bg-transparent text-gray-dark shadow-none hover:text-foreground disabled:bg-transparent disabled:text-gray-light'
+};
+
+const roundingVariants = {
+  default: 'rounded',
+  full: 'rounded-full',
+  large: 'rounded-lg',
+  small: 'rounded-sm',
+  none: 'rounded-none'
+};
+
+const sizeVariants = {
+  default: 'h-6',
+  tall: 'h-7',
+  small: 'h-[18px]'
+};
+
 export const buttonVariants = cva(
   'inline-flex  items-center overflow-hidden text-base justify-center gap-[5px] shadow-btn rounded transition-all duration-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none cursor-pointer disabled:cursor-not-allowed data-[loading=true]:cursor-progress',
   {
     variants: {
-      buttonType: {
-        default:
-          'bg-white border hover:bg-item-hover disabled:bg-disabled disabled:text-gray-light active:bg-item-active data-[selected=true]:bg-item-select',
-        black: 'bg-black text-white hover:bg-foreground-hover disabled:bg-foreground-hover',
-        primary:
-          'bg-primary text-white hover:bg-primary-light active:bg-primary-dark data-[selected=true]:bg-primary-dark',
-        ghost:
-          'bg-transparent text-gray-dark shadow-none hover:bg-item-hover hover:text-foreground disabled:bg-transparent disabled:text-gray-light active:bg-item-active data-[selected=true]:bg-item-select',
-        link: 'bg-transparent text-gray-dark shadow-none hover:text-foreground disabled:bg-transparent disabled:text-gray-light'
-      },
-      size: {
-        default: 'h-6',
-        tall: 'h-7',
-        small: 'h-[18px]'
-      },
+      buttonType: buttonTypeClasses,
+      size: sizeVariants,
       iconButton: {
         true: '',
         false: 'px-2.5'
       },
-      rounding: {
-        default: 'rounded',
-        full: 'rounded-full',
-        large: 'rounded-lg',
-        small: 'rounded-sm',
-        none: 'rounded-none'
-      }
+      rounding: roundingVariants
     },
     compoundVariants: [
       {
@@ -149,7 +155,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
 Button.displayName = 'Button';
 
-const LoadingIcon: React.FC<{
+export const LoadingIcon: React.FC<{
   buttonType: ButtonProps['buttonType'];
   size: ButtonProps['size'];
 }> = ({ buttonType = 'default', size = 'default' }) => {
