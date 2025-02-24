@@ -125,47 +125,9 @@ impl ManagerAgent {
         thread: &mut AgentThread,
     ) -> Result<broadcast::Receiver<Result<AgentMessage, AgentError>>> {
         thread.set_developer_message(MANAGER_AGENT_PROMPT.to_string());
-        
-        // Use existing channel - important for sub-agents
-        let rx = self.get_agent().get_stream_receiver().await;
-        
-        // Get shutdown receiver
-        let mut shutdown_rx = self.get_agent().get_shutdown_receiver().await;
-        
-        // Clone only what we need
-        let agent = Arc::clone(self.get_agent());
-        let thread = thread.clone();
-        
-        tokio::spawn(async move {
-            tokio::select! {
-                result = agent.process_thread(&thread) => {
-                    if let Err(e) = result {
-                        let err_msg = format!("Manager agent processing failed: {:?}", e);
-                        let _ = agent.get_stream_sender().await.send(Err(AgentError(err_msg)));
-                    }
-                }
-                _ = shutdown_rx.recv() => {
-                    // Shutdown all tools
-                    let tools = agent.get_tools().await;
-                    for (_, tool) in tools.iter() {
-                        if let Err(e) = tool.handle_shutdown().await {
-                            let err_msg = format!("Error shutting down tool: {:?}", e);
-                            let _ = agent.get_stream_sender().await.send(Err(AgentError(err_msg)));
-                        }
-                    }
 
-                    let _ = agent.get_stream_sender().await.send(
-                        Ok(AgentMessage::assistant(
-                            Some("shutdown_message".to_string()),
-                            Some("Manager agent shutting down gracefully".to_string()),
-                            None,
-                            None,
-                            None,
-                        ))
-                    );
-                }
-            }
-        });
+        // Get shutdown receiver
+        let rx = self.stream_process_thread(thread).await?;
 
         Ok(rx)
     }

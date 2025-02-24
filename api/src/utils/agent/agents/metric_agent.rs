@@ -71,76 +71,9 @@ impl MetricAgent {
         thread.set_developer_message(METRIC_AGENT_PROMPT.to_string());
 
         // Get shutdown receiver
-        let mut shutdown_rx = self.get_agent().get_shutdown_receiver().await;
-        let mut rx = self.stream_process_thread(thread).await?;
+        let rx = self.stream_process_thread(thread).await?;
 
-        // Clone what we need for the processing task
-        let agent = Arc::clone(self.get_agent());
-
-        let rx_return = rx.resubscribe();
-        
-        tokio::spawn(async move {
-            loop {
-                tokio::select! {
-                    recv_result = rx.recv() => {
-                        match recv_result {
-                            Ok(msg_result) => {
-                                match msg_result {
-                                    Ok(msg) => {
-                                        // Forward message to stream sender
-                                        let sender = agent.get_stream_sender().await;
-                                        if let Err(e) = sender.send(Ok(msg.clone())) {
-                                            let err_msg = format!("Error forwarding message: {:?}", e);
-                                            let _ = sender.send(Err(AgentError(err_msg)));
-                                            continue;
-                                        }
-
-                                        if let Some(content) = msg.get_content() {
-                                            if content == "AGENT_COMPLETE" {
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    Err(e) => {
-                                        let err_msg = format!("Error processing message: {:?}", e);
-                                        let _ = agent.get_stream_sender().await.send(Err(AgentError(err_msg)));
-                                        continue;
-                                    }
-                                }
-                            }
-                            Err(e) => {
-                                let err_msg = format!("Error receiving message: {:?}", e);
-                                let _ = agent.get_stream_sender().await.send(Err(AgentError(err_msg)));
-                                continue;
-                            }
-                        }
-                    }
-                    _ = shutdown_rx.recv() => {
-                        // Handle shutdown gracefully
-                        let tools = agent.get_tools().await;
-                        for (_, tool) in tools.iter() {
-                            if let Err(e) = tool.handle_shutdown().await {
-                                let err_msg = format!("Error shutting down tool: {:?}", e);
-                                let _ = agent.get_stream_sender().await.send(Err(AgentError(err_msg)));
-                            }
-                        }
-
-                        let _ = agent.get_stream_sender().await.send(
-                            Ok(AgentMessage::assistant(
-                                Some("shutdown_message".to_string()),
-                                Some("Metric agent shutting down gracefully".to_string()),
-                                None,
-                                None,
-                                None,
-                            ))
-                        );
-                        break;
-                    }
-                }
-            }
-        });
-
-        Ok(rx_return)
+        Ok(rx)
     }
 }
 
