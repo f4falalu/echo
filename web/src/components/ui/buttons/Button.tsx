@@ -36,7 +36,7 @@ const sizeVariants = {
 };
 
 export const buttonVariants = cva(
-  'inline-flex  items-center overflow-hidden text-base justify-center gap-[5px] shadow-btn rounded transition-all duration-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none cursor-pointer disabled:cursor-not-allowed data-[loading=true]:cursor-progress',
+  'inline-flex  items-center overflow-hidden text-base justify-center gap-[5px] shadow-btn rounded transition-all duration-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:cursor-not-allowed data-[loading=true]:cursor-progress',
   {
     variants: {
       buttonType: buttonTypeClasses,
@@ -133,6 +133,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       suffixClassName,
       rounding = 'default',
       block = false,
+      onClick,
       ...props
     },
     ref
@@ -143,7 +144,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     return (
       <Comp
-        className={cn(buttonVariants({ buttonType, size, iconButton, rounding, block, className }))}
+        className={cn(
+          buttonVariants({ buttonType, size, iconButton, rounding, block, className }),
+          onClick && 'cursor-pointer'
+        )}
+        onClick={onClick}
         ref={ref}
         disabled={disabled}
         data-loading={loading}
