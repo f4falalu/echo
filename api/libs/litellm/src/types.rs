@@ -169,13 +169,14 @@ impl Message {
         tool_calls: Option<Vec<ToolCall>>,
         progress: Option<MessageProgress>,
         initial: Option<bool>,
+        name: Option<String>,
     ) -> Self {
         let initial = initial.unwrap_or(false);
 
         Self::Assistant {
             id,
             content,
-            name: None,
+            name,
             tool_calls,
             progress,
             initial,

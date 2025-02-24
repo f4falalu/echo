@@ -1,16 +1,13 @@
-use anyhow::{Result, anyhow};
-use axum::async_trait;
-use litellm::{Message, ToolCall};
-use serde::{Deserialize, Serialize, de::DeserializeOwned};
+use anyhow::{anyhow, Result};
+use litellm::ToolCall;
+use serde::{de::DeserializeOwned, Serialize};
 use serde_json::Value;
-use uuid::Uuid;
-
-use crate::utils::agent::Agent;
 
 pub mod agents_as_tools;
 pub mod data_tools;
 pub mod file_tools;
 pub mod interaction_tools;
+pub mod planning_tools;
 
 /// A trait that defines how tools should be implemented.
 /// Any struct that wants to be used as a tool must implement this trait.
@@ -19,7 +16,7 @@ pub mod interaction_tools;
 pub trait ToolExecutor: Send + Sync {
     /// The type of the output of the tool
     type Output: Serialize + Send;
-    
+
     /// The type of the parameters for this tool
     type Params: DeserializeOwned + Send;
 

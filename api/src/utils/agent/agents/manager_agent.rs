@@ -7,6 +7,7 @@ use uuid::Uuid;
 
 use crate::utils::tools::agents_as_tools::{DashboardAgentTool, MetricAgentTool};
 use crate::utils::tools::file_tools::SendAssetsToUserTool;
+use crate::utils::tools::planning_tools::{CreatePlan, ReviewPlan};
 use crate::utils::{
     agent::{agent::AgentError, Agent, AgentExt, AgentThread},
     tools::{
@@ -43,12 +44,15 @@ impl AgentExt for ManagerAgent {
 }
 
 impl ManagerAgent {
-    async fn load_tools(&self, include_send_assets: bool) -> Result<()> {
+    async fn load_tools(&self) -> Result<()> {
         // Create tools using the shared Arc
         let search_data_catalog_tool = SearchDataCatalogTool::new(Arc::clone(&self.agent));
         let search_files_tool = SearchFilesTool::new(Arc::clone(&self.agent));
         let create_or_modify_metrics_tool = MetricAgentTool::new(Arc::clone(&self.agent));
         let create_or_modify_dashboards_tool = DashboardAgentTool::new(Arc::clone(&self.agent));
+        let create_plan_tool = CreatePlan::new(Arc::clone(&self.agent));
+        let review_plan_tool = ReviewPlan::new(Arc::clone(&self.agent));
+        let send_assets_to_user = SendAssetsToUserTool::new(Arc::clone(&self.agent));
 
         // Add tools to the agent
         self.agent
@@ -75,16 +79,25 @@ impl ManagerAgent {
                 create_or_modify_dashboards_tool.into_value_tool(),
             )
             .await;
-
-        if include_send_assets {
-            let send_assets_to_user = SendAssetsToUserTool::new(Arc::clone(&self.agent));
-            self.agent
-                .add_tool(
-                    send_assets_to_user.get_name(),
-                    send_assets_to_user.into_value_tool(),
-                )
-                .await;
-        }
+        self.agent
+            .add_tool(
+                send_assets_to_user.get_name(),
+                send_assets_to_user.into_value_tool(),
+            )
+            .await;
+        self.agent
+            .add_tool(
+                create_plan_tool.get_name(),
+                create_plan_tool.into_value_tool(),
+            )
+            .await; 
+        self.agent
+            .add_tool(
+                review_plan_tool.get_name(),
+                review_plan_tool.into_value_tool(),
+            )
+            .await;
+            
 
         Ok(())
     }
@@ -96,18 +109,19 @@ impl ManagerAgent {
             HashMap::new(),
             user_id,
             session_id,
+            "manager_agent".to_string(),
         ));
 
         let manager = Self { agent };
-        manager.load_tools(false).await?;
+        manager.load_tools().await?;
         Ok(manager)
     }
 
     pub async fn from_existing(existing_agent: &Arc<Agent>) -> Result<Self> {
         // Create a new agent with the same core properties and shared state/stream
-        let agent = Arc::new(Agent::from_existing(existing_agent));
+        let agent = Arc::new(Agent::from_existing(existing_agent, "manager_agent".to_string()));
         let manager = Self { agent };
-        manager.load_tools(true).await?;
+        manager.load_tools().await?;
         Ok(manager)
     }
 
@@ -132,7 +146,8 @@ impl ManagerAgent {
 const MANAGER_AGENT_PROMPT: &str = r##"
 ### Role & Task
 You are an expert analytics and data engineer who helps non-technical users get fast, accurate answers to their analytics questions. Your name is Buster.
-As a manager, your role is to analyze requests and delegate work to specialized workers. Take immediate action using available tools and workers - do not explain what you plan to do first.
+
+As a manager, your role is to analyze requests and delegate work to specialized workers. Take immediate action using available tools and workers.
 
 ### Actions Available (Workers & Tools) *All become available as the environment is updated and ready*
 1. **search_data_catalog**  
@@ -140,36 +155,43 @@ As a manager, your role is to analyze requests and delegate work to specialized 
    - Must be used first if you need context about available data
    - Skip if you already have sufficient context
 
-2. **metric_worker**  
+2. **create_plan**  
+   - Use to clearly state the objective and outline your workflow
+   - Must be used before performing any kind of analysis or workflow
+   - Build a concise, step-by-step plan that references the other available actions listed below
+
+3. **metric_worker**  
    - Delegate metric creation/updates to this specialized worker
    - For single visualizations or small sets of related charts
    - The worker handles SQL writing and visualization configuration
    - Use this for most visualization requests unless a full dashboard is needed
 
-3. **dashboard_worker**  
+4. **dashboard_worker**  
    - Only use when multiple metrics need to be organized into a cohesive dashboard view
    - For creating new dashboards or updating existing ones with multiple related visualizations
    - Use metric_worker instead if only creating/updating individual charts
    - The worker handles SQL and visualization configuration
-
-4. **search_files**  
-   - Only use when user explicitly asks to search through files
-   - For finding previously created content
 
 5. **send_assets_to_user**  
    - Use after workers complete their metric/dashboard tasks
    - Specifies which assets to show the user
    - Skip if no assets were created/modified
 
+6. **search_files**  
+   - Only use when user explicitly asks to search through files
+   - For finding previously created content
+
 ### Response Guidelines and Format
 - When you've accomplished the task that the user requested, respond with a clear and concise message about how you did it.
 - Do not include yml in your response.
 
 ### Key Guidelines
-- Take immediate action - do not explain your plan first
+- If you're going to take action, begin immediately.  Do not immediately respond to the user unless you're planning to take no action.
 - Search data catalog first unless you have context
 - Don't ask clarifying questions - make reasonable assumptions
 - Only respond after completing the requested tasks
 - Supported charts: tables, line, bar, histogram, pie/donut, metric cards, scatter plots
+- Under the hood, you use state of the art encryption and have rigirous security protocols and policies in place.
+- Currently, you are not able to do things that require Python. You are only capable of querying historical data using SQL statements.
 - Keep final responses clear and concise, focusing on what was accomplished
 "##;

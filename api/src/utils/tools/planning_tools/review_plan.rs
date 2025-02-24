@@ -48,7 +48,10 @@ impl ToolExecutor for ReviewPlan {
     }
 
     async fn is_enabled(&self) -> bool {
-        true
+        match self.agent.get_state_value("plan_available").await {
+            Some(_) => true,
+            None => false,
+        }
     }
 
     async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
@@ -74,8 +77,8 @@ impl ToolExecutor for ReviewPlan {
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "review_plan",
-            "description": "Reviews an existing plan, optionally updates its content, and/or marks it as completed. Used for checking work and finalizing data analysis.",
+            "name": self.get_name(),
+            "description": "Reviews and validates changes made to data systems (metrics, dashboards, etc.) as part of a plan execution. Only use this tool when the plan involved data modifications. Skip for cosmetic changes like visualization adjustments.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -83,20 +86,16 @@ impl ToolExecutor for ReviewPlan {
                         "type": "string",
                         "description": "The ID of the plan to review"
                     },
-                    "mark_completed": {
+                    "feedback": {
+                        "type": "string",
+                        "description": "Detailed feedback about any tasks that weren't fully accomplished or need adjustments. Include specific issues found during validation of metrics, dashboards, or other data modifications."
+                    },
+                    "completed": {
                         "type": "boolean",
-                        "description": "Whether to mark the plan as completed"
-                    },
-                    "updated_markdown_content": {
-                        "type": "string",
-                        "description": "Optional updated markdown content for the plan"
-                    },
-                    "review_comments": {
-                        "type": "string",
-                        "description": "Optional comments about the review or changes made"
+                        "description": "Whether all data modifications have been properly validated and the plan can be marked as complete. Set to false if any metrics or dashboards need further adjustments."
                     }
                 },
-                "required": ["plan_id", "mark_completed"]
+                "required": ["plan_id", "completed"]
             }
         })
     }

@@ -16,7 +16,7 @@ use crate::{
     utils::{agent::Agent, tools::ToolExecutor},
 };
 
-use litellm::{ChatCompletionRequest, LiteLLMClient, Message, Metadata, ResponseFormat, ToolCall};
+use litellm::{ChatCompletionRequest, LiteLLMClient, Message, Metadata, ResponseFormat};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SearchDataCatalogParams {

@@ -42,9 +42,12 @@ impl ToolExecutor for DashboardAgentTool {
     }
 
     async fn is_enabled(&self) -> bool {
-        match self.agent.get_state_value("data_context").await {
-            Some(_) => true,
-            None => false,
+        match (
+            self.agent.get_state_value("data_context").await,
+            self.agent.get_state_value("plan_available").await,
+        ) {
+            (Some(_), Some(_)) => true,
+            _ => false,
         }
     }
 
@@ -91,7 +94,7 @@ impl ToolExecutor for DashboardAgentTool {
     fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": self.get_name(),
-            "description": "Specifically designed for creating or updating dashboards that require multiple related metrics. This tool excels at understanding complex dashboard requirements and automatically determining which metrics to create and how to organize them. Only use when you need to work with multiple metrics that should be displayed together on a single dashboard page.",
+            "description": "Executes the previously built plan for dashboard creation or updates based on the ticket description. This tool processes the plan and coordinates the creation of all necessary metrics and dashboard components according to the analyzed requirements.",
             "strict": true,
             "parameters": {
                 "type": "object",
@@ -101,7 +104,7 @@ impl ToolExecutor for DashboardAgentTool {
                 "properties": {
                     "ticket_description": {
                         "type": "string",
-                        "description": "The high-level requirements for what needs to be monitored or analyzed via the dashboard. Focus on describing the business or technical needs (e.g., 'We need to monitor our application's overall health including memory usage, CPU, and error rates', or 'Create a sales overview dashboard that shows our daily revenue, top products, and regional performance'). The dashboard worker will determine the specific metrics needed and their optimal arrangement."
+                        "description": "A high-level description of what the dashboard should accomplish, including the metrics to be displayed and their organization. For example: 'Create a sales performance dashboard with monthly revenue trends, top-selling products, and regional breakdown' or 'Build a user engagement dashboard showing daily active users, session duration, and feature usage statistics'. The specific implementation details and SQL queries will be handled by the dashboard worker."
                     }
                 },
                 "additionalProperties": false
@@ -122,16 +125,19 @@ async fn process_agent_output(
                 println!("Agent message: {:?}", msg);
                 match msg {
                     AgentMessage::Assistant {
+                        name: Some(name),
                         content: Some(content),
                         tool_calls: None,
                         ..
                     } => {
-                        // Return the collected output with the final message
-                        return Ok(DashboardAgentOutput {
-                            message: content,
-                            duration: start_time.elapsed().as_secs() as i64,
-                            files,
-                        });
+                        if name == "dashboard_agent" {
+                            // Return the collected output with the final message
+                            return Ok(DashboardAgentOutput {
+                                message: content,
+                                duration: start_time.elapsed().as_secs() as i64,
+                                files,
+                            });
+                        }
                     }
                     AgentMessage::Tool { content, .. } => {
                         // Process tool output

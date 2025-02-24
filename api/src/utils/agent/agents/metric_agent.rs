@@ -49,6 +49,7 @@ impl MetricAgent {
             HashMap::new(),
             user_id,
             session_id,
+            "metric_agent".to_string(),
         ));
 
         let metric = Self { agent };
@@ -58,7 +59,7 @@ impl MetricAgent {
 
     pub async fn from_existing(existing_agent: &Arc<Agent>) -> Result<Self> {
         // Create a new agent with the same core properties and shared state/stream
-        let agent = Arc::new(Agent::from_existing(existing_agent));
+        let agent = Arc::new(Agent::from_existing(existing_agent, "metric_agent".to_string()));
         let metric = Self { agent };
         metric.load_tools().await?;
         Ok(metric)

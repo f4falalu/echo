@@ -21,7 +21,7 @@ use crate::{
 use super::{
     common::validate_sql,
     file_types::{
-        file::{FileEnum, FileWithId},
+        file::{FileWithId},
         metric_yml::MetricYml,
     },
     FileModificationTool,

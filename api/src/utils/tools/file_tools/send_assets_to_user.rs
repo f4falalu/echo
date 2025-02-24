@@ -46,9 +46,12 @@ impl ToolExecutor for SendAssetsToUserTool {
     }
 
     async fn is_enabled(&self) -> bool {
-        match self.agent.get_state_value("files_available").await {
-            Some(_) => true,
-            None => false,
+        match (
+            self.agent.get_state_value("files_available").await,
+            self.agent.get_state_value("plan_available").await,
+        ) {
+            (Some(_), Some(_)) => true,
+            _ => false,
         }
     }
 

@@ -795,6 +795,7 @@ mod tests {
                 HashMap::new(),
                 Uuid::new_v4(),
                 Uuid::new_v4(),
+                "test_agent".to_string(),
             )),
         };
 

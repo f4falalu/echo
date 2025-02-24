@@ -43,9 +43,12 @@ impl ToolExecutor for MetricAgentTool {
     }
 
     async fn is_enabled(&self) -> bool {
-        match self.agent.get_state_value("data_context").await {
-            Some(_) => true,
-            None => false,
+        match (
+            self.agent.get_state_value("data_context").await,
+            self.agent.get_state_value("plan_available").await,
+        ) {
+            (Some(_), Some(_)) => true,
+            _ => false,
         }
     }
 
@@ -84,7 +87,7 @@ impl ToolExecutor for MetricAgentTool {
     fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": self.get_name(),
-            "description": "Use to create or update individual metrics or visualizations. This tool is most effective for direct, single-metric requests or when a user explicitly asks for a specific number of metrics (e.g., '2 metrics showing...' or '3 charts for...'). It is not suitable for ambiguous or complex multi-part requests.",
+            "description": "Use to create or update individual metrics or visualizations based on the established plan. This tool executes the metric-related portions of the plan, focusing on one metric at a time. It should be used after data exploration and planning are complete, not for initial data discovery or ambiguous requests.",
             "strict": true,
             "parameters": {
               "type": "object",
@@ -94,7 +97,7 @@ impl ToolExecutor for MetricAgentTool {
               "properties": {
                 "ticket_description": {
                   "type": "string",
-                  "description": "A brief description containing the general requirements for the metric(s). Focus on what needs to be measured or visualized. Write it as a command, e.g., 'Create a bar chart showing...', 'Generate 2 metrics that measure...', 'Add a metric for...', etc."
+                  "description": "A high-level description of the metric or visualization that needs to be created. This should describe what needs to be measured or visualized without including specific SQL statements. For example: 'Show monthly revenue from subscription payments' or 'Display daily active users count with a breakdown by user type'. The actual SQL construction will be handled by the metric agent."
                 }
               },
               "additionalProperties": false
@@ -115,16 +118,19 @@ async fn process_agent_output(
                 println!("Agent message: {:?}", msg);
                 match msg {
                     AgentMessage::Assistant {
+                        name: Some(name),
                         content: Some(content),
                         tool_calls: None,
                         ..
                     } => {
-                        // Return the collected output with the final message
-                        return Ok(MetricAgentOutput {
-                            message: content,
-                            duration: start_time.elapsed().as_secs() as i64,
-                            files,
-                        });
+                        if name == "metric_agent" {
+                            // Return the collected output with the final message
+                            return Ok(MetricAgentOutput {
+                                message: content,
+                                duration: start_time.elapsed().as_secs() as i64,
+                                files,
+                            });
+                        }
                     }
                     AgentMessage::Tool { content, .. } => {
                         // Process tool output

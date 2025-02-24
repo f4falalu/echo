@@ -7,7 +7,6 @@ use uuid::Uuid;
 use crate::utils::{
     agent::{agent::AgentError, Agent, AgentExt, AgentThread},
     tools::{
-        agents_as_tools::dashboard_agent_tool::DashboardAgentOutput,
         file_tools::{
             CreateDashboardFilesTool, CreateMetricFilesTool, FilterDashboardFilesTool, ModifyDashboardFilesTool, ModifyMetricFilesTool
         },
@@ -73,6 +72,7 @@ impl DashboardAgent {
             HashMap::new(),
             user_id,
             session_id,
+            "dashboard_agent".to_string(),
         ));
 
         let dashboard = Self { agent };
@@ -82,7 +82,7 @@ impl DashboardAgent {
 
     pub async fn from_existing(existing_agent: &Arc<Agent>) -> Result<Self> {
         // Create a new agent with the same core properties and shared state/stream
-        let agent = Arc::new(Agent::from_existing(existing_agent));
+        let agent = Arc::new(Agent::from_existing(existing_agent, "dashboard_agent".to_string()));
         let dashboard = Self { agent };
         dashboard.load_tools().await?;
         Ok(dashboard)

@@ -114,6 +114,8 @@ pub struct Agent {
     user_id: Uuid,
     /// The session ID for the current thread
     session_id: Uuid,
+    /// Agent name
+    name: String,
     /// Shutdown signal sender
     shutdown_tx: Arc<RwLock<broadcast::Sender<()>>>,
 }
@@ -125,6 +127,7 @@ impl Agent {
         tools: HashMap<String, Box<dyn ToolExecutor<Output = Value, Params = Value> + Send + Sync>>,
         user_id: Uuid,
         session_id: Uuid,
+        name: String,
     ) -> Self {
         let llm_api_key = env::var("LLM_API_KEY").expect("LLM_API_KEY must be set");
         let llm_base_url = env::var("LLM_BASE_URL").expect("LLM_API_BASE must be set");
@@ -146,11 +149,12 @@ impl Agent {
             user_id,
             session_id,
             shutdown_tx: Arc::new(RwLock::new(shutdown_tx)),
+            name,
         }
     }
 
     /// Create a new Agent that shares state and stream with an existing agent
-    pub fn from_existing(existing_agent: &Agent) -> Self {
+    pub fn from_existing(existing_agent: &Agent, name: String) -> Self {
         let llm_api_key = env::var("LLM_API_KEY").expect("LLM_API_KEY must be set");
         let llm_base_url = env::var("LLM_BASE_URL").expect("LLM_API_BASE must be set");
 
@@ -166,6 +170,7 @@ impl Agent {
             user_id: existing_agent.user_id,
             session_id: existing_agent.session_id,
             shutdown_tx: Arc::clone(&existing_agent.shutdown_tx),
+            name,
         }
     }
 
@@ -328,7 +333,7 @@ impl Agent {
                         let err_msg = format!("Error processing thread: {:?}", e);
                         let _ = agent_clone.get_stream_sender().await.send(Err(AgentError(err_msg)));
                     }
-                }
+                },
                 _ = shutdown_rx.recv() => {
                     let _ = agent_clone.get_stream_sender().await.send(
                         Ok(Message::assistant(
@@ -337,6 +342,7 @@ impl Agent {
                             None,
                             None,
                             None,
+                            Some(agent_clone.name.clone()),
                         ))
                     );
                 }
@@ -364,6 +370,7 @@ impl Agent {
                 None,
                 None,
                 None,
+                Some(self.name.clone()),
             );
             self.get_stream_sender().await.send(Ok(message))?;
             return Ok(());
@@ -401,7 +408,7 @@ impl Agent {
                 content,
                 tool_calls,
                 ..
-            } => Message::assistant(None, content.clone(), tool_calls.clone(), None, None),
+            } => Message::assistant(None, content.clone(), tool_calls.clone(), None, None, Some(self.name.clone())),
             _ => return Err(anyhow::anyhow!("Expected assistant message from LLM")),
         };
 
@@ -675,6 +682,7 @@ mod tests {
             HashMap::new(),
             Uuid::new_v4(),
             Uuid::new_v4(),
+            "test_agent".to_string(),
         );
 
         let thread = AgentThread::new(
@@ -701,6 +709,7 @@ mod tests {
             HashMap::new(),
             Uuid::new_v4(),
             Uuid::new_v4(),
+            "test_agent".to_string(),
         );
 
         // Create weather tool with reference to agent
@@ -735,6 +744,7 @@ mod tests {
             HashMap::new(),
             Uuid::new_v4(),
             Uuid::new_v4(),
+            "test_agent".to_string(),
         );
 
         let weather_tool = WeatherTool::new(Arc::new(agent.clone()));
@@ -767,6 +777,7 @@ mod tests {
             HashMap::new(),
             Uuid::new_v4(),
             Uuid::new_v4(),
+            "test_agent".to_string(),
         );
 
         // Test setting single values

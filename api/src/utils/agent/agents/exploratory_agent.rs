@@ -29,6 +29,7 @@ impl ExploratoryAgent {
             HashMap::new(),
             user_id,
             session_id,
+            "exploratory_agent".to_string(),
         ));
 
         let exploratory = Self { agent };
@@ -38,7 +39,7 @@ impl ExploratoryAgent {
 
     pub async fn from_existing(existing_agent: &Arc<Agent>) -> Result<Self> {
         // Create a new agent with the same core properties and shared state/stream
-        let agent = Arc::new(Agent::from_existing(existing_agent));
+        let agent = Arc::new(Agent::from_existing(existing_agent, "exploratory_agent".to_string()));
         let exploratory = Self { agent };
         exploratory.load_tools().await?;
         Ok(exploratory)

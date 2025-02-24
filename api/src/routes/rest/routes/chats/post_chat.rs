@@ -106,10 +106,17 @@ async fn process_chat(request: ChatCreateNewChat, user: User) -> Result<ThreadWi
         match message {
             Ok(msg) => {
                 match msg {
-                    AgentMessage::Assistant { content: Some(content), tool_calls: None, .. } => {
-                        // Store the final message and break immediately
-                        final_message = Some(content);
-                        break;
+                    AgentMessage::Assistant {
+                        name: Some(name),
+                        content: Some(content),
+                        tool_calls: None,
+                        ..
+                    } => {
+                        if name == "manager_agent" {
+                            // Store the final message and break immediately
+                            final_message = Some(content);
+                            break;
+                        }
                     }
                     _ => messages.push(msg),
                 }
@@ -137,14 +144,7 @@ async fn process_chat(request: ChatCreateNewChat, user: User) -> Result<ThreadWi
         .await?;
 
     // Store final message state and process any completed files
-    store_final_message_state(
-        &mut conn,
-        &message,
-        &messages,
-        &user_org_id,
-        &user.id,
-    )
-    .await?;
+    store_final_message_state(&mut conn, &message, &messages, &user_org_id, &user.id).await?;
 
     // Update thread_with_messages with processed messages
     if let Some(thread_message) = thread_with_messages.messages.first_mut() {
