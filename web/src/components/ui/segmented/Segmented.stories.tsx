@@ -29,9 +29,6 @@ const meta: Meta<typeof Segmented> = {
     return (
       <div className="flex w-full min-w-[500px] flex-col items-center justify-center gap-4">
         <Segmented {...args} />
-        {/* <Segmented {...args} block />
-        <Segmented {...args} size="large" />
-        <Segmented {...args} block size="large" /> */}
       </div>
     );
   }
