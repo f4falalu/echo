@@ -3,11 +3,12 @@ use async_trait::async_trait;
 use litellm::Message as AgentMessage;
 use serde::Deserialize;
 use serde_json::Value;
+use tokio::sync::broadcast;
 use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::utils::{
-    agent::{Agent, MetricAgent},
+    agent::{Agent, AgentError, MetricAgent},
     tools::ToolExecutor,
 };
 
@@ -54,20 +55,21 @@ impl ToolExecutor for MetricAgentTool {
             .ok_or_else(|| anyhow::anyhow!("No current thread"))?;
 
         current_thread.remove_last_assistant_message();
-
         current_thread.add_user_message(params.ticket_description);
 
         // Run the metric agent and get the receiver
-        let _rx = metric_agent.run(&mut current_thread).await?;
+        let rx = metric_agent.run(&mut current_thread).await?;
+
+        // Wait for completion message
+        let result = process_agent_output(rx).await?;
 
         self.agent
             .set_state_value(String::from("files_available"), Value::Bool(false))
             .await;
 
-        // Return immediately with status
         Ok(serde_json::json!({
-            "status": "running",
-            "message": "Metric agent started successfully"
+            "status": "complete",
+            "message": "Metric agent completed successfully"
         }))
     }
 
@@ -91,4 +93,27 @@ impl ToolExecutor for MetricAgentTool {
             }
         })
     }
+}
+async fn process_agent_output(
+    mut rx: broadcast::Receiver<Result<AgentMessage, AgentError>>,
+) -> Result<()> {
+    while let Ok(msg_result) = rx.recv().await {
+        match msg_result {
+            Ok(msg) => {
+                println!("Agent message: {:?}", msg);
+                if let AgentMessage::Assistant { content: Some(_), .. } = msg {
+                    return Ok(());
+                }
+            }
+            Err(e) => {
+                println!("Agent error: {:?}", e);
+                return Err(e.into());
+            }
+        }
+    }
+
+    // If we get here without finding a completion message, return an error
+    Err(anyhow::anyhow!(
+        "Agent communication ended without completion message"
+    ))
 }

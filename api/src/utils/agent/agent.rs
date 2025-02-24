@@ -404,6 +404,9 @@ impl Agent {
             _ => return Err(anyhow::anyhow!("Expected assistant message from LLM")),
         };
 
+        // Broadcast the assistant message as soon as we receive it
+        self.get_stream_sender().await.send(Ok(message.clone()))?;
+
         // Update thread with assistant message
         self.update_current_thread(message.clone()).await?;
 
@@ -435,9 +438,11 @@ impl Agent {
                         result_str,
                         tool_call.id.clone(),
                         Some(tool_call.function.name.clone()),
-                        // TODO: need the progress for streaming
                         None,
                     );
+
+                    // Broadcast the tool message as soon as we receive it
+                    self.get_stream_sender().await.send(Ok(tool_message.clone()))?;
 
                     // Update thread with tool response
                     self.update_current_thread(tool_message.clone()).await?;

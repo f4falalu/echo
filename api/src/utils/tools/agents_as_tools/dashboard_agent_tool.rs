@@ -4,9 +4,10 @@ use litellm::Message as AgentMessage;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::sync::Arc;
+use tokio::sync::broadcast;
 
 use crate::utils::{
-    agent::{Agent, DashboardAgent},
+    agent::{Agent, AgentError, DashboardAgent},
     tools::{file_tools::file_types::file::FileEnum, ToolExecutor},
 };
 
@@ -74,19 +75,19 @@ impl ToolExecutor for DashboardAgentTool {
 
         println!("DashboardAgentTool: Starting dashboard agent run");
         // Run the dashboard agent and get the output
-        let _receiver = dashboard_agent.run(&mut current_thread).await?;
+        let rx = dashboard_agent.run(&mut current_thread).await?;
         println!("DashboardAgentTool: Dashboard agent run completed");
 
-        println!("DashboardAgentTool: Preparing success response");
+        process_agent_output(rx).await?;
 
         self.agent
             .set_state_value(String::from("files_available"), Value::Bool(false))
             .await;
 
-        // Return dummy data for testing
+        // Return success response
         Ok(serde_json::json!({
             "status": "success",
-            "message": "Test dashboard creation",
+            "message": "Dashboard agent completed successfully",
             "duration": 0,
             "files": []
         }))
@@ -112,4 +113,31 @@ impl ToolExecutor for DashboardAgentTool {
             }
         })
     }
+}
+
+async fn process_agent_output(
+    mut rx: broadcast::Receiver<Result<AgentMessage, AgentError>>,
+) -> Result<()> {
+    while let Ok(msg_result) = rx.recv().await {
+        match msg_result {
+            Ok(msg) => {
+                println!("Agent message: {:?}", msg);
+                if let AgentMessage::Assistant {
+                    content: Some(_), ..
+                } = msg
+                {
+                    return Ok(());
+                }
+            }
+            Err(e) => {
+                println!("Agent error: {:?}", e);
+                return Err(e.into());
+            }
+        }
+    }
+
+    // If we get here without finding a completion message, return an error
+    Err(anyhow::anyhow!(
+        "Agent communication ended without completion message"
+    ))
 }

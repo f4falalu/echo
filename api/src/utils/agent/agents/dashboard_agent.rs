@@ -7,10 +7,12 @@ use uuid::Uuid;
 use crate::utils::{
     agent::{agent::AgentError, Agent, AgentExt, AgentThread},
     tools::{
-        agents_as_tools::dashboard_agent_tool::DashboardAgentOutput, file_tools::{
+        agents_as_tools::dashboard_agent_tool::DashboardAgentOutput,
+        file_tools::{
             CreateDashboardFilesTool, CreateMetricFilesTool, ModifyDashboardFilesTool,
             ModifyMetricFilesTool,
-        }, IntoValueTool, ToolExecutor
+        },
+        IntoValueTool, ToolExecutor,
     },
 };
 
@@ -80,80 +82,16 @@ impl DashboardAgent {
         Ok(dashboard)
     }
 
-    fn is_completion_signal(msg: &AgentMessage) -> bool {
-        matches!(msg, AgentMessage::Assistant { content: Some(content), tool_calls: None, .. } 
-            if content == "AGENT_COMPLETE")
-    }
-
-    pub async fn run(&self, thread: &mut AgentThread) -> Result<broadcast::Receiver<Result<AgentMessage, AgentError>>> {
+    pub async fn run(
+        &self,
+        thread: &mut AgentThread,
+    ) -> Result<broadcast::Receiver<Result<AgentMessage, AgentError>>> {
         thread.set_developer_message(DASHBOARD_AGENT_PROMPT.to_string());
 
         // Get shutdown receiver
-        let mut shutdown_rx = self.get_agent().get_shutdown_receiver().await;
-        let mut rx = self.stream_process_thread(thread).await?;
+        let rx = self.stream_process_thread(thread).await?;
 
-        let rx_return = rx.resubscribe();
-
-        // Process messages internally until we determine we're done
-        loop {
-            tokio::select! {
-                recv_result = rx.recv() => {
-                    match recv_result {
-                        Ok(msg_result) => {
-                            match msg_result {
-                                Ok(msg) => {
-                                    // Forward message to stream sender
-                                    let sender = self.get_agent().get_stream_sender().await;
-                                    if let Err(e) = sender.send(Ok(msg.clone())) {
-                                        let err_msg = format!("Error forwarding message: {:?}", e);
-                                        let _ = sender.send(Err(AgentError(err_msg)));
-                                        continue;
-                                    }
-                                    
-                                    if let Some(content) = msg.get_content() {
-                                        if content == "AGENT_COMPLETE" {
-                                            return Ok(rx_return);
-                                        }
-                                    }
-                                }
-                                Err(e) => {
-                                    let err_msg = format!("Error processing message: {:?}", e);
-                                    let _ = self.get_agent().get_stream_sender().await.send(Err(AgentError(err_msg)));
-                                    continue;
-                                }
-                            }
-                        }
-                        Err(e) => {
-                            let err_msg = format!("Error receiving message: {:?}", e);
-                            let _ = self.get_agent().get_stream_sender().await.send(Err(AgentError(err_msg)));
-                            continue;
-                        }
-                    }
-                }
-                _ = shutdown_rx.recv() => {
-                    // Handle shutdown gracefully
-                    let tools = self.get_agent().get_tools().await;
-                    for (_, tool) in tools.iter() {
-                        if let Err(e) = tool.handle_shutdown().await {
-                            let err_msg = format!("Error shutting down tool: {:?}", e);
-                            let _ = self.get_agent().get_stream_sender().await.send(Err(AgentError(err_msg)));
-                        }
-                    }
-
-                    let _ = self.get_agent().get_stream_sender().await.send(
-                        Ok(AgentMessage::assistant(
-                            Some("shutdown_message".to_string()),
-                            Some("Dashboard agent shutting down gracefully".to_string()),
-                            None,
-                            None,
-                            None,
-                        ))
-                    );
-
-                    return Ok(rx_return);
-                }
-            }
-        }
+        Ok(rx)
     }
 }
 

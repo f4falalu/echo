@@ -1,11 +1,13 @@
 use anyhow::Result;
 use async_trait::async_trait;
+use litellm::Message as AgentMessage;
 use serde::Deserialize;
 use serde_json::Value;
 use std::sync::Arc;
+use tokio::sync::broadcast;
 
 use crate::utils::{
-    agent::{Agent, ExploratoryAgent},
+    agent::{Agent, AgentError, ExploratoryAgent},
     tools::ToolExecutor,
 };
 
@@ -54,12 +56,18 @@ impl ToolExecutor for ExploratoryAgentTool {
         current_thread.add_user_message(params.ticket_description);
 
         // Run the exploratory agent and get the receiver
-        let _rx = exploratory_agent.run(&mut current_thread).await?;
+        let rx = exploratory_agent.run(&mut current_thread).await?;
 
-        // Return immediately with status
+        process_agent_output(rx).await?;
+
+        self.agent
+            .set_state_value(String::from("files_available"), Value::Bool(false))
+            .await;
+
+        // Return success response
         Ok(serde_json::json!({
-            "status": "running",
-            "message": "Exploratory agent started successfully"
+            "status": "success",
+            "message": "Exploratory agent completed successfully"
         }))
     }
 
@@ -83,4 +91,28 @@ impl ToolExecutor for ExploratoryAgentTool {
             }
         })
     }
+}
+
+async fn process_agent_output(
+    mut rx: broadcast::Receiver<Result<AgentMessage, AgentError>>,
+) -> Result<()> {
+    while let Ok(msg_result) = rx.recv().await {
+        match msg_result {
+            Ok(msg) => {
+                println!("Agent message: {:?}", msg);
+                if let AgentMessage::Assistant { content: Some(_), .. } = msg {
+                    return Ok(());
+                }
+            }
+            Err(e) => {
+                println!("Agent error: {:?}", e);
+                return Err(e.into());
+            }
+        }
+    }
+
+    // If we get here without finding a completion message, return an error
+    Err(anyhow::anyhow!(
+        "Agent communication ended without completion message"
+    ))
 }
