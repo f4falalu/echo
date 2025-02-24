@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { RadixSegmented } from './RadixSegmented';
+import { Segmented } from './Segmented';
 
-const meta: Meta<typeof RadixSegmented> = {
-  title: 'UI/RadixSegmented',
-  component: RadixSegmented,
+const meta: Meta<typeof Segmented> = {
+  title: 'Base/Segmented',
+  component: Segmented,
   parameters: {
     layout: 'centered'
   },
@@ -11,11 +11,11 @@ const meta: Meta<typeof RadixSegmented> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof RadixSegmented>;
+type Story = StoryObj<typeof Segmented>;
 
 const defaultItems = [
   { value: 'tab1', label: 'Tab 1' },
-  { value: 'tab2', label: 'Tab 2' },
+  { value: 'tab2', label: 'Tab 2', disabled: true },
   { value: 'tab3', label: 'Tab 3' }
 ];
 
