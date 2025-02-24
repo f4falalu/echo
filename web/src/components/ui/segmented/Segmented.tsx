@@ -19,10 +19,11 @@ interface SegmentedProps {
   onChange?: (value: string) => void;
   className?: string;
   size?: 'default' | 'large';
+  block?: boolean;
 }
 
 export const Segmented = React.forwardRef<HTMLDivElement, SegmentedProps>(
-  ({ items, value, onChange, className, size = 'default' }, ref) => {
+  ({ items, value, onChange, className, size = 'default', block = false }, ref) => {
     const tabRefs = React.useRef<Map<string, HTMLButtonElement>>(new Map());
     const [selectedValue, setSelectedValue] = useState(value || items[0]?.value);
     const [hoveredValue, setHoveredValue] = useState<string | null>(null);
@@ -66,6 +67,7 @@ export const Segmented = React.forwardRef<HTMLDivElement, SegmentedProps>(
           'bg-item-select relative inline-flex items-center rounded-lg',
           height,
           padding,
+          block && 'w-full',
           className
         )}>
         <motion.div
@@ -81,7 +83,9 @@ export const Segmented = React.forwardRef<HTMLDivElement, SegmentedProps>(
             damping: 35
           }}
         />
-        <Tabs.List className="relative z-10 flex items-center gap-1" aria-label="Segmented Control">
+        <Tabs.List
+          className="relative z-10 flex w-full items-center gap-1"
+          aria-label="Segmented Control">
           {items.map((item) => (
             <Tabs.Trigger
               key={item.value}
@@ -96,6 +100,7 @@ export const Segmented = React.forwardRef<HTMLDivElement, SegmentedProps>(
                 'relative z-10 flex items-center justify-center gap-x-1.5 gap-y-1 rounded-md transition-colors',
                 size === 'default' ? 'px-2.5' : 'px-3',
                 innerHeight,
+                block && 'flex-1',
                 'focus-visible:ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
                 selectedValue === item.value
                   ? 'text-foreground'

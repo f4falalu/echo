@@ -8,7 +8,29 @@ const meta: Meta<typeof Segmented> = {
   parameters: {
     layout: 'centered'
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
+  argTypes: {
+    size: {
+      control: 'radio',
+      options: ['default', 'large']
+    },
+    block: {
+      control: 'boolean'
+    },
+    value: {
+      control: 'text'
+    }
+  },
+  render: (args) => {
+    return (
+      <div className="flex w-full min-w-[500px] flex-col items-center justify-center gap-4">
+        <Segmented {...args} />
+        {/* <Segmented {...args} block />
+        <Segmented {...args} size="large" />
+        <Segmented {...args} block size="large" /> */}
+      </div>
+    );
+  }
 };
 
 export default meta;
@@ -26,12 +48,40 @@ export const Default: Story = {
   }
 };
 
+export const Large: Story = {
+  args: {
+    items: defaultItems,
+    size: 'large'
+  }
+};
+
+export const Block: Story = {
+  args: {
+    items: defaultItems,
+    block: true
+  },
+  parameters: {
+    layout: 'padded'
+  }
+};
+
+export const LargeBlock: Story = {
+  args: {
+    items: defaultItems,
+    size: 'large',
+    block: true
+  },
+  parameters: {
+    layout: 'padded'
+  }
+};
+
 export const WithIcons: Story = {
   args: {
     items: [
-      { value: 'list', label: '📋 List' },
-      { value: 'grid', label: '📱 Grid' },
-      { value: 'gallery', label: '🖼️ Gallery' }
+      { value: 'list', label: 'List' },
+      { value: 'grid', label: 'Grid' },
+      { value: 'gallery', label: 'Gallery' }
     ]
   }
 };
@@ -40,6 +90,16 @@ export const Controlled: Story = {
   args: {
     items: defaultItems,
     value: 'tab2'
+  }
+};
+
+export const WithDisabledItems: Story = {
+  args: {
+    items: [
+      { value: 'tab1', label: 'Enabled' },
+      { value: 'tab2', label: 'Disabled', disabled: true },
+      { value: 'tab3', label: 'Enabled' }
+    ]
   }
 };
 
