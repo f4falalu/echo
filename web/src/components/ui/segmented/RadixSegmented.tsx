@@ -4,6 +4,7 @@ import * as React from 'react';
 import * as Tabs from '@radix-ui/react-tabs';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
+import { useEffect, useState } from 'react';
 
 export interface SegmentedItem {
   value: string;
@@ -21,21 +22,21 @@ interface RadixSegmentedProps {
 
 export const RadixSegmented = React.forwardRef<HTMLDivElement, RadixSegmentedProps>(
   ({ items, value, onChange, className }, ref) => {
-    const [selectedValue, setSelectedValue] = React.useState(value || items[0]?.value);
-    const [hoveredValue, setHoveredValue] = React.useState<string | null>(null);
     const tabRefs = React.useRef<Map<string, HTMLButtonElement>>(new Map());
-    const [gliderStyle, setGliderStyle] = React.useState({
+    const [selectedValue, setSelectedValue] = useState(value || items[0]?.value);
+    const [hoveredValue, setHoveredValue] = useState<string | null>(null);
+    const [gliderStyle, setGliderStyle] = useState({
       width: 0,
       transform: 'translateX(0)'
     });
 
-    React.useEffect(() => {
+    useEffect(() => {
       if (value !== undefined && value !== selectedValue) {
         setSelectedValue(value);
       }
     }, [value]);
 
-    React.useEffect(() => {
+    useEffect(() => {
       const selectedTab = tabRefs.current.get(selectedValue);
       if (selectedTab) {
         const { offsetWidth, offsetLeft } = selectedTab;
