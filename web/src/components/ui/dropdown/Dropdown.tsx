@@ -18,6 +18,7 @@ import {
 } from './DropdownBase';
 import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
 import { useMemoizedFn } from 'ahooks';
+import { cn } from '@/lib/classMerge';
 
 export interface DropdownItem {
   label: React.ReactNode;
@@ -27,7 +28,6 @@ export interface DropdownItem {
   onClick?: () => void;
   icon?: React.ReactNode;
   disabled?: boolean;
-  link?: string;
   loading?: boolean;
   selected?: boolean;
   items?: (DropdownItem | DropdownDivider)[];
@@ -47,6 +47,9 @@ export interface DropdownProps extends DropdownMenuProps {
   maxWidth?: number;
   closeOnSelect?: boolean;
   onSelect?: (itemId: string) => void;
+  align?: 'start' | 'center' | 'end';
+  side?: 'top' | 'right' | 'bottom' | 'left';
+  contentClassName?: string;
 }
 
 const dropdownItemKey = (item: DropdownItem | DropdownDivider, index: number) => {
@@ -59,17 +62,20 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
     items = [],
     selectType = 'default',
     menuLabel,
-    minWidth = 200,
+    minWidth = 240,
     maxWidth,
     closeOnSelect = true,
     onSelect,
     children,
+    align = 'center',
+    side = 'bottom',
+    contentClassName,
     ...props
   }) => {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56">
+        <DropdownMenuContent className={cn('w-56', contentClassName)} align={align} side={side}>
           {menuLabel && (
             <>
               <DropdownMenuLabel>{menuLabel}</DropdownMenuLabel>
@@ -129,7 +135,6 @@ const DropdownItem = ({
   onClick,
   icon,
   disabled,
-  link,
   loading,
   selected,
   index,

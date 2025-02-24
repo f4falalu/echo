@@ -83,7 +83,7 @@ const DropdownMenuItem = React.forwardRef<
     closeOnSelect?: boolean;
     selectType?: string;
   }
->(({ className, onClick, closeOnSelect, inset, selectType, ...props }, ref) => (
+>(({ className, closeOnSelect = true, onClick, inset, selectType, ...props }, ref) => (
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
@@ -92,7 +92,7 @@ const DropdownMenuItem = React.forwardRef<
       className
     )}
     onClick={(e) => {
-      if (closeOnSelect) {
+      if (!closeOnSelect) {
         e.stopPropagation();
         e.preventDefault();
       }
@@ -109,7 +109,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
     closeOnSelect?: boolean;
     selectType?: string;
   }
->(({ className, children, onClick, checked, closeOnSelect, selectType, ...props }, ref) => (
+>(({ className, children, onClick, checked, closeOnSelect = true, selectType, ...props }, ref) => (
   <DropdownMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(

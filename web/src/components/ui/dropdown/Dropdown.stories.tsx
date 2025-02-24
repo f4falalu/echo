@@ -12,6 +12,11 @@ const meta: Meta<typeof Dropdown> = {
     closeOnSelect: {
       control: 'boolean',
       defaultValue: true
+    },
+    align: {
+      control: 'select',
+      options: ['start', 'center', 'end'],
+      defaultValue: 'start'
     }
   },
   tags: ['autodocs']
