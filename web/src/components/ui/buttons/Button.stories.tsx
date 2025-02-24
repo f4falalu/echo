@@ -34,6 +34,10 @@ const meta: Meta<typeof Button> = {
       control: 'boolean',
       defaultValue: false
     },
+    block: {
+      control: 'boolean',
+      defaultValue: false
+    },
     prefix: {
       control: 'select',
       options: IconSelect
@@ -148,5 +152,14 @@ export const IconButton: Story = {
     size: 'default',
     prefix: 'ShapeSquare',
     children: ''
+  }
+};
+
+export const Block: Story = {
+  args: {
+    buttonType: 'primary',
+    size: 'default',
+    block: true,
+    children: 'Full Width Button'
   }
 };

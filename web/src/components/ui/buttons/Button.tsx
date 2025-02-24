@@ -39,7 +39,11 @@ export const buttonVariants = cva(
         true: '',
         false: 'px-2.5'
       },
-      rounding: roundingVariants
+      rounding: roundingVariants,
+      block: {
+        true: 'w-full',
+        false: ''
+      }
     },
     compoundVariants: [
       {
@@ -61,7 +65,8 @@ export const buttonVariants = cva(
     defaultVariants: {
       buttonType: 'default',
       size: 'default',
-      iconButton: false
+      iconButton: false,
+      block: false
     }
   }
 );
@@ -99,6 +104,7 @@ export interface ButtonProps
   selected?: boolean;
   prefixClassName?: string;
   suffixClassName?: string;
+  block?: boolean;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -117,6 +123,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       prefixClassName,
       suffixClassName,
       rounding = 'default',
+      block = false,
       ...props
     },
     ref
@@ -127,7 +134,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     return (
       <Comp
-        className={cn(buttonVariants({ buttonType, size, iconButton, rounding, className }))}
+        className={cn(buttonVariants({ buttonType, size, iconButton, rounding, block, className }))}
         ref={ref}
         disabled={disabled}
         data-loading={loading}
