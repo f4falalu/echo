@@ -102,6 +102,8 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
   }
 );
 
+Dropdown.displayName = 'Dropdown';
+
 const DropdownItemSelector: React.FC<{
   item: DropdownItem | DropdownDivider;
   index: number;
@@ -216,3 +218,4 @@ const DropdownSubMenuWrapper = React.memo(
     );
   }
 );
+DropdownSubMenuWrapper.displayName = 'DropdownSubMenuWrapper';

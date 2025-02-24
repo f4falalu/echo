@@ -65,78 +65,100 @@ export const ButtonDropdown = React.forwardRef<HTMLDivElement, ButtonDropdownPro
     );
   }
 );
+ButtonDropdown.displayName = 'ButtonDropdown';
 
-export const ButtonSplit = React.forwardRef<
-  HTMLDivElement,
-  Omit<ButtonDropdownProps, 'dropdownProps'> & {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-  }
->(
-  (
-    {
-      className,
-      buttonType = 'default',
-      size = 'default',
-      icon,
-      buttonText,
-      disabled = false,
-      rounding = 'default',
-      loading = false,
-      iconClassName,
-      open,
-      onOpenChange
-    },
-    ref
-  ) => {
-    const handleClick = useMemoizedFn(() => {
-      if (disabled) return;
-      onOpenChange(!open);
-    });
+export const ButtonSplit = React.memo(
+  React.forwardRef<
+    HTMLDivElement,
+    Omit<ButtonDropdownProps, 'dropdownProps'> & {
+      open: boolean;
+      onOpenChange: (open: boolean) => void;
+    }
+  >(
+    (
+      {
+        className,
+        buttonType = 'default',
+        size = 'default',
+        icon,
+        buttonText,
+        disabled = false,
+        rounding = 'default',
+        loading = false,
+        iconClassName,
+        open,
+        onOpenChange
+      },
+      ref
+    ) => {
+      const handleClick = useMemoizedFn(() => {
+        if (disabled) return;
+        onOpenChange(!open);
+      });
 
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          buttonVariants({ buttonType, size, rounding: 'none' }),
-          dropdownButtonVariants({ rounding }),
-          'gap-0 !bg-transparent p-0',
-          disabled && 'cursor-not-allowed opacity-60',
-          className
-        )}>
+      return (
         <div
+          ref={ref}
           className={cn(
-            primaryButtonVariants({ buttonType }),
-            'flex h-full items-center gap-0.5 border-none pr-2 pl-2.5'
+            buttonVariants({ buttonType, size, rounding: 'none' }),
+            dropdownButtonVariants({ rounding }),
+            'gap-0 !bg-transparent p-0',
+            disabled && 'cursor-not-allowed opacity-70',
+            className
           )}>
-          {loading ? (
-            <LoadingIcon buttonType={buttonType} size={size} />
-          ) : (
-            icon && (
-              <span
-                className={cn(buttonIconVariants({ buttonType, size }), 'text-sm', iconClassName)}>
-                {icon}
-              </span>
-            )
-          )}
-          {buttonText && <span className="">{buttonText}</span>}
-        </div>
-        <div className="bg-border mr-0 h-full w-[0.5px]" />
-        <div className="flex h-full items-center justify-center text-sm" onClick={handleClick}>
           <div
-            className={cn(splitButtonVariants({ buttonType }), 'border-none')}
-            aria-label="Open dropdown menu">
-            <span
-              className={cn(
-                'transition-transform duration-100',
-                disabled && 'cursor-not-allowed opacity-90',
-                open && 'rotate-180'
-              )}>
-              <ChevronDown />
-            </span>
+            className={cn(
+              primaryButtonVariants({ buttonType }),
+              'flex h-full items-center gap-0.5 border-none pr-2 pl-2.5'
+            )}>
+            {loading ? (
+              <LoadingIcon buttonType={buttonType} size={size} />
+            ) : (
+              icon && (
+                <span
+                  className={cn(
+                    buttonIconVariants({ buttonType, size }),
+                    'text-sm',
+                    iconClassName
+                  )}>
+                  {icon}
+                </span>
+              )
+            )}
+            {buttonText && <span className="">{buttonText}</span>}
+          </div>
+          <div className="bg-border mr-0 h-full w-[0.5px]" />
+          <div className="flex h-full items-center justify-center text-sm" onClick={handleClick}>
+            <div
+              className={cn(splitButtonVariants({ buttonType }), 'border-none')}
+              aria-label="Open dropdown menu">
+              <span
+                className={cn(
+                  'transition-transform duration-100',
+                  disabled && 'cursor-not-allowed opacity-90',
+                  open && 'rotate-180'
+                )}>
+                <ChevronDown />
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      );
+    }
+  ),
+  (prevProps, nextProps) => {
+    return (
+      prevProps.className === nextProps.className &&
+      prevProps.buttonType === nextProps.buttonType &&
+      prevProps.size === nextProps.size &&
+      prevProps.icon === nextProps.icon &&
+      prevProps.buttonText === nextProps.buttonText &&
+      prevProps.disabled === nextProps.disabled &&
+      prevProps.rounding === nextProps.rounding &&
+      prevProps.loading === nextProps.loading &&
+      prevProps.iconClassName === nextProps.iconClassName &&
+      prevProps.open === nextProps.open &&
+      prevProps.onOpenChange === nextProps.onOpenChange
     );
   }
 );
