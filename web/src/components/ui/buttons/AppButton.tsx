@@ -5,17 +5,17 @@ import { cn } from '@/lib/classMerge';
 import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
 
 const buttonVariants = cva(
-  'inline-flex items-center overflow-hidden justify-center gap-1.5 shadow-btn rounded transition-all duration-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none cursor-pointer disabled:cursor-not-allowed data-[loading=true]:cursor-progress',
+  'inline-flex items-center overflow-hidden justify-center gap-[5px] shadow-btn rounded transition-all duration-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none cursor-pointer disabled:cursor-not-allowed data-[loading=true]:cursor-progress',
   {
     variants: {
       buttonType: {
         default:
-          'bg-white border hover:bg-item-hover disabled:bg-disabled disabled:text-light-gray active:bg-item-active data-[selected=true]:bg-nav-background',
-        black: 'bg-black text-white hover:bg-black-hover disabled:bg-black-hover',
+          'bg-white border hover:bg-item-hover disabled:bg-disabled disabled:text-gray-light active:bg-item-active data-[selected=true]:bg-item-select',
+        black: 'bg-black text-white hover:bg-foreground-hover disabled:bg-foreground-hover',
         primary:
           'bg-primary text-white hover:bg-primary-light active:bg-primary-dark data-[selected=true]:bg-primary-dark',
         ghost:
-          'bg-transparent text-dark-gray shadow-none hover:bg-item-hover disabled:bg-transparent disabled:text-light-gray active:bg-item-active data-[selected=true]:bg-nav-background'
+          'bg-transparent text-gray-dark shadow-none hover:bg-item-hover hover:text-foreground disabled:bg-transparent disabled:text-gray-light active:bg-item-active data-[selected=true]:bg-item-select'
       },
       size: {
         default: 'h-6',
@@ -62,11 +62,17 @@ const iconVariants = cva('', {
     },
     size: {
       default: 'text-icon-size',
-      tall: 'text-icon-size',
-      small: 'text-icon-size-small'
+      tall: 'text-icon-size-lg',
+      small: 'text-icon-size-sm'
     }
   }
 });
+
+const loadingSizeVariants = {
+  default: 'w-[var(--text-icon-size)] h-[var(--text-icon-size)]',
+  tall: 'w-[var(--text-icon-size-lg)] h-[var(--text-icon-size-lg)]',
+  small: 'w-[var(--text-icon-size-sm)] h-[var(--text-icon-size-sm)]'
+};
 
 export interface ButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'prefix'>,
@@ -111,7 +117,7 @@ const AppButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
         data-selected={selected}
         {...props}>
         {loading ? (
-          <LoadingIcon buttonType={buttonType} />
+          <LoadingIcon buttonType={buttonType} size={size} />
         ) : (
           prefix && (
             <span className={cn(iconVariants({ buttonType, size }), prefixClassName)}>
@@ -131,16 +137,18 @@ const AppButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
 AppButton.displayName = 'AppButton';
 
 const LoadingIcon: React.FC<{
-  buttonType: 'default' | 'black' | 'primary' | 'ghost' | null;
-}> = ({ buttonType = 'default' }) => {
+  buttonType: ButtonProps['buttonType'];
+  size: ButtonProps['size'];
+}> = ({ buttonType = 'default', size = 'default' }) => {
   return (
     <div
       className={cn(
-        'flex h-[15px] w-[1em] items-center justify-center text-black dark:text-white',
-        buttonType === 'black' && 'dark'
+        'flex items-center justify-center text-black dark:text-white',
+        buttonType === 'black' && 'dark',
+        loadingSizeVariants[size || 'default']
       )}>
       <CircleSpinnerLoader
-        size={9.5}
+        size={size === 'tall' ? 12.5 : 9.5}
         fill={
           buttonType === 'black'
             ? 'var(--color-white)'

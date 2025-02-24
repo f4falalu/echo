@@ -36,10 +36,12 @@
   --text-3xl--line-height: 1;
   --text-4xl: 30px;
   --text-4xl--line-height: 1;
-  --text-icon-size: 15px;
+  --text-icon-size: 16px;
   --text-icon-size--line-height: 1;
-  --text-icon-size-small: 12px;
-  --text-icon-size-small--line-height: 1;
+  --text-icon-size-sm: 12px;
+  --text-icon-size-sm--line-height: 1;
+  --text-icon-size-lg: 18px;
+  --text-icon-size-lg--line-height: 1;
 
   /* radius */
   --radius: 6px;
@@ -50,42 +52,28 @@
 
   /* base color */
   --color-background: #ffffff;
-  --color-foreground: hsl(0 0% 3.9%);
+  --color-foreground: #000000;
+  --color-foreground-hover: #393939;
   --color-primary: #7c3aed;
   --color-primary-light: #a26cff;
   --color-primary-dark: #6d28d9;
   --color-border: #e0e0e0;
-  --color-disabled: var(--color-border);
-  --color-light-gray: #969597;
-  --color-dark-gray: #575859;
-  --color-black: #000000;
-  --color-black-hover: #393939;
+  --color-gray-light: #969597;
+  --color-gray-dark: #575859;
+  --color-disabled: #e6e6e6;
 
   /* component color */
-  --color-input: hsl(0 0% 89.8%);
   --color-page-background: #fcfcfc;
   --color-item-hover: #f8f8f8;
   --color-item-hover-active: #f0f0f0;
-  --color-item-active: #e6e6e6;
-  --color-nav-background: #f3f3f3;
+  --color-item-active: #f2f2f2;
+  --color-item-select: #f3f3f3;
   --color-nav-item-hover: #efeeee;
-  --color-nav-item-select: #e6e6e6;
-  --color-ring: hsl(0 0% 3.9%);
-  --color-disabled: #e6e6e6;
-  --color-icon: var(--color-dark-gray);
+  --color-nav-item-select: var(--color-disabled);
+  --color-track-background: hsl(0 0% 89.8%);
 
-  /* --color-card: hsl(0 0% 100%);
-  --color-card-foreground: hsl(0 0% 3.9%); */
-  /* --color-popover: hsl(0 0% 100%);
-  --color-popover-foreground: hsl(0 0% 3.9%);
-  --color-secondary: hsl(0 0% 96.1%);
-  --color-secondary-foreground: hsl(0 0% 9%); */
-  /* --color-muted: hsl(0 0% 96.1%);
-  --color-muted-foreground: hsl(0 0% 45.1%); */
-  /* --color-accent: hsl(0 0% 96.1%);
-  --color-accent-foreground: hsl(0 0% 9%); */
-  /* --color-destructive: hsl(0 84.2% 60.2%);
-  --color-destructive-foreground: hsl(0 0% 98%); */
+  --color-icon: var(--color-gray-dark);
+  --color-ring: var(--color-foreground-hover);
 }
 
 @import './tailwindAnimations.css';
