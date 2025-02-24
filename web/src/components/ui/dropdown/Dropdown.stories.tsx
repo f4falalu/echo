@@ -1,11 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Dropdown } from './Dropdown';
 import { Button } from '../buttons/Button';
+import { PaintRoller } from '../icons';
 const meta: Meta<typeof Dropdown> = {
   title: 'Base/Dropdown',
   component: Dropdown,
   parameters: {
     layout: 'centered'
+  },
+  argTypes: {
+    closeOnSelect: {
+      control: 'boolean',
+      defaultValue: true
+    }
   },
   tags: ['autodocs']
 };
@@ -20,7 +27,9 @@ export const Basic: Story = {
       {
         id: '1',
         label: 'Profile',
-        onClick: () => console.log('Profile clicked')
+        onClick: () => console.log('Profile clicked'),
+        loading: false,
+        icon: <PaintRoller />
       },
       {
         id: '2',
@@ -32,17 +41,14 @@ export const Basic: Story = {
         id: '3',
         label: 'Logout',
         onClick: () => console.log('Logout clicked'),
-        shortcut: '⌘L',
         items: [
           {
             id: '3-1',
-            label: 'Logout',
-            onClick: () => console.log('Logout clicked')
+            label: 'Testing 123'
           },
           {
             id: '3-2',
-            label: 'Logout',
-            onClick: () => console.log('Logout clicked')
+            label: 'Testing 456'
           }
         ]
       }

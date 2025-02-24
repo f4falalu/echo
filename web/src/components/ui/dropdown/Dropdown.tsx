@@ -1,5 +1,5 @@
 import { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,14 +12,17 @@ import {
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+  DropdownMenuRadioItem
 } from './DropdownBase';
+import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
 import { useMemoizedFn } from 'ahooks';
 
 export interface DropdownItem {
   label: React.ReactNode;
   id: string;
-  index?: number;
+  showIndex?: boolean;
   shortcut?: string;
   onClick?: () => void;
   icon?: React.ReactNode;
@@ -75,65 +78,15 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
           )}
 
           {items.map((item, index) => (
-            <DropdownItemSelector item={item} index={index} onSelect={onSelect} />
+            <DropdownItemSelector
+              item={item}
+              index={index}
+              selectType={selectType}
+              onSelect={onSelect}
+              closeOnSelect={closeOnSelect}
+              key={dropdownItemKey(item, index)}
+            />
           ))}
-          {/*
- 
-   
-
-          <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <Users />
-              <span>Team</span>
-            </DropdownMenuItem>
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                <UserPlus />
-                <span>Invite users</span>
-              </DropdownMenuSubTrigger>
-              <DropdownMenuPortal>
-                <DropdownMenuSubContent>
-                  <DropdownMenuItem>
-                    <Mail />
-                    <span>Email</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <MessageSquare />
-                    <span>Message</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <PlusCircle />
-                    <span>More...</span>
-                  </DropdownMenuItem>
-                </DropdownMenuSubContent>
-              </DropdownMenuPortal>
-            </DropdownMenuSub>
-            <DropdownMenuItem>
-              <Plus />
-              <span>New Team</span>
-              <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <Github />
-            <span>GitHub</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <LifeBuoy />
-            <span>Support</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem disabled>
-            <Cloud />
-            <span>API</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <LogOut />
-            <span>Log out</span>
-            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-          </DropdownMenuItem> */}
         </DropdownMenuContent>
       </DropdownMenu>
     );
@@ -144,7 +97,9 @@ const DropdownItemSelector: React.FC<{
   item: DropdownItem | DropdownDivider;
   index: number;
   onSelect: DropdownProps['onSelect'];
-}> = React.memo(({ item, index, onSelect }) => {
+  closeOnSelect: boolean;
+  selectType: NonNullable<DropdownProps['selectType']>;
+}> = React.memo(({ item, index, onSelect, closeOnSelect, selectType }) => {
   const isDivider = (item as DropdownDivider).type === 'divider';
   const id = dropdownItemKey(item, index);
   return (
@@ -152,7 +107,13 @@ const DropdownItemSelector: React.FC<{
       {isDivider ? (
         <DropdownMenuSeparator />
       ) : (
-        <DropdownItem {...(item as DropdownItem)} onSelect={onSelect} />
+        <DropdownItem
+          {...(item as DropdownItem)}
+          closeOnSelect={closeOnSelect}
+          onSelect={onSelect}
+          selectType={selectType}
+          index={index}
+        />
       )}
     </React.Fragment>
   );
@@ -163,7 +124,7 @@ DropdownItemSelector.displayName = 'DropdownItemSelector';
 const DropdownItem = ({
   label,
   id,
-  index,
+  showIndex,
   shortcut,
   onClick,
   icon,
@@ -171,26 +132,43 @@ const DropdownItem = ({
   link,
   loading,
   selected,
+  index,
   items,
-  onSelect
+  closeOnSelect,
+  onSelect,
+  selectType
 }: DropdownItem & {
   onSelect: DropdownProps['onSelect'];
+  closeOnSelect: boolean;
+  index: number;
+  selectType: NonNullable<DropdownProps['selectType']>;
 }) => {
-  const onClickItem = useMemoizedFn(() => {
+  const onClickItem = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
     if (onClick) onClick();
     if (onSelect) onSelect(id);
   });
+
   const isSubItem = items && items.length > 0;
-  const Wrapper = isSubItem ? DropdownSubMenuWrapper : React.Fragment;
+
+  const Wrapper = useMemo(() => {
+    if (isSubItem) return DropdownSubMenuWrapper;
+    if (selectType === 'multiple' || selectType === 'single') return DropdownMenuCheckboxItem;
+    return DropdownMenuItem;
+  }, [isSubItem, selectType]);
 
   return (
-    <DropdownMenuItem onClick={onClickItem}>
-      <Wrapper items={items} onSelect={onSelect}>
-        {icon && <span className="text-icon-color">{icon}</span>}
-        {label}
-        {shortcut && <DropdownMenuShortcut>{shortcut}</DropdownMenuShortcut>}
-      </Wrapper>
-    </DropdownMenuItem>
+    <Wrapper
+      items={items}
+      disabled={disabled}
+      onClick={onClickItem}
+      closeOnSelect={closeOnSelect}
+      selectType={selectType}>
+      {showIndex && <span className="text-gray-light">{index}</span>}
+      {icon && !loading && <span className="text-icon-color">{icon}</span>}
+      {loading && <CircleSpinnerLoader size={9} />}
+      {label}
+      {shortcut && <DropdownMenuShortcut>{shortcut}</DropdownMenuShortcut>}
+    </Wrapper>
   );
 };
 
@@ -198,19 +176,30 @@ const DropdownSubMenuWrapper = React.memo(
   ({
     items,
     children,
-    onSelect
+    closeOnSelect,
+    onSelect,
+    selectType
   }: {
-    items: DropdownItems;
+    items: DropdownItems | undefined;
     children: React.ReactNode;
-    onSelect: DropdownProps['onSelect'];
+    closeOnSelect: boolean;
+    onSelect?: DropdownProps['onSelect'];
+    selectType: NonNullable<DropdownProps['selectType']>;
   }) => {
     return (
       <DropdownMenuSub>
-        <DropdownMenuSubTrigger> {children}</DropdownMenuSubTrigger>
+        <DropdownMenuSubTrigger>{children}</DropdownMenuSubTrigger>
         <DropdownMenuPortal>
           <DropdownMenuSubContent>
-            {items.map((item, index) => (
-              <DropdownItemSelector item={item} index={index} onSelect={onSelect} />
+            {items?.map((item, index) => (
+              <DropdownItemSelector
+                key={dropdownItemKey(item, index)}
+                item={item}
+                index={index}
+                onSelect={onSelect}
+                closeOnSelect={closeOnSelect}
+                selectType={selectType}
+              />
             ))}
           </DropdownMenuSubContent>
         </DropdownMenuPortal>

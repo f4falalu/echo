@@ -5,7 +5,7 @@ import { cn } from '@/lib/classMerge';
 import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
 
 export const buttonVariants = cva(
-  'inline-flex items-center overflow-hidden justify-center gap-[5px] shadow-btn rounded transition-all duration-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none cursor-pointer disabled:cursor-not-allowed data-[loading=true]:cursor-progress',
+  'inline-flex  items-center overflow-hidden text-base justify-center gap-[5px] shadow-btn rounded transition-all duration-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none cursor-pointer disabled:cursor-not-allowed data-[loading=true]:cursor-progress',
   {
     variants: {
       buttonType: {
@@ -136,7 +136,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             </span>
           )
         )}
-        {hasChildren && <span className="text-base">{children}</span>}
+        {hasChildren && <span className="">{children}</span>}
         {suffix && (
           <span className={cn(buttonIconVariants({ buttonType, size }), suffixClassName)}>
             {suffix}
