@@ -18,7 +18,7 @@ export interface SegmentedItem {
 interface SegmentedProps {
   items: SegmentedItem[];
   value?: string;
-  onChange?: (value: string) => void;
+  onChange?: (value: SegmentedItem) => void;
   className?: string;
   size?: 'default' | 'large';
   block?: boolean;
@@ -61,10 +61,6 @@ const triggerVariants = cva(
       selected: {
         true: 'text-foreground',
         false: 'text-gray-dark hover:text-foreground'
-      },
-      hovered: {
-        true: '',
-        false: ''
       }
     }
   }
@@ -82,7 +78,6 @@ export const Segmented = React.forwardRef<HTMLDivElement, SegmentedProps>(
   ({ items, type = 'track', value, onChange, className, size = 'default', block = false }, ref) => {
     const tabRefs = React.useRef<Map<string, HTMLButtonElement>>(new Map());
     const [selectedValue, setSelectedValue] = useState(value || items[0]?.value);
-    const [hoveredValue, setHoveredValue] = useState<string | null>(null);
     const [gliderStyle, setGliderStyle] = useState({
       width: 0,
       transform: 'translateX(0)'
@@ -107,16 +102,19 @@ export const Segmented = React.forwardRef<HTMLDivElement, SegmentedProps>(
       }
     }, [selectedValue]);
 
-    const handleValueChange = useMemoizedFn((newValue: string) => {
-      setSelectedValue(newValue);
-      onChange?.(newValue);
+    const handleTabClick = useMemoizedFn((value: string) => {
+      const item = items.find((item) => item.value === value);
+      if (item && !item.disabled) {
+        setSelectedValue(item.value);
+        onChange?.(item);
+      }
     });
 
     return (
       <Tabs.Root
         ref={ref}
         value={selectedValue}
-        onValueChange={handleValueChange}
+        onValueChange={handleTabClick}
         className={cn(segmentedVariants({ block, type }), height, className)}>
         <motion.div
           className={cn(gliderVariants({ type }), height)}
@@ -139,10 +137,8 @@ export const Segmented = React.forwardRef<HTMLDivElement, SegmentedProps>(
               key={item.value}
               item={item}
               selectedValue={selectedValue}
-              hoveredValue={hoveredValue}
               size={size}
               block={block}
-              setHoveredValue={setHoveredValue}
               tabRefs={tabRefs}
             />
           ))}
@@ -157,12 +153,10 @@ Segmented.displayName = 'Segmented';
 const SegmentedTrigger = React.memo<{
   item: SegmentedItem;
   selectedValue: string;
-  hoveredValue: string | null;
   size: SegmentedProps['size'];
   block: SegmentedProps['block'];
-  setHoveredValue: (value: string | null) => void;
   tabRefs: React.MutableRefObject<Map<string, HTMLButtonElement>>;
-}>(({ item, selectedValue, hoveredValue, size, block, setHoveredValue, tabRefs }) => {
+}>(({ item, selectedValue, size, block, tabRefs }) => {
   return (
     <Tabs.Trigger
       key={item.value}
@@ -171,16 +165,13 @@ const SegmentedTrigger = React.memo<{
       ref={(el) => {
         if (el) tabRefs.current.set(item.value, el);
       }}
-      onMouseEnter={() => !item.disabled && setHoveredValue(item.value)}
-      onMouseLeave={() => setHoveredValue(null)}
       className={cn(
         'focus-visible:ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
         triggerVariants({
           size,
           block,
           disabled: item.disabled,
-          selected: selectedValue === item.value,
-          hovered: hoveredValue === item.value
+          selected: selectedValue === item.value
         })
       )}>
       {item.icon && <span className={cn('flex items-center text-sm')}>{item.icon}</span>}
