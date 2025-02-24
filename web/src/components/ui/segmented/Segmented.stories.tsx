@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Segmented } from './Segmented';
-import { HouseModern } from '../icons';
+import { BottleChampagne, Grid, HouseModern, PaintRoller } from '../icons';
 
 const meta: Meta<typeof Segmented> = {
   title: 'Base/Segmented',
@@ -39,8 +39,8 @@ type Story = StoryObj<typeof Segmented>;
 
 const defaultItems = [
   { value: 'tab1', label: 'Tab 1', icon: <HouseModern /> },
-  { value: 'tab2', label: 'Tab 2', disabled: true, icon: <HouseModern /> },
-  { value: 'tab3', label: 'Tab 3', icon: <HouseModern /> }
+  { value: 'tab2', label: 'Tab 2', disabled: true },
+  { value: 'tab3', label: 'Tab 3' }
 ];
 
 export const Default: Story = {
@@ -80,9 +80,9 @@ export const LargeBlock: Story = {
 export const WithIcons: Story = {
   args: {
     items: [
-      { value: 'list', label: 'List' },
-      { value: 'grid', label: 'Grid' },
-      { value: 'gallery', label: 'Gallery' }
+      { value: 'list', label: 'List', icon: <PaintRoller /> },
+      { value: 'grid', label: 'Grid', icon: <Grid /> },
+      { value: 'gallery', label: 'Gallery', icon: <BottleChampagne /> }
     ]
   }
 };
