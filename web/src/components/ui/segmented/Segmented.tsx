@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
 import { useEffect, useState } from 'react';
 import { cva } from 'class-variance-authority';
+import { useMemoizedFn } from 'ahooks';
 
 export interface SegmentedItem {
   value: string;
@@ -21,6 +22,7 @@ interface SegmentedProps {
   className?: string;
   size?: 'default' | 'large';
   block?: boolean;
+  type?: 'button' | 'track';
 }
 
 const segmentedVariants = cva('relative inline-flex items-center rounded-md', {
@@ -32,6 +34,10 @@ const segmentedVariants = cva('relative inline-flex items-center rounded-md', {
     size: {
       default: '',
       large: ''
+    },
+    type: {
+      button: 'bg-transparent',
+      track: 'bg-item-select'
     }
   }
 });
@@ -60,19 +66,20 @@ const triggerVariants = cva(
         true: '',
         false: ''
       }
-    },
-    compoundVariants: [
-      {
-        hovered: true,
-        selected: false,
-        className: 'bg-gray-50/50'
-      }
-    ]
+    }
   }
 );
 
+const gliderVariants = cva('absolute border-border rounded-md border', {
+  variants: {
+    type: {
+      button: 'bg-item-select',
+      track: 'bg-background'
+    }
+  }
+});
 export const Segmented = React.forwardRef<HTMLDivElement, SegmentedProps>(
-  ({ items, value, onChange, className, size = 'default', block = false }, ref) => {
+  ({ items, type = 'track', value, onChange, className, size = 'default', block = false }, ref) => {
     const tabRefs = React.useRef<Map<string, HTMLButtonElement>>(new Map());
     const [selectedValue, setSelectedValue] = useState(value || items[0]?.value);
     const [hoveredValue, setHoveredValue] = useState<string | null>(null);
@@ -100,19 +107,19 @@ export const Segmented = React.forwardRef<HTMLDivElement, SegmentedProps>(
       }
     }, [selectedValue]);
 
-    const handleValueChange = (newValue: string) => {
+    const handleValueChange = useMemoizedFn((newValue: string) => {
       setSelectedValue(newValue);
       onChange?.(newValue);
-    };
+    });
 
     return (
       <Tabs.Root
         ref={ref}
         value={selectedValue}
         onValueChange={handleValueChange}
-        className={cn(segmentedVariants({ block }), 'bg-item-select', height, className)}>
+        className={cn(segmentedVariants({ block, type }), height, className)}>
         <motion.div
-          className={cn('absolute rounded-md border border-gray-200 bg-white', height)}
+          className={cn(gliderVariants({ type }), height)}
           initial={false}
           animate={{
             width: gliderStyle.width,

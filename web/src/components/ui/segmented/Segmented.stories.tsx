@@ -19,6 +19,10 @@ const meta: Meta<typeof Segmented> = {
     },
     value: {
       control: 'text'
+    },
+    type: {
+      control: 'radio',
+      options: ['button', 'track']
     }
   },
   render: (args) => {
