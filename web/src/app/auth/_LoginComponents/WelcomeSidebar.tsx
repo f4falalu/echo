@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text } from '@/components/ui/text';
 import Link from 'next/link';
-import { BusterFrameLogoWithText } from '@/assets';
+import { BusterLogoWithText } from '@/assets/svg/BusterLogoWithText';
 import { BUSTER_HOME_PAGE } from '@/routes/externalRoutes';
 
 export const WelcomeToBuster: React.FC<{
@@ -12,7 +12,7 @@ export const WelcomeToBuster: React.FC<{
       <div>
         <div className="w-[130px]">
           <Link href={BUSTER_HOME_PAGE}>
-            <BusterFrameLogoWithText />
+            <BusterLogoWithText />
           </Link>
         </div>
         <div className="mt-24">

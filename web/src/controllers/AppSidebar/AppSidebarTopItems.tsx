@@ -3,7 +3,7 @@ import { Button, ConfigProvider } from 'antd';
 import Link from 'next/link';
 import { BusterRoutes, BusterRoutesWithArgsRoute } from '@/routes';
 import { AppMaterialIcons } from '@/components/ui';
-import { BusterLogoNew } from '@/assets/svg/BusterLogoNew';
+import { BusterLogoNew } from '@/assets/svg/BusterLogoWithText';
 import { AppTooltip } from '@/components/ui';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useAntToken } from '@/styles/useAntToken';

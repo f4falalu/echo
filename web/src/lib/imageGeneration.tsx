@@ -2,7 +2,6 @@ import type { IBusterMetric } from '@/context/Metrics';
 import { downloadImageData, exportElementToImage } from './exportUtils';
 import { createRoot } from 'react-dom/client';
 import { timeout } from './timeout';
-import { BusterLogoWithTextBW } from '@/assets/svg/BusterLogoWithTextBW';
 import React, { useEffect, useRef } from 'react';
 import { BusterChart } from '@/components/ui/charts';
 import type { BusterMetricData } from '@/context/MetricData';
@@ -196,7 +195,7 @@ export const PreviewImageReactComponent: React.FC<{
           ? 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.15))'
           : 'drop-shadow(0 0 8px rgba(0, 0, 0, 0.1))'
       }}>
-      <BusterLogoWithTextBW />
+      <></>
     </div>
   );
 

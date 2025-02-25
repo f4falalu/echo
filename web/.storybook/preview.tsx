@@ -15,9 +15,11 @@ const preview: Preview = {
   decorators: [
     (Story) => {
       return (
-        <BusterStyleProvider>
-          <Story />
-        </BusterStyleProvider>
+        <div>
+          <BusterStyleProvider>
+            <Story />
+          </BusterStyleProvider>
+        </div>
       );
     }
   ]
