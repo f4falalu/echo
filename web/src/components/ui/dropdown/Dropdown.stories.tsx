@@ -35,20 +35,20 @@ export const Basic: Story = {
       {
         id: '1',
         label: 'Profile',
-        onClick: () => console.log('Profile clicked'),
+        onClick: () => alert('Profile clicked'),
         loading: false,
         icon: <PaintRoller />
       },
       {
         id: '2',
         label: 'Settings',
-        onClick: () => console.log('Settings clicked'),
+        onClick: () => alert('Settings clicked'),
         shortcut: '⌘S'
       },
       {
         id: '3',
         label: 'Logout',
-        onClick: () => console.log('Logout clicked'),
+        onClick: () => alert('Logout clicked'),
         items: [
           {
             id: '3-1',
@@ -75,21 +75,21 @@ export const WithIconsAndShortcuts: Story = {
         label: 'Profile',
         icon: '👤',
         shortcut: '⌘P',
-        onClick: () => console.log('Profile clicked')
+        onClick: () => alert('Profile clicked')
       },
       {
         id: '2',
         label: 'Settings',
         icon: '⚙️',
         shortcut: '⌘S',
-        onClick: () => console.log('Settings clicked')
+        onClick: () => alert('Settings clicked')
       },
       {
         id: '3',
         label: 'Logout',
         icon: '🚪',
         shortcut: '⌘L',
-        onClick: () => console.log('Logout clicked')
+        onClick: () => alert('Logout clicked')
       }
     ],
     children: <Button>Menu with Icons</Button>
@@ -108,12 +108,12 @@ export const WithNestedItems: Story = {
           {
             id: '1-1',
             label: 'Option 1',
-            onClick: () => console.log('Option 1 clicked')
+            onClick: () => alert('Option 1 clicked')
           },
           {
             id: '1-2',
             label: 'Option 2',
-            onClick: () => console.log('Option 2 clicked')
+            onClick: () => alert('Option 2 clicked')
           }
         ]
       },
@@ -124,12 +124,12 @@ export const WithNestedItems: Story = {
           {
             id: '2-1',
             label: 'Sub Option 1',
-            onClick: () => console.log('Sub Option 1 clicked')
+            onClick: () => alert('Sub Option 1 clicked')
           },
           {
             id: '2-2',
             label: 'Sub Option 2',
-            onClick: () => console.log('Sub Option 2 clicked')
+            onClick: () => alert('Sub Option 2 clicked')
           }
         ]
       }
@@ -145,18 +145,18 @@ export const WithDisabledItems: Story = {
       {
         id: '1',
         label: 'Available Option',
-        onClick: () => console.log('Available clicked')
+        onClick: () => alert('Available clicked')
       },
       {
         id: '2',
         label: 'Disabled Option',
         disabled: true,
-        onClick: () => console.log('Should not be called')
+        onClick: () => alert('Should not be called')
       },
       {
         id: '3',
         label: 'Another Available',
-        onClick: () => console.log('Another clicked')
+        onClick: () => alert('Another clicked')
       }
     ],
     children: <Button>Menu with Disabled Items</Button>
@@ -173,12 +173,12 @@ export const CustomWidth: Story = {
       {
         id: '1',
         label: 'This is a very long menu item that might need wrapping',
-        onClick: () => console.log('Long item clicked')
+        onClick: () => alert('Long item clicked')
       },
       {
         id: '2',
         label: 'Short item',
-        onClick: () => console.log('Short item clicked')
+        onClick: () => alert('Short item clicked')
       }
     ],
     children: <Button>Wide Menu</Button>
@@ -192,29 +192,29 @@ export const WithLoadingItems: Story = {
       {
         id: '1',
         label: 'Normal Item',
-        onClick: () => console.log('Normal clicked')
+        onClick: () => alert('Normal clicked')
       },
       {
         id: '2',
         label: 'Loading Item',
         loading: true,
-        onClick: () => console.log('Loading clicked')
+        onClick: () => alert('Loading clicked')
       },
       {
         id: '3',
         label: 'Another Normal',
-        onClick: () => console.log('Another clicked')
+        onClick: () => alert('Another clicked')
       },
       { type: 'divider' },
       {
         id: '4',
         label: 'Option 4',
-        onClick: () => console.log('Option 4 clicked')
+        onClick: () => alert('Option 4 clicked')
       },
       {
         id: '5',
         label: 'Option 5',
-        onClick: () => console.log('Option 5 clicked')
+        onClick: () => alert('Option 5 clicked')
       }
     ],
     children: <Button>Menu with Loading</Button>
@@ -230,17 +230,17 @@ export const WithSelectionSingle: Story = {
         id: '1',
         label: 'Option 1',
         selected: false,
-        onClick: () => console.log('Option 1 clicked')
+        onClick: () => alert('Option 1 clicked')
       },
       {
         id: '2',
         label: 'Option 2',
-        onClick: () => console.log('Option 2 clicked')
+        onClick: () => alert('Option 2 clicked')
       },
       {
         id: '3',
         label: 'Option 3 - Selected',
-        onClick: () => console.log('Option 3 clicked'),
+        onClick: () => alert('Option 3 clicked'),
         selected: true
       }
     ],
@@ -257,32 +257,32 @@ export const WithSelectionMultiple: Story = {
         id: '1',
         label: 'Option 1',
         selected: selectedIds.has('1'),
-        onClick: () => console.log('Option 1 clicked')
+        onClick: () => alert('Option 1 clicked')
       },
       {
         id: '2',
         label: 'Option 2',
         selected: selectedIds.has('2'),
-        onClick: () => console.log('Option 2 clicked')
+        onClick: () => alert('Option 2 clicked')
       },
       {
         id: '3',
         label: 'Option 3',
         selected: selectedIds.has('3'),
-        onClick: () => console.log('Option 3 clicked')
+        onClick: () => alert('Option 3 clicked')
       },
       { type: 'divider' as const },
       {
         id: '4',
         label: 'Option 4',
         selected: selectedIds.has('4'),
-        onClick: () => console.log('Option 4 clicked')
+        onClick: () => alert('Option 4 clicked')
       },
       {
         id: '5',
         label: 'Option 5',
         selected: selectedIds.has('5'),
-        onClick: () => console.log('Option 5 clicked')
+        onClick: () => alert('Option 5 clicked')
       }
     ];
 
@@ -319,14 +319,14 @@ export const WithSecondaryLabel: Story = {
         id: '1',
         label: 'Profile Settings',
         secondaryLabel: 'User preferences',
-        onClick: () => console.log('Profile clicked'),
+        onClick: () => alert('Profile clicked'),
         icon: <PaintRoller />
       },
       {
         id: '2',
         label: 'Storage',
         secondaryLabel: '45GB used',
-        onClick: () => console.log('Storage clicked'),
+        onClick: () => alert('Storage clicked'),
         icon: <Storage />
       },
       { type: 'divider' },
@@ -334,7 +334,7 @@ export const WithSecondaryLabel: Story = {
         id: '3',
         label: 'Subscription',
         secondaryLabel: 'Pro Plan',
-        onClick: () => console.log('Subscription clicked'),
+        onClick: () => alert('Subscription clicked'),
         icon: <Star />
       }
     ],
@@ -354,7 +354,7 @@ export const WithSearchHeader: Story = {
         label: 'Profile Settings',
         searchLabel: 'profile settings user preferences account',
         secondaryLabel: 'User preferences',
-        onClick: () => console.log('Profile clicked'),
+        onClick: () => alert('Profile clicked'),
         icon: <PaintRoller />
       },
       {
@@ -362,7 +362,7 @@ export const WithSearchHeader: Story = {
         label: 'Storage Options',
         searchLabel: 'storage disk space memory',
         secondaryLabel: 'Manage storage space',
-        onClick: () => console.log('Storage clicked'),
+        onClick: () => alert('Storage clicked'),
         icon: <Storage />
       },
       {
@@ -370,7 +370,7 @@ export const WithSearchHeader: Story = {
         label: 'Favorites',
         searchLabel: 'favorites starred items bookmarks',
         secondaryLabel: 'View starred items',
-        onClick: () => console.log('Favorites clicked'),
+        onClick: () => alert('Favorites clicked'),
         icon: <Star />
       },
       { type: 'divider' },
@@ -378,12 +378,12 @@ export const WithSearchHeader: Story = {
         id: '4',
         label: 'Logout',
 
-        onClick: () => console.log('Logout clicked')
+        onClick: () => alert('Logout clicked')
       },
       {
         id: '5',
         label: 'Invite User',
-        onClick: () => console.log('Invite User clicked')
+        onClick: () => alert('Invite User clicked')
       }
     ],
     children: <Button>Searchable Menu</Button>
@@ -405,11 +405,113 @@ export const WithLongText: Story = {
           label,
           secondaryLabel,
           searchLabel: label + ' ' + secondaryLabel,
-          onClick: () => console.log('Long text clicked'),
+          onClick: () => alert('Long text clicked'),
           truncate: true
         };
       })
     ],
     children: <Button>Long Text Menu</Button>
+  }
+};
+
+// Example with links
+export const WithLinks: Story = {
+  args: {
+    menuHeader: 'Navigation Links',
+    items: [
+      {
+        id: '1',
+        label: 'Documentation',
+        link: '/docs',
+        icon: <Storage />,
+        onClick: () => alert('Documentation clicked')
+      },
+      {
+        id: '2',
+        label: 'GitHub Repository',
+        link: 'https://github.com/example/repo',
+        icon: <Star />,
+        secondaryLabel: 'External Link'
+      },
+      { type: 'divider' },
+      {
+        id: '3',
+        label: 'Settings Page',
+        link: '/settings',
+        icon: <PaintRoller />
+      },
+      {
+        id: '4',
+        label: 'Help Center',
+        link: '/help',
+        secondaryLabel: 'Get Support'
+      }
+    ],
+    children: <Button>Menu with Links</Button>
+  }
+};
+
+// Interactive example with links and multiple selection
+export const WithLinksAndMultipleSelection: Story = {
+  render: () => {
+    const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set(['2']));
+
+    const items: DropdownItems = [
+      {
+        id: '1',
+        label: 'Documentation Home',
+        link: '/docs',
+        selected: selectedIds.has('1'),
+        icon: <Storage />,
+        secondaryLabel: 'Main documentation'
+      },
+      {
+        id: '2',
+        label: 'API Reference',
+        link: '/docs/api',
+        selected: selectedIds.has('2'),
+        icon: <Star />,
+        secondaryLabel: 'API documentation'
+      },
+      { type: 'divider' as const },
+      {
+        id: '3',
+        label: 'Tutorials',
+        link: '/docs/tutorials',
+        selected: selectedIds.has('3'),
+        icon: <PaintRoller />,
+        secondaryLabel: 'Learn step by step'
+      },
+      {
+        id: '4',
+        label: 'Examples',
+        link: '/docs/examples',
+        selected: selectedIds.has('4'),
+        secondaryLabel: 'Code examples'
+      }
+    ];
+
+    const handleSelect = (itemId: string) => {
+      setSelectedIds((prev) => {
+        const newSet = new Set(prev);
+        if (newSet.has(itemId)) {
+          newSet.delete(itemId);
+        } else {
+          newSet.add(itemId);
+        }
+        return newSet;
+      });
+    };
+
+    return (
+      <Dropdown
+        open
+        selectType="multiple"
+        items={items}
+        menuHeader={{ placeholder: 'Search documentation...' }}
+        onSelect={handleSelect}
+        children={<Button>Documentation Sections</Button>}
+      />
+    );
   }
 };

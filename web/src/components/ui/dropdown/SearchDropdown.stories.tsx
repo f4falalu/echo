@@ -50,7 +50,7 @@ export const Default: Story = {
   args: {
     items: items,
     open: true,
-    onSelect: (item) => console.log('Selected:', item.value)
+    onSelect: (item) => alert(`Selected: ${item.value}`)
   }
 };
 
@@ -66,7 +66,7 @@ export const WithDisabledItems: Story = {
       }
     ],
     open: true,
-    onSelect: (item) => console.log('Selected:', item)
+    onSelect: (item) => alert(`Selected: ${item.value}`)
   }
 };
 
@@ -76,6 +76,6 @@ export const CustomStyling: Story = {
     items: items,
     open: true,
     className: 'bg-slate-100 rounded-lg shadow-lg',
-    onSelect: (item) => console.log('Selected:', item)
+    onSelect: (item) => alert(`Selected: ${item.value}`)
   }
 };

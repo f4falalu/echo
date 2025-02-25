@@ -86,7 +86,7 @@ export const DisabledChecked: Story = {
 // Example with event handler
 export const WithOnChange: Story = {
   args: {
-    onCheckedChange: (checked: boolean) => console.log('Checked:', checked)
+    onCheckedChange: (checked: boolean) => alert(`Checked: ${checked}`)
   }
 };
 

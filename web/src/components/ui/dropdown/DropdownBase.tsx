@@ -2,10 +2,19 @@
 
 import * as React from 'react';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
-import { Check3 as Check, ChevronRight } from '../icons/NucleoIconOutlined';
+import {
+  ArrowRight,
+  ArrowUpRight,
+  CaretRight,
+  Check3 as Check,
+  ChevronRight
+} from '../icons/NucleoIconOutlined';
 
 import { cn } from '@/lib/classMerge';
 import { Checkbox } from '../checkbox/Checkbox';
+import { Button } from '../buttons/Button';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
 
@@ -83,6 +92,7 @@ const DropdownMenuItem = React.forwardRef<
       'focus:bg-item-hover focus:text-foreground relative flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition-colors outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
       inset && 'pl-8',
       truncate && 'overflow-hidden',
+      'group',
       className
     )}
     onClick={(e) => {
@@ -100,7 +110,8 @@ DropdownMenuItem.displayName = DropdownMenuPrimitive.Item.displayName;
 const itemClass = cn(
   'focus:bg-item-hover focus:text-foreground',
   'relative flex cursor-pointer items-center rounded-sm py-1.5 text-sm transition-colors outline-none select-none',
-  'data-[disabled]:pointer-events-none data-[disabled]:opacity-50'
+  'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+  'gap-1.5'
 );
 
 const DropdownMenuCheckboxItemSingle = React.forwardRef<
@@ -180,7 +191,7 @@ const DropdownMenuLabel = React.forwardRef<
 >(({ className, inset, ...props }, ref) => (
   <DropdownMenuPrimitive.Label
     ref={ref}
-    className={cn('px-2 py-1.5 text-sm', inset && 'pl-8', className)}
+    className={cn('text-gray-dark px-2 py-1.5 text-sm', inset && 'pl-8', className)}
     {...props}
   />
 ));
@@ -209,6 +220,33 @@ const DropdownMenuShortcut = ({ className, ...props }: React.HTMLAttributes<HTML
 };
 DropdownMenuShortcut.displayName = 'DropdownMenuShortcut';
 
+const DropdownMenuLink: React.FC<{
+  className?: string;
+  link: string;
+  linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right';
+}> = ({ className, link, linkIcon = 'arrow-right', ...props }) => {
+  const icon = React.useMemo(() => {
+    if (linkIcon === 'arrow-right') return <ArrowRight />;
+    if (linkIcon === 'arrow-external') return <ArrowUpRight />;
+    if (linkIcon === 'caret-right') return <CaretRight />;
+  }, [linkIcon]);
+
+  const isExternal = link?.startsWith('http');
+
+  return (
+    <Link className={className} href={link} target={isExternal ? '_blank' : '_self'}>
+      <Button
+        prefix={icon}
+        variant="ghost"
+        size="small"
+        rounding={'default'}
+        className={cn('text-gray-dark hover:bg-gray-dark/8')}
+      />
+    </Link>
+  );
+};
+DropdownMenuLink.displayName = 'DropdownMenuLink';
+
 export {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -223,5 +261,6 @@ export {
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-  DropdownMenuCheckboxItemMultiple
+  DropdownMenuCheckboxItemMultiple,
+  DropdownMenuLink
 };

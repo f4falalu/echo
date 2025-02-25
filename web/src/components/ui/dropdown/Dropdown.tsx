@@ -1,10 +1,11 @@
-import { DropdownMenuLabel, DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
+import { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 import React, { useMemo } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup, //Do I need this?
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuPortal,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
@@ -13,7 +14,8 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
   DropdownMenuCheckboxItemSingle,
-  DropdownMenuCheckboxItemMultiple
+  DropdownMenuCheckboxItemMultiple,
+  DropdownMenuLink
 } from './DropdownBase';
 import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
 import { useMemoizedFn } from 'ahooks';
@@ -35,6 +37,8 @@ export interface DropdownItem {
   loading?: boolean;
   selected?: boolean;
   items?: DropdownItems;
+  link?: string;
+  linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right';
 }
 
 export interface DropdownDivider {
@@ -233,7 +237,9 @@ const DropdownItem: React.FC<
   onSelect,
   selectType,
   secondaryLabel,
-  truncate
+  truncate,
+  link,
+  linkIcon
 }) => {
   const onClickItem = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
     if (onClick) onClick();
@@ -252,6 +258,13 @@ const DropdownItem: React.FC<
         {secondaryLabel && <span className="text-gray-light text-xxs">{secondaryLabel}</span>}
       </div>
       {shortcut && <DropdownMenuShortcut>{shortcut}</DropdownMenuShortcut>}
+      {link && (
+        <DropdownMenuLink
+          className="-mr-1 ml-auto opacity-0 group-hover:opacity-50 hover:opacity-100"
+          link={link}
+          linkIcon={linkIcon}
+        />
+      )}
     </>
   );
 
