@@ -185,8 +185,19 @@ async fn setup_redshift(buster_url: String, buster_api_key: String) -> Result<()
     println!("Port: {}", port.to_string().cyan());
     println!("Username: {}", username.cyan());
     println!("Password: {}", "********".cyan());
-    println!("Database: {}", database.clone().unwrap_or_else(|| "All databases".to_string()).cyan());
-    println!("Schema: {}", schema.clone().unwrap_or_else(|| "All schemas".to_string()).cyan());
+    
+    // Display database and schema with clear indication if they're empty
+    if let Some(db) = &database {
+        println!("Database: {}", db.cyan());
+    } else {
+        println!("Database: {}", "All databases (null)".cyan());
+    }
+    
+    if let Some(sch) = &schema {
+        println!("Schema: {}", sch.cyan());
+    } else {
+        println!("Schema: {}", "All schemas (null)".cyan());
+    }
 
     let confirm = Confirm::new("Do you want to create this data source?")
         .with_default(true)
@@ -208,6 +219,8 @@ async fn setup_redshift(buster_url: String, buster_api_key: String) -> Result<()
     };
 
     // Create API request
+    // Note: PostgresCredentials requires String for database and schema, not Option<String>
+    // We use empty strings to represent null/all databases or schemas
     let request = PostDataSourcesRequest {
         name: name.clone(),
         env: "dev".to_string(), // Default to dev environment

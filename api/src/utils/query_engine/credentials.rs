@@ -82,7 +82,6 @@ pub struct PostgresCredentials {
     pub ssh_private_key: Option<String>,
 }
 
-// Deprecated: REDSHIFT just uses postgres credentials
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RedshiftCredentials {
     pub host: String,
@@ -222,7 +221,16 @@ pub async fn get_data_source_credentials(
                     if redact_secret {
                         credential.password = "[REDACTED]".to_string();
                     }
-                    Credential::Postgres(credential)
+                    // Convert PostgresCredentials to RedshiftCredentials
+                    let redshift_creds = RedshiftCredentials {
+                        host: credential.host,
+                        port: credential.port,
+                        username: credential.username,
+                        password: credential.password,
+                        database: Some(credential.database),
+                        schemas: credential.schema.map(|s| vec![s]),
+                    };
+                    Credential::Redshift(redshift_creds)
                 }
                 Err(e) => {
                     tracing::error!("Error deserializing Redshift secret: {:?}, raw secret: {}", e, secret_string);
