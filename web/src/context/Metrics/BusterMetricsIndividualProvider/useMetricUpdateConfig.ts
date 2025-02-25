@@ -3,7 +3,7 @@ import type { IBusterMetric } from '../interfaces';
 import {
   BusterMetric,
   DEFAULT_CHART_CONFIG,
-  IBusterMetricChartConfig,
+  type IBusterMetricChartConfig,
   ShareRole,
   VerificationStatus
 } from '@/api/asset_interfaces';

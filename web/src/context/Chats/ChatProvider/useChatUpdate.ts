@@ -1,11 +1,9 @@
-import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
-import { useTransition, type MutableRefObject } from 'react';
+import { useTransition } from 'react';
 import type { IBusterChat, IBusterChatMessage } from '../interfaces';
 import { useSocketQueryMutation } from '@/api/buster_socket_query';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
-import { create } from 'mutative';
 
 export const useChatUpdate = () => {
   const [isPending, startTransition] = useTransition();
