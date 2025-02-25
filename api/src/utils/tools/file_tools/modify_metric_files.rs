@@ -23,7 +23,7 @@ use crate::{
         models::{DashboardFile, MetricFile},
         schema::{dashboard_files, metric_files},
     },
-    utils::{agent::Agent, tools::ToolExecutor},
+    utils::{agent::Agent, tools::{file_tools::common::METRIC_YML_SCHEMA, ToolExecutor}},
 };
 
 use litellm::ToolCall;
@@ -415,7 +415,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
               "properties": {
                 "files": {
                   "type": "array",
-                  "description": "List of files to modify with their corresponding modifications",
+                  "description": METRIC_YML_SCHEMA,
                   "items": {
                     "type": "object",
                     "required": [

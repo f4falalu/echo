@@ -46,6 +46,394 @@ pub async fn validate_metric_ids(ids: &[Uuid]) -> Result<Vec<Uuid>> {
     Ok(missing_ids)
 }
 
+pub const METRIC_YML_SCHEMA: &str = r##"
+# METRIC CONFIGURATION - YAML STRUCTURE
+# -------------------------------------
+# Required top-level fields:
+#
+# title: "Your Metric Title"
+# dataset_ids: ["uuid1", "uuid2"]  # Dataset UUIDs this metric belongs to
+# time_frame: "Last 30 days"  # Human-readable time period covered by the query
+# sql: |
+#   SELECT 
+#     date,
+#     SUM(amount) AS total
+#   FROM sales
+#   GROUP BY date
+# 
+# chart_config:
+#   selected_chart_type: "bar"  # One of: bar, line, scatter, pie, combo, metric, table
+#   selected_view: "view_name"
+#   column_label_formats: {...}  # Required formatting for columns
+#   # Additional properties based on chart type
+#
+# data_metadata:  # Column definitions
+#   - name: "date"
+#     data_type: "date"
+#   - name: "total" 
+#     data_type: "number"
+# -------------------------------------
+
+type: object
+title: "Metric Configuration Schema"
+description: "Metric definition with SQL query and visualization settings"
+
+properties:
+  # TITLE
+  title:
+    type: string
+    description: "Human-readable title (e.g., 'Total Sales')"
+
+  # DATASET IDS
+  dataset_ids:
+    type: array
+    description: "UUIDs of datasets this metric belongs to"
+    
+  # TIME FRAME
+  time_frame:
+    type: string
+    description: "Human-readable time period covered by the query (e.g., 'Last 30 days', 'All time', 'August 1, 2024 - January 1, 2025', 'Comparison: August 2025 to August 2024')"
+
+  # SQL QUERY
+  sql:
+    type: string
+    description: "SQL query using YAML pipe syntax (|)"
+
+  # CHART CONFIGURATION
+  chart_config:
+    description: "Visualization settings (must match one chart type)"
+    oneOf:
+      - $ref: "#/definitions/bar_line_chart_config"
+      - $ref: "#/definitions/scatter_chart_config"
+      - $ref: "#/definitions/pie_chart_config"
+      - $ref: "#/definitions/combo_chart_config"
+      - $ref: "#/definitions/metric_chart_config"
+      - $ref: "#/definitions/table_chart_config"
+
+  # DATA METADATA
+  data_metadata:
+    type: array
+    description: "Column definitions with name and data_type"
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Column name"
+        data_type:
+          type: string
+          description: "Data type (string, number, date)"
+      required:
+        - name
+        - data_type
+
+required:
+  - title
+  - dataset_ids
+  - time_frame
+  - sql
+  - chart_config
+
+definitions:
+  # BASE CHART CONFIG (common to all chart types)
+  base_chart_config:
+    type: object
+    properties:
+      selected_chart_type:
+        type: string
+        description: "Chart type (bar, line, scatter, pie, combo, metric, table)"
+      selected_view:
+        type: string
+        description: "View name"
+      column_label_formats:
+        type: object
+        description: "Column formatting {columnId: formatObject}"
+        additionalProperties:
+          $ref: "#/definitions/i_column_label_format"
+      column_settings:
+        type: object
+        description: "Visual settings {columnId: settingsObject}"
+        additionalProperties:
+          $ref: "#/definitions/column_settings"
+      colors:
+        type: array
+        items:
+          type: string
+      show_legend:
+        type: boolean
+      grid_lines:
+        type: boolean
+      goal_lines:
+        type: array
+        items:
+          $ref: "#/definitions/goal_line"
+      trendlines:
+        type: array
+        items:
+          $ref: "#/definitions/trendline"
+    required:
+      - selected_chart_type
+      - selected_view
+      - column_label_formats
+
+  # COLUMN FORMATTING
+  i_column_label_format:
+    type: object
+    properties:
+      column_type:
+        type: string
+        description: "number, string, date"
+      style:
+        type: string
+        enum: ["currency", "percent", "number", "date", "string"]
+      display_name:
+        type: string
+      prefix:
+        type: string
+      suffix:
+        type: string
+    required:
+      - column_type
+      - style
+
+  # COLUMN VISUAL SETTINGS
+  column_settings:
+    type: object
+    properties:
+      show_data_labels:
+        type: boolean
+      column_visualization:
+        type: string
+        enum: ["bar", "line", "dot"]
+      line_width:
+        type: number
+      line_style:
+        type: string
+        enum: ["area", "line"]
+      line_type:
+        type: string
+        enum: ["normal", "smooth", "step"]
+
+  # CHART-SPECIFIC CONFIGURATIONS
+  bar_line_chart_config:
+    allOf:
+      - $ref: "#/definitions/base_chart_config"
+      - type: object
+        properties:
+          selected_chart_type:
+            enum: ["bar", "line"]
+          bar_and_line_axis:
+            type: object
+            properties:
+              x:
+                type: array
+                items:
+                  type: string
+              y:
+                type: array
+                items:
+                  type: string
+              category:
+                type: array
+                items:
+                  type: string
+            required:
+              - x
+              - y
+              - category
+          bar_layout:
+            type: string
+            enum: ["horizontal", "vertical"]
+          bar_group_type:
+            type: string
+            enum: ["stack", "group", "percentage-stack"]
+        required:
+          - bar_and_line_axis
+
+  scatter_chart_config:
+    allOf:
+      - $ref: "#/definitions/base_chart_config"
+      - type: object
+        properties:
+          selected_chart_type:
+            enum: ["scatter"]
+          scatter_axis:
+            type: object
+            properties:
+              x:
+                type: array
+                items:
+                  type: string
+              y:
+                type: array
+                items:
+                  type: string
+            required:
+              - x
+              - y
+        required:
+          - scatter_axis
+
+  pie_chart_config:
+    allOf:
+      - $ref: "#/definitions/base_chart_config"
+      - type: object
+        properties:
+          selected_chart_type:
+            enum: ["pie"]
+          pie_chart_axis:
+            type: object
+            properties:
+              x:
+                type: array
+                items:
+                  type: string
+              y:
+                type: array
+                items:
+                  type: string
+            required:
+              - x
+              - y
+        required:
+          - pie_chart_axis
+
+  combo_chart_config:
+    allOf:
+      - $ref: "#/definitions/base_chart_config"
+      - type: object
+        properties:
+          selected_chart_type:
+            enum: ["combo"]
+          combo_chart_axis:
+            type: object
+            properties:
+              x:
+                type: array
+                items:
+                  type: string
+              y:
+                type: array
+                items:
+                  type: string
+            required:
+              - x
+              - y
+        required:
+          - combo_chart_axis
+
+  metric_chart_config:
+    allOf:
+      - $ref: "#/definitions/base_chart_config"
+      - type: object
+        properties:
+          selected_chart_type:
+            enum: ["metric"]
+          metric_column_id:
+            type: string
+          metric_value_aggregate:
+            type: string
+            enum: ["sum", "average", "median", "max", "min", "count", "first"]
+        required:
+          - metric_column_id
+
+  table_chart_config:
+    allOf:
+      - $ref: "#/definitions/base_chart_config"
+      - type: object
+        properties:
+          selected_chart_type:
+            enum: ["table"]
+          table_column_order:
+            type: array
+            items:
+              type: string
+
+  # HELPER OBJECTS
+  goal_line:
+    type: object
+    properties:
+      show:
+        type: boolean
+      value:
+        type: number
+      goal_line_label:
+        type: string
+
+  trendline:
+    type: object
+    properties:
+      type:
+        type: string
+        enum: ["average", "linear_regression", "min", "max", "median"]
+      column_id:
+        type: string
+    required:
+      - type
+      - column_id
+"##;
+
+pub const DASHBOARD_YML_SCHEMA: &str = r##"
+# DASHBOARD CONFIGURATION - YAML STRUCTURE
+# ----------------------------------------
+# Required fields:
+#
+# title: "Your Dashboard Title"
+# rows: 
+#   - items:
+#       - id: "metric-uuid-1"  # UUIDv4 of an existing metric
+#         width: 6             # Width value between 3-12
+#       - id: "metric-uuid-2"
+#         width: 6
+#   - items:
+#       - id: "metric-uuid-3"
+#         width: 12
+#
+# Rules:
+# 1. Each row can have up to 4 items
+# 2. Each item width must be between 3-12
+# 3. Sum of widths in a row must not exceed 12
+# ----------------------------------------
+
+type: object
+title: 'Dashboard Configuration Schema'
+description: 'Specifies the structure and constraints of a dashboard config file.'
+properties:
+  title:
+    type: string
+    description: "The title of the dashboard (e.g. 'Sales & Marketing Dashboard')"
+  rows:
+    type: array
+    description: "Array of row objects, each containing metric items"
+    items:
+      type: object
+      properties:
+        items:
+          type: array
+          description: "Array of metrics to display in this row (max 4 items)"
+          max_items: 4
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: "UUIDv4 identifier of an existing metric"
+              width:
+                type: integer
+                description: "Width value (3-12, sum per row ≤ 12)"
+                minimum: 3
+                maximum: 12
+            required:
+              - id
+              - width
+      required:
+        - items
+required:
+  - title
+  - rows
+"##;
+
+
 #[cfg(test)]
 mod tests {
     use super::*;

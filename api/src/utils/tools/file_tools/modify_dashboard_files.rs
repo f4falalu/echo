@@ -13,12 +13,18 @@ use uuid::Uuid;
 
 use super::{
     common::validate_metric_ids,
-    file_types::{dashboard_yml::DashboardYml, file::{FileEnum, FileWithId}},
+    file_types::{
+        dashboard_yml::DashboardYml,
+        file::{FileEnum, FileWithId},
+    },
     FileModificationTool,
 };
 use crate::{
     database_dep::{lib::get_pg_pool, models::DashboardFile, schema::dashboard_files},
-    utils::{agent::Agent, tools::ToolExecutor},
+    utils::{
+        agent::Agent,
+        tools::{file_tools::common::DASHBOARD_YML_SCHEMA, ToolExecutor},
+    },
 };
 
 use litellm::ToolCall;
@@ -347,12 +353,16 @@ impl ToolExecutor for ModifyDashboardFilesTool {
             {
                 Ok(_) => {
                     output.files.extend(
-                        batch.dashboard_files.iter().zip(batch.dashboard_ymls.iter()).map(|(file, yml)| FileWithId {
-                            id: file.id,
-                            name: file.name.clone(),
-                            file_type: "dashboard".to_string(),
-                            yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
-                        })
+                        batch
+                            .dashboard_files
+                            .iter()
+                            .zip(batch.dashboard_ymls.iter())
+                            .map(|(file, yml)| FileWithId {
+                                id: file.id,
+                                name: file.name.clone(),
+                                file_type: "dashboard".to_string(),
+                                yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
+                            }),
                     );
                 }
                 Err(e) => {
@@ -444,7 +454,7 @@ impl ToolExecutor for ModifyDashboardFilesTool {
                             },
                             "additionalProperties": false
                         },
-                        "description": "Array of dashboard files to modify with their modifications."
+                        "description": DASHBOARD_YML_SCHEMA
                     }
                 },
                 "additionalProperties": false
