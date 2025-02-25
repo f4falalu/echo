@@ -1,9 +1,11 @@
 use anyhow::Result;
 use colored::*;
-use inquire::{Select, Text, Password, validator::Validation};
+use inquire::{Select, Text, Password, validator::Validation, Confirm};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
+use indicatif::{ProgressBar, ProgressStyle};
+use std::time::Duration;
 
 use crate::utils::{
     buster_credentials::get_and_validate_buster_credentials,
@@ -43,17 +45,28 @@ struct RedshiftCredentials {
 pub async fn init() -> Result<()> {
     println!("{}", "Initializing Buster...".bold().green());
 
-    // Check for Buster credentials
-    println!("Checking for Buster credentials...");
+    // Check for Buster credentials with progress indicator
+    let spinner = ProgressBar::new_spinner();
+    spinner.set_style(
+        ProgressStyle::default_spinner()
+            .tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈ ")
+            .template("{spinner:.green} {msg}")
+            .unwrap(),
+    );
+    spinner.set_message("Checking for Buster credentials...");
+    spinner.enable_steady_tick(Duration::from_millis(100));
+
     let buster_creds = match get_and_validate_buster_credentials().await {
-        Ok(creds) => creds,
+        Ok(creds) => {
+            spinner.finish_with_message("✓ Buster credentials found".green().to_string());
+            creds
+        },
         Err(_) => {
-            println!("{}", "No valid Buster credentials found.".red());
+            spinner.finish_with_message("✗ No valid Buster credentials found".red().to_string());
             println!("Please run {} first.", "buster auth".cyan());
             return Err(anyhow::anyhow!("No valid Buster credentials found"));
         }
     };
-    println!("{}", "✓ Buster credentials found".green());
 
     // Select database type
     let db_types = vec![
@@ -75,19 +88,23 @@ pub async fn init() -> Result<()> {
         DatabaseType::Redshift => setup_redshift(buster_creds.url, buster_creds.api_key).await,
         _ => {
             println!("{}", format!("{} support is coming soon!", db_type).yellow());
+            println!("Currently, only Redshift is supported.");
             Err(anyhow::anyhow!("Database type not yet implemented"))
         }
     }
 }
 
 async fn setup_redshift(buster_url: String, buster_api_key: String) -> Result<()> {
-    println!("{}", "Setting up Redshift connection...".bold());
-
+    println!("{}", "Setting up Redshift connection...".bold().green());
+    
     // Collect name (with validation)
     let name_regex = Regex::new(r"^[a-zA-Z0-9_-]+$")?;
     let name = Text::new("Enter a unique name for this data source:")
         .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed")
         .with_validator(move |input: &str| {
+            if input.trim().is_empty() {
+                return Ok(Validation::Invalid("Name cannot be empty".into()));
+            }
             if name_regex.is_match(input) {
                 Ok(Validation::Valid)
             } else {
@@ -99,6 +116,12 @@ async fn setup_redshift(buster_url: String, buster_api_key: String) -> Result<()
     // Collect host
     let host = Text::new("Enter the Redshift host:")
         .with_help_message("Example: my-cluster.abc123xyz789.us-west-2.redshift.amazonaws.com")
+        .with_validator(|input: &str| {
+            if input.trim().is_empty() {
+                return Ok(Validation::Invalid("Host cannot be empty".into()));
+            }
+            Ok(Validation::Valid)
+        })
         .prompt()?;
 
     // Collect port (with validation)
@@ -116,10 +139,22 @@ async fn setup_redshift(buster_url: String, buster_api_key: String) -> Result<()
 
     // Collect username
     let username = Text::new("Enter the Redshift username:")
+        .with_validator(|input: &str| {
+            if input.trim().is_empty() {
+                return Ok(Validation::Invalid("Username cannot be empty".into()));
+            }
+            Ok(Validation::Valid)
+        })
         .prompt()?;
 
     // Collect password (masked)
     let password = Password::new("Enter the Redshift password:")
+        .with_validator(|input: &str| {
+            if input.trim().is_empty() {
+                return Ok(Validation::Invalid("Password cannot be empty".into()));
+            }
+            Ok(Validation::Valid)
+        })
         .without_confirmation()
         .prompt()?;
 
@@ -142,6 +177,25 @@ async fn setup_redshift(buster_url: String, buster_api_key: String) -> Result<()
     } else {
         Some(schema)
     };
+
+    // Show summary and confirm
+    println!("\n{}", "Connection Summary:".bold());
+    println!("Name: {}", name.cyan());
+    println!("Host: {}", host.cyan());
+    println!("Port: {}", port.to_string().cyan());
+    println!("Username: {}", username.cyan());
+    println!("Password: {}", "********".cyan());
+    println!("Database: {}", database.clone().unwrap_or_else(|| "All databases".to_string()).cyan());
+    println!("Schema: {}", schema.clone().unwrap_or_else(|| "All schemas".to_string()).cyan());
+
+    let confirm = Confirm::new("Do you want to create this data source?")
+        .with_default(true)
+        .prompt()?;
+
+    if !confirm {
+        println!("{}", "Data source creation cancelled.".yellow());
+        return Ok(());
+    }
 
     // Create credentials
     let redshift_creds = RedshiftCredentials {
@@ -172,19 +226,30 @@ async fn setup_redshift(buster_url: String, buster_api_key: String) -> Result<()
         ),
     };
 
-    // Send to API
-    println!("Sending credentials to Buster API...");
+    // Send to API with progress indicator
+    let spinner = ProgressBar::new_spinner();
+    spinner.set_style(
+        ProgressStyle::default_spinner()
+            .tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈ ")
+            .template("{spinner:.green} {msg}")
+            .unwrap(),
+    );
+    spinner.set_message("Sending credentials to Buster API...");
+    spinner.enable_steady_tick(Duration::from_millis(100));
+
     let client = BusterClient::new(buster_url, buster_api_key)?;
     
     match client.post_data_sources(vec![request]).await {
         Ok(_) => {
-            println!("{}", "✓ Data source created successfully!".green().bold());
-            println!("Data source '{}' is now available for use with Buster.", name.cyan());
+            spinner.finish_with_message("✓ Data source created successfully!".green().bold().to_string());
+            println!("\nData source '{}' is now available for use with Buster.", name.cyan());
+            println!("You can now use this data source with other Buster commands.");
             Ok(())
         },
         Err(e) => {
-            println!("{}", "✗ Failed to create data source".red().bold());
-            println!("Error: {}", e);
+            spinner.finish_with_message("✗ Failed to create data source".red().bold().to_string());
+            println!("\nError: {}", e);
+            println!("Please check your credentials and try again.");
             Err(anyhow::anyhow!("Failed to create data source: {}", e))
         }
     }
