@@ -4,7 +4,6 @@ import * as React from 'react';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 //import { Check, ChevronRight, Circle } from 'lucide-react';
 import { Check, ChevronRight } from '../icons/NucleoIconOutlined';
-import I12px_chevronRight from '../icons/NucleoIconOutlined/I12px_chevron-right';
 import { ShapeCircle } from '../icons/NucleoIconOutlined';
 
 import { cn } from '@/lib/classMerge';
