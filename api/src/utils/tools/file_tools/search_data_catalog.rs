@@ -20,13 +20,13 @@ use litellm::{ChatCompletionRequest, LiteLLMClient, Message, Metadata, ResponseF
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SearchDataCatalogParams {
-    ticket_description: String,
+    search_requirements: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SearchDataCatalogOutput {
     pub message: String,
-    pub ticket_description: String,
+    pub search_requirements: String,
     pub duration: i64,
     pub results: Vec<DatasetSearchResult>,
 }
@@ -219,14 +219,14 @@ impl ToolExecutor for SearchDataCatalogTool {
 
             return Ok(SearchDataCatalogOutput {
                 message: "No datasets available to search".to_string(),
-                ticket_description: params.ticket_description,
+                search_requirements: params.search_requirements,
                 duration: duration as i64,
                 results: vec![],
             });
         }
 
         // Format prompt and perform search
-        let prompt = Self::format_search_prompt(&[params.ticket_description.clone()], &datasets)?;
+        let prompt = Self::format_search_prompt(&[params.search_requirements.clone()], &datasets)?;
         let search_results = match Self::perform_llm_search(
             prompt,
             &self.agent.get_user_id(),
@@ -240,7 +240,7 @@ impl ToolExecutor for SearchDataCatalogTool {
 
                 return Ok(SearchDataCatalogOutput {
                     message: format!("Search failed: {}", e),
-                    ticket_description: params.ticket_description.clone(),
+                    search_requirements: params.search_requirements.clone(),
                     duration: duration as i64,
                     results: vec![],
                 });
@@ -270,7 +270,7 @@ impl ToolExecutor for SearchDataCatalogTool {
 
         Ok(SearchDataCatalogOutput {
             message,
-            ticket_description: params.ticket_description,
+            search_requirements: params.search_requirements,
             duration: duration as i64,
             results: search_results,
         })
@@ -288,21 +288,20 @@ impl ToolExecutor for SearchDataCatalogTool {
         serde_json::json!({
             "name": "search_data_catalog",
             "description": "Use to search across a user's data catalog for metadata, documentation, column definitions, or business terminology.",
-            "strict": true,
             "parameters": {
               "type": "object",
               "required": [
-                "ticket_description"
+                "search_requirements"
               ],
               "properties": {
-                "ticket_description": {
+                "search_requirements": {
                   "type": "string",
-                  "description": "This should just be the user request, copied exactly."
+                  "description": "Write a brief outline that explains the documentation (mostly datasets) that you would like to search the data catalog for. It should start with 'I need...' and then proceed to briefly describe the needed documentation. Specifically, you should describe the types of datasets and topics that you will likely need to understand to accomplish your task or workflow. You don't know exactly what data exists, so your request needs to be broad and general."
                 }
               },
               "additionalProperties": false
             }
-        })
+          })
     }
 }
 

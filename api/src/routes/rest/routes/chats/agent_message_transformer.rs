@@ -363,7 +363,7 @@ fn tool_data_catalog_search(
 
         let duration = (data_catalog_result.duration.clone() as f64 / 1000.0 * 10.0).round() / 10.0;
         let result_count = data_catalog_result.results.len();
-        let query_params = data_catalog_result.ticket_description.clone();
+        let query_params = data_catalog_result.search_requirements.clone();
 
         let thought_pill_containters =
             match proccess_data_catalog_search_results(data_catalog_result) {
