@@ -14,7 +14,7 @@ const meta: Meta<typeof Button> = {
     children: 'Button'
   },
   argTypes: {
-    buttonType: {
+    variant: {
       control: 'select',
       options: ['default', 'black', 'primary', 'ghost', 'link', 'danger', 'warning', 'success']
     },
@@ -69,35 +69,35 @@ type Story = StoryObj<typeof Button>;
 
 export const Default: Story = {
   args: {
-    buttonType: 'default',
+    variant: 'default',
     size: 'default'
   }
 };
 
 export const Black: Story = {
   args: {
-    buttonType: 'black',
+    variant: 'black',
     size: 'default'
   }
 };
 
 export const Primary: Story = {
   args: {
-    buttonType: 'primary',
+    variant: 'primary',
     size: 'default'
   }
 };
 
 export const Tall: Story = {
   args: {
-    buttonType: 'default',
+    variant: 'default',
     size: 'tall'
   }
 };
 
 export const Disabled: Story = {
   args: {
-    buttonType: 'default',
+    variant: 'default',
     size: 'default',
     disabled: true
   }
@@ -112,7 +112,7 @@ export const AsChild: Story = {
 
 export const Loading: Story = {
   args: {
-    buttonType: 'default',
+    variant: 'default',
     size: 'default',
     loading: true
   }
@@ -120,35 +120,35 @@ export const Loading: Story = {
 
 export const WithBorder: Story = {
   args: {
-    buttonType: 'default',
+    variant: 'default',
     size: 'default'
   }
 };
 
 export const Ghost: Story = {
   args: {
-    buttonType: 'ghost',
+    variant: 'ghost',
     size: 'default'
   }
 };
 
 export const Link: Story = {
   args: {
-    buttonType: 'link',
+    variant: 'link',
     size: 'default'
   }
 };
 
 export const Small: Story = {
   args: {
-    buttonType: 'default',
+    variant: 'default',
     size: 'small'
   }
 };
 
 export const IconButton: Story = {
   args: {
-    buttonType: 'default',
+    variant: 'default',
     size: 'default',
     prefix: 'ShapeSquare',
     children: ''
@@ -157,7 +157,7 @@ export const IconButton: Story = {
 
 export const Block: Story = {
   args: {
-    buttonType: 'primary',
+    variant: 'primary',
     size: 'default',
     block: true,
     children: 'Full Width Button'

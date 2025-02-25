@@ -20,7 +20,7 @@ interface ButtonDropdownProps {
   disabled?: boolean;
   rounding?: ButtonProps['rounding'];
   size?: ButtonProps['size'];
-  buttonType?: ButtonProps['buttonType'];
+  variant?: ButtonProps['variant'];
   loading?: boolean;
   className?: string;
   iconClassName?: string;
@@ -41,13 +41,13 @@ const dropdownButtonVariants = cva('flex items-center pr-0', {
 
 const primaryButtonVariants = cva('', {
   variants: {
-    buttonType: buttonTypeClasses
+    variant: buttonTypeClasses
   }
 });
 
 const splitButtonVariants = cva('flex w-full items-center justify-center h-full px-[5px]', {
   variants: {
-    buttonType: buttonTypeClasses
+    variant: buttonTypeClasses
   }
 });
 
@@ -78,7 +78,7 @@ export const ButtonSplit = React.memo(
     (
       {
         className,
-        buttonType = 'default',
+        variant = 'default',
         size = 'default',
         icon,
         buttonText,
@@ -100,7 +100,7 @@ export const ButtonSplit = React.memo(
         <div
           ref={ref}
           className={cn(
-            buttonVariants({ buttonType, size, rounding: 'none' }),
+            buttonVariants({ variant, size, rounding: 'none' }),
             dropdownButtonVariants({ rounding }),
             'gap-0 !bg-transparent p-0',
             disabled && 'cursor-not-allowed opacity-70',
@@ -108,19 +108,15 @@ export const ButtonSplit = React.memo(
           )}>
           <div
             className={cn(
-              primaryButtonVariants({ buttonType }),
+              primaryButtonVariants({ variant }),
               'flex h-full items-center gap-0.5 border-none pr-2 pl-2.5'
             )}>
             {loading ? (
-              <LoadingIcon buttonType={buttonType} size={size} />
+              <LoadingIcon variant={variant} size={size} />
             ) : (
               icon && (
                 <span
-                  className={cn(
-                    buttonIconVariants({ buttonType, size }),
-                    'text-sm',
-                    iconClassName
-                  )}>
+                  className={cn(buttonIconVariants({ variant, size }), 'text-sm', iconClassName)}>
                   {icon}
                 </span>
               )
@@ -130,7 +126,7 @@ export const ButtonSplit = React.memo(
           <div className="bg-border mr-0 h-full w-[0.5px]" />
           <div className="flex h-full items-center justify-center text-sm" onClick={handleClick}>
             <div
-              className={cn(splitButtonVariants({ buttonType }), 'border-none')}
+              className={cn(splitButtonVariants({ variant }), 'border-none')}
               aria-label="Open dropdown menu">
               <span
                 className={cn(
@@ -149,7 +145,7 @@ export const ButtonSplit = React.memo(
   (prevProps, nextProps) => {
     return (
       prevProps.className === nextProps.className &&
-      prevProps.buttonType === nextProps.buttonType &&
+      prevProps.variant === nextProps.variant &&
       prevProps.size === nextProps.size &&
       prevProps.icon === nextProps.icon &&
       prevProps.buttonText === nextProps.buttonText &&
