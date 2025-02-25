@@ -17,14 +17,14 @@ pub struct BusterConfig {
     pub database: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct BusterModel {
     #[serde(default)]
     version: i32, // Optional, only used for DBT models
     models: Vec<Model>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Model {
     name: String,
     data_source_name: Option<String>,
@@ -53,7 +53,7 @@ pub struct Entity {
     project_path: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Dimension {
     name: String,
     expr: String,
@@ -64,7 +64,7 @@ pub struct Dimension {
     searchable: bool,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Measure {
     name: String,
     expr: String,
@@ -504,12 +504,34 @@ impl ModelFile {
         let data_source_name = data_source_name.expect("data_source_name missing after validation");
         let schema = schema.expect("schema missing after validation");
 
-        if database.is_some() {
-            println!("DATABASE DETECTED: {:?}", database);
+        // Debug log for database field
+        if let Some(db) = &database {
+            println!("DATABASE DETECTED for model {}: {}", model.name, db);
+        } else if let Some(config) = &self.config {
+            if let Some(db) = &config.database {
+                println!("Using database from buster.yml for model {}: {}", model.name, db);
+            }
         }
-        // Note: database is optional, so we don't unwrap it
 
-        DeployDatasetsRequest {
+        // Create a modified model with resolved database and schema
+        let mut modified_model = model.clone();
+        modified_model.database = database.clone();
+        modified_model.schema = Some(schema.clone());
+        // Don't set data_source_name on the model itself for the yml content
+
+        // Create a modified BusterModel with the updated model
+        let mut modified_buster_model = self.model.clone();
+        for i in 0..modified_buster_model.models.len() {
+            if modified_buster_model.models[i].name == model.name {
+                modified_buster_model.models[i] = modified_model.clone();
+                break;
+            }
+        }
+
+        // Serialize the modified BusterModel to YAML
+        let yml_content = serde_yaml::to_string(&modified_buster_model).unwrap_or_default();
+
+        let request = DeployDatasetsRequest {
             id: None,
             data_source_name,
             env: "dev".to_string(),
@@ -522,8 +544,10 @@ impl ModelFile {
             sql_definition: Some(sql_content),
             entity_relationships: Some(entity_relationships),
             columns,
-            yml_file: Some(serde_yaml::to_string(&self.model).unwrap_or_default()),
-        }
+            yml_file: Some(yml_content),
+        };
+
+        request
     }
 
     async fn validate_cross_project_references(
