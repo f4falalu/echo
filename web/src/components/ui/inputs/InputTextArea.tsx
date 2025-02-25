@@ -22,6 +22,7 @@ export interface InputTextAreaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement>,
     VariantProps<typeof inputTextAreaVariants> {
   autoResize?: AutoResizeOptions;
+  onPressMetaEnter?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
 }
 
 export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextAreaProps>(
@@ -90,6 +91,14 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
 
     const handleInput = useMemoizedFn(() => {
       requestAnimationFrame(adjustHeight);
+    });
+
+    const onPressMetaEnter = useMemoizedFn((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.metaKey && e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+        onPressMetaEnter?.(e);
+      }
     });
 
     useEffect(() => {

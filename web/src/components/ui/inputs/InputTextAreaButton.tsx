@@ -1,55 +1,115 @@
-import React from 'react';
+import React, { useMemo, useRef } from 'react';
 import { InputTextArea, InputTextAreaProps } from './InputTextArea';
 import { cn } from '@/lib/classMerge';
 import { cva } from 'class-variance-authority';
+import { Button } from '../buttons/Button';
+import { ArrowUp } from '../icons/NucleoIconOutlined';
+import { ShapeSquare } from '../icons/NucleoIconFilled';
+import { useMemoizedFn } from 'ahooks';
 
-export interface InputTextAreaButtonProps extends Omit<InputTextAreaProps, 'variant'> {}
+const inputTextAreaButtonVariants = cva(
+  'relative flex w-full items-center overflow-hidden rounded border border-border transition-all duration-200',
+  {
+    variants: {
+      variant: {
+        default:
+          'has-[textarea:hover]:border-foreground has-[textarea:focus]:border-foreground has-[textarea:disabled]:border-border'
+      }
+    }
+  }
+);
 
-const inputTextAreaButtonVariants = cva('relative flex w-full items-center overflow-hidden', {
-  variants: {}
-});
+export interface InputTextAreaButtonProps extends Omit<InputTextAreaProps, 'variant' | 'onSubmit'> {
+  sendIcon?: React.ReactNode;
+  loadingIcon?: React.ReactNode;
+  loading?: boolean;
+  onSubmit: (text: string) => void;
+  variant?: 'default';
+}
 
 export const InputTextAreaButton: React.FC<InputTextAreaButtonProps> = ({
   className,
   disabled,
+  autoResize,
+  sendIcon = <ArrowUp />,
+  loadingIcon = <ShapeSquare />,
+  loading = false,
+  onSubmit,
+  variant = 'default',
   ...props
 }) => {
-  return (
-    <div
-      className={cn(
-        // styles.inputContainer,
-        // isFocused && 'focused',
-        // loading && 'loading',
-        inputTextAreaButtonVariants()
-      )}>
-      <InputTextArea
-        disabled={disabled}
-        variant="ghost"
-        className="inline-block w-full pt-2! pr-9! pb-2! pl-3.5! align-middle"
-        {...props}
+  const textRef = useRef<HTMLTextAreaElement>(null);
 
-        // ref={inputRef}
-        // variant="borderless"
-        // onBlur={onBlurInput}
-        // onFocus={onFocusInput}
-        // className="inline-block w-full pt-2! pr-9! pb-2! pl-3.5! align-middle"
-        // placeholder="Ask a follow up..."
-        // value={inputValue}
-        // autoFocus={true}
-        // onChange={onChangeInput}
-        // onPressEnter={onPressEnter}
-        // disabled={loading}
-        // autoSize={autoSize}
+  const onSubmitPreflight = useMemoizedFn(() => {
+    if (disabled) return;
+    const text = textRef.current?.value || '';
+    if (text.trim() === '') return;
+    onSubmit(text);
+  });
+
+  const onPressMetaEnter = useMemoizedFn(() => {
+    onSubmitPreflight();
+  });
+
+  return (
+    <div className={cn(inputTextAreaButtonVariants(), loading && 'border-border!', className)}>
+      <InputTextArea
+        ref={textRef}
+        disabled={disabled || loading}
+        variant="ghost"
+        className={cn('w-full pr-10 align-middle leading-[1.2]', loading && '!cursor-default')}
+        autoResize={autoResize}
+        onPressMetaEnter={onPressMetaEnter}
+        {...props}
       />
 
       <div className="absolute right-2 bottom-2">
-        HERE
-        {/* <SubmitButton
-          disableSendButton={disableSendButton}
+        <SubmitButton
+          disabled={disabled}
           loading={loading}
+          sendIcon={sendIcon}
+          loadingIcon={loadingIcon}
           onSubmitPreflight={onSubmitPreflight}
-        /> */}
+        />
       </div>
     </div>
+  );
+};
+
+const SubmitButton: React.FC<{
+  loading: boolean;
+  disabled?: boolean;
+  sendIcon: React.ReactNode;
+  loadingIcon: React.ReactNode;
+  onSubmitPreflight: () => void;
+}> = ({ disabled, sendIcon, loading, loadingIcon, onSubmitPreflight }) => {
+  const memoizedPrefix = useMemo(() => {
+    return (
+      <div
+        className={cn(
+          'relative h-4 w-4 transition-all duration-300 active:scale-80',
+          loading && '!cursor-default'
+        )}>
+        <div
+          className={`absolute inset-0 transition-all duration-300 ${loading ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
+          {sendIcon}
+        </div>
+        <div
+          className={`absolute inset-0 flex items-center justify-center text-sm transition-all duration-300 ${loading ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
+          {loadingIcon}
+        </div>
+      </div>
+    );
+  }, [loading, sendIcon, loadingIcon]);
+
+  return (
+    <Button
+      rounding={'large'}
+      variant="black"
+      prefix={memoizedPrefix}
+      className="active:scale-95"
+      onClick={onSubmitPreflight}
+      disabled={disabled}
+    />
   );
 };

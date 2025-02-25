@@ -39,7 +39,7 @@ export const buttonVariants = cva(
   'inline-flex items-center overflow-hidden text-base justify-center gap-[5px] shadow rounded transition-all duration-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:cursor-not-allowed data-[loading=true]:cursor-progress',
   {
     variants: {
-      buttonType: buttonTypeClasses,
+      variant: buttonTypeClasses,
       size: sizeVariants,
       iconButton: {
         true: '',
@@ -69,7 +69,7 @@ export const buttonVariants = cva(
       }
     ],
     defaultVariants: {
-      buttonType: 'default',
+      variant: 'default',
       size: 'default',
       iconButton: false,
       block: false
@@ -79,7 +79,7 @@ export const buttonVariants = cva(
 
 export const buttonIconVariants = cva('', {
   variants: {
-    buttonType: {
+    variant: {
       default: 'text-icon-color!',
       black: 'text-white!',
       primary: 'text-white!',
@@ -120,7 +120,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       className = '',
-      buttonType = 'default',
+      variant = 'default',
       size = 'default',
       asChild = false,
       prefix,
@@ -145,7 +145,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Comp
         className={cn(
-          buttonVariants({ buttonType, size, iconButton, rounding, block, className }),
+          buttonVariants({ variant, size, iconButton, rounding, block, className }),
           onClick && 'cursor-pointer'
         )}
         onClick={onClick}
@@ -155,17 +155,17 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         data-selected={selected}
         {...props}>
         {loading ? (
-          <LoadingIcon buttonType={buttonType} size={size} />
+          <LoadingIcon variant={variant} size={size} />
         ) : (
           prefix && (
-            <span className={cn(buttonIconVariants({ buttonType, size }), prefixClassName)}>
+            <span className={cn(buttonIconVariants({ variant, size }), prefixClassName)}>
               {prefix}
             </span>
           )
         )}
         {hasChildren && <span className="">{children}</span>}
         {suffix && (
-          <span className={cn(buttonIconVariants({ buttonType, size }), suffixClassName)}>
+          <span className={cn(buttonIconVariants({ variant, size }), suffixClassName)}>
             {suffix}
           </span>
         )}
@@ -177,22 +177,22 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button';
 
 export const LoadingIcon: React.FC<{
-  buttonType: ButtonProps['buttonType'];
+  variant: ButtonProps['variant'];
   size: ButtonProps['size'];
-}> = ({ buttonType = 'default', size = 'default' }) => {
+}> = ({ variant = 'default', size = 'default' }) => {
   return (
     <div
       className={cn(
         'flex items-center justify-center text-black dark:text-white',
-        buttonType === 'black' && 'dark',
+        variant === 'black' && 'dark',
         loadingSizeVariants[size || 'default']
       )}>
       <CircleSpinnerLoader
         size={size === 'tall' ? 12.5 : 9.5}
         fill={
-          buttonType === 'black'
+          variant === 'black'
             ? 'var(--color-white)'
-            : buttonType === 'primary'
+            : variant === 'primary'
               ? 'var(--color-primary)'
               : 'var(--color-primary)'
         }

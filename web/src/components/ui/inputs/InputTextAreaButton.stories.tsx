@@ -1,0 +1,66 @@
+import type { Meta, StoryObj } from '@storybook/react';
+import { InputTextAreaButton } from './InputTextAreaButton';
+
+const meta: Meta<typeof InputTextAreaButton> = {
+  title: 'Base/InputTextAreaButton',
+  component: InputTextAreaButton,
+  tags: ['autodocs'],
+  args: {},
+  argTypes: {
+    disabled: {
+      control: 'boolean'
+    },
+    placeholder: {
+      control: 'text'
+    },
+    rows: {
+      control: 'number'
+    },
+    className: {
+      control: 'text'
+    }
+  }
+};
+
+export default meta;
+type Story = StoryObj<typeof InputTextAreaButton>;
+
+export const Default: Story = {
+  args: {
+    placeholder: 'Enter text here...',
+    rows: 4
+  }
+};
+
+export const WithAutoResize: Story = {
+  args: {
+    placeholder: 'Type to see auto-resize in action...',
+    autoResize: {
+      minRows: 1,
+      maxRows: 6
+    }
+  }
+};
+
+export const Disabled: Story = {
+  args: {
+    disabled: true,
+    placeholder: 'Disabled textarea',
+    value: 'Cannot edit this text',
+    rows: 4
+  }
+};
+
+export const CustomPlaceholder: Story = {
+  args: {
+    placeholder: 'Type your message here...',
+    rows: 3
+  }
+};
+
+export const WithInitialValue: Story = {
+  args: {
+    value: 'This is some initial text in the textarea...',
+    rows: 4
+  }
+};

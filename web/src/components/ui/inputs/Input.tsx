@@ -9,7 +9,7 @@ export const inputVariants = cva(
     variants: {
       variant: {
         default:
-          'shadow disabled:bg-item-select bg-background border placeholder:text-gray-light hover:border-primary focus:border-primary focus-visible:border-primary outline-none disabled:border-border',
+          'shadow disabled:bg-item-select bg-background border placeholder:text-gray-light hover:border-foreground focus:border-foreground focus-visible:border-foreground outline-none disabled:border-border',
         ghost: 'border-none bg-transparent shadow-none disabled:bg-transparent'
       },
       size: {
