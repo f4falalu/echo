@@ -79,6 +79,7 @@ pub struct BusterConfig {
     pub schema: Option<String>,
     pub database: Option<String>,
     pub exclude_files: Option<Vec<String>>,
+    pub exclude_tags: Option<Vec<String>>,
 }
 
 impl BusterConfig {
@@ -157,6 +158,7 @@ impl GenerateCommand {
             schema: schema.clone(),
             database: database.clone(),
             exclude_files: None,
+            exclude_tags: None,
         };
 
         Self {
@@ -168,6 +170,33 @@ impl GenerateCommand {
             config,
             maintain_directory_structure: true, // Default to maintaining directory structure
         }
+    }
+
+    fn check_excluded_tags(&self, content: &str, exclude_tags: &[String]) -> Option<String> {
+        lazy_static! {
+            static ref TAG_RE: Regex = Regex::new(
+                r#"(?i)tags\s*=\s*\[\s*([^\]]+)\s*\]"#
+            ).unwrap();
+        }
+        
+        if let Some(cap) = TAG_RE.captures(content) {
+            let tags_str = cap[1].to_string();
+            // Split the tags string and trim each tag
+            let tags: Vec<String> = tags_str
+                .split(',')
+                .map(|tag| tag.trim().trim_matches('"').trim_matches('\'').to_lowercase())
+                .collect();
+            
+            // Check if any excluded tag is in the model's tags
+            for exclude_tag in exclude_tags {
+                let exclude_tag_lower = exclude_tag.to_lowercase();
+                if tags.contains(&exclude_tag_lower) {
+                    return Some(exclude_tag.clone());
+                }
+            }
+        }
+        
+        None
     }
 
     pub async fn execute(&self) -> Result<()> {
@@ -333,6 +362,14 @@ impl GenerateCommand {
                 }
             }
 
+            // Log exclude tags if present
+            if let Some(tags) = &config.exclude_tags {
+                println!("ℹ️  Found {} exclude tag(s):", tags.len());
+                for tag in tags {
+                    println!("   - {}", tag);
+                }
+            }
+
             Ok(config)
         } else {
             println!("ℹ️  No buster.yml found, creating new configuration");
@@ -364,6 +401,7 @@ impl GenerateCommand {
                 schema: Some(schema),
                 database,
                 exclude_files: None,
+                exclude_tags: None,
             };
 
             // Write the config to file
@@ -400,6 +438,12 @@ impl GenerateCommand {
             Vec::new()
         };
 
+        // Get exclude tags if any
+        let exclude_tags = self.config.exclude_tags.clone().unwrap_or_default();
+        if !exclude_tags.is_empty() {
+            println!("🔍 Found exclude tags: {:?}", exclude_tags);
+        }
+
         // Get list of SQL files recursively
         let sql_files = find_sql_files_recursively(&self.source_path)?;
 
@@ -431,6 +475,22 @@ impl GenerateCommand {
                 println!("⛔ Excluding file: {} (matched pattern: {})", relative_path, matching_pattern.as_str());
                 progress.log_excluded(&relative_path, matching_pattern.as_str());
                 continue;
+            }
+
+            // Check for excluded tags if we have any
+            if !exclude_tags.is_empty() {
+                match fs::read_to_string(&file_path) {
+                    Ok(content) => {
+                        if let Some(tag) = self.check_excluded_tags(&content, &exclude_tags) {
+                            println!("⛔ Excluding file: {} (matched excluded tag: {})", relative_path, tag);
+                            progress.log_excluded(&relative_path, &format!("tag: {}", tag));
+                            continue;
+                        }
+                    },
+                    Err(e) => {
+                        progress.log_error(&format!("Failed to read file for tag checking: {}", e));
+                    }
+                }
             }
 
             progress.status = "Processing file...".to_string();
@@ -470,7 +530,7 @@ impl GenerateCommand {
 
         // Update final summary with exclusion information
         if progress.excluded > 0 {
-            println!("\nℹ️  Excluded {} files based on patterns", progress.excluded);
+            println!("\nℹ️  Excluded {} files based on patterns and tags", progress.excluded);
         }
 
         if !errors.is_empty() {

@@ -1,4 +1,5 @@
 use anyhow::Result;
+use regex;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
@@ -16,6 +17,7 @@ pub struct BusterConfig {
     pub data_source_name: Option<String>,
     pub schema: Option<String>,
     pub database: Option<String>,
+    pub exclude_tags: Option<Vec<String>>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -100,6 +102,7 @@ struct ModelMapping {
 struct DeployProgress {
     total_files: usize,
     processed: usize,
+    excluded: usize,
     current_file: String,
     status: String,
 }
@@ -109,6 +112,7 @@ impl DeployProgress {
         Self {
             total_files,
             processed: 0,
+            excluded: 0,
             current_file: String::new(),
             status: String::new(),
         }
@@ -266,6 +270,11 @@ impl DeployProgress {
         println!("   Data Source: {}", validation.data_source_name);
         println!("   Schema: {}", validation.schema);
     }
+
+    fn log_excluded(&mut self, reason: &str) {
+        self.excluded += 1;
+        println!("⚠️  Skipping {} ({})", self.current_file, reason);
+    }
 }
 
 impl ModelFile {
@@ -279,6 +288,50 @@ impl ModelFile {
             model,
             config,
         })
+    }
+
+    fn check_excluded_tags(
+        &self,
+        sql_path: &Option<PathBuf>,
+        exclude_tags: &[String],
+    ) -> Result<bool> {
+        if exclude_tags.is_empty() || sql_path.is_none() {
+            return Ok(false);
+        }
+
+        let sql_path = sql_path.as_ref().unwrap();
+        if !sql_path.exists() {
+            return Ok(false);
+        }
+
+        let content = std::fs::read_to_string(sql_path)?;
+
+        // Regular expression to extract tags from standard dbt format
+        let tag_re = regex::Regex::new(r#"(?i)tags\s*=\s*\[\s*([^\]]+)\s*\]"#)?;
+
+        if let Some(cap) = tag_re.captures(&content) {
+            let tags_str = cap[1].to_string();
+            // Split the tags string and trim each tag
+            let tags: Vec<String> = tags_str
+                .split(',')
+                .map(|tag| {
+                    tag.trim()
+                        .trim_matches('"')
+                        .trim_matches('\'')
+                        .to_lowercase()
+                })
+                .collect();
+
+            // Check if any excluded tag is in the model's tags
+            for exclude_tag in exclude_tags {
+                let exclude_tag_lower = exclude_tag.to_lowercase();
+                if tags.contains(&exclude_tag_lower) {
+                    return Ok(true);
+                }
+            }
+        }
+
+        Ok(false)
     }
 
     fn find_sql(yml_path: &Path) -> Option<PathBuf> {
@@ -306,9 +359,22 @@ impl ModelFile {
                 return Ok(None);
             }
 
-            serde_yaml::from_str(&content)
-                .map(Some)
-                .map_err(|e| anyhow::anyhow!("Failed to parse buster.yml: {}", e))
+            let config: Option<BusterConfig> = Some(
+                serde_yaml::from_str(&content)
+                    .map_err(|e| anyhow::anyhow!("Failed to parse buster.yml: {}", e))?,
+            );
+
+            // Log exclude tags if present
+            if let Some(ref config_val) = config {
+                if let Some(ref tags) = &config_val.exclude_tags {
+                    println!("ℹ️  Found {} exclude tag(s):", tags.len());
+                    for tag in tags {
+                        println!("   - {}", tag);
+                    }
+                }
+            }
+
+            Ok(config)
         } else {
             Ok(None)
         }
@@ -320,16 +386,19 @@ impl ModelFile {
         current_model: &str,
     ) -> Result<(), ValidationError> {
         let target_file = current_dir.join(format!("{}.yml", entity_name));
-        
+
         if !target_file.exists() {
             return Err(ValidationError {
                 error_type: ValidationErrorType::ModelNotFound,
                 message: format!(
-                    "Model '{}' references non-existent model '{}' - file {}.yml not found", 
+                    "Model '{}' references non-existent model '{}' - file {}.yml not found",
                     current_model, entity_name, entity_name
                 ),
                 column_name: None,
-                suggestion: Some(format!("Create {}.yml file with model definition", entity_name)),
+                suggestion: Some(format!(
+                    "Create {}.yml file with model definition",
+                    entity_name
+                )),
             });
         }
 
@@ -384,13 +453,17 @@ impl ModelFile {
 
                     // If project_path specified, use cross-project validation
                     if entity.project_path.is_some() {
-                        if let Err(validation_errors) = self.validate_cross_project_references(config).await {
+                        if let Err(validation_errors) =
+                            self.validate_cross_project_references(config).await
+                        {
                             errors.extend(validation_errors.into_iter().map(|e| e.message));
                         }
                     } else {
                         // Same-project validation using file-based check
                         let current_dir = self.yml_path.parent().unwrap_or(Path::new("."));
-                        if let Err(e) = Self::validate_model_exists(referenced_model, current_dir, &model.name) {
+                        if let Err(e) =
+                            Self::validate_model_exists(referenced_model, current_dir, &model.name)
+                        {
                             errors.push(e.message);
                         }
                     }
@@ -510,7 +583,10 @@ impl ModelFile {
             println!("DATABASE DETECTED for model {}: {}", model.name, db);
         } else if let Some(config) = &self.config {
             if let Some(db) = &config.database {
-                println!("Using database from buster.yml for model {}: {}", model.name, db);
+                println!(
+                    "Using database from buster.yml for model {}: {}",
+                    model.name, db
+                );
             }
         }
 
@@ -915,6 +991,29 @@ pub async fn deploy_v2(path: Option<&str>, dry_run: bool, recursive: bool) -> Re
             }
         };
 
+        // Check for excluded tags
+        if let Some(ref cfg) = config {
+            if let Some(ref exclude_tags) = cfg.exclude_tags {
+                if !exclude_tags.is_empty() {
+                    match model_file.check_excluded_tags(&model_file.sql_path, exclude_tags) {
+                        Ok(true) => {
+                            // Model has excluded tag, skip it
+                            let tag_info = exclude_tags.join(", ");
+                            progress.log_excluded(&format!(
+                                "Skipping model due to excluded tag(s): {}",
+                                tag_info
+                            ));
+                            continue;
+                        }
+                        Err(e) => {
+                            progress.log_error(&format!("Error checking tags: {}", e));
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
+
         progress.status = "Validating model...".to_string();
         progress.log_progress();
 
@@ -1115,6 +1214,12 @@ pub async fn deploy_v2(path: Option<&str>, dry_run: bool, recursive: bool) -> Re
     println!("\n📊 Deployment Summary");
     println!("==================");
     println!("✅ Successfully deployed: {} models", result.success.len());
+    if progress.excluded > 0 {
+        println!(
+            "ℹ️  Excluded: {} models (due to patterns or tags)",
+            progress.excluded
+        );
+    }
     if !result.success.is_empty() {
         println!("\nSuccessful deployments:");
         for (file, model_name, data_source) in &result.success {
@@ -1145,29 +1250,31 @@ pub async fn deploy_v2(path: Option<&str>, dry_run: bool, recursive: bool) -> Re
 // New helper function to find YML files recursively
 fn find_yml_files_recursively(dir: &Path) -> Result<Vec<PathBuf>> {
     let mut result = Vec::new();
-    
+
     if !dir.is_dir() {
-        return Err(anyhow::anyhow!("Path is not a directory: {}", dir.display()));
+        return Err(anyhow::anyhow!(
+            "Path is not a directory: {}",
+            dir.display()
+        ));
     }
-    
+
     for entry in WalkDir::new(dir)
         .follow_links(true)
         .into_iter()
         .filter_map(|e| e.ok())
     {
         let path = entry.path();
-        
+
         // Skip buster.yml files
         if path.file_name().and_then(|n| n.to_str()) == Some("buster.yml") {
             continue;
         }
-        
-        if path.is_file() && 
-           path.extension().and_then(|ext| ext.to_str()) == Some("yml") {
+
+        if path.is_file() && path.extension().and_then(|ext| ext.to_str()) == Some("yml") {
             result.push(path.to_path_buf());
         }
     }
-    
+
     Ok(result)
 }
 
