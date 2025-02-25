@@ -7,6 +7,7 @@ import { defaultRequestHandler } from '@/api/createInstance';
 import nextApi from '@/api/next/instances';
 import { useSupabaseContext } from '../Supabase/SupabaseContextProvider';
 import { getQueryClient } from './getQueryClient';
+import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
 
 export const BusterReactQueryProvider = ({ children }: { children: React.ReactElement }) => {
   const accessToken = useSupabaseContext((state) => state.accessToken);
@@ -20,5 +21,10 @@ export const BusterReactQueryProvider = ({ children }: { children: React.ReactEl
     nextApi.interceptors.request.use((v) => defaultRequestHandler(v, { accessToken }));
   }, [accessToken]);
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+      <ReactQueryDevtoolsPanel />
+    </QueryClientProvider>
+  );
 };

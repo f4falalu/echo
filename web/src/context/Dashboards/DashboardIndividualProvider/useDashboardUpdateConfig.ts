@@ -6,7 +6,6 @@ import {
 import { queryKeys } from '@/api/query_keys';
 
 import { DashboardUpdate } from '@/api/buster_socket/dashboards';
-import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useSocketQueryMutation } from '@/api/buster_socket_query';
 import { useMemoizedFn } from 'ahooks';
 import { create } from 'mutative';

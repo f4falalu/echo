@@ -1,10 +1,7 @@
 import { useMemoizedFn } from 'ahooks';
-import last from 'lodash/last';
 import { IBusterMetric } from '../interfaces';
-import { useBusterWebSocket } from '../../BusterWebSocket';
 import { useUserConfigContextSelector } from '../../Users';
 import { useBusterNotifications } from '../../BusterNotifications';
-import { useBusterDashboardContextSelector } from '../../Dashboards';
 import { useUpdateMetricConfig } from './useMetricUpdateConfig';
 
 export const useUpdateMetricAssosciations = ({
@@ -56,8 +53,6 @@ export const useUpdateMetricAssosciations = ({
       dashboardId: string;
       useConfirmModal?: boolean;
     }) => {
-      // const prev = metricsRef.current;
-
       const method = async () => {
         await updateMetricMutation({
           id: metricId,

@@ -32,9 +32,7 @@ const useBusterMetricsIndividual = () => {
     return resolveEmptyMetric(data, _metricId);
   });
 
-  //STATE UPDATERS
-
-  // EMITTERS
+  // STATE UPDATERS
 
   const metricUpdateConfig = useUpdateMetricConfig({
     getMetricId,
