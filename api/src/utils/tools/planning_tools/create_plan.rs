@@ -60,7 +60,7 @@ impl ToolExecutor for CreatePlan {
     fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": self.get_name(),
-            "description": "Creates a structured plan for responding to user requests. Use this tool when you have sufficient context about the user's needs and want to outline a clear approach. The plan should include specific, actionable steps and validation criteria.",
+            "description": "Creates a structured plan for responding to user requests. Use this tool when you have sufficient context about the user's needs and want to outline a clear approach. The plan should include specific, actionable steps and validation criteria. Prioritize creating digestible visualizations (charts, graphs, metrics) over tables when possible, unless the user specifically requests tabular data or when dealing with many columns of data.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -94,8 +94,10 @@ const PLAN_TEMPLATE: &str = r##"
 1. [Task Name]
    - Description: [Detailed explanation of what needs to be done]
    - Tools to Use: [List relevant tools, e.g., create_metric, create_dashboard]
-   - Visualization Type: [Specify chart type: table, line, bar, histogram, pie/donut, metric card, or scatter plot]
-     - The goal is to make the data as digestible as possible for the user.
+   - Visualization Type: [Specify chart type: line, bar, histogram, pie/donut, metric card, or scatter plot]
+     - Prioritize visual charts over tables for better data digestibility
+     - Only use tables when specifically requested by the user or when dealing with many columns that cannot be effectively visualized in other formats
+     - Consider breaking down complex data into multiple focused visualizations rather than a single large table
    - Validation Criteria:
      * [Specific, measurable criteria to confirm task completion]
 
@@ -104,18 +106,23 @@ const PLAN_TEMPLATE: &str = r##"
    - Each task should be concrete and actionable
 
 ## Metrics Selection
+- Visualization Strategy:
+  * Prefer digestible charts over tables whenever possible
+  * Split complex data into multiple focused metrics rather than one large table
+  * Only use tables when the user specifically requests them or when dealing with many columns
 - Metrics to Create:
   * [List each visualization/metric with its purpose]
 - Response Strategy:
   * [If multiple metrics/dashboards are created, specify which ones to highlight in the response]
-  * [Include rationale for metric selection]
+  * [Include rationale for metric and visualization type selection]
 
 ## Review and Validation
 1. Quality Check
    - [ ] All tasks completed according to validation criteria
-   - [ ] Visualizations are properly configured
+   - [ ] Visualizations are properly configured and the most appropriate chart types are used
    - [ ] Dashboards are functional and informative
    - [ ] Data is effectively communicated through chosen chart types
+   - [ ] Complex data is broken down into digestible visualizations
 
 2. User Requirements Check
    - [ ] All user requirements have been addressed
