@@ -4,13 +4,13 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { useMemoizedFn } from 'ahooks';
 
 export const inputVariants = cva(
-  'flex w-full rounded border px-2.5 text-base transition-all duration-200  disabled:cursor-not-allowed disabled:bg-item-select disabled:text-gray-light ',
+  'flex w-full rounded border px-2.5 text-base transition-all duration-200  disabled:cursor-not-allowed  disabled:text-gray-light ',
   {
     variants: {
       variant: {
         default:
-          'shadow bg-background border placeholder:text-gray-light hover:border-primary focus:border-primary focus-visible:border-primary outline-none disabled:border-border',
-        ghost: 'border-none bg-transparent shadow-none'
+          'shadow disabled:bg-item-select bg-background border placeholder:text-gray-light hover:border-primary focus:border-primary focus-visible:border-primary outline-none disabled:border-border',
+        ghost: 'border-none bg-transparent shadow-none disabled:bg-transparent'
       },
       size: {
         default: 'h-7',

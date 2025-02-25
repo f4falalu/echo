@@ -4,12 +4,18 @@ import React, { useEffect, useRef } from 'react';
 import { cn } from '@/lib/classMerge';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { inputVariants } from './Input';
+import { useMemoizedFn } from 'ahooks';
 
 const inputTextAreaVariants = inputVariants;
 
 interface AutoResizeOptions {
   minRows?: number;
   maxRows?: number;
+}
+
+interface PaddingValues {
+  top: number;
+  bottom: number;
 }
 
 export interface InputTextAreaProps
@@ -21,56 +27,70 @@ export interface InputTextAreaProps
 export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextAreaProps>(
   ({ className, variant = 'default', autoResize, style, rows = 1, ...props }, ref) => {
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+    const paddingRef = useRef<PaddingValues | null>(null);
 
-    const combinedRef = (node: HTMLTextAreaElement) => {
+    const combinedRef = useMemoizedFn((node: HTMLTextAreaElement) => {
       textareaRef.current = node;
       if (typeof ref === 'function') {
         ref(node);
       } else if (ref) {
         ref.current = node;
       }
-    };
+    });
 
-    const calculateMinHeight = () => {
+    const getPaddingValues = useMemoizedFn(() => {
+      if (paddingRef.current) return paddingRef.current;
+
+      const textarea = textareaRef.current;
+      if (!textarea) return { top: 0, bottom: 0 };
+
+      const computedStyle = window.getComputedStyle(textarea);
+      paddingRef.current = {
+        top: parseFloat(computedStyle.paddingTop),
+        bottom: parseFloat(computedStyle.paddingBottom)
+      };
+      return paddingRef.current;
+    });
+
+    const calculateMinHeight = useMemoizedFn(() => {
       const textarea = textareaRef.current;
       if (!textarea || !autoResize) return null;
 
       const computedStyle = window.getComputedStyle(textarea);
       const lineHeight =
         parseFloat(computedStyle.lineHeight) || parseFloat(computedStyle.fontSize) * 1.2;
-      const paddingTop = parseFloat(computedStyle.paddingTop);
-      const paddingBottom = parseFloat(computedStyle.paddingBottom);
+      const { top, bottom } = getPaddingValues();
 
-      return (autoResize.minRows || rows) * lineHeight + paddingTop + paddingBottom;
-    };
+      return (autoResize.minRows || rows) * lineHeight + top + bottom;
+    });
 
-    const adjustHeight = () => {
+    const adjustHeight = useMemoizedFn(() => {
       const textarea = textareaRef.current;
       if (!textarea || !autoResize) return;
 
       const minHeight = calculateMinHeight();
       if (!minHeight) return;
 
-      // Reset the height to auto first to shrink properly
       textarea.style.height = 'auto';
 
       const computedStyle = window.getComputedStyle(textarea);
       const lineHeight =
         parseFloat(computedStyle.lineHeight) || parseFloat(computedStyle.fontSize) * 1.2;
+      const { top, bottom } = getPaddingValues();
       const maxHeight = autoResize.maxRows
-        ? autoResize.maxRows * lineHeight +
-          parseFloat(computedStyle.paddingTop) +
-          parseFloat(computedStyle.paddingBottom)
+        ? autoResize.maxRows * lineHeight + top + bottom
         : Infinity;
 
-      // Get the scroll height after resetting to auto
       const scrollHeight = Math.max(textarea.scrollHeight, minHeight);
       const newHeight = Math.min(scrollHeight, maxHeight);
 
-      // Apply the new height
       textarea.style.height = `${newHeight}px`;
       textarea.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden';
-    };
+    });
+
+    const handleInput = useMemoizedFn(() => {
+      requestAnimationFrame(adjustHeight);
+    });
 
     useEffect(() => {
       const textarea = textareaRef.current;
@@ -84,11 +104,6 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
       // Set initial height
       adjustHeight();
 
-      // Add event listeners
-      const handleInput = () => {
-        requestAnimationFrame(adjustHeight);
-      };
-
       textarea.addEventListener('input', handleInput);
       window.addEventListener('resize', adjustHeight);
 
@@ -100,13 +115,14 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
 
     return (
       <textarea
-        className={cn(inputTextAreaVariants({ variant }), 'px-5 py-4', className)}
         ref={combinedRef}
+        className={cn(
+          inputTextAreaVariants({ variant }),
+          'px-5 py-4',
+          autoResize && 'resize-none',
+          className
+        )}
         rows={autoResize ? 1 : rows}
-        style={{
-          resize: 'none',
-          ...style
-        }}
         {...props}
       />
     );
