@@ -19,6 +19,10 @@ const meta: Meta<typeof Input> = {
     },
     placeholder: {
       control: 'text'
+    },
+    type: {
+      control: 'select',
+      options: ['text', 'textarea', 'number', 'email', 'password']
     }
   }
 };
