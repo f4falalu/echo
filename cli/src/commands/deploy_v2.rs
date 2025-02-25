@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use tokio::task;
+use walkdir::WalkDir;
 
 use crate::utils::{
     buster_credentials::get_and_validate_buster_credentials, BusterClient,
@@ -808,7 +809,7 @@ impl ModelFile {
     }
 }
 
-pub async fn deploy_v2(path: Option<&str>, dry_run: bool) -> Result<()> {
+pub async fn deploy_v2(path: Option<&str>, dry_run: bool, recursive: bool) -> Result<()> {
     let target_path = PathBuf::from(path.unwrap_or("."));
     let mut progress = DeployProgress::new(0);
     let mut result = DeployResult::default();
@@ -856,7 +857,10 @@ pub async fn deploy_v2(path: Option<&str>, dry_run: bool) -> Result<()> {
 
     let yml_files: Vec<PathBuf> = if target_path.is_file() {
         vec![target_path.clone()]
+    } else if recursive {
+        find_yml_files_recursively(&target_path)?
     } else {
+        // Non-recursive mode - only search in the specified directory
         std::fs::read_dir(&target_path)?
             .filter_map(|entry| entry.ok())
             .filter(|entry| {
@@ -889,9 +893,9 @@ pub async fn deploy_v2(path: Option<&str>, dry_run: bool) -> Result<()> {
     for yml_path in yml_files {
         progress.processed += 1;
         progress.current_file = yml_path
-            .file_name()
-            .and_then(|n| n.to_str())
-            .unwrap_or("unknown")
+            .strip_prefix(&target_path)
+            .unwrap_or(&yml_path)
+            .to_string_lossy()
             .to_string();
 
         progress.status = "Loading model file...".to_string();
@@ -1138,6 +1142,35 @@ pub async fn deploy_v2(path: Option<&str>, dry_run: bool) -> Result<()> {
     Ok(())
 }
 
+// New helper function to find YML files recursively
+fn find_yml_files_recursively(dir: &Path) -> Result<Vec<PathBuf>> {
+    let mut result = Vec::new();
+    
+    if !dir.is_dir() {
+        return Err(anyhow::anyhow!("Path is not a directory: {}", dir.display()));
+    }
+    
+    for entry in WalkDir::new(dir)
+        .follow_links(true)
+        .into_iter()
+        .filter_map(|e| e.ok())
+    {
+        let path = entry.path();
+        
+        // Skip buster.yml files
+        if path.file_name().and_then(|n| n.to_str()) == Some("buster.yml") {
+            continue;
+        }
+        
+        if path.is_file() && 
+           path.extension().and_then(|ext| ext.to_str()) == Some("yml") {
+            result.push(path.to_path_buf());
+        }
+    }
+    
+    Ok(result)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1197,7 +1230,7 @@ mod tests {
         create_test_yaml(temp_dir.path(), "test_model.yml", model_yml).await?;
 
         // Test dry run
-        let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true).await;
+        let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true, false).await;
         assert!(result.is_ok());
 
         Ok(())
@@ -1241,7 +1274,7 @@ mod tests {
         create_test_yaml(temp_dir.path(), "test_model.yml", model_yml).await?;
 
         // Test dry run
-        let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true).await;
+        let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true, false).await;
         assert!(result.is_ok());
 
         Ok(())
@@ -1285,7 +1318,7 @@ mod tests {
         create_test_yaml(temp_dir.path(), "test_model.yml", model_yml).await?;
 
         // Test dry run - should fail due to data source mismatch
-        let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true).await;
+        let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true, false).await;
         assert!(result.is_err());
 
         Ok(())
@@ -1320,7 +1353,7 @@ mod tests {
         create_test_yaml(temp_dir.path(), "test_model.yml", model_yml).await?;
 
         // Test dry run - should fail due to missing project
-        let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true).await;
+        let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true, false).await;
         assert!(result.is_err());
 
         Ok(())
@@ -1368,7 +1401,7 @@ mod tests {
         }
 
         // Test dry run
-        let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true).await;
+        let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true, false).await;
         assert!(result.is_ok());
 
         Ok(())
@@ -1390,7 +1423,7 @@ mod tests {
         create_test_yaml(temp_dir.path(), "invalid_model.yml", invalid_yml).await?;
 
         // Test dry run - should fail due to invalid YAML
-        let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true).await;
+        let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true, false).await;
         assert!(result.is_err());
 
         Ok(())
@@ -1442,7 +1475,7 @@ mod tests {
         create_test_yaml(temp_dir.path(), "test_model.yml", model_yml).await?;
 
         // Test dry run - should succeed because actual_model exists
-        let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true).await;
+        let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true, false).await;
         assert!(result.is_ok());
 
         Ok(())
@@ -1477,7 +1510,7 @@ mod tests {
         create_test_yaml(temp_dir.path(), "test_model.yml", model_yml).await?;
 
         // Test dry run - should fail because referenced model doesn't exist
-        let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true).await;
+        let result = deploy_v2(Some(temp_dir.path().to_str().unwrap()), true, false).await;
         assert!(result.is_err());
 
         Ok(())
