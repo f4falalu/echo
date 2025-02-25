@@ -6,6 +6,7 @@ import {
   DropdownMenuTrigger
 } from './DropdownBase';
 import { cn } from '@/lib/classMerge';
+import { ArrowRight, ChevronRight } from '../icons';
 
 export interface SearchDropdownItem {
   label: string;
@@ -22,10 +23,22 @@ interface SearchDropdownProps {
   style?: React.CSSProperties;
   open: boolean;
   children: React.ReactNode;
+  useLinkIcon?: boolean;
+  contentClassName?: string;
+  offset?: number;
 }
 
 export const SearchDropdown = React.memo(
-  ({ items, onSelect, className, children, open }: SearchDropdownProps) => {
+  ({
+    items,
+    useLinkIcon = true,
+    onSelect,
+    className,
+    offset = 0,
+    children,
+    open,
+    contentClassName = 'rounded-t-none'
+  }: SearchDropdownProps) => {
     return (
       <DropdownMenu open={open} defaultOpen={open} modal={false}>
         <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
@@ -34,10 +47,9 @@ export const SearchDropdown = React.memo(
           className={cn(
             'w-full min-w-[var(--radix-popper-anchor-width)]',
             'data-[state=closed]:zoom-out-100 data-[state=open]:zoom-in-100',
-            'rounded-t-none',
-            className
+            contentClassName
           )}
-          sideOffset={0}
+          sideOffset={offset}
           align={'center'}
           side={'bottom'}
           loop>
@@ -45,9 +57,10 @@ export const SearchDropdown = React.memo(
             <DropdownMenuItem
               disabled={item.disabled}
               key={index}
-              className="min-h-10"
+              className="group min-h-10"
               onClick={() => onSelect(item)}>
               {item.label}
+              {useLinkIcon && <ArrowRightIcon />}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
@@ -57,3 +70,11 @@ export const SearchDropdown = React.memo(
 );
 
 SearchDropdown.displayName = 'SearchDropdown';
+
+const ArrowRightIcon = React.memo(() => {
+  return (
+    <div className="ml-auto opacity-0 transition-opacity duration-100 group-hover:opacity-100 group-focus:opacity-100">
+      <ArrowRight />
+    </div>
+  );
+});
