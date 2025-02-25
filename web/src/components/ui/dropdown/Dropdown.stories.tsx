@@ -66,7 +66,7 @@ export const Basic: Story = {
 // Example with icons and shortcuts
 export const WithIconsAndShortcuts: Story = {
   args: {
-    menuLabel: 'Menu Options',
+    menuHeader: 'Menu Options',
     items: [
       {
         id: '1',
@@ -97,7 +97,7 @@ export const WithIconsAndShortcuts: Story = {
 // Example with nested items
 export const WithNestedItems: Story = {
   args: {
-    menuLabel: 'Nested Menu',
+    menuHeader: 'Nested Menu',
     items: [
       {
         id: '1',
@@ -164,7 +164,7 @@ export const WithDisabledItems: Story = {
 // Example with custom widths
 export const CustomWidth: Story = {
   args: {
-    menuLabel: 'Custom Width Menu',
+    menuHeader: 'Custom Width Menu',
     minWidth: 300,
     maxWidth: 400,
     items: [
@@ -238,7 +238,7 @@ export const WithSelection: Story = {
 // Example with secondary labels
 export const WithSecondaryLabel: Story = {
   args: {
-    menuLabel: 'Items with Secondary Labels',
+    menuHeader: 'Items with Secondary Labels',
     items: [
       {
         id: '1',
@@ -264,5 +264,41 @@ export const WithSecondaryLabel: Story = {
       }
     ],
     children: <Button>Menu with Secondary Labels</Button>
+  }
+};
+
+// Example with search header
+export const WithSearchHeader: Story = {
+  args: {
+    menuHeader: {
+      placeholder: 'Search items...'
+    },
+    items: [
+      {
+        id: '1',
+        label: 'Profile Settings',
+        searchLabel: 'profile settings user preferences account',
+        secondaryLabel: 'User preferences',
+        onClick: () => console.log('Profile clicked'),
+        icon: <PaintRoller />
+      },
+      {
+        id: '2',
+        label: 'Storage Options',
+        searchLabel: 'storage disk space memory',
+        secondaryLabel: 'Manage storage space',
+        onClick: () => console.log('Storage clicked'),
+        icon: <Storage />
+      },
+      {
+        id: '3',
+        label: 'Favorites',
+        searchLabel: 'favorites starred items bookmarks',
+        secondaryLabel: 'View starred items',
+        onClick: () => console.log('Favorites clicked'),
+        icon: <Star />
+      }
+    ],
+    children: <Button>Searchable Menu</Button>
   }
 };

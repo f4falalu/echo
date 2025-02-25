@@ -1,11 +1,10 @@
-import { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
+import { DropdownMenuLabel, DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 import React, { useMemo } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup, //Do I need this?
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuPortal,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
@@ -18,9 +17,12 @@ import {
 import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
 import { useMemoizedFn } from 'ahooks';
 import { cn } from '@/lib/classMerge';
+import { Input } from '../inputs/Input';
+import { useDebounceSearch } from '@/hooks';
 
 export interface DropdownItem {
-  label: React.ReactNode;
+  label: React.ReactNode | string;
+  searchLabel?: string; // Used for filtering
   secondaryLabel?: string;
   id: string;
   showIndex?: boolean;
@@ -42,7 +44,7 @@ export type DropdownItems = (DropdownItem | DropdownDivider | React.ReactNode)[]
 export interface DropdownProps extends DropdownMenuProps {
   items?: DropdownItems;
   selectType?: boolean;
-  menuLabel?: string | React.ReactNode;
+  menuHeader?: string | React.ReactNode | { placeholder: string };
   minWidth?: number;
   maxWidth?: number;
   closeOnSelect?: boolean;
@@ -50,6 +52,7 @@ export interface DropdownProps extends DropdownMenuProps {
   align?: 'start' | 'center' | 'end';
   side?: 'top' | 'right' | 'bottom' | 'left';
   contentClassName?: string;
+  emptyStateText?: string;
 }
 
 const dropdownItemKey = (item: DropdownItems[number], index: number) => {
@@ -62,7 +65,7 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
   ({
     items = [],
     selectType = false,
-    menuLabel,
+    menuHeader,
     minWidth = 240,
     maxWidth,
     closeOnSelect = true,
@@ -74,29 +77,53 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
     open,
     defaultOpen,
     onOpenChange,
+    emptyStateText = 'No items found',
     ...props
   }) => {
+    const { filteredItems, searchText, handleSearchChange } = useDebounceSearch({
+      items,
+      searchPredicate: (item, searchText) => {
+        if ((item as DropdownItem).id && (item as DropdownItem).searchLabel) {
+          return ((item as DropdownItem).searchLabel || '')
+            ?.toLowerCase()
+            .includes(searchText.toLowerCase());
+        }
+        return true;
+      },
+      debounceTime: 50
+    });
+
     return (
       <DropdownMenu open={open} defaultOpen={open} onOpenChange={onOpenChange} {...props}>
         <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
         <DropdownMenuContent className={cn('w-56', contentClassName)} align={align} side={side}>
-          {menuLabel && (
+          {menuHeader && (
             <>
-              <DropdownMenuLabel>{menuLabel}</DropdownMenuLabel>
+              <DropdownMenuHeaderSelector
+                menuHeader={menuHeader}
+                onChange={handleSearchChange}
+                text={searchText}
+              />
               <DropdownMenuSeparator />
             </>
           )}
 
-          {items.map((item, index) => (
-            <DropdownItemSelector
-              item={item}
-              index={index}
-              selectType={selectType}
-              onSelect={onSelect}
-              closeOnSelect={closeOnSelect}
-              key={dropdownItemKey(item, index)}
-            />
-          ))}
+          {filteredItems.length > 0 ? (
+            filteredItems.map((item, index) => (
+              <DropdownItemSelector
+                item={item}
+                index={index}
+                selectType={selectType}
+                onSelect={onSelect}
+                closeOnSelect={closeOnSelect}
+                key={dropdownItemKey(item, index)}
+              />
+            ))
+          ) : (
+            <DropdownMenuItem disabled className="text-gray-light text-center">
+              {emptyStateText}
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     );
@@ -250,3 +277,49 @@ const DropdownSubMenuWrapper = React.memo(
   }
 );
 DropdownSubMenuWrapper.displayName = 'DropdownSubMenuWrapper';
+
+const DropdownMenuHeaderSelector: React.FC<{
+  menuHeader: NonNullable<DropdownProps['menuHeader']>;
+  onChange: (text: string) => void;
+  text: string;
+}> = React.memo(({ menuHeader, onChange, text }) => {
+  if (typeof menuHeader === 'string') {
+    return <DropdownMenuLabel>{menuHeader}</DropdownMenuLabel>;
+  }
+  if (typeof menuHeader === 'object' && 'placeholder' in menuHeader) {
+    return (
+      <DropdownMenuHeaderSearch
+        placeholder={menuHeader.placeholder}
+        onChange={onChange}
+        text={text}
+      />
+    );
+  }
+  return menuHeader;
+});
+
+DropdownMenuHeaderSelector.displayName = 'DropdownMenuHeaderSelector';
+
+interface DropdownMenuHeaderSearchProps {
+  text: string;
+  onChange: (text: string) => void;
+  placeholder?: string;
+}
+
+const DropdownMenuHeaderSearch: React.FC<DropdownMenuHeaderSearchProps> = ({
+  text,
+  onChange,
+  placeholder
+}) => {
+  return (
+    <div className="flex items-center gap-x-2">
+      <Input
+        variant={'ghost'}
+        autoFocus
+        placeholder={placeholder}
+        value={text}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </div>
+  );
+};
