@@ -2,6 +2,7 @@ use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
+use tracing;
 
 use crate::{database::enums::DataSourceType, utils::clients::supabase_vault::read_secret};
 
@@ -74,7 +75,6 @@ pub struct PostgresCredentials {
     pub port: u16,
     pub username: String,
     pub password: String,
-    #[serde(alias = "dbname")]
     pub database: String,
     pub schema: Option<String>,
     pub jump_host: Option<String>,
@@ -89,7 +89,7 @@ pub struct RedshiftCredentials {
     pub port: u16,
     pub username: String,
     pub password: String,
-    pub database: String,
+    pub database: Option<String>,
     pub schemas: Option<Vec<String>>,
 }
 
@@ -216,12 +216,18 @@ pub async fn get_data_source_credentials(
         DataSourceType::Redshift => {
             match serde_json::from_str::<PostgresCredentials>(&secret_string) {
                 Ok(mut credential) => {
+                    tracing::info!("Retrieved Redshift credentials from vault: database={:?}, host={}, port={}", 
+                        credential.database, credential.host, credential.port);
+                    
                     if redact_secret {
                         credential.password = "[REDACTED]".to_string();
                     }
                     Credential::Postgres(credential)
                 }
-                Err(e) => return Err(anyhow!("Error deserializing Redshift secret: {:?}", e)),
+                Err(e) => {
+                    tracing::error!("Error deserializing Redshift secret: {:?}, raw secret: {}", e, secret_string);
+                    return Err(anyhow!("Error deserializing Redshift secret: {:?}", e));
+                }
             }
         }
         DataSourceType::Snowflake => {
