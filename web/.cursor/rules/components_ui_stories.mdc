@@ -1,0 +1,5 @@
+---
+description: Rules for new stories
+globs: src/components/**/*.stories.tsx
+---
+All new stories title with "Base/{componentName}" unless specified otherwise.

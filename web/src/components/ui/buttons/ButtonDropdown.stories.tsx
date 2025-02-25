@@ -30,7 +30,7 @@ const meta: Meta<typeof ButtonDropdown> = {
     }
   },
   argTypes: {
-    buttonType: {
+    variant: {
       control: 'select',
       options: ['default', 'black', 'primary', 'ghost', 'link']
     },
@@ -64,35 +64,35 @@ type Story = StoryObj<typeof ButtonDropdown>;
 export const Default: Story = {
   args: {
     buttonText: 'Button Text',
-    buttonType: 'default'
+    variant: 'default'
   }
 };
 
 export const Primary: Story = {
   args: {
     buttonText: 'Primary Button',
-    buttonType: 'primary'
+    variant: 'primary'
   }
 };
 
 export const Black: Story = {
   args: {
     buttonText: 'Black Button',
-    buttonType: 'black'
+    variant: 'black'
   }
 };
 
 export const Ghost: Story = {
   args: {
     buttonText: 'Ghost Button',
-    buttonType: 'ghost'
+    variant: 'ghost'
   }
 };
 
 export const Link: Story = {
   args: {
     buttonText: 'Link Button',
-    buttonType: 'link'
+    variant: 'link'
   }
 };
 

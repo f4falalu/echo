@@ -3,7 +3,7 @@ import { Button, ConfigProvider } from 'antd';
 import Link from 'next/link';
 import { BusterRoutes, BusterRoutesWithArgsRoute } from '@/routes';
 import { AppMaterialIcons } from '@/components/ui';
-import { BusterLogoNew } from '@/assets/svg/BusterLogoWithText';
+import { BusterLogoWithText } from '@/assets/svg/BusterLogoWithText';
 import { AppTooltip } from '@/components/ui';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useAntToken } from '@/styles/useAntToken';
@@ -127,7 +127,8 @@ const LogoLink = React.memo(
             : '/'
         }>
         <AppTooltip title={'Home'} shortcuts={['G', 'H']}>
-          <BusterLogoNew
+          <BusterLogoWithText
+            className="w-10"
             style={{ color: isUserRegistered ? undefined : token.colorTextDisabled }}
           />
         </AppTooltip>
