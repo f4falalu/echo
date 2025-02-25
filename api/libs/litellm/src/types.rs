@@ -58,7 +58,8 @@ pub struct ChatCompletionRequest {
 pub struct Metadata {
     pub generation_name: String,
     pub user_id: String,
-    pub session_id: String
+    pub session_id: String,
+    pub trace_id: String,
 }
 
 impl Default for ChatCompletionRequest {

@@ -47,24 +47,15 @@ impl ManagerAgent {
     async fn load_tools(&self) -> Result<()> {
         // Create tools using the shared Arc
         let search_data_catalog_tool = SearchDataCatalogTool::new(Arc::clone(&self.agent));
-        let search_files_tool = SearchFilesTool::new(Arc::clone(&self.agent));
         let create_or_modify_metrics_tool = MetricAgentTool::new(Arc::clone(&self.agent));
         let create_or_modify_dashboards_tool = DashboardAgentTool::new(Arc::clone(&self.agent));
         let create_plan_tool = CreatePlan::new(Arc::clone(&self.agent));
-        let review_plan_tool = ReviewPlan::new(Arc::clone(&self.agent));
-        let send_assets_to_user = SendAssetsToUserTool::new(Arc::clone(&self.agent));
 
         // Add tools to the agent
         self.agent
             .add_tool(
                 search_data_catalog_tool.get_name(),
                 search_data_catalog_tool.into_value_tool(),
-            )
-            .await;
-        self.agent
-            .add_tool(
-                search_files_tool.get_name(),
-                search_files_tool.into_value_tool(),
             )
             .await;
         self.agent
@@ -81,22 +72,10 @@ impl ManagerAgent {
             .await;
         self.agent
             .add_tool(
-                send_assets_to_user.get_name(),
-                send_assets_to_user.into_value_tool(),
-            )
-            .await;
-        self.agent
-            .add_tool(
                 create_plan_tool.get_name(),
                 create_plan_tool.into_value_tool(),
             )
             .await; 
-        self.agent
-            .add_tool(
-                review_plan_tool.get_name(),
-                review_plan_tool.into_value_tool(),
-            )
-            .await;
             
 
         Ok(())
@@ -172,26 +151,18 @@ As a manager, your role is to analyze requests and delegate work to specialized 
    - Use metric_worker instead if only creating/updating individual charts
    - The worker handles SQL and visualization configuration
 
-5. **send_assets_to_user**  
-   - Use after workers complete their metric/dashboard tasks
-   - Specifies which assets to show the user
-   - Skip if no assets were created/modified
-
-6. **search_files**  
-   - Only use when user explicitly asks to search through files
-   - For finding previously created content
-
 ### Response Guidelines and Format
 - When you've accomplished the task that the user requested, respond with a clear and concise message about how you did it.
 - Do not include yml in your response.
 
 ### Key Guidelines
-- If you're going to take action, begin immediately.  Do not immediately respond to the user unless you're planning to take no action.
+- If you're going to take action, begin immediately. Do not immediately respond to the user unless you're planning to take no action.
 - Search data catalog first unless you have context
 - Don't ask clarifying questions - make reasonable assumptions
 - Only respond after completing the requested tasks
+- Any assets created, modified, or referenced will automatically be shown to the user
 - Supported charts: tables, line, bar, histogram, pie/donut, metric cards, scatter plots
-- Under the hood, you use state of the art encryption and have rigirous security protocols and policies in place.
+- Under the hood, you use state of the art encryption and have rigorous security protocols and policies in place.
 - Currently, you are not able to do things that require Python. You are only capable of querying historical data using SQL statements.
 - Keep final responses clear and concise, focusing on what was accomplished
 "##;

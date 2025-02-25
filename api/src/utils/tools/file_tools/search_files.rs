@@ -128,6 +128,7 @@ impl SearchFilesTool {
                 generation_name: "search_files".to_string(),
                 user_id: user_id.to_string(),
                 session_id: session_id.to_string(),
+                trace_id: Uuid::new_v4().to_string(),
             }),
             ..Default::default()
         };
