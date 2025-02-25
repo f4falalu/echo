@@ -3,7 +3,7 @@ import { cn } from '@/lib/classMerge';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { useMemoizedFn } from 'ahooks';
 
-const inputVariants = cva(
+export const inputVariants = cva(
   'flex w-full rounded border px-2.5 text-base transition-all duration-200  disabled:cursor-not-allowed disabled:bg-item-select disabled:text-gray-light ',
   {
     variants: {
@@ -49,7 +49,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
     return (
       <input
-        type={type}
+        type={'type'}
         className={cn(inputVariants({ size, variant }), className)}
         ref={ref}
         onKeyDown={handleKeyDown}
