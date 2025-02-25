@@ -49,7 +49,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
     return (
       <input
-        type={'type'}
+        type={type}
         className={cn(inputVariants({ size, variant }), className)}
         ref={ref}
         onKeyDown={handleKeyDown}

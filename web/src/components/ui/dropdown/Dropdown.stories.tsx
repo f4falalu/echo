@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Dropdown } from './Dropdown';
 import { Button } from '../buttons/Button';
 import { PaintRoller, Star, Storage } from '../icons';
+import { faker } from '@faker-js/faker';
 
 const meta: Meta<typeof Dropdown> = {
   title: 'Base/Dropdown',
@@ -297,8 +298,44 @@ export const WithSearchHeader: Story = {
         secondaryLabel: 'View starred items',
         onClick: () => console.log('Favorites clicked'),
         icon: <Star />
+      },
+      { type: 'divider' },
+      {
+        id: '4',
+        label: 'Logout',
+
+        onClick: () => console.log('Logout clicked')
+      },
+      {
+        id: '5',
+        label: 'Invite User',
+        onClick: () => console.log('Invite User clicked')
       }
     ],
     children: <Button>Searchable Menu</Button>
+  }
+};
+
+// Example with long text to test truncation
+export const WithLongText: Story = {
+  args: {
+    menuHeader: {
+      placeholder: 'Search items...'
+    },
+    items: [
+      ...Array.from({ length: 100 }).map(() => {
+        const label = faker.commerce.product();
+        const secondaryLabel = faker.commerce.productDescription();
+        return {
+          id: faker.string.uuid(),
+          label,
+          secondaryLabel,
+          searchLabel: label + ' ' + secondaryLabel,
+          onClick: () => console.log('Long text clicked'),
+          truncate: true
+        };
+      })
+    ],
+    children: <Button>Long Text Menu</Button>
   }
 };

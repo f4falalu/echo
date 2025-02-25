@@ -77,13 +77,15 @@ const DropdownMenuItem = React.forwardRef<
     inset?: boolean;
     closeOnSelect?: boolean;
     selectType?: string;
+    truncate?: boolean;
   }
->(({ className, closeOnSelect = true, onClick, inset, selectType, ...props }, ref) => (
+>(({ className, closeOnSelect = true, onClick, inset, selectType, truncate, ...props }, ref) => (
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
       'focus:bg-item-hover focus:text-foreground relative flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition-colors outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
       inset && 'pl-8',
+      truncate && 'overflow-hidden',
       className
     )}
     onClick={(e) => {
@@ -152,7 +154,11 @@ const DropdownMenuSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Separator
     ref={ref}
-    className={cn('bg-border -mx-1 my-1 h-[0.5px]', className)}
+    className={cn(
+      'bg-border dropdown-separator -mx-1 my-1 h-[0.5px]',
+      '[&.dropdown-separator:has(+.dropdown-separator)]:hidden [&.dropdown-separator:last-child]:hidden',
+      className
+    )}
     {...props}
   />
 ));
