@@ -78,3 +78,5 @@ const ArrowRightIcon = React.memo(() => {
     </div>
   );
 });
+
+ArrowRightIcon.displayName = 'ArrowRightIcon';
