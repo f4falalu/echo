@@ -13,8 +13,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-  DropdownMenuCheckboxItem,
-  DropdownMenuRadioItem
+  DropdownMenuCheckboxItem
 } from './DropdownBase';
 import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
 import { useMemoizedFn } from 'ahooks';
@@ -22,6 +21,7 @@ import { cn } from '@/lib/classMerge';
 
 export interface DropdownItem {
   label: React.ReactNode;
+  secondaryLabel?: string;
   id: string;
   showIndex?: boolean;
   shortcut?: string;
@@ -41,7 +41,7 @@ export type DropdownItems = (DropdownItem | DropdownDivider | React.ReactNode)[]
 
 export interface DropdownProps extends DropdownMenuProps {
   items?: DropdownItems;
-  selectType?: 'default' | 'single' | 'multiple';
+  selectType?: boolean;
   menuLabel?: string | React.ReactNode;
   minWidth?: number;
   maxWidth?: number;
@@ -61,7 +61,7 @@ const dropdownItemKey = (item: DropdownItems[number], index: number) => {
 export const Dropdown: React.FC<DropdownProps> = React.memo(
   ({
     items = [],
-    selectType = 'default',
+    selectType = false,
     menuLabel,
     minWidth = 240,
     maxWidth,
@@ -110,7 +110,7 @@ const DropdownItemSelector: React.FC<{
   index: number;
   onSelect: DropdownProps['onSelect'];
   closeOnSelect: boolean;
-  selectType: NonNullable<DropdownProps['selectType']>;
+  selectType: DropdownProps['selectType'];
 }> = React.memo(({ item, index, onSelect, closeOnSelect, selectType }) => {
   if ((item as DropdownDivider).type === 'divider') {
     return <DropdownMenuSeparator />;
@@ -133,7 +133,14 @@ const DropdownItemSelector: React.FC<{
 
 DropdownItemSelector.displayName = 'DropdownItemSelector';
 
-const DropdownItem = ({
+const DropdownItem: React.FC<
+  DropdownItem & {
+    onSelect: DropdownProps['onSelect'];
+    closeOnSelect: boolean;
+    index: number;
+    selectType: DropdownProps['selectType'];
+  }
+> = ({
   label,
   id,
   showIndex,
@@ -147,12 +154,8 @@ const DropdownItem = ({
   items,
   closeOnSelect,
   onSelect,
-  selectType
-}: DropdownItem & {
-  onSelect: DropdownProps['onSelect'];
-  closeOnSelect: boolean;
-  index: number;
-  selectType: NonNullable<DropdownProps['selectType']>;
+  selectType = false,
+  secondaryLabel
 }) => {
   const onClickItem = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
     if (onClick) onClick();
@@ -163,24 +166,51 @@ const DropdownItem = ({
 
   const Wrapper = useMemo(() => {
     if (isSubItem) return DropdownSubMenuWrapper;
-    if (selectType === 'multiple' || selectType === 'single') return DropdownMenuCheckboxItem;
+    if (selectType) return DropdownMenuCheckboxItem;
     return DropdownMenuItem;
   }, [isSubItem, selectType]);
 
-  return (
-    <Wrapper
-      items={items}
-      disabled={disabled}
-      checked={selected}
-      onClick={onClickItem}
-      closeOnSelect={closeOnSelect}
-      selectType={selectType}>
+  const content = (
+    <>
       {showIndex && <span className="text-gray-light">{index}</span>}
       {icon && !loading && <span className="text-icon-color">{icon}</span>}
       {loading && <CircleSpinnerLoader size={9} />}
-      {label}
+      <div className="flex flex-col gap-y-1">
+        {label}
+        {secondaryLabel && <span className="text-gray-light text-xxs">{secondaryLabel}</span>}
+      </div>
       {shortcut && <DropdownMenuShortcut>{shortcut}</DropdownMenuShortcut>}
-    </Wrapper>
+    </>
+  );
+
+  if (isSubItem) {
+    return (
+      <DropdownSubMenuWrapper
+        items={items}
+        closeOnSelect={closeOnSelect}
+        onSelect={onSelect}
+        selectType={selectType}>
+        {content}
+      </DropdownSubMenuWrapper>
+    );
+  }
+
+  if (selectType) {
+    return (
+      <DropdownMenuCheckboxItem
+        checked={selected}
+        disabled={disabled}
+        onClick={onClickItem}
+        closeOnSelect={closeOnSelect}>
+        {content}
+      </DropdownMenuCheckboxItem>
+    );
+  }
+
+  return (
+    <DropdownMenuItem disabled={disabled} onClick={onClickItem} closeOnSelect={closeOnSelect}>
+      {content}
+    </DropdownMenuItem>
   );
 };
 
@@ -196,7 +226,7 @@ const DropdownSubMenuWrapper = React.memo(
     children: React.ReactNode;
     closeOnSelect: boolean;
     onSelect?: DropdownProps['onSelect'];
-    selectType: NonNullable<DropdownProps['selectType']>;
+    selectType: DropdownProps['selectType'];
   }) => {
     return (
       <DropdownMenuSub>

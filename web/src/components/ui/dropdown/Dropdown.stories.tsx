@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Dropdown } from './Dropdown';
 import { Button } from '../buttons/Button';
-import { PaintRoller } from '../icons';
+import { PaintRoller, Star, Storage } from '../icons';
+
 const meta: Meta<typeof Dropdown> = {
   title: 'Base/Dropdown',
   component: Dropdown,
@@ -210,7 +211,7 @@ export const WithLoadingItems: Story = {
 // Example with selection
 export const WithSelection: Story = {
   args: {
-    selectType: 'single',
+    selectType: true,
     items: [
       {
         id: '1',
@@ -231,5 +232,37 @@ export const WithSelection: Story = {
       }
     ],
     children: <Button>Selection Menu</Button>
+  }
+};
+
+// Example with secondary labels
+export const WithSecondaryLabel: Story = {
+  args: {
+    menuLabel: 'Items with Secondary Labels',
+    items: [
+      {
+        id: '1',
+        label: 'Profile Settings',
+        secondaryLabel: 'User preferences',
+        onClick: () => console.log('Profile clicked'),
+        icon: <PaintRoller />
+      },
+      {
+        id: '2',
+        label: 'Storage',
+        secondaryLabel: '45GB used',
+        onClick: () => console.log('Storage clicked'),
+        icon: <Storage />
+      },
+      { type: 'divider' },
+      {
+        id: '3',
+        label: 'Subscription',
+        secondaryLabel: 'Pro Plan',
+        onClick: () => console.log('Subscription clicked'),
+        icon: <Star />
+      }
+    ],
+    children: <Button>Menu with Secondary Labels</Button>
   }
 };
