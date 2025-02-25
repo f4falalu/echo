@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Dropdown } from './Dropdown';
+import { Dropdown, DropdownItems } from './Dropdown';
 import { Button } from '../buttons/Button';
 import { PaintRoller, Star, Storage } from '../icons';
 import { faker } from '@faker-js/faker';
+import React from 'react';
 
 const meta: Meta<typeof Dropdown> = {
   title: 'Base/Dropdown',
@@ -203,6 +204,17 @@ export const WithLoadingItems: Story = {
         id: '3',
         label: 'Another Normal',
         onClick: () => console.log('Another clicked')
+      },
+      { type: 'divider' },
+      {
+        id: '4',
+        label: 'Option 4',
+        onClick: () => console.log('Option 4 clicked')
+      },
+      {
+        id: '5',
+        label: 'Option 5',
+        onClick: () => console.log('Option 5 clicked')
       }
     ],
     children: <Button>Menu with Loading</Button>
@@ -210,9 +222,9 @@ export const WithLoadingItems: Story = {
 };
 
 // Example with selection
-export const WithSelection: Story = {
+export const WithSelectionSingle: Story = {
   args: {
-    selectType: true,
+    selectType: 'single',
     items: [
       {
         id: '1',
@@ -233,6 +245,68 @@ export const WithSelection: Story = {
       }
     ],
     children: <Button>Selection Menu</Button>
+  }
+};
+
+export const WithSelectionMultiple: Story = {
+  render: () => {
+    const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set(['3']));
+
+    const items: DropdownItems = [
+      {
+        id: '1',
+        label: 'Option 1',
+        selected: selectedIds.has('1'),
+        onClick: () => console.log('Option 1 clicked')
+      },
+      {
+        id: '2',
+        label: 'Option 2',
+        selected: selectedIds.has('2'),
+        onClick: () => console.log('Option 2 clicked')
+      },
+      {
+        id: '3',
+        label: 'Option 3',
+        selected: selectedIds.has('3'),
+        onClick: () => console.log('Option 3 clicked')
+      },
+      { type: 'divider' as const },
+      {
+        id: '4',
+        label: 'Option 4',
+        selected: selectedIds.has('4'),
+        onClick: () => console.log('Option 4 clicked')
+      },
+      {
+        id: '5',
+        label: 'Option 5',
+        selected: selectedIds.has('5'),
+        onClick: () => console.log('Option 5 clicked')
+      }
+    ];
+
+    const handleSelect = (itemId: string) => {
+      setSelectedIds((prev) => {
+        const newSet = new Set(prev);
+        if (newSet.has(itemId)) {
+          newSet.delete(itemId);
+        } else {
+          newSet.add(itemId);
+        }
+        return newSet;
+      });
+    };
+
+    return (
+      <Dropdown
+        selectType="multiple"
+        items={items}
+        menuHeader={{ placeholder: 'Search items...' }}
+        onSelect={handleSelect}
+        children={<Button>Selection Menu</Button>}
+      />
+    );
   }
 };
 

@@ -1,6 +1,7 @@
 ---
 description: Rules for the components ui directory
 globs: src/components/ui/**/*
+alwaysApply: false
 ---
 
 # Component Directory Structure and Organization
@@ -64,6 +65,10 @@ globs: src/components/ui/**/*
   import { Text } from '@/components/ui';
   import { Title } from '@/components/ui';
   ```
+
+##
+I have a helper called `cn`. This is how I do a tailwind merge and classnames concatination. This is found in import { cn } from '@/lib/classMerge';
+
 
 ## File Naming
 - Use PascalCase for component files

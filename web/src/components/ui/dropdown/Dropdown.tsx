@@ -12,7 +12,8 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-  DropdownMenuCheckboxItem
+  DropdownMenuCheckboxItemSingle,
+  DropdownMenuCheckboxItemMultiple
 } from './DropdownBase';
 import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
 import { useMemoizedFn } from 'ahooks';
@@ -44,7 +45,7 @@ export type DropdownItems = (DropdownItem | DropdownDivider | React.ReactNode)[]
 
 export interface DropdownProps extends DropdownMenuProps {
   items?: DropdownItems;
-  selectType?: boolean;
+  selectType?: 'single' | 'multiple' | 'none';
   menuHeader?: string | React.ReactNode | { placeholder: string };
   minWidth?: number;
   maxWidth?: number;
@@ -65,7 +66,7 @@ const dropdownItemKey = (item: DropdownItems[number], index: number) => {
 export const Dropdown: React.FC<DropdownProps> = React.memo(
   ({
     items = [],
-    selectType = false,
+    selectType = 'none',
     menuHeader,
     minWidth = 240,
     maxWidth,
@@ -99,6 +100,29 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
       return filteredItems.length > 0 && filteredItems.some((item) => (item as DropdownItem).id);
     }, [filteredItems]);
 
+    const { selectedItems, unselectedItems } = useMemo(() => {
+      if (selectType === 'multiple') {
+        const [selectedItems, unselectedItems] = filteredItems.reduce(
+          (acc, item) => {
+            if ((item as DropdownItem).selected) {
+              acc[0].push(item);
+            } else {
+              acc[1].push(item);
+            }
+            return acc;
+          },
+          [[], []] as [typeof filteredItems, typeof filteredItems]
+        );
+        return { selectedItems, unselectedItems };
+      }
+      return {
+        selectedItems: [],
+        unselectedItems: []
+      };
+    }, [selectType, filteredItems]);
+
+    const dropdownItems = selectType === 'multiple' ? unselectedItems : filteredItems;
+
     return (
       <DropdownMenu open={open} defaultOpen={open} onOpenChange={onOpenChange} {...props}>
         <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
@@ -117,18 +141,33 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
             </>
           )}
 
-          <div className="max-h-[300px] overflow-y-auto">
+          <div className="max-h-[350px] overflow-y-auto">
             {hasShownItem ? (
-              filteredItems.map((item, index) => (
-                <DropdownItemSelector
-                  item={item}
-                  index={index}
-                  selectType={selectType}
-                  onSelect={onSelect}
-                  closeOnSelect={closeOnSelect}
-                  key={dropdownItemKey(item, index)}
-                />
-              ))
+              <>
+                {selectedItems.map((item, index) => (
+                  <DropdownItemSelector
+                    item={item}
+                    index={index}
+                    selectType={selectType}
+                    onSelect={onSelect}
+                    closeOnSelect={closeOnSelect}
+                    key={dropdownItemKey(item, index)}
+                  />
+                ))}
+
+                {selectedItems.length > 0 && <DropdownMenuSeparator />}
+
+                {dropdownItems.map((item, index) => (
+                  <DropdownItemSelector
+                    item={item}
+                    index={index}
+                    selectType={selectType}
+                    onSelect={onSelect}
+                    closeOnSelect={closeOnSelect}
+                    key={dropdownItemKey(item, index)}
+                  />
+                ))}
+              </>
             ) : (
               <DropdownMenuItem disabled className="text-gray-light text-center">
                 {emptyStateText}
@@ -192,7 +231,7 @@ const DropdownItem: React.FC<
   items,
   closeOnSelect,
   onSelect,
-  selectType = false,
+  selectType,
   secondaryLabel,
   truncate
 }) => {
@@ -228,15 +267,27 @@ const DropdownItem: React.FC<
     );
   }
 
-  if (selectType) {
+  if (selectType === 'single') {
     return (
-      <DropdownMenuCheckboxItem
+      <DropdownMenuCheckboxItemSingle
         checked={selected}
         disabled={disabled}
         onClick={onClickItem}
         closeOnSelect={closeOnSelect}>
         {content}
-      </DropdownMenuCheckboxItem>
+      </DropdownMenuCheckboxItemSingle>
+    );
+  }
+
+  if (selectType === 'multiple') {
+    return (
+      <DropdownMenuCheckboxItemMultiple
+        checked={selected}
+        disabled={disabled}
+        onClick={onClickItem}
+        closeOnSelect={closeOnSelect}>
+        {content}
+      </DropdownMenuCheckboxItemMultiple>
     );
   }
 
@@ -316,28 +367,25 @@ interface DropdownMenuHeaderSearchProps {
   placeholder?: string;
 }
 
-const DropdownMenuHeaderSearch: React.FC<DropdownMenuHeaderSearchProps> = ({
-  text,
-  onChange,
-  placeholder
-}) => {
-  return (
-    <div className="flex items-center gap-x-2">
-      <Input
-        autoFocus
-        variant={'ghost'}
-        placeholder={placeholder}
-        value={text}
-        onChange={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          onChange(e.target.value);
-        }}
-        onKeyDown={(e) => {
-          e.stopPropagation();
-        }}
-      />
-      {/* 
+const DropdownMenuHeaderSearch: React.FC<DropdownMenuHeaderSearchProps> = React.memo(
+  ({ text, onChange, placeholder }) => {
+    return (
+      <div className="flex items-center gap-x-2">
+        <Input
+          autoFocus
+          variant={'ghost'}
+          placeholder={placeholder}
+          value={text}
+          onChange={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            onChange(e.target.value);
+          }}
+          onKeyDown={(e) => {
+            e.stopPropagation();
+          }}
+        />
+        {/* 
       <div className="flex pr-1 opacity-20 hover:opacity-100">
         <Button
           className="cursor-pointer"
@@ -346,6 +394,9 @@ const DropdownMenuHeaderSearch: React.FC<DropdownMenuHeaderSearchProps> = ({
           variant={'link'}
           size={'small'}></Button>
       </div> */}
-    </div>
-  );
-};
+      </div>
+    );
+  }
+);
+
+DropdownMenuHeaderSearch.displayName = 'DropdownMenuHeaderSearch';
