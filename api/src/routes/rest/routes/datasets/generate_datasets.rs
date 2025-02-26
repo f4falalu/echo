@@ -94,34 +94,86 @@ enum ColumnMappingType {
     Unsupported,
 }
 
-fn map_snowflake_type(type_str: &str) -> ColumnMappingType {
+fn map_database_type(type_str: &str) -> ColumnMappingType {
     // Convert to uppercase for consistent matching
     let type_upper = type_str.to_uppercase();
     
     match type_upper.as_str() {
         // Numeric types that should be measures
+        // Common numeric types across databases
         "NUMBER" | "DECIMAL" | "NUMERIC" | "FLOAT" | "REAL" | "DOUBLE" | "INT" | "INTEGER" | 
-        "BIGINT" | "SMALLINT" | "TINYINT" | "BYTEINT" => ColumnMappingType::Measure(type_str.to_string()),
+        "BIGINT" | "SMALLINT" | "TINYINT" | "BYTEINT" |
+        // PostgreSQL specific
+        "DOUBLE PRECISION" | "SERIAL" | "BIGSERIAL" | "SMALLSERIAL" | "MONEY" |
+        // BigQuery specific
+        "INT64" | "FLOAT64" | "NUMERIC" | "BIGNUMERIC" |
+        // Redshift specific (mostly same as PostgreSQL)
+        "DECIMAL" | "DOUBLE PRECISION" |
+        // MySQL specific
+        "MEDIUMINT" | "FLOAT4" | "FLOAT8" | "DOUBLE PRECISION" | "DEC" | "FIXED" => 
+            ColumnMappingType::Measure(type_str.to_string()),
         
         // Date/Time types
-        "DATE" | "DATETIME" | "TIME" | "TIMESTAMP" | "TIMESTAMP_LTZ" | 
-        "TIMESTAMP_NTZ" | "TIMESTAMP_TZ" => ColumnMappingType::Dimension(type_str.to_string()),
+        // Common date/time types
+        "DATE" | "DATETIME" | "TIME" | "TIMESTAMP" | 
+        // Snowflake specific
+        "TIMESTAMP_LTZ" | "TIMESTAMP_NTZ" | "TIMESTAMP_TZ" |
+        // PostgreSQL specific
+        "TIMESTAMPTZ" | "TIMESTAMP WITH TIME ZONE" | "TIMESTAMP WITHOUT TIME ZONE" | "INTERVAL" |
+        // BigQuery specific
+        "DATETIME" | "TIMESTAMP" | "DATE" | "TIME" |
+        // Redshift specific
+        "TIMETZ" | "TIMESTAMPTZ" |
+        // MySQL specific
+        "YEAR" => 
+            ColumnMappingType::Dimension(type_str.to_string()),
         
         // String types
-        "TEXT" | "STRING" | "VARCHAR" | "CHAR" | "CHARACTER" => ColumnMappingType::Dimension(type_str.to_string()),
+        // Common string types
+        "TEXT" | "STRING" | "VARCHAR" | "CHAR" | "CHARACTER" |
+        // PostgreSQL specific
+        "CHARACTER VARYING" | "NAME" | "CITEXT" | "CIDR" | "INET" | "MACADDR" | "UUID" |
+        // BigQuery specific
+        "STRING" | "BYTES" |
+        // Redshift specific
+        "BPCHAR" | "NCHAR" | "NVARCHAR" |
+        // MySQL specific
+        "TINYTEXT" | "MEDIUMTEXT" | "LONGTEXT" | "ENUM" | "SET" | "JSON" => 
+            ColumnMappingType::Dimension(type_str.to_string()),
         
         // Boolean type
-        "BOOLEAN" | "BOOL" => ColumnMappingType::Dimension(type_str.to_string()),
+        "BOOLEAN" | "BOOL" | "BIT" => 
+            ColumnMappingType::Dimension(type_str.to_string()),
         
-        // Unsupported types
-        "ARRAY" | "OBJECT" | "VARIANT" => ColumnMappingType::Unsupported,
+        // Binary/BLOB types
+        "BINARY" | "VARBINARY" | "BLOB" | "BYTEA" | "MEDIUMBLOB" | "LONGBLOB" | "TINYBLOB" => 
+            ColumnMappingType::Unsupported,
+        
+        // Geometric types (PostgreSQL)
+        "POINT" | "LINE" | "LSEG" | "BOX" | "PATH" | "POLYGON" | "CIRCLE" | "GEOMETRY" => 
+            ColumnMappingType::Unsupported,
+        
+        // Array/JSON/Complex types
+        "ARRAY" | "OBJECT" | "VARIANT" | "JSONB" | "HSTORE" | "XML" | "STRUCT" | "RECORD" => 
+            ColumnMappingType::Unsupported,
         
         // Default to dimension for unknown types
         _ => {
-            tracing::warn!("Unknown Snowflake type: {}, defaulting to dimension", type_str);
+            tracing::warn!("Unknown database type: {}, defaulting to dimension", type_str);
             ColumnMappingType::Dimension(type_str.to_string())
         }
     }
+}
+
+// Add a new function to clean up quotes in YAML
+fn clean_yaml_quotes(yaml: &str) -> String {
+    // First remove all single quotes
+    let no_single_quotes = yaml.replace('\'', "");
+    
+    // Then remove all double quotes
+    let no_quotes = no_single_quotes.replace('"', "");
+    
+    no_quotes
 }
 
 pub async fn generate_datasets(
@@ -181,9 +233,10 @@ async fn enhance_yaml_with_descriptions(yaml: String) -> Result<String> {
         LlmMessage::new(
             "developer".to_string(),
             "You are a YAML description enhancer. Your output must be wrapped in markdown code blocks using ```yml format.
-            Your task is to ONLY replace text matching exactly \"{NEED DESCRIPTION HERE}\" with appropriate descriptions. Do not modify any other parts of the YAML or other descriptions without the placeholder. You should still return the entire YAML in your output.
+            Your task is to ONLY replace text matching exactly {NEED DESCRIPTION HERE} with appropriate descriptions. Do not modify any other parts of the YAML or other descriptions without the placeholder. You should still return the entire YAML in your output.
             DO NOT modify any other part of the YAML.
             DO NOT add any explanations or text outside the ```yml block.
+            No double or single quotes.
             Return the complete YAML wrapped in markdown, with only the placeholders replaced.".to_string(),
         ),
         LlmMessage::new(
@@ -240,7 +293,7 @@ async fn generate_model_yaml(
 
     // Process each column and categorize as dimension or measure
     for col in model_columns {
-        match map_snowflake_type(&col.type_) {
+        match map_database_type(&col.type_) {
             ColumnMappingType::Dimension(semantic_type) => {
                 dimensions.push(Dimension {
                     name: col.name.clone(),
@@ -282,10 +335,13 @@ async fn generate_model_yaml(
 
     let yaml = serde_yaml::to_string(&config)?;
     
+    
     // Enhance descriptions using OpenAI
     let enhanced_yaml = enhance_yaml_with_descriptions(yaml).await?;
+
+    let cleaned_yaml = clean_yaml_quotes(&enhanced_yaml);
     
-    Ok(enhanced_yaml)
+    Ok(cleaned_yaml)
 }
 
 async fn generate_datasets_handler(
