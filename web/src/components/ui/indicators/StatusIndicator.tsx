@@ -18,17 +18,15 @@ export const StatusIndicator: React.FC<{ status?: 'completed' | 'loading' | 'fai
     return (
       <div
         className={cn(
-          'text-gray-light relative flex h-[11px] w-[11px] items-center justify-center rounded-full transition-all duration-200',
+          'text-gray-light relative flex h-[11px] w-[11px] items-center justify-center rounded-full transition-all duration-300',
           inProgress && 'text-primary',
           failed && 'text-danger-foreground'
         )}>
         <AnimatePresence mode="wait">
           <motion.div
             {...animationConfig}
-            key={status}
-            className={cn(
-              'ml-[0.5px] flex items-center justify-center transition-all duration-300'
-            )}>
+            key={status === 'failed' ? 'failed' : 'completed'}
+            className={cn('ml-[0.5px] flex items-center justify-center')}>
             {failed ? <CircleWarning /> : <RadioChecked />}
           </motion.div>
         </AnimatePresence>
