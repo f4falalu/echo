@@ -91,6 +91,12 @@
   --color-ring: var(--color-item-hover);
   --color-popover: var(--color-background);
   --color-popover-foreground: var(--color-foreground);
+
+  /* text color */
+  --color-text-default: var(--color-foreground);
+  --color-text-disabled: var(--color-gray-light);
+  --color-text-secondary: var(--color-gray-dark);
+  --color-text-tertiary: var(--color-gray-light);
 }
 
 @import './tailwindAnimations.css';

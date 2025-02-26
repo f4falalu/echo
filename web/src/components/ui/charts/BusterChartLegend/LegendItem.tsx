@@ -1,10 +1,10 @@
-import React, { useMemo, useEffect, useLayoutEffect } from 'react';
-import { BusterChartLegendItem, BusterChartLegendProps } from './interfaces';
-import { Text, Title } from '@/components/ui';
+import React, { useMemo } from 'react';
+import { type BusterChartLegendItem, type BusterChartLegendProps } from './interfaces';
 import { createStyles } from 'antd-style';
 import { useMemoizedFn } from 'ahooks';
 import { LegendItemDot } from './LegendDot';
 import { AnimatePresence, motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 export const LegendItem: React.FC<{
   item: BusterChartLegendItem;
@@ -112,12 +112,13 @@ const LegendItemStandard = React.memo(
         <AnimatePresence initial={false}>
           {hasHeadline && (
             <motion.div {...headlineAnimation} className="flex items-center space-x-1.5">
-              <Title
-                level={4}
-                className="leading-none font-semibold!"
-                type={!inactive ? 'default' : 'tertiary'}>
+              <span
+                className={cn(
+                  'text-md leading-none font-semibold!',
+                  !inactive ? 'text-foreground' : 'text-text-secondary'
+                )}>
                 {headline?.titleAmount}
-              </Title>
+              </span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -134,10 +135,11 @@ const LegendItemStandard = React.memo(
             inactive={item.inactive}
           />
 
-          <Text
-            size="sm"
-            className="flex! items-center truncate transition-all duration-100 select-none"
-            type={!inactive ? 'default' : 'tertiary'}>
+          <span
+            className={cn(
+              'flex! items-center truncate text-base transition-all duration-100 select-none',
+              !inactive ? 'text-foreground' : 'text-text-secondary'
+            )}>
             <AnimatePresence mode="wait" initial={false}>
               {headlinePreText && (
                 <motion.div
@@ -149,7 +151,7 @@ const LegendItemStandard = React.memo(
             </AnimatePresence>
 
             {formattedName}
-          </Text>
+          </span>
         </div>
       </motion.div>
     );
