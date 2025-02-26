@@ -42,29 +42,3 @@ const LinkWrapper: React.FC<{ children: React.ReactNode; linkUrl?: string }> = (
   }
   return <>{children}</>;
 };
-
-// const useStyles = createStyles(({ css, token }) => ({
-//   icon: {
-//     color: token.colorIcon
-//   },
-//   container: css`
-//     &:hover {
-//       color: ${token.colorText};
-//     }
-//   `
-// }));
-
-{
-  /* <div className={cx('group', styles.container, className)} style={style}>
-<div className={cx('flex cursor-pointer items-center space-x-2.5')} onClick={onClick}>
-  {/* <AppMaterialIcons
-    className={cx(styles.icon, 'group-hover:text-black dark:group-hover:text-white')}
-    icon="chevron_left"
-  /> 
-
-  <Title type={type} level={titleSize} clickable>
-    {text}
-  </Title>
-</div>
-</div> */
-}

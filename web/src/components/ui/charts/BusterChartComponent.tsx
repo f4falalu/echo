@@ -7,12 +7,6 @@ import {
 import { BusterChartJS } from './BusterChartJS';
 import { useDatasetOptions } from './chartHooks';
 
-// Dynamic import for BusterEChart with SSR disabled
-const BusterEChart = dynamic(() => import('./BusterChartE').then((mod) => mod.BusterEChart), {
-  ssr: false,
-  loading: () => <></>
-});
-
 export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = ({
   renderType,
   data: dataProp,
@@ -70,5 +64,5 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
     return <BusterChartJS {...chartProps} />;
   }
 
-  return <BusterEChart {...chartProps} />;
+  return <></>;
 };
