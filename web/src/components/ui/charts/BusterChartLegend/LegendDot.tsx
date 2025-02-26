@@ -1,19 +1,62 @@
-import { createStyles } from 'antd-style';
 import React, { useMemo } from 'react';
 import { useMemoizedFn } from 'ahooks';
-import { BusterChartLegendItem } from './interfaces';
+import { type BusterChartLegendItem } from './interfaces';
 import { ChartType } from '../interfaces';
 import { Target } from '../../icons';
 import { cn } from '@/lib/classMerge';
+import { cva, type VariantProps } from 'class-variance-authority';
 
-export const LegendItemDot: React.FC<{
-  color: string | undefined;
-  inactive: boolean;
-  type: BusterChartLegendItem['type'];
-  onFocusItem?: () => void;
-  size?: 'sm' | 'md';
-}> = React.memo(({ color, type, inactive, onFocusItem, size = 'md' }) => {
-  const { styles, cx } = useStyles();
+const itemVariants = cva(
+  'dot group relative flex items-center justify-center transition-all duration-300',
+  {
+    variants: {
+      size: {
+        sm: 'w-[8px] h-[12px]',
+        default: 'w-[18px] h-[12px]'
+      }
+    }
+  }
+);
+
+const dotVariants = cva('bg-border transition-colors duration-100', {
+  variants: {
+    size: {
+      sm: '',
+      default: ''
+    },
+    type: {
+      bar: 'w-[18px] h-[12px] rounded-sm',
+      line: 'w-[18px] h-[4px] rounded-sm',
+      scatter: 'w-[12px] h-[12px] rounded-full'
+    }
+  },
+
+  compoundVariants: [
+    {
+      size: 'sm',
+      type: 'bar',
+      className: 'w-[8px] h-[8px] rounded-[1.5px]'
+    },
+    {
+      size: 'sm',
+      type: 'line',
+      className: 'w-[8px] h-[2px] rounded-1.5px'
+    },
+    {
+      size: 'sm',
+      type: 'scatter',
+      className: 'w-[8px] h-[8px]'
+    }
+  ]
+});
+export const LegendItemDot: React.FC<
+  {
+    color: string | undefined;
+    inactive: boolean;
+    type: BusterChartLegendItem['type'];
+    onFocusItem?: () => void;
+  } & VariantProps<typeof itemVariants>
+> = React.memo(({ color, type, inactive, onFocusItem, size = 'default' }) => {
   const hasFocusItem = onFocusItem !== undefined;
 
   const onClick = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
@@ -32,34 +75,28 @@ export const LegendItemDot: React.FC<{
   });
 
   const dotStyle = useMemo(() => {
-    if (type === ChartType.Line) return styles.lineChartDot;
-    if (type === ChartType.Scatter) return styles.scatterChartDot;
-    return styles.barChartDot;
-  }, [type]);
+    if (type === ChartType.Line) return dotVariants({ size, type: 'line' });
+    if (type === ChartType.Scatter) return dotVariants({ size, type: 'scatter' });
+    return dotVariants({ size, type: 'bar' });
+  }, [type, size]);
 
   return (
-    <div
-      className={cx(
-        styles.container,
-        size,
-        'dot group relative flex items-center justify-center transition-all duration-300'
-      )}>
+    <div className={cn(itemVariants({ size }))}>
       <div
         onClick={onClick}
-        className={cx(dotStyle, styles.dotcontainer, size, 'transition-colors duration-100', {
-          inactive,
+        className={cn(dotStyle, dotVariants({ size }), {
           'group-hover:opacity-0': hasFocusItem
         })}
         style={{ backgroundColor: !inactive ? color : undefined }}></div>
       {hasFocusItem && (
         <div
           onClick={onFocusItemPreflight}
-          className="absolute hidden w-full items-center justify-center overflow-hidden group-hover:flex">
-          <div className="focus-item flex h-full w-full items-center justify-center">
+          className="absolute hidden h-full w-full items-center justify-center overflow-hidden group-hover:flex">
+          <div className="focus-item group-hover:bg-item-hover flex h-full w-full items-center justify-center rounded-sm">
             <div
               className={cn(
-                'flex items-center justify-center',
-                size === 'sm' ? 'text-xxs' : 'text-sm'
+                'flex h-full w-full items-center justify-center overflow-hidden',
+                size === 'sm' ? 'text-xxs' : 'text-xxs'
               )}>
               <Target />
             </div>
@@ -70,66 +107,3 @@ export const LegendItemDot: React.FC<{
   );
 });
 LegendItemDot.displayName = 'LegendItemDot';
-
-const useStyles = createStyles(({ token, css }) => {
-  return {
-    container: css`
-      width: 18px;
-      height: 12px;
-
-      &.sm {
-        width: 8px;
-        height: 12px;
-      }
-
-      .focus-item {
-        border-radius: 4px;
-        &:hover {
-          background-color: ${token.colorBgElevated} !important;
-        }
-      }
-    `,
-
-    dotcontainer: css`
-      background: ${token.colorBorder};
-    `,
-
-    barChartDot: css`
-      width: 18px;
-      height: 12px;
-      border-radius: 4px;
-      &.sm {
-        width: 8px;
-        height: 8px;
-        border-radius: 1.5px;
-      }
-    `,
-    lineChartDot: css`
-      width: 18px;
-      height: 4px;
-      border-radius: 4px;
-      &.sm {
-        width: 8px;
-        height: 2px;
-      }
-    `,
-    scatterChartDot: css`
-      width: 12px;
-      height: 12px;
-      border-radius: 100%;
-      &.sm {
-        width: 8px;
-        height: 8px;
-      }
-    `,
-    focusDot: css`
-      height: 12px;
-      width: 12px;
-      border-radius: 4px;
-      &.sm {
-        height: 8px;
-        width: 8px;
-      }
-    `
-  };
-});

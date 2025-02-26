@@ -127,7 +127,7 @@ const LegendItemStandard = React.memo(
             clickable: clickable
           })}>
           <LegendItemDot
-            size={!hasHeadline ? 'md' : 'sm'}
+            size={!hasHeadline ? 'default' : 'sm'}
             onFocusItem={onFocusItem}
             color={item.color}
             type={item.type}
@@ -175,23 +175,5 @@ const useStyles = createStyles(({ token, css }) => {
         border-color: ${token.colorBgContainerDisabled};
       }
     `
-    // legendItemHeadline: css`
-    //   padding: 0px 8px;
-    //   border-radius: 8px;
-    //   height: 44px;
-    //   overflow: hidden;
-
-    //   &.clickable {
-    //     cursor: pointer;
-    //     transition: background 0.125s ease;
-    //     &:hover {
-    //       background: ${token.controlItemBgHover};
-    //     }
-    //   }
-
-    //   &.inactive {
-    //     border-color: ${token.colorBgContainerDisabled};
-    //   }
-    // `
   };
 });
