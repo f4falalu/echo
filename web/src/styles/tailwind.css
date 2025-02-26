@@ -17,6 +17,10 @@
   --default-border-width: 0.5px;
 
   /* font size */
+  --text-3xs: 6px;
+  --text-3xs--line-height: 1;
+  --text-2xs: 8px;
+  --text-2xs--line-height: 1;
   --text-xxs: 10px;
   --text-xxs--line-height: 1;
   --text-xs: 11px;

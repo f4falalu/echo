@@ -1,9 +1,10 @@
 import { createStyles } from 'antd-style';
 import React, { useMemo } from 'react';
 import { useMemoizedFn } from 'ahooks';
-import { AppMaterialIcons } from '@/components/ui';
 import { BusterChartLegendItem } from './interfaces';
 import { ChartType } from '../interfaces';
+import { Target } from '../../icons';
+import { cn } from '@/lib/classMerge';
 
 export const LegendItemDot: React.FC<{
   color: string | undefined;
@@ -55,11 +56,13 @@ export const LegendItemDot: React.FC<{
           onClick={onFocusItemPreflight}
           className="absolute hidden w-full items-center justify-center overflow-hidden group-hover:flex">
           <div className="focus-item flex h-full w-full items-center justify-center">
-            <AppMaterialIcons
-              size={size === 'sm' ? 8 : 12}
-              className={cx(styles.focusDot, size)}
-              icon="target"
-            />
+            <div
+              className={cn(
+                'flex items-center justify-center',
+                size === 'sm' ? 'text-xxs' : 'text-sm'
+              )}>
+              <Target />
+            </div>
           </div>
         </div>
       )}
