@@ -8,7 +8,6 @@ import {
   SelectTrigger,
   SelectValue
 } from './SelectBase';
-import { SelectItemText } from '@radix-ui/react-select';
 
 interface SelectItemGroup {
   label: string;
