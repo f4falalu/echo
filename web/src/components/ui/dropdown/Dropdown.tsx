@@ -57,8 +57,8 @@ export interface DropdownProps extends DropdownMenuProps {
   onSelect?: (itemId: string) => void;
   align?: 'start' | 'center' | 'end';
   side?: 'top' | 'right' | 'bottom' | 'left';
-  contentClassName?: string;
   emptyStateText?: string;
+  className?: string;
 }
 
 const dropdownItemKey = (item: DropdownItems[number], index: number) => {
@@ -79,11 +79,11 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
     children,
     align = 'center',
     side = 'bottom',
-    contentClassName,
     open,
     defaultOpen,
     onOpenChange,
     emptyStateText = 'No items found',
+    className,
     ...props
   }) => {
     const { filteredItems, searchText, handleSearchChange } = useDebounceSearch({
@@ -131,7 +131,7 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
       <DropdownMenu open={open} defaultOpen={open} onOpenChange={onOpenChange} {...props}>
         <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
         <DropdownMenuContent
-          className={cn('max-w-72 min-w-44', contentClassName)}
+          className={cn('max-w-72 min-w-44', className)}
           align={align}
           side={side}>
           {menuHeader && (

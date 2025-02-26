@@ -27,12 +27,14 @@ const items: SelectItem[] = [
 const SelectTagInputWithHooks = () => {
   const [selected, setSelected] = useState<string[]>([]);
 
+  console.log(selected);
+
   return (
     <div className="w-[300px]">
       <SelectTagInput
         items={items}
         selected={selected}
-        onSelect={(items) => setSelected(items.map((item) => item.value))}
+        onSelect={(items) => setSelected(items)}
         placeholder="Select multiple options..."
       />
     </div>
