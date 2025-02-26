@@ -30,9 +30,9 @@ const roundingVariants = {
 };
 
 const sizeVariants = {
-  default: 'h-6',
-  tall: 'h-7',
-  small: 'h-[18px]'
+  default: 'h-7',
+  tall: 'h-8',
+  small: 'h-6'
 };
 
 export const buttonVariants = cva(

@@ -3,7 +3,7 @@
 import React, { PropsWithChildren, useMemo, useState } from 'react';
 import { Tooltip } from 'antd';
 import type { TooltipProps } from 'antd';
-import { AppTooltipShortcutPill } from './AppTooltipShortcutPill';
+import { KeyboardShortcutPill } from '../pills/TooltipShortcutPill';
 
 export type AppTooltipProps = TooltipProps & {
   shortcuts?: string[];
@@ -66,7 +66,7 @@ const BusterTooltip: React.FC<PropsWithChildren<AppTooltipProps>> = ({
       return (
         <div className="flex items-center space-x-1">
           <span className="text-sm">{title}</span>
-          <AppTooltipShortcutPill shortcut={shortcuts} />
+          <KeyboardShortcutPill shortcut={shortcuts} />
         </div>
       );
     }
