@@ -15,26 +15,32 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const items: SelectItem[] = [
-  { value: '1', label: 'Option 1' },
-  { value: '2', label: 'Option 2' },
-  { value: '3', label: 'Option 3' },
-  { value: '4', label: 'Option 4' },
-  { value: '5', label: 'Option 5' }
+const baseItems: SelectItem[] = [
+  { value: '1', label: 'Option 1', selected: false },
+  { value: '2', label: 'Option 2', selected: false },
+  { value: '3', label: 'Option 3', selected: false },
+  { value: '4', label: 'Option 4', selected: false },
+  { value: '5', label: 'Option 5', selected: false }
 ];
 
 // Interactive story with state management
 const SelectTagInputWithHooks = () => {
-  const [selected, setSelected] = useState<string[]>([]);
+  const [items, setItems] = useState<SelectItem[]>(baseItems);
 
-  console.log(selected);
+  const handleSelect = (selectedValues: string[]) => {
+    setItems(
+      items.map((item) => ({
+        ...item,
+        selected: selectedValues.includes(item.value)
+      }))
+    );
+  };
 
   return (
     <div className="w-[300px]">
       <SelectTagInput
         items={items}
-        selected={selected}
-        onSelect={(items) => setSelected(items)}
+        onSelect={handleSelect}
         placeholder="Select multiple options..."
       />
     </div>
@@ -43,8 +49,7 @@ const SelectTagInputWithHooks = () => {
 
 export const Default: Story = {
   args: {
-    items: items,
-    selected: [],
+    items: baseItems,
     onSelect: () => {},
     placeholder: 'Select multiple options...'
   },
@@ -53,8 +58,10 @@ export const Default: Story = {
 
 export const WithPreselectedValues: Story = {
   args: {
-    items: items,
-    selected: ['1', '2'],
+    items: baseItems.map((item) => ({
+      ...item,
+      selected: ['1', '2'].includes(item.value)
+    })),
     onSelect: () => {},
     placeholder: 'Select multiple options...'
   },
@@ -67,8 +74,7 @@ export const WithPreselectedValues: Story = {
 
 export const Empty: Story = {
   args: {
-    items: items,
-    selected: [],
+    items: baseItems,
     onSelect: () => {},
     placeholder: 'Select multiple options...'
   },
@@ -81,8 +87,10 @@ export const Empty: Story = {
 
 export const FullySelected: Story = {
   args: {
-    items: items,
-    selected: items.map((item) => item.value),
+    items: baseItems.map((item) => ({
+      ...item,
+      selected: true
+    })),
     onSelect: () => {},
     placeholder: 'Select multiple options...'
   },
@@ -95,8 +103,10 @@ export const FullySelected: Story = {
 
 export const CustomWidth: Story = {
   args: {
-    items: items,
-    selected: ['1', '2'],
+    items: baseItems.map((item) => ({
+      ...item,
+      selected: ['1', '2'].includes(item.value)
+    })),
     onSelect: () => {},
     placeholder: 'Select multiple options...'
   },

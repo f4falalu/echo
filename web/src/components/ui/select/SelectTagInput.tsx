@@ -12,7 +12,6 @@ import { useMemoizedFn } from 'ahooks';
 interface SelectTagInputProps extends VariantProps<typeof selectVariants> {
   items: SelectItem[];
   onSelect: (item: string[]) => void;
-  selected: string[];
   className?: string;
   placeholder?: string;
 }
@@ -20,32 +19,33 @@ interface SelectTagInputProps extends VariantProps<typeof selectVariants> {
 export const SelectTagInput = ({
   items,
   onSelect,
-  selected,
   className,
   placeholder = 'Select items...',
   size = 'default',
   variant = 'default'
 }: SelectTagInputProps) => {
-  const selectedItems = useMemo(
-    () => items.filter((item) => selected.includes(item.value)),
-    [items, selected]
-  );
-
   const handleRemoveTag = (valueToRemove: string) => {
-    const newSelected = selected.filter((value) => value !== valueToRemove);
+    const newSelected = items
+      .filter((item) => item.value !== valueToRemove && item.selected)
+      .map((item) => item.value);
     onSelect(newSelected);
   };
 
   const handleSelect = useMemoizedFn((itemId: string) => {
     const item = items.find((item) => item.value === itemId);
     if (item) {
-      if (selected.includes(item.value)) {
+      if (item.selected) {
         handleRemoveTag(item.value);
       } else {
-        onSelect([...selected, item.value]);
+        const newSelected = items.filter((item) => item.selected).map((item) => item.value);
+        onSelect([...newSelected, item.value]);
       }
     }
   });
+
+  const selectedItems = useMemo(() => {
+    return items.filter((item) => item.selected);
+  }, [items]);
 
   return (
     <Dropdown
@@ -54,8 +54,13 @@ export const SelectTagInput = ({
       selectType="multiple"
       align="start"
       className="w-[var(--radix-dropdown-menu-trigger-width)]">
-      <div className={cn(selectVariants({ variant, size }), className)}>
-        <div className="flex flex-wrap gap-1">
+      <div
+        className={cn(
+          selectVariants({ variant, size }),
+          'relative overflow-hidden pr-0',
+          className
+        )}>
+        <div className="scrollbar-hide flex flex-nowrap gap-1 overflow-x-auto">
           {selectedItems.map((item) => (
             <Tag
               key={item.value}
@@ -64,8 +69,13 @@ export const SelectTagInput = ({
               onRemove={handleRemoveTag}
             />
           ))}
-          {selected.length === 0 && <span className="text-gray-light text-sm">{placeholder}</span>}
+          {selectedItems.length === 0 && (
+            <span className="text-gray-light text-sm">{placeholder}</span>
+          )}
         </div>
+        {selectedItems.length > 0 && (
+          <div className="from-background via-background/80 pointer-events-none absolute top-0 right-0 z-10 h-full w-8 bg-gradient-to-l to-transparent" />
+        )}
       </div>
     </Dropdown>
   );
@@ -84,7 +94,7 @@ const Tag: React.FC<{
         e.stopPropagation();
       }}
       className={cn(
-        'bg-item-hover text-foreground inline-flex h-4 items-center gap-1 rounded-sm border pr-0.5 pl-1.5 text-xs',
+        'bg-item-hover text-foreground inline-flex h-4 flex-shrink-0 items-center gap-1 rounded-sm border pr-0.5 pl-1.5 text-xs',
         className
       )}>
       <span className="max-w-[80px] truncate">{label}</span>
@@ -94,7 +104,7 @@ const Tag: React.FC<{
           e.stopPropagation();
           onRemove(value);
         }}
-        className="hover:text-foreground-hover hover:bg-item-hover-active pointer-events-auto flex h-3.5 w-3.5 cursor-pointer items-center justify-center rounded-sm focus:outline-none">
+        className="hover:text-foreground text-icon-color hover:bg-item-hover-active pointer-events-auto flex h-3.5 w-3.5 cursor-pointer items-center justify-center rounded-sm focus:outline-none">
         <div className="text-xxs">
           <Xmark />
         </div>

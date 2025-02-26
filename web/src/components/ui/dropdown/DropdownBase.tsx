@@ -13,7 +13,6 @@ import {
 import { cn } from '@/lib/classMerge';
 import { Checkbox } from '../checkbox/Checkbox';
 import { Button } from '../buttons/Button';
-import { useRouter } from 'next/router';
 import Link from 'next/link';
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
