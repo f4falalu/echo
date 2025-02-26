@@ -2,17 +2,15 @@
 
 import React, { useMemo } from 'react';
 import { AppContentHeader } from '@/components/ui/layout/AppContentHeader';
-import { Breadcrumb, Button } from 'antd';
-import { BreadcrumbProps } from 'antd/lib';
-import { BreadcrumbSeperator } from '@/components/ui';
-import Link from 'next/link';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import { Button } from 'antd';
+import { BusterRoutes } from '@/routes';
 import { AppMaterialIcons, AppTooltip } from '@/components/ui';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useBusterTermsIndividual } from '@/context/Terms';
 import { useMemoizedFn } from 'ahooks';
 import { NewTermModal } from '@/components/features/Modals/NewTermModal';
+import { type BreadcrumbItem, Breadcrumb } from '@/components/ui/breadcrumb';
 
 export const TermsHeader: React.FC<{
   termId?: string;
@@ -22,26 +20,6 @@ export const TermsHeader: React.FC<{
   const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
 
   const { term: selectedTerm } = useBusterTermsIndividual({ termId: termId || '' });
-
-  const items = useMemo<BreadcrumbProps['items']>(
-    () =>
-      [
-        {
-          title: (
-            <Link
-              suppressHydrationWarning
-              className={`truncate`}
-              href={createBusterRoute({ route: BusterRoutes.APP_TERMS })}>
-              {'Terms'}
-            </Link>
-          )
-        },
-        {
-          title: termId ? <>{selectedTerm?.name}</> : null
-        }
-      ].filter((v) => v.title),
-    [termId, selectedTerm]
-  );
 
   const onOpenNewTermsModal = useMemoizedFn(() => {
     setOpenNewTermsModal?.(true);
@@ -56,7 +34,7 @@ export const TermsHeader: React.FC<{
     <>
       <AppContentHeader>
         <div className="flex w-full items-center justify-between space-x-1">
-          <Breadcrumb items={items} separator={<BreadcrumbSeperator />} />
+          <TermsBreadcrumb termName={selectedTerm?.name} />
 
           <div className="flex items-center space-x-0">
             {isAdmin && (
@@ -76,3 +54,22 @@ export const TermsHeader: React.FC<{
 });
 
 TermsHeader.displayName = 'TermsHeader';
+
+const TermsBreadcrumb: React.FC<{
+  termName: string | undefined;
+}> = React.memo(({ termName }) => {
+  const items: BreadcrumbItem[] = useMemo(
+    () =>
+      [
+        {
+          label: 'Terms',
+          route: { route: BusterRoutes.APP_TERMS }
+        },
+        { label: termName }
+      ].filter((item) => item.label) as BreadcrumbItem[],
+    [termName]
+  );
+
+  return <Breadcrumb items={items} />;
+});
+TermsBreadcrumb.displayName = 'TermsBreadcrumb';

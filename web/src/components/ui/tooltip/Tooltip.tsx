@@ -19,7 +19,6 @@ export interface TooltipProps
 
 export const Tooltip = React.memo<TooltipProps>(
   ({ children, title, shortcut, delayDuration, skipDelayDuration, align, side, open }) => {
-    console.log('open', open);
     return (
       <TooltipProvider delayDuration={delayDuration} skipDelayDuration={skipDelayDuration}>
         <TooltipBase open={open}>

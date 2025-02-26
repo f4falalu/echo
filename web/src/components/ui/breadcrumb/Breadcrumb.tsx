@@ -15,7 +15,7 @@ import Link from 'next/link';
 
 type CreateBusterRouteParams = Parameters<typeof createBusterRoute>[0];
 
-interface BreadcrumbItem {
+export interface BreadcrumbItem {
   label: string | null; //if null, it will be an ellipsis
   route?: CreateBusterRouteParams;
   dropdown?: { label: string; route: CreateBusterRouteParams }[];
@@ -30,8 +30,6 @@ export const Breadcrumb = React.memo(
   React.forwardRef<HTMLElement, BreadcrumbProps>(({ items, activeIndex }, ref) => {
     const chosenIndex = activeIndex ?? items.length - 1;
     const lastItemIndex = items.length - 1;
-
-    console.log('chosenIndex', chosenIndex);
 
     return (
       <BreadcrumbBase>

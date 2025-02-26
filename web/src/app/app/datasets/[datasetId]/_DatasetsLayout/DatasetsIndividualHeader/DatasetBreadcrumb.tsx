@@ -1,37 +1,21 @@
-import { createBusterRoute, BusterRoutes } from '@/routes';
-import { BreadcrumbSeperator } from '@/components/ui';
-import { Breadcrumb } from 'antd';
-import Link from 'next/link';
+import { BusterRoutes } from '@/routes';
+import { Breadcrumb, type BreadcrumbItem } from '@/components/ui/breadcrumb';
 import React, { useMemo } from 'react';
 
 export const DatasetBreadcrumb: React.FC<{
   datasetName?: string;
 }> = React.memo(({ datasetName }) => {
-  const breadcrumbItems = useMemo(() => {
-    if (datasetName) {
-      return [{ title: datasetName }];
-    }
-
+  const breadcrumbItems: BreadcrumbItem[] = useMemo(() => {
     return [
       {
-        title: (
-          <Link prefetch href={createBusterRoute({ route: BusterRoutes.APP_DATASETS })}>
-            Datasets
-          </Link>
-        )
-      }
-    ];
+        label: 'Datasets',
+        route: { route: BusterRoutes.APP_DATASETS }
+      },
+      { label: datasetName ?? '' }
+    ].filter((item) => item.label) as BreadcrumbItem[];
   }, [datasetName]);
 
-  return (
-    <>
-      <Breadcrumb
-        className="flex items-center"
-        items={breadcrumbItems}
-        separator={<BreadcrumbSeperator />}
-      />
-    </>
-  );
+  return <Breadcrumb items={breadcrumbItems} />;
 });
 
 DatasetBreadcrumb.displayName = 'DatasetBreadcrumb';

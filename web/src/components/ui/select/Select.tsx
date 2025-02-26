@@ -37,7 +37,6 @@ export interface SelectProps {
 
 export const Select: React.FC<SelectProps> = React.memo(
   ({ items, showIndex, disabled, onSelect, placeholder, value, onOpenChange, open }) => {
-    console.log(placeholder);
     return (
       <SelectBase disabled={disabled} onOpenChange={onOpenChange} open={open}>
         <SelectTrigger>

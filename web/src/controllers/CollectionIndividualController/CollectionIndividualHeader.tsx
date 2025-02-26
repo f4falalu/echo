@@ -6,8 +6,7 @@ import {
   canEditCollection,
   useBusterCollectionIndividualContextSelector
 } from '@/context/Collections';
-import { Breadcrumb, Button, Dropdown, MenuProps } from 'antd';
-import Link from 'next/link';
+import { Button, Dropdown, MenuProps } from 'antd';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
 import { AppMaterialIcons, EditableTitle } from '@/components/ui';
@@ -17,8 +16,8 @@ import { BusterCollection, ShareAssetType } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui';
 import { useAntToken } from '@/styles/useAntToken';
 import { useMemoizedFn } from 'ahooks';
-import { BreadcrumbSeperator } from '@/components/ui/breadcrumb';
 import { measureTextWidth } from '@/lib/canvas';
+import { type BreadcrumbItem, Breadcrumb } from '@/components/ui/breadcrumb';
 
 export const CollectionsIndividualHeader: React.FC<{
   openAddTypeModal: boolean;
@@ -35,8 +34,6 @@ export const CollectionsIndividualHeader: React.FC<{
   const textWidth = useMemo(() => {
     return measureTextWidth(collectionTitle);
   }, [collectionTitle, editingTitle]);
-
-  const collectionBaseTitle = 'Collections';
 
   const onSetTitleValue = useMemoizedFn((value: string) => {
     updateCollection({
@@ -71,32 +68,11 @@ export const CollectionsIndividualHeader: React.FC<{
     };
   }, [collectionTitle, editingTitle, textWidth.width, onSetTitleValue, setEditingTitle, isFetched]);
 
-  const items = useMemo(
-    () => [
-      {
-        title: (
-          <Link
-            suppressHydrationWarning
-            className={`!flex !h-full cursor-pointer items-center truncate`}
-            href={createPageLink({ route: BusterRoutes.APP_COLLECTIONS })}>
-            {collectionBaseTitle}
-          </Link>
-        )
-      },
-      collectionItemBreadcrumb
-    ],
-    [collectionBaseTitle, collectionItemBreadcrumb, isFetched, createPageLink]
-  );
-
   return (
     <AppContentHeader>
       <div className="flex h-full w-full items-center justify-between space-x-3 overflow-hidden">
         <div className="flex h-full items-center space-x-1 overflow-hidden">
-          <Breadcrumb
-            className="flex h-full items-center"
-            items={items}
-            separator={<BreadcrumbSeperator />}
-          />
+          <CollectionBreadcrumb collectionName={collectionTitle} />
 
           {collection && (
             <div className="flex items-center space-x-0">
@@ -208,3 +184,23 @@ const ThreeDotDropdown: React.FC<{
   );
 });
 ThreeDotDropdown.displayName = 'ThreeDotDropdown';
+
+const CollectionBreadcrumb: React.FC<{
+  collectionName: string;
+}> = React.memo(({ collectionName }) => {
+  const collectionBaseTitle = 'Collections';
+
+  const items: BreadcrumbItem[] = useMemo(
+    () => [
+      {
+        label: collectionBaseTitle,
+        route: { route: BusterRoutes.APP_COLLECTIONS }
+      },
+      { label: collectionName }
+    ],
+    [collectionBaseTitle, collectionName]
+  );
+
+  return <Breadcrumb items={items} />;
+});
+CollectionBreadcrumb.displayName = 'CollectionBreadcrumb';
