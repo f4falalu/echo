@@ -3,7 +3,7 @@ import { SearchDropdown } from './SearchDropdown';
 import { User, MapSettings, Mailbox } from '../icons';
 
 const meta: Meta<typeof SearchDropdown> = {
-  title: 'Base/SearchDropdown',
+  title: 'Base/Dropdowns/SearchDropdown',
   component: SearchDropdown,
   parameters: {
     layout: 'centered'

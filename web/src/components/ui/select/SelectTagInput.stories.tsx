@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { type SelectItem } from './Select';
 
 const meta = {
-  title: 'Base/SelectTagInput',
+  title: 'Base/Select/SelectTagInput',
   component: SelectTagInput,
   parameters: {
     layout: 'centered'

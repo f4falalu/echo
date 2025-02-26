@@ -6,7 +6,7 @@ import { faker } from '@faker-js/faker';
 import React from 'react';
 
 const meta: Meta<typeof Dropdown> = {
-  title: 'Base/Dropdown',
+  title: 'Base/Dropdowns/Dropdown',
   component: Dropdown,
   parameters: {
     layout: 'centered'

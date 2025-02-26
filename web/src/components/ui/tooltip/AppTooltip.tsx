@@ -3,7 +3,7 @@
 import React, { PropsWithChildren, useMemo, useState } from 'react';
 import { Tooltip } from 'antd';
 import type { TooltipProps } from 'antd';
-import { KeyboardShortcutPill } from '../pills/TooltipShortcutPill';
+import { KeyboardShortcutPill } from '../pills/KeyboardShortcutPills';
 
 export type AppTooltipProps = TooltipProps & {
   shortcuts?: string[];

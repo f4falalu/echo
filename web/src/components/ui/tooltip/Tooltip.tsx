@@ -5,7 +5,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from './TooltipBase';
-import { KeyboardShortcutPill } from '../pills/TooltipShortcutPill';
+import { KeyboardShortcutPill } from '../pills/KeyboardShortcutPills';
 import omit from 'lodash/omit';
 
 export interface TooltipProps
