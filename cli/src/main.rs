@@ -15,7 +15,11 @@ pub const GIT_HASH: &str = env!("GIT_HASH");
 #[derive(Subcommand)]
 #[clap(rename_all = "kebab-case")]
 pub enum Commands {
-    Init,
+    Init {
+        /// Path to create the buster.yml file (defaults to current directory)
+        #[arg(long)]
+        destination_path: Option<String>,
+    },
     /// Authenticate with Buster API
     Auth {
         /// The Buster API host URL
@@ -82,7 +86,7 @@ async fn main() {
 
     // TODO: All commands should check for an update.
     let result = match args.cmd {
-        Commands::Init => init().await,
+        Commands::Init { destination_path } => init(destination_path.as_deref()).await,
         Commands::Auth {
             host,
             api_key,

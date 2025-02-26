@@ -1,16 +1,19 @@
 use anyhow::Result;
 use colored::*;
-use inquire::{Select, Text, Password, validator::Validation, Confirm};
+use indicatif::{ProgressBar, ProgressStyle};
+use inquire::{validator::Validation, Confirm, Password, Select, Text};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
+use serde_yaml;
 use std::error::Error;
-use indicatif::{ProgressBar, ProgressStyle};
+use std::fs;
+use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 use crate::utils::{
     buster_credentials::get_and_validate_buster_credentials,
     profiles::{Credential, PostgresCredentials},
-    BusterClient, PostDataSourcesRequest,
+    BusterClient, BusterConfig, PostDataSourcesRequest,
 };
 
 #[derive(Debug, Clone)]
@@ -42,8 +45,38 @@ struct RedshiftCredentials {
     pub schemas: Option<Vec<String>>,
 }
 
-pub async fn init() -> Result<()> {
+pub async fn init(destination_path: Option<&str>) -> Result<()> {
     println!("{}", "Initializing Buster...".bold().green());
+
+    // Determine the destination path for buster.yml
+    let dest_path = match destination_path {
+        Some(path) => PathBuf::from(path),
+        None => std::env::current_dir()?,
+    };
+
+    // Ensure destination directory exists
+    if !dest_path.exists() {
+        fs::create_dir_all(&dest_path)?;
+    }
+
+    let config_path = dest_path.join("buster.yml");
+
+    if config_path.exists() {
+        let overwrite = Confirm::new(&format!(
+            "A buster.yml file already exists at {}. Do you want to overwrite it?",
+            config_path.display().to_string().cyan()
+        ))
+        .with_default(false)
+        .prompt()?;
+
+        if !overwrite {
+            println!(
+                "{}",
+                "Keeping existing buster.yml file. Configuration will be skipped.".yellow()
+            );
+            return Ok(());
+        }
+    }
 
     // Check for Buster credentials with progress indicator
     let spinner = ProgressBar::new_spinner();
@@ -60,7 +93,7 @@ pub async fn init() -> Result<()> {
         Ok(creds) => {
             spinner.finish_with_message("✓ Buster credentials found".green().to_string());
             creds
-        },
+        }
         Err(_) => {
             spinner.finish_with_message("✗ No valid Buster credentials found".red().to_string());
             println!("Please run {} first.", "buster auth".cyan());
@@ -76,27 +109,32 @@ pub async fn init() -> Result<()> {
         DatabaseType::Snowflake,
     ];
 
-    let db_type = Select::new(
-        "Select your database type:",
-        db_types,
-    )
-    .prompt()?;
+    let db_type = Select::new("Select your database type:", db_types).prompt()?;
 
     println!("You selected: {}", db_type.to_string().cyan());
 
     match db_type {
-        DatabaseType::Redshift => setup_redshift(buster_creds.url, buster_creds.api_key).await,
+        DatabaseType::Redshift => {
+            setup_redshift(buster_creds.url, buster_creds.api_key, &config_path).await
+        }
         _ => {
-            println!("{}", format!("{} support is coming soon!", db_type).yellow());
+            println!(
+                "{}",
+                format!("{} support is coming soon!", db_type).yellow()
+            );
             println!("Currently, only Redshift is supported.");
             Err(anyhow::anyhow!("Database type not yet implemented"))
         }
     }
 }
 
-async fn setup_redshift(buster_url: String, buster_api_key: String) -> Result<()> {
+async fn setup_redshift(
+    buster_url: String,
+    buster_api_key: String,
+    config_path: &Path,
+) -> Result<()> {
     println!("{}", "Setting up Redshift connection...".bold().green());
-    
+
     // Collect name (with validation)
     let name_regex = Regex::new(r"^[a-zA-Z0-9_-]+$")?;
     let name = Text::new("Enter a unique name for this data source:")
@@ -108,7 +146,10 @@ async fn setup_redshift(buster_url: String, buster_api_key: String) -> Result<()
             if name_regex.is_match(input) {
                 Ok(Validation::Valid)
             } else {
-                Ok(Validation::Invalid("Name must contain only alphanumeric characters, dash (-) or underscore (_)".into()))
+                Ok(Validation::Invalid(
+                    "Name must contain only alphanumeric characters, dash (-) or underscore (_)"
+                        .into(),
+                ))
             }
         })
         .prompt()?;
@@ -128,11 +169,11 @@ async fn setup_redshift(buster_url: String, buster_api_key: String) -> Result<()
     let port_str = Text::new("Enter the Redshift port:")
         .with_default("5439")
         .with_help_message("Default Redshift port is 5439")
-        .with_validator(|input: &str| {
-            match input.parse::<u16>() {
-                Ok(_) => Ok(Validation::Valid),
-                Err(_) => Ok(Validation::Invalid("Port must be a valid number between 1 and 65535".into())),
-            }
+        .with_validator(|input: &str| match input.parse::<u16>() {
+            Ok(_) => Ok(Validation::Valid),
+            Err(_) => Ok(Validation::Invalid(
+                "Port must be a valid number between 1 and 65535".into(),
+            )),
         })
         .prompt()?;
     let port = port_str.parse::<u16>()?;
@@ -185,14 +226,14 @@ async fn setup_redshift(buster_url: String, buster_api_key: String) -> Result<()
     println!("Port: {}", port.to_string().cyan());
     println!("Username: {}", username.cyan());
     println!("Password: {}", "********".cyan());
-    
+
     // Display database and schema with clear indication if they're empty
     if let Some(db) = &database {
         println!("Database: {}", db.cyan());
     } else {
         println!("Database: {}", "All databases (null)".cyan());
     }
-    
+
     if let Some(sch) = &schema {
         println!("Schema: {}", sch.cyan());
     } else {
@@ -214,8 +255,8 @@ async fn setup_redshift(buster_url: String, buster_api_key: String) -> Result<()
         port,
         username,
         password,
-        database,
-        schemas: schema.map(|s| vec![s]),
+        database: database.clone(),
+        schemas: schema.as_ref().map(|s| vec![s.clone()]),
     };
 
     // Create API request
@@ -224,19 +265,21 @@ async fn setup_redshift(buster_url: String, buster_api_key: String) -> Result<()
     let request = PostDataSourcesRequest {
         name: name.clone(),
         env: "dev".to_string(), // Default to dev environment
-        credential: Credential::Redshift(
-            PostgresCredentials {
-                host: redshift_creds.host,
-                port: redshift_creds.port,
-                username: redshift_creds.username,
-                password: redshift_creds.password,
-                database: redshift_creds.database.clone().unwrap_or_default(),
-                schema: redshift_creds.schemas.clone().and_then(|s| s.first().cloned()).unwrap_or_default(),
-                jump_host: None,
-                ssh_username: None,
-                ssh_private_key: None,
-            }
-        ),
+        credential: Credential::Redshift(PostgresCredentials {
+            host: redshift_creds.host,
+            port: redshift_creds.port,
+            username: redshift_creds.username,
+            password: redshift_creds.password,
+            database: redshift_creds.database.clone().unwrap_or_default(),
+            schema: redshift_creds
+                .schemas
+                .clone()
+                .and_then(|s| s.first().cloned())
+                .unwrap_or_default(),
+            jump_host: None,
+            ssh_username: None,
+            ssh_private_key: None,
+        }),
     };
 
     // Send to API with progress indicator
@@ -251,14 +294,35 @@ async fn setup_redshift(buster_url: String, buster_api_key: String) -> Result<()
     spinner.enable_steady_tick(Duration::from_millis(100));
 
     let client = BusterClient::new(buster_url, buster_api_key)?;
-    
+
     match client.post_data_sources(vec![request]).await {
         Ok(_) => {
-            spinner.finish_with_message("✓ Data source created successfully!".green().bold().to_string());
-            println!("\nData source '{}' is now available for use with Buster.", name.cyan());
+            spinner.finish_with_message(
+                "✓ Data source created successfully!"
+                    .green()
+                    .bold()
+                    .to_string(),
+            );
+            println!(
+                "\nData source '{}' is now available for use with Buster.",
+                name.cyan()
+            );
+
+            // Create a copy of the values we need for the config file
+            let db_copy = database.clone();
+            let schema_copy = schema.clone();
+
+            // Create buster.yml file
+            create_buster_config_file(
+                config_path,
+                &name,
+                db_copy.as_deref(),
+                schema_copy.as_deref(),
+            )?;
+
             println!("You can now use this data source with other Buster commands.");
             Ok(())
-        },
+        }
         Err(e) => {
             spinner.finish_with_message("✗ Failed to create data source".red().bold().to_string());
             println!("\nError: {}", e);
@@ -266,4 +330,31 @@ async fn setup_redshift(buster_url: String, buster_api_key: String) -> Result<()
             Err(anyhow::anyhow!("Failed to create data source: {}", e))
         }
     }
+}
+
+// Helper function to create buster.yml file
+fn create_buster_config_file(
+    path: &Path,
+    data_source_name: &str,
+    database: Option<&str>,
+    schema: Option<&str>,
+) -> Result<()> {
+    let config = BusterConfig {
+        data_source_name: Some(data_source_name.to_string()),
+        schema: schema.map(String::from),
+        database: database.map(String::from),
+        exclude_files: None,
+        exclude_tags: None,
+    };
+
+    let yaml = serde_yaml::to_string(&config)?;
+    fs::write(path, yaml)?;
+
+    println!(
+        "{} {}",
+        "✓".green(),
+        format!("Created buster.yml at {}", path.display()).green()
+    );
+
+    Ok(())
 }
