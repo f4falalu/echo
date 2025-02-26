@@ -124,7 +124,7 @@ async fn route_to_query(
                 }
             };
             
-            tracing::info!("Redshift query using credentials - database: {}, host: {}, port: {}", 
+            tracing::info!("Redshift query using credentials - database: {:?}, host: {}, port: {}", 
                 credentials.database, credentials.host, credentials.port);
 
             let redshift_client = get_redshift_connection(&credentials).await?;
