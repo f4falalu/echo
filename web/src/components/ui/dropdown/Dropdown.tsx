@@ -28,7 +28,7 @@ export interface DropdownItem {
   truncate?: boolean;
   searchLabel?: string; // Used for filtering
   secondaryLabel?: string;
-  id: string;
+  value: string;
   showIndex?: boolean;
   shortcut?: string;
   onClick?: () => void;
@@ -63,7 +63,7 @@ export interface DropdownProps extends DropdownMenuProps {
 
 const dropdownItemKey = (item: DropdownItems[number], index: number) => {
   if ((item as DropdownDivider).type === 'divider') return `divider-${index}`;
-  if ((item as DropdownItem).id) return (item as DropdownItem).id;
+  if ((item as DropdownItem).value) return (item as DropdownItem).value;
   return `item-${index}`;
 };
 
@@ -89,7 +89,7 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
     const { filteredItems, searchText, handleSearchChange } = useDebounceSearch({
       items,
       searchPredicate: (item, searchText) => {
-        if ((item as DropdownItem).id) {
+        if ((item as DropdownItem).value) {
           const _item = item as DropdownItem;
           const searchContent =
             _item.searchLabel || (typeof _item.label === 'string' ? _item.label : '');
@@ -101,7 +101,7 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
     });
 
     const hasShownItem = useMemo(() => {
-      return filteredItems.length > 0 && filteredItems.some((item) => (item as DropdownItem).id);
+      return filteredItems.length > 0 && filteredItems.some((item) => (item as DropdownItem).value);
     }, [filteredItems]);
 
     const { selectedItems, unselectedItems } = useMemo(() => {
@@ -223,7 +223,7 @@ const DropdownItem: React.FC<
   }
 > = ({
   label,
-  id,
+  value,
   showIndex,
   shortcut,
   onClick,
@@ -243,7 +243,7 @@ const DropdownItem: React.FC<
 }) => {
   const onClickItem = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
     if (onClick) onClick();
-    if (onSelect) onSelect(id);
+    if (onSelect) onSelect(value);
   });
 
   const isSubItem = items && items.length > 0;

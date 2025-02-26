@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { SearchDropdown } from './SearchDropdown';
-import { FiUser, FiSettings, FiMail } from 'react-icons/fi';
-import { useState } from 'react';
+import { User, MapSettings, Mailbox } from '../icons';
 
 const meta: Meta<typeof SearchDropdown> = {
   title: 'Base/SearchDropdown',
@@ -30,17 +29,17 @@ const items = [
   {
     label: 'Nate Rules',
     value: 'profile',
-    icon: <FiUser />
+    icon: <User />
   },
   {
     label: 'Settings',
     value: 'settings',
-    icon: <FiSettings />
+    icon: <MapSettings />
   },
   {
     label: 'Messages',
     value: 'messages',
-    icon: <FiMail />,
+    icon: <Mailbox />,
     disabled: false
   }
 ];

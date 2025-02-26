@@ -13,7 +13,7 @@ const SelectGroup = SelectPrimitive.Group;
 const SelectValue = SelectPrimitive.Value;
 
 const selectVariants = cva(
-  'flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm focus:outline-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 [&>span]:line-clamp-1',
+  'flex w-full gap-x-1.5 items-center justify-between rounded-md border px-3 py-1 text-sm focus:outline-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 [&>span]:line-clamp-1',
   {
     variants: {
       variant: {
@@ -127,12 +127,16 @@ SelectLabel.displayName = SelectPrimitive.Label.displayName;
 
 const SelectItem = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
->(({ className, children, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> & {
+    secondaryChildren?: React.ReactNode;
+    index?: number;
+    icon?: React.ReactNode;
+  }
+>(({ className, children, icon, secondaryChildren, index, ...props }, ref) => (
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      'focus:bg-item-hover focus:text-foreground h-8',
+      'focus:bg-item-hover focus:text-foreground h-8 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60',
       'relative flex w-full cursor-default items-center rounded-sm py-1.5 pr-2 pl-6.5 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className
     )}
@@ -145,7 +149,19 @@ const SelectItem = React.forwardRef<
       </SelectPrimitive.ItemIndicator>
     </span>
 
-    <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+    <div className="flex items-center gap-x-1.5">
+      {index !== undefined && (
+        <span className="text-gray-light flex min-w-2 items-center justify-center text-xs">
+          {index}
+        </span>
+      )}
+      {icon && <span className="text-icon-color">{icon}</span>}
+      <SelectPrimitive.ItemText className="flex h-full items-center">
+        {children}
+      </SelectPrimitive.ItemText>
+    </div>
+
+    {secondaryChildren && <span>{secondaryChildren}</span>}
   </SelectPrimitive.Item>
 ));
 SelectItem.displayName = SelectPrimitive.Item.displayName;

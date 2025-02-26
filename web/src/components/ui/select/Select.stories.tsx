@@ -1,123 +1,111 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue
-} from './SelectBase';
-import { faker } from '@faker-js/faker';
+import { Select } from './Select';
+import { User, MapSettings, Mailbox } from '../icons';
 
 const meta: Meta<typeof Select> = {
   title: 'Base/Select',
   component: Select,
-  tags: ['autodocs'],
-  decorators: [
-    (Story) => (
-      <div className="w-[280px]">
-        <Story />
-      </div>
-    )
-  ]
+  parameters: {
+    layout: 'centered'
+  },
+  tags: ['autodocs']
 };
 
 export default meta;
 type Story = StoryObj<typeof Select>;
 
-export const Default: Story = {
-  render: () => (
-    <Select>
-      <SelectTrigger>
-        <SelectValue placeholder="Select an option" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectItem value="apple">Apple</SelectItem>
-          <SelectItem value="banana">Banana</SelectItem>
-          <SelectItem value="orange">Orange</SelectItem>
-        </SelectGroup>
-      </SelectContent>
-    </Select>
-  )
+const basicItems = [
+  { value: 'option1', label: 'Option 1' },
+  { value: 'option2', label: 'Option 2' },
+  { value: 'option3', label: 'Option 3' }
+];
+
+const itemsWithIcons = [
+  { value: 'profile', label: 'Profile', icon: <User /> },
+  { value: 'settings', label: 'Settings', icon: <MapSettings /> },
+  { value: 'messages', label: 'Messages', icon: <Mailbox /> }
+];
+
+const groupedItems = [
+  {
+    label: 'Fruits',
+    items: [
+      { value: 'apple', label: 'Apple' },
+      { value: 'banana', label: 'Banana' },
+      { value: 'orange', label: 'Orange' }
+    ]
+  },
+  {
+    label: 'Vegetables',
+    items: [
+      { value: 'carrot', label: 'Carrot' },
+      { value: 'broccoli', label: 'Broccoli' },
+      { value: 'spinach', label: 'Spinach' }
+    ]
+  }
+];
+
+const itemsWithSecondaryLabel = [
+  { value: 'user1', label: 'John Doe', secondaryLabel: 'Admin' },
+  { value: 'user2', label: 'Jane Smith', secondaryLabel: 'Editor' },
+  { value: 'user3', label: 'Bob Johnson', secondaryLabel: 'Viewer', disabled: true }
+];
+
+const itemsWithSomeDisabled = [
+  { value: 'active1', label: 'Available Option 1' },
+  { value: 'disabled1', label: 'Unavailable Option 1', disabled: true },
+  { value: 'active2', label: 'Available Option 2' },
+  { value: 'disabled2', label: 'Unavailable Option 2', disabled: true },
+  { value: 'active3', label: 'Available Option 3' }
+];
+
+export const Basic: Story = {
+  args: {
+    items: basicItems,
+    placeholder: 'Select an option'
+  }
 };
 
-export const WithMultipleGroups: Story = {
-  render: () => (
-    <Select>
-      <SelectTrigger>
-        <SelectValue placeholder="Select a food" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectLabel>Fruits</SelectLabel>
-          <SelectItem value="apple">Apple</SelectItem>
-          <SelectItem value="banana">Banana</SelectItem>
-          <SelectItem value="orange">Orange</SelectItem>
-        </SelectGroup>
-        <SelectGroup>
-          <SelectLabel>Vegetables</SelectLabel>
-          <SelectItem value="carrot">Carrot</SelectItem>
-          <SelectItem value="broccoli">Broccoli</SelectItem>
-          <SelectItem value="spinach">Spinach</SelectItem>
-        </SelectGroup>
-      </SelectContent>
-    </Select>
-  )
+export const WithIcons: Story = {
+  args: {
+    items: itemsWithIcons,
+    placeholder: 'Select an option'
+  }
+};
+
+export const Grouped: Story = {
+  args: {
+    items: groupedItems,
+    placeholder: 'Select an option'
+  }
+};
+
+export const WithSecondaryLabels: Story = {
+  args: {
+    items: itemsWithSecondaryLabel,
+    placeholder: 'Select a user'
+  }
 };
 
 export const Disabled: Story = {
-  render: () => (
-    <Select disabled>
-      <SelectTrigger>
-        <SelectValue placeholder="Select an option" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectItem value="apple">Apple</SelectItem>
-          <SelectItem value="banana">Banana</SelectItem>
-          <SelectItem value="orange">Orange</SelectItem>
-        </SelectGroup>
-      </SelectContent>
-    </Select>
-  )
+  args: {
+    items: basicItems,
+    placeholder: 'Select an option',
+    disabled: true
+  }
 };
 
-export const WithDisabledItems: Story = {
-  render: () => (
-    <Select>
-      <SelectTrigger>
-        <SelectValue placeholder="Select an option" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectItem value="apple">Apple</SelectItem>
-          <SelectItem value="banana" disabled>
-            Banana
-          </SelectItem>
-          <SelectItem value="orange">Orange</SelectItem>
-        </SelectGroup>
-      </SelectContent>
-    </Select>
-  )
+export const WithShowIndex: Story = {
+  args: {
+    items: basicItems,
+    placeholder: 'Select an option',
+    showIndex: true
+  }
 };
 
-export const WithHundredsOfItems: Story = {
-  render: () => (
-    <Select>
-      <SelectTrigger>
-        <SelectValue placeholder="Select an option" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          {Array.from({ length: 100 }).map((_, index) => (
-            <SelectItem key={index} value={faker.word.adjective()}>
-              {faker.word.adjective()}
-            </SelectItem>
-          ))}
-        </SelectGroup>
-      </SelectContent>
-    </Select>
-  )
+export const PartiallyDisabled: Story = {
+  args: {
+    items: itemsWithSomeDisabled,
+    placeholder: 'Select an available option'
+  }
 };
