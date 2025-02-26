@@ -16,7 +16,6 @@ export const BusterChartJSTooltip: React.FC<{
   hasCategoryAxis: boolean;
   hasMultipleMeasures: boolean;
   keyToUsePercentage: string[];
-  columnSettings: NonNullable<BusterChartProps['columnSettings']>;
 }> = ({
   chart,
   dataPoints: dataPointsProp,
@@ -24,8 +23,7 @@ export const BusterChartJSTooltip: React.FC<{
   selectedChartType,
   hasCategoryAxis,
   keyToUsePercentage,
-  hasMultipleMeasures,
-  columnSettings
+  hasMultipleMeasures
 }) => {
   const isPieChart = selectedChartType === ChartType.Pie;
   const isScatter = selectedChartType === ChartType.Scatter;

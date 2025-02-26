@@ -194,7 +194,7 @@ const getOrCreateInitialTooltipContainer = (chart: ChartJSOrUndefined) => {
 
     tooltipEl.innerHTML = `
       <div class="tooltip-caret" ></div>
-      <div class="tooltip-content bg-white" style="position: relative; z-index: 2; border: 0.5px solid ${token.colorBorder}; border-radius: 4px"></div>
+      <div class="tooltip-content bg-background" style="position: relative; z-index: 2; border: 0.5px solid ${token.colorBorder}; border-radius: 4px"></div>
     `;
 
     const caretEl = tooltipEl.querySelector('.tooltip-caret')! as HTMLDivElement;
@@ -245,7 +245,6 @@ const externalTooltip = (
         columnLabelFormats={columnLabelFormats}
         selectedChartType={selectedChartType}
         keyToUsePercentage={keyToUsePercentage}
-        columnSettings={columnSettings}
         chart={chart}
         hasCategoryAxis={hasCategoryAxis}
         hasMultipleMeasures={hasMultipleMeasures}

@@ -24,7 +24,9 @@ export const BusterChartTooltip: React.FC<{
       <div className="flex flex-col py-1.5">
         <div
           className={`grid ${
-            isScatter ? 'grid-cols-1 gap-y-1.5' : 'grid-cols-[auto_auto] items-center gap-x-5'
+            isScatter
+              ? 'grid-cols-1 gap-y-1.5'
+              : 'grid-cols-[auto_auto] items-center gap-x-5 gap-y-[3px]'
           }`}>
           {shownItems.map((param, index) => (
             <TooltipItem key={index} {...param} />
@@ -32,7 +34,7 @@ export const BusterChartTooltip: React.FC<{
         </div>
 
         {hasHiddenItems && (
-          <div className="text-text-secondary pl-3 text-sm">{`${hiddenItems.length} more...`}</div>
+          <div className="text-text-secondary mt-1 pl-3 text-sm">{`${hiddenItems.length} more...`}</div>
         )}
       </div>
     </div>
