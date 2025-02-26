@@ -300,7 +300,13 @@ impl GenerateCommand {
                 if !response.errors.is_empty() {
                     println!("\n⚠️  Some models had errors:");
                     for (model_name, error) in response.errors {
-                        println!("❌ {}: {}", model_name, error);
+                        println!("❌ {}: {}", model_name, error.message);
+                        if let Some(error_type) = error.error_type {
+                            println!("   Error type: {}", error_type);
+                        }
+                        if let Some(context) = error.context {
+                            println!("   Context: {}", context);
+                        }
                     }
                 }
             }

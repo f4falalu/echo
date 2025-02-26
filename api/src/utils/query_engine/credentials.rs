@@ -75,6 +75,7 @@ pub struct PostgresCredentials {
     pub port: u16,
     pub username: String,
     pub password: String,
+    #[serde(alias = "dbname")]
     pub database: Option<String>,
     pub schemas: Option<Vec<String>>,
     pub jump_host: Option<String>,

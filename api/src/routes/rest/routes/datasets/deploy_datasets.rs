@@ -624,39 +624,7 @@ async fn deploy_datasets_handler(
                     })
                     .collect();
 
-                // Get current column names
-                let current_column_names: HashSet<String> = dataset_columns::table
-                    .filter(dataset_columns::dataset_id.eq(dataset_id))
-                    .filter(dataset_columns::deleted_at.is_null())
-                    .select(dataset_columns::name)
-                    .load::<String>(&mut conn)
-                    .await?
-                    .into_iter()
-                    .collect();
-
-                // Get new column names
-                let new_column_names: HashSet<String> = columns
-                    .iter()
-                    .map(|c| c.name.clone())
-                    .collect();
-
-                // Soft delete removed columns
-                let columns_to_delete: Vec<String> = current_column_names
-                    .difference(&new_column_names)
-                    .cloned()
-                    .collect();
-
-                if !columns_to_delete.is_empty() {
-                    diesel::update(dataset_columns::table)
-                        .filter(dataset_columns::dataset_id.eq(dataset_id))
-                        .filter(dataset_columns::name.eq_any(&columns_to_delete))
-                        .filter(dataset_columns::deleted_at.is_null())
-                        .set(dataset_columns::deleted_at.eq(now))
-                        .execute(&mut conn)
-                        .await?;
-                }
-
-                // Bulk upsert columns
+                // First: Bulk upsert columns
                 diesel::insert_into(dataset_columns::table)
                     .values(&columns)
                     .on_conflict((dataset_columns::dataset_id, dataset_columns::name))
@@ -672,6 +640,36 @@ async fn deploy_datasets_handler(
                     ))
                     .execute(&mut conn)
                     .await?;
+
+                // Then: Soft delete removed columns
+                let current_column_names: HashSet<String> = dataset_columns::table
+                    .filter(dataset_columns::dataset_id.eq(dataset_id))
+                    .filter(dataset_columns::deleted_at.is_null())
+                    .select(dataset_columns::name)
+                    .load::<String>(&mut conn)
+                    .await?
+                    .into_iter()
+                    .collect();
+
+                let new_column_names: HashSet<String> = columns
+                    .iter()
+                    .map(|c| c.name.clone())
+                    .collect();
+
+                let columns_to_delete: Vec<String> = current_column_names
+                    .difference(&new_column_names)
+                    .cloned()
+                    .collect();
+
+                if !columns_to_delete.is_empty() {
+                    diesel::update(dataset_columns::table)
+                        .filter(dataset_columns::dataset_id.eq(dataset_id))
+                        .filter(dataset_columns::name.eq_any(&columns_to_delete))
+                        .filter(dataset_columns::deleted_at.is_null())
+                        .set(dataset_columns::deleted_at.eq(now))
+                        .execute(&mut conn)
+                        .await?;
+                }
             }
         }
     }
