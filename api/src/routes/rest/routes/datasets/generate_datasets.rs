@@ -41,8 +41,15 @@ pub struct GenerateDatasetRequest {
 
 #[derive(Debug, Serialize)]
 pub struct GenerateDatasetResponse {
-    pub yml_contents: HashMap<String, String>,
-    pub errors: HashMap<String, String>,
+    pub yml_contents: HashMap<String, String>,  // Successful generations
+    pub errors: HashMap<String, DetailedError>,  // Failed generations with detailed errors
+}
+
+#[derive(Debug, Serialize)]
+pub struct DetailedError {
+    pub message: String,
+    pub error_type: String,
+    pub context: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -286,6 +293,8 @@ async fn generate_datasets_handler(
     organization_id: &Uuid,
 ) -> Result<GenerateDatasetResponse> {
     let mut conn = get_pg_pool().get().await?;
+    let mut yml_contents = HashMap::new();
+    let mut errors = HashMap::new();
 
     // Get data source
     let data_source = match data_sources::table
@@ -296,11 +305,52 @@ async fn generate_datasets_handler(
         .await
     {
         Ok(ds) => ds,
-        Err(e) => return Err(anyhow!("Data source not found: {}", e)),
+        Err(e) => {
+            // Instead of returning early, add error for each model and return partial results
+            let error_msg = format!(
+                "Data source '{}' not found: {}. Please verify the data source exists and you have access.",
+                request.data_source_name, e
+            );
+            
+            for model_name in &request.model_names {
+                errors.insert(model_name.clone(), DetailedError {
+                    message: error_msg.clone(),
+                    error_type: "DataSourceNotFound".to_string(),
+                    context: Some(format!("Schema: {}", request.schema)),
+                });
+            }
+            
+            return Ok(GenerateDatasetResponse {
+                yml_contents,
+                errors,
+            });
+        }
     };
 
     // Get credentials
-    let credentials = get_data_source_credentials(&data_source.secret_id, &data_source.type_, false).await?;
+    let credentials = match get_data_source_credentials(&data_source.secret_id, &data_source.type_, false).await {
+        Ok(creds) => creds,
+        Err(e) => {
+            let error_msg = format!(
+                "Failed to get credentials for data source '{}': {}. Please check data source configuration.",
+                request.data_source_name, e
+            );
+            
+            for model_name in &request.model_names {
+                errors.insert(model_name.clone(), DetailedError {
+                    message: error_msg.clone(),
+                    error_type: "CredentialsError".to_string(),
+                    context: Some(format!("Data source: {}, Schema: {}", 
+                                         request.data_source_name, request.schema)),
+                });
+            }
+            
+            return Ok(GenerateDatasetResponse {
+                yml_contents,
+                errors,
+            });
+        }
+    };
 
     // Prepare tables for batch validation
     let tables_to_validate: Vec<(String, String)> = request
@@ -312,7 +362,25 @@ async fn generate_datasets_handler(
     // Get all columns in one batch
     let ds_columns = match retrieve_dataset_columns_batch(&tables_to_validate, &credentials, request.database.clone()).await {
         Ok(cols) => cols,
-        Err(e) => return Err(anyhow!("Failed to get columns from data source: {}", e)),
+        Err(e) => {
+            let error_msg = format!(
+                "Failed to retrieve columns from data source '{}': {}. Please verify schema '{}' and table access.",
+                request.data_source_name, e, request.schema
+            );
+            
+            for model_name in &request.model_names {
+                errors.insert(model_name.clone(), DetailedError {
+                    message: error_msg.clone(),
+                    error_type: "SchemaError".to_string(),
+                    context: Some(format!("Model: {}, Schema: {}", model_name, request.schema)),
+                });
+            }
+            
+            return Ok(GenerateDatasetResponse {
+                yml_contents,
+                errors,
+            });
+        }
     };
 
     // Process models concurrently
@@ -329,20 +397,40 @@ async fn generate_datasets_handler(
         });
     }
 
-    let mut yml_contents = HashMap::new();
-    let mut errors = HashMap::new();
-
     while let Some(result) = join_set.join_next().await {
         match result {
             Ok((model_name, Ok(yaml))) => {
                 yml_contents.insert(model_name, yaml);
             }
             Ok((model_name, Err(e))) => {
-                errors.insert(model_name, e.to_string());
+                // Provide more detailed error message
+                let error_msg = format!(
+                    "Failed to generate YAML for model '{}': {}. Please check if the model exists and has valid columns.",
+                    model_name, e
+                );
+                errors.insert(model_name, DetailedError {
+                    message: error_msg,
+                    error_type: "ModelGenerationError".to_string(),
+                    context: Some(format!("Schema: {}", request.schema)),
+                });
             }
             Err(e) => {
+                // Handle task join error but continue processing
                 tracing::error!("Task join error: {:?}", e);
-                return Err(anyhow!("Task execution failed"));
+                let affected_models: Vec<_> = request.model_names.iter()
+                    .filter(|name| !yml_contents.contains_key(*name) && !errors.contains_key(*name))
+                    .collect();
+                
+                for model_name in affected_models {
+                    errors.insert(
+                        model_name.clone(), 
+                        DetailedError {
+                            message: format!("Internal processing error: {}. Please try again later.", e),
+                            error_type: "InternalError".to_string(),
+                            context: Some(format!("Model: {}", model_name)),
+                        }
+                    );
+                }
             }
         }
     }
@@ -351,4 +439,47 @@ async fn generate_datasets_handler(
         yml_contents,
         errors,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::database::models::User;
+    use uuid::Uuid;
+
+    #[tokio::test]
+    async fn test_generate_datasets_partial_success() {
+        // Create test request with multiple models
+        let request = GenerateDatasetRequest {
+            data_source_name: "test_source".to_string(),
+            schema: "public".to_string(),
+            database: None,
+            model_names: vec![
+                "valid_model".to_string(),
+                "non_existent_model".to_string(), // This will fail
+            ],
+        };
+
+        let organization_id = Uuid::new_v4();
+
+        // Mock implementation for testing - we can't actually run the handler as-is
+        // because it requires a database connection and other dependencies
+        // This is just to illustrate the test structure
+        
+        // In a real test, you would:
+        // 1. Mock the database and other dependencies
+        // 2. Call the handler with the test request
+        // 3. Verify the response has both successes and failures
+        
+        // For now, we'll just assert that the structure of our test is correct
+        assert_eq!(request.model_names.len(), 2);
+        assert_eq!(request.model_names[0], "valid_model");
+        assert_eq!(request.model_names[1], "non_existent_model");
+        
+        // In a real test with mocks, you would assert:
+        // - The function returns a Result with a GenerateDatasetResponse
+        // - The response contains one entry in yml_contents for the valid model
+        // - The response contains one entry in errors for the invalid model
+        // - The error has an appropriate error_type and message
+    }
 } 

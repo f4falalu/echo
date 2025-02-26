@@ -5,7 +5,7 @@ mod utils;
 
 use clap::{Parser, Subcommand};
 use colored::*;
-use commands::{auth::AuthArgs, deploy_v2, import, init};
+use commands::{auth::AuthArgs, deploy, init};
 
 pub const APP_NAME: &str = "buster";
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -59,7 +59,6 @@ pub enum Commands {
         #[arg(long, default_value_t = false)]
         flat_structure: bool,
     },
-    Import,
     Deploy {
         #[arg(long)]
         path: Option<String>,
@@ -143,12 +142,11 @@ async fn main() {
             )
             .await
         }
-        Commands::Import => import().await,
         Commands::Deploy {
             path,
             dry_run,
             recursive,
-        } => deploy_v2(path.as_deref(), dry_run, recursive).await,
+        } => deploy(path.as_deref(), dry_run, recursive).await,
     };
 
     if let Err(e) = result {
