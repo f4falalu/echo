@@ -1,9 +1,10 @@
-import { AppPopover } from '@/components/ui/tooltip';
-import { createStyles } from 'antd-style';
+import { Popover } from '@/components/ui/tooltip/Popover';
 import React from 'react';
 import { BusterChartLegendItem, BusterChartLegendProps } from './interfaces';
 import { LegendItem } from './LegendItem';
-import { Text } from '@/components/ui';
+import { cn } from '@/lib/classMerge';
+import { LegendItemDot } from './LegendDot';
+import { ChartType } from '../interfaces';
 
 export const OverflowButton: React.FC<{
   legendItems: BusterChartLegendItem[];
@@ -11,15 +12,11 @@ export const OverflowButton: React.FC<{
   onClickItem?: BusterChartLegendProps['onClickItem'];
   onHoverItem?: BusterChartLegendProps['onHoverItem'];
 }> = React.memo(({ legendItems, onFocusClick, onClickItem, onHoverItem }) => {
-  const { styles, cx } = useStyles();
-
   return (
-    <AppPopover
-      placement="bottomRight"
-      mouseEnterDelay={0.75}
-      trigger={'click'}
-      destroyTooltipOnHide
-      className="max-h-[420px] max-w-[265px]! min-w-[200px] overflow-x-hidden overflow-y-auto px-0"
+    <Popover
+      align="end"
+      side="right"
+      className="max-h-[420px] max-w-[265px]! min-w-[200px] overflow-x-hidden overflow-y-auto px-0 py-1"
       content={
         <div className="flex flex-col space-y-1 p-0.5">
           {legendItems.map((item) => {
@@ -35,66 +32,15 @@ export const OverflowButton: React.FC<{
           })}
         </div>
       }>
-      <div className={cx('flex items-center space-x-1.5', styles.overflowItemContainer)}>
-        <div className={cx(styles.dot, styles.overflowDot, 'flex')} />
-        <Text size="sm" className="text-nowrap select-none">
-          Next {legendItems.length}
-        </Text>
+      <div
+        className={cn(
+          'flex h-[24px] cursor-pointer items-center space-x-1.5 rounded-sm px-2 py-1',
+          'hover:bg-item-hover'
+        )}>
+        <LegendItemDot type={ChartType.Bar} color={undefined} inactive={true} />
+        <span className="text-sm text-nowrap select-none">Next {legendItems.length}</span>
       </div>
-    </AppPopover>
+    </Popover>
   );
 });
 OverflowButton.displayName = 'OverflowButton';
-
-const useStyles = createStyles(({ token, css }) => {
-  return {
-    dot: css`
-      background: ${token.colorBgContainerDisabled};
-      width: 18px;
-      min-width: 18px;
-      height: 12px;
-      border-radius: 4px;
-
-      &.group {
-        &:hover {
-          &.focus-item {
-            background-color: ${token.colorBgElevated} !important;
-          }
-        }
-      }
-    `,
-
-    overflowItemContainer: css`
-      cursor: pointer;
-      padding: 1px 8px;
-      border-radius: 4px;
-      border: 0px solid ${token.colorBorder};
-      // background: ${token.colorBgBase};
-
-      &:hover {
-        background: ${token.controlItemBgHover};
-      }
-    `,
-    overflowDot: css`
-      background: ${token.colorBorder};
-    `,
-    overflowItem: css`
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-      white-space: nowrap;
-      padding: 3px 5px;
-      border-radius: 4px;
-      &:hover {
-        background: ${token.controlItemBgHover};
-      }
-      &.inactive {
-        border-color: ${token.colorBgContainerDisabled};
-
-        .dot {
-          background: ${token.colorBgContainerDisabled};
-        }
-      }
-    `
-  };
-});
