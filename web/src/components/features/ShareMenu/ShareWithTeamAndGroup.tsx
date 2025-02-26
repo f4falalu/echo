@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { CopyLinkButton } from './CopyLinkButton';
 import { Button, Divider } from 'antd';
-import { AppMaterialIcons, BackButton } from '@/components/ui';
+import { AppMaterialIcons } from '@/components/ui';
+import { BackButton } from '@/components/ui/buttons';
 import { useStyles } from './useStyles';
 import { AccessDropdown } from './AccessDropdown';
 import { useUserConfigContextSelector } from '@/context/Users';

@@ -1,7 +1,5 @@
-import { Checkbox } from 'antd';
 import { createStyles } from 'antd-style';
 import React from 'react';
-import { Text } from '@/components/ui';
 
 const useStyles = createStyles(({ token, css }) => ({
   container: css`
