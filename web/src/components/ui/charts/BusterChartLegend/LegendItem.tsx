@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import { type BusterChartLegendItem, type BusterChartLegendProps } from './interfaces';
-import { createStyles } from 'antd-style';
 import { useMemoizedFn } from 'ahooks';
 import { LegendItemDot } from './LegendDot';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -69,7 +68,6 @@ const LegendItemStandard = React.memo(
       item: BusterChartLegendItem;
     }
   >(({ onClickItem, onHoverItemPreflight, onFocusItem, item }, ref) => {
-    const { styles, cx } = useStyles();
     const clickable = onClickItem !== undefined;
     const { formattedName, inactive, headline } = item;
     const hasHeadline = headline !== undefined && headline.type;
@@ -106,15 +104,17 @@ const LegendItemStandard = React.memo(
         onClick={onClickItemHandler}
         onMouseEnter={onMouseEnterHandler}
         onMouseLeave={onMouseLeaveHandler}
-        className={cx(styles.legendItem, 'flex flex-col justify-center space-y-0', {
-          clickable: clickable
-        })}>
+        className={cn(
+          'flex flex-col justify-center space-y-0',
+          'h-[24px] rounded-sm px-2.5',
+          clickable && 'transition-background hover:bg-item-hover cursor-pointer duration-100'
+        )}>
         <AnimatePresence initial={false}>
           {hasHeadline && (
             <motion.div {...headlineAnimation} className="flex items-center space-x-1.5">
               <span
                 className={cn(
-                  'text-md leading-none font-semibold!',
+                  'text-[15px] leading-none font-semibold!',
                   !inactive ? 'text-foreground' : 'text-text-secondary'
                 )}>
                 {headline?.titleAmount}
@@ -124,7 +124,7 @@ const LegendItemStandard = React.memo(
         </AnimatePresence>
 
         <div
-          className={cx('flex flex-nowrap items-center space-x-1.5 whitespace-nowrap', {
+          className={cn('flex flex-nowrap items-center space-x-1.5 whitespace-nowrap', {
             clickable: clickable
           })}>
           <LegendItemDot
@@ -158,24 +158,3 @@ const LegendItemStandard = React.memo(
   })
 );
 LegendItemStandard.displayName = 'LegendItemStandard';
-
-const useStyles = createStyles(({ token, css }) => {
-  return {
-    legendItem: css`
-      padding: 0px 8px;
-      border-radius: 4px;
-      height: 24px;
-      &.clickable {
-        transition: background 0.125s ease;
-        cursor: pointer;
-        &:hover {
-          background: ${token.controlItemBgHover};
-        }
-      }
-
-      &.inactive {
-        border-color: ${token.colorBgContainerDisabled};
-      }
-    `
-  };
-});

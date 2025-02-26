@@ -60,7 +60,7 @@ export const Basic: Story = {
 export const Inactive: Story = {
   args: {
     item: {
-      color: '#1677ff',
+      color: '#0066FF',
       inactive: true,
       type: ChartType.Line,
       formattedName: 'Inactive Legend',
