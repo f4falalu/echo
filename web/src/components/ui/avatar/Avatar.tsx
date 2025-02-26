@@ -33,8 +33,8 @@ Avatar.displayName = 'Avatar';
 
 const BusterAvatarFallback: React.FC = () => {
   return (
-    <div className="flex h-full w-full items-center justify-center text-black dark:text-white">
-      <BusterLogo className="h-full w-full" />
+    <div className="text-foreground flex h-full w-full items-center justify-center">
+      <BusterLogo className="h-full w-full translate-x-[1px] p-1" />
     </div>
   );
 };
