@@ -11,10 +11,17 @@ import { useAntToken } from '@/styles/useAntToken';
 import { AppCodeEditor } from '@/components/ui/inputs/AppCodeEditor';
 import clamp from 'lodash/clamp';
 import { MenuProps } from 'antd/lib';
-import { ItemContainer } from '@/components/ui/card/ItemContainer';
 import { Text } from '@/components/ui';
 import { BusterRoutes } from '@/routes';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  CardContent
+} from '@/components/ui/card/CardBase';
 
 export const TermIndividualContent: React.FC<{
   termId: string;
@@ -207,5 +214,18 @@ const MoreDropdown: React.FC<{ termId: string; setEditingTermName: (value: boole
         <AppMaterialIcons size={18} icon="more_horiz" />
       </div>
     </Dropdown>
+  );
+};
+
+const ItemContainer: React.FC<{
+  title: string | React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+}> = ({ title, children, className }) => {
+  return (
+    <Card className={className}>
+      <CardHeader variant={'gray'}>{title}</CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
   );
 };

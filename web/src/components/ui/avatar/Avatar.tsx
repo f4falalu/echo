@@ -1,0 +1,54 @@
+import React from 'react';
+import { Avatar as AvatarBase, AvatarFallback, AvatarImage } from './AvatarBase';
+import { getFirstTwoCapitalizedLetters } from '@/lib/text';
+import { Tooltip } from '../tooltip/Tooltip';
+import { BusterLogo } from '@/assets/svg/BusterLogo';
+import { cn } from '@/lib/utils';
+
+export interface BusterUserAvatarProps {
+  image?: string;
+  name?: string | null;
+  className?: string;
+  useToolTip?: boolean;
+}
+
+export const Avatar: React.FC<BusterUserAvatarProps> = React.memo(
+  ({ image, name, className, useToolTip }) => {
+    const hasName = !!name;
+    const nameLetters = hasName ? createNameLetters(name, image) : '';
+
+    return (
+      <Tooltip title={useToolTip ? nameLetters : ''}>
+        <AvatarBase className={className}>
+          {image && <AvatarImage src={image} />}
+          <AvatarFallback className={cn(!hasName && 'border bg-white')}>
+            {nameLetters || <BusterAvatarFallback />}
+          </AvatarFallback>
+        </AvatarBase>
+      </Tooltip>
+    );
+  }
+);
+Avatar.displayName = 'Avatar';
+
+const BusterAvatarFallback: React.FC = () => {
+  return (
+    <div className="flex h-full w-full items-center justify-center text-black dark:text-white">
+      <BusterLogo className="h-full w-full" />
+    </div>
+  );
+};
+
+const createNameLetters = (name?: string | null, image?: string | null | React.ReactNode) => {
+  if (name && !image) {
+    const firstTwoLetters = getFirstTwoCapitalizedLetters(name);
+    if (firstTwoLetters.length == 2) return firstTwoLetters;
+
+    //Get First Name Initial
+    const _name = name.split(' ') as [string, string];
+    const returnName = `${_name[0][0]}`.toUpperCase().replace('@', '');
+
+    return returnName;
+  }
+  return '';
+};

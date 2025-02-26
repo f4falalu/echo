@@ -4,7 +4,7 @@ import { BellOutlined } from '@ant-design/icons';
 import { faker } from '@faker-js/faker';
 
 const meta: Meta<typeof InfoCard> = {
-  title: 'Base/InfoCard',
+  title: 'Base/Cards/InfoCard',
   component: InfoCard,
   tags: ['autodocs'],
   args: {
