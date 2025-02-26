@@ -1,4 +1,3 @@
-import { RowInput } from 'jspdf-autotable';
 import { timeout } from './timeout';
 
 export async function exportJSONToCSV(
@@ -87,59 +86,6 @@ function downloadFile(fileName: string, data: Blob) {
     URL.revokeObjectURL(url);
     downloadLink.remove();
   }, 100);
-}
-
-export async function exportGridToPdf<R, SR>(gridElement: HTMLDivElement, fileName: string) {
-  const [{ jsPDF }, autoTable, { head, body, foot }] = await Promise.all([
-    import('jspdf'),
-    (await import('jspdf-autotable')).default,
-    await getGridContent(gridElement)
-  ]);
-  const doc = new jsPDF({
-    orientation: 'l',
-    unit: 'px'
-  });
-
-  autoTable(doc, {
-    head,
-    body,
-    foot,
-    horizontalPageBreak: true,
-    styles: { cellPadding: 1.5, fontSize: 8, cellWidth: 'wrap' },
-    tableWidth: 'wrap'
-  });
-
-  doc.save(fileName);
-}
-
-export async function exportJSONToPDF(
-  data: Record<string, string | null | Date | number>[],
-  fileName: string = 'data'
-) {
-  const [{ jsPDF }, autoTable] = await Promise.all([
-    import('jspdf'),
-    (await import('jspdf-autotable')).default
-  ]);
-  const doc = new jsPDF();
-
-  const headSet = data.reduce<Set<string>>((acc, row) => {
-    Object.keys(row).forEach((key) => acc.add(key));
-    return acc;
-  }, new Set());
-  const head: RowInput[] = [Array.from(headSet)];
-  const body: RowInput[] = data.map((row) =>
-    Object.values(row).map((value) => String(value || ''))
-  );
-
-  autoTable(doc, {
-    head,
-    body,
-    horizontalPageBreak: true,
-    styles: { cellPadding: 1.5, fontSize: 8, cellWidth: 'wrap' },
-    tableWidth: 'wrap'
-  });
-
-  doc.save(fileName);
 }
 
 export async function exportElementToImage(element: HTMLElement) {
