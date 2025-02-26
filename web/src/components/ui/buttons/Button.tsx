@@ -6,7 +6,7 @@ import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
 
 export const buttonTypeClasses = {
   default:
-    'bg-white border hover:bg-item-hover disabled:bg-disabled disabled:text-gray-light active:bg-item-active data-[selected=true]:bg-item-select',
+    'bg-background border hover:bg-item-hover disabled:bg-disabled disabled:text-gray-light active:bg-item-active data-[selected=true]:bg-item-select',
   black: 'bg-black text-white hover:bg-foreground-hover disabled:bg-foreground-hover',
   primary:
     'bg-primary text-white hover:bg-primary-light active:bg-primary-dark data-[selected=true]:bg-primary-dark',

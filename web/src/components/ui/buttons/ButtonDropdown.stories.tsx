@@ -3,7 +3,7 @@ import { ButtonDropdown } from './ButtonDropdown';
 import { PaintRoller } from '../icons/NucleoIconOutlined';
 
 const meta: Meta<typeof ButtonDropdown> = {
-  title: 'Base/ButtonDropdown',
+  title: 'Base/Button Dropdown',
   component: ButtonDropdown,
   parameters: {
     layout: 'centered'

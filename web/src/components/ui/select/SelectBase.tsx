@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 import * as SelectPrimitive from '@radix-ui/react-select';
-import { Check, ChevronDown, ChevronUp } from '../icons/NucleoIconOutlined';
-
+import { Check3 as Check, ChevronDown, ChevronUp } from '../icons/NucleoIconOutlined';
 import { cn } from '@/lib/classMerge';
+import { cva, VariantProps } from 'class-variance-authority';
 
 const Select = SelectPrimitive.Root;
 
@@ -12,17 +12,35 @@ const SelectGroup = SelectPrimitive.Group;
 
 const SelectValue = SelectPrimitive.Value;
 
+const selectVariants = cva(
+  'flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm focus:outline-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 [&>span]:line-clamp-1',
+  {
+    variants: {
+      variant: {
+        default:
+          'border-border bg-background ring-offset-background data-[placeholder]:text-gray-light focus:ring-ring'
+      },
+      size: {
+        default: 'h-7',
+        tall: 'h-8',
+        small: 'h-6'
+      }
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default'
+    }
+  }
+);
+
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> &
+    VariantProps<typeof selectVariants>
+>(({ className, variant = 'default', size = 'default', children, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
-    className={cn(
-      'border-border bg-background ring-offset-background data-[placeholder]:text-gray-light focus:ring-ring',
-      'flex h-10 w-full items-center justify-between rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
-      className
-    )}
+    className={cn(selectVariants({ variant, size }), className)}
     {...props}>
     {children}
     <SelectPrimitive.Icon asChild>
@@ -101,7 +119,7 @@ const SelectLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Label
     ref={ref}
-    className={cn('py-1.5 pr-2 pl-8 text-sm font-semibold', className)}
+    className={cn('py-1.5 pr-2 pl-6.5 text-sm font-semibold', className)}
     {...props}
   />
 ));
@@ -115,7 +133,7 @@ const SelectItem = React.forwardRef<
     ref={ref}
     className={cn(
       'focus:bg-item-hover focus:text-foreground h-8',
-      'relative flex w-full cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'relative flex w-full cursor-default items-center rounded-sm py-1.5 pr-2 pl-6.5 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className
     )}
     {...props}>
