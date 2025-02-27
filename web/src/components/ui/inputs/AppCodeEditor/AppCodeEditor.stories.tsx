@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { AppCodeEditor } from './AppCodeEditor';
 
 const meta: Meta<typeof AppCodeEditor> = {
-  title: 'Base/Inputs/AppCodeEditor',
+  title: 'UI/Inputs/AppCodeEditor',
   component: AppCodeEditor,
   parameters: {
     layout: 'centered'

@@ -9,7 +9,7 @@ import { Hand } from '../icons';
 import { cn } from '@/lib/classMerge';
 
 const meta: Meta<typeof BusterResizeableGrid> = {
-  title: 'Base/Grid/BusterResizeableGrid',
+  title: 'UI/Grid/BusterResizeableGrid',
   component: BusterResizeableGrid,
   parameters: {
     layout: 'padded'

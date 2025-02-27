@@ -70,7 +70,7 @@ const TestComponent = ({
 };
 
 const meta: Meta<typeof TestComponent> = {
-  title: 'Base/Toast',
+  title: 'UI/Toast',
   component: TestComponent,
   tags: ['autodocs'],
   argTypes: {

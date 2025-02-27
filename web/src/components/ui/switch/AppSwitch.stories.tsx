@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { AppSwitch } from './AppSwitch';
 
 const meta: Meta<typeof AppSwitch> = {
-  title: 'Base/Inputs/Switch',
+  title: 'UI/Inputs/Switch',
   component: AppSwitch,
   tags: ['autodocs'],
   argTypes: {

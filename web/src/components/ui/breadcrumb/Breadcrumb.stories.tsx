@@ -3,7 +3,7 @@ import { Breadcrumb } from './Breadcrumb';
 import { BusterAppRoutes } from '@/routes/busterRoutes/busterAppRoutes';
 
 const meta: Meta<typeof Breadcrumb> = {
-  title: 'Base/Breadcrumb',
+  title: 'UI/Breadcrumb',
   component: Breadcrumb,
   tags: ['autodocs'],
   parameters: {

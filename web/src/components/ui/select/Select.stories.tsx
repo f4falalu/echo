@@ -3,7 +3,7 @@ import { Select } from './Select';
 import { User, MapSettings, Mailbox } from '../icons';
 
 const meta: Meta<typeof Select> = {
-  title: 'Base/Select/Select',
+  title: 'UI/Select/Select',
   component: Select,
   parameters: {
     layout: 'centered'

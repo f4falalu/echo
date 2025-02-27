@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { KeyboardShortcutPill } from './KeyboardShortcutPills';
 
 const meta: Meta<typeof KeyboardShortcutPill> = {
-  title: 'Base/Pills/KeyboardShortcutPill',
+  title: 'UI/Pills/KeyboardShortcutPill',
   component: KeyboardShortcutPill,
   tags: ['autodocs']
 };

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { CodeCard } from './CodeCard';
 
 const meta: Meta<typeof CodeCard> = {
-  title: 'Base/Cards/CodeCard',
+  title: 'UI/Cards/CodeCard',
   component: CodeCard,
   parameters: {
     layout: 'centered'

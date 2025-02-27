@@ -3,7 +3,7 @@ import { OverflowButton } from '../OverflowContainer';
 import { ChartType } from '../../interfaces';
 
 const meta = {
-  title: 'Base/Charts/OverflowButton',
+  title: 'UI/Charts/OverflowButton',
   component: OverflowButton,
   parameters: {
     layout: 'centered'

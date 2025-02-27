@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { AppVerticalSplitterWithGap } from './AppVerticalSplitterWithGap';
 
 const meta: Meta<typeof AppVerticalSplitterWithGap> = {
-  title: 'Base/Layouts/AppVerticalSplitterWithGap',
+  title: 'UI/Layouts/AppVerticalSplitterWithGap',
   component: AppVerticalSplitterWithGap,
   parameters: {
     layout: 'fullscreen'

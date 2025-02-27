@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { BusterChartTooltip } from './BusterChartTooltip';
 
 const meta: Meta<typeof BusterChartTooltip> = {
-  title: 'Base/Charts/BusterChartTooltip',
+  title: 'UI/Charts/BusterChartTooltip',
   component: BusterChartTooltip,
   parameters: {
     layout: 'centered'

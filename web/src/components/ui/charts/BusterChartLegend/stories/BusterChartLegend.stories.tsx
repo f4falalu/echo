@@ -3,7 +3,7 @@ import { BusterChartLegend } from '../BusterChartLegend';
 import { ChartType } from '../../interfaces';
 
 const meta: Meta<typeof BusterChartLegend> = {
-  title: 'Base/Charts/BusterChartLegend',
+  title: 'UI/Charts/BusterChartLegend',
   component: BusterChartLegend,
   parameters: {
     layout: 'centered'

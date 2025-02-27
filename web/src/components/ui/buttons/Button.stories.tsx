@@ -7,7 +7,7 @@ const IconSelect = Object.keys(OutlinedIcons).map((icon) => {
 });
 
 const meta: Meta<typeof Button> = {
-  title: 'Base/Buttons/Button',
+  title: 'UI/Buttons/Button',
   component: Button,
   tags: ['autodocs'],
   args: {

@@ -3,7 +3,7 @@ import { AppDataSourceIcon } from './AppDataSourceIcons';
 import { DataSourceTypes } from '@/api/asset_interfaces';
 
 const meta: Meta<typeof AppDataSourceIcon> = {
-  title: 'Base/Icons/DataSourceIcon',
+  title: 'UI/Icons/DataSourceIcon',
   component: AppDataSourceIcon,
   parameters: {
     layout: 'centered'

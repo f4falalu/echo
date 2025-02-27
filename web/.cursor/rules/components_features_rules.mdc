@@ -32,7 +32,7 @@ features/
    - Handle their own state management when necessary
    - Be fully typed using TypeScript
    - Include proper documentation and props interface
-   - Have a corresponding Storybook story showcasing different states and variations
+   - Have a corresponding Storybook story showcasing different states and variations (The storybook should be titled Features/{feature_name})
 
 2. Components should be:
    - Reusable across different parts of the application
@@ -45,9 +45,11 @@ features/
 // features/PaginatedTable/PaginatedTable.tsx
 import { Table, Pagination } from '../ui';
 
-export const PaginatedTable: React.FC<PaginatedTableProps> = (props) => {
+export const PaginatedTable: React.FC<PaginatedTableProps> = React.memo((props) => {
   // Implementation
-};
+});
+
+PaginatedTable.displayName = 'PaginatedTable';
 ```
 
 ## Best Practices

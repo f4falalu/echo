@@ -3,7 +3,7 @@ import { LegendItemDot } from '../LegendDot';
 import { ChartType } from '../../interfaces';
 
 const meta = {
-  title: 'Base/Charts/LegendDot',
+  title: 'UI/Charts/LegendDot',
   component: LegendItemDot,
   parameters: {
     layout: 'centered'

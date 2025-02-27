@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { InputTextArea } from './InputTextArea';
 
 const meta: Meta<typeof InputTextArea> = {
-  title: 'Base/Inputs/InputTextArea',
+  title: 'UI/Inputs/InputTextArea',
   component: InputTextArea,
   tags: ['autodocs'],
   args: {

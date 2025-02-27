@@ -3,7 +3,7 @@ import { Segmented } from './Segmented';
 import { BottleChampagne, Grid, HouseModern, PaintRoller } from '../icons';
 
 const meta: Meta<typeof Segmented> = {
-  title: 'Base/Segmented',
+  title: 'UI/Segmented',
   component: Segmented,
   parameters: {
     layout: 'centered'
