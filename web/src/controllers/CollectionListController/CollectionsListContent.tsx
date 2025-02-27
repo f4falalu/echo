@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { AppContent, BusterUserAvatar } from '@/components/ui';
+import { AppContent } from '@/components/ui';
+import { Avatar } from '@/components/ui/avatar';
 import { formatDate, makeHumanReadble } from '@/lib';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useBusterCollectionListContextSelector } from '@/context/Collections';
@@ -74,9 +75,7 @@ const columns: BusterListColumn[] = [
     title: 'Owner',
     width: 50,
     render: (owner: BusterCollectionListItem['owner']) => {
-      return (
-        <BusterUserAvatar image={owner?.avatar_url || undefined} name={owner?.name} size={18} />
-      );
+      return <Avatar image={owner?.avatar_url || undefined} name={owner?.name} size={18} />;
     }
   }
 ];

@@ -4,7 +4,6 @@ export * from './icons';
 export * from './loaders';
 export * from './inputs';
 export * from './tooltip';
-export * from './image';
 export * from './select';
 export * from './segmented';
 export * from './card';

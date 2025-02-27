@@ -1,2 +1,2 @@
-export * from './AppDropdownSelect';
 export * from './DropdownLabel';
+export * from './Dropdown';

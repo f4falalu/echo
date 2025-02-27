@@ -23,14 +23,14 @@ export const Default: Story = {
 // Error state
 export const WithError: Story = {
   args: {
-    children: <div>This content won't be visible due to error</div>
+    children: <div>{`This content won't be visible due to error`} </div>
   },
   parameters: {
-    error: new Error('Simulated error for story')
+    error: new Error(`Simulated error for story`)
   },
   render: (args) => {
     const ErrorTrigger = () => {
-      throw new Error('Simulated error for story');
+      throw new Error(`Simulated error for story`);
     };
 
     return (

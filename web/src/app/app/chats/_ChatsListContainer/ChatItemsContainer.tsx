@@ -2,7 +2,8 @@ import { ShareAssetType, VerificationStatus, BusterChatListItem } from '@/api/as
 import { makeHumanReadble, formatDate } from '@/lib';
 import React, { memo, useMemo, useRef, useState } from 'react';
 import { StatusBadgeIndicator, getShareStatus } from '../../../../components/features/Lists';
-import { BusterUserAvatar, Text } from '@/components/ui';
+import { Text } from '@/components/ui';
+import { Avatar } from '@/components/ui/avatar';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
 import { BusterListColumn, BusterListRow } from '@/components/ui/list';
@@ -180,7 +181,7 @@ TitleCell.displayName = 'TitleCell';
 
 const OwnerCell = memo<{ name: string; image: string | undefined }>(({ name, image }) => (
   <div className="flex pl-0">
-    <BusterUserAvatar image={image} name={name} size={18} />
+    <Avatar image={image} name={name} className="h-[18px] w-[18px]" />
   </div>
 ));
 OwnerCell.displayName = 'OwnerCell';

@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { AppContent } from '@/components/ui/layout/AppContent';
-import { BusterUserAvatar } from '@/components/ui';
+import { Avatar } from '@/components/ui/avatar';
 import { formatDate } from '@/lib';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
@@ -45,11 +45,7 @@ const columns: BusterListColumn[] = [
     width: 60,
     render: (_, dataset: BusterDatasetListItem) => (
       <div className="flex w-full justify-start">
-        <BusterUserAvatar
-          image={dataset.owner.avatar_url || undefined}
-          name={dataset.owner.name}
-          size={18}
-        />
+        <Avatar image={dataset.owner.avatar_url || undefined} name={dataset.owner.name} size={18} />
       </div>
     )
   }

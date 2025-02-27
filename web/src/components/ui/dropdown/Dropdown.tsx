@@ -48,9 +48,9 @@ export interface DropdownDivider {
 export type DropdownItems = (DropdownItem | DropdownDivider | React.ReactNode)[];
 
 export interface DropdownProps extends DropdownMenuProps {
-  items?: DropdownItems;
+  items: DropdownItems;
   selectType?: 'single' | 'multiple' | 'none';
-  menuHeader?: string | React.ReactNode | { placeholder: string };
+  menuHeader?: string | React.ReactNode; //if string it will render a search box
   minWidth?: number;
   maxWidth?: number;
   closeOnSelect?: boolean;
@@ -59,6 +59,7 @@ export interface DropdownProps extends DropdownMenuProps {
   side?: 'top' | 'right' | 'bottom' | 'left';
   emptyStateText?: string;
   className?: string;
+  footerContent?: React.ReactNode;
 }
 
 const dropdownItemKey = (item: DropdownItems[number], index: number) => {
@@ -84,6 +85,7 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
     onOpenChange,
     emptyStateText = 'No items found',
     className,
+    footerContent,
     ...props
   }) => {
     const { filteredItems, searchText, handleSearchChange } = useDebounceSearch({
@@ -133,7 +135,8 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
         <DropdownMenuContent
           className={cn('max-w-72 min-w-44', className)}
           align={align}
-          side={side}>
+          side={side}
+          footerContent={footerContent}>
           {menuHeader && (
             <>
               <DropdownMenuHeaderSelector
@@ -357,17 +360,11 @@ const DropdownMenuHeaderSelector: React.FC<{
   onChange: (text: string) => void;
   text: string;
 }> = React.memo(({ menuHeader, onChange, text }) => {
+  // if (typeof menuHeader === 'string') {
+  //   return <DropdownMenuLabel>{menuHeader}</DropdownMenuLabel>;
+  // }
   if (typeof menuHeader === 'string') {
-    return <DropdownMenuLabel>{menuHeader}</DropdownMenuLabel>;
-  }
-  if (typeof menuHeader === 'object' && 'placeholder' in menuHeader) {
-    return (
-      <DropdownMenuHeaderSearch
-        placeholder={menuHeader.placeholder}
-        onChange={onChange}
-        text={text}
-      />
-    );
+    return <DropdownMenuHeaderSearch placeholder={menuHeader} onChange={onChange} text={text} />;
   }
   return menuHeader;
 });

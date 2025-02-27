@@ -12,6 +12,7 @@ import { AthenaIcon } from './customIcons/athena';
 import React from 'react';
 import { DataSourceTypes } from '@/api/asset_interfaces';
 import { AppMaterialIcons } from './AppMaterialIcons';
+import { Database } from './NucleoIconOutlined';
 
 const IconRecord: Record<DataSourceTypes, any> = {
   [DataSourceTypes.postgres]: PostgresIcon,
@@ -36,10 +37,8 @@ export const AppDataSourceIcon: React.FC<{
 }> = ({ type, ...props }) => {
   const ChosenIcon = IconRecord[type];
 
-  console;
-
   if (!ChosenIcon) {
-    return <AppMaterialIcons {...props} icon="database" />;
+    return <Database />;
   }
 
   return <ChosenIcon {...props} />;

@@ -1,4 +1,4 @@
-import { BusterUserAvatar } from '@/components/ui';
+import { Avatar } from '@/components/ui/avatar';
 import { AccessDropdown } from './AccessDropdown';
 
 import React from 'react';
@@ -24,7 +24,7 @@ export const IndividualSharePerson: React.FC<{
     <div className="flex items-center justify-between space-x-2 px-0 py-1">
       <div className="flex h-full items-center space-x-2">
         <div className="flex h-full flex-col items-center justify-center">
-          <BusterUserAvatar size={24} name={name || email} />
+          <Avatar className="h-[24px] w-[24px]" name={name || email} />
         </div>
         <div className="flex flex-col space-y-0">
           <Text className="">{name || email}</Text>

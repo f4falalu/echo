@@ -6,7 +6,7 @@ import { useUserConfigContextSelector } from '@/context/Users';
 import { createStyles } from 'antd-style';
 import { formatDate } from '@/lib/date';
 import { Text, Title } from '@/components/ui';
-import { BusterUserAvatar } from '@/components/ui';
+import { Avatar } from '@/components/ui/avatar';
 import { Card } from 'antd';
 
 const useStyles = createStyles(({ token, css }) => ({
@@ -41,7 +41,7 @@ export default function ProfilePage() {
           body: 'flex flex-col space-y-3'
         }}>
         <div className={'flex items-center space-x-2.5'}>
-          <BusterUserAvatar name={name} size={48} />
+          <Avatar name={name} className="h-[48px] w-[48px]" />
           <Title level={4}>{name}</Title>
         </div>
         <div className={'flex flex-col space-y-0.5'}>

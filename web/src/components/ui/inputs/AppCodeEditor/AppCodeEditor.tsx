@@ -6,8 +6,8 @@
 import React, { forwardRef, useMemo } from 'react';
 import type { editor } from 'monaco-editor/esm/vs/editor/editor.api';
 import { CircleSpinnerLoaderContainer } from '../../loaders/CircleSpinnerLoaderContainer';
-import { createStyles } from 'antd-style';
 import { useMemoizedFn } from 'ahooks';
+import { cn } from '@/lib/classMerge';
 
 import './MonacoWebWorker';
 import { configureMonacoToUseYaml } from './yamlHelper';
@@ -18,19 +18,6 @@ import { configureMonacoToUseYaml } from './yamlHelper';
 
 import { Editor as DynamicEditor } from '@monaco-editor/react';
 import { useTheme } from 'next-themes';
-
-const useStyles = createStyles(({ token }) => ({
-  code: {
-    fontSize: '13px',
-    fontFamily: 'Menlo, Monaco, "Courier New", monospace',
-    '--font-app': 'Menlo, Monaco, "Courier New", monospace'
-  },
-  bordered: {
-    border: `0.5px solid ${token.colorBorder}`,
-    borderRadius: `${token.borderRadiusLG}px`,
-    overflow: 'hidden'
-  }
-}));
 
 export interface AppCodeEditorProps {
   className?: string;
@@ -75,7 +62,7 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
     },
     ref
   ) => {
-    const { cx, styles } = useStyles();
+    // const { cx, styles } = useStyles();
 
     const isDarkModeContext = useTheme()?.theme === 'dark';
     const useDarkMode = isDarkMode ?? isDarkModeContext;
@@ -148,9 +135,11 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
 
     return (
       <div
-        className={cx('app-code-editor relative h-full w-full border', className, styles.code, {
-          [styles.bordered]: variant === 'bordered'
-        })}
+        className={cn(
+          'app-code-editor relative h-full w-full border',
+          variant === 'bordered' && 'overflow-hidden border',
+          className
+        )}
         style={style}>
         <DynamicEditor
           key={useDarkMode ? 'dark' : 'light'}

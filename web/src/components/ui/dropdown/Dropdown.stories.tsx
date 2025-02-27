@@ -302,7 +302,7 @@ export const WithSelectionMultiple: Story = {
       <Dropdown
         selectType="multiple"
         items={items}
-        menuHeader={{ placeholder: 'Search items...' }}
+        menuHeader={'Search items...'}
         onSelect={handleSelect}
         children={<Button>Selection Menu</Button>}
       />
@@ -345,9 +345,7 @@ export const WithSecondaryLabel: Story = {
 // Example with search header
 export const WithSearchHeader: Story = {
   args: {
-    menuHeader: {
-      placeholder: 'Search items...'
-    },
+    menuHeader: 'Search items...',
     items: [
       {
         value: '1',
@@ -393,9 +391,7 @@ export const WithSearchHeader: Story = {
 // Example with long text to test truncation
 export const WithLongText: Story = {
   args: {
-    menuHeader: {
-      placeholder: 'Search items...'
-    },
+    menuHeader: 'Search items...',
     items: [
       ...Array.from({ length: 100 }).map(() => {
         const label = faker.commerce.product();
@@ -508,10 +504,38 @@ export const WithLinksAndMultipleSelection: Story = {
         open
         selectType="multiple"
         items={items}
-        menuHeader={{ placeholder: 'Search documentation...' }}
+        menuHeader="Search documentation..."
         onSelect={handleSelect}
         children={<Button>Documentation Sections</Button>}
       />
     );
+  }
+};
+
+export const WithFooterContent: Story = {
+  args: {
+    items: [
+      {
+        value: '1',
+        label: 'Option 1',
+        onClick: () => alert('Option 1 clicked')
+      },
+      {
+        value: '2',
+        label: 'Option 2',
+        onClick: () => alert('Option 2 clicked')
+      },
+      {
+        value: '3',
+        label: 'Option 3',
+        onClick: () => alert('Option 3 clicked')
+      }
+    ],
+    footerContent: (
+      <Button variant={'black'} block>
+        Footer Content
+      </Button>
+    ),
+    children: <Button>Menu with Footer Content</Button>
   }
 };

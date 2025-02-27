@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { AppContent } from '@/components/ui/layout/AppContent';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
-import { BusterUserAvatar } from '@/components/ui';
+import { Avatar } from '@/components/ui/avatar';
 import { formatDate } from '@/lib';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
@@ -45,7 +45,7 @@ const columns: BusterListColumn[] = [
     title: 'Owner',
     width: 55,
     render: (_, data) => {
-      return <BusterUserAvatar image={data?.avatar_url} name={data?.name} size={18} />;
+      return <Avatar image={data?.avatar_url} name={data?.name} size={18} />;
     }
   }
 ];

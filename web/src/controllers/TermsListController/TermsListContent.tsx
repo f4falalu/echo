@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { AppContent } from '@/components/ui/layout/AppContent';
-import { BusterUserAvatar } from '@/components/ui';
+import { Avatar } from '@/components/ui/avatar';
 import { formatDate } from '@/lib';
 import {
   ListEmptyStateWithButton,
@@ -38,9 +38,7 @@ const columns: BusterListColumn[] = [
     dataIndex: 'owner',
     title: 'Owner',
     width: 60,
-    render: (_, data: BusterTermListItem) => (
-      <BusterUserAvatar name={data.created_by.name} size={18} />
-    )
+    render: (_, data: BusterTermListItem) => <Avatar name={data.created_by.name} size={18} />
   }
 ];
 

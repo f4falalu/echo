@@ -3,10 +3,8 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { BusterResizeableGridRow } from './interfaces';
 import { BusterResizeColumns } from './BusterResizeColumns';
-import clsx from 'clsx';
 import { BusterNewItemDropzone } from './_BusterBusterNewItemDropzone';
 import { MIN_ROW_HEIGHT, TOP_SASH_ID, NEW_ROW_ID, MAX_ROW_HEIGHT } from './config';
-import { createStyles } from 'antd-style';
 import clamp from 'lodash/clamp';
 import { useDebounceFn, useMemoizedFn, useUpdateLayoutEffect } from 'ahooks';
 import { useDroppable } from '@dnd-kit/core';
@@ -58,7 +56,7 @@ export const BusterResizeRows: React.FC<{
   return (
     <div
       ref={ref}
-      className={clsx(
+      className={cn(
         className,
         'buster-resize-row relative',
         'mb-10 flex h-full w-full flex-col space-y-3 transition',
@@ -120,7 +118,6 @@ const ResizeRowHandle: React.FC<{
   hideDropzone?: boolean;
 }> = React.memo(
   ({ hideDropzone, top, id, active, allowEdit, setIsDraggingResizeId, index, sizes, onResize }) => {
-    const { styles } = useStyles();
     const { setNodeRef, isOver, over } = useDroppable({
       id: `${NEW_ROW_ID}_${id}}`,
       disabled: !allowEdit,
@@ -193,24 +190,3 @@ const ResizeRowHandle: React.FC<{
 );
 
 ResizeRowHandle.displayName = 'ResizeRowHandle';
-
-const useStyles = createStyles(({ css, token }) => ({
-  hitArea: css`
-    left: 0;
-    right: 0;
-    height: 54px; // Reduced from 54px to be more reasonable
-    position: absolute;
-    z-index: 9;
-    pointer-events: none;
-
-    opacity: 0.2;
-
-    &.top {
-      top: -36px; // Position the hit area to straddle the dragger
-    }
-
-    &:not(.top) {
-      bottom: -15px; // Position the hit area to straddle the dragger
-    }
-  `
-}));

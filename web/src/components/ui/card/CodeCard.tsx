@@ -1,4 +1,3 @@
-import { createStyles } from 'antd-style';
 import React from 'react';
 import { AppCodeEditor } from '../inputs/AppCodeEditor';
 import { useMemoizedFn } from 'ahooks';
@@ -29,8 +28,6 @@ export const CodeCard: React.FC<{
   onChange,
   readOnly = false
 }) => {
-  const { styles, cx } = useStyles();
-
   const ShownButtons = buttons === true ? <CardButtons fileName={fileName} code={code} /> : buttons;
 
   return (
@@ -42,7 +39,7 @@ export const CodeCard: React.FC<{
         </div>
       </CardHeader>
       <CardContent className={cn('bg-background overflow-hidden p-0', bodyClassName)}>
-        <div className={cx(styles.containerBody, bodyClassName)}>
+        <div className={cn('bg-background', bodyClassName)}>
           <AppCodeEditor
             language={language}
             value={code}
@@ -102,18 +99,3 @@ const CardButtons: React.FC<{
   );
 });
 CardButtons.displayName = 'CardButtons';
-
-const useStyles = createStyles(({ token, css }) => ({
-  container: css`
-    border-radius: ${token.borderRadius}px;
-    border: 0.5px solid ${token.colorBorder};
-  `,
-  containerHeader: css`
-    background: ${token.controlItemBgActive};
-    border-bottom: 0.5px solid ${token.colorBorder};
-    height: 32px;
-  `,
-  containerBody: css`
-    background: ${token.colorBgBase};
-  `
-}));

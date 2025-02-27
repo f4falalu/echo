@@ -5,21 +5,27 @@ import { Tooltip } from '../tooltip/Tooltip';
 import { BusterLogo } from '@/assets/svg/BusterLogo';
 import { cn } from '@/lib/utils';
 
-export interface BusterUserAvatarProps {
+export interface AvatarProps {
   image?: string;
   name?: string | null;
   className?: string;
   useToolTip?: boolean;
+  size?: number;
 }
 
-export const Avatar: React.FC<BusterUserAvatarProps> = React.memo(
-  ({ image, name, className, useToolTip }) => {
+export const Avatar: React.FC<AvatarProps> = React.memo(
+  ({ image, name, className, useToolTip, size }) => {
     const hasName = !!name;
     const nameLetters = hasName ? createNameLetters(name, image) : '';
 
     return (
       <Tooltip title={useToolTip ? nameLetters : ''}>
-        <AvatarBase className={className}>
+        <AvatarBase
+          className={className}
+          style={{
+            width: size,
+            height: size
+          }}>
           {image && <AvatarImage src={image} />}
           <AvatarFallback className={cn(!hasName && 'border bg-white')}>
             {nameLetters || <BusterAvatarFallback />}

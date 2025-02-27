@@ -1,11 +1,12 @@
 import { BusterTerm } from '@/api/buster_rest';
 import { AppTooltip, AppMaterialIcons } from '@/components/ui';
-import { AppDropdownSelectProps, AppDropdownSelect } from '@/components/ui/dropdown';
+import { Dropdown, type DropdownProps } from '@/components/ui/dropdown';
 import { createStyles } from 'antd-style';
 import React, { useMemo } from 'react';
 import { Button } from 'antd';
 import { Text } from '@/components/ui';
 import { useGetDatasets } from '@/api/buster_rest/datasets';
+import { useMemoizedFn } from 'ahooks';
 
 const useStyles = createStyles(({ token, css }) => ({
   datasetItem: css`
@@ -64,20 +65,18 @@ export const DatasetList: React.FC<{
 });
 DatasetList.displayName = 'DatasetList';
 
-const memoizedTrigger: AppDropdownSelectProps['trigger'] = ['click'];
-
 const DropdownSelect: React.FC<{
   children: React.ReactNode;
   datasets: BusterTerm['datasets'];
   onChange: (datasets: string[]) => void;
-  placement?: AppDropdownSelectProps['placement'];
-}> = ({ onChange, children, datasets, placement = 'bottomRight' }) => {
+}> = ({ onChange, children, datasets }) => {
   const { data: datasetsList } = useGetDatasets();
 
-  const itemsDropdown = useMemo(() => {
-    return datasetsList.map((item) => ({
-      key: item.id,
+  const itemsDropdown: DropdownProps['items'] = useMemo(() => {
+    return datasetsList.map<DropdownProps['items'][number]>((item) => ({
       label: item.name,
+      value: item.id,
+      selected: datasets.some((i) => i.id === item.id),
       onClick: async () => {
         const isSelected = datasets.find((i) => i.id === item.id);
         const newDatasets = isSelected
@@ -88,20 +87,20 @@ const DropdownSelect: React.FC<{
     }));
   }, [datasets, datasetsList]);
 
-  const selectedItems = useMemo(() => {
-    return datasets.map((item) => item.id);
-  }, [datasets]);
+  const onSelect = useMemoizedFn((itemId: string) => {
+    alert('This feature is not implemented yet');
+  });
 
   return (
-    <AppDropdownSelect
-      placement={placement}
+    <Dropdown
+      align={'start'}
+      side="bottom"
+      selectType="multiple"
       items={itemsDropdown}
-      destroyPopupOnHide
-      headerContent={'Related datasets...'}
-      selectedItems={selectedItems}
-      trigger={memoizedTrigger}>
+      onSelect={onSelect}
+      menuHeader={'Related datasets...'}>
       {children}
-    </AppDropdownSelect>
+    </Dropdown>
   );
 };
 

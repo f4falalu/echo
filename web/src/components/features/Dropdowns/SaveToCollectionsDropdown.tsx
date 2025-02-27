@@ -1,5 +1,5 @@
-import { AppDropdownSelect } from '@/components/ui/dropdown';
 import { AppMaterialIcons } from '@/components/ui';
+import { Dropdown, type DropdownItem, type DropdownProps } from '@/components/ui/dropdown';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useBusterCollectionListContextSelector } from '@/context/Collections';
@@ -21,12 +21,13 @@ export const SaveToCollectionsDropdown: React.FC<{
   const [openCollectionModal, setOpenCollectionModal] = React.useState(false);
   const [showDropdown, setShowDropdown] = React.useState(false);
 
-  const items = useMemo(
+  const items: DropdownProps['items'] = useMemo(
     () =>
-      (collectionsList || []).map((collection) => {
+      (collectionsList || []).map<DropdownItem>((collection) => {
         return {
-          key: collection.id,
+          value: collection.id,
           label: collection.name,
+          selected: selectedCollections.some((id) => id === collection.id),
           onClick: () => onClickItem(collection),
           link: createBusterRoute({
             route: BusterRoutes.APP_COLLECTIONS_ID,
@@ -34,7 +35,7 @@ export const SaveToCollectionsDropdown: React.FC<{
           })
         };
       }),
-    [collectionsList]
+    [collectionsList, selectedCollections]
   );
 
   const onClickItem = useMemoizedFn((collection: BusterCollectionListItem) => {
@@ -84,22 +85,16 @@ export const SaveToCollectionsDropdown: React.FC<{
 
   return (
     <>
-      <AppDropdownSelect
-        trigger={['click']}
-        placement="bottomRight"
-        className="flex! h-fit! items-center"
-        headerContent={'Save to a collection'}
+      <Dropdown
+        side="bottom"
+        align="start"
+        menuHeader={'Save to a collection'}
         open={showDropdown}
         onOpenChange={onOpenChange}
         footerContent={memoizedButton}
-        items={items}
-        selectedItems={selectedCollections}>
-        {showDropdown ? (
-          <>{children}</>
-        ) : (
-          <AppTooltip title={showDropdown ? '' : 'Save to collection'}>{children} </AppTooltip>
-        )}
-      </AppDropdownSelect>
+        items={items}>
+        <AppTooltip title={showDropdown ? '' : 'Save to collection'}>{children} </AppTooltip>
+      </Dropdown>
 
       <NewCollectionModal
         open={openCollectionModal}
