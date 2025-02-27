@@ -78,7 +78,7 @@ const DropdownMenuContent = React.forwardRef<
       <DropdownMenuPrimitive.Content
         ref={ref}
         sideOffset={sideOffset}
-        className={cn(baseContentClass, 'shadow-md', footerContent && 'p-0', className)}
+        className={cn(baseContentClass, 'shadow-hard', footerContent && 'p-0', className)}
         {...props}>
         <NodeWrapper className={cn(footerContent && 'p-2')}>{children}</NodeWrapper>
         {footerContent && <div className="border-t p-2">{footerContent}</div>}

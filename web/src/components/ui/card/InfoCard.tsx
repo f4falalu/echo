@@ -8,8 +8,8 @@ const infoCardVariants = cva('rounded relative flex gap-1 w-full h-full justify-
       default: 'px-4 py-3.5'
     },
     variant: {
-      default: 'border bg-background shadow-sm',
-      gray: 'border bg-item-hover shadow-sm',
+      default: 'border bg-background shadow-hard',
+      gray: 'border bg-item-hover shadow-hard',
       ghost: 'border-none bg-transparent shadow-none'
     },
     selectable: {
