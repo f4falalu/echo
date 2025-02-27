@@ -2,14 +2,7 @@
 
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from '../buttons/Button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardFooter
-} from '../card/CardBase';
+import { Card, CardContent, CardFooter } from '../card/CardBase';
 interface Props {
   children: ReactNode;
 }

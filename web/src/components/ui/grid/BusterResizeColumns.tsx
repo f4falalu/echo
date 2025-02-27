@@ -1,7 +1,7 @@
 'use client';
 
 import { SortableContext, useSortable } from '@dnd-kit/sortable';
-import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
+import React, { useLayoutEffect, useMemo, useState } from 'react';
 import { BusterSortableItemDragContainer } from './_BusterSortableItemDragContainer';
 import { ResizeableGridDragItem } from './interfaces';
 import { useMemoizedFn, useMouse } from 'ahooks';
@@ -242,7 +242,7 @@ const DropzonePlaceholder: React.FC<{
   return (
     <div
       className={cx(
-        'pointer-events-none absolute bottom-0 top-0 h-full w-[4px] rounded-lg transition-opacity duration-200',
+        'pointer-events-none absolute top-0 bottom-0 h-full w-[4px] rounded-lg transition-opacity duration-200',
         dropzoneStyles.dropzone,
         isDropzoneActives && 'placeholder',
         active && 'active'
