@@ -63,8 +63,19 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 # 
 # chart_config:
 #   selected_chart_type: "bar"  # One of: bar, line, scatter, pie, combo, metric, table
-#   selected_view: "view_name"
-#   column_label_formats: {...}  # Required formatting for columns
+#   column_label_formats: {     # REQUIRED - Must define formatting for all columns
+#     "date": {
+#       "column_type": "date",
+#       "style": "date",
+#       "date_format": "MMM DD, YYYY"
+#     },
+#     "total": {
+#       "column_type": "number",
+#       "style": "currency",
+#       "currency": "USD",
+#       "minimum_fraction_digits": 2
+#     }
+#   }
 #   bar_and_line_axis: {...}  # Required for bar and line charts OR
 #   scatter_axis: {...}  # Required for scatter charts OR
 #   pie_chart_axis: {...}  # Required for pie charts OR
@@ -151,9 +162,9 @@ definitions:
         description: "View name"
       column_label_formats:
         type: object
-        description: "Column formatting {columnId: formatObject}"
+        description: The formatting for each column.
         additionalProperties:
-          $ref: "#/definitions/i_column_label_format"
+          $ref: "#/definitions/column_label_format"
       column_settings:
         type: object
         description: "Visual settings {columnId: settingsObject}"
@@ -192,10 +203,45 @@ definitions:
         enum: ["currency", "percent", "number", "date", "string"]
       display_name:
         type: string
+        description: "Custom display name for the column"
+      number_separator_style:
+        type: string
+        description: "Style for number separators"
+      minimum_fraction_digits:
+        type: integer
+        description: "Minimum number of fraction digits to display"
+      maximum_fraction_digits:
+        type: integer
+        description: "Maximum number of fraction digits to display"
+      multiplier:
+        type: number
+        description: "Value to multiply the number by before display"
       prefix:
         type: string
+        description: "Text to display before the value"
       suffix:
         type: string
+        description: "Text to display after the value"
+      replace_missing_data_with:
+        description: "Value to display when data is missing"
+      compact_numbers:
+        type: boolean
+        description: "Whether to display numbers in compact form (e.g., 1K, 1M)"
+      currency:
+        type: string
+        description: "Currency code for currency formatting (e.g., USD, EUR)"
+      date_format:
+        type: string
+        description: "Format string for date display"
+      use_relative_time:
+        type: boolean
+        description: "Whether to display dates as relative time (e.g., '2 days ago')"
+      is_utc:
+        type: boolean
+        description: "Whether to interpret dates as UTC"
+      convert_number_to:
+        type: string
+        description: "Convert number to a different format"
     required:
       - column_type
       - style
