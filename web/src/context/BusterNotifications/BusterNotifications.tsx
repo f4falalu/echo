@@ -1,7 +1,7 @@
+'use client';
+
 import React, { PropsWithChildren } from 'react';
-// import { App, ModalFuncProps } from 'antd';
 import { toast, type ExternalToast } from 'sonner';
-// import { createStyles } from 'antd-style';
 import { useMemoizedFn } from 'ahooks';
 import {
   useContextSelector,

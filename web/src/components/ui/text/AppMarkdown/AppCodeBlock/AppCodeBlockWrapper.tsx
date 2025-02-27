@@ -8,7 +8,6 @@ import { AppMaterialIcons } from '../../../icons';
 
 export const AppCodeBlockWrapper: React.FC<{
   children: React.ReactNode;
-  isDarkMode: boolean;
   code?: string;
   language?: string;
   showCopyButton?: boolean;

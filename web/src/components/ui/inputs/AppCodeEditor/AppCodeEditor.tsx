@@ -6,7 +6,6 @@
 import React, { forwardRef, useMemo } from 'react';
 import type { editor } from 'monaco-editor/esm/vs/editor/editor.api';
 import { CircleSpinnerLoaderContainer } from '../../loaders/CircleSpinnerLoaderContainer';
-import { useBusterStylesContext } from '@/context/BusterStyles/BusterStyles';
 import { createStyles } from 'antd-style';
 import { useMemoizedFn } from 'ahooks';
 
@@ -18,6 +17,7 @@ import { configureMonacoToUseYaml } from './yamlHelper';
 //https://github.com/brijeshb42/monaco-ace-tokenizer
 
 import { Editor as DynamicEditor } from '@monaco-editor/react';
+import { useTheme } from 'next-themes';
 
 const useStyles = createStyles(({ token }) => ({
   code: {
@@ -77,7 +77,7 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
   ) => {
     const { cx, styles } = useStyles();
 
-    const isDarkModeContext = useBusterStylesContext((s) => s.isDarkMode);
+    const isDarkModeContext = useTheme()?.theme === 'dark';
     const useDarkMode = isDarkMode ?? isDarkModeContext;
 
     const memoizedMonacoEditorOptions: editor.IStandaloneEditorConstructionOptions = useMemo(() => {

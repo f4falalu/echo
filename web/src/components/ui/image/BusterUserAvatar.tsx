@@ -3,7 +3,6 @@ import { Avatar, AvatarProps } from 'antd';
 import { getFirstTwoCapitalizedLetters } from '@/lib/text';
 import { AppTooltip } from '../tooltip';
 import type { GroupProps } from 'antd/es/avatar';
-import { useBusterStylesContext } from '@/context/BusterStyles/BusterStyles';
 import BusterIconWhite from '@/assets/png/buster_icon_small_white.png';
 import BusterIconBlack from '@/assets/png/buster_icon_small_black.png';
 import { createStyles } from 'antd-style';
@@ -147,7 +146,7 @@ export const BusterAvatar: React.FC<{
 BusterAvatar.displayName = 'BusterAvatar';
 
 const BusterImage: React.FC = () => {
-  const isDarkMode = useBusterStylesContext((s) => s.isDarkMode);
+  const isDarkMode = false;
   const image = isDarkMode ? BusterIconBlack.src : BusterIconWhite.src;
 
   return (
