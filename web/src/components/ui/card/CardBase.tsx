@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 const sizeVariants = cva('', {
   variants: {
     size: {
+      xsmall: 'h-[32px] min-h-[32px] px-2.5',
       small: 'p-2.5',
       default: 'p-4'
     }
@@ -19,7 +20,7 @@ const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElemen
     <div
       ref={ref}
       className={cn(
-        'bg-background text-foreground overflow-hidden rounded border shadow',
+        'bg-background text-foreground flex flex-col overflow-hidden rounded border shadow',
         className
       )}
       {...props}

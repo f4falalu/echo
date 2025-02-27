@@ -36,5 +36,3 @@ export const CircleSpinnerLoader: React.FC<{
     </div>
   );
 };
-
-export default CircleSpinnerLoader;

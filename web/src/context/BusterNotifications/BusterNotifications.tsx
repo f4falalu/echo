@@ -1,7 +1,7 @@
+'use client';
+
 import React, { PropsWithChildren } from 'react';
-// import { App, ModalFuncProps } from 'antd';
 import { toast, type ExternalToast } from 'sonner';
-// import { createStyles } from 'antd-style';
 import { useMemoizedFn } from 'ahooks';
 import {
   useContextSelector,
@@ -22,35 +22,7 @@ export interface NotificationProps {
   };
 }
 
-// const useStyles = createStyles(({ token, css }) => ({
-//   modal: css`
-//     .busterv2-modal-body {
-//       padding: 0px !important;
-//     }
-
-//     .busterv2-modal-confirm-body {
-//       padding: 24px 32px 16px 32px !important;
-//     }
-
-//     .busterv2-modal-confirm-btns {
-//       margin-top: 0px !important;
-//       padding: 12px 32px !important;
-//       border-top: 0.5px solid ${token.colorBorder};
-//       display: flex;
-//       align-items: center;
-//       justify-content: flex-end;
-//     }
-
-//     .busterv2-modal-confirm-content {
-//       color: ${token.colorTextSecondary} !important;
-//     }
-//   `
-// }));
-
 export const useBusterNotificationsInternal = () => {
-  // const { message, notification, modal } = App.useApp();
-  // const { cx, styles } = useStyles();
-
   const openNotification = useMemoizedFn((props: NotificationProps) => {
     const { title, message, type } = props;
 

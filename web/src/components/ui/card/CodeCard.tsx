@@ -1,11 +1,11 @@
-import { createStyles } from 'antd-style';
 import React from 'react';
-import { Text } from '@/components/ui';
-import { AppCodeEditor } from '../inputs/AppCodeEditor';
-import { Button } from 'antd';
-import { AppMaterialIcons } from '../icons';
+import { AppCodeEditor } from '../inputs/AppCodeEditor/AppCodeEditor';
+import { Download, Copy } from '../icons';
 import { useMemoizedFn } from 'ahooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { cn } from '@/lib/classMerge';
+import { Button } from '../buttons/Button';
+import { Card, CardHeader, CardContent, CardDescription, CardFooter, CardTitle } from './CardBase';
 
 export const CodeCard: React.FC<{
   code: string;
@@ -28,22 +28,17 @@ export const CodeCard: React.FC<{
   onChange,
   readOnly = false
 }) => {
-  const { styles, cx } = useStyles();
-
   const ShownButtons = buttons === true ? <CardButtons fileName={fileName} code={code} /> : buttons;
 
   return (
-    <div className={cx(styles.container, className)}>
-      <div
-        className={cx(
-          styles.containerHeader,
-          'flex items-center justify-between space-x-1 px-2.5'
-        )}>
-        <Text className="truncate">{fileName}</Text>
-
-        {ShownButtons}
-      </div>
-      <div className={cx(styles.containerBody, bodyClassName)}>
+    <Card className={cn('h-full', className)}>
+      <CardHeader variant={'gray'} size={'xsmall'} className="justify-center">
+        <div className="flex items-center justify-between gap-x-1">
+          <span className="truncate text-base">{fileName}</span>
+          {ShownButtons}
+        </div>
+      </CardHeader>
+      <CardContent className={cn('bg-background overflow-hidden p-0', bodyClassName)}>
         <AppCodeEditor
           language={language}
           value={code}
@@ -52,8 +47,8 @@ export const CodeCard: React.FC<{
           height="100%"
           onMetaEnter={onMetaEnter}
         />
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
@@ -90,15 +85,10 @@ const CardButtons: React.FC<{
 
   return (
     <div className="flex items-center gap-1">
+      <Button variant="ghost" prefix={<Copy />} onClick={handleCopyCode} title="Copy code" />
       <Button
-        type="text"
-        icon={<AppMaterialIcons icon="content_copy" />}
-        onClick={handleCopyCode}
-        title="Copy code"
-      />
-      <Button
-        type="text"
-        icon={<AppMaterialIcons icon="download" />}
+        variant="ghost"
+        prefix={<Download />}
         onClick={handleDownload}
         title="Download file"
       />
@@ -106,18 +96,3 @@ const CardButtons: React.FC<{
   );
 });
 CardButtons.displayName = 'CardButtons';
-
-const useStyles = createStyles(({ token, css }) => ({
-  container: css`
-    border-radius: ${token.borderRadius}px;
-    border: 0.5px solid ${token.colorBorder};
-  `,
-  containerHeader: css`
-    background: ${token.controlItemBgActive};
-    border-bottom: 0.5px solid ${token.colorBorder};
-    height: 32px;
-  `,
-  containerBody: css`
-    background: ${token.colorBgBase};
-  `
-}));

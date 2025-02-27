@@ -1,4 +1,3 @@
-export * from './useThemeDetector';
 export * from './usePreventBackwardsNavigation';
 export * from './useIsShowingEllipsis';
 export * from './useBeforeUnload';
