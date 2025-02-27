@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useMemo, useCallback, useRef, useState } from 'react';
 import Pane from './pane';
 import SplitPaneSash from './sash';
