@@ -13,7 +13,10 @@ use uuid::Uuid;
 
 use crate::{
     database_dep::{lib::get_pg_pool, models::DashboardFile, schema::dashboard_files},
-    utils::{agent::Agent, tools::{file_tools::common::DASHBOARD_YML_SCHEMA, ToolExecutor}},
+    utils::{
+        agent::Agent,
+        tools::{file_tools::common::DASHBOARD_YML_SCHEMA, ToolExecutor},
+    },
 };
 
 use super::{
@@ -178,6 +181,8 @@ impl ToolExecutor for CreateDashboardFilesTool {
                             name: dashboard_records[i].name.clone(),
                             file_type: "dashboard".to_string(),
                             yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
+                            result_message: None,
+                            results: None,
                         });
                     }
                 }

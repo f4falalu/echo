@@ -9,6 +9,7 @@ pub struct DashboardYml {
     pub updated_at: Option<DateTime<Utc>>,
     #[serde(alias = "title")]
     pub name: String,
+    pub description: Option<String>,
     pub rows: Vec<Row>,
 }
 

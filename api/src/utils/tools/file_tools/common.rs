@@ -1,15 +1,32 @@
 use anyhow::{anyhow, Result};
-use tracing::debug;
+use indexmap::IndexMap;
+use tracing::{debug, error};
 use uuid::Uuid;
+use chrono::{Utc, Duration};
+use serde::{Deserialize, Serialize};
+use serde_json;
+use serde_yaml;
 
-use crate::database_dep::{lib::get_pg_pool, schema::metric_files};
+use crate::database_dep::{
+    lib::get_pg_pool, 
+    schema::metric_files, 
+    models::MetricFile,
+    enums::Verification
+};
+use crate::utils::data_types::DataType;
 use crate::utils::query_engine::query_engine::query_engine;
+use crate::utils::tools::file_tools::file_types::metric_yml::MetricYml;
+use crate::utils::tools::file_tools::file_types::file::FileWithId;
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 
+// Import the types needed for the modification function
+use crate::utils::tools::file_tools::modify_metric_files::{FileModification, ModificationResult};
+use crate::utils::tools::file_tools::modify_metric_files::apply_modifications_to_content;
+
 /// Validates SQL query using existing query engine by attempting to run it
-/// Returns Ok(()) if valid, Err with description if invalid
-pub async fn validate_sql(sql: &str, dataset_id: &Uuid) -> Result<()> {
+/// Returns a tuple with a message about the number of records and the results (if ≤ 13 records)
+pub async fn validate_sql(sql: &str, dataset_id: &Uuid) -> Result<(String, Vec<IndexMap<String, DataType>>)> {
     debug!("Validating SQL query for dataset {}", dataset_id);
 
     if sql.trim().is_empty() {
@@ -17,10 +34,28 @@ pub async fn validate_sql(sql: &str, dataset_id: &Uuid) -> Result<()> {
     }
 
     // Try to execute the query using query_engine
-    match query_engine(dataset_id, &sql.to_string()).await {
-        Ok(_) => Ok(()),
-        Err(e) => Err(anyhow!("SQL validation failed: {}", e)),
-    }
+    let results = match query_engine(dataset_id, &sql.to_string()).await {
+        Ok(results) => results,
+        Err(e) => return Err(anyhow!("SQL validation failed: {}", e)),
+    };
+
+    let num_records = results.len();
+    
+    // Create appropriate message based on number of records
+    let message = if num_records == 0 {
+        "No records were found".to_string()
+    } else {
+        format!("{} records were returned", num_records)
+    };
+    
+    // Return records only if there are 13 or fewer
+    let return_records = if num_records <= 13 {
+        results
+    } else {
+        Vec::new() // Empty vec when more than 13 records
+    };
+    
+    Ok((message, return_records))
 }
 
 /// Validates existence of metric IDs in database
@@ -52,7 +87,7 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 # Required top-level fields:
 #
 # title: "Your Metric Title"
-# dataset_ids: ["uuid1", "uuid2"]  # Dataset UUIDs this metric belongs to
+# dataset_ids: ["123e4567-e89b-12d3-a456-426614174000"]  # Dataset UUIDs (not names)
 # time_frame: "Last 30 days"  # Human-readable time period covered by the query
 # sql: |
 #   SELECT 
@@ -103,6 +138,10 @@ properties:
   dataset_ids:
     type: array
     description: "UUIDs of datasets this metric belongs to"
+    items:
+      type: string
+      format: "uuid"
+      description: "UUID string of the dataset (not the dataset name)"
     
   # TIME FRAME
   time_frame:
@@ -437,6 +476,7 @@ pub const DASHBOARD_YML_SCHEMA: &str = r##"
 # Required fields:
 #
 # title: "Your Dashboard Title"
+# description: "A description of the dashboard, it's metrics, and its purpose."
 # rows: 
 #   - items:
 #       - id: "metric-uuid-1"  # UUIDv4 of an existing metric
@@ -460,6 +500,9 @@ properties:
   title:
     type: string
     description: "The title of the dashboard (e.g. 'Sales & Marketing Dashboard')"
+  description:
+    type: string
+    description: "A description of the dashboard, its metrics, and its purpose"
   rows:
     type: array
     description: "Array of row objects, each containing metric items"
@@ -488,8 +531,280 @@ properties:
         - items
 required:
   - title
+  - description
   - rows
 "##;
+
+/// Process a metric file creation request
+/// Returns Ok((MetricFile, MetricYml, String, Vec<IndexMap<String, DataType>))) if successful, or an error message if failed
+/// The string is a message about the number of records returned by the SQL query
+/// The vector of IndexMap<String, DataType> is the results of the SQL query.  Returns empty vector if more than 13 records or no results.
+pub async fn process_metric_file(
+    file_name: String,
+    yml_content: String,
+) -> Result<
+    (
+        MetricFile,
+        MetricYml,
+        String,
+        Vec<IndexMap<String, DataType>>,
+    ),
+    String,
+> {
+    debug!("Processing metric file: {}", file_name);
+
+    let metric_yml = MetricYml::new(yml_content.clone())
+        .map_err(|e| format!("Invalid YAML format: {}", e))?;
+
+    let metric_id = metric_yml
+        .id
+        .ok_or_else(|| "Missing required field 'id'".to_string())?;
+
+    // Check if dataset_ids is empty
+    if metric_yml.dataset_ids.is_empty() {
+        return Err("Missing required field 'dataset_ids'".to_string());
+    }
+
+    // Use the first dataset_id for SQL validation
+    let dataset_id = metric_yml.dataset_ids[0];
+    debug!("Validating SQL using dataset_id: {}", dataset_id);
+
+    // Validate SQL with the selected dataset_id and get results
+    let (message, results) = match validate_sql(&metric_yml.sql, &dataset_id).await {
+        Ok(results) => results,
+        Err(e) => return Err(format!("Invalid SQL query: {}", e)),
+    };
+
+    let metric_file = MetricFile {
+        id: metric_id,
+        name: metric_yml.title.clone(),
+        file_name: format!("{}.yml", file_name),
+        content: serde_json::to_value(metric_yml.clone())
+            .map_err(|e| format!("Failed to process metric: {}", e))?,
+        created_by: Uuid::new_v4(),
+        verification: Verification::NotRequested,
+        evaluation_obj: None,
+        evaluation_summary: None,
+        evaluation_score: None,
+        organization_id: Uuid::new_v4(),
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+        deleted_at: None,
+    };
+
+    Ok((metric_file, metric_yml, message, results))
+}
+
+/// Process a metric file modification request
+/// Returns Ok((MetricFile, MetricYml, Vec<ModificationResult>, String, Vec<IndexMap<String, DataType>>)) if successful, or an error if failed
+/// The string is a message about the number of records returned by the SQL query
+/// The vector of IndexMap<String, DataType> is the results of the SQL query. Returns empty vector if more than 13 records or no results.
+pub async fn process_metric_file_modification(
+    mut file: MetricFile,
+    modification: &FileModification,
+    duration: i64,
+) -> Result<(MetricFile, MetricYml, Vec<ModificationResult>, String, Vec<IndexMap<String, DataType>>), anyhow::Error> {
+    debug!(
+        file_id = %file.id,
+        file_name = %modification.file_name,
+        "Processing metric file modifications"
+    );
+
+    let mut results = Vec::new();
+
+    // Parse existing content
+    let current_yml: MetricYml = match serde_json::from_value(file.content.clone()) {
+        Ok(yml) => yml,
+        Err(e) => {
+            let error = format!("Failed to parse existing metric YAML: {}", e);
+            error!(
+                file_id = %file.id,
+                file_name = %modification.file_name,
+                error = %error,
+                "YAML parsing error"
+            );
+            results.push(ModificationResult {
+                file_id: file.id,
+                file_name: modification.file_name.clone(),
+                success: false,
+                original_lines: vec![],
+                adjusted_lines: vec![],
+                error: Some(error.clone()),
+                modification_type: "parsing".to_string(),
+                timestamp: Utc::now(),
+                duration,
+            });
+            return Err(anyhow!(error));
+        }
+    };
+
+    // Convert to YAML string for line modifications
+    let current_content = match serde_yaml::to_string(&current_yml) {
+        Ok(content) => content,
+        Err(e) => {
+            let error = format!("Failed to serialize metric YAML: {}", e);
+            error!(
+                file_id = %file.id,
+                file_name = %modification.file_name,
+                error = %error,
+                "YAML serialization error"
+            );
+            results.push(ModificationResult {
+                file_id: file.id,
+                file_name: modification.file_name.clone(),
+                success: false,
+                original_lines: vec![],
+                adjusted_lines: vec![],
+                error: Some(error.clone()),
+                modification_type: "serialization".to_string(),
+                timestamp: Utc::now(),
+                duration,
+            });
+            return Err(anyhow!(error));
+        }
+    };
+
+    // Track original line numbers before modifications
+    let mut original_lines = Vec::new();
+    let mut adjusted_lines = Vec::new();
+
+    // Apply modifications
+    for m in &modification.modifications {
+        original_lines.extend(m.line_numbers.clone());
+    }
+
+    // Apply modifications and track results
+    match apply_modifications_to_content(
+        &current_content,
+        &modification.modifications,
+        &modification.file_name,
+    ) {
+        Ok(modified_content) => {
+            // Create and validate new YML object
+            match MetricYml::new(modified_content) {
+                Ok(new_yml) => {
+                    debug!(
+                        file_id = %file.id,
+                        file_name = %modification.file_name,
+                        "Successfully modified and validated metric file"
+                    );
+
+                    // Check if dataset_ids is empty
+                    if new_yml.dataset_ids.is_empty() {
+                        let error = "Missing required field 'dataset_ids'".to_string();
+                        error!(
+                            file_id = %file.id,
+                            file_name = %modification.file_name,
+                            error = %error,
+                            "Validation error"
+                        );
+                        results.push(ModificationResult {
+                            file_id: file.id,
+                            file_name: modification.file_name.clone(),
+                            success: false,
+                            original_lines: original_lines.clone(),
+                            adjusted_lines: adjusted_lines.clone(),
+                            error: Some(error.clone()),
+                            modification_type: "validation".to_string(),
+                            timestamp: Utc::now(),
+                            duration,
+                        });
+                        return Err(anyhow!(error));
+                    }
+
+                    // Validate SQL with the selected dataset_id and get results
+                    let dataset_id = new_yml.dataset_ids[0];
+                    let (message, validation_results) = match validate_sql(&new_yml.sql, &dataset_id).await {
+                        Ok(results) => results,
+                        Err(e) => {
+                            let error = format!("Invalid SQL query: {}", e);
+                            error!(
+                                file_id = %file.id,
+                                file_name = %modification.file_name,
+                                error = %error,
+                                "SQL validation error"
+                            );
+                            results.push(ModificationResult {
+                                file_id: file.id,
+                                file_name: modification.file_name.clone(),
+                                success: false,
+                                original_lines: original_lines.clone(),
+                                adjusted_lines: adjusted_lines.clone(),
+                                error: Some(error.clone()),
+                                modification_type: "sql_validation".to_string(),
+                                timestamp: Utc::now(),
+                                duration,
+                            });
+                            return Err(anyhow!(error));
+                        }
+                    };
+
+                    // Update file record
+                    file.content = serde_json::to_value(&new_yml)?;
+                    file.updated_at = Utc::now();
+                    file.verification = Verification::NotRequested;
+
+                    // Track successful modification
+                    results.push(ModificationResult {
+                        file_id: file.id,
+                        file_name: modification.file_name.clone(),
+                        success: true,
+                        original_lines: original_lines.clone(),
+                        adjusted_lines: adjusted_lines.clone(),
+                        error: None,
+                        modification_type: "content".to_string(),
+                        timestamp: Utc::now(),
+                        duration,
+                    });
+
+                    Ok((file, new_yml, results, message, validation_results))
+                }
+                Err(e) => {
+                    let error = format!("Failed to validate modified YAML: {}", e);
+                    error!(
+                        file_id = %file.id,
+                        file_name = %modification.file_name,
+                        error = %error,
+                        "YAML validation error"
+                    );
+                    results.push(ModificationResult {
+                        file_id: file.id,
+                        file_name: modification.file_name.clone(),
+                        success: false,
+                        original_lines,
+                        adjusted_lines: vec![],
+                        error: Some(error.clone()),
+                        modification_type: "validation".to_string(),
+                        timestamp: Utc::now(),
+                        duration,
+                    });
+                    Err(anyhow!(error))
+                }
+            }
+        }
+        Err(e) => {
+            let error = format!("Failed to apply modifications: {}", e);
+            error!(
+                file_id = %file.id,
+                file_name = %modification.file_name,
+                error = %error,
+                "Modification application error"
+            );
+            results.push(ModificationResult {
+                file_id: file.id,
+                file_name: modification.file_name.clone(),
+                success: false,
+                original_lines,
+                adjusted_lines: vec![],
+                error: Some(error.clone()),
+                modification_type: "modification".to_string(),
+                timestamp: Utc::now(),
+                duration,
+            });
+            Err(anyhow!(error))
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {

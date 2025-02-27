@@ -6,6 +6,7 @@ use async_trait::async_trait;
 use chrono::Utc;
 use diesel::{upsert::excluded, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tracing::{debug, error, info, warn};
@@ -27,7 +28,16 @@ use crate::{
         models::{DashboardFile, MetricFile},
         schema::{dashboard_files, metric_files},
     },
-    utils::{agent::Agent, tools::ToolExecutor},
+    utils::{
+        agent::Agent,
+        data_types::DataType,
+        tools::{
+            file_tools::{
+                common::{METRIC_YML_SCHEMA, process_metric_file_modification},
+            },
+            ToolExecutor,
+        },
+    },
 };
 
 use litellm::ToolCall;
@@ -77,6 +87,8 @@ struct FileModificationBatch {
     metric_ymls: Vec<MetricYml>,
     failed_modifications: Vec<(String, String)>,
     modification_results: Vec<ModificationResult>,
+    validation_messages: Vec<String>,
+    validation_results: Vec<Vec<IndexMap<String, DataType>>>,
 }
 
 #[derive(Debug)]
@@ -232,20 +244,20 @@ pub struct ModifyFilesOutput {
     files: Vec<FileWithId>,
 }
 
-pub struct FilterDashboardFilesTool {
+pub struct FilterDashboardsTool {
     agent: Arc<Agent>,
 }
 
-impl FilterDashboardFilesTool {
+impl FilterDashboardsTool {
     pub fn new(agent: Arc<Agent>) -> Self {
         Self { agent }
     }
 }
 
-impl FileModificationTool for FilterDashboardFilesTool {}
+impl FileModificationTool for FilterDashboardsTool {}
 
 #[async_trait]
-impl ToolExecutor for FilterDashboardFilesTool {
+impl ToolExecutor for FilterDashboardsTool {
     type Output = ModifyFilesOutput;
     type Params = ModifyFilesParams;
 
@@ -277,6 +289,8 @@ impl ToolExecutor for FilterDashboardFilesTool {
             metric_ymls: Vec::new(),
             failed_modifications: Vec::new(),
             modification_results: Vec::new(),
+            validation_messages: Vec::new(),
+            validation_results: Vec::new(),
         };
 
         // Collect file IDs and create map
@@ -309,17 +323,19 @@ impl ToolExecutor for FilterDashboardFilesTool {
                 Ok(files) => {
                     for file in files {
                         if let Some(modifications) = file_map.get(&file.id) {
-                            match process_metric_file(
+                            match process_metric_file_modification(
                                 file,
                                 modifications,
                                 start_time.elapsed().as_millis() as i64,
                             )
                             .await
                             {
-                                Ok((metric_file, metric_yml, results)) => {
+                                Ok((metric_file, metric_yml, results, validation_message, validation_results)) => {
                                     batch.metric_files.push(metric_file);
                                     batch.metric_ymls.push(metric_yml);
                                     batch.modification_results.extend(results);
+                                    batch.validation_messages.push(validation_message);
+                                    batch.validation_results.push(validation_results);
                                 }
                                 Err(e) => {
                                     batch
@@ -366,14 +382,17 @@ impl ToolExecutor for FilterDashboardFilesTool {
             {
                 Ok(_) => {
                     output.files.extend(
-                        batch.metric_files.iter().zip(batch.metric_ymls.iter()).map(
-                            |(file, yml)| FileWithId {
+                        batch.metric_files.iter().enumerate().map(|(i, file)| {
+                            let yml = &batch.metric_ymls[i];
+                            FileWithId {
                                 id: file.id,
                                 name: file.name.clone(),
                                 file_type: "metric".to_string(),
                                 yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
-                            },
-                        ),
+                                validation_message: Some(batch.validation_messages[i].clone()),
+                                validation_results: Some(batch.validation_results[i].clone()),
+                            }
+                        }),
                     );
                 }
                 Err(e) => {
@@ -480,189 +499,6 @@ impl ToolExecutor for FilterDashboardFilesTool {
                 "additionalProperties": false
             }
         })
-    }
-}
-
-async fn process_metric_file(
-    mut file: MetricFile,
-    modification: &FileModification,
-    duration: i64,
-) -> Result<(MetricFile, MetricYml, Vec<ModificationResult>)> {
-    debug!(
-        file_id = %file.id,
-        file_name = %modification.file_name,
-        "Processing metric file modifications"
-    );
-
-    let mut results = Vec::new();
-
-    // Parse existing content
-    let current_yml: MetricYml = match serde_json::from_value(file.content.clone()) {
-        Ok(yml) => yml,
-        Err(e) => {
-            let error = format!("Failed to parse existing metric YAML: {}", e);
-            error!(
-                file_id = %file.id,
-                file_name = %modification.file_name,
-                error = %error,
-                "YAML parsing error"
-            );
-            results.push(ModificationResult {
-                file_id: file.id,
-                file_name: modification.file_name.clone(),
-                success: false,
-                original_lines: vec![],
-                adjusted_lines: vec![],
-                error: Some(error.clone()),
-                modification_type: "parsing".to_string(),
-                timestamp: Utc::now(),
-                duration,
-            });
-            return Err(anyhow::anyhow!(error));
-        }
-    };
-
-    // Convert to YAML string for line modifications
-    let current_content = match serde_yaml::to_string(&current_yml) {
-        Ok(content) => content,
-        Err(e) => {
-            let error = format!("Failed to serialize metric YAML: {}", e);
-            error!(
-                file_id = %file.id,
-                file_name = %modification.file_name,
-                error = %error,
-                "YAML serialization error"
-            );
-            results.push(ModificationResult {
-                file_id: file.id,
-                file_name: modification.file_name.clone(),
-                success: false,
-                original_lines: vec![],
-                adjusted_lines: vec![],
-                error: Some(error.clone()),
-                modification_type: "serialization".to_string(),
-                timestamp: Utc::now(),
-                duration,
-            });
-            return Err(anyhow::anyhow!(error));
-        }
-    };
-
-    // Track original line numbers before modifications
-    let mut original_lines = Vec::new();
-    let mut adjusted_lines = Vec::new();
-
-    // Apply modifications
-    for m in &modification.modifications {
-        original_lines.extend(m.line_numbers.clone());
-    }
-
-    // Apply modifications and track results
-    match apply_modifications_to_content(
-        &current_content,
-        &modification.modifications,
-        &modification.file_name,
-    ) {
-        Ok(modified_content) => {
-            // Create and validate new YML object
-            match MetricYml::new(modified_content) {
-                Ok(new_yml) => {
-                    debug!(
-                        file_id = %file.id,
-                        file_name = %modification.file_name,
-                        "Successfully modified and validated metric file"
-                    );
-
-                    // Validate SQL if it was modified
-                    let sql_changed = current_yml.sql != new_yml.sql;
-                    if sql_changed {
-                        if let Err(e) = validate_sql(&new_yml.sql, &file.id).await {
-                            let error = format!("SQL validation failed: {}", e);
-                            error!(
-                                file_id = %file.id,
-                                file_name = %modification.file_name,
-                                error = %error,
-                                "SQL validation error"
-                            );
-                            results.push(ModificationResult {
-                                file_id: file.id,
-                                file_name: modification.file_name.clone(),
-                                success: false,
-                                original_lines: original_lines.clone(),
-                                adjusted_lines: adjusted_lines.clone(),
-                                error: Some(error.clone()),
-                                modification_type: "sql_validation".to_string(),
-                                timestamp: Utc::now(),
-                                duration,
-                            });
-                            return Err(anyhow::anyhow!(error));
-                        }
-                    }
-
-                    // Update file record
-                    file.content = serde_json::to_value(&new_yml)?;
-                    file.updated_at = Utc::now();
-                    file.verification = Verification::NotRequested;
-
-                    // Track successful modification
-                    results.push(ModificationResult {
-                        file_id: file.id,
-                        file_name: modification.file_name.clone(),
-                        success: true,
-                        original_lines: original_lines.clone(),
-                        adjusted_lines: adjusted_lines.clone(),
-                        error: None,
-                        modification_type: "content".to_string(),
-                        timestamp: Utc::now(),
-                        duration,
-                    });
-
-                    Ok((file, new_yml, results))
-                }
-                Err(e) => {
-                    let error = format!("Failed to validate modified YAML: {}", e);
-                    error!(
-                        file_id = %file.id,
-                        file_name = %modification.file_name,
-                        error = %error,
-                        "YAML validation error"
-                    );
-                    results.push(ModificationResult {
-                        file_id: file.id,
-                        file_name: modification.file_name.clone(),
-                        success: false,
-                        original_lines,
-                        adjusted_lines: vec![],
-                        error: Some(error.clone()),
-                        modification_type: "validation".to_string(),
-                        timestamp: Utc::now(),
-                        duration,
-                    });
-                    Err(anyhow::anyhow!(error))
-                }
-            }
-        }
-        Err(e) => {
-            let error = format!("Failed to apply modifications: {}", e);
-            error!(
-                file_id = %file.id,
-                file_name = %modification.file_name,
-                error = %error,
-                "Modification application error"
-            );
-            results.push(ModificationResult {
-                file_id: file.id,
-                file_name: modification.file_name.clone(),
-                success: false,
-                original_lines,
-                adjusted_lines: vec![],
-                error: Some(error.clone()),
-                modification_type: "modification".to_string(),
-                timestamp: Utc::now(),
-                duration,
-            });
-            Err(anyhow::anyhow!(error))
-        }
     }
 }
 
@@ -858,7 +694,7 @@ mod tests {
 
     #[test]
     fn test_tool_parameter_validation() {
-        let tool = FilterDashboardFilesTool {
+        let tool = FilterDashboardsTool {
             agent: Arc::new(Agent::new(
                 "o3-mini".to_string(),
                 HashMap::new(),

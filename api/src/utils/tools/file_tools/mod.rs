@@ -2,7 +2,7 @@ pub mod common;
 pub mod create_dashboard_files;
 pub mod create_metric_files;
 pub mod file_types;
-pub mod filter_dashboard_files;
+// pub mod filter_dashboards;
 pub mod modify_dashboard_files;
 pub mod modify_metric_files;
 pub mod open_files;
@@ -12,7 +12,7 @@ pub mod send_assets_to_user;
 
 pub use create_dashboard_files::CreateDashboardFilesTool;
 pub use create_metric_files::CreateMetricFilesTool;
-pub use filter_dashboard_files::FilterDashboardFilesTool;
+// pub use filter_dashboards::FilterDashboardsTool;
 pub use modify_dashboard_files::ModifyDashboardFilesTool;
 pub use modify_metric_files::ModifyMetricFilesTool;
 pub use open_files::OpenFilesTool;

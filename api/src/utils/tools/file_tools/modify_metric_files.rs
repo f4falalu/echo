@@ -10,10 +10,11 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tracing::{debug, error, info, warn};
 use uuid::Uuid;
+use indexmap::IndexMap;
 
 use super::{
     common::{validate_metric_ids, validate_sql},
-    file_types::{dashboard_yml::DashboardYml, file::{FileEnum, FileWithId}, metric_yml::MetricYml},
+    file_types::{dashboard_yml::DashboardYml, file::FileWithId, metric_yml::MetricYml},
     FileModificationTool,
 };
 use crate::{
@@ -23,7 +24,16 @@ use crate::{
         models::{DashboardFile, MetricFile},
         schema::{dashboard_files, metric_files},
     },
-    utils::{agent::Agent, tools::{file_tools::common::METRIC_YML_SCHEMA, ToolExecutor}},
+    utils::{
+        agent::Agent,
+        data_types::DataType,
+        tools::{
+            file_tools::{
+                common::{METRIC_YML_SCHEMA, process_metric_file_modification},
+            },
+            ToolExecutor,
+        },
+    },
 };
 
 use litellm::ToolCall;
@@ -55,16 +65,16 @@ pub struct ModifyFilesParams {
 }
 
 #[derive(Debug, Serialize)]
-struct ModificationResult {
-    file_id: Uuid,
-    file_name: String,
-    success: bool,
-    original_lines: Vec<i64>,
-    adjusted_lines: Vec<i64>,
-    error: Option<String>,
-    modification_type: String,
-    timestamp: chrono::DateTime<Utc>,
-    duration: i64,
+pub struct ModificationResult {
+    pub file_id: Uuid,
+    pub file_name: String,
+    pub success: bool,
+    pub original_lines: Vec<i64>,
+    pub adjusted_lines: Vec<i64>,
+    pub error: Option<String>,
+    pub modification_type: String,
+    pub timestamp: chrono::DateTime<Utc>,
+    pub duration: i64,
 }
 
 #[derive(Debug)]
@@ -73,6 +83,8 @@ struct FileModificationBatch {
     metric_ymls: Vec<MetricYml>,
     failed_modifications: Vec<(String, String)>,
     modification_results: Vec<ModificationResult>,
+    validation_messages: Vec<String>,
+    validation_results: Vec<Vec<IndexMap<String, DataType>>>,
 }
 
 #[derive(Debug)]
@@ -153,7 +165,7 @@ fn expand_line_range(line_numbers: &[i64]) -> Vec<i64> {
     (start..=end).collect()
 }
 
-fn apply_modifications_to_content(
+pub fn apply_modifications_to_content(
     content: &str,
     modifications: &[Modification],
     file_name: &str,
@@ -272,6 +284,8 @@ impl ToolExecutor for ModifyMetricFilesTool {
             metric_ymls: Vec::new(),
             failed_modifications: Vec::new(),
             modification_results: Vec::new(),
+            validation_messages: Vec::new(),
+            validation_results: Vec::new(),
         };
 
         // Collect file IDs and create map
@@ -304,17 +318,19 @@ impl ToolExecutor for ModifyMetricFilesTool {
                 Ok(files) => {
                     for file in files {
                         if let Some(modifications) = file_map.get(&file.id) {
-                            match process_metric_file(
+                            match process_metric_file_modification(
                                 file,
                                 modifications,
                                 start_time.elapsed().as_millis() as i64,
                             )
                             .await
                             {
-                                Ok((metric_file, metric_yml, results)) => {
+                                Ok((metric_file, metric_yml, results, validation_message, validation_results)) => {
                                     batch.metric_files.push(metric_file);
                                     batch.metric_ymls.push(metric_yml);
                                     batch.modification_results.extend(results);
+                                    batch.validation_messages.push(validation_message);
+                                    batch.validation_results.push(validation_results);
                                 }
                                 Err(e) => {
                                     batch
@@ -361,12 +377,17 @@ impl ToolExecutor for ModifyMetricFilesTool {
             {
                 Ok(_) => {
                     output.files.extend(
-                        batch.metric_files.iter().zip(batch.metric_ymls.iter()).map(|(file, yml)| FileWithId {
-                            id: file.id,
-                            name: file.name.clone(),
-                            file_type: "metric".to_string(),
-                            yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
-                        })
+                        batch.metric_files.iter().enumerate().map(|(i, file)| {
+                            let yml = &batch.metric_ymls[i];
+                            FileWithId {
+                                id: file.id,
+                                name: file.name.clone(),
+                                file_type: "metric".to_string(),
+                                yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
+                                result_message: Some(batch.validation_messages[i].clone()),
+                                results: Some(batch.validation_results[i].clone()),
+                            }
+                        }),
                     );
                 }
                 Err(e) => {
@@ -468,189 +489,6 @@ impl ToolExecutor for ModifyMetricFilesTool {
               "additionalProperties": false
             }
           })
-    }
-}
-
-async fn process_metric_file(
-    mut file: MetricFile,
-    modification: &FileModification,
-    duration: i64,
-) -> Result<(MetricFile, MetricYml, Vec<ModificationResult>)> {
-    debug!(
-        file_id = %file.id,
-        file_name = %modification.file_name,
-        "Processing metric file modifications"
-    );
-
-    let mut results = Vec::new();
-
-    // Parse existing content
-    let current_yml: MetricYml = match serde_json::from_value(file.content.clone()) {
-        Ok(yml) => yml,
-        Err(e) => {
-            let error = format!("Failed to parse existing metric YAML: {}", e);
-            error!(
-                file_id = %file.id,
-                file_name = %modification.file_name,
-                error = %error,
-                "YAML parsing error"
-            );
-            results.push(ModificationResult {
-                file_id: file.id,
-                file_name: modification.file_name.clone(),
-                success: false,
-                original_lines: vec![],
-                adjusted_lines: vec![],
-                error: Some(error.clone()),
-                modification_type: "parsing".to_string(),
-                timestamp: Utc::now(),
-                duration,
-            });
-            return Err(anyhow::anyhow!(error));
-        }
-    };
-
-    // Convert to YAML string for line modifications
-    let current_content = match serde_yaml::to_string(&current_yml) {
-        Ok(content) => content,
-        Err(e) => {
-            let error = format!("Failed to serialize metric YAML: {}", e);
-            error!(
-                file_id = %file.id,
-                file_name = %modification.file_name,
-                error = %error,
-                "YAML serialization error"
-            );
-            results.push(ModificationResult {
-                file_id: file.id,
-                file_name: modification.file_name.clone(),
-                success: false,
-                original_lines: vec![],
-                adjusted_lines: vec![],
-                error: Some(error.clone()),
-                modification_type: "serialization".to_string(),
-                timestamp: Utc::now(),
-                duration,
-            });
-            return Err(anyhow::anyhow!(error));
-        }
-    };
-
-    // Track original line numbers before modifications
-    let mut original_lines = Vec::new();
-    let mut adjusted_lines = Vec::new();
-
-    // Apply modifications
-    for m in &modification.modifications {
-        original_lines.extend(m.line_numbers.clone());
-    }
-
-    // Apply modifications and track results
-    match apply_modifications_to_content(
-        &current_content,
-        &modification.modifications,
-        &modification.file_name,
-    ) {
-        Ok(modified_content) => {
-            // Create and validate new YML object
-            match MetricYml::new(modified_content) {
-                Ok(new_yml) => {
-                    debug!(
-                        file_id = %file.id,
-                        file_name = %modification.file_name,
-                        "Successfully modified and validated metric file"
-                    );
-
-                    // Validate SQL if it was modified
-                    let sql_changed = current_yml.sql != new_yml.sql;
-                    if sql_changed {
-                        if let Err(e) = validate_sql(&new_yml.sql, &file.id).await {
-                            let error = format!("SQL validation failed: {}", e);
-                            error!(
-                                file_id = %file.id,
-                                file_name = %modification.file_name,
-                                error = %error,
-                                "SQL validation error"
-                            );
-                            results.push(ModificationResult {
-                                file_id: file.id,
-                                file_name: modification.file_name.clone(),
-                                success: false,
-                                original_lines: original_lines.clone(),
-                                adjusted_lines: adjusted_lines.clone(),
-                                error: Some(error.clone()),
-                                modification_type: "sql_validation".to_string(),
-                                timestamp: Utc::now(),
-                                duration,
-                            });
-                            return Err(anyhow::anyhow!(error));
-                        }
-                    }
-
-                    // Update file record
-                    file.content = serde_json::to_value(&new_yml)?;
-                    file.updated_at = Utc::now();
-                    file.verification = Verification::NotRequested;
-
-                    // Track successful modification
-                    results.push(ModificationResult {
-                        file_id: file.id,
-                        file_name: modification.file_name.clone(),
-                        success: true,
-                        original_lines: original_lines.clone(),
-                        adjusted_lines: adjusted_lines.clone(),
-                        error: None,
-                        modification_type: "content".to_string(),
-                        timestamp: Utc::now(),
-                        duration,
-                    });
-
-                    Ok((file, new_yml, results))
-                }
-                Err(e) => {
-                    let error = format!("Failed to validate modified YAML: {}", e);
-                    error!(
-                        file_id = %file.id,
-                        file_name = %modification.file_name,
-                        error = %error,
-                        "YAML validation error"
-                    );
-                    results.push(ModificationResult {
-                        file_id: file.id,
-                        file_name: modification.file_name.clone(),
-                        success: false,
-                        original_lines,
-                        adjusted_lines: vec![],
-                        error: Some(error.clone()),
-                        modification_type: "validation".to_string(),
-                        timestamp: Utc::now(),
-                        duration,
-                    });
-                    Err(anyhow::anyhow!(error))
-                }
-            }
-        }
-        Err(e) => {
-            let error = format!("Failed to apply modifications: {}", e);
-            error!(
-                file_id = %file.id,
-                file_name = %modification.file_name,
-                error = %error,
-                "Modification application error"
-            );
-            results.push(ModificationResult {
-                file_id: file.id,
-                file_name: modification.file_name.clone(),
-                success: false,
-                original_lines,
-                adjusted_lines: vec![],
-                error: Some(error.clone()),
-                modification_type: "modification".to_string(),
-                timestamp: Utc::now(),
-                duration,
-            });
-            Err(anyhow::anyhow!(error))
-        }
     }
 }
 
