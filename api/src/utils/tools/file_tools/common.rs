@@ -65,7 +65,11 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 #   selected_chart_type: "bar"  # One of: bar, line, scatter, pie, combo, metric, table
 #   selected_view: "view_name"
 #   column_label_formats: {...}  # Required formatting for columns
-#   # Additional properties based on chart type
+#   bar_and_line_axis: {...}  # Required for bar and line charts OR
+#   scatter_axis: {...}  # Required for scatter charts OR
+#   pie_chart_axis: {...}  # Required for pie charts OR
+#   combo_chart_axis: {...}  # Required for combo charts OR
+#   metric_column_id: "column_id"  # Required for metric charts
 #
 # data_metadata:  # Column definitions
 #   - name: "date"
@@ -102,7 +106,7 @@ properties:
   # CHART CONFIGURATION
   chart_config:
     description: "Visualization settings (must match one chart type)"
-    oneOf:
+    oneOf: # REQUIRED
       - $ref: "#/definitions/bar_line_chart_config"
       - $ref: "#/definitions/scatter_chart_config"
       - $ref: "#/definitions/pie_chart_config"
@@ -177,7 +181,7 @@ definitions:
       - column_label_formats
 
   # COLUMN FORMATTING
-  i_column_label_format:
+  column_label_format:
     type: object
     properties:
       column_type:
@@ -248,6 +252,7 @@ definitions:
             type: string
             enum: ["stack", "group", "percentage-stack"]
         required:
+          - selected_chart_type
           - bar_and_line_axis
 
   scatter_chart_config:
@@ -272,6 +277,7 @@ definitions:
               - x
               - y
         required:
+          - selected_chart_type
           - scatter_axis
 
   pie_chart_config:
@@ -296,6 +302,7 @@ definitions:
               - x
               - y
         required:
+          - selected_chart_type
           - pie_chart_axis
 
   combo_chart_config:
@@ -320,6 +327,7 @@ definitions:
               - x
               - y
         required:
+          - selected_chart_type
           - combo_chart_axis
 
   metric_chart_config:
@@ -335,6 +343,7 @@ definitions:
             type: string
             enum: ["sum", "average", "median", "max", "min", "count", "first"]
         required:
+          - selected_chart_type
           - metric_column_id
 
   table_chart_config:
@@ -348,6 +357,9 @@ definitions:
             type: array
             items:
               type: string
+        required:
+          - selected_chart_type
+          # No additional required fields for table chart
 
   # HELPER OBJECTS
   goal_line:
@@ -432,7 +444,6 @@ required:
   - title
   - rows
 "##;
-
 
 #[cfg(test)]
 mod tests {

@@ -115,13 +115,16 @@ impl ToolExecutor for CreateMetricFilesTool {
     type Params = CreateMetricFilesParams;
 
     fn get_name(&self) -> String {
-        "create_metric_files".to_string()
+        "create_metrics".to_string()
     }
 
     async fn is_enabled(&self) -> bool {
-        match self.agent.get_state_value("data_context").await {
-            Some(_) => true,
-            None => false,
+        match (
+            self.agent.get_state_value("data_context").await,
+            self.agent.get_state_value("plan_available").await,
+        ) {
+            (Some(_), Some(_)) => true,
+            _ => false,
         }
     }
 
@@ -231,7 +234,7 @@ impl ToolExecutor for CreateMetricFilesTool {
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-          "name": "create_metric_files",
+          "name": self.get_name(),
           "description": "Creates metric configuration files with YAML content following the metric schema specification",
           "strict": true,
           "parameters": {

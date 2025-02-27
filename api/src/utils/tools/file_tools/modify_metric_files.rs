@@ -246,13 +246,16 @@ impl ToolExecutor for ModifyMetricFilesTool {
     type Params = ModifyFilesParams;
 
     fn get_name(&self) -> String {
-        "modify_metric_files".to_string()
+        "update_metrics".to_string()
     }
 
     async fn is_enabled(&self) -> bool {
-        match self.agent.get_state_value("metrics_available").await {
-            Some(_) => true,
-            None => false,
+        match (
+            self.agent.get_state_value("metrics_available").await,
+            self.agent.get_state_value("plan_available").await,
+        ) {
+            (Some(_), Some(_)) => true,
+            _ => false,
         }
     }
 
@@ -404,7 +407,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "bulk_modify_metrics",
+            "name": self.get_name(),
             "description": "Modifies existing metric configuration files by applying specified modifications to their content",
             "strict": true,
             "parameters": {
