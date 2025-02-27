@@ -1,5 +1,6 @@
 ---
 description: Rules for new stories
 globs: src/components/**/*.stories.tsx
+alwaysApply: false
 ---
-All new stories title with "Base/{componentName}" unless specified otherwise.
+All new stories title with "UI/directory/{componentName}" unless specified otherwise.

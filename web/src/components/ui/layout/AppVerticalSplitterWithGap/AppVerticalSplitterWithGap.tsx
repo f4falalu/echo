@@ -4,7 +4,7 @@ import { SQLContainer } from './SQLContainer';
 import { DataContainer } from './DataContainer';
 import type { IDataResult } from '@/api/asset_interfaces';
 
-export interface AppVerticalCodeSplitterProps {
+export interface AppVerticalSplitterWithGapProps {
   sql: string;
   setSQL: (sql: string) => void;
   runSQLError: string | null;
@@ -16,9 +16,13 @@ export interface AppVerticalCodeSplitterProps {
   topHidden?: boolean;
   onSaveSQL?: () => Promise<void>;
   disabledSave?: boolean;
+  gapAmount?: number;
 }
 
-export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCodeSplitterProps>(
+export const AppVerticalSplitterWithGap = forwardRef<
+  AppSplitterRef,
+  AppVerticalSplitterWithGapProps
+>(
   (
     {
       sql,
@@ -31,12 +35,14 @@ export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCod
       defaultLayout,
       autoSaveId,
       disabledSave = false,
-      topHidden = false
+      topHidden = false,
+      gapAmount = 3
     },
     ref
   ) => {
-    const sqlContainerClassName = !topHidden ? 'mb-3' : '';
-    const dataContainerClassName = !topHidden ? 'mt-3' : '';
+    //tailwind might not like this, but yolo
+    const sqlContainerClassName = !topHidden ? `mb-${gapAmount}` : '';
+    const dataContainerClassName = !topHidden ? `mt-${gapAmount}` : '';
 
     return (
       <AppSplitter
@@ -71,4 +77,4 @@ export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCod
   }
 );
 
-AppVerticalCodeSplitter.displayName = 'AppVerticalCodeSplitter';
+AppVerticalSplitterWithGap.displayName = 'AppVerticalSplitterWithGap';

@@ -6,15 +6,15 @@ import { Button, Divider } from 'antd';
 import { createStyles } from 'antd-style';
 import React, { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import type { AppVerticalCodeSplitterProps } from './AppVerticalCodeSplitter';
+import type { AppVerticalSplitterWithGapProps } from './AppVerticalSplitterWithGap';
 
 export const SQLContainer: React.FC<{
   className?: string;
   sql: string | undefined;
   setDatasetSQL: (sql: string) => void;
   onRunQuery: () => Promise<void>;
-  onSaveSQL?: AppVerticalCodeSplitterProps['onSaveSQL'];
-  disabledSave?: AppVerticalCodeSplitterProps['disabledSave'];
+  onSaveSQL?: AppVerticalSplitterWithGapProps['onSaveSQL'];
+  disabledSave?: AppVerticalSplitterWithGapProps['disabledSave'];
   error?: string | null;
 }> = React.memo(
   ({ disabledSave, className = '', sql, setDatasetSQL, onRunQuery, onSaveSQL, error }) => {
@@ -101,7 +101,7 @@ const ErrorContainer: React.FC<{
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 0 }}
-          className={cx(styles.errorContainer, 'absolute bottom-full left-0 right-0 mx-4 mb-2')}>
+          className={cx(styles.errorContainer, 'absolute right-0 bottom-full left-0 mx-4 mb-2')}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <AppMaterialIcons icon="error" />

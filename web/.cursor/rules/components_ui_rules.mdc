@@ -3,7 +3,6 @@ description: Rules for the components ui directory
 globs: src/components/ui/**/*
 alwaysApply: false
 ---
-
 # Component Directory Structure and Organization
 
 ## Component Purpose
@@ -13,7 +12,7 @@ alwaysApply: false
 - The goal is to maintain a library of simple, pure components that can be easily reused across features
 
 ## Directory Organization
-- Each directory within `src/components` should represent a specific category of components
+- Each directory within `src/components/ui` should represent a specific category of components
 - Directory names should clearly indicate the type of components contained within
 - Examples:
   - `buttons/` - Button components
@@ -21,16 +20,21 @@ alwaysApply: false
   - `card/` - Card and container components
   - `icons/` - Icon components
   - `layout/` - Layout-related components
-  - `text/` - Text and typography components
+  - `typography/` - Text and typography components
+
+## Storybook
+- Each component in this directory should have an assosciated storybook
+- Each storybook story should try to include the args (props) that are assosciated with each component
+- Storybook storys should be title UI/{directory}/{component_name}
 
 ## Component Dependencies and Imports
 - When a component needs to use another component, prefer relative imports
 - Example: 
   ```typescript
   // Good
-  import { IconButton } from '../buttons/ui/IconButton';
+  import { Button } from '../buttons/ui/buttons/Button';
   ```
-- Exception: Only use absolute imports (@/) when the relative path would be overly complex (>3 levels deep)
+- Exception: Only use absolute imports (@/) when the relative path would be overly complex (>4 levels deep)
 
 ## Styling Guidelines
 1. Primary Styling Method:
@@ -38,33 +42,12 @@ alwaysApply: false
    - Class names should follow Tailwind's utility-first approach
 
 2. Color Management:
-   - Always use `createStyles` from antd-style for color-related styling
-   - Access theme colors through the token system
-   - Example:
-     ```typescript
-     const useStyles = createStyles(({ token, css }) => {
-       return {
-         container: css`
-           border: 0.5px solid ${token.colorBorderSecondary};
-           background: ${token.colorBgContainer};
-         `
-       };
-     });
-     ```
-
-3. Border Rules:
-   - When using borders with createStyles, always use 0.5px as the border width
-   - Access border colors through the token system
+   - Always use `tailwind.css` colors for color-related styling. Only use the colors defined in [tailwind.css](mdc:src/styles/tailwind.css). Do not use the other generic tailwind colors.
 
 ## Component Implementation
 - Use functional components exclusively
 - Implement proper TypeScript types for props and state
 - Use React.memo() for performance optimization when appropriate
-- Import text elements from dedicated components:
-  ```typescript
-  import { Text } from '@/components/ui';
-  import { Title } from '@/components/ui';
-  ```
 
 ##
 I have a helper called `cn`. This is how I do a tailwind merge and classnames concatination. This is found in import { cn } from '@/lib/classMerge';

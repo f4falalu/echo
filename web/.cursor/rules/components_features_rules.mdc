@@ -1,6 +1,7 @@
 ---
 description: Rules for the components ui directory
 globs: src/components/features/**/*
+alwaysApply: false
 ---
 # Feature Components Rules
 
@@ -14,8 +15,8 @@ Each feature component should be organized in its own directory using the follow
 features/
   └── ComponentName/
       ├── ComponentName.tsx        # Main component implementation
-      ├── ComponentName.types.ts   # TypeScript interfaces and types
-      ├── ComponentName.test.tsx   # Tests for the component
+      ├── ComponentName.test.tsx   # Tests for the component (if asked for it)
+      ├── ComponentName.stories.tsx # Storybook stories for the component
       └── index.ts                # Exports the component and its types
 ```
 
@@ -26,11 +27,12 @@ features/
 
 ## Component Guidelines
 1. Feature components should:
-   - Import basic UI components from `../ui/`
+   - Import basic UI components from `../ui/{component_directory}/{component_name}`
    - Be functional components using React hooks
    - Handle their own state management when necessary
    - Be fully typed using TypeScript
    - Include proper documentation and props interface
+   - Have a corresponding Storybook story showcasing different states and variations
 
 2. Components should be:
    - Reusable across different parts of the application
