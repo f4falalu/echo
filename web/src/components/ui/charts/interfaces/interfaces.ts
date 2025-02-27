@@ -6,7 +6,6 @@ export type BusterChartProps = {
   groupByMethod?: 'sum' | 'average' | 'count';
   loading?: boolean;
   className?: string;
-  bordered?: boolean;
   animate?: boolean;
   animateLegend?: boolean;
   id?: string;

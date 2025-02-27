@@ -25,7 +25,6 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
     groupByMethod = 'sum',
     loading = false,
     className = '',
-    bordered = true,
     animate = true,
     animateLegend = true,
     id,
@@ -153,7 +152,7 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
 
     return (
       <BusterChartErrorWrapper>
-        <BusterChartWrapper id={id} className={className} bordered={bordered} loading={loading}>
+        <BusterChartWrapper id={id} className={className} loading={loading}>
           {SwitchComponent()}
         </BusterChartWrapper>
       </BusterChartErrorWrapper>
