@@ -1,3 +1,4 @@
+import { BusterNotificationsProvider } from '@/context/BusterNotifications';
 import type { Meta, StoryObj } from '@storybook/react';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 
@@ -83,7 +84,11 @@ const meta: Meta<typeof TestComponent> = {
   },
   decorators: [
     (Story) => {
-      return <Story />;
+      return (
+        <BusterNotificationsProvider>
+          <Story />
+        </BusterNotificationsProvider>
+      );
     }
   ]
 };
