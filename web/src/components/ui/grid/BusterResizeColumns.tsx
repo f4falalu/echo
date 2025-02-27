@@ -7,9 +7,8 @@ import { ResizeableGridDragItem } from './interfaces';
 import { useMemoizedFn, useMouse } from 'ahooks';
 import { BusterDragColumnMarkers } from './_BusterDragColumnMarkers';
 import { calculateColumnSpan, columnSpansToPercent } from './config';
-import { createStyles } from 'antd-style';
 import SplitPane, { Pane } from '../layout/AppSplitter/SplitPane';
-import { useDropzoneStyles } from './BusterResizeRows';
+import { cn } from '@/lib/classMerge';
 
 type ContainerProps = {
   rowId: string;
@@ -30,9 +29,8 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
   items = [],
   fluid = true
 }) => {
-  const { cx } = useStyles();
   const mouse = useMouse();
-  const { setNodeRef, isOver, active, over, ...rest } = useSortable({
+  const { setNodeRef, isOver, active, over } = useSortable({
     id: rowId,
     disabled: !allowEdit
   });
@@ -161,7 +159,7 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
           onChange={onChangeLayout}>
           {items.map((item, index) => (
             <Pane
-              className={cx(
+              className={cn(
                 'overflow-visible!',
                 index !== items.length - 1 ? 'pr-1.5' : 'pr-0',
                 index !== 0 ? 'pl-1.5' : 'pl-0'
@@ -200,37 +198,11 @@ export enum Position {
   After = 1
 }
 
-const useStyles = createStyles(({ token, css }) => ({
-  sash: css`
-    transition: background 0.2s ease-in-out;
-    border-radius: 15px;
-
-    &:hover {
-      background: ${token.colorBorder};
-    }
-    &.dragging {
-      background: ${token.colorPrimary} !important;
-    }
-    &.active {
-      background: ${token.colorBorder};
-    }
-
-    z-index: 1;
-  `,
-  pane: css`
-    &.space-pane {
-      margin-right: 10px;
-    }
-  `
-}));
-
 const DropzonePlaceholder: React.FC<{
   active: boolean;
   right: boolean;
   isDropzoneActives: boolean;
 }> = React.memo(({ active, right, isDropzoneActives }) => {
-  const { styles: dropzoneStyles, cx } = useDropzoneStyles();
-
   const memoizedStyle = useMemo(() => {
     return {
       right: right ? -7.5 : undefined,
@@ -241,11 +213,11 @@ const DropzonePlaceholder: React.FC<{
 
   return (
     <div
-      className={cx(
+      className={cn(
         'pointer-events-none absolute top-0 bottom-0 h-full w-[4px] rounded-lg transition-opacity duration-200',
-        dropzoneStyles.dropzone,
+        'bg-nav-item-hover z-[1]',
         isDropzoneActives && 'placeholder',
-        active && 'active'
+        active && 'bg-primary! opacity-100'
       )}
       style={memoizedStyle}
     />
@@ -259,16 +231,14 @@ const ColumnSash: React.FC<{
   isDraggingId: number | null;
   allowEdit: boolean;
 }> = React.memo(({ active, allowEdit, isDraggingId, index }) => {
-  const { cx, styles } = useStyles();
-
   return (
     <div
-      className={cx(
-        'grid-column-sash h-full w-[4px]',
-        allowEdit ? '' : 'hidden',
-        styles.sash,
-        active ? 'active' : '',
-        isDraggingId === index ? 'dragging' : ''
+      className={cn(
+        'grid-column-sash h-full w-[4px] rounded-lg',
+        'z-10 transition-colors duration-200 ease-in-out',
+        allowEdit ? 'hover:bg-border' : 'hidden',
+        active ? 'bg-border' : '',
+        isDraggingId === index ? 'bg-primary!' : ''
       )}
       id={index.toString()}
     />

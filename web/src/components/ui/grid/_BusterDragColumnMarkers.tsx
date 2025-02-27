@@ -1,4 +1,3 @@
-import { createStyles } from 'antd-style';
 import React from 'react';
 import { NUMBER_OF_COLUMNS } from './config';
 import { cn } from '@/lib/utils';
@@ -29,7 +28,7 @@ export const BusterDragColumnMarkers: React.FC<{
             key={index}
             className={cn(
               'bg-border',
-              snappedDot === index && 'bg-primary shadow-primary-light shadow-sm',
+              snappedDot === index && 'bg-primary shadow-primary-light',
               `snap-dot-${index} absolute h-2 w-2 rounded-full transition duration-500`
             )}
             style={{

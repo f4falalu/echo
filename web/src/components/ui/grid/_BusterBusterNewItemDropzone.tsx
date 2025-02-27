@@ -15,6 +15,7 @@ export const BusterNewItemDropzone: React.FC = () => {
       className={cn(
         'flex h-full w-full items-center justify-center rounded-sm border-dashed',
         'transition-colors duration-200 ease-in-out',
+        'text-base',
         'text-gray-dark border',
         isOver && 'bg-primary-light text-background border-solid'
       )}>
