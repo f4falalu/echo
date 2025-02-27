@@ -2,16 +2,16 @@
 
 import React from 'react';
 import { useTheme } from 'next-themes';
-import { Toaster } from 'sonner';
+import { Toaster as ToasterSonner } from 'sonner';
 import { CircleCheck } from '@/components/ui/icons';
 
-type ToasterProps = React.ComponentProps<typeof Toaster>;
+type ToasterProps = React.ComponentProps<typeof ToasterSonner>;
 
-const AppToaster = ({ ...props }: ToasterProps) => {
+const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = 'system' } = useTheme();
 
   return (
-    <Toaster
+    <ToasterSonner
       position="top-center"
       expand={true}
       visibleToasts={5}
@@ -35,4 +35,4 @@ const AppToaster = ({ ...props }: ToasterProps) => {
   );
 };
 
-export { AppToaster };
+export { Toaster };
