@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { OverflowButton } from './OverflowContainer';
-import { ChartType } from '../interfaces';
+import { OverflowButton } from '../OverflowContainer';
+import { ChartType } from '../../interfaces';
 
 const meta = {
   title: 'Base/Charts/OverflowButton',

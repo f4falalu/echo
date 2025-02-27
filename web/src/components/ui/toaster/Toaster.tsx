@@ -3,7 +3,7 @@
 import React from 'react';
 import { useTheme } from 'next-themes';
 import { Toaster as ToasterSonner } from 'sonner';
-import { CircleCheck } from '@/components/ui/icons';
+import { CircleCheck, CircleXmark, CircleWarning } from '@/components/ui/icons';
 
 type ToasterProps = React.ComponentProps<typeof ToasterSonner>;
 
@@ -16,7 +16,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
       expand={true}
       visibleToasts={5}
       icons={{
-        success: <CircleCheck />
+        success: <CircleCheck />,
+        error: <CircleXmark />,
+        warning: <CircleWarning />
       }}
       swipeDirections={['right']}
       theme={theme as ToasterProps['theme']}
@@ -24,7 +26,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            'group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg',
+            'group toast group-[.toaster]:bg-background! border !p-3 group-[.toaster]:text-foreground! group-[.toaster]:border-border! group-[.toaster]:shadow-hard!',
           description: 'group-[.toast]:text-muted-foreground',
           actionButton: 'group-[.toast]:bg-primary group-[.toast]:text-primary-foreground',
           cancelButton: 'group-[.toast]:bg-border group-[.toast]:text-foreground'

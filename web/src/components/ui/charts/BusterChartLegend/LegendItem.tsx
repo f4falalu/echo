@@ -105,7 +105,7 @@ const LegendItemStandard = React.memo(
         onMouseEnter={onMouseEnterHandler}
         onMouseLeave={onMouseLeaveHandler}
         className={cn(
-          'flex flex-col justify-center space-y-0',
+          'flex flex-col justify-center space-y-1',
           'h-[24px] rounded-sm px-2.5',
           clickable && 'transition-background hover:bg-item-hover cursor-pointer duration-100'
         )}>

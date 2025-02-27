@@ -194,9 +194,9 @@ const TitleCell = React.memo<{ title: string; status: VerificationStatus; metric
 );
 TitleCell.displayName = 'TitleCell';
 
-const OwnerCell = memo<{ name: string; image: string | null | undefined }>(({ name, image }) => (
+const OwnerCell = memo<{ name: string; image: string | undefined }>(({ name, image }) => (
   <div className="flex pl-0">
-    <BusterUserAvatar image={image || undefined} name={name} size={18} />
+    <BusterUserAvatar image={image} name={name} size={18} />
   </div>
 ));
 OwnerCell.displayName = 'OwnerCell';

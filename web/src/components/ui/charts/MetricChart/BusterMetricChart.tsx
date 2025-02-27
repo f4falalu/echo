@@ -16,7 +16,6 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
     metricSubHeader,
     metricValueAggregate,
     data,
-    isDarkMode,
     animate,
     columnLabelFormats,
     metricValueLabel,

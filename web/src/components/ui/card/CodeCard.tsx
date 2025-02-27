@@ -50,6 +50,7 @@ export const CodeCard: React.FC<{
             readOnly={readOnly}
             height="100%"
             onMetaEnter={onMetaEnter}
+            className="border-none"
           />
         </div>
       </CardContent>

@@ -1,8 +1,6 @@
 import React, { useMemo } from 'react';
-
-import { Text } from '@/components/ui';
 import { useMount } from 'ahooks';
-import { BusterChartProps, ChartType } from '../interfaces';
+import { type BusterChartProps, ChartType } from '../interfaces';
 
 export const NoValidAxis: React.FC<{
   type: ChartType;
@@ -20,7 +18,7 @@ export const NoValidAxis: React.FC<{
 
   return (
     <div className="flex h-full w-full items-center justify-center">
-      <Text type="tertiary">{inValidChartText}</Text>
+      <span className="text-text-tertiary">{inValidChartText}</span>
     </div>
   );
 };
