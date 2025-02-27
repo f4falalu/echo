@@ -59,6 +59,7 @@ export const InputTextAreaButton: React.FC<InputTextAreaButtonProps> = ({
         variant="ghost"
         className={cn('w-full pr-10 align-middle leading-[1.2]', loading && '!cursor-default')}
         autoResize={autoResize}
+        rounding="xl"
         onPressMetaEnter={onPressMetaEnter}
         {...props}
       />

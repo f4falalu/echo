@@ -5,7 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 import React, { useMemo } from 'react';
 import { Text } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
-import { createStyles } from 'antd-style';
+import { cn } from '@/lib/utils';
 
 export const NewChatModalDataSourceSelect: React.FC<{
   dataSources: BusterDatasetListItem[];
@@ -13,13 +13,11 @@ export const NewChatModalDataSourceSelect: React.FC<{
   selectedChatDataSource: { id: string; name: string } | null;
   loading: boolean;
 }> = React.memo(({ dataSources, selectedChatDataSource, onSetSelectedChatDataSource, loading }) => {
-  const { styles } = useStyles();
-
   const AutoSelectDataSource = useMemo(
     () => ({
       label: (
         <div className="flex items-center space-x-1">
-          <AppMaterialIcons size={14} className={`min-w-[14px] ${styles.icon}`} icon="stars" />
+          <AppMaterialIcons size={14} className={cn(`text-icon-color min-w-[14px]`)} icon="stars" />
           <span>Auto-select</span>
         </div>
       ),
@@ -35,7 +33,7 @@ export const NewChatModalDataSourceSelect: React.FC<{
       ...dataSources.map((dataSource) => ({
         label: (
           <div className="flex items-center space-x-1">
-            <AppMaterialIcons className={styles.icon} icon="database" />
+            <AppMaterialIcons className={cn(`text-icon-color min-w-[14px]`)} icon="database" />
             <Text>{dataSource.name}</Text>
           </div>
         ),
@@ -85,9 +83,3 @@ export const NewChatModalDataSourceSelect: React.FC<{
   );
 });
 NewChatModalDataSourceSelect.displayName = 'NewChatModalDataSourceSelect';
-
-const useStyles = createStyles(({ css, token }) => ({
-  icon: css`
-    color: ${token.colorIcon};
-  `
-}));

@@ -61,3 +61,13 @@ export const LargeRows: Story = {
     rows: 8
   }
 };
+
+export const AutoResize: Story = {
+  args: {
+    placeholder: 'Auto resize textarea...',
+    autoResize: {
+      minRows: 4,
+      maxRows: 12
+    }
+  }
+};

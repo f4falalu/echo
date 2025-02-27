@@ -36,7 +36,7 @@ export const WithAutoResize: Story = {
   args: {
     placeholder: 'Type to see auto-resize in action...',
     autoResize: {
-      minRows: 1,
+      minRows: 3,
       maxRows: 6
     }
   }

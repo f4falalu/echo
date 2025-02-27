@@ -5,14 +5,13 @@ import React from 'react';
 import { AppLayout } from '@/controllers/AppLayout';
 import type { BusterUserResponse } from '@/api/asset_interfaces';
 import { useSupabaseServerContext } from '@/context/Supabase/useSupabaseContext';
-import { GlobalErrorComponent } from '../../components/ui/error';
+import { GlobalErrorComponent } from '@/components/features/errors/GlobalErrorComponent';
 
 export const AppLayoutClient = ({
   children,
   userInfo,
   supabaseContext,
   defaultLayout,
-
   signOut
 }: {
   children: React.ReactNode;

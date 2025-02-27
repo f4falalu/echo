@@ -1,8 +1,9 @@
 'use client';
 
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { Button } from '../buttons/Button';
-import { Card, CardContent, CardFooter } from '../card/CardBase';
+import { Button } from '@/components/ui/buttons/Button';
+import { Card, CardContent, CardFooter } from '@/components/ui/card/CardBase';
+
 interface Props {
   children: ReactNode;
 }

@@ -78,7 +78,7 @@ const DropdownMenuContent = React.forwardRef<
       <DropdownMenuPrimitive.Content
         ref={ref}
         sideOffset={sideOffset}
-        className={cn(baseContentClass, 'shadow-hard', footerContent && 'p-0', className)}
+        className={cn(baseContentClass, 'shadow', footerContent && 'p-0', className)}
         {...props}>
         <NodeWrapper className={cn(footerContent && 'p-2')}>{children}</NodeWrapper>
         {footerContent && <div className="border-t p-2">{footerContent}</div>}
@@ -100,7 +100,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'focus:bg-item-hover focus:text-foreground relative flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition-colors outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
+      'focus:bg-item-hover focus:text-foreground relative flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition-colors outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-60 [&_svg]:pointer-events-none [&_svg]:shrink-0',
       inset && 'pl-8',
       truncate && 'overflow-hidden',
       'group',
@@ -121,7 +121,7 @@ DropdownMenuItem.displayName = DropdownMenuPrimitive.Item.displayName;
 const itemClass = cn(
   'focus:bg-item-hover focus:text-foreground',
   'relative flex cursor-pointer items-center rounded-sm py-1.5 text-sm transition-colors outline-none select-none',
-  'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+  'data-[disabled]:pointer-events-none data-[disabled]:opacity-60',
   'gap-1.5'
 );
 
@@ -235,7 +235,7 @@ const DropdownMenuLink: React.FC<{
   className?: string;
   link: string;
   linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right';
-}> = ({ className, link, linkIcon = 'arrow-right', ...props }) => {
+}> = ({ className, link, linkIcon = 'arrow-external', ...props }) => {
   const icon = React.useMemo(() => {
     if (linkIcon === 'arrow-right') return <ArrowRight />;
     if (linkIcon === 'arrow-external') return <ArrowUpRight />;

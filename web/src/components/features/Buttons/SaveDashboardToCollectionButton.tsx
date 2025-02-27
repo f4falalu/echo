@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SaveToCollectionsDropdown } from '../Dropdowns/SaveToCollectionsDropdown';
+import { SaveToCollectionsDropdown } from '../dropdowns/SaveToCollectionsDropdown';
 import { useMemoizedFn, useMount } from 'ahooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useBusterCollectionListContextSelector } from '@/context/Collections';

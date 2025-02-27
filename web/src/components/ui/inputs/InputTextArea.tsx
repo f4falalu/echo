@@ -18,15 +18,32 @@ interface PaddingValues {
   bottom: number;
 }
 
+const textAreaVariants = cva('', {
+  variants: {
+    rounding: {
+      none: 'rounded-none',
+      small: 'rounded-sm!',
+      medium: 'rounded-md',
+      large: 'rounded-lg',
+      xl: 'rounded-xl',
+      default: 'rounded'
+    }
+  }
+});
+
 export interface InputTextAreaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement>,
-    VariantProps<typeof inputTextAreaVariants> {
+    VariantProps<typeof inputTextAreaVariants>,
+    VariantProps<typeof textAreaVariants> {
   autoResize?: AutoResizeOptions;
   onPressMetaEnter?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
 }
 
 export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextAreaProps>(
-  ({ className, variant = 'default', autoResize, style, rows = 1, ...props }, ref) => {
+  (
+    { className, variant = 'default', autoResize, style, rows = 1, rounding = 'default', ...props },
+    ref
+  ) => {
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
     const paddingRef = useRef<PaddingValues | null>(null);
 
@@ -83,7 +100,7 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
         : Infinity;
 
       const scrollHeight = Math.max(textarea.scrollHeight, minHeight);
-      const newHeight = Math.min(scrollHeight, maxHeight);
+      const newHeight = Math.min(scrollHeight, maxHeight) + 3;
 
       textarea.style.height = `${newHeight}px`;
       textarea.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden';
@@ -91,14 +108,6 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
 
     const handleInput = useMemoizedFn(() => {
       requestAnimationFrame(adjustHeight);
-    });
-
-    const onPressMetaEnter = useMemoizedFn((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.metaKey && e.key === 'Enter') {
-        e.preventDefault();
-        e.stopPropagation();
-        onPressMetaEnter?.(e);
-      }
     });
 
     useEffect(() => {
@@ -127,7 +136,8 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
         ref={combinedRef}
         className={cn(
           inputTextAreaVariants({ variant }),
-          'px-5 py-4',
+          textAreaVariants({ rounding }),
+          'px-2.5 py-2.5',
           autoResize && 'resize-none',
           className
         )}

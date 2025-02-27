@@ -19,7 +19,7 @@ KeyboardShortcutPill.displayName = 'KeyboardShortcutPill';
 
 const TooltipShortcut: React.FC<{ shortcut: string }> = ({ shortcut }) => {
   return (
-    <div className="border-border bg-background text-xxs shadow-hard pointer-events-none relative flex h-5 w-[1.375rem] items-center justify-center rounded border-[0.5px] leading-none">
+    <div className="border-border bg-background text-xxs pointer-events-none relative flex h-5 w-[1.375rem] items-center justify-center rounded border-[0.5px] leading-none shadow">
       {shortcut}
     </div>
   );

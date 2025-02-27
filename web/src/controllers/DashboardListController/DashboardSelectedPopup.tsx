@@ -5,7 +5,7 @@ import { Button, Dropdown, DropdownProps } from 'antd';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useMemoizedFn } from 'ahooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { SaveToCollectionsDropdown } from '@/components/features/Dropdowns/SaveToCollectionsDropdown';
+import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 
 export const DashboardSelectedOptionPopup: React.FC<{

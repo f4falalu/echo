@@ -13,7 +13,7 @@ import {
 } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui';
 import { ListEmptyStateWithButton } from '@/components/ui/list';
-import { AddTypeModal } from '@/components/features/Modals/AddTypeModal';
+import { AddTypeModal } from '@/components/features/modals/AddTypeModal';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { GlobalErrorComponent } from './GlobalErrorComponent';
 
 const meta: Meta<typeof GlobalErrorComponent> = {
-  title: 'UI/Error/GlobalErrorComponent',
+  title: 'Features/Error/GlobalErrorComponent',
   component: GlobalErrorComponent,
   parameters: {
     layout: 'fullscreen'

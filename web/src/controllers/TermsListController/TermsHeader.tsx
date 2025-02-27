@@ -9,7 +9,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useBusterTermsIndividual } from '@/context/Terms';
 import { useMemoizedFn } from 'ahooks';
-import { NewTermModal } from '@/components/features/Modals/NewTermModal';
+import { NewTermModal } from '@/components/features/modals/NewTermModal';
 import { type BreadcrumbItem, Breadcrumb } from '@/components/ui/breadcrumb';
 
 export const TermsHeader: React.FC<{

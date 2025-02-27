@@ -1,6 +1,6 @@
 'use client';
 
-import { useGetDatasetGroupDatasets, useGetPermissionGroupDatasets } from '@/api/buster_rest';
+import { useGetDatasetGroupDatasets } from '@/api/buster_rest';
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
 import { PermissionSearchAndListWrapper } from '@/components/features/PermissionComponents';
 import React, { useMemo, useState } from 'react';
@@ -8,7 +8,7 @@ import { Button } from 'antd';
 import { AppMaterialIcons } from '@/components/ui';
 import { DatasetGroupDatasetsListContainer } from './DatasetGroupDatasetsListContainer';
 import { useMemoizedFn } from 'ahooks';
-import { NewDatasetModal } from '@/components/features/Modals/NewDatasetModal';
+import { NewDatasetModal } from '@/components/features/modals/NewDatasetModal';
 
 export const DatasetGroupDatasetsController: React.FC<{
   datasetGroupId: string;
