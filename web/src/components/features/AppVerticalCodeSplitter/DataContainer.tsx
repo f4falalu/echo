@@ -2,8 +2,8 @@ import type { IDataResult } from '@/api/asset_interfaces';
 import { createStyles } from 'antd-style';
 import React from 'react';
 import isEmpty from 'lodash/isEmpty';
-import AppDataGrid from '../../table/AppDataGrid';
-import { IndeterminateLinearLoader } from '../../loaders';
+import { AppDataGrid } from '@/components/ui/table/AppDataGrid';
+import { IndeterminateLinearLoader } from '@/components/ui/loaders/IndeterminateLinearLoader';
 
 export const DataContainer: React.FC<{
   data: IDataResult;
@@ -17,7 +17,7 @@ export const DataContainer: React.FC<{
     <div className={cx(styles.container, 'relative h-full w-full overflow-hidden', className)}>
       <IndeterminateLinearLoader
         className={cx(
-          'absolute left-0 top-0 z-10 w-full',
+          'absolute top-0 left-0 z-10 w-full',
           fetchingData && hasData ? 'block' : 'hidden!'
         )}
       />

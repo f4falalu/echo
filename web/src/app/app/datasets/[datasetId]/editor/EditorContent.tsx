@@ -10,7 +10,7 @@ import { runSQL } from '@/api/buster_rest';
 import type { RustApiError } from '@/api/buster_rest/errors';
 import isEmpty from 'lodash/isEmpty';
 import type { AppSplitterRef } from '@/components/ui/layout/AppSplitter';
-import { AppVerticalSplitterWithGap } from '@/components/ui/layout/AppVerticalSplitterWithGap';
+import { AppVerticalCodeSplitter } from '@/components/features/AppVerticalCodeSplitter';
 import { useDatasetPageContextSelector } from '../_DatasetsLayout/DatasetPageContext';
 
 export const EditorContent: React.FC<{
@@ -73,7 +73,7 @@ export const EditorContent: React.FC<{
       <EditorContainerSubHeader selectedApp={selectedApp} setSelectedApp={setSelectedApp} />
       <div className={cx('h-full w-full overflow-hidden p-5', styles.container)}>
         {selectedApp === EditorApps.PREVIEW && (
-          <AppVerticalSplitterWithGap
+          <AppVerticalCodeSplitter
             autoSaveId="dataset-editor"
             ref={splitterRef}
             sql={sql}

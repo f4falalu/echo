@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import type { MetricViewProps } from '../config';
 import { useMetricIndividual } from '@/context/Metrics';
-import { AppVerticalSplitterWithGap } from '@/components/ui/layout/AppVerticalSplitterWithGap';
+import { AppVerticalCodeSplitter } from '@/components/features/AppVerticalCodeSplitter';
 import { useMemoizedFn, useUnmount } from 'ahooks';
 import { IDataResult } from '@/api/asset_interfaces';
 import { useMetricLayout } from '../useMetricLayout';
@@ -82,7 +82,7 @@ export const MetricViewResults: React.FC<MetricViewProps> = React.memo(({ metric
 
   return (
     <div ref={containerRef} className="h-full w-full p-3">
-      <AppVerticalSplitterWithGap
+      <AppVerticalCodeSplitter
         ref={appSplitterRef}
         autoSaveId={autoSaveId}
         sql={sql}

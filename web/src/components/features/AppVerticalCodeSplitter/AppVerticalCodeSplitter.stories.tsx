@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { AppVerticalSplitterWithGap } from './AppVerticalSplitterWithGap';
+import { AppVerticalCodeSplitter } from './AppVerticalCodeSplitter';
 
-const meta: Meta<typeof AppVerticalSplitterWithGap> = {
-  title: 'UI/Layouts/AppVerticalSplitterWithGap',
-  component: AppVerticalSplitterWithGap,
+const meta: Meta<typeof AppVerticalCodeSplitter> = {
+  title: 'UI/Layouts/AppVerticalCodeSplitter',
+  component: AppVerticalCodeSplitter,
   parameters: {
     layout: 'fullscreen'
   },
@@ -11,7 +11,7 @@ const meta: Meta<typeof AppVerticalSplitterWithGap> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof AppVerticalSplitterWithGap>;
+type Story = StoryObj<typeof AppVerticalCodeSplitter>;
 
 const mockData: Record<string, string | number | null>[] = [
   { id: 1, name: 'Sample Data 1' },

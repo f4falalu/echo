@@ -1,10 +1,10 @@
 import React, { forwardRef } from 'react';
-import { AppSplitter, type AppSplitterRef } from '../AppSplitter';
+import { AppSplitter, type AppSplitterRef } from '@/components/ui/layout/AppSplitter';
 import { SQLContainer } from './SQLContainer';
 import { DataContainer } from './DataContainer';
 import type { IDataResult } from '@/api/asset_interfaces';
 
-export interface AppVerticalSplitterWithGapProps {
+export interface AppVerticalCodeSplitterProps {
   sql: string;
   setSQL: (sql: string) => void;
   runSQLError: string | null;
@@ -19,10 +19,7 @@ export interface AppVerticalSplitterWithGapProps {
   gapAmount?: number;
 }
 
-export const AppVerticalSplitterWithGap = forwardRef<
-  AppSplitterRef,
-  AppVerticalSplitterWithGapProps
->(
+export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCodeSplitterProps>(
   (
     {
       sql,
@@ -77,4 +74,4 @@ export const AppVerticalSplitterWithGap = forwardRef<
   }
 );
 
-AppVerticalSplitterWithGap.displayName = 'AppVerticalSplitterWithGap';
+AppVerticalCodeSplitter.displayName = 'AppVerticalCodeSplitter';

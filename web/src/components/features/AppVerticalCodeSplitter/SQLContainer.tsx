@@ -1,20 +1,20 @@
-import { AppMaterialIcons } from '../../icons';
-import { AppCodeEditor } from '../../inputs/AppCodeEditor';
+import { Command, Xmark, CircleWarning, ReturnKey } from '@/components/ui/icons';
+import { AppCodeEditor } from '@/components/ui/inputs/AppCodeEditor';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from 'ahooks';
-import { Button, Divider } from 'antd';
 import { createStyles } from 'antd-style';
-import React, { useEffect, useMemo, useState } from 'react';
+import { Button } from '@/components/ui/buttons/Button';
+import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import type { AppVerticalSplitterWithGapProps } from './AppVerticalSplitterWithGap';
+import type { AppVerticalCodeSplitterProps } from './AppVerticalCodeSplitter';
 
 export const SQLContainer: React.FC<{
   className?: string;
   sql: string | undefined;
   setDatasetSQL: (sql: string) => void;
   onRunQuery: () => Promise<void>;
-  onSaveSQL?: AppVerticalSplitterWithGapProps['onSaveSQL'];
-  disabledSave?: AppVerticalSplitterWithGapProps['disabledSave'];
+  onSaveSQL?: AppVerticalCodeSplitterProps['onSaveSQL'];
+  disabledSave?: AppVerticalCodeSplitterProps['disabledSave'];
   error?: string | null;
 }> = React.memo(
   ({ disabledSave, className = '', sql, setDatasetSQL, onRunQuery, onSaveSQL, error }) => {
@@ -47,32 +47,33 @@ export const SQLContainer: React.FC<{
           onChange={setDatasetSQL}
           onMetaEnter={onRunQueryPreflight}
         />
-        <Divider className="my-0!" />
+        <div className="bg-border-color my-0! h-[0.5px] w-full" />
         <div className="relative flex items-center justify-between px-4 py-2.5">
-          <Button type="default" onClick={onCopySQL}>
-            Copy SQL
-          </Button>
+          <Button onClick={onCopySQL}>Copy SQL</Button>
 
           <div className="flex items-center gap-2">
             {onSaveSQL && (
               <Button
                 disabled={disabledSave || !sql || isRunning}
-                color="default"
-                variant="solid"
+                variant="black"
                 onClick={onSaveSQL}>
                 Save
               </Button>
             )}
 
             <Button
-              type="default"
+              variant="default"
               loading={isRunning}
               disabled={!sql}
               className="flex items-center space-x-0"
-              onClick={onRunQueryPreflight}>
-              <span>Run</span>
-              <AppMaterialIcons icon="keyboard_command_key" />
-              <AppMaterialIcons icon="keyboard_return" />
+              onClick={onRunQueryPreflight}
+              suffix={
+                <div className="flex items-center">
+                  <Command />
+                  <ReturnKey />
+                </div>
+              }>
+              Run
             </Button>
           </div>
 
@@ -104,7 +105,7 @@ const ErrorContainer: React.FC<{
           className={cx(styles.errorContainer, 'absolute right-0 bottom-full left-0 mx-4 mb-2')}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <AppMaterialIcons icon="error" />
+              <CircleWarning />
               <span>{error}</span>
             </div>
             <button
@@ -113,7 +114,7 @@ const ErrorContainer: React.FC<{
                 styles.closeButton,
                 'rounded-sm p-0.5 transition-colors hover:bg-black/5'
               )}>
-              <AppMaterialIcons icon="close" className="text-sm" />
+              <Xmark />
             </button>
           </div>
         </motion.div>
