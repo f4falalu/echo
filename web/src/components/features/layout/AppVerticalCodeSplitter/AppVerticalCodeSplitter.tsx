@@ -17,6 +17,7 @@ export interface AppVerticalCodeSplitterProps {
   onSaveSQL?: () => Promise<void>;
   disabledSave?: boolean;
   gapAmount?: number;
+  className?: string;
 }
 
 export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCodeSplitterProps>(
@@ -33,7 +34,8 @@ export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCod
       autoSaveId,
       disabledSave = false,
       topHidden = false,
-      gapAmount = 3
+      gapAmount = 3,
+      className
     },
     ref
   ) => {
@@ -69,6 +71,7 @@ export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCod
         rightPanelMinSize={'80px'}
         leftPanelMinSize={'120px'}
         leftHidden={topHidden}
+        className={className}
       />
     );
   }

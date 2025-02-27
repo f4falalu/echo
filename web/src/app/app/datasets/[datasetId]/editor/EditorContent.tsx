@@ -10,7 +10,7 @@ import { runSQL } from '@/api/buster_rest';
 import type { RustApiError } from '@/api/buster_rest/errors';
 import isEmpty from 'lodash/isEmpty';
 import type { AppSplitterRef } from '@/components/ui/layout/AppSplitter';
-import { AppVerticalCodeSplitter } from '@/components/features/AppVerticalCodeSplitter';
+import { AppVerticalCodeSplitter } from '@/components/features/layout/AppVerticalCodeSplitter';
 import { useDatasetPageContextSelector } from '../_DatasetsLayout/DatasetPageContext';
 
 export const EditorContent: React.FC<{

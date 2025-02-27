@@ -46,6 +46,7 @@ export const SQLContainer: React.FC<{
           value={sql}
           onChange={setDatasetSQL}
           onMetaEnter={onRunQueryPreflight}
+          variant={null}
         />
         <div className="bg-border-color my-0! h-[0.5px] w-full" />
         <div className="relative flex items-center justify-between px-4 py-2.5">
@@ -68,7 +69,7 @@ export const SQLContainer: React.FC<{
               className="flex items-center space-x-0"
               onClick={onRunQueryPreflight}
               suffix={
-                <div className="flex items-center">
+                <div className="flex items-center gap-x-1 text-sm">
                   <Command />
                   <ReturnKey />
                 </div>

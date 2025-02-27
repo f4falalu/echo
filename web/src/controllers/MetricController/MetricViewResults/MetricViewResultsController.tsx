@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import type { MetricViewProps } from '../config';
 import { useMetricIndividual } from '@/context/Metrics';
-import { AppVerticalCodeSplitter } from '@/components/features/AppVerticalCodeSplitter';
+import { AppVerticalCodeSplitter } from '@/components/features/layout/AppVerticalCodeSplitter';
 import { useMemoizedFn, useUnmount } from 'ahooks';
 import { IDataResult } from '@/api/asset_interfaces';
 import { useMetricLayout } from '../useMetricLayout';

@@ -33,7 +33,7 @@ export interface AppCodeEditorProps {
   readOnlyMessage?: string;
   defaultValue?: string;
   monacoEditorOptions?: editor.IStandaloneEditorConstructionOptions;
-  variant?: 'bordered';
+  variant?: 'bordered' | null;
   onMetaEnter?: () => void;
 }
 

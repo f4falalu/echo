@@ -2,12 +2,22 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { AppVerticalCodeSplitter } from './AppVerticalCodeSplitter';
 
 const meta: Meta<typeof AppVerticalCodeSplitter> = {
-  title: 'UI/Layouts/AppVerticalCodeSplitter',
+  title: 'Features/Layout/AppVerticalCodeSplitter',
   component: AppVerticalCodeSplitter,
   parameters: {
     layout: 'fullscreen'
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
+  args: {
+    className: 'min-h-[600px] min-w-[600px]'
+  },
+  decorators: [
+    (Story) => (
+      <div className="" style={{ height: '500px' }}>
+        <Story />
+      </div>
+    )
+  ]
 };
 
 export default meta;
@@ -21,13 +31,13 @@ const mockData: Record<string, string | number | null>[] = [
 export const Default: Story = {
   args: {
     sql: 'SELECT * FROM sample_table',
-    setSQL: (sql: string) => console.log('SQL changed:', sql),
+    setSQL: (sql: string) => alert('SQL changed: ' + sql),
     runSQLError: null,
-    onRunQuery: async () => console.log('Running query...'),
+    onRunQuery: async () => alert('Running query...'),
     data: mockData,
     fetchingData: false,
     defaultLayout: ['50%', '50%'],
-    autoSaveId: 'default-splitter'
+    autoSaveId: 'default-split-for-code-splitter'
   }
 };
 
@@ -62,14 +72,14 @@ export const CustomGap: Story = {
 export const WithSaveButton: Story = {
   args: {
     ...Default.args,
-    onSaveSQL: async () => console.log('Saving SQL...')
+    onSaveSQL: async () => alert('Saving SQL...')
   }
 };
 
 export const DisabledSave: Story = {
   args: {
     ...Default.args,
-    onSaveSQL: async () => console.log('Saving SQL...'),
+    onSaveSQL: async () => alert('Saving SQL...'),
     disabledSave: true
   }
 };
