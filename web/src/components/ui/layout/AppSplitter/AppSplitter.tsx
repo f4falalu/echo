@@ -20,6 +20,7 @@ import {
 } from './helper';
 import Cookies from 'js-cookie';
 import { createStyles } from 'antd-style';
+import { cn } from '@/lib/classMerge';
 
 // First, define the ref type
 export interface AppSplitterRef {
@@ -77,7 +78,6 @@ export const AppSplitter = React.memo(
       ref
     ) => {
       const containerRef = useRef<HTMLDivElement>(null);
-      const [isDragging, setIsDragging] = useState(false);
       const [sizes, setSizes] = useState<(number | string)[]>(defaultLayout);
       const hasHidden = useMemo(() => leftHidden || rightHidden, [leftHidden, rightHidden]);
       const _allowResize = useMemo(
@@ -121,16 +121,8 @@ export const AppSplitter = React.memo(
         />
       ));
 
-      const onDragEnd = useMemoizedFn(() => {
-        setIsDragging(false);
-      });
-
-      const onDragStart = useMemoizedFn(() => {
-        setIsDragging(true);
-      });
-
       const onChangePanels = useMemoizedFn((sizes: number[]) => {
-        if (!isDragging) return;
+        //    if (!isDragging) return;
         setSizes(sizes);
         const key = createAutoSaveId(autoSaveId);
         const sizesString = preserveSide === 'left' ? [sizes[0], 'auto'] : ['auto', sizes[1]];
@@ -253,8 +245,8 @@ export const AppSplitter = React.memo(
             style={style}
             allowResize={_allowResize}
             onChange={onChangePanels}
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
+            // onDragStart={onDragStart}
+            // onDragEnd={onDragEnd}
             resizerSize={3}
             sashRender={sashRender}>
             <Pane
@@ -286,19 +278,19 @@ const AppSplitterSash: React.FC<{
   splitDirection?: 'vertical' | 'horizontal';
 }> = React.memo(
   ({ active, splitterClassName = '', hideSplitter = false, splitDirection = 'vertical' }) => {
-    const { styles, cx } = useStyles();
-
     return (
       <div
-        className={cx(
+        className={cn(
           splitterClassName,
-          styles.splitter,
+          //  styles.splitter,
+          'bg-primary left-[1px]',
           'absolute transition',
           `cursor-${splitDirection}-resize`,
           splitDirection === 'vertical' ? 'h-full w-[0.5px]' : 'h-[0.5px] w-full',
-          hideSplitter && 'hide',
-          active && 'active',
-          !active && 'inactive'
+          active && 'bg-primary',
+          !active && 'bg-border',
+          hideSplitter && 'bg-transparent',
+          hideSplitter && active && 'bg-border'
         )}
       />
     );

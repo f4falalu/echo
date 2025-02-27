@@ -28,7 +28,7 @@ const LeftContent = () => (
 );
 
 const RightContent = () => (
-  <div className="flex h-full w-full flex-col gap-3 bg-blue-200 p-4">
+  <div className="flex h-full w-full flex-col gap-3 bg-blue-100 p-4">
     <h2 className="text-lg font-semibold">Right Panel</h2>
     <p>This is the right panel content</p>
   </div>
@@ -104,5 +104,13 @@ export const HiddenLeft: Story = {
     ...Default.args,
     autoSaveId: 'hidden-left-split',
     leftHidden: true
+  }
+};
+
+export const HideSplitter: Story = {
+  args: {
+    ...Default.args,
+    autoSaveId: 'hide-splitter',
+    hideSplitter: true
   }
 };
