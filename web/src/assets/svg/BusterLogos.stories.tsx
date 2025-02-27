@@ -3,7 +3,7 @@ import { BusterLogo } from './BusterLogo';
 import { BusterLogoWithText } from './BusterLogoWithText';
 
 const meta: Meta<typeof BusterLogo> = {
-  title: 'Base/Logos',
+  title: 'UI/Logos',
   tags: ['autodocs'],
   argTypes: {
     className: { control: 'text' }
