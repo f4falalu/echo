@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 const sizeVariants = cva('', {
   variants: {
     size: {
+      xsmall: 'h-[32px] min-h-[32px] px-2.5',
       small: 'p-2.5',
       default: 'p-4'
     }

@@ -102,7 +102,6 @@ const _DashboardMetricItem: React.FC<{
             data={data}
             loading={loading}
             error={error}
-            bordered={false}
             onInitialAnimationEnd={onInitialAnimationEndPreflight}
             animate={!isDragOverlay && animate}
             animateLegend={false}

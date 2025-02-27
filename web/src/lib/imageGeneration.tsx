@@ -32,7 +32,6 @@ export const generateChartDownloadImage = async (
       <div className={`h-[655px] w-[880px]`}>
         <div className="relative flex h-full w-full items-center justify-center p-0">
           <BusterChart
-            bordered={false}
             data={messageData}
             animate={false}
             onChartMounted={async (chart) => {
