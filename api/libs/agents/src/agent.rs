@@ -6,7 +6,7 @@ use litellm::{
 use serde_json::Value;
 use std::{collections::HashMap, env, sync::Arc};
 use tokio::sync::{broadcast, RwLock};
-use crate::tools::ToolExecutor;
+use crate::tools::{ToolExecutor, IntoToolCallExecutor, ToolCallExecutor};
 use uuid::Uuid;
 
 use crate::models::AgentThread;
@@ -23,29 +23,6 @@ impl std::fmt::Display for AgentError {
 }
 
 type MessageResult = Result<Message, AgentError>;
-
-// Box<T> implementation for ToolExecutor
-#[async_trait::async_trait]
-impl<T: ToolExecutor<Output = Value, Params = Value> + Send + Sync> ToolExecutor for Box<T> {
-    type Output = Value;
-    type Params = Value;
-
-    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
-        (**self).execute(params).await
-    }
-
-    fn get_schema(&self) -> Value {
-        (**self).get_schema()
-    }
-
-    fn get_name(&self) -> String {
-        (**self).get_name()
-    }
-
-    async fn is_enabled(&self) -> bool {
-        (**self).is_enabled().await
-    }
-}
 
 #[derive(Clone)]
 /// The Agent struct is responsible for managing conversations with the LLM
@@ -224,26 +201,33 @@ impl Agent {
     /// # Arguments
     /// * `name` - The name of the tool, used to identify it in tool calls
     /// * `tool` - The tool implementation that will be executed
-    pub async fn add_tool<T: ToolExecutor<Output = Value, Params = Value> + 'static>(
-        &self,
-        name: String,
-        tool: T,
-    ) {
+    pub async fn add_tool<T>(&self, name: String, tool: T)
+    where
+        T: ToolExecutor + 'static, 
+        T::Params: serde::de::DeserializeOwned,
+        T::Output: serde::Serialize,
+    {
         let mut tools = self.tools.write().await;
-        tools.insert(name, Box::new(tool));
+        // Convert the tool to a ToolCallExecutor
+        let value_tool = tool.into_tool_call_executor();
+        tools.insert(name, Box::new(value_tool));
     }
 
     /// Add multiple tools to the agent at once
     ///
     /// # Arguments
     /// * `tools` - HashMap of tool names and their implementations
-    pub async fn add_tools<E: ToolExecutor<Output = Value, Params = Value> + 'static>(
-        &self,
-        tools: HashMap<String, E>,
-    ) {
+    pub async fn add_tools<E>(&self, tools: HashMap<String, E>)
+    where
+        E: ToolExecutor + 'static,
+        E::Params: serde::de::DeserializeOwned,
+        E::Output: serde::Serialize,
+    {
         let mut tools_map = self.tools.write().await;
         for (name, tool) in tools {
-            tools_map.insert(name, Box::new(tool));
+            // Convert each tool to a ToolCallExecutor
+            let value_tool = tool.into_tool_call_executor();
+            tools_map.insert(name, Box::new(value_tool));
         }
     }
 

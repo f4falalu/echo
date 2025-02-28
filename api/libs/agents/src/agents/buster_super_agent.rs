@@ -14,7 +14,7 @@ use crate::{
             },
             planning_tools::CreatePlan,
         },
-        ToolExecutor, IntoValueTool,
+        ToolExecutor, IntoToolCallExecutor,
     },
     Agent, AgentError, AgentExt, AgentThread,
 };
@@ -60,37 +60,37 @@ impl BusterSuperAgent {
         self.agent
             .add_tool(
                 search_data_catalog_tool.get_name(),
-                search_data_catalog_tool.into_value_tool(),
+                search_data_catalog_tool.into_tool_call_executor(),
             )
             .await;
         self.agent
             .add_tool(
                 create_metric_files_tool.get_name(),
-                create_metric_files_tool.into_value_tool(),
+                create_metric_files_tool.into_tool_call_executor(),
             )
             .await;
         self.agent
             .add_tool(
                 modify_metric_files_tool.get_name(),
-                modify_metric_files_tool.into_value_tool(),
+                modify_metric_files_tool.into_tool_call_executor(),
             )
             .await;
         self.agent
             .add_tool(
                 create_dashboard_files_tool.get_name(),
-                create_dashboard_files_tool.into_value_tool(),
+                create_dashboard_files_tool.into_tool_call_executor(),
             )
             .await;
         self.agent
             .add_tool(
                 modify_dashboard_files_tool.get_name(),
-                modify_dashboard_files_tool.into_value_tool(),
+                modify_dashboard_files_tool.into_tool_call_executor(),
             )
             .await;
         self.agent
             .add_tool(
                 create_plan_tool.get_name(),
-                create_plan_tool.into_value_tool(),
+                create_plan_tool.into_tool_call_executor(),
             )
             .await;
 

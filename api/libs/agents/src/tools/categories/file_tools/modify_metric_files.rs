@@ -8,6 +8,7 @@ use database::{enums::Verification, models::MetricFile, pool::get_pg_pool, schem
 use diesel::{upsert::excluded, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use indexmap::IndexMap;
+use query_engine::data_types::DataType;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tracing::{debug, error, info, warn};
@@ -20,7 +21,6 @@ use super::{
 };
 use crate::{
     agent::Agent,
-    data_types::DataType,
     tools::{
         file_tools::common::{process_metric_file_modification, METRIC_YML_SCHEMA},
         ToolExecutor,

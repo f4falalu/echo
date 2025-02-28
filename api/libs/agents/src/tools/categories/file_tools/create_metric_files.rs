@@ -15,7 +15,6 @@ use uuid::Uuid;
 
 use crate::{
     agent::Agent,
-    data_types::DataType,
     tools::{
         file_tools::{
             common::{process_metric_file, METRIC_YML_SCHEMA},

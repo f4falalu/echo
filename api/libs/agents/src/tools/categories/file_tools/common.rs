@@ -1,25 +1,31 @@
 use anyhow::{anyhow, Result};
+use chrono::{Utc};
 use database::{enums::Verification, models::MetricFile, pool::get_pg_pool, schema::metric_files};
 use indexmap::IndexMap;
-use tracing::{debug, error};
-use uuid::Uuid;
-use chrono::{Utc, Duration};
-use serde::{Deserialize, Serialize};
+use query_engine::{data_source_query_routes::query_engine::query_engine, data_types::DataType};
 use serde_json;
 use serde_yaml;
+use tracing::{debug, error};
+use uuid::Uuid;
 
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 
 use crate::tools::file_tools::modify_metric_files::apply_modifications_to_content;
 
-use super::{file_types::metric_yml::MetricYml, modify_metric_files::{FileModification, ModificationResult}};
+use super::{
+    file_types::metric_yml::MetricYml,
+    modify_metric_files::{FileModification, ModificationResult},
+};
 
 // Import the types needed for the modification function
 
 /// Validates SQL query using existing query engine by attempting to run it
 /// Returns a tuple with a message about the number of records and the results (if ≤ 13 records)
-pub async fn validate_sql(sql: &str, dataset_id: &Uuid) -> Result<(String, Vec<IndexMap<String, DataType>>)> {
+pub async fn validate_sql(
+    sql: &str,
+    dataset_id: &Uuid,
+) -> Result<(String, Vec<IndexMap<String, DataType>>)> {
     debug!("Validating SQL query for dataset {}", dataset_id);
 
     if sql.trim().is_empty() {
@@ -27,27 +33,27 @@ pub async fn validate_sql(sql: &str, dataset_id: &Uuid) -> Result<(String, Vec<I
     }
 
     // Try to execute the query using query_engine
-    let results = match query_engine(dataset_id, &sql.to_string()).await {
+    let results = match query_engine(dataset_id, &sql.to_string(), None).await {
         Ok(results) => results,
         Err(e) => return Err(anyhow!("SQL validation failed: {}", e)),
     };
 
     let num_records = results.len();
-    
+
     // Create appropriate message based on number of records
     let message = if num_records == 0 {
         "No records were found".to_string()
     } else {
         format!("{} records were returned", num_records)
     };
-    
+
     // Return records only if there are 13 or fewer
     let return_records = if num_records <= 13 {
         results
     } else {
         Vec::new() // Empty vec when more than 13 records
     };
-    
+
     Ok((message, return_records))
 }
 
@@ -546,8 +552,8 @@ pub async fn process_metric_file(
 > {
     debug!("Processing metric file: {}", file_name);
 
-    let metric_yml = MetricYml::new(yml_content.clone())
-        .map_err(|e| format!("Invalid YAML format: {}", e))?;
+    let metric_yml =
+        MetricYml::new(yml_content.clone()).map_err(|e| format!("Invalid YAML format: {}", e))?;
 
     let metric_id = metric_yml
         .id
@@ -596,7 +602,16 @@ pub async fn process_metric_file_modification(
     mut file: MetricFile,
     modification: &FileModification,
     duration: i64,
-) -> Result<(MetricFile, MetricYml, Vec<ModificationResult>, String, Vec<IndexMap<String, DataType>>), anyhow::Error> {
+) -> Result<
+    (
+        MetricFile,
+        MetricYml,
+        Vec<ModificationResult>,
+        String,
+        Vec<IndexMap<String, DataType>>,
+    ),
+    anyhow::Error,
+> {
     debug!(
         file_id = %file.id,
         file_name = %modification.file_name,
@@ -707,30 +722,31 @@ pub async fn process_metric_file_modification(
 
                     // Validate SQL with the selected dataset_id and get results
                     let dataset_id = new_yml.dataset_ids[0];
-                    let (message, validation_results) = match validate_sql(&new_yml.sql, &dataset_id).await {
-                        Ok(results) => results,
-                        Err(e) => {
-                            let error = format!("Invalid SQL query: {}", e);
-                            error!(
-                                file_id = %file.id,
-                                file_name = %modification.file_name,
-                                error = %error,
-                                "SQL validation error"
-                            );
-                            results.push(ModificationResult {
-                                file_id: file.id,
-                                file_name: modification.file_name.clone(),
-                                success: false,
-                                original_lines: original_lines.clone(),
-                                adjusted_lines: adjusted_lines.clone(),
-                                error: Some(error.clone()),
-                                modification_type: "sql_validation".to_string(),
-                                timestamp: Utc::now(),
-                                duration,
-                            });
-                            return Err(anyhow!(error));
-                        }
-                    };
+                    let (message, validation_results) =
+                        match validate_sql(&new_yml.sql, &dataset_id).await {
+                            Ok(results) => results,
+                            Err(e) => {
+                                let error = format!("Invalid SQL query: {}", e);
+                                error!(
+                                    file_id = %file.id,
+                                    file_name = %modification.file_name,
+                                    error = %error,
+                                    "SQL validation error"
+                                );
+                                results.push(ModificationResult {
+                                    file_id: file.id,
+                                    file_name: modification.file_name.clone(),
+                                    success: false,
+                                    original_lines: original_lines.clone(),
+                                    adjusted_lines: adjusted_lines.clone(),
+                                    error: Some(error.clone()),
+                                    modification_type: "sql_validation".to_string(),
+                                    timestamp: Utc::now(),
+                                    duration,
+                                });
+                                return Err(anyhow!(error));
+                            }
+                        };
 
                     // Update file record
                     file.content = serde_json::to_value(&new_yml)?;

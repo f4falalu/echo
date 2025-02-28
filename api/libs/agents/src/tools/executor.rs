@@ -4,30 +4,6 @@ use serde_json::Value;
 
 /// A trait that defines how tools should be implemented.
 /// Any struct that wants to be used as a tool must implement this trait.
-/// 
-/// // Add this near the top of the file, with other trait implementations
-#[async_trait::async_trait]
-impl<T: ToolExecutor<Output = Value, Params = Value> + Send + Sync> ToolExecutor for Box<T> {
-    type Output = Value;
-    type Params = Value;
-
-    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
-        (**self).execute(params).await
-    }
-
-    fn get_schema(&self) -> Value {
-        (**self).get_schema()
-    }
-
-    fn get_name(&self) -> String {
-        (**self).get_name()
-    }
-
-    async fn is_enabled(&self) -> bool {
-        (**self).is_enabled().await
-    }
-}
-
 #[async_trait::async_trait]
 pub trait ToolExecutor: Send + Sync {
     /// The type of the output of the tool
@@ -54,12 +30,14 @@ pub trait ToolExecutor: Send + Sync {
         Ok(())
     }
 }
-struct ToolCallExecutor<T: ToolExecutor> {
+
+/// A wrapper type that converts ToolCall parameters to Value before executing
+pub struct ToolCallExecutor<T: ToolExecutor> {
     inner: Box<T>,
 }
 
 impl<T: ToolExecutor> ToolCallExecutor<T> {
-    fn new(inner: T) -> Self {
+    pub fn new(inner: T) -> Self {
         Self {
             inner: Box::new(inner),
         }
@@ -92,4 +70,51 @@ where
     async fn is_enabled(&self) -> bool {
         self.inner.is_enabled().await
     }
+}
+
+/// Implementation for Box<T> to enable dynamic dispatch
+#[async_trait::async_trait]
+impl<T: ToolExecutor<Output = Value, Params = Value> + Send + Sync> ToolExecutor for Box<T> {
+    type Output = Value;
+    type Params = Value;
+
+    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
+        (**self).execute(params).await
+    }
+
+    fn get_schema(&self) -> Value {
+        (**self).get_schema()
+    }
+
+    fn get_name(&self) -> String {
+        (**self).get_name()
+    }
+
+    async fn is_enabled(&self) -> bool {
+        (**self).is_enabled().await
+    }
+}
+
+/// A trait to convert any ToolExecutor to a ToolCallExecutor
+pub trait IntoToolCallExecutor: ToolExecutor
+where
+    Self::Params: serde::de::DeserializeOwned,
+    Self::Output: serde::Serialize,
+{
+    /// Convert this tool to a ToolCallExecutor which works with JSON values
+    fn into_tool_call_executor(self) -> ToolCallExecutor<Self>
+    where
+        Self: Sized,
+    {
+        ToolCallExecutor::new(self)
+    }
+}
+
+// Implement IntoToolCallExecutor for all types that meet the requirements
+impl<T> IntoToolCallExecutor for T
+where
+    T: ToolExecutor,
+    T::Params: serde::de::DeserializeOwned,
+    T::Output: serde::Serialize,
+{
 }

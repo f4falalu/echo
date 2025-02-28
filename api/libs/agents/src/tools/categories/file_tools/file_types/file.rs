@@ -3,7 +3,7 @@ use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::data_types::DataType;
+use query_engine::data_types::DataType;
 
 use super::dashboard_yml::DashboardYml;
 use super::metric_yml::MetricYml;
