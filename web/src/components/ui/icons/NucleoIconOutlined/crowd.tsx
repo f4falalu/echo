@@ -1,24 +1,26 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function crowd(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px crowd';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px crowd";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <circle
           cx="4.25"
           cy="10.5"
           fill="none"
           r="1.75"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -28,7 +30,7 @@ function crowd(props: iconProps) {
           cy="2.5"
           fill="none"
           r="1.75"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -38,7 +40,7 @@ function crowd(props: iconProps) {
           cy="10.5"
           fill="none"
           r="1.5"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -46,7 +48,7 @@ function crowd(props: iconProps) {
         <path
           d="M.895,17c.43-1.446,1.77-2.5,3.355-2.5,1.585,0,2.925,1.054,3.355,2.5"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -54,7 +56,7 @@ function crowd(props: iconProps) {
         <path
           d="M11.194,7.273c-.6-.484-1.363-.773-2.194-.773-.831,0-1.594,.289-2.194,.773"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -62,7 +64,7 @@ function crowd(props: iconProps) {
         <path
           d="M10.395,17c.43-1.446,1.77-2.5,3.355-2.5,1.585,0,2.925,1.054,3.355,2.5"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

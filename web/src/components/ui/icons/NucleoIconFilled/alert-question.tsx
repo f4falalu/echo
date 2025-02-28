@@ -1,27 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function alertQuestion(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'alert question';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px alert question";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
+        <circle cx="6" cy="10.5" fill="#212121" r="1" strokeWidth="0" />
         <path
-          d="m8.625,12c-.4141,0-.75-.3359-.75-.75,0-2.1553,1.2163-3.0215,2.1938-3.7173.8726-.6211,1.3281-.9888,1.3281-1.9116,0-2.0498-1.7031-2.209-2.2251-2.209-1.4409,0-2.2744.5757-2.8784,1.9868-.1626.3809-.6025.5571-.9844.3945-.3809-.1626-.5576-.6035-.3945-.9844.8452-1.9766,2.1982-2.897,4.2573-2.897,1.854,0,3.7251,1.147,3.7251,3.709,0,1.7393-1.0859,2.5127-1.958,3.1338-.874.6216-1.564,1.1133-1.564,2.4951,0,.4141-.3359.75-.75.75Z"
-          fill={fill}
-          strokeWidth="0"
-        />
-        <path
-          d="m8.658,16c.551,0,1-.449,1-1s-.449-1-1-1-1,.449-1,1,.449,1,1,1Z"
-          fill={secondaryfill}
+          d="m6,8.25c-.011,0-.023,0-.034,0-.414-.019-.734-.369-.715-.783.07-1.564.934-2.238,1.564-2.729.553-.432.798-.646.818-1.218.033-.988-.711-1.234-1.341-1.267-.808-.048-1.426.412-1.637,1.215-.105.401-.513.638-.916.535-.4-.105-.64-.515-.535-.916.393-1.495,1.624-2.413,3.165-2.332,1.733.089,2.818,1.195,2.763,2.816-.043,1.296-.792,1.88-1.395,2.35-.551.43-.949.74-.988,1.614-.018.402-.35.716-.749.716Z"
+          fill="#212121"
           strokeWidth="0"
         />
       </g>

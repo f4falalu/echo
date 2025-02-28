@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function minimizeWindow(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px minimize window';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px minimize window";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M5.75,12.25h-2c-1.105,0-2-.895-2-2V5.75c0-1.105,.895-2,2-2H12.25c1.105,0,2,.895,2,2v2"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function minimizeWindow(props: iconProps) {
         <path
           d="M7.25 6.25L7.25 9.25 4.25 9.25"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function minimizeWindow(props: iconProps) {
         <path
           d="M7.25 9.25L4.25 6.25"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -43,7 +45,7 @@ function minimizeWindow(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

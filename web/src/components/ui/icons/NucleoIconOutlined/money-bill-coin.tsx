@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function moneyBillCoin(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px money bill coin';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px money bill coin";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M8.033,8.751c-.616-.341-1.033-.997-1.033-1.751,0-1.105,.895-2,2-2,.345,0,.67,.087,.953,.241"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function moneyBillCoin(props: iconProps) {
         <path
           d="M4.75,1.75c0,1.657-1.343,3-3,3"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function moneyBillCoin(props: iconProps) {
         <path
           d="M13.25,1.75c0,1.657,1.343,3,3,3"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +42,7 @@ function moneyBillCoin(props: iconProps) {
         <path
           d="M4.75,12.25c0-1.657-1.343-3-3-3"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -48,7 +50,7 @@ function moneyBillCoin(props: iconProps) {
         <path
           d="M7.25,12.25H3.75c-1.105,0-2-.895-2-2V3.75c0-1.105,.895-2,2-2H14.25c1.105,0,2,.895,2,2v1"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -59,7 +61,7 @@ function moneyBillCoin(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -72,7 +74,7 @@ function moneyBillCoin(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -85,7 +87,7 @@ function moneyBillCoin(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

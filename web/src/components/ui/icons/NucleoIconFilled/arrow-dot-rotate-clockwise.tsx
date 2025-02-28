@@ -1,24 +1,26 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function arrowDotRotateClockwise(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'arrow dot rotate clockwise';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px arrow dot rotate clockwise";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
+        <circle cx="9.25" cy="9.25" fill="#212121" r="1.75" strokeWidth="0" />
         <path
-          d="M9.898,15.438c-.296,.041-.598,.062-.898,.062-3.584,0-6.5-2.916-6.5-6.5S5.416,2.5,9,2.5c2.154,0,4.128,1.074,5.329,2.801l-1.458-.202c-.412-.053-.789,.23-.846,.641s.23,.789,.641,.846l2.944,.407c.035,.004,.069,.007,.104,.007,.369,0,.69-.272,.742-.647l.408-2.945c.057-.411-.229-.789-.64-.846-.415-.06-.789,.23-.846,.64l-.116,.84c-1.496-1.886-3.781-3.042-6.261-3.042C4.589,1,1,4.589,1,9s3.589,8,8,8c.368,0,.739-.025,1.102-.075,.411-.057,.697-.435,.641-.845-.057-.411-.437-.692-.845-.641Z"
-          fill={fill}
+          d="m10.75,0c-.414,0-.75.336-.75.75v.784c-1.078-.97-2.483-1.534-4-1.534C2.691,0,0,2.691,0,6s2.691,6,6,6c.414,0,.75-.336.75-.75s-.336-.75-.75-.75c-2.481,0-4.5-2.019-4.5-4.5S3.519,1.5,6,1.5c1.311,0,2.516.556,3.356,1.5h-1.606c-.414,0-.75.336-.75.75s.336.75.75.75h3c.414,0,.75-.336.75-.75V.75c0-.414-.336-.75-.75-.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
-        <circle cx="14.25" cy="13.75" fill={secondaryfill} r="2.75" />
       </g>
     </svg>
   );

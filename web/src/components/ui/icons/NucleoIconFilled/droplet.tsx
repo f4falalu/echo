@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function droplet(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'droplet';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px droplet";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M11.444,3.336c-.624-.65-1.269-1.322-1.86-2.057-.284-.354-.884-.354-1.168,0-.592,.734-1.237,1.407-1.86,2.057-1.957,2.04-3.806,3.966-3.806,7.397,0,3.456,2.804,6.267,6.25,6.267s6.25-2.812,6.25-6.267c0-3.431-1.849-5.357-3.806-7.397Zm-2.444,11.164c-2.068,0-3.75-1.69-3.75-3.767,0-.414,.336-.75,.75-.75s.75,.336,.75,.75c0,1.25,1.009,2.267,2.25,2.267,.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"
-          fill={fill}
+          d="m7.924,1.753c-.451-.467-.917-.951-1.341-1.475-.285-.353-.881-.353-1.166,0-.424.524-.89,1.008-1.341,1.475-1.389,1.441-2.826,2.932-2.826,5.501,0,2.617,2.131,4.745,4.75,4.745s4.75-2.128,4.75-4.745c0-2.569-1.437-4.06-2.826-5.501Zm-1.924,7.747c-1.241,0-2.25-1.007-2.25-2.245,0-.414.336-.75.75-.75s.75.336.75.75c0,.411.336.745.75.745s.75.336.75.75-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

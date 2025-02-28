@@ -1,27 +1,30 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function ban(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'ban';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px ban";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M1.752 8.254H16.239V9.754H1.752z"
-          fill={secondaryfill}
-          transform="rotate(-45 8.996 9.004)"
+          d="M0.751 5.25H11.25V6.75H0.751z"
+          fill="#212121"
+          strokeWidth="0"
+          transform="rotate(-45 6 6)"
         />
         <path
-          d="M9,17c-4.411,0-8-3.589-8-8S4.589,1,9,1s8,3.589,8,8-3.589,8-8,8Zm0-14.5c-3.584,0-6.5,2.916-6.5,6.5s2.916,6.5,6.5,6.5,6.5-2.916,6.5-6.5-2.916-6.5-6.5-6.5Z"
-          fill={fill}
+          d="m6,12c-3.309,0-6-2.691-6-6S2.691,0,6,0s6,2.691,6,6-2.691,6-6,6Zm0-10.5C3.519,1.5,1.5,3.519,1.5,6s2.019,4.5,4.5,4.5,4.5-2.019,4.5-4.5S8.481,1.5,6,1.5Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

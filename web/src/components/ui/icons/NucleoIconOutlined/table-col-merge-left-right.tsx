@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function tableColMergeLeftRight(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px table col merge left right';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px table col merge left right";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M9.25 2.75L9.25 15.25"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function tableColMergeLeftRight(props: iconProps) {
         <path
           d="M3.145,13.99c.294,.737,1.012,1.26,1.855,1.26H13.25c1.104,0,2-.895,2-2V4.75c0-1.105-.896-2-2-2H5c-.843,0-1.56,.523-1.855,1.26"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function tableColMergeLeftRight(props: iconProps) {
         <path
           d="M3.25 11.5L0.75 9 3.25 6.5"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +42,7 @@ function tableColMergeLeftRight(props: iconProps) {
         <path
           d="M0.75 9L6.25 9"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

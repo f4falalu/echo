@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function cloudDownload2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'cloud download 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px cloud download 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M14.146,4.327c-.442-2.463-2.611-4.327-5.146-4.327C6.105,0,3.75,2.355,3.75,5.25c0,.128,.005,.258,.017,.39-1.604,.431-2.767,1.885-2.767,3.61,0,2.068,1.682,3.75,3.75,3.75h3.5v-4.25c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v4.25h2.75c2.481,0,4.5-2.019,4.5-4.5,0-1.854-1.15-3.503-2.854-4.173Z"
-          fill={fill}
+          d="m8.518,2.51C7.77.985,6.228,0,4.5,0,2.019,0,0,2.019,0,4.5c0,1.31.572,2.48,1.468,3.303.108-.232.25-.453.441-.644.425-.425.99-.659,1.591-.659.084,0,.167.004.25.014v-.764c0-1.241,1.009-2.25,2.25-2.25s2.25,1.009,2.25,2.25v.764c.083-.009.166-.014.25-.014.601,0,1.166.234,1.591.659.331.331.536.739.618,1.167.78-.594,1.292-1.523,1.292-2.576,0-1.868-1.563-3.405-3.482-3.24Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M10.72,14.47l-.97,.97v-2.439h-1.5v2.439l-.97-.97c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l2.25,2.25c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22l2.25-2.25c.293-.293,.293-.768,0-1.061s-.768-.293-1.061,0Z"
-          fill={secondaryfill}
+          d="m9.03,8.22c-.293-.293-.768-.293-1.061,0l-1.22,1.22v-3.689c0-.414-.336-.75-.75-.75s-.75.336-.75.75v3.689l-1.22-1.22c-.293-.293-.768-.293-1.061,0s-.293.768,0,1.061l2.5,2.5c.146.146.338.22.53.22s.384-.073.53-.22l2.5-2.5c.293-.293.293-.768,0-1.061Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

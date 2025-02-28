@@ -1,22 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function book2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'book 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px book 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M15.923,13.069c.006-.013,.015-.023,.02-.036,.034-.083,.049-.169,.052-.258,0-.009,.005-.016,.005-.025V1.75c0-.414-.336-.75-.75-.75H4.75c-1.517,0-2.75,1.233-2.75,2.75V14.5c0,1.378,1.121,2.5,2.5,2.5H15.25c.286,0,.547-.163,.673-.419s.096-.562-.079-.789c-.522-.679-.434-2.013,.004-2.589,.032-.042,.053-.088,.075-.135ZM8.75,4.5h3.5c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75h-3.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75Zm0,3h3.5c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75h-3.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75ZM3.5,3.75c0-.689,.561-1.25,1.25-1.25h.25V12h-.5c-.356,0-.693,.077-1,.212V3.75ZM14.092,15.5H4.5c-.552,0-1-.449-1-1s.448-1,1-1H14.105c-.155,.629-.174,1.339-.014,2Z"
-          fill={fill}
+          d="m10.25,12H3.25c-1.241,0-2.25-1.009-2.25-2.25,0-.414.336-.75.75-.75s.75.336.75.75.336.75.75.75h7c.414,0,.75.336.75.75s-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
+        <path
+          d="m8.75,0H3.25C2.009,0,1,1.009,1,2.25v7.5c0,.414.336.75.75.75s.75-.336.75-.75.336-.75.75-.75h7c.414,0,.75-.336.75-.75V2.25c0-1.241-1.009-2.25-2.25-2.25Zm-1.5,5h-2.5c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h2.5c.414,0,.75.336.75.75s-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

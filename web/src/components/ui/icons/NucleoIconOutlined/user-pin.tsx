@@ -1,33 +1,35 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function userPin(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px user pin';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px user pin";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <circle
           cx="9"
           cy="4.5"
           fill="none"
           r="2.75"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="14.25" cy="13.25" fill={secondaryfill} r=".75" />
+        <circle cx="14.25" cy="13.25" fill="#212121" r=".75" />
         <path
           d="M10.249,9.891c-.405-.083-.819-.141-1.249-.141-2.551,0-4.739,1.53-5.709,3.72-.365,.825,.087,1.774,.947,2.045,1.225,.386,2.846,.734,4.762,.734,.303,0,.585-.022,.873-.038"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +37,7 @@ function userPin(props: iconProps) {
         <path
           d="M14.25,17s-2.75-1.509-2.75-3.75c0-1.519,1.231-2.75,2.75-2.75s2.75,1.231,2.75,2.75c0,2.241-2.75,3.75-2.75,3.75Z"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

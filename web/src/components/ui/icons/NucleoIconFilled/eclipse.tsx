@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function eclipse(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'eclipse';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px eclipse";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M9,1C4.589,1,1,4.589,1,9s3.589,8,8,8,8-3.589,8-8S13.411,1,9,1ZM2.5,9c0-3.239,2.384-5.925,5.488-6.413-1.987,1.476-3.238,3.83-3.238,6.413s1.251,4.937,3.238,6.413c-3.104-.489-5.488-3.174-5.488-6.413Z"
-          fill={fill}
+          d="m6,0C2.691,0,0,2.691,0,6s2.691,6,6,6,6-2.691,6-6S9.309,0,6,0ZM1.5,6C1.5,3.778,3.123,1.939,5.244,1.576c-1.236,1.109-1.994,2.692-1.994,4.424s.758,3.315,1.994,4.424c-2.121-.362-3.744-2.201-3.744-4.424Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

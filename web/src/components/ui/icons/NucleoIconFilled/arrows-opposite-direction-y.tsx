@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function arrowsOppositeDirectionY(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'arrows opposite direction y';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px arrows opposite direction y";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M14.47,11.97l-1.97,1.97V7.75c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75v6.189l-1.97-1.97c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l3.25,3.25c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22l3.25-3.25c.293-.293,.293-.768,0-1.061s-.768-.293-1.061,0Z"
-          fill={secondaryfill}
+          d="m10.22,8.22l-1.22,1.22v-4.189c0-.414-.336-.75-.75-.75s-.75.336-.75.75v4.189l-1.22-1.22c-.293-.293-.768-.293-1.061,0s-.293.768,0,1.061l2.5,2.5c.146.146.338.22.53.22s.384-.073.53-.22l2.5-2.5c.293-.293.293-.768,0-1.061s-.768-.293-1.061,0Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M8.97,6.03c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22c.293-.293,.293-.768,0-1.061L6.78,1.72c-.293-.293-.768-.293-1.061,0l-3.25,3.25c-.293,.293-.293,.768,0,1.061s.768,.293,1.061,0l1.97-1.97v6.189c0,.414,.336,.75,.75,.75s.75-.336,.75-.75V4.061l1.97,1.97Z"
-          fill={fill}
+          d="m4.28.22c-.293-.293-.768-.293-1.061,0L.72,2.72c-.293.293-.293.768,0,1.061s.768.293,1.061,0l1.22-1.22v4.189c0,.414.336.75.75.75s.75-.336.75-.75V2.561l1.22,1.22c.146.146.338.22.53.22s.384-.073.53-.22c.293-.293.293-.768,0-1.061L4.28.22Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

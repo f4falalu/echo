@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function finder(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px finder';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px finder";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M9.792,2.75c-1.854,3.5-1.792,7-1.792,7h2.021"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function finder(props: iconProps) {
         <path
           d="M12,11.947c-.883,.511-1.907,.803-3,.803s-2.118-.292-3-.803"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function finder(props: iconProps) {
         <path
           d="M5.75 6.75L5.75 7.75"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +42,7 @@ function finder(props: iconProps) {
         <path
           d="M12.25 6.75L12.25 7.75"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -51,7 +53,7 @@ function finder(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -1,24 +1,35 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function align2Horizontal(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'align 2 horizontal';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px align 2 horizontal";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M9,17c-.414,0-.75-.336-.75-.75V1.75c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v14.5c0,.414-.336,.75-.75,.75Z"
-          fill={secondaryfill}
+          d="m6,12c-.414,0-.75-.336-.75-.75V.75c0-.414.336-.75.75-.75s.75.336.75.75v10.5c0,.414-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
-        <rect height="6" width="12" fill={fill} rx="1.75" ry="1.75" x="3" y="6" />
+        <rect
+          height="6"
+          width="9"
+          fill="#212121"
+          rx="1.75"
+          ry="1.75"
+          strokeWidth="0"
+          x="1.5"
+          y="3"
+        />
       </g>
     </svg>
   );

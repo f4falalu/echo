@@ -1,30 +1,31 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function mouseScroll(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'mouse scroll';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px mouse scroll";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M16.72,12.72l-.72,.72v-2.689c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75v2.689l-.72-.72c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l2,2c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22l2-2c.293-.293,.293-.768,0-1.061s-.768-.293-1.061,0Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M13.78,5.28l.72-.72v2.689c0,.414,.336,.75,.75,.75s.75-.336,.75-.75v-2.689l.72,.72c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22c.293-.293,.293-.768,0-1.061l-2-2c-.293-.293-.768-.293-1.061,0l-2,2c-.293,.293-.293,.768,0,1.061s.768,.293,1.061,0Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M7.25,2h-2c-2.068,0-3.75,1.682-3.75,3.75v6.5c0,2.068,1.682,3.75,3.75,3.75h2c2.068,0,3.75-1.682,3.75-3.75V5.75c0-2.068-1.682-3.75-3.75-3.75Zm-.25,6.75c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75v-2.5c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v2.5Z"
-          fill={fill}
+          fill="#212121"
         />
       </g>
     </svg>

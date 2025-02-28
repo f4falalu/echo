@@ -1,24 +1,26 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function userSettings(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px user settings';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px user settings";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <circle
           cx="9"
           cy="4.5"
           fill="none"
           r="2.75"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -28,7 +30,7 @@ function userSettings(props: iconProps) {
           cy="13.75"
           fill="none"
           r="1.75"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -36,7 +38,7 @@ function userSettings(props: iconProps) {
         <path
           d="M13.75 10.5L13.75 11.75"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -44,7 +46,7 @@ function userSettings(props: iconProps) {
         <path
           d="M16.048 11.452L15.164 12.336"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -52,7 +54,7 @@ function userSettings(props: iconProps) {
         <path
           d="M17 13.75L15.75 13.75"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -60,7 +62,7 @@ function userSettings(props: iconProps) {
         <path
           d="M16.048 16.048L15.164 15.164"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -68,7 +70,7 @@ function userSettings(props: iconProps) {
         <path
           d="M13.75 17L13.75 15.75"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -76,7 +78,7 @@ function userSettings(props: iconProps) {
         <path
           d="M11.452 16.048L12.336 15.164"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -84,7 +86,7 @@ function userSettings(props: iconProps) {
         <path
           d="M10.5 13.75L11.75 13.75"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -92,7 +94,7 @@ function userSettings(props: iconProps) {
         <path
           d="M11.452 11.452L12.336 12.336"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -100,7 +102,7 @@ function userSettings(props: iconProps) {
         <path
           d="M9.597,9.794c-.198-.019-.394-.044-.597-.044-2.551,0-4.739,1.53-5.709,3.72-.365,.825,.087,1.774,.947,2.045,1.218,.385,2.831,.729,4.734,.733"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

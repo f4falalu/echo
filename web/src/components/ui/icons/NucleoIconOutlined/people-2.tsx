@@ -1,24 +1,26 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function people2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px people 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px people 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <circle
           cx="4.37"
           cy="2.5"
           fill="none"
           r="1.75"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -28,7 +30,7 @@ function people2(props: iconProps) {
           cy="2.5"
           fill="none"
           r="1.75"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -38,7 +40,7 @@ function people2(props: iconProps) {
           cy="2.5"
           fill="none"
           r="1.75"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -46,7 +48,7 @@ function people2(props: iconProps) {
         <path
           d="M4.37,17.25h.549c.533,0,.972-.418,.999-.95l.202-4.05,1.256-.359c.271-.077,.424-.363,.339-.631l-1.17-3.704c-.114-.359-.424-.624-.795-.689-.547-.095-1.013-.118-1.38-.114-.367-.004-.833,.019-1.38,.114-.371,.065-.682,.33-.795,.689l-1.17,3.704c-.085,.268,.069,.554,.339,.631l1.256,.359,.202,4.05c.027,.532,.466,.95,.999,.95h.549Z"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -54,7 +56,7 @@ function people2(props: iconProps) {
         <path
           d="M4.37,17.25h.549c.533,0,.972-.418,.999-.95l.202-4.05,1.256-.359c.271-.077,.424-.363,.339-.631l-1.17-3.704c-.114-.359-.424-.624-.795-.689-.547-.095-1.013-.118-1.38-.114-.367-.004-.833,.019-1.38,.114-.371,.065-.682,.33-.795,.689l-1.17,3.704c-.085,.268,.069,.554,.339,.631l1.256,.359,.202,4.05c.027,.532,.466,.95,.999,.95h.549Z"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -62,7 +64,7 @@ function people2(props: iconProps) {
         <path
           d="M13.631,17.25h.549c.533,0,.972-.418,.999-.95l.202-4.05,1.256-.359c.271-.077,.424-.363,.339-.631l-1.17-3.704c-.114-.359-.424-.624-.795-.689-.547-.095-1.013-.118-1.38-.114-.367-.004-.833,.019-1.38,.114-.371,.065-.682,.33-.795,.689l-1.17,3.704c-.085,.268,.069,.554,.339,.631l1.256,.359,.202,4.05c.027,.532,.466,.95,.999,.95h.549Z"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

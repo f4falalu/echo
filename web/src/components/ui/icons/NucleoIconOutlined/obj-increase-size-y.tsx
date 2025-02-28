@@ -1,25 +1,27 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function objIncreaseSizeY(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px obj increase size y';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px obj increase size y";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <rect
           height="8.5"
           width="12.5"
           fill="none"
           rx="2"
           ry="2"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -28,11 +30,11 @@ function objIncreaseSizeY(props: iconProps) {
         />
         <path
           d="M7.06,2.575c.11,.258,.355,.425,.624,.425h2.632c.269,0,.514-.167,.624-.425,.11-.258,.066-.562-.113-.774L9.512,.243c-.13-.154-.316-.243-.512-.243s-.382,.089-.511,.242l-1.316,1.559h0c-.178,.211-.223,.515-.112,.774Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M7.06,15.425c.11-.258,.355-.425,.624-.425h2.632c.269,0,.514,.167,.624,.425,.11,.258,.066,.562-.113,.774l-1.316,1.559c-.13,.154-.316,.243-.512,.243s-.382-.089-.511-.242l-1.316-1.559h0c-.178-.211-.223-.515-.112-.774Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
       </g>
     </svg>

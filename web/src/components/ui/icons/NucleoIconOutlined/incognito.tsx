@@ -1,24 +1,26 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function incognito(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px incognito';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px incognito";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <circle
           cx="5.25"
           cy="13.75"
           fill="none"
           r="2.5"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -28,7 +30,7 @@ function incognito(props: iconProps) {
           cy="13.75"
           fill="none"
           r="2.5"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -36,7 +38,7 @@ function incognito(props: iconProps) {
         <path
           d="M11.883,1.75H6.117c-.498,0-.92,.366-.99,.859l-.377,2.641-3,3h14.5l-3-3-.377-2.641c-.07-.493-.492-.859-.99-.859Z"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -44,7 +46,7 @@ function incognito(props: iconProps) {
         <path
           d="M4.75 5.25L13.25 5.25"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -52,7 +54,7 @@ function incognito(props: iconProps) {
         <path
           d="M7.58,12.842c.362-.365,.865-.592,1.42-.592,.555,0,1.058,.226,1.42,.592"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

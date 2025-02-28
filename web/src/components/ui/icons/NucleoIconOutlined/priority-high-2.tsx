@@ -1,25 +1,27 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function priorityHigh2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px priority high 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px priority high 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <rect
           height="12.5"
           width="2.5"
-          fill={secondaryfill}
+          fill="#212121"
           rx="1"
           ry="1"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,10 +31,10 @@ function priorityHigh2(props: iconProps) {
         <rect
           height="7.5"
           width="2.5"
-          fill={secondaryfill}
+          fill="#212121"
           rx="1"
           ry="1"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,10 +44,10 @@ function priorityHigh2(props: iconProps) {
         <rect
           height="3.5"
           width="2.5"
-          fill={secondaryfill}
+          fill="#212121"
           rx="1"
           ry="1"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

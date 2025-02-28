@@ -1,30 +1,34 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function arrowsCross(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'arrows cross';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px arrows cross";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M15.25,10c-.414,0-.75,.336-.75,.75v2.689l-2.97-2.97c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l2.97,2.97h-2.689c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h4.5c.414,0,.75-.336,.75-.75v-4.5c0-.414-.336-.75-.75-.75Z"
-          fill={secondaryfill}
+          d="m4.232,4.982c-.192,0-.384-.073-.53-.22L.72,1.78c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l2.982,2.982c.293.293.293.768,0,1.061-.146.146-.338.22-.53.22Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M6.47,7.53c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22c.293-.293,.293-.768,0-1.061L3.28,2.22c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061L6.47,7.53Z"
-          fill={secondaryfill}
+          d="m10.75,6.5c-.414,0-.75.336-.75.75v1.689l-1.702-1.702c-.293-.293-.768-.293-1.061,0s-.293.768,0,1.061l1.702,1.702h-1.689c-.414,0-.75.336-.75.75s.336.75.75.75h3.5c.414,0,.75-.336.75-.75v-3.5c0-.414-.336-.75-.75-.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M15.25,2h-4.5c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h2.689L2.22,14.72c-.293,.293-.293,.768,0,1.061,.146,.146,.338,.22,.53,.22s.384-.073,.53-.22L14.5,4.561v2.689c0,.414,.336,.75,.75,.75s.75-.336,.75-.75V2.75c0-.414-.336-.75-.75-.75Z"
-          fill={fill}
+          d="m10.75.5h-3.5c-.414,0-.75.336-.75.75s.336.75.75.75h1.689L.72,10.22c-.293.293-.293.768,0,1.061.146.146.338.22.53.22s.384-.073.53-.22L10,3.061v1.689c0,.414.336.75.75.75s.75-.336.75-.75V1.25c0-.414-.336-.75-.75-.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

@@ -1,23 +1,34 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function clone2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'clone 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px clone 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
-        <rect height="12.5" width="12.5" fill={fill} rx="2.75" ry="2.75" x="4.5" y="4.5" />
+      <g fill="#212121">
         <path
-          d="M3,13.354c-.094,0-.189-.018-.281-.055-1.044-.423-1.718-1.424-1.718-2.55V3.75c0-1.516,1.234-2.75,2.75-2.75h7c1.126,0,2.127,.674,2.55,1.718,.155,.384-.03,.821-.414,.977s-.821-.03-.977-.414c-.192-.475-.647-.782-1.159-.782H3.75c-.689,0-1.25,.561-1.25,1.25v7c0,.512,.307,.967,.782,1.159,.384,.156,.569,.593,.414,.977-.118,.292-.399,.468-.696,.468Z"
-          fill={secondaryfill}
+          d="m3.667,9h-1.417c-1.241,0-2.25-1.009-2.25-2.25V2.25C0,1.009,1.009,0,2.25,0h4.5c1.241,0,2.25,1.009,2.25,2.25v1.5c0,.414-.336.75-.75.75s-.75-.336-.75-.75v-1.5c0-.414-.336-.75-.75-.75H2.25c-.414,0-.75.336-.75.75v4.5c0,.414.336.75.75.75h1.417c.414,0,.75.336.75.75s-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
+        <rect
+          height="9"
+          width="9"
+          fill="#212121"
+          rx="2.25"
+          ry="2.25"
+          strokeWidth="0"
+          x="3"
+          y="3"
         />
       </g>
     </svg>

@@ -1,24 +1,26 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function gear3(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px gear 3';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px gear 3";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <circle
           cx="9"
           cy="8.999"
-          fill={secondaryfill}
+          fill="#212121"
           r="1.75"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +28,7 @@ function gear3(props: iconProps) {
         <path
           d="m15.175,7.278l-.929-.328c-.102-.261-.219-.52-.363-.77s-.31-.48-.485-.699l.18-.968c.125-.671-.187-1.349-.778-1.69l-.351-.203c-.592-.342-1.334-.273-1.853.171l-.745.637c-.56-.086-1.133-.086-1.703,0l-.745-.638c-.519-.444-1.262-.513-1.853-.171l-.351.203c-.592.341-.903,1.019-.778,1.69l.18.965c-.36.449-.646.946-.852,1.474l-.924.326c-.644.227-1.075.836-1.075,1.519v.405c0,.683.431,1.292,1.075,1.519l.929.328c.102.261.218.519.363.769s.31.48.485.7l-.181.968c-.125.671.187,1.349.778,1.69l.351.203c.592.342,1.334.273,1.853-.171l.745-.638c.559.086,1.132.086,1.701,0l.746.639c.519.444,1.262.513,1.853.171l.351-.203c.592-.342.903-1.019.778-1.69l-.18-.966c.359-.449.646-.945.851-1.473l.925-.326c.644-.227,1.075-.836,1.075-1.519v-.405c0-.683-.431-1.292-1.075-1.519h.002Z"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

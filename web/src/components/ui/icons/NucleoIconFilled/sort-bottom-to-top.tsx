@@ -1,34 +1,35 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function sortBottomToTop(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'sort bottom to top';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px sort bottom to top";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M7.28,1.47c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l.97,.97h-.689C3.467,3.5,1,5.967,1,9s2.467,5.5,5.5,5.5h1.75c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75h-1.75c-2.206,0-4-1.794-4-4s1.794-4,4-4h.689l-.97,.97c-.293,.293-.293,.768,0,1.061,.146,.146,.338,.22,.53,.22s.384-.073,.53-.22l2.25-2.25c.293-.293,.293-.768,0-1.061L7.28,1.47Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M16.25,8.25h-4.5c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h4.5c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M16.25,3.5h-4.5c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h4.5c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M16.25,13h-4.5c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h4.5c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75Z"
-          fill={fill}
+          fill="#212121"
         />
       </g>
     </svg>

@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function stars2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px stars 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px stars 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M10.852 3.842L12.323 3.628 13.25 1.75 14.177 3.628 16.25 3.93 14.75 5.392 15.025 6.995"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function stars2(props: iconProps) {
         <path
           d="M7.148 3.842L5.677 3.628 4.75 1.75 3.823 3.628 1.75 3.93 3.25 5.392 2.975 6.995"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function stars2(props: iconProps) {
         <path
           d="M9 5.739L10.545 8.87 14 9.372 11.5 11.809 12.09 15.25 9 13.625 5.91 15.25 6.5 11.809 4 9.372 7.455 8.87 9 5.739z"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

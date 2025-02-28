@@ -1,28 +1,37 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function maximizeWindow(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'maximize window';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px maximize window";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M5.75,11.5H3.75c-.689,0-1.25-.561-1.25-1.25V5.75c0-.689,.561-1.25,1.25-1.25H12.25c.689,0,1.25,.561,1.25,1.25v2c0,.414,.336,.75,.75,.75s.75-.336,.75-.75v-2c0-1.517-1.233-2.75-2.75-2.75H3.75c-1.517,0-2.75,1.233-2.75,2.75v4.5c0,1.517,1.233,2.75,2.75,2.75h2c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M7.78,8.72l-1.72-1.72h1.189c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75h-3c-.414,0-.75,.336-.75,.75v3c0,.414,.336,.75,.75,.75s.75-.336,.75-.75v-1.189l1.72,1.72c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22c.293-.293,.293-.768,0-1.061Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
-        <rect height="6" width="9" fill={fill} rx="2.25" ry="2.25" x="8" y="10" />
+        <rect
+          height="6"
+          width="9"
+          fill="#212121"
+          rx="2.25"
+          ry="2.25"
+          x="8"
+          y="10"
+        />
       </g>
     </svg>
   );

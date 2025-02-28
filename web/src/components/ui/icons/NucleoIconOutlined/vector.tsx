@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function vector(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px vector';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px vector";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M3.25,10.75c0-2.472,1.56-4.58,3.75-5.393"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function vector(props: iconProps) {
         <path
           d="M14.75,10.75c0-2.472-1.56-4.58-3.75-5.393"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function vector(props: iconProps) {
         <path
           d="M2.75 5.25L7 5.25"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +42,7 @@ function vector(props: iconProps) {
         <path
           d="M15.25 5.25L11 5.25"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -51,7 +53,7 @@ function vector(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -64,7 +66,7 @@ function vector(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -77,7 +79,7 @@ function vector(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -85,8 +87,8 @@ function vector(props: iconProps) {
           x="12.75"
           y="10.75"
         />
-        <circle cx="1.5" cy="5.25" fill={secondaryfill} r="1.5" />
-        <circle cx="16.5" cy="5.25" fill={secondaryfill} r="1.5" />
+        <circle cx="1.5" cy="5.25" fill="#212121" r="1.5" />
+        <circle cx="16.5" cy="5.25" fill="#212121" r="1.5" />
       </g>
     </svg>
   );

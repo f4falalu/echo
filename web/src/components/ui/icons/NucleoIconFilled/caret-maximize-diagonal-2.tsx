@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function caretMaximizeDiagonal2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'caret maximize diagonal 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px caret maximize diagonal 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M9.57,3.617c-.156-.375-.519-.617-.924-.617H4c-.552,0-1,.449-1,1v4.646c0,.406,.242,.769,.618,.924,.124,.051,.255,.076,.383,.076,.261,0,.515-.102,.706-.293l4.647-4.647c.286-.287,.371-.715,.216-1.089Z"
-          fill={fill}
+          d="m10.383,4.93c-.375-.155-.803-.07-1.09.217l-4.146,4.146c-.287.287-.372.715-.217,1.09s.518.617.924.617h4.146c.551,0,1-.449,1-1v-4.146c0-.406-.242-.769-.617-.924Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M14.382,8.429c-.377-.156-.804-.068-1.089,.217l-4.647,4.647c-.286,.287-.371,.715-.216,1.089,.156,.375,.519,.617,.924,.617h4.646c.552,0,1-.449,1-1v-4.646c0-.406-.242-.769-.618-.924Z"
-          fill={secondaryfill}
+          d="m6.146,1H2c-.551,0-1,.449-1,1v4.146c0,.406.242.769.617.924.125.052.255.077.384.077.26,0,.514-.102.706-.293L6.854,2.707c.287-.287.372-.715.217-1.09s-.518-.617-.924-.617Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

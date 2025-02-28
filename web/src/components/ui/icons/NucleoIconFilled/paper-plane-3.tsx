@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function paperPlane3(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'paper plane 3';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px paper plane 3";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M16.078,13.649L10.124,2.183c-.219-.421-.649-.683-1.124-.683s-.905,.262-1.124,.683L1.922,13.649c-.234,.452-.177,.997,.147,1.389,.245,.297,.604,.461,.977,.461,.12,0,.241-.017,.36-.052l4.844-1.435v-4.898c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v4.898l4.844,1.435c.489,.146,1.013-.016,1.337-.409,.324-.392,.382-.938,.147-1.389Z"
-          fill={fill}
+          d="m11.823,9.461L7.406.86h0C7.134.33,6.595.001,6,.001s-1.134.329-1.406.858L.177,9.462c-.289.563-.223,1.219.174,1.712.308.382.753.592,1.224.592.136,0,.274-.018.412-.054l3.264-.85v-3.11c0-.414.336-.75.75-.75s.75.336.75.75v3.102l3.264.859c.616.164,1.24-.045,1.636-.538.396-.493.463-1.149.174-1.713Zm-.667.343h0s0,0,0,0h0Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

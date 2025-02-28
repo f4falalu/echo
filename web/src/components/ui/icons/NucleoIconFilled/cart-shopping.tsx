@@ -1,25 +1,27 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function cartShopping(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'cart shopping';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px cart shopping";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
+        <circle cx="9.5" cy="11" fill="#212121" r="1" strokeWidth="0" />
+        <circle cx="3" cy="11" fill="#212121" r="1" strokeWidth="0" />
         <path
-          d="M14.363,4H4.765l-.176-1.196c-.103-.704-.616-1.271-1.307-1.444l-1.351-.337c-.403-.1-.809,.144-.909,.546-.101,.402,.144,.809,.546,.909l1.35,.337c.099,.025,.172,.105,.187,.207l1.032,7.015c-.93,.172-1.637,.985-1.637,1.963,0,1.103,.897,2,2,2H15.25c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75H4.5c-.276,0-.5-.224-.5-.5s.224-.5,.5-.5H13.029c.754,0,1.421-.48,1.66-1.196l1.333-4c.178-.532,.088-1.122-.24-1.577-.328-.455-.859-.727-1.42-.727Z"
-          fill={fill}
+          d="m8.771,9h-4.478c-1.106,0-2.062-.825-2.225-1.918l-.553-3.711c0-.006-.002-.012-.003-.018l-.171-1.151c-.013-.084-.069-.158-.148-.192l-.741-.321C.072,1.523-.103,1.082.062.702.227.322.667.146,1.048.312l.74.321c.558.241.945.745,1.035,1.347l.078.521h7.489c.376,0,.729.167.967.458.238.291.333.669.259,1.038l-.639,3.195c-.209,1.048-1.137,1.809-2.206,1.809Zm1.62-5h.01-.01Z"
+          fill="#212121"
+          strokeWidth="0"
         />
-        <circle cx="3.75" cy="15.75" fill={secondaryfill} r="1.25" />
-        <circle cx="14.25" cy="15.75" fill={secondaryfill} r="1.25" />
       </g>
     </svg>
   );

@@ -1,24 +1,35 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function followObjDownRight(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'follow obj down right';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px follow obj down right";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M7.75,2.49c-.414,0-.75,.336-.75,.75v2.7L3.28,2.22c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l3.72,3.72H3.24c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75H7.75c.414,0,.75-.336,.75-.75V3.24c0-.414-.336-.75-.75-.75Z"
-          fill={secondaryfill}
+          d="m5.25.75c-.414,0-.75.336-.75.75v1.939L1.548.487C1.255.194.78.194.487.487S.194,1.255.487,1.548l2.952,2.952h-1.939c-.414,0-.75.336-.75.75s.336.75.75.75h3.75c.414,0,.75-.336.75-.75V1.5c0-.414-.336-.75-.75-.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
-        <rect height="7" width="7" fill={fill} rx="1.75" ry="1.75" x="9" y="9" />
+        <rect
+          height="6"
+          width="6"
+          fill="#212121"
+          rx="1.75"
+          ry="1.75"
+          strokeWidth="0"
+          x="6"
+          y="6"
+        />
       </g>
     </svg>
   );

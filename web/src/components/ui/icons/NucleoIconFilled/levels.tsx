@@ -1,46 +1,47 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function levels(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'levels';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px levels";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M3.25,10c-.414,0-.75-.336-.75-.75V3.75c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v5.5c0,.414-.336,.75-.75,.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M15.25,10c-.414,0-.75-.336-.75-.75V1.75c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v7.5c0,.414-.336,.75-.75,.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M12.25,10c-.414,0-.75-.336-.75-.75V2.75c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v6.5c0,.414-.336,.75-.75,.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M9.25,10c-.414,0-.75-.336-.75-.75v-3.5c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v3.5c0,.414-.336,.75-.75,.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M6.25,10c-.414,0-.75-.336-.75-.75V1.75c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v7.5c0,.414-.336,.75-.75,.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M4.25,17h-1.5c-.965,0-1.75-.785-1.75-1.75v-1.5c0-.182,.066-.357,.186-.494l1.75-2c.285-.326,.844-.326,1.129,0l1.75,2c.12,.137,.186,.312,.186,.494v1.5c0,.965-.785,1.75-1.75,1.75Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M15.25,17h-1.5c-.965,0-1.75-.785-1.75-1.75v-1.5c0-.182,.066-.357,.186-.494l1.75-2c.285-.326,.844-.326,1.129,0l1.75,2c.12,.137,.186,.312,.186,.494v1.5c0,.965-.785,1.75-1.75,1.75Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
       </g>
     </svg>

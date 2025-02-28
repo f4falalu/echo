@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function globe2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'globe 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px globe 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M16.25,8.25h-3.517c-.157-3.641-1.454-7.25-3.733-7.25s-3.576,3.609-3.733,7.25H1.75v1.5h3.517c.157,3.641,1.454,7.25,3.733,7.25s3.576-3.609,3.733-7.25h3.517v-1.5ZM9,2.5c.858,0,2.079,2.216,2.233,5.75H6.767c.154-3.534,1.375-5.75,2.233-5.75Zm0,13c-.858,0-2.079-2.216-2.233-5.75h4.467c-.154,3.534-1.375,5.75-2.233,5.75Z"
-          fill={secondaryfill}
+          d="m11.25,5.25h-2.351c-.154-2.717-1.141-5.25-2.899-5.25s-2.745,2.533-2.899,5.25H.75c-.414,0-.75.336-.75.75s.336.75.75.75h2.351c.154,2.717,1.141,5.25,2.899,5.25s2.745-2.533,2.899-5.25h2.351c.414,0,.75-.336.75-.75s-.336-.75-.75-.75ZM6,1.5c.387,0,1.24,1.283,1.391,3.75h-2.782c.151-2.467,1.004-3.75,1.391-3.75Zm0,9c-.387,0-1.24-1.283-1.391-3.75h2.782c-.151,2.467-1.004,3.75-1.391,3.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M9,17c-4.411,0-8-3.589-8-8S4.589,1,9,1s8,3.589,8,8-3.589,8-8,8Zm0-14.5c-3.584,0-6.5,2.916-6.5,6.5s2.916,6.5,6.5,6.5,6.5-2.916,6.5-6.5-2.916-6.5-6.5-6.5Z"
-          fill={fill}
+          d="m6,12c-3.309,0-6-2.691-6-6S2.691,0,6,0s6,2.691,6,6-2.691,6-6,6Zm0-10.5C3.519,1.5,1.5,3.519,1.5,6s2.019,4.5,4.5,4.5,4.5-2.019,4.5-4.5S8.481,1.5,6,1.5Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

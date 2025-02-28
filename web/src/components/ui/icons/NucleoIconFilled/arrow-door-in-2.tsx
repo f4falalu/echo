@@ -1,26 +1,27 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function arrowDoorIn2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'arrow door in 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px arrow door in 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M10.25,10.5c-.414,0-.75,.336-.75,.75v1c0,.138-.112,.25-.25,.25h-1.25V7.259c0-.558-.27-1.087-.721-1.415l-3.223-2.344h5.193c.138,0,.25,.112,.25,.25v1.5c0,.414,.336,.75,.75,.75s.75-.336,.75-.75v-1.5c0-.965-.785-1.75-1.75-1.75H2.75c-.965,0-1.75,.785-1.75,1.75V12.741c0,.558,.27,1.087,.721,1.415l4.294,3.123c.219,.159,.476,.24,.734,.24,.193,0,.388-.045,.568-.137,.421-.214,.683-.641,.683-1.114v-2.268h1.25c.965,0,1.75-.785,1.75-1.75v-1c0-.414-.336-.75-.75-.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M16.25,7.5h-4.189l1.47-1.47c.293-.293,.293-.768,0-1.061s-.768-.293-1.061,0l-2.75,2.75c-.293,.293-.293,.768,0,1.061l2.75,2.75c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22c.293-.293,.293-.768,0-1.061l-1.47-1.47h4.189c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
       </g>
     </svg>

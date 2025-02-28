@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function chartPie(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'chart pie';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px chart pie";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M15.913,11.317c-.376-.172-.821-.005-.993,.372-1.054,2.315-3.377,3.811-5.919,3.811-3.584,0-6.5-2.916-6.5-6.5,0-2.542,1.496-4.866,3.811-5.919,.377-.171,.543-.616,.372-.993-.172-.377-.617-.544-.993-.372C2.841,3.012,1,5.872,1,9c0,4.411,3.589,8,8,8,3.128,0,5.988-1.841,7.285-4.689,.171-.377,.005-.822-.372-.993Z"
-          fill={fill}
+          d="m6,12c-3.309,0-6-2.691-6-6C0,3.821,1.203,1.811,3.141.752c.361-.199.819-.065,1.018.299.199.363.065.819-.298,1.018-1.456.795-2.36,2.302-2.36,3.932,0,2.481,2.019,4.5,4.5,4.5,1.63,0,3.136-.904,3.932-2.36.199-.363.656-.498,1.018-.298.364.199.498.654.299,1.018-1.059,1.938-3.069,3.141-5.248,3.141Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M9,1c-.414,0-.75,.336-.75,.75v7.25c0,.414,.336,.75,.75,.75h7.25c.414,0,.75-.336,.75-.75,0-4.411-3.589-8-8-8Z"
-          fill={secondaryfill}
+          d="m6,0c-.414,0-.75.336-.75.75v5.25c0,.414.336.75.75.75h5.25c.414,0,.75-.336.75-.75,0-3.309-2.691-6-6-6Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

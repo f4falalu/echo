@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function hexadecagon(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'hexadecagon';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px hexadecagon";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M16.248,7.763l-1.248-1.248v-1.765c0-.965-.785-1.75-1.75-1.75h-1.765l-1.248-1.249c-.682-.681-1.793-.681-2.475,0l-1.248,1.248h-1.765c-.965,0-1.75,.785-1.75,1.75v1.765l-1.248,1.248c-.683,.682-.683,1.792,0,2.475l1.248,1.248v1.765c0,.965,.785,1.75,1.75,1.75h1.765l1.248,1.249c.341,.34,.789,.511,1.237,.511s.896-.17,1.237-.511l1.248-1.248h1.765c.965,0,1.75-.785,1.75-1.75v-1.765l1.248-1.248c.683-.682,.683-1.792,0-2.475Z"
-          fill={fill}
+          d="m11.705,5.328l-1.205-1.197v-1.683c0-.522-.425-.947-.947-.947h-1.683l-1.198-1.206c-.359-.36-.984-.36-1.344,0l-1.198,1.206h-1.683c-.522,0-.947.425-.947.947v1.683l-1.204,1.196c-.182.179-.281.418-.281.674s.1.495.28.672l1.205,1.197v1.683c0,.522.425.947.947.947h1.683l1.198,1.206c.18.18.418.279.672.279s.492-.099.672-.279l1.198-1.206h1.683c.522,0,.947-.425.947-.947v-1.683l1.204-1.196c.182-.179.281-.418.281-.674s-.1-.493-.28-.672Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

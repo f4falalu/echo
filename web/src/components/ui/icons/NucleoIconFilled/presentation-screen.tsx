@@ -1,32 +1,45 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function presentationScreen(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'presentation screen';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px presentation screen";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M5.75,17c-.079,0-.159-.012-.237-.039-.393-.131-.605-.556-.474-.949l1-3c.13-.393,.556-.608,.949-.474,.393,.131,.605,.556,.474,.949l-1,3c-.104,.314-.397,.513-.711,.513Z"
-          fill={secondaryfill}
+          d="m3,11.75c-.107,0-.215-.023-.318-.071-.375-.176-.536-.623-.36-.998l1.292-2.75c.176-.375.622-.537.998-.36.375.176.536.623.36.998l-1.292,2.75c-.127.272-.397.431-.679.431Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M12.25,17c-.314,0-.607-.199-.711-.513l-1-3c-.131-.393,.081-.818,.474-.949,.392-.132,.818,.082,.949,.474l1,3c.131,.393-.081,.818-.474,.949-.079,.026-.159,.039-.237,.039Z"
-          fill={secondaryfill}
+          d="m9,11.75c-.282,0-.552-.159-.679-.431l-1.292-2.75c-.176-.375-.015-.822.36-.998.374-.176.822-.016.998.36l1.292,2.75c.176.375.015.822-.36.998-.103.048-.211.071-.318.071Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M9,3.5c-.414,0-.75-.336-.75-.75V1.5c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v1.25c0,.414-.336,.75-.75,.75Z"
-          fill={fill}
+          d="m6,2.5c-.414,0-.75-.336-.75-.75V.75c0-.414.336-.75.75-.75s.75.336.75.75v1c0,.414-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
-        <rect height="12" width="16" fill={fill} rx="2.75" ry="2.75" x="1" y="2" />
+        <rect
+          height="8"
+          width="11"
+          fill="#212121"
+          rx="2.25"
+          ry="2.25"
+          strokeWidth="0"
+          x=".5"
+          y="1"
+        />
       </g>
     </svg>
   );

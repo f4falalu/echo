@@ -1,23 +1,27 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function music(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'music';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px music";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M13.462,1.454l-7,1.167c-.847,.141-1.462,.867-1.462,1.726v6.967c-.377-.194-.798-.314-1.25-.314-1.517,0-2.75,1.233-2.75,2.75s1.233,2.75,2.75,2.75,2.75-1.233,2.75-2.75V7.385l7.5-1.25v3.679c-.377-.194-.798-.314-1.25-.314-1.517,0-2.75,1.233-2.75,2.75s1.233,2.75,2.75,2.75,2.75-1.233,2.75-2.75V3.181c0-.516-.226-1.002-.619-1.335-.394-.333-.908-.475-1.419-.391Z"
-          fill={fill}
+          d="m11.397.428c-.383-.333-.892-.482-1.395-.411l-5,.714c-.856.123-1.502.867-1.502,1.732v7.286c0,.414.336.75.75.75s.75-.336.75-.75V3.901l5.5-.786v5.635c0,.414.336.75.75.75s.75-.336.75-.75V1.75c0-.507-.22-.989-.603-1.322Z"
+          fill="#212121"
+          strokeWidth="0"
         />
+        <circle cx="2.75" cy="9.75" fill="#212121" r="2.25" strokeWidth="0" />
+        <circle cx="9.75" cy="8.75" fill="#212121" r="2.25" strokeWidth="0" />
       </g>
     </svg>
   );

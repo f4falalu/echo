@@ -1,34 +1,38 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function unorderedList2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'unordered list 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px unordered list 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
+        <circle cx="1.5" cy="1.75" fill="#212121" r="1.5" strokeWidth="0" />
+        <circle cx="1.5" cy="6" fill="#212121" r="1.5" strokeWidth="0" />
+        <circle cx="1.5" cy="10.25" fill="#212121" r="1.5" strokeWidth="0" />
         <path
-          d="M15.75,9.75h-7.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h7.5c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"
-          fill={fill}
+          d="m11.25,1h-6.25c-.414,0-.75.336-.75.75s.336.75.75.75h6.25c.414,0,.75-.336.75-.75s-.336-.75-.75-.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M15.75,4.5h-7.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h7.5c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"
-          fill={fill}
+          d="m11.25,5.25h-6.25c-.414,0-.75.336-.75.75s.336.75.75.75h6.25c.414,0,.75-.336.75-.75s-.336-.75-.75-.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M15.75,15h-7.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h7.5c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"
-          fill={fill}
+          d="m11.25,9.5h-6.25c-.414,0-.75.336-.75.75s.336.75.75.75h6.25c.414,0,.75-.336.75-.75s-.336-.75-.75-.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
-        <circle cx="3.75" cy="9" fill={secondaryfill} r="1.75" />
-        <circle cx="3.75" cy="3.75" fill={secondaryfill} r="1.75" />
-        <circle cx="3.75" cy="14.25" fill={secondaryfill} r="1.75" />
       </g>
     </svg>
   );

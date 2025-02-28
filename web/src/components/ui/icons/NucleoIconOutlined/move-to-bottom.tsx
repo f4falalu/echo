@@ -1,25 +1,27 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function moveToBottom(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px move to bottom';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px move to bottom";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <rect
           height="12.5"
           width="5.5"
           fill="none"
           rx="2"
           ry="2"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -30,7 +32,7 @@ function moveToBottom(props: iconProps) {
         <path
           d="M13,7.25h.75c.828,0,1.5-.672,1.5-1.5h0"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -38,7 +40,7 @@ function moveToBottom(props: iconProps) {
         <path
           d="M7.75 7.25L10.25 7.25"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -46,7 +48,7 @@ function moveToBottom(props: iconProps) {
         <path
           d="M2.75,5.75h0c0,.828,.672,1.5,1.5,1.5h.75"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -54,7 +56,7 @@ function moveToBottom(props: iconProps) {
         <path
           d="M13,1.75h.75c.828,0,1.5,.672,1.5,1.5h0"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -62,7 +64,7 @@ function moveToBottom(props: iconProps) {
         <path
           d="M7.75 1.75L10.25 1.75"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -70,7 +72,7 @@ function moveToBottom(props: iconProps) {
         <path
           d="M2.75,3.25h0c0-.828,.672-1.5,1.5-1.5h.75"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

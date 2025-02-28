@@ -1,0 +1,47 @@
+import React from "react";
+
+import { iconProps } from "./iconProps";
+
+function download4(props: iconProps) {
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px download 4";
+
+  return (
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <title>{title}</title>
+      <g fill="#212121">
+        <path
+          d="M6 7.5L6 1.75"
+          fill="none"
+          stroke="#212121"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M3.75 5.5L6 7.75 8.25 5.5"
+          fill="none"
+          stroke="#212121"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="m10.75,7.75v1c0,1.105-.895,2-2,2H3.25c-1.105,0-2-.895-2-2v-1"
+          fill="none"
+          stroke="#212121"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+      </g>
+    </svg>
+  );
+}
+
+export default download4;

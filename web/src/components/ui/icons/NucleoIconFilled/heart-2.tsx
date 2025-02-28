@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function heart2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'heart 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px heart 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M16.842,5.365c-.217-.826-.693-1.595-1.342-2.164-1.11-.974-2.56-1.368-3.969-1.084-1.003,.203-1.883,.718-2.534,1.464-.039-.044-.079-.088-.12-.132-.84-.884-1.974-1.389-3.193-1.42-1.213-.026-2.378,.414-3.262,1.253-1.825,1.734-1.9,4.63-.163,6.459l5.479,5.694c.332,.346,.78,.537,1.26,.537h0c.48,0,.928-.19,1.261-.537l5.48-5.694s.003-.002,.004-.003c1.102-1.161,1.512-2.795,1.098-4.374Z"
-          fill={fill}
+          d="m10.844,1.902c-.854-.749-1.965-1.05-3.053-.832-.694.14-1.312.476-1.793.96-.64-.641-1.486-1.005-2.394-1.028-.932-.011-1.83.318-2.51.965C.414,2.613.025,3.485,0,4.423c-.024.938.319,1.83.968,2.514l3.968,4.123c.276.287.664.452,1.062.452s.786-.165,1.062-.452l3.968-4.123s.002-.002.003-.003c.848-.893,1.163-2.149.845-3.362-.167-.638-.535-1.231-1.035-1.67Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

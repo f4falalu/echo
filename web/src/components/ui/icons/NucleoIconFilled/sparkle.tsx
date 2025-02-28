@@ -1,34 +1,35 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function sparkle(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'sparkle';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px sparkle";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M2.342,4.974l1.263,.421,.421,1.263c.068,.204,.26,.342,.475,.342s.406-.138,.475-.342l.421-1.263,1.263-.421c.204-.068,.342-.259,.342-.474s-.138-.406-.342-.474l-1.263-.421-.421-1.263c-.137-.408-.812-.408-.949,0l-.421,1.263-1.263,.421c-.204,.068-.342,.259-.342,.474s.138,.406,.342,.474Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M15.658,13.026l-1.263-.421-.421-1.263c-.137-.408-.812-.408-.949,0l-.421,1.263-1.263,.421c-.204,.068-.342,.259-.342,.474s.138,.406,.342,.474l1.263,.421,.421,1.263c.068,.204,.26,.342,.475,.342s.406-.138,.475-.342l.421-1.263,1.263-.421c.204-.068,.342-.259,.342-.474s-.138-.406-.342-.474Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M9.525,11.303l-2.026-.802-.802-2.027c-.227-.572-1.168-.572-1.395,0l-.802,2.027-2.026,.802c-.286,.113-.475,.39-.475,.697s.188,.584,.475,.697l2.026,.802,.802,2.027c.113,.286,.39,.474,.697,.474s.584-.188,.697-.474l.802-2.027,2.026-.802c.286-.113,.475-.39,.475-.697s-.188-.584-.475-.697Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M15.525,5.303l-2.026-.802-.802-2.027c-.227-.572-1.168-.572-1.395,0l-.802,2.027-2.026,.802c-.286,.113-.475,.39-.475,.697s.188,.584,.475,.697l2.026,.802,.802,2.027c.113,.286,.39,.474,.697,.474s.584-.188,.697-.474l.802-2.027,2.026-.802c.286-.113,.475-.39,.475-.697s-.188-.584-.475-.697Z"
-          fill={fill}
+          fill="#212121"
         />
       </g>
     </svg>

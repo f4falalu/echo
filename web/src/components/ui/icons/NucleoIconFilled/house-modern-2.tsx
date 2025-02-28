@@ -1,19 +1,20 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function houseModern2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'house modern 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px house modern 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M10.75,7c-.414,0-.75,.336-.75,.75v.5c0,.414,.336,.75,.75,.75s.75-.336,.75-.75v-.5c0-.414-.336-.75-.75-.75Z"
           fill="none"
@@ -32,11 +33,11 @@ function houseModern2(props: iconProps) {
         />
         <path
           d="M17.53,5.792l-.988-.397h-.002s-1.041-.42-1.041-.42v-1.475c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75v.872L7.03,1.566c-.381-.155-.821,.031-.976,.416-.155,.384,.031,.821,.415,.976l.53,.213v12.829H15.25c.965,0,1.75-.785,1.75-1.75V7.19c.082,.029,.166,.048,.25,.048,.297,0,.578-.177,.695-.47,.155-.384-.031-.821-.415-.976Zm-6.03,5.458c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75v-.5c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v.5Zm0-3c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75v-.5c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v.5Zm2.5,3c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75v-.5c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v.5Zm0-3c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75v-.5c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v.5Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M5.5,14.5v-1.75c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75v1.75h-1.25c-.138,0-.25-.112-.25-.25v-5.157l4.5-1.812v-1.617L.47,8.292c-.384,.155-.57,.592-.415,.976,.117,.292,.398,.47,.695,.47,.084,0,.168-.019,.25-.048v4.56c0,.965,.785,1.75,1.75,1.75H7v-1.5h-1.5Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
       </g>
     </svg>

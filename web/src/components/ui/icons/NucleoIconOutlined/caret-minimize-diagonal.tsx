@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function caretMinimizeDiagonal(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px caret minimize diagonal';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px caret minimize diagonal";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M15.146,7.75h-4.646c-.138,0-.25-.112-.25-.25V2.854c0-.223,.269-.334,.427-.177l4.646,4.646c.157,.157,.046,.427-.177,.427Z"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function caretMinimizeDiagonal(props: iconProps) {
         <path
           d="M2.854,10.25H7.5c.138,0,.25,.112,.25,.25v4.646c0,.223-.269,.334-.427,.177L2.677,10.677c-.157-.157-.046-.427,.177-.427Z"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

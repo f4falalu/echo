@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function circleImage(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px circle image';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px circle image";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M4.263,14.488l5.573-5.574c.781-.781,2.047-.781,2.828,0l2.988,2.988"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,12 +28,12 @@ function circleImage(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="6.25" cy="7.25" fill={secondaryfill} r="1.25" />
+        <circle cx="6.25" cy="7.25" fill="#212121" r="1.25" />
       </g>
     </svg>
   );

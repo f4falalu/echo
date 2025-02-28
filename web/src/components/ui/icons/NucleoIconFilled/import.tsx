@@ -3,24 +3,22 @@ import React from 'react';
 import { iconProps } from './iconProps';
 
 function importIcon(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'import';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || '12px import';
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M12.75,6h-3v5.439l1.72-1.72c.293-.293,.768-.293,1.061,0s.293,.768,0,1.061l-3,3c-.146,.146-.338,.22-.53,.22s-.384-.073-.53-.22l-3-3c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l1.72,1.72V6h-3c-1.517,0-2.75,1.233-2.75,2.75v5.5c0,1.517,1.233,2.75,2.75,2.75h7.5c1.517,0,2.75-1.233,2.75-2.75v-5.5c0-1.517-1.233-2.75-2.75-2.75Z"
-          fill={fill}
+          d="m8.75,3h-2v3.939l.97-.97c.293-.293.768-.293,1.061,0s.293.768,0,1.061l-2.25,2.25c-.146.146-.338.22-.53.22s-.384-.073-.53-.22l-2.25-2.25c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l.97.97v-3.939h-2c-1.517,0-2.75,1.233-2.75,2.75v3.5c0,1.517,1.233,2.75,2.75,2.75h5.5c1.517,0,2.75-1.233,2.75-2.75v-3.5c0-1.517-1.233-2.75-2.75-2.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M9.75,6.048V1.75c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75V6.048h1.5Z"
-          fill={secondaryfill}
+          d="m6.75,3V.75c0-.414-.336-.75-.75-.75s-.75.336-.75.75v2.25h1.5Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

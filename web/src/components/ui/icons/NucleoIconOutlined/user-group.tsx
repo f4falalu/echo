@@ -1,24 +1,26 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function userGroup(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px user group';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px user group";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <circle
           cx="9"
           cy="4.25"
           fill="none"
           r="1.5"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -28,7 +30,7 @@ function userGroup(props: iconProps) {
           cy="2.75"
           fill="none"
           r="1.5"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -38,7 +40,7 @@ function userGroup(props: iconProps) {
           cy="2.75"
           fill="none"
           r="1.5"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -46,7 +48,7 @@ function userGroup(props: iconProps) {
         <path
           d="M12.323,11.499l-.852-2.413c-.282-.8-1.036-1.335-1.885-1.334-.381,0-.793,0-1.174,0-.848,0-1.602,.535-1.884,1.334l-.851,2.413c-.096,.272,.057,.568,.334,.647l1.239,.354,.195,3.309c.031,.529,.469,.941,.998,.941h1.114c.529,0,.967-.413,.998-.941l.195-3.309,1.239-.354c.277-.079,.43-.375,.334-.647Z"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -54,7 +56,7 @@ function userGroup(props: iconProps) {
         <path
           d="M13.193,15.25h1.114c.529,0,.967-.413,.998-.941l.195-3.309,1.239-.354c.277-.079,.43-.375,.334-.647l-.852-2.413c-.282-.8-1.036-1.335-1.885-1.334-.381,0-.793,0-1.174,0"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -62,7 +64,7 @@ function userGroup(props: iconProps) {
         <path
           d="M4.807,15.25h-1.114c-.529,0-.967-.413-.998-.941l-.195-3.309-1.239-.354c-.277-.079-.43-.375-.334-.647l.852-2.413c.282-.8,1.036-1.335,1.885-1.334,.381,0,.793,0,1.174,0"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

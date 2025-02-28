@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function bucket(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'bucket';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px bucket";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M9,1.5c-3.479,0-7,1.03-7,3,0,.094,.039,.351,.041,.361l1.209,9.089c0,1.752,2.98,2.55,5.75,2.55s5.75-.798,5.75-2.55l1.209-9.089c.002-.01,.041-.267,.041-.361,0-1.97-3.521-3-7-3Zm5.491,3.02c-.049,.446-1.964,1.48-5.491,1.48s-5.442-1.035-5.491-1.48l-.004-.031c.028-.441,1.948-1.489,5.495-1.489s5.467,1.048,5.495,1.489l-.004,.031Z"
-          fill={fill}
+          d="m11.5,2.5c0-1.718-2.851-2.5-5.5-2.5S.5.782.5,2.5c0,.022.004.08.005.087l.856,7.263c0,1.485,2.33,2.15,4.639,2.15s4.639-.665,4.634-2.062l.861-7.35c0-.008.005-.065.005-.087Zm-5.5-1c2.506,0,3.883.73,3.998.972l-.002.014c-.12.287-1.496,1.014-3.996,1.014-2.481,0-3.852-.714-3.99-.964l-.003-.026c.129-.289,1.502-1.01,3.993-1.01Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

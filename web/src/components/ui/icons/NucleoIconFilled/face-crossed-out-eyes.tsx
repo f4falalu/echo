@@ -1,22 +1,23 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function faceCrossedOutEyes(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'face crossed out eyes';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px face crossed out eyes";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M9,1C4.589,1,1,4.589,1,9s3.589,8,8,8,8-3.589,8-8S13.411,1,9,1Zm-2.28,9.28l-.72-.72-.72,.72c-.146,.146-.338,.22-.53,.22s-.384-.073-.53-.22c-.293-.293-.293-.768,0-1.061l.72-.72-.72-.72c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l.72,.72,.72-.72c.293-.293,.768-.293,1.061,0s.293,.768,0,1.061l-.72,.72,.72,.72c.293,.293,.293,.768,0,1.061-.146,.146-.338,.22-.53,.22s-.384-.073-.53-.22Zm3.28,2.72h-2c-.276,0-.5-.224-.5-.5,0-.828,.672-1.5,1.5-1.5s1.5,.672,1.5,1.5c0,.276-.224,.5-.5,.5Zm3.78-3.78c.293,.293,.293,.768,0,1.061-.146,.146-.338,.22-.53,.22s-.384-.073-.53-.22l-.72-.72-.72,.72c-.146,.146-.338,.22-.53,.22s-.384-.073-.53-.22c-.293-.293-.293-.768,0-1.061l.72-.72-.72-.72c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l.72,.72,.72-.72c.293-.293,.768-.293,1.061,0s.293,.768,0,1.061l-.72,.72,.72,.72Z"
-          fill={fill}
+          fill="#212121"
         />
       </g>
     </svg>

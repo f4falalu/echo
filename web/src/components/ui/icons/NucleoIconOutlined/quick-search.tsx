@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function quickSearch(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px quick search';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px quick search";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M15.25 15.25L11.285 11.285"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,15 +26,15 @@ function quickSearch(props: iconProps) {
         <path
           d="m5.1564,3.4944c-1.4377.8782-2.4064,2.4475-2.4064,4.2556,0,2.7615,2.2386,5,5,5s5-2.2385,5-5c0-.3254-.0364-.6418-.0958-.95"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
         <path
           d="M9.6667 5.25L7 5.25 9.25 1.75 8.3333 4.75 11 4.75 8.75 8.25 9.6667 5.25z"
-          fill={secondaryfill}
-          stroke={secondaryfill}
+          fill="#212121"
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

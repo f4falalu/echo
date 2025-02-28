@@ -1,25 +1,27 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function constructionCrane(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px construction crane';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px construction crane";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <rect
           height="2.5"
           width="4"
           fill="none"
           rx=".5"
           ry=".5"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +31,7 @@ function constructionCrane(props: iconProps) {
         <path
           d="M13.75 10.75L13.75 6.25"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +39,7 @@ function constructionCrane(props: iconProps) {
         <path
           d="M10 16.25L3 16.25"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +47,7 @@ function constructionCrane(props: iconProps) {
         <path
           d="M4.75,16.25V2.25c0-.276,.224-.5,.5-.5h2.5c.276,0,.5,.224,.5,.5v14"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +55,7 @@ function constructionCrane(props: iconProps) {
         <path
           d="M10.75,6.25h4.761c.354,0,.596-.357,.464-.686l-.6-1.5c-.076-.19-.26-.314-.464-.314h-6.661"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +63,7 @@ function constructionCrane(props: iconProps) {
         <path
           d="M4.75,3.75H2.25c-.276,0-.5,.224-.5,.5v1.5c0,.276,.224,.5,.5,.5h6"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -69,7 +71,7 @@ function constructionCrane(props: iconProps) {
         <path
           d="M4.75 9.25L8.25 9.25"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -77,7 +79,7 @@ function constructionCrane(props: iconProps) {
         <path
           d="M4.75 12.25L8.25 12.25"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

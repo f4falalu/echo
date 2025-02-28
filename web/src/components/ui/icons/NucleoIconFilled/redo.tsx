@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function redo(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'redo';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px redo";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M3,10.75c-.209,0-.417-.087-.565-.256-.273-.312-.241-.786,.071-1.058,.838-.733,3.148-2.437,6.494-2.437,3.324,0,5.629,1.687,6.466,2.412,.313,.271,.347,.745,.076,1.058-.271,.312-.744,.348-1.058,.076-.709-.615-2.665-2.046-5.483-2.046-2.837,0-4.796,1.444-5.506,2.065-.142,.125-.318,.186-.493,.186Z"
-          fill={secondaryfill}
+          d="m11.25,8.141c-.175,0-.351-.061-.493-.185-.615-.537-2.309-1.785-4.757-1.785s-4.142,1.248-4.757,1.785c-.312.273-.786.24-1.058-.072-.272-.312-.24-.786.072-1.058.742-.648,2.787-2.155,5.743-2.155s5.001,1.507,5.743,2.155c.312.272.344.746.072,1.058-.148.17-.356.257-.565.257Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M10.469,11.972c-.331,0-.633-.22-.724-.555-.108-.4,.129-.812,.529-.919l3.738-1.008-1.341-3.632c-.144-.389,.055-.82,.444-.963,.388-.145,.82,.055,.963,.444l1.625,4.402c.073,.198,.06,.417-.037,.604s-.268,.325-.471,.38l-4.53,1.222c-.065,.018-.131,.026-.196,.026Z"
-          fill={fill}
+          d="m7.286,9.21c-.331,0-.633-.22-.724-.555-.108-.4.129-.812.529-.919l3.171-.855-1.138-3.082c-.144-.389.055-.82.444-.963.386-.144.82.055.963.444l1.422,3.852c.073.198.06.417-.037.604s-.268.325-.471.38l-3.964,1.069c-.065.018-.131.026-.196.026Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

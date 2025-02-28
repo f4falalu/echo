@@ -1,22 +1,23 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function faceKiss(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'face kiss';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px face kiss";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M9,1C4.589,1,1,4.589,1,9s3.589,8,8,8,8-3.589,8-8S13.411,1,9,1Zm-3,8.75c-1.103,0-2-.897-2-2,0-.414,.336-.75,.75-.75s.75,.336,.75,.75c0,.276,.225,.5,.5,.5s.5-.224,.5-.5c0-.414,.336-.75,.75-.75s.75,.336,.75,.75c0,1.103-.897,2-2,2Zm3.75,4.875c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75c.275,0,.5-.224,.5-.5s-.225-.5-.5-.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75c1.103,0,2,.897,2,2s-.897,2-2,2Zm2.25-4.875c-1.103,0-2-.897-2-2,0-.414,.336-.75,.75-.75s.75,.336,.75,.75c0,.276,.225,.5,.5,.5s.5-.224,.5-.5c0-.414,.336-.75,.75-.75s.75,.336,.75,.75c0,1.103-.897,2-2,2Z"
-          fill={fill}
+          fill="#212121"
         />
       </g>
     </svg>

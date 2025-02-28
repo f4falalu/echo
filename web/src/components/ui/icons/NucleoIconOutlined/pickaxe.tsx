@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function pickaxe(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px pickaxe';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px pickaxe";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M11.681,3.569c-2.934-1.889-6.067-1.509-6.469-1.453,1.62,1.219,3.053,2.44,4.312,3.611"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function pickaxe(props: iconProps) {
         <path
           d="M14.431,6.319c1.889,2.934,1.509,6.067,1.453,6.469-1.219-1.62-2.44-3.053-3.611-4.312"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function pickaxe(props: iconProps) {
         <path
           d="M11.432,8.568l-6.768,6.768c-.552,.552-1.448,.552-2,0h0c-.552-.552-.552-1.448,0-2l6.768-6.768"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -43,7 +45,7 @@ function pickaxe(props: iconProps) {
           fill="none"
           rx=".5"
           ry=".5"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

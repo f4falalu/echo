@@ -1,28 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function unorderedList(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'unordered list';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px unordered list";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
-        <circle cx="3.75" cy="5.25" fill={secondaryfill} r="2.25" />
-        <circle cx="3.75" cy="12.75" fill={secondaryfill} r="2.25" />
+      <g fill="#212121">
+        <circle cx="3.75" cy="5.25" fill="#212121" r="2.25" />
+        <circle cx="3.75" cy="12.75" fill="#212121" r="2.25" />
         <path
           d="M16.25,6h-7.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h7.5c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M16.25,13.5h-7.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h7.5c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"
-          fill={fill}
+          fill="#212121"
         />
       </g>
     </svg>

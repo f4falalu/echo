@@ -1,28 +1,26 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function image(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'image';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px image";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
+        <circle cx="4" cy="4" fill="#212121" r="1" strokeWidth="0" />
         <path
-          d="M13.194,8.384c-1.072-1.072-2.816-1.072-3.889,0L3.196,14.494c.367,.457,.923,.756,1.554,.756H13.25c1.105,0,2-.896,2-2v-2.811l-2.056-2.056Z"
-          fill={secondaryfill}
+          d="m8.75.5H3.25C1.733.5.5,1.733.5,3.25v5.5c0,1.517,1.233,2.75,2.75,2.75h5.5c1.517,0,2.75-1.233,2.75-2.75V3.25c0-1.517-1.233-2.75-2.75-2.75ZM2,3.25c0-.689.561-1.25,1.25-1.25h5.5c.689,0,1.25.561,1.25,1.25v3.025l-1.013-1.013c-.682-.683-1.793-.683-2.475,0l-4.237,4.237c-.163-.211-.276-.463-.276-.749V3.25Z"
+          fill="#212121"
+          strokeWidth="0"
         />
-        <path
-          d="M13.25,16H4.75c-1.517,0-2.75-1.233-2.75-2.75V4.75c0-1.517,1.233-2.75,2.75-2.75H13.25c1.517,0,2.75,1.233,2.75,2.75V13.25c0,1.517-1.233,2.75-2.75,2.75ZM4.75,3.5c-.689,0-1.25,.561-1.25,1.25V13.25c0,.689,.561,1.25,1.25,1.25H13.25c.689,0,1.25-.561,1.25-1.25V4.75c0-.689-.561-1.25-1.25-1.25H4.75Z"
-          fill={fill}
-        />
-        <circle cx="6.25" cy="7.25" fill={secondaryfill} r="1.25" />
       </g>
     </svg>
   );

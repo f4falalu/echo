@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function arrowToCornerBottomLeft(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'arrow to corner bottom left';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px arrow to corner bottom left";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M14.72,2.22l-6.22,6.22v-3.7c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75v5.51c0,.414,.336,.75,.75,.75h5.51c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75h-3.7L15.78,3.28c.293-.293,.293-.768,0-1.061s-.768-.293-1.061,0Z"
-          fill={secondaryfill}
+          d="m11.28.72c-.293-.293-.768-.293-1.061,0l-4.72,4.72v-2.439c0-.414-.336-.75-.75-.75s-.75.336-.75.75v4.25c0,.414.336.75.75.75h4.25c.414,0,.75-.336.75-.75s-.336-.75-.75-.75h-2.439L11.28,1.78c.293-.293.293-.768,0-1.061Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M14.25,14.5H4.75c-.689,0-1.25-.561-1.25-1.25V3.75c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75V13.25c0,1.517,1.233,2.75,2.75,2.75H14.25c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75Z"
-          fill={fill}
+          d="m9.5,11.5H3.25c-1.517,0-2.75-1.233-2.75-2.75V2.5c0-.414.336-.75.75-.75s.75.336.75.75v6.25c0,.689.561,1.25,1.25,1.25h6.25c.414,0,.75.336.75.75s-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

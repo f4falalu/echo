@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function purse(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px purse';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px purse";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M14,7.25l1.178,4.188c.538,1.914-.9,3.812-2.888,3.812H5.71c-1.988,0-3.426-1.899-2.888-3.812l1.178-4.188"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,13 +26,13 @@ function purse(props: iconProps) {
         <path
           d="M2.75,5c1.853-.223,3.95-.375,6.25-.375s4.397,.152,6.25,.375"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="7.5" cy="2" fill={secondaryfill} r="1" />
-        <circle cx="10.5" cy="2" fill={secondaryfill} r="1" />
+        <circle cx="7.5" cy="2" fill="#212121" r="1" />
+        <circle cx="10.5" cy="2" fill="#212121" r="1" />
       </g>
     </svg>
   );

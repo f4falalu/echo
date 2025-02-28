@@ -1,26 +1,27 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function boot(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'boot';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px boot";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M10.404,3.5l.095-1.708c.011-.206-.062-.407-.204-.557-.142-.149-.339-.234-.545-.234H3.25c-.207,0-.403,.085-.545,.235-.142,.15-.215,.352-.204,.558l.098,1.707h7.806Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M14.639,10.762l-2.559-.365c-1.01-.144-1.766-.925-1.906-1.896h-1.924c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h1.96l.111-2H2.684l.289,5.059s0,0,0,0c.01,.182-.021,.367-.095,.549-.317,.785-.465,1.607-.44,2.444,.025,.844,.233,1.692,.604,2.457l.23,.922c.083,.333,.383,.568,.728,.568h4.25c.344,0,.644-.234,.728-.567l.039-.154c.667,.249,1.354,.435,2.053,.555,1.505,.259,3.043,.211,4.566-.142,.804-.186,1.365-.888,1.365-1.708v-1.5c0-1.359-1.015-2.53-2.361-2.723Z"
-          fill={fill}
+          fill="#212121"
         />
       </g>
     </svg>

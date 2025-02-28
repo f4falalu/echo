@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function vrHeadset3(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px vr headset 3';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px vr headset 3";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M3.75,5.75H14.25c1.105,0,2,.895,2,2v4.5c0,1.105-.895,2-2,2h-2c-.63,0-1.222-.296-1.6-.8l-.45-.6c-.6-.8-1.8-.8-2.4,0l-.45,.6c-.378,.504-.97,.8-1.6,.8H3.75c-1.105,0-2-.895-2-2V7.75c0-1.105,.895-2,2-2Z"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function vrHeadset3(props: iconProps) {
         <path
           d="M15.979,6.745l-1.892-3.049c-.365-.588-1.008-.946-1.699-.946h-3.387s-3.387,0-3.387,0c-.692,0-1.335,.358-1.699,.946l-1.892,3.049"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,9 +34,9 @@ function vrHeadset3(props: iconProps) {
         <circle
           cx="5.5"
           cy="10"
-          fill={secondaryfill}
+          fill="#212121"
           r=".75"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,9 +44,9 @@ function vrHeadset3(props: iconProps) {
         <circle
           cx="12.5"
           cy="10"
-          fill={secondaryfill}
+          fill="#212121"
           r=".75"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

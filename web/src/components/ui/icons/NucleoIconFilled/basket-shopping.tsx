@@ -1,30 +1,34 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function basketShopping(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'basket shopping';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px basket shopping";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M4.75,7c-.124,0-.249-.03-.364-.094-.362-.201-.493-.658-.292-1.02L6.594,1.386c.202-.363,.658-.492,1.02-.292,.362,.201,.493,.658,.292,1.02l-2.5,4.5c-.137,.247-.393,.386-.656,.386Z"
-          fill={secondaryfill}
+          d="m3,5c-.084,0-.169-.014-.252-.043-.39-.14-.593-.569-.454-.959L3.543.498c.14-.391.569-.595.959-.454.39.14.593.569.454.959l-1.25,3.5c-.11.307-.398.498-.707.498Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M13.25,7c-.263,0-.519-.139-.656-.386l-2.5-4.5c-.201-.362-.071-.819,.292-1.02,.359-.201,.818-.071,1.02,.292l2.5,4.5c.201,.362,.071,.819-.292,1.02-.115,.064-.24,.094-.364,.094Z"
-          fill={secondaryfill}
+          d="m9,5c-.308,0-.597-.191-.707-.498l-1.25-3.5c-.139-.39.064-.819.454-.959.39-.139.819.063.959.454l1.25,3.5c.139.39-.064.819-.454.959-.083.029-.168.043-.252.043Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M16.25,5.5H1.75c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h.56l.54,6.479c.118,1.414,1.322,2.521,2.741,2.521h6.819c1.419,0,2.623-1.107,2.741-2.521l.54-6.479h.56c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75Z"
-          fill={fill}
+          d="m11.25,3.5H.75c-.414,0-.75.336-.75.75s.336.75.75.75h.107l.641,4.168c.208,1.352,1.351,2.332,2.718,2.332h3.568c1.367,0,2.51-.98,2.718-2.332l.641-4.168h.107c.414,0,.75-.336.75-.75s-.336-.75-.75-.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function arrowTurnLeft(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'arrow turn left';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px arrow turn left";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M13.25,10.5H3c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75H13.25c.689,0,1.25-.561,1.25-1.25V3.75c0-.414,.336-.75,.75-.75s.75,.336,.75,.75V7.75c0,1.517-1.233,2.75-2.75,2.75Z"
-          fill={secondaryfill}
+          d="m8.75,7H1.25c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h7.5c.689,0,1.25-.561,1.25-1.25v-2c0-.414.336-.75.75-.75s.75.336.75.75v2c0,1.517-1.233,2.75-2.75,2.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M7,14.75c-.192,0-.384-.073-.53-.22L2.22,10.28c-.293-.293-.293-.768,0-1.061L6.47,4.97c.293-.293,.768-.293,1.061,0s.293,.768,0,1.061l-3.72,3.72,3.72,3.72c.293,.293,.293,.768,0,1.061-.146,.146-.338,.22-.53,.22Z"
-          fill={fill}
+          d="m4.25,10.25c-.192,0-.384-.073-.53-.22L.47,6.78c-.293-.293-.293-.768,0-1.061l3.25-3.25c.293-.293.768-.293,1.061,0s.293.768,0,1.061l-2.72,2.72,2.72,2.72c.293.293.293.768,0,1.061-.146.146-.338.22-.53.22Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

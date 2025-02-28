@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function linkSlash(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px link slash';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px link slash";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M9.75,11.423c.352-.168,.682-.398,.973-.69l.01-.01c.426-.426,.721-.934,.884-1.473"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function linkSlash(props: iconProps) {
         <path
           d="M11.384,6.617c-.164-.322-.381-.624-.65-.893l-2.425-2.425c-1.381-1.381-3.619-1.381-5,0l-.01,.01c-1.381,1.381-1.381,3.619,0,5l.931,.931"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function linkSlash(props: iconProps) {
         <path
           d="M9.75,11.423c.352-.168,.682-.398,.973-.69l.01-.01c.492-.492,.808-1.092,.95-1.723"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +42,7 @@ function linkSlash(props: iconProps) {
         <path
           d="M6.616,11.383c.164,.322,.381,.624,.65,.893l2.425,2.425c1.381,1.381,3.619,1.381,5,0l.01-.01c1.381-1.381,1.381-3.619,0-5l-.931-.931"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -48,7 +50,7 @@ function linkSlash(props: iconProps) {
         <path
           d="M8.25,6.577c-.352,.168-.682,.398-.973,.69l-.01,.01c-.492,.492-.808,1.092-.95,1.723"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -56,7 +58,7 @@ function linkSlash(props: iconProps) {
         <path
           d="M2 16L16 2"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

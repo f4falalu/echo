@@ -1,28 +1,40 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function rectCenterY(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'rect center y';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px rect center y";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
-        <path
-          d="M15.25,2H2.75c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75H15.25c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75Z"
-          fill={secondaryfill}
+      <g fill="#212121">
+        <rect
+          height="6"
+          width="6"
+          fill="#212121"
+          rx="1.75"
+          ry="1.75"
+          strokeWidth="0"
+          x="3"
+          y="3"
         />
         <path
-          d="M15.25,14.5H2.75c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75H15.25c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75Z"
-          fill={secondaryfill}
+          d="m11,1.5H1c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h10c.414,0,.75.336.75.75s-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
-        <rect height="8" width="8" fill={fill} rx="1.75" ry="1.75" x="5" y="5" />
+        <path
+          d="m11,12H1c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h10c.414,0,.75.336.75.75s-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
       </g>
     </svg>
   );

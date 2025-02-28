@@ -1,25 +1,27 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function automatedLogistics2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px automated logistics 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px automated logistics 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <rect
           height="5.5"
           width="5.5"
           fill="none"
           rx="1"
           ry="1"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function automatedLogistics2(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +44,7 @@ function automatedLogistics2(props: iconProps) {
         <path
           d="M1.75,2.75h1c.552,0,1,.448,1,1v3.5c0,.552-.448,1-1,1H1.75"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -50,7 +52,7 @@ function automatedLogistics2(props: iconProps) {
         <path
           d="M16.25,2.75h-1c-.552,0-1,.448-1,1v3.5c0,.552,.448,1,1,1h1"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -58,14 +60,14 @@ function automatedLogistics2(props: iconProps) {
         <path
           d="M9 2.75L9 5"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="9" cy="13.25" fill={secondaryfill} r=".75" />
-        <circle cx="5.75" cy="13.25" fill={secondaryfill} r=".75" />
-        <circle cx="12.25" cy="13.25" fill={secondaryfill} r=".75" />
+        <circle cx="9" cy="13.25" fill="#212121" r=".75" />
+        <circle cx="5.75" cy="13.25" fill="#212121" r=".75" />
+        <circle cx="12.25" cy="13.25" fill="#212121" r=".75" />
       </g>
     </svg>
   );

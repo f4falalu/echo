@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function nut(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'nut';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px nut";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M16.317,7.62l-2.465-4.25c-.49-.845-1.402-1.37-2.378-1.37H6.527c-.977,0-1.888,.525-2.379,1.37L1.683,7.62c-.493,.851-.493,1.909,0,2.76l2.465,4.25c.49,.845,1.402,1.37,2.378,1.37h4.946c.977,0,1.888-.525,2.379-1.37l2.465-4.25c.493-.851,.493-1.909,0-2.76Zm-7.317,3.63c-1.243,0-2.25-1.007-2.25-2.25s1.007-2.25,2.25-2.25,2.25,1.007,2.25,2.25-1.007,2.25-2.25,2.25Z"
-          fill={fill}
+          d="m11.695,4.862l-1.865-3.23c-.404-.698-1.155-1.132-1.959-1.132h-3.742c-.804,0-1.555.434-1.959,1.133L.305,4.862c-.405.702-.405,1.574,0,2.275l1.865,3.23c.404.698,1.155,1.132,1.959,1.132h3.742c.804,0,1.555-.434,1.959-1.133l1.865-3.229c.405-.702.405-1.574,0-2.275Zm-5.695,3.138c-1.105,0-2-.895-2-2s.895-2,2-2,2,.895,2,2-.895,2-2,2Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

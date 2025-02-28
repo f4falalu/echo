@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function flipHorizontal2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px flip horizontal 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px flip horizontal 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M7.25,14.25H2.543c-.276,0-.5-.224-.5-.5,0-.075,.017-.149,.049-.216L6.774,3.744c.115-.24,.476-.158,.476,.108V14.25Z"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function flipHorizontal2(props: iconProps) {
         <path
           d="M10.75,14.25h4.707c.276,0,.5-.224,.5-.5,0-.075-.017-.149-.049-.216L11.226,3.744c-.115-.24-.476-.158-.476,.108V14.25Z"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

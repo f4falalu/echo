@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function gem(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'gem';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px gem";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M16.277,5.61l-2.404-2.556c-.332-.352-.799-.554-1.284-.554H5.411c-.485,0-.953,.202-1.285,.554L1.723,5.61c-.581,.618-.633,1.557-.123,2.234l5.993,7.956c.335,.445,.848,.7,1.407,.7s1.072-.255,1.407-.7l5.993-7.956c.51-.677,.458-1.617-.123-2.234Zm-3.497-1.528l1.804,1.918h-2.187l-1.042-2h1.233c.073,0,.143,.03,.192,.082Zm-1.847,3.418l-1.934,6.405-1.934-6.405h3.867Zm-5.715-3.418c.049-.052,.119-.082,.192-.082h1.233l-1.042,2H3.415l1.804-1.918Z"
-          fill={fill}
+          d="m11.524,3.298l-1.606-1.733c-.333-.359-.803-.565-1.29-.565H3.372c-.487,0-.957.206-1.29.565L.476,3.298c-.585.631-.637,1.591-.123,2.283l4.234,5.706c.336.454.852.714,1.413.714s1.077-.26,1.413-.714l4.234-5.705c.514-.692.462-1.652-.123-2.283Zm-3.274,2.202H3.75c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h4.5c.414,0,.75.336.75.75s-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

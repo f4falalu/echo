@@ -1,38 +1,39 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function progressCircle4Of4(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'progress circle 4 of 4';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px progress circle 4 of 4";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M16.134,8.5c-.358,0-.674-.257-.738-.621-.468-2.687-2.588-4.807-5.274-5.275-.408-.071-.682-.459-.61-.867,.071-.408,.458-.683,.868-.61,3.309,.576,5.918,3.186,6.495,6.495,.071,.408-.202,.797-.61,.868-.044,.008-.087,.011-.13,.011Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M10.249,16.885c-.358,0-.674-.257-.738-.621-.071-.408,.202-.797,.61-.868,2.687-.468,4.807-2.588,5.275-5.274,.071-.409,.461-.682,.867-.61,.408,.071,.682,.459,.61,.868-.576,3.309-3.186,5.918-6.495,6.495-.044,.008-.087,.011-.13,.011Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M7.751,16.885c-.043,0-.086-.003-.13-.011-3.309-.576-5.918-3.187-6.495-6.495-.071-.408,.202-.797,.61-.868,.408-.072,.796,.202,.867,.61,.468,2.687,2.588,4.807,5.274,5.275,.408,.071,.682,.459,.61,.867-.063,.365-.38,.622-.738,.622Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M1.866,8.5c-.043,0-.086-.003-.129-.011-.408-.071-.682-.459-.61-.868C1.703,4.312,4.312,1.703,7.621,1.126c.41-.069,.796,.202,.868,.61,.071,.408-.202,.797-.61,.868-2.687,.468-4.807,2.588-5.275,5.274-.063,.365-.38,.622-.738,.622Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M9,6.5c-1.379,0-2.5,1.121-2.5,2.5s1.121,2.5,2.5,2.5,2.5-1.121,2.5-2.5-1.121-2.5-2.5-2.5Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
       </g>
     </svg>

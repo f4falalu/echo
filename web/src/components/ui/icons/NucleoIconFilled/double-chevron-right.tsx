@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function doubleChevronRight(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'double chevron right';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px double chevron right";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M10.28,4.22c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l3.72,3.72-3.72,3.72c-.293,.293-.293,.768,0,1.061,.146,.146,.338,.22,.53,.22s.384-.073,.53-.22l4.25-4.25c.293-.293,.293-.768,0-1.061l-4.25-4.25Z"
-          fill={secondaryfill}
+          d="m6.25,10.75c-.192,0-.384-.073-.53-.22-.293-.293-.293-.768,0-1.061l3.47-3.47-3.47-3.47c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l4,4c.293.293.293.768,0,1.061l-4,4c-.146.146-.338.22-.53.22Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M9.78,8.47L5.53,4.22c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l3.72,3.72-3.72,3.72c-.293,.293-.293,.768,0,1.061,.146,.146,.338,.22,.53,.22s.384-.073,.53-.22l4.25-4.25c.293-.293,.293-.768,0-1.061Z"
-          fill={fill}
+          d="m1.75,10.75c-.192,0-.384-.073-.53-.22-.293-.293-.293-.768,0-1.061l3.47-3.47L1.22,2.53c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l4,4c.293.293.293.768,0,1.061l-4,4c-.146.146-.338.22-.53.22Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function arrowsExpandDiagonal(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'arrows expand diagonal';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px arrows expand diagonal";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M15.25,2h-4.5c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h2.689l-3.22,3.22c-.293,.293-.293,.768,0,1.061,.146,.146,.338,.22,.53,.22s.384-.073,.53-.22l3.22-3.22v2.689c0,.414,.336,.75,.75,.75s.75-.336,.75-.75V2.75c0-.414-.336-.75-.75-.75Z"
-          fill={fill}
+          d="m10.75.5h-3.75c-.414,0-.75.336-.75.75s.336.75.75.75h1.939l-2.202,2.202c-.293.293-.293.768,0,1.061.146.146.338.22.53.22s.384-.073.53-.22l2.202-2.202v1.939c0,.414.336.75.75.75s.75-.336.75-.75V1.25c0-.414-.336-.75-.75-.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M7.78,10.22c-.293-.293-.768-.293-1.061,0l-3.22,3.22v-2.689c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75v4.5c0,.414,.336,.75,.75,.75H7.25c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75h-2.689l3.22-3.22c.293-.293,.293-.768,0-1.061Z"
-          fill={secondaryfill}
+          d="m5,10h-1.939l2.202-2.202c.293-.293.293-.768,0-1.061s-.768-.293-1.061,0l-2.202,2.202v-1.939c0-.414-.336-.75-.75-.75s-.75.336-.75.75v3.75c0,.414.336.75.75.75h3.75c.414,0,.75-.336.75-.75s-.336-.75-.75-.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

@@ -1,26 +1,27 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function heartSparkle(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'heart sparkle';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px heart sparkle";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M15.658,12.99l-1.263-.421-.421-1.263c-.137-.408-.812-.408-.949,0l-.421,1.263-1.263,.421c-.204,.068-.342,.259-.342,.474s.138,.406,.342,.474l1.263,.421,.421,1.263c.068,.204,.26,.342,.475,.342s.406-.138,.475-.342l.421-1.263,1.263-.421c.204-.068,.342-.259,.342-.474s-.138-.406-.342-.474Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M12.164,2c-1.195,.015-2.324,.49-3.164,1.306-.84-.815-1.972-1.291-3.178-1.306-2.53,.015-4.582,2.084-4.572,4.609,0,5.253,5.306,8.429,6.932,9.278,.256,.133,.537,.2,.818,.2s.562-.067,.817-.2c.25-.13,.592-.322,.982-.56-.777-.292-1.3-1.025-1.3-1.862,0-.863,.55-1.625,1.369-1.897l.55-.184,.184-.551c.267-.798,1.029-1.332,1.897-1.332s1.63,.534,1.897,1.33l.044,.132c.777-1.238,1.309-2.689,1.309-4.349,.009-2.528-2.042-4.597-4.586-4.612Zm-3.421,6.481l-.946,.315-.316,.947c-.051,.153-.194,.256-.355,.256s-.305-.104-.355-.256l-.316-.947-.946-.315c-.153-.051-.257-.194-.257-.356s.104-.305,.257-.356l.946-.315,.316-.947c.102-.306,.609-.306,.711,0l.316,.947,.946,.315c.153,.051,.257,.194,.257,.356s-.104,.305-.257,.356Zm3.507-1.481c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75,.75,.336,.75,.75-.336,.75-.75,.75Z"
-          fill={fill}
+          fill="#212121"
         />
       </g>
     </svg>

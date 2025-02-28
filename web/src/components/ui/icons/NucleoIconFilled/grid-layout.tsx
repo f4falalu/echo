@@ -1,23 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function gridLayout(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'grid layout';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px grid layout";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <rect
           height="4.5"
           width="6"
-          fill={secondaryfill}
+          fill="#212121"
           rx="1.75"
           ry="1.75"
           strokeWidth="0"
@@ -27,7 +28,7 @@ function gridLayout(props: iconProps) {
         <rect
           height="7.5"
           width="6"
-          fill={fill}
+          fill="#212121"
           rx="1.75"
           ry="1.75"
           strokeWidth="0"
@@ -37,14 +38,23 @@ function gridLayout(props: iconProps) {
         <rect
           height="4.5"
           width="6"
-          fill={secondaryfill}
+          fill="#212121"
           rx="1.75"
           ry="1.75"
           strokeWidth="0"
           x="10"
           y="11.5"
         />
-        <rect height="7.5" width="6" fill={fill} rx="1.75" ry="1.75" strokeWidth="0" x="10" y="2" />
+        <rect
+          height="7.5"
+          width="6"
+          fill="#212121"
+          rx="1.75"
+          ry="1.75"
+          strokeWidth="0"
+          x="10"
+          y="2"
+        />
       </g>
     </svg>
   );

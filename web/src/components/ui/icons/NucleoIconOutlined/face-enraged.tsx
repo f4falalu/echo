@@ -1,24 +1,26 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function faceEnraged(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px face enraged';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px face enraged";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <circle
           cx="9"
           cy="9"
           fill="none"
           r="7.25"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,18 +28,18 @@ function faceEnraged(props: iconProps) {
         <path
           d="M6.75,13c.472-.746,1.304-1.242,2.25-1.242s1.778,.496,2.25,1.242"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
         <path
           d="M5.5,9.732c.769,.444,1.711,.319,2.337-.244,.241-.217,.17-.618-.111-.78l-2.452-1.416c-.281-.162-.664-.024-.731,.294-.175,.824,.188,1.702,.957,2.146Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M12.5,9.732c-.769,.444-1.711,.319-2.337-.244-.241-.217-.17-.618,.111-.78l2.452-1.416c.281-.162,.664-.024,.731,.294,.175,.824-.188,1.702-.957,2.146Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
       </g>
     </svg>

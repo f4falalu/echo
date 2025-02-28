@@ -1,24 +1,26 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function personCane(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px person cane';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px person cane";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <circle
           cx="7.75"
           cy="2.5"
           fill="none"
           r="1.5"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +28,7 @@ function personCane(props: iconProps) {
         <path
           d="M9,16.75l-.453-3.17c-.031-.214-.13-.413-.283-.566l-1.721-1.721c-.188-.188-.293-.442-.293-.707V6.318"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +36,7 @@ function personCane(props: iconProps) {
         <path
           d="M6 13.75L5 16.75"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +44,7 @@ function personCane(props: iconProps) {
         <path
           d="M8.75 10L8.75 6.318"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -50,7 +52,7 @@ function personCane(props: iconProps) {
         <path
           d="M3,10l1.146-2.064c.068-.123,.162-.23,.274-.314l1.563-1.172c.173-.13,.384-.2,.6-.2h1.824c.222,0,.438,.074,.614,.211l1.878,1.46c.067,.052,.141,.096,.22,.13l1.632,.699"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -58,7 +60,7 @@ function personCane(props: iconProps) {
         <path
           d="M13.75 10.75L15.75 16"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

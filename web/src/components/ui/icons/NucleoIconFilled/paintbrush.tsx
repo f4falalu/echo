@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function paintbrush(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'paintbrush';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px paintbrush";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M16.318,1.931c-.79-.789-2.166-.79-2.957,0l-5.145,5.145c.673,.25,1.294,.631,1.817,1.156,.525,.527,.897,1.145,1.14,1.802l5.146-5.146c.815-.815,.815-2.142,0-2.958Z"
-          fill={fill}
+          d="m11.44.542c-.723-.723-1.984-.723-2.707,0l-3.283,3.285c.609.236,1.173.59,1.652,1.068.479.48.828,1.037,1.061,1.629l3.277-3.275c.746-.747.746-1.961,0-2.707Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M8.97,9.291c-.669-.671-1.554-1.041-2.494-1.041h-.006c-.936,.002-1.817,.372-2.48,1.043-.952,.962-1.119,1.933-1.252,2.712-.149,.869-.247,1.442-1.347,2.043-.266,.145-.418,.435-.387,.736,.032,.301,.241,.554,.53,.641,1.058,.318,2.185,.58,3.306,.58,1.438,0,2.867-.43,4.13-1.724,1.371-1.375,1.371-3.614,0-4.989Z"
-          fill={secondaryfill}
+          d="m6.043,5.957c-1.245-1.243-3.234-1.277-4.438-.075C-.007,7.494-.006,10.879,0,11.26c.006.404.331.731.735.739.027,0,.07,0,.128,0,.73,0,3.744-.095,5.255-1.606,1.202-1.202,1.169-3.193-.075-4.438Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

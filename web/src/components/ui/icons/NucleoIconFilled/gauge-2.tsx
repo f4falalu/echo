@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function gauge2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'gauge 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px gauge 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M9,1C4.589,1,1,4.589,1,9s3.589,8,8,8,8-3.589,8-8S13.411,1,9,1Zm0,9.75c-.965,0-1.75-.785-1.75-1.75,0-.205,.042-.399,.107-.582l-2.754-2.754c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l2.754,2.754c.183-.065,.377-.107,.582-.107,.965,0,1.75,.785,1.75,1.75s-.785,1.75-1.75,1.75Z"
-          fill={fill}
+          d="m6,0C2.691,0,0,2.691,0,6s2.691,6,6,6,6-2.691,6-6S9.309,0,6,0Zm0,7.5c-.827,0-1.5-.673-1.5-1.5,0-.133.023-.26.056-.384l-1.836-1.836c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l1.836,1.836c.123-.033.25-.056.384-.056.827,0,1.5.673,1.5,1.5s-.673,1.5-1.5,1.5Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

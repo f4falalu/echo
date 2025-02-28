@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function sortDown(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'sort down';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px sort down";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M13.273,11.241c-.204-.457-.642-.741-1.142-.741H5.868c-.5,0-.938,.284-1.142,.741-.203,.457-.123,.971,.211,1.343l3.131,3.5h0c.237,.265,.577,.417,.932,.417s.694-.151,.932-.417l3.131-3.499c.334-.373,.414-.887,.211-1.344Z"
-          fill={fill}
+          d="m8,6.5h-4c-.477,0-.905.265-1.118.691-.213.426-.168.927.118,1.309l2,2.667c.238.318.603.5,1,.5s.762-.183,1-.5l2-2.667c.286-.381.331-.883.118-1.309-.213-.426-.641-.691-1.118-.691Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

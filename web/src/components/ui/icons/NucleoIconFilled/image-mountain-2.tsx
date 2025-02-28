@@ -1,23 +1,25 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function imageMountain2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'image mountain 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px image mountain 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
-        <circle cx="5" cy="4.5" fill={secondaryfill} r="2.25" />
+      <g fill="#212121">
+        <circle cx="2.75" cy="2.75" fill="#212121" r="1.75" strokeWidth="0" />
         <path
-          d="M16.168,13.723l-2.152-6.815c-.173-.549-.604-.977-1.155-1.146-.549-.167-1.147-.056-1.6,.301L2.651,12.878c-.592,.469-.814,1.233-.566,1.947,.248,.714,.897,1.175,1.653,1.175H14.499c.563,0,1.078-.261,1.411-.715,.334-.455,.428-1.024,.258-1.562Z"
-          fill={fill}
+          d="m11.022,9.14l-1.463-4.635c-.142-.448-.494-.798-.943-.936-.447-.139-.938-.048-1.308.244,0,0,0,0,0,0L1.454,8.449c-.484.383-.666,1.007-.463,1.59.202.584.732.961,1.351.961h7.317c.454,0,.886-.219,1.154-.585.268-.366.346-.843.209-1.275Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

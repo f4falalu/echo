@@ -1,26 +1,27 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function faceLaughing2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'face laughing 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px face laughing 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M9,1C4.589,1,1,4.589,1,9s3.589,8,8,8,8-3.589,8-8S13.411,1,9,1Zm-.75,11.5c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75c-1.103,0-2-.897-2-2s.897-2,2-2c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75c-.275,0-.5,.224-.5,.5s.225,.5,.5,.5Zm0-6c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75c-1.103,0-2-.897-2-2s.897-2,2-2c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75c-.275,0-.5,.224-.5,.5s.225,.5,.5,.5Zm3.099,5.589c-.221,.034-.444-.039-.598-.193-.15-.151-.217-.358-.185-.572,.24-1.526,.24-3.106,.001-4.638h0c-.032-.217,.036-.429,.189-.583,.153-.153,.373-.225,.589-.192,1.513,.229,2.654,1.557,2.654,3.089s-1.14,2.859-2.651,3.089Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M2.75,17H.75c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75H2.75c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
       </g>
     </svg>

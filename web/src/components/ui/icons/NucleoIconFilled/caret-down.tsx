@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function caretDown(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'caret down';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px caret down";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M14.024,4H3.976c-.638,0-1.226,.347-1.533,.906s-.287,1.242,.055,1.781l5.024,7.923c.323,.509,.875,.812,1.478,.812s1.155-.304,1.478-.812l5.025-7.924c.341-.539,.362-1.222,.055-1.781s-.895-.906-1.533-.906Z"
-          fill={fill}
+          d="m9.099,2.5H2.901c-.554,0-1.061.303-1.322.792-.262.488-.233,1.079.074,1.54l3.099,4.648c.279.418.745.668,1.248.668s.969-.25,1.248-.668l3.099-4.648c.308-.461.336-1.051.074-1.54-.262-.489-.769-.792-1.322-.792Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

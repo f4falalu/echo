@@ -1,23 +1,25 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function money(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'money';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px money";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
-        <circle cx="9" cy="9" fill={secondaryfill} r="2.5" />
+      <g fill="#212121">
+        <circle cx="6" cy="6" fill="#212121" r="2" strokeWidth="0" />
         <path
-          d="M14.25,3H3.75c-1.517,0-2.75,1.233-2.75,2.75v6.5c0,1.517,1.233,2.75,2.75,2.75H14.25c1.517,0,2.75-1.233,2.75-2.75V5.75c0-1.517-1.233-2.75-2.75-2.75Zm-1.608,10.5H5.358c-.364-1.399-1.459-2.494-2.858-2.858v-3.284c1.399-.364,2.494-1.459,2.858-2.858h7.284c.364,1.399,1.459,2.494,2.858,2.858v3.284c-1.399,.364-2.494,1.459-2.858,2.858Z"
-          fill={fill}
+          d="m9.25,1H2.75C1.233,1,0,2.233,0,3.75v4.5c0,1.517,1.233,2.75,2.75,2.75h6.5c1.517,0,2.75-1.233,2.75-2.75V3.75c0-1.517-1.233-2.75-2.75-2.75Zm-.894,8.5H3.644c-.272-1.051-1.093-1.872-2.144-2.144v-2.712c1.051-.272,1.872-1.093,2.144-2.144h4.712c.272,1.051,1.093,1.872,2.144,2.144v2.712c-1.051.272-1.872,1.093-2.144,2.144Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

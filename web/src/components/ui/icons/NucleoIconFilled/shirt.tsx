@@ -1,30 +1,31 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function shirt(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'shirt';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px shirt";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M14.25,2h-1.5c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h1.5c.689,0,1.25,.561,1.25,1.25V13.25c0,.689-.561,1.25-1.25,1.25h-4.5V5.761c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75V14.5H3.75c-.689,0-1.25-.561-1.25-1.25V4.75c0-.689,.561-1.25,1.25-1.25h1.5c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75h-1.5c-1.517,0-2.75,1.233-2.75,2.75V13.25c0,1.517,1.233,2.75,2.75,2.75H14.25c1.517,0,2.75-1.233,2.75-2.75V4.75c0-1.517-1.233-2.75-2.75-2.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M13.75,12h-2c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h2c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M5.25,9c-.106,0-.212-.022-.312-.068-.267-.122-.438-.389-.438-.682V2.75c0-.475,.19-.906,.498-1.222,.022-.024,.045-.046,.069-.066,.312-.287,.727-.462,1.183-.462h5.5c.465,0,.889,.183,1.203,.479,.01,.01,.021,.02,.03,.03,.319,.317,.517,.756,.517,1.241v5.5c0,.293-.171,.56-.438,.682-.266,.122-.581,.077-.802-.115l-3.26-2.816-3.26,2.816c-.139,.12-.313,.183-.49,.183Zm1.25-6.5l2.5,2.16,2.5-2.16H6.5Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
       </g>
     </svg>

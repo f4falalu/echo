@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function cyborg(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px cyborg';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px cyborg";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M5.75,16.25v-3.332c-2.166-1.257-3.483-3.81-2.832-6.607,.527-2.265,2.263-3.95,4.539-4.426,3.879-.81,7.293,2.129,7.293,5.865v1.75l1.75,2.5-1.754,.851-.283,1.652c-.123,.72-.748,1.247-1.479,1.247h-2.235c-1.105,0-2-.895-2-2v-4"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +28,7 @@ function cyborg(props: iconProps) {
           cy="7.75"
           fill="none"
           r="2"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

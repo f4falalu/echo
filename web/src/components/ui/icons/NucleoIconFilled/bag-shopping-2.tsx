@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function bagShopping2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'bag shopping 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px bag shopping 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M16.749,13.446l-1.056-9.5c-.155-1.395-1.331-2.446-2.733-2.446H5.04c-1.403,0-2.578,1.052-2.733,2.446L1.251,13.447c-.086,.776,.164,1.556,.685,2.138,.521,.582,1.268,.916,2.049,.916H14.016c.781,0,1.528-.334,2.049-.916,.521-.582,.771-1.361,.685-2.138Zm-7.749-4.696c-1.93,0-3.5-1.57-3.5-3.5,0-.414,.336-.75,.75-.75s.75,.336,.75,.75c0,1.103,.897,2,2,2s2-.897,2-2c0-.414,.336-.75,.75-.75s.75,.336,.75,.75c0,1.93-1.57,3.5-3.5,3.5Z"
-          fill={fill}
+          d="m11.696,8.392l-.724-5.5c-.18-1.363-1.352-2.391-2.727-2.391H3.754C2.379.5,1.208,1.528,1.027,2.892l-.724,5.5c-.104.785.137,1.577.659,2.172.522.596,1.276.937,2.068.937h5.939c.792,0,1.545-.341,2.068-.937.522-.595.762-1.387.659-2.171Zm-5.696-1.892c-1.517,0-2.75-1.233-2.75-2.75,0-.414.336-.75.75-.75s.75.336.75.75c0,.689.561,1.25,1.25,1.25s1.25-.561,1.25-1.25c0-.414.336-.75.75-.75s.75.336.75.75c0,1.517-1.233,2.75-2.75,2.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

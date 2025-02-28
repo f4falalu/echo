@@ -1,27 +1,28 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function tableSparkle(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'table sparkle';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px table sparkle";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="m13.25,2H4.75c-1.517,0-2.75,1.233-2.75,2.75v8.5c0,1.519,1.231,2.75,2.75,2.75h4.04c.414,0,.75-.336.75-.75s-.336-.75-.75-.75h-2.29v-6.5h-3v-1.5h3v-3h1.5v3h6.5v2.29c0,.414.336.75.75.75s.75-.336.75-.75v-4.04c0-1.519-1.231-2.75-2.75-2.75Z"
-          fill={fill}
+          fill="#212121"
           strokeWidth="0"
         />
         <path
           d="m16.4873,12.5551l-1.8945-.6309-.6313-1.8945c-.1021-.3057-.3887-.5127-.7114-.5127s-.6094.207-.7114.5127l-.6313,1.8945-1.8945.6309c-.3062.1025-.5127.3887-.5127.7119s.2065.6094.5127.7119l1.8945.6309.6313,1.8945c.1021.3057.3887.5127.7114.5127s.6094-.207.7114-.5127l.6313-1.8945,1.8945-.6309c.3062-.1025.5127-.3887.5127-.7119s-.2065-.6094-.5127-.7119Z"
-          fill={secondaryfill}
+          fill="#212121"
           strokeWidth="0"
         />
       </g>

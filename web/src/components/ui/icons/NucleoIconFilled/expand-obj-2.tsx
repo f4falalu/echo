@@ -1,27 +1,39 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function expandObj2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'expand obj 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px expand obj 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
-        <rect height="8" width="8" fill={fill} rx="2.25" ry="2.25" x="5" y="5" />
-        <path
-          d="M14.75,1.5h-3c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h3c.138,0,.25,.112,.25,.25v3c0,.414,.336,.75,.75,.75s.75-.336,.75-.75V3.25c0-.965-.785-1.75-1.75-1.75Z"
-          fill={secondaryfill}
+      <g fill="#212121">
+        <rect
+          height="6"
+          width="6"
+          fill="#212121"
+          rx="1.75"
+          ry="1.75"
+          strokeWidth="0"
+          x="3"
+          y="3"
         />
         <path
-          d="M6.25,15H3.25c-.138,0-.25-.112-.25-.25v-3c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75v3c0,.965,.785,1.75,1.75,1.75h3c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75Z"
-          fill={secondaryfill}
+          d="m10.75,5c-.414,0-.75-.336-.75-.75v-2.25h-2.25c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h2.25c.827,0,1.5.673,1.5,1.5v2.25c0,.414-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
+        <path
+          d="m4.25,11.5h-2.25c-.827,0-1.5-.673-1.5-1.5v-2.25c0-.414.336-.75.75-.75s.75.336.75.75v2.25h2.25c.414,0,.75.336.75.75s-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

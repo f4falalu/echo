@@ -1,25 +1,27 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function positionTopRight(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px position top right';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px position top right";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <rect
           height="5.5"
           width="5.5"
           fill="none"
           rx="1"
           ry="1"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,45 +31,45 @@ function positionTopRight(props: iconProps) {
         />
         <path
           d="M2.75,3.5c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75-.75,.336-.75,.75,.336,.75,.75,.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M2.75,6.625c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75-.75,.336-.75,.75c0,.414,.336,.75,.75,.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M2.75,9.75c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75-.75,.336-.75,.75c0,.414,.336,.75,.75,.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M2.75,12.875c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75-.75,.336-.75,.75,.336,.75,.75,.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M15.25,12.875c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75-.75,.336-.75,.75,.336,.75,.75,.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M2.75,16c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75-.75,.336-.75,.75,.336,.75,.75,.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M5.875,16c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75-.75,.336-.75,.75,.336,.75,.75,.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M5.875,3.5c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75-.75,.336-.75,.75,.336,.75,.75,.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M9,16c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75-.75,.336-.75,.75,.336,.75,.75,.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M15.25,16c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75-.75,.336-.75,.75,.336,.75,.75,.75Z"
-          fill={fill}
+          fill="#212121"
         />
-        <circle cx="12.125" cy="15.25" fill={fill} r=".75" />
+        <circle cx="12.125" cy="15.25" fill="#212121" r=".75" />
       </g>
     </svg>
   );

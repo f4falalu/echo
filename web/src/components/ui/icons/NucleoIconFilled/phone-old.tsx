@@ -1,26 +1,27 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function phoneOld(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'phone old';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px phone old";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M10.75,4.5c-.414,0-.75-.336-.75-.75V.75c0-.414,.336-.75,.75-.75s.75,.336,.75,.75V3.75c0,.414-.336,.75-.75,.75Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M11.75,3H6.25c-.965,0-1.75,.785-1.75,1.75v11.5c0,.965,.785,1.75,1.75,1.75h5.5c.965,0,1.75-.785,1.75-1.75V4.75c0-.965-.785-1.75-1.75-1.75ZM7.75,15c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75,.75,.336,.75,.75-.336,.75-.75,.75Zm0-2.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75,.75,.336,.75,.75-.336,.75-.75,.75Zm2.5,2.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75,.75,.336,.75,.75-.336,.75-.75,.75Zm0-2.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75,.75,.336,.75,.75-.336,.75-.75,.75Zm1.25-3.25c0,.414-.336,.75-.75,.75h-3.5c-.414,0-.75-.336-.75-.75v-1c0-.414,.336-.75,.75-.75h3.5c.414,0,.75,.336,.75,.75v1Z"
-          fill={fill}
+          fill="#212121"
         />
       </g>
     </svg>

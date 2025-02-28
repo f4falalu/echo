@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function shirtSport(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px shirt sport';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px shirt sport";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M9.25,12.25v-4s-.458,.806-1.431,.992"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function shirtSport(props: iconProps) {
         <path
           d="M13.151,7c-.109,1.236-.178,2.574-.182,4-.005,1.918,.108,3.678,.281,5.25h-4.25s-4.25,0-4.25,0c.173-1.572,.286-3.332,.281-5.25-.004-1.426-.073-2.764-.182-4"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function shirtSport(props: iconProps) {
         <path
           d="M15.25,8.75l1.75-.75-1.605-3.813c-.248-.589-.762-1.024-1.384-1.171l-2.263-.533c0,.01,.003,.019,.003,.028,0,1.519-1.231,2.75-2.75,2.75s-2.75-1.231-2.75-2.75c0-.01,.003-.018,.003-.028l-2.263,.533c-.622,.147-1.137,.582-1.384,1.171l-1.605,3.813,1.75,.75"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

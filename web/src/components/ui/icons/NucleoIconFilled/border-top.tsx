@@ -1,39 +1,33 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function borderTop(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'border top';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px border top";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
+        <circle cx="4.417" cy="10.75" fill="#212121" r=".75" strokeWidth="0" />
+        <circle cx="7.583" cy="10.75" fill="#212121" r=".75" strokeWidth="0" />
+        <circle cx="10.75" cy="10.75" fill="#212121" r=".75" strokeWidth="0" />
+        <circle cx="10.75" cy="4.417" fill="#212121" r=".75" strokeWidth="0" />
+        <circle cx="10.75" cy="7.583" fill="#212121" r=".75" strokeWidth="0" />
+        <circle cx="1.25" cy="4.417" fill="#212121" r=".75" strokeWidth="0" />
+        <circle cx="1.25" cy="7.583" fill="#212121" r=".75" strokeWidth="0" />
+        <circle cx="1.25" cy="10.75" fill="#212121" r=".75" strokeWidth="0" />
         <path
-          d="M15.25,2H2.75c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75H15.25c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75Z"
-          fill={secondaryfill}
+          d="m10.75,2H1.25c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h9.5c.414,0,.75.336.75.75s-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
-        <circle cx="15.25" cy="9" fill={fill} r=".75" />
-        <circle cx="12.125" cy="9" fill={fill} r=".75" />
-        <circle cx="9" cy="9" fill={fill} r=".75" />
-        <circle cx="5.875" cy="9" fill={fill} r=".75" />
-        <circle cx="2.75" cy="9" fill={fill} r=".75" />
-        <circle cx="9" cy="5.875" fill={fill} r=".75" />
-        <circle cx="9" cy="12.125" fill={fill} r=".75" />
-        <circle cx="9" cy="15.25" fill={fill} r=".75" />
-        <circle cx="2.75" cy="5.875" fill={fill} r=".75" />
-        <circle cx="2.75" cy="12.125" fill={fill} r=".75" />
-        <circle cx="2.75" cy="15.25" fill={fill} r=".75" />
-        <circle cx="15.25" cy="5.875" fill={fill} r=".75" />
-        <circle cx="15.25" cy="12.125" fill={fill} r=".75" />
-        <circle cx="15.25" cy="15.25" fill={fill} r=".75" />
-        <circle cx="12.125" cy="15.25" fill={fill} r=".75" />
-        <circle cx="5.875" cy="15.25" fill={fill} r=".75" />
       </g>
     </svg>
   );

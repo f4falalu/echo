@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function caretExpandY(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'caret expand y';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px caret expand y";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M10.035,2.581c-.466-.688-1.604-.688-2.07,0l-2.348,3.468c-.26,.384-.286,.877-.069,1.287,.217,.41,.641,.664,1.104,.664h4.696c.463,0,.887-.254,1.104-.664,.217-.409,.191-.902-.069-1.287l-2.348-3.468Z"
-          fill={fill}
+          d="m8.249,7H3.751c-.382,0-.725.212-.895.554-.17.342-.133.743.096,1.048l2.249,2.984c.188.25.487.398.799.398s.611-.149.799-.398l2.249-2.984c.229-.305.267-.707.096-1.048-.17-.341-.513-.554-.895-.554Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M11.348,10H6.652c-.463,0-.887,.254-1.104,.664-.217,.409-.191,.902,.069,1.287l2.348,3.468c.233,.344,.62,.549,1.035,.549s.802-.206,1.035-.549l2.348-3.468c.26-.384,.286-.877,.069-1.287-.217-.41-.641-.664-1.104-.664Z"
-          fill={secondaryfill}
+          d="m6.799.414c-.376-.499-1.222-.499-1.598,0l-2.249,2.984c-.229.305-.267.707-.096,1.048.17.341.513.554.895.554h4.497c.382,0,.725-.212.895-.554.17-.342.133-.743-.096-1.048L6.799.414Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

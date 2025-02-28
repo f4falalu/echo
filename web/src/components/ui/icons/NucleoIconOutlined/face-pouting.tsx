@@ -1,26 +1,28 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function facePouting(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px face pouting';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px face pouting";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M6.103,13.243c.154,.154,.366,.221,.583,.189h0c1.532-.239,3.112-.238,4.638,.001,.214,.032,.421-.035,.572-.185,.154-.153,.227-.376,.193-.598-.23-1.511-1.558-2.651-3.089-2.651s-2.86,1.141-3.089,2.654c-.033,.216,.039,.436,.192,.589Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M4.5 7L7.25 8"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -28,7 +30,7 @@ function facePouting(props: iconProps) {
         <path
           d="M13.5 7L10.75 8"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -38,13 +40,13 @@ function facePouting(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="6" cy="8.5" fill={secondaryfill} r="1" />
-        <circle cx="12" cy="8.5" fill={secondaryfill} r="1" />
+        <circle cx="6" cy="8.5" fill="#212121" r="1" />
+        <circle cx="12" cy="8.5" fill="#212121" r="1" />
       </g>
     </svg>
   );

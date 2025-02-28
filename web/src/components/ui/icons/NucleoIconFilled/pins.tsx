@@ -1,26 +1,27 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function pins(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'pins';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px pins";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M7,1.664C4.051,1.664,1,3.819,1,7.425c0,2.557,2.964,6.319,4.732,8.335,.321,.366,.783,.576,1.268,.576s.947-.209,1.269-.576c1.767-2.016,4.731-5.778,4.731-8.335,0-3.606-3.051-5.761-6-5.761Zm0,7.836c-.966,0-1.75-.783-1.75-1.75s.784-1.75,1.75-1.75,1.75,.783,1.75,1.75-.784,1.75-1.75,1.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M11,16.336c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75c.038,0,.094-.011,.141-.065,2.729-3.113,4.359-5.859,4.359-7.345,0-1.706-.962-3.146-2.573-3.852-.379-.167-.552-.609-.386-.988,.166-.38,.608-.553,.988-.386,2.173,.953,3.47,2.907,3.47,5.226,0,2.557-2.964,6.319-4.731,8.335-.322,.366-.784,.576-1.269,.576Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
       </g>
     </svg>

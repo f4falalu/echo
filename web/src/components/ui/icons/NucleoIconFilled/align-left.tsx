@@ -1,25 +1,42 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function alignLeft(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'align left';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px align left";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M2.75,17c-.414,0-.75-.336-.75-.75V1.75c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v14.5c0,.414-.336,.75-.75,.75Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
-        <rect height="5" width="11" fill={fill} rx="1.75" ry="1.75" x="5" y="3" />
-        <rect height="5" width="7" fill={fill} rx="1.75" ry="1.75" x="5" y="10" />
+        <rect
+          height="5"
+          width="11"
+          fill="#212121"
+          rx="1.75"
+          ry="1.75"
+          x="5"
+          y="3"
+        />
+        <rect
+          height="5"
+          width="7"
+          fill="#212121"
+          rx="1.75"
+          ry="1.75"
+          x="5"
+          y="10"
+        />
       </g>
     </svg>
   );

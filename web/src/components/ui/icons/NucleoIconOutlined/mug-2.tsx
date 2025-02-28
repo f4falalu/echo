@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function mug2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px mug 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px mug 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M14.033,7.25h1.717c.552,0,1,.448,1,1v1.5c0,1.105-.895,2-2,2h-1.109"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function mug2(props: iconProps) {
         <path
           d="M4.841,4.75H13.159c.586,0,1.047,.502,.996,1.087l-.747,8.587c-.09,1.034-.955,1.827-1.992,1.827H6.584c-1.037,0-1.903-.793-1.992-1.827l-.747-8.587c-.051-.584,.41-1.087,.996-1.087Z"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function mug2(props: iconProps) {
         <path
           d="M7,2c.127-.04,.406-.146,.646-.417,.295-.333,.343-.706,.354-.833"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +42,7 @@ function mug2(props: iconProps) {
         <path
           d="M10.25,2c.127-.04,.406-.146,.646-.417,.295-.333,.343-.706,.354-.833"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -50,7 +52,7 @@ function mug2(props: iconProps) {
           cy="10.5"
           fill="none"
           r="2"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

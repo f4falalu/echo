@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function userBubbleCheck(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px user bubble check';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px user bubble check";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M10.75 6.75L12.25 8.25 14.5 4.75"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function userBubbleCheck(props: iconProps) {
         <path
           d="M12.75,1.75c-2.485,0-4.5,2.014-4.5,4.498,0,.819,.222,1.583,.604,2.245,.267,.5-.033,1.682-.604,2.254,.776,.042,1.798-.308,2.254-.604,.304,.175,.785,.407,1.415,.526,.269,.051,.547,.078,.83,.078,2.485,0,4.5-2.014,4.5-4.498S15.235,1.75,12.75,1.75Z"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function userBubbleCheck(props: iconProps) {
         <path
           d="M.75,15.5c0-1.657,1.343-3,3-3h0c1.657,0,3,1.343,3,3"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +44,7 @@ function userBubbleCheck(props: iconProps) {
           cy="8.25"
           fill="none"
           r="2"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function photoPlus(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px photo plus';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px photo plus";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="m4,14.75l5.836-5.836c.781-.781,2.047-.781,2.828,0l3.586,3.586"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function photoPlus(props: iconProps) {
         <path
           d="M14.25 1.25L14.25 6.25"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function photoPlus(props: iconProps) {
         <path
           d="m9.3004,3.25H3.75c-1.1046,0-2,.8955-2,2v7.5c0,1.1045.8954,2,2,2h10.5c1.1046,0,2-.8955,2-2v-5.0137"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,12 +42,12 @@ function photoPlus(props: iconProps) {
         <path
           d="M16.75 3.75L11.75 3.75"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="5.75" cy="7.25" fill={fill} r="1.25" strokeWidth="0" />
+        <circle cx="5.75" cy="7.25" fill="#212121" r="1.25" strokeWidth="0" />
       </g>
     </svg>
   );

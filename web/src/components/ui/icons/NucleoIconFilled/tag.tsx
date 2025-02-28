@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function tag(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'tag';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px tag";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M15.866,8.056L10.116,2.306c-.52-.52-1.21-.806-1.944-.806H3.25c-.965,0-1.75,.785-1.75,1.75v4.921c0,.735,.286,1.425,.806,1.945l5.75,5.75c.536,.536,1.24,.804,1.944,.804s1.408-.268,1.944-.804l3.922-3.922c.52-.519,.806-1.209,.806-1.944s-.286-1.425-.806-1.944Zm-9.616-.556c-.689,0-1.25-.561-1.25-1.25s.561-1.25,1.25-1.25,1.25,.561,1.25,1.25-.561,1.25-1.25,1.25Z"
-          fill={fill}
+          d="m10.679,5.118L6.573,1.013c-.326-.326-.776-.513-1.237-.513h-3.086c-.965,0-1.75.785-1.75,1.75v3.086c0,.467.182.907.513,1.237l4.105,4.105c.536.536,1.24.804,1.944.804s1.408-.268,1.944-.804l1.672-1.672c.52-.519.806-1.209.806-1.944s-.286-1.425-.806-1.944Zm-6.679-.118c-.552,0-1-.448-1-1s.448-1,1-1,1,.448,1,1-.448,1-1,1Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

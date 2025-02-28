@@ -1,27 +1,29 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function playlist3(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px playlist 3';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px playlist 3";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="m10.7098,8.4835l-2.2964-1.3853c-.402-.2425-.9148.047-.9148.5165v2.7706c0,.4695.5128.759.9148.5165l2.2964-1.3853c.3888-.2346.3888-.7984,0-1.033Z"
-          fill={secondaryfill}
+          fill="#212121"
           strokeWidth="0"
         />
         <path
           d="M16.25 4.25L16.25 13.75"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +31,7 @@ function playlist3(props: iconProps) {
         <path
           d="M1.75 4.25L1.75 13.75"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +42,7 @@ function playlist3(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

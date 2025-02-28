@@ -1,35 +1,37 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function ballGolf(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px ball golf';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px ball golf";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <circle
           cx="9"
           cy="7"
           fill="none"
           r="5.25"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="9" cy="4.25" fill={secondaryfill} r=".75" />
-        <circle cx="7.25" cy="6.25" fill={secondaryfill} r=".75" />
-        <circle cx="10.75" cy="6.25" fill={secondaryfill} r=".75" />
+        <circle cx="9" cy="4.25" fill="#212121" r=".75" />
+        <circle cx="7.25" cy="6.25" fill="#212121" r=".75" />
+        <circle cx="10.75" cy="6.25" fill="#212121" r=".75" />
         <path
           d="M9 17L9 14.75"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +39,7 @@ function ballGolf(props: iconProps) {
         <path
           d="M6.75 14.75L11.25 14.75"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

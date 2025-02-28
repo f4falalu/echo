@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function clockRotateClockwise(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'clock rotate clockwise';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px clock rotate clockwise";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M9,4c-.414,0-.75,.336-.75,.75v4.25c0,.246,.121,.477,.323,.617l3.25,2.25c.13,.09,.279,.133,.426,.133,.238,0,.472-.113,.617-.323,.236-.34,.151-.808-.19-1.043l-2.927-2.026v-3.857c0-.414-.336-.75-.75-.75Z"
-          fill={secondaryfill}
+          d="m6,0C3.381,0,1.085,1.674.286,4.167c-.127.395.091.817.485.943.399.13.817-.091.942-.485.6-1.869,2.321-3.125,4.286-3.125,2.481,0,4.5,2.019,4.5,4.5s-2.019,4.5-4.5,4.5c-1.311,0-2.516-.556-3.356-1.5h1.606c.414,0,.75-.336.75-.75s-.336-.75-.75-.75H1.25c-.414,0-.75.336-.75.75v3c0,.414.336.75.75.75s.75-.336.75-.75v-.784c1.078.97,2.483,1.534,4,1.534,3.309,0,6-2.691,6-6S9.309,0,6,0Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M9,1C4.589,1,1,4.589,1,9c0,.414,.336,.75,.75,.75s.75-.336,.75-.75c0-3.584,2.916-6.5,6.5-6.5s6.5,2.916,6.5,6.5-2.916,6.5-6.5,6.5c-2.161,0-4.128-1.073-5.328-2.801l1.457,.202c.407,.052,.789-.23,.846-.641,.057-.41-.23-.789-.641-.846l-2.944-.407c-.41-.052-.789,.23-.845,.64l-.408,2.945c-.057,.411,.229,.789,.64,.846,.035,.005,.07,.007,.104,.007,.369,0,.69-.272,.742-.647l.116-.834c1.493,1.885,3.775,3.036,6.261,3.036,4.411,0,8-3.589,8-8S13.411,1,9,1Z"
-          fill={fill}
+          d="m8,8.5c-.176,0-.352-.061-.494-.186l-2-1.75c-.162-.143-.256-.348-.256-.564v-2.75c0-.414.336-.75.75-.75s.75.336.75.75v2.41l1.744,1.526c.312.273.343.747.07,1.058-.148.169-.356.256-.564.256Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

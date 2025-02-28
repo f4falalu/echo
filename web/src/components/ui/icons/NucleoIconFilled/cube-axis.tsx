@@ -1,34 +1,35 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function cubeAxis(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'cube axis';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px cube axis";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M9,4.672c-.414,0-.75-.336-.75-.75V1.75c0-.414,.336-.75,.75-.75s.75,.336,.75,.75V3.922c0,.414-.336,.75-.75,.75Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M1.767,14.741c-.258,0-.509-.133-.648-.372-.209-.357-.089-.817,.27-1.025l2.225-1.299c.358-.211,.816-.089,1.025,.27,.209,.357,.089,.817-.27,1.025l-2.225,1.299c-.119,.07-.249,.103-.377,.103Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M16.233,14.741c-.128,0-.258-.033-.377-.103l-2.225-1.299c-.358-.208-.479-.668-.27-1.025s.665-.48,1.025-.27l2.225,1.299c.358,.208,.479,.668,.27,1.025-.14,.239-.391,.372-.648,.372Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M14.68,6.473s-.002-.01-.005-.014c-.004-.006-.01-.009-.014-.015-.209-.355-.505-.66-.872-.873l-3.57-2.07c-.752-.436-1.686-.436-2.438,0l-3.571,2.071c-.367,.213-.663,.518-.872,.873-.004,.006-.01,.009-.013,.015-.002,.004-.002,.009-.004,.013-.206,.361-.321,.774-.321,1.201v4.154c0,.863,.464,1.668,1.211,2.103l3.57,2.07c.372,.215,.788,.323,1.205,.325,.005,0,.009,.003,.014,.003s.009-.003,.014-.003c.417-.002,.833-.11,1.205-.325l3.571-2.071c.746-.434,1.21-1.239,1.21-2.102V7.673c0-.427-.115-.839-.32-1.2ZM4.964,12.632c-.286-.166-.464-.475-.464-.805v-3.82l3.75,2.175v4.356l-3.286-1.906Zm8.073,0l-3.287,1.906v-4.356l3.75-2.175v3.82c0,.331-.178,.639-.463,.805Z"
-          fill={fill}
+          fill="#212121"
         />
       </g>
     </svg>

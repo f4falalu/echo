@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function circuits(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px circuits';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px circuits";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M6.25,5.25v2.586c0,.265,.105,.52,.293,.707l.914,.914c.188,.188,.293,.442,.293,.707v5.586"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function circuits(props: iconProps) {
         <path
           d="M3.811,11.311l1.146,1.146c.188,.188,.293,.442,.293,.707v2.586"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function circuits(props: iconProps) {
         <path
           d="M12.75,15.75v-2.586c0-.265,.105-.52,.293-.707l1.146-1.146"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +42,7 @@ function circuits(props: iconProps) {
         <path
           d="M10.25,15.75v-5.586c0-.265,.105-.52,.293-.707l.914-.914c.188-.188,.293-.442,.293-.707v-2.586"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -50,7 +52,7 @@ function circuits(props: iconProps) {
           cy="3.75"
           fill="none"
           r="1.5"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -60,7 +62,7 @@ function circuits(props: iconProps) {
           cy="10.25"
           fill="none"
           r="1.5"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -70,7 +72,7 @@ function circuits(props: iconProps) {
           cy="10.25"
           fill="none"
           r="1.5"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -80,7 +82,7 @@ function circuits(props: iconProps) {
           cy="3.75"
           fill="none"
           r="1.5"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

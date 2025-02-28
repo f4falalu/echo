@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function notebookBookmark(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'notebook bookmark';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px notebook bookmark";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M12.75,1H5.25c-1.517,0-2.75,1.233-2.75,2.75V14.25c0,1.517,1.233,2.75,2.75,2.75h7.5c1.517,0,2.75-1.233,2.75-2.75V3.75c0-1.517-1.233-2.75-2.75-2.75ZM6,15.5h-.75c-.689,0-1.25-.561-1.25-1.25V3.75c0-.689,.561-1.25,1.25-1.25h.75V15.5ZM13,6.5c0,.202-.122,.385-.309,.462-.062,.026-.127,.038-.191,.038-.13,0-.258-.051-.354-.146l-1.146-1.146-1.146,1.146c-.144,.143-.358,.187-.545,.108-.187-.077-.309-.26-.309-.462V2.5h4V6.5Z"
-          fill={fill}
+          d="m8.25,0H3.75C2.233,0,1,1.233,1,2.75v6.5c0,1.517,1.233,2.75,2.75,2.75h4.5c1.517,0,2.75-1.233,2.75-2.75V2.75c0-1.517-1.233-2.75-2.75-2.75Zm-.25,5.595c0,.334-.404.501-.64.265l-1.36-1.36-1.36,1.36c-.236.236-.64.069-.64-.265V1.5h4v4.095Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

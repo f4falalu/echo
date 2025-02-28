@@ -1,24 +1,26 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function arrowsAllDirections(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px arrows all directions';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px arrows all directions";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <circle
           cx="9"
           cy="9"
           fill="none"
           r="2.25"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +28,7 @@ function arrowsAllDirections(props: iconProps) {
         <path
           d="M2.25 5.75L2.25 2.25 5.75 2.25"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +36,7 @@ function arrowsAllDirections(props: iconProps) {
         <path
           d="M2.25 2.25L5.5 5.5"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +44,7 @@ function arrowsAllDirections(props: iconProps) {
         <path
           d="M12.25 2.25L15.75 2.25 15.75 5.75"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -50,7 +52,7 @@ function arrowsAllDirections(props: iconProps) {
         <path
           d="M15.75 2.25L12.5 5.5"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -58,7 +60,7 @@ function arrowsAllDirections(props: iconProps) {
         <path
           d="M15.75 12.25L15.75 15.75 12.25 15.75"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -66,7 +68,7 @@ function arrowsAllDirections(props: iconProps) {
         <path
           d="M15.75 15.75L12.5 12.5"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -74,7 +76,7 @@ function arrowsAllDirections(props: iconProps) {
         <path
           d="M5.75 15.75L2.25 15.75 2.25 12.25"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -82,7 +84,7 @@ function arrowsAllDirections(props: iconProps) {
         <path
           d="M2.25 15.75L5.5 12.5"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

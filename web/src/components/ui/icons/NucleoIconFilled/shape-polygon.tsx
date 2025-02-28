@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function shapePolygon(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'shape polygon';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px shape polygon";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M10.558,1.549c-.917-.737-2.198-.737-3.116,0L2.434,5.57c-.758,.608-1.095,1.612-.859,2.556l1.489,5.981c.278,1.115,1.272,1.893,2.418,1.893h7.036c1.146,0,2.14-.778,2.418-1.894l1.489-5.98c.236-.944-.102-1.948-.859-2.557L10.558,1.549Z"
-          fill={fill}
+          d="m7.235.935c-.727-.584-1.743-.584-2.47,0h0L1.241,3.764c-.6.482-.868,1.277-.682,2.026l1.048,4.209c.22.884,1.009,1.501,1.917,1.501h4.951c.908,0,1.697-.617,1.917-1.501l1.048-4.208c.187-.748-.081-1.543-.682-2.026L7.235.935Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

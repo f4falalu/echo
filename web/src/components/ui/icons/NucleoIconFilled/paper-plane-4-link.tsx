@@ -1,34 +1,35 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function paperPlane4Link(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'paper plane 4 link';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px paper plane 4 link";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M11.75,16.5h-.5c-1.241,0-2.25-1.009-2.25-2.25v-1c0-1.241,1.009-2.25,2.25-2.25h.5c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75h-.5c-.414,0-.75,.336-.75,.75v1c0,.414,.336,.75,.75,.75h.5c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M14.75,16.5h-.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h.5c.414,0,.75-.336,.75-.75v-1c0-.414-.336-.75-.75-.75h-.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h.5c1.241,0,2.25,1.009,2.25,2.25v1c0,1.241-1.009,2.25-2.25,2.25Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M7.5,13.25c0-2.068,1.682-3.75,3.75-3.75h3.5c.208,0,.409,.029,.608,.062,.086-.172,.142-.361,.142-.562,0-.475-.262-.905-.683-1.124L3.351,1.922c-.452-.234-.997-.175-1.39,.148-.392,.324-.552,.849-.408,1.336l1.435,4.844H7.386c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75H2.988l-1.435,4.844c-.145,.488,.016,1.012,.408,1.336,.232,.191,.518,.29,.806,.29,.199,0,.399-.047,.584-.143l4.149-2.154v-.673Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M13.75,14.5h-1.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h1.5c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
       </g>
     </svg>

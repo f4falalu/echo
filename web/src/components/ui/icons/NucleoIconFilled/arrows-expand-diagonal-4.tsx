@@ -1,31 +1,34 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function arrowsExpandDiagonal4(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'arrows expand diagonal 4';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px arrows expand diagonal 4";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M8.25 0.161H9.75V17.839000000000002H8.25z"
-          fill={secondaryfill}
-          transform="rotate(-45 9 9)"
+          d="m10.5,11.25c-.192,0-.384-.073-.53-.22L.896,1.957c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l9.073,9.073c.293.293.293.768,0,1.061-.146.146-.338.22-.53.22Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M2.75,8c-.414,0-.75-.336-.75-.75V2.75c0-.414,.336-.75,.75-.75H7.25c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75H3.5v3.75c0,.414-.336,.75-.75,.75Z"
-          fill={fill}
+          d="m10.75,11.5h-3.75c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h3v-3c0-.414.336-.75.75-.75s.75.336.75.75v3.75c0,.414-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M15.25,16h-4.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h3.75v-3.75c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v4.5c0,.414-.336,.75-.75,.75Z"
-          fill={fill}
+          d="m1.25,5.75c-.414,0-.75-.336-.75-.75V1.25c0-.414.336-.75.75-.75h3.75c.414,0,.75.336.75.75s-.336.75-.75.75h-3v3c0,.414-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

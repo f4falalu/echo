@@ -1,42 +1,43 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function cursorRays(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'cursor rays';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px cursor rays";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M16.773,15.713l-3.389-3.39,2.296-.864c.399-.15,.653-.524,.647-.951-.007-.427-.271-.792-.676-.931l-7.312-2.509c-.365-.126-.76-.034-1.032,.238s-.364,.667-.239,1.032l2.51,7.311c.137,.405,.502,.671,.931,.678,.005,0,.011,0,.016,0,.422,0,.788-.253,.936-.648l.864-2.296,3.389,3.39c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22c.293-.293,.293-.768,0-1.061Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M7.75,4.5c.414,0,.75-.336,.75-.75V1.75c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75V3.75c0,.414,.336,.75,.75,.75Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M10.578,5.671c.192,0,.384-.073,.53-.22l1.414-1.414c.293-.293,.293-.768,0-1.061s-.768-.293-1.061,0l-1.414,1.414c-.293,.293-.293,.768,0,1.061,.146,.146,.338,.22,.53,.22Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M4.392,10.048l-1.414,1.414c-.293,.293-.293,.768,0,1.061,.146,.146,.338,.22,.53,.22s.384-.073,.53-.22l1.414-1.414c.293-.293,.293-.768,0-1.061s-.768-.293-1.061,0Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M4.5,7.75c0-.414-.336-.75-.75-.75H1.75c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75H3.75c.414,0,.75-.336,.75-.75Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M4.038,2.977c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l1.414,1.414c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22c.293-.293,.293-.768,0-1.061l-1.414-1.414Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
       </g>
     </svg>

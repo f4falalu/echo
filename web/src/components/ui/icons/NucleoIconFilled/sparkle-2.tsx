@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function sparkle2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'sparkle 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px sparkle 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M8.025,12.553l-1.848-.731-.73-1.848c-.227-.572-1.168-.572-1.395,0l-.73,1.848-1.848,.731c-.286,.113-.475,.39-.475,.697s.188,.584,.475,.697l1.848,.731,.73,1.848c.113,.286,.39,.474,.697,.474s.584-.188,.697-.474l.73-1.848,1.848-.731c.286-.113,.475-.39,.475-.697s-.188-.584-.475-.697Z"
-          fill={secondaryfill}
+          d="m3.492,10.508l-.946.315-.316.947c-.102.306-.609.306-.711,0l-.316-.947-.946-.315c-.153-.051-.257-.194-.257-.356s.104-.305.257-.356l.946-.315.316-.947c.051-.153.194-.256.355-.256s.305.104.355.256l.316.947.946.315c.153.051.257.194.257.356s-.104.305-.257.356h0Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M16.525,6.053l-3.28-1.297-1.298-3.281c-.227-.572-1.168-.572-1.395,0l-1.298,3.281-3.28,1.297c-.286,.113-.475,.39-.475,.697s.188,.584,.475,.697l3.28,1.297,1.298,3.281c.113,.286,.39,.474,.697,.474s.584-.188,.697-.474l1.298-3.281,3.28-1.297c.286-.113,.475-.39,.475-.697s-.188-.584-.475-.697Z"
-          fill={fill}
+          d="m11.526,4.803l-3.102-1.227L7.197.474c-.113-.286-.39-.474-.697-.474s-.584.188-.697.474l-1.227,3.102-3.102,1.227c-.286.113-.474.39-.474.697s.188.584.474.697l3.102,1.227,1.227,3.102c.113.286.39.474.697.474s.584-.188.697-.474l1.227-3.102,3.102-1.227c.286-.113.474-.39.474-.697s-.188-.584-.474-.697Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

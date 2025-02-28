@@ -1,22 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function adjustContrast(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'adjust contrast';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px adjust contrast";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M9,1C4.589,1,1,4.589,1,9s3.589,8,8,8,8-3.589,8-8S13.411,1,9,1ZM2.5,9c0-3.33,2.519-6.08,5.75-6.453V15.453c-3.231-.374-5.75-3.123-5.75-6.453Z"
-          fill={fill}
+          d="m6,.75v10.5c2.899,0,5.25-2.351,5.25-5.25S8.899.75,6,.75Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
+        <path
+          d="m6,12c-3.309,0-6-2.691-6-6S2.691,0,6,0s6,2.691,6,6-2.691,6-6,6Zm0-10.5C3.519,1.5,1.5,3.519,1.5,6s2.019,4.5,4.5,4.5,4.5-2.019,4.5-4.5S8.481,1.5,6,1.5Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

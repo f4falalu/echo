@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function typography(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'typography';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px typography";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M11.25,14.5h-1.5V2.75c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75V14.5h-1.5c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h4.5c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75Z"
-          fill={secondaryfill}
+          d="m7.75,10h-1V1.25c0-.414-.336-.75-.75-.75s-.75.336-.75.75v8.75h-1c-.414,0-.75.336-.75.75s.336.75.75.75h3.5c.414,0,.75-.336.75-.75s-.336-.75-.75-.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M14.751,5c-.275,0-.54-.152-.672-.415l-.543-1.085H4.464l-.543,1.085c-.185,.37-.635,.521-1.006,.335s-.521-.636-.336-1.006l.75-1.5c.127-.254,.387-.415,.671-.415H14c.284,0,.544,.161,.671,.415l.75,1.5c.186,.371,.035,.821-.336,1.006-.107,.054-.222,.079-.334,.079Z"
-          fill={fill}
+          d="m10.751,3.25c-.255,0-.504-.13-.645-.364l-.531-.886H2.425l-.531.886c-.213.354-.673.471-1.029.257-.355-.213-.471-.674-.258-1.029l.75-1.25c.136-.226.38-.364.644-.364h8c.264,0,.508.138.644.364l.75,1.25c.213.355.098.816-.258,1.029-.121.073-.254.107-.385.107Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

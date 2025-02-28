@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function bookmark(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'bookmark';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px bookmark";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M12.25,1H5.75c-1.517,0-2.75,1.233-2.75,2.75v12.5c0,.276,.152,.531,.396,.661,.244,.131,.54,.117,.77-.037l4.834-3.223,4.834,3.223c.125,.083,.271,.126,.416,.126,.122,0,.243-.029,.354-.089,.244-.13,.396-.385,.396-.661V3.75c0-1.517-1.233-2.75-2.75-2.75Z"
-          fill={fill}
+          d="m8.25,0H3.75C2.233,0,1,1.233,1,2.75v8.5c0,.285.162.546.418.672.255.127.562.097.788-.077l3.794-2.901,3.794,2.901c.133.102.294.154.456.154.113,0,.227-.025.332-.078.256-.126.418-.387.418-.672V2.75c0-1.517-1.233-2.75-2.75-2.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

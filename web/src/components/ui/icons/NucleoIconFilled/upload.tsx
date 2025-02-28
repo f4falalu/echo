@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function upload(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'upload';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px upload";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M15.908,12.625l-.816-3.5c-.292-1.251-1.394-2.125-2.678-2.125h-2.663v5.5c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75V7h-2.663c-1.285,0-2.386,.874-2.678,2.125l-.816,3.5c-.192,.822,0,1.673,.524,2.334,.524,.662,1.31,1.041,2.154,1.041H13.229c.844,0,1.63-.379,2.154-1.041,.525-.661,.716-1.512,.524-2.334Z"
-          fill={fill}
+          d="m11.784,8.735l-.286-1.5c-.248-1.295-1.384-2.235-2.702-2.235h-2.046v3c0,.414-.336.75-.75.75s-.75-.336-.75-.75v-3h-2.046c-1.318,0-2.454.94-2.702,2.235l-.286,1.5c-.154.808.059,1.634.583,2.268.524.633,1.297.997,2.119.997h6.164c.822,0,1.595-.363,2.119-.997.524-.634.736-1.46.583-2.268Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M12.53,4.22l-3-3c-.293-.293-.768-.293-1.061,0l-3,3c-.293,.293-.293,.768,0,1.061s.768,.293,1.061,0l1.72-1.72v3.439h1.5V3.561l1.72,1.72c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22c.293-.293,.293-.768,0-1.061Z"
-          fill={secondaryfill}
+          d="m4.28,3.53l.97-.97v2.439h1.5v-2.439l.97.97c.146.146.338.22.53.22s.384-.073.53-.22c.293-.293.293-.768,0-1.061L6.53.22c-.293-.293-.768-.293-1.061,0l-2.25,2.25c-.293.293-.293.768,0,1.061s.768.293,1.061,0Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

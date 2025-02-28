@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function caretRight(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'caret right';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px caret right";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M14.611,7.522L6.687,2.497c-.54-.342-1.223-.363-1.781-.055-.559,.308-.906,.895-.906,1.533V14.024c0,.638,.347,1.226,.906,1.533,.263,.145,.554,.217,.844,.217,.326,0,.652-.091,.938-.272l7.923-5.024c.509-.323,.812-.875,.812-1.478s-.304-1.155-.812-1.478Z"
-          fill={fill}
+          d="m9.479,4.752L4.832,1.653c-.459-.307-1.049-.336-1.54-.074-.488.261-.792.768-.792,1.322v6.197c0,.554.304,1.061.792,1.322.223.119.466.178.708.178.291,0,.581-.085.832-.252l4.647-3.099c.418-.279.668-.746.668-1.248s-.25-.969-.668-1.248Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

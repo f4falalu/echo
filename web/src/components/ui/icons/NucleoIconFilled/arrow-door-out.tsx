@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function arrowDoorOut(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'arrow door out';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px arrow door out";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M13.75,1.5H7.25c-.965,0-1.75,.785-1.75,1.75v2.5c0,.414,.336,.75,.75,.75s.75-.336,.75-.75V3.25c0-.138,.112-.25,.25-.25h5.302l-1.724,1.069c-.518,.321-.828,.877-.828,1.487v6.887c0,.61,.31,1.166,.828,1.487l1.724,1.069H7.25c-.138,0-.25-.112-.25-.25v-2.5c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75v2.5c0,.965,.785,1.75,1.75,1.75h6.5c.965,0,1.75-.785,1.75-1.75V3.25c0-.965-.785-1.75-1.75-1.75Z"
-          fill={fill}
+          d="m5.25,5.25h-2.689l.97-.97c.293-.293.293-.768,0-1.061s-.768-.293-1.061,0L.22,5.47c-.293.293-.293.768,0,1.061l2.25,2.25c.146.146.338.22.53.22s.384-.073.53-.22c.293-.293.293-.768,0-1.061l-.97-.97h2.689c.414,0,.75-.336.75-.75s-.336-.75-.75-.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M2.561,9.75H6.75c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75H2.561l1.47-1.47c.293-.293,.293-.768,0-1.061s-.768-.293-1.061,0L.22,8.47c-.293,.293-.293,.768,0,1.061l2.75,2.75c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22c.293-.293,.293-.768,0-1.061l-1.47-1.47Z"
-          fill={secondaryfill}
+          d="m9.75,0h-3.5c-1.095,0-2.025.784-2.213,1.864-.071.408.202.796.61.867.405.07.797-.203.867-.61.062-.36.372-.621.735-.621h2.929l-1.049.874c-.4.333-.63.823-.63,1.344v4.563c0,.521.229,1.011.63,1.344l1.049.874h-2.929c-.363,0-.673-.261-.735-.621-.07-.408-.458-.681-.867-.61-.408.071-.682.459-.61.867.188,1.08,1.118,1.864,2.213,1.864h3.5c1.241,0,2.25-1.009,2.25-2.25V2.25c0-1.241-1.009-2.25-2.25-2.25Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

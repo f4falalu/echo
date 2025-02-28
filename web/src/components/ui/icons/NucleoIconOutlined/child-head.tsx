@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function childHead(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px child head';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px child head";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M10.416,5.662c-.362,.363-.863,.588-1.416,.588-1.105,0-2-.895-2-2s.895-2,2-2"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,17 +26,17 @@ function childHead(props: iconProps) {
         <path
           d="M17.25,9c0-.962-.777-1.741-1.737-1.749-.771-2.879-3.391-5.001-6.513-5.001S3.258,4.373,2.487,7.251c-.96,.007-1.737,.787-1.737,1.749s.777,1.741,1.737,1.749c.771,2.879,3.391,5.001,6.513,5.001s5.742-2.123,6.513-5.001c.96-.007,1.737-.787,1.737-1.749Z"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
         <path
           d="M7.667,11h2.667c.368,0,.667,.299,.667,.667h0c0,1.104-.896,2-2,2h0c-1.104,0-2-.896-2-2h0c0-.368,.299-.667,.667-.667Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
-        <circle cx="6" cy="9" fill={secondaryfill} r="1" />
-        <circle cx="12" cy="9" fill={secondaryfill} r="1" />
+        <circle cx="6" cy="9" fill="#212121" r="1" />
+        <circle cx="12" cy="9" fill="#212121" r="1" />
       </g>
     </svg>
   );

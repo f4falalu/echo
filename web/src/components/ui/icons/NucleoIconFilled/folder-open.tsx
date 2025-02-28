@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function folderOpen(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'folder open';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px folder open";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M15.75,8.5c-.414,0-.75-.336-.75-.75v-1.5c0-.689-.561-1.25-1.25-1.25h-5.386c-.228,0-.443-.104-.585-.281l-.603-.752c-.238-.297-.594-.467-.975-.467h-1.951c-.689,0-1.25,.561-1.25,1.25v3c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75v-3c0-1.517,1.233-2.75,2.75-2.75h1.951c.838,0,1.62,.375,2.145,1.029l.378,.471h5.026c1.517,0,2.75,1.233,2.75,2.75v1.5c0,.414-.336,.75-.75,.75Z"
-          fill={secondaryfill}
+          d="m10.25,6c-.414,0-.75-.336-.75-.75v-.5c0-.689-.561-1.25-1.25-1.25h-1.886c-.228,0-.443-.104-.585-.281l-.603-.752c-.238-.296-.593-.467-.973-.467h-.953c-.414,0-.75.336-.75.75v2.5c0,.414-.336.75-.75.75s-.75-.336-.75-.75v-2.5C1,1.509,2.009.5,3.25.5h.953c.837,0,1.619.375,2.144,1.029l.377.471h1.526c1.517,0,2.75,1.233,2.75,2.75v.5c0,.414-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M17.082,7.879c-.43-.559-1.08-.879-1.785-.879H2.703c-.705,0-1.355,.32-1.785,.879-.429,.559-.571,1.27-.39,1.951l1.101,4.128c.32,1.202,1.413,2.042,2.657,2.042H13.713c1.244,0,2.337-.839,2.657-2.042l1.101-4.128c.182-.681,.04-1.392-.39-1.951Z"
-          fill={fill}
+          d="m11.227,5.271c-.427-.49-1.045-.771-1.695-.771H2.468c-.65,0-1.268.281-1.695.771s-.622,1.14-.534,1.783l.282,2.068c.185,1.356,1.356,2.378,2.725,2.378h5.509c1.368,0,2.54-1.022,2.725-2.379l.282-2.067c.088-.644-.107-1.294-.534-1.784Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

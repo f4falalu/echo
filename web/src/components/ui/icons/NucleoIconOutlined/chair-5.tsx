@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function chair5(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px chair 5';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px chair 5";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M9 12.75L9 17.25"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function chair5(props: iconProps) {
         <path
           d="M9 15L5.75 16.75"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function chair5(props: iconProps) {
         <path
           d="M9 15L12.25 16.75"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +42,7 @@ function chair5(props: iconProps) {
         <path
           d="M12.75,10.25c-.5-2.938-.429-5.577-.429-5.577-.04-.521-.475-.923-.997-.923h-2.324s-2.324,0-2.324,0c-.523,0-.957,.402-.997,.923,0,0,.071,2.639-.429,5.577"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -48,7 +50,7 @@ function chair5(props: iconProps) {
         <path
           d="M2.75 6.75L2.75 8.5"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -56,7 +58,7 @@ function chair5(props: iconProps) {
         <path
           d="M15.25 6.75L15.25 8.5"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -64,7 +66,7 @@ function chair5(props: iconProps) {
         <path
           d="M4.5,10.25H13.5c.414,0,.75,.336,.75,.75v.622c0,.363-.256,.679-.615,.739-1.317,.223-2.879,.389-4.635,.389-1.307,0-2.875-.092-4.624-.387-.36-.061-.626-.379-.626-.744v-.619c0-.414,.336-.75,.75-.75Z"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -75,7 +77,7 @@ function chair5(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

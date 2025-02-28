@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function chevronReduceY(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'chevron reduce y';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px chevron reduce y";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M11.97,2.97l-2.97,2.97-2.97-2.97c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l3.5,3.5c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22l3.5-3.5c.293-.293,.293-.768,0-1.061s-.768-.293-1.061,0Z"
-          fill={fill}
+          d="m8.75,11.5c-.192,0-.384-.073-.53-.22l-2.22-2.22-2.22,2.22c-.293.293-.768.293-1.061,0s-.293-.768,0-1.061l2.75-2.75c.293-.293.768-.293,1.061,0l2.75,2.75c.293.293.293.768,0,1.061-.146.146-.338.22-.53.22Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M9.53,10.47c-.293-.293-.768-.293-1.061,0l-3.5,3.5c-.293,.293-.293,.768,0,1.061s.768,.293,1.061,0l2.97-2.97,2.97,2.97c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22c.293-.293,.293-.768,0-1.061l-3.5-3.5Z"
-          fill={secondaryfill}
+          d="m6,4.75c-.192,0-.384-.073-.53-.22L2.72,1.78c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l2.22,2.22,2.22-2.22c.293-.293.768-.293,1.061,0s.293.768,0,1.061l-2.75,2.75c-.146.146-.338.22-.53.22Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

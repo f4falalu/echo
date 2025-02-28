@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function bathrobe(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px bathrobe';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px bathrobe";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M12,1.75c-.153,.761-.526,2.094-1.531,3.438-.771,1.031-1.626,1.682-2.219,2.062v9"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function bathrobe(props: iconProps) {
         <path
           d="M6,1.75c.153,.761,.526,2.094,1.531,3.437,.485,.648,1.003,1.147,1.469,1.522"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function bathrobe(props: iconProps) {
         <path
           d="M4.75 10.25L13.25 10.25"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +42,7 @@ function bathrobe(props: iconProps) {
         <path
           d="M13.25 5.75L13.25 16.25 4.75 16.25 4.75 5.75"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -48,7 +50,7 @@ function bathrobe(props: iconProps) {
         <path
           d="M15.375,10.25l.875-.25-.621-5.592c-.08-.716-.538-1.334-1.2-1.617l-2.429-1.041h-3s-3,0-3,0l-2.429,1.041c-.662,.284-1.12,.902-1.2,1.617l-.621,5.592,.875,.25"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

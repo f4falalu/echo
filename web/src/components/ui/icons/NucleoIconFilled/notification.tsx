@@ -1,24 +1,26 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function notification(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'notification';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px notification";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M12.75,16.5H4.25c-1.517,0-2.75-1.233-2.75-2.75V5.25c0-1.517,1.233-2.75,2.75-2.75h5.25c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75H4.25c-.689,0-1.25,.561-1.25,1.25V13.75c0,.689,.561,1.25,1.25,1.25H12.75c.689,0,1.25-.561,1.25-1.25v-5.25c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v5.25c0,1.517-1.233,2.75-2.75,2.75Z"
-          fill={fill}
+          d="m8.75,11.501H3.25c-1.517,0-2.75-1.233-2.75-2.75V3.251C.5,1.735,1.733.501,3.25.501h3.551c.414,0,.75.336.75.75s-.336.75-.75.75h-3.551c-.689,0-1.25.561-1.25,1.25v5.5c0,.689.561,1.25,1.25,1.25h5.5c.689,0,1.25-.561,1.25-1.25v-3.551c0-.414.336-.75.75-.75s.75.336.75.75v3.551c0,1.517-1.233,2.75-2.75,2.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
-        <circle cx="14.5" cy="3.5" fill={secondaryfill} r="2.5" />
+        <circle cx="10.25" cy="1.751" fill="#212121" r="1.75" strokeWidth="0" />
       </g>
     </svg>
   );

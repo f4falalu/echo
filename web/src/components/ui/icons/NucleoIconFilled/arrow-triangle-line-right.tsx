@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function arrowTriangleLineRight(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'arrow triangle line right';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px arrow triangle line right";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M10.25,9.75H2.25c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75H10.25c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"
-          fill={secondaryfill}
+          d="m6.75,6.75H1c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h5.75c.414,0,.75.336.75.75s-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M15.967,7.965l-4.517-3.058c-.384-.26-.878-.286-1.287-.069-.41,.217-.664,.641-.664,1.104v6.115c0,.463,.254,.887,.664,1.104,.184,.098,.385,.146,.586,.146,.245,0,.489-.072,.701-.215l4.517-3.058c.344-.233,.549-.62,.549-1.035s-.206-.802-.549-1.035Z"
-          fill={fill}
+          d="m11.203,5.014l-3.186-2.478c-.381-.296-.885-.349-1.316-.136-.433.211-.701.642-.701,1.123v4.955c0,.481.269.912.701,1.123.176.086.364.128.551.128.271,0,.54-.089.766-.265l3.185-2.478c.308-.238.483-.598.483-.987s-.176-.749-.482-.986Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

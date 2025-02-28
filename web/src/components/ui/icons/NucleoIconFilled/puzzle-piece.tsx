@@ -1,22 +1,23 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function puzzlePiece(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'puzzle piece';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px puzzle piece";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M15.414,8.665c.233,.117,.509,.104,.73-.032,.221-.137,.356-.378,.356-.638v-1.744c0-1.517-1.233-2.75-2.75-2.75h-1.775c.01-.083,.025-.164,.025-.25,0-1.103-.897-2-2-2s-2,.897-2,2c0,.086,.015,.167,.025,.25h-1.775c-1.517,0-2.75,1.233-2.75,2.75v1.775c-.083-.011-.164-.025-.25-.025-1.103,0-2,.897-2,2s.897,2,2,2c.086,0,.167-.015,.25-.025v1.775c0,1.517,1.233,2.75,2.75,2.75h1.744c.26,0,.501-.135,.638-.355,.136-.221,.149-.498,.033-.73-.109-.219-.165-.442-.165-.665,0-.827,.673-1.5,1.5-1.5s1.5,.673,1.5,1.5c0,.221-.056,.445-.166,.666-.116,.232-.103,.508,.034,.729,.137,.221,.378,.355,.638,.355h1.744c1.517,0,2.75-1.233,2.75-2.75v-1.744c0-.26-.135-.501-.356-.638s-.498-.15-.73-.032c-1.027,.515-2.164-.285-2.164-1.335,0-1.05,1.134-1.85,2.164-1.335Z"
-          fill={fill}
+          fill="#212121"
         />
       </g>
     </svg>

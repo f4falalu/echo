@@ -1,30 +1,31 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function splitThreeWays(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'split three ways';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px split three ways";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M10.97,4.78c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22c.293-.293,.293-.768,0-1.061l-2.5-2.5c-.293-.293-.768-.293-1.061,0l-2.5,2.5c-.293,.293-.293,.768,0,1.061s.768,.293,1.061,0l1.22-1.22v13.689c0,.414,.336,.75,.75,.75s.75-.336,.75-.75V3.561l1.22,1.22Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M16.78,7.72l-2.5-2.5c-.293-.293-.768-.293-1.061,0l-2.5,2.5c-.293,.293-.293,.768,0,1.061s.768,.293,1.061,0l1.22-1.22v2.111c0,.334-.13,.648-.366,.884l-1.914,1.914c-.293,.293-.293,.768,0,1.061,.146,.146,.338,.22,.53,.22s.384-.073,.53-.22l1.914-1.914c.52-.52,.806-1.21,.806-1.945v-2.111l1.22,1.22c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22c.293-.293,.293-.768,0-1.061Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M6.22,10.78c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22c.293-.293,.293-.768,0-1.061l-2.5-2.5c-.293-.293-.768-.293-1.061,0l-2.5,2.5c-.293,.293-.293,.768,0,1.061s.768,.293,1.061,0l1.22-1.22v2.111c0,.735,.286,1.425,.806,1.945l1.914,1.914c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22c.293-.293,.293-.768,0-1.061l-1.914-1.914c-.236-.236-.366-.55-.366-.884v-2.111l1.22,1.22Z"
-          fill={fill}
+          fill="#212121"
         />
       </g>
     </svg>

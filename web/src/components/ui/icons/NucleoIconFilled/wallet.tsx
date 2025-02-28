@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function wallet(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'wallet';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px wallet";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M2.25,5.5c-.414,0-.75-.336-.75-.75,0-1.517,1.233-2.75,2.75-2.75H12.75c.965,0,1.75,.785,1.75,1.75v.5c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75v-.5c0-.138-.112-.25-.25-.25H4.25c-.689,0-1.25,.561-1.25,1.25,0,.414-.336,.75-.75,.75Z"
-          fill={secondaryfill}
+          d="m.75,3c-.414,0-.75-.336-.75-.75C0,1.009,1.01,0,2.25,0h5c.414,0,.75.336.75.75s-.336.75-.75.75H2.25c-.413,0-.75.336-.75.75s-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M14.75,6H4.25c-.689,0-1.25-.561-1.25-1.25,0-.414-.336-.75-.75-.75s-.75,.336-.75,.75V13.25c0,1.517,1.233,2.75,2.75,2.75H14.75c.965,0,1.75-.785,1.75-1.75V7.75c0-.965-.785-1.75-1.75-1.75Zm-2,6.25c-.689,0-1.25-.561-1.25-1.25s.561-1.25,1.25-1.25,1.25,.561,1.25,1.25-.561,1.25-1.25,1.25Z"
-          fill={fill}
+          d="m10.25,3H2.25c-.413,0-.75-.336-.75-.75s-.336-.75-.75-.75-.75.336-.75.75v6c0,1.517,1.233,2.75,2.75,2.75h7.5c.965,0,1.75-.785,1.75-1.75v-4.5c0-.965-.785-1.75-1.75-1.75Zm-2.25,5c-.552,0-1-.448-1-1s.448-1,1-1,1,.448,1,1-.448,1-1,1Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

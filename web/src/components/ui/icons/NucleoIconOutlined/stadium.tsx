@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function stadium(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px stadium';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px stadium";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M7.75,15.695v-2.945c0-.276,.224-.5,.5-.5h1.5c.276,0,.5,.224,.5,.5v2.945"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function stadium(props: iconProps) {
         <path
           d="M4.851,5.5c.826-.371,2.271-.75,4.149-.75s3.323,.379,4.149,.75"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function stadium(props: iconProps) {
         <path
           d="M5.28,11.754c-1.645-.484-2.786-1.279-2.996-2.197"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +42,7 @@ function stadium(props: iconProps) {
         <path
           d="M12.72,11.754c1.645-.484,2.786-1.279,2.996-2.197"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -48,7 +50,7 @@ function stadium(props: iconProps) {
         <path
           d="M16.236,5.705l-.986,7.295c-.209,1.547-2.798,2.75-6.25,2.75-3.452,0-6.041-1.203-6.25-2.75l-.986-7.295"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -59,7 +61,7 @@ function stadium(props: iconProps) {
           fill="none"
           rx="7.25"
           ry="3.25"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

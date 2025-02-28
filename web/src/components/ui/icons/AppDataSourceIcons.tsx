@@ -11,7 +11,6 @@ import { RedUsersIcons } from './customIcons/redUsers';
 import { AthenaIcon } from './customIcons/athena';
 import React from 'react';
 import { DataSourceTypes } from '@/api/asset_interfaces';
-import { AppMaterialIcons } from './AppMaterialIcons';
 import { Database } from './NucleoIconOutlined';
 
 const IconRecord: Record<DataSourceTypes, any> = {

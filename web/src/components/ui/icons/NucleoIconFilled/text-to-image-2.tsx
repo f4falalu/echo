@@ -1,37 +1,38 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function textToImage2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'text to image 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px text to image 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M9.25,3h.75c.965,0,1.75,.785,1.75,1.75v.223l-.181-.211c-.27-.314-.743-.35-1.058-.081-.314,.27-.351,.743-.081,1.058l1.5,1.75c.143,.166,.351,.262,.569,.262s.427-.096,.569-.262l1.5-1.75c.27-.314,.233-.788-.081-1.058-.313-.27-.787-.233-1.058,.081l-.181,.211v-.223c0-1.792-1.458-3.25-3.25-3.25h-.75c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M16.516,5.308c-.368-.191-.82-.046-1.012,.32-.19,.368-.047,.821,.32,1.011,.417,.216,.676,.642,.676,1.111v4.113l-1.35-1.35c-.682-.683-1.793-.682-2.475,0l-4.7,4.695c-.283-.229-.476-.565-.476-.957V7.75c0-.689,.561-1.25,1.25-1.25,.414,0,.75-.336,.75-.75s-.336-.75-.75-.75c-1.517,0-2.75,1.233-2.75,2.75v6.5c0,1.517,1.233,2.75,2.75,2.75h6.5c1.517,0,2.75-1.233,2.75-2.75V7.75c0-1.031-.569-1.967-1.484-2.442Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M6.5,1.25c0-.414-.336-.75-.75-.75H.75c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h1.75V7.25c0,.414,.336,.75,.75,.75s.75-.336,.75-.75V2h1.75c.414,0,.75-.336,.75-.75Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M4.743,13.769l-.946-.315-.316-.947c-.102-.306-.609-.306-.711,0l-.316,.947-.946,.315c-.153,.051-.257,.194-.257,.356s.104,.305,.257,.356l.946,.315,.316,.947c.051,.153,.194,.256,.355,.256s.305-.104,.355-.256l.316-.947,.946-.315c.153-.051,.257-.194,.257-.356s-.104-.305-.257-.356Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
-        <circle cx="10" cy="9" fill={fill} r="1" />
-        <circle cx="1.75" cy="10.25" fill={secondaryfill} r=".75" />
+        <circle cx="10" cy="9" fill="#212121" r="1" />
+        <circle cx="1.75" cy="10.25" fill="#212121" r=".75" />
       </g>
     </svg>
   );

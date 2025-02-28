@@ -1,0 +1,55 @@
+import React from "react";
+
+import { iconProps } from "./iconProps";
+
+function arrowsExpandX(props: iconProps) {
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px arrows expand x";
+
+  return (
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <title>{title}</title>
+      <g fill="#212121">
+        <path
+          d="M7.25 6L11 6"
+          fill="none"
+          stroke="#212121"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M8.5 3.25L11.25 6 8.5 8.75"
+          fill="none"
+          stroke="#212121"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M4.75 6L1 6"
+          fill="none"
+          stroke="#212121"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+        <path
+          d="M3.5 3.25L0.75 6 3.5 8.75"
+          fill="none"
+          stroke="#212121"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={strokewidth}
+        />
+      </g>
+    </svg>
+  );
+}
+
+export default arrowsExpandX;

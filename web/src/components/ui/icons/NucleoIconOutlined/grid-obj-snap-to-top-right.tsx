@@ -1,25 +1,27 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function gridObjSnapToTopRight(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px grid obj snap to top right';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px grid obj snap to top right";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <rect
           height="5"
           width="5"
           fill="none"
           rx="1"
           ry="1"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -30,7 +32,7 @@ function gridObjSnapToTopRight(props: iconProps) {
         <path
           d="M6,2.25h.25c.552,0,1,.448,1,1v.25"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -38,7 +40,7 @@ function gridObjSnapToTopRight(props: iconProps) {
         <path
           d="M2.25,3.5v-.25c0-.552,.448-1,1-1h.25"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -46,7 +48,7 @@ function gridObjSnapToTopRight(props: iconProps) {
         <path
           d="M3.5,7.25h-.25c-.552,0-1-.448-1-1v-.25"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -54,7 +56,7 @@ function gridObjSnapToTopRight(props: iconProps) {
         <path
           d="M7.25,6v.25c0,.552-.448,1-1,1h-.25"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -62,7 +64,7 @@ function gridObjSnapToTopRight(props: iconProps) {
         <path
           d="M6,10.75h.25c.552,0,1,.448,1,1v.25"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -70,7 +72,7 @@ function gridObjSnapToTopRight(props: iconProps) {
         <path
           d="M2.25,12v-.25c0-.552,.448-1,1-1h.25"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -78,7 +80,7 @@ function gridObjSnapToTopRight(props: iconProps) {
         <path
           d="M3.5,15.75h-.25c-.552,0-1-.448-1-1v-.25"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -86,7 +88,7 @@ function gridObjSnapToTopRight(props: iconProps) {
         <path
           d="M7.25,14.5v.25c0,.552-.448,1-1,1h-.25"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -94,7 +96,7 @@ function gridObjSnapToTopRight(props: iconProps) {
         <path
           d="M14.5,10.75h.25c.552,0,1,.448,1,1v.25"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -102,7 +104,7 @@ function gridObjSnapToTopRight(props: iconProps) {
         <path
           d="M10.75,12v-.25c0-.552,.448-1,1-1h.25"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -110,7 +112,7 @@ function gridObjSnapToTopRight(props: iconProps) {
         <path
           d="M12,15.75h-.25c-.552,0-1-.448-1-1v-.25"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -118,7 +120,7 @@ function gridObjSnapToTopRight(props: iconProps) {
         <path
           d="M15.75,14.5v.25c0,.552-.448,1-1,1h-.25"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

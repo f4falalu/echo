@@ -1,24 +1,26 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function socialDistancing(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px social distancing';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px social distancing";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <circle
           cx="4.25"
           cy="4.25"
           fill="none"
           r="1.5"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -28,7 +30,7 @@ function socialDistancing(props: iconProps) {
           cy="4.25"
           fill="none"
           r="1.5"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -36,7 +38,7 @@ function socialDistancing(props: iconProps) {
         <path
           d="M7.282,10c-.605-1.046-1.736-1.75-3.032-1.75-1.933,0-3.5,1.567-3.5,3.5"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -44,7 +46,7 @@ function socialDistancing(props: iconProps) {
         <path
           d="M10.718,10c.605-1.046,1.736-1.75,3.032-1.75,1.933,0,3.5,1.567,3.5,3.5"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -52,7 +54,7 @@ function socialDistancing(props: iconProps) {
         <path
           d="M5.25 11.25L3.25 13.25 5.25 15.25"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -60,7 +62,7 @@ function socialDistancing(props: iconProps) {
         <path
           d="M12.75 11.25L14.75 13.25 12.75 15.25"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -68,7 +70,7 @@ function socialDistancing(props: iconProps) {
         <path
           d="M3.25 13.25L14.75 13.25"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

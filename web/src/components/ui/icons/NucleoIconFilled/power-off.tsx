@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function powerOff(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'power off';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px power off";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M9,16.5c-4.136,0-7.5-3.364-7.5-7.5,0-2.634,1.35-5.028,3.61-6.404,.352-.215,.814-.103,1.03,.25,.216,.354,.104,.815-.251,1.031-1.81,1.102-2.89,3.017-2.89,5.123,0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.106-1.08-4.021-2.89-5.123-.354-.215-.467-.677-.251-1.031,.216-.354,.678-.466,1.03-.25,2.261,1.376,3.61,3.77,3.61,6.404,0,4.136-3.364,7.5-7.5,7.5Z"
-          fill={fill}
+          d="m6,12c-3.309,0-6-2.691-6-6,0-1.762.771-3.428,2.113-4.572.316-.268.789-.229,1.058.085.269.315.23.789-.085,1.058-1.008.857-1.586,2.107-1.586,3.429,0,2.481,2.019,4.5,4.5,4.5s4.5-2.019,4.5-4.5c0-1.322-.578-2.571-1.585-3.429-.315-.269-.354-.742-.085-1.057.27-.315.742-.353,1.057-.085,1.343,1.143,2.114,2.809,2.114,4.571,0,3.309-2.691,6-6,6Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M9,9c-.414,0-.75-.336-.75-.75V1.75c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v6.5c0,.414-.336,.75-.75,.75Z"
-          fill={secondaryfill}
+          d="m6,6.75c-.414,0-.75-.336-.75-.75V.75c0-.414.336-.75.75-.75s.75.336.75.75v5.25c0,.414-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

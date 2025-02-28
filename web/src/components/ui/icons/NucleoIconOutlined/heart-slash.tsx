@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function heartSlash(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px heart slash';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px heart slash";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="m14.463,3.537c-.639-.483-1.426-.782-2.289-.787-1.277.016-2.464.66-3.173,1.72-.71-1.061-1.896-1.704-3.173-1.72-2.123.013-3.834,1.739-3.827,3.859,0,2.67,1.518,4.768,3.14,6.251"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function heartSlash(props: iconProps) {
         <path
           d="m7.136,14.399c.563.368,1.058.647,1.394.822.297.155.644.155.941,0,1.57-.819,6.529-3.787,6.529-8.613.001-.328-.051-.641-.128-.946"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function heartSlash(props: iconProps) {
         <path
           d="M2 16L16 2"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

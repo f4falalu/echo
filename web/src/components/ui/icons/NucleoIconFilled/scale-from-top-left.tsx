@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function scaleFromTopLeft(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'scale from top left';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px scale from top left";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M2.75,4.75v4.25H7.25c.965,0,1.75-.785,1.75-1.75V2.75H4.75c-1.105,0-2,.896-2,2Z"
-          fill={secondaryfill}
+          d="m3.25,1.25h2.75v3c0,.966-.784,1.75-1.75,1.75H1.25v-2.75c0-1.105.895-2,2-2Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M13.25,16H4.75c-1.517,0-2.75-1.233-2.75-2.75V4.75c0-1.517,1.233-2.75,2.75-2.75H13.25c1.517,0,2.75,1.233,2.75,2.75V13.25c0,1.517-1.233,2.75-2.75,2.75ZM4.75,3.5c-.689,0-1.25,.561-1.25,1.25V13.25c0,.689,.561,1.25,1.25,1.25H13.25c.689,0,1.25-.561,1.25-1.25V4.75c0-.689-.561-1.25-1.25-1.25H4.75Z"
-          fill={fill}
+          d="m11.5,3.25v5.5c0,1.517-1.233,2.75-2.75,2.75H3.25c-1.517,0-2.75-1.233-2.75-2.75V3.25C.5,1.733,1.733.5,3.25.5h5.5c1.517,0,2.75,1.233,2.75,2.75Zm-2.75,6.75c.689,0,1.25-.561,1.25-1.25V3.25c0-.689-.561-1.25-1.25-1.25H3.25c-.689,0-1.25.561-1.25,1.25v5.5c0,.689.561,1.25,1.25,1.25h5.5Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

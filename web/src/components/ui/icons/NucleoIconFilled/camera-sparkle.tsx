@@ -1,26 +1,30 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function cameraSparkle(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'camera sparkle';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px camera sparkle";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
+        <circle cx="6" cy="6" fill="#212121" r="2" strokeWidth="0" />
         <path
-          d="M15,7.458c-.905,0-1.706-.576-1.993-1.434l-.269-.806-.804-.269c-.856-.283-1.435-1.084-1.435-1.992,0-.346,.106-.665,.258-.958H4.75c-1.517,0-2.75,1.233-2.75,2.75V13.25c0,1.517,1.233,2.75,2.75,2.75H13.25c1.517,0,2.75-1.233,2.75-2.75V7.177c-.303,.167-.638,.281-1,.281Zm-6,4.542c-1.657,0-3-1.343-3-3s1.343-3,3-3,3,1.343,3,3-1.343,3-3,3Z"
-          fill={fill}
+          d="m8.75,11.5H3.25c-1.517,0-2.75-1.233-2.75-2.75V3.25C.5,1.733,1.733.5,3.25.5h2.36c.414,0,.75.336.75.75s-.336.75-.75.75h-2.36c-.689,0-1.25.561-1.25,1.25v5.5c0,.689.561,1.25,1.25,1.25h5.5c.689,0,1.25-.561,1.25-1.25v-2.422c0-.414.336-.75.75-.75s.75.336.75.75v2.422c0,1.517-1.233,2.75-2.75,2.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M17.589,2.388l-1.515-.506-.505-1.515c-.164-.49-.975-.49-1.139,0l-.505,1.515-1.515,.506c-.245,.081-.41,.311-.41,.569s.165,.488,.41,.569l1.515,.506,.505,1.515c.082,.245,.312,.41,.57,.41s.487-.165,.57-.41l.505-1.515,1.515-.506c.245-.081,.41-.311,.41-.569s-.165-.487-.41-.569h0Z"
-          fill={secondaryfill}
+          d="m11.657,1.99l-1.263-.421-.421-1.263c-.137-.408-.812-.408-.949,0l-.421,1.263-1.263.421c-.204.068-.342.259-.342.474s.138.406.342.474l1.263.421.421,1.263c.068.204.26.342.475.342s.406-.138.475-.342l.421-1.263,1.263-.421c.204-.068.342-.259.342-.474s-.138-.406-.342-.474h0Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

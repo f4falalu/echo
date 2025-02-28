@@ -1,26 +1,27 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function location(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'location';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px location";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M9,17c-2.971,0-8-.579-8-2.75,0-1.127,1.3-1.937,3.865-2.406,.41-.075,.798,.195,.873,.603,.075,.407-.195,.798-.603,.873-1.726,.316-2.422,.742-2.603,.933,.369,.414,2.506,1.248,6.467,1.248s6.098-.834,6.467-1.248c-.181-.19-.877-.617-2.603-.933-.407-.075-.677-.465-.603-.873,.074-.408,.462-.679,.873-.603,2.564,.469,3.865,1.279,3.865,2.406,0,2.171-5.029,2.75-8,2.75Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M9,1c-2.546,0-5.179,1.862-5.179,4.978,0,2.827,4.161,7.289,4.635,7.789,.142,.149,.338,.233,.544,.233s.402-.084,.544-.233c.474-.5,4.635-4.961,4.635-7.789,0-3.116-2.633-4.978-5.179-4.978Zm0,6.5c-.828,0-1.5-.672-1.5-1.5s.672-1.5,1.5-1.5,1.5,.672,1.5,1.5-.672,1.5-1.5,1.5Z"
-          fill={fill}
+          fill="#212121"
         />
       </g>
     </svg>

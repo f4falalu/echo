@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function dropletSlash(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px droplet slash';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px droplet slash";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="m9,13.75c-1.279,0-2.374-.809-2.805-1.946"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function dropletSlash(props: iconProps) {
         <path
           d="m12.454,5.546c-1.04-1.248-2.32-2.389-3.454-3.796-2.417,3-5.5,4.792-5.5,8.983,0,1.076.307,2.08.838,2.929"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function dropletSlash(props: iconProps) {
         <path
           d="m6.5627,15.6799c.7347.3651,1.5625.5701,2.4373.5701,3.038,0,5.5-2.47,5.5-5.517,0-.9612-.1622-1.7967-.4415-2.5489"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +42,7 @@ function dropletSlash(props: iconProps) {
         <path
           d="M2 16L16 2"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

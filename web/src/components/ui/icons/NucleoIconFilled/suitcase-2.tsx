@@ -1,30 +1,34 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function suitcase2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'suitcase 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px suitcase 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M11.75,5.5c-.414,0-.75-.336-.75-.75V2.25c0-.138-.112-.25-.25-.25h-3.5c-.138,0-.25,.112-.25,.25v2.5c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75V2.25c0-.965,.785-1.75,1.75-1.75h3.5c.965,0,1.75,.785,1.75,1.75v2.5c0,.414-.336,.75-.75,.75Z"
-          fill={secondaryfill}
+          d="m8.25,4.5c-.414,0-.75-.336-.75-.75V1.75c0-.138-.112-.25-.25-.25h-2.5c-.138,0-.25.112-.25.25v2c0,.414-.336.75-.75.75s-.75-.336-.75-.75V1.75c0-.965.785-1.75,1.75-1.75h2.5c.965,0,1.75.785,1.75,1.75v2c0,.414-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M17,7.519v-.769c0-1.517-1.233-2.75-2.75-2.75H3.75c-1.517,0-2.75,1.233-2.75,2.75v.769c2.394,1.259,5.113,1.981,8,1.981s5.606-.722,8-1.981Z"
-          fill={fill}
+          d="m1.009,6.046c1.675.632,3.354.953,4.993.957,1.636-.004,3.314-.325,4.983-.955.011-.004.372-.142.998-.463-.087-1.439-1.273-2.586-2.733-2.586H2.75C1.289,3,.102,4.148.016,5.588c.625.319.983.455.992.458Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M9,11c-2.864,0-5.57-.665-8-1.818v4.068c0,1.517,1.233,2.75,2.75,2.75H14.25c1.517,0,2.75-1.233,2.75-2.75v-4.068c-2.43,1.153-5.136,1.818-8,1.818Z"
-          fill={secondaryfill}
+          d="m11.509,7.454c-1.833.69-3.687,1.044-5.507,1.049-1.824-.004-3.678-.358-5.517-1.051-.025-.009-.198-.075-.485-.205v1.503c0,1.517,1.233,2.75,2.75,2.75h6.5c1.517,0,2.75-1.233,2.75-2.75v-1.503c-.29.131-.464.198-.491.208Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

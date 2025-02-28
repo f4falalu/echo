@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function ballRugby(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px ball rugby';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px ball rugby";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M6.251 8.084L8.45 10.283"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function ballRugby(props: iconProps) {
         <path
           d="M8.084 6.251L10.283 8.45"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function ballRugby(props: iconProps) {
         <path
           d="M6.434,10.466c.455-.659,1.055-1.421,1.833-2.199,.566-.566,1.294-1.208,2.199-1.833"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +42,7 @@ function ballRugby(props: iconProps) {
         <path
           d="M2.262,10.567c1.192,.338,2.317,.977,3.256,1.915s1.577,2.063,1.915,3.256"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -48,7 +50,7 @@ function ballRugby(props: iconProps) {
         <path
           d="M10.567,2.262c.338,1.192,.977,2.317,1.915,3.256s2.063,1.577,3.256,1.915"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -56,7 +58,7 @@ function ballRugby(props: iconProps) {
         <path
           d="M4.82,4.82c-2.616,2.616-3.232,6.468-1.862,9.674,.104,.244,.304,.444,.548,.548,3.206,1.37,7.058,.754,9.674-1.862s3.232-6.468,1.862-9.674c-.104-.244-.304-.444-.548-.548-3.206-1.37-7.058-.754-9.674,1.862Z"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

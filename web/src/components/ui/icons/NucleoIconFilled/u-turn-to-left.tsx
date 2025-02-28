@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function uTurnToLeft(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'u turn to left';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px u turn to left";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M12,14.5h-3.75c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h3.75c1.654,0,3-1.346,3-3s-1.346-3-3-3H2.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75H12c2.481,0,4.5,2.019,4.5,4.5s-2.019,4.5-4.5,4.5Z"
-          fill={secondaryfill}
+          d="m8.25,11h-1.25c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h1.25c.965,0,1.75-.785,1.75-1.75s-.785-1.75-1.75-1.75H1.25c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h7c1.792,0,3.25,1.458,3.25,3.25s-1.458,3.25-3.25,3.25Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M5.75,10.5c-.192,0-.384-.073-.53-.22L1.72,6.78c-.293-.293-.293-.768,0-1.061l3.5-3.5c.293-.293,.768-.293,1.061,0s.293,.768,0,1.061l-2.97,2.97,2.97,2.97c.293,.293,.293,.768,0,1.061-.146,.146-.338,.22-.53,.22Z"
-          fill={fill}
+          d="m4.25,9.25c-.192,0-.384-.073-.53-.22L.47,5.78c-.293-.293-.293-.768,0-1.061L3.72,1.47c.293-.293.768-.293,1.061,0s.293.768,0,1.061l-2.72,2.72,2.72,2.72c.293.293.293.768,0,1.061-.146.146-.338.22-.53.22Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function gymBag(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px gym bag';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px gym bag";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M5.75,15.25V5c0-1.795,1.455-3.25,3.25-3.25h0c1.795,0,3.25,1.455,3.25,3.25V15.25"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function gymBag(props: iconProps) {
         <path
           d="M14.607,15.25c.413,0,.782-.248,.932-.633,.33-.847,.71-2.236,.71-3.617,0-.587-.069-2.18-.691-3.629-.16-.373-.524-.621-.93-.621H3.371c-.406,0-.77,.248-.93,.621-.623,1.449-.691,3.042-.691,3.629,0,1.382,.38,2.77,.71,3.617,.15,.385,.519,.633,.932,.633H14.607Z"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function gymBag(props: iconProps) {
         <path
           d="M8.25 9.25L9.75 9.25"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

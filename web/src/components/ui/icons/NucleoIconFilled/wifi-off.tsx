@@ -1,34 +1,35 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function wifiOff(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'wifi off';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px wifi off";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M12.889,10.111c-.192,0-.384-.073-.53-.22-.897-.897-2.09-1.391-3.358-1.391s-2.461,.494-3.358,1.391c-.293,.293-.768,.293-1.061,0s-.293-.768,0-1.061c1.18-1.181,2.75-1.831,4.419-1.831s3.239,.65,4.419,1.831c.293,.293,.293,.768,0,1.061-.146,.146-.338,.22-.53,.22Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M15.718,7.283c-.192,0-.384-.073-.53-.22-1.652-1.653-3.851-2.563-6.188-2.563s-4.535,.91-6.188,2.563c-.293,.293-.768,.293-1.061,0s-.293-.768,0-1.061c1.936-1.936,4.51-3.002,7.248-3.002s5.312,1.066,7.248,3.002c.293,.293,.293,.768,0,1.061-.146,.146-.338,.22-.53,.22Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M9.937,11.244l-2.693,2.693c.337,.629,.994,1.062,1.756,1.062,1.103,0,2-.897,2-2,0-.762-.434-1.418-1.063-1.756Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M2,16.75c-.192,0-.384-.073-.53-.22-.293-.293-.293-.768,0-1.061L15.47,1.47c.293-.293,.768-.293,1.061,0s.293,.768,0,1.061L2.53,16.53c-.146,.146-.338,.22-.53,.22Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
       </g>
     </svg>

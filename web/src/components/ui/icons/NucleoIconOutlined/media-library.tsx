@@ -1,26 +1,28 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function mediaLibrary(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px media library';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px media library";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M12.211,6.984l-2.296-1.385c-.402-.243-.915,.047-.915,.516v2.771c0,.47,.513,.759,.915,.516l2.296-1.385c.389-.235,.389-.798,0-1.033Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M1.75,6.75v6.5c0,1.105,.895,2,2,2H12.25"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +33,7 @@ function mediaLibrary(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

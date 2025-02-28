@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function ruler(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'ruler';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px ruler";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M16.425,4.757l-3.183-3.183c-.681-.682-1.792-.68-2.474,0L1.575,10.768c-.682,.682-.682,1.792,0,2.475l3.183,3.183c.341,.341,.789,.511,1.237,.511s.896-.171,1.237-.512l.531-.531-1.798-1.798c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l1.798,1.798,.707-.707-1.091-1.091c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l1.091,1.091,.707-.707-1.798-1.798c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l1.798,1.798,.707-.707-1.091-1.091c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l1.091,1.091,2.298-2.298c.682-.682,.682-1.792,0-2.475Zm-4.425,.743c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75,.75,.336,.75,.75-.336,.75-.75,.75Z"
-          fill={fill}
+          d="m11.462,2.51l-1.972-1.972c-.715-.716-1.881-.716-2.596,0L.538,6.894c-.348.347-.538.809-.538,1.299s.191.952.538,1.297l1.972,1.972c.357.358.828.537,1.298.537s.94-.179,1.298-.537l.648-.648-1.661-1.661c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l1.661,1.661.94-.939-.911-.911c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l.911.911.94-.939-1.661-1.661c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l1.661,1.661.647-.647c.348-.347.538-.809.538-1.299s-.191-.952-.538-1.297Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

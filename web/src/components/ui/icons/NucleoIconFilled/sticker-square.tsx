@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function stickerSquare(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'sticker square';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px sticker square";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M13.25,2H4.75c-1.517,0-2.75,1.233-2.75,2.75V13.25c0,1.517,1.233,2.75,2.75,2.75h2.765c1.803,0,3.498-.702,4.773-1.977l1.735-1.735c1.275-1.275,1.977-2.97,1.977-4.773v-2.765c0-1.517-1.233-2.75-2.75-2.75Zm-.288,9.227l-1.735,1.735c-.647,.647-1.44,1.081-2.298,1.321,.042-.172,.071-.349,.071-.533v-3.25c0-.828,.672-1.5,1.5-1.5h3.25c.185,0,.362-.029,.533-.071-.24,.857-.674,1.651-1.321,2.298Z"
-          fill={fill}
+          d="m8.75.5H3.25C1.733.5.5,1.733.5,3.25v5.5c0,1.517,1.233,2.75,2.75,2.75h2.093c1.27,0,2.462-.494,3.359-1.391l1.406-1.407c.885-.884,1.392-2.108,1.392-3.358v-2.093c0-1.517-1.233-2.75-2.75-2.75Zm-1.108,8.548c-.486.485-1.099.79-1.764.899.073-.221.122-.453.122-.698v-2c0-.689.561-1.25,1.25-1.25h2c.245,0,.476-.049.696-.122-.112.661-.421,1.285-.898,1.763l-1.406,1.407Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

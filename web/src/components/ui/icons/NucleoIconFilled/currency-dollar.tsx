@@ -1,26 +1,27 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function currencyDollar(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'currency dollar';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px currency dollar";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M9,16.5c-.414,0-.75-.336-.75-.75V2.25c0-.414,.336-.75,.75-.75s.75,.336,.75,.75V15.75c0,.414-.336,.75-.75,.75Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M9.062,15.189c-2.685,0-3.695-1.467-4.069-2.697-.121-.396,.103-.815,.499-.936,.397-.122,.815,.103,.936,.499,.214,.702,.72,1.635,2.635,1.635,.798,0,1.52-.271,1.98-.742,.336-.345,.508-.78,.497-1.258-.026-1.062-.805-1.633-2.688-1.969-2.792-.498-3.51-1.97-3.62-3.117-.089-.922,.163-1.739,.727-2.36,1.098-1.209,2.901-1.244,3.104-1.244,1.695,0,2.979,.831,3.617,2.339,.161,.382-.018,.822-.399,.983-.381,.16-.822-.018-.983-.399-.399-.944-1.151-1.423-2.235-1.423-.526,0-1.492,.2-1.993,.752-.28,.309-.393,.704-.344,1.208,.033,.342,.132,1.382,2.39,1.784,.954,.17,3.857,.688,3.924,3.409,.021,.892-.298,1.702-.923,2.343-.741,.759-1.854,1.194-3.054,1.194Z"
-          fill={fill}
+          fill="#212121"
         />
       </g>
     </svg>

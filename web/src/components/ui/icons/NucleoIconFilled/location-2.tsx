@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function location2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'location 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px location 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M13,5c0-2.206-1.794-4-4-4s-4,1.794-4,4c0,1.949,1.402,3.572,3.25,3.924v4.326c0,.414,.336,.75,.75,.75s.75-.336,.75-.75v-4.326c1.848-.353,3.25-1.975,3.25-3.924Z"
-          fill={fill}
+          d="m9,3c0-1.654-1.346-3-3-3s-3,1.346-3,3c0,1.394.96,2.558,2.25,2.893v3.107c0,.414.336.75.75.75s.75-.336.75-.75v-3.107c1.29-.335,2.25-1.5,2.25-2.893Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M9,17c-2.971,0-8-.579-8-2.75,0-1.611,2.668-2.284,4.907-2.565,.409-.052,.786,.24,.837,.651,.052,.411-.24,.786-.651,.837-2.264,.285-3.322,.812-3.562,1.078,.365,.414,2.502,1.25,6.468,1.25s6.103-.836,6.468-1.25c-.24-.266-1.297-.793-3.562-1.078-.411-.052-.703-.427-.651-.837,.052-.411,.43-.703,.837-.651,2.239,.281,4.907,.955,4.907,2.565,0,2.171-5.029,2.75-8,2.75Z"
-          fill={secondaryfill}
+          d="m6,12c-2.986,0-6-.773-6-2.5,0-1.067,1.195-1.873,3.366-2.268.407-.076.798.196.872.604s-.196.798-.604.872c-1.583.289-2.093.737-2.143.842.138.202,1.68.95,4.509.95s4.371-.749,4.508-1.046c-.049-.009-.559-.458-2.142-.746-.408-.074-.678-.464-.604-.872.074-.408.468-.677.872-.604,2.17.395,3.366,1.2,3.366,2.268,0,1.727-3.014,2.5-6,2.5Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

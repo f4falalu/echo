@@ -1,34 +1,36 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function planet(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px planet';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px planet";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <circle
           cx="9"
           cy="9"
           fill="none"
           r="6.25"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="6.75" cy="9.75" fill={secondaryfill} r=".75" />
-        <circle cx="9.25" cy="6.75" fill={secondaryfill} r="1.25" />
+        <circle cx="6.75" cy="9.75" fill="#212121" r=".75" />
+        <circle cx="9.25" cy="6.75" fill="#212121" r="1.25" />
         <path
           d="M13.948,2c.931-.332,1.646-.344,2.021,.031,1.1,1.1-1.129,5.111-4.978,8.96-3.849,3.849-7.861,6.078-8.96,4.978-.375-.375-.363-1.09-.031-2.021"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

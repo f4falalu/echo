@@ -1,29 +1,30 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function users4(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'users 4';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px users 4";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M17.39,12.481c-.472-2.162-2.424-3.731-4.64-3.731-.974,0-1.887,.316-2.655,.839,.599,.737,1.049,1.604,1.261,2.572,.21,.957-.058,1.92-.638,2.654,.67,.118,1.349,.184,2.033,.184,1.158,0,2.308-.17,3.416-.506,.876-.265,1.413-1.149,1.224-2.013Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M9.89,12.481c-.472-2.162-2.424-3.731-4.64-3.731S1.082,10.319,.61,12.481c-.189,.864,.348,1.749,1.224,2.013,1.108,.335,2.258,.506,3.416,.506s2.308-.17,3.416-.506c.876-.265,1.413-1.149,1.224-2.013Z"
-          fill={fill}
+          fill="#212121"
         />
-        <circle cx="5.25" cy="5" fill={fill} r="2.75" />
-        <circle cx="12.75" cy="5" fill={secondaryfill} r="2.75" />
+        <circle cx="5.25" cy="5" fill="#212121" r="2.75" />
+        <circle cx="12.75" cy="5" fill="#212121" r="2.75" />
       </g>
     </svg>
   );

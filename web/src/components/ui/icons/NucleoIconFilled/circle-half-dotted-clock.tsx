@@ -1,34 +1,56 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function circleHalfDottedClock(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'circle half dotted clock';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px circle half dotted clock";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M12.249,12c-.146,0-.296-.043-.426-.133l-3.25-2.25c-.202-.14-.323-.371-.323-.617V4.75c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v3.857l2.927,2.026c.341,.236,.426,.703,.189,1.043-.146,.21-.379,.323-.617,.323Z"
-          fill={secondaryfill}
+          d="m7.282,11.093l-.009-.002.009.002Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M9,17c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75c3.584,0,6.5-2.916,6.5-6.5s-2.916-6.5-6.5-6.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75c4.411,0,8,3.589,8,8s-3.589,8-8,8Z"
-          fill={fill}
+          d="m6,12c-.414,0-.75-.336-.75-.75s.336-.75.75-.75c2.481,0,4.5-2.019,4.5-4.5,0-2.481-2.02-4.5-4.5-4.5-.414,0-.75-.336-.75-.75s.336-.75.75-.75c3.308,0,6,2.691,6,6,0,3.309-2.691,6-6,6Z"
+          fill="#212121"
+          strokeWidth="0"
         />
-        <circle cx="3.873" cy="14.127" fill={fill} r=".75" />
-        <circle cx="1.75" cy="9" fill={fill} r=".75" />
-        <circle cx="3.873" cy="3.873" fill={fill} r=".75" />
-        <circle cx="6.226" cy="15.698" fill={fill} r=".75" />
-        <circle cx="2.302" cy="11.774" fill={fill} r=".75" />
-        <circle cx="2.302" cy="6.226" fill={fill} r=".75" />
-        <circle cx="6.226" cy="2.302" fill={fill} r=".75" />
+        <path
+          d="m8,8.5c-.175,0-.351-.061-.493-.186l-2-1.75c-.163-.143-.256-.348-.256-.564v-2.75c0-.414.336-.75.75-.75s.75.336.75.75v2.41l1.744,1.526c.312.273.344.747.071,1.058-.148.169-.356.256-.565.256Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
+        <path
+          d="m1.828,2.725c-.359-.207-.817-.084-1.025.275-.207.359-.084.817.275,1.024.359.207.817.084,1.025-.274.207-.359.084-.817-.275-1.025Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
+        <path
+          d="m3.75,2.103c.359-.207.482-.666.275-1.024-.207-.359-.666-.482-1.025-.275s-.482.666-.275,1.025c.207.359.666.482,1.025.274Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
+        <path
+          d="m1.078,7.975c-.359.207-.482.666-.275,1.025.207.359.666.482,1.025.274.359-.207.482-.666.275-1.024-.207-.359-.666-.482-1.025-.275Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
+        <path
+          d="m3.75,9.897c-.359-.207-.817-.084-1.025.275-.207.359-.084.817.275,1.025.359.207.817.084,1.025-.275.207-.359.084-.817-.275-1.025Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
+        <circle cx=".75" cy="6" fill="#212121" r=".75" strokeWidth="0" />
       </g>
     </svg>
   );

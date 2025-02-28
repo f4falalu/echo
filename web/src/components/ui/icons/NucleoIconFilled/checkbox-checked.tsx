@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function checkboxChecked(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'checkbox checked';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px checkbox checked";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M13.25,2H4.75c-1.517,0-2.75,1.233-2.75,2.75V13.25c0,1.517,1.233,2.75,2.75,2.75H13.25c1.517,0,2.75-1.233,2.75-2.75V4.75c0-1.517-1.233-2.75-2.75-2.75Zm-.407,4.708l-4.25,5.5c-.136,.176-.343,.283-.565,.291-.01,0-.019,0-.028,0-.212,0-.415-.09-.558-.248l-2.25-2.5c-.277-.308-.252-.782,.056-1.06,.309-.276,.782-.252,1.06,.056l1.648,1.832,3.701-4.789c.252-.328,.726-.388,1.052-.135,.328,.253,.388,.724,.135,1.052Z"
-          fill={fill}
+          d="m8.75.5H3.25C1.733.5.5,1.733.5,3.25v5.5c0,1.517,1.233,2.75,2.75,2.75h5.5c1.517,0,2.75-1.233,2.75-2.75V3.25c0-1.517-1.233-2.75-2.75-2.75Zm.103,3.95l-3.003,4c-.13.174-.33.282-.546.298-.018.001-.036.002-.053.002-.198,0-.389-.078-.53-.219l-1.503-1.5c-.293-.292-.294-.767,0-1.061.292-.294.767-.294,1.061,0l.892.89,2.485-3.31c.249-.331.72-.398,1.05-.149.332.249.398.719.149,1.05Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

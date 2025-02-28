@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function chartActivity3(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'chart activity 3';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px chart activity 3";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M11.125,16c-1.585,0-2.875-1.29-2.875-2.875V4.875c0-.758-.617-1.375-1.375-1.375s-1.375,.617-1.375,1.375v2.375c0,1.517-1.233,2.75-2.75,2.75h-.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h.5c.689,0,1.25-.561,1.25-1.25v-2.375c0-1.585,1.29-2.875,2.875-2.875s2.875,1.29,2.875,2.875V13.125c0,.758,.617,1.375,1.375,1.375s1.375-.617,1.375-1.375v-2.375c0-1.517,1.233-2.75,2.75-2.75h.5c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75h-.5c-.689,0-1.25,.561-1.25,1.25v2.375c0,1.585-1.29,2.875-2.875,2.875Z"
-          fill={fill}
+          d="m7.625,11.5c-1.31,0-2.375-1.065-2.375-2.375V2.875c0-.482-.393-.875-.875-.875s-.875.393-.875.875v1.875c0,1.241-1.009,2.25-2.25,2.25h-.5c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h.5c.414,0,.75-.336.75-.75v-1.875c0-1.31,1.065-2.375,2.375-2.375s2.375,1.065,2.375,2.375v6.25c0,.482.393.875.875.875s.875-.393.875-.875v-1.875c0-1.241,1.009-2.25,2.25-2.25h.5c.414,0,.75.336.75.75s-.336.75-.75.75h-.5c-.414,0-.75.336-.75.75v1.875c0,1.31-1.065,2.375-2.375,2.375Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

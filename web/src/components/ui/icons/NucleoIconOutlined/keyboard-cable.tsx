@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function keyboardCable(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px keyboard cable';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px keyboard cable";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M9,4.75v-.75c0-.966,.784-1.75,1.75-1.75h1.75c.793,0,1.462-.527,1.677-1.25"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function keyboardCable(props: iconProps) {
         <path
           d="M11.75 10.25L6.25 10.25"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,20 +37,76 @@ function keyboardCable(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
           x=".75"
           y="4.75"
         />
-        <rect height="1.5" width="1.5" fill={secondaryfill} rx=".5" ry=".5" x="3" y="7" />
-        <rect height="1.5" width="1.5" fill={secondaryfill} rx=".5" ry=".5" x="3" y="9.5" />
-        <rect height="1.5" width="1.5" fill={secondaryfill} rx=".5" ry=".5" x="5.5" y="7" />
-        <rect height="1.5" width="1.5" fill={secondaryfill} rx=".5" ry=".5" x="8.25" y="7" />
-        <rect height="1.5" width="1.5" fill={secondaryfill} rx=".5" ry=".5" x="13.5" y="7" />
-        <rect height="1.5" width="1.5" fill={secondaryfill} rx=".5" ry=".5" x="13.5" y="9.5" />
-        <rect height="1.5" width="1.5" fill={secondaryfill} rx=".5" ry=".5" x="11" y="7" />
+        <rect
+          height="1.5"
+          width="1.5"
+          fill="#212121"
+          rx=".5"
+          ry=".5"
+          x="3"
+          y="7"
+        />
+        <rect
+          height="1.5"
+          width="1.5"
+          fill="#212121"
+          rx=".5"
+          ry=".5"
+          x="3"
+          y="9.5"
+        />
+        <rect
+          height="1.5"
+          width="1.5"
+          fill="#212121"
+          rx=".5"
+          ry=".5"
+          x="5.5"
+          y="7"
+        />
+        <rect
+          height="1.5"
+          width="1.5"
+          fill="#212121"
+          rx=".5"
+          ry=".5"
+          x="8.25"
+          y="7"
+        />
+        <rect
+          height="1.5"
+          width="1.5"
+          fill="#212121"
+          rx=".5"
+          ry=".5"
+          x="13.5"
+          y="7"
+        />
+        <rect
+          height="1.5"
+          width="1.5"
+          fill="#212121"
+          rx=".5"
+          ry=".5"
+          x="13.5"
+          y="9.5"
+        />
+        <rect
+          height="1.5"
+          width="1.5"
+          fill="#212121"
+          rx=".5"
+          ry=".5"
+          x="11"
+          y="7"
+        />
       </g>
     </svg>
   );

@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function textHighlight(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px text highlight';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px text highlight";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M6.545 15.25L14.25 15.25"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function textHighlight(props: iconProps) {
         <path
           d="M9.789,12.123l-4.884-2.466c-.539-.272-.716-.957-.375-1.456l3.766-5.523c.565-.829,1.658-1.111,2.554-.659l1.557,.786c.896,.452,1.318,1.499,.986,2.446l-2.208,6.309c-.2,.57-.855,.835-1.395,.562Z"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function textHighlight(props: iconProps) {
         <path
           d="M10.023,12.245c-1.994,.516-2.965,1.989-3.252,2.559l-1.116-.563s-1.116-.563-1.116-.563c.288-.57,.896-2.226,.128-4.136"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +42,7 @@ function textHighlight(props: iconProps) {
         <path
           d="M6.77 14.804L6.545 15.25 3.75 15.25 4.539 13.677"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

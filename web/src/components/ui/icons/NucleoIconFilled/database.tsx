@@ -1,22 +1,32 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function database(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'database';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px database";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M9,1.25c-3.479,0-7,1.03-7,3V13.75c0,1.97,3.521,3,7,3s7-1.03,7-3V4.25c0-1.97-3.521-3-7-3Zm5.5,7.75c0,.436-1.927,1.5-5.5,1.5s-5.5-1.064-5.5-1.5v-2.829c1.349,.711,3.429,1.079,5.5,1.079s4.151-.368,5.5-1.079v2.829Zm-5.5,6.25c-3.573,0-5.5-1.064-5.5-1.5v-2.829c1.349,.711,3.429,1.079,5.5,1.079s4.151-.368,5.5-1.079v2.829c0,.436-1.927,1.5-5.5,1.5Z"
-          fill={fill}
+          d="m10.25,1.688c-.414,0-.75.336-.75.75v3.55c-.081.262-1.278.95-3.5.95s-3.408-.681-3.5-.947v-3.553c0-.414-.336-.75-.75-.75s-.75.336-.75.75v7.125c0,1.675,2.592,2.438,5,2.438s5-.763,5-2.438V2.438c0-.414-.336-.75-.75-.75Zm-4.25,8.812c-2.224,0-3.422-.689-3.5-.938v-1.761c.96.43,2.253.636,3.5.636s2.541-.207,3.501-.637v1.748c-.079.262-1.277.951-3.501.951Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
+        <ellipse
+          cx="6"
+          cy="2.438"
+          fill="#212121"
+          rx="5"
+          ry="2.438"
+          strokeWidth="0"
         />
       </g>
     </svg>

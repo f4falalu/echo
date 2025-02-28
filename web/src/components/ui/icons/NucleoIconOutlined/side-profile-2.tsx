@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function sideProfile2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px side profile 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px side profile 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M2.25,16.25v-2.5h1.639c1.049,0,1.919-.81,1.995-1.856l.112-1.543,1.504-.601-1.5-2c0-2.796-1.912-5.145-4.5-5.811"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,13 +26,13 @@ function sideProfile2(props: iconProps) {
         <path
           d="M15.75,16.25v-2.5h-1.639c-1.049,0-1.919-.81-1.995-1.856l-.112-1.543-1.504-.601,1.5-2c0-2.796,1.912-5.145,4.5-5.811"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="3.25" cy="7.25" fill={fill} r=".75" />
-        <circle cx="14.75" cy="7.25" fill={secondaryfill} r=".75" />
+        <circle cx="3.25" cy="7.25" fill="#212121" r=".75" />
+        <circle cx="14.75" cy="7.25" fill="#212121" r=".75" />
       </g>
     </svg>
   );

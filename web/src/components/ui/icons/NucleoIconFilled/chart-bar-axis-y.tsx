@@ -1,26 +1,40 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function chartBarAxisY(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'chart bar axis y';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px chart bar axis y";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M2.75,1c-.414,0-.75,.336-.75,.75v14.5c0,.414,.336,.75,.75,.75s.75-.336,.75-.75V1.75c0-.414-.336-.75-.75-.75Z"
-          fill={secondaryfill}
+          d="m1.75,12c-.414,0-.75-.336-.75-.75V.75c0-.414.336-.75.75-.75s.75.336.75.75v10.5c0,.414-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
-        <rect height="4" width="11.5" fill={fill} rx="1.75" ry="1.75" x="4.5" y="7" />
-        <rect height="4" width="7.5" fill={fill} rx="1.75" ry="1.75" x="4.5" y="2" />
-        <rect height="4" width="4.5" fill={fill} rx="1.75" ry="1.75" x="4.5" y="12" />
+        <path
+          d="m7.75,3.5h-3.5c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h3.5c.414,0,.75.336.75.75s-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
+        <path
+          d="m5.75,10h-1.5c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h1.5c.414,0,.75.336.75.75s-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
+        <path
+          d="m10.25,6.75h-6c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h6c.414,0,.75.336.75.75s-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
       </g>
     </svg>
   );

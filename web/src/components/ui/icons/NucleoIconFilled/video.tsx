@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function video(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'video';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px video";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M17.386,5.019c-.385-.227-.848-.234-1.238-.019l-2.148,1.181v5.637l2.147,1.181c.19,.105,.397,.157,.604,.157,.219,0,.438-.059,.635-.175,.385-.228,.614-.63,.614-1.077V6.096c0-.447-.229-.849-.614-1.077Z"
-          fill={secondaryfill}
+          d="m11.555,3.065c-.269-.119-.586-.072-.807.127l-2.5,2.25c-.158.143-.248.345-.248.558s.09.415.248.558l2.5,2.25c.141.126.32.192.502.192.104,0,.207-.021.305-.065.271-.121.445-.389.445-.685V3.75c0-.296-.174-.564-.445-.685Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M9.75,3H3.75c-1.517,0-2.75,1.233-2.75,2.75v6.5c0,1.517,1.233,2.75,2.75,2.75h6c1.517,0,2.75-1.233,2.75-2.75V5.75c0-1.517-1.233-2.75-2.75-2.75Zm-4.75,5c-.552,0-1-.448-1-1s.448-1,1-1,1,.448,1,1-.448,1-1,1Z"
-          fill={fill}
+          d="m6.253,1h-3.5C1.236,1,.003,2.233.003,3.75v4.5C.003,9.767,1.236,11,2.753,11h3.5c1.517,0,2.75-1.233,2.75-2.75V3.75c0-1.517-1.233-2.75-2.75-2.75Zm-3.253,4c-.552,0-1-.448-1-1s.448-1,1-1,1,.448,1,1-.448,1-1,1Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

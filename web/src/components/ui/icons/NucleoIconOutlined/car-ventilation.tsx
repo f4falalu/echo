@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function carVentilation(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px car ventilation';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px car ventilation";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M11.187,7.75c-.882,1.047-1.215,1.992-.998,2.833,.321,1.248,1.675,1.583,1.997,2.833,.217,.842-.116,1.786-.998,2.833"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function carVentilation(props: iconProps) {
         <path
           d="M14.619,12.851c.53,.114,1.072,.241,1.631,.399V3.75c-2.882-.811-5.411-1-7.25-1-2.994,0-5.479,.502-7.25,1V13.25c.681-.191,1.469-.383,2.349-.547"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function carVentilation(props: iconProps) {
         <path
           d="M6.812,7.75c-.882,1.047-1.215,1.992-.998,2.833,.321,1.248,1.675,1.583,1.997,2.833,.217,.842-.116,1.786-.998,2.833"
           fill="none"
-          stroke={secondaryfill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

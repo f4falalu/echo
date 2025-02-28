@@ -1,34 +1,35 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function penWriting5(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'pen writing 5';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px pen writing 5";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M1.75,11h2.5c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75H1.75c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M1.75,14h14.5c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75H1.75c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M16.25,15.5H1.75c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h14.5c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M6.836,10.914h.013c.39-.006,2.381-.083,3.268-.97l5.25-5.25c.843-.844,.843-2.217,0-3.061-.819-.817-2.245-.816-3.061,0L7.056,6.884c-.887,.886-.963,2.878-.97,3.268-.003,.203,.076,.399,.22,.542,.141,.141,.332,.22,.53,.22Z"
-          fill={fill}
+          fill="#212121"
         />
       </g>
     </svg>

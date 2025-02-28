@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function flame2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px flame 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px flame 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="m11,14.1667c0-2.0508-2-4.1667-2-4.1667,0,0-2,2.1159-2,4.1667,0,1.1506.8954,2.0833,2,2.0833s2-.9327,2-2.0833Z"
-          fill={secondaryfill}
-          stroke={secondaryfill}
+          fill="#212121"
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function flame2(props: iconProps) {
         <path
           d="m3.3415,10.4885c0-.9292.7073-5.0251.7073-5.0251l1.5915.8841,3.3598-4.5976s5.6585,4.5976,5.6585,8.7385c0,3.6732-2.9002,5.7615-5.6585,5.7615s-5.6585-2.0883-5.6585-5.7615Z"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

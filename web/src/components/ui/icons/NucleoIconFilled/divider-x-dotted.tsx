@@ -1,34 +1,34 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function dividerXDotted(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'divider x dotted';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px divider x dotted";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
+        <circle cx="6" cy="1.75" fill="#212121" r=".75" strokeWidth="0" />
+        <circle cx="6" cy="4.583" fill="#212121" r=".75" strokeWidth="0" />
+        <circle cx="6" cy="7.417" fill="#212121" r=".75" strokeWidth="0" />
+        <circle cx="6" cy="10.25" fill="#212121" r=".75" strokeWidth="0" />
         <path
-          d="m15.25,2h-1c-1.517,0-2.75,1.233-2.75,2.75v8.5c0,1.517,1.233,2.75,2.75,2.75h1c.414,0,.75-.336.75-.75V2.75c0-.414-.336-.75-.75-.75Z"
-          fill={fill}
+          d="m1.938.595c-.225-.058-.464-.009-.647.133-.184.142-.291.361-.291.593v9.358c0,.232.107.451.291.593.133.103.295.157.459.157.062,0,.126-.008.188-.024,1.214-.314,2.062-1.406,2.062-2.655V3.25c0-1.249-.848-2.341-2.062-2.655Z"
+          fill="#212121"
           strokeWidth="0"
         />
         <path
-          d="m3.75,2h-1c-.414,0-.75.336-.75.75v12.5c0,.414.336.75.75.75h1c1.517,0,2.75-1.233,2.75-2.75V4.75c0-1.517-1.233-2.75-2.75-2.75Z"
-          fill={fill}
+          d="m10.709.728c-.184-.142-.421-.192-.647-.133-1.214.314-2.062,1.406-2.062,2.655v5.5c0,1.249.848,2.341,2.062,2.655.062.016.126.024.188.024.164,0,.326-.054.459-.157.184-.142.291-.361.291-.593V1.321c0-.232-.107-.451-.291-.593Z"
+          fill="#212121"
           strokeWidth="0"
         />
-        <circle cx="9" cy="15.25" fill={secondaryfill} r=".75" strokeWidth="0" />
-        <circle cx="9" cy="12.125" fill={secondaryfill} r=".75" strokeWidth="0" />
-        <circle cx="9" cy="9" fill={secondaryfill} r=".75" strokeWidth="0" />
-        <circle cx="9" cy="5.875" fill={secondaryfill} r=".75" strokeWidth="0" />
-        <circle cx="9" cy="2.75" fill={secondaryfill} r=".75" strokeWidth="0" />
       </g>
     </svg>
   );

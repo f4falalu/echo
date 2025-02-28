@@ -1,28 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function arrowsRotateCenter(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'arrows rotate center';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px arrows rotate center";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M1.835,6.848c.132,.099,.291,.152,.453,.152,.034,0,.068-.002,.103-.007l2.944-.407c.41-.057,.697-.436,.641-.846s-.44-.692-.846-.641l-1.46,.202c1.202-1.727,3.179-2.802,5.33-2.802,3.584,0,6.5,2.916,6.5,6.5,0,.414,.336,.75,.75,.75s.75-.336,.75-.75c0-4.411-3.589-8-8-8-2.476,0-4.763,1.158-6.259,3.045l-.117-.842c-.057-.41-.445-.689-.846-.641-.41,.057-.697,.436-.641,.846l.407,2.945c.027,.197,.132,.375,.29,.496Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M16.165,11.152c-.159-.12-.359-.17-.556-.145l-2.944,.407c-.41,.057-.697,.436-.641,.846s.443,.691,.846,.641l1.459-.202c-1.201,1.728-3.176,2.802-5.329,2.802-3.584,0-6.5-2.916-6.5-6.5,0-.414-.336-.75-.75-.75s-.75,.336-.75,.75c0,4.411,3.589,8,8,8,2.477,0,4.764-1.157,6.26-3.043l.116,.841c.052,.375,.374,.647,.742,.647,.034,0,.069-.002,.104-.007,.41-.057,.697-.436,.641-.846l-.407-2.945c-.027-.197-.132-.375-.29-.496Z"
-          fill={fill}
+          fill="#212121"
         />
-        <circle cx="9" cy="9" fill={secondaryfill} r="2.75" />
+        <circle cx="9" cy="9" fill="#212121" r="2.75" />
       </g>
     </svg>
   );

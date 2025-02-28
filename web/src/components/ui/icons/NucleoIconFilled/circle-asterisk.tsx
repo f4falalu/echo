@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function circleAsterisk(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'circle asterisk';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px circle asterisk";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M9,1C4.589,1,1,4.589,1,9s3.589,8,8,8,8-3.589,8-8S13.411,1,9,1Zm3.839,9.351c.359,.207,.481,.666,.274,1.024-.139,.241-.391,.375-.65,.375-.127,0-.256-.032-.375-.101l-2.339-1.351v2.701c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75v-2.701l-2.339,1.351c-.118,.068-.247,.101-.375,.101-.259,0-.511-.134-.65-.375-.207-.359-.084-.817,.274-1.024l2.339-1.351-2.339-1.351c-.359-.207-.481-.666-.274-1.024,.207-.359,.667-.481,1.024-.274l2.339,1.351v-2.701c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v2.701l2.339-1.351c.359-.207,.817-.084,1.024,.274s.084,.817-.274,1.024l-2.339,1.351,2.339,1.351Z"
-          fill={fill}
+          d="m6,0C2.691,0,0,2.691,0,6s2.691,6,6,6,6-2.691,6-6S9.309,0,6,0Zm.75,6.851v1.649c0,.414-.336.75-.75.75s-.75-.336-.75-.75v-1.649c-.732-.298-1.25-1.014-1.25-1.851,0-1.103.897-2,2-2s2,.897,2,2c0,.837-.518,1.554-1.25,1.851Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

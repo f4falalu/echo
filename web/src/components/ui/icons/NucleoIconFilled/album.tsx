@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function album(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'album';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px album";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M4.25,2.5H13.75c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75H4.25c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75Z"
-          fill={secondaryfill}
+          d="m11.292,3.719c-.333-.457-.848-.719-1.414-.719H2.122c-.565,0-1.081.262-1.414.719-.333.457-.425,1.028-.252,1.566l1.607,5c.233.726.903,1.214,1.666,1.214h4.542c.763,0,1.433-.488,1.666-1.214l1.607-5c.173-.539.082-1.109-.252-1.566Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M14.552,4H3.448c-.521,0-1.01,.229-1.344,.628-.333,.399-.472,.922-.379,1.435l1.638,9c.151,.833,.876,1.437,1.722,1.437h7.83c.846,0,1.57-.604,1.723-1.437l1.637-9c.093-.512-.046-1.035-.379-1.434-.334-.399-.823-.628-1.344-.628Z"
-          fill={fill}
+          d="m9.25,1.5H2.75c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h6.5c.414,0,.75.336.75.75s-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

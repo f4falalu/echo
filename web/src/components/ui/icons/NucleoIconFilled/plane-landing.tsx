@@ -1,30 +1,31 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function planeLanding(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'plane landing';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px plane landing";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M15.25,16H2.75c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75H15.25c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M6.212,5.624l4.766,.767-2.454-4.055c-.308-.506-.843-.82-1.429-.842l-1.438-.062c-.254-.018-.498,.109-.646,.317-.146,.209-.178,.478-.082,.714l1.282,3.161Z"
-          fill={fill}
+          fill="#212121"
         />
         <path
           d="M16.611,9.445c-.336-.465-.834-.769-1.396-.854l-10.484-1.688-.598-1.301c-.25-.537-.778-.87-1.404-.87h0l-1.073,.032c-.226,.006-.438,.115-.574,.295-.138,.18-.186,.413-.132,.633l.588,2.397c.153,.635,.543,1.177,1.099,1.525l2.089,1.312c.277,.174,.582,.291,.908,.347l8.931,1.498c.112,.019,.224,.027,.335,.027,1.029,0,1.904-.737,2.082-1.753,.098-.566-.032-1.135-.368-1.601Z"
-          fill={fill}
+          fill="#212121"
         />
       </g>
     </svg>

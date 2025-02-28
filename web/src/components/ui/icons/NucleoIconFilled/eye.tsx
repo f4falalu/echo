@@ -1,22 +1,23 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function eye(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'eye';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px eye";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="m16.5386,7.4556c-1.0962-1.6641-3.5332-4.4561-7.5386-4.4561-4.001,0-6.4404,2.791-7.5386,4.4551-.6182.9395-.6182,2.1514,0,3.0898,1.0962,1.6641,3.5332,4.4561,7.5386,4.4561,4.001,0,6.4404-2.791,7.5386-4.4551.6182-.9395.6182-2.1514,0-3.0898Zm-7.5386,4.5449c-1.6543,0-3-1.3457-3-3s1.3457-3,3-3,3,1.3457,3,3-1.3457,3-3,3Z"
-          fill={fill}
+          d="m6,1C2.688,1,0,4.025,0,6s2.688,5,6,5,6-3.025,6-5S9.312,1,6,1Zm0,7c-1.103,0-2-.897-2-2s.897-2,2-2,2,.897,2,2-.897,2-2,2Z"
+          fill="#212121"
           strokeWidth="0"
         />
       </g>

@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function arrowRotateClockwise(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'arrow rotate clockwise';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px arrow rotate clockwise";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M9,17c-4.411,0-8-3.589-8-8S4.589,1,9,1c3.164,0,6.037,1.87,7.318,4.764,.168,.379-.003,.822-.382,.989-.379,.168-.821-.003-.989-.382-1.042-2.352-3.376-3.872-5.947-3.872-3.584,0-6.5,2.916-6.5,6.5s2.916,6.5,6.5,6.5c2.155,0,4.167-1.066,5.38-2.851,.233-.344,.701-.431,1.042-.199,.343,.232,.432,.699,.199,1.042-1.493,2.197-3.967,3.508-6.62,3.508Z"
-          fill={secondaryfill}
+          d="m6,12c-3.309,0-6-2.691-6-6S2.691,0,6,0c2.31,0,4.375,1.289,5.392,3.364.182.372.028.821-.344,1.003-.374.182-.821.027-1.004-.344-.762-1.557-2.312-2.523-4.044-2.523C3.519,1.5,1.5,3.519,1.5,6s2.019,4.5,4.5,4.5c1.965,0,3.687-1.255,4.286-3.125.126-.393.547-.613.942-.485.395.126.612.549.485.943-.799,2.492-3.095,4.167-5.714,4.167Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M15.713,7c-.034,0-.069-.002-.104-.007l-2.944-.407c-.411-.057-.697-.436-.641-.846,.057-.41,.437-.693,.846-.641l2.201,.305,.305-2.202c.056-.41,.428-.699,.846-.64,.41,.057,.697,.435,.64,.846l-.408,2.945c-.052,.375-.373,.647-.742,.647Z"
-          fill={fill}
+          d="m10.75,4.5h-3c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h2.25V.75c0-.414.336-.75.75-.75s.75.336.75.75v3c0,.414-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

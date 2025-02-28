@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function house6(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'house 6';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px house 6";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M15.999,7.75c-.156,0-.314-.049-.449-.15L9,2.688,2.45,7.6c-.331,.25-.803,.181-1.05-.15-.249-.332-.182-.802,.149-1.05L8.55,1.15c.268-.2,.633-.2,.9,0l7,5.25c.331,.249,.398,.719,.149,1.05-.146,.196-.372,.3-.601,.3Z"
-          fill={secondaryfill}
+          d="m11.25,4.548c-.128,0-.257-.033-.376-.102L6,1.617,1.126,4.446c-.356.208-.817.086-1.025-.272-.208-.358-.086-.817.272-1.025L5.624.102c.232-.136.521-.136.753,0l5.25,3.048c.358.208.48.667.272,1.025-.139.24-.391.374-.649.374Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M14.649,8.8l-5.649-4.238L3.351,8.8c-.111,.083-.229,.152-.351,.213v5.237c0,1.517,1.233,2.75,2.75,2.75h2.5v-3.75c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v3.75h2.5c1.517,0,2.75-1.233,2.75-2.75v-5.237c-.122-.061-.24-.13-.351-.213Z"
-          fill={fill}
+          d="m6,3.352L1,6.254v3.496c0,.965.785,1.75,1.75,1.75h2.5v-2.25c0-.414.336-.75.75-.75s.75.336.75.75v2.25h2.5c.965,0,1.75-.785,1.75-1.75v-3.496l-5-2.903Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

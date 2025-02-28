@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function check3(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'check 3';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px check 3";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M6.5,15h-.003c-.279,0-.535-.157-.663-.405-1.054-2.033-2.236-3.689-3.614-5.064-.293-.292-.294-.767,0-1.061,.292-.294,.767-.294,1.061,0,1.203,1.2,2.264,2.591,3.221,4.227,2.265-3.942,5.054-7.15,8.304-9.549,.333-.246,.803-.175,1.049,.158s.175,.803-.158,1.049c-3.392,2.504-6.263,5.951-8.532,10.247-.13,.246-.385,.399-.663,.399Z"
-          fill={fill}
+          d="m4.21,10.329h-.011c-.289-.004-.549-.174-.67-.436-.622-1.35-1.334-2.387-2.31-3.363-.293-.293-.293-.768,0-1.061.293-.293.768-.293,1.061,0,.772.773,1.398,1.577,1.943,2.508,1.4-2.384,3.272-4.451,5.58-6.16.333-.246.802-.177,1.049.157.246.333.176.803-.157,1.049-2.516,1.861-4.471,4.179-5.814,6.888-.126.256-.387.417-.672.417Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

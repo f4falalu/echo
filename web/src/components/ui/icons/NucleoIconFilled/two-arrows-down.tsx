@@ -1,26 +1,27 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function twoArrowsDown(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'two arrows down';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px two arrows down";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M8.72,11.72l-1.72,1.72V2.75c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75V13.439l-1.72-1.72c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l3,3c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22l3-3c.293-.293,.293-.768,0-1.061s-.768-.293-1.061,0Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M14.72,7.22l-1.72,1.72V2.75c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75v6.189l-1.72-1.72c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l3,3c.146,.146,.338,.22,.53,.22s.384-.073,.53-.22l3-3c.293-.293,.293-.768,0-1.061s-.768-.293-1.061,0Z"
-          fill={fill}
+          fill="#212121"
         />
       </g>
     </svg>

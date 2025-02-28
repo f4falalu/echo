@@ -1,22 +1,24 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function atom(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || '18px atom';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px atom";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M9,13.145c-.737-.551-1.486-1.199-2.216-1.929C3.557,7.989,1.934,4.382,3.158,3.158c.654-.654,1.99-.495,3.584,.288"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +26,7 @@ function atom(props: iconProps) {
         <path
           d="M9,4.855c.737,.551,1.486,1.199,2.216,1.929,3.227,3.227,4.85,6.834,3.626,8.058-.654,.654-1.99,.495-3.584-.288"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +34,7 @@ function atom(props: iconProps) {
         <path
           d="M4.855,9c.551-.737,1.199-1.486,1.929-2.216,3.227-3.227,6.834-4.85,8.058-3.626,.654,.654,.495,1.99-.288,3.584"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,12 +42,12 @@ function atom(props: iconProps) {
         <path
           d="M13.145,9c-.551,.737-1.199,1.486-1.929,2.216-3.227,3.227-6.834,4.85-8.058,3.626-.654-.654-.495-1.99,.288-3.584"
           fill="none"
-          stroke={fill}
+          stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="9" cy="9" fill={secondaryfill} r="1" />
+        <circle cx="9" cy="9" fill="#212121" r="1" />
       </g>
     </svg>
   );

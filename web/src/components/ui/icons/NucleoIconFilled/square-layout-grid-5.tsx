@@ -1,23 +1,40 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function squareLayoutGrid5(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'square layout grid 5';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px square layout grid 5";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
-        <path d="M8,6.5h8v-1.75c0-1.517-1.233-2.75-2.75-2.75h-5.25V6.5Z" fill={secondaryfill} />
-        <path d="M6.5,6.5V2h-1.75c-1.517,0-2.75,1.233-2.75,2.75v1.75H6.5Z" fill={secondaryfill} />
-        <path d="M8,8v8h5.25c1.517,0,2.75-1.233,2.75-2.75v-5.25H8Z" fill={fill} />
-        <path d="M6.5,8H2v5.25c0,1.517,1.233,2.75,2.75,2.75h1.75V8Z" fill={fill} />
+      <g fill="#212121">
+        <path
+          d="m4,4V.5h-.75C1.733.5.5,1.733.5,3.25v.75h3.5Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
+        <path
+          d="m5.5,5.5v6h3.25c1.517,0,2.75-1.233,2.75-2.75v-3.25h-6Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
+        <path
+          d="m5.5,4h6v-.75c0-1.517-1.233-2.75-2.75-2.75h-3.25v3.5Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
+        <path
+          d="m4,5.5H.5v3.25c0,1.517,1.233,2.75,2.75,2.75h.75v-6Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
       </g>
     </svg>
   );

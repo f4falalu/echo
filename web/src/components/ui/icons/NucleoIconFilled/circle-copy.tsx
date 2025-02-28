@@ -1,24 +1,26 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function circleCopy(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'circle copy';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px circle copy";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M3,11.491c-.216,0-.431-.093-.579-.273-.916-1.114-1.421-2.523-1.421-3.968C1,3.804,3.804,1,7.25,1c1.445,0,2.854,.504,3.968,1.421,.32,.263,.366,.736,.103,1.056-.265,.32-.736,.365-1.056,.103-.846-.696-1.916-1.079-3.015-1.079-2.619,0-4.75,2.131-4.75,4.75,0,1.098,.383,2.169,1.079,3.015,.264,.32,.217,.792-.103,1.056-.14,.115-.309,.171-.477,.171Z"
-          fill={secondaryfill}
+          d="m1.339,7.25c-.249,0-.492-.123-.635-.349-.461-.728-.704-1.558-.704-2.401C0,2.019,2.019,0,4.5,0c.844,0,1.675.244,2.401.705.35.222.454.685.232,1.035-.222.35-.686.455-1.035.232-.486-.308-1.039-.471-1.599-.471-1.654,0-3,1.346-3,3,0,.559.163,1.111.472,1.598.222.35.117.813-.232,1.035-.124.079-.264.116-.4.116Z"
+          fill="#212121"
+          strokeWidth="0"
         />
-        <circle cx="10.75" cy="10.75" fill={fill} r="6.25" />
+        <circle cx="7.5" cy="7.5" fill="#212121" r="4.5" strokeWidth="0" />
       </g>
     </svg>
   );

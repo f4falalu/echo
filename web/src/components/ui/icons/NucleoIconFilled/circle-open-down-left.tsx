@@ -1,22 +1,23 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function circleOpenDownLeft(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'circle open down left';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px circle open down left";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M8.561,10.5h2.689c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75H6.75c-.414,0-.75-.336-.75-.75V6.75c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v2.689L14.099,2.841c-1.385-1.149-3.163-1.841-5.099-1.841C4.589,1,1,4.589,1,9s3.589,8,8,8,8-3.589,8-8c0-1.936-.692-3.713-1.841-5.098l-6.599,6.598Z"
-          fill={fill}
+          fill="#212121"
         />
       </g>
     </svg>

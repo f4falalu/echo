@@ -1,25 +1,26 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function itinerary2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'itinerary 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px itinerary 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
           d="M12.875,3.5h-3.375c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h3.375c.896,0,1.625,.729,1.625,1.625s-.729,1.625-1.625,1.625H5.125c-1.723,0-3.125,1.402-3.125,3.125s1.402,3.125,3.125,3.125h3.375c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75h-3.375c-.896,0-1.625-.729-1.625-1.625s.729-1.625,1.625-1.625h7.75c1.723,0,3.125-1.402,3.125-3.125s-1.402-3.125-3.125-3.125Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
-        <circle cx="4.75" cy="4.25" fill={fill} r="2.75" />
-        <circle cx="13.25" cy="13.75" fill={fill} r="2.75" />
+        <circle cx="4.75" cy="4.25" fill="#212121" r="2.75" />
+        <circle cx="13.25" cy="13.75" fill="#212121" r="2.75" />
       </g>
     </svg>
   );

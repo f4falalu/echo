@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function airplay(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'airplay';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px airplay";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M14.25,2.5H3.75c-1.517,0-2.75,1.233-2.75,2.75v6c0,1.517,1.233,2.75,2.75,2.75h.5c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75h-.5c-.689,0-1.25-.561-1.25-1.25V5.25c0-.689,.561-1.25,1.25-1.25H14.25c.689,0,1.25,.561,1.25,1.25v6c0,.689-.561,1.25-1.25,1.25h-.5c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h.5c1.517,0,2.75-1.233,2.75-2.75V5.25c0-1.517-1.233-2.75-2.75-2.75Z"
-          fill={fill}
+          d="m10.445,10.095c-.228,0-.453-.104-.601-.3-.249-.332-.181-.802.15-1.05.321-.241.505-.604.505-.995V3.25c0-.689-.561-1.25-1.25-1.25H2.75c-.689,0-1.25.561-1.25,1.25v4.5c0,.392.184.754.505.995.331.249.398.719.15,1.05-.249.331-.718.398-1.05.15-.702-.527-1.105-1.327-1.105-2.195V3.25C0,1.733,1.233.5,2.75.5h6.5c1.517,0,2.75,1.233,2.75,2.75v4.5c0,.868-.403,1.668-1.105,2.195-.135.101-.293.15-.45.15Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M10.035,11.239c-.465-.688-1.605-.688-2.07,0l-2.58,3.811c-.26,.384-.286,.877-.068,1.287,.217,.41,.64,.664,1.104,.664h5.16c.464,0,.887-.254,1.104-.664,.218-.41,.191-.902-.068-1.287l-2.58-3.811Z"
-          fill={secondaryfill}
+          d="m9.047,10.398l-2.249-2.984c-.376-.499-1.222-.499-1.598,0l-2.249,2.984c-.229.305-.267.707-.096,1.048.17.341.513.554.895.554h4.497c.382,0,.725-.212.895-.554.17-.342.133-.743-.096-1.048Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

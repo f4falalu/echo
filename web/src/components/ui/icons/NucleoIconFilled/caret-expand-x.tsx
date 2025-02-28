@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function caretExpandX(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'caret expand x';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px caret expand x";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M15.42,7.965h0s-3.47-2.349-3.47-2.349c-.383-.26-.876-.286-1.286-.069s-.664,.641-.664,1.104v4.696c0,.463,.254,.887,.664,1.104,.185,.098,.386,.146,.586,.146,.245,0,.489-.072,.701-.215l3.469-2.349c.344-.233,.548-.62,.548-1.035s-.204-.802-.548-1.035Z"
-          fill={secondaryfill}
+          d="m4.447,2.857c-.341-.17-.743-.133-1.049.096L.414,5.201c-.25.188-.398.487-.398.799s.148.611.398.799l2.985,2.249c.178.133.388.202.6.202.152,0,.306-.035.448-.106.341-.17.553-.513.553-.895V3.751c0-.381-.212-.724-.553-.895Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M7.336,5.548c-.41-.217-.901-.191-1.287,.069l-3.469,2.348h0c-.344,.233-.548,.62-.548,1.035s.204,.802,.548,1.035l3.47,2.348c.211,.143,.455,.215,.7,.215,.2,0,.401-.049,.586-.146,.41-.217,.664-.641,.664-1.104V6.652c0-.463-.254-.887-.664-1.104Z"
-          fill={fill}
+          d="m11.586,5.201l-2.985-2.249c-.307-.229-.708-.267-1.048-.095-.341.17-.553.513-.553.895v4.497c0,.381.212.724.553.895.143.071.296.106.448.106.212,0,.423-.068.601-.202l2.984-2.249c.25-.188.398-.487.398-.799s-.148-.611-.398-.799Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

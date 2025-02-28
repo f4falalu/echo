@@ -1,22 +1,40 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function chart2(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'chart 2';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px chart 2";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
-        <rect height="14" width="4" fill={secondaryfill} rx="1.75" ry="1.75" x="7" y="2" />
-        <rect height="9" width="4" fill={fill} rx="1.75" ry="1.75" x="1.5" y="2" />
-        <rect height="6" width="4" fill={fill} rx="1.75" ry="1.75" x="12.5" y="2" />
+      <g fill="#212121">
+        <path
+          d="m10.75,8c-.414,0-.75-.336-.75-.75V1.25c0-.414.336-.75.75-.75s.75.336.75.75v6c0,.414-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
+        <path
+          d="m4.75,11.5c-.414,0-.75-.336-.75-.75V1.25c0-.414.336-.75.75-.75s.75.336.75.75v9.5c0,.414-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
+        <path
+          d="m1.75,7c-.414,0-.75-.336-.75-.75V1.25c0-.414.336-.75.75-.75s.75.336.75.75v5c0,.414-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
+        <path
+          d="m7.75,5c-.414,0-.75-.336-.75-.75V1.25c0-.414.336-.75.75-.75s.75.336.75.75v3c0,.414-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
       </g>
     </svg>
   );

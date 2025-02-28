@@ -1,31 +1,43 @@
-import React from 'react';
-import { iconProps } from './iconProps';
+import React from "react";
+
+import { iconProps } from "./iconProps";
 
 function addAbove(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'add above';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px add above";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="m12,6h-2.25v2.25c0,.4141-.3359.75-.75.75s-.75-.3359-.75-.75v-2.25h-2.25c-.4141,0-.75-.3359-.75-.75s.3359-.75.75-.75h2.25v-2.25c0-.4141.3359-.75.75-.75s.75.3359.75.75v2.25h2.25c.4141,0,.75.3359.75.75s-.3359.75-.75.75Z"
-          fill={secondaryfill}
+          d="m11,10H1c-.4141,0-.75.3359-.75.75s.3359.75.75.75h10c.4141,0,.75-.3359.75-.75s-.3359-.75-.75-.75Z"
+          fill="#212121"
           strokeWidth="0"
         />
         <path
-          d="m15.25,10.5H2.75c-.4141,0-.75.3359-.75.75s.3359.75.75.75h12.5c.4141,0,.75-.3359.75-.75s-.3359-.75-.75-.75Z"
-          fill={fill}
+          d="m11,7H1c-.4141,0-.75.3359-.75.75s.3359.75.75.75h10c.4141,0,.75-.3359.75-.75s-.3359-.75-.75-.75Z"
+          fill="#212121"
           strokeWidth="0"
         />
         <path
-          d="m15.25,14H2.75c-.4141,0-.75.3359-.75.75s.3359.75.75.75h12.5c.4141,0,.75-.3359.75-.75s-.3359-.75-.75-.75Z"
-          fill={fill}
+          d="m8.25,3.75h-1.5v1.5c0,.4141-.3359.75-.75.75s-.75-.3359-.75-.75v-1.5h-1.5c-.4141,0-.75-.3359-.75-.75s.3359-.75.75-.75h1.5V.75c0-.4141.3359-.75.75-.75s.75.3359.75.75v1.5h1.5c.4141,0,.75.3359.75.75s-.3359.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
+        <path
+          d="m11,10H1c-.4141,0-.75.3359-.75.75s.3359.75.75.75h10c.4141,0,.75-.3359.75-.75s-.3359-.75-.75-.75Z"
+          fill="#212121"
+          strokeWidth="0"
+        />
+        <path
+          d="m11,7H1c-.4141,0-.75.3359-.75.75s.3359.75.75.75h10c.4141,0,.75-.3359.75-.75s-.3359-.75-.75-.75Z"
+          fill="#212121"
           strokeWidth="0"
         />
       </g>

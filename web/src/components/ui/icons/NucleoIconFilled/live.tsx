@@ -1,71 +1,72 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function live(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'live';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "18px live";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="18"
+      width="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
-        <circle cx="9" cy="9" fill={fill} r="5" />
-        <circle cx="9" cy="1.75" fill={secondaryfill} r=".75" />
-        <circle cx="16.25" cy="9" fill={secondaryfill} r=".75" />
-        <circle cx="9" cy="16.25" fill={secondaryfill} r=".75" />
-        <circle cx="1.75" cy="9" fill={secondaryfill} r=".75" />
+      <g fill="#212121">
+        <circle cx="9" cy="9" fill="#212121" r="5" />
+        <circle cx="9" cy="1.75" fill="#212121" r=".75" />
+        <circle cx="16.25" cy="9" fill="#212121" r=".75" />
+        <circle cx="9" cy="16.25" fill="#212121" r=".75" />
+        <circle cx="1.75" cy="9" fill="#212121" r=".75" />
         <path
           d="M13.596,3.343c-.293,.293-.293,.768,0,1.061,.293,.293,.768,.293,1.061,0s.293-.768,0-1.061c-.293-.293-.768-.293-1.061,0Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M13.596,13.596c-.293,.293-.293,.768,0,1.061,.293,.293,.768,.293,1.061,0,.293-.293,.293-.768,0-1.061s-.768-.293-1.061,0Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M3.343,13.596c-.293,.293-.293,.768,0,1.061,.293,.293,.768,.293,1.061,0,.293-.293,.293-.768,0-1.061s-.768-.293-1.061,0Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M4.404,4.404c.293-.293,.293-.768,0-1.061-.293-.293-.768-.293-1.061,0-.293,.293-.293,.768,0,1.061,.293,.293,.768,.293,1.061,0Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M11.487,2.995c.383,.159,.821-.023,.98-.406,.159-.383-.023-.821-.406-.98-.383-.158-.821,.023-.98,.406-.159,.383,.023,.821,.406,.98Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M15.985,6.918c.383-.158,.564-.597,.406-.98-.159-.383-.597-.564-.98-.406-.383,.158-.564,.597-.406,.98,.159,.383,.597,.564,.98,.406Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M15.985,11.082c-.383-.158-.821,.023-.98,.406-.159,.383,.023,.822,.406,.98,.383,.159,.821-.023,.98-.406,.159-.383-.023-.822-.406-.98Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M11.487,15.005c-.383,.158-.564,.597-.406,.98s.597,.564,.98,.406c.383-.159,.564-.597,.406-.98-.159-.383-.597-.564-.98-.406Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M6.513,15.005c-.383-.158-.821,.023-.98,.406-.159,.383,.023,.821,.406,.98,.383,.158,.821-.023,.98-.406s-.023-.822-.406-.98Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M2.015,11.082c-.383,.158-.564,.597-.406,.98,.159,.383,.597,.564,.98,.406,.383-.158,.564-.597,.406-.98-.159-.383-.597-.564-.98-.406Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M2.589,5.533c-.383-.159-.821,.023-.98,.406-.159,.383,.023,.822,.406,.98s.821-.023,.98-.406c.159-.383-.023-.821-.406-.98Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
         <path
           d="M6.513,2.995c.383-.158,.564-.597,.406-.98-.159-.383-.597-.564-.98-.406-.383,.159-.564,.597-.406,.98s.597,.564,.98,.406Z"
-          fill={secondaryfill}
+          fill="#212121"
         />
       </g>
     </svg>

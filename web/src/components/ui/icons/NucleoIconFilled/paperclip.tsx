@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function paperclip(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'paperclip';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px paperclip";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M13.75,4.25c-.414,0-.75,.336-.75,.75v6.75c0,2.068-1.682,3.75-3.75,3.75s-3.75-1.682-3.75-3.75V4.75c0-1.241,1.009-2.25,2.25-2.25s2.25,1.009,2.25,2.25v7c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75V5c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75v6.75c0,1.241,1.009,2.25,2.25,2.25s2.25-1.009,2.25-2.25V4.75c0-2.068-1.682-3.75-3.75-3.75s-3.75,1.682-3.75,3.75v7c0,2.895,2.355,5.25,5.25,5.25s5.25-2.355,5.25-5.25V5c0-.414-.336-.75-.75-.75Z"
-          fill={fill}
+          d="m6,12.001c-2.481,0-4.5-2.019-4.5-4.5V3.251C1.5,1.459,2.958.001,4.75.001s3.25,1.458,3.25,3.25v4.25c0,1.103-.897,2-2,2s-2-.897-2-2v-3.75c0-.414.336-.75.75-.75s.75.336.75.75v3.75c0,.276.224.5.5.5s.5-.224.5-.5V3.251c0-.965-.785-1.75-1.75-1.75s-1.75.785-1.75,1.75v4.25c0,1.654,1.346,3,3,3s3-1.346,3-3v-3.75c0-.414.336-.75.75-.75s.75.336.75.75v3.75c0,2.481-2.019,4.5-4.5,4.5Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

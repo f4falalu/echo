@@ -1,26 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function arrowUpLeft(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'arrow up left';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px arrow up left";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M14.25,15c-.192,0-.384-.073-.53-.22L3.47,4.53c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0L14.78,13.72c.293,.293,.293,.768,0,1.061-.146,.146-.338,.22-.53,.22Z"
-          fill={secondaryfill}
+          d="m10.25,11c-.192,0-.384-.073-.53-.22L1.396,2.457c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l8.323,8.323c.293.293.293.768,0,1.061-.146.146-.338.22-.53.22Z"
+          fill="#212121"
+          strokeWidth="0"
         />
         <path
-          d="M3.75,10.51c-.414,0-.75-.336-.75-.75V3.75c0-.414,.336-.75,.75-.75h6.011c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75H4.5v5.26c0,.414-.336,.75-.75,.75Z"
-          fill={fill}
+          d="m1.75,7.25c-.414,0-.75-.336-.75-.75V1.75c0-.414.336-.75.75-.75h4.75c.414,0,.75.336.75.75s-.336.75-.75.75H2.5v4c0,.414-.336.75-.75.75Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>

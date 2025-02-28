@@ -1,22 +1,24 @@
-import React from 'react';
+import React from "react";
 
-import { iconProps } from './iconProps';
+import { iconProps } from "./iconProps";
 
 function faceSmile(props: iconProps) {
-  const fill = props.fill || 'currentColor';
-  const secondaryfill = props.secondaryfill || fill;
-  const strokewidth = props.strokewidth || 1;
-  const width = props.width || '1em';
-  const height = props.height || '1rem';
-  const title = props.title || 'face smile';
+  const strokewidth = props.strokewidth || 1.3;
+  const title = props.title || "12px face smile";
 
   return (
-    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      height="12"
+      width="12"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>{title}</title>
-      <g fill={fill}>
+      <g fill="#212121">
         <path
-          d="M9,1C4.589,1,1,4.589,1,9s3.589,8,8,8,8-3.589,8-8S13.411,1,9,1Zm2,6c.552,0,1,.448,1,1s-.448,1-1,1-1-.448-1-1,.448-1,1-1Zm-4,0c.552,0,1,.448,1,1s-.448,1-1,1-1-.448-1-1,.448-1,1-1Zm6.41,4.354c-.874,1.632-2.563,2.646-4.41,2.646s-3.537-1.014-4.41-2.646c-.196-.365-.058-.82,.307-1.015,.365-.196,.819-.059,1.015,.307,.612,1.144,1.795,1.854,3.088,1.854s2.476-.71,3.088-1.854c.196-.366,.65-.503,1.015-.307,.365,.195,.503,.65,.307,1.015Z"
-          fill={fill}
+          d="m6,0C2.691,0,0,2.691,0,6s2.691,6,6,6,6-2.691,6-6S9.309,0,6,0Zm-2,4c.552,0,1,.448,1,1s-.448,1-1,1-1-.448-1-1,.448-1,1-1Zm4.545,4.4c-.659.699-1.587,1.1-2.545,1.1s-1.887-.401-2.545-1.1c-.284-.301-.271-.776.031-1.06s.776-.271,1.06.031c.766.812,2.144.812,2.909,0,.284-.301.759-.315,1.06-.031s.315.759.031,1.06Zm-.545-2.4c-.552,0-1-.448-1-1s.448-1,1-1,1,.448,1,1-.448,1-1,1Z"
+          fill="#212121"
+          strokeWidth="0"
         />
       </g>
     </svg>
