@@ -25,7 +25,7 @@ const SidebarTrigger: React.FC<SidebarTriggerProps> = React.memo(({ label, isOpe
       <span className="">{label}</span>
       <div
         className={cn(
-          'text-icon-color text-2xs -rotate-90 transition-transform duration-200',
+          'text-icon-color text-3xs -rotate-90 transition-transform duration-200',
           isOpen && 'rotate-0'
         )}>
         <CaretDown />

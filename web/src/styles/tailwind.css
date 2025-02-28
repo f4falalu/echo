@@ -41,11 +41,11 @@
   --text-4xl--line-height: 1;
 
   --text-icon-size: 16px;
-  --text-icon-size--line-height: 1;
+  --text-icon-size--line-height: 1.05;
   --text-icon-size-sm: 12px;
-  --text-icon-size-sm--line-height: 1;
+  --text-icon-size-sm--line-height: 1.05;
   --text-icon-size-lg: 18px;
-  --text-icon-size-lg--line-height: 1;
+  --text-icon-size-lg--line-height: 1.05;
 
   /* radius */
   --radius: 6px;
