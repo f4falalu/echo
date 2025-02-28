@@ -6,3 +6,4 @@ pub mod get_redshift_connection;
 pub mod get_snowflake_client;
 pub mod get_sql_server_connection;
 pub mod ssh_tunneling;
+pub mod test_data_source_connections;

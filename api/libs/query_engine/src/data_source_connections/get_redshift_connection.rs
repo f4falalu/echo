@@ -6,9 +6,9 @@ use sqlx::{
     Pool, Postgres,
 };
 
-use crate::credentials::PostgresCredentials;
+use crate::credentials::RedshiftCredentials;
 
-pub async fn get_redshift_connection(credentials: &PostgresCredentials) -> Result<Pool<Postgres>> {
+pub async fn get_redshift_connection(credentials: &RedshiftCredentials) -> Result<Pool<Postgres>> {
     let options = PgConnectOptions::new()
         .host(credentials.host.as_str())
         .port(credentials.port)

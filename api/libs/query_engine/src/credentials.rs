@@ -10,20 +10,12 @@ use database::{enums::DataSourceType, vault::read_secret};
 #[serde(rename_all = "lowercase")]
 pub enum Credential {
     Postgres(PostgresCredentials),
-    MySQL(MySqlCredentials),
+    MySql(MySqlCredentials),
     Bigquery(BigqueryCredentials),
     SqlServer(SqlServerCredentials),
     Redshift(RedshiftCredentials),
     Databricks(DatabricksCredentials),
     Snowflake(SnowflakeCredentials),
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct AthenaCredentials {
-    pub data_source: String,
-    pub db_database: String,
-    pub aws_access_key: String,
-    pub aws_secret_access: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -121,7 +113,7 @@ impl Credential {
     pub fn get_type_string(&self) -> String {
         match self {
             Credential::Postgres(_) => "postgres".to_string(),
-            Credential::MySQL(_) => "mysql".to_string(),
+            Credential::MySql(_) => "mysql".to_string(),
             Credential::Bigquery(_) => "bigquery".to_string(),
             Credential::SqlServer(_) => "sqlserver".to_string(),
             Credential::Redshift(_) => "redshift".to_string(),
@@ -133,7 +125,7 @@ impl Credential {
     pub fn get_type(&self) -> DataSourceType {
         match self {
             Credential::Postgres(_) => DataSourceType::Postgres,
-            Credential::MySQL(_) => DataSourceType::MySql,
+            Credential::MySql(_) => DataSourceType::MySql,
             Credential::Bigquery(_) => DataSourceType::BigQuery,
             Credential::SqlServer(_) => DataSourceType::SqlServer,
             Credential::Redshift(_) => DataSourceType::Redshift,
@@ -185,7 +177,7 @@ pub async fn get_data_source_credentials(
                     credential.ssh_private_key =
                         credential.ssh_private_key.map(|_| "[REDACTED]".to_string());
                 }
-                Credential::MySQL(credential)
+                Credential::MySql(credential)
             }
             Err(e) => return Err(anyhow!("Error deserializing MySQL secret: {:?}", e)),
         },
@@ -196,7 +188,7 @@ pub async fn get_data_source_credentials(
                     credential.ssh_private_key =
                         credential.ssh_private_key.map(|_| "[REDACTED]".to_string());
                 }
-                Credential::MySQL(credential)
+                Credential::MySql(credential)
             }
             Err(e) => return Err(anyhow!("Error deserializing MariaDB secret: {:?}", e)),
         },

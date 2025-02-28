@@ -5,8 +5,8 @@ use uuid::Uuid;
 
 use crate::{
     credentials::{
-        BigqueryCredentials, DatabricksCredentials, MySqlCredentials, PostgresCredentials,
-        SnowflakeCredentials, SqlServerCredentials,
+        BigqueryCredentials, Credential, DatabricksCredentials, MySqlCredentials,
+        PostgresCredentials, SnowflakeCredentials, SqlServerCredentials,
     },
     data_source_connections::{
         get_bigquery_client::get_bigquery_client, get_databricks_client::get_databricks_client,
@@ -19,16 +19,12 @@ use crate::{
     data_types::DataType,
 };
 
-use database::{enums::DataSourceType, models::DataSource, vault::read_secret};
+use database::{enums::DataSourceType, vault::read_secret};
 
 use super::{
-    bigquery_query::bigquery_query,
-    databricks_query::databricks_query,
-    mysql_query::mysql_query,
-    postgres_query::postgres_query,
-    redshift_query::redshift_query,
-    security_utils::{query_safety_filter, write_query_safety_filter},
-    snowflake_query::snowflake_query,
+    bigquery_query::bigquery_query, databricks_query::databricks_query, mysql_query::mysql_query,
+    postgres_query::postgres_query, redshift_query::redshift_query,
+    security_utils::query_safety_filter, snowflake_query::snowflake_query,
     sql_server_query::sql_server_query,
 };
 
@@ -70,13 +66,13 @@ async fn route_to_query(
         Err(e) => return Err(anyhow!(e)),
     };
 
-    let results = match data_source.type_ {
-        DataSourceType::Postgres | DataSourceType::Supabase => {
-            let credentials = match serde_json::from_str(&credentials_string) {
-                Ok(credentials) => credentials,
-                Err(e) => return Err(anyhow!(e)),
-            };
+    let credentials: Credential = match serde_json::from_str(&credentials_string) {
+        Ok(credentials) => credentials,
+        Err(e) => return Err(anyhow!(e)),
+    };
 
+    let results = match credentials {
+        Credential::Postgres(credentials) => {
             let (pg_pool, ssh_tunnel, temp_files) = match get_postgres_connection(&credentials)
                 .await
             {
@@ -100,9 +96,7 @@ async fn route_to_query(
 
             results
         }
-        DataSourceType::Redshift => {
-            let credentials: PostgresCredentials = serde_json::from_str(&credentials_string)?;
-
+        Credential::Redshift(credentials) => {
             let redshift_client = get_redshift_connection(&credentials).await?;
 
             let results = match redshift_query(redshift_client, sql.clone()).await {
@@ -115,9 +109,7 @@ async fn route_to_query(
 
             results
         }
-        DataSourceType::MySql | DataSourceType::Mariadb => {
-            let credentials: MySqlCredentials = serde_json::from_str(&credentials_string)?;
-
+        Credential::MySql(credentials) => {
             let (mysql_pool, ssh_tunnel, temp_files) = match get_mysql_connection(&credentials)
                 .await
             {
@@ -142,9 +134,7 @@ async fn route_to_query(
 
             results
         }
-        DataSourceType::BigQuery => {
-            let credentials: BigqueryCredentials = serde_json::from_str(&credentials_string)?;
-
+        Credential::Bigquery(credentials) => {
             let (bq_client, project_id) = match get_bigquery_client(&credentials).await {
                 Ok((bq_client, project_id)) => (bq_client, project_id),
                 Err(e) => {
@@ -163,9 +153,7 @@ async fn route_to_query(
 
             results
         }
-        DataSourceType::SqlServer => {
-            let credentials: SqlServerCredentials = serde_json::from_str(&credentials_string)?;
-
+        Credential::SqlServer(credentials) => {
             let (sql_server_pool, ssh_tunnel, temp_files) = match get_sql_server_connection(
                 &credentials,
             )
@@ -192,9 +180,7 @@ async fn route_to_query(
 
             results
         }
-        DataSourceType::Databricks => {
-            let credentials: DatabricksCredentials = serde_json::from_str(&credentials_string)?;
-
+        Credential::Databricks(credentials) => {
             let databricks_client = match get_databricks_client(&credentials).await {
                 Ok(databricks_client) => databricks_client,
                 Err(e) => {
@@ -213,9 +199,7 @@ async fn route_to_query(
 
             results
         }
-        DataSourceType::Snowflake => {
-            let credentials: SnowflakeCredentials = serde_json::from_str(&credentials_string)?;
-
+        Credential::Snowflake(credentials) => {
             let snowflake_client = match get_snowflake_client(&credentials).await {
                 Ok(snowflake_client) => snowflake_client,
                 Err(e) => {
