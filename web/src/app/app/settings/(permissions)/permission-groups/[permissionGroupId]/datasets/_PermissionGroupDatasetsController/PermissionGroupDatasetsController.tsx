@@ -8,7 +8,7 @@ import { Button } from 'antd';
 import { AppMaterialIcons } from '@/components/ui';
 import { PermissionGroupDatasetsListContainer } from './PermissionGroupDatasetsListContainer';
 import { useMemoizedFn } from 'ahooks';
-import { NewDatasetModal } from '@/components/features/Modals/NewDatasetModal';
+import { NewDatasetModal } from '@/components/features/modals2/NewDatasetModal';
 
 export const PermissionGroupDatasetsController: React.FC<{
   permissionGroupId: string;

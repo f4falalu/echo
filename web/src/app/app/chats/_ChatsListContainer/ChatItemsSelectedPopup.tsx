@@ -8,8 +8,8 @@ import { useUserConfigContextSelector } from '@/context/Users';
 import { useBusterCollectionListContextSelector } from '@/context/Collections';
 import { useMemoizedFn } from 'ahooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { SaveToCollectionsDropdown } from '@/components/features/Dropdowns/SaveToCollectionsDropdown';
-import { StatusBadgeButton } from '@/components/features/Lists/StatusBadgeIndicator';
+import { SaveToCollectionsDropdown } from '@/components/features/dropdowns2/SaveToCollectionsDropdown';
+import { StatusBadgeButton } from '@/components/features/lists2/StatusBadgeIndicator';
 
 export const ChatSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];

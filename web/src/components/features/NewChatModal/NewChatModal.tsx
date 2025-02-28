@@ -12,7 +12,7 @@ import { NewChatModalDataSourceSelect } from './NewChatModalDatasourceSelect';
 import { NoDatasets } from './NoDatasets';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useGetDatasets } from '@/api/buster_rest/datasets';
-import { NewDatasetModal } from '../Modals/NewDatasetModal';
+import { NewDatasetModal } from '../modals2/NewDatasetModal';
 
 const { TextArea } = Input;
 

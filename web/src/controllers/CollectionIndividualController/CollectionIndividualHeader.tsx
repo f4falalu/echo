@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
 import { AppMaterialIcons, EditableTitle } from '@/components/ui';
-import { FavoriteStar } from '@/components/features/Lists/FavoriteStar';
+import { FavoriteStar } from '@/components/features/lists2/FavoriteStar';
 import { ShareMenu } from '@/components/features/ShareMenu';
 import { BusterCollection, ShareAssetType } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui';

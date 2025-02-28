@@ -3,7 +3,7 @@ import type { MetricViewProps } from '../config';
 import { CodeCard } from '@/components/ui/card';
 import { useMetricIndividual, useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';
-import { SaveResetFilePopup } from '@/components/features/Popups/SaveResetFilePopup';
+import { SaveResetFilePopup } from '@/components/features/popups2/SaveResetFilePopup';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 
 export const MetricViewFile: React.FC<MetricViewProps> = React.memo(({ metricId }) => {

@@ -8,7 +8,7 @@ import { Button } from 'antd';
 import { useMemoizedFn } from 'ahooks';
 import { AppMaterialIcons } from '@/components/ui';
 import { UserTeamsListContainer } from './UserTeamsListContainer';
-import { NewTeamModal } from '@/components/features/Modals/NewTeamModal';
+import { NewTeamModal } from '@/components/features/modals2/NewTeamModal';
 
 export const UserTeamsController: React.FC<{ userId: string }> = ({ userId }) => {
   const { data: teams, refetch } = useGetUserTeams({ userId });

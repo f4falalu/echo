@@ -10,7 +10,7 @@ import React, { useMemo, useState } from 'react';
 import { Text } from '@/components/ui';
 import { OrganizationUserRoleText } from './config';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { ListUserItem } from '@/components/features/Lists';
+import { ListUserItem } from '@/components/features/lists2';
 
 export const ListUsersComponent: React.FC<{
   users: OrganizationUser[];
