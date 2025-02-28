@@ -6,9 +6,9 @@ use litellm::{
 use serde_json::Value;
 use std::{collections::HashMap, env, sync::Arc};
 use tokio::sync::{broadcast, RwLock};
+use crate::tools::ToolExecutor;
 use uuid::Uuid;
 
-use crate::utils::tools::ToolExecutor;
 use crate::models::AgentThread;
 
 #[derive(Debug, Clone)]
@@ -24,48 +24,7 @@ impl std::fmt::Display for AgentError {
 
 type MessageResult = Result<Message, AgentError>;
 
-/// A wrapper type that converts ToolCall parameters to Value before executing
-struct ToolCallExecutor<T: ToolExecutor> {
-    inner: Box<T>,
-}
-
-impl<T: ToolExecutor> ToolCallExecutor<T> {
-    fn new(inner: T) -> Self {
-        Self {
-            inner: Box::new(inner),
-        }
-    }
-}
-
-#[async_trait::async_trait]
-impl<T: ToolExecutor + Send + Sync> ToolExecutor for ToolCallExecutor<T>
-where
-    T::Params: serde::de::DeserializeOwned,
-    T::Output: serde::Serialize,
-{
-    type Output = Value;
-    type Params = Value;
-
-    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
-        let params = serde_json::from_value(params)?;
-        let result = self.inner.execute(params).await?;
-        Ok(serde_json::to_value(result)?)
-    }
-
-    fn get_schema(&self) -> Value {
-        self.inner.get_schema()
-    }
-
-    fn get_name(&self) -> String {
-        self.inner.get_name()
-    }
-
-    async fn is_enabled(&self) -> bool {
-        self.inner.is_enabled().await
-    }
-}
-
-// Add this near the top of the file, with other trait implementations
+// Box<T> implementation for ToolExecutor
 #[async_trait::async_trait]
 impl<T: ToolExecutor<Output = Value, Params = Value> + Send + Sync> ToolExecutor for Box<T> {
     type Output = Value;
@@ -265,22 +224,26 @@ impl Agent {
     /// # Arguments
     /// * `name` - The name of the tool, used to identify it in tool calls
     /// * `tool` - The tool implementation that will be executed
-    pub async fn add_tool(&self, name: String, tool: impl ToolExecutor<Output = Value> + 'static) {
+    pub async fn add_tool<T: ToolExecutor<Output = Value, Params = Value> + 'static>(
+        &self,
+        name: String,
+        tool: T,
+    ) {
         let mut tools = self.tools.write().await;
-        tools.insert(name, Box::new(ToolCallExecutor::new(tool)));
+        tools.insert(name, Box::new(tool));
     }
 
     /// Add multiple tools to the agent at once
     ///
     /// # Arguments
     /// * `tools` - HashMap of tool names and their implementations
-    pub async fn add_tools<E: ToolExecutor<Output = Value> + 'static>(
+    pub async fn add_tools<E: ToolExecutor<Output = Value, Params = Value> + 'static>(
         &self,
         tools: HashMap<String, E>,
     ) {
         let mut tools_map = self.tools.write().await;
         for (name, tool) in tools {
-            tools_map.insert(name, Box::new(ToolCallExecutor::new(tool)));
+            tools_map.insert(name, Box::new(tool));
         }
     }
 
@@ -574,6 +537,7 @@ mod tests {
     use async_trait::async_trait;
     use litellm::MessageProgress;
     use serde_json::{json, Value};
+    use crate::tools::ToolExecutor;
     use uuid::Uuid;
 
     fn setup() {

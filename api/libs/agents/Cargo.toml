@@ -13,9 +13,18 @@ thiserror = { workspace = true }
 async-trait = { workspace = true }
 uuid = { workspace = true }
 litellm = { path = "../litellm" }
+database = { path = "../database" }
+query_engine = { path = "../query_engine" }
 serde_json = { workspace = true }
 futures = { workspace = true }
 futures-util = { workspace = true }
+sqlparser = { workspace = true }
+chrono = { workspace = true }
+diesel = { workspace = true }
+diesel-async = { workspace = true }
+serde_yaml = { workspace = true }
+tracing = { workspace = true }
+indexmap = { workspace = true }
 
 # Development dependencies
 [dev-dependencies]

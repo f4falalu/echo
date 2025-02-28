@@ -1,6 +1,7 @@
 ---
 description: These are global rules and recommendations for the rust server.
-globs: *
+globs: 
+alwaysApply: true
 ---
 
 # Global Rules and Project Structure

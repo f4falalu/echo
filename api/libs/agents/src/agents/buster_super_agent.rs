@@ -5,20 +5,18 @@ use std::sync::Arc;
 use tokio::sync::broadcast;
 use uuid::Uuid;
 
-// These imports need to be updated once we migrate the tools
-// For now, we'll keep them as is and they'll need to be updated later
-use crate::utils::tools::agents_as_tools::{DashboardAgentTool, MetricAgentTool};
-use crate::utils::tools::file_tools::{
-    CreateDashboardFilesTool, CreateMetricFilesTool, ModifyDashboardFilesTool,
-    ModifyMetricFilesTool, SendAssetsToUserTool,
-};
-use crate::utils::tools::planning_tools::{CreatePlan, ReviewPlan};
 use crate::{
-    Agent, AgentError, AgentExt, AgentThread,
-    utils::tools::{
-        file_tools::{SearchDataCatalogTool, SearchFilesTool},
-        IntoValueTool, ToolExecutor,
+    tools::{
+        categories::{
+            file_tools::{
+                SearchDataCatalogTool, CreateDashboardFilesTool, CreateMetricFilesTool,
+                ModifyDashboardFilesTool, ModifyMetricFilesTool,
+            },
+            planning_tools::CreatePlan,
+        },
+        ToolExecutor, IntoValueTool,
     },
+    Agent, AgentError, AgentExt, AgentThread,
 };
 
 use litellm::Message as AgentMessage;

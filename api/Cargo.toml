@@ -4,7 +4,8 @@ members = [
     "libs/handlers",
     "libs/litellm",
     "libs/database",
-    "libs/agents"
+    "libs/agents",
+    "libs/query_engine"
 ]
 
 # Define shared dependencies for all workspace members
@@ -32,10 +33,37 @@ indexmap = { version = "2.2.6", features = ["serde"] }
 once_cell = "1.20.2"
 rustls = { version = "0.23", features = ["ring"] }
 rustls-native-certs = "0.8"
-sqlx = { version = "0.8", features = ["runtime-tokio", "tls-rustls", "postgres", "uuid", "chrono", "json"] }
+sqlx = { version = "0.8", features = ["runtime-tokio", "tls-rustls", "postgres", "uuid", "chrono", "json", "mysql", "bigdecimal"] }
 tokio-postgres = "0.7"
 tokio-postgres-rustls = "0.13"
 regex = "1.10.6"
+sqlparser = { version = "0.54.0", features = ["visitor"] }
+arrow = { version = "54.0.0", features = ["json"] }
+async-compression = { version = "0.4.11", features = ["tokio"] }
+axum = { version = "0.7.5", features = ["ws"] }
+base64 = "0.21"
+cohere-rust = "0.6.0"
+gcp-bigquery-client = "0.24.1"
+jsonwebtoken = "9.3.0"
+lazy_static = "1.4.0"
+num-traits = "0.2.19"
+rand = "0.8.5"
+redis = { version = "0.27.5", features = ["tokio-comp", "tokio-rustls-comp", "tls-rustls-webpki-roots"] }
+resend-rs = "0.10.0"
+sentry = { version = "0.35.0", features = ["tokio", "sentry-tracing"] }
+serde_urlencoded = "0.7.1"
+snowflake-api = "0.11.0"
+tempfile = "3.10.1"
+tiberius = { version = "0.12.2", default-features = false, features = ["chrono", "rust_decimal", "tds73", "time", "rustls", "sql-browser-tokio"] }
+tiktoken-rs = "0.6.0"
+tokio-stream = "0.1.15"
+tokio-util = { version = "0.7.11", features = ["compat"] }
+tower-http = { version = "0.6.2", features = ["cors", "trace", "compression-gzip"] }
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+url = "2.5.1"
+rayon = "1.10.0"
+diesel_migrations = "2.0.0"
+html-escape = "0.2.13"
 
 [package]
 name = "bi_api"
@@ -48,79 +76,61 @@ default-run = "bi_api"
 [dependencies]
 # Use workspace dependencies
 anyhow = { workspace = true }
+arrow = { workspace = true }
+async-compression = { workspace = true }
+async-trait = { workspace = true }
+axum = { workspace = true }
+base64 = { workspace = true }
+bb8-redis = { workspace = true }
 chrono = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
-tokio = { workspace = true }
-tracing = { workspace = true }
-uuid = { workspace = true }
+cohere-rust = { workspace = true }
 diesel = { workspace = true }
 diesel-async = { workspace = true }
-futures = { workspace = true }
-async-trait = { workspace = true }
-futures-util = { workspace = true }
-reqwest = { workspace = true }
+diesel_migrations = { workspace = true }
 dotenv = { workspace = true }
-bb8-redis = { workspace = true }
+futures = { workspace = true }
+futures-util = { workspace = true }
+gcp-bigquery-client = { workspace = true }
+html-escape = { workspace = true }
 indexmap = { workspace = true }
+jsonwebtoken = { workspace = true }
+lazy_static = { workspace = true }
+num-traits = { workspace = true }
 once_cell = { workspace = true }
+rand = { workspace = true }
+rayon = { workspace = true }
+redis = { workspace = true }
+regex = { workspace = true }
+reqwest = { workspace = true }
+resend-rs = { workspace = true }
 rustls = { workspace = true }
 rustls-native-certs = { workspace = true }
+sentry = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_urlencoded = { workspace = true }
+serde_yaml = { workspace = true }
+snowflake-api = { workspace = true }
 sqlx = { workspace = true }
+tempfile = { workspace = true }
+tiberius = { workspace = true }
+tiktoken-rs = { workspace = true }
+tokio = { workspace = true }
 tokio-postgres = { workspace = true }
 tokio-postgres-rustls = { workspace = true }
-serde_yaml = { workspace = true }
-regex = { workspace = true }
+tokio-stream = { workspace = true }
+tokio-util = { workspace = true }
+tower-http = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+url = { workspace = true }
+uuid = { workspace = true }
 
 # Local dependencies
 handlers = { path = "libs/handlers" }
 litellm = { path = "libs/litellm" }
 database = { path = "libs/database" }
 agents = { path = "libs/agents" }
-
-# Other dependencies specific to the main app
-arrow = { version = "54.0.0", features = ["json"] }
-async-compression = { version = "0.4.11", features = ["tokio"] }
-axum = { version = "0.7.5", features = ["ws"] }
-base64 = "0.21"
-cohere-rust = "0.6.0"
-gcp-bigquery-client = "0.24.1"
-jsonwebtoken = "9.3.0"
-lazy_static = "1.4.0"
-num-traits = "0.2.19"
-rand = "0.8.5"
-redis = { version = "0.27.5", features = [
-    "tokio-comp",
-    "tokio-rustls-comp",
-    "tls-rustls-webpki-roots",
-] }
-resend-rs = "0.10.0"
-sentry = { version = "0.35.0", features = ["tokio", "sentry-tracing"] }
-serde_urlencoded = "0.7.1"
-snowflake-api = "0.11.0"
-sqlparser = { version = "0.53.0", features = ["visitor"] }
-tempfile = "3.10.1"
-tiberius = { version = "0.12.2", default-features = false, features = [
-    "chrono",
-    "rust_decimal",
-    "tds73",
-    "time",
-    "rustls",
-    "sql-browser-tokio",
-] }
-tiktoken-rs = "0.6.0"
-tokio-stream = "0.1.15"
-tokio-util = { version = "0.7.11", features = ["compat"] }
-tower-http = { version = "0.6.2", features = [
-    "cors",
-    "trace",
-    "compression-gzip",
-] }
-tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
-url = "2.5.1"
-rayon = "1.10.0"
-diesel_migrations = "2.0.0"
-html-escape = "0.2.13"
 
 [dev-dependencies]
 mockito = { workspace = true }
