@@ -7,12 +7,12 @@ function tableRowNewTop2(props: iconProps) {
   const title = props.title || '12px table row new top 2';
 
   return (
-    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+    <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
       <g fill="currentColor">
         <rect
           height="5.5"
-          width="12"
+          height="1em"
           fill="currentColor"
           rx="2.25"
           ry="2.25"

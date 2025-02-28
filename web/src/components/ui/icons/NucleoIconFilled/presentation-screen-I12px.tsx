@@ -22,7 +22,7 @@ function presentationScreen(props: iconProps) {
           d="M9,3.5c-.414,0-.75-.336-.75-.75V1.5c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v1.25c0,.414-.336,.75-.75,.75Z"
           fill="currentColor"
         />
-        <rect height="12" width="16" fill="currentColor" rx="2.75" ry="2.75" x="1" y="2" />
+        <rect height="1em" width="16" fill="currentColor" rx="2.75" ry="2.75" x="1" y="2" />
       </g>
     </svg>
   );

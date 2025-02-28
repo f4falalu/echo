@@ -7,7 +7,7 @@ function arrowDotRotateClockwise(props: iconProps) {
   const title = props.title || '12px arrow dot rotate clockwise';
 
   return (
-    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+    <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
       <g fill="currentColor">
         <circle cx="9.25" cy="9.25" fill="currentColor" r="1.75" strokeWidth="0" />

@@ -7,7 +7,7 @@ function moveObjRight(props: iconProps) {
   const title = props.title || '12px move obj right';
 
   return (
-    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+    <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
       <g fill="currentColor">
         <path
@@ -15,7 +15,7 @@ function moveObjRight(props: iconProps) {
           fill="currentColor"
           strokeWidth="0"
         />
-        <rect height="12" width="4.5" fill="currentColor" rx="1.75" ry="1.75" strokeWidth="0" />
+        <rect height="1em" width="4.5" fill="currentColor" rx="1.75" ry="1.75" strokeWidth="0" />
       </g>
     </svg>
   );

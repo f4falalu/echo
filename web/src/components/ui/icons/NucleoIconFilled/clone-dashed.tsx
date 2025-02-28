@@ -7,7 +7,7 @@ function cloneDashed(props: iconProps) {
   const title = props.title || '12px clone dashed';
 
   return (
-    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+    <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
       <g fill="currentColor">
         <path

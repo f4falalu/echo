@@ -27,7 +27,7 @@ function mouseCable(props: iconProps) {
           strokeWidth={strokewidth}
         />
         <rect
-          height="12"
+          height="1em"
           width="8.5"
           fill="none"
           rx="3.5"

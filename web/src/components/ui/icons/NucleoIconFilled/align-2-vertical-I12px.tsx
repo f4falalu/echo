@@ -14,7 +14,7 @@ function align2Vertical(props: iconProps) {
           d="M16.25,9.75H1.75c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h14.5c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"
           fill="currentColor"
         />
-        <rect height="12" width="6" fill="currentColor" rx="1.75" ry="1.75" x="6" y="3" />
+        <rect height="1em" width="6" fill="currentColor" rx="1.75" ry="1.75" x="6" y="3" />
       </g>
     </svg>
   );

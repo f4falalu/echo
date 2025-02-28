@@ -7,7 +7,7 @@ function folder(props: iconProps) {
   const title = props.title || '12px folder';
 
   return (
-    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+    <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
       <g fill="currentColor">
         <path
@@ -17,7 +17,7 @@ function folder(props: iconProps) {
         />
         <rect
           height="7"
-          width="12"
+          height="1em"
           fill="currentColor"
           rx="2.75"
           ry="2.75"

@@ -51,7 +51,7 @@ function dresser(props: iconProps) {
           strokeWidth={strokewidth}
         />
         <rect
-          height="12"
+          height="1em"
           width="12.5"
           fill="none"
           rx="2"

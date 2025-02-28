@@ -42,7 +42,7 @@ function hatSanta(props: iconProps) {
         />
         <rect
           height="3.5"
-          width="12"
+          height="1em"
           fill="none"
           rx="1.5"
           ry="1.5"
