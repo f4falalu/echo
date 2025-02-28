@@ -35,7 +35,7 @@ pub struct MessageWithUser {
     pub user_attributes: Value,
 }
 
-pub async fn get_chat(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWithMessages> {
+pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWithMessages> {
     // Run thread and messages queries concurrently
     let thread_future = {
         let mut conn = match get_pg_pool().get().await {
@@ -145,7 +145,7 @@ pub async fn get_chat(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWithMessages
 
             ChatMessage {
                 id: msg.id,
-                request_message: crate::messages::types::ThreadUserMessage {
+                request_message: crate::messages::types::ChatUserMessage {
                     request: msg.request,
                     sender_id: msg.user_id,
                     sender_name: msg.user_name.unwrap_or_else(|| "Unknown".to_string()),

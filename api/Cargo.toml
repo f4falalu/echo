@@ -125,6 +125,7 @@ tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 url = { workspace = true }
 uuid = { workspace = true }
+sqlparser = { workspace = true }
 
 # Local dependencies
 handlers = { path = "libs/handlers" }

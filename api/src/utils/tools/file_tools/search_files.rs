@@ -20,7 +20,7 @@ use crate::{
     utils::{agent::Agent, tools::ToolExecutor},
 };
 
-use litellm::{ChatCompletionRequest, LiteLLMClient, Message, Metadata, ResponseFormat, ToolCall};
+use litellm::{ChatCompletionRequest, LiteLLMClient, AgentMessage, Metadata, ResponseFormat, ToolCall};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SearchFilesParams {
@@ -114,7 +114,7 @@ impl SearchFilesTool {
         let llm_client = LiteLLMClient::new(None, None);
         let request = ChatCompletionRequest {
             model: "o3-mini".to_string(),
-            messages: vec![Message::User {
+            messages: vec![AgentMessage::User {
                 id: None,
                 content: prompt,
                 name: None,
@@ -141,7 +141,7 @@ impl SearchFilesTool {
 
         // Parse LLM response
         let content = match &response.choices[0].message {
-            Message::Assistant {
+            AgentMessage::Assistant {
                 content: Some(content),
                 ..
             } => {

@@ -1,6 +1,6 @@
 use anyhow::Result;
 use async_trait::async_trait;
-use litellm::Message as AgentMessage;
+use litellm::AgentMessage as AgentMessage;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::sync::Arc;

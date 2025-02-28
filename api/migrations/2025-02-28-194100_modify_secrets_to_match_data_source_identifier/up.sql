@@ -2,15 +2,13 @@
 
 -- Create secrets in vault with IDs matching data source IDs
 -- This allows direct lookup of secrets using the data source ID
-INSERT INTO vault.secrets (id, value, created_at, updated_at)
+INSERT INTO vault.secrets (id, secret)
 SELECT 
     ds.id, 
     COALESCE(
-        (SELECT value FROM vault.secrets WHERE id = ds.secret_id),
-        '{}'::jsonb
-    ),
-    NOW(),
-    NOW()
+        (SELECT secret FROM vault.secrets WHERE id = ds.secret_id),
+        '{}'::text
+    )
 FROM 
     public.data_sources ds
 WHERE 

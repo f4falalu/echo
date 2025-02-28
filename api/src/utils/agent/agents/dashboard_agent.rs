@@ -15,7 +15,7 @@ use crate::utils::{
     },
 };
 
-use litellm::Message as AgentMessage;
+use litellm::AgentMessage as AgentMessage;
 use tokio::sync::broadcast;
 
 pub struct DashboardAgent {

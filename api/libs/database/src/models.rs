@@ -81,7 +81,7 @@ pub struct MetricFile {
 #[diesel(belongs_to(Organization))]
 #[diesel(belongs_to(User, foreign_key = created_by))]
 #[diesel(table_name = chats)]
-pub struct Thread {
+pub struct Chat {
     pub id: Uuid,
     pub title: String,
     pub organization_id: Uuid,

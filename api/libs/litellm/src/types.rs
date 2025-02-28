@@ -5,7 +5,7 @@ use std::collections::HashMap;
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ChatCompletionRequest {
     pub model: String,
-    pub messages: Vec<Message>,
+    pub messages: Vec<AgentMessage>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub store: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -103,7 +103,7 @@ pub enum MessageProgress {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "role")]
 #[serde(rename_all = "lowercase")]
-pub enum Message {
+pub enum AgentMessage {
     #[serde(alias = "system")]
     Developer {
         #[serde(skip)]
@@ -147,7 +147,7 @@ pub enum Message {
 
 // Helper methods for Message
 // Intentionally leaving out name for now.
-impl Message {
+impl AgentMessage {
     pub fn developer(content: impl Into<String>) -> Self {
         Self::Developer {
             id: None,
@@ -362,7 +362,7 @@ pub struct ChatCompletionResponse {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Choice {
     pub index: i32,
-    pub message: Message,
+    pub message: AgentMessage,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub delta: Option<Delta>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -449,8 +449,8 @@ mod tests {
         let request = ChatCompletionRequest {
             model: "gpt-4o".to_string(),
             messages: vec![
-                Message::developer("You are a helpful assistant."),
-                Message::user("Hello!"),
+                AgentMessage::developer("You are a helpful assistant."),
+                AgentMessage::user("Hello!"),
             ],
             ..Default::default()
         };
@@ -472,7 +472,7 @@ mod tests {
 
         // Check first message (developer)
         match &deserialized.messages[0] {
-            Message::Developer { content, .. } => {
+            AgentMessage::Developer { content, .. } => {
                 assert_eq!(content, "You are a helpful assistant.");
             }
             _ => panic!("First message should be developer role"),
@@ -480,7 +480,7 @@ mod tests {
 
         // Check second message (user)
         match &deserialized.messages[1] {
-            Message::User { content, .. } => {
+            AgentMessage::User { content, .. } => {
                 assert_eq!(content, "Hello!");
             }
             _ => panic!("Second message should be user role"),
@@ -497,7 +497,7 @@ mod tests {
             system_fingerprint: Some("fp_44709d6fcb".to_string()),
             choices: vec![Choice {
                 index: 0,
-                message: Message::assistant(
+                message: AgentMessage::assistant(
                     Some("\n\nHello there, how may I assist you today?".to_string()),
                     None,
                     None,
@@ -547,7 +547,7 @@ mod tests {
 
         // Verify message
         match &choice.message {
-            Message::Assistant {
+            AgentMessage::Assistant {
                 content,
                 tool_calls,
                 ..
@@ -578,7 +578,7 @@ mod tests {
     async fn test_chat_completion_request_with_tools() {
         let request = ChatCompletionRequest {
             model: "o1".to_string(),
-            messages: vec![Message::user("Hello whats the weather in vineyard ut!")],
+            messages: vec![AgentMessage::user("Hello whats the weather in vineyard ut!")],
             max_completion_tokens: Some(100),
             tools: Some(vec![Tool {
                 tool_type: "function".to_string(),
@@ -619,7 +619,7 @@ mod tests {
         // Verify message
         assert_eq!(deserialized.messages.len(), 1);
         match &deserialized.messages[0] {
-            Message::User { content, .. } => {
+            AgentMessage::User { content, .. } => {
                 assert_eq!(content, "Hello whats the weather in vineyard ut!");
             }
             _ => panic!("Expected user message"),
@@ -645,7 +645,7 @@ mod tests {
             choices: vec![Choice {
                 finish_reason: Some("length".to_string()),
                 index: 0,
-                message: Message::assistant(Some("".to_string()), None, None, None, None, None),
+                message: AgentMessage::assistant(Some("".to_string()), None, None, None, None, None),
                 delta: None,
                 logprobs: None,
             }],
@@ -685,7 +685,7 @@ mod tests {
 
         // Verify message is empty
         match &choice.message {
-            Message::Assistant {
+            AgentMessage::Assistant {
                 content,
                 tool_calls,
                 ..
@@ -713,8 +713,8 @@ mod tests {
         let request = ChatCompletionRequest {
             model: "o1".to_string(),
             messages: vec![
-                Message::developer("You are a helpful assistant."),
-                Message::user("Hello!"),
+                AgentMessage::developer("You are a helpful assistant."),
+                AgentMessage::user("Hello!"),
             ],
             stream: Some(true),
             ..Default::default()
@@ -734,13 +734,13 @@ mod tests {
         // Verify messages
         assert_eq!(deserialized.messages.len(), 2);
         match &deserialized.messages[0] {
-            Message::Developer { content, .. } => {
+            AgentMessage::Developer { content, .. } => {
                 assert_eq!(content, "You are a helpful assistant.");
             }
             _ => panic!("First message should be developer role"),
         }
         match &deserialized.messages[1] {
-            Message::User { content, .. } => {
+            AgentMessage::User { content, .. } => {
                 assert_eq!(content, "Hello!");
             }
             _ => panic!("Second message should be user role"),
@@ -864,7 +864,7 @@ mod tests {
         // Test request with function tool
         let request = ChatCompletionRequest {
             model: "gpt-4o".to_string(),
-            messages: vec![Message::user("What's the weather like in Boston today?")],
+            messages: vec![AgentMessage::user("What's the weather like in Boston today?")],
             tools: Some(vec![Tool {
                 tool_type: "function".to_string(),
                 function: json!({
@@ -900,7 +900,7 @@ mod tests {
         // Verify request fields
         assert_eq!(deserialized_req.model, "gpt-4o");
         match &deserialized_req.messages[0] {
-            Message::User { content, .. } => {
+            AgentMessage::User { content, .. } => {
                 assert_eq!(content, "What's the weather like in Boston today?");
             }
             _ => panic!("Expected user message"),
@@ -921,7 +921,7 @@ mod tests {
             model: "gpt-4o-mini".to_string(),
             choices: vec![Choice {
                 index: 0,
-                message: Message::assistant(
+                message: AgentMessage::assistant(
                     None,
                     None,
                     Some(vec![ToolCall {
@@ -970,7 +970,7 @@ mod tests {
         assert_eq!(choice.finish_reason, Some("tool_calls".to_string()));
 
         match &choice.message {
-            Message::Assistant {
+            AgentMessage::Assistant {
                 id,
                 content,
                 tool_calls,

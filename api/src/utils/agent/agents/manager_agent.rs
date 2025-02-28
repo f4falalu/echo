@@ -19,7 +19,7 @@ use crate::utils::{
     },
 };
 
-use litellm::Message as AgentMessage;
+use litellm::AgentMessage as AgentMessage;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ManagerAgentOutput {

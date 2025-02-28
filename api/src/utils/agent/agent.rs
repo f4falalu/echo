@@ -1,6 +1,6 @@
 use anyhow::Result;
 use litellm::{
-    ChatCompletionRequest, DeltaToolCall, FunctionCall, LiteLLMClient, Message, Metadata, Tool,
+    ChatCompletionRequest, DeltaToolCall, FunctionCall, LiteLLMClient, AgentMessage, Metadata, Tool,
     ToolCall, ToolChoice,
 };
 use serde_json::Value;
@@ -23,7 +23,7 @@ impl std::fmt::Display for AgentError {
     }
 }
 
-type MessageResult = Result<Message, AgentError>;
+type MessageResult = Result<AgentMessage, AgentError>;
 
 /// A wrapper type that converts ToolCall parameters to Value before executing
 struct ToolCallExecutor<T: ToolExecutor> {
@@ -244,7 +244,7 @@ impl Agent {
     }
 
     /// Get the complete conversation history of the current thread
-    pub async fn get_conversation_history(&self) -> Option<Vec<Message>> {
+    pub async fn get_conversation_history(&self) -> Option<Vec<AgentMessage>> {
         self.current_thread
             .read()
             .await
@@ -253,7 +253,7 @@ impl Agent {
     }
 
     /// Update the current thread with a new message
-    async fn update_current_thread(&self, message: Message) -> Result<()> {
+    async fn update_current_thread(&self, message: AgentMessage) -> Result<()> {
         let mut thread_lock = self.current_thread.write().await;
         if let Some(thread) = thread_lock.as_mut() {
             thread.messages.push(message);
@@ -296,7 +296,7 @@ impl Agent {
     ///
     /// # Returns
     /// * A Result containing the final Message from the assistant
-    pub async fn process_thread(&self, thread: &AgentThread) -> Result<Message> {
+    pub async fn process_thread(&self, thread: &AgentThread) -> Result<AgentMessage> {
         let mut rx = self.process_thread_streaming(thread).await?;
 
         let mut final_message = None;
@@ -336,7 +336,7 @@ impl Agent {
                 },
                 _ = shutdown_rx.recv() => {
                     let _ = agent_clone.get_stream_sender().await.send(
-                        Ok(Message::assistant(
+                        Ok(AgentMessage::assistant(
                             Some("shutdown_message".to_string()),
                             Some("Processing interrupted due to shutdown signal".to_string()),
                             None,
@@ -364,7 +364,7 @@ impl Agent {
         }
 
         if recursion_depth >= 30 {
-            let message = Message::assistant(
+            let message = AgentMessage::assistant(
                 Some("max_recursion_depth_message".to_string()),
                 Some("I apologize, but I've reached the maximum number of actions (30). Please try breaking your request into smaller parts.".to_string()),
                 None,
@@ -405,11 +405,11 @@ impl Agent {
 
         // Create the assistant message
         let message = match llm_message {
-            Message::Assistant {
+            AgentMessage::Assistant {
                 content,
                 tool_calls,
                 ..
-            } => Message::assistant(None, content.clone(), tool_calls.clone(), None, None, Some(self.name.clone())),
+            } => AgentMessage::assistant(None, content.clone(), tool_calls.clone(), None, None, Some(self.name.clone())),
             _ => return Err(anyhow::anyhow!("Expected assistant message from LLM")),
         };
 
@@ -420,7 +420,7 @@ impl Agent {
         self.update_current_thread(message.clone()).await?;
 
         // If this is an auto response without tool calls, it means we're done
-        if let Message::Assistant {
+        if let AgentMessage::Assistant {
             tool_calls: None, ..
         } = &llm_message
         {
@@ -428,7 +428,7 @@ impl Agent {
         }
 
         // If the LLM wants to use tools, execute them and continue
-        if let Message::Assistant {
+        if let AgentMessage::Assistant {
             tool_calls: Some(tool_calls),
             ..
         } = &llm_message
@@ -442,7 +442,7 @@ impl Agent {
                     let result = tool.execute(params).await?;
                     println!("Tool Call result: {:?}", result);
                     let result_str = serde_json::to_string(&result)?;
-                    let tool_message = Message::tool(
+                    let tool_message = AgentMessage::tool(
                         None,
                         result_str,
                         tool_call.id.clone(),
@@ -560,7 +560,7 @@ pub trait AgentExt {
         (*self.get_agent()).process_thread_streaming(thread).await
     }
 
-    async fn process_thread(&self, thread: &AgentThread) -> Result<Message> {
+    async fn process_thread(&self, thread: &AgentThread) -> Result<AgentMessage> {
         (*self.get_agent()).process_thread(thread).await
     }
 
@@ -599,7 +599,7 @@ mod tests {
             tool_id: String,
             progress: MessageProgress,
         ) -> Result<()> {
-            let message = Message::tool(
+            let message = AgentMessage::tool(
                 None,
                 content,
                 tool_id,
@@ -689,7 +689,7 @@ mod tests {
         let thread = AgentThread::new(
             None,
             Uuid::new_v4(),
-            vec![Message::user("Hello, world!".to_string())],
+            vec![AgentMessage::user("Hello, world!".to_string())],
         );
 
         let response = match agent.process_thread(&thread).await {
@@ -722,7 +722,7 @@ mod tests {
         let thread = AgentThread::new(
             None,
             Uuid::new_v4(),
-            vec![Message::user(
+            vec![AgentMessage::user(
                 "What is the weather in vineyard ut?".to_string(),
             )],
         );
@@ -755,7 +755,7 @@ mod tests {
         let thread = AgentThread::new(
             None,
             Uuid::new_v4(),
-            vec![Message::user(
+            vec![AgentMessage::user(
                 "What is the weather in vineyard ut and san francisco?".to_string(),
             )],
         );
