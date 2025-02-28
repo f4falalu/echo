@@ -29,10 +29,16 @@ const itemVariants = cva(
         className: 'bg-nav-item-select hover:bg-nav-item-select'
       },
       {
+        active: false,
+        disabled: true,
+        variant: 'default',
+        className: 'text-text-disabled! bg-transparent'
+      },
+      {
         active: true,
         disabled: false,
         variant: 'emphasized',
-        className: 'bg-nav-item-select hover:bg-nav-item-select'
+        className: 'bg-nav-item-select hover:bg-nav-item-select '
       },
       {
         active: false,
@@ -56,8 +62,10 @@ export const SidebarItem: React.FC<ISidebarItem & VariantProps<typeof itemVarian
 
     return (
       <ItemNode href={route} className={cn(itemVariants({ active, disabled, variant }))}>
-        <span className="text-icon-size text-icon-color">{icon}</span>
-        <span className="text-foreground truncate">{label}</span>
+        <span className={cn('text-icon-size text-icon-color', { 'text-text-disabled': disabled })}>
+          {icon}
+        </span>
+        <span className="truncate">{label}</span>
       </ItemNode>
     );
   }
