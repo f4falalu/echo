@@ -7,7 +7,7 @@ import { useMemoizedFn } from 'ahooks';
 import { BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { ChatSelectedOptionPopup } from './ChatItemsSelectedPopup';
 import { BusterList, ListEmptyStateWithButton } from '@/components/ui/list';
-import { FavoriteStar, getShareStatus, StatusBadgeIndicator } from '@/components/features/lists';
+import { FavoriteStar, getShareStatus, StatusBadgeIndicator } from '@/components/features/Lists';
 import { useCreateListByDate } from '@/components/ui/list/useCreateListByDate';
 
 export const ChatItemsContainer: React.FC<{
