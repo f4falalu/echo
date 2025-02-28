@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { SidebarGroup } from './SidebarCollapsible';
+import { SidebarCollapsible } from './SidebarCollapsible';
 //import { Home, Settings, User } from 'lucide-react';
 import { HouseModern, MapSettings, User } from '../icons/NucleoIconOutlined';
 import { BusterRoutes } from '@/routes';
 
-const meta: Meta<typeof SidebarGroup> = {
-  title: 'UI/Sidebar/SidebarGroup',
-  component: SidebarGroup,
+const meta: Meta<typeof SidebarCollapsible> = {
+  title: 'UI/Sidebar/SidebarCollapsible',
+  component: SidebarCollapsible,
   parameters: {
     layout: 'centered'
   },
@@ -20,7 +20,7 @@ const meta: Meta<typeof SidebarGroup> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof SidebarGroup>;
+type Story = StoryObj<typeof SidebarCollapsible>;
 
 export const Default: Story = {
   args: {

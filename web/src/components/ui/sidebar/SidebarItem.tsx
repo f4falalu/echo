@@ -9,11 +9,11 @@ const itemVariants = cva(
   {
     variants: {
       variant: {
-        default: 'hover:bg-item-hover text-text-default',
+        default: 'hover:bg-nav-item-hover text-text-default',
         emphasized: 'shadow bg-background border border-border text-text-default'
       },
       active: {
-        true: '',
+        true: 'cursor-default',
         false: ''
       },
       disabled: {

@@ -19,15 +19,14 @@ const SidebarTrigger: React.FC<SidebarTriggerProps> = React.memo(({ label, isOpe
     <div
       className={cn(
         'flex items-center gap-1 rounded px-1.5 py-1 text-sm transition-colors',
-        'hover:text-text-default text-text-secondary',
+        'text-text-secondary hover:bg-nav-item-hover',
         'group cursor-pointer'
       )}>
       <span className="">{label}</span>
       <div
         className={cn(
           'text-icon-color text-2xs -rotate-90 transition-transform duration-200',
-          isOpen && 'rotate-0',
-          'group-hover:text-text-default'
+          isOpen && 'rotate-0'
         )}>
         <CaretDown />
       </div>
@@ -35,23 +34,27 @@ const SidebarTrigger: React.FC<SidebarTriggerProps> = React.memo(({ label, isOpe
   );
 });
 
-export const SidebarGroup: React.FC<ISidebarGroup> = React.memo(({ label, items }) => {
-  const [isOpen, setIsOpen] = React.useState(false);
+export const SidebarCollapsible: React.FC<ISidebarGroup & { activeItem?: string }> = React.memo(
+  ({ label, items, activeItem, defaultOpen = true }) => {
+    const [isOpen, setIsOpen] = React.useState(defaultOpen);
 
-  return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-0.5">
-      <CollapsibleTrigger asChild className="w-full">
-        <button className="w-full text-left">
-          <SidebarTrigger label={label} isOpen={isOpen} />
-        </button>
-      </CollapsibleTrigger>
-      <CollapsibleContent className="data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up pl-0">
-        <div className="space-y-0.5">
-          {items.map((item) => (
-            <SidebarItem key={item.id} {...item} />
-          ))}
-        </div>
-      </CollapsibleContent>
-    </Collapsible>
-  );
-});
+    return (
+      <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-0.5">
+        <CollapsibleTrigger asChild className="w-full">
+          <button className="w-full text-left">
+            <SidebarTrigger label={label} isOpen={isOpen} />
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up pl-0">
+          <div className="space-y-0.5">
+            {items.map((item) => (
+              <SidebarItem key={item.id} {...item} active={activeItem === item.id || item.active} />
+            ))}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    );
+  }
+);
+
+SidebarCollapsible.displayName = 'SidebarCollapsible';

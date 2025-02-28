@@ -13,6 +13,7 @@ export interface ISidebarItem {
 export interface ISidebarGroup {
   label: string;
   items: ISidebarItem[];
+  defaultOpen?: boolean; //will default to true
 }
 
 export interface ISidebarList {
