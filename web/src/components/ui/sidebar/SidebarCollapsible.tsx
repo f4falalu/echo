@@ -20,7 +20,7 @@ const SidebarTrigger: React.FC<SidebarTriggerProps> = React.memo(({ label, isOpe
       className={cn(
         'flex items-center gap-1 rounded px-1.5 py-1 text-base transition-colors',
         'text-text-secondary hover:bg-nav-item-hover',
-        'group cursor-pointer'
+        'group min-h-6 cursor-pointer'
       )}>
       <span className="">{label}</span>
 

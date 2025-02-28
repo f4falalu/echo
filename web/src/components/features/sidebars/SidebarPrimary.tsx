@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useMemo } from 'react';
 import { Sidebar } from '@/components/ui/sidebar/Sidebar';
 import { BusterLogoWithText } from '@/assets/svg/BusterLogoWithText';
@@ -10,6 +12,8 @@ import type { BusterUserFavorite } from '@/api/asset_interfaces/users';
 import { Button } from '@/components/ui/buttons';
 import { Tooltip } from '@/components/ui/tooltip/Tooltip';
 import Link from 'next/link';
+import { useUserConfigContextSelector } from '@/context/Users';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 
 const topItems: ISidebarList = {
   items: [
@@ -96,13 +100,13 @@ const tryGroup = (onClickInvitePeople: () => void, onClickLeaveFeedback: () => v
   ]
 });
 
-export const SidebarPrimary: React.FC<{
-  isAdmin: boolean;
-  activePage: string;
-  favorites: BusterUserFavorite[] | null;
-  onClickInvitePeople: () => void;
-  onClickLeaveFeedback: () => void;
-}> = React.memo(({ isAdmin, activePage, favorites, onClickInvitePeople, onClickLeaveFeedback }) => {
+export const SidebarPrimary = React.memo(() => {
+  const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
+  const favorites = useUserConfigContextSelector((state) => state.userFavorites);
+  const currentRoute = useAppLayoutContextSelector((x) => x.currentRoute);
+  const onToggleSupportModal = useAppLayoutContextSelector((s) => s.onToggleSupportModal);
+  const onToggleInviteModal = useAppLayoutContextSelector((s) => s.onToggleInviteModal);
+
   const sidebarItems: SidebarProps['content'] = useMemo(() => {
     const items = [topItems];
 
@@ -116,13 +120,13 @@ export const SidebarPrimary: React.FC<{
       items.push(favoritesDropdown(favorites));
     }
 
-    items.push(tryGroup(onClickInvitePeople, onClickLeaveFeedback));
+    items.push(tryGroup(onToggleInviteModal, onToggleSupportModal));
 
     return items;
-  }, [isAdmin, activePage]);
+  }, [isAdmin, favorites, currentRoute]);
 
   return (
-    <Sidebar content={sidebarItems} header={<SidebarPrimaryHeader />} activeItem={activePage} />
+    <Sidebar content={sidebarItems} header={<SidebarPrimaryHeader />} activeItem={currentRoute} />
   );
 });
 

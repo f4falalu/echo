@@ -31,7 +31,7 @@ export class GlobalErrorComponent extends Component<Props, State> {
         <div
           className="bg-opacity-90 flex min-h-screen w-screen flex-col items-center justify-center bg-linear-to-br from-gray-50 to-gray-200 p-8 backdrop-blur-xs backdrop-brightness-95 backdrop-filter"
           role="alert">
-          <Card>
+          <Card className="-mt-10">
             <CardContent>
               <div className="flex flex-col gap-4">
                 <h1 className="animate-fade-in text-2xl font-semibold">

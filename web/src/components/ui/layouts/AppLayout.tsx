@@ -104,7 +104,7 @@ const PageLayout: React.FC<
           floating && 'overflow-hidden rounded border'
         )}>
         {header && <AppContentHeader>{header}</AppContentHeader>}
-        <AppContentPage scrollable={scrollable}>{children}</AppContentPage>
+        <AppContentPage>{children}</AppContentPage>
       </div>
     </div>
   );
