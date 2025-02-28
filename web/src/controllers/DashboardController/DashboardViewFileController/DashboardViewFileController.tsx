@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { CodeCard } from '@/components/ui/card';
 import { useMemoizedFn } from 'ahooks';
-import { SaveResetFilePopup } from '@/components/features/popups2/SaveResetFilePopup';
+import { SaveResetFilePopup } from '@/components/features/popups/SaveResetFilePopup';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { DashboardViewProps } from '../config';
 import {

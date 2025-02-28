@@ -2,7 +2,7 @@ import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useBusterCollectionListContextSelector } from '@/context/Collections';
 import { useMemoizedFn } from 'ahooks';
 import React, { useState } from 'react';
-import { SaveToCollectionsDropdown } from '../dropdowns2/SaveToCollectionsDropdown';
+import { SaveToCollectionsDropdown } from '../dropdowns/SaveToCollectionsDropdown';
 import { CollectionButton } from './CollectionsButton';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 

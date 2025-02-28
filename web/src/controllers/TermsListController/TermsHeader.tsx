@@ -12,7 +12,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useBusterTermsIndividual } from '@/context/Terms';
 import { useMemoizedFn } from 'ahooks';
-import { NewTermModal } from '@/components/features/modals2/NewTermModal';
+import { NewTermModal } from '@/components/features/modals/NewTermModal';
 
 export const TermsHeader: React.FC<{
   termId?: string;

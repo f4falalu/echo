@@ -1,7 +1,7 @@
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';
 import React from 'react';
-import { SaveToDashboardDropdown } from '../dropdowns2/SaveToDashboardDropdown';
+import { SaveToDashboardDropdown } from '../dropdowns/SaveToDashboardDropdown';
 import { Button } from 'antd';
 import { AppMaterialIcons } from '@/components/ui';
 import type { BusterMetric } from '@/api/asset_interfaces';
