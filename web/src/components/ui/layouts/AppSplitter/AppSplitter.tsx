@@ -235,7 +235,7 @@ export const AppSplitter = React.memo(
       useImperativeHandle(ref, imperativeHandleMethods);
 
       return (
-        <div className={cn('h-full w-full', className)} ref={containerRef}>
+        <div className={cn('flex h-full w-full flex-col', className)} ref={containerRef}>
           <SplitPane
             autoSizeId={autoSaveId}
             initialReady={initialReady}

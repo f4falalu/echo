@@ -32,7 +32,6 @@ export const AppSidebar: React.FC<{
   const createPageLink = useAppLayoutContextSelector((s) => s.createPageLink);
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
   const currentSegment = useAppLayoutContextSelector((s) => s.currentSegment);
-  const openChatsModal = useAppLayoutContextSelector((s) => s.openChatsModal);
   const isUserRegistered = useUserConfigContextSelector((state) => state.isUserRegistered);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const isScrolledSidebar = (useScroll(sidebarRef)?.top || 0) > 0;

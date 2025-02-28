@@ -8,6 +8,7 @@ import {
   createContext,
   ContextSelector
 } from '@fluentui/react-context-selector';
+import { Toaster } from '@/components/ui/toaster/Toaster';
 
 export type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
@@ -193,7 +194,12 @@ const BusterNotifications = createContext<ReturnType<typeof useBusterNotificatio
 export const BusterNotificationsProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const value = useBusterNotificationsInternal();
 
-  return <BusterNotifications.Provider value={value}>{children}</BusterNotifications.Provider>;
+  return (
+    <BusterNotifications.Provider value={value}>
+      {children}
+      <Toaster />
+    </BusterNotifications.Provider>
+  );
 };
 
 const useBusterNotificationsSelector = <T,>(

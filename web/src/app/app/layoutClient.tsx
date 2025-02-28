@@ -1,31 +1,18 @@
-'use client';
-
-import { AppProviders } from '@/context/AppProviders';
 import React from 'react';
-import { AppLayout } from '@/controllers/AppLayout';
-import type { BusterUserResponse } from '@/api/asset_interfaces';
+import { AppProviders } from '@/context/AppProviders';
 import { useSupabaseServerContext } from '@/context/Supabase/useSupabaseContext';
 import { GlobalErrorComponent } from '@/components/features/errors/GlobalErrorComponent';
+import type { BusterUserResponse } from '@/api/asset_interfaces';
 
-export const AppLayoutClient = ({
-  children,
-  userInfo,
-  supabaseContext,
-  defaultLayout,
-  signOut
-}: {
+export const LayoutClient: React.FC<{
   children: React.ReactNode;
   userInfo: BusterUserResponse | undefined;
   supabaseContext: Awaited<ReturnType<typeof useSupabaseServerContext>>;
-  defaultLayout: [string, string];
-  signOut: () => void; //DO I really need this here?
-}) => {
+}> = ({ children, userInfo, supabaseContext }) => {
   return (
     <GlobalErrorComponent>
       <AppProviders userInfo={userInfo} supabaseContext={supabaseContext}>
-        <AppLayout defaultLayout={defaultLayout} signOut={signOut}>
-          {children}
-        </AppLayout>
+        {children}
       </AppProviders>
     </GlobalErrorComponent>
   );

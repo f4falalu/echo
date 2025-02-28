@@ -5,7 +5,6 @@ import { AppSidebar } from './AppSidebar';
 import { NewChatModal } from '@/components/features/modals/NewChatModal';
 import { InvitePeopleModal } from '@/components/features/modals/InvitePeopleModal';
 import { AppSplitter } from '@/components/ui/layouts';
-import { createStyles } from 'antd-style';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { SupportModal } from '@/components/features/modals/SupportModal';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
@@ -18,7 +17,7 @@ const layoutStyle = {
   minHeight: '100vh'
 };
 
-export const AppLayout: React.FC<
+export const AppLayoutOld: React.FC<
   PropsWithChildren<{
     defaultLayout: (number | string)[];
     signOut: () => void;
