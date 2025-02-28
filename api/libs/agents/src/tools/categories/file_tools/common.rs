@@ -1,6 +1,11 @@
 use anyhow::{anyhow, Result};
-use chrono::{Utc};
-use database::{enums::Verification, models::MetricFile, pool::get_pg_pool, schema::metric_files};
+use chrono::Utc;
+use database::{
+    enums::Verification,
+    models::MetricFile,
+    pool::get_pg_pool,
+    schema::{datasets, metric_files},
+};
 use indexmap::IndexMap;
 use query_engine::{data_source_query_routes::query_engine::query_engine, data_types::DataType};
 use serde_json;
@@ -32,8 +37,20 @@ pub async fn validate_sql(
         return Err(anyhow!("SQL query cannot be empty"));
     }
 
+    let mut conn = get_pg_pool().get().await?;
+
+    let data_source_id = match datasets::table
+        .filter(datasets::id.eq(dataset_id))
+        .select(datasets::data_source_id)
+        .first::<Uuid>(&mut conn)
+        .await
+    {
+        Ok(data_source_id) => data_source_id,
+        Err(e) => return Err(anyhow!("Error getting data source id: {}", e)),
+    };
+
     // Try to execute the query using query_engine
-    let results = match query_engine(dataset_id, &sql.to_string(), None).await {
+    let results = match query_engine(&data_source_id, &sql.to_string(), None).await {
         Ok(results) => results,
         Err(e) => return Err(anyhow!("SQL validation failed: {}", e)),
     };
