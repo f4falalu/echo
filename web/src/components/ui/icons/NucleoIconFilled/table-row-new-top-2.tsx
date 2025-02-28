@@ -12,7 +12,7 @@ function tableRowNewTop2(props: iconProps) {
       <g fill="currentColor">
         <rect
           height="5.5"
-          height="1em"
+          width="5.5"
           fill="currentColor"
           rx="2.25"
           ry="2.25"

@@ -20,15 +20,7 @@ function section(props: iconProps) {
           fill="currentColor"
           strokeWidth="0"
         />
-        <rect
-          height="6"
-          height="1em"
-          fill="currentColor"
-          rx="1.75"
-          ry="1.75"
-          strokeWidth="0"
-          y="3"
-        />
+        <rect height="9" width="9" fill="currentColor" rx="1.75" ry="1.75" strokeWidth="0" y="3" />
       </g>
     </svg>
   );

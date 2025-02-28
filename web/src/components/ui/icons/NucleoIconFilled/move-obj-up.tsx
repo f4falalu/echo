@@ -17,7 +17,7 @@ function moveObjUp(props: iconProps) {
         />
         <rect
           height="4.5"
-          height="1em"
+          width="4.5"
           fill="currentColor"
           rx="1.75"
           ry="1.75"

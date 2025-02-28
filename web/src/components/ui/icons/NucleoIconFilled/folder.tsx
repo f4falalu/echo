@@ -17,7 +17,7 @@ function folder(props: iconProps) {
         />
         <rect
           height="7"
-          height="1em"
+          width="7"
           fill="currentColor"
           rx="2.75"
           ry="2.75"

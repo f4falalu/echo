@@ -15,7 +15,7 @@ function followObjUp(props: iconProps) {
           fill="currentColor"
           strokeWidth="0"
         />
-        <rect height="4.5" height="1em" fill="currentColor" rx="1.75" ry="1.75" strokeWidth="0" />
+        <rect height="4.5" width="4.5" fill="currentColor" rx="1.75" ry="1.75" strokeWidth="0" />
       </g>
     </svg>
   );

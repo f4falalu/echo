@@ -17,7 +17,7 @@ function monitor(props: iconProps) {
         />
         <rect
           height="9"
-          height="1em"
+          width="1em"
           fill="currentColor"
           rx="2.75"
           ry="2.75"

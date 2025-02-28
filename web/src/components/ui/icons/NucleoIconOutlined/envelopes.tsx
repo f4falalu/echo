@@ -28,7 +28,7 @@ function envelopes(props: iconProps) {
         />
         <rect
           height="9"
-          height="1em"
+          width="9"
           fill="none"
           rx="1.5"
           ry="1.5"
