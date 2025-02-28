@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { AppContent } from '@/components/ui/layouts/AppContentPage';
+import { AppContentPage } from '@/components/ui/layouts/AppContentPage';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { Avatar } from '@/components/ui/avatar';
 import { formatDate } from '@/lib';
@@ -81,36 +81,34 @@ export const DashboardListContent: React.FC<{
   });
 
   return (
-    <>
-      <AppContent>
-        <div className={`${className} relative flex h-full flex-col items-center`}>
-          <BusterList
-            rows={rows}
-            columns={columns}
-            selectedRowKeys={selectedDashboardIds}
-            onSelectChange={setSelectedDashboardIds}
-            emptyState={
-              !loading ? (
-                <ListEmptyStateWithButton
-                  title={`You don’t have any dashboards yet.`}
-                  buttonText="New dashboard"
-                  description={`You don’t have any dashboards. As soon as you do, they will start to  appear here.`}
-                  onClick={onClickEmptyState}
-                  loading={isCreatingDashboard}
-                />
-              ) : (
-                <></>
-              )
-            }
-          />
+    <AppContentPage>
+      <div className={`${className} relative flex h-full flex-col items-center`}>
+        <BusterList
+          rows={rows}
+          columns={columns}
+          selectedRowKeys={selectedDashboardIds}
+          onSelectChange={setSelectedDashboardIds}
+          emptyState={
+            !loading ? (
+              <ListEmptyStateWithButton
+                title={`You don’t have any dashboards yet.`}
+                buttonText="New dashboard"
+                description={`You don’t have any dashboards. As soon as you do, they will start to  appear here.`}
+                onClick={onClickEmptyState}
+                loading={isCreatingDashboard}
+              />
+            ) : (
+              <></>
+            )
+          }
+        />
 
-          <DashboardSelectedOptionPopup
-            selectedRowKeys={selectedDashboardIds}
-            onSelectChange={setSelectedDashboardIds}
-            hasSelected={selectedDashboardIds.length > 0}
-          />
-        </div>
-      </AppContent>
-    </>
+        <DashboardSelectedOptionPopup
+          selectedRowKeys={selectedDashboardIds}
+          onSelectChange={setSelectedDashboardIds}
+          hasSelected={selectedDashboardIds.length > 0}
+        />
+      </div>
+    </AppContentPage>
   );
 };

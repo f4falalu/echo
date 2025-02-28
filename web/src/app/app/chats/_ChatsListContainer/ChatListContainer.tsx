@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { AppContent } from '../../../../components/ui/layouts/AppContentPage';
+import { AppContentPage } from '../../../../components/ui/layouts/AppContentPage';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn, useMount } from 'ahooks';
 import { useBusterChatListByFilter } from '@/context/Chats';
@@ -31,14 +31,14 @@ export const ChatListContainer: React.FC<{
   return (
     <div className={`${className} flex h-full flex-col`}>
       <ChatListHeader />
-      <AppContent>
+      <AppContentPage>
         <ChatItemsContainer
           chats={list}
           loading={!isFetched}
           openNewMetricModal={onToggleChatsModal}
           className="flex-col overflow-hidden"
         />
-      </AppContent>
+      </AppContentPage>
     </div>
   );
 };

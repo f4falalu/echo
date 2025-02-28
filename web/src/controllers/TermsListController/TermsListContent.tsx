@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { AppContent } from '@/components/ui/layouts/AppContentPage';
+import { AppContentPage } from '@/components/ui/layouts/AppContentPage';
 import { Avatar } from '@/components/ui/avatar';
 import { formatDate } from '@/lib';
 import {
@@ -68,7 +68,7 @@ export const TermsListContent: React.FC<{
   });
 
   return (
-    <AppContent>
+    <AppContentPage>
       <BusterList
         rows={rows}
         columns={columns}
@@ -92,6 +92,6 @@ export const TermsListContent: React.FC<{
         selectedRowKeys={selectedTermIds}
         onSelectChange={setSelectedTermIds}
       />
-    </AppContent>
+    </AppContentPage>
   );
 };

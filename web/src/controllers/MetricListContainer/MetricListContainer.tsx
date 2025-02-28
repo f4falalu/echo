@@ -7,7 +7,7 @@ import { VerificationStatus } from '@/api/asset_interfaces';
 import { useBusterMetricListByFilter } from '@/context/Metrics';
 import { MetricListHeader } from './MetricListHeader';
 import { MetricItemsContainer } from './MetricItemsContainer';
-import { AppContent } from '@/components/ui';
+import { AppContentPage } from '@/components/ui';
 
 export const MetricListContainer: React.FC<{
   className?: string;
@@ -32,7 +32,7 @@ export const MetricListContainer: React.FC<{
   return (
     <div className={`${className} flex h-full flex-col`}>
       <MetricListHeader type={type} filters={filters} onSetFilters={onSetFilters} />
-      <AppContent>
+      <AppContentPage>
         <MetricItemsContainer
           type={type}
           metrics={metricList || []}
@@ -40,7 +40,7 @@ export const MetricListContainer: React.FC<{
           openNewMetricModal={onToggleChatsModal}
           className="flex-col overflow-hidden"
         />
-      </AppContent>
+      </AppContentPage>
     </div>
   );
 };

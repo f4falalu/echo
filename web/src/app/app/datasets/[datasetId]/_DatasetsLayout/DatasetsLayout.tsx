@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { AppContent } from '@/components/ui/layouts/AppContentPage';
+import { AppContentPage } from '@/components/ui/layouts/AppContentPage';
 import { DatasetsIndividualHeader } from './DatasetsIndividualHeader';
 import { DatasetPageProvider } from './DatasetPageContext';
 
@@ -12,7 +12,7 @@ export const DatasetPageLayout: React.FC<{ children: React.ReactNode; datasetId:
   return (
     <DatasetPageProvider datasetId={datasetId}>
       <DatasetsIndividualHeader />
-      <AppContent>{children}</AppContent>
+      <AppContentPage>{children}</AppContentPage>
     </DatasetPageProvider>
   );
 };

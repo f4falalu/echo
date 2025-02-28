@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { AppContent } from '@/components/ui';
+import { AppContentPage } from '@/components/ui/layouts';
 import { Avatar } from '@/components/ui/avatar';
 import { formatDate, makeHumanReadble } from '@/lib';
 import { BusterRoutes, createBusterRoute } from '@/routes';
@@ -32,13 +32,13 @@ export const CollectionsListContent: React.FC<{
 
   return (
     <>
-      <AppContent>
+      <AppContentPage>
         <CollectionList
           collectionsList={collectionsList}
           setOpenNewCollectionModal={setOpenNewCollectionModal}
           loadedCollections={isCollectionListFetched}
         />
-      </AppContent>
+      </AppContentPage>
 
       <NewCollectionModal
         open={openNewCollectionModal}
