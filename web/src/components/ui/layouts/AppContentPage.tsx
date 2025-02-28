@@ -2,7 +2,7 @@ import React, { PropsWithChildren } from 'react';
 import { cn } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 
-const contentVariants = cva('max-h-[100%]', {
+const contentVariants = cva('max-h-[100%] bg-background', {
   variants: {
     scrollable: {
       true: 'overflow-y-auto'

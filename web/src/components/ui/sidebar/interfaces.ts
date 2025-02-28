@@ -1,9 +1,8 @@
-import { BusterRoutes } from '@/routes';
 import React from 'react';
 export interface ISidebarItem {
   label: string;
   icon: React.ReactNode;
-  route: BusterRoutes;
+  route: string | null;
   id: string;
   disabled?: boolean;
   active?: boolean;

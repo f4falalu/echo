@@ -1,0 +1,37 @@
+import { ShareAssetType } from '@/api/asset_interfaces/share';
+import { Messages, SquareChart, Grid, Folder5 } from '@/components/ui/icons';
+import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
+
+export const ASSET_ICONS = {
+  metrics: SquareChart,
+  chats: Messages,
+  dashboards: Grid,
+  collections: Folder5
+};
+
+export const assetTypeToIcon = (assetType: ShareAssetType) => {
+  switch (assetType) {
+    case ShareAssetType.METRIC:
+      return ASSET_ICONS.metrics;
+    case ShareAssetType.DASHBOARD:
+      return ASSET_ICONS.dashboards;
+    case ShareAssetType.COLLECTION:
+      return ASSET_ICONS.collections;
+    default:
+      const _result: unknown = assetType;
+      return ASSET_ICONS.metrics;
+  }
+};
+
+export const assetTypeToRoute = (assetType: ShareAssetType, assetId: string) => {
+  switch (assetType) {
+    case ShareAssetType.METRIC:
+      return createBusterRoute({ route: BusterRoutes.APP_METRIC_ID, metricId: assetId });
+    case ShareAssetType.DASHBOARD:
+      return createBusterRoute({ route: BusterRoutes.APP_DASHBOARD_ID, dashboardId: assetId });
+    case ShareAssetType.COLLECTION:
+      return createBusterRoute({ route: BusterRoutes.APP_COLLECTIONS_ID, collectionId: assetId });
+    default:
+      return '';
+  }
+};

@@ -50,7 +50,11 @@ export const SidebarCollapsible: React.FC<ISidebarGroup & { activeItem?: string 
         <CollapsibleContent className="data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up pl-0">
           <div className="space-y-0.5">
             {items.map((item) => (
-              <SidebarItem key={item.id} {...item} active={activeItem === item.id || item.active} />
+              <SidebarItem
+                key={item.id + item.route}
+                {...item}
+                active={activeItem === item.id || item.active}
+              />
             ))}
           </div>
         </CollapsibleContent>

@@ -5,7 +5,7 @@ import { type ISidebarItem } from './interfaces';
 import { cva, VariantProps } from 'class-variance-authority';
 
 const itemVariants = cva(
-  'flex items-center gap-2 rounded px-1.5 py-1.5 text-base transition-colors',
+  'flex items-center gap-2 rounded px-1.5 py-1.5 text-base transition-colors cursor-pointer',
   {
     variants: {
       variant: {
@@ -58,10 +58,10 @@ const itemVariants = cva(
 
 export const SidebarItem: React.FC<ISidebarItem & VariantProps<typeof itemVariants>> = React.memo(
   ({ label, icon, route, id, disabled = false, active = false, variant = 'default' }) => {
-    const ItemNode = disabled ? 'div' : Link;
+    const ItemNode = disabled || !route ? 'div' : Link;
 
     return (
-      <ItemNode href={route} className={cn(itemVariants({ active, disabled, variant }))}>
+      <ItemNode href={route || ''} className={cn(itemVariants({ active, disabled, variant }))}>
         <span className={cn('text-icon-size! text-icon-color', { 'text-text-disabled': disabled })}>
           {icon}
         </span>

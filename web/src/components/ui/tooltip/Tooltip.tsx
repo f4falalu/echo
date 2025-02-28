@@ -18,7 +18,7 @@ export interface TooltipProps
 }
 
 export const Tooltip = React.memo<TooltipProps>(
-  ({ children, title, shortcut, delayDuration, skipDelayDuration, align, side, open }) => {
+  ({ children, title, shortcut, delayDuration = 0, skipDelayDuration, align, side, open }) => {
     if (!title && !shortcut?.length) return children;
 
     return (

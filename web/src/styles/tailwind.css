@@ -59,6 +59,7 @@
   /* base color */
   --color-background: #ffffff;
   --color-foreground: #000000;
+  --color-background-secondary: '#f3f3f3';
   --color-foreground-hover: #393939;
   --color-primary: #7c3aed;
   --color-primary-light: #a26cff;
@@ -109,6 +110,6 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground text-base;
+    @apply bg-background-secondary text-foreground text-base;
   }
 }
