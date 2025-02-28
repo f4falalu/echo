@@ -3,7 +3,7 @@ import { useBusterCollectionListContextSelector } from '@/context/Collections';
 import { useMemoizedFn } from 'ahooks';
 import React, { useState } from 'react';
 import { SaveToCollectionsDropdown } from '../Dropdowns/SaveToCollectionsDropdown';
-import { CollectionButton } from './CollectionButton';
+import { CollectionButton } from './CollectionsButton';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 
 export const SaveMetricToCollectionButton: React.FC<{

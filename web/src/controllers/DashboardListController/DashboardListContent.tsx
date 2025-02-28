@@ -7,7 +7,7 @@ import { BusterUserAvatar } from '@/components/ui';
 import { formatDate } from '@/utils';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { getShareStatus } from '@/components/features/Lists';
+import { getShareStatus } from '@/components/features/lists';
 import { ListEmptyStateWithButton } from '@/components/ui/list';
 import { useMemoizedFn } from 'ahooks';
 import { DashboardSelectedOptionPopup } from './DashboardSelectedPopup';

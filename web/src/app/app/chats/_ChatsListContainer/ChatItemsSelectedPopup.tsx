@@ -2,17 +2,14 @@ import React, { useState } from 'react';
 import { AppMaterialIcons } from '@/components/ui';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { Button, Dropdown, DropdownProps } from 'antd';
-import { StatusBadgeButton } from '../../../../components/features/Lists';
 import { VerificationStatus } from '@/api/asset_interfaces';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useUserConfigContextSelector } from '@/context/Users';
-import {
-  useBusterCollectionIndividualContextSelector,
-  useBusterCollectionListContextSelector
-} from '@/context/Collections';
-import { useMemoizedFn, useMount } from 'ahooks';
-import { SaveToCollectionsDropdown } from '@/components/features/Dropdowns/SaveToCollectionsDropdown';
+import { useBusterCollectionListContextSelector } from '@/context/Collections';
+import { useMemoizedFn } from 'ahooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
+import { StatusBadgeButton } from '@/components/features/lists/StatusBadgeIndicator';
 
 export const ChatSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];

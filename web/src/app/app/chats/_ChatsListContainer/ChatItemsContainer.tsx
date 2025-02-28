@@ -1,14 +1,13 @@
 import { ShareAssetType, VerificationStatus, BusterChatListItem } from '@/api/asset_interfaces';
 import { makeHumanReadble, formatDate } from '@/utils';
 import React, { memo, useMemo, useRef, useState } from 'react';
-import { StatusBadgeIndicator, getShareStatus } from '../../../../components/features/Lists';
 import { BusterUserAvatar, Text } from '@/components/ui';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
 import { BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { ChatSelectedOptionPopup } from './ChatItemsSelectedPopup';
 import { BusterList, ListEmptyStateWithButton } from '@/components/ui/list';
-import { FavoriteStar } from '../../../../components/features/Lists';
+import { FavoriteStar, getShareStatus, StatusBadgeIndicator } from '@/components/features/lists';
 import { useCreateListByDate } from '@/components/ui/list/useCreateListByDate';
 
 export const ChatItemsContainer: React.FC<{

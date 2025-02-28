@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { SaveToCollectionsDropdown } from '../Dropdowns/SaveToCollectionsDropdown';
-import { useMemoizedFn, useMount } from 'ahooks';
+import { SaveToCollectionsDropdown } from '../dropdowns/SaveToCollectionsDropdown';
+import { useMemoizedFn } from 'ahooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useBusterCollectionListContextSelector } from '@/context/Collections';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
-import { CollectionButton } from './CollectionButton';
+import { CollectionButton } from './CollectionsButton';
 
 export const SaveDashboardToCollectionButton: React.FC<{
   dashboardIds: string[];
