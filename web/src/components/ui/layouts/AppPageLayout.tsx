@@ -11,38 +11,23 @@ import { AppContentPage } from './AppContentPage';
  * @param children - Page content
  * @internal
  */
-export const PageLayout: React.FC<
+export const AppPageLayout: React.FC<
   React.PropsWithChildren<{
     header?: React.ReactNode;
-    floating?: boolean;
     scrollable?: boolean;
     className?: string;
-    hasSidebar?: boolean;
+    headerVariant?: 'default' | 'list';
   }>
-> = ({
-  children,
-  header,
-  floating = true,
-  scrollable = true,
-  className = '',
-  hasSidebar = false
-}) => {
+> = ({ children, header, scrollable = true, className = '', headerVariant = 'default' }) => {
   return (
     <div
       className={cn(
-        'h-screen w-full overflow-hidden',
-        floating && 'py-2 pr-2',
-        !hasSidebar && 'pl-2',
+        'flex h-full w-full flex-col overflow-hidden',
+        scrollable && 'overflow-y-auto',
         className
       )}>
-      <div
-        className={cn(
-          'bg-background flex h-full w-full flex-col',
-          floating && 'overflow-hidden rounded border'
-        )}>
-        {header && <AppContentHeader>{header}</AppContentHeader>}
-        <AppContentPage scrollable={scrollable}>{children}</AppContentPage>
-      </div>
+      {header && <AppContentHeader variant={headerVariant}>{header}</AppContentHeader>}
+      <AppContentPage scrollable={scrollable}>{children}</AppContentPage>
     </div>
   );
 };

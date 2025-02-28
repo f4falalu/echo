@@ -4,7 +4,7 @@
 @import './sql';
 @import './monaco';
 @import 'react-data-grid/lib/styles.css';
-@import '../components/ui/layouts/AppSplitter/SplitPane/themes/default';
+@import '../components/ui/layouts/AppSplitter/SplitPane/themes/default'; //TODO check if we can remove this
 
 input {
   font-family:
