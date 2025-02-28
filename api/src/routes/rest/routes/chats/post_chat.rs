@@ -6,7 +6,7 @@ use chrono::Utc;
 use diesel::{insert_into, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use handlers::messages::types::{ThreadMessage, ThreadUserMessage};
-use handlers::threads::types::ThreadWithMessages;
+use handlers::chats::types::ThreadWithMessages;
 use litellm::Message as AgentMessage;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;

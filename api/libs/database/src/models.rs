@@ -1,6 +1,5 @@
-
-use crate::schema::*;
 use crate::enums::*;
+use crate::schema::*;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -36,14 +35,13 @@ pub struct DashboardFile {
 }
 
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug, Clone, Serialize)]
-#[diesel(belongs_to(Thread))]
 #[diesel(belongs_to(User, foreign_key = created_by))]
 #[diesel(table_name = messages)]
 pub struct Message {
     pub id: Uuid,
     pub request: String,
     pub response: Value,
-    pub thread_id: Uuid,
+    pub chat_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -82,7 +80,7 @@ pub struct MetricFile {
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug, Clone, Serialize)]
 #[diesel(belongs_to(Organization))]
 #[diesel(belongs_to(User, foreign_key = created_by))]
-#[diesel(table_name = threads)]
+#[diesel(table_name = chats)]
 pub struct Thread {
     pub id: Uuid,
     pub title: String,
@@ -654,4 +652,3 @@ pub struct DatasetToDatasetGroup {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
 }
-

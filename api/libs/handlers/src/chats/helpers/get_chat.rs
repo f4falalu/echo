@@ -9,7 +9,7 @@ use uuid::Uuid;
 use serde_yaml;
 
 use crate::messages::types::ThreadMessage;
-use crate::threads::types::ThreadWithMessages;
+use crate::chats::types::ThreadWithMessages;
 use database::pool::get_pg_pool;
 use database::schema::{messages, threads, users};
 

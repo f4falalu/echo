@@ -4,7 +4,7 @@ use axum::extract::Path;
 use axum::http::StatusCode;
 use axum::Extension;
 use handlers::thread_types::ThreadWithMessages;
-use handlers::threads::helpers::get_thread::get_thread;
+use handlers::chats::helpers::get_thread::get_thread;
 use uuid::Uuid;
 
 pub async fn get_chat_rest_handler(

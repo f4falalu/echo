@@ -1,6 +1,6 @@
 -- This file should undo anything in `up.sql`
 -- Drop indexes
-DROP INDEX messages_thread_id_idx;
+DROP INDEX messages_chat_id_idx;
 DROP INDEX messages_created_by_idx;
 DROP INDEX messages_created_at_idx;
 

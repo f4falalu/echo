@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Result};
-use handlers::threads::helpers::get_thread;
+use handlers::chats::helpers::get_thread;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
