@@ -1,4 +1,4 @@
-import { AppMaterialIcons } from '@/components/ui';
+import { AppMaterialIcons } from '@/components/ui/icons';
 import { Button } from 'antd';
 import React from 'react';
 

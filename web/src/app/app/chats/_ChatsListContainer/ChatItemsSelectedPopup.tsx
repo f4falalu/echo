@@ -6,10 +6,7 @@ import { StatusBadgeButton } from '../../../../components/features/lists';
 import { VerificationStatus } from '@/api/asset_interfaces';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useUserConfigContextSelector } from '@/context/Users';
-import {
-  useBusterCollectionIndividualContextSelector,
-  useBusterCollectionListContextSelector
-} from '@/context/Collections';
+import { useBusterCollectionListContextSelector } from '@/context/Collections';
 import { useMemoizedFn, useMount } from 'ahooks';
 import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
 import { useBusterNotifications } from '@/context/BusterNotifications';

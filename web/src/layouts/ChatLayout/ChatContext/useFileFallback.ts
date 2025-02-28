@@ -110,6 +110,7 @@ const fallbackToFileChatMessage = ({
   return {
     request_message: null,
     reasoning: [],
+    final_reasoning_message: null,
     response_messages: [
       {
         id: 'init',

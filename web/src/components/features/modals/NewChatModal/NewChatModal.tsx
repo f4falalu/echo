@@ -13,7 +13,6 @@ import { NoDatasets } from './NoDatasets';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useGetDatasets } from '@/api/buster_rest/datasets';
 import { NewDatasetModal } from '../NewDatasetModal';
-
 const { TextArea } = Input;
 
 const themeConfig: ThemeConfig = {

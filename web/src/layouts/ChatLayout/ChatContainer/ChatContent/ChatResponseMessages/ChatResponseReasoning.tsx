@@ -1,4 +1,4 @@
-import { BusterChatMessageReasoning } from '@/api/asset_interfaces';
+import type { BusterChatMessageReasoning } from '@/api/asset_interfaces';
 import React, { useMemo } from 'react';
 import last from 'lodash/last';
 import { ShimmerText } from '@/components/ui';
@@ -31,8 +31,8 @@ export const ChatResponseReasoning: React.FC<{
     switch (lastMessage.type) {
       case 'text':
         return lastMessage.message;
-      case 'thought':
-        return lastMessage.thought_title;
+      case 'pills':
+        return lastMessage.title;
       case 'file':
         return lastMessage.file_name;
       default:
@@ -52,7 +52,7 @@ export const ChatResponseReasoning: React.FC<{
     <AnimatePresence initial={!isCompletedStream} mode="wait">
       <motion.div {...animations} key={text} className="mb-3.5 w-fit" onClick={onClickReasoning}>
         <ShimmerTextWithIcon
-          text={text}
+          text={text ?? ''}
           isCompletedStream={isCompletedStream}
           isSelected={isReasonginFileSelected}
         />

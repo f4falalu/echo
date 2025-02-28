@@ -5,8 +5,8 @@ import {
   type BusterChatMessageRequest,
   BusterChatMessage_fileMetadata,
   BusterChatMessageReasoning_pills,
-  BusterChatMessageReasoning_thoughtPill,
-  BusterChatMessageReasoning_file
+  BusterChatMessageReasoning_file,
+  BusterChatMessageReasoning_pillsPill
 } from '@/api/asset_interfaces';
 import { faker } from '@faker-js/faker';
 
@@ -31,7 +31,7 @@ export const createMockResponseMessageText = (): BusterChatMessage_text => ({
 
 export const createMockResponseMessageThought = (): BusterChatMessageReasoning_pills => {
   const randomPillCount = faker.number.int({ min: 0, max: 10 });
-  const fourRandomPills: BusterChatMessageReasoning_thoughtPill[] = Array.from(
+  const fourRandomPills: BusterChatMessageReasoning_pillsPill[] = Array.from(
     { length: randomPillCount },
     () => {
       return {

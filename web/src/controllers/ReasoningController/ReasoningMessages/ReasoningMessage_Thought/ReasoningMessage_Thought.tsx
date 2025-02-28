@@ -1,16 +1,16 @@
-import type { BusterChatMessageReasoning_thought } from '@/api/asset_interfaces';
 import React from 'react';
+import type { BusterChatMessageReasoning_pills } from '@/api/asset_interfaces';
 import { ReasoningMessageProps } from '../ReasoningMessageSelector';
 import { ReasoningMessage_ThoughtContainer } from './ReasoningMessage_ThoughtContainer';
 import { BarContainer } from '../BarContainer';
 
 export const ReasoningMessage_Thought: React.FC<ReasoningMessageProps> = React.memo(
   ({ reasoningMessage, isCompletedStream, isLastMessageItem }) => {
-    const { thought_title, thought_secondary_title, thoughts, status, id } =
-      reasoningMessage as BusterChatMessageReasoning_thought;
+    const { title, secondary_title, pill_containers, status, id } =
+      reasoningMessage as BusterChatMessageReasoning_pills;
 
-    const hasThoughts = !!thoughts && thoughts.length > 0;
-    const loadingStatus: NonNullable<BusterChatMessageReasoning_thought['status']> =
+    const hasThoughts = !!pill_containers && pill_containers.length > 0;
+    const loadingStatus: NonNullable<BusterChatMessageReasoning_pills['status']> =
       (status ?? (isLastMessageItem && !isCompletedStream)) ? status || 'loading' : 'completed';
 
     return (
@@ -18,14 +18,14 @@ export const ReasoningMessage_Thought: React.FC<ReasoningMessageProps> = React.m
         showBar={hasThoughts || !isLastMessageItem}
         status={loadingStatus}
         isCompletedStream={isCompletedStream}
-        title={thought_title}
-        secondaryTitle={thought_secondary_title}
+        title={title}
+        secondaryTitle={secondary_title}
         contentClassName="mb-3">
         {hasThoughts &&
-          thoughts.map((thought, index) => (
+          pill_containers.map((pill_container, index) => (
             <ReasoningMessage_ThoughtContainer
               key={index}
-              thought={thought}
+              pillContainer={pill_container}
               isCompletedStream={isCompletedStream}
             />
           ))}
