@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { AppMaterialIcons } from '@/components/ui';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { Button, Dropdown, DropdownProps } from 'antd';
-import { StatusBadgeButton } from '../../../../components/features/lists';
+import { StatusBadgeButton } from '../../../../components/features/list';
 import { VerificationStatus } from '@/api/asset_interfaces';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useUserConfigContextSelector } from '@/context/Users';

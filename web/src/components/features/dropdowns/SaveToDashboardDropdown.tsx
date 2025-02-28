@@ -7,7 +7,7 @@ import { useMemoizedFn } from 'ahooks';
 import React, { useMemo, useState } from 'react';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { Button } from 'antd';
-import { Dropdown, type DropdownProps } from '@/components/ui/dropdown';
+import { Dropdown, type DropdownProps } from '@/components/ui/dropdown/Dropdown';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { AppMaterialIcons } from '@/components/ui';
 import type { BusterMetric, BusterDashboardListItem } from '@/api/asset_interfaces';

@@ -2,11 +2,11 @@
 
 import React, { PropsWithChildren, useMemo } from 'react';
 import { AppSidebar } from './AppSidebar';
-import { NewChatModal } from '@/components/features/modals/NewChatModal';
-import { InvitePeopleModal } from '@/components/features/modals/InvitePeopleModal';
+import { NewChatModal } from '@/components/features/modal/NewChatModal';
+import { InvitePeopleModal } from '@/components/features/modal/InvitePeopleModal';
 import { AppSplitter } from '@/components/ui/layouts';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { SupportModal } from '@/components/features/modals/SupportModal';
+import { SupportModal } from '@/components/features/modal/SupportModal';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn } from 'ahooks';
 import { useSearchParams } from 'next/navigation';

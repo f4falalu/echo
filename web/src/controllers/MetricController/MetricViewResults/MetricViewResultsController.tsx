@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo } from 'react';
 import type { MetricViewProps } from '../config';
 import { useMetricIndividual } from '@/context/Metrics';
-import { AppVerticalCodeSplitter } from '@/components/features/layout/AppVerticalCodeSplitter';
 import { useMemoizedFn, useUnmount } from 'ahooks';
 import { IDataResult } from '@/api/asset_interfaces';
 import { useMetricLayout } from '../useMetricLayout';
-import { AppSplitterRef } from '@/components/ui';
 import { useChatLayoutContextSelector } from '@chatLayout/ChatLayoutContext';
 import { useSQLContextSelector } from '@/context/SQL';
+import { AppSplitterRef } from '@/components/ui/layouts';
+import { AppVerticalCodeSplitter } from '@/components/features/layouts/AppVerticalCodeSplitter';
 
 const autoSaveId = 'metric-view-results';
 

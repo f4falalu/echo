@@ -8,7 +8,7 @@ import { Button } from 'antd';
 import { AppMaterialIcons } from '@/components/ui';
 import { DatasetGroupDatasetsListContainer } from './DatasetGroupDatasetsListContainer';
 import { useMemoizedFn } from 'ahooks';
-import { NewDatasetModal } from '@/components/features/modals/NewDatasetModal';
+import { NewDatasetModal } from '@/components/features/modal/NewDatasetModal';
 
 export const DatasetGroupDatasetsController: React.FC<{
   datasetGroupId: string;

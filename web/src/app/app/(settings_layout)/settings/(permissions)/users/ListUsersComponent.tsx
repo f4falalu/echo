@@ -6,7 +6,7 @@ import {
   EmptyStateList,
   InfiniteListContainer
 } from '@/components/ui/list';
-import { ListUserItem } from '@/components/features/lists/ListUserItem';
+import { ListUserItem } from '@/components/features/list/ListUserItem';
 import React, { useMemo, useState } from 'react';
 import { Text } from '@/components/ui';
 import { OrganizationUserRoleText } from './config';

@@ -8,7 +8,7 @@ import { useMemoizedFn } from 'ahooks';
 import { Button } from 'antd';
 import React, { useMemo } from 'react';
 import type { BusterCollectionListItem } from '@/api/asset_interfaces';
-import { NewCollectionModal } from '../modals/NewCollectionModal';
+import { NewCollectionModal } from '../modal/NewCollectionModal';
 
 export const SaveToCollectionsDropdown: React.FC<{
   children: React.ReactNode;

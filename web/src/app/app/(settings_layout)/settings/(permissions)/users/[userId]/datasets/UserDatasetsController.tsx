@@ -8,7 +8,7 @@ import { UserDatasetsListContainer } from './UserDatasetsListContainer';
 import { Button } from 'antd';
 import { useMemoizedFn } from 'ahooks';
 import { AppMaterialIcons } from '@/components/ui';
-import { NewDatasetModal } from '@/components/features/modals/NewDatasetModal';
+import { NewDatasetModal } from '@/components/features/modal/NewDatasetModal';
 
 export const UserDatasetsController: React.FC<{ userId: string }> = ({ userId }) => {
   const { data: datasets } = useGetUserDatasets({ userId });

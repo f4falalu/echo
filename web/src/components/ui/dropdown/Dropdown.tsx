@@ -4,8 +4,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup, //Do I need this?
+  DropdownMenuLabel, //Do I need this?
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuPortal,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
