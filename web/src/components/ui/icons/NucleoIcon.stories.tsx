@@ -3,22 +3,31 @@ import { IconSelectOutlined } from './NucleoIconOutlined/iconStories';
 import { IconSelectFilled } from './NucleoIconFilled/iconStories';
 import * as OutlinedIcons from './NucleoIconOutlined';
 import * as FilledIcons from './NucleoIconFilled';
+import React from 'react';
 
-const TestComponent = ({
-  icon,
-  color,
-  size
-}: {
+const TestComponent: React.FC<{
   icon: string;
   color: string;
   size: '12px' | '16px' | '18px';
+  strokewidth?: number;
+  style?: 'outlined' | 'filled';
+}> = ({
+  icon = 'add-above',
+  color = '#000000',
+  size = '16px',
+  strokewidth = 1.3,
+  style = 'outlined'
 }) => {
-  const IconComponent = OutlinedIcons[icon as keyof typeof OutlinedIcons];
-  console.log(size, color);
+  const IconComponent =
+    style === 'outlined'
+      ? OutlinedIcons[icon as keyof typeof OutlinedIcons]
+      : FilledIcons[icon as keyof typeof FilledIcons];
+
+  if (!icon || !IconComponent) return null;
 
   return (
     <div className="flex items-center justify-center" style={{ fontSize: size, color: color }}>
-      <IconComponent />
+      <IconComponent strokewidth={strokewidth} />
     </div>
   );
 };
@@ -32,7 +41,8 @@ const meta: Meta<typeof TestComponent> = {
   argTypes: {
     icon: {
       control: 'select',
-      options: IconSelectOutlined
+      options: IconSelectOutlined,
+      defaultValue: 'add-above'
     },
     color: {
       control: 'color',
@@ -41,6 +51,10 @@ const meta: Meta<typeof TestComponent> = {
     size: {
       control: 'select',
       options: ['12px', '16px', '18px']
+    },
+    strokewidth: {
+      control: 'number',
+      defaultValue: 1.3
     }
   },
   args: {
@@ -58,7 +72,8 @@ export const Outlined: Story = {
   args: {
     icon: 'add-above',
     color: '#000000',
-    size: '16px'
+    size: '16px',
+    style: 'outlined'
   }
 };
 
@@ -66,7 +81,8 @@ export const Filled: Story = {
   args: {
     icon: 'add-above',
     color: '#000000',
-    size: '16px'
+    size: '16px',
+    style: 'filled'
   },
   argTypes: {
     icon: {
