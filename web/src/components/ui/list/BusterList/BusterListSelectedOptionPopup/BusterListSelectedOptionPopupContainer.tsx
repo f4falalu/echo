@@ -3,7 +3,6 @@ import { Text } from '@/components/ui';
 import { useAntToken } from '@/styles/useAntToken';
 import { createStyles } from 'antd-style';
 import React from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
 import { PopupContainer, PopupSplitter } from '@/components/ui/popup/PopupContainer';
 
 export const BusterListSelectedOptionPopupContainer: React.FC<{

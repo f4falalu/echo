@@ -98,6 +98,8 @@
   --color-text-tertiary: var(--color-gray-light);
   --color-text-danger: var(--color-danger-foreground);
   --color-text-primary: var(--color-primary);
+
+  --spacing: 4px;
 }
 
 @import './tailwindAnimations.css';
@@ -107,6 +109,6 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground text-base;
   }
 }

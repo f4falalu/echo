@@ -35,8 +35,6 @@ html,
 body {
   background-color: #f3f3f3;
   min-width: 800px;
-
-  // background-color: #f8f8f8;
   // @media (prefers-color-scheme: dark) {
   //   background-color: #000000;
   //   color: #ffffff;
@@ -49,8 +47,4 @@ body {
 
 p {
   @apply text-base leading-[1.2];
-}
-
-* {
-  @apply text-base;
 }
