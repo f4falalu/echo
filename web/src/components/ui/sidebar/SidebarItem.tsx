@@ -5,7 +5,7 @@ import { type ISidebarItem } from './interfaces';
 import { cva, VariantProps } from 'class-variance-authority';
 
 const itemVariants = cva(
-  'flex items-center gap-2.5 rounded px-1.5 py-1.5 text-sm transition-colors',
+  'flex items-center gap-2 rounded px-1.5 py-1.5 text-sm transition-colors',
   {
     variants: {
       variant: {

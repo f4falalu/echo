@@ -6,7 +6,52 @@ import {
 } from '../collapsible/CollapsibleBase';
 import { type ISidebarGroup } from './interfaces';
 import { SidebarItem } from './SidebarItem';
+import { CaretDown } from '../icons/NucleoIconFilled';
+import { cn } from '@/lib/classMerge';
+
+interface SidebarTriggerProps {
+  label: string;
+  isOpen: boolean;
+}
+
+const SidebarTrigger: React.FC<SidebarTriggerProps> = React.memo(({ label, isOpen }) => {
+  return (
+    <div
+      className={cn(
+        'flex items-center gap-1 rounded px-1.5 py-1 text-sm transition-colors',
+        'hover:text-text-default text-text-secondary',
+        'group cursor-pointer'
+      )}>
+      <span className="">{label}</span>
+      <div
+        className={cn(
+          'text-icon-color text-2xs -rotate-90 transition-transform duration-200',
+          isOpen && 'rotate-0',
+          'group-hover:text-text-default'
+        )}>
+        <CaretDown />
+      </div>
+    </div>
+  );
+});
 
 export const SidebarGroup: React.FC<ISidebarGroup> = React.memo(({ label, items }) => {
-  return <></>;
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-0.5">
+      <CollapsibleTrigger asChild className="w-full">
+        <button className="w-full text-left">
+          <SidebarTrigger label={label} isOpen={isOpen} />
+        </button>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up pl-0">
+        <div className="space-y-0.5">
+          {items.map((item) => (
+            <SidebarItem key={item.id} {...item} />
+          ))}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
 });
