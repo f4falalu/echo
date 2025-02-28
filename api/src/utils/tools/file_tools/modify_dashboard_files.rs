@@ -239,15 +239,16 @@ impl ToolExecutor for ModifyDashboardFilesTool {
     type Params = ModifyFilesParams;
 
     fn get_name(&self) -> String {
-        "modify_dashboard_files".to_string()
+        "update_dashboards".to_string()
     }
 
     async fn is_enabled(&self) -> bool {
         match (
             self.agent.get_state_value("metrics_available").await,
             self.agent.get_state_value("dashboards_available").await,
+            self.agent.get_state_value("plan_available").await,
         ) {
-            (Some(_), Some(_)) => true,
+            (Some(_), Some(_), Some(_)) => true,
             _ => false,
         }
     }
@@ -362,6 +363,8 @@ impl ToolExecutor for ModifyDashboardFilesTool {
                                 name: file.name.clone(),
                                 file_type: "dashboard".to_string(),
                                 yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
+                                result_message: None,
+                                results: None,
                             }),
                     );
                 }
@@ -409,7 +412,7 @@ impl ToolExecutor for ModifyDashboardFilesTool {
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "modify_dashboard_files",
+            "name": self.get_name(),
             "strict": true,
             "parameters": {
                 "type": "object",

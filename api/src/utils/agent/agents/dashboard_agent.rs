@@ -8,7 +8,8 @@ use crate::utils::{
     agent::{agent::AgentError, Agent, AgentExt, AgentThread},
     tools::{
         file_tools::{
-            CreateDashboardFilesTool, CreateMetricFilesTool, FilterDashboardFilesTool, ModifyDashboardFilesTool, ModifyMetricFilesTool
+            CreateDashboardFilesTool, CreateMetricFilesTool, ModifyDashboardFilesTool,
+            ModifyMetricFilesTool,
         },
         IntoValueTool, ToolExecutor,
     },
@@ -28,7 +29,6 @@ impl DashboardAgent {
         let modify_dashboard_tool = ModifyDashboardFilesTool::new(Arc::clone(&self.agent));
         let create_metric_tool = CreateMetricFilesTool::new(Arc::clone(&self.agent));
         let modify_metric_tool = ModifyMetricFilesTool::new(Arc::clone(&self.agent));
-        let filter_dashboard_tool = FilterDashboardFilesTool::new(Arc::clone(&self.agent));
 
         // Add tools to the agent
         self.agent
@@ -55,12 +55,6 @@ impl DashboardAgent {
                 modify_metric_tool.into_value_tool(),
             )
             .await;
-        self.agent
-            .add_tool(
-                filter_dashboard_tool.get_name(),
-                filter_dashboard_tool.into_value_tool(),
-            )
-            .await;
 
         Ok(())
     }
@@ -82,7 +76,10 @@ impl DashboardAgent {
 
     pub async fn from_existing(existing_agent: &Arc<Agent>) -> Result<Self> {
         // Create a new agent with the same core properties and shared state/stream
-        let agent = Arc::new(Agent::from_existing(existing_agent, "dashboard_agent".to_string()));
+        let agent = Arc::new(Agent::from_existing(
+            existing_agent,
+            "dashboard_agent".to_string(),
+        ));
         let dashboard = Self { agent };
         dashboard.load_tools().await?;
         Ok(dashboard)

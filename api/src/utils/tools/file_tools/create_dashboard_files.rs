@@ -13,7 +13,10 @@ use uuid::Uuid;
 
 use crate::{
     database_dep::{lib::get_pg_pool, models::DashboardFile, schema::dashboard_files},
-    utils::{agent::Agent, tools::{file_tools::common::DASHBOARD_YML_SCHEMA, ToolExecutor}},
+    utils::{
+        agent::Agent,
+        tools::{file_tools::common::DASHBOARD_YML_SCHEMA, ToolExecutor},
+    },
 };
 
 use super::{
@@ -120,13 +123,16 @@ impl ToolExecutor for CreateDashboardFilesTool {
     type Params = CreateDashboardFilesParams;
 
     fn get_name(&self) -> String {
-        "create_dashboard_files".to_string()
+        "create_dashboards".to_string()
     }
 
     async fn is_enabled(&self) -> bool {
-        match self.agent.get_state_value("metrics_available").await {
-            Some(_) => true,
-            None => false,
+        match (
+            self.agent.get_state_value("metrics_available").await,
+            self.agent.get_state_value("plan_available").await,
+        ) {
+            (Some(_), Some(_)) => true,
+            _ => false,
         }
     }
 
@@ -175,6 +181,8 @@ impl ToolExecutor for CreateDashboardFilesTool {
                             name: dashboard_records[i].name.clone(),
                             file_type: "dashboard".to_string(),
                             yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
+                            result_message: None,
+                            results: None,
                         });
                     }
                 }
@@ -240,7 +248,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
 
     fn get_schema(&self) -> Value {
         serde_json::json!({
-            "name": "create_dashboard_files",
+            "name": self.get_name(),
             "strict": true,
             "parameters": {
                 "type": "object",
