@@ -6,12 +6,11 @@ use diesel_async::RunQueryDsl;
 use serde_json::Value;
 use tokio;
 use uuid::Uuid;
-use serde_yaml;
 
-use crate::messages::types::ThreadMessage;
-use crate::chats::types::ThreadWithMessages;
+use crate::chats::types::ChatWithMessages;
+use crate::messages::types::ChatMessage;
 use database::pool::get_pg_pool;
-use database::schema::{messages, threads, users};
+use database::schema::{chats, messages, users};
 
 #[derive(Queryable)]
 pub struct ThreadWithUser {
@@ -36,7 +35,7 @@ pub struct MessageWithUser {
     pub user_attributes: Value,
 }
 
-pub async fn get_thread(thread_id: &Uuid, user_id: &Uuid) -> Result<ThreadWithMessages> {
+pub async fn get_chat(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWithMessages> {
     // Run thread and messages queries concurrently
     let thread_future = {
         let mut conn = match get_pg_pool().get().await {
@@ -44,20 +43,20 @@ pub async fn get_thread(thread_id: &Uuid, user_id: &Uuid) -> Result<ThreadWithMe
             Err(e) => return Err(anyhow!("Failed to get database connection: {}", e)),
         };
 
-        let thread_id = thread_id.clone();
+        let chat_id = chat_id.clone();
         let user_id = user_id.clone();
 
         tokio::spawn(async move {
-            threads::table
-                .inner_join(users::table.on(threads::created_by.eq(users::id)))
-                .filter(threads::id.eq(thread_id))
-                .filter(threads::created_by.eq(user_id))
-                .filter(threads::deleted_at.is_null())
+            chats::table
+                .inner_join(users::table.on(chats::created_by.eq(users::id)))
+                .filter(chats::id.eq(chat_id))
+                .filter(chats::created_by.eq(user_id))
+                .filter(chats::deleted_at.is_null())
                 .select((
-                    threads::id,
-                    threads::title,
-                    threads::created_at,
-                    threads::updated_at,
+                    chats::id,
+                    chats::title,
+                    chats::created_at,
+                    chats::updated_at,
                     users::id,
                     users::name.nullable(),
                     users::email,
@@ -74,12 +73,12 @@ pub async fn get_thread(thread_id: &Uuid, user_id: &Uuid) -> Result<ThreadWithMe
             Err(e) => return Err(anyhow!("Failed to get database connection: {}", e)),
         };
 
-        let thread_id = thread_id.clone();
+        let chat_id = chat_id.clone();
 
         tokio::spawn(async move {
             messages::table
                 .inner_join(users::table.on(messages::created_by.eq(users::id)))
-                .filter(messages::thread_id.eq(thread_id))
+                .filter(messages::chat_id.eq(chat_id))
                 .filter(messages::deleted_at.is_null())
                 .order_by(messages::created_at.desc())
                 .select((
@@ -144,7 +143,7 @@ pub async fn get_thread(thread_id: &Uuid, user_id: &Uuid) -> Result<ThreadWithMe
                 })
                 .unwrap_or_default();
 
-            ThreadMessage {
+            ChatMessage {
                 id: msg.id,
                 request_message: crate::messages::types::ThreadUserMessage {
                     request: msg.request,
@@ -167,7 +166,7 @@ pub async fn get_thread(thread_id: &Uuid, user_id: &Uuid) -> Result<ThreadWithMe
         .map(String::from);
 
     // Construct and return the ThreadWithMessages
-    Ok(ThreadWithMessages {
+    Ok(ChatWithMessages {
         id: thread.id,
         title: thread.title,
         is_favorited: false, // Not implemented in current schema

@@ -21,3 +21,6 @@ futures = { workspace = true }
 database = { path = "../database" }
 
 # Add any handler-specific dependencies here 
+
+[dev-dependencies]
+tokio-test = { workspace = true } 

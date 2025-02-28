@@ -3,15 +3,15 @@ use crate::routes::rest::ApiResponse;
 use axum::extract::Path;
 use axum::http::StatusCode;
 use axum::Extension;
-use handlers::thread_types::ThreadWithMessages;
-use handlers::chats::helpers::get_thread::get_thread;
+use handlers::chats::helpers::get_chat::get_chat;
+use handlers::chats::types::ChatWithMessages;
 use uuid::Uuid;
 
 pub async fn get_chat_rest_handler(
     Extension(user): Extension<User>,
     Path(id): Path<Uuid>,
-) -> Result<ApiResponse<ThreadWithMessages>, (StatusCode, &'static str)> {
-    let thread_with_messages = match get_thread(&id, &user.id).await {
+) -> Result<ApiResponse<ChatWithMessages>, (StatusCode, &'static str)> {
+    let thread_with_messages = match get_chat(&id, &user.id).await {
         Ok(response) => response,
         Err(e) => {
             tracing::error!("Error getting chat: {}", e);

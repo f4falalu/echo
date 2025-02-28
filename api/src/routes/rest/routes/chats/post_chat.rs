@@ -5,8 +5,8 @@ use axum::{response::IntoResponse, Json};
 use chrono::Utc;
 use diesel::{insert_into, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
-use handlers::messages::types::{ThreadMessage, ThreadUserMessage};
-use handlers::chats::types::ThreadWithMessages;
+use handlers::messages::types::{ChatMessage, ThreadUserMessage};
+use handlers::chats::types::ChatWithMessages;
 use litellm::Message as AgentMessage;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -14,7 +14,7 @@ use tokio::sync::broadcast;
 use uuid::Uuid;
 
 use crate::routes::rest::ApiResponse;
-use crate::utils::agent::AgentThread;
+use agents::AgentThread;
 use crate::{
     database_dep::{
         enums::Verification,
@@ -22,8 +22,8 @@ use crate::{
         models::{DashboardFile, Message, MessageToFile, MetricFile, Thread, User},
         schema::{dashboard_files, messages, messages_to_files, metric_files, threads},
     },
-    utils::agent::manager_agent::{ManagerAgent, ManagerAgentInput},
 };
+use agents::agents::buster_super_agent::{BusterSuperAgent, BusterSuperAgentInput};
 
 use super::agent_message_transformer::{transform_message, BusterContainer, ReasoningMessage};
 
@@ -34,7 +34,7 @@ pub struct ChatCreateNewChat {
     pub message_id: Option<Uuid>,
 }
 
-async fn process_chat(request: ChatCreateNewChat, user: User) -> Result<ThreadWithMessages> {
+async fn process_chat(request: ChatCreateNewChat, user: User) -> Result<ChatWithMessages> {
     let chat_id = request.chat_id.unwrap_or_else(|| Uuid::new_v4());
     let message_id = request.message_id.unwrap_or_else(|| Uuid::new_v4());
 
@@ -57,11 +57,11 @@ async fn process_chat(request: ChatCreateNewChat, user: User) -> Result<ThreadWi
         deleted_at: None,
     };
 
-    let mut thread_with_messages = ThreadWithMessages {
+    let mut thread_with_messages = ChatWithMessages {
         id: chat_id,
         title: request.prompt.clone(),
         is_favorited: false,
-        messages: vec![ThreadMessage {
+        messages: vec![ChatMessage {
             id: message_id,
             request_message: ThreadUserMessage {
                 request: request.prompt.clone(),
@@ -89,7 +89,7 @@ async fn process_chat(request: ChatCreateNewChat, user: User) -> Result<ThreadWi
         .await?;
 
     // Initialize agent and process request
-    let agent = ManagerAgent::new(user.id, chat_id).await?;
+    let agent = BusterSuperAgent::new(user.id, chat_id).await?;
     let mut thread = AgentThread::new(
         Some(chat_id),
         user.id,
@@ -203,7 +203,7 @@ async fn process_chat(request: ChatCreateNewChat, user: User) -> Result<ThreadWi
 pub async fn create_chat(
     Extension(user): Extension<User>,
     Json(request): Json<ChatCreateNewChat>,
-) -> Result<ApiResponse<ThreadWithMessages>, (StatusCode, &'static str)> {
+) -> Result<ApiResponse<ChatWithMessages>, (StatusCode, &'static str)> {
     match process_chat(request, user).await {
         Ok(response) => Ok(ApiResponse::JsonData(response)),
         Err(e) => {

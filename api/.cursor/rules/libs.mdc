@@ -1,6 +1,7 @@
 ---
 description: This is helpful for building libs for our web server to interact with.
-globs: libs/*
+globs: */libs/*
+alwaysApply: false
 ---
 
 # Library Construction Guide
@@ -23,37 +24,39 @@ libs/
 [package]
 name = "my_lib"
 version = "0.1.0"
-edition.workspace = true
-authors.workspace = true
-license.workspace = true
+edition = "2021"
 
-# Inherit workspace dependencies
-# This ensures consistent versions across the project
+# Dependencies should be inherited from workspace
 [dependencies]
-serde.workspace = true      # If defined in workspace
-tokio.workspace = true      # If defined in workspace
-thiserror.workspace = true  # If defined in workspace
-
-# Library-specific dependencies (not in workspace)
-some-specific-dep = "1.0"
+# Use workspace dependencies
+anyhow = { workspace = true }
+chrono = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+diesel = { workspace = true }
+diesel-async = { workspace = true }
+# Add other workspace dependencies as needed
 
 # Development dependencies
 [dev-dependencies]
-tokio-test.workspace = true     # If defined in workspace
-assert_matches.workspace = true  # If defined in workspace
+tokio-test = { workspace = true }
+# Add other workspace dev dependencies as needed
 
-# Feature flags - can inherit from workspace or be lib-specific
+# Feature flags
 [features]
 default = []
-async = ["tokio"]  # Example of a library-specific feature
+# Define library-specific features here
 ```
 
 ## Best Practices
 
 ### 1. Workspace Integration
-- Use `.workspace = true` for common fields and dependencies
-- Only specify library-specific versions for unique dependencies
-- Inherit common development dependencies from workspace
+- Use `{ workspace = true }` for common dependencies
+- Never specify library-specific versions for dependencies that exist in the workspace
+- All dependencies should be managed by the workspace
 - Keep feature flags modular and specific to the library's needs
 
 ### 2. Library Structure
@@ -125,7 +128,7 @@ pub enum Error {
 - Use workspace-level CI/CD pipelines
 
 ### 8. Dependencies
-- Prefer workspace-level dependencies
-- Only add library-specific dependencies when necessary
+- All dependencies should be inherited from the workspace
+- Never add library-specific dependency versions
 - Keep dependencies minimal and focused
-- Document any deviations from workspace versions
+- The workspace will manage all dependency versions

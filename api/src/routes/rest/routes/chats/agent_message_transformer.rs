@@ -9,7 +9,6 @@ use crate::routes::ws::threads_and_messages::threads_router::ThreadEvent;
 use litellm::{Message, MessageProgress, ToolCall};
 
 use crate::utils::tools::file_tools::file_types::file::FileEnum;
-use crate::utils::tools::file_tools::open_files::OpenFilesOutput;
 use crate::utils::tools::file_tools::search_data_catalog::SearchDataCatalogOutput;
 use crate::utils::tools::file_tools::search_files::SearchFilesOutput;
 use crate::utils::tools::interaction_tools::send_message_to_user::{
@@ -256,9 +255,8 @@ fn transform_tool_message(
         "search_data_catalog" => tool_data_catalog_search(id, content, progress),
         "stored_values_search" => tool_stored_values_search(id, content, progress),
         "search_files" => tool_file_search(id, content, progress),
-        // "create_files" => tool_create_file(id, content, progress),
+        "create_files" => tool_create_file(id, content, progress),
         "modify_files" => tool_modify_file(id, content, progress),
-        "open_files" => tool_open_files(id, content, progress),
         "send_message_to_user" => tool_send_message_to_user(id, content, progress),
         _ => Err(anyhow::anyhow!("Unsupported tool name")),
     }?;
@@ -291,8 +289,7 @@ fn transform_assistant_tool_message(
             "stored_values_search" => assistant_stored_values_search(id, progress, initial),
             "search_files" => assistant_file_search(id, progress, initial),
             "create_files" => assistant_create_file(id, tool_calls, progress),
-            // "modify_files" => assistant_modify_file(id, tool_calls, progress),
-            "open_files" => assistant_open_files(id, progress, initial),
+            "modify_files" => assistant_modify_file(id, tool_calls, progress),
             "send_message_to_user" => assistant_send_message_to_user(id, tool_calls, progress),
             _ => Err(anyhow::anyhow!("Unsupported tool name")),
         }?;
@@ -635,97 +632,6 @@ fn process_file_search_results(
         .collect();
 
     Ok(buster_thought_pill_containers)
-}
-
-fn assistant_open_files(
-    id: Option<String>,
-    progress: Option<MessageProgress>,
-    initial: bool,
-) -> Result<Vec<BusterThreadMessage>> {
-    if let Some(progress) = progress {
-        if initial {
-            match progress {
-                MessageProgress::InProgress => {
-                    Ok(vec![BusterThreadMessage::Thought(BusterThought {
-                        id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
-                        thought_type: "thought".to_string(),
-                        thought_title: "Looking through assets...".to_string(),
-                        thought_secondary_title: "".to_string(),
-                        thoughts: None,
-                        status: "loading".to_string(),
-                    })])
-                }
-                _ => Err(anyhow::anyhow!(
-                    "Assistant file search only supports in progress."
-                )),
-            }
-        } else {
-            Err(anyhow::anyhow!(
-                "Assistant file search only supports initial."
-            ))
-        }
-    } else {
-        Err(anyhow::anyhow!("Assistant file search requires progress."))
-    }
-}
-
-fn tool_open_files(
-    id: Option<String>,
-    content: String,
-    progress: Option<MessageProgress>,
-) -> Result<Vec<BusterThreadMessage>> {
-    if let Some(progress) = progress {
-        let open_files_result = match serde_json::from_str::<OpenFilesOutput>(&content) {
-            Ok(result) => result,
-            Err(_) => return Ok(vec![]), // Silently ignore parsing errors
-        };
-
-        let duration = (open_files_result.duration as f64 / 1000.0 * 10.0).round() / 10.0;
-        let result_count = open_files_result.results.len();
-
-        let mut file_results: HashMap<String, Vec<BusterThoughtPill>> = HashMap::new();
-
-        for result in open_files_result.results {
-            let file_type = match result {
-                FileEnum::Dashboard(_) => "dashboard",
-                FileEnum::Metric(_) => "metric",
-            }
-            .to_string();
-
-            file_results
-                .entry(file_type.clone())
-                .or_insert_with(Vec::new)
-                .push(BusterThoughtPill {
-                    id: Uuid::new_v4().to_string(),
-                    text: open_files_result.message.clone(),
-                    thought_file_type: file_type,
-                });
-        }
-
-        let thought_pill_containers = file_results
-            .into_iter()
-            .map(|(title, thought_pills)| BusterThoughtPillContainer {
-                title: title.chars().next().unwrap().to_uppercase().to_string() + &title[1..],
-                thought_pills,
-            })
-            .collect::<Vec<_>>();
-
-        let buster_thought = BusterThreadMessage::Thought(BusterThought {
-            id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
-            thought_type: "thought".to_string(),
-            thought_title: format!("Looked through {} assets", result_count),
-            thought_secondary_title: format!("{} seconds", duration),
-            thoughts: Some(thought_pill_containers),
-            status: "completed".to_string(),
-        });
-
-        match progress {
-            MessageProgress::Complete => Ok(vec![buster_thought]),
-            _ => Err(anyhow::anyhow!("Tool open file only supports complete.")),
-        }
-    } else {
-        Err(anyhow::anyhow!("Tool open file requires progress."))
-    }
 }
 
 fn assistant_create_file(

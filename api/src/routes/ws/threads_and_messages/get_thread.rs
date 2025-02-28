@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Result};
-use handlers::chats::helpers::get_thread;
+use handlers::chats::helpers::get_chat;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -60,7 +60,7 @@ pub async fn get_thread_ws(
         Err(e) => return Err(anyhow!("Error subscribing to thread: {}", e)),
     };
 
-    let thread = get_thread::get_thread(&req.id, &user.id).await?;
+    let thread = get_chat::get_chat(&req.id, &user.id).await?;
 
     let get_thread_ws_message = WsResponseMessage::new(
         WsRoutes::Threads(ThreadRoute::Get),

@@ -31,10 +31,10 @@ use crate::{
         ws_router::WsRoutes,
         ws_utils::send_ws_message,
     },
-    utils::{
-        agent::agents::manager_agent::{ManagerAgent, ManagerAgentInput},
-        agent::{AgentExt, AgentThread},
-    },
+};
+use agents::{
+    agents::manager_agent::{ManagerAgent, ManagerAgentInput},
+    AgentExt, AgentThread,
 };
 
 use super::agent_message_transformer::transform_message;

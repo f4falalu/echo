@@ -1,1 +1,1 @@
-pub mod get_thread;
+pub mod get_chat;

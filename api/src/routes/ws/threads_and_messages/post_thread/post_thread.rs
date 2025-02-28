@@ -28,8 +28,8 @@ use crate::{
         ws_router::WsRoutes,
         ws_utils::send_ws_message,
     },
-    utils::agent::manager_agent::{ManagerAgent, ManagerAgentInput},
 };
+use agents::agents::manager_agent::{ManagerAgent, ManagerAgentInput};
 
 /// This creates a new thread for a user.  It follows these steps:
 ///
