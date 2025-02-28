@@ -7,7 +7,7 @@ function windowSettings(props: iconProps) {
   const title = props.title || '18px window settings';
 
   return (
-    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
       <g fill="currentColor">
         <circle cx="4.25" cy="5.25" fill="currentColor" r=".75" strokeWidth="0" />

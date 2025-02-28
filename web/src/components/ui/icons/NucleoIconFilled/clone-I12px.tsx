@@ -7,7 +7,7 @@ function clone(props: iconProps) {
   const title = props.title || '18px clone';
 
   return (
-    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
       <g fill="currentColor">
         <rect height="12.5" width="12.5" fill="currentColor" rx="2.75" ry="2.75" x="1" y="1" />

@@ -7,7 +7,7 @@ function arrowsExpandDiagonal5(props: iconProps) {
   const title = props.title || '18px arrows expand diagonal 5';
 
   return (
-    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
       <g fill="currentColor">
         <path d="M0.868 8.25H17.131V9.75H0.868z" fill="currentColor" transform="rotate(-45 9 9)" />

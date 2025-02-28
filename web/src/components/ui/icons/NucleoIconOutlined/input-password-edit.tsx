@@ -7,7 +7,7 @@ function inputPasswordEdit(props: iconProps) {
   const title = props.title || '18px input password edit';
 
   return (
-    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
       <g fill="currentColor">
         <circle cx="5.5" cy="9" fill="currentColor" r="1" />

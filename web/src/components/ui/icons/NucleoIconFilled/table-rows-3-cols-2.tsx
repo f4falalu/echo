@@ -7,7 +7,7 @@ function tableRows3Cols2(props: iconProps) {
   const title = props.title || '18px table rows 3 cols 2';
 
   return (
-    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
       <g fill="currentColor">
         <path d="M9.75,6h7.25v-1.25c0-1.517-1.233-2.75-2.75-2.75h-4.5V6Z" fill="currentColor" />

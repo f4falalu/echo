@@ -7,7 +7,7 @@ function rowsOffsetLeft(props: iconProps) {
   const title = props.title || '18px rows offset left';
 
   return (
-    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
       <g fill="currentColor">
         <rect height="4" width="10.5" fill="currentColor" rx="1.75" ry="1.75" x="6.5" y="7" />

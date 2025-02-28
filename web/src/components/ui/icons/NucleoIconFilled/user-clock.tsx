@@ -7,7 +7,7 @@ function userClock(props: iconProps) {
   const title = props.title || '18px user clock';
 
   return (
-    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
       <g fill="currentColor">
         <circle cx="9" cy="4.5" fill="currentColor" r="3.5" />

@@ -7,7 +7,7 @@ function angle(props: iconProps) {
   const title = props.title || '18px angle';
 
   return (
-    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
       <g fill="currentColor">
         <path d="M5,13h5.164c-.75-2.467-2.698-4.415-5.164-5.165v5.165Z" fill="currentColor" />

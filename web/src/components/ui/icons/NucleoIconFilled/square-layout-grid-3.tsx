@@ -7,7 +7,7 @@ function squareLayoutGrid3(props: iconProps) {
   const title = props.title || '18px square layout grid 3';
 
   return (
-    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
       <g fill="currentColor">
         <path d="M9.75,6.5h6.25v-1.75c0-1.517-1.233-2.75-2.75-2.75h-3.5V6.5Z" fill="currentColor" />

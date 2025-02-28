@@ -7,7 +7,7 @@ function solarPanel(props: iconProps) {
   const title = props.title || '18px solar panel';
 
   return (
-    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
       <g fill="currentColor">
         <path d="M7.794 2L7.36 6 10.64 6 10.206 2 7.794 2z" fill="currentColor" />

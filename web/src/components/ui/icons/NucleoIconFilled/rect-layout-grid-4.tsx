@@ -7,7 +7,7 @@ function rectLayoutGrid4(props: iconProps) {
   const title = props.title || '18px rect layout grid 4';
 
   return (
-    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
       <g fill="currentColor">
         <path d="M11,8H1v5.25c0,1.517,1.233,2.75,2.75,2.75h7.25V8Z" fill="currentColor" />

@@ -7,7 +7,7 @@ function parkingSign(props: iconProps) {
   const title = props.title || '18px parking sign';
 
   return (
-    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
       <g fill="currentColor">
         <path d="M9.5,6.5h-1.5v2h1.5c.551,0,1-.449,1-1s-.449-1-1-1Z" fill="currentColor" />

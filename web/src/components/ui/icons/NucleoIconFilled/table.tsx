@@ -7,7 +7,7 @@ function table(props: iconProps) {
   const title = props.title || '18px table';
 
   return (
-    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
       <g fill="currentColor">
         <path d="M6.5,6h10.5v-1.25c0-1.517-1.233-2.75-2.75-2.75H6.5V6Z" fill="currentColor" />
