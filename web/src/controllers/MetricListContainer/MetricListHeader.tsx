@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { AppContentHeader } from '@/components/ui/layouts/AppContentHeader';
+import { AppContentHeader } from '@/components/ui/layouts/AppContentHeader_Old';
 import { AppSegmented } from '@/components/ui';
 import { VerificationStatus } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui';

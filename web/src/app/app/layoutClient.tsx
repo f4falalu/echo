@@ -23,11 +23,9 @@ export const AppLayoutClient = ({
   return (
     <GlobalErrorComponent>
       <AppProviders userInfo={userInfo} supabaseContext={supabaseContext}>
-        {/* <HydrationBoundary state={dehydrate(queryClient)}> */}
         <AppLayout defaultLayout={defaultLayout} signOut={signOut}>
           {children}
         </AppLayout>
-        {/* </HydrationBoundary> */}
       </AppProviders>
     </GlobalErrorComponent>
   );

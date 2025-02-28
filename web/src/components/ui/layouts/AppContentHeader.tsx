@@ -1,29 +1,22 @@
-'use client';
+import { cn } from '@/lib/utils';
+import React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
 
-import React, { PropsWithChildren } from 'react';
-import { Layout } from 'antd';
-import { createStyles } from 'antd-style';
-
-export const appContentHeaderHeight = 38;
-
-const useStyles = createStyles(({ token }) => ({
-  header: {
-    borderBottom: `0.5px solid${token.colorBorder}`,
-    height: appContentHeaderHeight
+const headerVariants = cva('bg-background flex max-h-[38px] min-h-[38px] items-center border-b', {
+  variants: {
+    variant: {
+      default: 'px-4.5',
+      list: 'px-10'
+    }
   }
-}));
+});
 
 export const AppContentHeader: React.FC<
-  PropsWithChildren<{
-    className?: string;
-  }>
-> = React.memo(({ children, className = '' }) => {
-  const { cx, styles } = useStyles();
-
-  return (
-    <Layout.Header className={cx(`flex h-full w-full items-center`, className, styles.header)}>
-      {children}
-    </Layout.Header>
-  );
-});
-AppContentHeader.displayName = 'AppContentHeader';
+  React.PropsWithChildren<
+    {
+      className?: string;
+    } & VariantProps<typeof headerVariants>
+  >
+> = ({ children, className = '', variant = 'default' }) => {
+  return <div className={cn(headerVariants({ variant }), className)}>{children}</div>;
+};

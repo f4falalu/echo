@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { AppContent } from '@/components/ui/layouts/AppContent';
+import { AppContent } from '@/components/ui/layouts/AppContentPage';
 import { Avatar } from '@/components/ui/avatar';
 import { formatDate } from '@/lib';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';

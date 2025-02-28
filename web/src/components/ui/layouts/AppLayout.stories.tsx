@@ -33,6 +33,22 @@ export const Default: Story = {
   }
 };
 
+export const WithSidebar: Story = {
+  args: {
+    header: <div className="">Header Content</div>,
+    children: <TestContent />,
+    sidebar: <div className="">Sidebar Content</div>,
+    scrollable: true
+  },
+  decorators: [
+    (Story) => (
+      <div style={{ height: '600px', width: '100%' }}>
+        <Story />
+      </div>
+    )
+  ]
+};
+
 export const WithHeader: Story = {
   args: {
     header: <div className="">Header Content</div>,

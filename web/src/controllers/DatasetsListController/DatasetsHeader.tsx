@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { AppMaterialIcons, AppSegmented, AppTooltip } from '@/components/ui';
 import { NewDatasetModal } from '@/components/features/modals/NewDatasetModal';
-import { AppContentHeader } from '@/components/ui/layouts/AppContentHeader';
+import { AppContentHeader } from '@/components/ui/layouts/AppContentHeader_Old';
 import { useIndividualDataset } from '@/context/Datasets';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useUserConfigContextSelector } from '@/context/Users';
