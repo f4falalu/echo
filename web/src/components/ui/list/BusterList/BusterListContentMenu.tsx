@@ -1,10 +1,9 @@
-import { useAntToken } from '@/styles/useAntToken';
 import { ConfigProvider, Menu, MenuProps } from 'antd';
 import { createStyles } from 'antd-style';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { forwardRef, useMemo } from 'react';
 import { BusterListContextMenu, BusterMenuItemType } from './interfaces';
-import { ItemType, MenuItemType } from 'antd/es/menu/interface';
+import { MenuItemType } from 'antd/es/menu/interface';
 
 export interface BusterListContentMenuProps {
   menu: BusterListContextMenu;

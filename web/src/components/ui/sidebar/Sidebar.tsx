@@ -33,11 +33,12 @@ const ContentSelector: React.FC<{
 
   return <SidebarList items={content.items} activeItem={activeItem} />;
 });
+ContentSelector.displayName = 'ContentSelector';
 
 const SidebarList: React.FC<{
   items: ISidebarList['items'];
   activeItem: SidebarProps['activeItem'];
-}> = React.memo(({ items, activeItem }) => {
+}> = ({ items, activeItem }) => {
   return (
     <div className="flex flex-col space-y-0.5">
       {items.map((item) => (
@@ -45,9 +46,7 @@ const SidebarList: React.FC<{
       ))}
     </div>
   );
-});
-
-SidebarList.displayName = 'SidebarList';
+};
 
 const isSidebarGroup = (content: SidebarProps['content'][number]): content is ISidebarGroup => {
   return 'label' in content && content.label !== undefined;

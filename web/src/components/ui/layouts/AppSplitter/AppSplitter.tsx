@@ -19,7 +19,6 @@ import {
   setAppSplitterCookie
 } from './helper';
 import Cookies from 'js-cookie';
-import { createStyles } from 'antd-style';
 import { cn } from '@/lib/classMerge';
 
 // First, define the ref type
@@ -296,28 +295,3 @@ const AppSplitterSash: React.FC<{
   }
 );
 AppSplitterSash.displayName = 'AppSplitterSash';
-
-const useStyles = createStyles(({ css, token }) => ({
-  splitter: css`
-    background: ${token.colorPrimary};
-    left: 1px;
-
-    &.hide {
-      background: transparent;
-
-      &.active {
-        background: ${token.colorBorder};
-      }
-    }
-
-    &:not(.hide) {
-      &.active {
-        background: ${token.colorPrimary};
-      }
-
-      &.inactive {
-        background: ${token.colorBorder};
-      }
-    }
-  `
-}));
