@@ -20,6 +20,7 @@ const meta: Meta<typeof SidebarSettings> = {
 export default meta;
 type Story = StoryObj<typeof SidebarSettings>;
 
+export const Default: Story = {
   args: {
     activePage: 'profile',
     isAdmin: true

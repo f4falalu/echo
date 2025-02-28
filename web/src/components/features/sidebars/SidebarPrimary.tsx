@@ -2,14 +2,14 @@ import React, { useMemo } from 'react';
 import { Sidebar } from '@/components/ui/sidebar/Sidebar';
 import { BusterLogoWithText } from '@/assets/svg/BusterLogoWithText';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import type { ISidebarGroup, ISidebarList, SidebarProps } from '@/components/ui/sidebar/interfaces';
+import type { ISidebarGroup, ISidebarList, SidebarProps } from '@/components/ui/sidebar';
 import { BookOpen4, Flag, Gear, House4, Table, UnorderedList2, Plus } from '@/components/ui/icons';
+import { PencilSquareIcon } from '@/components/ui/icons/customIcons/Pencil_Square';
 import { ASSET_ICONS, assetTypeToIcon, assetTypeToRoute } from '../config/assetIcons';
 import type { BusterUserFavorite } from '@/api/asset_interfaces/users';
 import { Button } from '@/components/ui/buttons';
 import { Tooltip } from '@/components/ui/tooltip/Tooltip';
 import Link from 'next/link';
-import { PencilSquareIcon } from '@/components/ui/icons/customIcons/Pencil_Square';
 
 const topItems: ISidebarList = {
   items: [
@@ -155,6 +155,8 @@ const SidebarPrimaryHeader = React.memo(() => {
     </div>
   );
 });
+
+SidebarPrimaryHeader.displayName = 'SidebarPrimaryHeader';
 
 const favoritesDropdown = (favorites: BusterUserFavorite[]): ISidebarGroup => {
   return {
