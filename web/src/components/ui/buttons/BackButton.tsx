@@ -1,9 +1,8 @@
-'use client';
 import React from 'react';
-import { Title } from '../text';
 import Link from 'next/link';
 import { ChevronLeft } from '../icons';
 import { Button } from './Button';
+import { cn } from '@/lib/classMerge';
 
 interface BackButtonProps {
   onClick?: () => void;
@@ -19,10 +18,14 @@ export const BackButton: React.FC<BackButtonProps> = React.memo(
     return (
       <LinkWrapper linkUrl={linkUrl}>
         <Button
-          prefix={<ChevronLeft />}
+          prefix={
+            <div className="group-hover:text-foreground flex text-xs">
+              <ChevronLeft />
+            </div>
+          }
           variant="link"
           onClick={onClick}
-          className={className}
+          className={cn(className, 'group pl-1.5')}
           style={style}>
           {text}
         </Button>

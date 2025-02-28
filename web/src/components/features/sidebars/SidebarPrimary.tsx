@@ -98,36 +98,33 @@ const tryGroup = (onClickInvitePeople: () => void, onClickLeaveFeedback: () => v
 
 export const SidebarPrimary: React.FC<{
   isAdmin: boolean;
-  activeRoute: BusterRoutes;
   activePage: string;
   favorites: BusterUserFavorite[] | null;
   onClickInvitePeople: () => void;
   onClickLeaveFeedback: () => void;
-}> = React.memo(
-  ({ isAdmin, activeRoute, activePage, favorites, onClickInvitePeople, onClickLeaveFeedback }) => {
-    const sidebarItems: SidebarProps['content'] = useMemo(() => {
-      const items = [topItems];
+}> = React.memo(({ isAdmin, activePage, favorites, onClickInvitePeople, onClickLeaveFeedback }) => {
+  const sidebarItems: SidebarProps['content'] = useMemo(() => {
+    const items = [topItems];
 
-      if (isAdmin) {
-        items.push(adminTools);
-      }
+    if (isAdmin) {
+      items.push(adminTools);
+    }
 
-      items.push(yourStuff);
+    items.push(yourStuff);
 
-      if (favorites && favorites.length > 0) {
-        items.push(favoritesDropdown(favorites));
-      }
+    if (favorites && favorites.length > 0) {
+      items.push(favoritesDropdown(favorites));
+    }
 
-      items.push(tryGroup(onClickInvitePeople, onClickLeaveFeedback));
+    items.push(tryGroup(onClickInvitePeople, onClickLeaveFeedback));
 
-      return items;
-    }, [isAdmin, activePage]);
+    return items;
+  }, [isAdmin, activePage]);
 
-    return (
-      <Sidebar content={sidebarItems} header={<SidebarPrimaryHeader />} activeItem={activePage} />
-    );
-  }
-);
+  return (
+    <Sidebar content={sidebarItems} header={<SidebarPrimaryHeader />} activeItem={activePage} />
+  );
+});
 
 SidebarPrimary.displayName = 'SidebarPrimary';
 

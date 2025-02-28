@@ -23,6 +23,7 @@ const SidebarTrigger: React.FC<SidebarTriggerProps> = React.memo(({ label, isOpe
         'group cursor-pointer'
       )}>
       <span className="">{label}</span>
+
       <div
         className={cn(
           'text-icon-color text-3xs -rotate-90 transition-transform duration-200',
@@ -37,16 +38,32 @@ const SidebarTrigger: React.FC<SidebarTriggerProps> = React.memo(({ label, isOpe
 SidebarTrigger.displayName = 'SidebarTrigger';
 
 export const SidebarCollapsible: React.FC<ISidebarGroup & { activeItem?: string }> = React.memo(
-  ({ label, items, activeItem, defaultOpen = true }) => {
+  ({ label, items, activeItem, variant = 'collapsible', icon, defaultOpen = true }) => {
     const [isOpen, setIsOpen] = React.useState(defaultOpen);
 
     return (
       <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-0.5">
-        <CollapsibleTrigger asChild className="w-full">
-          <button className="w-full text-left">
-            <SidebarTrigger label={label} isOpen={isOpen} />
-          </button>
-        </CollapsibleTrigger>
+        {variant === 'collapsible' && (
+          <CollapsibleTrigger asChild className="w-full">
+            <button className="w-full text-left">
+              <SidebarTrigger label={label} isOpen={isOpen} />
+            </button>
+          </CollapsibleTrigger>
+        )}
+
+        {variant === 'icon' && (
+          <div
+            className={cn(
+              'flex items-center gap-1 rounded px-1.5 py-1 text-sm',
+              'text-text-secondary'
+            )}>
+            <div className="flex items-center space-x-2.5">
+              {icon && <span className="text-icon-color text-icon-size">{icon}</span>}
+              <span className="">{label}</span>
+            </div>
+          </div>
+        )}
+
         <CollapsibleContent className="data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up pl-0">
           <div className="space-y-0.5">
             {items.map((item) => (

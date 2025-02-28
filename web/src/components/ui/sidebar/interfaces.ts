@@ -1,7 +1,7 @@
 import React from 'react';
 export interface ISidebarItem {
   label: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   route: string | null;
   id: string;
   disabled?: boolean;
@@ -11,7 +11,9 @@ export interface ISidebarItem {
 
 export interface ISidebarGroup {
   label: string;
+  icon?: React.ReactNode;
   items: ISidebarItem[];
+  variant?: 'collapsible' | 'icon'; //default is collapsible
   defaultOpen?: boolean; //will default to true
 }
 

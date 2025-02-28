@@ -54,7 +54,6 @@ const mockFavorites = [
 export const AdminUser: Story = {
   args: {
     isAdmin: true,
-    activeRoute: BusterRoutes.APP_HOME,
     activePage: 'home',
     favorites: mockFavorites,
     onClickInvitePeople: () => alert('Invite people clicked'),
@@ -65,7 +64,6 @@ export const AdminUser: Story = {
 export const RegularUser: Story = {
   args: {
     isAdmin: false,
-    activeRoute: BusterRoutes.APP_HOME,
     activePage: 'home',
     favorites: mockFavorites,
     onClickInvitePeople: () => alert('Invite people clicked'),
@@ -76,7 +74,6 @@ export const RegularUser: Story = {
 export const NoFavorites: Story = {
   args: {
     isAdmin: true,
-    activeRoute: BusterRoutes.APP_HOME,
     activePage: 'home',
     favorites: null,
     onClickInvitePeople: () => alert('Invite people clicked'),
@@ -87,7 +84,7 @@ export const NoFavorites: Story = {
 export const DifferentActiveRoute: Story = {
   args: {
     isAdmin: true,
-    activeRoute: BusterRoutes.APP_CHAT,
+
     activePage: 'chat',
     favorites: mockFavorites,
     onClickInvitePeople: () => alert('Invite people clicked'),
@@ -99,7 +96,6 @@ export const FavoritesActiveRoute: Story = {
   args: {
     isAdmin: true,
     favorites: mockFavorites,
-    activeRoute: BusterRoutes.APP_METRIC,
     activePage: createBusterRoute({ route: BusterRoutes.APP_METRIC_ID, metricId: '456' })
   }
 };

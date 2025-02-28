@@ -5,7 +5,7 @@ import { type ISidebarItem } from './interfaces';
 import { cva, VariantProps } from 'class-variance-authority';
 
 const itemVariants = cva(
-  'flex items-center gap-2 rounded px-1.5 py-1.5 text-base transition-colors cursor-pointer',
+  'flex items-center gap-2 rounded px-1.5 py-1.5 text-base transition-colors cursor-pointer min-h-7',
   {
     variants: {
       variant: {
@@ -62,7 +62,11 @@ export const SidebarItem: React.FC<ISidebarItem & VariantProps<typeof itemVarian
 
     return (
       <ItemNode href={route || ''} className={cn(itemVariants({ active, disabled, variant }))}>
-        <span className={cn('text-icon-size! text-icon-color', { 'text-text-disabled': disabled })}>
+        <span
+          className={cn('text-icon-size! text-icon-color', {
+            'text-text-disabled': disabled,
+            'pl-4.5': !icon //hmmm... maybe this should be a prop?
+          })}>
           {icon}
         </span>
         <span className="truncate">{label}</span>
