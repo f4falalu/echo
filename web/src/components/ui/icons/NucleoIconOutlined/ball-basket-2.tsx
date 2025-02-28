@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function ballBasket2(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px ball basket 2";
+  const title = props.title || '18px ball basket 2';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M8.823,1.753c-.044,1.796-.751,3.579-2.121,4.949s-3.153,2.078-4.949,2.121"
           fill="none"

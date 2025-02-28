@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function gymBag(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px gym bag";
+  const title = props.title || '18px gym bag';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M5.75,15.25V5c0-1.795,1.455-3.25,3.25-3.25h0c1.795,0,3.25,1.455,3.25,3.25V15.25"
           fill="none"

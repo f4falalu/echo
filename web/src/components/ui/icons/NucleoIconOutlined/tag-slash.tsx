@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function tagSlash(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px tag slash";
+  const title = props.title || '18px tag slash';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M14.25,7.437l1.117,1.117c.781,.781,.781,2.047,0,2.828l-1.976,1.976-1.976,1.976c-.781,.781-2.047,.781-2.828,0l-1.117-1.117"
           fill="none"
@@ -39,7 +34,7 @@ function tagSlash(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="6.25" cy="6.25" fill="#212121" r="1.25" />
+        <circle cx="6.25" cy="6.25" fill="currentColor" r="1.25" />
       </g>
     </svg>
   );

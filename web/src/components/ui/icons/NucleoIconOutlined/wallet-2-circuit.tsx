@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function wallet2Circuit(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px wallet 2 circuit";
+  const title = props.title || '18px wallet 2 circuit';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M2.25,5.5h0c0-1.733,1.249-3.213,2.957-3.505L11.769,.875c.434-.074,.866,.145,1.063,.539l.053,.106"
           fill="none"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function refreshAnticlockwise(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px refresh anticlockwise";
+  const title = props.title || '12px refresh anticlockwise';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M7.75 8.25L10.75 8.25 10.75 11.25"
           fill="none"

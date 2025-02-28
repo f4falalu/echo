@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function slice(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px slice";
+  const title = props.title || '18px slice';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M10.206,6.294L1.25,15.25c3.344,.25,6.125-.781,7.75-2.5l-.253-1.702,1.546-1.546"
           fill="none"

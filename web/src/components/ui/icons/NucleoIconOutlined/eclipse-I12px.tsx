@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function eclipse(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px eclipse";
+  const title = props.title || '12px eclipse';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m7.625,1.033c-2.099.687-3.625,2.639-3.625,4.967s1.526,4.28,3.625,4.967"
           fill="none"

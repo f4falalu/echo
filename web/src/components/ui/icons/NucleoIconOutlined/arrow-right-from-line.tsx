@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function arrowRightFromLine(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px arrow right from line";
+  const title = props.title || '18px arrow right from line';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M11.25 5L15.25 9 11.25 13"
           fill="none"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function droplet(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px droplet";
+  const title = props.title || '18px droplet';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M9,16.25c3.038,0,5.5-2.47,5.5-5.517,0-4.191-3.083-5.983-5.5-8.983C6.583,4.75,3.5,6.542,3.5,10.733c0,3.047,2.462,5.517,5.5,5.517Z"
           fill="none"

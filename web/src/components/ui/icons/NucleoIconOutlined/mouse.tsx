@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function mouse(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px mouse";
+  const title = props.title || '18px mouse';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m8.25,10.75c0-2.209,1.791-4,4-4"
           fill="none"
@@ -25,7 +20,7 @@ function mouse(props: iconProps) {
         />
         <path
           d="m5.25,8.5c.4142,0,.75-.3358.75-.75s-.3358-.75-.75-.75-.75.3358-.75.75.3358.75.75.75Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
         <path

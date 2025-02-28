@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function camera2Off(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px camera 2 off";
+  const title = props.title || '18px camera 2 off';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M7.285,14.25h6.965c1.105,0,2-.895,2-2V5.75c0-.138-.014-.273-.041-.403"
           fill="none"
@@ -63,7 +58,7 @@ function camera2Off(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="4.25" cy="6.25" fill="#212121" r=".75" />
+        <circle cx="4.25" cy="6.25" fill="currentColor" r=".75" />
       </g>
     </svg>
   );

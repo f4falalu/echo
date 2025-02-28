@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function safetyHelmet(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px safety helmet";
+  const title = props.title || '18px safety helmet';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M10.75,3.998c2.6,.757,4.5,3.157,4.5,6.002v2.25"
           fill="none"

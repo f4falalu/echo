@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function lips(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px lips";
+  const title = props.title || '18px lips';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M1.25,9c2.768,0,3.045-.607,4.429-.607s1.661,.607,3.321,.607,1.938-.607,3.321-.607,2.214,.607,4.429,.607"
           fill="none"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function pickaxe(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px pickaxe";
+  const title = props.title || '18px pickaxe';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M11.681,3.569c-2.934-1.889-6.067-1.509-6.469-1.453,1.62,1.219,3.053,2.44,4.312,3.611"
           fill="none"

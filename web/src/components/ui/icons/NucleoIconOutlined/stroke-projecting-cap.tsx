@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function strokeProjectingCap(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px stroke projecting cap";
+  const title = props.title || '18px stroke projecting cap';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M1.75,14.25H15.25c.552,0,1-.448,1-1V4.75c0-.552-.448-1-1-1H1.75"
           fill="none"

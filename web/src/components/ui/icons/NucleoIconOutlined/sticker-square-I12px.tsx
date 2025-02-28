@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function stickerSquare(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px sticker square";
+  const title = props.title || '12px sticker square';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m4.25,10.75c.828,0,1.5-.672,1.5-1.5v-1.5c0-1.105.895-2,2-2h1.5c.828,0,1.5-.672,1.5-1.5"
           fill="none"

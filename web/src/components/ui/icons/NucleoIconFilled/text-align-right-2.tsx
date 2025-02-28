@@ -1,33 +1,28 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function textAlignRight2(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px text align right 2";
+  const title = props.title || '12px text align right 2';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m10.75,6.75h-3.5c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h3.5c.414,0,.75.336.75.75s-.336.75-.75.75Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
         <path
           d="m10.75,10.5H1.25c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h9.5c.414,0,.75.336.75.75s-.336.75-.75.75Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
         <path
           d="m10.75,3H1.25c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h9.5c.414,0,.75.336.75.75s-.336.75-.75.75Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
       </g>

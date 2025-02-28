@@ -1,24 +1,19 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function ufo(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px ufo";
+  const title = props.title || '18px ufo';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
-        <circle cx="14.75" cy="1.75" fill="#212121" r=".75" />
+      <g fill="currentColor">
+        <circle cx="14.75" cy="1.75" fill="currentColor" r=".75" />
         <path
           d="M3.869,1.894l-.947-.315-.315-.947c-.103-.306-.609-.306-.712,0l-.315,.947-.947,.315c-.153,.051-.256,.194-.256,.356s.104,.305,.256,.356l.947,.315,.315,.947c.051,.153,.194,.256,.356,.256s.305-.104,.356-.256l.315-.947,.947-.315c.153-.051,.256-.194,.256-.356s-.104-.305-.256-.356Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M5.223,5.526c-.012-.115-.015-.216-.015-.334,0-1.887,1.53-3.417,3.417-3.417,1.575,0,2.901,1.066,3.297,2.516"
@@ -55,7 +50,7 @@ function ufo(props: iconProps) {
         <ellipse
           cx="9.002"
           cy="7.34"
-          fill="#212121"
+          fill="currentColor"
           rx="2.026"
           ry=".316"
           stroke="#212121"

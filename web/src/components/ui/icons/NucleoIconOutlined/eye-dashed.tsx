@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function eyeDashed(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px eye dashed";
+  const title = props.title || '18px eye dashed';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M3.848,5.806c.45-.405,.966-.79,1.55-1.116"
           fill="none"

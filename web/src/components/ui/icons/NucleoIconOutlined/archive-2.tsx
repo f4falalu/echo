@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function archive2(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px archive 2";
+  const title = props.title || '18px archive 2';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m14.75,6.75v6.5c0,1.105-.895,2-2,2h-7.5c-1.105,0-2-.895-2-2v-7"
           fill="none"

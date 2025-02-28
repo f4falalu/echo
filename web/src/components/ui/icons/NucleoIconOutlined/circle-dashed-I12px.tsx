@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function circleDashed(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px circle dashed";
+  const title = props.title || '12px circle dashed';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m6.854.819c-.278-.045-.563-.069-.854-.069s-.576.024-.854.069"
           fill="none"

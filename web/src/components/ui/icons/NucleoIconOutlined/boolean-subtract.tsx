@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function booleanSubtract(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px boolean subtract";
+  const title = props.title || '18px boolean subtract';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M11.25,6.75h3c.552,0,1,.448,1,1v6.5c0,.552-.448,1-1,1H7.75c-.552,0-1-.448-1-1v-3"
           fill="none"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function plane(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px plane";
+  const title = props.title || '18px plane';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M7.25,10.358l-6,.892v-1.574c0-.408,.248-.776,.627-.928l5.373-2.154"
           fill="none"
@@ -41,11 +36,11 @@ function plane(props: iconProps) {
         />
         <path
           d="M7.844,15.762l-.357-2.26-2.902,1.332c-.357,.164-.585,.52-.585,.912v.756c0,.296,.256,.526,.55,.496l3.895-.407c-.308-.17-.543-.46-.601-.828Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M10.156,15.762l.357-2.26,2.902,1.332c.357,.164,.585,.52,.585,.912v.756c0,.296-.256,.526-.55,.496l-3.895-.407c.308-.17,.543-.46,.601-.828Z"
-          fill="#212121"
+          fill="currentColor"
         />
       </g>
     </svg>

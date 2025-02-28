@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function calendarBolt(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px calendar bolt";
+  const title = props.title || '18px calendar bolt';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M5.75 2.75L5.75 0.75"
           fill="none"
@@ -49,7 +44,7 @@ function calendarBolt(props: iconProps) {
         />
         <path
           d="M15.667 14.25L12.75 14.25 14.75 11 13.833 13.75 16.75 13.75 14.75 17 15.667 14.25z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"

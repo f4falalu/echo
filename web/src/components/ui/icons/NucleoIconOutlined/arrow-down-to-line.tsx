@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function arrowDownToLine(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px arrow down to line";
+  const title = props.title || '18px arrow down to line';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M13 8.25L9 12.25 5 8.25"
           fill="none"

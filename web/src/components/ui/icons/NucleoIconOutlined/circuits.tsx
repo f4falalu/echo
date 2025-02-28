@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function circuits(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px circuits";
+  const title = props.title || '18px circuits';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M6.25,5.25v2.586c0,.265,.105,.52,.293,.707l.914,.914c.188,.188,.293,.442,.293,.707v5.586"
           fill="none"

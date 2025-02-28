@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function userPhone(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px user phone";
+  const title = props.title || '18px user phone';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <circle
           cx="9"
           cy="4.5"
@@ -35,7 +30,7 @@ function userPhone(props: iconProps) {
         />
         <path
           d="M11.416,12.905l1.604-1.382c.177-.142,.237-.386,.145-.593l-.359-.882c-.099-.224-.346-.342-.583-.281l-1.111,.365c-.214,.07-.365,.277-.351,.502,.19,3.009,2.596,5.415,5.605,5.605,.225,.014,.432-.136,.502-.351l.365-1.111c.061-.237-.057-.483-.281-.583l-.882-.359c-.208-.092-.451-.033-.593,.145l-1.382,1.604"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"

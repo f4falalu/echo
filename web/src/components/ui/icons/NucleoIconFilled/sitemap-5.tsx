@@ -1,35 +1,22 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function sitemap5(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px sitemap 5";
+  const title = props.title || '18px sitemap 5';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M11.25,8h-1.5v-1.75c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75v1.75h-1.5c-1.517,0-2.75,1.233-2.75,2.75v1c0,.414,.336,.75,.75,.75s.75-.336,.75-.75v-1c0-.689,.561-1.25,1.25-1.25h4.5c.689,0,1.25,.561,1.25,1.25v1c0,.414,.336,.75,.75,.75s.75-.336,.75-.75v-1c0-1.517-1.233-2.75-2.75-2.75Z"
-          fill="#212121"
+          fill="currentColor"
         />
-        <circle cx="4.75" cy="14" fill="#212121" r="3" />
-        <circle cx="13.25" cy="14" fill="#212121" r="3" />
-        <rect
-          height="6"
-          width="6"
-          fill="#212121"
-          rx="1.75"
-          ry="1.75"
-          x="6"
-          y="1"
-        />
+        <circle cx="4.75" cy="14" fill="currentColor" r="3" />
+        <circle cx="13.25" cy="14" fill="currentColor" r="3" />
+        <rect height="6" width="6" fill="currentColor" rx="1.75" ry="1.75" x="6" y="1" />
       </g>
     </svg>
   );

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function bed(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px bed";
+  const title = props.title || '18px bed';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M8.75,12.25V6.75h5.5c1.105,0,2,.895,2,2v3.5"
           fill="none"
@@ -42,7 +37,7 @@ function bed(props: iconProps) {
         <circle
           cx="5.25"
           cy="8.75"
-          fill="#212121"
+          fill="currentColor"
           r="1"
           stroke="#212121"
           strokeLinecap="round"

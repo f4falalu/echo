@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function watch(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px watch";
+  const title = props.title || '18px watch';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M6.25,4.75l.361-2.164c.08-.482,.498-.836,.986-.836h2.806c.489,0,.906,.353,.986,.836l.361,2.164"
           fill="none"

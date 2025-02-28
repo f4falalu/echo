@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function bottleWater(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px bottle water";
+  const title = props.title || '18px bottle water';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M7,16.75H3.75c-.552,0-1-.448-1-1,0,0,0-3.333,0-5.25,0-2.458,2-3.708,2-6.75v-1.5c0-.552,.448-1,1-1h1.5c.552,0,1,.448,1,1v1.5c0,1.348,.393,2.344,.831,3.25"
           fill="none"

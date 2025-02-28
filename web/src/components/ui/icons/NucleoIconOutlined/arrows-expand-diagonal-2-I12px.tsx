@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function arrowsExpandDiagonal2(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px arrows expand diagonal 2";
+  const title = props.title || '12px arrows expand diagonal 2';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M7.268 7.268L10.573 10.573"
           fill="none"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function arrowBoldDownToLine(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px arrow bold down to line";
+  const title = props.title || '18px arrow bold down to line';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M4.574,7.543l4.021,5.555c.2,.276,.61,.276,.81,0l4.021-5.555c.239-.331,.003-.793-.405-.793h-2.271V2.75c0-.552-.448-1-1-1h-1.5c-.552,0-1,.448-1,1V6.75h-2.271c-.408,0-.644,.463-.405,.793Z"
           fill="none"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function squarePointer(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px square pointer";
+  const title = props.title || '18px square pointer';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m15.25,8.9592v-4.2092c0-1.1045-.8954-2-2-2H4.75c-1.1046,0-2,.8955-2,2v8.5c0,1.1045.8954,2,2,2h4.2094"
           fill="none"

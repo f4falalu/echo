@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function windowLeft(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px window left";
+  const title = props.title || '18px window left';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <rect
           height="11.5"
           width="14.5"
@@ -30,7 +25,7 @@ function windowLeft(props: iconProps) {
         />
         <path
           d="M4.75 6.25H6.75V11.75H4.75z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"

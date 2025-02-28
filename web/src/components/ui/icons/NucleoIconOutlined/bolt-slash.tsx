@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function boltSlash(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px bolt slash";
+  const title = props.title || '18px bolt slash';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m8.465,13.07l-.319,3.159c-.037.26.299.394.451.18l5.872-8.265c.118-.166,0-.395-.204-.395h-.481"
           fill="none"

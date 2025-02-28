@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function layerBack(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px layer back";
+  const title = props.title || '18px layer back';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M6.5,12.059l-3.837-2.02c-.267-.141-.401-.402-.401-.664"
           fill="none"

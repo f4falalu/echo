@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function inputPassword(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px input password";
+  const title = props.title || '18px input password';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M7.75,13.25H3.75c-1.105,0-2-.895-2-2V6.75c0-1.105,.895-2,2-2H14.25c1.105,0,2,.895,2,2v.25"
           fill="none"
@@ -31,8 +26,8 @@ function inputPassword(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="5.5" cy="9" fill="#212121" r="1" />
-        <circle cx="9" cy="9" fill="#212121" r="1" />
+        <circle cx="5.5" cy="9" fill="currentColor" r="1" />
+        <circle cx="9" cy="9" fill="currentColor" r="1" />
         <rect
           height="4"
           width="6"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function headphones4(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px headphones 4";
+  const title = props.title || '18px headphones 4';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m15.75,12.75v-3.75c0-3.7279-3.0221-6.75-6.75-6.75h0c-3.7279,0-6.75,3.0221-6.75,6.75v3.75"
           fill="none"

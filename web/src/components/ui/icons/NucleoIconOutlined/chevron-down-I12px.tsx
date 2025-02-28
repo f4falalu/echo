@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function chevronDown(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px chevron down";
+  const title = props.title || '12px chevron down';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M1.75 4.25L6 8.5 10.25 4.25"
           fill="none"

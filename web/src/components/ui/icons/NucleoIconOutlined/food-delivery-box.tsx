@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function foodDeliveryBox(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px food delivery box";
+  const title = props.title || '18px food delivery box';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M1.75 12.25H16.25V15.25H1.75z"
           fill="none"
@@ -49,7 +44,7 @@ function foodDeliveryBox(props: iconProps) {
         />
         <path
           d="M9,14c.966,0,1.75-.783,1.75-1.75h-3.5c0,.967,.784,1.75,1.75,1.75Z"
-          fill="#212121"
+          fill="currentColor"
         />
       </g>
     </svg>

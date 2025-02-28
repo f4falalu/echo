@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function cloudSlash(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px cloud slash";
+  const title = props.title || '18px cloud slash';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M12.922,5.078c-.761-1.387-2.226-2.328-3.922-2.328-2.485,0-4.5,2.015-4.5,4.5,0,.35,.049,.686,.124,1.013-1.597,.067-2.874,1.374-2.874,2.987,0,1.354,.897,2.498,2.129,2.871"
           fill="none"

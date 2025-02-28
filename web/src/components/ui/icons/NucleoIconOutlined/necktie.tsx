@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function necktie(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px necktie";
+  const title = props.title || '18px necktie';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M10.25,5.25l1.881,8.464c.074,.334-.027,.682-.269,.924l-2.155,2.155c-.391,.391-1.024,.391-1.414,0l-2.155-2.155c-.242-.242-.343-.59-.269-.924l1.881-8.464"
           fill="none"

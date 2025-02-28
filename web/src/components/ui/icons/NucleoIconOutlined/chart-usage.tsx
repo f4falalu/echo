@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function chartUsage(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px chart usage";
+  const title = props.title || '18px chart usage';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M15.602,6c.416,.914,.648,1.93,.648,3,0,2.066-.864,3.929-2.25,5.25"
           fill="none"
@@ -39,8 +34,8 @@ function chartUsage(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="7" cy="7" fill="#212121" r="1" />
-        <circle cx="11" cy="11" fill="#212121" r="1" />
+        <circle cx="7" cy="7" fill="currentColor" r="1" />
+        <circle cx="11" cy="11" fill="currentColor" r="1" />
       </g>
     </svg>
   );

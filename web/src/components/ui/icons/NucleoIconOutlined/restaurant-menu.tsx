@@ -1,21 +1,16 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function restaurantMenu(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px restaurant menu";
+  const title = props.title || '18px restaurant menu';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
-        <circle cx="8" cy="5.5" fill="#212121" r="1.5" />
+      <g fill="currentColor">
+        <circle cx="8" cy="5.5" fill="currentColor" r="1.5" />
         <path
           d="M3.25 2.75L12.75 1.75 12.75 16.25 3.25 15.25 3.25 2.75z"
           fill="none"

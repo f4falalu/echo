@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function wallet(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px wallet";
+  const title = props.title || '12px wallet';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m.75,2.25h0c0-.828.672-1.5,1.5-1.5h5"
           fill="none"
@@ -31,7 +26,7 @@ function wallet(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="8" cy="7" fill="#212121" r="1" strokeWidth="0" />
+        <circle cx="8" cy="7" fill="currentColor" r="1" strokeWidth="0" />
       </g>
     </svg>
   );

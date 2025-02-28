@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function tShirt(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px t shirt";
+  const title = props.title || '18px t shirt';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M13.151,7c-.109,1.236-.178,2.574-.182,4-.005,1.918,.108,3.678,.281,5.25h-4.25s-4.25,0-4.25,0c.173-1.572,.286-3.332,.281-5.25-.004-1.426-.073-2.764-.182-4"
           fill="none"

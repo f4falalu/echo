@@ -1,21 +1,16 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function pileOfPoo(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px pile of poo";
+  const title = props.title || '18px pile of poo';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
-        <circle cx="1.75" cy="4.25" fill="#212121" r=".75" />
+      <g fill="currentColor">
+        <circle cx="1.75" cy="4.25" fill="currentColor" r=".75" />
         <path
           d="M9.73,7.323l3.589,.305c.809,.069,1.431,.746,1.431,1.558,0,0,0,1.564-1.564,1.564"
           fill="none"

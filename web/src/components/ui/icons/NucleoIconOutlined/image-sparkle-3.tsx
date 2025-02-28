@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function imageSparkle3(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px image sparkle 3";
+  const title = props.title || '18px image sparkle 3';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M4,14.75l5.836-5.836c.781-.781,2.047-.781,2.828,0l3.586,3.586"
           fill="none"
@@ -39,7 +34,7 @@ function imageSparkle3(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="5.75" cy="7.25" fill="#212121" r="1.25" />
+        <circle cx="5.75" cy="7.25" fill="currentColor" r="1.25" />
       </g>
     </svg>
   );

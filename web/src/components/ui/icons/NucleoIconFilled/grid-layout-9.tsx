@@ -14,11 +14,11 @@ function gridLayout9(props: iconProps) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <rect
           height="15"
           width="4"
-          fill="#212121"
+          fill="currentColor"
           rx="1.75"
           ry="1.75"
           x="1.5"
@@ -27,7 +27,7 @@ function gridLayout9(props: iconProps) {
         <rect
           height="4"
           width="9.5"
-          fill="#212121"
+          fill="currentColor"
           rx="1.75"
           ry="1.75"
           x="7"
@@ -36,7 +36,7 @@ function gridLayout9(props: iconProps) {
         <rect
           height="4"
           width="9.5"
-          fill="#212121"
+          fill="currentColor"
           rx="1.75"
           ry="1.75"
           x="7"
@@ -45,7 +45,7 @@ function gridLayout9(props: iconProps) {
         <rect
           height="4"
           width="9.5"
-          fill="#212121"
+          fill="currentColor"
           rx="1.75"
           ry="1.75"
           x="7"

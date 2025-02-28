@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function userShortHair5(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px user short hair 5";
+  const title = props.title || '18px user short hair 5';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M12.75,6.5c0,2.071-1.679,3.75-3.75,3.75s-3.75-1.679-3.75-3.75"
           fill="none"
@@ -41,7 +36,7 @@ function userShortHair5(props: iconProps) {
         />
         <path
           d="M6,3.75h3.75c1.381,0,2.5-1.119,2.5-2.5h0s-3,0-3,0c-2.209,0-4,1.791-4,4v.75"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"

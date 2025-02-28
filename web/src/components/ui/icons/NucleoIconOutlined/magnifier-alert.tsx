@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function magnifierAlert(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px magnifier alert";
+  const title = props.title || '18px magnifier alert';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M11.001,11.384c-.882,1.42-2.456,2.366-4.251,2.366-2.761,0-5-2.239-5-5S3.989,3.75,6.75,3.75c.084,0,.167,.002,.25,.006"
           fill="none"
@@ -47,7 +42,7 @@ function magnifierAlert(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="12" cy="9.25" fill="#212121" r=".75" />
+        <circle cx="12" cy="9.25" fill="currentColor" r=".75" />
       </g>
     </svg>
   );

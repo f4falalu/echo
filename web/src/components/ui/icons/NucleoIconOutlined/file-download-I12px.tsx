@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function fileDownload(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px file download";
+  const title = props.title || '12px file download';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m4.75,9.25l-2,2-2-2"
           fill="none"
@@ -33,7 +28,7 @@ function fileDownload(props: iconProps) {
         />
         <path
           d="m6.75,4.25h3.5c0-.321-.127-.627-.353-.853l-2.295-2.295c-.226-.226-.532-.353-.851-.353v3.5Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
         <path

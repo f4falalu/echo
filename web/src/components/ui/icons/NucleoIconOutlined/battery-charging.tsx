@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function batteryCharging(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px battery charging";
+  const title = props.title || '18px battery charging';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M5.25,13.75h-1.5c-1.105,0-2-.895-2-2V6.25c0-1.105,.895-2,2-2h3.046"
           fill="none"
@@ -33,7 +28,7 @@ function batteryCharging(props: iconProps) {
         />
         <path
           d="M15.75 7.75H17.25V10.25H15.75z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -41,7 +36,7 @@ function batteryCharging(props: iconProps) {
         />
         <path
           d="M7.75,14.25l4-5.5h-3l1.5-5-4,5.5h3l-1.5,5Z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"

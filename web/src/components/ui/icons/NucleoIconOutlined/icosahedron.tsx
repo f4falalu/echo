@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function icosahedron(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px icosahedron";
+  const title = props.title || '18px icosahedron';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M9 2.062L2.907 12.25 15.093 12.25 9 2.062z"
           fill="none"

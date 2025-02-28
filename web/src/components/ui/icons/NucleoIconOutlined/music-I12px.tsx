@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function music(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px music";
+  const title = props.title || '12px music';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m11.25,3.25l-7,1v-1.786c0-.498.366-.92.859-.99l5-.714c.602-.086,1.141.381,1.141.99v1.5Z"
           fill="none"

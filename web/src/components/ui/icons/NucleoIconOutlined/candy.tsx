@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function candy(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px candy";
+  const title = props.title || '18px candy';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m12.25,5.215v-3.12c0-.17.17-.297.331-.243,1.606.54,2.843,1.643,3.55,3.554.06.163-.066.344-.24.344h-3.103"
           fill="none"

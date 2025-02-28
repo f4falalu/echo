@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function deviceMockup(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px device mockup";
+  const title = props.title || '18px device mockup';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M1.829,8.709l3.694,1.965c.542,.289,1.194,.284,1.732-.012l8.924-4.906c.432-.237,.428-.859-.007-1.091l-3.694-1.965c-.542-.289-1.194-.284-1.732,.012L1.821,7.618c-.432,.237-.428,.859,.007,1.091Z"
           fill="none"

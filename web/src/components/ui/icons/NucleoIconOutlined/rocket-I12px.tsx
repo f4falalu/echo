@@ -1,28 +1,23 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function rocket(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px rocket";
+  const title = props.title || '12px rocket';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m4.981,3.405l.032-.056h-1.579c-.316,0-.615.144-.812.391l-1.872,2.344,2.366.566c.329-1.198.951-2.308,1.865-3.245Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
         <path
           d="m8.595,7.019l.056-.032v1.579c0,.316-.144.615-.391.812l-2.344,1.872-.566-2.366c1.198-.329,2.308-.951,3.245-1.865Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
         <path
@@ -57,7 +52,7 @@ function rocket(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="7.75" cy="4.25" fill="#212121" r=".75" strokeWidth="0" />
+        <circle cx="7.75" cy="4.25" fill="currentColor" r=".75" strokeWidth="0" />
       </g>
     </svg>
   );

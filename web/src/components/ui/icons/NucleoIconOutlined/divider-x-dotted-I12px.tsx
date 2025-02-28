@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function dividerXDotted(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px divider x dotted";
+  const title = props.title || '12px divider x dotted';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m1.25,1.25c1.105,0,2,.895,2,2v5.5c0,1.105-.895,2-2,2"
           fill="none"
@@ -31,10 +26,10 @@ function dividerXDotted(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="6" cy="1.75" fill="#212121" r=".75" strokeWidth="0" />
-        <circle cx="6" cy="4.583" fill="#212121" r=".75" strokeWidth="0" />
-        <circle cx="6" cy="7.417" fill="#212121" r=".75" strokeWidth="0" />
-        <circle cx="6" cy="10.25" fill="#212121" r=".75" strokeWidth="0" />
+        <circle cx="6" cy="1.75" fill="currentColor" r=".75" strokeWidth="0" />
+        <circle cx="6" cy="4.583" fill="currentColor" r=".75" strokeWidth="0" />
+        <circle cx="6" cy="7.417" fill="currentColor" r=".75" strokeWidth="0" />
+        <circle cx="6" cy="10.25" fill="currentColor" r=".75" strokeWidth="0" />
       </g>
     </svg>
   );

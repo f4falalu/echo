@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function bus(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px bus";
+  const title = props.title || '18px bus';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M.75,7.75v-2c0-.552,.448-1,1-1h1.5"
           fill="none"
@@ -33,7 +28,7 @@ function bus(props: iconProps) {
         />
         <path
           d="M3.25,14.25v1.5c0,.276,.224,.5,.5,.5h.5c.276,0,.5-.224,.5-.5v-1.5h-1.5Z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -41,7 +36,7 @@ function bus(props: iconProps) {
         />
         <path
           d="M13.25,14.25v1.5c0,.276,.224,.5,.5,.5h.5c.276,0,.5-.224,.5-.5v-1.5h-1.5Z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -71,8 +66,8 @@ function bus(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="5.75" cy="11.75" fill="#212121" r=".75" />
-        <circle cx="12.25" cy="11.75" fill="#212121" r=".75" />
+        <circle cx="5.75" cy="11.75" fill="currentColor" r=".75" />
+        <circle cx="12.25" cy="11.75" fill="currentColor" r=".75" />
       </g>
     </svg>
   );

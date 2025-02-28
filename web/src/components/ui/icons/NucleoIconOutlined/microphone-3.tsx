@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function microphone3(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px microphone 3";
+  const title = props.title || '18px microphone 3';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M15.25,7.5c0,3.446-2.804,6.25-6.25,6.25S2.75,10.946,2.75,7.5"
           fill="none"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function phoneSlash(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px phone slash";
+  const title = props.title || '18px phone slash';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M8.119,13.612c1.791,1.228,3.875,2.062,6.132,2.379,.489,.067,.952-.242,1.076-.719l.642-2.475c.119-.459-.111-.936-.544-1.129l-2.927-1.3c-.402-.179-.874-.064-1.15,.279l-1.141,1.426c-.155-.091-.309-.186-.459-.284"
           fill="none"

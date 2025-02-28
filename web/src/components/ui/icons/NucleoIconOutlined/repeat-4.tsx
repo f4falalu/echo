@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function repeat4(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px repeat 4";
+  const title = props.title || '18px repeat 4';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M12,4.276c2.388,.25,4.25,2.27,4.25,4.724h0c0,2.623-2.127,4.75-4.75,4.75h-2.75l2.5,2.5"
           fill="none"

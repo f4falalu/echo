@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function qrcode(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px qrcode";
+  const title = props.title || '18px qrcode';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <rect
           height="5"
           width="5"
@@ -54,15 +49,15 @@ function qrcode(props: iconProps) {
           x="2.75"
           y="10.25"
         />
-        <path d="M4.5 4.5H6V6H4.5z" fill="#212121" />
-        <path d="M12 4.5H13.5V6H12z" fill="#212121" />
-        <path d="M4.5 12H6V13.5H4.5z" fill="#212121" />
-        <path d="M14.5 14.5H16V16H14.5z" fill="#212121" />
-        <path d="M13 13H14.5V14.5H13z" fill="#212121" />
-        <path d="M14.5 11.5H16V13H14.5z" fill="#212121" />
-        <path d="M11 14.5H13V16H11z" fill="#212121" />
-        <path d="M9.5 11.5H11V14.5H9.5z" fill="#212121" />
-        <path d="M11 10H14.5V11.5H11z" fill="#212121" />
+        <path d="M4.5 4.5H6V6H4.5z" fill="currentColor" />
+        <path d="M12 4.5H13.5V6H12z" fill="currentColor" />
+        <path d="M4.5 12H6V13.5H4.5z" fill="currentColor" />
+        <path d="M14.5 14.5H16V16H14.5z" fill="currentColor" />
+        <path d="M13 13H14.5V14.5H13z" fill="currentColor" />
+        <path d="M14.5 11.5H16V13H14.5z" fill="currentColor" />
+        <path d="M11 14.5H13V16H11z" fill="currentColor" />
+        <path d="M9.5 11.5H11V14.5H9.5z" fill="currentColor" />
+        <path d="M11 10H14.5V11.5H11z" fill="currentColor" />
       </g>
     </svg>
   );

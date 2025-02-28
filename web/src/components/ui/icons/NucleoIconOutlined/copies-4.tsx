@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function copies4(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px copies 4";
+  const title = props.title || '18px copies 4';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M9.25,12.75v1.5c0,1.105-.895,2-2,2H3.75c-1.105,0-2-.895-2-2v-3.5c0-1.105,.895-2,2-2h1.5"
           fill="none"

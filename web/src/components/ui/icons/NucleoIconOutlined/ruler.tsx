@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function ruler(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px ruler";
+  const title = props.title || '18px ruler';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M11.298 11.298L9.53 9.53"
           fill="none"
@@ -47,7 +42,7 @@ function ruler(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="12" cy="4.75" fill="#212121" r=".75" />
+        <circle cx="12" cy="4.75" fill="currentColor" r=".75" />
         <rect
           height="6.5"
           width="15"

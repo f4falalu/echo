@@ -1,10 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Button } from './Button';
 import * as OutlinedIcons from '../icons/NucleoIconOutlined';
-
-const IconSelect = Object.keys(OutlinedIcons).map((icon) => {
-  return icon;
-});
+import { IconSelectOutlined } from '../icons/NucleoIconOutlined/iconStories';
 
 const meta: Meta<typeof Button> = {
   title: 'UI/Buttons/Button',
@@ -40,11 +37,11 @@ const meta: Meta<typeof Button> = {
     },
     prefix: {
       control: 'select',
-      options: IconSelect
+      options: IconSelectOutlined
     },
     suffix: {
       control: 'select',
-      options: IconSelect
+      options: IconSelectOutlined
     },
     rounding: {
       control: 'select',
@@ -65,6 +62,7 @@ const meta: Meta<typeof Button> = {
 };
 
 export default meta;
+
 type Story = StoryObj<typeof Button>;
 
 export const Default: Story = {

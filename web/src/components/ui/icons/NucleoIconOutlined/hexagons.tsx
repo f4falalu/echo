@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function hexagons(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px hexagons";
+  const title = props.title || '18px hexagons';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M6.75,6.75v4.271c0,.536,.286,1.031,.75,1.299l3.5,2.021c.464,.268,1.036,.268,1.5,0l3.5-2.021c.464-.268,.75-.763,.75-1.299V6.979c0-.536-.286-1.031-.75-1.299l-3.5-2.021c-.261-.151-.557-.217-.848-.198"
           fill="none"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function repeatOnce(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px repeat once";
+  const title = props.title || '18px repeat once';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M9.25,7.25V1.75s-.63,1.108-1.967,1.364"
           fill="none"

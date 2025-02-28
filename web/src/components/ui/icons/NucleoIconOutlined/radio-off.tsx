@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function radioOff(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px radio off";
+  const title = props.title || '18px radio off';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M7.763,10.237c-.317-.317-.513-.754-.513-1.237,0-.966,.784-1.75,1.75-1.75,.483,0,.921,.196,1.237,.513"
           fill="none"

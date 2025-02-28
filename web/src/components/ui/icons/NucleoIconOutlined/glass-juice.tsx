@@ -1,23 +1,18 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function glassJuice(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px glass juice";
+  const title = props.title || '18px glass juice';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M13.5,3.5h0c.276,0,.5,.224,.5,.5h0c0,1.38-1.12,2.5-2.5,2.5h0c-.276,0-.5-.224-.5-.5h0c0-1.38,1.12-2.5,2.5-2.5Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M2.75,5.75h6.5l-.227,9.524c-.013,.543-.457,.976-1,.976H3.976c-.543,0-.987-.433-1-.976l-.227-9.524Z"

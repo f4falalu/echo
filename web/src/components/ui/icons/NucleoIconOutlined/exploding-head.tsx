@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function explodingHead(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px exploding head";
+  const title = props.title || '18px exploding head';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M16.25,10c0,4.004-3.246,7.25-7.25,7.25-4.004,0-7.25-3.246-7.25-7.25l1.394,.697c.366,.183,.806,.125,1.112-.147l1.167-1.037c.34-.302,.841-.337,1.219-.085l1.803,1.202c.336,.224,.774,.224,1.109,0l1.803-1.202c.378-.252,.879-.217,1.219,.085l1.167,1.037c.306,.272,.746,.33,1.112,.147l1.394-.697Z"
           fill="none"
@@ -25,7 +20,7 @@ function explodingHead(props: iconProps) {
         />
         <path
           d="M8,13h2c.276,0,.5,.224,.5,.5h0c0,.828-.672,1.5-1.5,1.5h0c-.828,0-1.5-.672-1.5-1.5h0c0-.276,.224-.5,.5-.5Z"
-          fill="#212121"
+          fill="currentColor"
           transform="rotate(180 9 14)"
         />
         <path
@@ -52,10 +47,10 @@ function explodingHead(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="6" cy="12" fill="#212121" r="1" />
-        <circle cx="2.25" cy="6.75" fill="#212121" r=".75" />
-        <circle cx="15.25" cy="7.75" fill="#212121" r=".75" />
-        <circle cx="12" cy="12" fill="#212121" r="1" />
+        <circle cx="6" cy="12" fill="currentColor" r="1" />
+        <circle cx="2.25" cy="6.75" fill="currentColor" r=".75" />
+        <circle cx="15.25" cy="7.75" fill="currentColor" r=".75" />
+        <circle cx="12" cy="12" fill="currentColor" r="1" />
       </g>
     </svg>
   );

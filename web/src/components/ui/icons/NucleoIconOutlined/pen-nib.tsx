@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function penNib(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px pen nib";
+  const title = props.title || '18px pen nib';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M9 1.735L9 9.5"
           fill="none"
@@ -42,7 +37,7 @@ function penNib(props: iconProps) {
         <circle
           cx="9"
           cy="9.5"
-          fill="#212121"
+          fill="currentColor"
           r=".75"
           stroke="#212121"
           strokeLinecap="round"

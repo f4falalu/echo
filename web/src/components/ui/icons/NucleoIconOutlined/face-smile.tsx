@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function faceSmile(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px face smile";
+  const title = props.title || '18px face smile';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <circle
           cx="9"
           cy="9"
@@ -25,8 +20,8 @@ function faceSmile(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="7" cy="8" fill="#212121" r="1" />
-        <circle cx="11" cy="8" fill="#212121" r="1" />
+        <circle cx="7" cy="8" fill="currentColor" r="1" />
+        <circle cx="11" cy="8" fill="currentColor" r="1" />
         <path
           d="M12.749,11c-.717,1.338-2.128,2.25-3.749,2.25s-3.033-.912-3.749-2.25"
           fill="none"

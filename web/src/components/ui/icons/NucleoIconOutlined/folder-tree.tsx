@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function folderTree(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px folder tree";
+  const title = props.title || '18px folder tree';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M12.123,2.75h2.127c.552,0,1,.448,1,1v2.5c0,.552-.448,1-1,1h-4.5c-.552,0-1-.448-1-1V2.75c0-.552,.448-1,1-1h1.046c.289,0,.563,.125,.753,.342l.575,.658Z"
           fill="none"

@@ -1,37 +1,24 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function rectCenterX(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px rect center x";
+  const title = props.title || '18px rect center x';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M2.75,2c-.414,0-.75,.336-.75,.75V15.25c0,.414,.336,.75,.75,.75s.75-.336,.75-.75V2.75c0-.414-.336-.75-.75-.75Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M15.25,2c-.414,0-.75,.336-.75,.75V15.25c0,.414,.336,.75,.75,.75s.75-.336,.75-.75V2.75c0-.414-.336-.75-.75-.75Z"
-          fill="#212121"
+          fill="currentColor"
         />
-        <rect
-          height="8"
-          width="8"
-          fill="#212121"
-          rx="1.75"
-          ry="1.75"
-          x="5"
-          y="5"
-        />
+        <rect height="8" width="8" fill="currentColor" rx="1.75" ry="1.75" x="5" y="5" />
       </g>
     </svg>
   );

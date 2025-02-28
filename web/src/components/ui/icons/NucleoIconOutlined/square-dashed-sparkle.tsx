@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function squareDashedSparkle(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px square dashed sparkle";
+  const title = props.title || '18px square dashed sparkle';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m6.75,15.25h-2c-1.105,0-2-.895-2-2v-2"
           fill="none"
@@ -49,7 +44,7 @@ function squareDashedSparkle(props: iconProps) {
         />
         <path
           d="m16.159,3.49l-1.263-.421-.421-1.263c-.137-.408-.812-.408-.949,0l-.421,1.263-1.263.421c-.204.068-.342.259-.342.474s.138.406.342.474l1.263.421.421,1.263c.068.204.26.342.475.342s.406-.138.475-.342l.421-1.263,1.263-.421c.204-.068.342-.259.342-.474s-.138-.406-.342-.474h-.001Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
       </g>

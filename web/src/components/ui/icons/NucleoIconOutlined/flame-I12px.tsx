@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function flame(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px flame";
+  const title = props.title || '12px flame';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m6,11.25c1.105,0,2-.898,2-2.007,0-1.524-2-3.243-2-3.243,0,0-2,1.72-2,3.243,0,1.108.895,2.007,2,2.007Z"
           fill="none"

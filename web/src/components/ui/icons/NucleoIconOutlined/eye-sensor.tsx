@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function eyeSensor(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px eye sensor";
+  const title = props.title || '18px eye sensor';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M15.282,10.424c.671,.76,.671,1.893,0,2.653-1.101,1.247-3.162,2.924-6.282,2.924s-5.181-1.677-6.282-2.924c-.671-.76-.671-1.893,0-2.653,1.101-1.247,3.162-2.924,6.282-2.924s5.181,1.677,6.282,2.924Z"
           fill="none"
@@ -42,7 +37,7 @@ function eyeSensor(props: iconProps) {
         <circle
           cx="9"
           cy="11.75"
-          fill="#212121"
+          fill="currentColor"
           r="1.5"
           stroke="#212121"
           strokeLinecap="round"

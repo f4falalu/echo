@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function stackPerspective(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px stack perspective";
+  const title = props.title || '12px stack perspective';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m9.135,9.074l-3,1.929c-.166.107-.385-.013-.385-.21V1.208c0-.198.219-.317.385-.21l3,1.929c.072.046.115.125.115.21v5.727c0,.085-.043.164-.115.21Z"
           fill="none"

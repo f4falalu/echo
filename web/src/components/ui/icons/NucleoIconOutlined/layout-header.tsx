@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function layoutHeader(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px layout header";
+  const title = props.title || '18px layout header';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M16.25,5.396v7.854c0,1.105-.895,2-2,2H3.75c-1.105,0-2-.895-2-2V5.396"
           fill="none"

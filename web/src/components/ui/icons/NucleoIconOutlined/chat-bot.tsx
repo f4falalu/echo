@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function chatBot(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px chat bot";
+  const title = props.title || '18px chat bot';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M15.75,.75h-4.5c-.827,0-1.5,.673-1.5,1.5v2c0,.827,.673,1.5,1.5,1.5h.5v2l2.227-2h1.773c.827,0,1.5-.673,1.5-1.5V2.25c0-.827-.673-1.5-1.5-1.5Z"
           fill="none"
@@ -33,7 +28,7 @@ function chatBot(props: iconProps) {
         />
         <path
           d="M7.5,12h2c.276,0,.5,.224,.5,.5h0c0,.828-.672,1.5-1.5,1.5h0c-.828,0-1.5-.672-1.5-1.5h0c0-.276,.224-.5,.5-.5Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M5.25 3.75L5.25 6.75"
@@ -43,9 +38,9 @@ function chatBot(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="5.5" cy="11" fill="#212121" r="1" />
-        <circle cx="11.5" cy="11" fill="#212121" r="1" />
-        <circle cx="5.25" cy="2.5" fill="#212121" r="1.5" />
+        <circle cx="5.5" cy="11" fill="currentColor" r="1" />
+        <circle cx="11.5" cy="11" fill="currentColor" r="1" />
+        <circle cx="5.25" cy="2.5" fill="currentColor" r="1.5" />
       </g>
     </svg>
   );

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function starUser(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px star user";
+  const title = props.title || '18px star user';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M9.763 13.586L9 13.185 4.519 15.54 5.375 10.551 1.75 7.017 6.76 6.289 9 1.75 11.24 6.289 16.25 7.017 14.674 8.554"
           fill="none"
@@ -34,7 +29,7 @@ function starUser(props: iconProps) {
         <circle
           cx="13.25"
           cy="11.75"
-          fill="#212121"
+          fill="currentColor"
           r="1"
           stroke="#212121"
           strokeLinecap="round"

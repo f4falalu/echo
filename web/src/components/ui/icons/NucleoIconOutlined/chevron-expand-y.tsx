@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function chevronExpandY(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px chevron expand y";
+  const title = props.title || '18px chevron expand y';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M12.5 6.25L9 2.75 5.5 6.25"
           fill="none"

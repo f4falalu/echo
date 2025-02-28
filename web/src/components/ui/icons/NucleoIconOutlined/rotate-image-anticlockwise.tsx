@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function rotateImageAnticlockwise(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px rotate image anticlockwise";
+  const title = props.title || '18px rotate image anticlockwise';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <rect
           height="8.5"
           width="10.5"
@@ -28,10 +23,7 @@ function rotateImageAnticlockwise(props: iconProps) {
           x="1.75"
           y="7.75"
         />
-        <path
-          d="M5,12c-.551,0-1-.449-1-1s.449-1,1-1,1,.449,1,1-.449,1-1,1Z"
-          fill="#212121"
-        />
+        <path d="M5,12c-.551,0-1-.449-1-1s.449-1,1-1,1,.449,1,1-.449,1-1,1Z" fill="currentColor" />
         <path
           d="M4.086,16.25l4.207-4.207c.391-.391,1.024-.391,1.414,0l2.519,2.519"
           fill="none"

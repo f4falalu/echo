@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function temperatureDown(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px temperature down";
+  const title = props.title || '18px temperature down';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M6.25 12L6.25 9.25"
           fill="none"
@@ -47,7 +42,7 @@ function temperatureDown(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="6.25" cy="12.75" fill="#212121" r="1.5" />
+        <circle cx="6.25" cy="12.75" fill="currentColor" r="1.5" />
       </g>
     </svg>
   );

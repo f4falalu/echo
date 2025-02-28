@@ -1,35 +1,30 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function automatedLogistics2(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px automated logistics 2";
+  const title = props.title || '18px automated logistics 2';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M2.75,9H1.75c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h1c.138,0,.25-.112,.25-.25V3.75c0-.138-.112-.25-.25-.25H1.75c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h1c.965,0,1.75,.785,1.75,1.75v3.5c0,.965-.785,1.75-1.75,1.75Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M16.25,9h-1c-.965,0-1.75-.785-1.75-1.75V3.75c0-.965,.785-1.75,1.75-1.75h1c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75h-1c-.138,0-.25,.112-.25,.25v3.5c0,.138,.112,.25,.25,.25h1c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M14.25,10.5H3.75c-1.517,0-2.75,1.233-2.75,2.75s1.233,2.75,2.75,2.75H14.25c1.517,0,2.75-1.233,2.75-2.75s-1.233-2.75-2.75-2.75Zm-8.5,3.5c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75,.75,.336,.75,.75-.336,.75-.75,.75Zm3.25,0c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75,.75,.336,.75,.75-.336,.75-.75,.75Zm3.25,0c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75,.75,.336,.75,.75-.336,.75-.75,.75Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M10.75,2h-1v2.5c0,.414-.336,.75-.75,.75s-.75-.336-.75-.75V2h-1c-.965,0-1.75,.785-1.75,1.75v3.5c0,.965,.785,1.75,1.75,1.75h3.5c.965,0,1.75-.785,1.75-1.75V3.75c0-.965-.785-1.75-1.75-1.75Z"
-          fill="#212121"
+          fill="currentColor"
         />
       </g>
     </svg>

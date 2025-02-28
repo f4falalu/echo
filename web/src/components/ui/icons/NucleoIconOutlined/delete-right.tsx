@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function deleteRight(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px delete right";
+  const title = props.title || '18px delete right';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M4.75,14.25h7.773c.302,0,.587-.136,.777-.371l3.95-4.879-3.95-4.879c-.19-.235-.475-.371-.777-.371H4.75c-1.105,0-2,.895-2,2v6.5c0,1.105,.895,2,2,2Z"
           fill="none"

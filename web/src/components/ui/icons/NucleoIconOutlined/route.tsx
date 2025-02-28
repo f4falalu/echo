@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function route(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px route";
+  const title = props.title || '18px route';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M6.75,8.25h-2.25c-1.519,0-2.75,1.231-2.75,2.75h0c0,1.519,1.231,2.75,2.75,2.75H15.75"
           fill="none"
@@ -39,7 +34,7 @@ function route(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="3.25" cy="2.75" fill="#212121" r=".75" />
+        <circle cx="3.25" cy="2.75" fill="currentColor" r=".75" />
         <circle
           cx="9"
           cy="8.25"

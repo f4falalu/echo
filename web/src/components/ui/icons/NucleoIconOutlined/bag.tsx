@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function bag(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px bag";
+  const title = props.title || '18px bag';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M3.424,5.75H14.576c.522,0,.956,.401,.997,.921l.507,6.421c.092,1.163-.827,2.157-1.994,2.157H3.914c-1.167,0-2.086-.994-1.994-2.157l.507-6.421c.041-.52,.475-.921,.997-.921Z"
           fill="none"
@@ -31,15 +26,7 @@ function bag(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <rect
-          height="2"
-          width="4"
-          fill="#212121"
-          rx=".75"
-          ry=".75"
-          x="7"
-          y="10"
-        />
+        <rect height="2" width="4" fill="currentColor" rx=".75" ry=".75" x="7" y="10" />
       </g>
     </svg>
   );

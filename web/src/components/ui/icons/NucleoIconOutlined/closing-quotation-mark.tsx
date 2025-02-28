@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function closingQuotationMark(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px closing quotation mark";
+  const title = props.title || '18px closing quotation mark';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M16.25,8.75h-4.5c-.552,0-1-.448-1-1v-3c0-.552,.448-1,1-1h3.5c.552,0,1,.448,1,1v4c0,3.75-1.25,5.625-3.5,6.5"
           fill="none"

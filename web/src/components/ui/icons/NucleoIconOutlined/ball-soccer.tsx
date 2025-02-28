@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function ballSoccer(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px ball soccer";
+  const title = props.title || '18px ball soccer';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M7.464 1.914L9 3.263 10.536 1.914"
           fill="none"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function earthLeaf(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px earth leaf";
+  const title = props.title || '18px earth leaf';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M15.068,16.186c2.402-1.306,2.847-5.482,1.206-8.47-1.124,2.348-3.716,1.995-5.167,3.783-.43,.53-.761,1.25-.761,2.026,0,1.037,.512,1.954,1.297,2.509"
           fill="none"

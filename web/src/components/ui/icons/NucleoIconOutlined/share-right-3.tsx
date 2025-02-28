@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function shareRight3(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px share right 3";
+  const title = props.title || '18px share right 3';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M9.75,6.5V2.75s6.5,5.667,6.5,5.667l-6.5,5.833v-3.75c-5.25,0-8,3.75-8,3.75,0,0,0-7.75,8-7.75Z"
           fill="none"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function creditCardReader(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px credit card reader";
+  const title = props.title || '18px credit card reader';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M5.75,12.25H3.75c-1.105,0-2-.895-2-2V3.75c0-1.105,.895-2,2-2H14.25c1.105,0,2,.895,2,2v6.5c0,1.105-.895,2-2,2h-2"
           fill="none"
@@ -52,15 +47,7 @@ function creditCardReader(props: iconProps) {
           x="5.75"
           y="9.25"
         />
-        <rect
-          height="3"
-          width="3"
-          fill="#212121"
-          rx=".25"
-          ry=".25"
-          x="7.5"
-          y="11"
-        />
+        <rect height="3" width="3" fill="currentColor" rx=".25" ry=".25" x="7.5" y="11" />
       </g>
     </svg>
   );

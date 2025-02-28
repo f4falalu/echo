@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function vrHeadset2(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px vr headset 2";
+  const title = props.title || '18px vr headset 2';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m15.457,6.594l-1.753-2.77c-.325-.513-.865-.86-1.469-.918-.99-.096-2.072-.156-3.235-.156-.98,0-2.062.043-3.227.155-.607.059-1.153.407-1.479.923l-1.67,2.644"
           fill="none"

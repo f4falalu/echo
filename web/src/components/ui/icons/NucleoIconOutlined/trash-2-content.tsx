@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function trash2Content(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px trash 2 content";
+  const title = props.title || '18px trash 2 content';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m4.423,5.249l2.316-2.634c.402-.457,1.115-.452,1.51.01l2.247,2.624"
           fill="none"

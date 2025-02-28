@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function faceMelting(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px face melting";
+  const title = props.title || '18px face melting';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M10.312,13.438c-.259-.201-.492-.312-.656-.375-.756-.292-1.153-.017-2.007-.33-.314-.115-.527-.251-.648-.336,0,0-.296-.209-.526-.491-.557-.681-.589-1.655-.593-1.822"
           fill="none"
@@ -31,8 +26,8 @@ function faceMelting(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="7" cy="7" fill="#212121" r="1" />
-        <circle cx="11" cy="10" fill="#212121" r="1" />
+        <circle cx="7" cy="7" fill="currentColor" r="1" />
+        <circle cx="11" cy="10" fill="currentColor" r="1" />
       </g>
     </svg>
   );

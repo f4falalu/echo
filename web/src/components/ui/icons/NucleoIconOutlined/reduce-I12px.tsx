@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function reduce(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px reduce";
+  const title = props.title || '12px reduce';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m4.25,1.25v1c0,1.105-.895,2-2,2h-1"
           fill="none"

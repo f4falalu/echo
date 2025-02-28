@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function caretMinimizeDiagonal2(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px caret minimize diagonal 2";
+  const title = props.title || '18px caret minimize diagonal 2';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M2.854,7.75H7.5c.138,0,.25-.112,.25-.25V2.854c0-.223-.269-.334-.427-.177L2.677,7.323c-.157,.157-.046,.427,.177,.427Z"
           fill="none"

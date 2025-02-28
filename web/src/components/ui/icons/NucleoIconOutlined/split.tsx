@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function split(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px split";
+  const title = props.title || '18px split';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M6,9l2.159,3.337c.369,.57,1.001,.913,1.679,.913h5.412"
           fill="none"

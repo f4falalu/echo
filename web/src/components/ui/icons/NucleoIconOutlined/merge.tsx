@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function merge(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px merge";
+  const title = props.title || '18px merge';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M9.5,9l-2.172-3.752c-.358-.618-1.017-.998-1.731-.998H2.75"
           fill="none"

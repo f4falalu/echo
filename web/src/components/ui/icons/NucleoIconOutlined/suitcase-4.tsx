@@ -1,21 +1,16 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function suitcase4(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px suitcase 4";
+  const title = props.title || '18px suitcase 4';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
-        <circle cx="9" cy="8.75" fill="#212121" r=".75" />
+      <g fill="currentColor">
+        <circle cx="9" cy="8.75" fill="currentColor" r=".75" />
         <path
           d="M15.75,11.5v1.75c0,1.105-.895,2-2,2H4.25c-1.105,0-2-.895-2-2v-1.75"
           fill="none"

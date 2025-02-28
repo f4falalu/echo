@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function clipboardUser(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px clipboard user";
+  const title = props.title || '18px clipboard user';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M6.25,2.75h-1c-1.105,0-2,.895-2,2V14.25c0,1.105,.895,2,2,2h7.5c1.105,0,2-.895,2-2V4.75c0-1.105-.895-2-2-2h-1"
           fill="none"
@@ -47,7 +42,7 @@ function clipboardUser(props: iconProps) {
         <circle
           cx="9"
           cy="7.75"
-          fill="#212121"
+          fill="currentColor"
           r="1"
           stroke="#212121"
           strokeLinecap="round"

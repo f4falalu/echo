@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function thread(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px thread";
+  const title = props.title || '18px thread';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M16.933,7.567c.316,1.344-.517,2.69-1.861,3.006l-1.822,.429"
           fill="none"

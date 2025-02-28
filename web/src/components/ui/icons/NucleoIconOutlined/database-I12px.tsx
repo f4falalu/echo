@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function database(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px database";
+  const title = props.title || '12px database';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m1.75,2.438v7.125c0,.932,1.903,1.688,4.25,1.688s4.25-.755,4.25-1.688V2.438"
           fill="none"

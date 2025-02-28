@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function gear4(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px gear 4";
+  const title = props.title || '12px gear 4';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <circle
           cx="6"
           cy="6"
@@ -27,7 +22,7 @@ function gear4(props: iconProps) {
         />
         <path
           d="M6.942 2.112L6.375 0.75 5.625 0.75 5.058 2.112"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -35,7 +30,7 @@ function gear4(props: iconProps) {
         />
         <path
           d="M3.917 2.584L2.553 2.023 2.023 2.553 2.584 3.917"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -43,7 +38,7 @@ function gear4(props: iconProps) {
         />
         <path
           d="M2.112 5.058L0.75 5.625 0.75 6.375 2.112 6.942"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -51,7 +46,7 @@ function gear4(props: iconProps) {
         />
         <path
           d="M2.584 8.083L2.023 9.447 2.553 9.977 3.917 9.416"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -59,7 +54,7 @@ function gear4(props: iconProps) {
         />
         <path
           d="M5.058 9.888L5.625 11.25 6.375 11.25 6.942 9.888"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -67,7 +62,7 @@ function gear4(props: iconProps) {
         />
         <path
           d="M8.083 9.416L9.447 9.977 9.977 9.447 9.416 8.083"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -75,7 +70,7 @@ function gear4(props: iconProps) {
         />
         <path
           d="M9.888 6.942L11.25 6.375 11.25 5.625 9.888 5.058"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -83,7 +78,7 @@ function gear4(props: iconProps) {
         />
         <path
           d="M9.416 3.917L9.977 2.553 9.447 2.023 8.083 2.584"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"

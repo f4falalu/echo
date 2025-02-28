@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function uTurnToRight(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px u turn to right";
+  const title = props.title || '18px u turn to right';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M15.75,6.25H6c-2.071,0-3.75,1.679-3.75,3.75h0c0,2.071,1.679,3.75,3.75,3.75h3.75"
           fill="none"

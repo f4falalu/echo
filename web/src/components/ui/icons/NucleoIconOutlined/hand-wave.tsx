@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function handWave(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px hand wave";
+  const title = props.title || '18px hand wave';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m9.1015,6.8586l-3.7123-3.7123c-.4879-.4879-1.2827-.4851-1.7678,0s-.4879,1.2799,0,1.7678l3.7123,3.7123"
           fill="none"

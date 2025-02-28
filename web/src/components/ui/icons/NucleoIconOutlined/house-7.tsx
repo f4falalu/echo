@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function house7(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px house 7";
+  const title = props.title || '18px house 7';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M3.75 16.25L3.75 8.75"
           fill="none"
@@ -63,7 +58,7 @@ function house7(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <rect height="2" width="2" fill="#212121" rx=".4" ry=".4" x="8" y="7" />
+        <rect height="2" width="2" fill="currentColor" rx=".4" ry=".4" x="8" y="7" />
       </g>
     </svg>
   );

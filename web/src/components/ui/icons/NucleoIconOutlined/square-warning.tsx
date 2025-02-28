@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function squareWarning(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px square warning";
+  const title = props.title || '18px square warning';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <rect
           height="12.5"
           width="12.5"
@@ -38,7 +33,7 @@ function squareWarning(props: iconProps) {
         />
         <path
           d="M9,13.417c-.552,0-1-.449-1-1s.448-1,1-1,1,.449,1,1-.448,1-1,1Z"
-          fill="#212121"
+          fill="currentColor"
         />
       </g>
     </svg>

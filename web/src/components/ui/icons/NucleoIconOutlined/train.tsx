@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function train(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px train";
+  const title = props.title || '18px train';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M5.75 13.25L3.75 17.25"
           fill="none"
@@ -63,8 +58,8 @@ function train(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="5.75" cy="10.75" fill="#212121" r=".75" />
-        <circle cx="12.25" cy="10.75" fill="#212121" r=".75" />
+        <circle cx="5.75" cy="10.75" fill="currentColor" r=".75" />
+        <circle cx="12.25" cy="10.75" fill="currentColor" r=".75" />
       </g>
     </svg>
   );

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function bookOpen2(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px book open 2";
+  const title = props.title || '12px book open 2';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m6,11.25l4.525-1.293c.429-.123.725-.515.725-.962V2.076c0-.664-.636-1.144-1.275-.962l-3.975,1.136"
           fill="none"

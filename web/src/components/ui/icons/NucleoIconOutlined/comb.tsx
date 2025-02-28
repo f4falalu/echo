@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function comb(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px comb";
+  const title = props.title || '18px comb';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M5.518,16.124l-2.932-2.932c-.781-.781-.781-2.047,0-2.828L10.364,2.586c.781-.781,2.047-.781,2.828,0l2.932,2.932"
           fill="none"

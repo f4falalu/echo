@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function quickSearch(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px quick search";
+  const title = props.title || '18px quick search';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M15.25 15.25L11.285 11.285"
           fill="none"
@@ -33,7 +28,7 @@ function quickSearch(props: iconProps) {
         />
         <path
           d="M9.6667 5.25L7 5.25 9.25 1.75 8.3333 4.75 11 4.75 8.75 8.25 9.6667 5.25z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"

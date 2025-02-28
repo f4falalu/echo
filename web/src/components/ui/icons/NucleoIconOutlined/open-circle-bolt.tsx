@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function openCircleBolt(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px open circle bolt";
+  const title = props.title || '18px open circle bolt';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M12.765,2.803c2.089,1.272,3.485,3.572,3.485,6.197,0,2.734-1.513,5.114-3.747,6.349"
           fill="none"

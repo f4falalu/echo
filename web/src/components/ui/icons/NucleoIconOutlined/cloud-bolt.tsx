@@ -1,23 +1,18 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function cloudBolt(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px cloud bolt";
+  const title = props.title || '18px cloud bolt';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M9.25 9.75L6.5 13.25 8.905 13.25 7.75 16.25 10.5 12.75 8.095 12.75 9.25 9.75z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"

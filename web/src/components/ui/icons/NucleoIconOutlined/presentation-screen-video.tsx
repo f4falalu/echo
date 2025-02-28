@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function presentationScreenVideo(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px presentation screen video";
+  const title = props.title || '18px presentation screen video';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M5.75 16.25L6.75 13.25"
           fill="none"
@@ -41,7 +36,7 @@ function presentationScreenVideo(props: iconProps) {
         />
         <path
           d="M17.619,1.288c-.234-.133-.525-.129-.754,.011l-2.122,1.272c-.15,.09-.243,.253-.243,.429v1c0,.176,.092,.339,.243,.429l2.121,1.271c.119,.072,.253,.108,.387,.108,.127,0,.254-.032,.368-.097,.235-.133,.381-.383,.381-.653V1.941c0-.271-.146-.521-.381-.653Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <rect
           height="5.5"

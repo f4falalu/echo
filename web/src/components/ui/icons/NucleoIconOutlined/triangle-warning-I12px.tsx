@@ -1,21 +1,16 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function triangleWarning(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px triangle warning";
+  const title = props.title || '12px triangle warning';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
-        <circle cx="6" cy="10.125" fill="#212121" r=".875" strokeWidth="0" />
+      <g fill="currentColor">
+        <circle cx="6" cy="10.125" fill="currentColor" r=".875" strokeWidth="0" />
         <path
           d="M6 4.75L6 7.75"
           fill="none"

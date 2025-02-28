@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function burgerSlash(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px burger slash";
+  const title = props.title || '18px burger slash';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M7.474,10.526c-.247-.157-.522-.276-.89-.276-1.065,0-1.352,1-2.417,1s-1.352-1-2.417-1"
           fill="none"
@@ -63,7 +58,7 @@ function burgerSlash(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="7.75" cy="5" fill="#212121" r=".75" />
+        <circle cx="7.75" cy="5" fill="currentColor" r=".75" />
       </g>
     </svg>
   );

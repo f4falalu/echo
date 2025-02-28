@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function umbrellaBeach(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px umbrella beach";
+  const title = props.title || '18px umbrella beach';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M7.722,6.907c1.242-.263,2.13,.553,2.205,.625,.045-.102,.576-1.241,1.868-1.486,1.228-.233,2.108,.537,2.205,.625-.707-3.345-3.993-5.484-7.338-4.777C3.316,2.601,1.178,5.887,1.885,9.232c.053-.12,.546-1.18,1.764-1.464,1.281-.299,2.227,.528,2.31,.603,.04-.096,.522-1.201,1.764-1.464Z"
           fill="none"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function cat(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px cat";
+  const title = props.title || '18px cat';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M2.25,10V2.172c0-.603,.676-.96,1.174-.619l3.576,2.447"
           fill="none"
@@ -33,7 +28,7 @@ function cat(props: iconProps) {
         />
         <path
           d="M9,13.417c.434-.477,.801-.967,1-1.491-.333-.117-.667-.175-1-.175-.333,0-.667,.058-1,.175,.199,.524,.566,1.015,1,1.491h0Z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -95,8 +90,8 @@ function cat(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="6" cy="9.5" fill="#212121" r="1" />
-        <circle cx="12" cy="9.5" fill="#212121" r="1" />
+        <circle cx="6" cy="9.5" fill="currentColor" r="1" />
+        <circle cx="12" cy="9.5" fill="currentColor" r="1" />
       </g>
     </svg>
   );

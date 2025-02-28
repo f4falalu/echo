@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function purse(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px purse";
+  const title = props.title || '18px purse';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M14,7.25l1.178,4.188c.538,1.914-.9,3.812-2.888,3.812H5.71c-1.988,0-3.426-1.899-2.888-3.812l1.178-4.188"
           fill="none"
@@ -31,8 +26,8 @@ function purse(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="7.5" cy="2" fill="#212121" r="1" />
-        <circle cx="10.5" cy="2" fill="#212121" r="1" />
+        <circle cx="7.5" cy="2" fill="currentColor" r="1" />
+        <circle cx="10.5" cy="2" fill="currentColor" r="1" />
       </g>
     </svg>
   );

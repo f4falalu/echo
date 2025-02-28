@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function cursorRipple(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px cursor ripple";
+  const title = props.title || '18px cursor ripple';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M10.004,5.79c-.55-.632-1.351-1.04-2.254-1.04-1.657,0-3,1.343-3,3,0,.904,.408,1.704,1.04,2.254"
           fill="none"

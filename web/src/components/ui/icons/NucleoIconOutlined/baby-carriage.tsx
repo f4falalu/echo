@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function babyCarriage(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px baby carriage";
+  const title = props.title || '18px baby carriage';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M9.75,7.75V1.75h0c3.038,0,5.5,2.462,5.5,5.5v.5"
           fill="none"
@@ -39,8 +34,8 @@ function babyCarriage(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="5.25" cy="15.75" fill="#212121" r="1.25" />
-        <circle cx="13.75" cy="15.75" fill="#212121" r="1.25" />
+        <circle cx="5.25" cy="15.75" fill="currentColor" r="1.25" />
+        <circle cx="13.75" cy="15.75" fill="currentColor" r="1.25" />
       </g>
     </svg>
   );

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function folderReplace(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px folder replace";
+  const title = props.title || '18px folder replace';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M11.874,10.75h2.876c.828,0,1.5,.672,1.5,1.5v2.5c0,.828-.672,1.5-1.5,1.5h-6c-.828,0-1.5-.672-1.5-1.5v-5c0-.552,.448-1,1-1h1.524c.301,0,.587,.136,.776,.37l1.323,1.63Z"
           fill="none"

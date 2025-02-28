@@ -1,23 +1,18 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function circleCaretDown(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px circle caret down";
+  const title = props.title || '18px circle caret down';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M9.621,11.157l2.022-2.987c.337-.498-.02-1.17-.621-1.17H6.978c-.601,0-.958,.672-.621,1.17l2.022,2.987c.297,.439,.945,.439,1.242,0Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <circle
           cx="9"

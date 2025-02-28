@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function calendarUpdate(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px calendar update";
+  const title = props.title || '18px calendar update';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M5.75 2.75L5.75 0.75"
           fill="none"
@@ -50,7 +45,7 @@ function calendarUpdate(props: iconProps) {
         <circle
           cx="15.25"
           cy="15.25"
-          fill="#212121"
+          fill="currentColor"
           r="1"
           stroke="#212121"
           strokeLinecap="round"

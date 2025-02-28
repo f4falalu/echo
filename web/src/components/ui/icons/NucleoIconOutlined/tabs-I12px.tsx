@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function tabs(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px tabs";
+  const title = props.title || '12px tabs';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m5.75,1.25h3c1.105,0,2,.895,2,2v1.25"
           fill="none"

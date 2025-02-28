@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function handCube(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px hand cube";
+  const title = props.title || '18px hand cube';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M11.478,.945l-2.21,1.282c-.321,.186-.518,.529-.518,.9v2.572c0,.371,.197,.714,.518,.9l2.21,1.282c.323,.187,.721,.187,1.044,0l2.21-1.282c.321-.186,.518-.529,.518-.9V3.127c0-.371-.197-.714-.518-.9l-2.21-1.282c-.323-.187-.721-.187-1.044,0Z"
           fill="none"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function tableUser(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px table user";
+  const title = props.title || '18px table user';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M6.75 2.75L6.75 15.25"
           fill="none"
@@ -50,7 +45,7 @@ function tableUser(props: iconProps) {
         <circle
           cx="13.75"
           cy="10.75"
-          fill="#212121"
+          fill="currentColor"
           r="1"
           stroke="#212121"
           strokeLinecap="round"

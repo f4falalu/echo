@@ -1,23 +1,18 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function cloudStreaming(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px cloud streaming";
+  const title = props.title || '18px cloud streaming';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M10.704,6.042l-2.308-1.346c-.397-.232-.896,.055-.896,.515v2.693c0,.46,.499,.747,.896,.515l2.308-1.346c.394-.23,.394-.8,0-1.03Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M11.25 14.25L16.25 14.25"

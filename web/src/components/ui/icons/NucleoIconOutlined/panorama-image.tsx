@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function panoramaImage(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px panorama image";
+  const title = props.title || '18px panorama image';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M15.271,14.293l-4.19-5.697c-.4-.543-1.212-.543-1.611,0l-3.623,4.927"
           fill="none"
@@ -33,7 +28,7 @@ function panoramaImage(props: iconProps) {
         />
         <path
           d="M5.75,6.5c-.689,0-1.25,.561-1.25,1.25s.561,1.25,1.25,1.25,1.25-.561,1.25-1.25-.561-1.25-1.25-1.25Z"
-          fill="#212121"
+          fill="currentColor"
         />
       </g>
     </svg>

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function forklift(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px forklift";
+  const title = props.title || '18px forklift';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M11.25,13.5v-4.464c0-.19-.027-.378-.08-.56l-1.46-5.006c-.124-.427-.516-.72-.96-.72h-3c-.552,0-1,.448-1,1v5"
           fill="none"

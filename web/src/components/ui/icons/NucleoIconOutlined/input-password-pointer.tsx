@@ -1,22 +1,17 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function inputPasswordPointer(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px input password pointer";
+  const title = props.title || '18px input password pointer';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
-        <circle cx="5" cy="9" fill="#212121" r="1" />
-        <circle cx="8.5" cy="9" fill="#212121" r="1" />
+      <g fill="currentColor">
+        <circle cx="5" cy="9" fill="currentColor" r="1" />
+        <circle cx="8.5" cy="9" fill="currentColor" r="1" />
         <path
           d="M15.75,9.795v-3.045c0-1.104-.895-2-2-2H3.25c-1.105,0-2,.896-2,2v4.5c0,1.104,.895,2,2,2h5.632"
           fill="none"

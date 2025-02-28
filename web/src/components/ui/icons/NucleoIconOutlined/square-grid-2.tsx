@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function squareGrid2(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px square grid 2";
+  const title = props.title || '18px square grid 2';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <rect
           height="12.5"
           width="12.5"
@@ -30,7 +25,7 @@ function squareGrid2(props: iconProps) {
         />
         <path
           d="M5.75 5.75H7.5V7.5H5.75z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -38,7 +33,7 @@ function squareGrid2(props: iconProps) {
         />
         <path
           d="M10.5 5.75H12.25V12.25H10.5z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -46,7 +41,7 @@ function squareGrid2(props: iconProps) {
         />
         <path
           d="M5.75 10.5H7.5V12.25H5.75z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"

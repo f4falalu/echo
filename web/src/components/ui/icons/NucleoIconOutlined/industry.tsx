@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function industry(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px industry";
+  const title = props.title || '18px industry';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M3.431,4.75h.638c.525,0,.96,.405,.997,.929l.607,8.5c.041,.579-.417,1.071-.997,1.071h-1.852c-.58,0-1.039-.492-.997-1.071l.607-8.5c.037-.523,.473-.929,.997-.929Z"
           fill="none"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function progressCircle0Of8(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px progress circle 0 of 8";
+  const title = props.title || '18px progress circle 0 of 8';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M13.163,3.07c-.854-.601-1.843-1.019-2.913-1.205"
           fill="none"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function badgeCheck(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px badge check";
+  const title = props.title || '18px badge check';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M16.25,9c0-1.07-.675-1.975-1.619-2.332,.415-.92,.252-2.038-.504-2.794s-1.874-.92-2.794-.504c-.357-.945-1.263-1.619-2.332-1.619s-1.975,.675-2.332,1.619c-.92-.416-2.038-.252-2.794,.504s-.919,1.874-.504,2.794c-.945,.357-1.619,1.263-1.619,2.332s.675,1.975,1.619,2.332c-.415,.92-.252,2.038,.504,2.794s1.874,.92,2.794,.504c.357,.945,1.263,1.619,2.332,1.619s1.975-.675,2.332-1.619c.92,.415,2.038,.252,2.794-.504s.92-1.874,.504-2.794c.945-.357,1.619-1.263,1.619-2.332Z"
           fill="none"

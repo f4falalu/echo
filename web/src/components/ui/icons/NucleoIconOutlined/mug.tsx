@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function mug(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px mug";
+  const title = props.title || '18px mug';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M12.821,4.75h2.429c.552,0,1,.448,1,1v1.5c0,1.657-1.343,3-3,3h-.76"
           fill="none"

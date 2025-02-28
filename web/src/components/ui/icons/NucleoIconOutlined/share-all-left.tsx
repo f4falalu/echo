@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function shareAllLeft(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px share all left";
+  const title = props.title || '18px share all left';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M10.25,6.776V3.543l-5.5,4.885,5.5,5.029v-3.233c4.526,0,7,3.233,7,3.233,0,0-.103-6.681-7-6.681Z"
           fill="none"

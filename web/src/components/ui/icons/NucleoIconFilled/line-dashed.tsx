@@ -1,33 +1,28 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function lineDashed(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px line dashed";
+  const title = props.title || '18px line dashed';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m4.75,9.75h-2c-.4141,0-.75-.3359-.75-.75s.3359-.75.75-.75h2c.4141,0,.75.3359.75.75s-.3359.75-.75.75Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
         <path
           d="m10,9.75h-2c-.4141,0-.75-.3359-.75-.75s.3359-.75.75-.75h2c.4141,0,.75.3359.75.75s-.3359.75-.75.75Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
         <path
           d="m15.25,9.75h-2c-.4141,0-.75-.3359-.75-.75s.3359-.75.75-.75h2c.4141,0,.75.3359.75.75s-.3359.75-.75.75Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
       </g>

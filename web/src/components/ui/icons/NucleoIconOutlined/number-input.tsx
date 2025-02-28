@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function numberInput(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px number input";
+  const title = props.title || '18px number input';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M6.75,11V7s-.458,.806-1.431,.992"
           fill="none"
@@ -33,11 +28,11 @@ function numberInput(props: iconProps) {
         />
         <path
           d="M13.5,8h3c.189,0,.362-.107,.447-.276,.084-.169,.066-.372-.047-.523l-1.5-2c-.188-.252-.611-.252-.8,0l-1.5,2c-.114,.151-.132,.354-.047,.523,.085,.169,.258,.276,.447,.276Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M16.5,10h-3c-.189,0-.362,.107-.447,.276-.084,.169-.066,.372,.047,.523l1.5,2c.094,.126,.243,.2,.4,.2s.306-.074,.4-.2l1.5-2c.114-.151,.132-.354,.047-.523-.085-.169-.258-.276-.447-.276Z"
-          fill="#212121"
+          fill="currentColor"
         />
       </g>
     </svg>

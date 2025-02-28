@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function cartHeart(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px cart heart";
+  const title = props.title || '18px cart heart';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M1.75,1.75l1.351,.338c.393,.098,.688,.424,.747,.825l1.153,7.838"
           fill="none"
@@ -47,8 +42,8 @@ function cartHeart(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="3.75" cy="15.75" fill="#212121" r="1.25" />
-        <circle cx="14.25" cy="15.75" fill="#212121" r="1.25" />
+        <circle cx="3.75" cy="15.75" fill="currentColor" r="1.25" />
+        <circle cx="14.25" cy="15.75" fill="currentColor" r="1.25" />
       </g>
     </svg>
   );

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function photo(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px photo";
+  const title = props.title || '12px photo';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m2.939,10.189l4-4c.586-.586,1.536-.586,2.121,0l2.125,2.125"
           fill="none"
@@ -23,7 +18,7 @@ function photo(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="4" cy="5" fill="#212121" r="1" strokeWidth="0" />
+        <circle cx="4" cy="5" fill="currentColor" r="1" strokeWidth="0" />
         <rect
           height="8.5"
           width="10.5"

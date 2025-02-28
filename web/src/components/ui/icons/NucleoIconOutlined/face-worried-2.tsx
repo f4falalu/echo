@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function faceWorried2(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px face worried 2";
+  const title = props.title || '18px face worried 2';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <circle
           cx="9"
           cy="9"
@@ -25,11 +20,11 @@ function faceWorried2(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="6" cy="9" fill="#212121" r="1" />
-        <circle cx="12" cy="9" fill="#212121" r="1" />
+        <circle cx="6" cy="9" fill="currentColor" r="1" />
+        <circle cx="12" cy="9" fill="currentColor" r="1" />
         <path
           d="M8,10h2c.276,0,.5,.224,.5,.5h0c0,.828-.672,1.5-1.5,1.5h0c-.828,0-1.5-.672-1.5-1.5h0c0-.276,.224-.5,.5-.5Z"
-          fill="#212121"
+          fill="currentColor"
           transform="rotate(180 9 11)"
         />
       </g>

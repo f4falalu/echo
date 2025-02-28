@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function chevronMinimizeDiagonal(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px chevron minimize diagonal";
+  const title = props.title || '12px chevron minimize diagonal';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M7.25 0.75L7.25 4.75 11.25 4.75"
           fill="none"

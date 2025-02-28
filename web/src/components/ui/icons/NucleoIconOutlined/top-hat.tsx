@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function topHat(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px top hat";
+  const title = props.title || '18px top hat';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M14.25,14.75c-.271-1.725-.472-3.767-.469-6.062,.003-1.769,.127-3.386,.31-4.821,.076-.595-.391-1.116-.991-1.116h-4.1s-4.1,0-4.1,0c-.6,0-1.067,.521-.991,1.116,.183,1.436,.307,3.053,.31,4.821,.004,2.295-.198,4.338-.469,6.062"
           fill="none"

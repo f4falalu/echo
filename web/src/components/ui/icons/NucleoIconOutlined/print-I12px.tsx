@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function print(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px print";
+  const title = props.title || '12px print';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m3.75,3.25v-1.5c0-.552.448-1,1-1h2.5c.552,0,1,.448,1,1v1.5"
           fill="none"

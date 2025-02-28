@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function sprayCan(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px spray can";
+  const title = props.title || '18px spray can';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M13.25 13.25L8.75 13.25 8.75 8.75 13.25 8.75"
           fill="none"
@@ -39,9 +34,9 @@ function sprayCan(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="13.25" cy="2.75" fill="#212121" r=".75" />
-        <circle cx="15.75" cy="1.25" fill="#212121" r=".75" />
-        <circle cx="15.75" cy="4.25" fill="#212121" r=".75" />
+        <circle cx="13.25" cy="2.75" fill="currentColor" r=".75" />
+        <circle cx="15.75" cy="1.25" fill="currentColor" r=".75" />
+        <circle cx="15.75" cy="4.25" fill="currentColor" r=".75" />
       </g>
     </svg>
   );

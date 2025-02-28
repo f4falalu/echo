@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function images(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px images";
+  const title = props.title || '18px images';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M4,15.25l5.836-5.836c.781-.781,2.047-.781,2.828,0l3.086,3.086"
           fill="none"
@@ -44,7 +39,7 @@ function images(props: iconProps) {
           x="2.25"
           y="4.75"
         />
-        <circle cx="5.75" cy="8.25" fill="#212121" r="1.25" />
+        <circle cx="5.75" cy="8.25" fill="currentColor" r="1.25" />
       </g>
     </svg>
   );

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function histogramAxisX(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px histogram axis x";
+  const title = props.title || '18px histogram axis x';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M16.25,10.75c-4.722,0-3.271-7-7.25-7s-2.528,7-7.25,7"
           fill="none"

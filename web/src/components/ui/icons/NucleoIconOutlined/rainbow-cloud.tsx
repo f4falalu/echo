@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function rainbowCloud(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px rainbow cloud";
+  const title = props.title || '18px rainbow cloud';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M6.75,11.25v-1c0-1.105,.895-2,2-2,.473,0,.908,.164,1.25,.439"
           fill="none"

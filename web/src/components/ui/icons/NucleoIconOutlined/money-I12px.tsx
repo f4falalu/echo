@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function money(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px money";
+  const title = props.title || '12px money';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <rect
           height="8.5"
           width="10.5"
@@ -31,7 +26,7 @@ function money(props: iconProps) {
         <circle
           cx="6"
           cy="6"
-          fill="#212121"
+          fill="currentColor"
           r="1.25"
           stroke="#212121"
           strokeLinecap="round"
@@ -40,22 +35,22 @@ function money(props: iconProps) {
         />
         <path
           d="m.75,3.75v1c1.657,0,3-1.343,3-3h-1C1.645,1.75.75,2.645.75,3.75Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
         <path
           d="m11.25,3.75v1c-1.657,0-3-1.343-3-3h1c1.105,0,2,.895,2,2Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
         <path
           d="m.75,8.25v-1c1.657,0,3,1.343,3,3h-1c-1.105,0-2-.895-2-2Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
         <path
           d="m11.25,8.25v-1c-1.657,0-3,1.343-3,3h1c1.105,0,2-.895,2-2Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
       </g>

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function focusModeOff(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px focus mode off";
+  const title = props.title || '18px focus mode off';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M3.873,14.127c-1.312-1.312-2.123-3.124-2.123-5.127,0-2.934,1.743-5.461,4.25-6.602"
           fill="none"

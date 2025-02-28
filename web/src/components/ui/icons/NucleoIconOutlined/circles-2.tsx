@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function circles2(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px circles 2";
+  const title = props.title || '18px circles 2';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <circle
           cx="9"
           cy="9"
@@ -25,8 +20,8 @@ function circles2(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="5.995" cy="12.005" fill="#212121" r=".75" />
-        <circle cx="14.127" cy="3.873" fill="#212121" r=".75" />
+        <circle cx="5.995" cy="12.005" fill="currentColor" r=".75" />
+        <circle cx="14.127" cy="3.873" fill="currentColor" r=".75" />
         <path
           d="M9,13.25c2.347,0,4.25-1.903,4.25-4.25s-1.903-4.25-4.25-4.25-4.25,1.903-4.25,4.25"
           fill="none"

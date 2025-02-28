@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function wind(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px wind";
+  const title = props.title || '18px wind';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M2.75,9H13.25c1.105,0,2,.895,2,2s-.895,2-2,2c-.895,0-1.653-.588-1.908-1.399"
           fill="none"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function slippers(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px slippers";
+  const title = props.title || '18px slippers';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M7.746,5.065c-2.02-.655-4.233-.277-5.92,1.012"
           fill="none"

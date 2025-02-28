@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function moonCloudHail(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px moon cloud hail";
+  const title = props.title || '18px moon cloud hail';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M14.341,7.172c.383-.469,.661-1.027,.801-1.638-.288,.066-.584,.108-.892,.108-2.209,0-4-1.791-4-4,0-.308,.042-.604,.108-.892-1.778,.406-3.108,1.991-3.108,3.892,0,.828,.252,1.598,.683,2.236"
           fill="none"
@@ -39,12 +34,12 @@ function moonCloudHail(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="11.75" cy="17.25" fill="#212121" r=".75" />
-        <circle cx="6.25" cy="17.25" fill="#212121" r=".75" />
-        <circle cx="9" cy="15.75" fill="#212121" r=".75" />
-        <circle cx="11.75" cy="14.25" fill="#212121" r=".75" />
-        <circle cx="6.25" cy="14.25" fill="#212121" r=".75" />
-        <circle cx="9" cy="12.75" fill="#212121" r=".75" />
+        <circle cx="11.75" cy="17.25" fill="currentColor" r=".75" />
+        <circle cx="6.25" cy="17.25" fill="currentColor" r=".75" />
+        <circle cx="9" cy="15.75" fill="currentColor" r=".75" />
+        <circle cx="11.75" cy="14.25" fill="currentColor" r=".75" />
+        <circle cx="6.25" cy="14.25" fill="currentColor" r=".75" />
+        <circle cx="9" cy="12.75" fill="currentColor" r=".75" />
       </g>
     </svg>
   );

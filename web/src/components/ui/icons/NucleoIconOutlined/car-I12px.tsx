@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function car(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px car";
+  const title = props.title || '12px car';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m1.189,5.311l.561-.561h8.5l.561.561c.281.281.439.663.439,1.061v2.879H.75v-2.879c0-.398.158-.779.439-1.061Z"
           fill="none"
@@ -47,8 +42,8 @@ function car(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="3.25" cy="7" fill="#212121" r=".75" strokeWidth="0" />
-        <circle cx="8.75" cy="7" fill="#212121" r=".75" strokeWidth="0" />
+        <circle cx="3.25" cy="7" fill="currentColor" r=".75" strokeWidth="0" />
+        <circle cx="8.75" cy="7" fill="currentColor" r=".75" strokeWidth="0" />
       </g>
     </svg>
   );

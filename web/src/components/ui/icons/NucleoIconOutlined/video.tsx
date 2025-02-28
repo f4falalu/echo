@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function video(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px video";
+  const title = props.title || '18px video';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M12.25,8l4.259-2.342c.333-.183,.741,.058,.741,.438v5.809c0,.38-.408,.621-.741,.438l-4.259-2.342"
           fill="none"
@@ -36,7 +31,7 @@ function video(props: iconProps) {
           x="1.75"
           y="3.75"
         />
-        <circle cx="4.75" cy="6.75" fill="#212121" r=".75" />
+        <circle cx="4.75" cy="6.75" fill="currentColor" r=".75" />
       </g>
     </svg>
   );

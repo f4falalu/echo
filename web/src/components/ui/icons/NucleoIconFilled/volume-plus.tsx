@@ -1,27 +1,22 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function volumePlus(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px volume plus";
+  const title = props.title || '18px volume plus';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M10,9c0-1.155,.878-2.099,2-2.225V2.664c0-.457-.249-.877-.65-1.097-.399-.219-.888-.203-1.273,.044l-5.296,3.389H2.25c-1.24,0-2.25,1.009-2.25,2.25v3.5c0,1.241,1.01,2.25,2.25,2.25h2.53l5.296,3.389c.205,.131,.439,.198,.674,.198,.206,0,.412-.051,.6-.153,.401-.219,.65-.64,.65-1.097v-4.112c-1.122-.126-2-1.07-2-2.225Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M17.25,8.25h-1.75v-1.75c0-.414-.336-.75-.75-.75s-.75,.336-.75,.75v1.75h-1.75c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h1.75v1.75c0,.414,.336,.75,.75,.75s.75-.336,.75-.75v-1.75h1.75c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75Z"
-          fill="#212121"
+          fill="currentColor"
         />
       </g>
     </svg>

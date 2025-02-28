@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function circleSortArrows(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px circle sort arrows";
+  const title = props.title || '18px circle sort arrows';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <circle
           cx="9"
           cy="9"
@@ -27,11 +22,11 @@ function circleSortArrows(props: iconProps) {
         />
         <path
           d="M8.544,5.032l-1.695,1.978c-.334,.389-.057,.991,.456,.991h3.39c.513,0,.789-.601,.456-.991l-1.695-1.978c-.24-.279-.672-.279-.911,0Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M8.544,12.968l-1.695-1.978c-.334-.389-.057-.991,.456-.991h3.39c.513,0,.789,.601,.456,.991l-1.695,1.978c-.24,.279-.672,.279-.911,0Z"
-          fill="#212121"
+          fill="currentColor"
         />
       </g>
     </svg>

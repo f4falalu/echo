@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function textItalic(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px text italic";
+  const title = props.title || '18px text italic';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M8.25 14.25L10.75 5.75 8.25 5.75"
           fill="none"
@@ -31,7 +26,7 @@ function textItalic(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="12" cy="2" fill="#212121" r="1" />
+        <circle cx="12" cy="2" fill="currentColor" r="1" />
       </g>
     </svg>
   );

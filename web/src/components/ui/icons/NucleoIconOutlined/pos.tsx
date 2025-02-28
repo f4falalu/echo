@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function pos(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px pos";
+  const title = props.title || '18px pos';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M5.75,14.25h-.5c-1.105,0-2-.895-2-2V2.75c0-1.105,.895-2,2-2h7.5c1.105,0,2,.895,2,2V12.25c0,1.105-.895,2-2,2h-.5"
           fill="none"
@@ -25,7 +20,7 @@ function pos(props: iconProps) {
         />
         <path
           d="M5.75 3.25H12.25V4.25H5.75z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -47,12 +42,12 @@ function pos(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="6.5" cy="6.75" fill="#212121" r=".75" />
-        <circle cx="9" cy="6.75" fill="#212121" r=".75" />
-        <circle cx="11.5" cy="6.75" fill="#212121" r=".75" />
-        <circle cx="6.5" cy="9.25" fill="#212121" r=".75" />
-        <circle cx="9" cy="9.25" fill="#212121" r=".75" />
-        <circle cx="11.5" cy="9.25" fill="#212121" r=".75" />
+        <circle cx="6.5" cy="6.75" fill="currentColor" r=".75" />
+        <circle cx="9" cy="6.75" fill="currentColor" r=".75" />
+        <circle cx="11.5" cy="6.75" fill="currentColor" r=".75" />
+        <circle cx="6.5" cy="9.25" fill="currentColor" r=".75" />
+        <circle cx="9" cy="9.25" fill="currentColor" r=".75" />
+        <circle cx="11.5" cy="9.25" fill="currentColor" r=".75" />
       </g>
     </svg>
   );

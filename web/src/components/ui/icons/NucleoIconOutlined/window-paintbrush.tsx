@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function windowPaintbrush(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px window paintbrush";
+  const title = props.title || '18px window paintbrush';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M11.75,9.247l5.086-5.083c.552-.552,.552-1.448,0-2-.552-.552-1.448-.552-2,0l-5.094,5.096"
           fill="none"
@@ -39,8 +34,8 @@ function windowPaintbrush(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="4.25" cy="5.25" fill="#212121" r=".75" />
-        <circle cx="6.75" cy="5.25" fill="#212121" r=".75" />
+        <circle cx="4.25" cy="5.25" fill="currentColor" r=".75" />
+        <circle cx="6.75" cy="5.25" fill="currentColor" r=".75" />
       </g>
     </svg>
   );

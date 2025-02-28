@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function branchMerge(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px branch merge";
+  const title = props.title || '18px branch merge';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M2.75,4.75h2.422c.53,0,1.039,.211,1.414,.586l2.414,2.414"
           fill="none"

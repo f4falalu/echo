@@ -31,7 +31,7 @@
   --text-base--line-height: 1;
   --text-md: 14px;
   --text-md--line-height: 1;
-  --text-lg: 18px;
+  --text-lg: 16px;
   --text-lg--line-height: 1;
   --text-xl: 18px;
   --text-xl--line-height: 1;
@@ -41,6 +41,7 @@
   --text-3xl--line-height: 1;
   --text-4xl: 30px;
   --text-4xl--line-height: 1;
+
   --text-icon-size: 16px;
   --text-icon-size--line-height: 1;
   --text-icon-size-sm: 12px;

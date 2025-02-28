@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function medal(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px medal";
+  const title = props.title || '18px medal';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M5.033,8.917L1.204,2.507c-.2-.333,.04-.757,.429-.757h3.084c.176,0,.338,.092,.429,.243l2.906,4.853"
           fill="none"
@@ -33,7 +28,7 @@ function medal(props: iconProps) {
         />
         <path
           d="M11.476,10.693c-.059-.181-.216-.312-.403-.34l-1.122-.163-.502-1.017c-.168-.342-.729-.342-.896,0l-.502,1.017-1.122,.163c-.188,.027-.345,.159-.403,.34-.059,.181-.01,.38,.127,.513l.812,.792-.192,1.118c-.032,.188,.045,.377,.199,.489,.154,.112,.358,.126,.526,.038l1.004-.527,1.004,.527c.073,.039,.152,.058,.232,.058,.104,0,.207-.032,.294-.096,.154-.112,.231-.301,.199-.489l-.192-1.118,.812-.792c.137-.133,.186-.332,.127-.513Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <circle
           cx="9"

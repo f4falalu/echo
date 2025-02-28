@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function clockCoins(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px clock coins";
+  const title = props.title || '18px clock coins';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M6,12.155c-2.421-.467-4.25-2.597-4.25-5.155C1.75,4.101,4.101,1.75,7,1.75c1.917,0,3.595,1.028,4.511,2.563"
           fill="none"

@@ -1,43 +1,38 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function hailMixed(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px hail mixed";
+  const title = props.title || '18px hail mixed';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M9.75,16c-.192,0-.384-.073-.53-.22l-.75-.75c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l.75,.75c.293,.293,.293,.768,0,1.061-.146,.146-.338,.22-.53,.22Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M7,13.25c-.192,0-.384-.073-.53-.22l-3.25-3.25c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l3.25,3.25c.293,.293,.293,.768,0,1.061-.146,.146-.338,.22-.53,.22Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M8.75,9.5c-.192,0-.384-.073-.53-.22l-.75-.75c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l.75,.75c.293,.293,.293,.768,0,1.061-.146,.146-.338,.22-.53,.22Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M6,6.75c-.192,0-.384-.073-.53-.22L2.22,3.28c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l3.25,3.25c.293,.293,.293,.768,0,1.061-.146,.146-.338,.22-.53,.22Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M15.25,10.5c-.192,0-.384-.073-.53-.22l-.75-.75c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l.75,.75c.293,.293,.293,.768,0,1.061-.146,.146-.338,.22-.53,.22Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M12.5,7.75c-.192,0-.384-.073-.53-.22l-3.25-3.25c-.293-.293-.293-.768,0-1.061s.768-.293,1.061,0l3.25,3.25c.293,.293,.293,.768,0,1.061-.146,.146-.338,.22-.53,.22Z"
-          fill="#212121"
+          fill="currentColor"
         />
       </g>
     </svg>

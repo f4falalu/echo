@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function phoneRotary(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px phone rotary";
+  const title = props.title || '18px phone rotary';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M11.799,7.169l3.265,4.57c.121,.17,.186,.373,.186,.581v1.93c0,.552-.448,1-1,1H3.75c-.552,0-1-.448-1-1v-1.93c0-.208,.065-.412,.186-.581l3.265-4.57c.188-.263,.491-.419,.814-.419h3.971c.323,0,.626,.156,.814,.419Z"
           fill="none"

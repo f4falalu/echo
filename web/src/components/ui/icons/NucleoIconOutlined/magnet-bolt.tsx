@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function magnetBolt(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px magnet bolt";
+  const title = props.title || '18px magnet bolt';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M2.518 4.838L5.743 5.242"
           fill="none"
@@ -41,7 +36,7 @@ function magnetBolt(props: iconProps) {
         />
         <path
           d="M15.917 14.25L13.25 14.25 15.5 10.75 14.583 13.75 17.25 13.75 15 17.25 15.917 14.25z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"

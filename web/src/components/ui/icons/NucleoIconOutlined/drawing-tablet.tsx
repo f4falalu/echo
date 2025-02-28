@@ -1,21 +1,16 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function drawingTablet(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px drawing tablet";
+  const title = props.title || '18px drawing tablet';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
-        <circle cx="3.75" cy="9" fill="#212121" r=".75" />
+      <g fill="currentColor">
+        <circle cx="3.75" cy="9" fill="currentColor" r=".75" />
         <path
           d="M16.25,7.25v6c0,1.105-.895,2-2,2H3.75c-1.105,0-2-.895-2-2V4.75c0-1.105,.895-2,2-2H13.25"
           fill="none"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function phoneOffice(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px phone office";
+  const title = props.title || '18px phone office';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M6.25,3.25H15.25c.552,0,1,.448,1,1V13.25c0,.552-.448,1-1,1H6.25"
           fill="none"
@@ -25,7 +20,7 @@ function phoneOffice(props: iconProps) {
         />
         <path
           d="M8.75 5.75H13.75V6.75H8.75z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -52,12 +47,12 @@ function phoneOffice(props: iconProps) {
           x="1.75"
           y="1.75"
         />
-        <circle cx="8.75" cy="9.25" fill="#212121" r=".75" />
-        <circle cx="11.25" cy="9.25" fill="#212121" r=".75" />
-        <circle cx="13.75" cy="9.25" fill="#212121" r=".75" />
-        <circle cx="8.75" cy="11.75" fill="#212121" r=".75" />
-        <circle cx="11.25" cy="11.75" fill="#212121" r=".75" />
-        <circle cx="13.75" cy="11.75" fill="#212121" r=".75" />
+        <circle cx="8.75" cy="9.25" fill="currentColor" r=".75" />
+        <circle cx="11.25" cy="9.25" fill="currentColor" r=".75" />
+        <circle cx="13.75" cy="9.25" fill="currentColor" r=".75" />
+        <circle cx="8.75" cy="11.75" fill="currentColor" r=".75" />
+        <circle cx="11.25" cy="11.75" fill="currentColor" r=".75" />
+        <circle cx="13.75" cy="11.75" fill="currentColor" r=".75" />
       </g>
     </svg>
   );

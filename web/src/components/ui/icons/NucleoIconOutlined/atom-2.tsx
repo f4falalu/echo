@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function atom2(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px atom 2";
+  const title = props.title || '18px atom 2';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M4.365,4.065c.022-.861,.269-1.493,.76-1.777,1.406-.812,4.281,1.535,6.421,5.242,.285,.493,.542,.985,.771,1.47"
           fill="none"
@@ -63,7 +58,7 @@ function atom2(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="9" cy="9" fill="#212121" r="1" />
+        <circle cx="9" cy="9" fill="currentColor" r="1" />
       </g>
     </svg>
   );

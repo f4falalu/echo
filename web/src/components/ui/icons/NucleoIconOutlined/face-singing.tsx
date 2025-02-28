@@ -1,22 +1,17 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function faceSinging(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px face singing";
+  const title = props.title || '18px face singing';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
-        <circle cx="5.5" cy="9" fill="#212121" r="1" />
-        <circle cx="11.5" cy="9" fill="#212121" r="1" />
+      <g fill="currentColor">
+        <circle cx="5.5" cy="9" fill="currentColor" r="1" />
+        <circle cx="11.5" cy="9" fill="currentColor" r="1" />
         <circle
           cx="9.25"
           cy="12.25"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function immersiveSlider(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px immersive slider";
+  const title = props.title || '18px immersive slider';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m12.75,4.75h-7.5l-3.126-1.7863c-.1667-.0952-.374.0251-.374.2171v11.1384c0,.192.2074.3123.374.2171l3.126-1.7863h7.5l3.126,1.7863c.1667.0952.374-.0251.374-.2171V3.1808c0-.192-.2074-.3123-.374-.2171l-3.126,1.7863Z"
           fill="none"
@@ -47,7 +42,7 @@ function immersiveSlider(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="5.75" cy="15.75" fill="#212121" r=".75" strokeWidth="0" />
+        <circle cx="5.75" cy="15.75" fill="currentColor" r=".75" strokeWidth="0" />
       </g>
     </svg>
   );

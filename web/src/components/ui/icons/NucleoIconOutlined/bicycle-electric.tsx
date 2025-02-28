@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function bicycleElectric(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px bicycle electric";
+  const title = props.title || '18px bicycle electric';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M6.068,8.863c-.469-.357-1.048-.572-1.675-.602"
           fill="none"
@@ -49,7 +44,7 @@ function bicycleElectric(props: iconProps) {
         />
         <path
           d="M3.939,5.261c-.088-.161-.256-.261-.439-.261h-1.102l.526-1.864c.067-.238-.05-.489-.275-.591-.225-.102-.492-.024-.626,.184L.08,5.728c-.099,.154-.107,.35-.02,.511,.088,.161,.256,.261,.439,.261H1.602l-.526,1.864c-.067,.238,.05,.489,.275,.591,.066,.03,.137,.044,.206,.044,.165,0,.325-.082,.42-.228l1.942-3c.099-.154,.107-.35,.02-.511Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <circle
           cx="14.25"

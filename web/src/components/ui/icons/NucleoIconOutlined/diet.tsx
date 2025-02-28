@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function diet(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px diet";
+  const title = props.title || '18px diet';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M8.25,16.25H3.75c-1.105,0-2-.895-2-2V3.75c0-1.105,.895-2,2-2H12.25c1.105,0,2,.895,2,2v2"
           fill="none"
@@ -73,7 +68,7 @@ function diet(props: iconProps) {
         />
         <path
           d="M15.167,7.5h0c.184,0,.333,.149,.333,.333h0c0,.92-.747,1.667-1.667,1.667h0c-.184,0-.333-.149-.333-.333h0c0-.92,.747-1.667,1.667-1.667Z"
-          fill="#212121"
+          fill="currentColor"
         />
       </g>
     </svg>

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function globeLock(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px globe lock";
+  const title = props.title || '18px globe lock';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M15.652,8.505c-.571-1.421-3.555-2.505-7.152-2.505-4.004,0-7.25,1.343-7.25,3,0,1.657,3.246,3,7.25,3,.585,0,1.154-.029,1.699-.083"
           fill="none"

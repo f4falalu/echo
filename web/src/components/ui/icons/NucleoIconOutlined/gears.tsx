@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function gears(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px gears";
+  const title = props.title || '18px gears';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m13.246,11v-.305c0-.439-.33-.808-.767-.857l-.943-.105-.433-1.046.593-.741c.274-.343.247-.837-.064-1.148l-.433-.433c-.311-.311-.805-.338-1.148-.064l-.741.593-1.047-.433-.105-.943c-.049-.437-.418-.767-.857-.767h-.606c-.439,0-.808.33-.857.767l-.105.943-1.047.433-.741-.593c-.343-.274-.837-.247-1.148.064l-.433.433c-.311.311-.338.805-.064,1.148l.593.741-.433,1.046-.943.105c-.437.049-.767.418-.767.857v.611c0,.439.33.808.767.857l.943.105.433,1.046-.593.741c-.274.343-.247.837.064,1.148l.433.433c.311.311.805.338,1.148.064l.741-.593,1.047.433.105.943c.049.437.418.767.857.767h.606c.439,0,.808-.33.857-.767l.105-.943,1.047-.433.741.593c.343.274.837.247,1.148-.064l.433-.433c.311-.311.338-.805.064-1.148l-.593-.741.433-1.046.943-.105c.437-.049.767-.418.767-.857v-.306Z"
           fill="none"
@@ -34,7 +29,7 @@ function gears(props: iconProps) {
         <circle
           cx="7"
           cy="11"
-          fill="#212121"
+          fill="currentColor"
           r="1.25"
           stroke="#212121"
           strokeLinecap="round"

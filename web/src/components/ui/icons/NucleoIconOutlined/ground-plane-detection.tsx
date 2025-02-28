@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function groundPlaneDetection(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px ground plane detection";
+  const title = props.title || '18px ground plane detection';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m15.6118,10.7647l.5901.4243c.731.438.731,1.4971,0,1.936l-6.6209,3.9639c-.179.1075-.38.1613-.581.1613-.201,0-.402-.0538-.581-.1613l-6.6209-3.9639c-.731-.439-.731-1.498,0-1.936l.5901-.4243"
           fill="none"

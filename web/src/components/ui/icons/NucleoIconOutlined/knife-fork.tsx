@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function knifeFork(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px knife fork";
+  const title = props.title || '18px knife fork';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M5.75,15.75V2.25c-.483,.718-.999,1.621-1.438,2.708-.817,2.029-1.028,3.866-1.062,5.147l2.5,2.145"
           fill="none"

@@ -1,33 +1,21 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function followObjLeft(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px follow obj left";
+  const title = props.title || '12px follow obj left';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m11.25,5.25h-3.189l1.22-1.22c.293-.293.293-.768,0-1.061s-.768-.293-1.061,0l-2.5,2.5c-.293.293-.293.768,0,1.061l2.5,2.5c.146.146.338.22.53.22s.384-.073.53-.22c.293-.293.293-.768,0-1.061l-1.22-1.22h3.189c.414,0,.75-.336.75-.75s-.336-.75-.75-.75Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
-        <rect
-          height="12"
-          width="4.5"
-          fill="#212121"
-          rx="1.75"
-          ry="1.75"
-          strokeWidth="0"
-        />
+        <rect height="12" width="4.5" fill="currentColor" rx="1.75" ry="1.75" strokeWidth="0" />
       </g>
     </svg>
   );

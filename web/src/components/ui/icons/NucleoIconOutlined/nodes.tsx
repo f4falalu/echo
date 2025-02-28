@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function nodes(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px nodes";
+  const title = props.title || '18px nodes';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M10.998,3.826c2.054,.693,3.63,2.424,4.104,4.569"
           fill="none"

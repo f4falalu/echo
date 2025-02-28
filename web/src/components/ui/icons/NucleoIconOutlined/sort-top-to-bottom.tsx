@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function sortTopToBottom(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px sort top to bottom";
+  const title = props.title || '18px sort top to bottom';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M6.75 11.5L9 13.75 6.75 16"
           fill="none"

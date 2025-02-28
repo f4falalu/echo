@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function spaceship(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px spaceship";
+  const title = props.title || '12px spaceship';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m3.054,6.284l-1.386,1.2c-.258.223-.384.562-.335.9l.417,2.866,2.301-1.5"
           fill="none"
@@ -47,7 +42,7 @@ function spaceship(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="6" cy="4.25" fill="#212121" r=".75" strokeWidth="0" />
+        <circle cx="6" cy="4.25" fill="currentColor" r=".75" strokeWidth="0" />
       </g>
     </svg>
   );

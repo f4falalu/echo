@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function brainNodes2(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px brain nodes 2";
+  const title = props.title || '18px brain nodes 2';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M7.31,9.81l1.397,1.397c.188,.188,.293,.442,.293,.707v1.586"
           fill="none"
@@ -95,8 +90,8 @@ function brainNodes2(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="7" cy="9.5" fill="#212121" r="1.5" />
-        <circle cx="11" cy="8.5" fill="#212121" r="1.5" />
+        <circle cx="7" cy="9.5" fill="currentColor" r="1.5" />
+        <circle cx="11" cy="8.5" fill="currentColor" r="1.5" />
       </g>
     </svg>
   );

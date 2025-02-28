@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function flowerLotus(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px flower lotus";
+  const title = props.title || '18px flower lotus';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M4.806,11.781c-1.964,.213-3.056,1.469-3.056,1.469,0,0,1.305,1.5,3.625,1.5s3.625-1.5,3.625-1.5"
           fill="none"

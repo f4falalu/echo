@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function cubeFloor(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px cube floor";
+  const title = props.title || '18px cube floor';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m8.157,1.977l-3.57,2.071c-.518.301-.837.854-.837,1.453v4.155c0,.599.319,1.153.837,1.453l3.57,2.071c.521.302,1.165.302,1.686,0l3.57-2.071c.518-.301.837-.854.837-1.453v-4.155c0-.599-.319-1.153-.837-1.453l-3.57-2.071c-.521-.302-1.165-.302-1.686,0Z"
           fill="none"

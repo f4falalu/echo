@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function soccerGoal(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px soccer goal";
+  const title = props.title || '18px soccer goal';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M13.383 2.744L13.497 4.503 15.256 4.617"
           fill="none"
@@ -121,10 +116,10 @@ function soccerGoal(props: iconProps) {
         />
         <path
           d="m7.992,15.741l-.946-.315-.316-.947c-.102-.306-.609-.306-.711,0l-.316.947-.946.315c-.153.051-.257.194-.257.356s.104.305.257.356l.946.315.316.947c.051.153.194.256.355.256s.305-.104.355-.256l.316-.947.946-.315c.153-.051.257-.194.257-.356s-.104-.305-.257-.356h.001Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
-        <circle cx="1.75" cy="11.75" fill="#212121" r=".75" strokeWidth="0" />
+        <circle cx="1.75" cy="11.75" fill="currentColor" r=".75" strokeWidth="0" />
       </g>
     </svg>
   );

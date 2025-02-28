@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function openInNewWindow(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px open in new window";
+  const title = props.title || '18px open in new window';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m1.75,3.75v10.5c0,1.105.895,2,2,2h10.5"
           fill="none"
@@ -49,7 +44,7 @@ function openInNewWindow(props: iconProps) {
         />
         <path
           d="m14.25,1.75h-7.5c-1.1046,0-2,.8954-2,2v.25h11.5v-.25c0-1.1046-.8954-2-2-2Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
       </g>

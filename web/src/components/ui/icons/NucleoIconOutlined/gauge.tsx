@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function gauge(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px gauge";
+  const title = props.title || '18px gauge';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m4.009,15.25h9.982c1.389-1.321,2.259-3.182,2.259-5.25,0-4.004-3.246-7.25-7.25-7.25S1.75,5.996,1.75,10c0,2.068.87,3.929,2.259,5.25Z"
           fill="none"
@@ -50,7 +45,7 @@ function gauge(props: iconProps) {
         <circle
           cx="9"
           cy="10"
-          fill="#212121"
+          fill="currentColor"
           r="1"
           stroke="#212121"
           strokeLinecap="round"

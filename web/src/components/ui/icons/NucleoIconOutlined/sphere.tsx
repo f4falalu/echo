@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function sphere(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px sphere";
+  const title = props.title || '18px sphere';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M3.228,7.185c-.927,.504-1.478,1.133-1.478,1.815"
           fill="none"

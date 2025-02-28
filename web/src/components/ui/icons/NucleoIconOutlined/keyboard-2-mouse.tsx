@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function keyboard2Mouse(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px keyboard 2 mouse";
+  const title = props.title || '18px keyboard 2 mouse';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M9.008 10.25L6.75 10.25"
           fill="none"
@@ -39,69 +34,13 @@ function keyboard2Mouse(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="6.875"
-          y="7"
-        />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="4.125"
-          y="7"
-        />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="9.625"
-          y="7"
-        />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="12.375"
-          y="7"
-        />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="5.5"
-          y="5"
-        />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="8.25"
-          y="5"
-        />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="11"
-          y="5"
-        />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="6.875" y="7" />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="4.125" y="7" />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="9.625" y="7" />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="12.375" y="7" />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="5.5" y="5" />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="8.25" y="5" />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="11" y="5" />
         <rect
           height="7.5"
           width="5"

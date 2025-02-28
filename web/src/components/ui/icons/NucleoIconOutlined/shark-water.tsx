@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function sharkWater(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px shark water";
+  const title = props.title || '18px shark water';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m13.2153,10.624c-.3463-4.2192-4.0056-7.8337-8.2773-7.8459,0,0,1.2502,4.333.0654,7.821"
           fill="none"

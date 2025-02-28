@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function keyboardWireless(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px keyboard wireless";
+  const title = props.title || '18px keyboard wireless';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <rect
           height="8.5"
           width="16.5"
@@ -28,69 +23,13 @@ function keyboardWireless(props: iconProps) {
           x=".75"
           y="6.75"
         />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="3"
-          y="9"
-        />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="3"
-          y="11.5"
-        />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="5.5"
-          y="9"
-        />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="8.25"
-          y="9"
-        />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="13.5"
-          y="9"
-        />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="13.5"
-          y="11.5"
-        />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="11"
-          y="9"
-        />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="3" y="9" />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="3" y="11.5" />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="5.5" y="9" />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="8.25" y="9" />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="13.5" y="9" />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="13.5" y="11.5" />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="11" y="9" />
         <path
           d="M11.75 12.25L6.25 12.25"
           fill="none"

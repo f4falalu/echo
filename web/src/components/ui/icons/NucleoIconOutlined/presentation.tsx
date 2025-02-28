@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function presentation(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px presentation";
+  const title = props.title || '18px presentation';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M8.75,3.75h5c1.105,0,2,.895,2,2v5c0,1.105-.895,2-2,2h-5"
           fill="none"

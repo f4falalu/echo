@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function editEasing(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px edit easing";
+  const title = props.title || '18px edit easing';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M11 4.75L6 4.75"
           fill="none"
@@ -39,8 +34,8 @@ function editEasing(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="12.5" cy="4.75" fill="#212121" r="1.5" />
-        <circle cx="5.5" cy="13.25" fill="#212121" r="1.5" />
+        <circle cx="12.5" cy="4.75" fill="currentColor" r="1.5" />
+        <circle cx="5.5" cy="13.25" fill="currentColor" r="1.5" />
         <rect
           height="4"
           width="4"

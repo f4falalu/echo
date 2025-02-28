@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function squareCaretLeft(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px square caret left";
+  const title = props.title || '18px square caret left';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <rect
           height="12.5"
           width="12.5"
@@ -31,7 +26,7 @@ function squareCaretLeft(props: iconProps) {
         />
         <path
           d="M6.843,9.621l2.987,2.022c.498,.337,1.17-.02,1.17-.621V6.978c0-.601-.672-.958-1.17-.621l-2.987,2.022c-.439,.297-.439,.945,0,1.242Z"
-          fill="#212121"
+          fill="currentColor"
         />
       </g>
     </svg>

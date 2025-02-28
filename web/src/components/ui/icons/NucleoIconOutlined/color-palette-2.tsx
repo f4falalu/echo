@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function colorPalette2(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px color palette 2";
+  const title = props.title || '18px color palette 2';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M6.591,14.591l6.541-6.541c.391-.391,.391-1.024,0-1.414l-1.768-1.768c-.391-.391-1.024-.391-1.414,0l-.2,.2"
           fill="none"
@@ -40,7 +35,7 @@ function colorPalette2(props: iconProps) {
           strokeWidth={strokewidth}
           transform="rotate(180 5 9)"
         />
-        <circle cx="5" cy="13" fill="#212121" r=".75" />
+        <circle cx="5" cy="13" fill="currentColor" r=".75" />
       </g>
     </svg>
   );

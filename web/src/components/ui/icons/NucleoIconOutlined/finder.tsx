@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function finder(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px finder";
+  const title = props.title || '18px finder';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M9.792,2.75c-1.854,3.5-1.792,7-1.792,7h2.021"
           fill="none"

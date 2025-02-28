@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function presentationScreenChartPie(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px presentation screen chart pie";
+  const title = props.title || '18px presentation screen chart pie';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M5.75 16.25L6.75 13.25"
           fill="none"
@@ -39,7 +34,7 @@ function presentationScreenChartPie(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <path d="M9,5.5v2.5h2.5c0-1.381-1.119-2.5-2.5-2.5Z" fill="#212121" />
+        <path d="M9,5.5v2.5h2.5c0-1.381-1.119-2.5-2.5-2.5Z" fill="currentColor" />
         <rect
           height="10.5"
           width="14.5"

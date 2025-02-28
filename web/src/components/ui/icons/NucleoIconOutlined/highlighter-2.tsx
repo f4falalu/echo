@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function highlighter2(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px highlighter 2";
+  const title = props.title || '18px highlighter 2';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M7.352,2.991c.179,.643,.344,1.537,.287,2.6-.03,.556-.115,1.052-.218,1.476-.075,.305,.076,.619,.365,.742l1.388,.593,1.388,.593c.289,.123,.62,.016,.789-.249,.234-.368,.534-.772,.915-1.178,.725-.772,1.481-1.271,2.068-1.586"
           fill="none"
@@ -41,7 +36,7 @@ function highlighter2(props: iconProps) {
         />
         <path
           d="M10.252 8.861L9.494 10.75 6.788 10.75 8.027 7.911 10.252 8.861z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"

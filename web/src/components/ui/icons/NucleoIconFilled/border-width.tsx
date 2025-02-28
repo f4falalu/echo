@@ -1,42 +1,21 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function borderWidth(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px border width";
+  const title = props.title || '18px border width';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M16.25,14H1.75c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h14.5c.414,0,.75-.336,.75-.75s-.336-.75-.75-.75Z"
-          fill="#212121"
+          fill="currentColor"
         />
-        <rect
-          height="3.5"
-          width="16"
-          fill="#212121"
-          rx="1.25"
-          ry="1.25"
-          x="1"
-          y="9"
-        />
-        <rect
-          height="5.5"
-          width="16"
-          fill="#212121"
-          rx="1.25"
-          ry="1.25"
-          x="1"
-          y="2"
-        />
+        <rect height="3.5" width="16" fill="currentColor" rx="1.25" ry="1.25" x="1" y="9" />
+        <rect height="5.5" width="16" fill="currentColor" rx="1.25" ry="1.25" x="1" y="2" />
       </g>
     </svg>
   );

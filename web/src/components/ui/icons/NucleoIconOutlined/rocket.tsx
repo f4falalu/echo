@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function rocket(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px rocket";
+  const title = props.title || '18px rocket';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M13.035,10.418c3.655-3.835,3.208-8.305,3.17-8.623-.319-.038-4.788-.485-8.623,3.17-2.323,2.214-3.105,4.686-3.332,5.513l3.272,3.272c.827-.227,3.299-1.009,5.513-3.332Z"
           fill="none"
@@ -47,7 +42,7 @@ function rocket(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="11.25" cy="6.75" fill="#212121" r="1.75" />
+        <circle cx="11.25" cy="6.75" fill="currentColor" r="1.75" />
       </g>
     </svg>
   );

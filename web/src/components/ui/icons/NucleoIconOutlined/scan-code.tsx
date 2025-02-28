@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function scanCode(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px scan code";
+  const title = props.title || '18px scan code';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M2.75,6.25v-1.5c0-1.105,.895-2,2-2h2"
           fill="none"
@@ -49,7 +44,7 @@ function scanCode(props: iconProps) {
         />
         <path
           d="M5.75 5.75H7.75V7.75H5.75z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -57,7 +52,7 @@ function scanCode(props: iconProps) {
         />
         <path
           d="M10.25 5.75H12.25V7.75H10.25z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -65,7 +60,7 @@ function scanCode(props: iconProps) {
         />
         <path
           d="M5.75 10.25H7.75V12.25H5.75z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -73,7 +68,7 @@ function scanCode(props: iconProps) {
         />
         <path
           d="M10.25 10.25H12.25V12.25H10.25z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"

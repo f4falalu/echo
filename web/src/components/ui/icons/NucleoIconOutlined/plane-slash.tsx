@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function planeSlash(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px plane slash";
+  const title = props.title || '18px plane slash';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M7.25,10.358l-6,.892v-1.574c0-.408,.248-.776,.627-.928l5.373-2.154"
           fill="none"
@@ -49,7 +44,7 @@ function planeSlash(props: iconProps) {
         />
         <path
           d="M10.156,15.762l.357-2.26,2.902,1.332c.357,.164,.585,.52,.585,.912v.756c0,.296-.256,.526-.55,.496l-3.895-.407c.308-.17,.543-.46,.601-.828Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M2 16L16 2"
@@ -61,7 +56,7 @@ function planeSlash(props: iconProps) {
         />
         <path
           d="M7.844,15.762l-.331-2.094-3.257,3.257c.087,.05,.185,.083,.294,.072l3.895-.407c-.308-.17-.543-.46-.601-.828Z"
-          fill="#212121"
+          fill="currentColor"
         />
       </g>
     </svg>

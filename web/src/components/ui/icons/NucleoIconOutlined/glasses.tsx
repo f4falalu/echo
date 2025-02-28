@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function glasses(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px glasses";
+  const title = props.title || '18px glasses';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M7.75,11.25c0-.69,.56-1.25,1.25-1.25s1.25,.56,1.25,1.25"
           fill="none"

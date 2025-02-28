@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function sunCloudHailMixed(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px sun cloud hail mixed";
+  const title = props.title || '18px sun cloud hail mixed';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M8.251,6.826c0-.025,0-.05,0-.076,0-1.657,1.343-3,3-3s3,1.343,3,3c0,.084-.003,.168-.01,.25"
           fill="none"
@@ -95,9 +90,9 @@ function sunCloudHailMixed(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="11.75" cy="17.25" fill="#212121" r=".75" />
-        <circle cx="6.25" cy="17.25" fill="#212121" r=".75" />
-        <circle cx="9" cy="15.75" fill="#212121" r=".75" />
+        <circle cx="11.75" cy="17.25" fill="currentColor" r=".75" />
+        <circle cx="6.25" cy="17.25" fill="currentColor" r=".75" />
+        <circle cx="9" cy="15.75" fill="currentColor" r=".75" />
       </g>
     </svg>
   );

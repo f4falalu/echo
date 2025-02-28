@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function interview(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px interview";
+  const title = props.title || '18px interview';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M1.25,16.25v-2h1.353c.865,0,1.584-.668,1.646-1.532l.092-1.274,1.241-.496-1.238-1.651c0-2.255-1.508-4.159-3.57-4.757"
           fill="none"
@@ -39,8 +34,8 @@ function interview(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="2" cy="8.75" fill="#212121" r=".75" />
-        <circle cx="16" cy="8.75" fill="#212121" r=".75" />
+        <circle cx="2" cy="8.75" fill="currentColor" r=".75" />
+        <circle cx="16" cy="8.75" fill="currentColor" r=".75" />
       </g>
     </svg>
   );

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function headFrontVrHeadset(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px head front vr headset";
+  const title = props.title || '18px head front vr headset';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M14.094,5.745c-.571-2.257-2.637-3.995-5.094-3.995-2.454,0-4.519,1.735-5.092,3.989"
           fill="none"
@@ -49,7 +44,7 @@ function headFrontVrHeadset(props: iconProps) {
         />
         <path
           d="M10.375,13.159c-.029-.017-.715-.409-1.375-.409s-1.346,.392-1.375,.409c-.077,.044-.125,.127-.125,.216s.048,.172,.125,.216c.029,.017,.715,.409,1.375,.409s1.346-.392,1.375-.409c.077-.044,.125-.127,.125-.216s-.048-.172-.125-.216Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M2.75 9.5L1.75 9.5 1.75 7.25 2.75 7.25"

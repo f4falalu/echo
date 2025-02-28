@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function textToImage2(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px text to image 2";
+  const title = props.title || '18px text to image 2';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M12.5,6.5v-1.75c0-1.381-1.119-2.5-2.5-2.5h-.75"
           fill="none"
@@ -39,10 +34,7 @@ function textToImage2(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <path
-          d="M10,10c-.551,0-1-.449-1-1s.449-1,1-1,1,.449,1,1-.449,1-1,1Z"
-          fill="#212121"
-        />
+        <path d="M10,10c-.551,0-1-.449-1-1s.449-1,1-1,1,.449,1,1-.449,1-1,1Z" fill="currentColor" />
         <path
           d="M8.101,16.142l5.105-5.099c.391-.391,1.024-.391,1.414,0l2.63,2.63"
           fill="none"
@@ -69,9 +61,9 @@ function textToImage2(props: iconProps) {
         />
         <path
           d="M4.743,13.769l-.946-.315-.316-.947c-.102-.306-.609-.306-.711,0l-.316,.947-.946,.315c-.153,.051-.257,.194-.257,.356s.104,.305,.257,.356l.946,.315,.316,.947c.051,.153,.194,.256,.355,.256s.305-.104,.355-.256l.316-.947,.946-.315c.153-.051,.257-.194,.257-.356s-.104-.305-.257-.356Z"
-          fill="#212121"
+          fill="currentColor"
         />
-        <circle cx="1.75" cy="10.25" fill="#212121" r=".75" />
+        <circle cx="1.75" cy="10.25" fill="currentColor" r=".75" />
       </g>
     </svg>
   );

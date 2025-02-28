@@ -1,28 +1,23 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function arrowUpFromLine(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px arrow up from line";
+  const title = props.title || '12px arrow up from line';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m10.75,11.5H1.25c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h9.5c.414,0,.75.336.75.75s-.336.75-.75.75Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
         <path
           d="m6.53.72c-.293-.293-.768-.293-1.061,0l-3,3c-.293.293-.293.768,0,1.061s.768.293,1.061,0l1.72-1.72v4.689c0,.414.336.75.75.75s.75-.336.75-.75V3.061l1.72,1.72c.146.146.338.22.53.22s.384-.073.53-.22c.293-.293.293-.768,0-1.061L6.53.72Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
       </g>

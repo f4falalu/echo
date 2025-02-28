@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function faceTongueClosedEyes(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px face tongue closed eyes";
+  const title = props.title || '18px face tongue closed eyes';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M4.75,8.25c0-.69,.56-1.25,1.25-1.25s1.25,.56,1.25,1.25"
           fill="none"
@@ -41,7 +36,7 @@ function faceTongueClosedEyes(props: iconProps) {
         />
         <path
           d="M8.756,11.986c-.002,.162,.017,.326,.071,.488l.25,.75c.209,.629,.795,1.026,1.423,1.026,.157,0,.317-.025,.475-.078,.786-.262,1.21-1.111,.948-1.897l-.25-.75c-.043-.131-.099-.239-.172-.348-.702,.512-1.567,.815-2.5,.815-.1,0-.244-.007-.244-.007"
-          fill="#212121"
+          fill="currentColor"
         />
         <circle
           cx="9"

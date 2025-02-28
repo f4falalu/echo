@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function humidity2(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px humidity 2";
+  const title = props.title || '18px humidity 2';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M13.625,16.25c1.45,0,2.625-1.278,2.625-2.854,0-2.168-1.471-3.095-2.625-4.646-1.154,1.552-2.625,2.479-2.625,4.646,0,1.576,1.175,2.854,2.625,2.854Z"
           fill="none"

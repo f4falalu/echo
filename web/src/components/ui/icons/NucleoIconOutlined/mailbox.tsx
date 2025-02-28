@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function mailbox(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px mailbox";
+  const title = props.title || '18px mailbox';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M14.374,5.149c1.115,.585,1.876,1.754,1.876,3.101v5c0,.552-.448,1-1,1H7.75"
           fill="none"
@@ -57,7 +52,7 @@ function mailbox(props: iconProps) {
         />
         <path
           d="M11.75 0.75H14.25V2H11.75z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"

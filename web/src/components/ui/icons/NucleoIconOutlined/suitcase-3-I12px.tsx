@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function suitcase3(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px suitcase 3";
+  const title = props.title || '12px suitcase 3';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m.75,6.75c3.547,1.337,7.047,1.337,10.5,0"
           fill="none"

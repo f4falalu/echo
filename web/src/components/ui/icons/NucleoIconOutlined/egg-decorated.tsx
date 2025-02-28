@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function eggDecorated(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px egg decorated";
+  const title = props.title || '18px egg decorated';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M3.214 10.318L6.422 8.341 9 10.318 11.578 8.341 14.786 10.318"
           fill="none"

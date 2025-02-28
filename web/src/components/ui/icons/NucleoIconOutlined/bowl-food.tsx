@@ -1,23 +1,18 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function bowlFood(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px bowl food";
+  const title = props.title || '18px bowl food';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M2.5,3h0c1.38,0,2.5,1.12,2.5,2.5h0c0,.276-.224,.5-.5,.5h0c-1.38,0-2.5-1.12-2.5-2.5h0c0-.276,.224-.5,.5-.5Z"
-          fill="#212121"
+          fill="currentColor"
           transform="rotate(180 3.5 4.5)"
         />
         <path

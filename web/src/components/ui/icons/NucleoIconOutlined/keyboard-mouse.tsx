@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function keyboardMouse(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px keyboard mouse";
+  const title = props.title || '18px keyboard mouse';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M8.75,11.75H2.75c-1.105,0-2-.895-2-2V5.25c0-1.105,.895-2,2-2H15.25c1.105,0,2,.895,2,2v2.25"
           fill="none"
@@ -39,60 +34,12 @@ function keyboardMouse(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="3"
-          y="5.5"
-        />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="3"
-          y="8"
-        />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="5.5"
-          y="5.5"
-        />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="8.25"
-          y="5.5"
-        />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="13.5"
-          y="5.5"
-        />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="11"
-          y="5.5"
-        />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="3" y="5.5" />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="3" y="8" />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="5.5" y="5.5" />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="8.25" y="5.5" />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="13.5" y="5.5" />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="11" y="5.5" />
         <rect
           height="7.5"
           width="5"

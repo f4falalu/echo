@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function textSize(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px text size";
+  const title = props.title || '18px text size';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M17.25 13.25L13.565 3.75 12.955 3.75 9.27 13.25"
           fill="none"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function paragraphSpacing(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px paragraph spacing";
+  const title = props.title || '18px paragraph spacing';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M7.25 9.25L9 11 10.75 9.25"
           fill="none"

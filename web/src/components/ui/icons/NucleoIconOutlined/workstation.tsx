@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function workstation(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px workstation";
+  const title = props.title || '18px workstation';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M2.25 10.25L15.75 10.25"
           fill="none"
@@ -49,7 +44,7 @@ function workstation(props: iconProps) {
         />
         <path
           d="M13.25,7.25c-.69,0-1.25,.56-1.25,1.25h2.5c0-.69-.56-1.25-1.25-1.25Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <rect
           height="4.5"

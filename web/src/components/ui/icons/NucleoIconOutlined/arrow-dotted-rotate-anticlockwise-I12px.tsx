@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function arrowDottedRotateAnticlockwise(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px arrow dotted rotate anticlockwise";
+  const title = props.title || '12px arrow dotted rotate anticlockwise';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m1.282,3.694C2.136,1.951,3.928.75,6,.75c2.899,0,5.25,2.351,5.25,5.25"
           fill="none"
@@ -31,11 +26,11 @@ function arrowDottedRotateAnticlockwise(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="6" cy="11.25" fill="#212121" r=".75" strokeWidth="0" />
-        <circle cx="3.375" cy="10.547" fill="#212121" r=".75" strokeWidth="0" />
-        <circle cx="1.453" cy="8.625" fill="#212121" r=".75" strokeWidth="0" />
-        <circle cx="8.625" cy="10.547" fill="#212121" r=".75" strokeWidth="0" />
-        <circle cx="10.547" cy="8.625" fill="#212121" r=".75" strokeWidth="0" />
+        <circle cx="6" cy="11.25" fill="currentColor" r=".75" strokeWidth="0" />
+        <circle cx="3.375" cy="10.547" fill="currentColor" r=".75" strokeWidth="0" />
+        <circle cx="1.453" cy="8.625" fill="currentColor" r=".75" strokeWidth="0" />
+        <circle cx="8.625" cy="10.547" fill="currentColor" r=".75" strokeWidth="0" />
+        <circle cx="10.547" cy="8.625" fill="currentColor" r=".75" strokeWidth="0" />
       </g>
     </svg>
   );

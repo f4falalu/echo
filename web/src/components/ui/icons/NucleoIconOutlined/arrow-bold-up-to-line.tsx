@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function arrowBoldUpToLine(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px arrow bold up to line";
+  const title = props.title || '18px arrow bold up to line';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M13.426,10.457l-4.021-5.555c-.2-.276-.61-.276-.81,0l-4.021,5.555c-.239,.331-.003,.793,.405,.793h2.271v4c0,.552,.448,1,1,1h1.5c.552,0,1-.448,1-1v-4h2.271c.408,0,.644-.463,.405-.793Z"
           fill="none"

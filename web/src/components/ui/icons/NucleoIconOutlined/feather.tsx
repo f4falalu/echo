@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function feather(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px feather";
+  const title = props.title || '18px feather';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m12.974,8.731c-.4527,3.525-3.4373,4.0684-6.5358,3.5928"
           fill="none"

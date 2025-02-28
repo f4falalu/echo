@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function box2ArrowDown(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px box 2 arrow down";
+  const title = props.title || '18px box 2 arrow down';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M5.25 9.25L5.25 6.083 12 3.083"
           fill="none"

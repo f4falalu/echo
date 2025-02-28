@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function eyeScanner(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px eye scanner";
+  const title = props.title || '18px eye scanner';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M3.756,9.809c-.342-.488-.342-1.13,0-1.618,.772-1.102,2.475-2.941,5.244-2.941s4.472,1.839,5.244,2.941c.342,.488,.342,1.13,0,1.618-.772,1.102-2.475,2.941-5.244,2.941s-4.472-1.839-5.244-2.941Z"
           fill="none"
@@ -55,7 +50,7 @@ function eyeScanner(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="9" cy="9" fill="#212121" r="2" />
+        <circle cx="9" cy="9" fill="currentColor" r="2" />
       </g>
     </svg>
   );

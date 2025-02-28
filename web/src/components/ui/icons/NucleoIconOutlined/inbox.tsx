@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function inbox(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px inbox";
+  const title = props.title || '18px inbox';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M16.213,9.75c-.023-.12-.057-.238-.102-.353l-2.113-5.379c-.301-.765-1.039-1.269-1.862-1.269H5.863c-.822,0-1.561,.503-1.862,1.269L1.888,9.397c-.045,.114-.079,.232-.102,.353"
           fill="none"

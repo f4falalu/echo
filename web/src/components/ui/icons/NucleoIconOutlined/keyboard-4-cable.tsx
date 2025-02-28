@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function keyboard4Cable(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px keyboard 4 cable";
+  const title = props.title || '18px keyboard 4 cable';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M9,4.75v-.75c0-.966,.784-1.75,1.75-1.75h1.75c.793,0,1.462-.527,1.677-1.25"
           fill="none"
@@ -44,42 +39,10 @@ function keyboard4Cable(props: iconProps) {
           x="1.75"
           y="4.75"
         />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="6.875"
-          y="7"
-        />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="4.125"
-          y="7"
-        />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="9.625"
-          y="7"
-        />
-        <rect
-          height="1.5"
-          width="1.5"
-          fill="#212121"
-          rx=".5"
-          ry=".5"
-          x="12.375"
-          y="7"
-        />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="6.875" y="7" />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="4.125" y="7" />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="9.625" y="7" />
+        <rect height="1.5" width="1.5" fill="currentColor" rx=".5" ry=".5" x="12.375" y="7" />
       </g>
     </svg>
   );

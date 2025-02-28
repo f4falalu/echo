@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function playRotateClockwise2(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px play rotate clockwise 2";
+  const title = props.title || '18px play rotate clockwise 2';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m15.71,6.25c-1.083-2.64-3.679-4.5-6.71-4.5-4.004,0-7.25,3.246-7.25,7.25,0,4.004,3.246,7.25,7.25,7.25s7.25-3.246,7.25-7.25"
           fill="none"

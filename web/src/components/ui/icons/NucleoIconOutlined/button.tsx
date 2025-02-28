@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function button(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px button";
+  const title = props.title || '18px button';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M16.25,8.917v-3.167c0-1.104-.895-2-2-2H3.75c-1.105,0-2,.896-2,2v3.5c0,1.104,.895,2,2,2h3.681"
           fill="none"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function baloonsHeart(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px baloons heart";
+  const title = props.title || '18px baloons heart';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M11.587,17.245c-.475-.475-.475-1.245,0-1.72l.413-.418c.475-.475,.475-1.245,0-1.72h0"
           fill="none"

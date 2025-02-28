@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function dollarValueUp(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px dollar value up";
+  const title = props.title || '18px dollar value up';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m3.904,10.919c-.573-.92-.904-2.006-.904-3.169,0-3.314,2.686-6,6-6s6,2.686,6,6c0,.249-.015.495-.045.737"
           fill="none"

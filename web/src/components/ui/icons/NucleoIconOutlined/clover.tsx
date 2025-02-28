@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function clover(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px clover";
+  const title = props.title || '18px clover';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M9,9c-2.009-2.412-3.19-4.254-3.19-5.902,0-.622,.3-1.222,.976-1.329,.805-.128,1.66,.421,2.214,1.081,.555-.66,1.409-1.208,2.214-1.081,.676,.107,.976,.707,.976,1.329,0,1.649-1.181,3.491-3.19,5.902"
           fill="none"

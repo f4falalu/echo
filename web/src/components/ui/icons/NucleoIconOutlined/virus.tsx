@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function virus(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px virus";
+  const title = props.title || '18px virus';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M9 3.75L9 1.25"
           fill="none"
@@ -143,9 +138,9 @@ function virus(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="9.75" cy="10.75" fill="#212121" r=".75" />
-        <circle cx="7" cy="9" fill="#212121" r="1" />
-        <circle cx="10.25" cy="7.25" fill="#212121" r="1.25" />
+        <circle cx="9.75" cy="10.75" fill="currentColor" r=".75" />
+        <circle cx="7" cy="9" fill="currentColor" r="1" />
+        <circle cx="10.25" cy="7.25" fill="currentColor" r="1.25" />
         <circle
           cx="9"
           cy="9"

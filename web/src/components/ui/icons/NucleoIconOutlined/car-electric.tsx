@@ -1,23 +1,18 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function carElectric(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px car electric";
+  const title = props.title || '18px car electric';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M1.75,13.25v1.5c0,.276,.224,.5,.5,.5h1c.276,0,.5-.224,.5-.5v-1.5H1.75Z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -25,7 +20,7 @@ function carElectric(props: iconProps) {
         />
         <path
           d="M14.25,13.25v1.5c0,.276,.224,.5,.5,.5h1c.276,0,.5-.224,.5-.5v-1.5h-2Z"
-          fill="#212121"
+          fill="currentColor"
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -57,10 +52,10 @@ function carElectric(props: iconProps) {
         />
         <path
           d="M10.939,2.761c-.088-.161-.256-.261-.439-.261h-1.102l.526-1.864c.067-.238-.05-.489-.275-.591-.225-.102-.492-.024-.626,.184l-1.942,3c-.099,.154-.107,.35-.02,.511,.088,.161,.256,.261,.439,.261h1.102l-.526,1.864c-.067,.238,.05,.489,.275,.591,.066,.03,.137,.044,.206,.044,.165,0,.325-.082,.42-.228l1.942-3c.099-.154,.107-.35,.02-.511Z"
-          fill="#212121"
+          fill="currentColor"
         />
-        <circle cx="4.25" cy="10.25" fill="#212121" r=".75" />
-        <circle cx="13.75" cy="10.25" fill="#212121" r=".75" />
+        <circle cx="4.25" cy="10.25" fill="currentColor" r=".75" />
+        <circle cx="13.75" cy="10.25" fill="currentColor" r=".75" />
       </g>
     </svg>
   );

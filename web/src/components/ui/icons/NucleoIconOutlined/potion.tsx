@@ -1,21 +1,16 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function potion(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px potion";
+  const title = props.title || '18px potion';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
-        <circle cx="7.25" cy="8.75" fill="#212121" r=".75" />
+      <g fill="currentColor">
+        <circle cx="7.25" cy="8.75" fill="currentColor" r=".75" />
         <path
           d="M14.19,11.794c-1.322-1.469-3.502-1.806-5.209-.794-1.693,1.004-3.852,.68-5.177-.759"
           fill="none"

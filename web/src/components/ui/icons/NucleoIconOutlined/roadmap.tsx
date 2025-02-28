@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function roadmap(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px roadmap";
+  const title = props.title || '18px roadmap';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M10.25,11.25H4.044c-.339,0-.655-.172-.84-.457L.75,7,3.204,3.207c.184-.285,.5-.457,.84-.457h6.206c1.105,0,2,.895,2,2v4.5c0,1.105-.895,2-2,2Z"
           fill="none"

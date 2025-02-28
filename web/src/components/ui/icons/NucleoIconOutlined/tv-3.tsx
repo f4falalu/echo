@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function tv3(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px tv 3";
+  const title = props.title || '18px tv 3';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M12 0.75L9 3.75 6.75 1.5"
           fill="none"
@@ -39,15 +34,15 @@ function tv3(props: iconProps) {
         <rect
           height="6"
           width="7"
-          fill="#212121"
+          fill="currentColor"
           rx=".5"
           ry=".5"
           strokeWidth="0"
           x="4"
           y="6"
         />
-        <circle cx="13" cy="7" fill="#212121" r="1" strokeWidth="0" />
-        <circle cx="13" cy="10" fill="#212121" r="1" strokeWidth="0" />
+        <circle cx="13" cy="7" fill="currentColor" r="1" strokeWidth="0" />
+        <circle cx="13" cy="10" fill="currentColor" r="1" strokeWidth="0" />
       </g>
     </svg>
   );

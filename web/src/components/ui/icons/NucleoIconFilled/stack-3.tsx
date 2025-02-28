@@ -1,24 +1,19 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function stack3(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px stack 3";
+  const title = props.title || '12px stack 3';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <rect
           height="8.5"
           width="12"
-          fill="#212121"
+          fill="currentColor"
           rx="2.25"
           ry="2.25"
           strokeWidth="0"
@@ -26,7 +21,7 @@ function stack3(props: iconProps) {
         />
         <path
           d="m9.25,12H2.75c-.414,0-.75-.336-.75-.75s.336-.75.75-.75h6.5c.414,0,.75.336.75.75s-.336.75-.75.75Z"
-          fill="#212121"
+          fill="currentColor"
           strokeWidth="0"
         />
       </g>

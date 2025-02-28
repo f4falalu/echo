@@ -1,23 +1,18 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function filmPlay(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px film play";
+  const title = props.title || '18px film play';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M10.798,8.47l-2.375-1.386c-.409-.239-.922,.056-.922,.53v2.771c0,.473,.514,.768,.922,.53l2.375-1.386c.406-.237,.406-.823,0-1.06Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M1.75 5.75L16.25 5.75"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function vrHeadset3(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px vr headset 3";
+  const title = props.title || '18px vr headset 3';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M3.75,5.75H14.25c1.105,0,2,.895,2,2v4.5c0,1.105-.895,2-2,2h-2c-.63,0-1.222-.296-1.6-.8l-.45-.6c-.6-.8-1.8-.8-2.4,0l-.45,.6c-.378,.504-.97,.8-1.6,.8H3.75c-1.105,0-2-.895-2-2V7.75c0-1.105,.895-2,2-2Z"
           fill="none"
@@ -34,7 +29,7 @@ function vrHeadset3(props: iconProps) {
         <circle
           cx="5.5"
           cy="10"
-          fill="#212121"
+          fill="currentColor"
           r=".75"
           stroke="#212121"
           strokeLinecap="round"
@@ -44,7 +39,7 @@ function vrHeadset3(props: iconProps) {
         <circle
           cx="12.5"
           cy="10"
-          fill="#212121"
+          fill="currentColor"
           r=".75"
           stroke="#212121"
           strokeLinecap="round"

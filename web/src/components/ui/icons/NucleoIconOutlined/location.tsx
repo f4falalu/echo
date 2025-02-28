@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function location(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px location";
+  const title = props.title || '18px location';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M13,12.582c1.959,.358,3.25,.972,3.25,1.668,0,1.105-3.246,2-7.25,2s-7.25-.895-7.25-2c0-.697,1.291-1.31,3.25-1.668"
           fill="none"

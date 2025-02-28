@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function raindrops(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px raindrops";
+  const title = props.title || '18px raindrops';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M3.5,7.25c.966,0,1.75-.767,1.75-1.712,0-1.301-.981-1.857-1.75-2.788-.769,.931-1.75,1.487-1.75,2.788,0,.946,.784,1.712,1.75,1.712Z"
           fill="none"

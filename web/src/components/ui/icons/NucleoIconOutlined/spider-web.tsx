@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function spiderWeb(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px spider web";
+  const title = props.title || '18px spider web';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M3.338,5.743c.327,.841,.614,1.947,.614,3.257,0,.598-.06,1.833-.613,3.256l.009,.019c.892,.137,1.993,.441,3.128,1.096,.518,.299,1.557,.968,2.514,2.159l.021,.002c.564-.704,1.379-1.506,2.514-2.161,.518-.299,1.617-.865,3.127-1.097l.012-.017c-.327-.841-.614-1.947-.614-3.257,0-.598,.06-1.833,.613-3.256l-.009-.019c-.892-.137-1.993-.441-3.128-1.096-.518-.299-1.557-.968-2.514-2.159l-.021-.002c-.564,.704-1.379,1.506-2.514,2.161-.518,.299-1.617,.865-3.127,1.097l-.012,.017Z"
           fill="none"

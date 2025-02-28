@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function earthPin(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px earth pin";
+  const title = props.title || '18px earth pin';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M9,16.25c-4.004,0-7.25-3.246-7.25-7.25S4.996,1.75,9,1.75c3.665,0,6.694,2.719,7.182,6.25"
           fill="none"
@@ -55,7 +50,7 @@ function earthPin(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="14" cy="13" fill="#212121" r=".75" />
+        <circle cx="14" cy="13" fill="currentColor" r=".75" />
       </g>
     </svg>
   );

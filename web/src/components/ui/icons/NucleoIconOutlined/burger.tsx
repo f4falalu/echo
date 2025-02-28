@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function burger(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px burger";
+  const title = props.title || '18px burger';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M16.25,10.25c-1.065,0-1.352,1-2.417,1s-1.352-1-2.417-1-1.352,1-2.417,1-1.352-1-2.417-1-1.352,1-2.417,1-1.352-1-2.417-1"
           fill="none"
@@ -39,8 +34,8 @@ function burger(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="7.25" cy="5" fill="#212121" r=".75" />
-        <circle cx="10.75" cy="5.5" fill="#212121" r=".75" />
+        <circle cx="7.25" cy="5" fill="currentColor" r=".75" />
+        <circle cx="10.75" cy="5.5" fill="currentColor" r=".75" />
       </g>
     </svg>
   );

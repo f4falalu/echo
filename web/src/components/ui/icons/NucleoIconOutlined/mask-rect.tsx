@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function maskRect(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px mask rect";
+  const title = props.title || '18px mask rect';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M5.25,12.25H2.75c-.552,0-1-.448-1-1V6.75c0-.552,.448-1,1-1h2.5"
           fill="none"

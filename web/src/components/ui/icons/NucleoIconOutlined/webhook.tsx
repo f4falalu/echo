@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function webhook(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px webhook";
+  const title = props.title || '18px webhook';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M3.804,13.278l3.721-6.444c-.91-.515-1.524-1.492-1.524-2.613,0-1.657,1.343-3,3-3s3,1.343,3,3c0,.08-.003,.159-.009,.237"
           fill="none"
@@ -39,9 +34,9 @@ function webhook(props: iconProps) {
           strokeLinejoin="round"
           strokeWidth={strokewidth}
         />
-        <circle cx="3.804" cy="13.278" fill="#212121" r="1.25" />
-        <circle cx="9" cy="4.222" fill="#212121" r="1.25" />
-        <circle cx="14.248" cy="13.252" fill="#212121" r="1.25" />
+        <circle cx="3.804" cy="13.278" fill="currentColor" r="1.25" />
+        <circle cx="9" cy="4.222" fill="currentColor" r="1.25" />
+        <circle cx="14.248" cy="13.252" fill="currentColor" r="1.25" />
       </g>
     </svg>
   );

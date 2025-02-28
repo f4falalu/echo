@@ -14,11 +14,11 @@ function mediaStop(props: iconProps) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <rect
           height="14"
           width="14"
-          fill="#212121"
+          fill="currentColor"
           rx="2.75"
           ry="2.75"
           x="2"

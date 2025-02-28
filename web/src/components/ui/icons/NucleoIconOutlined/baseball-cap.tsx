@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function baseballCap(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px baseball cap";
+  const title = props.title || '18px baseball cap';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M2.75,10.75l.187-4.103c.044-.965,.543-1.853,1.354-2.376,1.089-.701,2.776-1.521,4.709-1.521s3.62,.82,4.709,1.521c.812,.523,1.311,1.411,1.354,2.376l.187,4.103"
           fill="none"
@@ -25,7 +20,7 @@ function baseballCap(props: iconProps) {
         />
         <path
           d="M9,2.75c.605,0,1.182,.086,1.728,.219,.009-.073,.022-.144,.022-.219,0-.967-.784-1.75-1.75-1.75s-1.75,.783-1.75,1.75c0,.075,.013,.146,.022,.219,.546-.132,1.123-.219,1.728-.219Z"
-          fill="#212121"
+          fill="currentColor"
         />
         <path
           d="M9,2.75c-3.083,1.75-2.75,1.854-2.75,7.293"

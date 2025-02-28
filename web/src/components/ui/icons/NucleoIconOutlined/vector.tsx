@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function vector(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px vector";
+  const title = props.title || '18px vector';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M3.25,10.75c0-2.472,1.56-4.58,3.75-5.393"
           fill="none"
@@ -87,8 +82,8 @@ function vector(props: iconProps) {
           x="12.75"
           y="10.75"
         />
-        <circle cx="1.5" cy="5.25" fill="#212121" r="1.5" />
-        <circle cx="16.5" cy="5.25" fill="#212121" r="1.5" />
+        <circle cx="1.5" cy="5.25" fill="currentColor" r="1.5" />
+        <circle cx="16.5" cy="5.25" fill="currentColor" r="1.5" />
       </g>
     </svg>
   );

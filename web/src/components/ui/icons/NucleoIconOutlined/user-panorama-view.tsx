@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function userPanoramaView(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px user panorama view";
+  const title = props.title || '18px user panorama view';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m14.93,12.282c.65.223,1.32-.257,1.32-.945V2.75c0-.687-.67-1.168-1.32-.945-1.464.503-3.5.99-5.93.991-2.43-.002-4.467-.489-5.93-.991-.65-.223-1.32.257-1.32.945v8.587c0,.687.67,1.168,1.32.945"
           fill="none"

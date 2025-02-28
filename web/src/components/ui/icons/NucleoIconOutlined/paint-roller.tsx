@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function paintRoller(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px paint roller";
+  const title = props.title || '18px paint roller';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M.75,4v1.242c0,1.66,1.348,3.004,3.008,3l4.239-.011c.553-.001,1.003,.447,1.003,1v1.519"
           fill="none"

@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function lockPassword(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px lock password";
+  const title = props.title || '18px lock password';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M5.75,6.75V4c0-1.795,1.455-3.25,3.25-3.25h0c1.795,0,3.25,1.455,3.25,3.25v2.75"
           fill="none"
@@ -44,10 +39,10 @@ function lockPassword(props: iconProps) {
           x="3.75"
           y="6.75"
         />
-        <circle cx="2.25" cy="16.75" fill="#212121" r="1.25" />
-        <circle cx="6.75" cy="16.75" fill="#212121" r="1.25" />
-        <circle cx="11.25" cy="16.75" fill="#212121" r="1.25" />
-        <circle cx="15.75" cy="16.75" fill="#212121" r="1.25" />
+        <circle cx="2.25" cy="16.75" fill="currentColor" r="1.25" />
+        <circle cx="6.75" cy="16.75" fill="currentColor" r="1.25" />
+        <circle cx="11.25" cy="16.75" fill="currentColor" r="1.25" />
+        <circle cx="15.75" cy="16.75" fill="currentColor" r="1.25" />
       </g>
     </svg>
   );

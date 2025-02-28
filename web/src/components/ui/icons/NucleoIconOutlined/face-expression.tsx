@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function faceExpression(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px face expression";
+  const title = props.title || '18px face expression';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M2.75,6.75v-2c0-1.105,.895-2,2-2h2"
           fill="none"
@@ -49,10 +44,10 @@ function faceExpression(props: iconProps) {
         />
         <path
           d="M11.897,9.757c-.154-.154-.366-.221-.583-.189h0c-1.532,.239-3.112,.238-4.638-.001-.214-.032-.421,.035-.572,.185-.154,.153-.227,.376-.193,.598,.23,1.511,1.558,2.651,3.089,2.651s2.86-1.141,3.089-2.654c.033-.216-.039-.436-.192-.589h0Z"
-          fill="#212121"
+          fill="currentColor"
         />
-        <circle cx="6" cy="7" fill="#212121" r="1" />
-        <circle cx="12" cy="7" fill="#212121" r="1" />
+        <circle cx="6" cy="7" fill="currentColor" r="1" />
+        <circle cx="12" cy="7" fill="currentColor" r="1" />
       </g>
     </svg>
   );

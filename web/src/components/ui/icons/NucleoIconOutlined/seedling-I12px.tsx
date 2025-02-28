@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function seedling(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px seedling";
+  const title = props.title || '12px seedling';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m8.5,8.051c1.597-.525,2.75-2.028,2.75-3.801v-.5h-1.75c-1.933,0-3.5,1.567-3.5,3.5v1"
           fill="none"

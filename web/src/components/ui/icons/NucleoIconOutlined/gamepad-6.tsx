@@ -1,22 +1,17 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function gamepad6(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px gamepad 6";
+  const title = props.title || '18px gamepad 6';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
-        <circle cx="14.25" cy="9" fill="#212121" r=".75" />
-        <circle cx="12.75" cy="10.5" fill="#212121" r=".75" />
+      <g fill="currentColor">
+        <circle cx="14.25" cy="9" fill="currentColor" r=".75" />
+        <circle cx="12.75" cy="10.5" fill="currentColor" r=".75" />
         <path
           d="M4.75 8.25L4.75 11.25"
           fill="none"

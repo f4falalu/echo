@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function scooter(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px scooter";
+  const title = props.title || '18px scooter';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M7,12c0,1.243-1.007,2.25-2.25,2.25s-2.25-1.007-2.25-2.25"
           fill="none"
@@ -58,7 +53,7 @@ function scooter(props: iconProps) {
         <rect
           height="1.5"
           width="4.5"
-          fill="#212121"
+          fill="currentColor"
           rx=".5"
           ry=".5"
           stroke="#212121"

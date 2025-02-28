@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function kickScooterElectric(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px kick scooter electric";
+  const title = props.title || '18px kick scooter electric';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <circle
           cx="3.25"
           cy="13.25"
@@ -53,7 +48,7 @@ function kickScooterElectric(props: iconProps) {
         />
         <path
           d="M6.939,3.761c-.088-.161-.256-.261-.439-.261h-1.102l.526-1.864c.067-.238-.05-.489-.275-.591-.225-.102-.492-.024-.626,.184l-1.942,3c-.099,.154-.107,.35-.02,.511,.088,.161,.256,.261,.439,.261h1.102l-.526,1.864c-.067,.238,.05,.489,.275,.591,.066,.03,.137,.044,.206,.044,.165,0,.325-.082,.42-.228l1.942-3c.099-.154,.107-.35,.02-.511Z"
-          fill="#212121"
+          fill="currentColor"
         />
       </g>
     </svg>

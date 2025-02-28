@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function caretMaximizeDiagonal(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "12px caret maximize diagonal";
+  const title = props.title || '12px caret maximize diagonal';
 
   return (
-    <svg
-      height="12"
-      width="12"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="12" width="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="m5.854,1.75h4.146c.138,0,.25.112.25.25v4.146c0,.223-.269.334-.427.177L5.677,2.177c-.157-.157-.046-.427.177-.427Z"
           fill="none"

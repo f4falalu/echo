@@ -1,23 +1,18 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function pizza(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px pizza";
+  const title = props.title || '18px pizza';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
-        <circle cx="7.25" cy="8.25" fill="#212121" r=".75" />
-        <circle cx="10.75" cy="10.25" fill="#212121" r=".75" />
-        <circle cx="7.75" cy="10.75" fill="#212121" r=".75" />
+      <g fill="currentColor">
+        <circle cx="7.25" cy="8.25" fill="currentColor" r=".75" />
+        <circle cx="10.75" cy="10.25" fill="currentColor" r=".75" />
+        <circle cx="7.75" cy="10.75" fill="currentColor" r=".75" />
         <path
           d="M16.102,7.537c.097,.472,.148,.962,.148,1.463,0,4.004-3.246,7.25-7.25,7.25S1.75,13.004,1.75,9C1.75,5.638,4.039,2.81,7.143,1.99"
           fill="none"

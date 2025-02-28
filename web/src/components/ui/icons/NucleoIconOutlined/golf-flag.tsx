@@ -1,20 +1,15 @@
-import React from "react";
+import React from 'react';
 
-import { iconProps } from "./iconProps";
+import { iconProps } from './iconProps';
 
 function golfFlag(props: iconProps) {
   const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || "18px golf flag";
+  const title = props.title || '18px golf flag';
 
   return (
-    <svg
-      height="18"
-      width="18"
-      viewBox="0 0 18 18"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg height="18" width="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
-      <g fill="#212121">
+      <g fill="currentColor">
         <path
           d="M9,8.75c4.004,0,7.25,1.455,7.25,3.25s-3.246,3.25-7.25,3.25-7.25-1.455-7.25-3.25c0-.824,.684-1.576,1.811-2.149"
           fill="none"
