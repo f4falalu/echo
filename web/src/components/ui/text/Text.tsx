@@ -37,7 +37,7 @@ const useTextStyles = createStyles(({ css, token }) => {
       @apply text-xs;
     `,
     xxs: css`
-      @apply text-xxs;
+      @apply text2xs;
     `
   };
 });

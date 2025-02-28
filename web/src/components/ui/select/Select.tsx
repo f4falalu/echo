@@ -91,5 +91,5 @@ const SelectItemSelector: React.FC<{
 
 SelectItemSelector.displayName = 'SelectItemSelector';
 const SelectItemSecondaryText: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return <span className="text-gray-light text-xxs">{children}</span>;
+  return <span className="text-gray-light text2xs">{children}</span>;
 };

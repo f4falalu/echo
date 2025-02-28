@@ -1,0 +1,57 @@
+import { cva, VariantProps } from 'class-variance-authority';
+import React from 'react';
+import { textColorVariants } from './variants';
+import { cn } from '@/lib/utils';
+
+const paragraphVariants = cva('', {
+  variants: {
+    size: {
+      base: 'text-base',
+      sm: 'text-sm',
+      xs: 'text-xs',
+      md: 'text-md',
+      lg: 'text-lg'
+    },
+    lineHeight: {
+      none: 'leading-[1]!',
+      sm: 'leading-[1.2]!',
+      base: 'leading-[1.3]!',
+      md: 'leading-[1.4]!',
+      lg: 'leading-[1.5]!'
+    }
+  }
+});
+
+type ParagraphProps = {
+  className?: string;
+  style?: React.CSSProperties;
+  onClick?: React.MouseEventHandler<HTMLHeadingElement>;
+  children: React.ReactNode;
+} & VariantProps<typeof textColorVariants> &
+  VariantProps<typeof paragraphVariants>;
+
+const Paragraph: React.FC<ParagraphProps> = ({
+  onClick,
+  variant = 'default',
+  size = 'base',
+  children,
+  className,
+  style,
+  lineHeight = 'base'
+}) => {
+  console.log(lineHeight);
+  return (
+    <p
+      className={cn(
+        paragraphVariants({ size, lineHeight }),
+        textColorVariants({ variant }),
+        className
+      )}
+      style={style}
+      onClick={onClick}>
+      {children}
+    </p>
+  );
+};
+
+export default Paragraph;

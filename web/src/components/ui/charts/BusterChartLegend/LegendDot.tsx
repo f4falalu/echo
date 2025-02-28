@@ -96,7 +96,7 @@ export const LegendItemDot: React.FC<
             <div
               className={cn(
                 'flex h-full w-full items-center justify-center overflow-hidden',
-                size === 'sm' ? 'text-xxs' : 'text-xxs'
+                size === 'sm' ? 'text2xs' : 'text2xs'
               )}>
               <Target />
             </div>

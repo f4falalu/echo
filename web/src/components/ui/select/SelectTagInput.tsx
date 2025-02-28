@@ -105,7 +105,7 @@ const Tag: React.FC<{
           onRemove(value);
         }}
         className="hover:text-foreground text-icon-color hover:bg-item-hover-active pointer-events-auto flex h-3.5 w-3.5 cursor-pointer items-center justify-center rounded-sm focus:outline-none">
-        <div className="text-xxs">
+        <div className="text2xs">
           <Xmark />
         </div>
       </button>

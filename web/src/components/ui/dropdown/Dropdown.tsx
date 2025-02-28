@@ -258,7 +258,7 @@ const DropdownItem: React.FC<
       {loading && <CircleSpinnerLoader size={9} />}
       <div className={cn('flex flex-col gap-y-1', truncate && 'overflow-hidden')}>
         <span className={cn(truncate && 'truncate')}>{label}</span>
-        {secondaryLabel && <span className="text-gray-light text-xxs">{secondaryLabel}</span>}
+        {secondaryLabel && <span className="text-gray-light text2xs">{secondaryLabel}</span>}
       </div>
       {shortcut && <DropdownMenuShortcut>{shortcut}</DropdownMenuShortcut>}
       {link && (
