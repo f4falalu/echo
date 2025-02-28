@@ -35,25 +35,24 @@ export enum BusterAppRoutes {
   APP_CHAT_ID_VALUE_ID = '/app/chats/:chatId/value/:valueId',
   APP_VALUE_ID = '/app/value/:valueId',
 
-  SETTINGS = '/app/settings',
-  SETTINGS_GENERAL = '/app/settings/general',
-  SETTINGS_PERMISSIONS = '/app/settings/permissions',
-  SETTINGS_STORAGE = '/app/settings/storage',
-  SETTINGS_DATASOURCES = '/app/settings/datasources',
-  SETTINGS_DATASOURCES_ID = '/app/settings/datasources/:datasourceId',
-  SETTINGS_DATASOURCES_ADD = '/app/settings/datasources/add',
-  SETTINGS_INTEGRATIONS = '/app/settings/integrations',
-  SETTINGS_PERMISSION_GROUPS = '/app/settings/permission-groups',
-  SETTINGS_PERMISSION_GROUPS_ID_USERS = '/app/settings/permission-groups/:permissionGroupId/users',
-  SETTINGS_PERMISSION_GROUPS_ID_DATASET_GROUPS = '/app/settings/permission-groups/:permissionGroupId/dataset-groups',
-  SETTINGS_PERMISSION_GROUPS_ID_DATASETS = '/app/settings/permission-groups/:permissionGroupId/datasets',
-  SETTINGS_API_KEYS = '/app/settings/api-keys',
-  SETTINGS_EMBEDS = '/app/settings/embeds',
-  SETTINGS_BILLING = '/app/settings/billing',
-  SETTINGS_PROFILE = '/app/settings/profile',
-  SETTINGS_PREFERENCES = '/app/settings/preferences',
-  SETTINGS_NOTIFICATIONS = '/app/settings/notifications',
-  SETTINGS_TEAM_ID = '/app/settings/team/:teamId',
+  APP_SETTINGS = '/app/settings',
+  APP_SETTINGS_PERMISSIONS = '/app/settings/permissions',
+  APP_SETTINGS_STORAGE = '/app/settings/storage',
+  APP_SETTINGS_DATASOURCES = '/app/settings/datasources',
+  APP_SETTINGS_DATASOURCES_ID = '/app/settings/datasources/:datasourceId',
+  APP_SETTINGS_DATASOURCES_ADD = '/app/settings/datasources/add',
+  APP_SETTINGS_INTEGRATIONS = '/app/settings/integrations',
+  APP_SETTINGS_PERMISSION_GROUPS = '/app/settings/permission-groups',
+  APP_SETTINGS_PERMISSION_GROUPS_ID_USERS = '/app/settings/permission-groups/:permissionGroupId/users',
+  APP_SETTINGS_PERMISSION_GROUPS_ID_DATASET_GROUPS = '/app/settings/permission-groups/:permissionGroupId/dataset-groups',
+  APP_SETTINGS_PERMISSION_GROUPS_ID_DATASETS = '/app/settings/permission-groups/:permissionGroupId/datasets',
+  APP_SETTINGS_API_KEYS = '/app/settings/api-keys',
+  APP_SETTINGS_EMBEDS = '/app/settings/embeds',
+  APP_SETTINGS_BILLING = '/app/settings/billing',
+  APP_SETTINGS_PROFILE = '/app/settings/profile',
+  APP_SETTINGS_PREFERENCES = '/app/settings/preferences',
+  APP_SETTINGS_NOTIFICATIONS = '/app/settings/notifications',
+  APP_SETTINGS_TEAM_ID = '/app/settings/team/:teamId',
   APP_SETTINGS_USERS = '/app/settings/users',
   APP_SETTINGS_USERS_ID = '/app/settings/users/:userId',
   APP_SETTINGS_USERS_ID_PERMISSION_GROUPS = '/app/settings/users/:userId/permission-groups',
@@ -97,39 +96,45 @@ export type BusterAppRoutesWithArgs = {
   };
   [BusterAppRoutes.APP_DATASETS]: { route: BusterAppRoutes.APP_DATASETS };
   [BusterAppRoutes.APP_TERMS]: { route: BusterAppRoutes.APP_TERMS };
-  [BusterAppRoutes.SETTINGS]: { route: BusterAppRoutes.SETTINGS };
-  [BusterAppRoutes.SETTINGS_GENERAL]: { route: BusterAppRoutes.SETTINGS_GENERAL };
-  [BusterAppRoutes.SETTINGS_PERMISSIONS]: { route: BusterAppRoutes.SETTINGS_PERMISSIONS };
-  [BusterAppRoutes.SETTINGS_STORAGE]: { route: BusterAppRoutes.SETTINGS_STORAGE };
-  [BusterAppRoutes.SETTINGS_DATASOURCES]: { route: BusterAppRoutes.SETTINGS_DATASOURCES };
-  [BusterAppRoutes.SETTINGS_INTEGRATIONS]: { route: BusterAppRoutes.SETTINGS_INTEGRATIONS };
-  [BusterAppRoutes.SETTINGS_PERMISSION_GROUPS]: {
-    route: BusterAppRoutes.SETTINGS_PERMISSION_GROUPS;
+  [BusterAppRoutes.APP_SETTINGS]: { route: BusterAppRoutes.APP_SETTINGS };
+  [BusterAppRoutes.APP_SETTINGS_PERMISSIONS]: { route: BusterAppRoutes.APP_SETTINGS_PERMISSIONS };
+  [BusterAppRoutes.APP_SETTINGS_STORAGE]: { route: BusterAppRoutes.APP_SETTINGS_STORAGE };
+  [BusterAppRoutes.APP_SETTINGS_DATASOURCES]: { route: BusterAppRoutes.APP_SETTINGS_DATASOURCES };
+  [BusterAppRoutes.APP_SETTINGS_INTEGRATIONS]: { route: BusterAppRoutes.APP_SETTINGS_INTEGRATIONS };
+  [BusterAppRoutes.APP_SETTINGS_PERMISSION_GROUPS]: {
+    route: BusterAppRoutes.APP_SETTINGS_PERMISSION_GROUPS;
   };
-  [BusterAppRoutes.SETTINGS_PERMISSION_GROUPS_ID_USERS]: {
-    route: BusterAppRoutes.SETTINGS_PERMISSION_GROUPS_ID_USERS;
+  [BusterAppRoutes.APP_SETTINGS_PERMISSION_GROUPS_ID_USERS]: {
+    route: BusterAppRoutes.APP_SETTINGS_PERMISSION_GROUPS_ID_USERS;
     permissionGroupId: string;
   };
-  [BusterAppRoutes.SETTINGS_PERMISSION_GROUPS_ID_DATASET_GROUPS]: {
-    route: BusterAppRoutes.SETTINGS_PERMISSION_GROUPS_ID_DATASET_GROUPS;
+  [BusterAppRoutes.APP_SETTINGS_PERMISSION_GROUPS_ID_DATASET_GROUPS]: {
+    route: BusterAppRoutes.APP_SETTINGS_PERMISSION_GROUPS_ID_DATASET_GROUPS;
     permissionGroupId: string;
   };
-  [BusterAppRoutes.SETTINGS_PERMISSION_GROUPS_ID_DATASETS]: {
-    route: BusterAppRoutes.SETTINGS_PERMISSION_GROUPS_ID_DATASETS;
+  [BusterAppRoutes.APP_SETTINGS_PERMISSION_GROUPS_ID_DATASETS]: {
+    route: BusterAppRoutes.APP_SETTINGS_PERMISSION_GROUPS_ID_DATASETS;
     permissionGroupId: string;
   };
-  [BusterAppRoutes.SETTINGS_API_KEYS]: { route: BusterAppRoutes.SETTINGS_API_KEYS };
-  [BusterAppRoutes.SETTINGS_EMBEDS]: { route: BusterAppRoutes.SETTINGS_EMBEDS };
-  [BusterAppRoutes.SETTINGS_BILLING]: { route: BusterAppRoutes.SETTINGS_BILLING };
-  [BusterAppRoutes.SETTINGS_PROFILE]: { route: BusterAppRoutes.SETTINGS_PROFILE };
-  [BusterAppRoutes.SETTINGS_PREFERENCES]: { route: BusterAppRoutes.SETTINGS_PREFERENCES };
-  [BusterAppRoutes.SETTINGS_NOTIFICATIONS]: { route: BusterAppRoutes.SETTINGS_NOTIFICATIONS };
-  [BusterAppRoutes.SETTINGS_TEAM_ID]: { route: BusterAppRoutes.SETTINGS_TEAM_ID; teamId: string };
-  [BusterAppRoutes.SETTINGS_DATASOURCES_ID]: {
-    route: BusterAppRoutes.SETTINGS_DATASOURCES_ID;
+  [BusterAppRoutes.APP_SETTINGS_API_KEYS]: { route: BusterAppRoutes.APP_SETTINGS_API_KEYS };
+  [BusterAppRoutes.APP_SETTINGS_EMBEDS]: { route: BusterAppRoutes.APP_SETTINGS_EMBEDS };
+  [BusterAppRoutes.APP_SETTINGS_BILLING]: { route: BusterAppRoutes.APP_SETTINGS_BILLING };
+  [BusterAppRoutes.APP_SETTINGS_PROFILE]: { route: BusterAppRoutes.APP_SETTINGS_PROFILE };
+  [BusterAppRoutes.APP_SETTINGS_PREFERENCES]: { route: BusterAppRoutes.APP_SETTINGS_PREFERENCES };
+  [BusterAppRoutes.APP_SETTINGS_NOTIFICATIONS]: {
+    route: BusterAppRoutes.APP_SETTINGS_NOTIFICATIONS;
+  };
+  [BusterAppRoutes.APP_SETTINGS_TEAM_ID]: {
+    route: BusterAppRoutes.APP_SETTINGS_TEAM_ID;
+    teamId: string;
+  };
+  [BusterAppRoutes.APP_SETTINGS_DATASOURCES_ID]: {
+    route: BusterAppRoutes.APP_SETTINGS_DATASOURCES_ID;
     datasourceId: string;
   };
-  [BusterAppRoutes.SETTINGS_DATASOURCES_ADD]: { route: BusterAppRoutes.SETTINGS_DATASOURCES_ADD };
+  [BusterAppRoutes.APP_SETTINGS_DATASOURCES_ADD]: {
+    route: BusterAppRoutes.APP_SETTINGS_DATASOURCES_ADD;
+  };
   [BusterAppRoutes.APP_DATASETS_ID]: { route: BusterAppRoutes.APP_DATASETS_ID; datasetId: string };
   [BusterAppRoutes.APP_LOGS]: { route: BusterAppRoutes.APP_LOGS };
   [BusterAppRoutes.APP_TERMS_ID]: { route: BusterAppRoutes.APP_TERMS_ID; termId: string };

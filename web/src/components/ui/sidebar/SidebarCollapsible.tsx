@@ -18,7 +18,7 @@ const SidebarTrigger: React.FC<SidebarTriggerProps> = React.memo(({ label, isOpe
   return (
     <div
       className={cn(
-        'flex items-center gap-1 rounded px-1.5 py-1 text-sm transition-colors',
+        'flex items-center gap-1 rounded px-1.5 py-1 text-base transition-colors',
         'text-text-secondary hover:bg-nav-item-hover',
         'group cursor-pointer'
       )}>
@@ -54,13 +54,11 @@ export const SidebarCollapsible: React.FC<ISidebarGroup & { activeItem?: string 
         {variant === 'icon' && (
           <div
             className={cn(
-              'flex items-center gap-1 rounded px-1.5 py-1 text-sm',
+              'flex items-center space-x-2.5 px-1.5 py-1 text-base',
               'text-text-secondary'
             )}>
-            <div className="flex items-center space-x-2.5">
-              {icon && <span className="text-icon-color text-icon-size">{icon}</span>}
-              <span className="">{label}</span>
-            </div>
+            {icon && <span className="text-icon-color text-icon-size">{icon}</span>}
+            <span className="">{label}</span>
           </div>
         )}
 

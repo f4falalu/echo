@@ -1,18 +1,5 @@
 import type { ShareAssetType } from '@/api/asset_interfaces';
 
-export interface UserColorsCreatePayload {
-  color_palette: string[];
-}
-
-export interface UserColorsUpdatePayload {
-  id: string;
-  color_palette: string[];
-}
-
-export interface UserColorsDeletePayload {
-  id: string;
-}
-
 export interface UsersFavoritePostPayload {
   id: string;
   asset_type: ShareAssetType;

@@ -54,7 +54,7 @@ export const NewDatasetModal: React.FC<{
   });
 
   const onAddDataSourceClick = useMemoizedFn(() => {
-    router.push(createBusterRoute({ route: BusterRoutes.SETTINGS_DATASOURCES_ADD }));
+    router.push(createBusterRoute({ route: BusterRoutes.APP_SETTINGS_DATASOURCES_ADD }));
     setTimeout(() => {
       onClose();
     }, 450);

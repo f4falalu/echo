@@ -20,7 +20,7 @@ export default function Page() {
   const linkUrl = selectedDataSource
     ? ''
     : createBusterRoute({
-        route: BusterRoutes.SETTINGS_DATASOURCES
+        route: BusterRoutes.APP_SETTINGS_DATASOURCES
       });
 
   return (

@@ -82,7 +82,7 @@ export const DataSourceFormContent: React.FC<{
           content: 'You can now use this data source to create data sets.',
           onOk: () => {
             onChangePage({
-              route: BusterRoutes.SETTINGS_DATASOURCES_ID,
+              route: BusterRoutes.APP_SETTINGS_DATASOURCES_ID,
               datasourceId: res.id
             });
           },

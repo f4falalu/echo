@@ -17,33 +17,33 @@ type MenuItem = Required<MenuProps>['items'][number];
 
 const accountItems: MenuItem[] = [
   {
-    key: BusterRoutes.SETTINGS_PROFILE,
+    key: BusterRoutes.APP_SETTINGS_PROFILE,
     label: (
       <Link
         href={createBusterRoute({
-          route: BusterRoutes.SETTINGS_PROFILE
+          route: BusterRoutes.APP_SETTINGS_PROFILE
         })}>
         Profile
       </Link>
     )
   },
   {
-    key: BusterRoutes.SETTINGS_PREFERENCES,
+    key: BusterRoutes.APP_SETTINGS_PREFERENCES,
     label: (
       <Link
         href={createBusterRoute({
-          route: BusterRoutes.SETTINGS_PREFERENCES
+          route: BusterRoutes.APP_SETTINGS_PREFERENCES
         })}>
         Preferences
       </Link>
     )
   },
   {
-    key: BusterRoutes.SETTINGS_NOTIFICATIONS,
+    key: BusterRoutes.APP_SETTINGS_NOTIFICATIONS,
     label: (
       <Link
         href={createBusterRoute({
-          route: BusterRoutes.SETTINGS_NOTIFICATIONS
+          route: BusterRoutes.APP_SETTINGS_NOTIFICATIONS
         })}>
         Notifications
       </Link>
@@ -86,11 +86,11 @@ const permissionsAndSecurityItems: MenuItem[] = [
     )
   },
   {
-    key: BusterRoutes.SETTINGS_PERMISSION_GROUPS,
+    key: BusterRoutes.APP_SETTINGS_PERMISSION_GROUPS,
     label: (
       <Link
         href={createBusterRoute({
-          route: BusterRoutes.SETTINGS_PERMISSION_GROUPS
+          route: BusterRoutes.APP_SETTINGS_PERMISSION_GROUPS
         })}>
         Permission Groups
       </Link>
@@ -152,13 +152,13 @@ export const AppSidebarSettings: React.FC<{
     () => [
       ...userTeams.map((team) => ({
         key: createBusterRoute({
-          route: BusterRoutes.SETTINGS_TEAM_ID,
+          route: BusterRoutes.APP_SETTINGS_TEAM_ID,
           teamId: team.id
         }),
         label: (
           <Link
             href={createBusterRoute({
-              route: BusterRoutes.SETTINGS_TEAM_ID,
+              route: BusterRoutes.APP_SETTINGS_TEAM_ID,
               teamId: team.id
             })}>
             {team.name}
@@ -182,55 +182,55 @@ export const AppSidebarSettings: React.FC<{
     () =>
       [
         {
-          key: BusterRoutes.SETTINGS_GENERAL,
+          key: BusterRoutes.APP_SETTINGS_PROFILE,
           label: (
             <Link
               href={createBusterRoute({
-                route: BusterRoutes.SETTINGS_GENERAL
+                route: BusterRoutes.APP_SETTINGS_PROFILE
               })}>
               General
             </Link>
           )
         },
         {
-          key: BusterRoutes.SETTINGS_STORAGE,
+          key: BusterRoutes.APP_SETTINGS_STORAGE,
           label: (
             <Link
               href={createBusterRoute({
-                route: BusterRoutes.SETTINGS_STORAGE
+                route: BusterRoutes.APP_SETTINGS_STORAGE
               })}>
               Storage
             </Link>
           )
         },
         {
-          key: BusterRoutes.SETTINGS_DATASOURCES,
+          key: BusterRoutes.APP_SETTINGS_DATASOURCES,
           label: (
             <Link
               href={createBusterRoute({
-                route: BusterRoutes.SETTINGS_DATASOURCES
+                route: BusterRoutes.APP_SETTINGS_DATASOURCES
               })}>
               Data Sources
             </Link>
           )
         },
         {
-          key: BusterRoutes.SETTINGS_INTEGRATIONS,
+          key: BusterRoutes.APP_SETTINGS_INTEGRATIONS,
           label: (
             <Link
               href={createBusterRoute({
-                route: BusterRoutes.SETTINGS_INTEGRATIONS
+                route: BusterRoutes.APP_SETTINGS_INTEGRATIONS
               })}>
               Integrations
             </Link>
           )
         },
         {
-          key: BusterRoutes.SETTINGS_API_KEYS,
+          key: BusterRoutes.APP_SETTINGS_API_KEYS,
           label: (
             <Link
               href={createBusterRoute({
-                route: BusterRoutes.SETTINGS_API_KEYS
+                route: BusterRoutes.APP_SETTINGS_API_KEYS
               })}>
               API Keys
             </Link>
@@ -238,11 +238,11 @@ export const AppSidebarSettings: React.FC<{
           hidden: !isAdmin
         },
         {
-          key: BusterRoutes.SETTINGS_EMBEDS,
+          key: BusterRoutes.APP_SETTINGS_EMBEDS,
           label: (
             <Link
               href={createBusterRoute({
-                route: BusterRoutes.SETTINGS_EMBEDS
+                route: BusterRoutes.APP_SETTINGS_EMBEDS
               })}>
               Embedded Analytics
             </Link>
@@ -250,11 +250,11 @@ export const AppSidebarSettings: React.FC<{
           hidden: !isAdmin
         },
         {
-          key: BusterRoutes.SETTINGS_BILLING,
+          key: BusterRoutes.APP_SETTINGS_BILLING,
           label: (
             <Link
               href={createBusterRoute({
-                route: BusterRoutes.SETTINGS_BILLING
+                route: BusterRoutes.APP_SETTINGS_BILLING
               })}>
               Billing
             </Link>

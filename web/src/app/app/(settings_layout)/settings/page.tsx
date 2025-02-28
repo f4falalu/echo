@@ -6,7 +6,7 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 export default function SettingsPage() {
   return permanentRedirect(
     createBusterRoute({
-      route: BusterRoutes.SETTINGS_GENERAL
+      route: BusterRoutes.APP_SETTINGS_PROFILE
     })
   );
 }

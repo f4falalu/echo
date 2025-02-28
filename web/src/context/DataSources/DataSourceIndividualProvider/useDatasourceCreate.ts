@@ -42,7 +42,7 @@ export const useDatasourceCreate = () => {
     }).then(() => {
       if (goToPage) {
         onChangePage({
-          route: BusterRoutes.SETTINGS_DATASOURCES
+          route: BusterRoutes.APP_SETTINGS_DATASOURCES
         });
       }
     });

@@ -134,12 +134,12 @@ const SidebarPrimaryHeader = React.memo(() => {
       <BusterLogoWithText />
       <div className="flex items-center gap-2">
         <Tooltip title="Settings">
-          <Link href={createBusterRoute({ route: BusterRoutes.SETTINGS_GENERAL })}>
+          <Link href={createBusterRoute({ route: BusterRoutes.APP_SETTINGS_PROFILE })}>
             <Button prefix={<Gear />} variant="ghost" />
           </Link>
         </Tooltip>
         <Tooltip title="Start a chat">
-          <Link href={createBusterRoute({ route: BusterRoutes.SETTINGS_GENERAL })}>
+          <Link href={createBusterRoute({ route: BusterRoutes.APP_SETTINGS_PROFILE })}>
             <Button
               size="tall"
               rounding={'large'}

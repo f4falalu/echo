@@ -46,7 +46,7 @@ export const CustomActiveIndex: Story = {
     items: [
       { label: 'Home', route: { route: BusterAppRoutes.APP_ROOT } },
       { label: 'Datasets', route: { route: BusterAppRoutes.APP_DATASETS } },
-      { label: 'Settings', route: { route: BusterAppRoutes.SETTINGS_GENERAL } },
+      { label: 'Settings', route: { route: BusterAppRoutes.APP_SETTINGS_PROFILE } },
       { label: 'Profile' }
     ],
     activeIndex: 2

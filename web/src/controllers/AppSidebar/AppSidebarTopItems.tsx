@@ -79,7 +79,7 @@ const AppSidebarButton = React.memo(
         <div className="flex items-center space-x-2.5">
           <Link
             href={createPageLink({
-              route: BusterRoutes.SETTINGS_GENERAL
+              route: BusterRoutes.APP_SETTINGS_PROFILE
             })}>
             <AppTooltip title="Settings" shortcuts={['G', 'S']}>
               <Button

@@ -6,8 +6,6 @@ import type {
 } from '@/api/asset_interfaces';
 
 export enum UserResponses {
-  '/users/colors/list:listUserColorPalettes' = '/users/colors/list:listUserColorPalettes',
-  '/users/colors/post:createUserColorPalette' = '/users/colors/post:createUserColorPalette',
   '/users/favorites/list:listFavorites' = '/users/favorites/list:listFavorites',
   '/users/favorites/post:createFavorite' = '/users/favorites/post:createFavorite',
   '/users/get:getUser' = '/users/get:getUser',
@@ -15,12 +13,6 @@ export enum UserResponses {
   '/users/list:listUsersTeams' = '/users/list:listUsersTeams',
   '/users/list:listUsers' = '/users/list:listUsers'
 }
-
-export type UserColorsList_listUserColorPalettes = {
-  route: '/users/colors/list:listUserColorPalettes';
-  callback: (d: BusterUserPalette[]) => void;
-  onError?: (d: unknown) => void;
-};
 
 export type UserColorsPost_createUserColorPalette = {
   route: '/users/colors/post:createUserColorPalette';
@@ -59,7 +51,6 @@ export type UserList_getUserList = {
 };
 
 export type UserResponsesTypes =
-  | UserColorsList_listUserColorPalettes
   | UserColorsPost_createUserColorPalette
   | UserFavoriteList_listFavorites
   | UserFavoritesPost_createFavorite
