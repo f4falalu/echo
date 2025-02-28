@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Button, Divider } from 'antd';
-import { AppContentHeader, PreventNavigation } from '@/components/ui/layout';
+import { AppContentHeader, PreventNavigation } from '@/components/ui/layouts';
 import { useMemoizedFn } from 'ahooks';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { DatasetsHeaderOptions } from './DatasetHeaderOptions';

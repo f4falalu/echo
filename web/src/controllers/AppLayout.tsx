@@ -4,7 +4,7 @@ import React, { PropsWithChildren, useMemo } from 'react';
 import { AppSidebar } from './AppSidebar';
 import { NewChatModal } from '@/components/features/modals/NewChatModal';
 import { InvitePeopleModal } from '@/components/features/modals/InvitePeopleModal';
-import { AppSplitter } from '@/components/ui/layout';
+import { AppSplitter } from '@/components/ui/layouts';
 import { createStyles } from 'antd-style';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { SupportModal } from '@/components/features/modals/SupportModal';
@@ -52,17 +52,6 @@ export const AppLayout: React.FC<
     />
   );
 };
-
-const useStyles = createStyles(({ css, token }) => {
-  return {
-    layout: css`
-      border: 0.5px solid ${token.colorBorder};
-      min-height: calc(100vh - 16px);
-      height: calc(100vh - 16px);
-      max-height: calc(100vh - 16px);
-    `
-  };
-});
 
 const AppLayoutContent: React.FC<
   PropsWithChildren<{

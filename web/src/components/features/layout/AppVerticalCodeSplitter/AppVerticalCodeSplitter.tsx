@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { AppSplitter, type AppSplitterRef } from '@/components/ui/layout/AppSplitter';
+import { AppSplitter, type AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
 import { SQLContainer } from './SQLContainer';
 import { DataContainer } from './DataContainer';
 import type { IDataResult } from '@/api/asset_interfaces';

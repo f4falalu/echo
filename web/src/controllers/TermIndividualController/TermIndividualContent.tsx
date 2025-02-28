@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { AppContent } from '@/components/ui/layout/AppContent';
+import { AppContent } from '@/components/ui/layouts/AppContent';
 import { useBusterTermsIndividualContextSelector, useBusterTermsIndividual } from '@/context/Terms';
 import { Dropdown, Input } from 'antd';
 import { useDebounceFn } from 'ahooks';

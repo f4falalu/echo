@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { AppContentHeader } from '@/components/ui/layout';
+import { AppContentHeader } from '@/components/ui/layouts';
 import {
   canEditCollection,
   useBusterCollectionIndividualContextSelector

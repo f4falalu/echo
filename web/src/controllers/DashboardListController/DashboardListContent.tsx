@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { AppContent } from '@/components/ui/layout/AppContent';
+import { AppContent } from '@/components/ui/layouts/AppContent';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { Avatar } from '@/components/ui/avatar';
 import { formatDate } from '@/lib';

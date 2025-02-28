@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { AppContentHeader } from '../../../../components/ui/layout/AppContentHeader';
+import { AppContentHeader } from '../../../../components/ui/layouts/AppContentHeader';
 import { Text } from '@/components/ui';
 
 export const ChatListHeader: React.FC<{}> = ({}) => {

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { AppSplitter, AppSplitterRef } from '@/components/ui/layout/AppSplitter';
+import { AppSplitter, AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
 import { ChatContainer } from './ChatContainer';
 import { FileContainer } from './FileContainer';
 import { ChatLayoutContextProvider } from './ChatLayoutContext';

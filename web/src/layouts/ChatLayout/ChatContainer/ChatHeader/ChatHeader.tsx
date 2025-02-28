@@ -1,4 +1,4 @@
-import { appContentHeaderHeight } from '@/components/ui/layout/AppContentHeader';
+import { appContentHeaderHeight } from '@/components/ui/layouts/AppContentHeader';
 import { createStyles } from 'antd-style';
 import React from 'react';
 import { ChatHeaderOptions } from './ChatHeaderOptions';

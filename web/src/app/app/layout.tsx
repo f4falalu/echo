@@ -2,12 +2,12 @@
 
 import { useSupabaseServerContext } from '@/context/Supabase/useSupabaseContext';
 import React from 'react';
-import { getAppSplitterLayout } from '@/components/ui/layout/AppSplitter';
+import { getAppSplitterLayout } from '@/components/ui/layouts/AppSplitter';
 import { useBusterSupabaseAuthMethods } from '@/hooks/useBusterSupabaseAuthMethods';
 import { createBusterRoute } from '@/routes';
 import { BusterAppRoutes } from '@/routes/busterRoutes/busterAppRoutes';
 import { headers, cookies } from 'next/headers';
-import { ClientRedirect } from '../../components/ui/layout/ClientRedirect';
+import { ClientRedirect } from '../../components/ui/layouts/ClientRedirect';
 import { AppLayoutClient } from './layoutClient';
 import { prefetchGetMyUserInfo } from '@/api/buster_rest';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';

@@ -1,0 +1,32 @@
+'use client';
+
+import React, { PropsWithChildren } from 'react';
+
+import { cn } from '@/lib/utils';
+import { cva, type VariantProps } from 'class-variance-authority';
+
+const contentVariants = cva('max-h-[100%]', {
+  variants: {
+    scrollable: {
+      true: 'overflow-y-auto'
+    },
+    variant: {
+      default: 'p-12',
+      list: 'p-0'
+    }
+  }
+});
+
+export const AppContent: React.FC<
+  PropsWithChildren<
+    {
+      className?: string;
+      scrollable?: boolean;
+    } & VariantProps<typeof contentVariants>
+  >
+> = React.memo(({ scrollable, variant = 'default', className = '', children }) => {
+  return (
+    <main className={cn(contentVariants({ scrollable, variant }), className)}>{children}</main>
+  );
+});
+AppContent.displayName = 'AppContent';

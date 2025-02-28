@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { AppContent } from '@/components/ui/layout/AppContent';
+import { AppContent } from '@/components/ui/layouts/AppContent';
 import { DatasetsIndividualHeader } from './DatasetsIndividualHeader';
 import { DatasetPageProvider } from './DatasetPageContext';
 

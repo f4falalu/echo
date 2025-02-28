@@ -7,7 +7,7 @@ import React, { PropsWithChildren, useTransition } from 'react';
 import type { SelectedFile } from '../interfaces';
 import type { ChatSplitterProps } from '../ChatLayout';
 import { useMemoizedFn } from 'ahooks';
-import type { AppSplitterRef } from '@/components/ui/layout';
+import type { AppSplitterRef } from '@/components/ui/layouts';
 import { createChatAssetRoute, createFileRoute } from './helpers';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { DEFAULT_CHAT_OPTION } from './config';

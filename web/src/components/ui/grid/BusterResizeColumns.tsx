@@ -7,7 +7,7 @@ import { ResizeableGridDragItem } from './interfaces';
 import { useMemoizedFn, useMouse } from 'ahooks';
 import { BusterDragColumnMarkers } from './_BusterDragColumnMarkers';
 import { calculateColumnSpan, columnSpansToPercent } from './config';
-import SplitPane, { Pane } from '../layout/AppSplitter/SplitPane';
+import SplitPane, { Pane } from '../layouts/AppSplitter/SplitPane';
 import { cn } from '@/lib/classMerge';
 
 type ContainerProps = {

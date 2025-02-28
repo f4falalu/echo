@@ -1,5 +1,5 @@
 import React from 'react';
-import { getAppSplitterLayout } from '@/components/ui/layout';
+import { getAppSplitterLayout } from '@/components/ui/layouts';
 import { TermIndividualController } from '@controllers/TermIndividualController';
 
 export default async function TermIdPage({ params: { termId } }: { params: { termId: string } }) {
