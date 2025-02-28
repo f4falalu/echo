@@ -21,6 +21,8 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(
   }
 );
 
+Sidebar.displayName = 'Sidebar';
+
 const ContentSelector: React.FC<{
   content: SidebarProps['content'][number];
   activeItem: SidebarProps['activeItem'];
@@ -44,6 +46,8 @@ const SidebarList: React.FC<{
     </div>
   );
 });
+
+SidebarList.displayName = 'SidebarList';
 
 const isSidebarGroup = (content: SidebarProps['content'][number]): content is ISidebarGroup => {
   return 'label' in content && content.label !== undefined;

@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/list';
 import { BusterInfiniteList } from '@/components/ui/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { PermissionLineageBreadcrumb } from '../../../../../../../components/features/PermissionComponents';
+import { PermissionLineageBreadcrumb } from '@/components/features/PermissionComponents';
 import { ListUserItem } from '@/components/features/lists';
 
 export const PermissionListUserContainer: React.FC<{

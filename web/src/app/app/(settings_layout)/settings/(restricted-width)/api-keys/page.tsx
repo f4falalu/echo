@@ -1,4 +1,4 @@
-import { useCheckIfUserIsAdmin_server } from '../../../../../server_context/user';
+import { useCheckIfUserIsAdmin_server } from '@/server_context/user';
 import { SettingsPageHeader } from '../../_components/SettingsPageHeader';
 import { ApiKeysController } from './ApiKeysController';
 import { createBusterRoute, BusterRoutes } from '@/routes';

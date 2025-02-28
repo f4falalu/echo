@@ -70,3 +70,5 @@ export const SidebarItem: React.FC<ISidebarItem & VariantProps<typeof itemVarian
     );
   }
 );
+
+SidebarItem.displayName = 'SidebarItem';
