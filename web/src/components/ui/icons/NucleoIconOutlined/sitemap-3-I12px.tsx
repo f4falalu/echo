@@ -13,7 +13,7 @@ function sitemap3(props: iconProps) {
         <path
           d="M6 3.75L6 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function sitemap3(props: iconProps) {
         <path
           d="m9.25,8.25v-1c0-.828-.672-1.5-1.5-1.5h-3.5c-.828,0-1.5.672-1.5,1.5v1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function sitemap3(props: iconProps) {
           cy="9.75"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function sitemap3(props: iconProps) {
           cy="2.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -51,7 +51,7 @@ function sitemap3(props: iconProps) {
           cy="9.75"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

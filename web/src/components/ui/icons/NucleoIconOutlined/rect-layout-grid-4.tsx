@@ -13,7 +13,7 @@ function rectLayoutGrid4(props: iconProps) {
         <path
           d="M16.25 7.25L1.75 7.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function rectLayoutGrid4(props: iconProps) {
         <path
           d="M11.75 7.25L11.75 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function rectLayoutGrid4(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

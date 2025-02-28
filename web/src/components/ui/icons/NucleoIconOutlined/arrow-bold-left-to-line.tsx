@@ -13,7 +13,7 @@ function arrowBoldLeftToLine(props: iconProps) {
         <path
           d="M10.457,4.574l-5.555,4.021c-.276,.2-.276,.61,0,.81l5.555,4.021c.331,.239,.793,.003,.793-.405v-2.271h4c.552,0,1-.448,1-1v-1.5c0-.552-.448-1-1-1h-4v-2.271c0-.408-.463-.644-.793-.405Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowBoldLeftToLine(props: iconProps) {
         <path
           d="M1.75 3.75L1.75 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

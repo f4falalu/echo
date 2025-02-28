@@ -13,7 +13,7 @@ function arrowsExpand(props: iconProps) {
         <path
           d="M7 2.75L2.75 2.75 2.75 7"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowsExpand(props: iconProps) {
         <path
           d="M2.75 2.75L7 7"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function arrowsExpand(props: iconProps) {
         <path
           d="M11 15.25L15.25 15.25 15.25 11"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function arrowsExpand(props: iconProps) {
         <path
           d="M15.25 15.25L11 11"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function arrowsExpand(props: iconProps) {
         <path
           d="M11 2.75L15.25 2.75 15.25 7"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function arrowsExpand(props: iconProps) {
         <path
           d="M15.25 2.75L11 7"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function arrowsExpand(props: iconProps) {
         <path
           d="M7 15.25L2.75 15.25 2.75 11"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -69,7 +69,7 @@ function arrowsExpand(props: iconProps) {
         <path
           d="M2.75 15.25L7 11"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

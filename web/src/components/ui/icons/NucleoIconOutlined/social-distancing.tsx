@@ -15,7 +15,7 @@ function socialDistancing(props: iconProps) {
           cy="4.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function socialDistancing(props: iconProps) {
           cy="4.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function socialDistancing(props: iconProps) {
         <path
           d="M7.282,10c-.605-1.046-1.736-1.75-3.032-1.75-1.933,0-3.5,1.567-3.5,3.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function socialDistancing(props: iconProps) {
         <path
           d="M10.718,10c.605-1.046,1.736-1.75,3.032-1.75,1.933,0,3.5,1.567,3.5,3.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -49,7 +49,7 @@ function socialDistancing(props: iconProps) {
         <path
           d="M5.25 11.25L3.25 13.25 5.25 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -57,7 +57,7 @@ function socialDistancing(props: iconProps) {
         <path
           d="M12.75 11.25L14.75 13.25 12.75 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -65,7 +65,7 @@ function socialDistancing(props: iconProps) {
         <path
           d="M3.25 13.25L14.75 13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

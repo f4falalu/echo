@@ -15,7 +15,7 @@ function truckSearch(props: iconProps) {
           cy="14.5"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function truckSearch(props: iconProps) {
           cy="14.5"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function truckSearch(props: iconProps) {
           cy="3"
           fill="none"
           r="2.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -43,7 +43,7 @@ function truckSearch(props: iconProps) {
         <path
           d="M10.519 14.25L6.25 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -51,7 +51,7 @@ function truckSearch(props: iconProps) {
         <path
           d="M7.75,3.25h2.5c1.105,0,2,.895,2,2v7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -59,7 +59,7 @@ function truckSearch(props: iconProps) {
         <path
           d="M2.768,14.25h-.018c-1.105,0-2-.895-2-2V7.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -67,7 +67,7 @@ function truckSearch(props: iconProps) {
         <path
           d="M12.25,6.25h2.204c.34,0,.657,.173,.841,.459l1.796,2.794c.104,.161,.159,.349,.159,.541v2.206c0,1.105-.895,2-2,2h-1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -75,7 +75,7 @@ function truckSearch(props: iconProps) {
         <path
           d="M12.25 9.75L17.153 9.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -83,7 +83,7 @@ function truckSearch(props: iconProps) {
         <path
           d="M4.59 4.59L6.25 6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

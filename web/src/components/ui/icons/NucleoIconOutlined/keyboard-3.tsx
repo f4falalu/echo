@@ -22,7 +22,7 @@ function keyboard3(props: iconProps) {
         <path
           d="M4.5 12.75L13.5 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function curve(props: iconProps) {
         <path
           d="M2.75,14.75c9.25,0,3.25-11.5,12.5-11.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

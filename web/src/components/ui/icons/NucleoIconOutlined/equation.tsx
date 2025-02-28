@@ -13,7 +13,7 @@ function equation(props: iconProps) {
         <path
           d="M10.667,9.75c2.75,0,2.2,5.5,4.95,5.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function equation(props: iconProps) {
         <path
           d="M16.167,9.75c-2.75,0-3.3,5.5-6.6,5.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function equation(props: iconProps) {
         <path
           d="M16.25 2.75L10.5 2.75 5.75 15.25 3.683 10.75 1.75 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

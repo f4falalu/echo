@@ -16,7 +16,7 @@ function squareTimeline(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function squareTimeline(props: iconProps) {
         <path
           d="M7.25 9L10.75 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function squareTimeline(props: iconProps) {
         <path
           d="M5.25 11.75L8.75 11.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +42,7 @@ function squareTimeline(props: iconProps) {
         <path
           d="M9.25 6.25L12.75 6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

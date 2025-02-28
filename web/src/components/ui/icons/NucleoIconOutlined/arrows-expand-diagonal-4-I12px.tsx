@@ -13,7 +13,7 @@ function arrowsExpandDiagonal4(props: iconProps) {
         <path
           d="M10.5 10.5L1.427 1.427"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowsExpandDiagonal4(props: iconProps) {
         <path
           d="M10.75 7L10.75 10.75 7 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function arrowsExpandDiagonal4(props: iconProps) {
         <path
           d="M1.25 5L1.25 1.25 5 1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

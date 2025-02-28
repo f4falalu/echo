@@ -13,7 +13,7 @@ function menuArrowRight(props: iconProps) {
         <path
           d="M12.5 12.25L15.75 9 12.5 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function menuArrowRight(props: iconProps) {
         <path
           d="M15.75 9L2.25 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function menuArrowRight(props: iconProps) {
         <path
           d="M9.25 14.75L2.25 14.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function menuArrowRight(props: iconProps) {
         <path
           d="M9.25 3.25L2.25 3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

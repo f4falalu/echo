@@ -15,7 +15,7 @@ function squareUserMinus(props: iconProps) {
           cy="7.75"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function squareUserMinus(props: iconProps) {
         <path
           d="M5.126,15.25c.444-1.725,2.01-3,3.874-3s3.43,1.275,3.874,3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function squareUserMinus(props: iconProps) {
         <path
           d="M15.25,6v7.25c0,1.105-.895,2-2,2H4.75c-1.105,0-2-.895-2-2V4.75c0-1.105,.895-2,2-2h4.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function squareUserMinus(props: iconProps) {
         <path
           d="M17.25 3.25L12.25 3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

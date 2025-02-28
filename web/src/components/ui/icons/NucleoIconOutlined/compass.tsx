@@ -13,7 +13,7 @@ function compass(props: iconProps) {
         <path
           d="M12.536,5.464l-1.806,4.214c-.202,.472-.578,.848-1.05,1.05l-4.214,1.806,1.806-4.214c.202-.472,.578-.848,1.05-1.05l4.214-1.806Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function compass(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -16,7 +16,7 @@ function post(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function post(props: iconProps) {
         <path
           d="M5.75 12.25L9.25 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function post(props: iconProps) {
         <path
           d="M5.75 9.25L12.25 9.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function gift2(props: iconProps) {
         <path
           d="M9 1.75L9 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function gift2(props: iconProps) {
         <path
           d="M2.75 8.25L15.25 8.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function gift2(props: iconProps) {
         <path
           d="M9 8.25L12.24 11.49"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function gift2(props: iconProps) {
         <path
           d="M7.25,4.75c-.966,0-1.75,.783-1.75,1.75s.784,1.75,1.75,1.75h1.75v-1.75c0-.967-.784-1.75-1.75-1.75Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function gift2(props: iconProps) {
         <path
           d="M9 8.25L5.76 11.49"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function gift2(props: iconProps) {
         <path
           d="M10.75,4.75c.966,0,1.75,.783,1.75,1.75s-.784,1.75-1.75,1.75h-1.75v-1.75c0-.967,.784-1.75,1.75-1.75Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -64,7 +64,7 @@ function gift2(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function lockCircleOpen2(props: iconProps) {
         <path
           d="M6.75,7.628v-3.128c0-1.519-1.231-2.75-2.75-2.75h0c-1.519,0-2.75,1.231-2.75,2.75v1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function lockCircleOpen2(props: iconProps) {
         <path
           d="M9.5 11L9.5 12"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function lockCircleOpen2(props: iconProps) {
           cy="11.5"
           fill="none"
           r="4.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

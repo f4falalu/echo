@@ -16,7 +16,7 @@ function itinerary5(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -28,7 +28,7 @@ function itinerary5(props: iconProps) {
           cy="4.25"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -36,7 +36,7 @@ function itinerary5(props: iconProps) {
         <path
           d="M4.25,8.75v3c0,1.105,.895,2,2,2h3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

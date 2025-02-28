@@ -16,7 +16,7 @@ function squareMoveObjDownLeft(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function squareMoveObjDownLeft(props: iconProps) {
         <path
           d="M5.75 9L5.75 12.25 9 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function squareMoveObjDownLeft(props: iconProps) {
         <path
           d="M5.75 12.25L8.75 9.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +42,7 @@ function squareMoveObjDownLeft(props: iconProps) {
         <path
           d="m15.25,6.75c0,.5523-.4477,1-1,1h-3c-.5523,0-1-.4477-1-1v-3c0-.5523.4477-1,1-1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

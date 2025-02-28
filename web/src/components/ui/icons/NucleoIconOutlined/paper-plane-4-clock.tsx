@@ -13,7 +13,7 @@ function paperPlane4Clock(props: iconProps) {
         <path
           d="M8.386 9L3.993 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function paperPlane4Clock(props: iconProps) {
         <path
           d="M13.918,8.254L3.005,2.588c-.404-.21-.862,.168-.733,.605l1.721,5.807-1.721,5.807c-.129,.437,.329,.815,.733,.605l5.425-2.817"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function paperPlane4Clock(props: iconProps) {
         <path
           d="M15.156 14.476L14 14 14 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function paperPlane4Clock(props: iconProps) {
           cy="14"
           fill="none"
           r="3.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

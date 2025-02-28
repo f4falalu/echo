@@ -13,7 +13,7 @@ function pos(props: iconProps) {
         <path
           d="M5.75,14.25h-.5c-1.105,0-2-.895-2-2V2.75c0-1.105,.895-2,2-2h7.5c1.105,0,2,.895,2,2V12.25c0,1.105-.895,2-2,2h-.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function pos(props: iconProps) {
         <path
           d="M5.75 3.25H12.25V4.25H5.75z"
           fill="currentColor"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function pos(props: iconProps) {
         <path
           d="M11.25,17.25H6.75c-.552,0-1-.448-1-1v-4.5h6.5v4.5c0,.552-.448,1-1,1Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function pos(props: iconProps) {
         <path
           d="M9.75 11.75L9.75 17.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

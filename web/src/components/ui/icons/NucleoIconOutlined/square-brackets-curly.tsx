@@ -16,7 +16,7 @@ function squareBracketsCurly(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function squareBracketsCurly(props: iconProps) {
         <path
           d="M7.25,12.75c-.552,0-1-.448-1-1v-.789c0-.608-.276-1.182-.751-1.562l-.499-.4,.499-.4c.474-.38,.751-.954,.751-1.562v-.789c0-.552,.448-1,1-1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function squareBracketsCurly(props: iconProps) {
         <path
           d="M10.75,12.75c.552,0,1-.448,1-1v-.789c0-.608,.276-1.182,.751-1.562l.499-.4-.499-.4c-.474-.38-.751-.954-.751-1.562v-.789c0-.552-.448-1-1-1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -15,7 +15,7 @@ function windowShare(props: iconProps) {
         <path
           d="M1.75 7.75L16.25 7.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function windowShare(props: iconProps) {
         <path
           d="M16.25,9.25V4.75c0-1.104-.895-2-2-2H3.75c-1.105,0-2,.896-2,2V13.25c0,1.104,.895,2,2,2h5.656"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function windowShare(props: iconProps) {
         <path
           d="M16.25 15.25L16.25 11.75 12.75 11.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function windowShare(props: iconProps) {
         <path
           d="M16 12L11.75 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

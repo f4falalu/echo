@@ -13,7 +13,7 @@ function editEasing(props: iconProps) {
         <path
           d="M11 4.75L6 4.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function editEasing(props: iconProps) {
         <path
           d="M7 13.25L12 13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function editEasing(props: iconProps) {
         <path
           d="M5.75,4.75c4.75,0,1.75,8.5,6.5,8.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +42,7 @@ function editEasing(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -55,7 +55,7 @@ function editEasing(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

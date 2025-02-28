@@ -13,7 +13,7 @@ function install2(props: iconProps) {
         <path
           d="m9,11.25c-2-.667-4-.667-6,0"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function install2(props: iconProps) {
         <path
           d="M6 10.75L6 8.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function install2(props: iconProps) {
         <path
           d="m3.5.75h-.75C1.645.75.75,1.645.75,2.75v3.5c0,1.105.895,2,2,2h6.5c1.105,0,2-.895,2-2v-3.5c0-1.105-.895-2-2-2h-.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function install2(props: iconProps) {
         <path
           d="M6 0.75L6 5.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function install2(props: iconProps) {
         <path
           d="M8.25 3.25L6 5.5 3.75 3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function database(props: iconProps) {
         <path
           d="m1.75,2.438v7.125c0,.932,1.903,1.688,4.25,1.688s4.25-.755,4.25-1.688V2.438"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function database(props: iconProps) {
         <path
           d="m1.75,6c0,.932,1.903,1.688,4.25,1.688s4.25-.755,4.25-1.688"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function database(props: iconProps) {
           fill="none"
           rx="4.25"
           ry="1.688"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

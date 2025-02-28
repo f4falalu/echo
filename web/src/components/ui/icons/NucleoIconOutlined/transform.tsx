@@ -13,7 +13,7 @@ function transform(props: iconProps) {
         <path
           d="M5.106,1.82l8.5,3.238c.388,.148,.644,.52,.644,.934v6.02c0,.415-.256,.787-.644,.934l-8.5,3.238c-.655,.249-1.356-.234-1.356-.934V2.754c0-.7,.701-1.184,1.356-.934Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function circleImage(props: iconProps) {
         <path
           d="M4.263,14.488l5.573-5.574c.781-.781,2.047-.781,2.828,0l2.988,2.988"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function circleImage(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

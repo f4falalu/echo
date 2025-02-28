@@ -13,7 +13,7 @@ function tileToRight(props: iconProps) {
         <path
           d="M7.25 7L9.25 9 7.25 11"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function tileToRight(props: iconProps) {
         <path
           d="M9.25 9L4.25 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function tileToRight(props: iconProps) {
         <path
           d="M11.75 6.25H13.25V11.75H11.75z"
           fill="currentColor"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +40,7 @@ function tileToRight(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

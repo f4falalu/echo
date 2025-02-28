@@ -16,7 +16,7 @@ function moveToBottom(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -27,7 +27,7 @@ function moveToBottom(props: iconProps) {
         <path
           d="M13,7.25h.75c.828,0,1.5-.672,1.5-1.5h0"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function moveToBottom(props: iconProps) {
         <path
           d="M7.75 7.25L10.25 7.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -43,7 +43,7 @@ function moveToBottom(props: iconProps) {
         <path
           d="M2.75,5.75h0c0,.828,.672,1.5,1.5,1.5h.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -51,7 +51,7 @@ function moveToBottom(props: iconProps) {
         <path
           d="M13,1.75h.75c.828,0,1.5,.672,1.5,1.5h0"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -59,7 +59,7 @@ function moveToBottom(props: iconProps) {
         <path
           d="M7.75 1.75L10.25 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -67,7 +67,7 @@ function moveToBottom(props: iconProps) {
         <path
           d="M2.75,3.25h0c0-.828,.672-1.5,1.5-1.5h.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

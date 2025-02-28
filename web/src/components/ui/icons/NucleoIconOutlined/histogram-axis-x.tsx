@@ -13,7 +13,7 @@ function histogramAxisX(props: iconProps) {
         <path
           d="M16.25,10.75c-4.722,0-3.271-7-7.25-7s-2.528,7-7.25,7"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function histogramAxisX(props: iconProps) {
         <path
           d="M16.25 14.25L1.75 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

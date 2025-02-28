@@ -15,7 +15,7 @@ function chatBubbleUser(props: iconProps) {
           cy="10.75"
           fill="currentColor"
           r="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function chatBubbleUser(props: iconProps) {
         <path
           d="M15.75,7.447v-2.697c0-1.104-.895-2-2-2H4.25c-1.105,0-2,.896-2,2v11.5l3.75-3h4.547"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function chatBubbleUser(props: iconProps) {
         <path
           d="M16.742,16.25c.34,0,.594-.337,.482-.658-.373-1.072-1.383-1.842-2.583-1.842s-2.21,.77-2.583,1.842c-.112,.321,.142,.658,.482,.658h4.202Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

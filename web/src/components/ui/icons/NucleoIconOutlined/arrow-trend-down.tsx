@@ -13,7 +13,7 @@ function arrowTrendDown(props: iconProps) {
         <path
           d="M1.75,5.75l3.646,3.646c.195,.195,.512,.195,.707,0l3.293-3.293c.195-.195,.512-.195,.707,0l6.146,6.146"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowTrendDown(props: iconProps) {
         <path
           d="M11.25 12.25L16.25 12.25 16.25 7.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

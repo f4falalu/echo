@@ -15,7 +15,7 @@ function userClock(props: iconProps) {
           cy="4.5"
           fill="none"
           r="2.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function userClock(props: iconProps) {
           cy="14"
           fill="none"
           r="3.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function userClock(props: iconProps) {
         <path
           d="M10.039,9.843c-.338-.057-.684-.093-1.039-.093-2.551,0-4.739,1.53-5.709,3.72-.365,.825,.087,1.774,.947,2.045,1.159,.366,2.683,.687,4.465,.721"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function userClock(props: iconProps) {
         <path
           d="M15.156 14.476L14 14 14 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

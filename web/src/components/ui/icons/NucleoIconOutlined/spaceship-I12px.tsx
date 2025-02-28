@@ -13,7 +13,7 @@ function spaceship(props: iconProps) {
         <path
           d="m3.054,6.284l-1.386,1.2c-.258.223-.384.562-.335.9l.417,2.866,2.301-1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function spaceship(props: iconProps) {
         <path
           d="m7.949,9.75l2.301,1.5.417-2.866c.049-.337-.077-.676-.335-.9l-1.386-1.2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function spaceship(props: iconProps) {
         <path
           d="m6,9.75h1.949c1.869-3.883,1.108-6.844-1.949-9-3.057,2.156-3.818,5.117-1.949,9h1.949Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function spaceship(props: iconProps) {
         <path
           d="M6 11.25L6 8.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

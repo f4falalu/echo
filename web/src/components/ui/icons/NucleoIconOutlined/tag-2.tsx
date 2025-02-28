@@ -13,7 +13,7 @@ function tag2(props: iconProps) {
         <path
           d="M6.25,13l-3.414-3.414c-.375-.375-.586-.884-.586-1.414V3.25c0-.552,.448-1,1-1h4.922c.53,0,1.039,.211,1.414,.586l5.75,5.75c.781,.781,.781,2.047,0,2.828l-3.922,3.922c-.781,.781-2.047,.781-2.828,0"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function tag2(props: iconProps) {
         <path
           d="M6.25 7.75L6.25 16"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function tag2(props: iconProps) {
           cy="6.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

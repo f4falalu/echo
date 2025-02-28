@@ -15,7 +15,7 @@ function crosshairs4(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function crosshairs4(props: iconProps) {
         <path
           d="M9 6.5L9 11.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function crosshairs4(props: iconProps) {
         <path
           d="M11.5 9L6.5 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function crosshairs4(props: iconProps) {
         <path
           d="M9 2.75L9 1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -47,7 +47,7 @@ function crosshairs4(props: iconProps) {
         <path
           d="M15.25 9L17 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -55,7 +55,7 @@ function crosshairs4(props: iconProps) {
         <path
           d="M9 15.25L9 17"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -63,7 +63,7 @@ function crosshairs4(props: iconProps) {
         <path
           d="M2.75 9L1 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

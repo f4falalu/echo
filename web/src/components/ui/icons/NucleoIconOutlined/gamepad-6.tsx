@@ -15,7 +15,7 @@ function gamepad6(props: iconProps) {
         <path
           d="M4.75 8.25L4.75 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function gamepad6(props: iconProps) {
         <path
           d="M6.25 9.75L3.25 9.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function gamepad6(props: iconProps) {
         <path
           d="M13.25,5.75H4.75C2.541,5.75,.75,7.541,.75,9.75s1.791,4,4,4c1.008,0,1.917-.385,2.62-1h3.259c.703,.615,1.613,1,2.62,1,2.209,0,4-1.791,4-4s-1.791-4-4-4Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function gamepad6(props: iconProps) {
         <path
           d="M9,5.75v-.75c0-.966,.784-1.75,1.75-1.75h1.75c.966,0,1.75-.784,1.75-1.75h0"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

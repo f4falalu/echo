@@ -13,7 +13,7 @@ function planeSlash(props: iconProps) {
         <path
           d="M7.25,10.358l-6,.892v-1.574c0-.408,.248-.776,.627-.928l5.373-2.154"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function planeSlash(props: iconProps) {
         <path
           d="M10.75,10.396l6,.854v-1.574c0-.408-.248-.776-.627-.928l-2.373-.963"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function planeSlash(props: iconProps) {
         <path
           d="M7.562,13.974l.282,1.789c.09,.569,.58,.988,1.156,.988h0c.576,0,1.066-.419,1.156-.988l.472-2.987c.081-.516,.122-1.037,.122-1.56v-.82"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function planeSlash(props: iconProps) {
         <path
           d="M10.75,7.25V3.5c0-.966-.784-1.75-1.75-1.75h0c-.966,0-1.75,.784-1.75,1.75v7.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -49,7 +49,7 @@ function planeSlash(props: iconProps) {
         <path
           d="M2 16L16 2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

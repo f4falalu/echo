@@ -16,7 +16,7 @@ function vault3(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function vault3(props: iconProps) {
         <path
           d="M4.75 15.25L4.75 16.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function vault3(props: iconProps) {
         <path
           d="M13.25 15.25L13.25 16.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +42,7 @@ function vault3(props: iconProps) {
         <path
           d="M1.75 9L3.75 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -50,7 +50,7 @@ function vault3(props: iconProps) {
         <path
           d="M1.75 5.75L3.75 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -58,7 +58,7 @@ function vault3(props: iconProps) {
         <path
           d="M1.75 12.25L3.75 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -66,7 +66,7 @@ function vault3(props: iconProps) {
         <path
           d="M9 11.75L9 10"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -76,7 +76,7 @@ function vault3(props: iconProps) {
           cy="8.25"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

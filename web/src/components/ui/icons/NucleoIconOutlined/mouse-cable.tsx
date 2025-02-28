@@ -13,7 +13,7 @@ function mouseCable(props: iconProps) {
         <path
           d="M9,5.25v-.75c0-.966,.784-1.75,1.75-1.75h1.75c.966,0,1.75-.784,1.75-1.75h0"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function mouseCable(props: iconProps) {
         <path
           d="M9 8.75L9 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function mouseCable(props: iconProps) {
           fill="none"
           rx="3.5"
           ry="3.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

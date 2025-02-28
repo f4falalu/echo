@@ -15,7 +15,7 @@ function decentralize(props: iconProps) {
           cy="6.5"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function decentralize(props: iconProps) {
           cy="14.75"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function decentralize(props: iconProps) {
           cy="13.75"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function decentralize(props: iconProps) {
           cy="13.75"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function decentralize(props: iconProps) {
         <path
           d="M4.25,6.5c0-2.623,2.127-4.75,4.75-4.75s4.75,2.127,4.75,4.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function decentralize(props: iconProps) {
         <path
           d="M5.378,8.705l-1.168,.711c-.596,.363-.96,1.01-.96,1.708v1.126"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -69,7 +69,7 @@ function decentralize(props: iconProps) {
         <path
           d="M12.622,8.705l1.168,.711c.596,.363,.96,1.01,.96,1.708v1.126"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -77,7 +77,7 @@ function decentralize(props: iconProps) {
         <path
           d="M9 10.75L9 13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

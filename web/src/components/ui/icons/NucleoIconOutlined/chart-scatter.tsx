@@ -13,7 +13,7 @@ function chartScatter(props: iconProps) {
         <path
           d="M2.75,2.75V12.75c0,1.105,.895,2,2,2H15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

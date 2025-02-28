@@ -13,7 +13,7 @@ function spoon(props: iconProps) {
         <path
           d="M9 9L9 15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function spoon(props: iconProps) {
           fill="none"
           rx="2.625"
           ry="3.375"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

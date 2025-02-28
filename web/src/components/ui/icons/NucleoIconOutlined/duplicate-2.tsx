@@ -16,7 +16,7 @@ function duplicate2(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -27,7 +27,7 @@ function duplicate2(props: iconProps) {
         <path
           d="M15.199,6.002l1.029,6.924c.162,1.093-.592,2.11-1.684,2.272l-6.924,1.029c-.933,.139-1.81-.39-2.148-1.228"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

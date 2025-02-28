@@ -16,7 +16,7 @@ function uiCard(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function uiCard(props: iconProps) {
         <path
           d="M5.75 5.75H12.25V9.25H5.75z"
           fill="currentColor"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function uiCard(props: iconProps) {
         <path
           d="M5.75 12.25L8.75 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +42,7 @@ function uiCard(props: iconProps) {
         <path
           d="M11.75 12.25L12.25 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

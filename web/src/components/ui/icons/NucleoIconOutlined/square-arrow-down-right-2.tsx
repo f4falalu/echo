@@ -13,7 +13,7 @@ function squareArrowDownRight2(props: iconProps) {
         <path
           d="M11,11L5.311,5.311c-.945-.945-.276-2.561,1.061-2.561h6.879c1.105,0,2,.895,2,2V13.25c0,1.105-.895,2-2,2H4.75c-1.105,0-2-.895-2-2V6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function squareArrowDownRight2(props: iconProps) {
         <path
           d="M11.25 6.75L11.25 11.25 6.75 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

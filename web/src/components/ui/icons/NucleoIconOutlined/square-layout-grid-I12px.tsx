@@ -13,7 +13,7 @@ function squareLayoutGrid(props: iconProps) {
         <path
           d="M6 1.25L6 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function squareLayoutGrid(props: iconProps) {
         <path
           d="M10.75 6L1.25 6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function squareLayoutGrid(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function contrast(props: iconProps) {
         <path
           d="M9 9L16.249 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function contrast(props: iconProps) {
         <path
           d="M9 5.25L15.205 5.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function contrast(props: iconProps) {
         <path
           d="M9 12.75L15.207 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function contrast(props: iconProps) {
         <path
           d="M9 1.75L9 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -47,7 +47,7 @@ function contrast(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

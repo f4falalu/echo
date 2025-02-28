@@ -13,7 +13,7 @@ function code2(props: iconProps) {
         <path
           d="M5.25 12.5L1.75 9 5.25 5.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function code2(props: iconProps) {
         <path
           d="M12.75 12.5L16.25 9 12.75 5.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function code2(props: iconProps) {
         <path
           d="M7.5 15.25L10.5 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

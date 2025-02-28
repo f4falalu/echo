@@ -13,7 +13,7 @@ function chevronRight(props: iconProps) {
         <path
           d="M6.5 2.75L12.75 9 6.5 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

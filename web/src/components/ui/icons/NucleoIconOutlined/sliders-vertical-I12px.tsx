@@ -13,7 +13,7 @@ function slidersVertical(props: iconProps) {
         <path
           d="M8.75 0.75L8.75 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function slidersVertical(props: iconProps) {
         <path
           d="M8.75 9.75L8.75 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function slidersVertical(props: iconProps) {
         <path
           d="M3.25 11.25L3.25 6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function slidersVertical(props: iconProps) {
         <path
           d="M3.25 2.25L3.25 0.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -47,7 +47,7 @@ function slidersVertical(props: iconProps) {
           cy="7.75"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -57,7 +57,7 @@ function slidersVertical(props: iconProps) {
           cy="4.25"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

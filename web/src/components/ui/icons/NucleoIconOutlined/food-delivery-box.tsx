@@ -13,7 +13,7 @@ function foodDeliveryBox(props: iconProps) {
         <path
           d="M1.75 12.25H16.25V15.25H1.75z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function foodDeliveryBox(props: iconProps) {
         <path
           d="M16.25 12.25L14.25 8.75 3.75 8.75 1.75 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function foodDeliveryBox(props: iconProps) {
         <path
           d="M9,.75c-.022,.631-.166,1.383-.672,2-.347,.424-.636,.504-.969,.922-.325,.408-.618,1.045-.609,2.078"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function foodDeliveryBox(props: iconProps) {
         <path
           d="M11.75,2.75c-.015,.379-.111,.83-.448,1.2-.232,.254-.424,.302-.646,.553-.217,.245-.412,.627-.406,1.247"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

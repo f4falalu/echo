@@ -13,7 +13,7 @@ function atmMachine(props: iconProps) {
         <path
           d="M3.25,5.75V14.25c0,1.105,.895,2,2,2h7.5c1.105,0,2-.895,2-2V5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function atmMachine(props: iconProps) {
         <path
           d="M10.75 16.25L10.75 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function atmMachine(props: iconProps) {
         <path
           d="M6.25 13.25L6.25 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function atmMachine(props: iconProps) {
         <path
           d="M1.75 2.75L16.25 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

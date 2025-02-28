@@ -15,7 +15,7 @@ function sliders2Vertical(props: iconProps) {
           cy="11"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function sliders2Vertical(props: iconProps) {
           cy="6.75"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function sliders2Vertical(props: iconProps) {
           cy="6.75"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -43,7 +43,7 @@ function sliders2Vertical(props: iconProps) {
         <path
           d="M9 15.25L9 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -51,7 +51,7 @@ function sliders2Vertical(props: iconProps) {
         <path
           d="M9 1.75L9 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -59,7 +59,7 @@ function sliders2Vertical(props: iconProps) {
         <path
           d="M14.25 5L14.25 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -67,7 +67,7 @@ function sliders2Vertical(props: iconProps) {
         <path
           d="M14.25 16.25L14.25 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -75,7 +75,7 @@ function sliders2Vertical(props: iconProps) {
         <path
           d="M3.75 5L3.75 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -83,7 +83,7 @@ function sliders2Vertical(props: iconProps) {
         <path
           d="M3.75 16.25L3.75 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

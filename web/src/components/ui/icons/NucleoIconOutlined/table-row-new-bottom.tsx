@@ -13,7 +13,7 @@ function tableRowNewBottom(props: iconProps) {
         <path
           d="M2.75 8.75L15.25 8.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function tableRowNewBottom(props: iconProps) {
         <path
           d="M9 17.25L9 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function tableRowNewBottom(props: iconProps) {
         <path
           d="M13.963,14.863c.751-.288,1.287-1.01,1.287-1.863V4.75c0-1.104-.895-2-2-2H4.75c-1.105,0-2,.896-2,2V13c0,.853,.535,1.575,1.287,1.863"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function tableRowNewBottom(props: iconProps) {
         <path
           d="M6.5 14.75L11.5 14.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

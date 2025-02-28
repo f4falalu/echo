@@ -15,7 +15,7 @@ function goGlobal(props: iconProps) {
           cy="7"
           fill="none"
           r="5.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function goGlobal(props: iconProps) {
           fill="none"
           rx="5"
           ry="2.172"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function goGlobal(props: iconProps) {
           fill="none"
           rx="2.172"
           ry="5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function goGlobal(props: iconProps) {
         <path
           d="M5.75 16.25L5.75 12.25 1.75 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function goGlobal(props: iconProps) {
         <path
           d="M5.5 12.5L1.25 16.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

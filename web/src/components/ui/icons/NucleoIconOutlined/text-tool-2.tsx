@@ -13,7 +13,7 @@ function textTool2(props: iconProps) {
         <path
           d="M16.25,12v.75c0,1.105-.895,2-2,2H3.75c-1.105,0-2-.895-2-2v-.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function textTool2(props: iconProps) {
         <path
           d="M1.75,6v-.75c0-1.105,.895-2,2-2H14.25c1.105,0,2,.895,2,2v.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function textTool2(props: iconProps) {
         <path
           d="M11.798 12.25L9.068 5.75 8.932 5.75 6.202 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function textTool2(props: iconProps) {
         <path
           d="M6.832 10.75L11.168 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function chartColumnTrendDown(props: iconProps) {
         <path
           d="M14.25 11.25L14.25 14.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function chartColumnTrendDown(props: iconProps) {
         <path
           d="M3.75 8.25L3.75 14.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function chartColumnTrendDown(props: iconProps) {
         <path
           d="M10.75 8.25L10.75 14.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function chartColumnTrendDown(props: iconProps) {
         <path
           d="M7.25 11.25L7.25 14.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function chartColumnTrendDown(props: iconProps) {
         <path
           d="M15.25,7.75l-3.646-3.646c-.195-.195-.512-.195-.707,0l-3.293,3.293c-.195,.195-.512,.195-.707,0L2.75,3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

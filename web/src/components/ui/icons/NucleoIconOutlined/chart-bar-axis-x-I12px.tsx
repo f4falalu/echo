@@ -13,7 +13,7 @@ function chartBarAxisX(props: iconProps) {
         <path
           d="M11.25 10.25L0.75 10.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function chartBarAxisX(props: iconProps) {
         <path
           d="M2.75 4.25L2.75 7.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function chartBarAxisX(props: iconProps) {
         <path
           d="M9.25 6.25L9.25 7.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function chartBarAxisX(props: iconProps) {
         <path
           d="M6 1.75L6 7.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function keyboard4Mouse(props: iconProps) {
         <path
           d="M8.75,12.25H3.75c-1.105,0-2-.895-2-2V5.75c0-1.105,.895-2,2-2H14.25c1.105,0,2,.895,2,2v1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function keyboard4Mouse(props: iconProps) {
         <path
           d="M9 9.25L6.75 9.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function keyboard4Mouse(props: iconProps) {
         <path
           d="M13.75 12.25L13.75 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -44,7 +44,7 @@ function keyboard4Mouse(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -16,7 +16,7 @@ function gridLayout11(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function gridLayout11(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function gridLayout11(props: iconProps) {
         <path
           d="M10.75 9.25L15.25 9.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -47,7 +47,7 @@ function gridLayout11(props: iconProps) {
         <path
           d="M10.75 12.25L15.25 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -55,7 +55,7 @@ function gridLayout11(props: iconProps) {
         <path
           d="M10.75 15.25L15.25 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

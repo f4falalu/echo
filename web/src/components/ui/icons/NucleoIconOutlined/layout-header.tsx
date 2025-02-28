@@ -13,7 +13,7 @@ function layoutHeader(props: iconProps) {
         <path
           d="M16.25,5.396v7.854c0,1.105-.895,2-2,2H3.75c-1.105,0-2-.895-2-2V5.396"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function layoutHeader(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

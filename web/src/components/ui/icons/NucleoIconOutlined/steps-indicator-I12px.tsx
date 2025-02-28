@@ -13,7 +13,7 @@ function stepsIndicator(props: iconProps) {
         <path
           d="M0.75 6L2.75 6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function stepsIndicator(props: iconProps) {
         <path
           d="M9.25 6L11.25 6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function stepsIndicator(props: iconProps) {
           cy="6"
           fill="none"
           r="3.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

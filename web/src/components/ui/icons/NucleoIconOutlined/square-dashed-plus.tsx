@@ -13,7 +13,7 @@ function squareDashedPlus(props: iconProps) {
         <path
           d="M5.75 9L12.25 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function squareDashedPlus(props: iconProps) {
         <path
           d="M9 5.75L9 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function squareDashedPlus(props: iconProps) {
         <path
           d="M2.75,6.75v-2c0-1.105,.895-2,2-2h2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function squareDashedPlus(props: iconProps) {
         <path
           d="M11.25,2.75h2c1.105,0,2,.895,2,2v2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function squareDashedPlus(props: iconProps) {
         <path
           d="M15.25,11.25v2c0,1.105-.895,2-2,2h-2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function squareDashedPlus(props: iconProps) {
         <path
           d="M6.75,15.25h-2c-1.105,0-2-.895-2-2v-2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

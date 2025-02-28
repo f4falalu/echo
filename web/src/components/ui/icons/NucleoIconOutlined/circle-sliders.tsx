@@ -15,7 +15,7 @@ function circleSliders(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function circleSliders(props: iconProps) {
         <path
           d="M9.75 6.75L12.75 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function circleSliders(props: iconProps) {
         <path
           d="M5.25 6.75L7.25 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function circleSliders(props: iconProps) {
         <path
           d="M7.25 5L7.25 8.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -47,7 +47,7 @@ function circleSliders(props: iconProps) {
         <path
           d="M10.75 11.25L12.75 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -55,7 +55,7 @@ function circleSliders(props: iconProps) {
         <path
           d="M5.25 11.25L8.25 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -63,7 +63,7 @@ function circleSliders(props: iconProps) {
         <path
           d="M10.75 9.5L10.75 13"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

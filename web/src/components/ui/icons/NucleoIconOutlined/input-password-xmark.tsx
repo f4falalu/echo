@@ -16,7 +16,7 @@ function inputPasswordXmark(props: iconProps) {
         <path
           d="M12.75 11.75L16.75 15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function inputPasswordXmark(props: iconProps) {
         <path
           d="M16.25,9.302v-2.552c0-1.104-.895-2-2-2H3.75c-1.105,0-2,.896-2,2v4.5c0,1.104,.895,2,2,2h7.014"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function inputPasswordXmark(props: iconProps) {
         <path
           d="M16.75 11.75L12.75 15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

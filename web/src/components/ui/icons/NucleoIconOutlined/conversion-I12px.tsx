@@ -13,7 +13,7 @@ function conversion(props: iconProps) {
         <path
           d="M11 7.75L1 7.75 4.25 11"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function conversion(props: iconProps) {
         <path
           d="M1 4.25L11 4.25 7.75 1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

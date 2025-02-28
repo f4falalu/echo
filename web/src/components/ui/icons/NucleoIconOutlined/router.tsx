@@ -16,7 +16,7 @@ function router(props: iconProps) {
           fill="none"
           rx="2.5"
           ry="2.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -30,7 +30,7 @@ function router(props: iconProps) {
           cy="4.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -38,7 +38,7 @@ function router(props: iconProps) {
         <path
           d="M8.568,7.432c-1.757-1.757-1.757-4.607,0-6.364"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -46,7 +46,7 @@ function router(props: iconProps) {
         <path
           d="M14.932,7.432c1.757-1.757,1.757-4.607,0-6.364"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -54,7 +54,7 @@ function router(props: iconProps) {
         <path
           d="M11.75 5.75L11.75 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

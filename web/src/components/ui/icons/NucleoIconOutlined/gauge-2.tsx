@@ -13,7 +13,7 @@ function gauge2(props: iconProps) {
         <path
           d="M6,2.398c.914-.416,1.93-.648,3-.648,4.004,0,7.25,3.246,7.25,7.25s-3.246,7.25-7.25,7.25S1.75,13.004,1.75,9c0-1.07,.232-2.086,.648-3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function gauge2(props: iconProps) {
         <path
           d="M8.293 8.293L3.883 3.883"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function gauge2(props: iconProps) {
           cy="9"
           fill="currentColor"
           r="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function gridPlus2(props: iconProps) {
         <path
           d="M5.25 3L5.25 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function gridPlus2(props: iconProps) {
         <path
           d="M7.5 5.25L3 5.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function gridPlus2(props: iconProps) {
         <path
           d="M12.75 3L12.75 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function gridPlus2(props: iconProps) {
         <path
           d="M15 5.25L10.5 5.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function gridPlus2(props: iconProps) {
         <path
           d="M5.25 10.5L5.25 15"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function gridPlus2(props: iconProps) {
         <path
           d="M7.5 12.75L3 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function gridPlus2(props: iconProps) {
         <path
           d="M12.75 10.5L12.75 15"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -69,7 +69,7 @@ function gridPlus2(props: iconProps) {
         <path
           d="M15 12.75L10.5 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

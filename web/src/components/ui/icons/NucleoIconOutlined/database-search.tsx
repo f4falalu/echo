@@ -16,7 +16,7 @@ function databaseSearch(props: iconProps) {
           fill="none"
           rx="6.25"
           ry="2.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function databaseSearch(props: iconProps) {
         <path
           d="M15.25 9.417L15.25 4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function databaseSearch(props: iconProps) {
         <path
           d="M2.75,4.25V13.75c0,1.243,2.798,2.25,6.25,2.25,.232,0,.461-.005,.686-.013"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +40,7 @@ function databaseSearch(props: iconProps) {
         <path
           d="M2.75,9c0,1.243,2.798,2.25,6.25,2.25,.396,0,.782-.013,1.158-.039"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -48,7 +48,7 @@ function databaseSearch(props: iconProps) {
         <path
           d="M15.59 15.59L17.25 17.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -58,7 +58,7 @@ function databaseSearch(props: iconProps) {
           cy="14"
           fill="none"
           r="2.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

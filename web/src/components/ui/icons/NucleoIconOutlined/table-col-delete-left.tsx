@@ -13,7 +13,7 @@ function tableColDeleteLeft(props: iconProps) {
         <path
           d="M1.25 11L5.25 7"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function tableColDeleteLeft(props: iconProps) {
         <path
           d="M1.25 7L5.25 11"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function tableColDeleteLeft(props: iconProps) {
         <path
           d="M9.25 2.75L9.25 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function tableColDeleteLeft(props: iconProps) {
         <path
           d="M3,12.782v.468c0,1.105,.896,2,2,2H13.25c1.104,0,2-.895,2-2V4.75c0-1.105-.896-2-2-2H5c-1.104,0-2,.895-2,2v.468"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

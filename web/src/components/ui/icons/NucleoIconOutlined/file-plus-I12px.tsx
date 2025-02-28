@@ -18,7 +18,7 @@ function filePlus(props: iconProps) {
         <path
           d="M6.75 0.75L6.75 4.25 10.25 4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function filePlus(props: iconProps) {
         <path
           d="M2.75 7.25L2.75 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function filePlus(props: iconProps) {
         <path
           d="m6.231,11.25h2.019c1.105,0,2-.895,2-2v-5.001c0-.32-.127-.626-.353-.852l-2.294-2.294c-.226-.226-.532-.353-.852-.353h-3.001c-1.105,0-2,.895-2,2v2.218"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +42,7 @@ function filePlus(props: iconProps) {
         <path
           d="M4.75 9.25L0.75 9.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

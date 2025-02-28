@@ -13,7 +13,7 @@ function hourglassEnd(props: iconProps) {
         <path
           d="M4.75,2.25c0,3.86,.557,5.456,2.46,6.75-1.903,1.294-2.46,2.89-2.46,6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function hourglassEnd(props: iconProps) {
         <path
           d="M13.25,2.25c0,3.86-.557,5.456-2.46,6.75,1.903,1.294,2.46,2.89,2.46,6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function hourglassEnd(props: iconProps) {
         <path
           d="M3.75 2.25L14.25 2.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function hourglassEnd(props: iconProps) {
         <path
           d="M3.75 15.75L14.25 15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function alarmAlert(props: iconProps) {
         <path
           d="M14.5 1.5L16.5 3.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function alarmAlert(props: iconProps) {
         <path
           d="M3.5 1.5L1.5 3.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function alarmAlert(props: iconProps) {
         <path
           d="M4.581 13.419L2.75 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function alarmAlert(props: iconProps) {
         <path
           d="M13.419 13.419L15.25 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -46,7 +46,7 @@ function alarmAlert(props: iconProps) {
         <path
           d="M9 6L9 9.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -56,7 +56,7 @@ function alarmAlert(props: iconProps) {
           cy="9"
           fill="none"
           r="6.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

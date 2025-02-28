@@ -13,7 +13,7 @@ function closingQuotationMark(props: iconProps) {
         <path
           d="M16.25,8.75h-4.5c-.552,0-1-.448-1-1v-3c0-.552,.448-1,1-1h3.5c.552,0,1,.448,1,1v4c0,3.75-1.25,5.625-3.5,6.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function closingQuotationMark(props: iconProps) {
         <path
           d="M7.25,8.75H2.75c-.552,0-1-.448-1-1v-3c0-.552,.448-1,1-1h3.5c.552,0,1,.448,1,1v4c0,3.75-1.25,5.625-3.5,6.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

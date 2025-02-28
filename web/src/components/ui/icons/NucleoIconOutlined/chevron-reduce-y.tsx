@@ -13,7 +13,7 @@ function chevronReduceY(props: iconProps) {
         <path
           d="M5.5 3.5L9 7 12.5 3.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function chevronReduceY(props: iconProps) {
         <path
           d="M5.5 14.5L9 11 12.5 14.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

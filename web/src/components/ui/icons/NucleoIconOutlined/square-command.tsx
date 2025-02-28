@@ -16,7 +16,7 @@ function squareCommand(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function squareCommand(props: iconProps) {
         <path
           d="M7.75 7.75H10.25V10.25H7.75z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function squareCommand(props: iconProps) {
         <path
           d="M6.5,5.25c-.69,0-1.25,.56-1.25,1.25s.56,1.25,1.25,1.25h1.25v-1.25c0-.69-.56-1.25-1.25-1.25Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +42,7 @@ function squareCommand(props: iconProps) {
         <path
           d="M12.75,6.5c0-.69-.56-1.25-1.25-1.25s-1.25,.56-1.25,1.25v1.25h1.25c.69,0,1.25-.56,1.25-1.25Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -50,7 +50,7 @@ function squareCommand(props: iconProps) {
         <path
           d="M11.5,12.75c.69,0,1.25-.56,1.25-1.25s-.56-1.25-1.25-1.25h-1.25v1.25c0,.69,.56,1.25,1.25,1.25Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -58,7 +58,7 @@ function squareCommand(props: iconProps) {
         <path
           d="M5.25,11.5c0,.69,.56,1.25,1.25,1.25s1.25-.56,1.25-1.25v-1.25h-1.25c-.69,0-1.25,.56-1.25,1.25Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function textTitleCase(props: iconProps) {
         <path
           d="M9.068 12.25L5.498 3.75 5.32 3.75 1.75 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function textTitleCase(props: iconProps) {
         <path
           d="M2.59 10.25L8.228 10.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function textTitleCase(props: iconProps) {
         <path
           d="M15.75,6.75v6.303c0,1.214-.984,2.197-2.197,2.197h0c-.728,0-1.373-.354-1.773-.899"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +40,7 @@ function textTitleCase(props: iconProps) {
           fill="none"
           rx="2.095"
           ry="2.095"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

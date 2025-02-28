@@ -13,7 +13,7 @@ function tableRowsMinus2(props: iconProps) {
         <path
           d="M17.25 14.25L12.25 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function tableRowsMinus2(props: iconProps) {
         <path
           d="M16.25,11.25V4.75c0-1.105-.895-2-2-2H3.75c-1.105,0-2,.895-2,2V13.25c0,1.105,.895,2,2,2h6.209"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function tableRowsMinus2(props: iconProps) {
         <path
           d="M1.75 6.75L16.25 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function tableRowsMinus2(props: iconProps) {
         <path
           d="M1.75 11.25L16.25 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

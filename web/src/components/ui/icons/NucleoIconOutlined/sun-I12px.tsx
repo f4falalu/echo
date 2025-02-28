@@ -15,7 +15,7 @@ function sun(props: iconProps) {
           cy="6"
           fill="none"
           r="2.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function sun(props: iconProps) {
         <path
           d="M6 0.75L6 1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function sun(props: iconProps) {
         <path
           d="M9.712 2.288L9.182 2.818"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function sun(props: iconProps) {
         <path
           d="M11.25 6L10.5 6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -47,7 +47,7 @@ function sun(props: iconProps) {
         <path
           d="M9.712 9.712L9.182 9.182"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -55,7 +55,7 @@ function sun(props: iconProps) {
         <path
           d="M6 11.25L6 10.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -63,7 +63,7 @@ function sun(props: iconProps) {
         <path
           d="M2.288 9.712L2.818 9.182"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -71,7 +71,7 @@ function sun(props: iconProps) {
         <path
           d="M0.75 6L1.5 6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -79,7 +79,7 @@ function sun(props: iconProps) {
         <path
           d="M2.288 2.288L2.818 2.818"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

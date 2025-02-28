@@ -13,7 +13,7 @@ function jackOLantern(props: iconProps) {
         <path
           d="M11,4.75c-.709,0-1.383,.145-2,.399-.617-.254-1.291-.399-2-.399-2.899,0-5.25,2.351-5.25,5.25s2.351,5.25,5.25,5.25h4c2.899,0,5.25-2.351,5.25-5.25s-2.351-5.25-5.25-5.25Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function jackOLantern(props: iconProps) {
         <path
           d="M7.75,4.75c.111-1.497,.644-2.726,1.5-3.75l2,.25c-.551,1.287-.896,2.492-.75,3.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

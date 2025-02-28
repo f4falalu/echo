@@ -13,7 +13,7 @@ function chevronUpRightDownLeft(props: iconProps) {
         <path
           d="M4.5 11.25L2.25 9 4.5 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function chevronUpRightDownLeft(props: iconProps) {
         <path
           d="M13.5 11.25L15.75 9 13.5 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function chevronUpRightDownLeft(props: iconProps) {
         <path
           d="M6.75 4.5L9 2.25 11.25 4.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function chevronUpRightDownLeft(props: iconProps) {
         <path
           d="M6.75 13.5L9 15.75 11.25 13.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

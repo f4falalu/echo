@@ -13,7 +13,7 @@ function indentDecrease2(props: iconProps) {
         <path
           d="M15.25 6.75L13 9 15.25 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function indentDecrease2(props: iconProps) {
         <path
           d="M2.75 14.25L10.25 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function indentDecrease2(props: iconProps) {
         <path
           d="M2.75 10.75L10.25 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function indentDecrease2(props: iconProps) {
         <path
           d="M2.75 7.25L10.25 7.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function indentDecrease2(props: iconProps) {
         <path
           d="M2.75 3.75L10.25 3.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

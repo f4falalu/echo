@@ -13,7 +13,7 @@ function sidebarLeft3(props: iconProps) {
         <path
           d="M9,2.75h5.25c1.105,0,2,.895,2,2V13.25c0,1.105-.895,2-2,2h-5.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function sidebarLeft3(props: iconProps) {
         <path
           d="M6.25,15.25H3.75c-1.105,0-2-.895-2-2V4.75c0-1.105,.895-2,2-2h2.5V15.25Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

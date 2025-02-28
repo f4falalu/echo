@@ -13,7 +13,7 @@ function moveObjUp(props: iconProps) {
         <path
           d="M5.75 5.5L9 2.25 12.25 5.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function moveObjUp(props: iconProps) {
         <path
           d="M9 2.25L9 9.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function moveObjUp(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

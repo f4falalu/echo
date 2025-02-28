@@ -13,7 +13,7 @@ function paintbrush(props: iconProps) {
         <path
           d="m6.206,7.791l4.63-4.627c.552-.552.552-1.448,0-2s-1.448-.552-2,0l-4.627,4.629"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function paintbrush(props: iconProps) {
         <path
           d="m.75,11.25s-.049-3.404,1.386-4.838c.911-.911,2.423-.877,3.376.076s.987,2.465.076,3.376c-1.451,1.451-4.838,1.386-4.838,1.386Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

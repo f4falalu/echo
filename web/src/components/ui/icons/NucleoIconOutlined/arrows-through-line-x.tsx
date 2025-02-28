@@ -13,7 +13,7 @@ function arrowsThroughLineX(props: iconProps) {
         <path
           d="M9 12L9 15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowsThroughLineX(props: iconProps) {
         <path
           d="M9 2.25L9 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function arrowsThroughLineX(props: iconProps) {
         <path
           d="M13.25 6L16.25 9 13.25 12"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function arrowsThroughLineX(props: iconProps) {
         <path
           d="M4.75 6L1.75 9 4.75 12"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function arrowsThroughLineX(props: iconProps) {
         <path
           d="M16.25 9L1.75 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

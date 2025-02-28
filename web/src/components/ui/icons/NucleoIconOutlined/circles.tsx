@@ -15,7 +15,7 @@ function circles(props: iconProps) {
           cy="7"
           fill="none"
           r="5.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function circles(props: iconProps) {
           cy="11"
           fill="none"
           r="5.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -17,7 +17,7 @@ function baloon2(props: iconProps) {
         <path
           d="M6,8c0-2.068,1.346-3.75,3-3.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -28,7 +28,7 @@ function baloon2(props: iconProps) {
           fill="none"
           rx="5.5"
           ry="6.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

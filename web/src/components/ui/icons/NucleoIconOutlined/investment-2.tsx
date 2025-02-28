@@ -13,7 +13,7 @@ function investment2(props: iconProps) {
         <path
           d="M9,10.75V5.25c0-2.209-1.791-4-4-4h-1.25c-.025,1.512,.727,2.912,1.979,3.65,1.486,.876,3.014,.43,3.271,.35"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function investment2(props: iconProps) {
         <path
           d="M9,7.27h0c0-2.209,1.791-4,4-4h1.25c.025,1.512-.727,2.912-1.979,3.65-1.486,.876-3.271,.35-3.271,.35Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function investment2(props: iconProps) {
         <path
           d="M3.5,15.75h-.75c-.552,0-1-.448-1-1v-1c0-.552,.448-1,1-1h.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function investment2(props: iconProps) {
         <path
           d="M14.5,15.75h.75c.552,0,1-.448,1-1v-1c0-.552-.448-1-1-1h-.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -48,7 +48,7 @@ function investment2(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function investment2(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

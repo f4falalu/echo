@@ -16,7 +16,7 @@ function keyboard2HideDown(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function keyboard2HideDown(props: iconProps) {
         <path
           d="M11.25 9.25L6.75 9.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function keyboard2HideDown(props: iconProps) {
         <path
           d="M11.5 14.75L9 17.25 6.5 14.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function doorOpen(props: iconProps) {
         <path
           d="M9.25,16V2c0-.357-.363-.599-.692-.462L3.865,3.494c-.373,.155-.615,.519-.615,.923V13.583c0,.404,.243,.768,.615,.923l4.692,1.955c.329,.137,.692-.105,.692-.462Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function doorOpen(props: iconProps) {
         <path
           d="M11.75,3.25h2c.552,0,1,.448,1,1V13.75c0,.552-.448,1-1,1h-2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function doorOpen(props: iconProps) {
         <path
           d="M6.75 8.5L6.75 9.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

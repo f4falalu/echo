@@ -13,7 +13,7 @@ function magnifierStar2(props: iconProps) {
         <path
           d="M15.25 15.5L11.285 11.535"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -27,7 +27,7 @@ function magnifierStar2(props: iconProps) {
           cy="8"
           fill="none"
           r="5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

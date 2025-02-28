@@ -13,7 +13,7 @@ function siren(props: iconProps) {
         <path
           d="M7.25,9c0-.965,.785-1.75,1.75-1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function siren(props: iconProps) {
         <path
           d="M9 0.75L9 2.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function siren(props: iconProps) {
         <path
           d="M14.834 3.166L13.773 4.227"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function siren(props: iconProps) {
         <path
           d="M17.25 9L15.75 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function siren(props: iconProps) {
         <path
           d="M3.166 3.166L4.227 4.227"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function siren(props: iconProps) {
         <path
           d="M0.75 9L2.25 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function siren(props: iconProps) {
         <path
           d="M4.75,13.75v-4.75c0-2.347,1.903-4.25,4.25-4.25h0c2.347,0,4.25,1.903,4.25,4.25v4.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -72,7 +72,7 @@ function siren(props: iconProps) {
           fill="none"
           rx=".5"
           ry=".5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

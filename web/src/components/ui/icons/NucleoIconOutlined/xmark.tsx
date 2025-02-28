@@ -13,7 +13,7 @@ function xmark(props: iconProps) {
         <path
           d="M14 4L4 14"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function xmark(props: iconProps) {
         <path
           d="M4 4L14 14"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

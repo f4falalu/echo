@@ -13,7 +13,7 @@ function musicPlus(props: iconProps) {
         <path
           d="M5.75 7.25L5.75 13.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function musicPlus(props: iconProps) {
         <path
           d="M14.75 5.75L14.75 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function musicPlus(props: iconProps) {
         <path
           d="m8.6399,3.0186l4.9461-.8246c.61-.102,1.164.368,1.164.986v2.57l-9,1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function musicPlus(props: iconProps) {
         <path
           d="M3.75 1.25L3.75 6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function musicPlus(props: iconProps) {
         <path
           d="M6.25 3.75L1.25 3.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -55,7 +55,7 @@ function musicPlus(props: iconProps) {
           cy="13.75"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -65,7 +65,7 @@ function musicPlus(props: iconProps) {
           cy="12.25"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

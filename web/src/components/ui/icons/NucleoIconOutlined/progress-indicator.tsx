@@ -13,7 +13,7 @@ function progressIndicator(props: iconProps) {
         <path
           d="M9 10.25L9 15"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function progressIndicator(props: iconProps) {
         <path
           d="M9.485,6.975l1.97-3.377c.218-.374-.052-.844-.485-.844h-3.94c-.433,0-.703,.47-.485,.844l1.97,3.377c.217,.371,.753,.371,.97,0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function progressIndicator(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function compose2(props: iconProps) {
         <path
           d="M15.25,8.75v4.5c0,1.105-.895,2-2,2H4.75c-1.105,0-2-.895-2-2V4.75c0-1.105,.895-2,2-2h4.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function compose2(props: iconProps) {
         <path
           d="M6.75,11.25s2.12-.12,2.836-.836l6.25-6.25c.552-.552,.552-1.448,0-2-.552-.552-1.448-.552-2,0l-6.25,6.25c-.716,.716-.836,2.836-.836,2.836Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

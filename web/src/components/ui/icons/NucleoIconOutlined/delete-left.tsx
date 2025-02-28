@@ -13,7 +13,7 @@ function deleteLeft(props: iconProps) {
         <path
           d="M13.25,3.75H5.477c-.302,0-.587,.136-.777,.371L.75,9l3.95,4.879c.19,.235,.475,.371,.777,.371h7.773c1.105,0,2-.895,2-2V5.75c0-1.105-.895-2-2-2Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function deleteLeft(props: iconProps) {
         <path
           d="M6.75 6.75L11.25 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function deleteLeft(props: iconProps) {
         <path
           d="M11.25 6.75L6.75 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

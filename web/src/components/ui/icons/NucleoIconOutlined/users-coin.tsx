@@ -15,7 +15,7 @@ function usersCoin(props: iconProps) {
           cy="3.25"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function usersCoin(props: iconProps) {
           cy="3.25"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function usersCoin(props: iconProps) {
           cy="13.75"
           fill="none"
           r="3"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -43,7 +43,7 @@ function usersCoin(props: iconProps) {
         <path
           d="M3.642,12.382c-.604-.089-1.138-.219-1.591-.356-.489-.148-.818-.635-.709-1.135,.393-1.797,1.993-3.142,3.908-3.142,.818,0,1.579,.246,2.213,.667"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -51,7 +51,7 @@ function usersCoin(props: iconProps) {
         <path
           d="M14.358,12.382c.604-.089,1.138-.219,1.591-.356,.489-.148,.818-.635,.709-1.135-.393-1.797-1.993-3.142-3.908-3.142-.818,0-1.579,.246-2.213,.667"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -59,7 +59,7 @@ function usersCoin(props: iconProps) {
         <path
           d="M9 13L9 14.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

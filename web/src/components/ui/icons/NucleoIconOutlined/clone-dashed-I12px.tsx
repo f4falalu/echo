@@ -13,7 +13,7 @@ function cloneDashed(props: iconProps) {
         <path
           d="m6,11.25h-.75c-.828,0-1.5-.672-1.5-1.5v-1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function cloneDashed(props: iconProps) {
         <path
           d="m8.333,3.75h1.417c.828,0,1.5.672,1.5,1.5v.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function cloneDashed(props: iconProps) {
         <path
           d="m9,11.25h.75c.828,0,1.5-.672,1.5-1.5v-.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +40,7 @@ function cloneDashed(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

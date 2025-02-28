@@ -13,7 +13,7 @@ function feather2Plus(props: iconProps) {
         <path
           d="M3.25 1L3.25 5.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function feather2Plus(props: iconProps) {
         <path
           d="M5.5 3.25L1 3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function feather2Plus(props: iconProps) {
         <path
           d="M4.75,14v-4.268c0-.53,.211-1.039,.586-1.414L10.22,3.434c1.407-1.407,3.689-1.407,5.096,0h0c1.407,1.407,1.407,3.689,0,5.096l-4.884,4.884c-.375,.375-.884,.586-1.414,.586h-.733"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function feather2Plus(props: iconProps) {
         <path
           d="M2.5 16.25L9.25 9.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

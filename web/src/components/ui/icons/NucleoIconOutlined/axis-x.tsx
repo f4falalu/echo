@@ -13,7 +13,7 @@ function axisX(props: iconProps) {
         <path
           d="M13.763 13.225L16.237 10.75 13.763 8.275"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function axisX(props: iconProps) {
         <path
           d="M7.25 10.75L16.25 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function axisX(props: iconProps) {
         <path
           d="M1.75 16.25L7.25 10.75 7.25 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

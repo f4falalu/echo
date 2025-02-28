@@ -13,7 +13,7 @@ function gif(props: iconProps) {
         <path
           d="M9.75 4.75L9.75 13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function gif(props: iconProps) {
         <path
           d="M12.75 13.25L12.75 4.75 17.241 4.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function gif(props: iconProps) {
         <path
           d="M12.75 8.75L16.75 8.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function gif(props: iconProps) {
         <path
           d="M4.5,9.25h2.75c-.099,2.231-1.235,4-3.25,4-1.985,0-3.25-1.903-3.25-4.25s1.265-4.25,3.25-4.25c1.286,0,2.27,.799,2.803,2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

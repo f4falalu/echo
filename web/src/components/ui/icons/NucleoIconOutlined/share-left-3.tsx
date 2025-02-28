@@ -13,7 +13,7 @@ function shareLeft3(props: iconProps) {
         <path
           d="M8.25,6.5V2.75L1.75,8.417l6.5,5.833v-3.75c5.25,0,8,3.75,8,3.75,0,0,0-7.75-8-7.75Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

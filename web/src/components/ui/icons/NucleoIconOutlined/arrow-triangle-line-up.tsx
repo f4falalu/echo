@@ -13,7 +13,7 @@ function arrowTriangleLineUp(props: iconProps) {
         <path
           d="M9 7.75L9 15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowTriangleLineUp(props: iconProps) {
         <path
           d="M8.586,2.453l-3.058,4.516c-.225,.332,.013,.78,.414,.78h6.115c.401,0,.639-.448,.414-.78l-3.058-4.516c-.198-.293-.63-.293-.828,0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

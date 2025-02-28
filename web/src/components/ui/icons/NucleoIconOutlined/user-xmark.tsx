@@ -15,7 +15,7 @@ function userXmark(props: iconProps) {
           cy="4.5"
           fill="none"
           r="2.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function userXmark(props: iconProps) {
         <path
           d="M12 12L16 16"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function userXmark(props: iconProps) {
         <path
           d="M10.563,9.962c-.501-.13-1.021-.212-1.563-.212-2.551,0-4.739,1.53-5.709,3.72-.365,.825,.087,1.774,.947,2.045,1.225,.386,2.846,.734,4.762,.734,.181,0,.346-.017,.522-.023"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function userXmark(props: iconProps) {
         <path
           d="M16 12L12 16"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

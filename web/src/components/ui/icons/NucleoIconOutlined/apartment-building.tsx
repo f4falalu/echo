@@ -13,7 +13,7 @@ function apartmentBuilding(props: iconProps) {
         <path
           d="M9 7.25L9 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function apartmentBuilding(props: iconProps) {
         <path
           d="M6.25 7.25L6.25 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function apartmentBuilding(props: iconProps) {
         <path
           d="M11.75 7.25L11.75 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function apartmentBuilding(props: iconProps) {
         <path
           d="M9 10.5L9 10"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function apartmentBuilding(props: iconProps) {
         <path
           d="M9 16.25L9 13.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function apartmentBuilding(props: iconProps) {
         <path
           d="M6.25 10.5L6.25 10"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function apartmentBuilding(props: iconProps) {
         <path
           d="M11.75 10.5L11.75 10"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -69,7 +69,7 @@ function apartmentBuilding(props: iconProps) {
         <path
           d="M16.25 16.25L1.75 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -77,7 +77,7 @@ function apartmentBuilding(props: iconProps) {
         <path
           d="M3.25,16.25V4.88c0-.385,.221-.736,.569-.902L8.569,1.706c.273-.13,.59-.13,.863,0l4.75,2.272c.347,.166,.569,.517,.569,.902v11.37"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

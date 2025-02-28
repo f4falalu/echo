@@ -16,7 +16,7 @@ function fillLoader(props: iconProps) {
           fill="none"
           rx="3.25"
           ry="3.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function fillLoader(props: iconProps) {
         <path
           d="M3.75 9.75L3.75 8.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function fillLoader(props: iconProps) {
         <path
           d="M6.25 9.75L6.25 8.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +42,7 @@ function fillLoader(props: iconProps) {
         <path
           d="M8.75 9.75L8.75 8.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

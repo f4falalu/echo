@@ -13,7 +13,7 @@ function bucket(props: iconProps) {
         <path
           d="m1.25,2.5l.861,7.35c0,.773,1.741,1.4,3.889,1.4s3.889-.627,3.889-1.4l.861-7.35"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function bucket(props: iconProps) {
           fill="none"
           rx="4.75"
           ry="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

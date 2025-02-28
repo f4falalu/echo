@@ -13,7 +13,7 @@ function bamboo(props: iconProps) {
         <path
           d="M11,9c-.225,.92-.431,2.133-.437,3.563-.006,1.487,.206,2.745,.437,3.687h-2s-2,0-2,0c.23-.943,.443-2.2,.437-3.688-.006-1.429-.212-2.643-.437-3.562,.225-.92,.431-2.133,.437-3.562,.006-1.487-.206-2.745-.437-3.688h4c-.23,.943-.443,2.2-.437,3.688,.006,1.429,.212,2.643,.437,3.562Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function bamboo(props: iconProps) {
         <path
           d="M11 9L7 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

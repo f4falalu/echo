@@ -16,7 +16,7 @@ function databaseKey(props: iconProps) {
           fill="none"
           rx="6.25"
           ry="2.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function databaseKey(props: iconProps) {
         <path
           d="M15.25 12.634L15.25 4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function databaseKey(props: iconProps) {
         <path
           d="M2.75,4.25V13.75c0,1.151,2.402,2.101,5.501,2.234"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +40,7 @@ function databaseKey(props: iconProps) {
         <path
           d="M2.75,9c0,1.243,2.798,2.25,6.25,2.25s6.25-1.007,6.25-2.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -48,7 +48,7 @@ function databaseKey(props: iconProps) {
         <path
           d="M13.75 15.25L17.25 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -56,7 +56,7 @@ function databaseKey(props: iconProps) {
         <path
           d="M16.25 15.25L16.25 16.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -66,7 +66,7 @@ function databaseKey(props: iconProps) {
           cy="15.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

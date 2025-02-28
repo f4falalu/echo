@@ -13,7 +13,7 @@ function squareCircle(props: iconProps) {
         <path
           d="M7.458,10.25c-.123,.398-.208,.812-.208,1.25,0,2.347,1.903,4.25,4.25,4.25s4.25-1.903,4.25-4.25-1.903-4.25-4.25-4.25c-.438,0-.852,.085-1.25,.208"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function squareCircle(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

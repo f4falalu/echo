@@ -13,7 +13,7 @@ function threeArrowsDown(props: iconProps) {
         <path
           d="M9 2.75L9 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function threeArrowsDown(props: iconProps) {
         <path
           d="M4.25 2.75L4.25 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function threeArrowsDown(props: iconProps) {
         <path
           d="M13.75 2.75L13.75 7.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function threeArrowsDown(props: iconProps) {
         <path
           d="M16 5.5L13.75 7.75 11.5 5.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function threeArrowsDown(props: iconProps) {
         <path
           d="M11.25 13L9 15.25 6.75 13"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function threeArrowsDown(props: iconProps) {
         <path
           d="M6.5 8.5L4.25 10.75 2 8.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function caretMinimizeDiagonal2(props: iconProps) {
         <path
           d="m6.75,10.896v-3.896c0-.138.112-.25.25-.25h3.896c.223,0,.334.269.177.427l-3.896,3.896c-.157.157-.427.046-.427-.177Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function caretMinimizeDiagonal2(props: iconProps) {
         <path
           d="m1.104,5.25h3.896c.138,0,.25-.112.25-.25V1.104c0-.223-.269-.334-.427-.177L.927,4.823c-.157.157-.046.427.177.427Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

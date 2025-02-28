@@ -13,7 +13,7 @@ function microphone3Off(props: iconProps) {
         <path
           d="M5.396,12.604c-1.6-1.133-2.646-2.999-2.646-5.104"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function microphone3Off(props: iconProps) {
         <path
           d="M15.25,7.5c0,3.446-2.804,6.25-6.25,6.25-.381,0-.753-.034-1.115-.1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function microphone3Off(props: iconProps) {
         <path
           d="M9 13.75L9 17.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function microphone3Off(props: iconProps) {
         <path
           d="M10.25 4.25L12.25 4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function microphone3Off(props: iconProps) {
         <path
           d="M5.75 17.25L12.25 17.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function microphone3Off(props: iconProps) {
         <path
           d="M2 16L16 2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -64,7 +64,7 @@ function microphone3Off(props: iconProps) {
           fill="none"
           rx="3.25"
           ry="3.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

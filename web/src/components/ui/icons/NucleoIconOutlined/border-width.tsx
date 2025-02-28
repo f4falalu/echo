@@ -13,7 +13,7 @@ function borderWidth(props: iconProps) {
         <path
           d="M1.75 14.75L16.25 14.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function borderWidth(props: iconProps) {
           fill="none"
           rx=".5"
           ry=".5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function borderWidth(props: iconProps) {
           fill="none"
           rx=".5"
           ry=".5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

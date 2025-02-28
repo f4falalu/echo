@@ -13,7 +13,7 @@ function bookmarkSlash(props: iconProps) {
         <path
           d="M3.75,14.25V3.75c0-1.105,.895-2,2-2h6.5c1.105,0,2,.895,2,2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function bookmarkSlash(props: iconProps) {
         <path
           d="M14.25 7.285L14.25 16.25 9 12.75 7.812 13.542"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function bookmarkSlash(props: iconProps) {
         <path
           d="M2 16L16 2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

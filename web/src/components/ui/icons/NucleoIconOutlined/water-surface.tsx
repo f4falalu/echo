@@ -13,7 +13,7 @@ function waterSurface(props: iconProps) {
         <path
           d="M1.75,14.25c1.4,.004,2.729-.616,3.625-1.692,1.678,2.002,4.661,2.265,6.663,.587,.212-.178,.409-.374,.587-.587,.894,1.078,2.224,1.699,3.625,1.692"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function waterSurface(props: iconProps) {
         <path
           d="M1.75,9.846c1.4,.004,2.729-.616,3.625-1.692,1.678,2.002,4.661,2.265,6.663,.587,.212-.178,.409-.374,.587-.587,.894,1.078,2.224,1.699,3.625,1.692"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function waterSurface(props: iconProps) {
         <path
           d="M1.75,5.442c1.4,.004,2.729-.616,3.625-1.692,.897,1.075,2.225,1.695,3.625,1.692,1.401,.007,2.731-.613,3.625-1.692,.894,1.078,2.224,1.699,3.625,1.692"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

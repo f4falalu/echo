@@ -13,7 +13,7 @@ function ruler(props: iconProps) {
         <path
           d="M6.623 6.623L7.754 7.754"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function ruler(props: iconProps) {
         <path
           d="M7.873 4.373L9.504 6.004"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function ruler(props: iconProps) {
         <path
           d="M4.373 7.873L6.004 9.504"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +40,7 @@ function ruler(props: iconProps) {
           fill="none"
           rx="1.086"
           ry="1.086"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

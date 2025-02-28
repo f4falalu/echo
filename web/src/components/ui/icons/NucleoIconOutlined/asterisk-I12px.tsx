@@ -13,7 +13,7 @@ function asterisk(props: iconProps) {
         <path
           d="M6 11.25L6 0.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function asterisk(props: iconProps) {
         <path
           d="M10.547 8.625L1.453 3.375"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function asterisk(props: iconProps) {
         <path
           d="M1.453 8.625L10.547 3.375"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

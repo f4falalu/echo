@@ -13,7 +13,7 @@ function maskRect(props: iconProps) {
         <path
           d="M5.25,12.25H2.75c-.552,0-1-.448-1-1V6.75c0-.552,.448-1,1-1h2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function maskRect(props: iconProps) {
         <path
           d="M7.75,5.75h3.5c.552,0,1,.448,1,1v4.5c0,.552-.448,1-1,1h-3.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function maskRect(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

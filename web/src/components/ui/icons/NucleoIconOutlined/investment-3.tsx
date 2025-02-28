@@ -13,7 +13,7 @@ function investment3(props: iconProps) {
         <path
           d="M9 16.75L9 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function investment3(props: iconProps) {
         <path
           d="M14.25,12.75h-1.25c-2.209,0-4,1.791-4,4h0s1.25,0,1.25,0c2.209,0,4-1.791,4-4h0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function investment3(props: iconProps) {
         <path
           d="M5.25,1.75c0,1.657-1.343,3-3,3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function investment3(props: iconProps) {
         <path
           d="M12.75,1.75c0,1.657,1.343,3,3,3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function investment3(props: iconProps) {
         <path
           d="M5.25,10.25c0-1.657-1.343-3-3-3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function investment3(props: iconProps) {
         <path
           d="M12.75,10.25c0-1.657,1.343-3,3-3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -63,7 +63,7 @@ function investment3(props: iconProps) {
           cy="6"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -74,7 +74,7 @@ function investment3(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

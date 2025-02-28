@@ -13,7 +13,7 @@ function pin(props: iconProps) {
         <path
           d="m10.185,4.744c0,1.899-2.482,4.948-3.624,6.25-.299.341-.825.341-1.123,0-1.141-1.301-3.624-4.351-3.624-6.25,0-2.527,2.163-3.994,4.185-3.994s4.185,1.467,4.185,3.994Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

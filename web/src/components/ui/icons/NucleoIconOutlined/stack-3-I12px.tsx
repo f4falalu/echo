@@ -16,7 +16,7 @@ function stack3(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -27,7 +27,7 @@ function stack3(props: iconProps) {
         <path
           d="M2.75 11.25L9.25 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

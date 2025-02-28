@@ -13,7 +13,7 @@ function airplay(props: iconProps) {
         <path
           d="M4.25,13.25h-.5c-1.105,0-2-.895-2-2V5.25c0-1.105,.895-2,2-2H14.25c1.105,0,2,.895,2,2v6c0,1.105-.895,2-2,2h-.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function airplay(props: iconProps) {
         <path
           d="M8.586,11.659l-2.58,3.811c-.225,.332,.013,.78,.414,.78h5.16c.401,0,.639-.448,.414-.78l-2.58-3.811c-.198-.293-.63-.293-.828,0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

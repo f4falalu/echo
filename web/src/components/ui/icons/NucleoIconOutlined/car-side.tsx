@@ -13,7 +13,7 @@ function carSide(props: iconProps) {
         <path
           d="M5.75 13.25L11.77 13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function carSide(props: iconProps) {
         <path
           d="M7.25 3.75L7.25 8.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function carSide(props: iconProps) {
         <path
           d="M2.25,13.25h-.5c-.552,0-1-.448-1-1v-3.528c0-.31,.072-.617,.211-.894l1.486-2.972c.339-.678,1.031-1.106,1.789-1.106h2.014s1.75,0,1.75,0h2.264c.758,0,1.45,.428,1.789,1.106l1.697,3.394h1.5c1.105,0,2,.895,2,2v2c0,.552-.448,1-1,1h-1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function carSide(props: iconProps) {
         <path
           d="M13.583 8.25L1 8.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -47,7 +47,7 @@ function carSide(props: iconProps) {
           cy="13.5"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -57,7 +57,7 @@ function carSide(props: iconProps) {
           cy="13.5"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

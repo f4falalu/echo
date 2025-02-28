@@ -13,7 +13,7 @@ function booleanSubtract(props: iconProps) {
         <path
           d="M11.25,6.75h3c.552,0,1,.448,1,1v6.5c0,.552-.448,1-1,1H7.75c-.552,0-1-.448-1-1v-3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function booleanSubtract(props: iconProps) {
         <path
           d="M2.75,4v-.25c0-.552,.448-1,1-1h.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function booleanSubtract(props: iconProps) {
         <path
           d="M2.75 7.75L2.75 6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function booleanSubtract(props: iconProps) {
         <path
           d="M4,11.25h-.25c-.552,0-1-.448-1-1v-.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function booleanSubtract(props: iconProps) {
         <path
           d="M11.25,4v-.25c0-.552-.448-1-1-1h-.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function booleanSubtract(props: iconProps) {
         <path
           d="M11.25 7.75L11.25 6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function booleanSubtract(props: iconProps) {
         <path
           d="M10,11.25h.25c.552,0,1-.448,1-1v-.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -69,7 +69,7 @@ function booleanSubtract(props: iconProps) {
         <path
           d="M6.25 2.75L7.75 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -77,7 +77,7 @@ function booleanSubtract(props: iconProps) {
         <path
           d="M6.25 11.25L7.75 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

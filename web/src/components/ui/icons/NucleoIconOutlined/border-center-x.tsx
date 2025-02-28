@@ -13,7 +13,7 @@ function borderCenterX(props: iconProps) {
         <path
           d="M9 2.75L9 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function loader(props: iconProps) {
         <path
           d="M9 1.75L9 4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -22,7 +22,7 @@ function loader(props: iconProps) {
           d="M14.127 3.873L12.359 5.641"
           fill="none"
           opacity=".88"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function loader(props: iconProps) {
           d="M16.25 9L13.75 9"
           fill="none"
           opacity=".75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +40,7 @@ function loader(props: iconProps) {
           d="M14.127 14.127L12.359 12.359"
           fill="none"
           opacity=".63"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -49,7 +49,7 @@ function loader(props: iconProps) {
           d="M9 16.25L9 13.75"
           fill="none"
           opacity=".5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -58,7 +58,7 @@ function loader(props: iconProps) {
           d="M3.873 14.127L5.641 12.359"
           fill="none"
           opacity=".38"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -67,7 +67,7 @@ function loader(props: iconProps) {
           d="M1.75 9L4.25 9"
           fill="none"
           opacity=".25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -76,7 +76,7 @@ function loader(props: iconProps) {
           d="M3.873 3.873L5.641 5.641"
           fill="none"
           opacity=".13"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

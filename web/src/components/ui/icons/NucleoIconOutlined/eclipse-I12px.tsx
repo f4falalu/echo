@@ -13,7 +13,7 @@ function eclipse(props: iconProps) {
         <path
           d="m7.625,1.033c-2.099.687-3.625,2.639-3.625,4.967s1.526,4.28,3.625,4.967"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function eclipse(props: iconProps) {
           cy="6"
           fill="none"
           r="5.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

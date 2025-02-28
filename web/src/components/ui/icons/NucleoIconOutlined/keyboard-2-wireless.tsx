@@ -16,7 +16,7 @@ function keyboard2Wireless(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function keyboard2Wireless(props: iconProps) {
         <path
           d="M11.25 14.25L6.75 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function keyboard2Wireless(props: iconProps) {
         <path
           d="M7.939,4.189c.586-.586,1.536-.586,2.121,0"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -49,7 +49,7 @@ function keyboard2Wireless(props: iconProps) {
         <path
           d="M5.818,2.068c1.757-1.757,4.607-1.757,6.364,0"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function gapX(props: iconProps) {
         <path
           d="m15.25,15.25h-1c-1.105,0-2-.895-2-2V4.75c0-1.105.895-2,2-2h1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function gapX(props: iconProps) {
         <path
           d="m2.75,15.25h1c1.105,0,2-.895,2-2V4.75c0-1.105-.895-2-2-2h-1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function gapX(props: iconProps) {
         <path
           d="M9 6.75L9 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function paperclip2(props: iconProps) {
         <path
           d="m7.026,3.705l-2.746,2.746c-.506.506-.506,1.325,0,1.831h0c.506.506,1.325.506,1.831,0l3.112-3.112c1.011-1.011,1.011-2.65,0-3.661h0c-1.011-1.011-2.65-1.011-3.661,0l-3.112,3.112c-1.517,1.517-1.517,3.975,0,5.492h0c1.517,1.517,3.975,1.517,5.492,0l2.746-2.746"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

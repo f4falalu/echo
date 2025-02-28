@@ -13,7 +13,7 @@ function balanceOff2(props: iconProps) {
         <path
           d="M16.132 9.055L1.868 6.445"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function balanceOff2(props: iconProps) {
         <path
           d="M9.486,10.53l2.817,4.878c.216,.374-.054,.841-.486,.841H6.183c-.432,0-.702-.467-.486-.841l2.817-4.878c.216-.374,.755-.374,.971,0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function balanceOff2(props: iconProps) {
           cy="4"
           fill="none"
           r="2.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function balanceOff2(props: iconProps) {
           cy="2.75"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

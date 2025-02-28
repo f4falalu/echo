@@ -13,7 +13,7 @@ function applications(props: iconProps) {
         <path
           d="M7.75,10.25V4.75h-3.5c-1.105,0-2,.895-2,2v7c0,1.105,.895,2,2,2h7c1.105,0,2-.895,2-2v-3.5H7.75Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function applications(props: iconProps) {
         <path
           d="M10.75,1.75h3.5c1.104,0,2,.896,2,2v3.5h-5.5V1.75h0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function applications(props: iconProps) {
         <path
           d="M2.25 10.25L7.75 10.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function applications(props: iconProps) {
         <path
           d="M7.75 15.75L7.75 10.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

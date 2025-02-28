@@ -13,7 +13,7 @@ function mars(props: iconProps) {
         <path
           d="M11.25 2.75L15.25 2.75 15.25 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function mars(props: iconProps) {
         <path
           d="M15.25 2.75L10.859 7.141"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function mars(props: iconProps) {
           cy="10.5"
           fill="none"
           r="4.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

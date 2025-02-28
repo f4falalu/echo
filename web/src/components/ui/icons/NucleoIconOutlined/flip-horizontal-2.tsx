@@ -13,7 +13,7 @@ function flipHorizontal2(props: iconProps) {
         <path
           d="M7.25,14.25H2.543c-.276,0-.5-.224-.5-.5,0-.075,.017-.149,.049-.216L6.774,3.744c.115-.24,.476-.158,.476,.108V14.25Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function flipHorizontal2(props: iconProps) {
         <path
           d="M10.75,14.25h4.707c.276,0,.5-.224,.5-.5,0-.075-.017-.149-.049-.216L11.226,3.744c-.115-.24-.476-.158-.476,.108V14.25Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

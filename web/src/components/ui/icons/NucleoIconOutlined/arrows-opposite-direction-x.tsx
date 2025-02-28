@@ -13,7 +13,7 @@ function arrowsOppositeDirectionX(props: iconProps) {
         <path
           d="M5.5 9.5L2.25 6.25 5.5 3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowsOppositeDirectionX(props: iconProps) {
         <path
           d="M2.25 6.25L10.25 6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function arrowsOppositeDirectionX(props: iconProps) {
         <path
           d="M12.5 15L15.75 11.75 12.5 8.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function arrowsOppositeDirectionX(props: iconProps) {
         <path
           d="M15.75 11.75L7.75 11.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

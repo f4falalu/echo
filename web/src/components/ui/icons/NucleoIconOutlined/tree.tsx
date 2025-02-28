@@ -13,7 +13,7 @@ function tree(props: iconProps) {
         <path
           d="M9 16.25L9 13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function tree(props: iconProps) {
         <path
           d="M14.75 13.25L11.074 8.25 13.75 8.25 9 1.75 4.25 8.25 6.926 8.25 3.25 13.25 14.75 13.25z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

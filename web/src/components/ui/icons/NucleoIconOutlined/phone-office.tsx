@@ -13,7 +13,7 @@ function phoneOffice(props: iconProps) {
         <path
           d="M6.25,3.25H15.25c.552,0,1,.448,1,1V13.25c0,.552-.448,1-1,1H6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function phoneOffice(props: iconProps) {
         <path
           d="M8.75 5.75H13.75V6.75H8.75z"
           fill="currentColor"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function phoneOffice(props: iconProps) {
         <path
           d="M8.75,14.25v1c0,1.105-.895,2-2,2h0c-1.105,0-2-.895-2-2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +40,7 @@ function phoneOffice(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

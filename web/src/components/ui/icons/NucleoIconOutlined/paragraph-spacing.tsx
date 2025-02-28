@@ -13,7 +13,7 @@ function paragraphSpacing(props: iconProps) {
         <path
           d="M7.25 9.25L9 11 10.75 9.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function paragraphSpacing(props: iconProps) {
         <path
           d="M7.25 5.75L9 4 10.75 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function paragraphSpacing(props: iconProps) {
         <path
           d="M9 11L9 4"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function paragraphSpacing(props: iconProps) {
         <path
           d="M2.75 1.75L15.25 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function paragraphSpacing(props: iconProps) {
         <path
           d="M2.75 16.25L15.25 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function paragraphSpacing(props: iconProps) {
         <path
           d="M2.75 13.25L15.25 13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

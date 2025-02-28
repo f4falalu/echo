@@ -13,7 +13,7 @@ function selectNew(props: iconProps) {
         <path
           d="M14.75 0.75L14.75 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function selectNew(props: iconProps) {
         <path
           d="M17.25 3.25L12.25 3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function selectNew(props: iconProps) {
         <path
           d="M2.25,5.25c0-1.105,.895-2,2-2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function selectNew(props: iconProps) {
         <path
           d="M14.75,13.75c0,1.105-.895,2-2,2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function selectNew(props: iconProps) {
         <path
           d="M4.25,15.75c-1.105,0-2-.895-2-2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function selectNew(props: iconProps) {
         <path
           d="M7.25 3.25L9.25 3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function selectNew(props: iconProps) {
         <path
           d="M7.25 15.75L9.75 15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -69,7 +69,7 @@ function selectNew(props: iconProps) {
         <path
           d="M14.75 8.75L14.75 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -77,7 +77,7 @@ function selectNew(props: iconProps) {
         <path
           d="M2.25 8.25L2.25 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

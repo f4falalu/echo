@@ -13,7 +13,7 @@ function adjustContrast2(props: iconProps) {
         <path
           d="M9.712 2.288L2.288 9.712"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function adjustContrast2(props: iconProps) {
           cy="6"
           fill="none"
           r="5.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

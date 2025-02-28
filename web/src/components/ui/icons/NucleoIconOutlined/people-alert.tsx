@@ -15,7 +15,7 @@ function peopleAlert(props: iconProps) {
           cy="3.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function peopleAlert(props: iconProps) {
           cy="3.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function peopleAlert(props: iconProps) {
         <path
           d="M6.554,8.115c-.616-.539-1.422-.865-2.304-.865-1.933,0-3.5,1.567-3.5,3.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +42,7 @@ function peopleAlert(props: iconProps) {
         <path
           d="M11.447,8.114c.615-.538,1.421-.864,2.303-.864,1.933,0,3.5,1.567,3.5,3.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -50,7 +50,7 @@ function peopleAlert(props: iconProps) {
         <path
           d="M11.5,16.25h.433c.788,0,1.267-.869,.845-1.535l-2.933-4.631c-.393-.62-1.297-.62-1.69,0l-2.933,4.631c-.422,.666,.057,1.535,.845,1.535h.433"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -58,7 +58,7 @@ function peopleAlert(props: iconProps) {
         <path
           d="M9 12.75L9 14.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

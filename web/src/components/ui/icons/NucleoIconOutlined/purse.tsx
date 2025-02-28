@@ -13,7 +13,7 @@ function purse(props: iconProps) {
         <path
           d="M14,7.25l1.178,4.188c.538,1.914-.9,3.812-2.888,3.812H5.71c-1.988,0-3.426-1.899-2.888-3.812l1.178-4.188"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function purse(props: iconProps) {
         <path
           d="M2.75,5c1.853-.223,3.95-.375,6.25-.375s4.397,.152,6.25,.375"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

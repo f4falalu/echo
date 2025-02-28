@@ -13,7 +13,7 @@ function shieldHalved(props: iconProps) {
         <path
           d="M6 0.75L6 11.214"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function shieldHalved(props: iconProps) {
         <path
           d="m6,.75l4.25,1.75v4.969c0,2.201-3.185,3.449-4.041,3.745-.138.048-.281.048-.419,0-.855-.296-4.041-1.544-4.041-3.745V2.5L6,.75s0,0,0,0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

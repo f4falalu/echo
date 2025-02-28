@@ -13,7 +13,7 @@ function imageMinus(props: iconProps) {
         <path
           d="m3.762,14.989l6.074-6.075c.781-.781,2.047-.781,2.828,0l2.586,2.586"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function imageMinus(props: iconProps) {
         <path
           d="m9.461,2.75h-4.711c-1.1046,0-2,.8955-2,2v8.5c0,1.1045.8954,2,2,2h8.5c1.1046,0,2-.8955,2-2v-7"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function imageMinus(props: iconProps) {
         <path
           d="M16.75 3.75L11.75 3.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

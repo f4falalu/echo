@@ -13,7 +13,7 @@ function squareChartBookmark(props: iconProps) {
         <path
           d="M4.75 8.5L4.75 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function squareChartBookmark(props: iconProps) {
         <path
           d="M11.25 10.75L11.25 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function squareChartBookmark(props: iconProps) {
         <path
           d="M8 6.25L8 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function squareChartBookmark(props: iconProps) {
         <path
           d="M14.25,9.5v4.25c0,1.105-.895,2-2,2H3.75c-1.105,0-2-.895-2-2V5.25c0-1.105,.895-2,2-2h6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function squareChartBookmark(props: iconProps) {
         <path
           d="M17.25,7.25l-2.25-2.25-2.25,2.25V1.75c0-.552,.448-1,1-1h2.5c.552,0,1,.448,1,1V7.25Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

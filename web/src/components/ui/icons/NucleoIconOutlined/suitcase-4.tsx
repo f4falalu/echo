@@ -14,7 +14,7 @@ function suitcase4(props: iconProps) {
         <path
           d="M15.75,11.5v1.75c0,1.105-.895,2-2,2H4.25c-1.105,0-2-.895-2-2v-1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -22,7 +22,7 @@ function suitcase4(props: iconProps) {
         <path
           d="M6.25,4.75V2.25c0-.552,.448-1,1-1h3.5c.552,0,1,.448,1,1v2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -30,7 +30,7 @@ function suitcase4(props: iconProps) {
         <path
           d="M14.902,9.215l-5.902,2.035-5.902-2.035c-.807-.278-1.348-1.037-1.348-1.891v-2.574h14.5v2.574c0,.853-.541,1.613-1.348,1.891Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

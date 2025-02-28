@@ -17,7 +17,7 @@ function awardPlaque(props: iconProps) {
         <path
           d="M10.287,14.25H3.75c-1.105,0-2-.895-2-2V5.25c0-1.105,.895-2,2-2H14.25c1.105,0,2,.895,2,2v1.98"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function awardPlaque(props: iconProps) {
         <path
           d="M5.75 7.25L11 7.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function awardPlaque(props: iconProps) {
         <path
           d="M5.75 10.25L8.25 10.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -43,7 +43,7 @@ function awardPlaque(props: iconProps) {
           cy="12"
           fill="none"
           r="2.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

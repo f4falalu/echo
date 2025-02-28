@@ -15,7 +15,7 @@ function eye2(props: iconProps) {
           cy="9"
           fill="none"
           r="2.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function eye2(props: iconProps) {
         <path
           d="M1.75,9S3.521,3.5,9,3.5s7.25,5.5,7.25,5.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

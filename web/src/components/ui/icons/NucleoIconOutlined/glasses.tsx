@@ -13,7 +13,7 @@ function glasses(props: iconProps) {
         <path
           d="M7.75,11.25c0-.69,.56-1.25,1.25-1.25s1.25,.56,1.25,1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function glasses(props: iconProps) {
         <path
           d="M1.838,10.527l1.137-6.179c.265-1.287,1.678-1.973,2.853-1.386"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function glasses(props: iconProps) {
         <path
           d="M16.162,10.527l-1.137-6.179c-.265-1.287-1.678-1.973-2.853-1.386"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function glasses(props: iconProps) {
           cy="11.25"
           fill="none"
           r="3"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -49,7 +49,7 @@ function glasses(props: iconProps) {
           cy="11.25"
           fill="none"
           r="3"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

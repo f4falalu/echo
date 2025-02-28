@@ -14,7 +14,7 @@ function progressCircle0Of4(props: iconProps) {
           d="M16.135,7.75c-.522-3-2.885-5.363-5.885-5.885"
           fill="none"
           opacity=".3"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function progressCircle0Of4(props: iconProps) {
           d="M10.25,16.135c3-.522,5.363-2.885,5.885-5.885"
           fill="none"
           opacity=".3"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function progressCircle0Of4(props: iconProps) {
           d="M1.865,10.25c.522,3,2.885,5.363,5.885,5.885"
           fill="none"
           opacity=".3"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function progressCircle0Of4(props: iconProps) {
           d="M7.75,1.865c-3,.522-5.363,2.885-5.885,5.885"
           fill="none"
           opacity=".3"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -51,7 +51,7 @@ function progressCircle0Of4(props: iconProps) {
           cy="9"
           fill="none"
           r="2.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

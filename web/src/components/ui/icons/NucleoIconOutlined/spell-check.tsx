@@ -13,7 +13,7 @@ function spellCheck(props: iconProps) {
         <path
           d="M5.108 11.75L12.892 11.75 9.401 2.75 8.599 2.75 3.75 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function spellCheck(props: iconProps) {
         <path
           d="M11.244 14.641L12.853 16.25 16.25 11.833"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

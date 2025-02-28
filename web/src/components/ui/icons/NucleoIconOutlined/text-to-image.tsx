@@ -13,7 +13,7 @@ function textToImage(props: iconProps) {
         <path
           d="M15,5.75h.25c1.105,0,2,.895,2,2v6.5c0,1.105-.895,2-2,2h-6.5c-1.105,0-2-.895-2-2V7.75c0-1.105,.895-2,2-2h1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -22,7 +22,7 @@ function textToImage(props: iconProps) {
         <path
           d="M8.101,16.142l5.105-5.099c.391-.391,1.024-.391,1.414,0l2.63,2.63"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -30,7 +30,7 @@ function textToImage(props: iconProps) {
         <path
           d="M3.25 1.25L3.25 7.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -38,7 +38,7 @@ function textToImage(props: iconProps) {
         <path
           d="M5.75 1.25L0.75 1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

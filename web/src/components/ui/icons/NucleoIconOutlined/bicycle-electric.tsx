@@ -13,7 +13,7 @@ function bicycleElectric(props: iconProps) {
         <path
           d="M6.068,8.863c-.469-.357-1.048-.572-1.675-.602"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function bicycleElectric(props: iconProps) {
         <path
           d="M1.303,10.723c-.031,.172-.053,.346-.053,.527,0,1.657,1.343,3,3,3s3-1.343,3-3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function bicycleElectric(props: iconProps) {
         <path
           d="M13.75,11.25l-3.147-7.392c-.157-.369-.519-.608-.92-.608h-1.183"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function bicycleElectric(props: iconProps) {
         <path
           d="M5.621,4.75h.612l2.471,5.804c.14,.33-.102,.696-.46,.696h-2.984c-.414,0-.648-.474-.398-.803l2.435-3.197h4.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -51,7 +51,7 @@ function bicycleElectric(props: iconProps) {
           cy="11.25"
           fill="none"
           r="3"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

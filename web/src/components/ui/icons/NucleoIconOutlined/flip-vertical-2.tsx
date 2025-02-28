@@ -13,7 +13,7 @@ function flipVertical2(props: iconProps) {
         <path
           d="M3.75,7.25V2.543c0-.276,.224-.5,.5-.5,.075,0,.149,.017,.216,.049L14.256,6.774c.24,.115,.158,.476-.108,.476H3.75Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function flipVertical2(props: iconProps) {
         <path
           d="M3.75,10.75v4.707c0,.276,.224,.5,.5,.5,.075,0,.149-.017,.216-.049l9.79-4.682c.24-.115,.158-.476-.108-.476H3.75Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

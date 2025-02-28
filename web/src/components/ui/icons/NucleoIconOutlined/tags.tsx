@@ -13,7 +13,7 @@ function tags(props: iconProps) {
         <path
           d="M1.75,4.25H7.336c.265,0,.52,.105,.707,.293l5.793,5.793c.781,.781,.781,2.047,0,2.828l-3.172,3.172c-.781,.781-2.047,.781-2.828,0L2.043,10.543c-.188-.188-.293-.442-.293-.707V4.25Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function tags(props: iconProps) {
         <path
           d="M3.25,1.75v-.5h5.586c.265,0,.52,.105,.707,.293l5.793,5.793c.432,.432,.625,1.012,.579,1.577"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

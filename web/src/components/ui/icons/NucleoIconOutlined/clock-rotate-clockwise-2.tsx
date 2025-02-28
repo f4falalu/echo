@@ -13,7 +13,7 @@ function clockRotateClockwise2(props: iconProps) {
         <path
           d="M9 4.75L9 9 12.25 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function clockRotateClockwise2(props: iconProps) {
         <path
           d="M16.25,9c0,4.004-3.246,7.25-7.25,7.25S1.75,13.004,1.75,9c0-4.004,3.246-7.25,7.25-7.25,3.031,0,5.627,1.86,6.71,4.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function clockRotateClockwise2(props: iconProps) {
         <path
           d="M16.12 3.305L15.712 6.25 12.768 5.843"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

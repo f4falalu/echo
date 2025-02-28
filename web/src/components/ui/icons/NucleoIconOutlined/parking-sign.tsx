@@ -16,7 +16,7 @@ function parkingSign(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function parkingSign(props: iconProps) {
         <path
           d="M7.25 12.25L7.25 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function parkingSign(props: iconProps) {
         <path
           d="M7.25,9.25h2.25c.966,0,1.75-.784,1.75-1.75h0c0-.967-.784-1.75-1.75-1.75h-2.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

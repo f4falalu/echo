@@ -13,7 +13,7 @@ function squareActivityChart(props: iconProps) {
         <path
           d="M13,9h-1.5l-1.25,3.25-2.5-6.5-1.25,3.25h-1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function squareActivityChart(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

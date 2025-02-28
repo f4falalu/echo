@@ -13,7 +13,7 @@ function checkList(props: iconProps) {
         <path
           d="M4.318 10.774L7.059 14.247 15.25 3.753"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function checkList(props: iconProps) {
         <path
           d="M10 3.75L2.75 3.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function checkList(props: iconProps) {
         <path
           d="M7 7.25L2.75 7.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

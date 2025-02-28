@@ -13,7 +13,7 @@ function envelopeOpenCheck(props: iconProps) {
         <path
           d="M1.75,6.75c0-.728,.396-1.361,1.034-1.713L8.517,1.874c.301-.166,.665-.166,.966,0l5.733,3.163c.638,.352,1.034,.984,1.034,1.713"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function envelopeOpenCheck(props: iconProps) {
         <path
           d="M16.25,9.464v-2.714l-6.815,3.29c-.275,.133-.595,.133-.87,0L1.75,6.75v6.5c0,1.104,.895,2,2,2h6.056"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function envelopeOpenCheck(props: iconProps) {
         <path
           d="M12.25 14.75L13.859 16.25 17.256 11.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

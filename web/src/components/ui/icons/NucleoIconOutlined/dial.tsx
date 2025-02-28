@@ -13,7 +13,7 @@ function dial(props: iconProps) {
         <path
           d="M12.712 12.712L9 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function dial(props: iconProps) {
           cy="9"
           fill="none"
           r="5.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

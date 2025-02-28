@@ -13,7 +13,7 @@ function chair3(props: iconProps) {
         <path
           d="M9 11.25L9 17.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function chair3(props: iconProps) {
         <path
           d="M9 14.5L4.75 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function chair3(props: iconProps) {
         <path
           d="M9 14.5L13.25 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function chair3(props: iconProps) {
         <path
           d="M5.25,8.75l.441-7.062c.033-.527,.47-.938,.998-.938h4.621c.528,0,.965,.411,.998,.938l.441,7.062"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function chair3(props: iconProps) {
         <path
           d="M2.75 5L2.75 7.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function chair3(props: iconProps) {
         <path
           d="M15.25 5L15.25 7.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -64,7 +64,7 @@ function chair3(props: iconProps) {
           fill="none"
           rx="1.25"
           ry="1.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

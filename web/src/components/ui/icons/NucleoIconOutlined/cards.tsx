@@ -16,7 +16,7 @@ function cards(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function cards(props: iconProps) {
         <path
           d="M13,5.258l2.283,.6c.534,.141,.853,.688,.712,1.222l-2.292,8.703c-.141,.534-.688,.853-1.222,.712l-6.491-1.71"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

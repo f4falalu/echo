@@ -13,7 +13,7 @@ function balance(props: iconProps) {
         <path
           d="M9,16.25c2.002,0,3.625-1.623,3.625-3.625s-1.623-3.625-3.625-3.625-3.625-1.623-3.625-3.625,1.623-3.625,3.625-3.625"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function balance(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

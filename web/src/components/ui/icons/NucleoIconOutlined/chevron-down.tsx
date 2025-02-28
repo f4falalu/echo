@@ -13,7 +13,7 @@ function chevronDown(props: iconProps) {
         <path
           d="M15.25 6.5L9 12.75 2.75 6.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

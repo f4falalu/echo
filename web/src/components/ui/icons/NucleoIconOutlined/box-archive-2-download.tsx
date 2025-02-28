@@ -13,7 +13,7 @@ function boxArchive2Download(props: iconProps) {
         <path
           d="M2.75 4.75L5 1.75 13 1.75 15.25 4.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function boxArchive2Download(props: iconProps) {
         <path
           d="M11.25 10.75L9 13 6.75 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function boxArchive2Download(props: iconProps) {
         <path
           d="M9 13L9 8"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function boxArchive2Download(props: iconProps) {
         <path
           d="M2.75,4.75H15.25V14.25c0,1.104-.896,2-2,2H4.75c-1.104,0-2-.896-2-2V4.75h0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function boxArchive2Download(props: iconProps) {
         <path
           d="M9 1.75L9 4.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

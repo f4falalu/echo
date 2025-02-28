@@ -13,7 +13,7 @@ function signboard(props: iconProps) {
         <path
           d="M4.25 12.25L2.47 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function signboard(props: iconProps) {
         <path
           d="M1.75 15.25L4.75 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function signboard(props: iconProps) {
         <path
           d="M15.53 12.25L7.03 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function signboard(props: iconProps) {
         <path
           d="M7.75 15.25L4.75 2.75 13.25 2.75 16.25 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

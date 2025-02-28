@@ -13,7 +13,7 @@ function interview(props: iconProps) {
         <path
           d="M1.25,16.25v-2h1.353c.865,0,1.584-.668,1.646-1.532l.092-1.274,1.241-.496-1.238-1.651c0-2.255-1.508-4.159-3.57-4.757"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function interview(props: iconProps) {
         <path
           d="M16.75,16.25v-2h-1.353c-.865,0-1.584-.668-1.646-1.532l-.092-1.274-1.241-.496,1.238-1.651c0-2.255,1.508-4.159,3.57-4.757"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function interview(props: iconProps) {
         <path
           d="M10.75,.75h-3.5c-.827,0-1.5,.673-1.5,1.5v1.5c0,.827,.673,1.5,1.5,1.5h.5v2l2.227-2h.773c.827,0,1.5-.673,1.5-1.5v-1.5c0-.827-.673-1.5-1.5-1.5Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

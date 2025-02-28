@@ -13,7 +13,7 @@ function chevronExpandY(props: iconProps) {
         <path
           d="M8.75 8.25L6 11 3.25 8.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function chevronExpandY(props: iconProps) {
         <path
           d="M8.75 3.75L6 1 3.25 3.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

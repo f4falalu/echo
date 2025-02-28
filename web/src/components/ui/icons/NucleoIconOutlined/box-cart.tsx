@@ -16,7 +16,7 @@ function boxCart(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function boxCart(props: iconProps) {
         <path
           d="M10.5 3.75L10.5 6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function boxCart(props: iconProps) {
         <path
           d="M5.863 13.75L13.639 13.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +42,7 @@ function boxCart(props: iconProps) {
         <path
           d="M4.25,13.34V2.75c0-.552-.448-1-1-1H1.833"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -52,7 +52,7 @@ function boxCart(props: iconProps) {
           cy="14.75"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -62,7 +62,7 @@ function boxCart(props: iconProps) {
           cy="14.75"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

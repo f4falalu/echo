@@ -13,7 +13,7 @@ function bracketsSquareDots(props: iconProps) {
         <path
           d="M6,15.25H3.75c-.552,0-1-.448-1-1V3.75c0-.552,.448-1,1-1h2.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function bracketsSquareDots(props: iconProps) {
         <path
           d="M12,15.25h2.25c.552,0,1-.448,1-1V3.75c0-.552-.448-1-1-1h-2.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

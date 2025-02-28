@@ -13,7 +13,7 @@ function hatSanta(props: iconProps) {
         <path
           d="M2.979,6.75C3.75,3.87,6.377,1.75,9.5,1.75c3.728,0,6.75,3.022,6.75,6.75v5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function hatSanta(props: iconProps) {
         <path
           d="M13.75 13.5L13.75 8.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function hatSanta(props: iconProps) {
           cy="15"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -46,7 +46,7 @@ function hatSanta(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

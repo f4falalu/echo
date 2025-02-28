@@ -13,7 +13,7 @@ function bombSparkle(props: iconProps) {
         <path
           d="M12.34,4.158l.72-.72c.486-.486,1.274-.486,1.76,0l.88,.88c.417,.417,1.057,.476,1.537,.177"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function bombSparkle(props: iconProps) {
         <path
           d="M12.74,9.323c-.026-.835-.227-1.624-.572-2.333,.534-.533,.799-.799,1.333-1.333-.256-.435-.643-.993-1.212-1.551-.519-.509-1.033-.864-1.445-1.106l-1.333,1.333c-.759-.37-1.609-.583-2.51-.583C3.824,3.75,1.25,6.324,1.25,9.5s2.574,5.75,5.75,5.75c.628,0,1.23-.104,1.796-.29"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

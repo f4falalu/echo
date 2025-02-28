@@ -17,7 +17,7 @@ function inputPasswordSettings(props: iconProps) {
           cy="13.75"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function inputPasswordSettings(props: iconProps) {
         <path
           d="m16.25,8.972v-2.222c0-1.104-.895-2-2-2H3.75c-1.105,0-2,.896-2,2v4.5c0,1.104.895,2,2,2h4.31"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function inputPasswordSettings(props: iconProps) {
         <path
           d="M13.75 10.5L13.75 11.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function inputPasswordSettings(props: iconProps) {
         <path
           d="M16.048 11.452L15.341 12.159"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -49,7 +49,7 @@ function inputPasswordSettings(props: iconProps) {
         <path
           d="M17 13.75L16 13.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -57,7 +57,7 @@ function inputPasswordSettings(props: iconProps) {
         <path
           d="M16.048 16.048L15.341 15.341"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -65,7 +65,7 @@ function inputPasswordSettings(props: iconProps) {
         <path
           d="M13.75 17L13.75 16"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -73,7 +73,7 @@ function inputPasswordSettings(props: iconProps) {
         <path
           d="M11.452 16.048L12.159 15.341"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -81,7 +81,7 @@ function inputPasswordSettings(props: iconProps) {
         <path
           d="M10.5 13.75L11.5 13.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -89,7 +89,7 @@ function inputPasswordSettings(props: iconProps) {
         <path
           d="M11.452 11.452L12.159 12.159"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

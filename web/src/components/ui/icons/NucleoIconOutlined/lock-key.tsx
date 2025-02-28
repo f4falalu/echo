@@ -13,7 +13,7 @@ function lockKey(props: iconProps) {
         <path
           d="M5.25,8.25v-3.25c0-1.795,1.455-3.25,3.25-3.25h0c1.795,0,3.25,1.455,3.25,3.25v3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function lockKey(props: iconProps) {
         <path
           d="M7,16.25h-2.25c-1.105,0-2-.895-2-2v-4c0-1.105,.895-2,2-2h7.5c1.105,0,2,.895,2,2v1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function lockKey(props: iconProps) {
         <path
           d="M12.25 14.75L15.75 14.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function lockKey(props: iconProps) {
         <path
           d="M14.75 14.75L14.75 16"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -47,7 +47,7 @@ function lockKey(props: iconProps) {
           cy="14.75"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

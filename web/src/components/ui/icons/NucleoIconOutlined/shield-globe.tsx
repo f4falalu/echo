@@ -16,7 +16,7 @@ function shieldGlobe(props: iconProps) {
           fill="none"
           rx="1.862"
           ry="4.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function shieldGlobe(props: iconProps) {
         <path
           d="M8.25 12.75L17.25 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function shieldGlobe(props: iconProps) {
         <path
           d="M15.25,6.22v-1.74c0-.435-.281-.82-.695-.952l-5.25-1.68c-.198-.063-.411-.063-.609,0L3.445,3.528c-.414,.133-.695,.517-.695,.952v6.52c0,1.857,1.759,3.219,3.411,4.091"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +42,7 @@ function shieldGlobe(props: iconProps) {
           cy="12.75"
           fill="none"
           r="4.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

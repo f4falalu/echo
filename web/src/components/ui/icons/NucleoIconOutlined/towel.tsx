@@ -13,7 +13,7 @@ function towel(props: iconProps) {
         <path
           d="M4.75,14.75c0,.552,.448,1,1,1H14.25c.552,0,1-.448,1-1V4.5c0-.966-.784-1.75-1.75-1.75h0"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function towel(props: iconProps) {
         <path
           d="M13.5,2.75c-.966,0-1.75,.784-1.75,1.75v6.75c0,.552-.448,1-1,1H3.75c-.552,0-1-.448-1-1V4.5c0-.966,.784-1.75,1.75-1.75H13.5Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

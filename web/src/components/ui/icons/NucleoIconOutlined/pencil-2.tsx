@@ -13,7 +13,7 @@ function pencil2(props: iconProps) {
         <path
           d="M6.514 5.75L11.486 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function pencil2(props: iconProps) {
         <path
           d="M6.25 13.75L6.25 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function pencil2(props: iconProps) {
         <path
           d="M11.75 13.75L11.75 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function pencil2(props: iconProps) {
         <path
           d="M6.25,13.75c0-1.519,1.231-2.75,2.75-2.75s2.75,1.231,2.75,2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function pencil2(props: iconProps) {
         <path
           d="M3.25,11.011c.082-.007,.166-.011,.25-.011,1.519,0,2.75,1.231,2.75,2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function pencil2(props: iconProps) {
         <path
           d="M14.75,11.011c-.082-.007-.166-.011-.25-.011-1.519,0-2.75,1.231-2.75,2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function pencil2(props: iconProps) {
         <path
           d="M3.25 16.25L3.25 11 9 1.75 14.75 11 14.75 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function cosmeticJar(props: iconProps) {
         <path
           d="M1.75,11.5c0,1.243,2.351,2.25,5.25,2.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function cosmeticJar(props: iconProps) {
         <path
           d="M1.75,9v5c0,1.243,2.351,2.25,5.25,2.25s5.25-1.007,5.25-2.25v-5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function cosmeticJar(props: iconProps) {
         <path
           d="M14.75,10.667c.926-.947,1.5-2.238,1.5-3.667,0-2.899-2.351-5.25-5.25-5.25-1.893,0-3.537,1.011-4.461,2.512"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +40,7 @@ function cosmeticJar(props: iconProps) {
           fill="none"
           rx="5.25"
           ry="2.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

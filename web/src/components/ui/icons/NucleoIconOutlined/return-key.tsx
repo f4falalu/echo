@@ -16,7 +16,7 @@ function returnKey(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function returnKey(props: iconProps) {
         <path
           d="M10.75,6.25h1.5c.552,0,1,.448,1,1v2c0,.552-.448,1-1,1H4.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function returnKey(props: iconProps) {
         <path
           d="M6.75 8.25L4.75 10.25 6.75 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

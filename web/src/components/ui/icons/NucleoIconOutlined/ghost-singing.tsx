@@ -13,7 +13,7 @@ function ghostSinging(props: iconProps) {
         <path
           d="M10.478,2.504c-.885-.481-1.9-.754-2.978-.754C4.048,1.75,1.25,4.548,1.25,8v8.25c1.75,0,1.781-1.5,3.25-1.5s1.562,1.5,3,1.5c1.438,0,1.531-1.5,3-1.5,1.469,0,1.5,1.5,3.25,1.5v-7"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function ghostSinging(props: iconProps) {
         <path
           d="M15.25,5.25V.75s.646,.896,2,1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function ghostSinging(props: iconProps) {
           cy="5.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function heading1(props: iconProps) {
         <path
           d="M2.75 4.75L2.75 13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function heading1(props: iconProps) {
         <path
           d="M8.75 4.75L8.75 13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function heading1(props: iconProps) {
         <path
           d="M2.75 9L8.75 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function heading1(props: iconProps) {
         <path
           d="M14.75,13.25V4.75s-.974,1.713-3.04,2.108"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

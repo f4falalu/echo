@@ -13,7 +13,7 @@ function chartArea(props: iconProps) {
         <path
           d="M2.75,2.75V12.75c0,1.105,.895,2,2,2H15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function chartArea(props: iconProps) {
         <path
           d="M14.25 12.25L14.25 5.75 10.25 9.75 7.75 6.75 5.25 9.75 5.25 12.25 14.25 12.25z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

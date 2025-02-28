@@ -13,7 +13,7 @@ function rename(props: iconProps) {
         <path
           d="M10.25 13.25L6.565 3.75 5.955 3.75 2.27 13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function rename(props: iconProps) {
         <path
           d="M3.24 10.75L9.28 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function rename(props: iconProps) {
         <path
           d="M13.75 3.75L13.75 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function rename(props: iconProps) {
         <path
           d="M11.75,1.75c1.105,0,2,.895,2,2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function rename(props: iconProps) {
         <path
           d="M15.75,1.75c-1.105,0-2,.895-2,2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function rename(props: iconProps) {
         <path
           d="M11.75,16.25c1.105,0,2-.895,2-2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function rename(props: iconProps) {
         <path
           d="M15.75,16.25c-1.105,0-2-.895-2-2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -69,7 +69,7 @@ function rename(props: iconProps) {
         <path
           d="M12.25 9.75L15.25 9.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

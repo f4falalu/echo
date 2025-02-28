@@ -13,7 +13,7 @@ function envelopeSparkle(props: iconProps) {
         <path
           d="M1.75,5.75l6.767,3.733c.301,.166,.665,.166,.966,0l6.767-3.733"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function envelopeSparkle(props: iconProps) {
         <path
           d="M16.25,9.79V5.25c0-1.104-.895-2-2-2H3.75c-1.105,0-2,.896-2,2v7.5c0,1.104,.895,2,2,2h5.07"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function envelopeSparkle(props: iconProps) {
         <path
           d="M14.25 11.25L15.25 13.25 17.25 14.25 15.25 15.25 14.25 17.25 13.25 15.25 11.25 14.25 13.25 13.25 14.25 11.25z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -16,7 +16,7 @@ function storageUnit(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function storageUnit(props: iconProps) {
         <path
           d="M6.75,15.25H2.75c-.828,0-1.5-.672-1.5-1.5v-3.5c0-.828,.672-1.5,1.5-1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function storageUnit(props: iconProps) {
         <path
           d="M11.25,15.25h4c.828,0,1.5-.672,1.5-1.5v-3.5c0-.828-.672-1.5-1.5-1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +42,7 @@ function storageUnit(props: iconProps) {
         <path
           d="M9 6.75L9 9.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -50,7 +50,7 @@ function storageUnit(props: iconProps) {
         <path
           d="M1.75 5.25L9 1.75 16.25 5.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

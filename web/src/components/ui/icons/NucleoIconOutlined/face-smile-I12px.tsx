@@ -15,7 +15,7 @@ function faceSmile(props: iconProps) {
           cy="6"
           fill="none"
           r="5.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function faceSmile(props: iconProps) {
         <path
           d="m8,7.886c-.502.532-1.213.864-2,.864s-1.498-.332-2-.864"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

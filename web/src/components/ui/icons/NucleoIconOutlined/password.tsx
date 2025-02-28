@@ -13,7 +13,7 @@ function password(props: iconProps) {
         <path
           d="M7 12.75L11 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function password(props: iconProps) {
         <path
           d="M13.25 12.75L17.25 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function password(props: iconProps) {
         <path
           d="M0.75 12.75L4.75 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function password(props: iconProps) {
         <path
           d="M0.759 6.853L2.75 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function password(props: iconProps) {
         <path
           d="M1.519 9.194L2.75 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function password(props: iconProps) {
         <path
           d="M3.981 9.194L2.75 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function password(props: iconProps) {
         <path
           d="M4.741 6.853L2.75 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -69,7 +69,7 @@ function password(props: iconProps) {
         <path
           d="M2.75 5.406L2.75 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -77,7 +77,7 @@ function password(props: iconProps) {
         <path
           d="M7.009 6.853L9 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -85,7 +85,7 @@ function password(props: iconProps) {
         <path
           d="M7.769 9.194L9 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -93,7 +93,7 @@ function password(props: iconProps) {
         <path
           d="M10.231 9.194L9 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -101,7 +101,7 @@ function password(props: iconProps) {
         <path
           d="M10.991 6.853L9 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -109,7 +109,7 @@ function password(props: iconProps) {
         <path
           d="M9 5.406L9 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -117,7 +117,7 @@ function password(props: iconProps) {
         <path
           d="M13.259 6.853L15.25 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -125,7 +125,7 @@ function password(props: iconProps) {
         <path
           d="M14.019 9.194L15.25 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -133,7 +133,7 @@ function password(props: iconProps) {
         <path
           d="M16.481 9.194L15.25 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -141,7 +141,7 @@ function password(props: iconProps) {
         <path
           d="M17.241 6.853L15.25 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -149,7 +149,7 @@ function password(props: iconProps) {
         <path
           d="M15.25 5.406L15.25 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

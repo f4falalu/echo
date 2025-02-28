@@ -13,7 +13,7 @@ function folder3(props: iconProps) {
         <path
           d="M14.75,5.75c0-.552-.448-1-1-1H7.75l-.956-1.53c-.183-.292-.503-.47-.848-.47H3.25c-.552,0-1,.448-1,1V13.5c0,.966,.784,1.75,1.75,1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function folder3(props: iconProps) {
         <path
           d="M4,15.25c.966,0,1.75-.784,1.75-1.75v-4.25c0-.552,.448-1,1-1H14.75c.552,0,1,.448,1,1v4c0,1.105-.895,2-2,2H4Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

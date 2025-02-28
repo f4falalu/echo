@@ -17,7 +17,7 @@ function laptopVideo(props: iconProps) {
         <path
           d="M0.75 14.75L17.25 14.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function laptopVideo(props: iconProps) {
         <path
           d="M6.25,2.75h-2c-1.105,0-2,.895-2,2V12.75c0,1.105,.895,2,2,2H13.75c1.105,0,2-.895,2-2V7.736"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -36,7 +36,7 @@ function laptopVideo(props: iconProps) {
           fill="none"
           rx="1.75"
           ry="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

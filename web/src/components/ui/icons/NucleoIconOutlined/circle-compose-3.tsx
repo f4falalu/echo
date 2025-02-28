@@ -13,7 +13,7 @@ function circleCompose3(props: iconProps) {
         <path
           d="M16.25,9c0,4.004-3.246,7.25-7.25,7.25S1.75,13.004,1.75,9,4.996,1.75,9,1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function circleCompose3(props: iconProps) {
         <path
           d="M14.429,6.535c-.352,2.737-2.611,3.227-5.01,2.906"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function circleCompose3(props: iconProps) {
         <path
           d="M6.25,11.75S7.3,2.533,16.25,1.75c-.448,.781-.459,2.084-.757,3.392-.419,1.608-1.868,1.808-3.643,1.808"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

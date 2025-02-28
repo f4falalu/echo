@@ -13,7 +13,7 @@ function moneyBills(props: iconProps) {
         <path
           d="M3.25 1.75L14.75 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function moneyBills(props: iconProps) {
         <path
           d="M5,4.75c0,1.795-1.455,3.25-3.25,3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function moneyBills(props: iconProps) {
         <path
           d="M13,4.75c0,1.795,1.455,3.25,3.25,3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function moneyBills(props: iconProps) {
         <path
           d="M5,15.25c0-1.795-1.455-3.25-3.25-3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function moneyBills(props: iconProps) {
         <path
           d="M13,15.25c0-1.795,1.455-3.25,3.25-3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -55,7 +55,7 @@ function moneyBills(props: iconProps) {
           cy="10"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -66,7 +66,7 @@ function moneyBills(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -15,7 +15,7 @@ function faceGrinClosedEyes(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -27,7 +27,7 @@ function faceGrinClosedEyes(props: iconProps) {
         <path
           d="M4.75,8.25c0-.69,.56-1.25,1.25-1.25s1.25,.56,1.25,1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function faceGrinClosedEyes(props: iconProps) {
         <path
           d="M10.75,8.25c0-.69,.56-1.25,1.25-1.25s1.25,.56,1.25,1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

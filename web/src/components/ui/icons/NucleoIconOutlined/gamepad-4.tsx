@@ -19,7 +19,7 @@ function gamepad4(props: iconProps) {
         <path
           d="M9,16.25h-3.75c-1.657,0-3-1.343-3-3V6.75c0-1.657,1.343-3,3-3h3.75v12.5Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -27,7 +27,7 @@ function gamepad4(props: iconProps) {
         <path
           d="M9,3.75V1.75s3.75,0,3.75,0c1.657,0,3,1.343,3,3v6.5c0,1.657-1.343,3-3,3h-3.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

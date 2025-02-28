@@ -13,7 +13,7 @@ function mediaPrevious(props: iconProps) {
         <path
           d="M13.95,14.323L5.697,9.753c-.595-.33-.595-1.177,0-1.506L13.95,3.677c.582-.322,1.3,.094,1.3,.753V13.57c0,.66-.718,1.075-1.3,.753Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function mediaPrevious(props: iconProps) {
         <path
           d="M2.75 2.75L2.75 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

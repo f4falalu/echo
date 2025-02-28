@@ -13,7 +13,7 @@ function portalSparkle(props: iconProps) {
         <path
           d="M3.295,9.999c-.965,.552-1.545,1.246-1.545,2.001,0,1.795,3.246,3.25,7.25,3.25s7.25-1.455,7.25-3.25c0-1.742-3.059-3.159-6.898-3.242"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

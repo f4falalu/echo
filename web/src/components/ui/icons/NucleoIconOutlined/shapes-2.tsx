@@ -16,7 +16,7 @@ function shapes2(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -28,7 +28,7 @@ function shapes2(props: iconProps) {
           cy="13"
           fill="none"
           r="2.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -36,7 +36,7 @@ function shapes2(props: iconProps) {
         <path
           d="M13 10.5L13 15.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -44,7 +44,7 @@ function shapes2(props: iconProps) {
         <path
           d="M10.5 13L15.5 13"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -52,7 +52,7 @@ function shapes2(props: iconProps) {
         <path
           d="M12.567,2.576l-2.266,3.924c-.192,.333,.048,.75,.433,.75h4.531c.385,0,.625-.417,.433-.75l-2.266-3.924c-.192-.333-.674-.333-.866,0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

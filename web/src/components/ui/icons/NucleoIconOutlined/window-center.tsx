@@ -16,7 +16,7 @@ function windowCenter(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function windowCenter(props: iconProps) {
         <path
           d="M7.75 7.75H10.25V10.25H7.75z"
           fill="currentColor"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

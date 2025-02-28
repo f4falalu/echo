@@ -15,7 +15,7 @@ function scissorsCoupon2(props: iconProps) {
           cy="2.75"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function scissorsCoupon2(props: iconProps) {
           cy="8.75"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function scissorsCoupon2(props: iconProps) {
         <path
           d="M2.451 4.31L10.25 8.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function scissorsCoupon2(props: iconProps) {
         <path
           d="M2.451 7.19L10.25 3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -49,7 +49,7 @@ function scissorsCoupon2(props: iconProps) {
         <path
           d="M11.75,5.75h2.5c1.105,0,2,.895,2,2v5c0,1.105-.895,2-2,2H5.25c-1.105,0-2-.895-2-2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

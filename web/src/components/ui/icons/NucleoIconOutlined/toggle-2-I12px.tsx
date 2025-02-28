@@ -16,7 +16,7 @@ function toggle2(props: iconProps) {
           fill="none"
           rx="3.75"
           ry="3.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

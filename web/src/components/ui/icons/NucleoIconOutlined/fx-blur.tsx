@@ -23,7 +23,7 @@ function fxBlur(props: iconProps) {
           cy="6.5"
           fill="none"
           r="1.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function fxBlur(props: iconProps) {
           cy="6.5"
           fill="none"
           r="1.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -43,7 +43,7 @@ function fxBlur(props: iconProps) {
           cy="11.5"
           fill="none"
           r="1.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function fxBlur(props: iconProps) {
           cy="11.5"
           fill="none"
           r="1.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

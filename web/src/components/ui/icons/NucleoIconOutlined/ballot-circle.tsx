@@ -13,7 +13,7 @@ function ballotCircle(props: iconProps) {
         <path
           d="M10.5 5.25L15.25 5.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function ballotCircle(props: iconProps) {
         <path
           d="M10.5 12.75L15.25 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function ballotCircle(props: iconProps) {
           cy="5"
           fill="none"
           r="2.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function ballotCircle(props: iconProps) {
           cy="13"
           fill="none"
           r="2.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

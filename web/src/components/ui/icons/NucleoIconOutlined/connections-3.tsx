@@ -13,7 +13,7 @@ function connections3(props: iconProps) {
         <path
           d="M7.055 2.298H10.943999999999999V6.186999999999999H7.055z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -22,7 +22,7 @@ function connections3(props: iconProps) {
         <path
           d="M2.298 7.055H6.186999999999999V10.943999999999999H2.298z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function connections3(props: iconProps) {
         <path
           d="M7.055 11.813H10.943999999999999V15.702H7.055z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +40,7 @@ function connections3(props: iconProps) {
         <path
           d="M11.813 7.055H15.702V10.943999999999999H11.813z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

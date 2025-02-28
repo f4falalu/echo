@@ -15,7 +15,7 @@ function arrowDotRotateClockwise(props: iconProps) {
           cy="9.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function arrowDotRotateClockwise(props: iconProps) {
         <path
           d="m10.718,3.694c-.854-1.743-2.646-2.944-4.718-2.944-2.899,0-5.25,2.351-5.25,5.25,0,2.899,2.351,5.25,5.25,5.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function arrowDotRotateClockwise(props: iconProps) {
         <path
           d="M7.75 3.75L10.75 3.75 10.75 0.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

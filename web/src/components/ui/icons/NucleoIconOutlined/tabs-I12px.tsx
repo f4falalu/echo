@@ -13,7 +13,7 @@ function tabs(props: iconProps) {
         <path
           d="m5.75,1.25h3c1.105,0,2,.895,2,2v1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function tabs(props: iconProps) {
         <path
           d="m10.75,4.5h-5V1.25h-2.5c-1.105,0-2,.895-2,2v5.5c0,1.105.895,2,2,2h5.5c1.105,0,2-.895,2-2v-4.25Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

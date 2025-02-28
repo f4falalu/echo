@@ -13,7 +13,7 @@ function sortAlphaDescending(props: iconProps) {
         <path
           d="M16 11.25L13.25 14 10.5 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function sortAlphaDescending(props: iconProps) {
         <path
           d="M13.25 14L13.25 3.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function sortAlphaDescending(props: iconProps) {
         <path
           d="M7.357 7.5L5.275 2 4.702 2 2.621 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function sortAlphaDescending(props: iconProps) {
         <path
           d="M3.189 6L6.789 6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function sortAlphaDescending(props: iconProps) {
         <path
           d="M2.832 10L7.145 10 2.832 15.5 7.145 15.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -17,7 +17,7 @@ function sneeze(props: iconProps) {
         <path
           d="M5.25,16.25v-2.5h1.639c1.049,0,1.919-.81,1.995-1.856l.112-1.543,1.504-.601-1.5-2c0-3.397-2.823-6.134-6.25-5.995"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

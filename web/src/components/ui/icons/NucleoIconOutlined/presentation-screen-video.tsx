@@ -13,7 +13,7 @@ function presentationScreenVideo(props: iconProps) {
         <path
           d="M5.75 16.25L6.75 13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function presentationScreenVideo(props: iconProps) {
         <path
           d="M12.25 16.25L11.25 13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function presentationScreenVideo(props: iconProps) {
         <path
           d="M6.25,2.75H3.75c-1.105,0-2,.896-2,2v6.5c0,1.104,.895,2,2,2H14.25c1.105,0,2-.896,2-2v-3.931"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -44,7 +44,7 @@ function presentationScreenVideo(props: iconProps) {
           fill="none"
           rx="1.75"
           ry="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

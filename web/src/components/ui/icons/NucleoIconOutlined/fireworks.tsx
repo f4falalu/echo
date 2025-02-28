@@ -15,7 +15,7 @@ function fireworks(props: iconProps) {
         <path
           d="M13.25,6.75s-4.25,1.727-4.25,9.5c0-7.773-4.25-9.5-4.25-9.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

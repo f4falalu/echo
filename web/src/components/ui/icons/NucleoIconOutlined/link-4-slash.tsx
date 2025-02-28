@@ -13,7 +13,7 @@ function link4Slash(props: iconProps) {
         <path
           d="M2 16L16 2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function link4Slash(props: iconProps) {
         <path
           d="M12.25,10.75v2.25c0,1.795-1.455,3.25-3.25,3.25h0c-1.041,0-1.967-.489-2.562-1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function link4Slash(props: iconProps) {
         <path
           d="M5.75,7.25v-2.25c0-1.795,1.455-3.25,3.25-3.25h0c1.041,0,1.967,.489,2.562,1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

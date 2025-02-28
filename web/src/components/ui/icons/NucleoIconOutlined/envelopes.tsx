@@ -13,7 +13,7 @@ function envelopes(props: iconProps) {
         <path
           d="M4.25,5.5l5.47,3.419c.324,.203,.736,.203,1.06,0l5.47-3.419"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function envelopes(props: iconProps) {
         <path
           d="M12.25,15.25H5.75c-2.209,0-4-1.791-4-4v-3.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function envelopes(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

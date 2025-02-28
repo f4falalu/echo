@@ -13,7 +13,7 @@ function flask(props: iconProps) {
         <path
           d="m4.25.75v5.25l-2.464,3.695c-.443.665.033,1.555.832,1.555h6.763c.799,0,1.275-.89.832-1.555l-2.464-3.695V.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function flask(props: iconProps) {
         <path
           d="M3.25 0.75L8.75 0.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

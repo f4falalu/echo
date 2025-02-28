@@ -13,7 +13,7 @@ function maximizeWindow(props: iconProps) {
         <path
           d="M5.75,12.25h-2c-1.105,0-2-.895-2-2V5.75c0-1.105,.895-2,2-2H12.25c1.105,0,2,.895,2,2v2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function maximizeWindow(props: iconProps) {
         <path
           d="M4.25 9.25L4.25 6.25 7.25 6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function maximizeWindow(props: iconProps) {
         <path
           d="M4.25 6.25L7.25 9.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +40,7 @@ function maximizeWindow(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

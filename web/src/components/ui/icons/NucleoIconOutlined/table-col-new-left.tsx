@@ -13,7 +13,7 @@ function tableColNewLeft(props: iconProps) {
         <path
           d="M9.25 2.75L9.25 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function tableColNewLeft(props: iconProps) {
         <path
           d="M0.75 9L5.75 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function tableColNewLeft(props: iconProps) {
         <path
           d="M3.137,13.963c.288,.751,1.01,1.287,1.863,1.287H13.25c1.104,0,2-.895,2-2V4.75c0-1.105-.896-2-2-2H5c-.853,0-1.575,.535-1.863,1.287"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function tableColNewLeft(props: iconProps) {
         <path
           d="M3.25 6.5L3.25 11.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

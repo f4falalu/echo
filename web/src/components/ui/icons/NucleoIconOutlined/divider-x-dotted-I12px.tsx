@@ -13,7 +13,7 @@ function dividerXDotted(props: iconProps) {
         <path
           d="m1.25,1.25c1.105,0,2,.895,2,2v5.5c0,1.105-.895,2-2,2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function dividerXDotted(props: iconProps) {
         <path
           d="m10.75,1.25c-1.105,0-2,.895-2,2v5.5c0,1.105.895,2,2,2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

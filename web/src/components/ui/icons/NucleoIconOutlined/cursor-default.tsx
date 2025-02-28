@@ -13,7 +13,7 @@ function cursorDefault(props: iconProps) {
         <path
           d="M2.07,3.463L6.451,15.293c.351,.948,1.694,.942,2.036-.009l1.626-4.517c.109-.304,.349-.543,.653-.653l4.517-1.626c.951-.342,.957-1.685,.009-2.036L3.463,2.07c-.869-.322-1.714,.524-1.393,1.393Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

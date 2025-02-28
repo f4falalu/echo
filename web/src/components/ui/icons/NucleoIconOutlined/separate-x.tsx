@@ -13,7 +13,7 @@ function separateX(props: iconProps) {
         <path
           d="M4.25 6.5L1.75 9 4.25 11.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function separateX(props: iconProps) {
         <path
           d="M7.25 2.75L7.25 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function separateX(props: iconProps) {
         <path
           d="M10.75 2.75L10.75 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function separateX(props: iconProps) {
         <path
           d="M13.75 6.5L16.25 9 13.75 11.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -15,7 +15,7 @@ function unorderedList2(props: iconProps) {
           cy="6"
           fill="currentColor"
           r=".75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function unorderedList2(props: iconProps) {
           cy="1.75"
           fill="currentColor"
           r=".75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function unorderedList2(props: iconProps) {
           cy="10.25"
           fill="currentColor"
           r=".75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -43,7 +43,7 @@ function unorderedList2(props: iconProps) {
         <path
           d="M5 1.75L11.25 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -51,7 +51,7 @@ function unorderedList2(props: iconProps) {
         <path
           d="M5 6L11.25 6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -59,7 +59,7 @@ function unorderedList2(props: iconProps) {
         <path
           d="M5 10.25L11.25 10.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function house7(props: iconProps) {
         <path
           d="M3.75 16.25L3.75 8.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function house7(props: iconProps) {
         <path
           d="M14.25 8.75L14.25 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function house7(props: iconProps) {
         <path
           d="M2 7L9 1.75 16 7"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function house7(props: iconProps) {
         <path
           d="M7.75,16.25v-4c0-.276,.224-.5,.5-.5h1.5c.276,0,.5,.224,.5,.5v4"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function house7(props: iconProps) {
         <path
           d="M4.75 4.938L4.75 2.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function house7(props: iconProps) {
         <path
           d="M16.25 16.25L1.75 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

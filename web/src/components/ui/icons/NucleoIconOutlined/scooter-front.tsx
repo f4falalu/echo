@@ -13,7 +13,7 @@ function scooterFront(props: iconProps) {
         <path
           d="M7.75,14.25h-1c-1.105,0-2-.895-2-2V7.75c0-1.105,.895-2,2-2h4.5c1.105,0,2,.895,2,2v4.5c0,1.105-.895,2-2,2h-1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function scooterFront(props: iconProps) {
         <path
           d="M7 3.25L4.25 3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function scooterFront(props: iconProps) {
         <path
           d="M11 3.25L13.75 3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function scooterFront(props: iconProps) {
           cy="3.25"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -50,7 +50,7 @@ function scooterFront(props: iconProps) {
           fill="none"
           rx="1.25"
           ry="1.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

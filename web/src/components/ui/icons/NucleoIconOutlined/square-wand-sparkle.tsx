@@ -21,7 +21,7 @@ function squareWandSparkle(props: iconProps) {
         <path
           d="M8.285,15.25h4.965c1.105,0,2-.896,2-2v-2.634"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function squareWandSparkle(props: iconProps) {
         <path
           d="M6.502,2.75h-1.752c-1.105,0-2,.896-2,2v4.965"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function squareWandSparkle(props: iconProps) {
         <path
           d="M6.07 9.93L8.07 11.93"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -49,7 +49,7 @@ function squareWandSparkle(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

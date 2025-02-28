@@ -13,7 +13,7 @@ function heart2Plus(props: iconProps) {
         <path
           d="M16.112,7.598c.174-.638,.189-1.336,.004-2.042-.181-.688-.575-1.32-1.11-1.79-2.005-1.758-4.933-1.05-6.007,1.162-.171-.353-.396-.677-.666-.962-1.451-1.528-3.867-1.591-5.395-.139-1.528,1.451-1.59,3.867-.139,5.395l5.48,5.694c.393,.409,1.048,.409,1.441,0l.909-.944"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function heart2Plus(props: iconProps) {
         <path
           d="M14.25 9.25L14.25 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function heart2Plus(props: iconProps) {
         <path
           d="M16.75 11.75L11.75 11.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

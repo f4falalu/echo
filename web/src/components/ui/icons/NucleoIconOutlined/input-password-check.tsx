@@ -16,7 +16,7 @@ function inputPasswordCheck(props: iconProps) {
         <path
           d="M16.25,8.471v-1.721c0-1.104-.895-2-2-2H3.75c-1.105,0-2,.896-2,2v4.5c0,1.104,.895,2,2,2h6.052"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function inputPasswordCheck(props: iconProps) {
         <path
           d="M12.244 13.75L13.853 15.25 17.25 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

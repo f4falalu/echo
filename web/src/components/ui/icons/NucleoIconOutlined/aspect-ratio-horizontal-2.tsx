@@ -16,7 +16,7 @@ function aspectRatioHorizontal2(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function aspectRatioHorizontal2(props: iconProps) {
         <path
           d="M13.25 8.75L13.25 5.75 10.25 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function aspectRatioHorizontal2(props: iconProps) {
         <path
           d="M7.75 12.25L4.75 12.25 4.75 9.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

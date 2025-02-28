@@ -18,7 +18,7 @@ function bowlFood(props: iconProps) {
         <path
           d="M6.32,14.25h5.361c2.758-1.097,4.568-3.532,4.57-6.5H1.75c.002,2.968,1.812,5.403,4.57,6.5Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function bowlFood(props: iconProps) {
         <path
           d="M14.75,5.25c-.456-.607-1.182-1-2-1-.617,0-1.174,.232-1.61,.603-.504-.949-1.49-1.603-2.64-1.603-.768,0-1.469,.289-2,.764"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

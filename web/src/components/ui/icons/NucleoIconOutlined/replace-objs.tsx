@@ -15,7 +15,7 @@ function replaceObjs(props: iconProps) {
           cy="14.75"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function replaceObjs(props: iconProps) {
           cy="3.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function replaceObjs(props: iconProps) {
         <path
           d="M0.765 7.758L3.258 10.25 5.75 7.758"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function replaceObjs(props: iconProps) {
         <path
           d="M17.235 10.242L14.742 7.75 12.25 10.242"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -49,7 +49,7 @@ function replaceObjs(props: iconProps) {
         <path
           d="M3.25,10.25V5.25c0-1.105,.895-2,2-2h5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -57,7 +57,7 @@ function replaceObjs(props: iconProps) {
         <path
           d="M14.75,7.75v5c0,1.105-.895,2-2,2H7.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -16,7 +16,7 @@ function ballEatingDots(props: iconProps) {
         <path
           d="M9,9l5.794-4.345c-1.323-1.761-3.422-2.905-5.794-2.905C4.996,1.75,1.75,4.996,1.75,9s3.246,7.25,7.25,7.25c2.372,0,4.471-1.144,5.794-2.905l-5.794-4.345Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function soccerGoal(props: iconProps) {
         <path
           d="M13.383 2.744L13.497 4.503 15.256 4.617"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function soccerGoal(props: iconProps) {
         <path
           d="M6.046 3.159L7.754 3.594 8.407 1.955"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function soccerGoal(props: iconProps) {
         <path
           d="M4.174 10.264L5.115 8.774 3.759 7.648"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function soccerGoal(props: iconProps) {
         <path
           d="M10.352 14.241L9.226 12.885 7.737 13.827"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function soccerGoal(props: iconProps) {
         <path
           d="M16.044 9.593L14.407 10.245 14.842 11.953"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function soccerGoal(props: iconProps) {
         <path
           d="M12.127 5.873L8.628 5.318 7.071 8.424 9.576 10.928 12.681 9.372 12.127 5.873z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function soccerGoal(props: iconProps) {
         <path
           d="M13.497 4.503L12.127 5.873"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -69,7 +69,7 @@ function soccerGoal(props: iconProps) {
         <path
           d="M7.754 3.594L8.628 5.318"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -77,7 +77,7 @@ function soccerGoal(props: iconProps) {
         <path
           d="M12.681 9.372L14.407 10.245"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -85,7 +85,7 @@ function soccerGoal(props: iconProps) {
         <path
           d="M5.115 8.774L7.071 8.424"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -93,7 +93,7 @@ function soccerGoal(props: iconProps) {
         <path
           d="M9.576 10.928L9.226 12.885"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -101,7 +101,7 @@ function soccerGoal(props: iconProps) {
         <path
           d="m5.581,12.419c-2.441-2.441-2.441-6.398,0-8.839s6.398-2.441,8.839,0,2.441,6.398,0,8.839c-1.807,1.807-4.444,2.276-6.683,1.408"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -109,7 +109,7 @@ function soccerGoal(props: iconProps) {
         <path
           d="M1.75 16.25L6.5 11.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

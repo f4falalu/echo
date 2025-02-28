@@ -13,7 +13,7 @@ function arrowBoldDownFromLine(props: iconProps) {
         <path
           d="M4.146,10.561l4.463,5.605c.2,.251,.582,.251,.782,0l4.463-5.605c.261-.328,.028-.811-.391-.811h-2.213V5.75c0-.552-.448-1-1-1h-2.5c-.552,0-1,.448-1,1v4h-2.213c-.419,0-.652,.484-.391,.811Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowBoldDownFromLine(props: iconProps) {
         <path
           d="M6.75 1.75L11.25 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

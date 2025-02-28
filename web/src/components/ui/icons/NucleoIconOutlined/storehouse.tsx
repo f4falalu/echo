@@ -13,7 +13,7 @@ function storehouse(props: iconProps) {
         <path
           d="M1.75,14.25V4.75c0-.552,.448-1,1-1H15.25c.552,0,1,.448,1,1V14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function storehouse(props: iconProps) {
         <path
           d="M5.75 14.25L5.75 7.75 12.25 7.75 12.25 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function storehouse(props: iconProps) {
         <path
           d="M9 7.75L9 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function storehouse(props: iconProps) {
         <path
           d="M1 14.25L17 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

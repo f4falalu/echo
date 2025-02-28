@@ -13,7 +13,7 @@ function bell(props: iconProps) {
         <path
           d="M15.75,13.25c-1.105,0-2-.895-2-2V6.5c0-2.623-2.127-4.75-4.75-4.75h0c-2.623,0-4.75,2.127-4.75,4.75v4.75c0,1.105-.895,2-2,2H15.75Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

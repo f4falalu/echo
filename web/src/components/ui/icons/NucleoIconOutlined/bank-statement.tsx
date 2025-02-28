@@ -16,7 +16,7 @@ function bankStatement(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -27,7 +27,7 @@ function bankStatement(props: iconProps) {
         <path
           d="M5.75 10.25L12.25 10.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function bankStatement(props: iconProps) {
         <path
           d="M5.75 13.25L12.25 13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -43,7 +43,7 @@ function bankStatement(props: iconProps) {
         <path
           d="M6.071,5.127l2.75-1.058c.116-.044,.243-.044,.359,0l2.75,1.058c.193,.074,.321,.26,.321,.467v.657c0,.276-.224,.5-.5,.5H6.25c-.276,0-.5-.224-.5-.5v-.657c0-.207,.127-.392,.321-.467Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -51,7 +51,7 @@ function bankStatement(props: iconProps) {
         <path
           d="M9 6.75L9 10.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -59,7 +59,7 @@ function bankStatement(props: iconProps) {
         <path
           d="M6.75 6.75L6.75 10.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -67,7 +67,7 @@ function bankStatement(props: iconProps) {
         <path
           d="M11.25 6.75L11.25 10.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function textHighlight2(props: iconProps) {
         <path
           d="M6.527,13.723l-1.527,1.527H1.888c-.328,0-.492-.396-.26-.628l2.899-2.899"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function textHighlight2(props: iconProps) {
         <path
           d="M14.559 3.691L10.441 7.809"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function textHighlight2(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

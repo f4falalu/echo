@@ -16,7 +16,7 @@ function gridEmptyObjBottomRight(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function gridEmptyObjBottomRight(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +42,7 @@ function gridEmptyObjBottomRight(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -52,7 +52,7 @@ function gridEmptyObjBottomRight(props: iconProps) {
         <path
           d="M10.75,12v-.25c0-.552,.448-1,1-1h.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -60,7 +60,7 @@ function gridEmptyObjBottomRight(props: iconProps) {
         <path
           d="M12,15.75h-.25c-.552,0-1-.448-1-1v-.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -68,7 +68,7 @@ function gridEmptyObjBottomRight(props: iconProps) {
         <path
           d="M15.75,14.5v.25c0,.552-.448,1-1,1h-.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -76,7 +76,7 @@ function gridEmptyObjBottomRight(props: iconProps) {
         <path
           d="M14.5,10.75h.25c.552,0,1,.448,1,1v.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

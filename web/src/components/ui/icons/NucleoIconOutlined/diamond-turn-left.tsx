@@ -13,7 +13,7 @@ function diamondTurnLeft(props: iconProps) {
         <path
           d="M8 6.5L5.75 8.75 8 11"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function diamondTurnLeft(props: iconProps) {
         <path
           d="M5.75,8.75h3.5c1.105,0,2,.895,2,2v.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function diamondTurnLeft(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

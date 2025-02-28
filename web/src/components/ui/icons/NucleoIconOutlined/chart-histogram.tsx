@@ -13,7 +13,7 @@ function chartHistogram(props: iconProps) {
         <path
           d="M2.75,2.75V12.75c0,1.105,.895,2,2,2H15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function chartHistogram(props: iconProps) {
         <path
           d="M15.25,10.75c-3.25-.729-1.979-5.5-5-5.5-3,0-1.75,4.771-5,5.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

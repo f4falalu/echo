@@ -13,7 +13,7 @@ function seedling(props: iconProps) {
         <path
           d="m9,8.25h-1.25c-2.761,0-5-2.239-5-5h0v-.5h2.25c2.209,0,4,1.791,4,4v1.5Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function seedling(props: iconProps) {
         <path
           d="M9 15.25L9 10"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function seedling(props: iconProps) {
         <path
           d="m11.999,9.935c1.8984-.7091,3.251-2.5397,3.251-4.685h0v-.5h-2.25c-2.209,0-4,1.791-4,4v1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

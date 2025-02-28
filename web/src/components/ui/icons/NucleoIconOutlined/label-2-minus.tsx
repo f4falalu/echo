@@ -13,7 +13,7 @@ function label2Minus(props: iconProps) {
         <path
           d="M3.25,11.25V5.75c0-1.105,.895-2,2-2h7.273c.302,0,.587,.136,.777,.371l3.95,4.879-3.95,4.879c-.19,.235-.475,.371-.777,.371h-3.773"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function label2Minus(props: iconProps) {
         <path
           d="M5.75 14.25L0.75 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

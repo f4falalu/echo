@@ -14,7 +14,7 @@ function tagCheck(props: iconProps) {
         <path
           d="M11.5 5.5L13.109 7 16.506 2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -22,7 +22,7 @@ function tagCheck(props: iconProps) {
         <path
           d="M10.154,3.404l-.568-.568c-.375-.375-.884-.586-1.414-.586H3.25c-.552,0-1,.448-1,1v4.922c0,.53,.211,1.039,.586,1.414l5.75,5.75c.781,.781,2.047,.781,2.828,0l3.922-3.922c.781-.781,.781-2.047,0-2.828l-.166-.166"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

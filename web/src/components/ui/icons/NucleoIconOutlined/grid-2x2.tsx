@@ -13,7 +13,7 @@ function grid2x2(props: iconProps) {
         <path
           d="M15.75 9L2.25 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function grid2x2(props: iconProps) {
         <path
           d="M9 15.75L9 2.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

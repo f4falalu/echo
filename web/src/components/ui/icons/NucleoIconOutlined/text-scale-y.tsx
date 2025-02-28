@@ -13,7 +13,7 @@ function textScaleY(props: iconProps) {
         <path
           d="M5.75 4.75L5.75 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function textScaleY(props: iconProps) {
         <path
           d="M10 4.75L5.75 4.75 1.5 4.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function textScaleY(props: iconProps) {
         <path
           d="M12.75 14.25L14.75 16.25 16.75 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function textScaleY(props: iconProps) {
         <path
           d="M12.75 3.75L14.75 1.75 16.75 3.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function textScaleY(props: iconProps) {
         <path
           d="M14.75 16.25L14.75 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

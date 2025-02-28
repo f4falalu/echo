@@ -13,7 +13,7 @@ function reuse(props: iconProps) {
         <path
           d="M7 13.25L5 15.25 7 17.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function reuse(props: iconProps) {
         <path
           d="M11 4.75L13 2.75 11 0.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function reuse(props: iconProps) {
         <path
           d="M5.25,15.25H13.25c1.105,0,2-.896,2-2V4.75c0-.243-.05-.472-.129-.688"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function reuse(props: iconProps) {
         <path
           d="M12.75,2.75H4.75c-1.105,0-2,.896-2,2V13.25c0,.243,.05,.472,.129,.688"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

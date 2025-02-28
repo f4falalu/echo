@@ -13,7 +13,7 @@ function sortArrows(props: iconProps) {
         <path
           d="M8.627,2.416l-3.132,3.5c-.288,.322-.06,.833,.373,.833h6.263c.432,0,.661-.511,.373-.833l-3.132-3.5c-.199-.222-.546-.222-.745,0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function sortArrows(props: iconProps) {
         <path
           d="M8.627,15.584l-3.132-3.5c-.288-.322-.06-.833,.373-.833h6.263c.432,0,.661,.511,.373,.833l-3.132,3.5c-.199,.222-.546,.222-.745,0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

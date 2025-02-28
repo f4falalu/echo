@@ -13,7 +13,7 @@ function circleHalfDottedCheck(props: iconProps) {
         <path
           d="m6,.75c2.899,0,5.25,2.351,5.25,5.25s-2.351,5.25-5.25,5.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function circleHalfDottedCheck(props: iconProps) {
         <path
           d="M3.747 6.5L5.25 8 8.253 4"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

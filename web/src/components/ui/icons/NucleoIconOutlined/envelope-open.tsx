@@ -13,7 +13,7 @@ function envelopeOpen(props: iconProps) {
         <path
           d="M1.75,6.75c0-.728,.396-1.361,1.034-1.713L8.517,1.874c.301-.166,.665-.166,.966,0l5.733,3.163c.638,.352,1.034,.984,1.034,1.713"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function envelopeOpen(props: iconProps) {
         <path
           d="M16.25,6.754v6.496c0,1.105-.895,2-2,2H3.75c-1.105,0-2-.895-2-2V6.75l6.815,3.29c.275,.133,.595,.133,.869,0l6.815-3.29v.004h0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

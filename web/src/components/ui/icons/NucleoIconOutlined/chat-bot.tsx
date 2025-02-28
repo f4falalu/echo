@@ -13,7 +13,7 @@ function chatBot(props: iconProps) {
         <path
           d="M15.75,.75h-4.5c-.827,0-1.5,.673-1.5,1.5v2c0,.827,.673,1.5,1.5,1.5h.5v2l2.227-2h1.773c.827,0,1.5-.673,1.5-1.5V2.25c0-.827-.673-1.5-1.5-1.5Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function chatBot(props: iconProps) {
         <path
           d="M15.25,8.25v6c0,1.105-.895,2-2,2H3.75c-1.105,0-2-.895-2-2v-5.5c0-1.105,.895-2,2-2h4.38"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function chatBot(props: iconProps) {
         <path
           d="M5.25 3.75L5.25 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

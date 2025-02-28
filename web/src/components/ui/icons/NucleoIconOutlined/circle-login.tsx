@@ -13,7 +13,7 @@ function circleLogin(props: iconProps) {
         <path
           d="M5.14,6c.981-1.505,2.68-2.5,4.61-2.5,3.038,0,5.5,2.462,5.5,5.5s-2.462,5.5-5.5,5.5c-1.931,0-3.629-.995-4.61-2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function circleLogin(props: iconProps) {
         <path
           d="M8.75 11.5L11.25 9 8.75 6.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function circleLogin(props: iconProps) {
         <path
           d="M11.25 9L0.75 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

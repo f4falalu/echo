@@ -15,7 +15,7 @@ function circuits2(props: iconProps) {
           cy="3.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function circuits2(props: iconProps) {
           cy="6.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function circuits2(props: iconProps) {
           cy="10.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function circuits2(props: iconProps) {
           cy="9.75"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function circuits2(props: iconProps) {
         <path
           d="M10.75 8L10.75 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function circuits2(props: iconProps) {
         <path
           d="M4.311,10.811l1.146,1.146c.188,.188,.293,.442,.293,.707v3.586"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -69,7 +69,7 @@ function circuits2(props: iconProps) {
         <path
           d="M6.25,4.75v2.336c0,.265,.105,.52,.293,.707l1.414,1.414c.188,.188,.293,.442,.293,.707v6.336"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -77,7 +77,7 @@ function circuits2(props: iconProps) {
         <path
           d="M14.75,11.75v1.336c0,.265-.105,.52-.293,.707l-.914,.914c-.188,.188-.293,.442-.293,.707v.836"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

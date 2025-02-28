@@ -13,7 +13,7 @@ function chartActivity(props: iconProps) {
         <path
           d="M2 14L5 10.75 6 13.25 10 6.75 12 12.25 16 4"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

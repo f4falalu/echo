@@ -13,7 +13,7 @@ function crop(props: iconProps) {
         <path
           d="m5.25,2.75h3c.552,0,1,.448,1,1v7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function crop(props: iconProps) {
         <path
           d="M2.75 2.75L0.75 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function crop(props: iconProps) {
         <path
           d="m11.25,9.25H3.75c-.552,0-1-.448-1-1V.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

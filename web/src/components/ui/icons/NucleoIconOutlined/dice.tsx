@@ -19,7 +19,7 @@ function dice(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -30,7 +30,7 @@ function dice(props: iconProps) {
         <path
           d="M15.199,11.498l1.029-6.924c.162-1.093-.592-2.11-1.684-2.272L7.62,1.272c-.933-.139-1.81,.39-2.148,1.228"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

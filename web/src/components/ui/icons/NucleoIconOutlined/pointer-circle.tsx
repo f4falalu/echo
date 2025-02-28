@@ -15,7 +15,7 @@ function pointerCircle(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function pointerCircle(props: iconProps) {
         <path
           d="M6.405,6.019l6.397,2.337c.27,.098,.262,.482-.012,.57l-2.928,.937-.937,2.928c-.087,.273-.471,.281-.57,.012l-2.337-6.397c-.088-.241,.146-.474,.386-.386Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

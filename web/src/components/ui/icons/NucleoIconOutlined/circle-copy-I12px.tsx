@@ -13,7 +13,7 @@ function circleCopy(props: iconProps) {
         <path
           d="m6.5,1.338c-.58-.367-1.262-.588-2-.588C2.429.75.75,2.429.75,4.5c0,.737.22,1.42.588,2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function circleCopy(props: iconProps) {
           cy="7.5"
           fill="none"
           r="3.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

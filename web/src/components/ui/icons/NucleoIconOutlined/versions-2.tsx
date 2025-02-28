@@ -13,7 +13,7 @@ function versions2(props: iconProps) {
         <path
           d="M5.25,11.25h-1.5c-1.105,0-2-.895-2-2V3.75c0-1.105,.895-2,2-2h3.5c1.105,0,2,.895,2,2v.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function versions2(props: iconProps) {
         <path
           d="M8.75,13.75h-1.5c-1.105,0-2-.895-2-2V6.25c0-1.105,.895-2,2-2h3.5c1.105,0,2,.895,2,2v.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function versions2(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

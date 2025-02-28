@@ -13,7 +13,7 @@ function tableCode(props: iconProps) {
         <path
           d="M6.75 2.75L6.75 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function tableCode(props: iconProps) {
         <path
           d="M15.25 6.75L2.75 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function tableCode(props: iconProps) {
         <path
           d="M15 15.75L17.25 13.5 15 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function tableCode(props: iconProps) {
         <path
           d="M15.25,8.773V4.75c0-1.104-.895-2-2-2H4.75c-1.105,0-2,.896-2,2V13.25c0,1.104,.895,2,2,2h3.218"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function tableCode(props: iconProps) {
         <path
           d="M12 15.75L9.75 13.5 12 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

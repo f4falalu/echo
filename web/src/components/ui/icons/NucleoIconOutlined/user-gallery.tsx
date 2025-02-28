@@ -15,7 +15,7 @@ function userGallery(props: iconProps) {
           cy="4.5"
           fill="none"
           r="2.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -27,7 +27,7 @@ function userGallery(props: iconProps) {
         <path
           d="M8.76,9.768c-2.445,.094-4.53,1.582-5.469,3.703-.365,.825,.087,1.774,.947,2.045,1.078,.339,2.477,.635,4.099,.705"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

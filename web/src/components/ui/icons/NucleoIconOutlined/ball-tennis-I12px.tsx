@@ -13,7 +13,7 @@ function ballTennis(props: iconProps) {
         <path
           d="m.773,6.227c.077.003.149.023.227.023,2.899,0,5.25-2.351,5.25-5.25,0-.078-.02-.15-.023-.227"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function ballTennis(props: iconProps) {
         <path
           d="m5.773,11.227c-.003-.077-.023-.149-.023-.227,0-2.899,2.351-5.25,5.25-5.25.078,0,.15.02.227.023"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function ballTennis(props: iconProps) {
           cy="6"
           fill="none"
           r="5.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

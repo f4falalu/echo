@@ -13,7 +13,7 @@ function textPrompt(props: iconProps) {
         <path
           d="M8 11.75L2.75 11.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function textPrompt(props: iconProps) {
         <path
           d="M15.205 7.75L2.75 7.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function textPrompt(props: iconProps) {
         <path
           d="M15.25 3.75L2.75 3.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function textPrompt(props: iconProps) {
         <path
           d="M13.25 10.25L14.25 12.25 16.25 13.25 14.25 14.25 13.25 16.25 12.25 14.25 10.25 13.25 12.25 12.25 13.25 10.25z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

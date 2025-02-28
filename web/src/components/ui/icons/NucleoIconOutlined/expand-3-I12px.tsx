@@ -13,7 +13,7 @@ function expand3(props: iconProps) {
         <path
           d="M4.732 4.732L1.427 1.427"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function expand3(props: iconProps) {
         <path
           d="M1.25 5L1.25 1.25 5 1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function expand3(props: iconProps) {
         <path
           d="M7.268 7.268L10.573 10.573"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function expand3(props: iconProps) {
         <path
           d="M10.75 7L10.75 10.75 7 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function expand3(props: iconProps) {
         <path
           d="m10.75,4.25v-1c0-1.105-.895-2-2-2h-1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function expand3(props: iconProps) {
         <path
           d="m1.25,7.75v1c0,1.105.895,2,2,2h1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -15,7 +15,7 @@ function faceWoozy(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function faceWoozy(props: iconProps) {
         <path
           d="M7,12.164c.552,.552,1.448,.552,2,0s1.448-.552,2,0"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

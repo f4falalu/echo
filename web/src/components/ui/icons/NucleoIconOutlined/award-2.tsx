@@ -13,7 +13,7 @@ function award2(props: iconProps) {
         <path
           d="M12.25 10.049L12.25 16.75 9 14.25 5.75 16.75 5.75 10.049"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function award2(props: iconProps) {
           cy="6.25"
           fill="none"
           r="5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function screenReader2(props: iconProps) {
         <path
           d="m8.25,11.75h2l3-2.25v7.5l-3-2.25h-2c-.552,0-1-.448-1-1v-1c0-.552.448-1,1-1Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function screenReader2(props: iconProps) {
         <path
           d="m15.75,10.813c.757.545,1.25,1.433,1.25,2.437s-.493,1.892-1.25,2.437"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function screenReader2(props: iconProps) {
         <path
           d="m16.2225,7.8596c-.0175-.3477-.1119-.6907-.3105-.9922-1.017-1.5439-3.262-4.1179-6.912-4.1179S3.106,5.3245,2.088,6.8674c-.45.6831-.45,1.582,0,2.2651.4855.7371,1.2715,1.698,2.3368,2.512"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

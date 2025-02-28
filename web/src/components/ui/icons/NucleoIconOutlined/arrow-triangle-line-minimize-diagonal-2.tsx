@@ -13,7 +13,7 @@ function arrowTriangleLineMinimizeDiagonal2(props: iconProps) {
         <path
           d="M10.75,14.896v-3.896c0-.138,.112-.25,.25-.25h3.896c.223,0,.334,.269,.177,.427l-3.896,3.896c-.157,.157-.427,.046-.427-.177Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowTriangleLineMinimizeDiagonal2(props: iconProps) {
         <path
           d="M13.125 13.125L15.25 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function arrowTriangleLineMinimizeDiagonal2(props: iconProps) {
         <path
           d="M3.104,7.25h3.896c.138,0,.25-.112,.25-.25V3.104c0-.223-.269-.334-.427-.177l-3.896,3.896c-.157,.157-.046,.427,.177,.427Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function arrowTriangleLineMinimizeDiagonal2(props: iconProps) {
         <path
           d="M4.875 4.875L2.75 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

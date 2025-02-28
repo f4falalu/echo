@@ -13,7 +13,7 @@ function shareRight3(props: iconProps) {
         <path
           d="M9.75,6.5V2.75s6.5,5.667,6.5,5.667l-6.5,5.833v-3.75c-5.25,0-8,3.75-8,3.75,0,0,0-7.75,8-7.75Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

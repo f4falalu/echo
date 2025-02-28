@@ -13,7 +13,7 @@ function branchOut(props: iconProps) {
         <path
           d="M9 3L11.75 5.75 9 8.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function branchOut(props: iconProps) {
         <path
           d="M11.75,5.75h-3.922c-.53,0-1.039,.211-1.414,.586l-2.414,2.414"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function branchOut(props: iconProps) {
         <path
           d="M16.25 11.25L0.75 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function branchOut(props: iconProps) {
         <path
           d="M13.5 8.5L16.25 11.25 13.5 14"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -17,7 +17,7 @@ function glassJuice(props: iconProps) {
         <path
           d="M2.75,5.75h6.5l-.227,9.524c-.013,.543-.457,.976-1,.976H3.976c-.543,0-.987-.433-1-.976l-.227-9.524Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function glassJuice(props: iconProps) {
         <path
           d="M1.75,1.75H3.855c.51,0,.938,.383,.994,.89l1.151,10.36"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function glassJuice(props: iconProps) {
         <path
           d="M12,8.258c.083-.005,.166-.008,.25-.008,2.209,0,4,1.791,4,4s-1.791,4-4,4c-.184,0-.365-.012-.542-.036"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

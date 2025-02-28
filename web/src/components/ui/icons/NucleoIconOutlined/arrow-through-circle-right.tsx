@@ -13,7 +13,7 @@ function arrowThroughCircleRight(props: iconProps) {
         <path
           d="M17.25 9L11.75 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowThroughCircleRight(props: iconProps) {
         <path
           d="M14.25 12L17.25 9 14.25 6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function arrowThroughCircleRight(props: iconProps) {
         <path
           d="M7.5 9L0.75 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function arrowThroughCircleRight(props: iconProps) {
           cy="9"
           fill="none"
           r="4.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function bookOpen2(props: iconProps) {
         <path
           d="M9,4.75l5.984-1.651c.637-.176,1.266,.303,1.266,.964V12.489c0,.45-.3,.844-.734,.964l-6.516,1.797"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function bookOpen2(props: iconProps) {
         <path
           d="M9,15.25l-6.516-1.797c-.434-.12-.734-.514-.734-.964V4.063c0-.661,.629-1.14,1.266-.964l5.984,1.651V15.25Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

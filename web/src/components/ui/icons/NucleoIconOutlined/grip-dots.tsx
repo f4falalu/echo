@@ -15,7 +15,7 @@ function gripDots(props: iconProps) {
           cy="6.75"
           fill="currentColor"
           r=".5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function gripDots(props: iconProps) {
           cy="6.75"
           fill="currentColor"
           r=".5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function gripDots(props: iconProps) {
           cy="6.75"
           fill="currentColor"
           r=".5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function gripDots(props: iconProps) {
           cy="11.25"
           fill="currentColor"
           r=".5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -55,7 +55,7 @@ function gripDots(props: iconProps) {
           cy="11.25"
           fill="currentColor"
           r=".5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -65,7 +65,7 @@ function gripDots(props: iconProps) {
           cy="11.25"
           fill="currentColor"
           r=".5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

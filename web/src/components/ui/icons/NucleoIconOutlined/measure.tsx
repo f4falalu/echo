@@ -13,7 +13,7 @@ function measure(props: iconProps) {
         <path
           d="M13.25 11.75L13.25 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function measure(props: iconProps) {
         <path
           d="M9.75 11.75L9.75 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function measure(props: iconProps) {
         <path
           d="M6.25 11.75L6.25 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function measure(props: iconProps) {
         <path
           d="M9.25 5.75L9.25 7.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function measure(props: iconProps) {
         <path
           d="M5.5,7.75H15.25c.552,0,1,.448,1,1v4.5c0,.552-.448,1-1,1H5.5c-2.071,0-3.75-.895-3.75-2V5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -56,7 +56,7 @@ function measure(props: iconProps) {
           fill="none"
           rx="3.75"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

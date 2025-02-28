@@ -13,7 +13,7 @@ function gift(props: iconProps) {
         <path
           d="M6 3.75L6 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function gift(props: iconProps) {
         <path
           d="m1.75,2.25c0-.828.635-1.5,1.417-1.5,2.096,0,2.833,3,2.833,3h-2.833c-.782,0-1.417-.672-1.417-1.5Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function gift(props: iconProps) {
         <path
           d="m8.833,3.75h-2.833s.737-3,2.833-3c.782,0,1.417.672,1.417,1.5,0,.828-.635,1.5-1.417,1.5Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function gift(props: iconProps) {
         <path
           d="M11.25 3.75L0.75 3.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function gift(props: iconProps) {
         <path
           d="m10.25,3.75v5c0,1.105-.895,2-2,2H3.75c-1.105,0-2-.895-2-2V3.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

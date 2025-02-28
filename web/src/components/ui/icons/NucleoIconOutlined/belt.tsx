@@ -13,7 +13,7 @@ function belt(props: iconProps) {
         <path
           d="M6.25,11.25H1.75c-.552,0-1-.448-1-1v-2.5c0-.552,.448-1,1-1H6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function belt(props: iconProps) {
         <path
           d="M11.75,6.75h4.5c.552,0,1,.448,1,1v2.5c0,.552-.448,1-1,1h-4.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function belt(props: iconProps) {
         <path
           d="M9.75 9L11.75 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +40,7 @@ function belt(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function tabletMobile(props: iconProps) {
         <path
           d="M7,14.25h-2.25c-1.105,0-2-.895-2-2V3.75c0-1.105,.895-2,2-2h6.5c1.105,0,2,.895,2,2v1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function tabletMobile(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

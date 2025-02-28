@@ -13,7 +13,7 @@ function mirrorObjYDotted(props: iconProps) {
         <path
           d="M2.75,6.25v-1.5c0-1.105,.895-2,2-2H13.25c1.105,0,2,.895,2,2v1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function mirrorObjYDotted(props: iconProps) {
         <path
           d="M2.75,11.75v1.5c0,1.105,.895,2,2,2H13.25c1.105,0,2-.895,2-2v-1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

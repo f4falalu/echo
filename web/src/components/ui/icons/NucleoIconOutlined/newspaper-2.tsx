@@ -13,7 +13,7 @@ function newspaper2(props: iconProps) {
         <path
           d="m3.25,14.75h11.5c.8284,0,1.5-.6716,1.5-1.5V3.25H4.75v10c0,.8284-.6716,1.5-1.5,1.5h0c-.8284,0-1.5-.6716-1.5-1.5v-7.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function newspaper2(props: iconProps) {
         <path
           d="M7.75 7.25L13.25 7.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function newspaper2(props: iconProps) {
         <path
           d="M7.75 10.25L13.25 10.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

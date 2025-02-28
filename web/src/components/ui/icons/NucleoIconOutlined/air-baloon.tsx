@@ -13,7 +13,7 @@ function airBaloon(props: iconProps) {
         <path
           d="M6.75 14.75H9.25V16.25H6.75z"
           fill="currentColor"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function airBaloon(props: iconProps) {
         <path
           d="M10.749,2.411c-.813-.428-1.759-.661-2.749-.661-2.782,0-5.25,1.812-5.25,4.773s3.15,5.727,3.15,5.727h4.2s.66-.586,1.375-1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

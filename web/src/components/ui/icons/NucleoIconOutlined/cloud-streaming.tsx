@@ -17,7 +17,7 @@ function cloudStreaming(props: iconProps) {
         <path
           d="M11.25 14.25L16.25 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function cloudStreaming(props: iconProps) {
         <path
           d="M1.75 14.25L8.75 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function cloudStreaming(props: iconProps) {
         <path
           d="M13.75,5.25c-.196,0-.385,.028-.568,.071-.327-2.022-2.067-3.571-4.182-3.571s-3.855,1.549-4.182,3.571c-.183-.043-.372-.071-.568-.071-1.381,0-2.5,1.119-2.5,2.5s1.119,2.5,2.5,2.5H13.75c1.381,0,2.5-1.119,2.5-2.5s-1.119-2.5-2.5-2.5Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function cloudStreaming(props: iconProps) {
         <path
           d="M8.75 16L8.75 12.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

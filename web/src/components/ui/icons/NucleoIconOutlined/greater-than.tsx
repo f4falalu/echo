@@ -13,7 +13,7 @@ function greaterThan(props: iconProps) {
         <path
           d="M3.75 2.75L14.25 9 3.75 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

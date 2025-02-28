@@ -13,7 +13,7 @@ function presentationScreenPlay(props: iconProps) {
         <path
           d="M5.75 16.25L6.75 13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function presentationScreenPlay(props: iconProps) {
         <path
           d="M12.25 16.25L11.25 13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function presentationScreenPlay(props: iconProps) {
         <path
           d="M9 2.75L9 1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function presentationScreenPlay(props: iconProps) {
         <path
           d="M11.537,7.629l-3.14-1.832c-.287-.167-.647,.04-.647,.371v3.663c0,.332,.36,.539,.647,.371l3.14-1.832c.284-.166,.284-.577,0-.743v.002Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -48,7 +48,7 @@ function presentationScreenPlay(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

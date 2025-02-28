@@ -13,7 +13,7 @@ function microphone2Slash(props: iconProps) {
         <path
           d="M4.976,13.024c-.46-.731-.726-1.597-.726-2.524v-.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function microphone2Slash(props: iconProps) {
         <path
           d="M13.75,9.75v.75c0,2.623-2.127,4.75-4.75,4.75h0c-.787,0-1.53-.192-2.184-.531"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function microphone2Slash(props: iconProps) {
         <path
           d="M4.25,7.25v-1.25c0-2.623,2.127-4.75,4.75-4.75h0c2.097,0,3.877,1.359,4.506,3.244"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function microphone2Slash(props: iconProps) {
         <path
           d="M9 15.25L9 17"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function microphone2Slash(props: iconProps) {
         <path
           d="M11.785 9.75L15.25 9.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function microphone2Slash(props: iconProps) {
         <path
           d="M2.75 9.75L8.25 9.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function microphone2Slash(props: iconProps) {
         <path
           d="M2 16L16 2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -15,7 +15,7 @@ function radioUnchecked(props: iconProps) {
           cy="6"
           fill="none"
           r="5.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

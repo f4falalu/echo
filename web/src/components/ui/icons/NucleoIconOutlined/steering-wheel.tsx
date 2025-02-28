@@ -13,7 +13,7 @@ function steeringWheel(props: iconProps) {
         <path
           d="M16,7.75l-4.763-.34c-.499-.7-1.312-1.16-2.237-1.16s-1.738,.46-2.237,1.16l-4.763,.34"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function steeringWheel(props: iconProps) {
         <path
           d="M10.25,16l.34-4.763c.25-.178,.468-.396,.647-.646l4.763-.34"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function steeringWheel(props: iconProps) {
         <path
           d="M2,10.25l4.763,.34c.178,.25,.397,.468,.647,.646l.34,4.763"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function steeringWheel(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

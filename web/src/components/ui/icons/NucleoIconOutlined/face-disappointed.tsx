@@ -15,7 +15,7 @@ function faceDisappointed(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function faceDisappointed(props: iconProps) {
         <path
           d="M12,11.993c-.769-.768-1.83-1.243-3-1.243s-2.231,.475-3,1.243"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function faceDisappointed(props: iconProps) {
         <path
           d="M7.485,8c-.126,.119-.554,.496-1.228,.559-.636,.06-1.105-.195-1.258-.286"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function faceDisappointed(props: iconProps) {
         <path
           d="M10.515,8c.126,.119,.554,.496,1.228,.559,.636,.06,1.105-.195,1.258-.286"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

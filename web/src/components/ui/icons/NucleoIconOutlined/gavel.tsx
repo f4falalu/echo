@@ -13,7 +13,7 @@ function gavel(props: iconProps) {
         <path
           d="M1.75 15.75L8.25 15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function gavel(props: iconProps) {
         <path
           d="M2.757 8.914L9.414 2.257"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function gavel(props: iconProps) {
         <path
           d="M6.336 12.493L2.257 8.414"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function gavel(props: iconProps) {
         <path
           d="M12.493 5.336L5.836 11.993"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function gavel(props: iconProps) {
         <path
           d="M8.914 1.757L12.993 5.836"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function gavel(props: iconProps) {
         <path
           d="M8.163,9.665l4.664,4.667c.552,.552,1.448,.552,2,0s.552-1.448,0-2l-4.667-4.665"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

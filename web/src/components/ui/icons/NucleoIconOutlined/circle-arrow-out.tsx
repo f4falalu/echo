@@ -13,7 +13,7 @@ function circleArrowOut(props: iconProps) {
         <path
           d="M4.929,3c1.16-.789,2.562-1.25,4.071-1.25,4.004,0,7.25,3.246,7.25,7.25s-3.246,7.25-7.25,7.25c-1.509,0-2.91-.461-4.071-1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function circleArrowOut(props: iconProps) {
         <path
           d="M5 5.75L1.75 9 5 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function circleArrowOut(props: iconProps) {
         <path
           d="M1.75 9L11.25 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

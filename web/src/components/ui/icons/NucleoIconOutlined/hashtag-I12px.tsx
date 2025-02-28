@@ -13,7 +13,7 @@ function hashtag(props: iconProps) {
         <path
           d="M1.59 3.69L11.25 3.69"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function hashtag(props: iconProps) {
         <path
           d="M0.75 8.31L10.41 8.31"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function hashtag(props: iconProps) {
         <path
           d="M4.852 0.75L2.883 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function hashtag(props: iconProps) {
         <path
           d="M9.117 0.75L7.148 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

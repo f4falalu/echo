@@ -13,7 +13,7 @@ function message(props: iconProps) {
         <path
           d="m9.25,8.75h-2.5l-3,2.5v-2.5h-1c-1.105,0-2-.895-2-2v-3.5c0-1.105.895-2,2-2h6.5c1.105,0,2,.895,2,2v3.5c0,1.105-.895,2-2,2Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

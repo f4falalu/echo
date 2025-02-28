@@ -13,7 +13,7 @@ function caretMaximizeDiagonal2(props: iconProps) {
         <path
           d="M14.25,9.354v4.646c0,.138-.112,.25-.25,.25h-4.646c-.223,0-.334-.269-.177-.427l4.646-4.646c.157-.157,.427-.046,.427,.177Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function caretMaximizeDiagonal2(props: iconProps) {
         <path
           d="M3.75,8.646V4c0-.138,.112-.25,.25-.25h4.646c.223,0,.334,.269,.177,.427l-4.646,4.646c-.157,.157-.427,.046-.427-.177Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

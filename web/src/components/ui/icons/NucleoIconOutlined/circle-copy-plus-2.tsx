@@ -13,7 +13,7 @@ function circleCopyPlus2(props: iconProps) {
         <path
           d="M7.25 4.75L7.25 9.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function circleCopyPlus2(props: iconProps) {
         <path
           d="M9.75 7.25L4.75 7.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function circleCopyPlus2(props: iconProps) {
         <path
           d="M15,7.259c.781,.95,1.25,2.166,1.25,3.491,0,3.038-2.462,5.5-5.5,5.5-1.326,0-2.542-.469-3.491-1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function circleCopyPlus2(props: iconProps) {
           cy="7.25"
           fill="none"
           r="5.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

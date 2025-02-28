@@ -13,7 +13,7 @@ function arrowToCornerTopLeft(props: iconProps) {
         <path
           d="M14.25,2.75H4.75c-1.105,0-2,.895-2,2V14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowToCornerTopLeft(props: iconProps) {
         <path
           d="M13.26 7.75L7.75 7.75 7.75 13.26"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function arrowToCornerTopLeft(props: iconProps) {
         <path
           d="M7.75 7.75L15.25 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

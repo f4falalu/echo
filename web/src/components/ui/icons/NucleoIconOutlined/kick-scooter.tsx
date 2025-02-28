@@ -15,7 +15,7 @@ function kickScooter(props: iconProps) {
           cy="13.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function kickScooter(props: iconProps) {
           cy="13.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function kickScooter(props: iconProps) {
         <path
           d="M13.912,9.339l-1.243-5.799c-.099-.461-.506-.79-.978-.79h-1.442"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function kickScooter(props: iconProps) {
         <path
           d="M2,9.449c.393-.129,.814-.199,1.25-.199,2.209,0,4,1.791,4,4h6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

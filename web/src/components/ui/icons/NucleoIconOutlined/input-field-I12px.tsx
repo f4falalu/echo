@@ -13,7 +13,7 @@ function inputField(props: iconProps) {
         <path
           d="m6.25,8.75h-3.5c-1.105,0-2-.895-2-2v-1.5c0-1.105.895-2,2-2h3.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function inputField(props: iconProps) {
         <path
           d="m8.75,3.25h.5c1.105,0,2,.895,2,2v1.5c0,1.105-.895,2-2,2h-.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function inputField(props: iconProps) {
         <path
           d="M6.25 2L6.25 10"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function inputField(props: iconProps) {
         <path
           d="m5,.75c.69,0,1.25.56,1.25,1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function inputField(props: iconProps) {
         <path
           d="m7.5.75c-.69,0-1.25.56-1.25,1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function inputField(props: iconProps) {
         <path
           d="m5,11.25c.69,0,1.25-.56,1.25-1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function inputField(props: iconProps) {
         <path
           d="m7.5,11.25c-.69,0-1.25-.56-1.25-1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

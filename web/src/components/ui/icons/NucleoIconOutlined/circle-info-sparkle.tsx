@@ -13,7 +13,7 @@ function circleInfoSparkle(props: iconProps) {
         <path
           d="M8.25 12.819L8.25 8.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function circleInfoSparkle(props: iconProps) {
         <path
           d="m9.6,1.88c-.438-.083-.888-.13-1.35-.13C4.246,1.75,1,4.996,1,9s3.246,7.25,7.25,7.25,7.25-3.246,7.25-7.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -16,7 +16,7 @@ function mouse2(props: iconProps) {
           fill="none"
           rx="4"
           ry="4"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function mouse2(props: iconProps) {
         <path
           d="M9 5.25L9 7.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

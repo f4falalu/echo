@@ -13,7 +13,7 @@ function levels(props: iconProps) {
         <path
           d="M3.25 9.25L3.25 3.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function levels(props: iconProps) {
         <path
           d="M15.25 9.25L15.25 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function levels(props: iconProps) {
         <path
           d="M12.25 9.25L12.25 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function levels(props: iconProps) {
         <path
           d="M9.25 9.25L9.25 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function levels(props: iconProps) {
         <path
           d="M6.25 9.25L6.25 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function levels(props: iconProps) {
         <path
           d="M1.75,13.75l1.75-2,1.75,2v1.5c0,.552-.448,1-1,1h-1.5c-.552,0-1-.448-1-1v-1.5Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function levels(props: iconProps) {
         <path
           d="M12.75,13.75l1.75-2,1.75,2v1.5c0,.552-.448,1-1,1h-1.5c-.552,0-1-.448-1-1v-1.5Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

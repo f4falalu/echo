@@ -15,7 +15,7 @@ function dots(props: iconProps) {
           cy="9"
           fill="currentColor"
           r=".5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function dots(props: iconProps) {
           cy="9"
           fill="currentColor"
           r=".5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function dots(props: iconProps) {
           cy="9"
           fill="currentColor"
           r=".5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

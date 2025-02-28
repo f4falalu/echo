@@ -13,7 +13,7 @@ function brightnessDecrease(props: iconProps) {
         <path
           d="M9 1.5L9 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function brightnessDecrease(props: iconProps) {
         <path
           d="M14.303 3.697L14.127 3.873"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function brightnessDecrease(props: iconProps) {
         <path
           d="M16.5 9L16.25 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function brightnessDecrease(props: iconProps) {
         <path
           d="M14.303 14.303L14.127 14.127"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function brightnessDecrease(props: iconProps) {
         <path
           d="M9 16.5L9 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function brightnessDecrease(props: iconProps) {
         <path
           d="M3.697 14.303L3.873 14.127"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function brightnessDecrease(props: iconProps) {
         <path
           d="M1.5 9L1.75 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -69,7 +69,7 @@ function brightnessDecrease(props: iconProps) {
         <path
           d="M3.697 3.697L3.873 3.873"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -79,7 +79,7 @@ function brightnessDecrease(props: iconProps) {
           cy="9"
           fill="none"
           r="4.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

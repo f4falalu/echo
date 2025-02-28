@@ -13,7 +13,7 @@ function suitcaseSparkle(props: iconProps) {
         <path
           d="M6.25,4.75V2.25c0-.552,.448-1,1-1h3.5c.552,0,1,.448,1,1v2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function suitcaseSparkle(props: iconProps) {
         <path
           d="M16.25,9.789v-3.039c0-1.104-.895-2-2-2H3.75c-1.105,0-2,.896-2,2v6.5c0,1.104,.895,2,2,2h5.234"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function suitcaseSparkle(props: iconProps) {
         <path
           d="M14.25 11.25L15.25 13.25 17.25 14.25 15.25 15.25 14.25 17.25 13.25 15.25 11.25 14.25 13.25 13.25 14.25 11.25z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function sparkle2(props: iconProps) {
         <path
           d="M4.75 10.25L5.6 12.4 7.75 13.25 5.6 14.1 4.75 16.25 3.9 14.1 1.75 13.25 3.9 12.4 4.75 10.25z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function sparkle2(props: iconProps) {
         <path
           d="M11.25 1.75L12.667 5.333 16.25 6.75 12.667 8.167 11.25 11.75 9.833 8.167 6.25 6.75 9.833 5.333 11.25 1.75z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

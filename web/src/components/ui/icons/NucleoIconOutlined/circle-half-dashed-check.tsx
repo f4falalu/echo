@@ -13,7 +13,7 @@ function circleHalfDashedCheck(props: iconProps) {
         <path
           d="M5.75 9.25L8 11.75 12.25 6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function circleHalfDashedCheck(props: iconProps) {
         <path
           d="M4.987,2.961c.778-.518,1.662-.89,2.612-1.075"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function circleHalfDashedCheck(props: iconProps) {
         <path
           d="M1.879,7.631c.185-.968,.562-1.867,1.091-2.657"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function circleHalfDashedCheck(props: iconProps) {
         <path
           d="M4.987,15.039c.778,.518,1.662,.89,2.612,1.075"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function circleHalfDashedCheck(props: iconProps) {
         <path
           d="M1.879,10.369c.185,.968,.562,1.867,1.091,2.657"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function circleHalfDashedCheck(props: iconProps) {
         <path
           d="M10.435,1.892c3.317,.666,5.815,3.595,5.815,7.108s-2.499,6.443-5.817,7.108"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

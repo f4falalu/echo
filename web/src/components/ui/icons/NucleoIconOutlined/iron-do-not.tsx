@@ -13,7 +13,7 @@ function ironDoNot(props: iconProps) {
         <path
           d="M5.75,12.25H1.75s.587-5.58,.787-7.479c.117-1.111,1.121-1.91,2.23-1.776,1.609,.195,3.218,.39,4.827,.585"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function ironDoNot(props: iconProps) {
         <path
           d="M13.469,8.066c.72,.547,1.318,1.259,1.735,2.093l1.046,2.091h-6.965"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function ironDoNot(props: iconProps) {
         <path
           d="M5,6.25l5.519,.631c.175,.02,.347,.047,.518,.082"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function ironDoNot(props: iconProps) {
         <path
           d="M6.812 14.75L16.25 14.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function ironDoNot(props: iconProps) {
         <path
           d="M2 16L16 2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

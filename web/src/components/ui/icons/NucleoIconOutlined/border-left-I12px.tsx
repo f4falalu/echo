@@ -21,7 +21,7 @@ function borderLeft(props: iconProps) {
         <path
           d="M1.25 10.75L1.25 1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

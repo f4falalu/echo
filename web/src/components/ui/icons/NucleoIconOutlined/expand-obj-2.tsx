@@ -16,7 +16,7 @@ function expandObj2(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -27,7 +27,7 @@ function expandObj2(props: iconProps) {
         <path
           d="M15.75,6.25V3.25c0-.552-.448-1-1-1h-3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function expandObj2(props: iconProps) {
         <path
           d="M6.25,15.75H3.25c-.552,0-1-.448-1-1v-3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

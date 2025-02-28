@@ -13,7 +13,7 @@ function car(props: iconProps) {
         <path
           d="M1.75,13.25v1.5c0,.276,.224,.5,.5,.5h1c.276,0,.5-.224,.5-.5v-1.5H1.75Z"
           fill="currentColor"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function car(props: iconProps) {
         <path
           d="M14.25,13.25v1.5c0,.276,.224,.5,.5,.5h1c.276,0,.5-.224,.5-.5v-1.5h-2Z"
           fill="currentColor"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function car(props: iconProps) {
         <path
           d="M12.012,2.75H5.988c-.883,0-1.662,.579-1.916,1.425l-1.072,3.575-.664,.664c-.375,.375-.586,.884-.586,1.414v3.422h14.5v-3.422c0-.53-.211-1.039-.586-1.414l-.664-.664-1.072-3.575c-.254-.846-1.032-1.425-1.916-1.425Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function car(props: iconProps) {
         <path
           d="M1.5 7.75L16.5 7.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function car(props: iconProps) {
         <path
           d="M7.5 10.75L10.5 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function penNib2(props: iconProps) {
         <path
           d="M2.044 15.956L7.442 10.558"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function penNib2(props: iconProps) {
         <path
           d="M13.93,8.43l-1.88,5.309c-.117,.33-.397,.575-.74,.645l-8.583,1.776c-.528,.109-.996-.358-.886-.886L3.616,6.69c.071-.343,.316-.623,.645-.74l5.309-1.88"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function penNib2(props: iconProps) {
         <path
           d="M9.25,1.75l-.293,.293c-.391,.391-.391,1.024,0,1.414l5.586,5.586c.391,.391,1.024,.391,1.414,0l.293-.293"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function penNib2(props: iconProps) {
           cy="10.027"
           fill="currentColor"
           r=".75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

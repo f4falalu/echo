@@ -13,7 +13,7 @@ function tileToBottom(props: iconProps) {
         <path
           d="M11 5.75L9 7.75 7 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function tileToBottom(props: iconProps) {
         <path
           d="M9 7.5L9 3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function tileToBottom(props: iconProps) {
         <path
           d="M4.75 10.25H13.25V11.75H4.75z"
           fill="currentColor"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function tileToBottom(props: iconProps) {
         <path
           d="m11.5,3.25h2.75c1.105,0,2,.896,2,2v7.5c0,1.104-.895,2-2,2H3.75c-1.105,0-2-.896-2-2v-7.5c0-1.104.895-2,2-2h2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

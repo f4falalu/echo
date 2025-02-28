@@ -13,7 +13,7 @@ function satellite(props: iconProps) {
         <path
           d="M7.25,13.75c-1.657,0-3-1.343-3-3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function satellite(props: iconProps) {
         <path
           d="M7.25,16.75c-3.314,0-6-2.686-6-6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function satellite(props: iconProps) {
         <path
           d="M8.043,11.043l-1.086-1.086c-.391-.391-.391-1.024,0-1.414L13.146,2.354c.622-.622,1.621-.784,2.339-.277,.915,.645,1.001,1.937,.238,2.7l-6.266,6.266c-.391,.391-1.024,.391-1.414,0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function satellite(props: iconProps) {
         <path
           d="M7.5 4.45L9.275 6.225"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function satellite(props: iconProps) {
         <path
           d="M13.55 10.5L11.775 8.725"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -56,7 +56,7 @@ function satellite(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -70,7 +70,7 @@ function satellite(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

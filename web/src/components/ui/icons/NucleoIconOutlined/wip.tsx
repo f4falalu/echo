@@ -15,7 +15,7 @@ function wip(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function wip(props: iconProps) {
         <path
           d="m9.25,4.7754v4.4746l-2.978,2.978c.7371.6296,1.6823,1.022,2.728,1.022,2.3436,0,4.25-1.9065,4.25-4.25,0-2.2581-1.7747-4.0923-4-4.2246Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

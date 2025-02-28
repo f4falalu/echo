@@ -13,7 +13,7 @@ function superscript(props: iconProps) {
         <path
           d="M2.073 3.75L10.427 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function superscript(props: iconProps) {
         <path
           d="M2.073 14.25L10.427 3.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function superscript(props: iconProps) {
         <path
           d="M12.938,2.905c.212-.754,.942-1.166,1.732-1.154,.789,.012,1.531,.365,1.578,1.154s-.789,1.319-1.655,1.673c-.866,.353-1.584,.683-1.655,1.673h3.312"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

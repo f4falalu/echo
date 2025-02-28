@@ -13,7 +13,7 @@ function childHead(props: iconProps) {
         <path
           d="M10.416,5.662c-.362,.363-.863,.588-1.416,.588-1.105,0-2-.895-2-2s.895-2,2-2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function childHead(props: iconProps) {
         <path
           d="M17.25,9c0-.962-.777-1.741-1.737-1.749-.771-2.879-3.391-5.001-6.513-5.001S3.258,4.373,2.487,7.251c-.96,.007-1.737,.787-1.737,1.749s.777,1.741,1.737,1.749c.771,2.879,3.391,5.001,6.513,5.001s5.742-2.123,6.513-5.001c.96-.007,1.737-.787,1.737-1.749Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

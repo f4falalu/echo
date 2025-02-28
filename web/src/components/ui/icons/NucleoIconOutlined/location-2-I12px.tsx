@@ -15,7 +15,7 @@ function location2(props: iconProps) {
           cy="3"
           fill="none"
           r="2.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function location2(props: iconProps) {
         <path
           d="M6 5.25L6 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function location2(props: iconProps) {
         <path
           d="m3.5,7.97c-1.631.297-2.75.867-2.75,1.53,0,.966,2.351,1.75,5.25,1.75s5.25-.784,5.25-1.75c0-.663-1.119-1.233-2.75-1.53"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

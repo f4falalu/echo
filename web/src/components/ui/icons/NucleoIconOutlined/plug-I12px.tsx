@@ -13,7 +13,7 @@ function plug(props: iconProps) {
         <path
           d="M6 9.25L6 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function plug(props: iconProps) {
         <path
           d="M3.75 0.75L3.75 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function plug(props: iconProps) {
         <path
           d="M8.25 0.75L8.25 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function plug(props: iconProps) {
         <path
           d="m2.75,2.75h6.5c.552,0,1,.448,1,1v1.25c0,2.346-1.904,4.25-4.25,4.25h0c-2.346,0-4.25-1.904-4.25-4.25v-1.25c0-.552.448-1,1-1Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

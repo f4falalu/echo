@@ -13,7 +13,7 @@ function button(props: iconProps) {
         <path
           d="M16.25,8.917v-3.167c0-1.104-.895-2-2-2H3.75c-1.105,0-2,.896-2,2v3.5c0,1.104,.895,2,2,2h3.681"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function button(props: iconProps) {
         <path
           d="M9.934,9.27l6.854,2.504c.289,.106,.28,.517-.012,.611l-3.137,1.004-1.004,3.137c-.094,.293-.505,.301-.611,.012l-2.504-6.854c-.094-.258,.156-.508,.414-.414Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

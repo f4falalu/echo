@@ -17,7 +17,7 @@ function arrowBoldRightSparkle(props: iconProps) {
         <path
           d="M5.002,11.25h3.748v2.743c0,.413,.473,.648,.802,.398l6.581-4.993c.264-.2,.264-.597,0-.797L9.552,3.609c-.329-.25-.802-.015-.802,.398v2.743H2.75c-.552,0-1,.448-1,1v1.625"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

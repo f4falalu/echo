@@ -14,7 +14,7 @@ function key4(props: iconProps) {
         <path
           d="M12.75,5c0-2.071-1.679-3.75-3.75-3.75s-3.75,1.679-3.75,3.75c0,1.435,.816,2.667,2,3.298v6.202l1.75,2.25,1.75-2.25v-1.75l-1.25-1.25,1.25-1.25v-1.952c1.184-.63,2-1.863,2-3.298Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -15,7 +15,7 @@ function circles2(props: iconProps) {
           cy="9"
           fill="none"
           r="1.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function circles2(props: iconProps) {
         <path
           d="M9,13.25c2.347,0,4.25-1.903,4.25-4.25s-1.903-4.25-4.25-4.25-4.25,1.903-4.25,4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function circles2(props: iconProps) {
         <path
           d="M11.375,2.156c-.745-.259-1.542-.406-2.375-.406C4.996,1.75,1.75,4.996,1.75,9s3.246,7.25,7.25,7.25,7.25-3.246,7.25-7.25c0-.833-.148-1.63-.406-2.375"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

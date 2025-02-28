@@ -16,7 +16,7 @@ function smoking(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function smoking(props: iconProps) {
         <path
           d="M12.25 10.75L12.25 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function smoking(props: iconProps) {
         <path
           d="M7.25,2.25v.25c0,1.519,1.231,2.75,2.75,2.75h0c1.519,0,2.75,1.231,2.75,2.75v.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +42,7 @@ function smoking(props: iconProps) {
         <path
           d="M10.25,2.25h0c3.038,0,5.5,2.462,5.5,5.5v.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

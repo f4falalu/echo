@@ -15,7 +15,7 @@ function faceKissHeartEyes(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function faceKissHeartEyes(props: iconProps) {
         <path
           d="M9.75,13.875c.69,0,1.25-.56,1.25-1.25s-.56-1.25-1.25-1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

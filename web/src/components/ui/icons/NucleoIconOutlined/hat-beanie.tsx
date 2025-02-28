@@ -13,7 +13,7 @@ function hatBeanie(props: iconProps) {
         <path
           d="M10.572,4.973c.264-.339,.428-.76,.428-1.223,0-1.104-.895-2-2-2s-2,.896-2,2c0,.463,.164,.884,.428,1.223"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function hatBeanie(props: iconProps) {
         <path
           d="M3.25,12.75v-2.25c0-3.176,2.574-5.75,5.75-5.75h0c3.176,0,5.75,2.574,5.75,5.75v2.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function hatBeanie(props: iconProps) {
         <path
           d="M9 12.75L9 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function hatBeanie(props: iconProps) {
         <path
           d="M5.25 12.75L5.25 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function hatBeanie(props: iconProps) {
         <path
           d="M12.75 12.75L12.75 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -56,7 +56,7 @@ function hatBeanie(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

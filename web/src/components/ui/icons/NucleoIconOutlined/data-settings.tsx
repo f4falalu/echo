@@ -13,7 +13,7 @@ function dataSettings(props: iconProps) {
         <path
           d="M6.709,13.75H2.457c-.445,0-.669-.539-.354-.854L12.896,2.104c.315-.315,.854-.092,.854,.354V6.708"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function dataSettings(props: iconProps) {
         <path
           d="M12.75 9L12.75 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function dataSettings(props: iconProps) {
         <path
           d="M15.402 10.098L14.164 11.336"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function dataSettings(props: iconProps) {
         <path
           d="M16.5 12.75L14.75 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function dataSettings(props: iconProps) {
         <path
           d="M15.402 15.402L14.164 14.164"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function dataSettings(props: iconProps) {
         <path
           d="M12.75 16.5L12.75 14.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function dataSettings(props: iconProps) {
         <path
           d="M10.098 15.402L11.336 14.164"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -69,7 +69,7 @@ function dataSettings(props: iconProps) {
         <path
           d="M9 12.75L10.75 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -77,7 +77,7 @@ function dataSettings(props: iconProps) {
         <path
           d="M10.098 10.098L11.336 11.336"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -87,7 +87,7 @@ function dataSettings(props: iconProps) {
           cy="12.75"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

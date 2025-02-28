@@ -13,7 +13,7 @@ function medicine(props: iconProps) {
         <path
           d="M7.58 7.58L5.22 5.22"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function medicine(props: iconProps) {
         <path
           d="M14.652 9.348L9.348 14.652"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function medicine(props: iconProps) {
         <path
           d="M12.215,5.76c.201-.93-.054-1.939-.777-2.662-1.131-1.131-2.965-1.131-4.096,0L3.098,7.341c-1.131,1.131-1.131,2.965,0,4.096,.724,.724,1.734,.979,2.665,.776"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function medicine(props: iconProps) {
           cy="12"
           fill="none"
           r="3.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

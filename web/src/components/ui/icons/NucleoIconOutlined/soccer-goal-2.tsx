@@ -13,7 +13,7 @@ function soccerGoal2(props: iconProps) {
         <path
           d="M15.301 5.426L15.378 6.622 16.574 6.699"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function soccerGoal2(props: iconProps) {
         <path
           d="M10.311 5.708L11.473 6.004 11.916 4.89"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function soccerGoal2(props: iconProps) {
         <path
           d="M9.038 10.539L9.679 9.526 8.756 8.76"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function soccerGoal2(props: iconProps) {
         <path
           d="M13.24 13.244L12.474 12.321 11.461 12.962"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function soccerGoal2(props: iconProps) {
         <path
           d="M17.11 10.083L15.996 10.527 16.292 11.688"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function soccerGoal2(props: iconProps) {
         <path
           d="M14.447 7.553L12.067 7.177 11.008 9.288 12.712 10.991 14.823 9.933 14.447 7.553z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function soccerGoal2(props: iconProps) {
         <path
           d="M15.378 6.622L14.447 7.553"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -69,7 +69,7 @@ function soccerGoal2(props: iconProps) {
         <path
           d="M11.473 6.004L12.067 7.177"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -77,7 +77,7 @@ function soccerGoal2(props: iconProps) {
         <path
           d="M14.823 9.933L15.996 10.527"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -85,7 +85,7 @@ function soccerGoal2(props: iconProps) {
         <path
           d="M9.679 9.526L11.008 9.288"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -93,7 +93,7 @@ function soccerGoal2(props: iconProps) {
         <path
           d="M12.712 10.991L12.474 12.321"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -106,7 +106,7 @@ function soccerGoal2(props: iconProps) {
         <path
           d="M1.75 1.75L9 3.611"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -114,7 +114,7 @@ function soccerGoal2(props: iconProps) {
         <path
           d="M1.75 16.25L9 14.389"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -122,7 +122,7 @@ function soccerGoal2(props: iconProps) {
         <path
           d="M0.75 9L6.25 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -130,7 +130,7 @@ function soccerGoal2(props: iconProps) {
         <path
           d="m5.407,11.5c-.427,1.47-1.229,2.942-2.407,4.413"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -138,7 +138,7 @@ function soccerGoal2(props: iconProps) {
         <path
           d="m3,2.087c1.848,2.301,2.771,4.604,2.771,6.908"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -148,7 +148,7 @@ function soccerGoal2(props: iconProps) {
           cy="9"
           fill="none"
           r="4.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function chartUsage(props: iconProps) {
         <path
           d="M15.602,6c.416,.914,.648,1.93,.648,3,0,2.066-.864,3.929-2.25,5.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function chartUsage(props: iconProps) {
         <path
           d="M4,14.25c-1.386-1.321-2.25-3.184-2.25-5.25C1.75,4.996,4.996,1.75,9,1.75c1.938,0,3.699,.761,5,2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function chartUsage(props: iconProps) {
         <path
           d="M7 11.25L11 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

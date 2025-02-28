@@ -13,7 +13,7 @@ function layerDown(props: iconProps) {
         <path
           d="M11.5,10.308l3.835-2.019c.534-.281,.534-1.046,0-1.327l-5.87-3.091c-.292-.154-.64-.154-.932,0L2.663,6.962c-.534,.281-.534,1.046,0,1.327l3.837,2.021"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function layerDown(props: iconProps) {
         <path
           d="M9 8L9 16"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function layerDown(props: iconProps) {
         <path
           d="M11.5 13.75L9 16.25 6.5 13.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

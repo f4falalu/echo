@@ -13,7 +13,7 @@ function messageForward(props: iconProps) {
         <path
           d="M10.5,7.75H2.75c-.552,0-1,.448-1,1v2.5c0,1.105,.895,2,2,2h2v3l3.75-3h4.75c1.105,0,2-.895,2-2V4.25c0-1.105-.895-2-2-2H3.75c-1.105,0-2,.895-2,2v.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function messageForward(props: iconProps) {
         <path
           d="M8 5L10.75 7.75 8 10.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

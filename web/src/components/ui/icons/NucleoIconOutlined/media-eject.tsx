@@ -13,7 +13,7 @@ function mediaEject(props: iconProps) {
         <path
           d="M3.677,10.95L8.247,2.697c.33-.595,1.177-.595,1.506,0l4.57,8.254c.322,.582-.094,1.3-.753,1.3H4.43c-.66,0-1.075-.718-.753-1.3Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function mediaEject(props: iconProps) {
         <path
           d="M14.5 15.25L3.5 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

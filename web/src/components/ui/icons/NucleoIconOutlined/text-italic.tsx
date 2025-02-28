@@ -13,7 +13,7 @@ function textItalic(props: iconProps) {
         <path
           d="M8.25 14.25L10.75 5.75 8.25 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function textItalic(props: iconProps) {
         <path
           d="M5.75 14.25L10.75 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

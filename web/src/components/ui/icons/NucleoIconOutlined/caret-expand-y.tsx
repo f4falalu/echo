@@ -13,7 +13,7 @@ function caretExpandY(props: iconProps) {
         <path
           d="M8.586,3.001l-2.348,3.468c-.225,.332,.013,.78,.414,.78h4.696c.401,0,.639-.448,.414-.78l-2.348-3.468c-.198-.293-.63-.293-.828,0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function caretExpandY(props: iconProps) {
         <path
           d="M8.586,14.999l-2.348-3.468c-.225-.332,.013-.78,.414-.78h4.696c.401,0,.639,.448,.414,.78l-2.348,3.468c-.198,.293-.63,.293-.828,0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

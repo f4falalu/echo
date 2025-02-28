@@ -13,7 +13,7 @@ function chartColumnHorizontal(props: iconProps) {
         <path
           d="M8.25 7.75L4.25 7.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function chartColumnHorizontal(props: iconProps) {
         <path
           d="M10.25 1.75L4.25 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function chartColumnHorizontal(props: iconProps) {
         <path
           d="M5.75 4.75L4.25 4.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function chartColumnHorizontal(props: iconProps) {
         <path
           d="m1.25,1.25v7.5c0,1.105.895,2,2,2h7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function collision(props: iconProps) {
         <path
           d="M6 1L9.344 5.781 14 2 12.083 7.625 16.25 8.25 12.542 10.458 15.75 16.25 10 12.25 8 16.25 7 12 2 13 6 9 1.75 5.75 6.458 6.583 6 1z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

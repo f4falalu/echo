@@ -13,7 +13,7 @@ function rulerTriangle(props: iconProps) {
         <path
           d="M14.586,15.25H3.75c-.552,0-1-.448-1-1V3.414c0-.891,1.077-1.337,1.707-.707L15.293,13.543c.63,.63,.184,1.707-.707,1.707Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function rulerTriangle(props: iconProps) {
         <path
           d="M6.25 15.25L6.25 13.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function rulerTriangle(props: iconProps) {
         <path
           d="M8.75 15.25L8.75 13.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function rulerTriangle(props: iconProps) {
         <path
           d="M11.25 15.25L11.25 13.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -49,7 +49,7 @@ function rulerTriangle(props: iconProps) {
         <path
           d="M2.75 6.75L4.25 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -57,7 +57,7 @@ function rulerTriangle(props: iconProps) {
         <path
           d="M2.75 9.25L4.25 9.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -65,7 +65,7 @@ function rulerTriangle(props: iconProps) {
         <path
           d="M2.75 11.75L4.25 11.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

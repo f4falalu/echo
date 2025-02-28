@@ -13,7 +13,7 @@ function merge(props: iconProps) {
         <path
           d="M9.5,9l-2.172-3.752c-.358-.618-1.017-.998-1.731-.998H2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function merge(props: iconProps) {
         <path
           d="M9.5,9l-2.172,3.752c-.358,.618-1.017,.998-1.731,.998H2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function merge(props: iconProps) {
         <path
           d="M16.25 9L9.5 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function merge(props: iconProps) {
         <path
           d="M13.5 6.25L16.25 9 13.5 11.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

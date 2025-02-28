@@ -13,7 +13,7 @@ function lessThan(props: iconProps) {
         <path
           d="M14.25 2.75L3.75 9 14.25 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

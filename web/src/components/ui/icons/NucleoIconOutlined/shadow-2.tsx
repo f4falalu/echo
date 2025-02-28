@@ -13,7 +13,7 @@ function shadow2(props: iconProps) {
         <path
           d="M5.877,12.123c.515,2.359,2.61,4.127,5.123,4.127,2.9,0,5.25-2.351,5.25-5.25,0-2.513-1.768-4.608-4.127-5.123"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function shadow2(props: iconProps) {
         <path
           d="M10.712 10.712L14.711 14.711"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function shadow2(props: iconProps) {
         <path
           d="M12.08 8.33L16.08 12.33"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function shadow2(props: iconProps) {
         <path
           d="M8.33 12.08L12.33 16.08"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -47,7 +47,7 @@ function shadow2(props: iconProps) {
           cy="7"
           fill="none"
           r="5.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

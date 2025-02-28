@@ -13,7 +13,7 @@ function bracketsCurly(props: iconProps) {
         <path
           d="m7.75,10.75c1.105,0,2-.895,2-2v-1.25c0-.828.672-1.5,1.5-1.5-.828,0-1.5-.672-1.5-1.5v-1.25c0-1.105-.895-2-2-2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function bracketsCurly(props: iconProps) {
         <path
           d="m4.25,10.75c-1.105,0-2-.895-2-2v-1.25c0-.828-.672-1.5-1.5-1.5.828,0,1.5-.672,1.5-1.5v-1.25c0-1.105.895-2,2-2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

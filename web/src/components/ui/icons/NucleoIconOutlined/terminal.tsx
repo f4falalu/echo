@@ -13,7 +13,7 @@ function terminal(props: iconProps) {
         <path
           d="M2.75 14.25L8 9 2.75 3.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function terminal(props: iconProps) {
         <path
           d="M9.5 14.25L15.25 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

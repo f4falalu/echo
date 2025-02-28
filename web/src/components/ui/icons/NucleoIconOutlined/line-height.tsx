@@ -13,7 +13,7 @@ function lineHeight(props: iconProps) {
         <path
           d="M12.57 13.25L9.273 4.75 8.727 4.75 5.43 13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function lineHeight(props: iconProps) {
         <path
           d="M6.4 10.75L11.6 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function lineHeight(props: iconProps) {
         <path
           d="M2.75 2.25L15.25 2.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function lineHeight(props: iconProps) {
         <path
           d="M2.75 15.75L15.25 15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

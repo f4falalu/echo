@@ -13,7 +13,7 @@ function undo(props: iconProps) {
         <path
           d="M3,10c.528-.461,2.7-2.251,6-2.251s5.472,1.79,6,2.251"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function undo(props: iconProps) {
         <path
           d="M4.625 5.598L3 10 7.53 11.222"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

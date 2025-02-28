@@ -13,7 +13,7 @@ function bookmarkMinus2(props: iconProps) {
         <path
           d="M14.25,5.75V3.75c0-1.104-.895-2-2-2H5.75c-1.105,0-2,.896-2,2v12.5l5.25-3.5,5.25,3.5v-5.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function bookmarkMinus2(props: iconProps) {
         <path
           d="M16.75 8.25L11.75 8.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

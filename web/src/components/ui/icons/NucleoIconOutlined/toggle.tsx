@@ -13,7 +13,7 @@ function toggle(props: iconProps) {
         <path
           d="M8.738,12.75h3.762c2.071,0,3.75-1.679,3.75-3.75h0c0-2.071-1.679-3.75-3.75-3.75h-3.762"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function toggle(props: iconProps) {
           cy="9"
           fill="none"
           r="4.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function paragraphCheck(props: iconProps) {
         <path
           d="M2.75 13.75L6.75 13.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function paragraphCheck(props: iconProps) {
         <path
           d="M2.75 10.25L6.75 10.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function paragraphCheck(props: iconProps) {
         <path
           d="M2.75 6.75L15.25 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function paragraphCheck(props: iconProps) {
         <path
           d="M2.75 3.25L15.25 3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function paragraphCheck(props: iconProps) {
         <path
           d="M10 12.912L11.609 14.521 15.006 10.104"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

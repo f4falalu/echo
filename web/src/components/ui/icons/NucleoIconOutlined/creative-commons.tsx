@@ -15,7 +15,7 @@ function creativeCommons(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function creativeCommons(props: iconProps) {
         <path
           d="M8,11.016c-.301,.15-.641,.234-1,.234-1.243,0-2.25-1.007-2.25-2.25s1.007-2.25,2.25-2.25c.359,0,.699,.084,1,.234"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function creativeCommons(props: iconProps) {
         <path
           d="M13,11.016c-.301,.15-.641,.234-1,.234-1.243,0-2.25-1.007-2.25-2.25s1.007-2.25,2.25-2.25c.359,0,.699,.084,1,.234"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

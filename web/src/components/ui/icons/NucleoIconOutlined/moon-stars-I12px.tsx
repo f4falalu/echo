@@ -18,7 +18,7 @@ function moonStars(props: iconProps) {
         <path
           d="m8.5,7.75c-2.347,0-4.25-1.903-4.25-4.25,0-1.018.373-1.939.969-2.671C2.693,1.208.75,3.368.75,6c0,2.899,2.351,5.25,5.25,5.25,2.632,0,4.792-1.943,5.171-4.469-.732.597-1.653.969-2.671.969Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

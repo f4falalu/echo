@@ -17,7 +17,7 @@ function heart2Sparkle(props: iconProps) {
         <path
           d="M14.79,9.648l.41-.426c.882-.929,1.279-2.284,.916-3.667-.181-.688-.575-1.32-1.11-1.79-2.005-1.758-4.933-1.05-6.007,1.162-.171-.353-.396-.677-.666-.962-1.452-1.528-3.867-1.591-5.395-.139-1.528,1.451-1.591,3.867-.139,5.395l5.48,5.694c.393,.409,1.048,.409,1.441,0"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

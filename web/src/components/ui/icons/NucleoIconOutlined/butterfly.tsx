@@ -13,7 +13,7 @@ function butterfly(props: iconProps) {
         <path
           d="m5.3824,4.0205c-.9364-.4922-2.0022-.7705-3.1324-.7705v3.5c0,2.208,1.792,4,4,4h0c-1.45,0-2.5,1.175-2.5,2.625s1.175,2.625,2.625,2.625,2.625-1.175,2.625-2.625v-.375"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function butterfly(props: iconProps) {
         <path
           d="m12.6176,4.0205c.9364-.4922,2.0022-.7705,3.1324-.7705v3.5c0,2.208-1.792,4-4,4h0c1.45,0,2.5,1.175,2.5,2.625s-1.175,2.625-2.625,2.625-2.625-1.175-2.625-2.625v-.375"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function butterfly(props: iconProps) {
         <path
           d="m9,13V5c0-1.875-2-3-2-3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function butterfly(props: iconProps) {
         <path
           d="m9,5c0-1.875-2-3-2-3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function butterfly(props: iconProps) {
         <path
           d="m9,5c0-1.875,2-3,2-3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

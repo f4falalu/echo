@@ -13,7 +13,7 @@ function babyCarriage(props: iconProps) {
         <path
           d="M9.75,7.75V1.75h0c3.038,0,5.5,2.462,5.5,5.5v.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function babyCarriage(props: iconProps) {
         <path
           d="M3.75,7.75H15.25v2c0,1.656-1.344,3-3,3H6.75c-1.656,0-3-1.344-3-3v-2h0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function babyCarriage(props: iconProps) {
         <path
           d="M1.75,4.75h.5c.828,0,1.5,.672,1.5,1.5v1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

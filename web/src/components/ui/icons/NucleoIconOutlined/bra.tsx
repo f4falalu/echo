@@ -13,7 +13,7 @@ function bra(props: iconProps) {
         <path
           d="M2.25 3L2.25 8.243"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function bra(props: iconProps) {
         <path
           d="M15.75 3L15.75 8.243"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function bra(props: iconProps) {
         <path
           d="M2.25,8.243c-.718,1.361-.668,3.031,.117,4.283,.065,.103,1.103,1.851,3.214,1.709s3.263-1.579,3.419-1.985v.002c-.682-1.009-1.375-1.918-2.788-2.852-1.516-1.002-3.153-1.157-3.962-1.157Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function bra(props: iconProps) {
         <path
           d="M15.75,8.243c.718,1.361,.668,3.031-.117,4.283-.065,.103-1.103,1.851-3.214,1.709s-3.263-1.579-3.419-1.985v.002c.682-1.009,1.375-1.918,2.788-2.852,1.516-1.002,3.153-1.157,3.962-1.157Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

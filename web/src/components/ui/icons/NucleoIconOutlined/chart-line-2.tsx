@@ -13,7 +13,7 @@ function chartLine2(props: iconProps) {
         <path
           d="M1.75,12.25L6.646,7.354c.195-.195,.512-.195,.707,0l3.293,3.293c.195,.195,.512,.195,.707,0l4.896-4.896"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

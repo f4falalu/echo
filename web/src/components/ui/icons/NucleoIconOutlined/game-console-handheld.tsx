@@ -13,7 +13,7 @@ function gameConsoleHandheld(props: iconProps) {
         <path
           d="M4.25,2.25H13.75c.552,0,1,.448,1,1V12.75c0,1.656-1.344,3-3,3H4.25c-.552,0-1-.448-1-1V3.25c0-.552,.448-1,1-1Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function gameConsoleHandheld(props: iconProps) {
         <path
           d="M5.75 4.75H12.25V8.75H5.75z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function gameConsoleHandheld(props: iconProps) {
         <path
           d="M7.25 11L7.25 13.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function gameConsoleHandheld(props: iconProps) {
         <path
           d="M8.5 12.25L6 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

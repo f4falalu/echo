@@ -15,7 +15,7 @@ function wifi(props: iconProps) {
           cy="13.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function wifi(props: iconProps) {
         <path
           d="M5.111,9.361c2.148-2.148,5.63-2.148,7.778,0"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function wifi(props: iconProps) {
         <path
           d="M2.282,6.532c3.71-3.71,9.725-3.71,13.435,0"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

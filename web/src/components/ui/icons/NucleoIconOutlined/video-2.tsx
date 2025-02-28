@@ -13,7 +13,7 @@ function video2(props: iconProps) {
         <path
           d="M11.75,8.75l3.797-1.688c.331-.147,.703,.095,.703,.457v4.961c0,.362-.372,.604-.703,.457l-3.797-1.688"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function video2(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -36,7 +36,7 @@ function video2(props: iconProps) {
           cy="2"
           fill="currentColor"
           r="1.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

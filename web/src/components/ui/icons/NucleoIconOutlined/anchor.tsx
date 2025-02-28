@@ -13,7 +13,7 @@ function anchor(props: iconProps) {
         <path
           d="M16.25,10.531l-1-1.531c0,3.452-2.798,6.25-6.25,6.25-3.452,0-6.25-2.798-6.25-6.25l-1,1.531"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function anchor(props: iconProps) {
         <path
           d="M9 5.25L9 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function anchor(props: iconProps) {
         <path
           d="M7.25 8.25L10.75 8.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function anchor(props: iconProps) {
           cy="3.5"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

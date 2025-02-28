@@ -13,7 +13,7 @@ function refreshClockwise(props: iconProps) {
         <path
           d="M4.25 8.25L1.25 8.25 1.25 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function refreshClockwise(props: iconProps) {
         <path
           d="m1.282,8.306c.854,1.743,2.646,2.944,4.718,2.944,2.832,0,5.141-2.243,5.246-5.049"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function refreshClockwise(props: iconProps) {
         <path
           d="M7.75 3.75L10.75 3.75 10.75 0.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function refreshClockwise(props: iconProps) {
         <path
           d="m10.718,3.694c-.854-1.743-2.646-2.944-4.718-2.944-2.832,0-5.141,2.243-5.246,5.049"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

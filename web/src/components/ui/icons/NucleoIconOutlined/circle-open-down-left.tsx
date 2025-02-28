@@ -13,7 +13,7 @@ function circleOpenDownLeft(props: iconProps) {
         <path
           d="M11.25 11.25L6.75 11.25 6.75 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function circleOpenDownLeft(props: iconProps) {
         <path
           d="M6.75,11.25L14.127,3.873"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function circleOpenDownLeft(props: iconProps) {
         <path
           d="M14.127,3.873c-2.831-2.831-7.422-2.831-10.253,0-2.831,2.831-2.831,7.422,0,10.253,2.831,2.831,7.422,2.831,10.253,0,2.075-2.075,2.629-5.094,1.663-7.674"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

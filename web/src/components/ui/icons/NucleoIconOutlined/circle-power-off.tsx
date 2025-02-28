@@ -15,7 +15,7 @@ function circlePowerOff(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function circlePowerOff(props: iconProps) {
         <path
           d="M6.5,5.578c-1.056,.773-1.75,2.013-1.75,3.422,0,2.347,1.903,4.25,4.25,4.25s4.25-1.903,4.25-4.25c0-1.409-.694-2.649-1.75-3.422"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function circlePowerOff(props: iconProps) {
         <path
           d="M9 4.25L9 8.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

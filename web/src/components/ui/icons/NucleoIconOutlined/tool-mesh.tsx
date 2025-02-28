@@ -13,7 +13,7 @@ function toolMesh(props: iconProps) {
         <path
           d="M1.75 6.75L16.25 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function toolMesh(props: iconProps) {
         <path
           d="M1.75 11.25L16.25 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function toolMesh(props: iconProps) {
         <path
           d="M6,3c.368,.334,2.656,2.484,2.656,6,0,.497-.053,3.636-2.656,6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function toolMesh(props: iconProps) {
         <path
           d="M11.25,3c.534,.999,1.503,3.132,1.503,6,0,1.132-.151,3.471-1.503,6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -48,7 +48,7 @@ function toolMesh(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

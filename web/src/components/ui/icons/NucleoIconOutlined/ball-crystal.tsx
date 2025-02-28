@@ -13,7 +13,7 @@ function ballCrystal(props: iconProps) {
         <path
           d="M13.06,13.25l.919,2.316c.13,.328-.112,.684-.465,.684H4.486c-.353,0-.595-.356-.465-.684l.918-2.316"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function ballCrystal(props: iconProps) {
         <path
           d="M9,4.75c-2.067,0-3.75,1.682-3.75,3.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function ballCrystal(props: iconProps) {
         <path
           d="M10.497,2.438c-.481-.118-.98-.188-1.497-.188-3.452,0-6.25,2.798-6.25,6.25,0,1.901,.849,3.604,2.188,4.75H13.061c1.34-1.146,2.189-2.849,2.189-4.75,0-.304-.029-.6-.071-.892"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

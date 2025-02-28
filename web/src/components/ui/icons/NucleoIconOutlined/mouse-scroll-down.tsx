@@ -13,7 +13,7 @@ function mouseScrollDown(props: iconProps) {
         <path
           d="M15.25 3.75L15.25 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function mouseScrollDown(props: iconProps) {
         <path
           d="M13.25 12.25L15.25 14.25 17.25 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function mouseScrollDown(props: iconProps) {
         <path
           d="M6.25 6.25L6.25 8.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +40,7 @@ function mouseScrollDown(props: iconProps) {
           fill="none"
           rx="3"
           ry="3"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function archiveDownload(props: iconProps) {
         <path
           d="m10.75,6.75h-3v1c0,.276-.224.5-.5.5h-2.5c-.276,0-.5-.224-.5-.5v-1H1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function archiveDownload(props: iconProps) {
         <path
           d="M6 0.75L6 4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function archiveDownload(props: iconProps) {
         <path
           d="m1.25,2.75v6c0,1.105.895,2,2,2h5.5c1.105,0,2-.895,2-2V2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function archiveDownload(props: iconProps) {
         <path
           d="M8.25 2.25L6 4.5 3.75 2.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

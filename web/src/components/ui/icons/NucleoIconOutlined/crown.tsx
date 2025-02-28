@@ -16,7 +16,7 @@ function crown(props: iconProps) {
         <path
           d="M14.155,11.937l.845-4.437-3.25,2-2.75-4.5-2.75,4.5-3.25-2,.845,4.437c.09,.472,.502,.813,.982,.813H13.172c.48,0,.892-.341,.982-.813Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function crown(props: iconProps) {
         <path
           d="M14 15.25L4 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

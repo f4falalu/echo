@@ -13,7 +13,7 @@ function arrowDottedRotateAnticlockwise(props: iconProps) {
         <path
           d="M1.872 3.305L2.28 6.25 5.224 5.843"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowDottedRotateAnticlockwise(props: iconProps) {
         <path
           d="M16.232,8.484c-.265-3.763-3.401-6.734-7.232-6.734-3.031,0-5.627,1.86-6.71,4.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

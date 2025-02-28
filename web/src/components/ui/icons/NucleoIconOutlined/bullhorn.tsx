@@ -13,7 +13,7 @@ function bullhorn(props: iconProps) {
         <path
           d="M8.805,10.75l.982,4.647c.114,.54-.231,1.071-.772,1.185l-.978,.207c-.54,.114-1.071-.231-1.185-.772l-1.102-5.267"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function bullhorn(props: iconProps) {
         <path
           d="M14.25,13.25s-1.937-2.5-4.25-2.5c-2.312,0-5,0-5,0-1.795,0-3.25-1.455-3.25-3.25,0-1.795,1.455-3.25,3.25-3.25h5c2.312,0,4.25-2.5,4.25-2.5V13.25Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function bullhorn(props: iconProps) {
         <path
           d="M5.75 4.25L5.75 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

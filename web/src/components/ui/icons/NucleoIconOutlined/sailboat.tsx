@@ -13,7 +13,7 @@ function sailboat(props: iconProps) {
         <path
           d="M13.75 9.25L6.25 9.25 6.25 1.75 13.75 9.25z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function sailboat(props: iconProps) {
         <path
           d="M6.25 9.25L6.25 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function sailboat(props: iconProps) {
         <path
           d="M1.75,12.25h14.5l-1.703,2.555c-.185,.278-.498,.445-.832,.445H4.285c-.334,0-.647-.167-.832-.445l-1.703-2.555Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

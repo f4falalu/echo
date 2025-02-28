@@ -13,7 +13,7 @@ function magicWand(props: iconProps) {
         <path
           d="M2.75 15.25L10.749 7.251"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function magicWand(props: iconProps) {
         <path
           d="M9.998 2.052L12.337 3.579 14.921 2.519 14.191 5.215 15.998 7.344 13.209 7.483 11.742 9.86 10.748 7.25 8.034 6.59 10.209 4.837 9.998 2.052z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

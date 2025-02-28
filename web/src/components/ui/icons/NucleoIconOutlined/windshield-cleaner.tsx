@@ -13,7 +13,7 @@ function windshieldCleaner(props: iconProps) {
         <path
           d="M13.25,4c0-1.174-.951-2.125-2.125-2.125s-2.125,.951-2.125,2.125"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function windshieldCleaner(props: iconProps) {
         <path
           d="M6.5,6.871c-1.889,.177-3.5,.527-4.75,.879v7.5c1.771-.498,4.256-1,7.25-1,1.839,0,4.368,.189,7.25,1V7.75c-1.738-.489-3.343-.749-4.75-.881"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function windshieldCleaner(props: iconProps) {
         <path
           d="M9,10V4c0-1.174-.951-2.125-2.125-2.125s-2.125,.951-2.125,2.125"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

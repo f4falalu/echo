@@ -15,7 +15,7 @@ function crowd(props: iconProps) {
           cy="10.5"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function crowd(props: iconProps) {
           cy="2.5"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function crowd(props: iconProps) {
           cy="10.5"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -43,7 +43,7 @@ function crowd(props: iconProps) {
         <path
           d="M.895,17c.43-1.446,1.77-2.5,3.355-2.5,1.585,0,2.925,1.054,3.355,2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -51,7 +51,7 @@ function crowd(props: iconProps) {
         <path
           d="M11.194,7.273c-.6-.484-1.363-.773-2.194-.773-.831,0-1.594,.289-2.194,.773"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -59,7 +59,7 @@ function crowd(props: iconProps) {
         <path
           d="M10.395,17c.43-1.446,1.77-2.5,3.355-2.5,1.585,0,2.925,1.054,3.355,2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

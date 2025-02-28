@@ -13,7 +13,7 @@ function toolArrow(props: iconProps) {
         <path
           d="M1.25 10.75L7.417 4.583"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function toolArrow(props: iconProps) {
         <path
           d="M5.75 2.917L10.75 1.25 9.083 6.25 5.75 2.917z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

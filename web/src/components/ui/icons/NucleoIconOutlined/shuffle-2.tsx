@@ -13,7 +13,7 @@ function shuffle2(props: iconProps) {
         <path
           d="M10,11.731c.882,.62,2.185,1.019,4.25,1.019h2l-2.75,2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function shuffle2(props: iconProps) {
         <path
           d="M1.75,4.75c2.322,0,3.687,.5,4.572,1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function shuffle2(props: iconProps) {
         <path
           d="M1.75,13.25c9.292,0,3.25-8,12.5-8h2l-2.75-2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

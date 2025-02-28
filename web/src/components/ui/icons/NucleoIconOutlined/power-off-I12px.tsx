@@ -13,7 +13,7 @@ function powerOff(props: iconProps) {
         <path
           d="m9.4,2c1.132.963,1.85,2.398,1.85,4,0,2.899-2.351,5.25-5.25,5.25S.75,8.899.75,6c0-1.602.718-3.037,1.85-4"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function powerOff(props: iconProps) {
         <path
           d="M6 0.75L6 6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

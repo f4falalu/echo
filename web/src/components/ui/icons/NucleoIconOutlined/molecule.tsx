@@ -15,7 +15,7 @@ function molecule(props: iconProps) {
           cy="9.5"
           fill="none"
           r="2.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function molecule(props: iconProps) {
           cy="3.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -36,7 +36,7 @@ function molecule(props: iconProps) {
           cy="13.75"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -46,7 +46,7 @@ function molecule(props: iconProps) {
           cy="14.75"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -54,7 +54,7 @@ function molecule(props: iconProps) {
         <path
           d="M5.154 4.44L7.338 7.313"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -62,7 +62,7 @@ function molecule(props: iconProps) {
         <path
           d="M11.208 11.132L13.545 12.859"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -70,7 +70,7 @@ function molecule(props: iconProps) {
         <path
           d="M5.281 13.664L7.237 11.605"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -78,7 +78,7 @@ function molecule(props: iconProps) {
         <path
           d="M13.5 3.5L12.249 5.381"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

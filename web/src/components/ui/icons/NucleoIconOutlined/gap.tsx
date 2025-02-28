@@ -13,7 +13,7 @@ function gap(props: iconProps) {
         <path
           d="M9 6.75L9 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function gap(props: iconProps) {
         <path
           d="M11.25 9L6.75 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function gap(props: iconProps) {
         <path
           d="m2.25,5.75h2c1.105,0,2-.895,2-2v-1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function gap(props: iconProps) {
         <path
           d="m15.75,5.75h-2c-1.105,0-2-.895-2-2v-1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function gap(props: iconProps) {
         <path
           d="m2.25,12.25h2c1.105,0,2,.895,2,2v1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function gap(props: iconProps) {
         <path
           d="m15.75,12.25h-2c-1.105,0-2,.895-2,2v1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

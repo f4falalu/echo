@@ -13,7 +13,7 @@ function caretUp(props: iconProps) {
         <path
           d="M8.155,3.791L3.131,11.714c-.422,.666,.056,1.536,.845,1.536H14.025c.788,0,1.267-.87,.845-1.536L9.845,3.791c-.393-.619-1.296-.619-1.689,0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

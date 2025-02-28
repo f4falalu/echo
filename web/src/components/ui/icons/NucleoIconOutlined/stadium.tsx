@@ -13,7 +13,7 @@ function stadium(props: iconProps) {
         <path
           d="M7.75,15.695v-2.945c0-.276,.224-.5,.5-.5h1.5c.276,0,.5,.224,.5,.5v2.945"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function stadium(props: iconProps) {
         <path
           d="M4.851,5.5c.826-.371,2.271-.75,4.149-.75s3.323,.379,4.149,.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function stadium(props: iconProps) {
         <path
           d="M5.28,11.754c-1.645-.484-2.786-1.279-2.996-2.197"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function stadium(props: iconProps) {
         <path
           d="M12.72,11.754c1.645-.484,2.786-1.279,2.996-2.197"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function stadium(props: iconProps) {
         <path
           d="M16.236,5.705l-.986,7.295c-.209,1.547-2.798,2.75-6.25,2.75-3.452,0-6.041-1.203-6.25-2.75l-.986-7.295"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -56,7 +56,7 @@ function stadium(props: iconProps) {
           fill="none"
           rx="7.25"
           ry="3.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

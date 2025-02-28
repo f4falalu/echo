@@ -13,7 +13,7 @@ function caretLeftFromLine(props: iconProps) {
         <path
           d="M15.25 14.75L15.25 3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function caretLeftFromLine(props: iconProps) {
         <path
           d="M3.332,9.845l7.383,4.682c.666,.422,1.536-.056,1.536-.845V4.318c0-.788-.87-1.267-1.536-.845L3.332,8.155c-.619,.393-.619,1.296,0,1.689Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

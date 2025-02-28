@@ -13,7 +13,7 @@ function eyeOpen(props: iconProps) {
         <path
           d="M1.859,8c1.815-1.851,4.344-3,7.141-3s5.326,1.148,7.141,3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function eyeOpen(props: iconProps) {
         <path
           d="M4.021 6.328L2.75 4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function eyeOpen(props: iconProps) {
         <path
           d="M7.3 5.144L6.823 2.769"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function eyeOpen(props: iconProps) {
         <path
           d="M13.979 6.328L15.25 4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function eyeOpen(props: iconProps) {
         <path
           d="M10.7 5.144L11.177 2.769"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -55,7 +55,7 @@ function eyeOpen(props: iconProps) {
           cy="10.5"
           fill="none"
           r="2.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

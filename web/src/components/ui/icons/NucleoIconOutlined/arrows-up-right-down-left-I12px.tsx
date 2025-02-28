@@ -13,7 +13,7 @@ function arrowsUpRightDownLeft(props: iconProps) {
         <path
           d="M11 6L1 6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowsUpRightDownLeft(props: iconProps) {
         <path
           d="M2.5 7.75L0.75 6 2.5 4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function arrowsUpRightDownLeft(props: iconProps) {
         <path
           d="M9.5 7.75L11.25 6 9.5 4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function arrowsUpRightDownLeft(props: iconProps) {
         <path
           d="M6 1L6 11"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function arrowsUpRightDownLeft(props: iconProps) {
         <path
           d="M7.75 9.5L6 11.25 4.25 9.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function arrowsUpRightDownLeft(props: iconProps) {
         <path
           d="M7.75 2.5L6 0.75 4.25 2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

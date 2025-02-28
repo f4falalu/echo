@@ -13,7 +13,7 @@ function suitClubs(props: iconProps) {
         <path
           d="M9,10.75c0,3.178,2.584,5.042,4.75,5.5h-4.75s-4.75,0-4.75,0c2.166-.458,4.75-2.322,4.75-5.5Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function suitClubs(props: iconProps) {
         <path
           d="M9,9c0,1.795,1.455,3.25,3.25,3.25s3.25-1.455,3.25-3.25-1.455-3.25-3.25-3.25c-.034,0-.065,.009-.099,.01,.059-.245,.099-.497,.099-.76,0-1.795-1.455-3.25-3.25-3.25s-3.25,1.455-3.25,3.25c0,.263,.04,.515,.099,.76-.034-.001-.065-.01-.099-.01-1.795,0-3.25,1.455-3.25,3.25s1.455,3.25,3.25,3.25,3.25-1.455,3.25-3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

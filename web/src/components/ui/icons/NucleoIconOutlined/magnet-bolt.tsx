@@ -13,7 +13,7 @@ function magnetBolt(props: iconProps) {
         <path
           d="M2.518 4.838L5.743 5.242"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function magnetBolt(props: iconProps) {
         <path
           d="M15.482 4.838L12.257 5.242"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function magnetBolt(props: iconProps) {
         <path
           d="M10.615,15.519c-.524,.126-1.066,.191-1.615,.191-2.988,0-5.764-1.934-6.676-5.056-.264-.904-.301-1.861-.184-2.795l.623-4.983c.069-.548,.568-.937,1.116-.868l1.24,.155c.548,.069,.937,.568,.868,1.116l-.632,5.054c-.13,1.044,.194,2.096,.891,2.885s1.7,1.242,2.752,1.242,2.056-.453,2.752-1.242,1.021-1.841,.891-2.885l-.632-5.054c-.069-.548,.32-1.048,.868-1.116l1.24-.155c.548-.069,1.048,.32,1.116,.868l.623,4.983c.016,.13,.029,.26,.04,.39"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function magnetBolt(props: iconProps) {
         <path
           d="M15.917 14.25L13.25 14.25 15.5 10.75 14.583 13.75 17.25 13.75 15 17.25 15.917 14.25z"
           fill="currentColor"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

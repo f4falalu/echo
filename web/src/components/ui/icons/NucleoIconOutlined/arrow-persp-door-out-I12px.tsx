@@ -13,7 +13,7 @@ function arrowPerspDoorOut(props: iconProps) {
         <path
           d="M6.25 6L1 6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowPerspDoorOut(props: iconProps) {
         <path
           d="M3.25 8.5L0.75 6 3.25 3.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function arrowPerspDoorOut(props: iconProps) {
         <path
           d="m6.25,2l3.232-.898c.637-.177,1.268.302,1.268.964v7.869c0,.661-.63,1.141-1.268.964l-3.232-.898"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

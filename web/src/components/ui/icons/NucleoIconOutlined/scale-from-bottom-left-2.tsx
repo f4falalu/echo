@@ -13,7 +13,7 @@ function scaleFromBottomLeft2(props: iconProps) {
         <path
           d="M10.75,15.25h2.5c1.105,0,2-.895,2-2V4.75c0-1.105-.895-2-2-2H4.75c-1.105,0-2,.895-2,2v2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function scaleFromBottomLeft2(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

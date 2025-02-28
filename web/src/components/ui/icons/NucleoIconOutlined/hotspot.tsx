@@ -13,7 +13,7 @@ function hotspot(props: iconProps) {
         <path
           d="M5.157,15.149c-2.046-1.282-3.407-3.556-3.407-6.149C1.75,4.996,4.996,1.75,9,1.75s7.25,3.246,7.25,7.25c0,2.593-1.361,4.867-3.407,6.149"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function hotspot(props: iconProps) {
         <path
           d="M6.747,12.604c-1.2-.751-1.997-2.085-1.997-3.604,0-2.347,1.903-4.25,4.25-4.25s4.25,1.903,4.25,4.25c0,1.52-.798,2.853-1.997,3.604"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function hotspot(props: iconProps) {
           cy="9"
           fill="none"
           r="1.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

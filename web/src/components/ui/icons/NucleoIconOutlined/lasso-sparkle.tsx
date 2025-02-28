@@ -13,7 +13,7 @@ function lassoSparkle(props: iconProps) {
         <path
           d="M9,13.75c-2.059,0-2.212-1.591-1.961-2.197,.314-.759,1.204-1.448,3.18-1.272,2.826,.252,4.464,4.406-.469,6.469"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function lassoSparkle(props: iconProps) {
         <path
           d="M2.294,7.358c-.028,.211-.044,.424-.044,.642,0,3.176,3.022,5.75,6.75,5.75s6.75-2.574,6.75-5.75-3.022-5.75-6.75-5.75c-.523,0-1.03,.056-1.519,.152"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

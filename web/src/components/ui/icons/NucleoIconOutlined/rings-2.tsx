@@ -13,7 +13,7 @@ function rings2(props: iconProps) {
         <path
           d="M9,12.562c-.761,.588-1.715,.938-2.75,.938-2.485,0-4.5-2.015-4.5-4.5S3.765,4.5,6.25,4.5s4.5,2.015,4.5,4.5c0,.542-.096,1.061-.271,1.542"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function rings2(props: iconProps) {
         <path
           d="M9,5.438c.76-.588,1.714-.938,2.75-.938,2.485,0,4.5,2.015,4.5,4.5s-2.015,4.5-4.5,4.5-4.5-2.015-4.5-4.5c0-.542,.096-1.061,.271-1.542"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

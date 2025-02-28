@@ -13,7 +13,7 @@ function safetyHelmet(props: iconProps) {
         <path
           d="M10.75,3.998c2.6,.757,4.5,3.157,4.5,6.002v2.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function safetyHelmet(props: iconProps) {
         <path
           d="M2.75,12.25v-2.25c0-2.844,1.9-5.245,4.5-6.002"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function safetyHelmet(props: iconProps) {
         <path
           d="M7.25,7.75V3.25c0-.552,.448-1,1-1h1.5c.552,0,1,.448,1,1V7.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +40,7 @@ function safetyHelmet(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

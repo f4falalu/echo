@@ -13,7 +13,7 @@ function currencySterling(props: iconProps) {
         <path
           d="M5 9.75L10.25 9.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function currencySterling(props: iconProps) {
         <path
           d="M13,15.25H5c.966,0,1.75-.784,1.75-1.75V5.75c0-1.657,1.343-3,3-3s3,1.343,3,3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

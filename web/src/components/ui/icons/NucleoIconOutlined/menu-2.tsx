@@ -13,7 +13,7 @@ function menu2(props: iconProps) {
         <path
           d="M1.75 5.75L16.25 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function menu2(props: iconProps) {
         <path
           d="M1.75 12.25L16.25 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

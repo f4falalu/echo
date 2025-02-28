@@ -13,7 +13,7 @@ function eyeDropper(props: iconProps) {
         <path
           d="m8.375,5.875l-4.142,4.142c-.621.621-1.629.621-2.25,0h0c-.621-.621-.621-1.629,0-2.25L6.125,3.625"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function eyeDropper(props: iconProps) {
         <path
           d="M0.75 11.25L2 10"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function eyeDropper(props: iconProps) {
         <path
           d="m6.125,3.625l2.148-2.148c.621-.621,1.629-.621,2.25,0h0c.621.621.621,1.629,0,2.25l-2.148,2.148"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function eyeDropper(props: iconProps) {
         <path
           d="M9.5 7L5 2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

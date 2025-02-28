@@ -13,7 +13,7 @@ function sword(props: iconProps) {
         <path
           d="M8.25,11.75l6.423-4.52c.21-.148,.355-.37,.405-.622l.922-4.608-4.608,.922c-.252,.05-.474,.195-.622,.405l-4.52,6.423"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function sword(props: iconProps) {
         <path
           d="M4.75 8.25L9.75 13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function sword(props: iconProps) {
         <path
           d="M4.75 15.25L8.25 11.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function sword(props: iconProps) {
         <path
           d="M6.25 9.75L2.75 13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function sword(props: iconProps) {
         <path
           d="M2 12.5L5.5 16"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

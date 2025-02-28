@@ -13,7 +13,7 @@ function minus(props: iconProps) {
         <path
           d="M10.75 6L1.25 6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

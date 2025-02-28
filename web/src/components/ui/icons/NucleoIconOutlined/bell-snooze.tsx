@@ -17,7 +17,7 @@ function bellSnooze(props: iconProps) {
         <path
           d="M10.37,1.975c-.437-.132-.89-.225-1.37-.225-2.623,0-4.75,2.127-4.75,4.75v4.75c0,1.105-.895,2-2,2H15.75c-1.105,0-2-.895-2-2v-3.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function bellSnooze(props: iconProps) {
         <path
           d="M12.75 1.25L16.25 1.25 12.75 5.25 16.25 5.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

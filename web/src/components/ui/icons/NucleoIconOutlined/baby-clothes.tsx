@@ -13,7 +13,7 @@ function babyClothes(props: iconProps) {
         <path
           d="M15.491,7.353l.759-.603-1.78-2.769c-.3-.466-.779-.787-1.325-.886l-1.662-.302c-.088,1.301-1.16,2.333-2.483,2.333-1.323,0-2.395-1.031-2.483-2.333l-1.662,.302c-.545,.099-1.025,.42-1.325,.886l-1.78,2.769,.759,.603"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function babyClothes(props: iconProps) {
         <path
           d="M13.25,6.75c-.104,.757-.179,1.617-.187,2.563-.01,1.098,.07,2.086,.188,2.937-.2,0-1.262,.02-2.121,.879-.543,.543-.879,1.293-.879,2.121h-1.25s-1.25,0-1.25,0c0-.828-.336-1.578-.879-2.121-.859-.859-1.922-.879-2.121-.879,.117-.852,.198-1.84,.188-2.938-.009-.946-.083-1.806-.188-2.562"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

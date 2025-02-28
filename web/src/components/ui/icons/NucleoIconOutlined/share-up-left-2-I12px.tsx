@@ -13,7 +13,7 @@ function shareUpLeft2(props: iconProps) {
         <path
           d="M6.732 6.732L0.927 0.927"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function shareUpLeft2(props: iconProps) {
         <path
           d="M0.75 4.5L0.75 0.75 4.5 0.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function shareUpLeft2(props: iconProps) {
         <path
           d="m2.75,6.285v2.465c0,1.105.895,2,2,2h4c1.105,0,2-.895,2-2v-4c0-1.105-.895-2-2-2h-2.465"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

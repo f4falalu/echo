@@ -13,7 +13,7 @@ function cake(props: iconProps) {
         <path
           d="M9 7.75L9 4.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function cake(props: iconProps) {
         <path
           d="M9,4.75c.838,0,1.517-.681,1.517-1.522,0-1.156-1.517-2.478-1.517-2.478,0,0-1.517,1.322-1.517,2.478,0,.841,.679,1.522,1.517,1.522Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function cake(props: iconProps) {
         <path
           d="M15.75,11c-.992,0-1.259,1-2.25,1s-1.259-1-2.25-1-1.259,1-2.25,1-1.259-1-2.25-1-1.259,1-2.25,1-1.259-1-2.25-1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +40,7 @@ function cake(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

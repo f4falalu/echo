@@ -13,7 +13,7 @@ function caretLeft(props: iconProps) {
         <path
           d="M3.791,9.845l7.923,5.025c.666,.422,1.536-.056,1.536-.845V3.975c0-.788-.87-1.267-1.536-.845L3.791,8.155c-.619,.393-.619,1.296,0,1.689Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

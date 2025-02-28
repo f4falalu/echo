@@ -13,7 +13,7 @@ function chargingStation(props: iconProps) {
         <path
           d="M2.75,15.75V4.25c0-1.105,.895-2,2-2h4.5c1.105,0,2,.895,2,2V15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function chargingStation(props: iconProps) {
         <path
           d="M1.25 15.75L12.75 15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function chargingStation(props: iconProps) {
         <path
           d="M17.25,4.75v1.5c0,.828-.672,1.5-1.5,1.5h0c-.828,0-1.5-.672-1.5-1.5v-1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function chargingStation(props: iconProps) {
         <path
           d="M13.75,13.154c.157,.057,.323,.096,.5,.096,.828,0,1.5-.672,1.5-1.5V7.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

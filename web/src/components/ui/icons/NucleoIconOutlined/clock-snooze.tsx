@@ -13,7 +13,7 @@ function clockSnooze(props: iconProps) {
         <path
           d="M9 4.75L9 9 12.25 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function clockSnooze(props: iconProps) {
         <path
           d="M11.801,2.312c-.862-.361-1.808-.562-2.801-.562C4.996,1.75,1.75,4.996,1.75,9s3.246,7.25,7.25,7.25,7.25-3.246,7.25-7.25c0-.604-.082-1.188-.222-1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function clockSnooze(props: iconProps) {
         <path
           d="M13.75 0.75L17.25 0.75 13.75 4.75 17.25 4.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

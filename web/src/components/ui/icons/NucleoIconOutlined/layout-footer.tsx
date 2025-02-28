@@ -13,7 +13,7 @@ function layoutFooter(props: iconProps) {
         <path
           d="M1.75,13V4.75c0-1.105,.895-2,2-2H14.25c1.105,0,2,.895,2,2V13"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function layoutFooter(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

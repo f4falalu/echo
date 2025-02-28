@@ -17,7 +17,7 @@ function dropdownSelect(props: iconProps) {
         <path
           d="M6.126,10.768l5.94,2.17c.25,.091,.243,.448-.011,.529l-2.719,.87-.87,2.719c-.081,.254-.438,.261-.529,.011l-2.17-5.94c-.082-.223,.135-.44,.359-.359Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function dropdownSelect(props: iconProps) {
         <path
           d="M9.75 4.75L9.75 9.43"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function dropdownSelect(props: iconProps) {
         <path
           d="M14.574,12.25h.176c1.105,0,2-.896,2-2v-3.5c0-1.104-.895-2-2-2H3.25c-1.105,0-2,.896-2,2v3.5c0,1.104,.895,2,2,2h.266"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

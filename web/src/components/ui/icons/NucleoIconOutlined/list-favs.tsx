@@ -13,7 +13,7 @@ function listFavs(props: iconProps) {
         <path
           d="M8.75 5.25L16.25 5.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function listFavs(props: iconProps) {
         <path
           d="M8.75 12.75L16.25 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function bathtube(props: iconProps) {
         <path
           d="M8.75,4c0-1.243-1.007-2.25-2.25-2.25-1.243,0-2.25,1.007-2.25,2.25v4.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function bathtube(props: iconProps) {
         <path
           d="M15.25,8.75v2.5c0,1.657-1.343,3-3,3H5.75c-1.657,0-3-1.343-3-3v-2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function bathtube(props: iconProps) {
         <path
           d="M1.75 8.75L16.25 8.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function bathtube(props: iconProps) {
         <path
           d="M5.75 14.25L5.75 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function bathtube(props: iconProps) {
         <path
           d="M12.25 14.25L12.25 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

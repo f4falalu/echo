@@ -13,7 +13,7 @@ function burger(props: iconProps) {
         <path
           d="M16.25,10.25c-1.065,0-1.352,1-2.417,1s-1.352-1-2.417-1-1.352,1-2.417,1-1.352-1-2.417-1-1.352,1-2.417,1-1.352-1-2.417-1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function burger(props: iconProps) {
         <path
           d="M9,7.75h5.898c.324,0,.564-.299,.488-.615-.321-1.336-1.481-4.385-5.386-4.385h-1c-.304,0-.637,0-1,0-3.905,0-5.065,3.05-5.386,4.385-.076,.316,.163,.615,.488,.615h5.898Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function burger(props: iconProps) {
         <path
           d="M15,13.25s-.25,2-3.25,2c-.859,0-4.641,0-5.5,0-3,0-3.25-2-3.25-2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

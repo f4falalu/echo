@@ -17,7 +17,7 @@ function faceSinging(props: iconProps) {
           cy="12.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -27,7 +27,7 @@ function faceSinging(props: iconProps) {
           cy="5.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function faceSinging(props: iconProps) {
         <path
           d="M15.75,9c0,4.004-3.246,7.25-7.25,7.25S1.25,13.004,1.25,9,4.496,1.75,8.5,1.75c.876,0,1.716,.155,2.493,.44"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -43,7 +43,7 @@ function faceSinging(props: iconProps) {
         <path
           d="M15.25,5.25V.75s.646,.896,2,1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

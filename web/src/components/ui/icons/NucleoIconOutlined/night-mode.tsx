@@ -13,7 +13,7 @@ function nightMode(props: iconProps) {
         <path
           d="M6.018 4.25L14.477 4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function nightMode(props: iconProps) {
         <path
           d="M6.28 6.75L15.894 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function nightMode(props: iconProps) {
         <path
           d="M7.565 9.25L16.246 9.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function nightMode(props: iconProps) {
         <path
           d="M15.785,11.535c-.79,.295-1.642,.465-2.535,.465-4.004,0-7.25-3.246-7.25-7.25,0-.893,.169-1.745,.465-2.535"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -47,7 +47,7 @@ function nightMode(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

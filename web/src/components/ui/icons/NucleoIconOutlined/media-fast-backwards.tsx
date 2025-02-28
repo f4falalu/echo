@@ -13,7 +13,7 @@ function mediaFastBackwards(props: iconProps) {
         <path
           d="M9.25,9.572l7.258,4.021c.333,.185,.742-.056,.742-.437V4.844c0-.381-.409-.622-.742-.437l-7.258,4.021"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function mediaFastBackwards(props: iconProps) {
         <path
           d="M8.508,4.407L1.008,8.563c-.344,.19-.344,.685,0,.875l7.501,4.156c.333,.185,.742-.056,.742-.437V4.844c0-.381-.409-.622-.742-.437Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function heart2Half(props: iconProps) {
         <path
           d="M9,4.926s0,0,0,.001c.171-.353,.396-.677,.666-.962,1.451-1.528,3.867-1.591,5.395-.139,1.528,1.451,1.59,3.867,.139,5.395l-5.48,5.694c-.197,.205-.459,.307-.721,.307"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function heart2Half(props: iconProps) {
         <path
           d="M9,4.926s0,0,0,.001c-.171-.353-.396-.677-.666-.962-1.451-1.528-3.867-1.591-5.395-.139-1.528,1.451-1.59,3.867-.139,5.395l5.48,5.694c.197,.205,.459,.307,.721,.307V4.926Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

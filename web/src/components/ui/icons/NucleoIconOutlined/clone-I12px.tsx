@@ -13,7 +13,7 @@ function clone(props: iconProps) {
         <path
           d="m8.333,3.75h1.417c.828,0,1.5.672,1.5,1.5v4.5c0,.828-.672,1.5-1.5,1.5h-4.5c-.828,0-1.5-.672-1.5-1.5v-1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function clone(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

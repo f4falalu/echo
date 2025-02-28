@@ -22,7 +22,7 @@ function intersection(props: iconProps) {
         <path
           d="M1.75 5.75L5.75 5.75 5.75 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -30,7 +30,7 @@ function intersection(props: iconProps) {
         <path
           d="M12.25 1.75L12.25 5.75 16.25 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -38,7 +38,7 @@ function intersection(props: iconProps) {
         <path
           d="M16.25 12.25L12.25 12.25 12.25 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -46,7 +46,7 @@ function intersection(props: iconProps) {
         <path
           d="M5.75 16.25L5.75 12.25 1.75 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

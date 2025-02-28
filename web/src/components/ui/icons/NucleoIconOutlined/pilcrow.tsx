@@ -13,7 +13,7 @@ function pilcrow(props: iconProps) {
         <path
           d="M8.25 1.75L8.25 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function pilcrow(props: iconProps) {
         <path
           d="M12.25 1.75L12.25 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function pilcrow(props: iconProps) {
         <path
           d="M14.25,1.75H7.5c-2.071,0-3.75,1.679-3.75,3.75h0c0,2.071,1.679,3.75,3.75,3.75h.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

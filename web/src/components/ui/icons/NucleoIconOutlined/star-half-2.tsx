@@ -13,7 +13,7 @@ function starHalf2(props: iconProps) {
         <path
           d="M9 13.185L9 1.75 6.76 6.29 1.75 7.017 5.375 10.551 4.519 15.54 9 13.185z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

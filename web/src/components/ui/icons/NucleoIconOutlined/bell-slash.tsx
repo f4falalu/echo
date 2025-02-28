@@ -13,7 +13,7 @@ function bellSlash(props: iconProps) {
         <path
           d="M13.368,4.632c-.726-1.694-2.408-2.882-4.368-2.882h0c-2.623,0-4.75,2.127-4.75,4.75v4.75c0,1.105-.895,2-2,2h2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function bellSlash(props: iconProps) {
         <path
           d="M8,13.25h7.75c-1.105,0-2-.895-2-2v-3.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function bellSlash(props: iconProps) {
         <path
           d="M2 16L16 2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

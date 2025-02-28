@@ -13,7 +13,7 @@ function label3(props: iconProps) {
         <path
           d="m8.132,2.088l2.868,3.25c.334.378.334.945,0,1.323l-2.868,3.25c-.19.215-.463.338-.75.338H2.75c-1.105,0-2-.895-2-2V3.75c0-1.105.895-2,2-2h4.633c.287,0,.56.123.75.338Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

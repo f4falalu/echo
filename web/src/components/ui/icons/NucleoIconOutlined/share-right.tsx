@@ -13,7 +13,7 @@ function shareRight(props: iconProps) {
         <path
           d="M14.25,10.75v2.5c0,1.105-.895,2-2,2H4.75c-1.105,0-2-.895-2-2V5.75c0-1.105,.895-2,2-2h3.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function shareRight(props: iconProps) {
         <path
           d="M13 1.75L16.25 5 13 8.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function shareRight(props: iconProps) {
         <path
           d="M16,5h-3.25c-2.209,0-4,1.791-4,4"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

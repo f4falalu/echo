@@ -13,7 +13,7 @@ function patch(props: iconProps) {
         <path
           d="M11.652,11.652l3.513-3.513c.781-.781,.781-2.047,0-2.828l-2.475-2.475c-.781-.781-2.047-.781-2.828,0l-3.513,3.513-3.513,3.513c-.781,.781-.781,2.047,0,2.828l2.475,2.475c.781,.781,2.047,.781,2.828,0,0,0,3.513-3.513,3.513-3.513Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

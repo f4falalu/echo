@@ -13,7 +13,7 @@ function imageBinary(props: iconProps) {
         <path
           d="M4 14.75L9.75 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function imageBinary(props: iconProps) {
         <path
           d="M9.75,14.75H3.75c-1.105,0-2-.895-2-2V5.25c0-1.105,.895-2,2-2h6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function imageBinary(props: iconProps) {
         <path
           d="M14.75,7.75V2.75s-.573,1.008-1.788,1.24"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function imageBinary(props: iconProps) {
         <path
           d="M9.75 1.75L9.75 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -49,7 +49,7 @@ function imageBinary(props: iconProps) {
           fill="none"
           rx="1.75"
           ry="2.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

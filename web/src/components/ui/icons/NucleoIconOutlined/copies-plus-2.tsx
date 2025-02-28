@@ -13,7 +13,7 @@ function copiesPlus2(props: iconProps) {
         <path
           d="M5.75 1.75L12.25 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function copiesPlus2(props: iconProps) {
         <path
           d="M4.25 4.75L13.75 4.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function copiesPlus2(props: iconProps) {
         <path
           d="M7.75,15.25H3.75c-.552,0-1-.448-1-1v-5.5c0-.552,.448-1,1-1H14.25c.552,0,1,.448,1,1v3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function copiesPlus2(props: iconProps) {
         <path
           d="M12.75 12.25L12.75 17.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function copiesPlus2(props: iconProps) {
         <path
           d="M15.25 14.75L10.25 14.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -15,7 +15,7 @@ function userGlobe(props: iconProps) {
           cy="9.25"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function userGlobe(props: iconProps) {
         <path
           d="M1.25,16.5c.525-1.597,2.028-2.75,3.801-2.75s3.276,1.153,3.801,2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function userGlobe(props: iconProps) {
         <path
           d="M9.101,11.145c.722,.374,1.53,.605,2.399,.605,2.899,0,5.25-2.351,5.25-5.25S14.399,1.25,11.5,1.25c-2.377,0-4.362,1.59-5.009,3.758"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function userGlobe(props: iconProps) {
         <path
           d="M16.735 6.75L9.331 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -50,7 +50,7 @@ function userGlobe(props: iconProps) {
           fill="none"
           rx="2.172"
           ry="5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -15,7 +15,7 @@ function userFocus(props: iconProps) {
           cy="6.5"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function userFocus(props: iconProps) {
         <path
           d="M5.402,13.25c.649-1.332,2.016-2.25,3.598-2.25s2.949,.918,3.598,2.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function userFocus(props: iconProps) {
         <path
           d="M15.75,11.75v2c0,1.105-.895,2-2,2h-2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function userFocus(props: iconProps) {
         <path
           d="M6.25,15.75h-2c-1.105,0-2-.895-2-2v-2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -47,7 +47,7 @@ function userFocus(props: iconProps) {
         <path
           d="M2.25,6.25v-2c0-1.105,.895-2,2-2h2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -55,7 +55,7 @@ function userFocus(props: iconProps) {
         <path
           d="M11.75,2.25h2c1.105,0,2,.895,2,2v2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

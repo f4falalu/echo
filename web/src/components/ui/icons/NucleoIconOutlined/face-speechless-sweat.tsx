@@ -15,7 +15,7 @@ function faceSpeechlessSweat(props: iconProps) {
         <path
           d="M7.75 12.25L10.25 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function faceSpeechlessSweat(props: iconProps) {
         <path
           d="M5 8.25L13 8.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function faceSpeechlessSweat(props: iconProps) {
         <path
           d="M11.3,2.129c-.724-.242-1.495-.379-2.3-.379C4.996,1.75,1.75,4.996,1.75,9s3.246,7.25,7.25,7.25,7.25-3.246,7.25-7.25c0-.283-.02-.561-.052-.835"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function faceSpeechlessSweat(props: iconProps) {
         <path
           d="M15.353,5.75c1.047,0,1.897-.852,1.897-1.902,0-1.445-1.897-3.098-1.897-3.098,0,0-1.897,1.652-1.897,3.098,0,1.051,.849,1.902,1.897,1.902Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

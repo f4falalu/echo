@@ -13,7 +13,7 @@ function shapePolygon(props: iconProps) {
         <path
           d="M7.912,2.133L2.904,6.154c-.532,.427-.767,1.126-.602,1.79l1.49,5.981c.194,.779,.891,1.325,1.69,1.325h7.036c.799,0,1.496-.546,1.69-1.325l1.49-5.981c.165-.663-.07-1.363-.602-1.79L10.088,2.133c-.636-.511-1.54-.511-2.177,0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -17,7 +17,7 @@ function awardCertificate(props: iconProps) {
         <path
           d="M10.75,16.25H4.25c-1.105,0-2-.895-2-2V3.75c0-1.105,.895-2,2-2H12.75c1.105,0,2,.895,2,2v3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function awardCertificate(props: iconProps) {
         <path
           d="M5.25 5.75L11.75 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function awardCertificate(props: iconProps) {
         <path
           d="M5.25 9L8.25 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function awardCertificate(props: iconProps) {
         <path
           d="M5.25 12.25L8.25 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -51,7 +51,7 @@ function awardCertificate(props: iconProps) {
           cy="12"
           fill="none"
           r="2.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

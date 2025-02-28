@@ -13,7 +13,7 @@ function arrowDownFromLine(props: iconProps) {
         <path
           d="M13 11.25L9 15.25 5 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowDownFromLine(props: iconProps) {
         <path
           d="M9 15.25L9 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function arrowDownFromLine(props: iconProps) {
         <path
           d="M15.25 2.75L2.75 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

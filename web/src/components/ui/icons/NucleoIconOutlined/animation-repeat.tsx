@@ -16,7 +16,7 @@ function animationRepeat(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function animationRepeat(props: iconProps) {
         <path
           d="M12.25,13.25H6.75c-1.105,0-2-.895-2-2V5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function animationRepeat(props: iconProps) {
         <path
           d="M9.25,16.25H3.75c-1.105,0-2-.895-2-2v-5.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

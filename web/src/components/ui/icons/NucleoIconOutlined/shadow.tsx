@@ -13,7 +13,7 @@ function shadow(props: iconProps) {
         <path
           d="M5.54,12.585c-1.681,.358-2.79,.97-2.79,1.665,0,1.104,2.798,2,6.25,2s6.25-.896,6.25-2c0-.695-1.109-1.307-2.79-1.665"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function shadow(props: iconProps) {
           cy="8"
           fill="none"
           r="5.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function chevronMinimizeDiagonal(props: iconProps) {
         <path
           d="M14.75 7.75L10.25 7.75 10.25 3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function chevronMinimizeDiagonal(props: iconProps) {
         <path
           d="M3.25 10.25L7.75 10.25 7.75 14.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

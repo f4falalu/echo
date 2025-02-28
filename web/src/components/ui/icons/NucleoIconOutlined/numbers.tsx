@@ -13,7 +13,7 @@ function numbers(props: iconProps) {
         <path
           d="M8.969,6.931c.4-1.423,1.78-2.202,3.27-2.181,1.491,.022,2.893,.689,2.981,2.181s-1.491,2.491-3.127,3.159c-1.635,.668-2.992,1.291-3.127,3.16h6.258"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function numbers(props: iconProps) {
         <path
           d="M5.25,13.25V4.75s-.974,1.712-3.04,2.108"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

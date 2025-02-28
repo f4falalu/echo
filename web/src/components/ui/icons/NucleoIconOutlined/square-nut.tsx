@@ -16,7 +16,7 @@ function squareNut(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function squareNut(props: iconProps) {
         <path
           d="M12.25,10.309v-2.618c0-.357-.19-.686-.498-.865l-2.25-1.305c-.31-.18-.693-.18-1.003,0l-2.25,1.305c-.308,.179-.498,.508-.498,.865v2.618c0,.357,.19,.686,.498,.865l2.25,1.305c.31,.18,.693,.18,1.003,0l2.25-1.305c.308-.179,.498-.508,.498-.865Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -16,7 +16,7 @@ function weightScale(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function weightScale(props: iconProps) {
         <path
           d="M9.743,7.75l-.743,1.5h-3.75v-.25c0-2.071,1.679-3.75,3.75-3.75s3.75,1.679,3.75,3.75v.25h-1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

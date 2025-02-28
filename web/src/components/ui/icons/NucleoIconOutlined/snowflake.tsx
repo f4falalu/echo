@@ -13,7 +13,7 @@ function snowflake(props: iconProps) {
         <path
           d="M9 1.75L9 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function snowflake(props: iconProps) {
         <path
           d="M7 3L9 5 11 3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function snowflake(props: iconProps) {
         <path
           d="M7 15L9 13 11 15"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function snowflake(props: iconProps) {
         <path
           d="M2.721 5.375L15.279 12.625"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function snowflake(props: iconProps) {
         <path
           d="M2.804 7.732L5.536 7 4.804 4.268"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function snowflake(props: iconProps) {
         <path
           d="M13.196 13.732L12.464 11 15.196 10.268"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function snowflake(props: iconProps) {
         <path
           d="M2.721 12.625L15.279 5.375"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -69,7 +69,7 @@ function snowflake(props: iconProps) {
         <path
           d="M4.804 13.732L5.536 11 2.804 10.268"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -77,7 +77,7 @@ function snowflake(props: iconProps) {
         <path
           d="M15.196 7.732L12.464 7 13.196 4.268"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

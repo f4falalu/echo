@@ -15,7 +15,7 @@ function copyright(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function copyright(props: iconProps) {
         <path
           d="M12.312,10.76c-.63,1.184-1.877,1.99-3.312,1.99-2.071,0-3.75-1.679-3.75-3.75s1.679-3.75,3.75-3.75c1.435,0,2.682,.806,3.312,1.99"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

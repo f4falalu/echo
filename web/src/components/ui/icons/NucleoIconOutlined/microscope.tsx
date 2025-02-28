@@ -13,7 +13,7 @@ function microscope(props: iconProps) {
         <path
           d="M9.797 6.684L10.789 7.995"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function microscope(props: iconProps) {
         <path
           d="M6.494,4.928l-1.703,1.289c-1.541,1.167-1.845,3.362-.678,4.903l.571,.754"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function microscope(props: iconProps) {
         <path
           d="M10.217 12.197L14.435 9.004"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function microscope(props: iconProps) {
         <path
           d="M15.25,15.25H2.75v-.75c0-1.519,1.231-2.75,2.75-2.75s2.75,1.231,2.75,2.75v.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -48,7 +48,7 @@ function microscope(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

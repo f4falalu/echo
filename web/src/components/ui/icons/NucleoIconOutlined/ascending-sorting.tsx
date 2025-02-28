@@ -13,7 +13,7 @@ function ascendingSorting(props: iconProps) {
         <path
           d="M15.25 8.75L12.75 6.25 10.25 8.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function ascendingSorting(props: iconProps) {
         <path
           d="M12.75 6.25L12.75 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function ascendingSorting(props: iconProps) {
         <path
           d="M2.75 9.75L7.75 9.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function ascendingSorting(props: iconProps) {
         <path
           d="M2.75 6.25L7.75 6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function ascendingSorting(props: iconProps) {
         <path
           d="M2.75 2.75L12.75 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

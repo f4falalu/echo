@@ -13,7 +13,7 @@ function filterPlus(props: iconProps) {
         <path
           d="M13.25 9.25L13.25 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function filterPlus(props: iconProps) {
         <path
           d="M10.5,9L15.25,2.75H2.75l4.75,6.25v7.25l3-1.5v-.525"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function filterPlus(props: iconProps) {
         <path
           d="M15.75 11.75L10.75 11.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

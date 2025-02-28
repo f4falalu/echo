@@ -15,7 +15,7 @@ function gear(props: iconProps) {
           cy="6"
           fill="currentColor"
           r=".75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function gear(props: iconProps) {
           cy="6"
           fill="none"
           r="4"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function gear(props: iconProps) {
         <path
           d="M6 0.75L6 2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function gear(props: iconProps) {
         <path
           d="M9.086 1.753L8.351 2.764"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -49,7 +49,7 @@ function gear(props: iconProps) {
         <path
           d="M10.993 4.378L9.804 4.764"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -57,7 +57,7 @@ function gear(props: iconProps) {
         <path
           d="M10.993 7.622L9.804 7.236"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -65,7 +65,7 @@ function gear(props: iconProps) {
         <path
           d="M9.086 10.247L8.351 9.236"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -73,7 +73,7 @@ function gear(props: iconProps) {
         <path
           d="M6 11.25L6 10"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -81,7 +81,7 @@ function gear(props: iconProps) {
         <path
           d="M2.914 10.247L3.649 9.236"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -89,7 +89,7 @@ function gear(props: iconProps) {
         <path
           d="M1.007 7.622L2.196 7.236"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -97,7 +97,7 @@ function gear(props: iconProps) {
         <path
           d="M1.007 4.378L2.196 4.764"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -105,7 +105,7 @@ function gear(props: iconProps) {
         <path
           d="M2.914 1.753L3.649 2.764"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

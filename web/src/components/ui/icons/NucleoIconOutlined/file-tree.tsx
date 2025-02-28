@@ -13,7 +13,7 @@ function fileTree(props: iconProps) {
         <path
           d="M14.25,3.25v3.5c0,.552-.448,1-1,1h-2.5c-.552,0-1-.448-1-1V2.75c0-.552,.448-1,1-1h2l1.5,1.5Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function fileTree(props: iconProps) {
         <path
           d="M12.75 1.75L12.75 3.25 14.25 3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function fileTree(props: iconProps) {
         <path
           d="M14.25,11.75v3.5c0,.552-.448,1-1,1h-2.5c-.552,0-1-.448-1-1v-4c0-.552,.448-1,1-1h2l1.5,1.5Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function fileTree(props: iconProps) {
         <path
           d="M12.75 10.25L12.75 11.75 14.25 11.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function fileTree(props: iconProps) {
         <path
           d="M7.25,4.75h-2c-.828,0-1.5-.672-1.5-1.5V1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function fileTree(props: iconProps) {
         <path
           d="M7.25,13.25h-2c-.828,0-1.5-.672-1.5-1.5V3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

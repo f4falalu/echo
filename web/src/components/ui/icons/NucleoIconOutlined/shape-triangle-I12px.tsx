@@ -13,7 +13,7 @@ function shapeTriangle(props: iconProps) {
         <path
           d="m9.789,10.747c1.123,0,1.826-1.216,1.265-2.189L7.265,1.981c-.562-.975-1.969-.975-2.53,0L.946,8.558c-.561.973.142,2.189,1.265,2.189h7.579Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

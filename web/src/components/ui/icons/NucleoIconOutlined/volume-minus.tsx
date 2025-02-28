@@ -13,7 +13,7 @@ function volumeMinus(props: iconProps) {
         <path
           d="M11.25,6V2.664c0-.395-.437-.634-.77-.421l-5.48,3.508H2.25c-.828,0-1.5,.672-1.5,1.5v3.5c0,.828,.672,1.5,1.5,1.5h2.75l5.48,3.508c.333,.213,.77-.026,.77-.421v-3.336"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function volumeMinus(props: iconProps) {
         <path
           d="M17.25 9L12.25 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

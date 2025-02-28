@@ -13,7 +13,7 @@ function maskCircle(props: iconProps) {
         <path
           d="M2.029,10.971c.628,.177,1.287,.279,1.971,.279,4.004,0,7.25-3.246,7.25-7.25,0-.684-.101-1.344-.279-1.971"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function maskCircle(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

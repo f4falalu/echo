@@ -13,7 +13,7 @@ function musicNote2(props: iconProps) {
         <path
           d="M9.75,13.25V1.75s1.75,2.75,4.5,4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function musicNote2(props: iconProps) {
           cy="13.25"
           fill="none"
           r="3"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

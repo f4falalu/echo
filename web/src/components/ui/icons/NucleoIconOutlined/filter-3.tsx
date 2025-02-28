@@ -13,7 +13,7 @@ function filter3(props: iconProps) {
         <path
           d="M10.25 15.75L7.75 17.25 7.75 12.25 3.75 6.75 14.25 6.75 10.25 12.25 10.25 15.75z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

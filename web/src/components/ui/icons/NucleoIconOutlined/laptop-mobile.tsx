@@ -16,7 +16,7 @@ function laptopMobile(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -27,7 +27,7 @@ function laptopMobile(props: iconProps) {
         <path
           d="M1.75 13L8 13"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function laptopMobile(props: iconProps) {
         <path
           d="M15.25,5v-.25c0-1.105-.895-2-2-2H4.75c-1.105,0-2,.895-2,2v6.375c0,1.036,.839,1.875,1.875,1.875h0"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

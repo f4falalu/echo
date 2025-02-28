@@ -15,7 +15,7 @@ function faceLaughing2(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -27,7 +27,7 @@ function faceLaughing2(props: iconProps) {
         <path
           d="M8.25,13.25c-.69,0-1.25-.56-1.25-1.25s.56-1.25,1.25-1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function faceLaughing2(props: iconProps) {
         <path
           d="M8.25,7.25c-.69,0-1.25-.56-1.25-1.25s.56-1.25,1.25-1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -43,7 +43,7 @@ function faceLaughing2(props: iconProps) {
         <path
           d="M0.75 16.25L2.75 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function borderCenterY(props: iconProps) {
         <path
           d="M15.25 9L2.75 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

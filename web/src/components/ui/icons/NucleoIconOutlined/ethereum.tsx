@@ -13,7 +13,7 @@ function ethereum(props: iconProps) {
         <path
           d="M3.25 9.5L9 16.75 14.75 9.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function ethereum(props: iconProps) {
         <path
           d="M9 12L9 16.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function ethereum(props: iconProps) {
         <path
           d="M14.75 9.5L9 1.25 3.25 9.5 9 12 14.75 9.5z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function ethereum(props: iconProps) {
         <path
           d="M9 1.25L9 12"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

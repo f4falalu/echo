@@ -13,7 +13,7 @@ function threeWayArrowSplit(props: iconProps) {
         <path
           d="M2.75,7.75l5.664,5.664c.375,.375,.586,.884,.586,1.414"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function threeWayArrowSplit(props: iconProps) {
         <path
           d="M15.25,7.75l-5.664,5.664c-.375,.375-.586,.884-.586,1.414"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function threeWayArrowSplit(props: iconProps) {
         <path
           d="M9 1.75L9 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function threeWayArrowSplit(props: iconProps) {
         <path
           d="M11.75 4.5L9 1.75 6.25 4.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function threeWayArrowSplit(props: iconProps) {
         <path
           d="M15.25 11.25L15.25 7.75 11.75 7.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function threeWayArrowSplit(props: iconProps) {
         <path
           d="M2.75 11.25L2.75 7.75 6.25 7.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

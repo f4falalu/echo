@@ -13,7 +13,7 @@ function penWriting8(props: iconProps) {
         <path
           d="M7.821,12.75s2.501-.648,3.596-2.255l4.037-5.921c.529-.776,.329-1.835-.447-2.364h0c-.776-.529-1.835-.329-2.364,.447l-4.037,5.921c-1.095,1.607-.785,4.172-.785,4.172Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function penWriting8(props: iconProps) {
         <path
           d="M2.25 12.75L4.75 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function penWriting8(props: iconProps) {
         <path
           d="M2.25 16.25L15.75 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

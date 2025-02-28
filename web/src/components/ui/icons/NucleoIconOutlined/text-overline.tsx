@@ -13,7 +13,7 @@ function textOverline(props: iconProps) {
         <path
           d="M12.99 15.25L9.305 5.75 8.695 5.75 5.01 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function textOverline(props: iconProps) {
         <path
           d="M5.98 12.75L12.02 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -30,7 +30,7 @@ function textOverline(props: iconProps) {
           id="1739897115942-5271609_color"
           d="M15.25 2.75L2.75 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

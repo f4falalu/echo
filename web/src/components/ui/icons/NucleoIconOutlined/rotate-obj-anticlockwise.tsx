@@ -16,7 +16,7 @@ function rotateObjAnticlockwise(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -27,7 +27,7 @@ function rotateObjAnticlockwise(props: iconProps) {
         <path
           d="M15.75,7.25c0-2.209-1.791-4-4-4h-2.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function rotateObjAnticlockwise(props: iconProps) {
         <path
           d="M11.75 1L9.5 3.25 11.75 5.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

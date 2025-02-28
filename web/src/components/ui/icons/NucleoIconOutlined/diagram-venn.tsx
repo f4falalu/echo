@@ -13,7 +13,7 @@ function diagramVenn(props: iconProps) {
         <path
           d="M5.948 7.25L12.052 7.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function diagramVenn(props: iconProps) {
         <path
           d="M6.107 10.75L11.893 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function diagramVenn(props: iconProps) {
           cy="8.75"
           fill="none"
           r="5.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function diagramVenn(props: iconProps) {
           cy="8.75"
           fill="none"
           r="5.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

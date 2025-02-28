@@ -13,7 +13,7 @@ function connections(props: iconProps) {
         <path
           d="M8.875 3.125L3.125 8.875"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function connections(props: iconProps) {
         <path
           d="M3.125 3.125L8.875 8.875"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function connections(props: iconProps) {
           fill="none"
           rx="1.246"
           ry="1.246"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

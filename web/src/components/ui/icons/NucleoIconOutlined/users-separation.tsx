@@ -13,7 +13,7 @@ function usersSeparation(props: iconProps) {
         <path
           d="M9 2L9 16"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function usersSeparation(props: iconProps) {
         <path
           d="M4,9.25h0c1.243,0,2.25,1.007,2.25,2.25v2.25c0,.552-.448,1-1,1H2.75c-.552,0-1-.448-1-1v-2.25c0-1.243,1.007-2.25,2.25-2.25Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function usersSeparation(props: iconProps) {
         <path
           d="M14,9.25h0c-1.243,0-2.25,1.007-2.25,2.25v2.25c0,.552,.448,1,1,1h2.5c.552,0,1-.448,1-1v-2.25c0-1.243-1.007-2.25-2.25-2.25Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function usersSeparation(props: iconProps) {
           cy="5.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -49,7 +49,7 @@ function usersSeparation(props: iconProps) {
           cy="5.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function savedItems(props: iconProps) {
         <path
           d="M11.75,2.75h1.5c1.105,0,2,.895,2,2V13.25c0,1.105-.895,2-2,2H4.75c-1.105,0-2-.895-2-2V4.75c0-1.105,.895-2,2-2h1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function savedItems(props: iconProps) {
         <path
           d="M11.75 10.25L9 8.25 6.25 10.25 6.25 2.75 11.75 2.75 11.75 10.25z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

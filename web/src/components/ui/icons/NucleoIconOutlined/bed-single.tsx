@@ -13,7 +13,7 @@ function bedSingle(props: iconProps) {
         <path
           d="M6.75 8.75L6.75 5.75 11.25 5.75 11.25 8.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function bedSingle(props: iconProps) {
         <path
           d="M15.25 13.25L2.75 13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function bedSingle(props: iconProps) {
         <path
           d="M2.75,15.25v-4.5c0-1.105,.895-2,2-2H13.25c1.105,0,2,.895,2,2v4.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function bedSingle(props: iconProps) {
         <path
           d="M3.75,8.75V3.75c0-.552,.448-1,1-1H13.25c.552,0,1,.448,1,1v5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -21,7 +21,7 @@ function cropAlphaGrid(props: iconProps) {
         <path
           d="M6.75,4.25h6c.552,0,1,.448,1,1v11"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function cropAlphaGrid(props: iconProps) {
         <path
           d="M1.75 4.25L4.25 4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function cropAlphaGrid(props: iconProps) {
         <path
           d="M16.25,13.75H5.25c-.552,0-1-.448-1-1V1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

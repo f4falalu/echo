@@ -16,7 +16,7 @@ function grid3(props: iconProps) {
           fill="none"
           rx=".75"
           ry=".75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function grid3(props: iconProps) {
           fill="none"
           rx=".75"
           ry=".75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +42,7 @@ function grid3(props: iconProps) {
           fill="none"
           rx=".75"
           ry=".75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -55,7 +55,7 @@ function grid3(props: iconProps) {
           fill="none"
           rx=".75"
           ry=".75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -68,7 +68,7 @@ function grid3(props: iconProps) {
           fill="none"
           rx=".75"
           ry=".75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -81,7 +81,7 @@ function grid3(props: iconProps) {
           fill="none"
           rx=".75"
           ry=".75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -94,7 +94,7 @@ function grid3(props: iconProps) {
           fill="none"
           rx=".75"
           ry=".75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -107,7 +107,7 @@ function grid3(props: iconProps) {
           fill="none"
           rx=".75"
           ry=".75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -120,7 +120,7 @@ function grid3(props: iconProps) {
           fill="none"
           rx=".75"
           ry=".75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

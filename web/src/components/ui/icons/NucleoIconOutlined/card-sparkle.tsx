@@ -13,7 +13,7 @@ function cardSparkle(props: iconProps) {
         <path
           d="M9 5.75L9.921 8.079 12.25 9 9.921 9.921 9 12.25 8.079 9.921 5.75 9 8.079 8.079 9 5.75z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function cardSparkle(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

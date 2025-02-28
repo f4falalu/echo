@@ -16,7 +16,7 @@ function headphones3(props: iconProps) {
           fill="none"
           rx="1.25"
           ry="1.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function headphones3(props: iconProps) {
           fill="none"
           rx="1.25"
           ry="1.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +40,7 @@ function headphones3(props: iconProps) {
         <path
           d="M16.25,12.25V7.75c0-3.314-2.686-6-6-6h-2.5c-3.314,0-6,2.686-6,6v4.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

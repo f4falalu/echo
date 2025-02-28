@@ -13,7 +13,7 @@ function layoutMainContent(props: iconProps) {
         <path
           d="M8,15.25H3.75c-1.105,0-2-.895-2-2V4.75c0-1.105,.895-2,2-2h4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function layoutMainContent(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

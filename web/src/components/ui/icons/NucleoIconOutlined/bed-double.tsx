@@ -13,7 +13,7 @@ function bedDouble(props: iconProps) {
         <path
           d="M5.75 8.75L5.75 5.75 12.25 5.75 12.25 8.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function bedDouble(props: iconProps) {
         <path
           d="M9 5.75L9 8.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function bedDouble(props: iconProps) {
         <path
           d="M16.25 13.25L1.75 13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function bedDouble(props: iconProps) {
         <path
           d="M1.75,15.25v-4.5c0-1.105,.895-2,2-2H14.25c1.105,0,2,.895,2,2v4.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function bedDouble(props: iconProps) {
         <path
           d="M2.75,8.75V3.75c0-.552,.448-1,1-1H14.25c.552,0,1,.448,1,1v5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

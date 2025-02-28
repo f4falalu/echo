@@ -13,7 +13,7 @@ function medal(props: iconProps) {
         <path
           d="M5.033,8.917L1.204,2.507c-.2-.333,.04-.757,.429-.757h3.084c.176,0,.338,.092,.429,.243l2.906,4.853"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function medal(props: iconProps) {
         <path
           d="M12.986,8.917l3.81-6.41c.2-.333-.04-.757-.429-.757h-3.084c-.176,0-.338,.092-.429,.243l-2.906,4.853"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function medal(props: iconProps) {
           cy="11.5"
           fill="none"
           r="4.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

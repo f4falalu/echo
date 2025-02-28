@@ -13,7 +13,7 @@ function arrowTriangleLineExpandDiagonal3(props: iconProps) {
         <path
           d="M12.875 5.125L5.125 12.875"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowTriangleLineExpandDiagonal3(props: iconProps) {
         <path
           d="M2.75,11.104v3.896c0,.138,.112,.25,.25,.25h3.896c.223,0,.334-.269,.177-.427l-3.896-3.896c-.157-.157-.427-.046-.427,.177Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function arrowTriangleLineExpandDiagonal3(props: iconProps) {
         <path
           d="M11.104,2.75h3.896c.138,0,.25,.112,.25,.25v3.896c0,.223-.269,.334-.427,.177l-3.896-3.896c-.157-.157-.046-.427,.177-.427Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

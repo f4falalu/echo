@@ -15,7 +15,7 @@ function magnifierAlert2(props: iconProps) {
           cy="7.75"
           fill="none"
           r="5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function magnifierAlert2(props: iconProps) {
         <path
           d="M7.75 5.5L7.75 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function magnifierAlert2(props: iconProps) {
         <path
           d="M15.25 15.25L11.285 11.285"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

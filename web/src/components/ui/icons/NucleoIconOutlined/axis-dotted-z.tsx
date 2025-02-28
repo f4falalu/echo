@@ -13,7 +13,7 @@ function axisDottedZ(props: iconProps) {
         <path
           d="M1.75 12.75L1.75 16.25 5.25 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function axisDottedZ(props: iconProps) {
         <path
           d="M1.75 16.25L7.25 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

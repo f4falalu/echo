@@ -13,7 +13,7 @@ function slice(props: iconProps) {
         <path
           d="M10.206,6.294L1.25,15.25c3.344,.25,6.125-.781,7.75-2.5l-.253-1.702,1.546-1.546"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function slice(props: iconProps) {
         <path
           d="M10.206,6.294l3.578-3.578c.621-.621,1.629-.621,2.25,0h0c.621,.621,.621,1.629,0,2.25l-3.578,3.578-2.25-2.25Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

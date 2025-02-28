@@ -13,7 +13,7 @@ function carElectric(props: iconProps) {
         <path
           d="M1.75,13.25v1.5c0,.276,.224,.5,.5,.5h1c.276,0,.5-.224,.5-.5v-1.5H1.75Z"
           fill="currentColor"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function carElectric(props: iconProps) {
         <path
           d="M14.25,13.25v1.5c0,.276,.224,.5,.5,.5h1c.276,0,.5-.224,.5-.5v-1.5h-2Z"
           fill="currentColor"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function carElectric(props: iconProps) {
         <path
           d="M1.5 7.75L16.5 7.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function carElectric(props: iconProps) {
         <path
           d="M7.5 10.75L10.5 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function carElectric(props: iconProps) {
         <path
           d="M5.347,2.856c-.601,.203-1.085,.686-1.275,1.319l-1.072,3.575-.664,.664c-.375,.375-.586,.884-.586,1.414v3.422h14.5v-3.422c0-.531-.211-1.039-.586-1.414l-.664-.664-1.072-3.575c-.181-.603-.634-1.059-1.196-1.278"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

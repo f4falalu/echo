@@ -13,7 +13,7 @@ function wallet3(props: iconProps) {
         <path
           d="M1.75,8.25c0-1.105,.895-2,2-2H14.25c1.105,0,2,.895,2,2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function wallet3(props: iconProps) {
         <path
           d="M16.25,9.25h-4c-.552,0-1,.448-1,1v.5c0,.552-.448,1-1,1h-2.5c-.552,0-1-.448-1-1v-.5c0-.552-.448-1-1-1H1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function wallet3(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

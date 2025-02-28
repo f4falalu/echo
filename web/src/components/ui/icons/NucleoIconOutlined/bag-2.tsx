@@ -13,7 +13,7 @@ function bag2(props: iconProps) {
         <path
           d="M3.05 5.12h9.92a0.89 0.89 0 0 1 0.89 0.82l0.45 5.71a1.78 1.78 0 0 1-1.77 1.92h-9.06a1.78 1.78 0 0 1-1.77-1.92l0.45-5.71a0.89 0.89 0 0 1 0.89-0.82z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function bag2(props: iconProps) {
         <path
           d="M5.56 6.9v-2.9a2.45 2.45 0 1 1 4.9 0v2.9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

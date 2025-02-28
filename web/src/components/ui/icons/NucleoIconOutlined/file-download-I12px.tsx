@@ -13,7 +13,7 @@ function fileDownload(props: iconProps) {
         <path
           d="m4.75,9.25l-2,2-2-2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function fileDownload(props: iconProps) {
         <path
           d="m2.75,11.25v-4.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function fileDownload(props: iconProps) {
         <path
           d="M6.75 0.75L6.75 4.25 10.25 4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +42,7 @@ function fileDownload(props: iconProps) {
         <path
           d="m6.285,11.25h1.965c1.105,0,2-.895,2-2v-5.001c0-.32-.127-.626-.353-.852l-2.294-2.294c-.226-.226-.532-.353-.852-.353h-3.001c-1.105,0-2,.895-2,2v1.461"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

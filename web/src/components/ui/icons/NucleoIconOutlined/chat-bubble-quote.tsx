@@ -13,7 +13,7 @@ function chatBubbleQuote(props: iconProps) {
         <path
           d="M13.75,2.75H4.25c-1.105,0-2,.895-2,2v11.5l3.75-3h7.75c1.105,0,2-.895,2-2V4.75c0-1.105-.895-2-2-2Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function chatBubbleQuote(props: iconProps) {
         <path
           d="M5.75,8.75h2v1.5h-2v-1.5c0-1.793,.598-2.582,1.674-3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function chatBubbleQuote(props: iconProps) {
         <path
           d="M10.25,8.75h2v1.5h-2v-1.5c0-1.793,.598-2.582,1.674-3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

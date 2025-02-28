@@ -13,7 +13,7 @@ function microphone(props: iconProps) {
         <path
           d="m10.75,5c0,2.619-2.131,4.75-4.75,4.75S1.25,7.619,1.25,5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function microphone(props: iconProps) {
         <path
           d="M6 9.75L6 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function microphone(props: iconProps) {
           fill="none"
           rx="2.25"
           ry="2.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

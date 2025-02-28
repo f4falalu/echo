@@ -21,7 +21,7 @@ function borderBottom(props: iconProps) {
         <path
           d="M10.75 10.75L1.25 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function squareDashedSparkle(props: iconProps) {
         <path
           d="m6.75,15.25h-2c-1.105,0-2-.895-2-2v-2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function squareDashedSparkle(props: iconProps) {
         <path
           d="m2.75,6.75v-2c0-1.105.895-2,2-2h2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function squareDashedSparkle(props: iconProps) {
         <path
           d="m15.25,11.25v2c0,1.105-.895,2-2,2h-2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function squareDashedSparkle(props: iconProps) {
         <path
           d="M9 5.25L10.25 7.75 12.75 9 10.25 10.25 9 12.75 7.75 10.25 5.25 9 7.75 7.75 9 5.25z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

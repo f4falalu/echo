@@ -13,7 +13,7 @@ function vrHeadset3(props: iconProps) {
         <path
           d="M3.75,5.75H14.25c1.105,0,2,.895,2,2v4.5c0,1.105-.895,2-2,2h-2c-.63,0-1.222-.296-1.6-.8l-.45-.6c-.6-.8-1.8-.8-2.4,0l-.45,.6c-.378,.504-.97,.8-1.6,.8H3.75c-1.105,0-2-.895-2-2V7.75c0-1.105,.895-2,2-2Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function vrHeadset3(props: iconProps) {
         <path
           d="M15.979,6.745l-1.892-3.049c-.365-.588-1.008-.946-1.699-.946h-3.387s-3.387,0-3.387,0c-.692,0-1.335,.358-1.699,.946l-1.892,3.049"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function vrHeadset3(props: iconProps) {
           cy="10"
           fill="currentColor"
           r=".75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function vrHeadset3(props: iconProps) {
           cy="10"
           fill="currentColor"
           r=".75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

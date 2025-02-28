@@ -13,7 +13,7 @@ function sunCloudHail(props: iconProps) {
         <path
           d="M8.251,6.826c0-.025,0-.05,0-.076,0-1.657,1.343-3,3-3s3,1.343,3,3c0,.084-.003,.168-.01,.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function sunCloudHail(props: iconProps) {
         <path
           d="M11.25 0.75L11.25 1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function sunCloudHail(props: iconProps) {
         <path
           d="M15.493 2.507L15.139 2.861"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function sunCloudHail(props: iconProps) {
         <path
           d="M7.007 2.507L7.361 2.861"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function sunCloudHail(props: iconProps) {
         <path
           d="M17.25 6.75L16.75 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function sunCloudHail(props: iconProps) {
         <path
           d="M14.418,14.16c1.056-.292,1.832-1.261,1.832-2.41,0-1.381-1.119-2.5-2.5-2.5-.413,0-.797,.11-1.14,.287-.427-1.602-1.874-2.787-3.61-2.787-1.736,0-3.182,1.186-3.61,2.787-.343-.177-.727-.287-1.14-.287-1.381,0-2.5,1.119-2.5,2.5,0,1.149,.775,2.117,1.832,2.41"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function sunCloudHail(props: iconProps) {
         <path
           d="M11.585,10.499c.239-.413,.594-.752,1.02-.972"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

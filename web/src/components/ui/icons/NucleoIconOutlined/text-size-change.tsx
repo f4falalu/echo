@@ -13,7 +13,7 @@ function textSizeChange(props: iconProps) {
         <path
           d="M7.75 2.75L7.75 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function textSizeChange(props: iconProps) {
         <path
           d="M13 2.75L2.5 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function textSizeChange(props: iconProps) {
         <path
           d="M16.25 9L14 6.75 11.75 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function textSizeChange(props: iconProps) {
         <path
           d="M16.25 12L14 14.25 11.75 12"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

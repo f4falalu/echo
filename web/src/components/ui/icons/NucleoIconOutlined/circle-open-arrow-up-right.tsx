@@ -13,7 +13,7 @@ function circleOpenArrowUpRight(props: iconProps) {
         <path
           d="M11.25 11.25L11.25 6.75 6.75 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function circleOpenArrowUpRight(props: iconProps) {
         <path
           d="M11.25 6.75L3.873 14.127"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function circleOpenArrowUpRight(props: iconProps) {
         <path
           d="M3.873,14.127c-2.831-2.831-2.831-7.422,0-10.253,2.831-2.831,7.422-2.831,10.253,0s2.831,7.422,0,10.253c-2.075,2.075-5.094,2.629-7.674,1.663"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

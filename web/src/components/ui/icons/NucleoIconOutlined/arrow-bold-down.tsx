@@ -13,7 +13,7 @@ function arrowBoldDown(props: iconProps) {
         <path
           d="M3.609,9.552l4.993,6.581c.2,.264,.597,.264,.797,0l4.993-6.581c.25-.329,.015-.802-.398-.802h-2.743V2.75c0-.552-.448-1-1-1h-2.5c-.552,0-1,.448-1,1v6h-2.743c-.413,0-.648,.473-.398,.802Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

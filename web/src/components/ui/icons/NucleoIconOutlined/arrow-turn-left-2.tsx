@@ -13,7 +13,7 @@ function arrowTurnLeft2(props: iconProps) {
         <path
           d="M2.75,8.25H13.25c1.105,0,2,.895,2,2v4"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowTurnLeft2(props: iconProps) {
         <path
           d="M7 12.5L2.75 8.25 7 4"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

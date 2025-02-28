@@ -13,7 +13,7 @@ function sprayCan(props: iconProps) {
         <path
           d="M13.25 13.25L8.75 13.25 8.75 8.75 13.25 8.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function sprayCan(props: iconProps) {
         <path
           d="M6.75,4.75h3.5c1.656,0,3,1.344,3,3v7.5c0,.552-.448,1-1,1H4.75c-.552,0-1-.448-1-1V7.75c0-1.656,1.344-3,3-3Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function sprayCan(props: iconProps) {
         <path
           d="M6.75,4.75V1.75c0-.552,.448-1,1-1h1.5c.552,0,1,.448,1,1v3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

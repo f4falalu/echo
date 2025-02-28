@@ -13,7 +13,7 @@ function focusMode(props: iconProps) {
         <path
           d="M6,15.602c-2.507-1.141-4.25-3.668-4.25-6.602S3.493,3.539,6,2.398"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function focusMode(props: iconProps) {
         <path
           d="M12,15.602c2.507-1.141,4.25-3.668,4.25-6.602,0-2.934-1.743-5.461-4.25-6.602"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function focusMode(props: iconProps) {
           cy="9"
           fill="none"
           r="3.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -15,7 +15,7 @@ function peopleRoof(props: iconProps) {
           cy="8.25"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function peopleRoof(props: iconProps) {
           cy="8.25"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function peopleRoof(props: iconProps) {
         <path
           d="M1.32,16c.351-1.851,1.977-3.25,3.93-3.25s3.579,1.399,3.93,3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function peopleRoof(props: iconProps) {
         <path
           d="M11,13.152c.529-.258,1.123-.402,1.75-.402,1.953,0,3.579,1.399,3.93,3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -49,7 +49,7 @@ function peopleRoof(props: iconProps) {
         <path
           d="M1.75 4.25L9 0.75 16.25 4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function uTurnToDown(props: iconProps) {
         <path
           d="M11.75,15.75V6c0-2.071-1.679-3.75-3.75-3.75h0c-2.071,0-3.75,1.679-3.75,3.75v3.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function uTurnToDown(props: iconProps) {
         <path
           d="M8.25 12.25L11.75 15.75 15.25 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

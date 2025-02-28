@@ -13,7 +13,7 @@ function golfFlag(props: iconProps) {
         <path
           d="M9,8.75c4.004,0,7.25,1.455,7.25,3.25s-3.246,3.25-7.25,3.25-7.25-1.455-7.25-3.25c0-.824,.684-1.576,1.811-2.149"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function golfFlag(props: iconProps) {
         <path
           d="M6.25 11.25L6.25 1.75 11.25 4 6.25 6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

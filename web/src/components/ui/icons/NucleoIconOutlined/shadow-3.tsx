@@ -13,7 +13,7 @@ function shadow3(props: iconProps) {
         <path
           d="M6.25,11.75v2.5c0,.552,.448,1,1,1h7c.552,0,1-.448,1-1V7.25c0-.552-.448-1-1-1h-2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function shadow3(props: iconProps) {
         <path
           d="M11.482 11.482L14.953 14.953"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function shadow3(props: iconProps) {
         <path
           d="M11.75 7.75L15.25 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function shadow3(props: iconProps) {
         <path
           d="M7.75 11.75L11.25 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -48,7 +48,7 @@ function shadow3(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

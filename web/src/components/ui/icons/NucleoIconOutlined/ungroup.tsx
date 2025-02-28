@@ -13,7 +13,7 @@ function ungroup(props: iconProps) {
         <path
           d="m2.75,2.75v10c0,1.105.895,2,2,2h10.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function ungroup(props: iconProps) {
         <path
           d="m15.25,8.25V2.75h-5.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function ungroup(props: iconProps) {
         <path
           d="M11.25 10.25L11.25 6.75 7.75 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function ungroup(props: iconProps) {
         <path
           d="M11 7L6.75 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

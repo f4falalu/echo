@@ -13,7 +13,7 @@ function check(props: iconProps) {
         <path
           d="m1.76,7.004l2.25,3L10.24,1.746"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

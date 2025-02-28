@@ -15,7 +15,7 @@ function ticket4(props: iconProps) {
         <path
           d="M14.25,3.75h-6c0,.828-.672,1.5-1.5,1.5s-1.5-.672-1.5-1.5h-1.5c-1.105,0-2,.896-2,2v6.5c0,1.104,.895,2,2,2h1.5c0-.828,.672-1.5,1.5-1.5s1.5,.672,1.5,1.5h6c1.105,0,2-.896,2-2V5.75c0-1.104-.895-2-2-2Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

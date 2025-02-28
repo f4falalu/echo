@@ -13,7 +13,7 @@ function goldBars(props: iconProps) {
         <path
           d="M3.048,9.25h3.404c.467,0,.872,.323,.975,.778l1.073,4.722H1l1.073-4.722c.103-.455,.508-.778,.975-.778Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function goldBars(props: iconProps) {
         <path
           d="M11.548,9.25h3.404c.467,0,.872,.323,.975,.778l1.073,4.722h-7.5l1.073-4.722c.103-.455,.508-.778,.975-.778Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function goldBars(props: iconProps) {
         <path
           d="M7.298,3.75h3.404c.467,0,.872,.323,.975,.778l1.073,4.722H5.25l1.073-4.722c.103-.455,.508-.778,.975-.778Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function goldBars(props: iconProps) {
         <path
           d="M8.5 14.75L9.5 14.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

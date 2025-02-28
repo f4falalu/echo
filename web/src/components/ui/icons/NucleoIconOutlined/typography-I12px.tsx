@@ -13,7 +13,7 @@ function typography(props: iconProps) {
         <path
           d="M6 1.25L6 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function typography(props: iconProps) {
         <path
           d="M10.75 2.5L10 1.25 2 1.25 1.25 2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function typography(props: iconProps) {
         <path
           d="M7.75 10.75L4.25 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -15,7 +15,7 @@ function circleSignal(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function circleSignal(props: iconProps) {
         <path
           d="M10.768,9.482c-.452-.452-1.077-.732-1.768-.732-.69,0-1.315,.28-1.768,.732"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function circleSignal(props: iconProps) {
         <path
           d="M12.536,7.714c-.905-.905-2.155-1.464-3.536-1.464-1.381,0-2.631,.56-3.536,1.464"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

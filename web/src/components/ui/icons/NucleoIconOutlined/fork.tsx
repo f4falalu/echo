@@ -13,7 +13,7 @@ function fork(props: iconProps) {
         <path
           d="M9 8.75L9 15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function fork(props: iconProps) {
         <path
           d="M9 2.25L9 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function fork(props: iconProps) {
         <path
           d="M11.5,2.25l.144,3.752c.058,1.5-1.143,2.748-2.644,2.748h0c-1.501,0-2.702-1.248-2.644-2.748l.144-3.752"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

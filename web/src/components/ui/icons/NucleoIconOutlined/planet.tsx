@@ -15,7 +15,7 @@ function planet(props: iconProps) {
           cy="9"
           fill="none"
           r="6.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function planet(props: iconProps) {
         <path
           d="M13.948,2c.931-.332,1.646-.344,2.021,.031,1.1,1.1-1.129,5.111-4.978,8.96-3.849,3.849-7.861,6.078-8.96,4.978-.375-.375-.363-1.09-.031-2.021"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

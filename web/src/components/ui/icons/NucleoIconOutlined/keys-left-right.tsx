@@ -16,7 +16,7 @@ function keysLeftRight(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function keysLeftRight(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function keysLeftRight(props: iconProps) {
         <path
           d="M12.75,1.25c0,.828-.672,1.5-1.5,1.5H6.75c-.828,0-1.5-.672-1.5-1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -47,7 +47,7 @@ function keysLeftRight(props: iconProps) {
         <path
           d="M12.75,16.75c0-.828-.672-1.5-1.5-1.5H6.75c-.828,0-1.5,.672-1.5,1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -55,7 +55,7 @@ function keysLeftRight(props: iconProps) {
         <path
           d="M4.5 7.75L3.25 9 4.5 10.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -63,7 +63,7 @@ function keysLeftRight(props: iconProps) {
         <path
           d="M13.5 7.75L14.75 9 13.5 10.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

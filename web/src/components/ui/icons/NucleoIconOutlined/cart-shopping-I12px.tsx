@@ -15,7 +15,7 @@ function cartShopping(props: iconProps) {
         <path
           d="m2.255,3.25h8.135c.316,0,.552.289.49.598l-.639,3.196c-.14.701-.756,1.206-1.471,1.206h-4.477c-.743,0-1.374-.544-1.484-1.279l-.727-4.88c-.051-.342-.275-.633-.591-.77l-.74-.321"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function xmasDecorations(props: iconProps) {
         <path
           d="M9 1.75L9 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function xmasDecorations(props: iconProps) {
         <path
           d="M7.25,8.5v-1.75c0-.552,.448-1,1-1h1.5c.552,0,1,.448,1,1v1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function xmasDecorations(props: iconProps) {
         <path
           d="M15.75 2.75L15.75 6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function xmasDecorations(props: iconProps) {
         <path
           d="M5 12.25L13 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function xmasDecorations(props: iconProps) {
         <path
           d="M2.25 2.75L2.25 6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -55,7 +55,7 @@ function xmasDecorations(props: iconProps) {
           cy="7.5"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -65,7 +65,7 @@ function xmasDecorations(props: iconProps) {
           cy="7.5"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -75,7 +75,7 @@ function xmasDecorations(props: iconProps) {
           cy="12.25"
           fill="none"
           r="4"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -15,7 +15,7 @@ function radio(props: iconProps) {
           cy="9"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function radio(props: iconProps) {
         <path
           d="M5.641,12.359c-1.855-1.855-1.855-4.863,0-6.718"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function radio(props: iconProps) {
         <path
           d="M3.52,14.48C.493,11.454,.493,6.546,3.52,3.52"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function radio(props: iconProps) {
         <path
           d="M12.359,12.359c1.855-1.855,1.855-4.863,0-6.718"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -47,7 +47,7 @@ function radio(props: iconProps) {
         <path
           d="M14.48,14.48c3.027-3.027,3.027-7.934,0-10.96"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

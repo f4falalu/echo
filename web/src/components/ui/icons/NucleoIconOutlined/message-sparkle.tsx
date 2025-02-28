@@ -13,7 +13,7 @@ function messageSparkle(props: iconProps) {
         <path
           d="M16.25,9.66V4.25c0-1.104-.895-2-2-2H3.75c-1.105,0-2,.896-2,2v7c0,1.104,.895,2,2,2h2v3l2.673-2.138"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function messageSparkle(props: iconProps) {
         <path
           d="M13.75 10.25L14.75 12.25 16.75 13.25 14.75 14.25 13.75 16.25 12.75 14.25 10.75 13.25 12.75 12.25 13.75 10.25z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

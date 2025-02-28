@@ -13,7 +13,7 @@ function suitcase3(props: iconProps) {
         <path
           d="m.75,6.75c3.547,1.337,7.047,1.337,10.5,0"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function suitcase3(props: iconProps) {
         <path
           d="M6 8.75L6 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function suitcase3(props: iconProps) {
         <path
           d="m3.75,3.75V1.75c0-.552.448-1,1-1h2.5c.552,0,1,.448,1,1v2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +40,7 @@ function suitcase3(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

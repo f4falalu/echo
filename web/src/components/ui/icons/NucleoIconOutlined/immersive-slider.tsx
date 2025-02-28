@@ -13,7 +13,7 @@ function immersiveSlider(props: iconProps) {
         <path
           d="m12.75,4.75h-7.5l-3.126-1.7863c-.1667-.0952-.374.0251-.374.2171v11.1384c0,.192.2074.3123.374.2171l3.126-1.7863h7.5l3.126,1.7863c.1667.0952.374-.0251.374-.2171V3.1808c0-.192-.2074-.3123-.374-.2171l-3.126,1.7863Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function immersiveSlider(props: iconProps) {
         <path
           d="M5.25 4.75L5.25 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function immersiveSlider(props: iconProps) {
         <path
           d="M12.75 4.75L12.75 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function immersiveSlider(props: iconProps) {
         <path
           d="M8.75 15.75L12.25 15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

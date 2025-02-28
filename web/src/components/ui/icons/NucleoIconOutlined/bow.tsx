@@ -13,7 +13,7 @@ function bow(props: iconProps) {
         <path
           d="M10.75 7L13 7"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function bow(props: iconProps) {
         <path
           d="M7.25 7L5 7"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function bow(props: iconProps) {
         <path
           d="M9.787,9.25c-.917,1.862-1.771,4.181-2.554,7l-.947-2.287-2.287,.947c.549-2.049,1.337-4.107,2.293-6.17"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function bow(props: iconProps) {
         <path
           d="M10.311,14.693c.154,.501,.306,1.02,.455,1.557l.947-2.287,2.287,.947c-.549-2.049-1.337-4.107-2.293-6.17"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function bow(props: iconProps) {
         <path
           d="M7.25,6c-1.139-1.282-2.43-2.342-4.136-2.798-.582-.156-1.182,.265-1.238,.865-.181,1.953-.092,3.722,.202,5.349,.092,.51,.581,.879,1.092,.797,1.325-.211,2.693-1.074,4.079-2.214"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function bow(props: iconProps) {
         <path
           d="M10.75,6c1.139-1.282,2.43-2.342,4.136-2.798,.582-.156,1.182,.265,1.238,.865,.181,1.953,.092,3.722-.202,5.349-.092,.51-.581,.879-1.092,.797-1.325-.211-2.693-1.074-4.079-2.214"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -64,7 +64,7 @@ function bow(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

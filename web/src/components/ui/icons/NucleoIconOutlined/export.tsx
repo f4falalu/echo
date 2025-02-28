@@ -20,7 +20,7 @@ function exportIcon(props: iconProps) {
         <path
           d="M11.75,7.25h1c1.105,0,2,.895,2,2v5c0,1.105-.895,2-2,2H5.25c-1.105,0-2-.895-2-2v-5c0-1.105,.895-2,2-2h1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -28,7 +28,7 @@ function exportIcon(props: iconProps) {
         <path
           d="M6 4.25L9 1.25 12 4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -36,7 +36,7 @@ function exportIcon(props: iconProps) {
         <path
           d="M9 1.25L9 12"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

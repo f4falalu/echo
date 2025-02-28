@@ -15,7 +15,7 @@ function stillRings(props: iconProps) {
           cy="11.5"
           fill="none"
           r="3.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function stillRings(props: iconProps) {
         <path
           d="M11,7.963c.391-.138,.812-.213,1.25-.213,2.071,0,3.75,1.679,3.75,3.75s-1.679,3.75-3.75,3.75c-.438,0-.859-.075-1.25-.213"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function stillRings(props: iconProps) {
         <path
           d="M5.75 7.75L5.75 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function stillRings(props: iconProps) {
         <path
           d="M12.25 7.75L12.25 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

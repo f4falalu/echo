@@ -13,7 +13,7 @@ function boxArchive3(props: iconProps) {
         <path
           d="M2.75 4.75L5 1.75 13 1.75 15.25 4.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function boxArchive3(props: iconProps) {
         <path
           d="m2.75,4.75h12.5v9.5c0,1.104-.896,2-2,2H4.75c-1.104,0-2-.896-2-2V4.75h0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function boxArchive3(props: iconProps) {
         <path
           d="M11 7.75L7 7.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

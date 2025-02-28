@@ -13,7 +13,7 @@ function routeOpen(props: iconProps) {
         <path
           d="M17 9L14.75 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function routeOpen(props: iconProps) {
         <path
           d="M1 9L3.25 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function routeOpen(props: iconProps) {
         <path
           d="M6.497 9.599L8.106 11.208 11.503 6.792"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function routeOpen(props: iconProps) {
           cy="9"
           fill="none"
           r="5.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function drawCompass(props: iconProps) {
         <path
           d="M9 1.5L9 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function drawCompass(props: iconProps) {
         <path
           d="M8.045 6.507L2.75 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function drawCompass(props: iconProps) {
         <path
           d="M13.484 13L15.25 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function drawCompass(props: iconProps) {
         <path
           d="M9.955 6.507L12.343 10.901"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function drawCompass(props: iconProps) {
         <path
           d="M14,9.649c-1.271,1.297-3.041,2.101-5,2.101s-3.73-.805-5-2.101"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -55,7 +55,7 @@ function drawCompass(props: iconProps) {
           cy="4.75"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function stage(props: iconProps) {
         <path
           d="M2.109,13.391l2.591-3.263c.19-.239,.478-.378,.783-.378h7.034c.305,0,.593,.139,.783,.378l2.591,3.263"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function stage(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

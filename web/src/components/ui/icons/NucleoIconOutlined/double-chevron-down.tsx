@@ -13,7 +13,7 @@ function doubleChevronDown(props: iconProps) {
         <path
           d="M13.25 9.75L9 14 4.75 9.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function doubleChevronDown(props: iconProps) {
         <path
           d="M13.25 5L9 9.25 4.75 5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

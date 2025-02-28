@@ -13,7 +13,7 @@ function arrowThroughLineRight(props: iconProps) {
         <path
           d="M8.25 12L8.25 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowThroughLineRight(props: iconProps) {
         <path
           d="M8.25 2.75L8.25 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function arrowThroughLineRight(props: iconProps) {
         <path
           d="M11.75 5.5L15.25 9 11.75 12.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function arrowThroughLineRight(props: iconProps) {
         <path
           d="M15.25 9L2.25 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

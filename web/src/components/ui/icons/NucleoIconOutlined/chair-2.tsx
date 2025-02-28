@@ -13,7 +13,7 @@ function chair2(props: iconProps) {
         <path
           d="M9 12.75L9 16.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function chair2(props: iconProps) {
         <path
           d="M9 14.5L5.75 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function chair2(props: iconProps) {
         <path
           d="M9 14.5L12.25 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function chair2(props: iconProps) {
         <path
           d="M15.187,7.765l-.404,3.233c-.125,1.001-.976,1.752-1.985,1.752h-3.798s-3.798,0-3.798,0c-1.009,0-1.859-.751-1.985-1.752l-.404-3.233"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function chair2(props: iconProps) {
         <path
           d="M5.75,10.25l-.737-6.266c-.14-1.189,.789-2.234,1.986-2.234h4.002c1.197,0,2.126,1.045,1.986,2.234l-.737,6.266"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

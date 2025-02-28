@@ -13,7 +13,7 @@ function folder5Open(props: iconProps) {
         <path
           d="M4.18,15.25h-.43c-1.105,0-2-.895-2-2V3.75c0-.552,.448-1,1-1h3.797c.288,0,.563,.125,.753,.342l2.325,2.658h5.626"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function folder5Open(props: iconProps) {
         <path
           d="M16.187,8.25H5.308c-.472,0-.879,.329-.978,.79l-1.071,5c-.133,.623,.341,1.21,.978,1.21H15.115c.472,0,.879-.329,.978-.79l1.071-5c.133-.623-.341-1.21-.978-1.21Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

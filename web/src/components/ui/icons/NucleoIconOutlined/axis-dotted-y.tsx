@@ -13,7 +13,7 @@ function axisDottedY(props: iconProps) {
         <path
           d="M10.225 4.237L7.75 1.763 5.275 4.237"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function axisDottedY(props: iconProps) {
         <path
           d="M7.75 10.75L7.75 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

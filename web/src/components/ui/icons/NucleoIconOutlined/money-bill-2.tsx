@@ -15,7 +15,7 @@ function moneyBill2(props: iconProps) {
           cy="9"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function moneyBill2(props: iconProps) {
         <path
           d="M1.75,13.75V4.25c2.396,1.074,4.568,1.221,7.25,0s4.854-1.25,7.25,0V13.75c-2.396-1.25-4.568-1.221-7.25,0s-4.854,1.074-7.25,0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

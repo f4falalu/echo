@@ -13,7 +13,7 @@ function sphere2(props: iconProps) {
         <path
           d="M16.25,9c0,1.657-3.246,3-7.25,3s-7.25-1.343-7.25-3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function sphere2(props: iconProps) {
         <path
           d="M8.972,1.778c1.657,0,3,3.246,3,7.25s-1.343,7.25-3,7.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function sphere2(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

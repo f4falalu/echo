@@ -18,7 +18,7 @@ function mirrorObj(props: iconProps) {
         <path
           d="M6.5,13.98l-3.017,.724c-.629,.151-1.233-.326-1.233-.972V5.538c0-.462,.317-.864,.767-.972l3.483-.836"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function mirrorObj(props: iconProps) {
         <path
           d="M11.5,13.98l3.017,.724c.629,.151,1.233-.326,1.233-.972V5.538c0-.462-.317-.864-.767-.972l-3.483-.836"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

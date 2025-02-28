@@ -16,7 +16,7 @@ function creditCards(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -27,7 +27,7 @@ function creditCards(props: iconProps) {
         <path
           d="M12.75,4.25c0-.828-.672-1.5-1.5-1.5H2.75c-.828,0-1.5,.672-1.5,1.5v5.492c0,.637,.397,1.18,.956,1.398"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function creditCards(props: iconProps) {
         <path
           d="M4.75 10.25L16.25 10.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

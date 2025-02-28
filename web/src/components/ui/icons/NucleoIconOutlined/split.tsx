@@ -13,7 +13,7 @@ function split(props: iconProps) {
         <path
           d="M6,9l2.159,3.337c.369,.57,1.001,.913,1.679,.913h5.412"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function split(props: iconProps) {
         <path
           d="M6,9l2.159-3.337c.369-.57,1.001-.913,1.679-.913h5.412"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function split(props: iconProps) {
         <path
           d="M1.75 9L6 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function split(props: iconProps) {
         <path
           d="M12.5 10.5L15.25 13.25 12.5 16"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function split(props: iconProps) {
         <path
           d="M12.5 2L15.25 4.75 12.5 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function paperPlane4(props: iconProps) {
         <path
           d="M9.386 9L4.993 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function paperPlane4(props: iconProps) {
         <path
           d="M15.472,9.458L4.005,15.412c-.404,.21-.863-.168-.733-.605l1.721-5.807L3.272,3.193c-.129-.437,.329-.815,.733-.605l11.466,5.954c.371,.193,.371,.724,0,.917Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

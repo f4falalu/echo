@@ -15,7 +15,7 @@ function faceGrinWink(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function faceGrinWink(props: iconProps) {
         <path
           d="M10,8.25c.138-.105,.604-.432,1.281-.422,.639,.01,1.077,.314,1.219,.422"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

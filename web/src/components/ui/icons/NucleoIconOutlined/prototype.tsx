@@ -13,7 +13,7 @@ function prototype(props: iconProps) {
         <path
           d="M10.25,13.25v2c0,.552-.448,1-1,1H3.75c-.552,0-1-.448-1-1V2.75c0-.552,.448-1,1-1h5.5c.552,0,1,.448,1,1v2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function prototype(props: iconProps) {
         <path
           d="M14.75 11.5L17.25 9 14.75 6.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function prototype(props: iconProps) {
         <path
           d="M17.25 9L12 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function prototype(props: iconProps) {
           cy="9"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

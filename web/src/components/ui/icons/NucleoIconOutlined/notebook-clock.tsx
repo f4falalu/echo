@@ -13,7 +13,7 @@ function notebookClock(props: iconProps) {
         <path
           d="M7.25 1.75L7.25 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function notebookClock(props: iconProps) {
         <path
           d="M9,16.25h-3.75c-1.105,0-2-.895-2-2V3.75c0-1.105,.895-2,2-2h7.5c1.105,0,2,.895,2,2v3.587"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function notebookClock(props: iconProps) {
         <path
           d="M1.75 9L4.75 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function notebookClock(props: iconProps) {
         <path
           d="M1.75 5.75L4.75 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function notebookClock(props: iconProps) {
         <path
           d="M1.75 12.25L4.75 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function notebookClock(props: iconProps) {
         <path
           d="M14.906 13.476L13.75 13 13.75 11.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -63,7 +63,7 @@ function notebookClock(props: iconProps) {
           cy="13"
           fill="none"
           r="3.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function gamingBlocks(props: iconProps) {
         <path
           d="M4.75,1.25h3.25c.552,0,1,.448,1,1V6.25H3.75V2.25c0-.552,.448-1,1-1Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function gamingBlocks(props: iconProps) {
         <path
           d="M9,11.75h5.25v4c0,.552-.448,1-1,1h-3.25c-.552,0-1-.448-1-1v-4h0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function gamingBlocks(props: iconProps) {
         <path
           d="M3.75,6.25h5.25v5.5H4.75c-.552,0-1-.448-1-1V6.25h0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function gamingBlocks(props: iconProps) {
         <path
           d="M9,6.25h4.25c.552,0,1,.448,1,1v4.5h-5.25V6.25h0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

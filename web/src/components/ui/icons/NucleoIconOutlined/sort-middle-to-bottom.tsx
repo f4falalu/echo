@@ -13,7 +13,7 @@ function sortMiddleToBottom(props: iconProps) {
         <path
           d="M11.5 12L9.25 14.25 11.5 16.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function sortMiddleToBottom(props: iconProps) {
         <path
           d="M2.25 3.75L15.75 3.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function sortMiddleToBottom(props: iconProps) {
         <path
           d="M2.25 14.25L6.25 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function sortMiddleToBottom(props: iconProps) {
         <path
           d="M2.25,9H13.125c1.45,0,2.625,1.175,2.625,2.625h0c0,1.45-1.175,2.625-2.625,2.625h-3.875"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

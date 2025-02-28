@@ -13,7 +13,7 @@ function arrowTurnUp2(props: iconProps) {
         <path
           d="m6.25,1.25v7.5c0,1.105-.895,2-2,2h-2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowTurnUp2(props: iconProps) {
         <path
           d="M3 4.25L6.25 1 9.5 4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

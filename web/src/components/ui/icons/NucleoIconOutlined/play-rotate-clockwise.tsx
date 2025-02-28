@@ -13,7 +13,7 @@ function playRotateClockwise(props: iconProps) {
         <path
           d="m11.652,8.568l-3.651-2.129c-.333-.194-.752.046-.752.432v4.259c0,.386.419.626.752.432l3.651-2.129c.331-.193.331-.671,0-.864h0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function playRotateClockwise(props: iconProps) {
         <path
           d="m1.75,9C1.75,4.996,4.996,1.75,9,1.75s7.25,3.246,7.25,7.25-3.246,7.25-7.25,7.25c-3.031,0-5.627-1.86-6.71-4.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function playRotateClockwise(props: iconProps) {
         <path
           d="M1.88 14.695L2.288 11.75 5.232 12.157"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

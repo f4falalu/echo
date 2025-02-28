@@ -13,7 +13,7 @@ function refresh3(props: iconProps) {
         <path
           d="m.754,6.201c.105,2.807,2.414,5.049,5.246,5.049,2.072,0,3.896-1.257,4.75-3v3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function refresh3(props: iconProps) {
         <path
           d="m11.246,5.799c-.105-2.807-2.414-5.049-5.246-5.049C3.928.75,2.104,2.007,1.25,3.75V.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

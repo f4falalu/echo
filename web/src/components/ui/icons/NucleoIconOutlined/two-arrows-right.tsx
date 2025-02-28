@@ -13,7 +13,7 @@ function twoArrowsRight(props: iconProps) {
         <path
           d="M2.75 6.25L15.25 6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function twoArrowsRight(props: iconProps) {
         <path
           d="M2.75 12.25L10.75 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function twoArrowsRight(props: iconProps) {
         <path
           d="M12.25 3.25L15.25 6.25 12.25 9.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function twoArrowsRight(props: iconProps) {
         <path
           d="M7.75 9.25L10.75 12.25 7.75 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

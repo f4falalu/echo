@@ -13,7 +13,7 @@ function iron(props: iconProps) {
         <path
           d="M5,6.25l5.519,.631c2.015,.23,3.778,1.463,4.685,3.278l1.046,2.091H1.75s.587-5.58,.787-7.479c.117-1.111,1.121-1.91,2.23-1.776,1.609,.195,3.218,.39,4.827,.585"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function iron(props: iconProps) {
         <path
           d="M1.75 14.75L16.25 14.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

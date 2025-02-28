@@ -13,7 +13,7 @@ function vShapedArrowRight(props: iconProps) {
         <path
           d="M7.5 2.75L11.75 9 7.5 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

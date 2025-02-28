@@ -13,7 +13,7 @@ function filter2Off(props: iconProps) {
         <path
           d="M10.5 11.035L10.5 16.25 7.5 16.25 7.5 14.035"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function filter2Off(props: iconProps) {
         <path
           d="M7.5,10.5v-1.5L3.106,5.3c-.226-.19-.356-.47-.356-.765v-1.785H15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function filter2Off(props: iconProps) {
         <path
           d="M2 16L16.25 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

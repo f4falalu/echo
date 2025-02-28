@@ -13,7 +13,7 @@ function checkDouble(props: iconProps) {
         <path
           d="M0.75 9.5L4.5 14.25 12.5 4"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function checkDouble(props: iconProps) {
         <path
           d="M8.506 13.308L9.25 14.25 17.25 4"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

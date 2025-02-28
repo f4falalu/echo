@@ -16,7 +16,7 @@ function animationObj(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -27,7 +27,7 @@ function animationObj(props: iconProps) {
         <path
           d="M6.068,14.189l-3.775-3.775c-.781-.781-.781-2.047,0-2.828l3.775-3.775"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

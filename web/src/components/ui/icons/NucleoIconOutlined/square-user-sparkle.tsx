@@ -13,7 +13,7 @@ function squareUserSparkle(props: iconProps) {
         <path
           d="M5.126,15.25c.444-1.725,2.01-3,3.874-3s3.43,1.275,3.874,3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -28,7 +28,7 @@ function squareUserSparkle(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

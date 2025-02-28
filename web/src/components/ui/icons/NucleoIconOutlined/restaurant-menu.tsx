@@ -14,7 +14,7 @@ function restaurantMenu(props: iconProps) {
         <path
           d="M3.25 2.75L12.75 1.75 12.75 16.25 3.25 15.25 3.25 2.75z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -22,7 +22,7 @@ function restaurantMenu(props: iconProps) {
         <path
           d="M15.75 2.75L15.75 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -30,7 +30,7 @@ function restaurantMenu(props: iconProps) {
         <path
           d="M6 9.25L10 9.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -38,7 +38,7 @@ function restaurantMenu(props: iconProps) {
         <path
           d="M6 12.25L10 12.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

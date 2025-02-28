@@ -13,7 +13,7 @@ function cornerRadius(props: iconProps) {
         <path
           d="m2.75,15.25v-6.5c0-3.3137,2.6863-6,6-6h6.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

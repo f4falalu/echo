@@ -13,7 +13,7 @@ function equalLessThan(props: iconProps) {
         <path
           d="M3.75 15.75L14.25 15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function equalLessThan(props: iconProps) {
         <path
           d="M14 2.25L4 7.5 14 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

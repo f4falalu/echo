@@ -13,7 +13,7 @@ function arrowBackToBottomLeft(props: iconProps) {
         <path
           d="M2.25,8.75v-3c0-1.105,.895-2,2-2H13.75c1.105,0,2,.895,2,2v5.5c0,1.105-.895,2-2,2H3.758"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowBackToBottomLeft(props: iconProps) {
         <path
           d="M6.75 10.25L3.758 13.242 6.75 16.235"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

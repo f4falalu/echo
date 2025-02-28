@@ -20,7 +20,7 @@ function award(props: iconProps) {
           cy="4.25"
           fill="none"
           r="3.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

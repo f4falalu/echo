@@ -13,7 +13,7 @@ function repeat(props: iconProps) {
         <path
           d="M5,13.75h-.75c-1.105,0-2-.895-2-2V6.25c0-1.105,.895-2,2-2H13.75c1.105,0,2,.895,2,2v5.5c0,1.105-.895,2-2,2h-5.742"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function repeat(props: iconProps) {
         <path
           d="M10.5 11.25L8.008 13.742 10.5 16.235"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

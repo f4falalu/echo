@@ -24,7 +24,7 @@ function squareDottedArrowBottomLeft(props: iconProps) {
         <path
           d="M2.75 9.25L8.75 9.25 8.75 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function squareDottedArrowBottomLeft(props: iconProps) {
         <path
           d="M8.75 9.25L2.75 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

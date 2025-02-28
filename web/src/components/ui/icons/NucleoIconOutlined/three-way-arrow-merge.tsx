@@ -13,7 +13,7 @@ function threeWayArrowMerge(props: iconProps) {
         <path
           d="M9 1.75L9 15.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function threeWayArrowMerge(props: iconProps) {
         <path
           d="M3.5,14.25l4.914-4.914c.375-.375,.586-.884,.586-1.414"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function threeWayArrowMerge(props: iconProps) {
         <path
           d="M14.5,14.25l-4.914-4.914c-.375-.375-.586-.884-.586-1.414"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function threeWayArrowMerge(props: iconProps) {
         <path
           d="M12.25 5L9 1.75 5.75 5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

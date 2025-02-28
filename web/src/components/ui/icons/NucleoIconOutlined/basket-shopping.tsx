@@ -13,7 +13,7 @@ function basketShopping(props: iconProps) {
         <path
           d="M4.75 6.25L7.25 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function basketShopping(props: iconProps) {
         <path
           d="M13.25 6.25L10.75 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function basketShopping(props: iconProps) {
         <path
           d="M15,6.25l-.597,7.166c-.086,1.037-.953,1.834-1.993,1.834H5.59c-1.04,0-1.907-.797-1.993-1.834l-.597-7.166"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function basketShopping(props: iconProps) {
         <path
           d="M1.75 6.25L16.25 6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function chatBubbleSparkle(props: iconProps) {
         <path
           d="M15.75,8.277v-3.527c0-1.104-.895-2-2-2H4.25c-1.105,0-2,.896-2,2v11.5l3.75-3h2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function chatBubbleSparkle(props: iconProps) {
         <path
           d="M14.25 10.25L15.25 12.25 17.25 13.25 15.25 14.25 14.25 16.25 13.25 14.25 11.25 13.25 13.25 12.25 14.25 10.25z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

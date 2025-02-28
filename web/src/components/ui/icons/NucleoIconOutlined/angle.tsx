@@ -13,7 +13,7 @@ function angle(props: iconProps) {
         <path
           d="M2.75,8.25c3.866,0,7,3.134,7,7"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function angle(props: iconProps) {
         <path
           d="M2.75,2.75V13.25c0,1.105,.895,2,2,2H15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

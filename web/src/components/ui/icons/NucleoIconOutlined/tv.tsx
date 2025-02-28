@@ -16,7 +16,7 @@ function tv(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function tv(props: iconProps) {
         <path
           d="M13.25,15.5c-.924-.337-2.4-.75-4.25-.75s-3.326,.413-4.25,.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

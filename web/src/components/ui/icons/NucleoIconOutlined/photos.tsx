@@ -13,7 +13,7 @@ function photos(props: iconProps) {
         <path
           d="M11.221,3.638c.879-.635,2.114-.556,2.906,.235h0c.792,.792,.87,2.026,.235,2.906"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function photos(props: iconProps) {
         <path
           d="M14.362,11.221c.635,.879,.556,2.114-.235,2.906h0c-.792,.792-2.026,.87-2.906,.235"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function photos(props: iconProps) {
         <path
           d="M6.779,14.362c-.879,.635-2.114,.556-2.906-.235h0c-.792-.792-.87-2.026-.235-2.906"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function photos(props: iconProps) {
         <path
           d="M3.638,6.779c-.635-.879-.556-2.114,.235-2.906h0c.792-.792,2.026-.87,2.906-.235"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -48,7 +48,7 @@ function photos(props: iconProps) {
           fill="none"
           rx="2.25"
           ry="2.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function photos(props: iconProps) {
           fill="none"
           rx="2.25"
           ry="2.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -75,7 +75,7 @@ function photos(props: iconProps) {
           fill="none"
           rx="2.25"
           ry="2.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -89,7 +89,7 @@ function photos(props: iconProps) {
           fill="none"
           rx="2.25"
           ry="2.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

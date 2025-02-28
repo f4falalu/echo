@@ -13,7 +13,7 @@ function openInNewWindow(props: iconProps) {
         <path
           d="m1.75,3.75v10.5c0,1.105.895,2,2,2h10.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function openInNewWindow(props: iconProps) {
         <path
           d="m4.75,5.25v-1.5c0-1.1046.8954-2,2-2h7.5c1.1046,0,2,.8954,2,2v7.5c0,1.1046-.8954,2-2,2h-7.5c-1.1046,0-2-.8954-2-2h0"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function openInNewWindow(props: iconProps) {
         <path
           d="M8.75 5.75L11.25 8.25 8.75 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function openInNewWindow(props: iconProps) {
         <path
           d="M11 8.25L4.75 8.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

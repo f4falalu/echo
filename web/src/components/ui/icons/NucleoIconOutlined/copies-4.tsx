@@ -13,7 +13,7 @@ function copies4(props: iconProps) {
         <path
           d="M9.25,12.75v1.5c0,1.105-.895,2-2,2H3.75c-1.105,0-2-.895-2-2v-3.5c0-1.105,.895-2,2-2h1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function copies4(props: iconProps) {
         <path
           d="M12.75,9.25v1.5c0,1.105-.895,2-2,2h-3.5c-1.105,0-2-.895-2-2v-3.5c0-1.105,.895-2,2-2h1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function copies4(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

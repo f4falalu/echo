@@ -13,7 +13,7 @@ function caretDownFromLine(props: iconProps) {
         <path
           d="M14.75 2.75L3.25 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function caretDownFromLine(props: iconProps) {
         <path
           d="M9.845,14.668l4.682-7.383c.422-.666-.056-1.536-.845-1.536H4.318c-.788,0-1.267,.87-.845,1.536l4.682,7.383c.393,.619,1.296,.619,1.689,0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

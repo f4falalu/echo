@@ -13,7 +13,7 @@ function hammer(props: iconProps) {
         <path
           d="M11 8.25L11.5 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function hammer(props: iconProps) {
         <path
           d="M6.5 16.25L7 8.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function hammer(props: iconProps) {
         <path
           d="M2.75,2.75H11.5l4.75,3.75v1.75H2.75c-.552,0-1-.448-1-1V3.75c0-.552,.448-1,1-1Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

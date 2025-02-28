@@ -13,7 +13,7 @@ function bookWrench(props: iconProps) {
         <path
           d="M15.25,12.75c-.641,.844-.734,2.547,0,3.5H4.5c-.966,0-1.75-.783-1.75-1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function bookWrench(props: iconProps) {
         <path
           d="M15.25,12.75H4.5c-.966,0-1.75,.783-1.75,1.75V3.75c0-1.105,.895-2,2-2H15.25V12.75Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

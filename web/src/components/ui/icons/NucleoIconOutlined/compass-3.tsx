@@ -30,7 +30,7 @@ function compass3(props: iconProps) {
         <path
           d="M11 11L16.75 9 11 7 9 1.25 7 7 1.25 9 7 11 9 16.75 11 11z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

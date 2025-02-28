@@ -13,7 +13,7 @@ function redo(props: iconProps) {
         <path
           d="m11.25,7.391c-.462-.403-2.362-1.97-5.25-1.97S1.212,6.988.75,7.391"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function redo(props: iconProps) {
         <path
           d="M9.828 3.539L11.25 7.391 7.286 8.461"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function bracketsSquare(props: iconProps) {
         <path
           d="M8 10.75L10.75 10.75 10.75 1.25 8 1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function bracketsSquare(props: iconProps) {
         <path
           d="M4 10.75L1.25 10.75 1.25 1.25 4 1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

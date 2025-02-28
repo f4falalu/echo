@@ -13,7 +13,7 @@ function phoneRotary(props: iconProps) {
         <path
           d="M11.799,7.169l3.265,4.57c.121,.17,.186,.373,.186,.581v1.93c0,.552-.448,1-1,1H3.75c-.552,0-1-.448-1-1v-1.93c0-.208,.065-.412,.186-.581l3.265-4.57c.188-.263,.491-.419,.814-.419h3.971c.323,0,.626,.156,.814,.419Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function phoneRotary(props: iconProps) {
         <path
           d="M15.25,8.25c.552,0,1-.448,1-1v-.962c0-.685-.344-1.321-.923-1.688-1.244-.787-3.439-1.85-6.327-1.85-2.887,0-5.083,1.063-6.327,1.85-.579,.366-.923,1.002-.923,1.688v.962c0,.552,.448,1,1,1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function phoneRotary(props: iconProps) {
         <path
           d="M6.75 5.25L6.75 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function phoneRotary(props: iconProps) {
         <path
           d="M11.25 5.25L11.25 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -47,7 +47,7 @@ function phoneRotary(props: iconProps) {
           cy="11"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

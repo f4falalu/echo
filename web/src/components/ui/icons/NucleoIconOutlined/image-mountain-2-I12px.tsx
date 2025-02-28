@@ -13,7 +13,7 @@ function imageMountain2(props: iconProps) {
         <path
           d="m2.75,3.75c.552,0,1-.448,1-1s-.448-1-1-1-1,.448-1,1,.448,1,1,1Z"
           fill="currentColor"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function imageMountain2(props: iconProps) {
         <path
           d="m7.774,4.402L1.919,9.037c-.505.4-.222,1.213.422,1.213h7.317c.46,0,.787-.447.649-.885l-1.463-4.634c-.143-.454-.697-.624-1.07-.328h0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

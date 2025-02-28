@@ -13,7 +13,7 @@ function arrowDiagonalIn2(props: iconProps) {
         <path
           d="M11.25 11.25L6.5 6.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowDiagonalIn2(props: iconProps) {
         <path
           d="M6.25 10.25L6.25 6.25 10.25 6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function arrowDiagonalIn2(props: iconProps) {
         <path
           d="m3.75,10.25h-1c-1.105,0-2-.895-2-2V2.75C.75,1.645,1.645.75,2.75.75h5.5c1.105,0,2,.895,2,2v1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

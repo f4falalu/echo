@@ -16,7 +16,7 @@ function highDefinition(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -27,7 +27,7 @@ function highDefinition(props: iconProps) {
         <path
           d="M10.252,6.75h1.874c.896,0,1.624,.728,1.624,1.624v1.252c0,.896-.728,1.624-1.624,1.624h-1.874V6.75h0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function highDefinition(props: iconProps) {
         <path
           d="M4.25 11.25L4.253 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -43,7 +43,7 @@ function highDefinition(props: iconProps) {
         <path
           d="M7.747 11.25L7.75 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -51,7 +51,7 @@ function highDefinition(props: iconProps) {
         <path
           d="M4.252 9L7.747 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

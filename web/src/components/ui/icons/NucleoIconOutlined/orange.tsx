@@ -22,7 +22,7 @@ function orange(props: iconProps) {
           cy="10.5"
           fill="none"
           r="5.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

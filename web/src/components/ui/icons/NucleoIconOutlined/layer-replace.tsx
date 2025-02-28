@@ -16,7 +16,7 @@ function layerReplace(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -27,7 +27,7 @@ function layerReplace(props: iconProps) {
         <path
           d="M5.25,10.25h-1.5c-.828,0-1.5-.672-1.5-1.5V3.75c0-.828,.672-1.5,1.5-1.5h5c.828,0,1.5,.672,1.5,1.5v1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function layerReplace(props: iconProps) {
         <path
           d="M5.25,15.75c-1.657,0-3-1.343-3-3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -43,7 +43,7 @@ function layerReplace(props: iconProps) {
         <path
           d="M12.75,2.25c1.657,0,3,1.343,3,3"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

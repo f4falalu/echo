@@ -13,7 +13,7 @@ function ranking(props: iconProps) {
         <path
           d="M7.75,7.75h2.5c.552,0,1,.448,1,1v6.5H6.75v-6.5c0-.552,.448-1,1-1Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function ranking(props: iconProps) {
         <path
           d="M3.25,11.75h3.5v3.5H3.25c-.552,0-1-.448-1-1v-1.5c0-.552,.448-1,1-1Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function ranking(props: iconProps) {
         <path
           d="M11.25,10.25h3.5c.552,0,1,.448,1,1v3c0,.552-.448,1-1,1h-3.5v-5h0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function ranking(props: iconProps) {
         <path
           d="M9.25,4.75V.75s-.458,.806-1.431,.992"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

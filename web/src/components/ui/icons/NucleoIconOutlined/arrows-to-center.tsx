@@ -15,7 +15,7 @@ function arrowsToCenter(props: iconProps) {
           cy="9"
           fill="none"
           r="2.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function arrowsToCenter(props: iconProps) {
         <path
           d="M5.75 2.25L5.75 5.75 2.25 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function arrowsToCenter(props: iconProps) {
         <path
           d="M5.75 5.75L2.5 2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function arrowsToCenter(props: iconProps) {
         <path
           d="M15.75 5.75L12.25 5.75 12.25 2.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -47,7 +47,7 @@ function arrowsToCenter(props: iconProps) {
         <path
           d="M12.25 5.75L15.5 2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -55,7 +55,7 @@ function arrowsToCenter(props: iconProps) {
         <path
           d="M12.25 15.75L12.25 12.25 15.75 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -63,7 +63,7 @@ function arrowsToCenter(props: iconProps) {
         <path
           d="M12.25 12.25L15.5 15.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -71,7 +71,7 @@ function arrowsToCenter(props: iconProps) {
         <path
           d="M2.25 12.25L5.75 12.25 5.75 15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -79,7 +79,7 @@ function arrowsToCenter(props: iconProps) {
         <path
           d="M5.75 12.25L2.5 15.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -16,7 +16,7 @@ function keysUpDown(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -30,7 +30,7 @@ function keysUpDown(props: iconProps) {
           fill="none"
           rx="1.5"
           ry="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -41,7 +41,7 @@ function keysUpDown(props: iconProps) {
         <path
           d="M16.75,12.75c-.828,0-1.5-.672-1.5-1.5V6.75c0-.828,.672-1.5,1.5-1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -49,7 +49,7 @@ function keysUpDown(props: iconProps) {
         <path
           d="M1.25,12.75c.828,0,1.5-.672,1.5-1.5V6.75c0-.828-.672-1.5-1.5-1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -57,7 +57,7 @@ function keysUpDown(props: iconProps) {
         <path
           d="M10.25 4.5L9 3.25 7.75 4.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -65,7 +65,7 @@ function keysUpDown(props: iconProps) {
         <path
           d="M10.25 13.5L9 14.75 7.75 13.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function tty(props: iconProps) {
         <path
           d="m11.75,7.25c0,.553.449,1,1.002,1h2.498c.552,0,1-.448,1-1v-.962c0-.685-.344-1.321-.923-1.688-1.244-.787-3.439-1.85-6.327-1.85s-5.083,1.063-6.327,1.85c-.579.366-.923,1.002-.923,1.688v.962c0,.552.448,1,1,1h2.501c.552,0,.999-.447,1-.999l.002-1.672c.825-.2,1.744-.329,2.747-.329s1.922.128,2.747.329l.003,1.671Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function tty(props: iconProps) {
         <path
           d="M11.25 15.25L6.75 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

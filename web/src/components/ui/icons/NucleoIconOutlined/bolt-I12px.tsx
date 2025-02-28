@@ -13,7 +13,7 @@ function bolt(props: iconProps) {
         <path
           d="m5.417,11.25l4.833-6.5h-4l.333-4L1.75,7.25h4l-.333,4Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

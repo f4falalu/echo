@@ -13,7 +13,7 @@ function border(props: iconProps) {
         <path
           d="M2.75 2.75H15.25V15.25H2.75z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

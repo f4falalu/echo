@@ -13,7 +13,7 @@ function chatBubbleForward(props: iconProps) {
         <path
           d="M10.5,8.25H3.25c-.552,0-1,.448-1,1v7l3.75-3h7.75c1.105,0,2-.895,2-2V4.75c0-1.105-.895-2-2-2H4.25c-1.105,0-2,.895-2,2v.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function chatBubbleForward(props: iconProps) {
         <path
           d="M8.25 5.75L10.75 8.25 8.25 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

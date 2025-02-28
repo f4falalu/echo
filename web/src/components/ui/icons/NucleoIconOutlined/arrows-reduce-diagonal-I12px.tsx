@@ -13,7 +13,7 @@ function arrowsReduceDiagonal(props: iconProps) {
         <path
           d="M10.75 1.25L7.444 4.556"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowsReduceDiagonal(props: iconProps) {
         <path
           d="M7.268 0.982L7.268 4.732 11.018 4.732"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function arrowsReduceDiagonal(props: iconProps) {
         <path
           d="M1.25 10.75L4.556 7.444"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function arrowsReduceDiagonal(props: iconProps) {
         <path
           d="M4.732 11.018L4.732 7.268 0.982 7.268"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

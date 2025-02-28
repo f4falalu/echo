@@ -15,7 +15,7 @@ function findEdit(props: iconProps) {
           cy="10"
           fill="none"
           r="2.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function findEdit(props: iconProps) {
         <path
           d="M11.09 12.09L15.25 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function findEdit(props: iconProps) {
         <path
           d="m15.25,16.25V6.6644c0-.2653-.1054-.5198-.293-.7074l-3.9143-3.9143c-.1874-.1874-.4417-.2927-.7067-.2927h-5.586c-1.1046,0-2,.8954-2,2v10.5c0,1.1046.8954,2,2,2h6.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -14,7 +14,7 @@ function alertQuestion(props: iconProps) {
         <path
           d="m3.929,3.277c.316-1.206,1.3-1.83,2.401-1.773,1.087.056,2.099.654,2.052,2.041-.066,1.972-2.277,1.612-2.382,3.955"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

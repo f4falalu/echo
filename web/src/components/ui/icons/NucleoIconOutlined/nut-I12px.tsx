@@ -15,7 +15,7 @@ function nut(props: iconProps) {
           cy="6"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -23,7 +23,7 @@ function nut(props: iconProps) {
         <path
           d="m7.871,1.25h-3.743c-.54,0-1.038.289-1.309.758l-1.865,3.23c-.272.472-.272,1.053,0,1.525l1.865,3.23c.271.469.77.758,1.309.758h3.743c.54,0,1.038-.289,1.309-.758l1.865-3.23c.272-.472.272-1.053,0-1.525l-1.865-3.23c-.271-.469-.77-.758-1.309-.758Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

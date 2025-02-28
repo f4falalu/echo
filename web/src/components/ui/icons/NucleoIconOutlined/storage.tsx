@@ -16,7 +16,7 @@ function storage(props: iconProps) {
           fill="none"
           rx="6.25"
           ry="3.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -24,7 +24,7 @@ function storage(props: iconProps) {
         <path
           d="M15.193,9.442c-.415,1.586-3.029,2.808-6.193,2.808-3.163,0-5.778-1.222-6.193-2.808"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function storage(props: iconProps) {
         <path
           d="M15.193,12.942c-.415,1.586-3.029,2.808-6.193,2.808-3.163,0-5.778-1.222-6.193-2.808"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

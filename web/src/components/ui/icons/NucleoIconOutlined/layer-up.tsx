@@ -13,7 +13,7 @@ function layerUp(props: iconProps) {
         <path
           d="M6.5,7.692l-3.835,2.019c-.534,.281-.534,1.046,0,1.327l5.87,3.091c.292,.154,.64,.154,.932,0l5.87-3.091c.534-.281,.534-1.046,0-1.327l-3.837-2.021"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function layerUp(props: iconProps) {
         <path
           d="M9 10L9 2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function layerUp(props: iconProps) {
         <path
           d="M6.5 4.25L9 1.75 11.5 4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

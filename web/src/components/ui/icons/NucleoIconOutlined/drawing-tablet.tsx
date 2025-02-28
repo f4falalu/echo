@@ -14,7 +14,7 @@ function drawingTablet(props: iconProps) {
         <path
           d="M16.25,7.25v6c0,1.105-.895,2-2,2H3.75c-1.105,0-2-.895-2-2V4.75c0-1.105,.895-2,2-2H13.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -22,7 +22,7 @@ function drawingTablet(props: iconProps) {
         <path
           d="M13.75,9.5v2.75c0,.276-.224,.5-.5,.5H6.25c-.276,0-.5-.224-.5-.5V5.75c0-.276,.224-.5,.5-.5h4.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -30,7 +30,7 @@ function drawingTablet(props: iconProps) {
         <path
           d="M8.836,9.164s2.034-.034,2.75-.75,5.25-5.25,5.25-5.25c.552-.552,.552-1.448,0-2-.552-.552-1.448-.552-2,0,0,0-4.534,4.534-5.25,5.25s-.75,2.75-.75,2.75Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

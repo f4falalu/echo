@@ -13,7 +13,7 @@ function chevronLeft(props: iconProps) {
         <path
           d="M11.5 15.25L5.25 9 11.5 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

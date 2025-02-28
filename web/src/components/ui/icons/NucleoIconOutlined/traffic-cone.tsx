@@ -13,7 +13,7 @@ function trafficCone(props: iconProps) {
         <path
           d="M4.25,15.25L7.545,3.48c.121-.432,.515-.73,.963-.73h.983c.448,0,.842,.299,.963,.73l3.295,11.77"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function trafficCone(props: iconProps) {
         <path
           d="M5.37 11.25L12.63 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function trafficCone(props: iconProps) {
         <path
           d="M6.63 7.25L11.37 7.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function trafficCone(props: iconProps) {
         <path
           d="M15.25 15.25L2.75 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

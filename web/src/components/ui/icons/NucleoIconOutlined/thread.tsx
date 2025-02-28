@@ -13,7 +13,7 @@ function thread(props: iconProps) {
         <path
           d="M16.933,7.567c.316,1.344-.517,2.69-1.861,3.006l-1.822,.429"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function thread(props: iconProps) {
         <path
           d="M13.25 11L4.75 13"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function thread(props: iconProps) {
         <path
           d="M13.25 8L4.75 10"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function thread(props: iconProps) {
         <path
           d="M13.25 5L4.75 7"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function thread(props: iconProps) {
         <path
           d="M13.556,13.496l.991,1.61c.308,.5-.052,1.143-.639,1.143H4.092c-.587,0-.946-.643-.639-1.143l1.297-2.107V7"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function thread(props: iconProps) {
         <path
           d="M4.444,4.504l-.991-1.61c-.308-.5,.052-1.143,.639-1.143H13.908c.587,0,.946,.643,.639,1.143l-1.297,2.107v6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

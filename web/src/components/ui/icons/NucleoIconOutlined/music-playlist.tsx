@@ -13,7 +13,7 @@ function musicPlaylist(props: iconProps) {
         <path
           d="M8,16.182c-3.531-.487-6.25-3.517-6.25-7.182C1.75,4.996,4.996,1.75,9,1.75s7.25,3.246,7.25,7.25c0,.339-.023,.673-.068,1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function musicPlaylist(props: iconProps) {
         <path
           d="M10.75 16.25L16.25 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function musicPlaylist(props: iconProps) {
         <path
           d="M10.75 12.75L16.25 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function musicPlaylist(props: iconProps) {
         <path
           d="M9.25,10.25V4.75c.317,.323,.73,.692,1.25,1.047,.45,.307,.879,.535,1.25,.703"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -47,7 +47,7 @@ function musicPlaylist(props: iconProps) {
           cy="10.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function chevronSquareAllDirections(props: iconProps) {
         <path
           d="M6.75 4L9 1.75 11.25 4"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function chevronSquareAllDirections(props: iconProps) {
         <path
           d="M6.75 14L9 16.25 11.25 14"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function chevronSquareAllDirections(props: iconProps) {
         <path
           d="M4 11.25L1.75 9 4 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function chevronSquareAllDirections(props: iconProps) {
         <path
           d="M14 11.25L16.25 9 14 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function chevronSquareAllDirections(props: iconProps) {
         <path
           d="M7.409 7.409H10.591V10.591H7.409z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

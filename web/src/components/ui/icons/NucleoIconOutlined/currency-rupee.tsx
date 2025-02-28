@@ -13,7 +13,7 @@ function currencyRupee(props: iconProps) {
         <path
           d="M5.25 5.75L12.75 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function currencyRupee(props: iconProps) {
         <path
           d="M7,2.75c1.795,0,3.25,1.455,3.25,3.25s-1.455,3.25-3.25,3.25h-1.75l5,6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function currencyRupee(props: iconProps) {
         <path
           d="M5.25 2.75L12.75 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

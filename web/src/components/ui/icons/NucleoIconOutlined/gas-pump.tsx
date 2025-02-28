@@ -13,7 +13,7 @@ function gasPump(props: iconProps) {
         <path
           d="M3.25,15.75V4.25c0-1.105,.895-2,2-2h4.5c1.105,0,2,.895,2,2V15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function gasPump(props: iconProps) {
         <path
           d="M1.75 15.75L13.25 15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function gasPump(props: iconProps) {
         <path
           d="M3.25 8.75L11.75 8.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function gasPump(props: iconProps) {
         <path
           d="M14.75,4.25l2.207,2.207c.188,.188,.293,.442,.293,.707v4.586c0,.828-.672,1.5-1.5,1.5h0c-.828,0-1.5-.672-1.5-1.5v-1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function gasPump(props: iconProps) {
         <path
           d="M16,5.5v1.75c0,.552,.448,1,1,1h.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

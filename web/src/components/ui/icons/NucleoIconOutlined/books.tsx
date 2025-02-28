@@ -13,7 +13,7 @@ function books(props: iconProps) {
         <path
           d="M16,6.75c-.171-.387-.419-1.083-.422-1.984-.003-.918,.25-1.626,.422-2.016"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function books(props: iconProps) {
         <path
           d="M16.75,2.75H6.25c-1.105,0-2,.895-2,2h0c0,1.105,.895,2,2,2h10.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function books(props: iconProps) {
         <path
           d="M16,14.75c-.171-.387-.419-1.083-.422-1.984-.003-.918,.25-1.626,.422-2.016"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function books(props: iconProps) {
         <path
           d="M13.75 14.75L16.75 14.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function books(props: iconProps) {
         <path
           d="M16.75,10.75H6.25c-1.105,0-2,.895-2,2h0c0,1.105,.895,2,2,2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function books(props: iconProps) {
         <path
           d="M2,10.75c.171-.387,.419-1.083,.422-1.984,.003-.918-.25-1.626-.422-2.016"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -61,7 +61,7 @@ function books(props: iconProps) {
         <path
           d="M1.25,6.75H11.75c1.105,0,2,.895,2,2h0c0,1.105-.895,2-2,2H1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

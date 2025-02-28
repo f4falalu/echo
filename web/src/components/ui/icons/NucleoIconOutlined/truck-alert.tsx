@@ -15,7 +15,7 @@ function truckAlert(props: iconProps) {
           cy="14"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function truckAlert(props: iconProps) {
           cy="14"
           fill="none"
           r="1.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function truckAlert(props: iconProps) {
         <path
           d="M10.519 13.75L6.25 13.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +42,7 @@ function truckAlert(props: iconProps) {
         <path
           d="M6.75,2.75h3.5c1.105,0,2,.895,2,2v7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -50,7 +50,7 @@ function truckAlert(props: iconProps) {
         <path
           d="M2.768,13.75h-.018c-1.105,0-2-.895-2-2V4.75c0-.74,.402-1.386,.999-1.732"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -58,7 +58,7 @@ function truckAlert(props: iconProps) {
         <path
           d="M12.25,5.75h2.204c.34,0,.657,.173,.841,.459l1.796,2.794c.104,.161,.159,.349,.159,.541v2.206c0,1.105-.895,2-2,2h-1.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -66,7 +66,7 @@ function truckAlert(props: iconProps) {
         <path
           d="M12.25 9.25L17.153 9.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -74,7 +74,7 @@ function truckAlert(props: iconProps) {
         <path
           d="M4.25 3.5L4.25 0.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

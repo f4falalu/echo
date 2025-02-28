@@ -13,7 +13,7 @@ function sideProfile2(props: iconProps) {
         <path
           d="M2.25,16.25v-2.5h1.639c1.049,0,1.919-.81,1.995-1.856l.112-1.543,1.504-.601-1.5-2c0-2.796-1.912-5.145-4.5-5.811"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function sideProfile2(props: iconProps) {
         <path
           d="M15.75,16.25v-2.5h-1.639c-1.049,0-1.919-.81-1.995-1.856l-.112-1.543-1.504-.601,1.5-2c0-2.796,1.912-5.145,4.5-5.811"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

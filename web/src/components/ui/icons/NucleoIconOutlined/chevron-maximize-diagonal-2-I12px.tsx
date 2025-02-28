@@ -13,7 +13,7 @@ function chevronMaximizeDiagonal2(props: iconProps) {
         <path
           d="M1.75 5.75L1.75 1.75 5.75 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function chevronMaximizeDiagonal2(props: iconProps) {
         <path
           d="M10.25 6.25L10.25 10.25 6.25 10.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function tabsMinus(props: iconProps) {
         <path
           d="M6.75,2.75h7c1.105,0,2,.895,2,2v1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function tabsMinus(props: iconProps) {
         <path
           d="M11.25 2.75L11.25 6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function tabsMinus(props: iconProps) {
         <path
           d="M15.75,11.75V6.25H6.75V2.75h-2.5c-1.105,0-2,.895-2,2V13.25c0,1.105,.895,2,2,2h5.711"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function tabsMinus(props: iconProps) {
         <path
           d="M17.25 14.25L12.25 14.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

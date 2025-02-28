@@ -13,7 +13,7 @@ function heartSlash(props: iconProps) {
         <path
           d="m14.463,3.537c-.639-.483-1.426-.782-2.289-.787-1.277.016-2.464.66-3.173,1.72-.71-1.061-1.896-1.704-3.173-1.72-2.123.013-3.834,1.739-3.827,3.859,0,2.67,1.518,4.768,3.14,6.251"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function heartSlash(props: iconProps) {
         <path
           d="m7.136,14.399c.563.368,1.058.647,1.394.822.297.155.644.155.941,0,1.57-.819,6.529-3.787,6.529-8.613.001-.328-.051-.641-.128-.946"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function heartSlash(props: iconProps) {
         <path
           d="M2 16L16 2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

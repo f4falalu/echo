@@ -17,7 +17,7 @@ function bellPlus(props: iconProps) {
         <path
           d="M13.75 1.25L13.75 6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function bellPlus(props: iconProps) {
         <path
           d="M9.68,1.819c-.224-.032-.447-.069-.68-.069-2.623,0-4.75,2.127-4.75,4.75v4.75c0,1.104-.895,2-2,2H15.75c-1.105,0-2-.896-2-2v-2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -33,7 +33,7 @@ function bellPlus(props: iconProps) {
         <path
           d="M16.25 3.75L11.25 3.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

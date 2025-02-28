@@ -13,7 +13,7 @@ function signal2(props: iconProps) {
         <path
           d="M7.939,13.72c.586-.586,1.536-.586,2.121,0"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function signal2(props: iconProps) {
         <path
           d="M5.818,11.598c1.757-1.757,4.607-1.757,6.364,0"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function signal2(props: iconProps) {
         <path
           d="M3.697,9.477c2.929-2.929,7.678-2.929,10.607,0"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function signal2(props: iconProps) {
         <path
           d="M1.575,7.356c4.101-4.101,10.749-4.101,14.849,0"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

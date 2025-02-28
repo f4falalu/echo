@@ -16,7 +16,7 @@ function positionCenter(props: iconProps) {
           fill="none"
           rx=".818"
           ry=".818"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

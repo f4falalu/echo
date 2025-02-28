@@ -13,7 +13,7 @@ function caretReduceX(props: iconProps) {
         <path
           d="m4.135,6.2l-2.985,2.249c-.165.124-.4.007-.4-.2V3.751c0-.206.236-.324.4-.2l2.985,2.249c.133.1.133.299,0,.399Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function caretReduceX(props: iconProps) {
         <path
           d="m7.865,6.2l2.985,2.249c.165.124.4.007.4-.2V3.751c0-.206-.236-.324-.4-.2l-2.985,2.249c-.133.1-.133.299,0,.399Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

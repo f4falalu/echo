@@ -13,7 +13,7 @@ function rainbowCloud(props: iconProps) {
         <path
           d="M6.75,11.25v-1c0-1.105,.895-2,2-2,.473,0,.908,.164,1.25,.439"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function rainbowCloud(props: iconProps) {
         <path
           d="M4,11.25v-1c0-2.623,2.127-4.75,4.75-4.75,1.366,0,2.597,.577,3.464,1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function rainbowCloud(props: iconProps) {
         <path
           d="M1.25,11.25v-1c0-4.142,3.358-7.5,7.5-7.5,2.837,0,5.306,1.575,6.58,3.898"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function rainbowCloud(props: iconProps) {
         <path
           d="M14.25,9.25c-1.347,0-2.473,.894-2.852,2.116-.204-.07-.42-.116-.648-.116-1.105,0-2,.896-2,2s.895,2,2,2h3.5c1.657,0,3-1.343,3-3s-1.343-3-3-3Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

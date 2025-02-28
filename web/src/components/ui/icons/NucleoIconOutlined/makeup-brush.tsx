@@ -13,7 +13,7 @@ function makeupBrush(props: iconProps) {
         <path
           d="M7.428,8.322L13.284,2.466c.621-.621,1.629-.621,2.25,0h0c.621,.621,.621,1.629,0,2.25l-5.856,5.856"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function makeupBrush(props: iconProps) {
         <path
           d="M2,10.375c0,3.107,2.518,5.625,5.625,5.625l2.053-5.428-2.25-2.25-5.428,2.053Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function makeupBrush(props: iconProps) {
         <path
           d="M4.379 14.969L6.75 12"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

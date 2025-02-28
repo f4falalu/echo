@@ -13,7 +13,7 @@ function hourglassClock(props: iconProps) {
         <path
           d="M4.25,15.75c0-3.86,.557-5.456,2.46-6.75-1.903-1.294-2.46-2.89-2.46-6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function hourglassClock(props: iconProps) {
         <path
           d="M10.29,9c1.903-1.294,2.46-2.89,2.46-6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function hourglassClock(props: iconProps) {
         <path
           d="M14.656 14.476L13.5 14 13.5 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function hourglassClock(props: iconProps) {
         <path
           d="M3.25 2.25L13.75 2.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function hourglassClock(props: iconProps) {
         <path
           d="M3.25 15.75L8.024 15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -55,7 +55,7 @@ function hourglassClock(props: iconProps) {
           cy="14"
           fill="none"
           r="3.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

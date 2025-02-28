@@ -13,7 +13,7 @@ function liveOff(props: iconProps) {
         <path
           d="M5.995,12.005c-.769-.769-1.245-1.832-1.245-3.005,0-2.347,1.903-4.25,4.25-4.25,1.174,0,2.236,.476,3.005,1.245"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function liveOff(props: iconProps) {
         <path
           d="M13.132,8c.077,.321,.118,.656,.118,1,0,2.347-1.903,4.25-4.25,4.25-.344,0-.679-.041-1-.118"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function liveOff(props: iconProps) {
         <path
           d="M2 16L16 2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

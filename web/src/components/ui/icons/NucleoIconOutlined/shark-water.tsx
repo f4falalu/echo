@@ -13,7 +13,7 @@ function sharkWater(props: iconProps) {
         <path
           d="m13.2153,10.624c-.3463-4.2192-4.0056-7.8337-8.2773-7.8459,0,0,1.2502,4.333.0654,7.821"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function sharkWater(props: iconProps) {
         <path
           d="m1.75,15.25c1.401.007,2.731-.613,3.625-1.692,1.678,2.002,4.661,2.265,6.663.587.212-.178.409-.374.587-.587.894,1.078,2.224,1.699,3.625,1.692"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function watch(props: iconProps) {
         <path
           d="M6.25,4.75l.361-2.164c.08-.482,.498-.836,.986-.836h2.806c.489,0,.906,.353,.986,.836l.361,2.164"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function watch(props: iconProps) {
         <path
           d="M6.25,13.25l.361,2.164c.08,.482,.498,.836,.986,.836h2.806c.489,0,.906-.353,.986-.836l.361-2.164"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function watch(props: iconProps) {
         <path
           d="M9 7L9 9 11 10.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -40,7 +40,7 @@ function watch(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

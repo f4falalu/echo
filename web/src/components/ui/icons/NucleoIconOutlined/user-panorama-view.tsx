@@ -13,7 +13,7 @@ function userPanoramaView(props: iconProps) {
         <path
           d="m14.93,12.282c.65.223,1.32-.257,1.32-.945V2.75c0-.687-.67-1.168-1.32-.945-1.464.503-3.5.99-5.93.991-2.43-.002-4.467-.489-5.93-.991-.65-.223-1.32.257-1.32.945v8.587c0,.687.67,1.168,1.32.945"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function userPanoramaView(props: iconProps) {
         <path
           d="m5.801,15.776c-.489-.148-.818-.635-.709-1.135.393-1.797,1.993-3.142,3.908-3.142s3.515,1.345,3.908,3.142c.109.499-.219.987-.709,1.135-.821.248-1.911.474-3.199.474s-2.378-.225-3.199-.474Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function userPanoramaView(props: iconProps) {
           cy="7"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

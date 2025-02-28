@@ -13,7 +13,7 @@ function equalGreaterThan(props: iconProps) {
         <path
           d="M3.75 15.75L14.25 15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function equalGreaterThan(props: iconProps) {
         <path
           d="M4 2.25L14 7.5 4 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

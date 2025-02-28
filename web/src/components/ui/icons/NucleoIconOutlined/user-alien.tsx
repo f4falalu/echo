@@ -22,7 +22,7 @@ function userAlien(props: iconProps) {
         <path
           d="M4.75,6c0-2.347,1.903-4.25,4.25-4.25s4.25,1.903,4.25,4.25-2.844,4.75-4.25,4.75-4.25-2.403-4.25-4.75Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -30,7 +30,7 @@ function userAlien(props: iconProps) {
         <path
           d="M2.953,16c1.298-1.958,3.522-3.25,6.047-3.25s4.749,1.291,6.047,3.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

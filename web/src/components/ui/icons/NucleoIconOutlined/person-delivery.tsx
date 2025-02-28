@@ -13,7 +13,7 @@ function personDelivery(props: iconProps) {
         <path
           d="M6.75 11.75L6.75 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function personDelivery(props: iconProps) {
         <path
           d="M1.75,16.25v-4.624c0-1.055,.819-1.928,1.872-1.996l6.378-.41"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function personDelivery(props: iconProps) {
         <path
           d="M12.25,10c0-.69,.56-1.25,1.25-1.25h0c.69,0,1.25,.56,1.25,1.25v1.75h-2.5v-1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function personDelivery(props: iconProps) {
         <path
           d="M11.473,11.75h4.054c.265,0,.485,.207,.499,.472l.194,3.5c.016,.287-.212,.528-.499,.528h-4.443c-.287,0-.515-.241-.499-.528l.194-3.5c.015-.265,.234-.472,.499-.472Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function personDelivery(props: iconProps) {
         <path
           d="M2.3 4.25L9.5 3.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -55,7 +55,7 @@ function personDelivery(props: iconProps) {
           cy="4.5"
           fill="none"
           r="2.75"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

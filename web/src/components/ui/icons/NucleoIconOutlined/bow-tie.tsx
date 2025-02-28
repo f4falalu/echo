@@ -13,7 +13,7 @@ function bowTie(props: iconProps) {
         <path
           d="M10.75,10.25c.415,.508,1.118,1.241,2.191,1.875,.804,.475,1.584,.757,2.232,.927,.544,.143,1.096-.216,1.217-.765,.284-1.282,.36-2.409,.36-3.286s-.076-2.005-.36-3.286c-.122-.549-.673-.908-1.217-.765-.647,.17-1.427,.451-2.232,.927-1.073,.634-1.776,1.367-2.191,1.875"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function bowTie(props: iconProps) {
         <path
           d="M7.25,10.25c-.415,.508-1.118,1.241-2.191,1.875-.804,.475-1.584,.757-2.232,.927-.544,.143-1.096-.216-1.217-.765-.284-1.282-.36-2.409-.36-3.286s.076-2.005,.36-3.286c.122-.549,.673-.908,1.217-.765,.647,.17,1.427,.451,2.232,.927,1.073,.634,1.776,1.367,2.191,1.875"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function bowTie(props: iconProps) {
         <path
           d="M10.75 9L13.25 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function bowTie(props: iconProps) {
         <path
           d="M7.25 9L4.75 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -48,7 +48,7 @@ function bowTie(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

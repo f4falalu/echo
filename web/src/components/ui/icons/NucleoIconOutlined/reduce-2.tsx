@@ -13,7 +13,7 @@ function reduce2(props: iconProps) {
         <path
           d="m15.25,7.25H2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function reduce2(props: iconProps) {
         <path
           d="m15.25,10.75H2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function reduce2(props: iconProps) {
         <path
           d="m6.5,16.25l2.5-2.5,2.5,2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function reduce2(props: iconProps) {
         <path
           d="m11.5,1.75l-2.5,2.5-2.5-2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

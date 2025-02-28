@@ -13,7 +13,7 @@ function house6(props: iconProps) {
         <path
           d="M0.75 3.798L6 0.75 11.25 3.798"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function house6(props: iconProps) {
         <path
           d="M6 10.75L6 8"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function house6(props: iconProps) {
         <path
           d="m10.25,5.798v3.952c0,.552-.448,1-1,1H2.75c-.552,0-1-.448-1-1v-3.952"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

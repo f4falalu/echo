@@ -13,7 +13,7 @@ function carousel2(props: iconProps) {
         <path
           d="M3,13.5l-1.053,.451c-.33,.141-.697-.101-.697-.46V4.508c0-.359,.367-.601,.697-.46l1.053,.451"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function carousel2(props: iconProps) {
         <path
           d="M15,13.5l1.053,.451c.33,.141,.697-.101,.697-.46V4.508c0-.359-.367-.601-.697-.46l-1.053,.451"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function carousel2(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

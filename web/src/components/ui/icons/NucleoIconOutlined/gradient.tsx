@@ -17,7 +17,7 @@ function gradient(props: iconProps) {
         <path
           d="M.75,12.75l1.75-2,1.75,2v1.5c0,.552-.448,1-1,1H1.75c-.552,0-1-.448-1-1v-1.5Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function gradient(props: iconProps) {
         <path
           d="M13.75,12.75l1.75-2,1.75,2v1.5c0,.552-.448,1-1,1h-1.5c-.552,0-1-.448-1-1v-1.5Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -38,7 +38,7 @@ function gradient(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

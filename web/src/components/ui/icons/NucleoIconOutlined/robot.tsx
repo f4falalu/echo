@@ -15,7 +15,7 @@ function robot(props: iconProps) {
           cy="2.25"
           fill="none"
           r="1.5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function robot(props: iconProps) {
         <path
           d="M9 3.75L9 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -38,7 +38,7 @@ function robot(props: iconProps) {
         <path
           d="m15.25,14.25c0,1.1046-.8954,2-2,2H4.75c-1.1046,0-2-.8954-2-2v-5.5c0-1.1046.8954-2,2-2h8.5c1.1046,0,2,.8954,2,2v5.5Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -46,7 +46,7 @@ function robot(props: iconProps) {
         <path
           d="M2.75 11.75L1 11.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -54,7 +54,7 @@ function robot(props: iconProps) {
         <path
           d="M15.25 11.75L17 11.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -16,7 +16,7 @@ function rotateImageClockwise(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -27,7 +27,7 @@ function rotateImageClockwise(props: iconProps) {
         <path
           d="M8.086,16.25l4.207-4.207c.391-.391,1.024-.391,1.414,0l2.519,2.519"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -35,7 +35,7 @@ function rotateImageClockwise(props: iconProps) {
         <path
           d="M8,3.25h-2.75c-2.209,0-4,1.791-4,4v1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -43,7 +43,7 @@ function rotateImageClockwise(props: iconProps) {
         <path
           d="M6 1.25L8.25 3.25 6 5.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

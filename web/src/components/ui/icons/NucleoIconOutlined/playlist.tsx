@@ -13,7 +13,7 @@ function playlist(props: iconProps) {
         <path
           d="M11.037,9.629l-3.14-1.832c-.287-.167-.647,.04-.647,.371v3.663c0,.332,.36,.539,.647,.371l3.14-1.832c.284-.166,.284-.577,0-.743Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function playlist(props: iconProps) {
         <path
           d="M4.75 1.75L13.25 1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -32,7 +32,7 @@ function playlist(props: iconProps) {
           fill="none"
           rx="2"
           ry="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

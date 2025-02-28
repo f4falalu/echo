@@ -13,7 +13,7 @@ function textAlignJustify(props: iconProps) {
         <path
           d="M10.75 6L1.25 6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function textAlignJustify(props: iconProps) {
         <path
           d="M10.75 2.25L1.25 2.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function textAlignJustify(props: iconProps) {
         <path
           d="M10.75 9.75L1.25 9.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

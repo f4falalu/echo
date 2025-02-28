@@ -13,7 +13,7 @@ function vShapedArrowDown(props: iconProps) {
         <path
           d="M15.25 7.5L9 11.75 2.75 7.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

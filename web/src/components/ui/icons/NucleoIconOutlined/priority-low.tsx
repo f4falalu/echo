@@ -13,7 +13,7 @@ function priorityLow(props: iconProps) {
         <path
           d="M2.75 6.5L9 12.75 15.25 6.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

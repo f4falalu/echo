@@ -13,7 +13,7 @@ function clipboardSlash(props: iconProps) {
         <path
           d="M14.573,3.927c-.314-.694-1.012-1.177-1.823-1.177h-1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function clipboardSlash(props: iconProps) {
         <path
           d="M5.785,16.25h6.965c1.105,0,2-.895,2-2V7.285"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function clipboardSlash(props: iconProps) {
         <path
           d="M6.25,2.75h-1c-1.105,0-2,.895-2,2V14.25c0,.293,.063,.572,.177,.823"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function clipboardSlash(props: iconProps) {
         <path
           d="M2.25 16.25L16 2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -48,7 +48,7 @@ function clipboardSlash(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

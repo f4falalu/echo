@@ -13,7 +13,7 @@ function upload(props: iconProps) {
         <path
           d="M11.75,7.75h.663c.929,0,1.736,.64,1.948,1.546l.817,3.5c.293,1.254-.66,2.454-1.948,2.454H4.77c-1.288,0-2.24-1.2-1.948-2.454l.817-3.5c.211-.905,1.018-1.546,1.948-1.546h.663"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function upload(props: iconProps) {
         <path
           d="M6 4.75L9 1.75 12 4.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function upload(props: iconProps) {
         <path
           d="M9 1.75L9 12.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

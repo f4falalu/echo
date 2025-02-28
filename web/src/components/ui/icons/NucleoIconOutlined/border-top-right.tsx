@@ -25,7 +25,7 @@ function borderTopRight(props: iconProps) {
         <path
           d="M15.25 15.25L15.25 2.75 2.75 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

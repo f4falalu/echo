@@ -13,7 +13,7 @@ function bitcoin2(props: iconProps) {
         <path
           d="M9.25 1.75L9.25 4.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function bitcoin2(props: iconProps) {
         <path
           d="M9.25 13.75L9.25 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function bitcoin2(props: iconProps) {
         <path
           d="M3.75,4.25h6.75c1.243,0,2.25,1.007,2.25,2.25h0c0,1.243-1.007,2.25-2.25,2.25H6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function bitcoin2(props: iconProps) {
         <path
           d="M6.25,8.75h5c1.381,0,2.5,1.119,2.5,2.5h0c0,1.381-1.119,2.5-2.5,2.5H3.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function bitcoin2(props: iconProps) {
         <path
           d="M6.25 1.75L6.25 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function artificialIntelligence(props: iconProps) {
         <path
           d="M9.318 12.75L5.748 4.25 5.57 4.25 2 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function artificialIntelligence(props: iconProps) {
         <path
           d="M2.84 10.75L8.478 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function artificialIntelligence(props: iconProps) {
         <path
           d="M11.75 12.75L16 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function artificialIntelligence(props: iconProps) {
         <path
           d="M11.75 7.25L13.75 7.25 13.75 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

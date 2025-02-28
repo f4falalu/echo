@@ -13,7 +13,7 @@ function tableColMergeLeftRight(props: iconProps) {
         <path
           d="M9.25 2.75L9.25 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function tableColMergeLeftRight(props: iconProps) {
         <path
           d="M3.145,13.99c.294,.737,1.012,1.26,1.855,1.26H13.25c1.104,0,2-.895,2-2V4.75c0-1.105-.896-2-2-2H5c-.843,0-1.56,.523-1.855,1.26"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function tableColMergeLeftRight(props: iconProps) {
         <path
           d="M3.25 11.5L0.75 9 3.25 6.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function tableColMergeLeftRight(props: iconProps) {
         <path
           d="M0.75 9L6.25 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

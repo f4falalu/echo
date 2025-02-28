@@ -13,7 +13,7 @@ function alertInfo(props: iconProps) {
         <path
           d="M6 10.75L6 4.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

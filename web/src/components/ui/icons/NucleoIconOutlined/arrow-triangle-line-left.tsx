@@ -13,7 +13,7 @@ function arrowTriangleLineLeft(props: iconProps) {
         <path
           d="M7.75 9L15.75 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function arrowTriangleLineLeft(props: iconProps) {
         <path
           d="M2.453,9.414l4.516,3.058c.332,.225,.78-.013,.78-.414V5.942c0-.401-.448-.639-.78-.414l-4.516,3.058c-.293,.198-.293,.63,0,.828Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

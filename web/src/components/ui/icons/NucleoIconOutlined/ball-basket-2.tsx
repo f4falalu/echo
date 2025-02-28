@@ -13,7 +13,7 @@ function ballBasket2(props: iconProps) {
         <path
           d="M8.823,1.753c-.044,1.796-.751,3.579-2.121,4.949s-3.153,2.078-4.949,2.121"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function ballBasket2(props: iconProps) {
         <path
           d="M16.247,9.177c-1.796,.044-3.579,.751-4.949,2.121-1.371,1.371-2.078,3.153-2.121,4.949"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function ballBasket2(props: iconProps) {
         <path
           d="M14.127 3.873L3.873 14.127"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function ballBasket2(props: iconProps) {
         <path
           d="M14.127 14.127L3.873 3.873"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -47,7 +47,7 @@ function ballBasket2(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

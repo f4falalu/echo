@@ -13,7 +13,7 @@ function sparkle4(props: iconProps) {
         <path
           d="M6 11.25L7.487 7.488 11.25 6 7.487 4.512 6 0.75 4.512 4.512 0.75 6 4.512 7.488 6 11.25z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

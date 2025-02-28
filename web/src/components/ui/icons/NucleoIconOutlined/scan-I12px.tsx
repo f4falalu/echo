@@ -13,7 +13,7 @@ function scan(props: iconProps) {
         <path
           d="m1.25,5.75v-2.5c0-1.105.895-2,2-2h1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function scan(props: iconProps) {
         <path
           d="m7.75,1.25h1c1.105,0,2,.895,2,2v2.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function scan(props: iconProps) {
         <path
           d="m10.75,8.25v.5c0,1.105-.895,2-2,2h-1"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function scan(props: iconProps) {
         <path
           d="m4.25,10.75h-1c-1.105,0-2-.895-2-2v-.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function scan(props: iconProps) {
         <path
           d="M11.25 5.75L0.75 5.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

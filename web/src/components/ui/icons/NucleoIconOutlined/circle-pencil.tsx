@@ -13,7 +13,7 @@ function circlePencil(props: iconProps) {
         <path
           d="M9 5.5L10.5 10.25 7.5 10.25 9 5.5z"
           fill="currentColor"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function circlePencil(props: iconProps) {
         <path
           d="m12.4891,15.3547l-.8322-4.295c-.0911-.4702-.5028-.8098-.9817-.8098h-3.3504c-.4789,0-.8906.3396-.9817.8098l-.8322,4.295"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function circlePencil(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

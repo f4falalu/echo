@@ -16,7 +16,7 @@ function objsUngroup(props: iconProps) {
           fill="none"
           rx="1"
           ry="1"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function objsUngroup(props: iconProps) {
         <path
           d="M12.75,7.75h1.5c.552,0,1,.448,1,1v5.5c0,.552-.448,1-1,1h-5.5c-.552,0-1-.448-1-1v-1.5"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

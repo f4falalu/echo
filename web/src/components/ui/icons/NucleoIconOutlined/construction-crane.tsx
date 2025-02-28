@@ -16,7 +16,7 @@ function constructionCrane(props: iconProps) {
           fill="none"
           rx=".5"
           ry=".5"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function constructionCrane(props: iconProps) {
         <path
           d="M13.75 10.75L13.75 6.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function constructionCrane(props: iconProps) {
         <path
           d="M10 16.25L3 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +42,7 @@ function constructionCrane(props: iconProps) {
         <path
           d="M4.75,16.25V2.25c0-.276,.224-.5,.5-.5h2.5c.276,0,.5,.224,.5,.5v14"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -50,7 +50,7 @@ function constructionCrane(props: iconProps) {
         <path
           d="M10.75,6.25h4.761c.354,0,.596-.357,.464-.686l-.6-1.5c-.076-.19-.26-.314-.464-.314h-6.661"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -58,7 +58,7 @@ function constructionCrane(props: iconProps) {
         <path
           d="M4.75,3.75H2.25c-.276,0-.5,.224-.5,.5v1.5c0,.276,.224,.5,.5,.5h6"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -66,7 +66,7 @@ function constructionCrane(props: iconProps) {
         <path
           d="M4.75 9.25L8.25 9.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -74,7 +74,7 @@ function constructionCrane(props: iconProps) {
         <path
           d="M4.75 12.25L8.25 12.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

@@ -13,7 +13,7 @@ function chartPie(props: iconProps) {
         <path
           d="m3.5,1.41C1.869,2.301.75,4.011.75,6c0,2.899,2.351,5.25,5.25,5.25,1.989,0,3.699-1.119,4.59-2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function chartPie(props: iconProps) {
         <path
           d="m6,.75v5.25h5.25c0-2.9-2.351-5.25-5.25-5.25Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

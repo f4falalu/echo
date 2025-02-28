@@ -13,7 +13,7 @@ function flag3(props: iconProps) {
         <path
           d="M2.75 1.75L10.25 1.75 7.5 4.5 10.25 7.25 2.75 7.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function flag3(props: iconProps) {
         <path
           d="M2.75 0.75L2.75 11.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

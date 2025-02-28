@@ -13,7 +13,7 @@ function textA(props: iconProps) {
         <path
           d="M3.042 8.25L8.958 8.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function textA(props: iconProps) {
         <path
           d="M9.99 10.75L6.305 1.25 5.695 1.25 2.01 10.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

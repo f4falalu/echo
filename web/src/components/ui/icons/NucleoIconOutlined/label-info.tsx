@@ -14,7 +14,7 @@ function labelInfo(props: iconProps) {
         <path
           d="m13.2094,7.002c-.0826-.4194-.2953-.8057-.6174-1.0969l-3.921-3.5471c-.381-.345-.961-.345-1.342,0l-3.921,3.5471c-.419.3789-.658.918-.658,1.4829v6.8621c0,1.105.895,2,2,2h3.0196"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

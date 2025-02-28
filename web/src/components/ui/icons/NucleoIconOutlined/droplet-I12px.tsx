@@ -13,7 +13,7 @@ function droplet(props: iconProps) {
         <path
           d="m6,11.25c2.209,0,4-1.789,4-3.995,0-3.035-2.242-4.333-4-6.505-1.758,2.172-4,3.47-4,6.505,0,2.206,1.791,3.995,4,3.995Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function droplet(props: iconProps) {
         <path
           d="m6,8.75c-.827,0-1.5-.671-1.5-1.495"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

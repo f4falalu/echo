@@ -13,7 +13,7 @@ function tableRowDeleteBottom(props: iconProps) {
         <path
           d="M11 16.75L7 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function tableRowDeleteBottom(props: iconProps) {
         <path
           d="M7 16.75L11 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function tableRowDeleteBottom(props: iconProps) {
         <path
           d="M2.75 8.75L15.25 8.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function tableRowDeleteBottom(props: iconProps) {
         <path
           d="M12.782,15h.468c1.105,0,2-.896,2-2V4.75c0-1.104-.895-2-2-2H4.75c-1.105,0-2,.896-2,2V13c0,1.104,.895,2,2,2h.468"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

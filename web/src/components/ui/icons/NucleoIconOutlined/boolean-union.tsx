@@ -13,7 +13,7 @@ function booleanUnion(props: iconProps) {
         <path
           d="M14.25,6.75h-3V3.75c0-.552-.448-1-1-1H3.75c-.552,0-1,.448-1,1v6.5c0,.552,.448,1,1,1h3v3c0,.552,.448,1,1,1h6.5c.552,0,1-.448,1-1V7.75c0-.552-.448-1-1-1Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

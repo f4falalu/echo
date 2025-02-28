@@ -13,7 +13,7 @@ function link4(props: iconProps) {
         <path
           d="M5.75,7.25v-2.25c0-1.795,1.455-3.25,3.25-3.25h0c1.795,0,3.25,1.455,3.25,3.25v2.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function link4(props: iconProps) {
         <path
           d="M5.75,10.75v2.25c0,1.795,1.455,3.25,3.25,3.25h0c1.795,0,3.25-1.455,3.25-3.25v-2.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function link4(props: iconProps) {
         <path
           d="M9 11.25L9 6.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

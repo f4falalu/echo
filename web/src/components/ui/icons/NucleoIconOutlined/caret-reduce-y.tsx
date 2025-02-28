@@ -13,7 +13,7 @@ function caretReduceY(props: iconProps) {
         <path
           d="M9.414,7.499l2.348-3.468c.225-.332-.013-.78-.414-.78H6.652c-.401,0-.639,.448-.414,.78l2.348,3.468c.198,.293,.63,.293,.828,0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function caretReduceY(props: iconProps) {
         <path
           d="M9.414,10.501l2.348,3.468c.225,.332-.013,.78-.414,.78H6.652c-.401,0-.639-.448-.414-.78l2.348-3.468c.198-.293,.63-.293,.828,0Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

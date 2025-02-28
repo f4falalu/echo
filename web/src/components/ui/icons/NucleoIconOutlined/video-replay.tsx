@@ -18,7 +18,7 @@ function videoReplay(props: iconProps) {
         <path
           d="M14.75 3.25L17.25 3.25 17.25 0.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -26,7 +26,7 @@ function videoReplay(props: iconProps) {
         <path
           d="m9.275,3.75H3.75c-1.105,0-2,.895-2,2v7.5c0,1.105.895,2,2,2h10.5c1.105,0,2-.895,2-2v-4.327"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -34,7 +34,7 @@ function videoReplay(props: iconProps) {
         <path
           d="m16.5,5.887c-.501.531-1.212.863-2,.863-1.519,0-2.75-1.231-2.75-2.75s1.231-2.75,2.75-2.75c1.166,0,2.162.726,2.563,1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -42,7 +42,7 @@ function videoReplay(props: iconProps) {
         <path
           d="M12.25 16.25L5.75 16.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

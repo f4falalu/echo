@@ -13,7 +13,7 @@ function strokeProjectingCap(props: iconProps) {
         <path
           d="M1.75,14.25H15.25c.552,0,1-.448,1-1V4.75c0-.552-.448-1-1-1H1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function strokeProjectingCap(props: iconProps) {
         <path
           d="M1.75 9L8.75 9"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -31,7 +31,7 @@ function strokeProjectingCap(props: iconProps) {
           cy="9"
           fill="none"
           r="2.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

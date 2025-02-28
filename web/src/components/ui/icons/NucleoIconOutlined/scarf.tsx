@@ -13,7 +13,7 @@ function scarf(props: iconProps) {
         <path
           d="M13.25,4.75h2c.552,0,1,.448,1,1v4c0,.552-.448,1-1,1h-2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function scarf(props: iconProps) {
         <path
           d="M7.25,10.75H2.75c-.552,0-1-.448-1-1V5.75c0-.552,.448-1,1-1H7.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function scarf(props: iconProps) {
         <path
           d="M8.25,2.75h4c.552,0,1,.448,1,1V13.25H7.25V3.75c0-.552,.448-1,1-1Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function scarf(props: iconProps) {
         <path
           d="M7.25 13.25L7.25 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function scarf(props: iconProps) {
         <path
           d="M10.25 13.25L10.25 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function scarf(props: iconProps) {
         <path
           d="M13.25 13.25L13.25 15.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

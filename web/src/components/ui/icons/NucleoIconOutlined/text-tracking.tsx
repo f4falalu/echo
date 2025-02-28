@@ -13,7 +13,7 @@ function textTracking(props: iconProps) {
         <path
           d="M15.125 9.25L12.395 2.75 12.259 2.75 9.529 9.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function textTracking(props: iconProps) {
         <path
           d="M2.875 2.75L5.605 9.25 5.741 9.25 8.471 2.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function textTracking(props: iconProps) {
         <path
           d="M10.159 7.75L14.495 7.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function textTracking(props: iconProps) {
         <path
           d="M3.75 11.75L1.75 13.75 3.75 15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -45,7 +45,7 @@ function textTracking(props: iconProps) {
         <path
           d="M14.25 11.75L16.25 13.75 14.25 15.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -53,7 +53,7 @@ function textTracking(props: iconProps) {
         <path
           d="M1.75 13.75L16.25 13.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

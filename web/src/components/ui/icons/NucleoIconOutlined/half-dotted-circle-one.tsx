@@ -13,7 +13,7 @@ function halfDottedCircleOne(props: iconProps) {
         <path
           d="M9,16.25c-4.004,0-7.25-3.246-7.25-7.25S4.996,1.75,9,1.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function halfDottedCircleOne(props: iconProps) {
         <path
           d="M9.25,12.25V5.75s-.745,1.309-2.325,1.612"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

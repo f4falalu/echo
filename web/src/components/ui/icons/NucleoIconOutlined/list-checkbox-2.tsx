@@ -13,7 +13,7 @@ function listCheckbox2(props: iconProps) {
         <path
           d="M2.25 13.391L3.609 14.75 7.006 10.333"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function listCheckbox2(props: iconProps) {
         <path
           d="M2.25 5.891L3.609 7.25 7.006 2.833"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function listCheckbox2(props: iconProps) {
         <path
           d="M9.75 5.25L16.25 5.25"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -37,7 +37,7 @@ function listCheckbox2(props: iconProps) {
         <path
           d="M9.75 12.75L16.25 12.75"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

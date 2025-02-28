@@ -13,7 +13,7 @@ function nodes3(props: iconProps) {
         <path
           d="M2.84,8.689c.246-1.437,.982-2.707,2.031-3.631"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function nodes3(props: iconProps) {
         <path
           d="M15.16,8.689c-.246-1.437-.982-2.707-2.031-3.631"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -29,7 +29,7 @@ function nodes3(props: iconProps) {
         <path
           d="M11,15.673c-.628,.212-1.301,.327-2,.327-.699,0-1.372-.115-2-.327"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -39,7 +39,7 @@ function nodes3(props: iconProps) {
           cy="3.75"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -49,7 +49,7 @@ function nodes3(props: iconProps) {
           cy="12.75"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -59,7 +59,7 @@ function nodes3(props: iconProps) {
           cy="12.75"
           fill="none"
           r="2"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

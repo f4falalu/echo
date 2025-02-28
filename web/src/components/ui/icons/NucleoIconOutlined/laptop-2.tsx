@@ -13,7 +13,7 @@ function laptop2(props: iconProps) {
         <path
           d="M4.25,12.75c-1.105,0-2-.895-2-2V4.75c0-1.105,.895-2,2-2H13.75c1.105,0,2,.895,2,2v6c0,1.105-.895,2-2,2"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -21,7 +21,7 @@ function laptop2(props: iconProps) {
         <path
           d="M17.25,12.75H.75v.5c0,1.105,.895,2,2,2H15.25c1.105,0,2-.895,2-2v-.5Z"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}

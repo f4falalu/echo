@@ -15,7 +15,7 @@ function faceSad(props: iconProps) {
           cy="9"
           fill="none"
           r="7.25"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
@@ -25,7 +25,7 @@ function faceSad(props: iconProps) {
         <path
           d="M12,11.993c-.769-.768-1.83-1.243-3-1.243s-2.231,.475-3,1.243"
           fill="none"
-          stroke="#212121"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={strokewidth}
