@@ -5,37 +5,19 @@ use indexmap::IndexMap;
 use uuid::Uuid;
 
 use database::enums::UserOrganizationRole;
-use database::pool::get_pg_pool;
 use database::models::DataSource;
+use database::pool::get_pg_pool;
 use database::schema::{data_sources, users_to_organizations};
 
-use super::data_source_query_routes::query_router::query_router;
+use super::data_source_query_routes::query_engine::query_engine;
 use super::data_types::DataType;
 
 pub async fn query_engine(
-    data_source_id: Option<&Uuid>,
-    dataset_id: Option<&Uuid>,
+    data_source_id: &Uuid,
     sql: &String,
 ) -> Result<Vec<IndexMap<String, DataType>>> {
-    if data_source_id.is_some() && dataset_id.is_some() {
-        return Err(anyhow::anyhow!("Cannot specify both data_source_id and dataset_id"));
-    }
 
-    let data_source = if let Some(dataset_id) = dataset_id {
-        match DataSource::find_by_dataset_id(dataset_id).await? {
-            Some(data_source) => data_source,
-            None => return Err(anyhow::anyhow!("Data source not found")),
-        }
-    } else if let Some(data_source_id) = data_source_id {
-        match DataSource::find_by_id(data_source_id).await? {
-            Some(data_source) => data_source,
-            None => return Err(anyhow::anyhow!("Data source not found")),
-        }
-    } else {
-        return Err(anyhow::anyhow!("Must specify either data_source_id or dataset_id"));
-    };
-
-    let results = match query_router(&data_source, sql, None, false).await {
+    let results = match query_engine(&data_source, sql, None, false).await {
         Ok(results) => results,
         Err(e) => return Err(e),
     };
@@ -86,7 +68,7 @@ pub async fn modeling_query_engine(
         None => return Err(anyhow::anyhow!("Data source not found")),
     };
 
-    let results = match query_router(&data_source, sql, Some(25), false).await {
+    let results = match query_engine(&data_source, sql, Some(25), false).await {
         Ok(results) => results,
         Err(e) => return Err(e),
     };

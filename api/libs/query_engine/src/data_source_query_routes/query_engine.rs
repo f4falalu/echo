@@ -1,6 +1,7 @@
 use indexmap::IndexMap;
 
 use anyhow::{anyhow, Result};
+use uuid::Uuid;
 
 use crate::{
     credentials::{
@@ -8,23 +9,17 @@ use crate::{
         SnowflakeCredentials, SqlServerCredentials,
     },
     data_source_connections::{
-        get_bigquery_client::get_bigquery_client,
-        get_databricks_client::get_databricks_client,
+        get_bigquery_client::get_bigquery_client, get_databricks_client::get_databricks_client,
         get_mysql_connection::get_mysql_connection,
         get_postgres_connection::get_postgres_connection,
         get_redshift_connection::get_redshift_connection,
         get_snowflake_client::get_snowflake_client,
-        get_sql_server_connection::get_sql_server_connection,
-        ssh_tunneling::kill_ssh_tunnel,
+        get_sql_server_connection::get_sql_server_connection, ssh_tunneling::kill_ssh_tunnel,
     },
     data_types::DataType,
 };
 
-use database::{
-    enums::DataSourceType,
-    models::DataSource,
-    utils::clients::supabase_vault::read_secret,
-};
+use database::{enums::DataSourceType, models::DataSource, vault::read_secret};
 
 use super::{
     bigquery_query::bigquery_query,
@@ -37,29 +32,21 @@ use super::{
     sql_server_query::sql_server_query,
 };
 
-pub async fn query_router(
-    data_source: &DataSource,
+pub async fn query_engine(
+    data_source_id: &Uuid,
     sql: &String,
     limit: Option<i64>,
-    write_req: bool,
 ) -> Result<Vec<IndexMap<String, DataType>>> {
     let corrected_sql = sql.clone();
 
     let secure_sql = corrected_sql.clone();
 
-    if write_req {
-        match write_query_safety_filter(secure_sql.clone()).await {
-            Some(warning) => return Err(anyhow!(warning)),
-            None => (),
-        };
-    } else {
-        match query_safety_filter(secure_sql.clone()).await {
-            Some(warning) => return Err(anyhow!(warning)),
-            None => (),
-        };
-    }
+    match query_safety_filter(secure_sql.clone()).await {
+        Some(warning) => return Err(anyhow!(warning)),
+        None => (),
+    };
 
-    let results = match route_to_query(&data_source, &secure_sql, limit).await {
+    let results = match route_to_query(data_source_id, &secure_sql, limit).await {
         Ok(results) => results,
         Err(e) => {
             tracing::error!(
@@ -74,11 +61,11 @@ pub async fn query_router(
 }
 
 async fn route_to_query(
-    data_source: &DataSource,
+    data_source_id: &Uuid,
     sql: &String,
     limit: Option<i64>,
 ) -> Result<Vec<IndexMap<String, DataType>>> {
-    let credentials_string = match read_secret(&data_source.secret_id).await {
+    let credentials_string = match read_secret(&data_source_id).await {
         Ok(credentials) => credentials,
         Err(e) => return Err(anyhow!(e)),
     };

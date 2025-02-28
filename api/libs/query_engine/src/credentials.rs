@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
-use database::enums::DataSourceType;
+use database::{enums::DataSourceType, vault::read_secret};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type")]
