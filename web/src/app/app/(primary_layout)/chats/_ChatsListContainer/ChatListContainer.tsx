@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { AppContentPage } from '../../../../components/ui/layouts/AppContentPage';
+import { AppContentPage } from '@/components/ui/layouts/AppContentPage';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn, useMount } from 'ahooks';
 import { useBusterChatListByFilter } from '@/context/Chats';

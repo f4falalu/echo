@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { AppLayout } from './AppLayout';
 
 const TestContent = () => (
-  <div className="p-4">
+  <div className="h-full overflow-y-auto p-4">
     <ul className="space-y-4">
       {Array.from({ length: 30 }, (_, i) => (
         <li key={i} className="rounded-lg bg-gray-100 p-4">
@@ -28,50 +28,27 @@ type Story = StoryObj<typeof AppLayout>;
 export const Default: Story = {
   args: {
     children: <TestContent />,
-    floating: true,
-    scrollable: true
+    floating: true
   }
 };
 
 export const WithSidebar: Story = {
   args: {
-    header: <div className="">Header Content</div>,
     children: <TestContent />,
-    sidebar: <div className="">Sidebar Content</div>,
-    scrollable: true
+    sidebar: <div className="">Sidebar Content</div>
   },
   decorators: [
     (Story) => (
-      <div style={{ height: '600px', width: '100%' }}>
+      <div className="bg-background-secondary" style={{ height: '600px', width: '100%' }}>
         <Story />
       </div>
     )
   ]
 };
 
-export const WithHeader: Story = {
-  args: {
-    header: <div className="">Header Content</div>,
-    children: <TestContent />,
-    floating: true,
-    scrollable: true
-  }
-};
-
 export const NonFloating: Story = {
   args: {
-    header: <div className="">Header Content</div>,
     children: <TestContent />,
-    floating: false,
-    scrollable: true
-  }
-};
-
-export const NonScrollable: Story = {
-  args: {
-    header: <div className="">Header Content</div>,
-    children: <TestContent />,
-    floating: true,
-    scrollable: false
+    floating: false
   }
 };
