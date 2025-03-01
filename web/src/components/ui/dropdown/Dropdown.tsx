@@ -51,8 +51,6 @@ export interface DropdownProps extends DropdownMenuProps {
   items: DropdownItems;
   selectType?: 'single' | 'multiple' | 'none';
   menuHeader?: string | React.ReactNode; //if string it will render a search box
-  minWidth?: number;
-  maxWidth?: number;
   closeOnSelect?: boolean;
   onSelect?: (itemId: string) => void;
   align?: 'start' | 'center' | 'end';
@@ -73,8 +71,6 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
     items = [],
     selectType = 'none',
     menuHeader,
-    minWidth = 240,
-    maxWidth,
     closeOnSelect = true,
     onSelect,
     children,

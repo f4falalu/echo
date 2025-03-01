@@ -2,7 +2,7 @@ import { ConfigProvider, Menu, MenuProps } from 'antd';
 import { createStyles } from 'antd-style';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { forwardRef, useMemo } from 'react';
-import { BusterListContextMenu, BusterMenuItemType } from './interfaces';
+import { BusterListContextMenu } from './interfaces';
 import { MenuItemType } from 'antd/es/menu/interface';
 
 export interface BusterListContentMenuProps {
@@ -23,7 +23,7 @@ export const BusterListContentMenu = forwardRef<HTMLDivElement, BusterListConten
             ...(item as MenuItemType),
             popupClassName: cx(styles.popUpClassMenu),
             onClick: () => {
-              (item as BusterMenuItemType)?.onClick?.(id);
+              item?.onClick?.(id);
             }
           };
         }) || [],
@@ -67,7 +67,7 @@ export const BusterListContentMenu = forwardRef<HTMLDivElement, BusterListConten
 );
 BusterListContentMenu.displayName = 'BusterListContentMenu';
 
-const useStyles = createStyles(({ token, prefixCls, css }) => ({
+const useStyles = createStyles(({ token, css }) => ({
   popUpClassMenu: css`
     .busterv2-menu {
       border: 0.5px solid ${token.colorBorder};

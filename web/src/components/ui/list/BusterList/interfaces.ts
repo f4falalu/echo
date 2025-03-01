@@ -1,11 +1,5 @@
-import { MenuProps } from 'antd';
-import type { MenuDividerType } from 'antd/es/menu/interface';
-import type {
-  MenuItemType as RcMenuItemType,
-  SubMenuType as RcSubMenuType
-} from 'rc-menu/lib/interface';
-
 import React from 'react';
+import { Dropdown } from '../../dropdown';
 export interface BusterListProps {
   columns: BusterListColumn[];
   hideLastRowBorder?: boolean;
@@ -49,25 +43,6 @@ export interface BusterListSectionRow {
 }
 
 //CONTEXT MENU INTERFACES
-export interface BusterListContextMenu extends Omit<MenuProps, 'items'> {
-  items: BusterListMenuItemType[];
+export interface BusterListContextMenu {
+  items: any[];
 }
-
-export interface BusterMenuItemType extends Omit<RcMenuItemType, 'onSelect' | 'onClick'> {
-  danger?: boolean;
-  icon?: React.ReactNode;
-  title?: string;
-  onClick?: (id: string) => void;
-  key: string;
-}
-export interface SubMenuType<T extends BusterMenuItemType = BusterMenuItemType>
-  extends Omit<RcSubMenuType, 'children' | 'onClick'> {
-  icon?: React.ReactNode;
-  theme?: 'dark' | 'light';
-  children: BusterListMenuItemType<T>[];
-}
-export type BusterListMenuItemType<T extends BusterMenuItemType = BusterMenuItemType> =
-  | T
-  | SubMenuType<T>
-  | MenuDividerType
-  | null;
