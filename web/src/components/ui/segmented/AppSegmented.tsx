@@ -25,9 +25,10 @@ export interface AppSegmentedProps<T extends string = string> {
   size?: 'default' | 'large';
   block?: boolean;
   type?: 'button' | 'track';
+  disabled?: boolean;
 }
 
-const segmentedVariants = cva('relative inline-flex items-center rounded-md', {
+const segmentedVariants = cva('relative inline-flex items-center rounded', {
   variants: {
     block: {
       true: 'w-full',
@@ -45,7 +46,7 @@ const segmentedVariants = cva('relative inline-flex items-center rounded-md', {
 });
 
 const triggerVariants = cva(
-  'relative z-10 flex items-center justify-center gap-x-1.5 gap-y-1 rounded-md transition-colors',
+  'relative z-10 flex items-center justify-center gap-x-1.5 gap-y-1 rounded transition-colors',
   {
     variants: {
       size: {
@@ -68,7 +69,7 @@ const triggerVariants = cva(
   }
 );
 
-const gliderVariants = cva('absolute border-border rounded-md border', {
+const gliderVariants = cva('absolute border-border rounded border', {
   variants: {
     type: {
       button: 'bg-item-select',
