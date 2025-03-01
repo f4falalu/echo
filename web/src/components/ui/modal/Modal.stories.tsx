@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { AppModalNew } from './Modal';
+import { AppModal } from './AppModal';
 import { Button } from '../buttons/Button';
 import React from 'react';
-import { ModalProps } from './Modal';
-const meta: Meta<typeof AppModalNew> = {
+import { ModalProps } from './AppModal';
+const meta: Meta<typeof AppModal> = {
   title: 'UI/Modal/AppModal',
-  component: AppModalNew,
+  component: AppModal,
   argTypes: {
     open: {
       control: 'boolean',
@@ -32,7 +32,7 @@ const meta: Meta<typeof AppModalNew> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof AppModalNew>;
+type Story = StoryObj<typeof AppModal>;
 
 // Helper component to control modal state in Storybook
 const ModalContainer = (args: ModalProps) => {
@@ -69,7 +69,7 @@ const ModalContainer = (args: ModalProps) => {
   return (
     <div>
       <Button onClick={handleOpen}>Open Modal</Button>
-      <AppModalNew {...modalProps} />
+      <AppModal {...modalProps} />
     </div>
   );
 };
