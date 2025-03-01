@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dropdown } from '../../dropdown';
+import { type ContextMenuProps } from '../../context/ContextMenu';
 export interface BusterListProps {
   columns: BusterListColumn[];
   hideLastRowBorder?: boolean;
@@ -8,7 +8,7 @@ export interface BusterListProps {
   emptyState?: undefined | React.ReactNode | string;
   showHeader?: boolean;
   selectedRowKeys?: string[];
-  contextMenu?: BusterListContextMenu;
+  contextMenu?: ContextMenuProps;
   showSelectAll?: boolean;
   useRowClickSelectChange?: boolean;
   rowClassName?: string;
@@ -40,9 +40,4 @@ export interface BusterListSectionRow {
   title: string;
   secondaryTitle?: string;
   disableSection?: boolean;
-}
-
-//CONTEXT MENU INTERFACES
-export interface BusterListContextMenu {
-  items: any[];
 }

@@ -16,7 +16,7 @@ import {
   ContextMenuLink,
   ContextMenuPortal
 } from './ContextBase';
-import { ContextMenuProps } from '@radix-ui/react-context-menu';
+import { ContextMenuProps as ContextMenuPropsRadix } from '@radix-ui/react-context-menu';
 import CircleSpinnerLoader from '../loaders/CircleSpinnerLoader';
 import { cn } from '@/lib/classMerge';
 
@@ -42,7 +42,7 @@ export interface ContextMenuDivider {
 
 export type ContextMenuItems = (ContextMenuItem | ContextMenuDivider | React.ReactNode)[];
 
-export interface ContextProps extends ContextMenuProps {
+export interface ContextMenuProps extends ContextMenuPropsRadix {
   items: ContextMenuItems;
   className?: string;
   disabled?: boolean;
@@ -53,7 +53,7 @@ const contextMenuItemKey = (item: ContextMenuItems[number], index: number) => {
   return `item-${index}`;
 };
 
-export const ContextMenu: React.FC<ContextProps> = React.memo(
+export const ContextMenu: React.FC<ContextMenuProps> = React.memo(
   ({ items, className, disabled, children, dir, modal }) => {
     return (
       <ContextMenuPrimitive dir={dir} modal={modal}>
@@ -62,11 +62,9 @@ export const ContextMenu: React.FC<ContextProps> = React.memo(
         </ContextMenuTrigger>
         <ContextMenuContent className={cn('max-w-72 min-w-44', className)}>
           {items.map((item, index) => (
-            <ContextMenuItemSelector
-              key={contextMenuItemKey(item, index)}
-              item={item}
-              index={index}
-            />
+            <React.Fragment key={contextMenuItemKey(item, index)}>
+              <ContextMenuItemSelector item={item} index={index} />
+            </React.Fragment>
           ))}
         </ContextMenuContent>
       </ContextMenuPrimitive>
@@ -79,7 +77,7 @@ const ContextMenuItemSelector: React.FC<{
   index: number;
 }> = React.memo(({ item, index }) => {
   if ((item as ContextMenuDivider).type === 'divider') {
-    return <ContextMenuSeparator key={contextMenuItemKey(item, index)} />;
+    return <ContextMenuSeparator />;
   }
 
   if (typeof item === 'object' && React.isValidElement(item)) {
@@ -161,11 +159,9 @@ const ContextSubMenuWrapper = React.memo(
         <ContextMenuPortal>
           <ContextMenuSubContent>
             {items?.map((item, index) => (
-              <ContextMenuItemSelector
-                key={contextMenuItemKey(item, index)}
-                item={item}
-                index={index}
-              />
+              <React.Fragment key={contextMenuItemKey(item, index)}>
+                <ContextMenuItemSelector item={item} index={index} />
+              </React.Fragment>
             ))}
           </ContextMenuSubContent>
         </ContextMenuPortal>

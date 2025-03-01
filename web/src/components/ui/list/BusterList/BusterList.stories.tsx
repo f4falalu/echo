@@ -3,6 +3,7 @@ import { BusterList } from './index';
 import { BusterListRow } from './interfaces';
 import React from 'react';
 import { faker } from '@faker-js/faker';
+import { ContextMenuProps } from '../../context/ContextMenu';
 
 const meta: Meta<typeof BusterList> = {
   title: 'UI/List/BusterList',
@@ -109,23 +110,19 @@ const generateSampleRows = (count: number): BusterListRow[] => {
 // Generate sample rows
 const sampleRows = generateSampleRows(5);
 
-const sampleContextMenu = {
+const sampleContextMenu: ContextMenuProps = {
   items: [
     {
-      key: 'view',
       label: 'View Details',
-      onClick: (id: string) => alert(`View ${id}`)
+      onClick: () => alert(`View`)
     },
     {
-      key: 'edit',
       label: 'Edit',
-      onClick: (id: string) => alert(`Edit ${id}`)
+      onClick: () => alert(`Edit`)
     },
     {
-      key: 'delete',
       label: 'Delete',
-      danger: true,
-      onClick: (id: string) => alert(`Delete ${id}`)
+      onClick: () => alert(`Delete`)
     }
   ]
 };
@@ -258,6 +255,21 @@ export const ManyRows: Story = {
   args: {
     columns: sampleColumns,
     rows: generateSampleRows(100),
+    showHeader: true,
+    showSelectAll: true
+  },
+  render: (args) => (
+    <div style={{ height: '400px', width: '800px' }}>
+      <BusterList {...args} />
+    </div>
+  )
+};
+
+export const ManyRowsWithContextMenu: Story = {
+  args: {
+    columns: sampleColumns,
+    rows: generateSampleRows(100),
+    contextMenu: sampleContextMenu,
     showHeader: true,
     showSelectAll: true
   },
