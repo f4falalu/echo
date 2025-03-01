@@ -167,8 +167,6 @@ export const WithDisabledItems: Story = {
 export const CustomWidth: Story = {
   args: {
     menuHeader: 'Custom Width Menu',
-    minWidth: 300,
-    maxWidth: 400,
     items: [
       {
         value: '1',

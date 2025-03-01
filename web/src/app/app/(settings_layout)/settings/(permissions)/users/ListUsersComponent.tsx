@@ -102,7 +102,6 @@ export const ListUsersComponent: React.FC<{
         rowClassName="pl-[30px]!"
         // onSelectChange={setSelectedRowKeys}
         // selectedRowKeys={selectedRowKeys}
-        columnRowVariant="default"
         emptyState={<EmptyStateList text="No users found" variant="card" show={isFetched} />}
       />
     </InfiniteListContainer>

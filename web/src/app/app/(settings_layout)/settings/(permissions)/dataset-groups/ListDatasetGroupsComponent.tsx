@@ -54,7 +54,6 @@ export const ListDatasetGroupsComponent: React.FC<{
         showHeader={true}
         showSelectAll={false}
         rowClassName="pl-[30px]!"
-        columnRowVariant="default"
         emptyState={<EmptyStateList text="No dataset groups found" />}
       />
     </InfiniteListContainer>

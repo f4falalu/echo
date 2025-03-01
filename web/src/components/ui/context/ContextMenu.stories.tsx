@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ContextMenu, ContextProps } from './ContextMenu';
+import { ContextMenu } from './ContextMenu';
 import {
   Window,
   WindowSettings,
@@ -383,7 +383,9 @@ export const ContextMenuWithEverything: Story = {
         loading: false,
         icon: <Window />,
         items: [
-          <div className="flex min-h-10 min-w-10 items-center rounded bg-red-300 p-1 text-red-600">
+          <div
+            key="nested-item"
+            className="flex min-h-10 min-w-10 items-center rounded bg-red-300 p-1 text-red-600">
             This is a nested item
           </div>
         ]

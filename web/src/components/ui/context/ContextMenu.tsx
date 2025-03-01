@@ -72,6 +72,8 @@ export const ContextMenu: React.FC<ContextMenuProps> = React.memo(
   }
 );
 
+ContextMenu.displayName = 'ContextMenu';
+
 const ContextMenuItemSelector: React.FC<{
   item: ContextMenuItems[number];
   index: number;

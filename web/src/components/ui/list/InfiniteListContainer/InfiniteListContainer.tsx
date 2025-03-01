@@ -1,4 +1,4 @@
-import { createStyles } from 'antd-style';
+import { cn } from '@/lib/classMerge';
 import React from 'react';
 
 export const InfiniteListContainer: React.FC<{
@@ -6,15 +6,13 @@ export const InfiniteListContainer: React.FC<{
   popupNode?: React.ReactNode;
   showContainerBorder?: boolean;
 }> = React.memo(({ children, popupNode, showContainerBorder = true }) => {
-  const { styles, cx } = useStyles();
-
   return (
-    <div className={cx('overflow-hidden', showContainerBorder && styles.container)}>
+    <div className={cn('overflow-hidden', showContainerBorder && 'border-border rounded border')}>
       {children}
 
       {popupNode && (
-        <div className="fixed bottom-0 left-0 right-0 w-full">
-          <div className="relative ml-[220px] mr-[55px]">{popupNode}</div>
+        <div className="fixed right-0 bottom-0 left-0 w-full">
+          <div className="relative mr-[55px] ml-[220px]">{popupNode}</div>
         </div>
       )}
     </div>
@@ -22,10 +20,3 @@ export const InfiniteListContainer: React.FC<{
 });
 
 InfiniteListContainer.displayName = 'InfiniteListContainer';
-
-const useStyles = createStyles(({ css, token }) => ({
-  container: css`
-    border: 0.5px solid ${token.colorBorder};
-    border-radius: ${token.borderRadius}px;
-  `
-}));
