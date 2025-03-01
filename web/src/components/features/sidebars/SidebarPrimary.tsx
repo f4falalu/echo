@@ -188,6 +188,8 @@ const GlobalModals = React.memo(() => {
     </>
   );
 });
+GlobalModals.displayName = 'GlobalModals';
+
 const favoritesDropdown = (favorites: BusterUserFavorite[]): ISidebarGroup => {
   return {
     label: 'Favorites',
