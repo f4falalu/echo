@@ -1,9 +1,8 @@
 import { PopupContainer, PopupSplitter } from '@/components/ui/popup';
 import React from 'react';
-import { Text } from '@/components/ui';
-import { Button } from 'antd';
-import { AppMaterialIcons } from '@/components/ui';
-import { createStyles } from 'antd-style';
+import { Text } from '@/components/ui/typography';
+import { Button } from '@/components/ui/buttons';
+import { Command, ReturnKey, TriangleWarning } from '@/components/ui/icons';
 
 export const SaveResetFilePopup: React.FC<{
   open: boolean;
@@ -21,25 +20,28 @@ const SplitterContent: React.FC<{
   onReset: () => void;
   onSave: () => void;
 }> = React.memo(({ onReset, onSave }) => {
-  const { styles, cx } = useStyles();
-
   return (
     <div className="flex w-full items-center space-x-2.5">
       <div className="flex items-center space-x-1">
-        <AppMaterialIcons className={styles.icon} icon="warning" />
+        <TriangleWarning />
         <Text>Unsaved changes</Text>
       </div>
 
       <PopupSplitter />
 
       <div className="flex items-center space-x-2">
-        <Button type="default" onClick={onReset}>
-          Reset
-        </Button>
-        <Button className="flex items-center" color="default" variant="solid" onClick={onSave}>
-          <span>Save</span>
-          <AppMaterialIcons icon="keyboard_command_key" />
-          <AppMaterialIcons icon="keyboard_return" />
+        <Button onClick={onReset}>Reset</Button>
+        <Button
+          className="flex items-center"
+          variant="black"
+          onClick={onSave}
+          suffix={
+            <div className="flex space-x-1">
+              <Command />
+              <ReturnKey />
+            </div>
+          }>
+          Save
         </Button>
       </div>
     </div>
@@ -47,9 +49,5 @@ const SplitterContent: React.FC<{
 });
 
 SaveResetFilePopup.displayName = 'SaveResetFilePopup';
+
 SplitterContent.displayName = 'SplitterContent';
-const useStyles = createStyles(({ css, token }) => ({
-  icon: css`
-    color: ${token.colorIcon};
-  `
-}));

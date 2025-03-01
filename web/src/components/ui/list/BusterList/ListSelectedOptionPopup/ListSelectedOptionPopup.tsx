@@ -1,4 +1,3 @@
-import { AppMaterialIcons } from '@/components/ui';
 import { Xmark } from '@/components/ui/icons';
 import { Text } from '@/components/ui/typography';
 import React from 'react';

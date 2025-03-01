@@ -1,6 +1,5 @@
 export * from './interfaces';
-export * from './BusterListSelectedOptionPopup';
+export * from './ListSelectedOptionPopup';
 
 import { BusterListVirtua } from './BusterListVirtua';
-
 export { BusterListVirtua as BusterList };

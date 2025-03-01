@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { BusterListSelectedOptionPopupContainer } from './BusterListSelectedOptionPopupContainer';
+import { BusterListSelectedOptionPopupContainer } from './ListSelectedOptionPopup';
 import React from 'react';
 import { Garage, Dog, Cat } from '@/components/ui/icons';
 import { action } from '@storybook/addon-actions';
