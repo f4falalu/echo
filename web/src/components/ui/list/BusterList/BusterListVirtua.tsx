@@ -1,3 +1,5 @@
+'use client';
+
 import { VList } from 'virtua';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { BusterListProps } from './interfaces';

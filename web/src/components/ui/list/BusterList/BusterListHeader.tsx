@@ -2,7 +2,7 @@ import React from 'react';
 import { BusterListColumn } from './interfaces';
 import { CheckboxColumn } from './CheckboxColumn';
 import { Text } from '@/components/ui';
-import { createStyles } from 'antd-style';
+import { cn } from '@/lib/classMerge';
 import { HEIGHT_OF_HEADER } from './config';
 
 export const BusterListHeader: React.FC<{
@@ -21,21 +21,28 @@ export const BusterListHeader: React.FC<{
     globalCheckStatus,
     rowsLength
   }) => {
-    const { styles, cx } = useStyles();
     const showCheckboxColumn = !!onGlobalSelectChange;
     const showGlobalCheckbox =
       globalCheckStatus === 'indeterminate' || globalCheckStatus === 'checked';
 
     return (
       <div
-        className={cx(styles.header, 'group', rowClassName, 'pr-6', {
-          'pl-3.5': !onGlobalSelectChange
-        })}>
+        className={cn(
+          'group border-border flex items-center justify-start border-b pr-6',
+          {
+            'pl-3.5': !onGlobalSelectChange
+          },
+          rowClassName
+        )}
+        style={{
+          height: `${HEIGHT_OF_HEADER}px`,
+          minHeight: `${HEIGHT_OF_HEADER}px`
+        }}>
         {showCheckboxColumn && (
           <CheckboxColumn
             checkStatus={globalCheckStatus}
             onChange={onGlobalSelectChange}
-            className={cx({
+            className={cn({
               'opacity-100': showGlobalCheckbox,
               'invisible!': rowsLength === 0,
               'pointer-events-none invisible!': !showSelectAll
@@ -45,7 +52,7 @@ export const BusterListHeader: React.FC<{
 
         {columns.map((column, index) => (
           <div
-            className={cx('header-cell flex items-center')}
+            className="header-cell flex h-full items-center p-0"
             key={column.dataIndex}
             style={{
               width: column.width || '100%',
@@ -66,24 +73,3 @@ export const BusterListHeader: React.FC<{
   }
 );
 BusterListHeader.displayName = 'BusterListHeader';
-
-const useStyles = createStyles(({ token, css }) => ({
-  header: css`
-    height: ${HEIGHT_OF_HEADER}px;
-    min-height: ${HEIGHT_OF_HEADER}px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-
-    border-bottom: 0.5px solid ${token.colorBorder};
-
-    .header-cell {
-      padding: 0 0px;
-      height: 100%;
-
-      // &:first-child {
-      //   padding-left: 18px;
-      // }
-    }
-  `
-}));
