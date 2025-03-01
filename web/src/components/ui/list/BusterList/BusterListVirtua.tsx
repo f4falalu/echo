@@ -1,5 +1,5 @@
 import { VList } from 'virtua';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { BusterListProps } from './interfaces';
 import { useMemoizedFn } from 'ahooks';
 import { getAllIdsInSection } from './helpers';

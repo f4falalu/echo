@@ -87,7 +87,7 @@ const defaultRows = [
 export const Default: Story = {
   args: {
     rows: defaultRows,
-    onRowLayoutChange: (newLayout) => console.log('Layout changed:', newLayout),
+    onRowLayoutChange: (newLayout) => alert(`Layout changed: ${JSON.stringify(newLayout)}`),
     allowEdit: true
   }
 };
@@ -95,7 +95,7 @@ export const Default: Story = {
 export const ReadOnly: Story = {
   args: {
     rows: defaultRows,
-    onRowLayoutChange: (newLayout) => console.log('Layout changed:', newLayout),
+    onRowLayoutChange: (newLayout) => alert(`Layout changed: ${JSON.stringify(newLayout)}`),
     allowEdit: false
   }
 };
@@ -103,7 +103,7 @@ export const ReadOnly: Story = {
 export const SingleRow: Story = {
   args: {
     rows: [defaultRows[0]],
-    onRowLayoutChange: (newLayout) => console.log('Layout changed:', newLayout),
+    onRowLayoutChange: (newLayout) => alert(`Layout changed: ${JSON.stringify(newLayout)}`),
     allowEdit: true
   }
 };
@@ -131,7 +131,7 @@ export const ThreeColumns: Story = {
         rowHeight: 200
       }
     ],
-    onRowLayoutChange: (newLayout) => console.log('Layout changed:', newLayout),
+    onRowLayoutChange: (newLayout) => alert(`Layout changed: ${JSON.stringify(newLayout)}`),
     allowEdit: true
   }
 };
@@ -139,7 +139,7 @@ export const ThreeColumns: Story = {
 export const CustomOverlay: Story = {
   args: {
     rows: defaultRows,
-    onRowLayoutChange: (newLayout) => console.log('Layout changed:', newLayout),
+    onRowLayoutChange: (newLayout) => alert(`Layout changed: ${JSON.stringify(newLayout)}`),
     allowEdit: true,
     overlayComponent: (
       <div className="flex h-full w-full items-center justify-center rounded-lg border-2 border-dashed border-blue-400 bg-blue-50 p-4">

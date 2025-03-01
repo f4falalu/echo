@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { BusterList } from './index';
-import { BusterListProps, BusterListRow } from './interfaces';
+import { BusterListRow } from './interfaces';
 import React from 'react';
 import { faker } from '@faker-js/faker';
 
@@ -20,7 +20,14 @@ const meta: Meta<typeof BusterList> = {
     useRowClickSelectChange: { control: 'boolean' },
     rowClassName: { control: 'text' },
     hideLastRowBorder: { control: 'boolean' }
-  }
+  },
+  decorators: [
+    (Story) => (
+      <div className="bg-background w-full min-w-[500px]">
+        <Story />
+      </div>
+    )
+  ]
 };
 
 export default meta;
