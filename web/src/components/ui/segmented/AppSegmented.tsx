@@ -4,7 +4,7 @@ import * as React from 'react';
 import * as Tabs from '@radix-ui/react-tabs';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useLayoutEffect } from 'react';
 import { cva } from 'class-variance-authority';
 import { useMemoizedFn } from 'ahooks';
 
@@ -102,6 +102,7 @@ export const AppSegmented: AppSegmentedComponent = React.forwardRef(
       width: 0,
       transform: 'translateX(0)'
     });
+    const [isMeasured, setIsMeasured] = useState(false);
 
     const height = size === 'default' ? 'h-[28px]' : 'h-[50px]';
 
@@ -109,17 +110,31 @@ export const AppSegmented: AppSegmentedComponent = React.forwardRef(
       if (value !== undefined && value !== selectedValue) {
         setSelectedValue(value);
       }
-    }, [value]);
+    }, [value, selectedValue]);
 
-    useEffect(() => {
-      const selectedTab = tabRefs.current.get(selectedValue);
-      if (selectedTab) {
-        const { offsetWidth, offsetLeft } = selectedTab;
-        setGliderStyle({
-          width: offsetWidth,
-          transform: `translateX(${offsetLeft}px)`
-        });
-      }
+    // Use useLayoutEffect to measure before paint
+    useLayoutEffect(() => {
+      const updateGliderStyle = () => {
+        const selectedTab = tabRefs.current.get(selectedValue);
+        if (selectedTab) {
+          const { offsetWidth, offsetLeft } = selectedTab;
+          if (offsetWidth > 0) {
+            setGliderStyle({
+              width: offsetWidth,
+              transform: `translateX(${offsetLeft}px)`
+            });
+            setIsMeasured(true);
+          }
+        }
+      };
+
+      // Run immediately
+      updateGliderStyle();
+
+      // Also run after a short delay to ensure DOM is fully rendered
+      const timeoutId = setTimeout(updateGliderStyle, 25);
+
+      return () => clearTimeout(timeoutId);
     }, [selectedValue]);
 
     const handleTabClick = useMemoizedFn((value: string) => {
@@ -136,19 +151,24 @@ export const AppSegmented: AppSegmentedComponent = React.forwardRef(
         value={selectedValue}
         onValueChange={handleTabClick}
         className={cn(segmentedVariants({ block, type }), height, className)}>
-        <motion.div
-          className={cn(gliderVariants({ type }), height)}
-          initial={false}
-          animate={{
-            width: gliderStyle.width,
-            x: parseInt(gliderStyle.transform.replace('translateX(', '').replace('px)', ''))
-          }}
-          transition={{
-            type: 'spring',
-            stiffness: 400,
-            damping: 35
-          }}
-        />
+        {isMeasured && (
+          <motion.div
+            className={cn(gliderVariants({ type }), height)}
+            initial={{
+              width: gliderStyle.width,
+              x: parseInt(gliderStyle.transform.replace('translateX(', '').replace('px)', ''))
+            }}
+            animate={{
+              width: gliderStyle.width,
+              x: parseInt(gliderStyle.transform.replace('translateX(', '').replace('px)', ''))
+            }}
+            transition={{
+              type: 'spring',
+              stiffness: 400,
+              damping: 35
+            }}
+          />
+        )}
         <Tabs.List
           className="relative z-10 flex w-full items-center gap-1"
           aria-label="Segmented Control">
@@ -178,9 +198,7 @@ interface SegmentedTriggerProps<T extends string = string> {
   tabRefs: React.MutableRefObject<Map<string, HTMLButtonElement>>;
 }
 
-function SegmentedTriggerComponent<T extends string = string>(
-  props: SegmentedTriggerProps<T>
-): JSX.Element {
+function SegmentedTriggerComponent<T extends string = string>(props: SegmentedTriggerProps<T>) {
   const { item, selectedValue, size, block, tabRefs } = props;
   return (
     <Tabs.Trigger

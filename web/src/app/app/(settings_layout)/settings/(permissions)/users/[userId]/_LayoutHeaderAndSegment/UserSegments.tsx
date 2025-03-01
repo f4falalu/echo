@@ -30,10 +30,10 @@ export const UserSegments: React.FC<{
   onSelectApp: (app: UserSegmentsApps) => void;
   userId: string;
 }> = React.memo(({ isAdmin, selectedApp, onSelectApp, userId }) => {
-  const onChange = useMemoizedFn((value: SegmentedItem) => {
-    onSelectApp(value as UserSegmentsApps);
+  const onChange = useMemoizedFn((value: SegmentedItem<UserSegmentsApps>) => {
+    onSelectApp(value.value);
   });
-  const options = useMemo(
+  const options: SegmentedItem<UserSegmentsApps>[] = useMemo(
     () =>
       [
         {

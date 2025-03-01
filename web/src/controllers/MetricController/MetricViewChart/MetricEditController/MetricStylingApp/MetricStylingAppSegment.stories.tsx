@@ -33,11 +33,13 @@ const meta: Meta<typeof MetricStylingAppSegment> = {
     }
   },
   decorators: [
-    (Story) => (
-      <div className="w-full min-w-[330px]">
-        <Story />
-      </div>
-    )
+    (Story) => {
+      return (
+        <div className="w-full min-w-[330px]">
+          <Story />
+        </div>
+      );
+    }
   ]
 };
 
@@ -49,8 +51,8 @@ const handleSetSegment = action('setSegment');
 
 export const Default: Story = {
   args: {
-    segment: MetricStylingAppSegments.VISUALIZE,
-    setSegment: handleSetSegment,
+    // segment: MetricStylingAppSegments.VISUALIZE,
+    // setSegment: handleSetSegment,
     selectedChartType: ChartType.Line,
     className: ''
   }

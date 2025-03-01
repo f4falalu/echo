@@ -351,7 +351,7 @@ const ModalContent: React.FC<{
     onClose
   }) => {
     const onSetSelectedFiltersPreflight = useMemoizedFn((value: SegmentedItem) => {
-      onSetSelectedFilter(value as string);
+      onSetSelectedFilter(value.value as string);
     });
 
     return (
