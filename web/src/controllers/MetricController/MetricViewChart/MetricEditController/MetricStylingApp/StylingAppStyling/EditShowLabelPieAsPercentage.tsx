@@ -3,8 +3,9 @@ import { LabelAndInput } from '../Common';
 import { Segmented } from 'antd';
 import { useMemoizedFn } from 'ahooks';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import { AppSegmented, SegmentedItem } from '@/components/ui/segmented';
 
-const options: { label: string; value: IBusterMetricChartConfig['pieDisplayLabelAs'] }[] = [
+const options: SegmentedItem<'percent' | 'number'>[] = [
   { label: '%', value: 'percent' },
   { label: '#', value: 'number' }
 ];
@@ -17,30 +18,29 @@ export const EditShowLabelPieAsPercentage = React.memo(
     pieDisplayLabelAs: IBusterMetricChartConfig['pieDisplayLabelAs'];
     onUpdateChartConfig: (config: Partial<IBusterMetricChartConfig>) => void;
   }) => {
-    const onClickSegment = useMemoizedFn((value: IBusterMetricChartConfig['pieDisplayLabelAs']) => {
-      onUpdateChartConfig({
-        pieDisplayLabelAs: value as IBusterMetricChartConfig['pieDisplayLabelAs']
-      });
-    });
-
     const selectedValue = useMemo(() => {
       return options.find((option) => option.value === pieDisplayLabelAs)?.value || 'number';
     }, [pieDisplayLabelAs]);
 
+    const onChange = useMemoizedFn((value: SegmentedItem<'percent' | 'number'>) => {
+      onUpdateChartConfig({
+        pieDisplayLabelAs: value.value
+      });
+    });
+
     return (
       <LabelAndInput label="Show label as">
         <div className="flex w-full">
-          <Segmented
+          <AppSegmented
             className="w-full"
             block
             options={options}
-            onChange={onClickSegment}
-            defaultValue={selectedValue}
+            onChange={onChange}
+            value={selectedValue}
           />
         </div>
       </LabelAndInput>
     );
-  },
-  () => true
+  }
 );
 EditShowLabelPieAsPercentage.displayName = 'EditShowLabelPieAsPercentage';
