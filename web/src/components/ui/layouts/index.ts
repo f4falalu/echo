@@ -5,5 +5,5 @@ export * from './ClientRedirect';
 
 //keepers
 // export * from './AppPageLayout';
-// export * from './AppSplitter';
+export * from './AppSplitter';
 // export * from './AppLayout';
