@@ -16,8 +16,8 @@ export const MetricContainerHeaderSegment: React.FC<FileContainerSegmentProps> =
   ({ selectedFileView }) => {
     const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
 
-    const onChange = useMemoizedFn((fileView: SegmentedItem) => {
-      onSetFileView({ fileView: fileView as FileView });
+    const onChange = useMemoizedFn((fileView: SegmentedItem<FileView>) => {
+      onSetFileView({ fileView: fileView.value });
     });
 
     return <AppSegmented options={segmentOptions} value={selectedFileView} onChange={onChange} />;

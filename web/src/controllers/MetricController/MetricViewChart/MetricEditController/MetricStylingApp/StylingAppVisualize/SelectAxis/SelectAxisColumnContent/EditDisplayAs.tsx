@@ -1,9 +1,9 @@
-import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import { type IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
-import { AppMaterialIcons, AppSegmented, AppTooltip } from '@/components/ui';
-import { ChartType, ColumnSettings } from '@/components/ui/charts/interfaces';
-import { useEditAppSegmented } from './useEditAppSegmented';
+import { AppMaterialIcons, AppSegmented, AppTooltip, SegmentedItem } from '@/components/ui';
+import { ChartType, type ColumnSettings } from '@/components/ui/charts/interfaces';
+import { useMemoizedFn } from 'ahooks';
 
 const options = [
   {
@@ -26,7 +26,7 @@ const options = [
     value: 'dot',
     tooltip: 'Dot'
   }
-].map(({ tooltip, icon, ...option }) => ({
+].map<SegmentedItem<string>>(({ tooltip, icon, ...option }) => ({
   ...option,
   icon: (
     <AppTooltip title={tooltip}>
@@ -46,24 +46,16 @@ export const EditDisplayAs: React.FC<{
     return options.find((option) => option.value === columnVisualization)?.value || 'bar';
   }, [columnVisualization]);
 
-  const { onClick } = useEditAppSegmented({
-    onClick: (value) => {
-      onUpdateColumnSettingConfig({
-        columnVisualization: value as Required<ColumnSettings>['columnVisualization']
-      });
-    }
+  const onChange = useMemoizedFn((value: SegmentedItem<string>) => {
+    onUpdateColumnSettingConfig({
+      columnVisualization: value.value as Required<ColumnSettings>['columnVisualization']
+    });
   });
 
   return (
     <LabelAndInput label="Display as">
       <div className="flex justify-end">
-        <AppSegmented
-          options={options}
-          block={false}
-          bordered={false}
-          value={selectedOption}
-          onClick={onClick}
-        />
+        <AppSegmented options={options} block={false} value={selectedOption} onChange={onChange} />
       </div>
     </LabelAndInput>
   );

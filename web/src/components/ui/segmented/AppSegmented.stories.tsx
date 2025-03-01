@@ -110,3 +110,13 @@ export const CustomStyling: Story = {
     className: 'bg-blue-100 [&_[data-state=active]]:text-blue-700'
   }
 };
+
+export const WithOnlyIcons: Story = {
+  args: {
+    options: [
+      { value: 'tab1', icon: <HouseModern />, tooltip: 'Tooltip 1' },
+      { value: 'tab2', icon: <Grid />, tooltip: 'Tooltip 2' },
+      { value: 'tab3', icon: <BottleChampagne />, tooltip: 'Tooltip 3' }
+    ]
+  }
+};

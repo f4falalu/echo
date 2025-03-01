@@ -7,15 +7,17 @@ import { cn } from '@/lib/classMerge';
 import { useEffect, useState, useLayoutEffect } from 'react';
 import { cva } from 'class-variance-authority';
 import { useMemoizedFn } from 'ahooks';
+import { Tooltip } from '../tooltip/Tooltip';
 
 export interface SegmentedItem<T extends string = string> {
   value: T;
-  label: React.ReactNode;
+  label?: React.ReactNode;
   icon?: React.ReactNode;
   disabled?: boolean;
+  tooltip?: string;
 }
 
-interface AppSegmentedProps<T extends string = string> {
+export interface AppSegmentedProps<T extends string = string> {
   options: SegmentedItem<T>[];
   value?: T;
   onChange?: (value: SegmentedItem<T>) => void;
@@ -200,26 +202,37 @@ interface SegmentedTriggerProps<T extends string = string> {
 
 function SegmentedTriggerComponent<T extends string = string>(props: SegmentedTriggerProps<T>) {
   const { item, selectedValue, size, block, tabRefs } = props;
+
+  const NodeWrapper = item.tooltip
+    ? ({ children }: { children: React.ReactNode }) => (
+        <div className="flex items-center gap-x-1">{children}</div>
+      )
+    : React.Fragment;
+
   return (
-    <Tabs.Trigger
-      key={item.value}
-      value={item.value}
-      disabled={item.disabled}
-      ref={(el) => {
-        if (el) tabRefs.current.set(item.value, el);
-      }}
-      className={cn(
-        'focus-visible:ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-        triggerVariants({
-          size,
-          block,
-          disabled: item.disabled,
-          selected: selectedValue === item.value
-        })
-      )}>
-      {item.icon && <span className={cn('flex items-center text-sm')}>{item.icon}</span>}
-      <span className={cn('text-sm')}>{item.label}</span>
-    </Tabs.Trigger>
+    <Tooltip title={item.tooltip || ''} sideOffset={10}>
+      <Tabs.Trigger
+        key={item.value}
+        value={item.value}
+        disabled={item.disabled}
+        ref={(el) => {
+          if (el) tabRefs.current.set(item.value, el);
+        }}
+        className={cn(
+          'focus-visible:ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+          triggerVariants({
+            size,
+            block,
+            disabled: item.disabled,
+            selected: selectedValue === item.value
+          })
+        )}>
+        <>
+          {item.icon && <span className={cn('flex items-center text-sm')}>{item.icon}</span>}
+          {item.label && <span className={cn('text-sm')}>{item.label}</span>}
+        </>
+      </Tabs.Trigger>
+    </Tooltip>
   );
 }
 

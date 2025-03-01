@@ -7,8 +7,9 @@ import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { DashboardsListEmitPayload } from '@/api/buster_socket/dashboards';
-import { AppMaterialIcons, AppSegmented } from '@/components/ui';
+import { AppSegmented, SegmentedItem } from '@/components/ui/segmented';
 import { useMemoizedFn } from 'ahooks';
+import { Plus } from '@/components/ui/icons';
 
 export const DashboardHeader: React.FC<{
   dashboardFilters: {
@@ -64,7 +65,7 @@ export const DashboardHeader: React.FC<{
         <div className="flex items-center">
           <Button
             type="default"
-            icon={<AppMaterialIcons icon="add" />}
+            icon={<Plus />}
             loading={isCreatingDashboard}
             onClick={onClickNewDashboardButton}>
             New Dashboard
@@ -81,7 +82,7 @@ const DashboardFilters: React.FC<{
     Omit<DashboardsListEmitPayload['payload'], 'page_token' | 'page_size'>
   >;
 }> = ({ onChangeFilter, activeFilters }) => {
-  const filters = [
+  const filters: SegmentedItem<string>[] = [
     {
       label: 'All ',
       value: JSON.stringify({})
@@ -110,7 +111,7 @@ const DashboardFilters: React.FC<{
         options={filters}
         value={selectedFilter?.value}
         onChange={(v) => {
-          const parsedValue = JSON.parse(v as string) as {
+          const parsedValue = JSON.parse(v.value) as {
             shared_with_me?: boolean;
             only_my_dashboards?: boolean;
           };

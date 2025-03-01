@@ -98,7 +98,7 @@ export const CollectionListHeader: React.FC<{
 });
 CollectionListHeader.displayName = 'CollectionListHeader';
 
-const filters = [
+const filters: SegmentedItem<string>[] = [
   {
     label: 'All',
     value: JSON.stringify({})
@@ -125,7 +125,7 @@ const CollectionFilters: React.FC<{
   const onChangeFilter = useMemoizedFn((v: SegmentedItem) => {
     let parsedValue;
     try {
-      parsedValue = JSON.parse(v as string);
+      parsedValue = JSON.parse(v.value as string);
     } catch (error) {
       console.error('error', error);
     }

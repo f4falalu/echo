@@ -9,7 +9,7 @@ import { KeyboardShortcutPill } from '../pills/KeyboardShortcutPills';
 import omit from 'lodash/omit';
 
 export interface TooltipProps
-  extends Pick<React.ComponentProps<typeof TooltipContentBase>, 'align' | 'side'>,
+  extends Pick<React.ComponentProps<typeof TooltipContentBase>, 'align' | 'side' | 'sideOffset'>,
     Pick<React.ComponentProps<typeof TooltipProvider>, 'delayDuration' | 'skipDelayDuration'> {
   children: React.ReactNode;
   title: string;
@@ -18,14 +18,24 @@ export interface TooltipProps
 }
 
 export const Tooltip = React.memo<TooltipProps>(
-  ({ children, title, shortcut, delayDuration = 0, skipDelayDuration, align, side, open }) => {
+  ({
+    children,
+    title,
+    sideOffset,
+    shortcut,
+    delayDuration = 0,
+    skipDelayDuration,
+    align,
+    side,
+    open
+  }) => {
     if (!title && !shortcut?.length) return children;
 
     return (
       <TooltipProvider delayDuration={delayDuration} skipDelayDuration={skipDelayDuration}>
         <TooltipBase open={open}>
           <TooltipTrigger asChild>{children}</TooltipTrigger>
-          <TooltipContentBase align={align} side={side}>
+          <TooltipContentBase align={align} side={side} sideOffset={sideOffset}>
             <TooltipContent title={title} shortcut={shortcut} />
           </TooltipContentBase>
         </TooltipBase>

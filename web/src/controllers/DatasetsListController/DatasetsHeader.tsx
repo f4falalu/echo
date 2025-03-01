@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Breadcrumb, Button } from 'antd';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { AppMaterialIcons, AppSegmented, AppTooltip } from '@/components/ui';
+import { AppMaterialIcons, AppSegmented, AppTooltip, SegmentedItem } from '@/components/ui';
 import { NewDatasetModal } from '@/components/features/modal/NewDatasetModal';
 import { AppContentHeader } from '@/components/ui/layouts/AppContentHeader_Old';
 import { useIndividualDataset } from '@/context/Datasets';
@@ -90,7 +90,7 @@ const DatasetFilters: React.FC<{
   datasetFilter: 'all' | 'published' | 'drafts';
   setDatasetFilter: (filter: 'all' | 'published' | 'drafts') => void;
 }> = ({ datasetFilter, setDatasetFilter }) => {
-  const options: { label: string; value: 'all' | 'published' | 'drafts' }[] = useMemo(
+  const options: SegmentedItem<'all' | 'published' | 'drafts'>[] = useMemo(
     () => [
       { label: 'All', value: 'all' },
       { label: 'Published', value: 'published' },
@@ -104,7 +104,7 @@ const DatasetFilters: React.FC<{
       options={options}
       value={datasetFilter}
       onChange={(value) => {
-        setDatasetFilter(value as 'all' | 'published' | 'drafts');
+        setDatasetFilter(value.value);
       }}
     />
   );

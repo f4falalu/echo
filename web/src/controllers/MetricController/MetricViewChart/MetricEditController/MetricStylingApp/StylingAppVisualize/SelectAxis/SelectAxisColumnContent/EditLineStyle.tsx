@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 import { BusterChartConfigProps, ColumnSettings } from '@/components/ui/charts';
 import { AppMaterialIcons, AppSegmented, AppTooltip } from '@/components/ui';
-import { useEditAppSegmented } from './useEditAppSegmented';
 import { ENABLED_DOTS_ON_LINE_SIZE } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
 import { type SegmentedItem } from '@/components/ui/segmented';
@@ -106,12 +105,8 @@ export const EditLineStyle: React.FC<{
       methodRecord[lineValue]();
     });
 
-    const onChangeValue = useMemoizedFn((value: SegmentedItem) => {
-      if (value) onClickValue(value as string);
-    });
-
-    const { onClick } = useEditAppSegmented({
-      onClick: onClickValue
+    const onChange = useMemoizedFn((value: SegmentedItem) => {
+      if (value?.value) onClickValue(value.value);
     });
 
     return (
@@ -120,10 +115,8 @@ export const EditLineStyle: React.FC<{
           <AppSegmented
             options={shownOptions}
             block={false}
-            bordered={false}
             value={selectedOption}
-            onClick={onClick}
-            //  onChange={onChangeValue}
+            onChange={onChange}
           />
         </div>
       </LabelAndInput>

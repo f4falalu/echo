@@ -6,7 +6,7 @@ import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { useMemoizedFn } from 'ahooks';
 import { type SegmentedItem } from '@/components/ui/segmented';
 
-const segmentOptions: { label: string; value: DashboardFileView }[] = [
+const segmentOptions: SegmentedItem<FileView>[] = [
   { label: 'Dashboard', value: 'dashboard' },
   { label: 'File', value: 'file' }
 ];
@@ -15,8 +15,8 @@ export const DashboardContainerHeaderSegment: React.FC<FileContainerSegmentProps
   ({ selectedFileView }) => {
     const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
 
-    const onChange = useMemoizedFn((fileView: SegmentedItem) => {
-      onSetFileView({ fileView: fileView as FileView });
+    const onChange = useMemoizedFn((fileView: SegmentedItem<FileView>) => {
+      onSetFileView({ fileView: fileView.value });
     });
 
     return <AppSegmented options={segmentOptions} value={selectedFileView} onChange={onChange} />;
