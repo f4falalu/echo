@@ -8,7 +8,7 @@ import { getAllIdsInSection } from './helpers';
 import { HEIGHT_OF_ROW, HEIGHT_OF_SECTION_ROW } from './config';
 import { BusterListHeader } from './BusterListHeader';
 import { BusterListRowComponentSelector } from './BusterListRowComponentSelector';
-import { ContextMenu } from '../../context/ContextMenu';
+import { ContextMenu, ContextMenuProps } from '../../context/ContextMenu';
 
 export const BusterListVirtua = React.memo(
   ({
@@ -84,7 +84,9 @@ export const BusterListVirtua = React.memo(
     ]);
 
     const WrapperNode = !!contextMenu ? ContextMenu : React.Fragment;
-    const wrapperNodeProps = !!contextMenu ? contextMenu : {};
+    const wrapperNodeProps: ContextMenuProps = !!contextMenu
+      ? contextMenu
+      : ({} as ContextMenuProps);
 
     return (
       <WrapperNode {...wrapperNodeProps}>
