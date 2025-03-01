@@ -339,3 +339,94 @@ export const CustomWidth: Story = {
     </div>
   )
 };
+
+export const ContextMenuWithEverything: Story = {
+  args: {
+    items: [
+      {
+        label: 'Option 1',
+        onClick: () => alert('Option 1 clicked'),
+        icon: <WindowUser />,
+        selected: false,
+        loading: true
+      },
+      {
+        label: 'Option 2',
+        onClick: () => alert('Option 2 clicked'),
+        icon: <WindowSettings />,
+        selected: true
+      },
+      {
+        label: 'Option 3',
+        onClick: () => alert('Option 3 clicked'),
+        icon: <Window />,
+        selected: false
+      },
+      { type: 'divider' },
+      {
+        label: 'Option 4',
+        onClick: () => alert('Option 4 clicked'),
+        icon: <Window />,
+        link: 'https://example.com/docs',
+        loading: true
+      },
+      {
+        label: 'Option 5',
+        onClick: () => alert('Option 5 clicked'),
+        icon: <Window />,
+        link: 'https://example.com/docs'
+      },
+      { type: 'divider' },
+      {
+        label: 'NESTED COMPONENT',
+        onClick: () => alert('Option 6 clicked'),
+        loading: false,
+        icon: <Window />,
+        items: [
+          <div className="flex min-h-10 min-w-10 items-center rounded bg-red-300 p-1 text-red-600">
+            This is a nested item
+          </div>
+        ]
+      },
+      {
+        label: 'Option 7',
+        onClick: () => alert('Option 7 clicked'),
+        icon: <Window />,
+        items: [
+          {
+            label: 'Option 7.1',
+            onClick: () => alert('Option 7.1 clicked')
+          },
+          {
+            label: 'Option 7.2',
+            onClick: () => alert('Option 7.2 clicked')
+          }
+        ]
+      },
+      {
+        label: 'Option 8',
+        onClick: () => alert('Option 8 clicked'),
+        icon: <Window />,
+        items: [
+          {
+            label: 'Option 8.1',
+            onClick: () => alert('Option 8.1 clicked')
+          },
+          {
+            label: 'Option 8.2',
+            onClick: () => alert('Option 8.2 clicked')
+          }
+        ]
+      }
+    ]
+  },
+  render: (args) => (
+    <div className="flex h-[200px] w-[200px] items-center justify-center rounded-md border border-dashed">
+      <ContextMenu items={args.items} disabled={args.disabled}>
+        <div className="h-full w-full bg-gray-200 p-4 text-center">
+          Right-click here to open context menu
+        </div>
+      </ContextMenu>
+    </div>
+  )
+};

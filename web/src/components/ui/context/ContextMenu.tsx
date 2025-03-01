@@ -4,9 +4,9 @@ import {
   ContextMenuCheckboxItem,
   ContextMenuContent,
   ContextMenuItem as ContextMenuItemPrimitive,
-  ContextMenuLabel,
-  ContextMenuRadioGroup,
-  ContextMenuRadioItem,
+  //   ContextMenuLabel,
+  //   ContextMenuRadioGroup,
+  //   ContextMenuRadioItem,
   ContextMenuSeparator,
   ContextMenuShortcut,
   ContextMenuSub,
@@ -31,7 +31,7 @@ export interface ContextMenuItem {
   disabled?: boolean;
   loading?: boolean;
   selected?: boolean; //if a boolean is provided, it will render a checkboxitem component
-  items?: ContextMenuItem[];
+  items?: ContextMenuItems;
   link?: string;
   linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right';
 }
