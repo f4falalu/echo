@@ -1,9 +1,9 @@
 import { AppMaterialIcons } from '@/components/ui';
-import { Text } from '@/components/ui';
-import { useAntToken } from '@/styles/useAntToken';
-import { createStyles } from 'antd-style';
+import { Xmark } from '@/components/ui/icons';
+import { Text } from '@/components/ui/typography';
 import React from 'react';
 import { PopupContainer, PopupSplitter } from '@/components/ui/popup/PopupContainer';
+import { cn } from '@/lib/classMerge';
 
 export const BusterListSelectedOptionPopupContainer: React.FC<{
   selectedRowKeys: string[];
@@ -11,8 +11,6 @@ export const BusterListSelectedOptionPopupContainer: React.FC<{
   buttons?: React.ReactNode[];
   show?: boolean;
 }> = ({ selectedRowKeys, onSelectChange, buttons = [], show: showProp }) => {
-  const token = useAntToken();
-
   const show = showProp ?? selectedRowKeys.length > 0;
 
   return (
@@ -30,52 +28,35 @@ export const BusterListSelectedOptionPopupContainer: React.FC<{
   );
 };
 
-const useStyles = createStyles(({ token, css }) => ({
-  closeSelectedButton: css`
-    transition: color 0.2s ease;
-    color: ${token.colorTextSecondary};
-    &:hover {
-      color: ${token.colorText};
-    }
-  `
-}));
-
 const SelectedButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
-  const token = useAntToken();
-  const { styles, cx } = useStyles();
   const text = `${selectedRowKeys.length} selected`;
 
   return (
     <div
-      className="flex items-center"
-      style={{
-        backgroundColor: token.colorBgContainer,
-        borderRadius: token.borderRadius,
-        padding: `0 ${0}px 0 ${token.paddingXS}px`,
-        height: token.controlHeight,
-        border: `0.5px dashed ${token.colorBorder}`
-      }}>
+      className={cn(
+        'flex items-center',
+        'bg-bg-container rounded pl-2',
+        'min-h-[28px]',
+        'border-border-default border border-dashed'
+      )}>
       <Text>{text}</Text>
 
-      <div
-        className="ml-1.5"
-        style={{
-          borderLeft: `0.5px dashed ${token.colorBorder}`,
-          height: token.controlHeight - 2
-        }}
-      />
+      <div className="border-border-default ml-1.5 min-h-[28px] border-l border-dashed" />
+
       <div
         onClick={() => {
           onSelectChange([]);
         }}
-        className={cx(
-          'flex cursor-pointer items-center justify-center px-0.5',
-          styles.closeSelectedButton
+        className={cn(
+          'flex cursor-pointer items-center justify-center px-1',
+          'text-text-secondary hover:text-text-default transition-colors duration-200'
         )}>
-        <AppMaterialIcons icon="close" />
+        <div className="text-base">
+          <Xmark />
+        </div>
       </div>
     </div>
   );
