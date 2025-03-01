@@ -17,7 +17,7 @@ export const BusterListRowComponent = React.memo(
       onSelectChange?: (v: boolean, id: string) => void;
       onContextMenuClick?: (e: React.MouseEvent<HTMLDivElement>, id: string) => void;
       style?: React.CSSProperties;
-      columnRowVariant: BusterListProps['columnRowVariant'];
+      hideLastRowBorder: NonNullable<BusterListProps['hideLastRowBorder']>;
       useRowClickSelectChange: boolean;
       rowClassName?: string;
       isLastChild: boolean;
@@ -26,7 +26,7 @@ export const BusterListRowComponent = React.memo(
     (
       {
         style,
-        columnRowVariant,
+        hideLastRowBorder,
         row,
         columns,
         onSelectChange,
@@ -67,10 +67,8 @@ export const BusterListRowComponent = React.memo(
               rowClassName,
               'group flex items-center pr-6',
               checked ? 'checked' : '',
-              columnRowVariant,
-              isLastChild ? 'last-child' : '',
+              isLastChild && hideLastRowBorder ? 'border-b-0!' : '',
               !onSelectChange ? 'pl-3.5' : '',
-
               { clickable: !!(link || row.onClick || (onSelectChange && useRowClickSelectChange)) }
             )}
             ref={ref}>
@@ -166,20 +164,6 @@ export const useStyles = createStyles(({ css, token }) => ({
       background-color: ${token.colorPrimaryBg};
       &:hover {
         background-color: ${token.colorPrimaryBgHover};
-      }
-    }
-
-    &.containerized:not(.checked) {
-      background-color: ${token.colorBgContainer};
-
-      &.clickable {
-        &:hover {
-          background-color: ${token.controlItemBgHover};
-        }
-      }
-
-      &.last-child {
-        border-bottom: 0px;
       }
     }
   `,

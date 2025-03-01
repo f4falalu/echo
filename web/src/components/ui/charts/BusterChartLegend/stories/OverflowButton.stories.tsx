@@ -44,8 +44,8 @@ const mockLegendItems = [
 export const Default: Story = {
   args: {
     legendItems: mockLegendItems,
-    onClickItem: (item) => console.log('Clicked:', item),
-    onFocusClick: (item) => console.log('Focused:', item)
+    onClickItem: (item) => alert(`Clicked: ${item.formattedName}`),
+    onFocusClick: (item) => alert(`Focused: ${item.formattedName}`)
   }
 };
 

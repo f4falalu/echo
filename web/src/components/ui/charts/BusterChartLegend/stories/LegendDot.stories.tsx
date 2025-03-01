@@ -77,6 +77,6 @@ export const WithFocus: Story = {
     type: ChartType.Bar,
     inactive: false,
     size: 'default',
-    onFocusItem: () => console.log('Focus item clicked')
+    onFocusItem: () => alert('Focus item clicked')
   }
 };

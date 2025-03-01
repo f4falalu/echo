@@ -20,7 +20,8 @@ export const BusterListVirtua = React.memo(
     contextMenu,
     showSelectAll = true,
     useRowClickSelectChange = false,
-    rowClassName = ''
+    rowClassName = '',
+    hideLastRowBorder = false
   }: BusterListProps) => {
     const contextMenuRef = useRef<HTMLDivElement>(null);
     const showEmptyState = (!rows || rows.length === 0) && !!emptyState;
@@ -74,7 +75,8 @@ export const BusterListVirtua = React.memo(
         onSelectChange: onSelectChange ? onSelectChangePreflight : undefined,
         onSelectSectionChange: onSelectChange ? onSelectSectionChange : undefined,
         onContextMenuClick,
-        useRowClickSelectChange
+        useRowClickSelectChange,
+        hideLastRowBorder
       };
     }, [
       columns,
@@ -83,7 +85,8 @@ export const BusterListVirtua = React.memo(
       selectedRowKeys,
       onSelectChange,
       onSelectSectionChange,
-      onContextMenuClick
+      onContextMenuClick,
+      hideLastRowBorder
     ]);
 
     useEffect(() => {

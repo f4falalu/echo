@@ -8,7 +8,7 @@ import type {
 import React from 'react';
 export interface BusterListProps {
   columns: BusterListColumn[];
-  columnRowVariant?: 'default' | 'containerized';
+  hideLastRowBorder?: boolean;
   rows: BusterListRow[];
   onSelectChange?: (selectedRowKeys: string[]) => void;
   emptyState?: undefined | React.ReactNode | string;

@@ -39,7 +39,6 @@ export const Paragraph: React.FC<ParagraphProps> = ({
   style,
   lineHeight = 'base'
 }) => {
-  console.log(lineHeight);
   return (
     <p
       className={cn(
