@@ -6,7 +6,7 @@ import { AppSegmented } from '@/components/ui';
 import { VerificationStatus } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
-import { SegmentedValue } from 'antd/lib/segmented';
+import { type SegmentedItem } from '@/components/ui/segmented';
 
 export const MetricListHeader: React.FC<{
   type: 'logs' | 'metrics';
@@ -30,7 +30,7 @@ export const MetricListHeader: React.FC<{
   );
 };
 
-const options = [
+const options: SegmentedItem<VerificationStatus | 'all'>[] = [
   {
     label: 'All',
     value: 'all'
@@ -50,7 +50,7 @@ const MetricsFilters: React.FC<{
   filters: VerificationStatus[];
   onSetFilters: (filters: VerificationStatus[]) => void;
 }> = React.memo(({ type, filters, onSetFilters }) => {
-  const selectedOption = useMemo(() => {
+  const selectedOption: SegmentedItem<VerificationStatus | 'all'> | undefined = useMemo(() => {
     return (
       options.find((option) => {
         return filters.includes(option.value as VerificationStatus);
@@ -58,11 +58,11 @@ const MetricsFilters: React.FC<{
     );
   }, [filters]);
 
-  const onChange = useMemoizedFn((v: SegmentedValue) => {
-    if (v === 'all') {
+  const onChange = useMemoizedFn((v: SegmentedItem<VerificationStatus | 'all'>) => {
+    if (v.value === 'all') {
       onSetFilters([]);
     } else {
-      onSetFilters([v as VerificationStatus]);
+      onSetFilters([v.value as VerificationStatus]);
     }
   });
 

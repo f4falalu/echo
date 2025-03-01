@@ -1,7 +1,7 @@
 import { AppSegmented } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 import { createStyles } from 'antd-style';
-import { SegmentedValue } from 'antd/es/segmented';
+import { type SegmentedItem } from '@/components/ui/segmented';
 import React from 'react';
 
 export enum EditorApps {
@@ -20,8 +20,8 @@ export const EditorContainerSubHeader: React.FC<{
 }> = React.memo(({ selectedApp, setSelectedApp }) => {
   const { styles, cx } = useStyles();
 
-  const onSegmentedChange = useMemoizedFn((value: SegmentedValue) => {
-    setSelectedApp(value as EditorApps);
+  const onSegmentedChange = useMemoizedFn((value: SegmentedItem<EditorApps>) => {
+    setSelectedApp(value.value);
   });
 
   return (

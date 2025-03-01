@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { AppSegmented } from '@/components/ui/segmented';
 import { useMemoizedFn } from 'ahooks';
-import { SegmentedValue } from 'antd/es/segmented';
+import { type SegmentedItem } from '@/components/ui/segmented';
 import { Divider } from 'antd';
 import { createBusterRoute, BusterRoutes } from '@/routes';
 
@@ -30,7 +30,7 @@ export const UserSegments: React.FC<{
   onSelectApp: (app: UserSegmentsApps) => void;
   userId: string;
 }> = React.memo(({ isAdmin, selectedApp, onSelectApp, userId }) => {
-  const onChange = useMemoizedFn((value: SegmentedValue) => {
+  const onChange = useMemoizedFn((value: SegmentedItem) => {
     onSelectApp(value as UserSegmentsApps);
   });
   const options = useMemo(

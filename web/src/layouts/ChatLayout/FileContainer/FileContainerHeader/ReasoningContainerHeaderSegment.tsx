@@ -3,7 +3,7 @@ import { FileContainerSegmentProps } from './interfaces';
 import { AppSegmented } from '@/components/ui/segmented';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import type { FileView, ReasoningFileView } from '../../ChatLayoutContext/useChatFileLayout';
-import { SegmentedValue } from 'antd/es/segmented';
+import { type SegmentedItem } from '@/components/ui/segmented';
 import { useMemoizedFn } from 'ahooks';
 
 const segmentOptions: { label: string; value: ReasoningFileView }[] = [
@@ -14,7 +14,7 @@ export const ReasoningContainerHeaderSegment: React.FC<FileContainerSegmentProps
   ({ selectedFileView }) => {
     const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
 
-    const onChange = useMemoizedFn((fileView: SegmentedValue) => {
+    const onChange = useMemoizedFn((fileView: SegmentedItem) => {
       onSetFileView({ fileView: fileView as FileView });
     });
 

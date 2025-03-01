@@ -1,12 +1,11 @@
 'use client';
 
-import { AppSegmented } from '@/components/ui';
+import { AppSegmented, type SegmentedItem } from '@/components/ui/segmented';
 import { useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 import { DatasetApps, DataSetAppText } from '../config';
 import { createBusterRoute, BusterRoutes } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
-import { SegmentedValue } from 'antd/es/segmented';
 
 export const DatasetsHeaderOptions: React.FC<{
   selectedApp: DatasetApps;
@@ -22,7 +21,7 @@ export const DatasetsHeaderOptions: React.FC<{
     [isAdmin]
   );
 
-  const options = useMemo(
+  const options: SegmentedItem<DatasetApps>[] = useMemo(
     () =>
       optionsItems.map((key) => ({
         label: DataSetAppText[key as DatasetApps],
@@ -32,8 +31,8 @@ export const DatasetsHeaderOptions: React.FC<{
     [datasetId, optionsItems]
   );
 
-  const onChangeSegment = useMemoizedFn((value: SegmentedValue) => {
-    if (datasetId) push(keyToRoute(datasetId, value as DatasetApps));
+  const onChangeSegment = useMemoizedFn((value: SegmentedItem<DatasetApps>) => {
+    if (datasetId) push(keyToRoute(datasetId, value.value));
   });
 
   return <AppSegmented options={options} value={selectedApp} onChange={onChangeSegment} />;

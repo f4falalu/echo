@@ -15,7 +15,7 @@ import { CollectionsListEmit } from '@/api/buster_socket/collections';
 import isEmpty from 'lodash/isEmpty';
 import omit from 'lodash/omit';
 import { useMemoizedFn } from 'ahooks';
-import { SegmentedValue } from 'antd/es/segmented';
+import { type SegmentedItem } from '@/components/ui/segmented';
 
 export const CollectionListHeader: React.FC<{
   collectionId?: string;
@@ -122,7 +122,7 @@ const CollectionFilters: React.FC<{
     return filters.find((f) => f.value === activeFiltersValue)?.value || filters[0].value;
   }, [filters, collectionListFilters]);
 
-  const onChangeFilter = useMemoizedFn((v: SegmentedValue) => {
+  const onChangeFilter = useMemoizedFn((v: SegmentedItem) => {
     let parsedValue;
     try {
       parsedValue = JSON.parse(v as string);

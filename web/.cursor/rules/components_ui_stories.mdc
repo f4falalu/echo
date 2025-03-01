@@ -3,4 +3,7 @@ description: Rules for new stories
 globs: src/components/**/*.stories.tsx
 alwaysApply: false
 ---
-All new stories title with "UI/directory/{componentName}" unless specified otherwise.
+- All new stories title with "UI/directory/{componentName}" unless specified otherwise.
+- Instead of console log for click events, you should do native storybook actions
+- If a new story is made in the controller directory, I would like it title "Controllers/{controller name or parent controller name}/{componentName}"
+- If a new story is found in the features directory, I would like it titled "Features/{featureName or parent feature name}/{componentName}"

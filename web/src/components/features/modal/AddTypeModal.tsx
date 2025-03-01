@@ -15,7 +15,7 @@ import { useBusterSearchContextSelector } from '@/context/Search';
 import isEmpty from 'lodash/isEmpty';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
-import { SegmentedValue } from 'antd/es/segmented';
+import { type SegmentedItem } from '@/components/ui/segmented';
 import { BusterSearchRequest } from '@/api/buster_socket/search';
 import { busterAppStyleConfig } from '@/styles/busterAntDStyleConfig';
 
@@ -350,7 +350,7 @@ const ModalContent: React.FC<{
     onSelectChange,
     onClose
   }) => {
-    const onSetSelectedFiltersPreflight = useMemoizedFn((value: SegmentedValue) => {
+    const onSetSelectedFiltersPreflight = useMemoizedFn((value: SegmentedItem) => {
       onSetSelectedFilter(value as string);
     });
 

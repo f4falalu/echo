@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Segmented } from './Segmented';
+import { AppSegmented } from './AppSegmented';
 import { BottleChampagne, Grid, HouseModern, PaintRoller } from '../icons';
 
-const meta: Meta<typeof Segmented> = {
-  title: 'UI/Segmented',
-  component: Segmented,
+const meta: Meta<typeof AppSegmented> = {
+  title: 'UI/Segmented/AppSegmented',
+  component: AppSegmented,
   parameters: {
     layout: 'centered'
   },
@@ -28,14 +28,14 @@ const meta: Meta<typeof Segmented> = {
   render: (args) => {
     return (
       <div className="flex w-full min-w-[500px] flex-col items-center justify-center gap-4">
-        <Segmented {...args} />
+        <AppSegmented {...args} />
       </div>
     );
   }
 };
 
 export default meta;
-type Story = StoryObj<typeof Segmented>;
+type Story = StoryObj<typeof AppSegmented>;
 
 const defaultItems = [
   { value: 'tab1', label: 'Tab 1', icon: <HouseModern /> },
@@ -45,20 +45,20 @@ const defaultItems = [
 
 export const Default: Story = {
   args: {
-    items: defaultItems
+    options: defaultItems
   }
 };
 
 export const Large: Story = {
   args: {
-    items: defaultItems,
+    options: defaultItems,
     size: 'large'
   }
 };
 
 export const Block: Story = {
   args: {
-    items: defaultItems,
+    options: defaultItems,
     block: true
   },
   parameters: {
@@ -68,7 +68,7 @@ export const Block: Story = {
 
 export const LargeBlock: Story = {
   args: {
-    items: defaultItems,
+    options: defaultItems,
     size: 'large',
     block: true
   },
@@ -79,7 +79,7 @@ export const LargeBlock: Story = {
 
 export const WithIcons: Story = {
   args: {
-    items: [
+    options: [
       { value: 'list', label: 'List', icon: <PaintRoller /> },
       { value: 'grid', label: 'Grid', icon: <Grid /> },
       { value: 'gallery', label: 'Gallery', icon: <BottleChampagne /> }
@@ -89,14 +89,14 @@ export const WithIcons: Story = {
 
 export const Controlled: Story = {
   args: {
-    items: defaultItems,
+    options: defaultItems,
     value: 'tab2'
   }
 };
 
 export const WithDisabledItems: Story = {
   args: {
-    items: [
+    options: [
       { value: 'tab1', label: 'Enabled' },
       { value: 'tab2', label: 'Disabled', disabled: true },
       { value: 'tab3', label: 'Enabled' }
@@ -106,7 +106,7 @@ export const WithDisabledItems: Story = {
 
 export const CustomStyling: Story = {
   args: {
-    items: defaultItems,
+    options: defaultItems,
     className: 'bg-blue-100 [&_[data-state=active]]:text-blue-700'
   }
 };

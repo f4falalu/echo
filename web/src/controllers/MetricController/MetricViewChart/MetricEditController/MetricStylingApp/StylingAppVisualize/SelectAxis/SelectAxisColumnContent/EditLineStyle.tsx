@@ -5,7 +5,7 @@ import { AppMaterialIcons, AppSegmented, AppTooltip } from '@/components/ui';
 import { useEditAppSegmented } from './useEditAppSegmented';
 import { ENABLED_DOTS_ON_LINE_SIZE } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
-import { SegmentedValue } from 'antd/es/segmented';
+import { type SegmentedItem } from '@/components/ui/segmented';
 
 const options: { icon: React.ReactNode; value: LineValue }[] = [
   {
@@ -106,7 +106,7 @@ export const EditLineStyle: React.FC<{
       methodRecord[lineValue]();
     });
 
-    const onChangeValue = useMemoizedFn((value: SegmentedValue) => {
+    const onChangeValue = useMemoizedFn((value: SegmentedItem) => {
       if (value) onClickValue(value as string);
     });
 
