@@ -49,12 +49,12 @@ const sampleColumns = [
   {
     dataIndex: 'address',
     title: 'Address',
-    width: 300
+    width: 200
   },
   {
     dataIndex: 'email',
     title: 'Email',
-    width: 200
+    width: 100
   },
   {
     dataIndex: 'actions',
@@ -79,6 +79,17 @@ const generateSampleRows = (count: number): BusterListRow[] => {
         email: faker.internet.email()
       }
     });
+
+    if (i === 3) {
+      rows.push({
+        id: 'section1',
+        data: null,
+        rowSection: {
+          title: faker.company.name(),
+          secondaryTitle: faker.company.catchPhrase()
+        }
+      });
+    }
   }
 
   // Add a section row in the middle
