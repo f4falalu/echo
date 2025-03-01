@@ -1,5 +1,5 @@
-import { cn } from '@/lib/utils';
 import React from 'react';
+import { cn } from '@/lib/utils';
 import { AppContentHeader } from './AppContentHeader';
 import { AppContentPage } from './AppContentPage';
 
@@ -18,7 +18,7 @@ export const AppPageLayout: React.FC<
     className?: string;
     headerVariant?: 'default' | 'list';
   }>
-> = ({ children, header, scrollable = true, className = '', headerVariant = 'default' }) => {
+> = ({ children, header, scrollable = false, className = '', headerVariant = 'default' }) => {
   return (
     <div
       className={cn(

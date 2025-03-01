@@ -33,7 +33,7 @@ type TitleProps = {
 } & VariantProps<typeof titleVariants> &
   VariantProps<typeof textColorVariants>;
 
-const Title: React.FC<TitleProps> = ({
+export const Title: React.FC<TitleProps> = ({
   as = 'h1',
   variant = 'default',
   size,

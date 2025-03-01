@@ -10,17 +10,16 @@ import { BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { ChatSelectedOptionPopup } from './ChatItemsSelectedPopup';
 import { BusterList, ListEmptyStateWithButton } from '@/components/ui/list';
 import { useCreateListByDate } from '@/components/ui/list/useCreateListByDate';
+import { cn } from '@/lib/utils';
 
 export const ChatItemsContainer: React.FC<{
   chats: BusterChatListItem[];
   className?: string;
-  openNewMetricModal: () => void;
   loading: boolean;
-}> = ({ chats = [], className = '', loading, openNewMetricModal }) => {
+}> = ({ chats = [], className = '', loading }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const renderedDates = useRef<Record<string, string>>({});
   const renderedOwners = useRef<Record<string, React.ReactNode>>({});
-  const tableContainerRef = useRef<HTMLDivElement>(null);
 
   const onSelectChange = useMemoizedFn((selectedRowKeys: string[]) => {
     setSelectedRowKeys(selectedRowKeys);
@@ -106,15 +105,13 @@ export const ChatItemsContainer: React.FC<{
   );
 
   return (
-    <div
-      ref={tableContainerRef}
-      className={`${className} relative flex h-full flex-col items-center`}>
+    <>
       <BusterList
         rows={chatsByDate}
         columns={columns}
         onSelectChange={onSelectChange}
         selectedRowKeys={selectedRowKeys}
-        emptyState={<EmptyState loading={loading} openNewMetricModal={openNewMetricModal} />}
+        emptyState={<EmptyState loading={loading} />}
       />
 
       <ChatSelectedOptionPopup
@@ -122,31 +119,27 @@ export const ChatItemsContainer: React.FC<{
         onSelectChange={onSelectChange}
         hasSelected={hasSelected}
       />
-    </div>
+    </>
   );
 };
 
 const EmptyState: React.FC<{
   loading: boolean;
-  openNewMetricModal: () => void;
-}> = React.memo(({ loading, openNewMetricModal }) => {
+}> = React.memo(({ loading }) => {
   if (loading) {
     return <></>;
   }
 
-  return <ChatsEmptyState openNewMetricModal={openNewMetricModal} />;
+  return <ChatsEmptyState />;
 });
 EmptyState.displayName = 'EmptyState';
 
-const ChatsEmptyState: React.FC<{
-  openNewMetricModal: () => void;
-}> = ({ openNewMetricModal }) => {
+const ChatsEmptyState: React.FC<{}> = ({}) => {
   return (
     <ListEmptyStateWithButton
       title="You don't have any chats yet."
       description="You don't have any chats. As soon as you do, they will start to appear here."
       buttonText="New chat"
-      onClick={openNewMetricModal}
     />
   );
 };

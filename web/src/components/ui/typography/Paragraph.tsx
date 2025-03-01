@@ -30,7 +30,7 @@ type ParagraphProps = {
 } & VariantProps<typeof textColorVariants> &
   VariantProps<typeof paragraphVariants>;
 
-const Paragraph: React.FC<ParagraphProps> = ({
+export const Paragraph: React.FC<ParagraphProps> = ({
   onClick,
   variant = 'default',
   size = 'base',

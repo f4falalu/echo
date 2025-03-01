@@ -1,14 +1,16 @@
 import React from 'react';
 import { AppMaterialIcons, Text, Title } from '@/components/ui';
-import { Button } from 'antd';
+import { Button } from '../buttons/Button';
+import Link from 'next/link';
 
 export const ListEmptyStateWithButton: React.FC<{
   isAdmin?: boolean;
   title: string;
   description: string;
-  onClick: () => void;
+  onClick?: () => void;
   buttonText: string;
   loading?: boolean;
+  linkButton?: string;
 }> = React.memo(({ isAdmin = true, title, buttonText, description, onClick, loading = false }) => {
   return (
     <div className="flex h-full w-full flex-col">
@@ -27,8 +29,8 @@ export const ListEmptyStateWithButton: React.FC<{
 
         {isAdmin && (
           <Button
-            type="default"
-            icon={<AppMaterialIcons icon="add" />}
+            variant="default"
+            prefix={<AppMaterialIcons icon="add" />}
             loading={loading}
             onClick={onClick}>
             {buttonText}

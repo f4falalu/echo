@@ -14,6 +14,9 @@ import { Tooltip } from '@/components/ui/tooltip/Tooltip';
 import Link from 'next/link';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { SupportModal } from '../modal/SupportModal';
+import { InvitePeopleModal } from '../modal/InvitePeopleModal';
+import { useMemoizedFn } from 'ahooks';
 
 const topItems: ISidebarList = {
   items: [
@@ -126,7 +129,11 @@ export const SidebarPrimary = React.memo(() => {
   }, [isAdmin, favorites, currentRoute]);
 
   return (
-    <Sidebar content={sidebarItems} header={<SidebarPrimaryHeader />} activeItem={currentRoute} />
+    <>
+      <Sidebar content={sidebarItems} header={<SidebarPrimaryHeader />} activeItem={currentRoute} />
+
+      <GlobalModals />
+    </>
   );
 });
 
@@ -148,7 +155,7 @@ const SidebarPrimaryHeader = React.memo(() => {
               size="tall"
               rounding={'large'}
               prefix={
-                <div className="translate-x-[-1px] translate-y-[-1px]">
+                <div className="translate-x-[0px] translate-y-[-1px]">
                   <PencilSquareIcon />
                 </div>
               }
@@ -162,6 +169,25 @@ const SidebarPrimaryHeader = React.memo(() => {
 
 SidebarPrimaryHeader.displayName = 'SidebarPrimaryHeader';
 
+const GlobalModals = React.memo(() => {
+  const onToggleSupportModal = useAppLayoutContextSelector((s) => s.onToggleSupportModal);
+  const onToggleInviteModal = useAppLayoutContextSelector((s) => s.onToggleInviteModal);
+  const openSupportModal = useAppLayoutContextSelector((s) => s.openSupportModal);
+  const openInviteModal = useAppLayoutContextSelector((s) => s.openInviteModal);
+  const isAnonymousUser = useUserConfigContextSelector((state) => state.isAnonymousUser);
+
+  const onCloseInviteModal = useMemoizedFn(() => onToggleInviteModal(false));
+  const onCloseSupportModal = useMemoizedFn(() => onToggleSupportModal(false));
+
+  if (isAnonymousUser) return null;
+
+  return (
+    <>
+      <InvitePeopleModal open={openInviteModal} onClose={onCloseInviteModal} />
+      <SupportModal open={openSupportModal} onClose={onCloseSupportModal} />
+    </>
+  );
+});
 const favoritesDropdown = (favorites: BusterUserFavorite[]): ISidebarGroup => {
   return {
     label: 'Favorites',

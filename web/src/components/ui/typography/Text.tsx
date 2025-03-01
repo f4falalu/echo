@@ -33,7 +33,7 @@ type TextProps = {
 } & VariantProps<typeof textVariants> &
   VariantProps<typeof textColorVariants>;
 
-const Text: React.FC<TextProps> = ({
+export const Text: React.FC<TextProps> = ({
   variant = 'default',
   size = 'base',
   truncate,
@@ -53,5 +53,3 @@ const Text: React.FC<TextProps> = ({
     </TextNode>
   );
 };
-
-export default Text;
