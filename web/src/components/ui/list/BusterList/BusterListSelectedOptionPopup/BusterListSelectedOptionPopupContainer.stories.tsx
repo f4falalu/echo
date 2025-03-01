@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { BusterListSelectedOptionPopupContainer } from './BusterListSelectedOptionPopupContainer';
 import React from 'react';
-import { AppMaterialIcons } from '@/components/ui';
-import { cn } from '@/lib/classMerge';
+import { Garage, Dog, Cat } from '@/components/ui/icons';
+import { action } from '@storybook/addon-actions';
+import { Button } from '@/components/ui/buttons';
 
 const meta: Meta<typeof BusterListSelectedOptionPopupContainer> = {
   title: 'UI/List/ListSelectedOptionPopup',
@@ -33,31 +34,17 @@ type Story = StoryObj<typeof BusterListSelectedOptionPopupContainer>;
 // Sample data
 const sampleSelectedRowKeys = ['1', '2', '3'];
 
-// Custom button component for the stories
-const CustomButton: React.FC<{
-  icon: 'delete' | 'edit' | 'add' | 'visibility';
-  label: string;
-  onClick: () => void;
-}> = ({ icon, label, onClick }) => {
-  return (
-    <div
-      onClick={onClick}
-      className={cn(
-        'flex cursor-pointer items-center space-x-1 px-2 py-0.5',
-        'bg-bg-container rounded-md',
-        'border-border-default border border-dashed',
-        'text-text-secondary hover:text-text-default transition-colors duration-200'
-      )}>
-      <AppMaterialIcons icon={icon} />
-      <span>{label}</span>
-    </div>
-  );
-};
+// Define actions
+const deleteAction = action('Delete clicked');
+const editAction = action('Edit clicked');
+const addAction = action('Add clicked');
+const viewAction = action('View clicked');
+const selectionChangedAction = action('Selection changed');
 
 export const Default: Story = {
   args: {
     selectedRowKeys: sampleSelectedRowKeys,
-    onSelectChange: (keys) => console.log('Selection changed:', keys),
+    onSelectChange: (keys) => selectionChangedAction(keys),
     show: true
   }
 };
@@ -65,15 +52,14 @@ export const Default: Story = {
 export const WithButtons: Story = {
   args: {
     selectedRowKeys: sampleSelectedRowKeys,
-    onSelectChange: (keys) => console.log('Selection changed:', keys),
+    onSelectChange: (keys) => selectionChangedAction(keys),
     buttons: [
-      <CustomButton
-        key="delete"
-        icon="delete"
-        label="Delete"
-        onClick={() => alert('Delete clicked')}
-      />,
-      <CustomButton key="edit" icon="edit" label="Edit" onClick={() => alert('Edit clicked')} />
+      <Button key="delete" prefix={<Garage />} onClick={deleteAction}>
+        Delete
+      </Button>,
+      <Button key="edit" prefix={<Dog />} onClick={editAction}>
+        Edit
+      </Button>
     ],
     show: true
   }
@@ -82,7 +68,7 @@ export const WithButtons: Story = {
 export const Hidden: Story = {
   args: {
     selectedRowKeys: [],
-    onSelectChange: (keys) => console.log('Selection changed:', keys),
+    onSelectChange: (keys) => selectionChangedAction(keys),
     show: false
   }
 };
@@ -90,9 +76,11 @@ export const Hidden: Story = {
 export const ForceShow: Story = {
   args: {
     selectedRowKeys: [],
-    onSelectChange: (keys) => console.log('Selection changed:', keys),
+    onSelectChange: (keys) => selectionChangedAction(keys),
     buttons: [
-      <CustomButton key="add" icon="add" label="Add" onClick={() => alert('Add clicked')} />
+      <Button key="add" prefix={<Garage />} onClick={addAction}>
+        Add
+      </Button>
     ],
     show: true
   },
@@ -102,20 +90,14 @@ export const ForceShow: Story = {
 export const SingleSelection: Story = {
   args: {
     selectedRowKeys: ['1'],
-    onSelectChange: (keys) => console.log('Selection changed:', keys),
+    onSelectChange: (keys) => selectionChangedAction(keys),
     buttons: [
-      <CustomButton
-        key="view"
-        icon="visibility"
-        label="View"
-        onClick={() => alert('View clicked')}
-      />,
-      <CustomButton
-        key="delete"
-        icon="delete"
-        label="Delete"
-        onClick={() => alert('Delete clicked')}
-      />
+      <Button key="view" prefix={<Cat />} onClick={viewAction}>
+        View
+      </Button>,
+      <Button key="delete" prefix={<Dog />} onClick={deleteAction}>
+        Delete
+      </Button>
     ],
     show: true
   }
