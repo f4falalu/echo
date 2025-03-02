@@ -1,15 +1,14 @@
-import { useAntToken } from '@/styles/useAntToken';
 import React from 'react';
+import { cn } from '@/lib/classMerge';
 
 export const PulseLoader: React.FC<{
   size?: number;
   color?: string;
   style?: React.CSSProperties;
-}> = ({ style, color, size = 8 }) => {
-  const token = useAntToken();
-
+  className?: string;
+}> = ({ style, color, size = 8, className }) => {
   return (
-    <span className="flex flex-col items-center justify-center space-y-4">
+    <span className={cn('flex flex-col items-center justify-center space-y-4', className)}>
       <span
         className="relative flex"
         style={{
@@ -18,15 +17,15 @@ export const PulseLoader: React.FC<{
           height: `${size}px`
         }}>
         <span
-          className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
+          className="bg-primary absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
           style={{
-            backgroundColor: color || token.colorPrimary
+            backgroundColor: color
           }}
         />
         <span
-          className="relative inline-flex h-full w-full rounded-full"
+          className="bg-primary relative inline-flex h-full w-full rounded-full"
           style={{
-            backgroundColor: color || token.colorPrimary
+            backgroundColor: color
           }}
         />
       </span>
@@ -37,22 +36,22 @@ export const PulseLoader: React.FC<{
 export const TextPulseLoader: React.FC<{
   showPulseLoader?: boolean;
   size?: number;
-}> = ({ size = 8, showPulseLoader = true }) => {
-  const token = useAntToken();
-
+  className?: string;
+}> = ({ size = 8, showPulseLoader = true, className }) => {
   return (
     <>
       {showPulseLoader && (
         <span
+          className={cn(className)}
           style={{
             opacity: 0.6,
             display: 'inline-block',
             width: size,
             height: size,
-            backgroundColor: token.colorText,
+            backgroundColor: 'var(--color-text-default)',
             borderRadius: '100%'
           }}>
-          {/* <PulseLoader size={size} color={isDarkMode ? token.colorText : token.colorText} /> */}
+          {/* Pulse animation can be added here if needed */}
         </span>
       )}
     </>
