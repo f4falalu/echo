@@ -15,6 +15,7 @@ import isString from 'lodash/isString';
 import { Text } from '@/components/ui';
 import round from 'lodash/round';
 import { ErrorBoundary } from '@/components/ui/error';
+import { CaretDown } from '../../icons/NucleoIconFilled';
 
 //https://www.npmjs.com/package/react-spreadsheet-grid#live-playground
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
@@ -28,7 +29,6 @@ import {
   useSize
 } from 'ahooks';
 import sampleSize from 'lodash/sampleSize';
-import { AppMaterialIcons } from '../../icons';
 import isEmpty from 'lodash/isEmpty';
 import {
   createInitialColumnWidths,
@@ -397,14 +397,13 @@ const HeaderCell: React.FC<
         {headerFormat(name, key)}
       </Text>
       {sortable && sortDirection && (
-        <AppMaterialIcons
-          size={19}
-          className="transition"
+        <div
+          className="text-icon-color text-xs transition"
           style={{
             transform: `rotate(${sortDirection === 'ASC' ? 0 : 180}deg)`
-          }}
-          icon="arrow_drop_down"
-        />
+          }}>
+          <CaretDown />
+        </div>
       )}
     </div>
   );
