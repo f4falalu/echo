@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { AppContentPage } from '@/components/ui/layouts/AppContentPage';
+import { AppPageLayoutContent } from '@/components/ui/layouts/AppPageLayoutContent';
 import { Avatar } from '@/components/ui/avatar';
 import { formatDate } from '@/lib';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';
@@ -78,7 +78,7 @@ export const DatasetListContent: React.FC<{
 
   return (
     <>
-      <AppContentPage>
+      <AppPageLayoutContent>
         <BusterList
           columns={columns}
           rows={rows}
@@ -103,7 +103,7 @@ export const DatasetListContent: React.FC<{
           selectedRowKeys={selectedRowKeys}
           onSelectChange={setSelectedRowKeys}
         />
-      </AppContentPage>
+      </AppPageLayoutContent>
     </>
   );
 });

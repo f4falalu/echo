@@ -116,3 +116,5 @@ const SidebarUserDropdown: React.FC<{
     </Dropdown>
   );
 });
+
+SidebarUserDropdown.displayName = 'SidebarUserDropdown';

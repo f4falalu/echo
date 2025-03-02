@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Button, Divider } from 'antd';
-import { AppContentHeader, PreventNavigation } from '@/components/ui/layouts';
+import { PreventNavigation } from '@/components/ui/layouts/PreventNavigation';
 import { useMemoizedFn } from 'ahooks';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { DatasetsHeaderOptions } from './DatasetHeaderOptions';
@@ -38,7 +38,7 @@ export const DatasetsIndividualHeader: React.FC<{}> = React.memo(({}) => {
 
   return (
     <>
-      <AppContentHeader className="items-center justify-between space-x-2">
+      <>
         <div className="flex items-center space-x-3">
           <DatasetBreadcrumb datasetName={datasetName} />
 
@@ -69,7 +69,7 @@ export const DatasetsIndividualHeader: React.FC<{}> = React.memo(({}) => {
             </div>
           </div>
         </div>
-      </AppContentHeader>
+      </>
 
       <PreventNavigation
         isDirty={preventNavigation}

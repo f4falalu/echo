@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardListContent } from './DashboardListContent';
 import { useBusterDashboardListByFilter } from '@/context/Dashboards';
+import { AppPageLayout } from '@/components/ui/layouts';
 
 export const DashboardListController: React.FC = () => {
   const [dashboardListFilters, setDashboardListFilters] = useState<{
@@ -13,13 +14,14 @@ export const DashboardListController: React.FC = () => {
   const { list, isFetchedDashboardsList } = useBusterDashboardListByFilter(dashboardListFilters);
 
   return (
-    <>
-      <DashboardHeader
-        dashboardFilters={dashboardListFilters}
-        onSetDashboardListFilters={setDashboardListFilters}
-      />
-
+    <AppPageLayout
+      header={
+        <DashboardHeader
+          dashboardFilters={dashboardListFilters}
+          onSetDashboardListFilters={setDashboardListFilters}
+        />
+      }>
       <DashboardListContent loading={!isFetchedDashboardsList} dashboardsList={list || []} />
-    </>
+    </AppPageLayout>
   );
 };

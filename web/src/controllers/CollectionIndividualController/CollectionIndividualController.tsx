@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { CollectionsIndividualHeader } from './CollectionIndividualHeader';
 import { CollectionIndividualContent } from './CollectionIndividualContent';
 import { useCollectionIndividual } from '@/context/Collections';
+import { AppPageLayout } from '@/components/ui/layouts';
 
 export const CollectionIndividualController: React.FC<{
   collectionId: string;
@@ -13,18 +14,20 @@ export const CollectionIndividualController: React.FC<{
   const { collection, isCollectionFetched } = useCollectionIndividual({ collectionId });
 
   return (
-    <>
-      <CollectionsIndividualHeader
-        openAddTypeModal={openAddTypeModal}
-        setOpenAddTypeModal={setOpenAddTypeModal}
-        collection={collection}
-        isFetched={isCollectionFetched}
-      />
+    <AppPageLayout
+      header={
+        <CollectionsIndividualHeader
+          openAddTypeModal={openAddTypeModal}
+          setOpenAddTypeModal={setOpenAddTypeModal}
+          collection={collection}
+          isFetched={isCollectionFetched}
+        />
+      }>
       <CollectionIndividualContent
         collection={collection}
         openAddTypeModal={openAddTypeModal}
         setOpenAddTypeModal={setOpenAddTypeModal}
       />
-    </>
+    </AppPageLayout>
   );
 };

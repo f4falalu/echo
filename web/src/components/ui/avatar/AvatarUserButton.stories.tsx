@@ -47,7 +47,6 @@ export const WithOnlyUsername: Story = {
 
 export const WithClickHandler: Story = {
   args: {
-    username: 'Click Me',
-    onClick: () => alert('User component clicked!')
+    username: 'Click Me'
   }
 };

@@ -1,5 +1,3 @@
-import { appContentHeaderHeight } from '@/components/ui/layouts';
-import { createStyles } from 'antd-style';
 import React from 'react';
 import { CollapseFileButton } from './CollapseFileButton';
 import { FileType } from '@/api/asset_interfaces';
@@ -10,9 +8,9 @@ import { MetricContainerHeaderSegment } from './MetricContainerHeaderSegment';
 import { MetricContainerHeaderButtons } from './MetricContainerHeaderButtons';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { ReasoningContainerHeaderSegment } from './ReasoningContainerHeaderSegment';
+import { cn } from '@/lib/utils';
 
 export const FileContainerHeader: React.FC = React.memo(() => {
-  const { styles, cx } = useStyles();
   const selectedFileType = useChatLayoutContextSelector((x) => x.selectedFileType);
   const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView);
   const onCollapseFileClick = useChatLayoutContextSelector((state) => state.onCollapseFileClick);
@@ -40,8 +38,8 @@ export const FileContainerHeader: React.FC = React.memo(() => {
 
   return (
     <div
-      className={cx(
-        styles.container,
+      className={cn(
+        'border-b',
         'flex w-full items-center justify-between space-x-1 overflow-hidden px-3'
       )}>
       <div className="flex items-center gap-1.5">
@@ -79,11 +77,3 @@ const SelectedFileSegmentRecord: Record<FileType, React.FC<FileContainerSegmentP
   // dataset: DatasetContainerHeaderSegment,
   // collection: CollectionContainerHeaderSegment
 };
-
-const useStyles = createStyles(({ css, token }) => ({
-  container: css`
-    min-height: ${appContentHeaderHeight}px;
-    height: ${appContentHeaderHeight}px;
-    border-bottom: 0.5px solid ${token.colorBorder};
-  `
-}));

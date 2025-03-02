@@ -1,7 +1,7 @@
 import React, { PropsWithChildren } from 'react';
 import { cn } from '@/lib/utils';
 
-export const AppContentPage: React.FC<
+export const AppPageLayoutContent: React.FC<
   PropsWithChildren<{
     className?: string;
     scrollable?: boolean;

@@ -1,7 +1,9 @@
 import React from 'react';
 import { prefetchGetDatasetMetadata } from '@/api/buster_rest/datasets';
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
-import { DatasetPageLayout } from './_DatasetsLayout';
+import { DatasetPageProvider } from './_DatasetsLayout/DatasetPageContext';
+import { AppPageLayout } from '@/components/ui/layouts';
+import { DatasetsIndividualHeader } from './_DatasetsLayout/DatasetsIndividualHeader';
 
 export default async function Layout({
   params,
@@ -11,10 +13,13 @@ export default async function Layout({
   children: React.ReactNode;
 }) {
   const queryClient = await prefetchGetDatasetMetadata(params.datasetId);
+  const datasetId = params.datasetId;
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <DatasetPageLayout datasetId={params.datasetId}>{children}</DatasetPageLayout>
+      <DatasetPageProvider datasetId={datasetId}>
+        <AppPageLayout header={<DatasetsIndividualHeader />}>{children}</AppPageLayout>
+      </DatasetPageProvider>
     </HydrationBoundary>
   );
 }

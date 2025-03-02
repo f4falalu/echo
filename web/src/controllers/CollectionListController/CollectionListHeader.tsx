@@ -9,7 +9,7 @@ import {
   useCollectionIndividual,
   useCollectionLists
 } from '@/context/Collections';
-import { AppContentHeader, AppMaterialIcons, AppSegmented, AppTooltip } from '@/components/ui';
+import { AppMaterialIcons, AppSegmented, AppTooltip } from '@/components/ui';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { CollectionsListEmit } from '@/api/buster_socket/collections';
 import isEmpty from 'lodash/isEmpty';
@@ -71,28 +71,26 @@ export const CollectionListHeader: React.FC<{
 
   return (
     <>
-      <AppContentHeader className="items-center justify-between space-x-2">
-        <div className="flex space-x-1">
-          <Breadcrumb className="flex items-center" items={breadcrumbItems} />
-          {showFilters && (
-            <CollectionFilters
-              collectionListFilters={collectionListFilters}
-              setCollectionListFilters={onSetCollectionListFilters}
-            />
-          )}
-        </div>
+      <div className="flex space-x-1">
+        <Breadcrumb className="flex items-center" items={breadcrumbItems} />
+        {showFilters && (
+          <CollectionFilters
+            collectionListFilters={collectionListFilters}
+            setCollectionListFilters={onSetCollectionListFilters}
+          />
+        )}
+      </div>
 
-        <div className="flex items-center">
-          <AppTooltip title={'Create new collection'} shortcuts={['N']}>
-            <Button
-              type="default"
-              icon={<AppMaterialIcons icon="add" />}
-              onClick={() => setOpenNewCollectionModal(true)}>
-              New Collection
-            </Button>
-          </AppTooltip>
-        </div>
-      </AppContentHeader>
+      <div className="flex items-center">
+        <AppTooltip title={'Create new collection'} shortcuts={['N']}>
+          <Button
+            type="default"
+            icon={<AppMaterialIcons icon="add" />}
+            onClick={() => setOpenNewCollectionModal(true)}>
+            New Collection
+          </Button>
+        </AppTooltip>
+      </div>
     </>
   );
 });

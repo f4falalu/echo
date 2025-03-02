@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { AppContentHeader } from './AppContentHeader';
-import { AppContentPage } from './AppContentPage';
+import { AppPageLayoutHeader } from './AppPageLayoutHeader';
+import { AppPageLayoutContent } from './AppPageLayoutContent';
 
 /**
  * @param header - Header content at the top of the page
@@ -26,8 +26,8 @@ export const AppPageLayout: React.FC<
         scrollable && 'overflow-y-auto',
         className
       )}>
-      {header && <AppContentHeader variant={headerVariant}>{header}</AppContentHeader>}
-      <AppContentPage scrollable={scrollable}>{children}</AppContentPage>
+      {header && <AppPageLayoutHeader variant={headerVariant}>{header}</AppPageLayoutHeader>}
+      <AppPageLayoutContent scrollable={scrollable}>{children}</AppPageLayoutContent>
     </div>
   );
 };

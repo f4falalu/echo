@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { AppContentPage } from '@/components/ui/layouts/AppContentPage';
+import { AppPageLayoutContent } from '@/components/ui/layouts/AppPageLayoutContent';
 import { useBusterTermsIndividualContextSelector, useBusterTermsIndividual } from '@/context/Terms';
 import { Dropdown, Input } from 'antd';
 import { useDebounceFn } from 'ahooks';
@@ -71,7 +71,7 @@ export const TermIndividualContent: React.FC<{
   }, [selectedTerm?.name, selectedTerm?.definition]);
 
   return (
-    <AppContentPage className="overflow-auto p-8">
+    <AppPageLayoutContent className="overflow-auto p-8">
       {loadingSelectedTerm ? (
         <SkeletonLoader />
       ) : (
@@ -150,7 +150,7 @@ export const TermIndividualContent: React.FC<{
           </div>
         </div>
       )}
-    </AppContentPage>
+    </AppPageLayoutContent>
   );
 };
 

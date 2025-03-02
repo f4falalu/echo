@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { AppContentHeader } from '@/components/ui/layouts';
 import {
   canEditCollection,
   useBusterCollectionIndividualContextSelector
@@ -26,7 +25,6 @@ export const CollectionsIndividualHeader: React.FC<{
   collection: BusterCollection | undefined;
   isFetched: boolean;
 }> = ({ openAddTypeModal, setOpenAddTypeModal, collection, isFetched }) => {
-  const createPageLink = useAppLayoutContextSelector((s) => s.createPageLink);
   const updateCollection = useBusterCollectionIndividualContextSelector((x) => x.updateCollection);
   const [editingTitle, setEditingTitle] = React.useState(false);
 
@@ -69,33 +67,31 @@ export const CollectionsIndividualHeader: React.FC<{
   }, [collectionTitle, editingTitle, textWidth.width, onSetTitleValue, setEditingTitle, isFetched]);
 
   return (
-    <AppContentHeader>
-      <div className="flex h-full w-full items-center justify-between space-x-3 overflow-hidden">
-        <div className="flex h-full items-center space-x-1 overflow-hidden">
-          <CollectionBreadcrumb collectionName={collectionTitle} />
+    <div className="flex h-full w-full items-center justify-between space-x-3 overflow-hidden">
+      <div className="flex h-full items-center space-x-1 overflow-hidden">
+        <CollectionBreadcrumb collectionName={collectionTitle} />
 
-          {collection && (
-            <div className="flex items-center space-x-0">
-              <ThreeDotDropdown collection={collection} setEditingTitle={setEditingTitle} />
+        {collection && (
+          <div className="flex items-center space-x-0">
+            <ThreeDotDropdown collection={collection} setEditingTitle={setEditingTitle} />
 
-              <FavoriteStar
-                id={collection.id}
-                type={ShareAssetType.COLLECTION}
-                title={collectionTitle}
-              />
-            </div>
-          )}
-        </div>
-
-        {collection && canEditCollection(collection) && (
-          <ContentRight
-            collection={collection}
-            openAddTypeModal={openAddTypeModal}
-            setOpenAddTypeModal={setOpenAddTypeModal}
-          />
+            <FavoriteStar
+              id={collection.id}
+              type={ShareAssetType.COLLECTION}
+              title={collectionTitle}
+            />
+          </div>
         )}
       </div>
-    </AppContentHeader>
+
+      {collection && canEditCollection(collection) && (
+        <ContentRight
+          collection={collection}
+          openAddTypeModal={openAddTypeModal}
+          setOpenAddTypeModal={setOpenAddTypeModal}
+        />
+      )}
+    </div>
   );
 };
 

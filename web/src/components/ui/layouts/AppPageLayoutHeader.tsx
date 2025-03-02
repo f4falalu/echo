@@ -11,7 +11,7 @@ const headerVariants = cva('bg-background flex max-h-[38px] min-h-[38px] items-c
   }
 });
 
-export const AppContentHeader: React.FC<
+export const AppPageLayoutHeader: React.FC<
   React.PropsWithChildren<
     {
       className?: string;
