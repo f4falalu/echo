@@ -1,8 +1,7 @@
 import React from 'react';
-import { Typography, Alert } from 'antd';
+import { Alert } from 'antd';
 import { AppModal } from '@/components/ui';
-
-const { Paragraph } = Typography;
+import { Paragraph } from '@/components/ui/typography';
 
 interface ApiKeyCreatedModalProps {
   apiKey: string | null;

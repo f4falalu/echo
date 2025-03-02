@@ -5,7 +5,7 @@ import { SettingsPageHeader } from '../../_components/SettingsPageHeader';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { createStyles } from 'antd-style';
 import { formatDate } from '@/lib/date';
-import { Text, Title } from '@/components/ui';
+import { Title, Text } from '@/components/ui/typography';
 import { Avatar } from '@/components/ui/avatar';
 import { Card } from 'antd';
 
@@ -46,13 +46,13 @@ export default function ProfilePage() {
         </div>
         <div className={'flex flex-col space-y-0.5'}>
           <div className={styles.infoRow}>
-            <Text type="secondary" className={styles.label}>
+            <Text variant="secondary" className={styles.label}>
               Email
             </Text>
             <Text className={styles.value}>{email}</Text>
           </div>
           <div className={styles.infoRow}>
-            <Text type="secondary" className={styles.label}>
+            <Text variant="secondary" className={styles.label}>
               Member Since
             </Text>
             <Text className={styles.value}>{formatDate({ date: created_at, format: 'll' })}</Text>

@@ -1,7 +1,7 @@
 import React from 'react';
-import { AppMaterialIcons, Text, Title } from '@/components/ui';
+import { AppMaterialIcons } from '@/components/ui';
+import { Title, Text } from '@/components/ui/typography';
 import { Button } from '../buttons/Button';
-import Link from 'next/link';
 
 export const ListEmptyStateWithButton: React.FC<{
   isAdmin?: boolean;
@@ -24,7 +24,7 @@ export const ListEmptyStateWithButton: React.FC<{
             {title}
           </Title>
 
-          <Text type="secondary">{description}</Text>
+          <Text variant="secondary">{description}</Text>
         </div>
 
         {isAdmin && (

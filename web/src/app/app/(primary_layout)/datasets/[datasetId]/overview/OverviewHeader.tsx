@@ -21,7 +21,7 @@ export const OverviewHeader: React.FC<{ datasetId: string; description: string; 
       <div className="flex justify-between space-x-2">
         <div className="flex space-x-4">
           <div className="flex flex-col space-y-1">
-            <EditableTitle onChange={onEditTitle} as="h3">
+            <EditableTitle onChange={onEditTitle} level={3}>
               {name}
             </EditableTitle>
             <Text size={'md'} variant="secondary">

@@ -1,6 +1,6 @@
 'use client';
 
-import { Title } from '@/components/ui';
+import { Title } from '@/components/ui/typography';
 import React, { useState } from 'react';
 import { Button, Input } from 'antd';
 import { useMemoizedFn } from 'ahooks';

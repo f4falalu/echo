@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { BsGithub, BsGoogle, BsMicrosoft } from 'react-icons/bs';
 import { createStyles } from 'antd-style';
-import { Title, Text } from '@/components/ui';
+import { Title, Text } from '@/components/ui/typography';
 import Cookies from 'js-cookie';
 import { useBusterSupabaseAuthMethods } from '@/hooks/useBusterSupabaseAuthMethods';
 import { PolicyCheck } from './PolicyCheck';
@@ -389,7 +389,7 @@ const LoginAlertMessage: React.FC<{
   message: string;
 }> = ({ message }) => {
   return (
-    <Text size="xxs" type="danger" className="">
+    <Text size="2xs" variant="danger" className="">
       {message}
     </Text>
   );
@@ -405,11 +405,14 @@ const AlreadyHaveAccount: React.FC<{
   const { styles, cx } = useStyles();
   return (
     <>
-      <Text className="mb-1.5 flex w-full justify-center text-center" type="secondary" size="xxs">
+      <Text
+        className="mb-1.5 flex w-full justify-center text-center"
+        variant="secondary"
+        size="2xs">
         {!hasUser ? `Already have an account? ` : `Don’t already have an account? `}
         <Text
-          type="primary"
-          size="xxs"
+          variant="primary"
+          size="2xs"
           className={cx('ml-1 cursor-pointer font-normal', styles.link)}
           onClick={() => {
             setErrorMessages([]);
@@ -448,7 +451,7 @@ const ResetPasswordLink: React.FC<{ email: string }> = ({ email }) => {
           route: BusterRoutes.AUTH_RESET_PASSWORD_EMAIL
         }) + `?email=${scrubbedEmail}`
       }>
-      <Text type="primary" size="xxs">
+      <Text variant="primary" size="2xs">
         Reset password
       </Text>
     </Link>

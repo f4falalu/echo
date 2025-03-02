@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from 'antd';
-import { Text, Title } from '@/components/ui';
+import { Title, Text } from '@/components/ui/typography';
 import { AppMaterialIcons } from '@/components/ui';
 
 export const NoDatasets: React.FC<{

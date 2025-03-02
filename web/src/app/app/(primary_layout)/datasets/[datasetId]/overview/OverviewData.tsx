@@ -1,5 +1,5 @@
 import type { IDataResult } from '@/api/asset_interfaces';
-import { ShimmerText } from '@/components/ui';
+import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 import AppDataGrid from '@/components/ui/table/AppDataGrid';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useAntToken } from '@/styles/useAntToken';

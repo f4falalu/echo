@@ -1,5 +1,6 @@
 import React from 'react';
-import { Text, Title, AppMaterialIcons } from '@/components/ui';
+import { DotsVertical } from '@/components/ui/icons';
+import { Title, Text } from '@/components/ui/typography';
 import { Avatar } from '@/components/ui/avatar';
 import type { OrganizationUser } from '@/api/asset_interfaces';
 import { Button } from 'antd';
@@ -21,7 +22,7 @@ const UserInfo: React.FC<{ user: OrganizationUser }> = ({ user }) => {
       <Avatar className="h-[48px] w-[48px]" name={user.name} />
       <div className="flex flex-col">
         <Title as="h4">{user.name}</Title>
-        <Text size="sm" type="secondary">
+        <Text size="sm" variant="secondary">
           {user.email}
         </Text>
       </div>
@@ -30,5 +31,5 @@ const UserInfo: React.FC<{ user: OrganizationUser }> = ({ user }) => {
 };
 
 const ThreeDotMenu: React.FC<{ user: OrganizationUser }> = ({ user }) => {
-  return <Button type="text" icon={<AppMaterialIcons icon={'more_vert'} />} size="small" />;
+  return <Button type="text" icon={<DotsVertical />} size="small" />;
 };

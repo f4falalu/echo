@@ -1,5 +1,5 @@
 import React from 'react';
-import { Title, Text } from '@/components/ui';
+import { Title, Text } from '@/components/ui/typography';
 
 export const HeaderExplanation: React.FC<{
   className?: string;
@@ -14,7 +14,7 @@ export const HeaderExplanation: React.FC<{
     return (
       <div className={`flex flex-col space-y-1.5 ${className}`}>
         <Title as="h4">{title}</Title>
-        <Text type="secondary">{description}</Text>
+        <Text variant="secondary">{description}</Text>
       </div>
     );
   }

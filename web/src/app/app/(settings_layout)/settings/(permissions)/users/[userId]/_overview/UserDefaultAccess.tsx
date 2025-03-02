@@ -1,6 +1,6 @@
 import { type BusterUser, type OrganizationUser } from '@/api/asset_interfaces';
 import React from 'react';
-import { Text, Title } from '@/components/ui';
+import { Title, Text } from '@/components/ui/typography';
 import { Card, Select } from 'antd';
 import { useMemoizedFn } from 'ahooks';
 import { AppTooltip } from '@/components/ui';
@@ -91,7 +91,7 @@ const DefaultAccessDescription = React.memo(({ name }: { name: string }) => {
   return (
     <div className="flex flex-col space-y-1.5">
       <Title as="h4">Default Access</Title>
-      <Text type="secondary">
+      <Text variant="secondary">
         {`This becomes the minimum level of access that ${name} will have for all datasets.`}
       </Text>
     </div>

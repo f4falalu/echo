@@ -1,8 +1,8 @@
 'use client';
 
 import { Button, Card } from 'antd';
-import React, { useContext } from 'react';
-import { Text, Title } from '@/components/ui';
+import React from 'react';
+import { Title, Text } from '@/components/ui/typography';
 import { AppMaterialIcons } from '@/components/ui';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 
@@ -31,7 +31,7 @@ export const SettingsEmptyState: React.FC<{
       <div className="flex max-w-[300px] flex-col items-center justify-center space-y-5">
         <div className="flex flex-col items-center space-y-3 text-center">
           <Title as="h4">{title}</Title>
-          <Text type="secondary">{description}</Text>
+          <Text variant="secondary">{description}</Text>
         </div>
 
         {showButton && (

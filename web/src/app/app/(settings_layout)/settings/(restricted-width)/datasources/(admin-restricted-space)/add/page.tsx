@@ -10,7 +10,7 @@ import { AppDataSourceIcon } from '@/components/ui';
 import { useAntToken } from '@/styles/useAntToken';
 import { createStyles } from 'antd-style';
 import { DataSourceFormContent } from '../[datasourceId]/_DatasourceFormContent';
-import { Title, Text } from '@/components/ui';
+import { Title, Text } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 
 export default function Page() {
@@ -55,7 +55,7 @@ const ConnectHeader: React.FC<{}> = ({}) => {
   return (
     <div className="flex flex-col space-y-1">
       <Title as="h3">{`Connect a datasource`}</Title>
-      <Text type="secondary">{`Select the datasource you’d like to connect`}</Text>
+      <Text variant="secondary">{`Select the datasource you’d like to connect`}</Text>
     </div>
   );
 };

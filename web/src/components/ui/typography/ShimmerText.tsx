@@ -40,17 +40,21 @@ export const ShimmerText: React.FC<ShimmerText2Props> = React.memo(
       };
     }, [gradientColors]);
 
+    const memoizedTransition = useMemo(() => {
+      return {
+        duration,
+        repeat: Infinity,
+        ease: 'linear'
+      };
+    }, [duration]);
+
     return (
       <>
         <motion.div
           className="shimmer-text"
           style={memoizedStyle}
           animate={animate}
-          transition={{
-            duration,
-            repeat: Infinity,
-            ease: 'linear'
-          }}>
+          transition={memoizedTransition}>
           {text}
         </motion.div>
       </>

@@ -8,7 +8,7 @@ import { formatDate } from '@/lib';
 import { Button, Divider, Dropdown, MenuProps } from 'antd';
 import React from 'react';
 import { DataSourceFormContent } from './_DatasourceFormContent';
-import { Text, Title } from '@/components/ui';
+import { Title, Text } from '@/components/ui/typography';
 import {
   useDataSourceIndividual,
   useDataSourceIndividualContextSelector
@@ -41,7 +41,7 @@ const DataSourceFormHeader: React.FC<{ dataSource: DataSource }> = ({ dataSource
 
         <div className="flex flex-col space-y-1">
           <Title as="h4">{dataSource.name}</Title>
-          <Text type="secondary">
+          <Text variant="secondary">
             Last updated{' '}
             {formatDate({
               date: dataSource.updated_at || dataSource.created_at,
@@ -135,7 +135,7 @@ const DataSourceFormStatus: React.FC<{ dataSource: DataSource }> = ({ dataSource
       }}>
       <div className="flex flex-col">
         <Text>Connection status</Text>
-        <Text type="secondary">{`Connected on ${formatDate({
+        <Text variant="secondary">{`Connected on ${formatDate({
           date: dataSource.created_at,
           format: 'LL'
         })}`}</Text>

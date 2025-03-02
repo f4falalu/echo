@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Text, Title } from '@/components/ui';
+import { Title, Text } from '@/components/ui/typography';
 import { Divider } from 'antd';
 
 export const SettingsPageHeader: React.FC<{
@@ -13,7 +13,7 @@ export const SettingsPageHeader: React.FC<{
     <div className="flex flex-col">
       <div className="flex flex-col space-y-1.5">
         <Title as="h3">{title}</Title>
-        <Text type="secondary">{description}</Text>
+        <Text variant="secondary">{description}</Text>
       </div>
 
       <Divider className="my-6!" />
