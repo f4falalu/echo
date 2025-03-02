@@ -16,70 +16,73 @@ interface SelectTagInputProps extends VariantProps<typeof selectVariants> {
   placeholder?: string;
 }
 
-export const SelectTagInput = ({
-  items,
-  onSelect,
-  className,
-  placeholder = 'Select items...',
-  size = 'default',
-  variant = 'default'
-}: SelectTagInputProps) => {
-  const handleRemoveTag = (valueToRemove: string) => {
-    const newSelected = items
-      .filter((item) => item.value !== valueToRemove && item.selected)
-      .map((item) => item.value);
-    onSelect(newSelected);
-  };
+export const SelectTagInput: React.FC<SelectTagInputProps> = React.memo(
+  ({
+    items,
+    onSelect,
+    className,
+    placeholder = 'Select items...',
+    size = 'default',
+    variant = 'default'
+  }) => {
+    const handleRemoveTag = (valueToRemove: string) => {
+      const newSelected = items
+        .filter((item) => item.value !== valueToRemove && item.selected)
+        .map((item) => item.value);
+      onSelect(newSelected);
+    };
 
-  const handleSelect = useMemoizedFn((itemId: string) => {
-    const item = items.find((item) => item.value === itemId);
-    if (item) {
-      if (item.selected) {
-        handleRemoveTag(item.value);
-      } else {
-        const newSelected = items.filter((item) => item.selected).map((item) => item.value);
-        onSelect([...newSelected, item.value]);
+    const handleSelect = useMemoizedFn((itemId: string) => {
+      const item = items.find((item) => item.value === itemId);
+      if (item) {
+        if (item.selected) {
+          handleRemoveTag(item.value);
+        } else {
+          const newSelected = items.filter((item) => item.selected).map((item) => item.value);
+          onSelect([...newSelected, item.value]);
+        }
       }
-    }
-  });
+    });
 
-  const selectedItems = useMemo(() => {
-    return items.filter((item) => item.selected);
-  }, [items]);
+    const selectedItems = useMemo(() => {
+      return items.filter((item) => item.selected);
+    }, [items]);
 
-  return (
-    <Dropdown
-      items={items}
-      onSelect={handleSelect}
-      selectType="multiple"
-      align="start"
-      className="w-[var(--radix-dropdown-menu-trigger-width)]">
-      <div
-        className={cn(
-          selectVariants({ variant, size }),
-          'relative overflow-hidden pr-0',
-          className
-        )}>
-        <div className="scrollbar-hide flex flex-nowrap gap-1 overflow-x-auto">
-          {selectedItems.map((item) => (
-            <Tag
-              key={item.value}
-              label={item.label}
-              value={item.value}
-              onRemove={handleRemoveTag}
-            />
-          ))}
-          {selectedItems.length === 0 && (
-            <span className="text-gray-light text-sm">{placeholder}</span>
+    return (
+      <Dropdown
+        items={items}
+        onSelect={handleSelect}
+        selectType="multiple"
+        align="start"
+        className="w-[var(--radix-dropdown-menu-trigger-width)]">
+        <div
+          className={cn(
+            selectVariants({ variant, size }),
+            'relative overflow-hidden pr-0',
+            className
+          )}>
+          <div className="scrollbar-hide flex flex-nowrap gap-1 overflow-x-auto">
+            {selectedItems.map((item) => (
+              <Tag
+                key={item.value}
+                label={item.label}
+                value={item.value}
+                onRemove={handleRemoveTag}
+              />
+            ))}
+            {selectedItems.length === 0 && (
+              <span className="text-gray-light text-sm">{placeholder}</span>
+            )}
+          </div>
+          {selectedItems.length > 0 && (
+            <div className="from-background via-background/80 pointer-events-none absolute top-0 right-0 z-10 h-full w-8 bg-gradient-to-l to-transparent" />
           )}
         </div>
-        {selectedItems.length > 0 && (
-          <div className="from-background via-background/80 pointer-events-none absolute top-0 right-0 z-10 h-full w-8 bg-gradient-to-l to-transparent" />
-        )}
-      </div>
-    </Dropdown>
-  );
-};
+      </Dropdown>
+    );
+  }
+);
+SelectTagInput.displayName = 'SelectTagInput';
 
 const Tag: React.FC<{
   label: string;
