@@ -1,16 +1,19 @@
-import { createStyles } from 'antd-style';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 import React from 'react';
+import { cn } from '@/lib/classMerge';
 
 export const VersionPill: React.FC<{ version_number: number }> = React.memo(
   ({ version_number = 1 }) => {
-    const { cx, styles } = useStyles();
-
     const text = `v${version_number}`;
 
     return (
-      <div className={cx(styles.fileVersion, 'flex items-center justify-center')}>
-        <Text type="secondary" lineHeight={'100%'} size="sm">
+      <div
+        className={cn(
+          'bg-item-hover rounded border px-1',
+          'h-[18px] w-fit min-w-[18px]',
+          'flex items-center justify-center'
+        )}>
+        <Text variant="secondary" size="sm">
           {text}
         </Text>
       </div>
@@ -19,16 +22,3 @@ export const VersionPill: React.FC<{ version_number: number }> = React.memo(
 );
 
 VersionPill.displayName = 'VersionPill';
-
-const useStyles = createStyles(({ token, css }) => {
-  return {
-    fileVersion: css`
-      border-radius: ${token.borderRadius}px;
-      padding: 3px;
-      background: ${token?.colorFill};
-      height: 18px;
-      min-width: 18px;
-      border: 0.5px solid ${token.colorBorder};
-    `
-  };
-});

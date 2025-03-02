@@ -18,7 +18,7 @@ import { ErrorBoundary } from '@/components/ui/error';
 import { CaretDown } from '../../icons/NucleoIconFilled';
 
 //https://www.npmjs.com/package/react-spreadsheet-grid#live-playground
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   useDebounce,
   useDebounceEffect,
