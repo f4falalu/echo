@@ -95,8 +95,7 @@ export const CustomHeading: React.FC<
     numberOfLineMarkdown: number;
   } & ExtraPropsExtra
 > = ({ level, children, markdown, ...rest }) => {
-  const HeadingTag = `h${level}` as any;
-
+  const HeadingTag = `h${level}` as keyof JSX.IntrinsicElements;
   return (
     <HeadingTag>
       {children}
@@ -114,7 +113,6 @@ export const CustomList: React.FC<
   } & ExtraPropsExtra
 > = ({ ordered, children, markdown, ...rest }) => {
   const ListTag = ordered ? 'ol' : 'ul';
-
   return (
     <ListTag>
       {children}
