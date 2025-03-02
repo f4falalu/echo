@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text } from '@/components/ui';
-import { Card } from 'antd';
+import { Card } from '@/components/ui/card/CardBase';
 
 interface EmptyStateListProps {
   text: string;
@@ -23,7 +23,7 @@ export const EmptyStateList = React.memo(
     }
 
     return (
-      <div className="py-12">
+      <div className="flex flex-col items-center justify-center py-12 text-center">
         <Text type="tertiary">{text}</Text>
       </div>
     );
