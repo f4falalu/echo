@@ -1,7 +1,7 @@
 import { ShareAssetType, VerificationStatus, BusterChatListItem } from '@/api/asset_interfaces';
 import { makeHumanReadble, formatDate } from '@/lib';
 import React, { memo, useMemo, useRef, useState } from 'react';
-import { StatusBadgeIndicator, FavoriteStar, getShareStatus } from '@/components/features/list';
+import { FavoriteStar, getShareStatus } from '@/components/features/list';
 import { Text } from '@/components/ui';
 import { Avatar } from '@/components/ui/avatar';
 import { BusterRoutes, createBusterRoute } from '@/routes';
@@ -152,9 +152,6 @@ const TitleCell = React.memo<{ title: string; status: VerificationStatus; chatId
 
     return (
       <div className="flex w-full items-center space-x-2">
-        <div className="flex items-center justify-center">
-          <StatusBadgeIndicator status={status} />
-        </div>
         <Text ellipsis={true}>{title}</Text>
         <div className="flex items-center" onClick={onFavoriteDivClick}>
           <FavoriteStar

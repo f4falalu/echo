@@ -31,11 +31,7 @@ export const ChatSelectedOptionPopup: React.FC<{
           selectedRowKeys={selectedRowKeys}
           onSelectChange={onSelectChange}
         />,
-        <StatusButton
-          key="status"
-          selectedRowKeys={selectedRowKeys}
-          onSelectChange={onSelectChange}
-        />,
+
         <DeleteButton
           key="delete"
           selectedRowKeys={selectedRowKeys}
@@ -119,22 +115,6 @@ const DashboardButton: React.FC<{
         Dashboard
       </Button>
     </Dropdown>
-  );
-};
-
-const StatusButton: React.FC<{
-  selectedRowKeys: string[];
-  onSelectChange: (selectedRowKeys: string[]) => void;
-}> = ({ selectedRowKeys, onSelectChange }) => {
-  return (
-    <StatusBadgeButton
-      status={VerificationStatus.notRequested}
-      type="metric"
-      id={selectedRowKeys}
-      onChangedStatus={async () => {
-        onSelectChange([]);
-      }}
-    />
   );
 };
 

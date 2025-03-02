@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { Button, Checkbox } from 'antd';
 import { useAntToken } from '@/styles/useAntToken';
 import { AppMaterialIcons } from '../icons';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 import Link from 'next/link';
 
 export const AppSelectItem: React.FC<{
@@ -79,7 +79,7 @@ export const AppSelectItem: React.FC<{
             )}
             {validIndex && (
               <Text
-                type={disabled ? 'tertiary' : 'secondary'}
+                variant={disabled ? 'tertiary' : 'secondary'}
                 className={`min-w-[9px] text-center ${link ? '' : ''} `}>
                 {index}
               </Text>

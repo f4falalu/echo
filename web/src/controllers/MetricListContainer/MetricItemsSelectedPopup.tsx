@@ -123,14 +123,20 @@ const StatusButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
+  const onVerifiedMetric = useBusterMetricsIndividualContextSelector(
+    (state) => state.onVerifiedMetric
+  );
+
+  const onVerify = useMemoizedFn(async (d: { id: string; status: VerificationStatus }[]) => {
+    //   await onVerifiedMetric(d);
+    onSelectChange([]);
+  });
+
   return (
     <StatusBadgeButton
       status={VerificationStatus.notRequested}
-      type="metric"
       id={selectedRowKeys}
-      onChangedStatus={async () => {
-        onSelectChange([]);
-      }}
+      onVerify={onVerify}
     />
   );
 };
