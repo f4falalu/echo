@@ -64,7 +64,7 @@ export const BigQueryForm: React.FC<{
         <AppSelectTagInput className="w-full" tokenSeparators={[',']} suffixIcon={null} />
       </Form.Item>
       <Form.Item name="credentials_json" label="Credentials">
-        <AppTooltip title={isValidJson ? '' : 'Invalid JSON'} forceShow>
+        <AppTooltip title={isValidJson ? '' : 'Invalid JSON'}>
           <div
             className="h-[180px] w-full"
             style={{

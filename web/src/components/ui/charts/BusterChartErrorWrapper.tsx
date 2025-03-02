@@ -1,6 +1,7 @@
 import { ErrorCard } from '@/components/ui/error/ErrorCard';
 import { ReactNode } from 'react';
 import { ErrorBoundary } from '../error/ErrorBoundary';
+import React from 'react';
 
 interface Props {
   children: ReactNode;

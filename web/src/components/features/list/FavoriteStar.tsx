@@ -63,7 +63,7 @@ export const FavoriteStar: React.FC<{
   const tooltipText = isFavorited ? 'Remove from favorites' : 'Add to favorites';
 
   return (
-    <AppTooltip title={tooltipText} performant key={tooltipText}>
+    <AppTooltip title={tooltipText} key={tooltipText}>
       <Button
         classNames={{
           icon: 'text-inherit! mt-[-2px]!'

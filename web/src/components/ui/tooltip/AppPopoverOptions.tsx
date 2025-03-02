@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AppPopover } from './AppPopover';
-import { useClickAway, useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from 'ahooks';
 import isString from 'lodash/isString';
 import { AppMaterialIcons } from '../icons';
-import { Button, PopoverProps } from 'antd';
-import { ButtonProps } from 'antd/lib';
+import { PopoverProps } from 'antd';
 import { createStyles } from 'antd-style';
 import { useAntToken } from '@/styles/useAntToken';
 
@@ -109,7 +108,7 @@ export const AppPopoverOptions: React.FC<{
                   styles.item,
                   rowClass,
                   `${option.selected ? selectedClass : ''}`,
-                  `flex select-none items-center justify-between space-x-2 rounded-sm p-1`
+                  `flex items-center justify-between space-x-2 rounded-sm p-1 select-none`
                 )}
                 onClick={() => {
                   option.onClick();
@@ -126,9 +125,9 @@ export const AppPopoverOptions: React.FC<{
                   </div>
                   <div
                     className={`flex flex-col space-y-0.5 ${option.description ? 'justify-start' : 'justify-center'}`}>
-                    <div className="select-none text-base">{option.label}</div>
+                    <div className="text-base select-none">{option.label}</div>
                     {option.description && (
-                      <div className="select-none text-sm">{option.description}</div>
+                      <div className="text-sm select-none">{option.description}</div>
                     )}
                   </div>
                 </div>
@@ -142,7 +141,7 @@ export const AppPopoverOptions: React.FC<{
             ))}
           </div>
 
-          {footer && <div className={cx('pb-2 pt-2', styles.footer)}>{footer}</div>}
+          {footer && <div className={cx('pt-2 pb-2', styles.footer)}>{footer}</div>}
         </div>
       }>
       <div

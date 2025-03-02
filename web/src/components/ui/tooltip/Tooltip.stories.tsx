@@ -25,9 +25,9 @@ const meta = {
       control: 'text',
       description: 'The text content of the tooltip'
     },
-    shortcut: {
+    shortcuts: {
       control: 'object',
-      description: 'Array of keyboard shortcuts to display'
+      description: 'Array of keyboard shortcutss to display'
     },
     children: {
       control: 'object',
@@ -68,20 +68,20 @@ export const Basic: Story = {
   }
 };
 
-// With keyboard shortcuts
+// With keyboard shortcutss
 export const WithShortcut: Story = {
   args: {
     title: 'Save file',
-    shortcut: ['S'],
+    shortcuts: ['S'],
     children: <Button>Save</Button>
   }
 };
 
-// Multiple shortcuts
+// Multiple shortcutss
 export const MultipleShortcuts: Story = {
   args: {
     title: 'Undo action',
-    shortcut: ['⌘', 'Z'],
+    shortcuts: ['⌘', 'Z'],
     children: <Button>Undo</Button>
   }
 };

@@ -68,13 +68,7 @@ const TextWrapper: React.FC<
 
   const title = tooltip ? (typeof tooltip === 'string' ? tooltip : (children as string)) : '';
 
-  return tooltip ? (
-    <AppTooltip performant title={title}>
-      {children}
-    </AppTooltip>
-  ) : (
-    <>{children}</>
-  );
+  return tooltip ? <AppTooltip title={title}>{children}</AppTooltip> : <>{children}</>;
 });
 TextWrapper.displayName = 'TextWrapper';
 

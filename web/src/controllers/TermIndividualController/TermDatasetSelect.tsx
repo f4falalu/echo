@@ -50,7 +50,7 @@ export const DatasetList: React.FC<{
       ))}
 
       <DropdownSelect datasets={selectedDatasets} onChange={onChange}>
-        <AppTooltip className="flex! items-center justify-center" title={'Add a dataset'}>
+        <AppTooltip title={'Add a dataset'}>
           {selectedDatasets.length === 0 ? (
             <DropdownEmptyButton />
           ) : (

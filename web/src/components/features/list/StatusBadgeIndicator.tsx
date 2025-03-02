@@ -162,7 +162,7 @@ export const StatusBadgeIndicator: React.FC<{
     : {};
 
   return (
-    <AppTooltip title={showTooltip && isHovering ? tooltipText : ''} mouseEnterDelay={0.25}>
+    <AppTooltip title={showTooltip && isHovering ? tooltipText : ''}>
       <div
         {...mouseEvents}
         className={`rounded-full ${className} ${sharedClass} ${isNotVerified ? '' : ''}`}

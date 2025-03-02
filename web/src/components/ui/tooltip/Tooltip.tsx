@@ -12,8 +12,8 @@ export interface TooltipProps
   extends Pick<React.ComponentProps<typeof TooltipContentBase>, 'align' | 'side' | 'sideOffset'>,
     Pick<React.ComponentProps<typeof TooltipProvider>, 'delayDuration' | 'skipDelayDuration'> {
   children: React.ReactNode;
-  title: string;
-  shortcut?: string[];
+  title: string | undefined;
+  shortcuts?: string[];
   open?: boolean;
 }
 
@@ -22,21 +22,21 @@ export const Tooltip = React.memo<TooltipProps>(
     children,
     title,
     sideOffset,
-    shortcut,
+    shortcuts,
     delayDuration = 0,
     skipDelayDuration,
     align,
     side,
     open
   }) => {
-    if (!title && !shortcut?.length) return children;
+    if (!title || (!title && !shortcuts?.length)) return children;
 
     return (
       <TooltipProvider delayDuration={delayDuration} skipDelayDuration={skipDelayDuration}>
         <TooltipBase open={open}>
           <TooltipTrigger asChild>{children}</TooltipTrigger>
           <TooltipContentBase align={align} side={side} sideOffset={sideOffset}>
-            <TooltipContent title={title} shortcut={shortcut} />
+            <TooltipContent title={title} shortcut={shortcuts} />
           </TooltipContentBase>
         </TooltipBase>
       </TooltipProvider>
