@@ -23,20 +23,15 @@ type Story = StoryObj<typeof SidebarUserFooterComponent>;
 export const Default: Story = {
   args: {
     name: 'John Doe',
-    email: 'john.doe@example.com'
-  }
-};
-
-export const WithoutAvatar: Story = {
-  args: {
-    name: 'Jane Smith',
-    email: 'jane.smith@example.com'
+    email: 'john.doe@example.com',
+    signOut: () => Promise.resolve({ error: '' })
   }
 };
 
 export const LongName: Story = {
   args: {
     name: 'Alexander Bartholomew Christopherson III',
-    email: 'alexander@example.com'
+    email: 'alexander@example.com',
+    signOut: () => Promise.resolve({ error: '' })
   }
 };

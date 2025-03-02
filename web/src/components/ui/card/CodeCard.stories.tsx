@@ -25,7 +25,7 @@ const sampleCode = `function helloWorld() {
 }`;
 
 const longCode = `import React from 'react';
-import { Button } from 'antd';
+import { Button } from '../buttons';
 
 export const MyComponent = () => {
   const handleClick = () => {

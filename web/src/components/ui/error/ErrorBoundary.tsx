@@ -2,6 +2,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
   children: ReactNode;
+  errorComponent?: ReactNode;
   onError?: () => void;
 }
 
@@ -24,7 +25,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
-      return <span className="hidden">Error boundary...</span>;
+      return this.props.errorComponent;
     }
 
     return this.props.children;
