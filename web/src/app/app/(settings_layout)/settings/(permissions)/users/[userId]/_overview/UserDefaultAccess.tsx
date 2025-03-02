@@ -90,7 +90,7 @@ DefaultAccessCard.displayName = 'DefaultAccessCard';
 const DefaultAccessDescription = React.memo(({ name }: { name: string }) => {
   return (
     <div className="flex flex-col space-y-1.5">
-      <Title level={4}>Default Access</Title>
+      <Title as="h4">Default Access</Title>
       <Text type="secondary">
         {`This becomes the minimum level of access that ${name} will have for all datasets.`}
       </Text>

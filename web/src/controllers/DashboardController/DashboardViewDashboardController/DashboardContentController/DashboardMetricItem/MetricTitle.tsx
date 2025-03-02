@@ -50,7 +50,7 @@ export const MetricTitle: React.FC<{
           <div className="flex w-full justify-between space-x-0.5">
             <Title
               {...titleConfig}
-              level={4}
+              as="h4"
               className="text-md! max-w-[calc(100%_-_22px)]"
               style={{ fontSize: '14px' }}>
               {`${title}`}

@@ -12,7 +12,7 @@ export const SettingsPageHeader: React.FC<{
   return (
     <div className="flex flex-col">
       <div className="flex flex-col space-y-1.5">
-        <Title level={3}>{title}</Title>
+        <Title as="h3">{title}</Title>
         <Text type="secondary">{description}</Text>
       </div>
 

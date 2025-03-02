@@ -42,7 +42,7 @@ export default function ProfilePage() {
         }}>
         <div className={'flex items-center space-x-2.5'}>
           <Avatar name={name} className="h-[48px] w-[48px]" />
-          <Title level={4}>{name}</Title>
+          <Title as="h4">{name}</Title>
         </div>
         <div className={'flex flex-col space-y-0.5'}>
           <div className={styles.infoRow}>

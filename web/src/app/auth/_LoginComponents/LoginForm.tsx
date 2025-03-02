@@ -379,7 +379,7 @@ const WelcomeText: React.FC<{
   const text = hasUser ? `Sign in` : `Sign up for free`;
 
   return (
-    <Title className="mb-0" level={1}>
+    <Title className="mb-0" as="h1">
       {text}
     </Title>
   );

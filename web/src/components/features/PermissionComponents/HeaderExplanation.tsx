@@ -13,7 +13,7 @@ export const HeaderExplanation: React.FC<{
   }) => {
     return (
       <div className={`flex flex-col space-y-1.5 ${className}`}>
-        <Title level={4}>{title}</Title>
+        <Title as="h4">{title}</Title>
         <Text type="secondary">{description}</Text>
       </div>
     );

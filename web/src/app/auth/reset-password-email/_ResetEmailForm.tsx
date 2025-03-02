@@ -48,7 +48,7 @@ export const ResetEmailForm: React.FC<{
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-4">
-      <Title className="mb-0" level={1}>
+      <Title className="mb-0" as="h1">
         Reset Password
       </Title>
 

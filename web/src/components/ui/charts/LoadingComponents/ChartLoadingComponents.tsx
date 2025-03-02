@@ -1,6 +1,6 @@
 'use client';
 
-import { ShimmerText } from '@/components/ui/text/ShimmerText';
+import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 import React from 'react';
 import { cn } from '@/lib/utils';
 

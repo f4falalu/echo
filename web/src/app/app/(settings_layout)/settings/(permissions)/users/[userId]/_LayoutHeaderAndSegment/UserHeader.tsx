@@ -20,7 +20,7 @@ const UserInfo: React.FC<{ user: OrganizationUser }> = ({ user }) => {
     <div className="flex items-center space-x-4">
       <Avatar className="h-[48px] w-[48px]" name={user.name} />
       <div className="flex flex-col">
-        <Title level={4}>{user.name}</Title>
+        <Title as="h4">{user.name}</Title>
         <Text size="sm" type="secondary">
           {user.email}
         </Text>

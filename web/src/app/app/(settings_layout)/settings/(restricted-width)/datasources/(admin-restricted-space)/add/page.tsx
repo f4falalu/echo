@@ -54,7 +54,7 @@ export default function Page() {
 const ConnectHeader: React.FC<{}> = ({}) => {
   return (
     <div className="flex flex-col space-y-1">
-      <Title level={3}>{`Connect a datasource`}</Title>
+      <Title as="h3">{`Connect a datasource`}</Title>
       <Text type="secondary">{`Select the datasource you’d like to connect`}</Text>
     </div>
   );

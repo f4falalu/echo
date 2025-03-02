@@ -85,7 +85,7 @@ export const TermIndividualContent: React.FC<{
                   onChange={(v) => {
                     onSetTermName(v);
                   }}
-                  level={4}>
+                  as="h4">
                   {termName}
                 </EditableTitle>
               </div>

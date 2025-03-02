@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text } from '@/components/ui/text';
+import { Text } from '@/components/ui/typography';
 import Link from 'next/link';
 import { BusterLogoWithText } from '@/assets/svg/BusterLogoWithText';
 import { BUSTER_HOME_PAGE } from '@/routes/externalRoutes';

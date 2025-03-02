@@ -32,7 +32,7 @@ export const DashboardEditTitles: React.FC<{
         disabled={!allowEdit}
         onChange={onChangeTitle}
         placeholder="New Dashboard"
-        level={3}>
+        as="h3">
         {title}
       </EditableTitle>
 

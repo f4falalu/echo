@@ -39,10 +39,10 @@ const _AppMarkdown: React.FC<{
   const span = useMemoizedFn((props) => <CustomSpan {...props} {...commonProps} />);
   const li = useMemoizedFn((props) => <CustomListItem {...props} {...commonProps} />);
   const p = useMemoizedFn((props) => <CustomParagraph {...props} {...commonProps} />);
-  const h1 = useMemoizedFn((props) => <CustomHeading level={1} {...props} {...commonProps} />);
-  const h2 = useMemoizedFn((props) => <CustomHeading level={2} {...props} {...commonProps} />);
-  const h3 = useMemoizedFn((props) => <CustomHeading level={3} {...props} {...commonProps} />);
-  const h4 = useMemoizedFn((props) => <CustomHeading level={4} {...props} {...commonProps} />);
+  const h1 = useMemoizedFn((props) => <CustomHeading as="h1" {...props} {...commonProps} />);
+  const h2 = useMemoizedFn((props) => <CustomHeading as="h2" {...props} {...commonProps} />);
+  const h3 = useMemoizedFn((props) => <CustomHeading as="h3" {...props} {...commonProps} />);
+  const h4 = useMemoizedFn((props) => <CustomHeading as="h4" {...props} {...commonProps} />);
   const h5 = useMemoizedFn((props) => <CustomHeading level={5} {...props} {...commonProps} />);
   const h6 = useMemoizedFn((props) => <CustomHeading level={6} {...props} {...commonProps} />);
 

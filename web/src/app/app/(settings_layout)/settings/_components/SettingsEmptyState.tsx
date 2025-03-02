@@ -30,7 +30,7 @@ export const SettingsEmptyState: React.FC<{
       }}>
       <div className="flex max-w-[300px] flex-col items-center justify-center space-y-5">
         <div className="flex flex-col items-center space-y-3 text-center">
-          <Title level={4}>{title}</Title>
+          <Title as="h4">{title}</Title>
           <Text type="secondary">{description}</Text>
         </div>
 

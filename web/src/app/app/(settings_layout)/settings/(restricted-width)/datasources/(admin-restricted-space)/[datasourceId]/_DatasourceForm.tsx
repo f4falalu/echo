@@ -40,7 +40,7 @@ const DataSourceFormHeader: React.FC<{ dataSource: DataSource }> = ({ dataSource
         </div>
 
         <div className="flex flex-col space-y-1">
-          <Title level={4}>{dataSource.name}</Title>
+          <Title as="h4">{dataSource.name}</Title>
           <Text type="secondary">
             Last updated{' '}
             {formatDate({

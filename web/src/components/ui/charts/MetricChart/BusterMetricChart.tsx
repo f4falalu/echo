@@ -211,7 +211,7 @@ const AnimatedTitleWrapper = ({ title, type }: { title: string; type: 'header' |
       {title && (
         <motion.div className="overflow-visible" {...memoizedAnimation}>
           <motion.div className="origin-center">
-            <Title {...titleProps} level={4}>
+            <Title {...titleProps} as="h4">
               {title}
             </Title>
           </motion.div>

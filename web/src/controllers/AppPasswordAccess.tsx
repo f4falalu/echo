@@ -71,7 +71,7 @@ const AppPasswordInputComponent: React.FC<{
 
           <div className="text-center">
             <Title
-              level={2}
+              as="h2"
               ellipsis={false}
               className="text-center">{`To access this page, enter the password below`}</Title>
           </div>
