@@ -29,7 +29,6 @@ export const StatusBadgeButton: React.FC<{
     const ids = Array.isArray(id) ? id : [id];
     const params = ids.map((id) => ({ id, status: newStatus }));
     await onVerify(params);
-
     setIsOpen(false);
   });
 
@@ -68,6 +67,10 @@ export const StatusBadgeButton: React.FC<{
     [text]
   );
 
+  const showButtonTooltip = !isAdmin && status === VerificationStatus.notRequested;
+  const buttonVariant = Array.isArray(id) ? 'default' : 'ghost';
+  const buttonText = Array.isArray(id) ? 'Status' : '';
+
   return (
     <AppPopoverMenu
       items={items}
@@ -81,12 +84,12 @@ export const StatusBadgeButton: React.FC<{
       selectedItems={selectedItem?.key ? [selectedItem.key! as string] : []}
       placement="bottomRight"
       headerContent={'Verification status...'}>
-      <AppTooltip title={isOpen ? '' : 'Request verification from data team'}>
+      <AppTooltip title={showButtonTooltip ? '' : 'Request verification from data team'}>
         <Button
           disabled={disabled || ((!id || status === 'verified') && !isAdmin)}
           prefix={<StatusBadgeIndicator showTooltip={false} status={status} size={14} />}
-          variant={Array.isArray(id) ? 'default' : 'ghost'}>
-          {Array.isArray(id) ? 'Status' : ''}
+          variant={buttonVariant}>
+          {buttonText}
         </Button>
       </AppTooltip>
     </AppPopoverMenu>

@@ -15,33 +15,31 @@ export const StatusBadgeIndicator: React.FC<{
   size?: number;
   className?: string;
   showTooltip?: boolean;
-}> = ({
-  showTooltip = true,
-  status = VerificationStatus.notRequested,
-  size = 16,
-  className = ''
-}) => {
-  const Icon = getIcon(status);
-  const colorClasses = getColorClasses(status);
-  const tooltipText = getTooltipText(status);
-  const isNotVerified =
-    status === VerificationStatus.notVerified || VerificationStatus.notRequested;
-  const sharedClass = `h-[16px] w-[16px] flex items-center justify-center rounded-full ${colorClasses}`;
-  const _size = isNotVerified ? size : 16;
+}> = React.memo(
+  ({ showTooltip = true, status = VerificationStatus.notRequested, size = 16, className = '' }) => {
+    const Icon = getIcon(status);
+    const colorClasses = getColorClasses(status);
+    const tooltipText = getTooltipText(status);
+    const isNotVerified =
+      status === VerificationStatus.notVerified || VerificationStatus.notRequested;
+    const sharedClass = `h-[16px] w-[16px] flex items-center justify-center rounded-full ${colorClasses}`;
+    const _size = isNotVerified ? size : 16;
 
-  return (
-    <AppTooltip title={showTooltip ? tooltipText : ''}>
-      <div
-        className={`rounded-full ${className} ${sharedClass} ${isNotVerified ? '' : ''}`}
-        style={{
-          width: _size,
-          height: _size
-        }}>
-        <Icon size={_size} />
-      </div>
-    </AppTooltip>
-  );
-};
+    return (
+      <AppTooltip title={showTooltip ? tooltipText : ''}>
+        <div
+          className={`rounded-full ${className} ${sharedClass} ${isNotVerified ? '' : ''}`}
+          style={{
+            width: _size,
+            height: _size
+          }}>
+          <Icon size={_size} />
+        </div>
+      </AppTooltip>
+    );
+  }
+);
+StatusBadgeIndicator.displayName = 'StatusBadgeIndicator';
 
 const statusRecordIcon: Record<VerificationStatus, React.FC<any>> = {
   [VerificationStatus.verified]: () => <CircleCheck />,
@@ -53,7 +51,7 @@ const statusRecordIcon: Record<VerificationStatus, React.FC<any>> = {
 };
 
 const getIcon = (status: BusterMetricListItem['status']) => {
-  return statusRecordIcon[status] || (() => <ProgressCircle2Of4 />);
+  return statusRecordIcon[status] || (() => <React.Fragment />);
 };
 
 const statusRecordColors: Record<VerificationStatus, string> = {
