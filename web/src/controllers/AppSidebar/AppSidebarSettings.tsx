@@ -17,33 +17,33 @@ type MenuItem = Required<MenuProps>['items'][number];
 
 const accountItems: MenuItem[] = [
   {
-    key: BusterRoutes.APP_SETTINGS_PROFILE,
+    key: BusterRoutes.SETTINGS_PROFILE,
     label: (
       <Link
         href={createBusterRoute({
-          route: BusterRoutes.APP_SETTINGS_PROFILE
+          route: BusterRoutes.SETTINGS_PROFILE
         })}>
         Profile
       </Link>
     )
   },
   {
-    key: BusterRoutes.APP_SETTINGS_PREFERENCES,
+    key: BusterRoutes.SETTINGS_PREFERENCES,
     label: (
       <Link
         href={createBusterRoute({
-          route: BusterRoutes.APP_SETTINGS_PREFERENCES
+          route: BusterRoutes.SETTINGS_PREFERENCES
         })}>
         Preferences
       </Link>
     )
   },
   {
-    key: BusterRoutes.APP_SETTINGS_NOTIFICATIONS,
+    key: BusterRoutes.SETTINGS_NOTIFICATIONS,
     label: (
       <Link
         href={createBusterRoute({
-          route: BusterRoutes.APP_SETTINGS_NOTIFICATIONS
+          route: BusterRoutes.SETTINGS_NOTIFICATIONS
         })}>
         Notifications
       </Link>
@@ -53,11 +53,11 @@ const accountItems: MenuItem[] = [
 
 const permissionsAndSecurityItems: MenuItem[] = [
   {
-    key: BusterRoutes.APP_SETTINGS_USERS,
+    key: BusterRoutes.SETTINGS_USERS,
     label: (
       <Link
         href={createBusterRoute({
-          route: BusterRoutes.APP_SETTINGS_USERS
+          route: BusterRoutes.SETTINGS_USERS
         })}>
         Users
       </Link>
@@ -75,44 +75,44 @@ const permissionsAndSecurityItems: MenuItem[] = [
     )
   },
   {
-    key: BusterRoutes.APP_SETTINGS_DATASET_GROUPS,
+    key: BusterRoutes.SETTINGS_DATASET_GROUPS,
     label: (
       <Link
         href={createBusterRoute({
-          route: BusterRoutes.APP_SETTINGS_DATASET_GROUPS
+          route: BusterRoutes.SETTINGS_DATASET_GROUPS
         })}>
         Dataset Groups
       </Link>
     )
   },
   {
-    key: BusterRoutes.APP_SETTINGS_PERMISSION_GROUPS,
+    key: BusterRoutes.SETTINGS_PERMISSION_GROUPS,
     label: (
       <Link
         href={createBusterRoute({
-          route: BusterRoutes.APP_SETTINGS_PERMISSION_GROUPS
+          route: BusterRoutes.SETTINGS_PERMISSION_GROUPS
         })}>
         Permission Groups
       </Link>
     )
   }
   // {
-  //   key: BusterRoutes.APP_SETTINGS_ATTRIBUTES,
+  //   key: BusterRoutes.SETTINGS_ATTRIBUTES,
   //   label: (
   //     <Link
   //       href={createBusterRoute({
-  //         route: BusterRoutes.APP_SETTINGS_ATTRIBUTES
+  //         route: BusterRoutes.SETTINGS_ATTRIBUTES
   //       })}>
   //       Attributes
   //     </Link>
   //   )
   // },
   // {
-  //   key: BusterRoutes.APP_SETTINGS_SECURITY,
+  //   key: BusterRoutes.SETTINGS_SECURITY,
   //   label: (
   //     <Link
   //       href={createBusterRoute({
-  //         route: BusterRoutes.APP_SETTINGS_SECURITY
+  //         route: BusterRoutes.SETTINGS_SECURITY
   //       })}>
   //       Security
   //     </Link>
@@ -152,13 +152,13 @@ export const AppSidebarSettings: React.FC<{
     () => [
       ...userTeams.map((team) => ({
         key: createBusterRoute({
-          route: BusterRoutes.APP_SETTINGS_TEAM_ID,
+          route: BusterRoutes.SETTINGS_TEAM_ID,
           teamId: team.id
         }),
         label: (
           <Link
             href={createBusterRoute({
-              route: BusterRoutes.APP_SETTINGS_TEAM_ID,
+              route: BusterRoutes.SETTINGS_TEAM_ID,
               teamId: team.id
             })}>
             {team.name}
@@ -182,55 +182,55 @@ export const AppSidebarSettings: React.FC<{
     () =>
       [
         {
-          key: BusterRoutes.APP_SETTINGS_PROFILE,
+          key: BusterRoutes.SETTINGS_PROFILE,
           label: (
             <Link
               href={createBusterRoute({
-                route: BusterRoutes.APP_SETTINGS_PROFILE
+                route: BusterRoutes.SETTINGS_PROFILE
               })}>
               General
             </Link>
           )
         },
         {
-          key: BusterRoutes.APP_SETTINGS_STORAGE,
+          key: BusterRoutes.SETTINGS_STORAGE,
           label: (
             <Link
               href={createBusterRoute({
-                route: BusterRoutes.APP_SETTINGS_STORAGE
+                route: BusterRoutes.SETTINGS_STORAGE
               })}>
               Storage
             </Link>
           )
         },
         {
-          key: BusterRoutes.APP_SETTINGS_DATASOURCES,
+          key: BusterRoutes.SETTINGS_DATASOURCES,
           label: (
             <Link
               href={createBusterRoute({
-                route: BusterRoutes.APP_SETTINGS_DATASOURCES
+                route: BusterRoutes.SETTINGS_DATASOURCES
               })}>
               Data Sources
             </Link>
           )
         },
         {
-          key: BusterRoutes.APP_SETTINGS_INTEGRATIONS,
+          key: BusterRoutes.SETTINGS_INTEGRATIONS,
           label: (
             <Link
               href={createBusterRoute({
-                route: BusterRoutes.APP_SETTINGS_INTEGRATIONS
+                route: BusterRoutes.SETTINGS_INTEGRATIONS
               })}>
               Integrations
             </Link>
           )
         },
         {
-          key: BusterRoutes.APP_SETTINGS_API_KEYS,
+          key: BusterRoutes.SETTINGS_API_KEYS,
           label: (
             <Link
               href={createBusterRoute({
-                route: BusterRoutes.APP_SETTINGS_API_KEYS
+                route: BusterRoutes.SETTINGS_API_KEYS
               })}>
               API Keys
             </Link>
@@ -238,11 +238,11 @@ export const AppSidebarSettings: React.FC<{
           hidden: !isAdmin
         },
         {
-          key: BusterRoutes.APP_SETTINGS_EMBEDS,
+          key: BusterRoutes.SETTINGS_EMBEDS,
           label: (
             <Link
               href={createBusterRoute({
-                route: BusterRoutes.APP_SETTINGS_EMBEDS
+                route: BusterRoutes.SETTINGS_EMBEDS
               })}>
               Embedded Analytics
             </Link>
@@ -250,11 +250,11 @@ export const AppSidebarSettings: React.FC<{
           hidden: !isAdmin
         },
         {
-          key: BusterRoutes.APP_SETTINGS_BILLING,
+          key: BusterRoutes.SETTINGS_BILLING,
           label: (
             <Link
               href={createBusterRoute({
-                route: BusterRoutes.APP_SETTINGS_BILLING
+                route: BusterRoutes.SETTINGS_BILLING
               })}>
               Billing
             </Link>

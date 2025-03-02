@@ -29,7 +29,7 @@ const mockItems = [
     id: '2',
     label: 'Profile',
     icon: <WindowUser />,
-    route: BusterRoutes.APP_SETTINGS_PROFILE
+    route: BusterRoutes.SETTINGS_PROFILE
   },
   {
     id: '3',
@@ -46,13 +46,13 @@ const mockGroupedContent = [
         id: '4',
         label: 'Notifications',
         icon: <WindowAlert width="1.25em" height="1.25em" />,
-        route: BusterRoutes.APP_SETTINGS_NOTIFICATIONS
+        route: BusterRoutes.SETTINGS_NOTIFICATIONS
       },
       {
         id: '5',
         label: 'Notifications',
         icon: <WindowAlert width="1.25em" height="1.25em" />,
-        route: BusterRoutes.APP_SETTINGS_NOTIFICATIONS
+        route: BusterRoutes.SETTINGS_NOTIFICATIONS
       }
     ]
   },
@@ -132,7 +132,7 @@ export const ScrollAndTruncationTest: Story = {
             label:
               'Another very long label that contains some technical terms like Implementation Documentation Requirements',
             icon: <WindowUser width="1.25em" height="1.25em" />,
-            route: BusterRoutes.APP_SETTINGS_PROFILE
+            route: BusterRoutes.SETTINGS_PROFILE
           },
           ...Array(30)
             .fill(null)
@@ -140,7 +140,7 @@ export const ScrollAndTruncationTest: Story = {
               id: `long-${i + 3}`,
               label: `Somewhat Long Menu Item ${i + 1} with Additional Description Text`,
               icon: <WindowAlert width="1.25em" height="1.25em" />,
-              route: BusterRoutes.APP_SETTINGS_NOTIFICATIONS
+              route: BusterRoutes.SETTINGS_NOTIFICATIONS
             }))
         ]
       }

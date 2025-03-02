@@ -47,7 +47,7 @@ export const DatasourceList: React.FC = () => {
           buttonIcon={<AppMaterialIcons icon="add" />}
           buttonAction={() =>
             onChangePage({
-              route: BusterRoutes.APP_SETTINGS_DATASOURCES_ADD
+              route: BusterRoutes.SETTINGS_DATASOURCES_ADD
             })
           }
         />
@@ -62,7 +62,7 @@ const AddSourceHeader: React.FC<{ isAdmin: boolean }> = ({ isAdmin }) => {
       <Text>Your data sources</Text>
       <Link
         href={createBusterRoute({
-          route: BusterRoutes.APP_SETTINGS_DATASOURCES_ADD
+          route: BusterRoutes.SETTINGS_DATASOURCES_ADD
         })}>
         {isAdmin && (
           <Button type="text" icon={<AppMaterialIcons icon="add" />}>
@@ -116,7 +116,7 @@ const ListItem: React.FC<{
   return (
     <Link
       href={createBusterRoute({
-        route: BusterRoutes.APP_SETTINGS_DATASOURCES_ID,
+        route: BusterRoutes.SETTINGS_DATASOURCES_ID,
         datasourceId: source.id
       })}
       key={source.id}>

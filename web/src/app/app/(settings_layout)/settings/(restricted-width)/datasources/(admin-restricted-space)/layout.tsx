@@ -9,7 +9,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   if (!isAdmin) {
     return redirect(
       createBusterRoute({
-        route: BusterRoutes.APP_SETTINGS_DATASOURCES
+        route: BusterRoutes.SETTINGS_DATASOURCES
       })
     );
   }

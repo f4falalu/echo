@@ -55,14 +55,14 @@ const topItems: DropdownProps['items'] = [
     value: 'setting',
     icon: <Gear />,
     link: createBusterRoute({
-      route: BusterRoutes.APP_SETTINGS_PROFILE
+      route: BusterRoutes.SETTINGS_PROFILE
     })
   },
   {
     label: 'Datasources',
     value: 'datasources',
     link: createBusterRoute({
-      route: BusterRoutes.APP_SETTINGS_DATASOURCES
+      route: BusterRoutes.SETTINGS_DATASOURCES
     }),
     icon: <Database />
   },
@@ -71,7 +71,7 @@ const topItems: DropdownProps['items'] = [
     value: 'invite-manage-members',
     icon: <UserGroup />,
     link: createBusterRoute({
-      route: BusterRoutes.APP_SETTINGS_USERS
+      route: BusterRoutes.SETTINGS_USERS
     })
   }
 ];

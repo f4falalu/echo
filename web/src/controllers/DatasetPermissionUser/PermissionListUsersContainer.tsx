@@ -73,7 +73,7 @@ export const PermissionListUsersContainer: React.FC<{
           id: permissionUser.id,
           data: permissionUser,
           link: createBusterRoute({
-            route: BusterRoutes.APP_SETTINGS_USERS_ID,
+            route: BusterRoutes.SETTINGS_USERS_ID,
             userId: permissionUser.id
           })
         };

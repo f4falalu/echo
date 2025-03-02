@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { AppContentHeader } from '@/components/ui/layouts/AppContentHeader_Old';
 import { Breadcrumb, Button } from 'antd';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
@@ -51,27 +50,25 @@ export const DashboardHeader: React.FC<{
 
   return (
     <>
-      <AppContentHeader className="items-center justify-between space-x-2">
-        <div className="flex space-x-3">
-          <Breadcrumb className="flex items-center" items={breadcrumbItems} />
-          {showFilters && (
-            <DashboardFilters
-              activeFilters={dashboardFilters}
-              onChangeFilter={onSetDashboardListFilters}
-            />
-          )}
-        </div>
+      <div className="flex space-x-3">
+        <Breadcrumb className="flex items-center" items={breadcrumbItems} />
+        {showFilters && (
+          <DashboardFilters
+            activeFilters={dashboardFilters}
+            onChangeFilter={onSetDashboardListFilters}
+          />
+        )}
+      </div>
 
-        <div className="flex items-center">
-          <Button
-            type="default"
-            icon={<Plus />}
-            loading={isCreatingDashboard}
-            onClick={onClickNewDashboardButton}>
-            New Dashboard
-          </Button>
-        </div>
-      </AppContentHeader>
+      <div className="flex items-center">
+        <Button
+          type="default"
+          icon={<Plus />}
+          loading={isCreatingDashboard}
+          onClick={onClickNewDashboardButton}>
+          New Dashboard
+        </Button>
+      </div>
     </>
   );
 };

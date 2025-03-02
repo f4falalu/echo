@@ -49,7 +49,7 @@ export const ListUsersComponent: React.FC<{
           id: user.id,
           data: user,
           link: createBusterRoute({
-            route: BusterRoutes.APP_SETTINGS_USERS_ID,
+            route: BusterRoutes.SETTINGS_USERS_ID,
             userId: user.id
           })
         };

@@ -14,10 +14,10 @@ export enum PermissionSegmentsApps {
 }
 
 const RouteToAppSegment: Record<string, PermissionSegmentsApps> = {
-  [BusterRoutes.APP_SETTINGS_DATASET_GROUPS_ID_USERS]: PermissionSegmentsApps.USERS,
-  [BusterRoutes.APP_SETTINGS_DATASET_GROUPS_ID_PERMISSION_GROUPS]:
+  [BusterRoutes.SETTINGS_DATASET_GROUPS_ID_USERS]: PermissionSegmentsApps.USERS,
+  [BusterRoutes.SETTINGS_DATASET_GROUPS_ID_PERMISSION_GROUPS]:
     PermissionSegmentsApps.PERMISSION_GROUPS,
-  [BusterRoutes.APP_SETTINGS_DATASET_GROUPS_ID_DATASETS]: PermissionSegmentsApps.DATASETS
+  [BusterRoutes.SETTINGS_DATASET_GROUPS_ID_DATASETS]: PermissionSegmentsApps.DATASETS
 };
 
 export const DatasetGroupAppSegments: React.FC<{
@@ -33,7 +33,7 @@ export const DatasetGroupAppSegments: React.FC<{
         label: 'Datasets',
         value: PermissionSegmentsApps.DATASETS,
         link: createBusterRoute({
-          route: BusterRoutes.APP_SETTINGS_DATASET_GROUPS_ID_DATASETS,
+          route: BusterRoutes.SETTINGS_DATASET_GROUPS_ID_DATASETS,
           datasetGroupId
         })
       },
@@ -41,7 +41,7 @@ export const DatasetGroupAppSegments: React.FC<{
         label: 'Users',
         value: PermissionSegmentsApps.USERS,
         link: createBusterRoute({
-          route: BusterRoutes.APP_SETTINGS_DATASET_GROUPS_ID_USERS,
+          route: BusterRoutes.SETTINGS_DATASET_GROUPS_ID_USERS,
           datasetGroupId
         })
       },
@@ -49,7 +49,7 @@ export const DatasetGroupAppSegments: React.FC<{
         label: 'Permission groups',
         value: PermissionSegmentsApps.PERMISSION_GROUPS,
         link: createBusterRoute({
-          route: BusterRoutes.APP_SETTINGS_DATASET_GROUPS_ID_PERMISSION_GROUPS,
+          route: BusterRoutes.SETTINGS_DATASET_GROUPS_ID_PERMISSION_GROUPS,
           datasetGroupId
         })
       }

@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { AppMaterialIcons, AppSegmented, AppTooltip, SegmentedItem } from '@/components/ui';
 import { NewDatasetModal } from '@/components/features/modal/NewDatasetModal';
-import { AppContentHeader } from '@/components/ui/layouts/AppContentHeader_Old';
 import { useIndividualDataset } from '@/context/Datasets';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useUserConfigContextSelector } from '@/context/Users';
@@ -59,25 +58,23 @@ export const DatasetHeader: React.FC<{
 
     return (
       <>
-        <AppContentHeader className="items-center justify-between space-x-2">
-          <div className="flex space-x-3">
-            <Breadcrumb className="flex items-center" items={breadcrumbItems} />
-            <DatasetFilters datasetFilter={datasetFilter} setDatasetFilter={setDatasetFilter} />
-          </div>
+        <div className="flex space-x-3">
+          <Breadcrumb className="flex items-center" items={breadcrumbItems} />
+          <DatasetFilters datasetFilter={datasetFilter} setDatasetFilter={setDatasetFilter} />
+        </div>
 
-          <div className="flex items-center">
-            {isAdmin && (
-              <AppTooltip title={'Create new dashboard'} shortcuts={['D']}>
-                <Button
-                  type="default"
-                  icon={<AppMaterialIcons icon="add" />}
-                  onClick={onOpenNewDatasetModal}>
-                  New Dataset
-                </Button>
-              </AppTooltip>
-            )}
-          </div>
-        </AppContentHeader>
+        <div className="flex items-center">
+          {isAdmin && (
+            <AppTooltip title={'Create new dashboard'} shortcuts={['D']}>
+              <Button
+                type="default"
+                icon={<AppMaterialIcons icon="add" />}
+                onClick={onOpenNewDatasetModal}>
+                New Dataset
+              </Button>
+            </AppTooltip>
+          )}
+        </div>
 
         {isAdmin && <NewDatasetModal open={openNewDatasetModal} onClose={onCloseNewDatasetModal} />}
       </>

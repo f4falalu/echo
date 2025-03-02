@@ -29,7 +29,7 @@ export const ListDatasetGroupsComponent: React.FC<{
         id: datasetGroup.id,
         data: datasetGroup,
         link: createBusterRoute({
-          route: BusterRoutes.APP_SETTINGS_DATASET_GROUPS_ID_DATASETS,
+          route: BusterRoutes.SETTINGS_DATASET_GROUPS_ID_DATASETS,
           datasetGroupId: datasetGroup.id
         })
       };

@@ -11,7 +11,7 @@ export default async function Page({ params }: { params: { userId: string } }) {
   if (!isAdmin) {
     return redirect(
       createBusterRoute({
-        route: BusterRoutes.APP_SETTINGS_USERS
+        route: BusterRoutes.SETTINGS_USERS
       })
     );
   }

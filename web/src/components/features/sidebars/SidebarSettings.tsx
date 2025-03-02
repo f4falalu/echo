@@ -16,8 +16,8 @@ const accountItems: ISidebarGroup = {
   items: [
     {
       label: 'Profile',
-      route: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_PROFILE }),
-      id: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_PROFILE })
+      route: createBusterRoute({ route: BusterRoutes.SETTINGS_PROFILE }),
+      id: createBusterRoute({ route: BusterRoutes.SETTINGS_PROFILE })
     }
   ]
 };
@@ -29,8 +29,8 @@ const workspaceItems: ISidebarGroup = {
   items: [
     {
       label: 'API Keys',
-      route: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_API_KEYS }),
-      id: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_API_KEYS })
+      route: createBusterRoute({ route: BusterRoutes.SETTINGS_API_KEYS }),
+      id: createBusterRoute({ route: BusterRoutes.SETTINGS_API_KEYS })
     }
   ]
 };
@@ -42,18 +42,18 @@ const permissionAndSecurityItems: ISidebarGroup = {
   items: [
     {
       label: 'Users',
-      route: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_USERS }),
-      id: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_USERS })
+      route: createBusterRoute({ route: BusterRoutes.SETTINGS_USERS }),
+      id: createBusterRoute({ route: BusterRoutes.SETTINGS_USERS })
     },
     {
       label: 'Dataset groups',
-      route: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_DATASET_GROUPS }),
-      id: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_DATASET_GROUPS })
+      route: createBusterRoute({ route: BusterRoutes.SETTINGS_DATASET_GROUPS }),
+      id: createBusterRoute({ route: BusterRoutes.SETTINGS_DATASET_GROUPS })
     },
     {
       label: 'Permission groups',
-      route: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_PERMISSION_GROUPS }),
-      id: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_PERMISSION_GROUPS })
+      route: createBusterRoute({ route: BusterRoutes.SETTINGS_PERMISSION_GROUPS }),
+      id: createBusterRoute({ route: BusterRoutes.SETTINGS_PERMISSION_GROUPS })
     }
   ]
 };

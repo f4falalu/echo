@@ -13,7 +13,7 @@ export const UsersBackButton = () => {
     text: string;
   } = useMemo(() => {
     return {
-      route: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_USERS }),
+      route: createBusterRoute({ route: BusterRoutes.SETTINGS_USERS }),
       text: 'Users'
     };
   }, []);

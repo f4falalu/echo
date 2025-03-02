@@ -1,5 +1,6 @@
 import React from 'react';
 import { FileContainerHeader } from './FileContainerHeader';
+import { AppPageLayout } from '@/components/ui/layouts';
 
 interface FileContainerProps {
   children: React.ReactNode;
@@ -7,10 +8,9 @@ interface FileContainerProps {
 
 export const FileContainer: React.FC<FileContainerProps> = React.memo(({ children }) => {
   return (
-    <div className="flex h-full min-w-[325px] flex-col">
-      <FileContainerHeader />
+    <AppPageLayout className="flex h-full min-w-[325px] flex-col" header={<FileContainerHeader />}>
       {children}
-    </div>
+    </AppPageLayout>
   );
 });
 

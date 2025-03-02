@@ -2,13 +2,13 @@
 
 import React, { useState } from 'react';
 import { Button, Input } from 'antd';
-import { Title, Text } from '@/components/ui';
+import { Title, Text } from '@/components/ui/typography';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { inputHasText } from '@/lib';
+import { inputHasText } from '@/lib/text';
 import { useMemoizedFn } from 'ahooks';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { BusterAppRoutes } from '@/routes/busterRoutes/busterAppRoutes';
+import { BusterRoutes } from '@/routes/busterRoutes';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 
 export const NewUserController = () => {
@@ -37,7 +37,7 @@ export const NewUserController = () => {
       });
 
       onChangePage({
-        route: BusterAppRoutes.APP_METRIC
+        route: BusterRoutes.APP_METRIC
       });
     } catch (error) {
       //
@@ -57,8 +57,8 @@ export const NewUserController = () => {
           exit={{ opacity: 0, y: 30, transition: { duration: 0.2, opacity: { duration: 0.175 } } }}
           key={'no-started'}
           className="flex h-full w-full flex-col items-start justify-center space-y-5 p-12">
-          <Title level={3}>Welcome to Buster</Title>
-          <Text type="secondary">
+          <Title as={'h3'}>Welcome to Buster</Title>
+          <Text variant="secondary">
             With Buster, you can ask data questions in plain english & instantly get back data.
           </Text>
           <Button type="primary" onClick={() => setStarted(true)}>
@@ -75,7 +75,7 @@ export const NewUserController = () => {
           transition={{ duration: 0.2 }}
           key={'started'}
           className="flex h-full w-full flex-col items-start justify-center space-y-5 p-12">
-          <Title level={4}>Tell us about yourself</Title>
+          <Title as={'h4'}>Tell us about yourself</Title>
           <Input
             placeholder="What is your full name"
             className="w-full"

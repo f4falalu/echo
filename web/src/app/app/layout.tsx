@@ -3,7 +3,7 @@
 import { useSupabaseServerContext } from '@/context/Supabase/useSupabaseContext';
 import React from 'react';
 import { createBusterRoute } from '@/routes';
-import { BusterAppRoutes } from '@/routes/busterRoutes/busterAppRoutes';
+import { BusterRoutes } from '@/routes/busterRoutes';
 import { headers, cookies } from 'next/headers';
 import { ClientRedirect } from '../../components/ui/layouts/ClientRedirect';
 import { LayoutClient } from './layoutClient';
@@ -24,7 +24,7 @@ export default async function Layout({
 
   const pathname = headersList.get('x-next-pathname') as string;
   const cookiePathname = cookies().get('x-next-pathname')?.value;
-  const newUserRoute = createBusterRoute({ route: BusterAppRoutes.NEW_USER });
+  const newUserRoute = createBusterRoute({ route: BusterRoutes.NEW_USER });
 
   if (
     (!userInfo?.organizations?.[0]?.id || !userInfo?.user?.name) &&

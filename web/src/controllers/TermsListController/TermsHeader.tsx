@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { AppContentHeader } from '@/components/ui/layouts/AppContentHeader_Old';
 import { Button } from 'antd';
 import { BusterRoutes } from '@/routes';
 import { AppMaterialIcons, AppTooltip } from '@/components/ui';
@@ -32,21 +31,19 @@ export const TermsHeader: React.FC<{
 
   return (
     <>
-      <AppContentHeader>
-        <div className="flex w-full items-center justify-between space-x-1">
-          <TermsBreadcrumb termName={selectedTerm?.name} />
+      <div className="flex w-full items-center justify-between space-x-1">
+        <TermsBreadcrumb termName={selectedTerm?.name} />
 
-          <div className="flex items-center space-x-0">
-            {isAdmin && (
-              <AppTooltip title={'Create a new term'} shortcuts={['t']}>
-                <Button onClick={onOpenNewTermsModal} icon={<AppMaterialIcons icon="add" />}>
-                  New term
-                </Button>
-              </AppTooltip>
-            )}
-          </div>
+        <div className="flex items-center space-x-0">
+          {isAdmin && (
+            <AppTooltip title={'Create a new term'} shortcuts={['t']}>
+              <Button onClick={onOpenNewTermsModal} icon={<AppMaterialIcons icon="add" />}>
+                New term
+              </Button>
+            </AppTooltip>
+          )}
         </div>
-      </AppContentHeader>
+      </div>
 
       <NewTermModal open={!!openNewTermsModal} onClose={onCloseNewTermsModal} />
     </>

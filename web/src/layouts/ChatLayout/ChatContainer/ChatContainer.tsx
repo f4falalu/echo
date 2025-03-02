@@ -2,11 +2,12 @@ import React, { useMemo, useRef } from 'react';
 import { ChatHeader } from './ChatHeader';
 import { ChatContent } from './ChatContent';
 import { useScroll } from 'ahooks';
+import { AppPageLayout } from '@/components/ui/layouts';
 
 interface ChatContainerProps {}
 
 export const ChatContainer = React.memo(
-  React.forwardRef<HTMLDivElement, ChatContainerProps>((props, ref) => {
+  React.forwardRef<HTMLDivElement, ChatContainerProps>((props) => {
     const chatContentRef = useRef<HTMLDivElement>(null);
     const scroll = useScroll(chatContentRef);
 
@@ -17,10 +18,11 @@ export const ChatContainer = React.memo(
     }, [chatContentRef, scroll?.top]);
 
     return (
-      <div ref={ref} className="flex h-full w-full min-w-[295px] flex-col">
-        <ChatHeader showScrollOverflow={showScrollOverflow} />
+      <AppPageLayout
+        header={<ChatHeader showScrollOverflow={showScrollOverflow} />}
+        className="flex h-full w-full min-w-[295px] flex-col">
         <ChatContent chatContentRef={chatContentRef} />
-      </div>
+      </AppPageLayout>
     );
   })
 );

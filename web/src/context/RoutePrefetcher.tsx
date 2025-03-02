@@ -1,21 +1,21 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { createBusterRoute } from '@/routes';
-import { BusterAppRoutes } from '@/routes/busterRoutes/busterAppRoutes';
+import { type BusterRoutes, BusterRoutes as BusterRouteEnum } from '@/routes/busterRoutes';
 import { useAsyncEffect } from 'ahooks';
 
-const PRIORITY_ROUTES = [
-  BusterAppRoutes.APP_ROOT,
-  BusterAppRoutes.APP_COLLECTIONS,
-  BusterAppRoutes.APP_DASHBOARDS,
-  BusterAppRoutes.APP_METRIC,
-  BusterAppRoutes.APP_DATASETS,
-  BusterAppRoutes.APP_DASHBOARD_METRICS_ID,
-  BusterAppRoutes.APP_DASHBOARD_ID,
-  BusterAppRoutes.APP_CHAT_ID,
-  BusterAppRoutes.APP_CHAT_ID_COLLECTION_ID,
-  BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID,
-  BusterAppRoutes.APP_CHAT_ID_METRIC_ID
+const PRIORITY_ROUTES: Array<BusterRoutes> = [
+  BusterRouteEnum.APP_ROOT,
+  BusterRouteEnum.APP_COLLECTIONS,
+  BusterRouteEnum.APP_DASHBOARDS,
+  BusterRouteEnum.APP_METRIC,
+  BusterRouteEnum.APP_DATASETS,
+  BusterRouteEnum.APP_DASHBOARD_METRICS_ID,
+  BusterRouteEnum.APP_DASHBOARD_ID,
+  BusterRouteEnum.APP_CHAT_ID,
+  BusterRouteEnum.APP_CHAT_ID_COLLECTION_ID,
+  BusterRouteEnum.APP_CHAT_ID_DASHBOARD_ID,
+  BusterRouteEnum.APP_CHAT_ID_METRIC_ID
 ];
 
 export const RoutePrefetcher: React.FC<{}> = () => {
@@ -42,8 +42,18 @@ export const RoutePrefetcher: React.FC<{}> = () => {
       if (recentEntries.length === 0 && !isPreFetched) {
         isPreFetched = true;
         PRIORITY_ROUTES.forEach((route) => {
-          const path = createBusterRoute({ route: route as BusterAppRoutes.APP_COLLECTIONS });
-          router.prefetch(path);
+          // For routes that don't require additional parameters
+          if (
+            route === BusterRouteEnum.APP_ROOT ||
+            route === BusterRouteEnum.APP_COLLECTIONS ||
+            route === BusterRouteEnum.APP_DASHBOARDS ||
+            route === BusterRouteEnum.APP_METRIC ||
+            route === BusterRouteEnum.APP_DATASETS
+          ) {
+            const path = createBusterRoute({ route });
+            router.prefetch(path);
+          }
+          // Skip routes that require parameters for now
         });
 
         observer.disconnect();

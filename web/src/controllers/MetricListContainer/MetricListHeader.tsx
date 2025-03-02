@@ -1,10 +1,9 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { AppContentHeader } from '@/components/ui/layouts/AppContentHeader_Old';
 import { AppSegmented } from '@/components/ui';
 import { VerificationStatus } from '@/api/asset_interfaces';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from 'ahooks';
 import { type SegmentedItem } from '@/components/ui/segmented';
 
@@ -17,16 +16,14 @@ export const MetricListHeader: React.FC<{
   const showFilters: boolean = true;
 
   return (
-    <AppContentHeader>
-      <div className="flex w-full items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Text>{title}</Text>
-          {showFilters && (
-            <MetricsFilters type={type} filters={filters} onSetFilters={onSetFilters} />
-          )}
-        </div>
+    <div className="flex w-full items-center justify-between">
+      <div className="flex items-center space-x-2">
+        <Text>{title}</Text>
+        {showFilters && (
+          <MetricsFilters type={type} filters={filters} onSetFilters={onSetFilters} />
+        )}
       </div>
-    </AppContentHeader>
+    </div>
   );
 };
 

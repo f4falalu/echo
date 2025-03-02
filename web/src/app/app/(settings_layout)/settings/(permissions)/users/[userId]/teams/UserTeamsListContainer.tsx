@@ -68,7 +68,7 @@ export const UserTeamsListContainer: React.FC<{
           id: team.id,
           data: team,
           link: createBusterRoute({
-            route: BusterRoutes.APP_SETTINGS_USERS_ID,
+            route: BusterRoutes.SETTINGS_USERS_ID,
             userId: team.id
           })
         };

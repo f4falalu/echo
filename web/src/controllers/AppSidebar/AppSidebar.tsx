@@ -48,7 +48,7 @@ export const AppSidebar: React.FC<{
 
   const onGoToSettingPage = useMemoizedFn(() => {
     onChangePage({
-      route: BusterRoutes.APP_SETTINGS_PROFILE
+      route: BusterRoutes.SETTINGS_PROFILE
     });
   });
 

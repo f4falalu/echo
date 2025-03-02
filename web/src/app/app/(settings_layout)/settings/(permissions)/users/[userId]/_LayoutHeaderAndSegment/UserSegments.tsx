@@ -15,13 +15,13 @@ export enum UserSegmentsApps {
 }
 
 export const SegmentToApp = {
-  [BusterRoutes.APP_SETTINGS_USERS]: UserSegmentsApps.OVERVIEW,
-  [BusterRoutes.APP_SETTINGS_USERS_ID]: UserSegmentsApps.OVERVIEW,
-  [BusterRoutes.APP_SETTINGS_USERS_ID_PERMISSION_GROUPS]: UserSegmentsApps.PERMISSION_GROUPS,
-  [BusterRoutes.APP_SETTINGS_USERS_ID_DATASET_GROUPS]: UserSegmentsApps.DATASET_GROUPS,
-  [BusterRoutes.APP_SETTINGS_USERS_ID_DATASETS]: UserSegmentsApps.DATASETS,
-  [BusterRoutes.APP_SETTINGS_USERS_ID_ATTRIBUTES]: UserSegmentsApps.ATTRIBUTES,
-  [BusterRoutes.APP_SETTINGS_USERS_ID_TEAMS]: UserSegmentsApps.TEAMS
+  [BusterRoutes.SETTINGS_USERS]: UserSegmentsApps.OVERVIEW,
+  [BusterRoutes.SETTINGS_USERS_ID]: UserSegmentsApps.OVERVIEW,
+  [BusterRoutes.SETTINGS_USERS_ID_PERMISSION_GROUPS]: UserSegmentsApps.PERMISSION_GROUPS,
+  [BusterRoutes.SETTINGS_USERS_ID_DATASET_GROUPS]: UserSegmentsApps.DATASET_GROUPS,
+  [BusterRoutes.SETTINGS_USERS_ID_DATASETS]: UserSegmentsApps.DATASETS,
+  [BusterRoutes.SETTINGS_USERS_ID_ATTRIBUTES]: UserSegmentsApps.ATTRIBUTES,
+  [BusterRoutes.SETTINGS_USERS_ID_TEAMS]: UserSegmentsApps.TEAMS
 };
 
 export const UserSegments: React.FC<{
@@ -39,13 +39,13 @@ export const UserSegments: React.FC<{
         {
           label: 'Overview',
           value: UserSegmentsApps.OVERVIEW,
-          link: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_USERS_ID, userId })
+          link: createBusterRoute({ route: BusterRoutes.SETTINGS_USERS_ID, userId })
         },
         {
           label: 'Permissions groups',
           value: UserSegmentsApps.PERMISSION_GROUPS,
           link: createBusterRoute({
-            route: BusterRoutes.APP_SETTINGS_USERS_ID_PERMISSION_GROUPS,
+            route: BusterRoutes.SETTINGS_USERS_ID_PERMISSION_GROUPS,
             userId
           }),
           hide: !isAdmin
@@ -54,25 +54,25 @@ export const UserSegments: React.FC<{
           label: 'Dataset groups',
           value: UserSegmentsApps.DATASET_GROUPS,
           link: createBusterRoute({
-            route: BusterRoutes.APP_SETTINGS_USERS_ID_DATASET_GROUPS,
+            route: BusterRoutes.SETTINGS_USERS_ID_DATASET_GROUPS,
             userId
           })
         },
         {
           label: 'Datasets',
           value: UserSegmentsApps.DATASETS,
-          link: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_USERS_ID_DATASETS, userId })
+          link: createBusterRoute({ route: BusterRoutes.SETTINGS_USERS_ID_DATASETS, userId })
         },
         {
           label: 'Attributes',
           value: UserSegmentsApps.ATTRIBUTES,
-          link: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_USERS_ID_ATTRIBUTES, userId }),
+          link: createBusterRoute({ route: BusterRoutes.SETTINGS_USERS_ID_ATTRIBUTES, userId }),
           hide: true
         },
         {
           label: 'Teams',
           value: UserSegmentsApps.TEAMS,
-          link: createBusterRoute({ route: BusterRoutes.APP_SETTINGS_USERS_ID_TEAMS, userId })
+          link: createBusterRoute({ route: BusterRoutes.SETTINGS_USERS_ID_TEAMS, userId })
         }
       ]
         .filter((x) => !x.hide)

@@ -14,7 +14,7 @@ export default function Page({
       <HeaderContainer
         buttonText="Datasources"
         linkUrl={createBusterRoute({
-          route: BusterRoutes.APP_SETTINGS_DATASOURCES
+          route: BusterRoutes.SETTINGS_DATASOURCES
         })}
       />
       <DatasourceForm datasourceId={datasourceId} />

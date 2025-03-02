@@ -29,7 +29,7 @@ export const ListPermissionGroupsComponent: React.FC<{
         id: permissionGroup.id,
         data: permissionGroup,
         link: createBusterRoute({
-          route: BusterRoutes.APP_SETTINGS_PERMISSION_GROUPS_ID_USERS,
+          route: BusterRoutes.SETTINGS_PERMISSION_GROUPS_ID_USERS,
           permissionGroupId: permissionGroup.id
         })
       };
