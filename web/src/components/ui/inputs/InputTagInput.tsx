@@ -9,17 +9,22 @@ import { inputVariants } from './Input';
 
 // Define tag variants that will change based on input size
 const tagVariants = cva(
-  'bg-item-select text-foreground inline-flex shrink-0 items-center gap-1 rounded px-2 truncate',
+  'bg-item-select text-foreground inline-flex shrink-0 items-center gap-1 rounded px-2 truncate transition-opacity',
   {
     variants: {
       size: {
         default: 'h-5 text-sm',
         tall: 'h-6 text-sm',
         small: 'h-4 text-xs'
+      },
+      disabled: {
+        true: 'opacity-80 cursor-not-allowed',
+        false: 'opacity-100'
       }
     },
     defaultVariants: {
-      size: 'default'
+      size: 'default',
+      disabled: false
     }
   }
 );
@@ -34,7 +39,7 @@ const Tag = React.forwardRef<
     disabled?: boolean;
   }
 >(({ className, onRemove, children, size = 'default', disabled = false, ...props }, ref) => (
-  <div ref={ref} className={cn(tagVariants({ size }), className)} {...props}>
+  <div ref={ref} className={cn(tagVariants({ size, disabled }), className)} {...props}>
     <span className="truncate">{children}</span>
     {onRemove && !disabled && (
       <button
@@ -141,7 +146,13 @@ const TagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
     return (
       <div
         ref={containerRef}
-        className={cn(inputVariants({ variant, size }), gapClasses, 'flex items-center', className)}
+        className={cn(
+          inputVariants({ variant, size }),
+          gapClasses,
+          'flex items-center',
+          isDisabled && 'bg-item-select cursor-not-allowed',
+          className
+        )}
         onClick={handleContainerClick}>
         <div
           ref={scrollRef}
