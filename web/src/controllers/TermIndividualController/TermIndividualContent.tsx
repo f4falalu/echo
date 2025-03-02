@@ -6,12 +6,13 @@ import { useBusterTermsIndividualContextSelector, useBusterTermsIndividual } fro
 import { Dropdown, Input } from 'antd';
 import { useDebounceFn } from 'ahooks';
 import { formatDate } from '@/lib';
-import { AppMaterialIcons, EditableTitle } from '@/components/ui';
+import { AppMaterialIcons } from '@/components/ui/icons';
+import { EditableTitle } from '@/components/ui/typography/EditableTitle';
 import { useAntToken } from '@/styles/useAntToken';
 import { AppCodeEditor } from '@/components/ui/inputs/AppCodeEditor';
 import clamp from 'lodash/clamp';
 import { MenuProps } from 'antd/lib';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 import { BusterRoutes } from '@/routes';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import {
@@ -89,7 +90,7 @@ export const TermIndividualContent: React.FC<{
                 </EditableTitle>
               </div>
               <div>
-                <Text type="secondary">
+                <Text variant="secondary">
                   Last updated:{' '}
                   {formatDate({
                     date: selectedTerm?.updated_at!,

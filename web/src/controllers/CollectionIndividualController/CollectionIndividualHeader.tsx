@@ -9,7 +9,8 @@ import {
 import { Button, Dropdown, MenuProps } from 'antd';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
-import { AppMaterialIcons, EditableTitle } from '@/components/ui';
+import { AppMaterialIcons } from '@/components/ui';
+import { EditableTitle } from '@/components/ui/typography/EditableTitle';
 import { FavoriteStar } from '@/components/features/list/FavoriteStar';
 import { ShareMenu } from '@/components/features/ShareMenu';
 import { BusterCollection, ShareAssetType } from '@/api/asset_interfaces';

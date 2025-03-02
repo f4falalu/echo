@@ -58,6 +58,7 @@ import {
   createContext,
   ContextSelector
 } from '@fluentui/react-context-selector';
+import { BusterNotificationsProvider } from '../BusterNotifications';
 
 const { defaultAlgorithm, darkAlgorithm } = theme;
 
@@ -109,7 +110,7 @@ export const BaseBusterStyleProvider: React.FC<PropsWithChildren<{}>> = React.me
                 style={{
                   ...(cssVariables as any)
                 }}>
-                {children}
+                <BusterNotificationsProvider>{children}</BusterNotificationsProvider>
                 <div id="modal-root"></div>
               </App>
             </ConfigProvider>

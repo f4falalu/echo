@@ -1,10 +1,10 @@
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { createStyles } from 'antd-style';
 import React from 'react';
-import { Text } from '../../../text';
+import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from 'ahooks';
 import { Button } from 'antd';
-import { AppMaterialIcons } from '../../../icons';
+import { Copy } from '@/components/ui/icons';
 
 export const AppCodeBlockWrapper: React.FC<{
   children: React.ReactNode;
@@ -36,7 +36,7 @@ export const AppCodeBlockWrapper: React.FC<{
                 e.stopPropagation();
                 copyCode();
               }}
-              icon={<AppMaterialIcons icon="content_copy" />}>
+              icon={<Copy />}>
               Copy
             </Button>
           )}

@@ -2,7 +2,7 @@
 
 import { useGetDatasetGroup, useUpdateDatasetGroup } from '@/api/buster_rest';
 import React from 'react';
-import { EditableTitle } from '@/components/ui';
+import { EditableTitle } from '@/components/ui/typography/EditableTitle';
 import { useMemoizedFn } from 'ahooks';
 
 export const DatasetGroupTitleAndDescription: React.FC<{

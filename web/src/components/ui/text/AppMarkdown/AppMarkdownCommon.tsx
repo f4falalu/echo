@@ -1,11 +1,8 @@
 import React from 'react';
 import { ExtraProps } from 'react-markdown';
 import { AppCodeBlock } from './AppCodeBlock/AppCodeBlock';
-import { TextPulseLoader } from '@/components/ui';
-import { Element } from 'hast';
-import { AppMarkdownComponentType, CustomComponents } from './config';
-import { BusterTimestamp } from './AppMarkdown_BusterTimestamp';
-import { BusterDatasets } from './AppMarkdown_BusterDatasets';
+import { TextPulseLoader } from '@/components/ui/loaders';
+import { type Element } from 'hast';
 
 export const commonStreamingCheck = (
   endLine?: number,
@@ -179,15 +176,4 @@ export const CustomSpan: React.FC<
   } & ExtraPropsExtra
 > = ({ children, markdown, ...rest }) => {
   return <span>{children}</span>;
-};
-
-export const AppMarkdownCustomComponents = (customProps: ExtraPropsExtra): CustomComponents => {
-  return {
-    [AppMarkdownComponentType.BusterTimestamp]: (props) => (
-      <BusterTimestamp {...props} {...customProps} />
-    ),
-    [AppMarkdownComponentType.BusterDatasets]: (props) => (
-      <BusterDatasets {...props} {...customProps} />
-    )
-  };
 };

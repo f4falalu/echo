@@ -3,9 +3,8 @@ import { EditableTitle } from './EditableTitle';
 import React from 'react';
 
 const meta: Meta<typeof EditableTitle> = {
-  title: 'UI/Text/EditableTitle',
+  title: 'UI/Typography/EditableTitle',
   component: EditableTitle,
-  tags: ['autodocs'],
   argTypes: {
     children: {
       control: 'text',

@@ -9,8 +9,7 @@ import {
   CustomListItem,
   CustomParagraph,
   CustomBlockquote,
-  CustomSpan,
-  AppMarkdownCustomComponents
+  CustomSpan
 } from './AppMarkdownCommon';
 import { useMemoizedFn } from 'ahooks';
 
@@ -47,12 +46,9 @@ const _AppMarkdown: React.FC<{
   const h4 = useMemoizedFn((props) => <CustomHeading level={4} {...props} {...commonProps} />);
   const h5 = useMemoizedFn((props) => <CustomHeading level={5} {...props} {...commonProps} />);
   const h6 = useMemoizedFn((props) => <CustomHeading level={6} {...props} {...commonProps} />);
-  const customComponents = useMemoizedFn(() => AppMarkdownCustomComponents(commonProps));
 
   const memoizedComponents: Partial<Components> = useMemo(() => {
     return {
-      //custom components
-      ...customComponents(),
       //common components,
       text,
       code,
