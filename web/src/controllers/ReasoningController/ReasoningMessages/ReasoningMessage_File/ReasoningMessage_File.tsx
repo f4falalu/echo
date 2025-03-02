@@ -4,7 +4,7 @@ import { BusterChatMessageReasoning_file } from '@/api/asset_interfaces';
 import {
   AppCodeBlockWrapper,
   SyntaxHighlighterLightTheme
-} from '@/components/ui/typography/AppMarkdown/AppCodeBlock';
+} from '@/components/ui/typography/AppCodeBlock';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LoaderDot } from './LoaderDot';

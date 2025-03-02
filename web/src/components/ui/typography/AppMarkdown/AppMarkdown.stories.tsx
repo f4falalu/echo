@@ -3,7 +3,7 @@ import { AppMarkdown } from './AppMarkdown';
 import React from 'react';
 
 const meta: Meta<typeof AppMarkdown> = {
-  title: 'UI/Text/AppMarkdown',
+  title: 'UI/Typography/AppMarkdown',
   component: AppMarkdown,
   argTypes: {
     markdown: {

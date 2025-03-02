@@ -1,6 +1,6 @@
 import React from 'react';
 import { ExtraProps } from 'react-markdown';
-import { AppCodeBlock } from './AppCodeBlock/AppCodeBlock';
+import { AppCodeBlock } from '../AppCodeBlock/AppCodeBlock';
 import { TextPulseLoader } from '@/components/ui/loaders';
 import { type Element } from 'hast';
 

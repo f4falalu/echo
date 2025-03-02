@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { createStyles } from 'antd-style';
 import darkTheme from 'react-syntax-highlighter/dist/cjs/styles/prism/vsc-dark-plus';
-import { TextPulseLoader } from '../../..';
+import { TextPulseLoader } from '../..';
 import lightTheme from './light';
 import { AppCodeBlockWrapper } from './AppCodeBlockWrapper';
 
