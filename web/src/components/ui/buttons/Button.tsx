@@ -30,9 +30,9 @@ const roundingVariants = {
 };
 
 const sizeVariants = {
-  default: 'h-6',
-  tall: 'h-7',
-  small: 'h-5'
+  default: 'h-6 min-h-6 max-h-6',
+  tall: 'h-7 min-h-7 max-h-7',
+  small: 'h-5 min-h-5 max-h-5'
 };
 
 export const buttonVariants = cva(
@@ -55,17 +55,17 @@ export const buttonVariants = cva(
       {
         iconButton: true,
         size: 'default',
-        className: 'w-6'
+        className: 'w-6 min-w-6 max-w-6'
       },
       {
         iconButton: true,
         size: 'tall',
-        className: 'w-7'
+        className: 'w-7 min-w-7 max-w-7'
       },
       {
         iconButton: true,
         size: 'small',
-        className: 'w-[18px]'
+        className: 'w-5 min-w-5 max-w-5'
       }
     ],
     defaultVariants: {

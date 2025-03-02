@@ -101,7 +101,8 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'focus:bg-item-hover focus:text-foreground relative flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition-colors outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-60 [&_svg]:pointer-events-none [&_svg]:shrink-0',
+      'relative flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition-colors outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-60 [&_svg]:pointer-events-none [&_svg]:shrink-0',
+      'focus:bg-item-hover focus:text-foreground max-h-[24px]',
       inset && 'pl-8',
       truncate && 'overflow-hidden',
       'group',
@@ -234,7 +235,7 @@ DropdownMenuShortcut.displayName = 'DropdownMenuShortcut';
 
 const DropdownMenuLink: React.FC<{
   className?: string;
-  link: string;
+  link: string | null;
   linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right';
 }> = ({ className, link, linkIcon = 'arrow-external', ...props }) => {
   const icon = React.useMemo(() => {
@@ -245,15 +246,21 @@ const DropdownMenuLink: React.FC<{
 
   const isExternal = link?.startsWith('http');
 
+  const content = (
+    <Button
+      prefix={icon}
+      variant="ghost"
+      size="small"
+      rounding={'default'}
+      className={cn('text-gray-dark hover:bg-gray-dark/8')}
+    />
+  );
+
+  if (!link) return <div className={className}>{content}</div>;
+
   return (
     <Link className={className} href={link} target={isExternal ? '_blank' : '_self'}>
-      <Button
-        prefix={icon}
-        variant="ghost"
-        size="small"
-        rounding={'default'}
-        className={cn('text-gray-dark hover:bg-gray-dark/8')}
-      />
+      {content}
     </Link>
   );
 };

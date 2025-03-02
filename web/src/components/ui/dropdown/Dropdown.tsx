@@ -254,28 +254,40 @@ const DropdownItem: React.FC<
 
   const isSubItem = items && items.length > 0;
   const isSelectable = !!selectType && selectType !== 'none';
-  const NodeWrapper = isSelectable && link ? Link : React.Fragment;
-  const nodeProps = isSelectable && link ? { href: link! } : ({} as any);
 
-  const content = (
-    <NodeWrapper {...nodeProps}>
-      {showIndex && <span className="text-gray-light">{index}</span>}
-      {icon && !loading && <span className="text-icon-color">{icon}</span>}
-      {loading && <CircleSpinnerLoader size={9} />}
-      <div className={cn('flex flex-col gap-y-1', truncate && 'overflow-hidden')}>
-        <span className={cn(truncate && 'truncate')}>{label}</span>
-        {secondaryLabel && <span className="text-gray-light text2xs">{secondaryLabel}</span>}
-      </div>
-      {shortcut && <DropdownMenuShortcut>{shortcut}</DropdownMenuShortcut>}
-      {link && (
-        <DropdownMenuLink
-          className="-mr-1 ml-auto opacity-0 group-hover:opacity-50 hover:opacity-100"
-          link={link}
-          linkIcon={linkIcon}
-        />
-      )}
-    </NodeWrapper>
-  );
+  // Helper function to render the content consistently with proper type safety
+  const renderContent = () => {
+    const content = (
+      <>
+        {showIndex && <span className="text-gray-light">{index}</span>}
+        {icon && !loading && <span className="text-icon-color">{icon}</span>}
+        {loading && <CircleSpinnerLoader size={9} />}
+        <div className={cn('flex flex-col gap-y-1', truncate && 'overflow-hidden')}>
+          <span className={cn(truncate && 'truncate')}>{label}</span>
+          {secondaryLabel && <span className="text-gray-light text2xs">{secondaryLabel}</span>}
+        </div>
+        {shortcut && <DropdownMenuShortcut>{shortcut}</DropdownMenuShortcut>}
+        {link && (
+          <DropdownMenuLink
+            className="-mr-1 ml-auto opacity-0 group-hover:opacity-50 hover:opacity-100"
+            link={isSelectable ? link : null}
+            linkIcon={linkIcon}
+          />
+        )}
+      </>
+    );
+
+    // Wrap with Link if needed
+    if (!isSelectable && link) {
+      return (
+        <Link className="flex w-full items-center gap-x-2" href={link}>
+          {content}
+        </Link>
+      );
+    }
+
+    return content;
+  };
 
   if (isSubItem) {
     return (
@@ -284,7 +296,7 @@ const DropdownItem: React.FC<
         closeOnSelect={closeOnSelect}
         onSelect={onSelect}
         selectType={selectType}>
-        {content}
+        {renderContent()}
       </DropdownSubMenuWrapper>
     );
   }
@@ -296,7 +308,7 @@ const DropdownItem: React.FC<
         disabled={disabled}
         onClick={onClickItem}
         closeOnSelect={closeOnSelect}>
-        {content}
+        {renderContent()}
       </DropdownMenuCheckboxItemSingle>
     );
   }
@@ -308,7 +320,7 @@ const DropdownItem: React.FC<
         disabled={disabled}
         onClick={onClickItem}
         closeOnSelect={closeOnSelect}>
-        {content}
+        {renderContent()}
       </DropdownMenuCheckboxItemMultiple>
     );
   }
@@ -319,7 +331,7 @@ const DropdownItem: React.FC<
       disabled={disabled}
       onClick={onClickItem}
       closeOnSelect={closeOnSelect}>
-      {content}
+      {renderContent()}
     </DropdownMenuItem>
   );
 };
@@ -366,9 +378,6 @@ const DropdownMenuHeaderSelector: React.FC<{
   onChange: (text: string) => void;
   text: string;
 }> = React.memo(({ menuHeader, onChange, text }) => {
-  // if (typeof menuHeader === 'string') {
-  //   return <DropdownMenuLabel>{menuHeader}</DropdownMenuLabel>;
-  // }
   if (typeof menuHeader === 'string') {
     return <DropdownMenuHeaderSearch placeholder={menuHeader} onChange={onChange} text={text} />;
   }
