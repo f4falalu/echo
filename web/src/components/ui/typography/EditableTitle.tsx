@@ -1,36 +1,24 @@
 'use client';
 
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
-import { Input, InputRef } from 'antd';
-import { createStyles } from 'antd-style';
-import { useAntToken } from '@/styles/useAntToken';
+// import { Input, InputRef } from 'antd';
+import { cn } from '@/lib/classMerge';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { Input } from '../inputs/Input';
 
-const useStyles = createStyles(({ css, token }) => {
-  return {
-    input: css`
-      line-height: ${token.lineHeightHeading4};
-      color: ${token.colorTextBase} !important;
-      cursor: text !important;
-    `,
-    level1: css`
-      font-size: ${token.fontSizeHeading1}px;
-    `,
-    level2: css`
-      font-size: ${token.fontSizeHeading2}px;
-    `,
-    level3: css`
-      font-size: ${token.fontSizeHeading3}px;
-    `,
-    level4: css`
-      font-size: ${token.fontSizeHeading4}px;
-      .isEditing {
-        //
-      }
-    `,
-    level5: css`
-      font-size: ${token.fontSizeHeading5}px;
-    `
-  };
+const editableTitleVariants = cva('relative flex items-center justify-between', {
+  variants: {
+    level: {
+      1: 'text-3xl',
+      2: 'text-2xl',
+      3: 'text-xl',
+      4: 'text-md',
+      5: 'text-base'
+    }
+  },
+  defaultVariants: {
+    level: 4
+  }
 });
 
 export const EditableTitle = React.memo(
@@ -42,19 +30,16 @@ export const EditableTitle = React.memo(
       onChange: (value: string) => void;
       onSetValue?: (value: string) => void;
       onPressEnter?: () => void;
-      level?: 1 | 2 | 3 | 4 | 5;
       disabled?: boolean;
       editing?: boolean;
       className?: string;
       placeholder?: string;
       style?: React.CSSProperties;
-      showBottomBorder?: boolean;
       inputClassName?: string;
-    }
+    } & VariantProps<typeof editableTitleVariants>
   >(
     (
       {
-        showBottomBorder,
         style,
         disabled,
         className = '',
@@ -70,14 +55,13 @@ export const EditableTitle = React.memo(
       },
       ref
     ) => {
-      const token = useAntToken();
-      const { cx, styles } = useStyles();
-      const inputRef = useRef<InputRef>(null);
+      const inputRef = useRef<HTMLInputElement>(null);
       const [value, setValue] = React.useState(children);
 
       useLayoutEffect(() => {
         setValue(children);
       }, [children]);
+
       useEffect(() => {
         if (editing) {
           inputRef.current?.focus();
@@ -88,20 +72,18 @@ export const EditableTitle = React.memo(
       return (
         <div
           ref={ref}
-          className={cx('relative flex items-center justify-between', className)}
+          className={cn('relative flex items-center justify-between', className)}
           style={style}>
           <Input
             placeholder={placeholder}
             ref={inputRef}
             disabled={disabled}
-            variant="borderless"
-            className={cx('w-full px-0! py-0!', inputClassName, styles.input, {
-              [styles.level1]: level === 1,
-              [styles.level2]: level === 2,
-              [styles.level3]: level === 3,
-              [styles.level4]: level === 4,
-              [styles.level5]: level === 5
-            })}
+            variant="ghost"
+            className={cn(
+              'w-full cursor-text! px-0! py-0! leading-1',
+              editableTitleVariants({ level }),
+              inputClassName
+            )}
             value={value}
             onChange={(e) => {
               if (e.target.value !== value) setValue(e.target.value);
@@ -119,16 +101,6 @@ export const EditableTitle = React.memo(
               onPressEnter?.();
             }}
           />
-
-          {showBottomBorder && (
-            <div
-              className="absolute w-full"
-              style={{
-                bottom: -3,
-                borderBottom: `0.5px solid ${token.colorPrimary}`
-              }}
-            />
-          )}
         </div>
       );
     }

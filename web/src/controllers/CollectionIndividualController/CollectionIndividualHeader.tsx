@@ -49,7 +49,6 @@ export const CollectionsIndividualHeader: React.FC<{
         <EditableTitle
           level={5}
           editing={editingTitle}
-          showBottomBorder
           style={{ width: textWidth.width }}
           onSetValue={onSetTitleValue}
           onChange={onSetTitleValue}
