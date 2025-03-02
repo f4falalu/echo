@@ -126,6 +126,7 @@ const StatusButton: React.FC<{
   const onVerifiedMetric = useBusterMetricsIndividualContextSelector(
     (state) => state.onVerifiedMetric
   );
+  const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
 
   const onVerify = useMemoizedFn(async (d: { id: string; status: VerificationStatus }[]) => {
     //   await onVerifiedMetric(d);
@@ -137,6 +138,7 @@ const StatusButton: React.FC<{
       status={VerificationStatus.notRequested}
       id={selectedRowKeys}
       onVerify={onVerify}
+      isAdmin={isAdmin}
     />
   );
 };
