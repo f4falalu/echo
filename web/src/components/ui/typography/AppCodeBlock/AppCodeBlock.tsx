@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { createStyles } from 'antd-style';
-import darkTheme from 'react-syntax-highlighter/dist/cjs/styles/prism/vsc-dark-plus';
 import { TextPulseLoader } from '../..';
 import lightTheme from './light';
 import { AppCodeBlockWrapper } from './AppCodeBlockWrapper';
+import { cn } from '@/lib/classMerge';
 
 export const AppCodeBlock: React.FC<{
   language?: string;
@@ -57,18 +56,8 @@ export const AppCodeBlock: React.FC<{
 });
 AppCodeBlock.displayName = 'AppCodeBlock';
 
-const useStyles = createStyles(({ token }) => ({
-  codeInlineWrapper: {
-    backgroundColor: token.controlItemBgActive,
-    borderRadius: token.borderRadiusSM,
-    border: `0.5px solid ${token.colorBorder}`,
-    fontSize: token.fontSize - 1
-  }
-}));
-
 const CodeInlineWrapper: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const { cx, styles } = useStyles();
-  return <code className={cx(styles.codeInlineWrapper, 'px-1')}>{children}</code>;
+  return <code className={cn('bg-item-active rounded-sm border text-sm', 'px-1')}>{children}</code>;
 };

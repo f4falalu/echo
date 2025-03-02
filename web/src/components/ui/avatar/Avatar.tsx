@@ -27,7 +27,7 @@ export const Avatar: React.FC<AvatarProps> = React.memo(
             height: size
           }}>
           {image && <AvatarImage src={image} />}
-          <AvatarFallback className={cn(!hasName && 'border bg-white')}>
+          <AvatarFallback className={cn(!hasName && !image && 'border bg-white')}>
             {nameLetters || <BusterAvatarFallback />}
           </AvatarFallback>
         </AvatarBase>

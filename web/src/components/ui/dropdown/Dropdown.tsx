@@ -22,6 +22,7 @@ import { useMemoizedFn } from 'ahooks';
 import { cn } from '@/lib/classMerge';
 import { Input } from '../inputs/Input';
 import { useDebounceSearch } from '@/hooks';
+import Link from 'next/link';
 
 export interface DropdownItem {
   label: React.ReactNode | string;
@@ -82,7 +83,8 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
     emptyStateText = 'No items found',
     className,
     footerContent,
-    ...props
+    dir,
+    modal
   }) => {
     const { filteredItems, searchText, handleSearchChange } = useDebounceSearch({
       items,
@@ -126,7 +128,12 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
     const dropdownItems = selectType === 'multiple' ? unselectedItems : filteredItems;
 
     return (
-      <DropdownMenu open={open} defaultOpen={open} onOpenChange={onOpenChange} {...props}>
+      <DropdownMenu
+        open={open}
+        defaultOpen={open}
+        onOpenChange={onOpenChange}
+        dir={dir}
+        modal={modal}>
         <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
         <DropdownMenuContent
           className={cn('max-w-72 min-w-44', className)}
@@ -246,9 +253,12 @@ const DropdownItem: React.FC<
   });
 
   const isSubItem = items && items.length > 0;
+  const isSelectable = !!selectType && selectType !== 'none';
+  const NodeWrapper = isSelectable && link ? Link : React.Fragment;
+  const nodeProps = isSelectable && link ? { href: link! } : ({} as any);
 
   const content = (
-    <>
+    <NodeWrapper {...nodeProps}>
       {showIndex && <span className="text-gray-light">{index}</span>}
       {icon && !loading && <span className="text-icon-color">{icon}</span>}
       {loading && <CircleSpinnerLoader size={9} />}
@@ -264,7 +274,7 @@ const DropdownItem: React.FC<
           linkIcon={linkIcon}
         />
       )}
-    </>
+    </NodeWrapper>
   );
 
   if (isSubItem) {

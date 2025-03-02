@@ -7,6 +7,7 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 import React, { useMemo } from 'react';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { SidebarUserFooter } from './SidebarUserFooter/SidebarUserFooter';
 
 const accountItems: ISidebarGroup = {
   label: 'Account',
@@ -70,7 +71,14 @@ export const SidebarSettings: React.FC<{}> = React.memo(({}) => {
     return items;
   }, [isAdmin]);
 
-  return <Sidebar content={content} header={<SidebarSettingsHeader />} activeItem={currentRoute} />;
+  return (
+    <Sidebar
+      content={content}
+      header={<SidebarSettingsHeader />}
+      activeItem={currentRoute}
+      footer={<SidebarUserFooter />}
+    />
+  );
 });
 
 SidebarSettings.displayName = 'SidebarSettings';

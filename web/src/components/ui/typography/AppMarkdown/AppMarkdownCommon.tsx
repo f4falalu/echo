@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { JSX } from 'react';
 import { ExtraProps } from 'react-markdown';
 import { AppCodeBlock } from '../AppCodeBlock/AppCodeBlock';
 import { TextPulseLoader } from '@/components/ui/loaders';
@@ -95,7 +95,7 @@ export const CustomHeading: React.FC<
     numberOfLineMarkdown: number;
   } & ExtraPropsExtra
 > = ({ level, children, markdown, ...rest }) => {
-  const HeadingTag = `h${level}` as keyof JSX.IntrinsicElements;
+  const HeadingTag = `h${level}` as any;
   return (
     <HeadingTag>
       {children}

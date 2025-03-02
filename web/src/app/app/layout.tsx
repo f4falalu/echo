@@ -22,7 +22,6 @@ export default async function Layout({
     jwtToken: accessToken
   });
 
-  // const { signOut } = useBusterSupabaseAuthMethods();
   const pathname = headersList.get('x-next-pathname') as string;
   const cookiePathname = cookies().get('x-next-pathname')?.value;
   const newUserRoute = createBusterRoute({ route: BusterAppRoutes.NEW_USER });

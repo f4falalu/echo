@@ -72,6 +72,7 @@ const DropdownMenuContent = React.forwardRef<
   }
 >(({ className, children, sideOffset = 4, footerContent, ...props }, ref) => {
   const NodeWrapper = footerContent ? 'div' : React.Fragment;
+  const nodeWrapperProps = footerContent ? { className: 'p-2' } : {};
 
   return (
     <DropdownMenuPrimitive.Portal>
@@ -80,7 +81,7 @@ const DropdownMenuContent = React.forwardRef<
         sideOffset={sideOffset}
         className={cn(baseContentClass, 'shadow', footerContent && 'p-0', className)}
         {...props}>
-        <NodeWrapper className={cn(footerContent && 'p-2')}>{children}</NodeWrapper>
+        <NodeWrapper {...nodeWrapperProps}>{children}</NodeWrapper>
         {footerContent && <div className="border-t p-2">{footerContent}</div>}
       </DropdownMenuPrimitive.Content>
     </DropdownMenuPrimitive.Portal>
