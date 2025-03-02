@@ -3,7 +3,7 @@ import { createStyles } from 'antd-style';
 import React from 'react';
 import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from 'ahooks';
-import { Button } from 'antd';
+import { Button } from '@/components/ui/buttons';
 import { Copy } from '@/components/ui/icons';
 
 export const AppCodeBlockWrapper: React.FC<{
@@ -30,13 +30,13 @@ export const AppCodeBlockWrapper: React.FC<{
         <div className="flex items-center space-x-1">
           {showCopyButton && (
             <Button
-              type="text"
+              variant="ghost"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 copyCode();
               }}
-              icon={<Copy />}>
+              prefix={<Copy />}>
               Copy
             </Button>
           )}
