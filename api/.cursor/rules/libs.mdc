@@ -1,6 +1,6 @@
 ---
 description: This is helpful for building libs for our web server to interact with.
-globs: libs/*
+globs: libs/**/*.{rs,toml}
 alwaysApply: false
 ---
 

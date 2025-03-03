@@ -1,6 +1,7 @@
 ---
 description: This rule is helpful for understanding how to build our websocket functions. Structure, common patterns, where to look for types, etc.
-globs: src/routes/ws/*
+globs: src/routes/ws/**/*.rs
+alwaysApply: false
 ---
 
 # WebSocket API Formatting Rules

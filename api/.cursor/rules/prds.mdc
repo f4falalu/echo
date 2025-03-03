@@ -1,6 +1,7 @@
 ---
-description: This is helpful for building and designing prds for our application and how to write them.  Refer
-globs: prds/*
+description: This is helpful for building and designing prds for our application and how to write them.  Refe
+globs: prds/**/*.md
+alwaysApply: false
 ---
 # PRD (Product Requirements Document) Guidelines
 
