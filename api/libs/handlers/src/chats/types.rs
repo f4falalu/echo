@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use crate::messages::types::ChatMessage;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ChatWithMessages {
     pub id: Uuid,
     pub title: String,

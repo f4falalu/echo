@@ -36,6 +36,7 @@ pub enum ThreadEvent {
     GeneratingResponseMessage,
     GeneratingReasoningMessage,
     GeneratingTitle,
+    InitializeChat,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -100,6 +101,15 @@ pub async fn post_chat_handler(
         created_by_name: user.name.clone().unwrap_or_default(),
         created_by_avatar: None,
     };
+
+    // Send initial chat state to client
+    if let Some(tx) = tx.clone() {
+        tx.send(Ok((
+            BusterContainer::Chat(chat_with_messages.clone()),
+            ThreadEvent::InitializeChat,
+        )))
+        .await?;
+    }
 
     // Create database connection
     let mut conn = get_pg_pool().get().await?;
@@ -439,7 +449,7 @@ pub struct BusterReasoningText {
     #[serde(rename = "type")]
     pub reasoning_type: String,
     pub title: String,
-    pub secondary_title: Option<String>,
+    pub secondary_title: String,
     pub message: Option<String>,
     pub message_chunk: Option<String>,
     pub status: Option<String>,
@@ -491,6 +501,7 @@ pub struct BusterFileMetadata {
 #[derive(Debug, Serialize, Clone)]
 #[serde(untagged)]
 pub enum BusterContainer {
+    Chat(ChatWithMessages),
     ChatMessage(BusterChatMessageContainer),
     ReasoningMessage(BusterReasoningMessageContainer),
     GeneratingTitle(BusterGeneratingTitle),
@@ -1170,7 +1181,7 @@ fn assistant_create_plan(
                         id: text.id,
                         thought_type: "thought".to_string(),
                         title: text.title,
-                        secondary_title: text.secondary_title.unwrap_or_default(),
+                        secondary_title: text.secondary_title,
                         pill_containers: Some(vec![plan_container]),
                         status: status.to_string(),
                     })])
