@@ -14,9 +14,7 @@ const meta = {
     status: VerificationStatus.notRequested,
     id: 'metric-123',
     isAdmin: false,
-    onVerify: fn(async (params) => {
-      return Promise.resolve();
-    }),
+    onVerify: fn(),
     disabled: false
   },
   argTypes: {

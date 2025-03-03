@@ -1,12 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Select } from './Select';
 import { User, MapSettings, Mailbox } from '../icons';
+import { fn } from '@storybook/test';
 
 const meta: Meta<typeof Select> = {
   title: 'UI/Select/Select',
   component: Select,
   parameters: {
     layout: 'centered'
+  },
+  args: {
+    onChange: fn()
   },
   tags: ['autodocs']
 };

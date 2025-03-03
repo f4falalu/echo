@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { NewTermModal } from './NewTermModal';
 import { http, HttpResponse } from 'msw';
 import { fn } from '@storybook/test';
+import { BASE_URL } from '@/api/buster_rest/config';
 
 interface TermRequestBody {
   name: string;
@@ -16,14 +17,14 @@ const meta = {
     layout: 'centered',
     msw: {
       handlers: [
-        http.get(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/datasets`, () => {
+        http.get(`${BASE_URL}/datasets`, () => {
           return HttpResponse.json([
             { id: '1', name: 'Customer Data' },
             { id: '2', name: 'Sales Data' },
             { id: '3', name: 'Product Analytics' }
           ]);
         }),
-        http.post(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/terms`, async ({ request }) => {
+        http.post(`${BASE_URL}/terms`, async ({ request }) => {
           const body = (await request.json()) as TermRequestBody;
           return HttpResponse.json({
             success: true,

@@ -93,6 +93,8 @@ export const InputTextAreaButton = forwardRef<HTMLTextAreaElement, InputTextArea
   }
 );
 
+InputTextAreaButton.displayName = 'InputTextAreaButton';
+
 const SubmitButton: React.FC<{
   loading: boolean;
   disabled?: boolean;

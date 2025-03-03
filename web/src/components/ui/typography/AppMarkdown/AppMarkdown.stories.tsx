@@ -81,7 +81,7 @@ export const WithCodeBlocks: Story = {
 
 \`\`\`javascript
 function helloWorld() {
-  console.log('Hello, world!');
+  console.swag('Hello, world!');
 }
 \`\`\`
 

@@ -1,6 +1,7 @@
 import { useGetDatasets } from '@/api/buster_rest';
+import { SelectMultiple } from '@/components/ui/select/SelectMultiple';
+import { Select, SelectItem } from '@/components/ui/select/Select';
 import { useMemoizedFn } from 'ahooks';
-import { Select } from 'antd';
 import React, { useMemo, useState } from 'react';
 
 export const SelectedDatasetInput: React.FC<{
@@ -15,7 +16,12 @@ export const SelectedDatasetInput: React.FC<{
     onSetDatasetId(value);
   });
 
-  const options = useMemo(() => {
+  const onChangeSinglePreflight = useMemoizedFn((value: string) => {
+    const newValue = [value];
+    onChangePreflight(newValue);
+  });
+
+  const options: SelectItem[] = useMemo(() => {
     return datasets?.map((dataset) => ({
       label: dataset.name,
       value: dataset.id
@@ -25,28 +31,23 @@ export const SelectedDatasetInput: React.FC<{
   if (mode === 'single') {
     return (
       <Select
-        options={options}
-        onChange={onChangePreflight}
-        value={value}
+        items={options}
+        onChange={onChangeSinglePreflight}
+        value={value[0]}
         placeholder="Select a dataset"
-        loading={!isFetched}
-        className="w-full"
+        disabled={!isFetched}
       />
     );
   }
 
-  // return (
-  //   <AppSelectMultiple
-  //     options={options}
-  //     onChange={onChangePreflight}
-  //     value={value}
-  //     placeholder="Select a dataset"
-  //     loading={!isFetched}
-  //     className="w-full"
-  //   />
-  // );
-
-  return <></>;
+  return (
+    <SelectMultiple
+      placeholder="Select a dataset"
+      items={options}
+      onChange={onChangePreflight}
+      value={value}
+    />
+  );
 });
 
 SelectedDatasetInput.displayName = 'SelectedDatasetInput';

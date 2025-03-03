@@ -20,7 +20,6 @@ export const useBusterNewChat = () => {
   } = useChatStreamMessage();
 
   const onSelectSearchAsset = useMemoizedFn(async (asset: BusterSearchResult) => {
-    console.log('select search asset');
     await new Promise((resolve) => setTimeout(resolve, 1000));
   });
 

@@ -146,8 +146,8 @@ export const WithFocusEvent: Story = {
       id: '7',
       serieName: 'series7'
     },
-    onClickItem: fn,
-    onFocusItem: fn,
-    onHoverItem: fn
+    onClickItem: fn(),
+    onFocusItem: fn(),
+    onHoverItem: fn()
   }
 };

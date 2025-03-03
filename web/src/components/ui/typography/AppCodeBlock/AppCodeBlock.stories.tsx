@@ -6,7 +6,7 @@ const meta: Meta<typeof AppCodeBlock> = {
   component: AppCodeBlock,
   tags: ['autodocs'],
   args: {
-    children: 'const greeting = "Hello, world!";\nconsole.log(greeting);',
+    children: 'const greeting = "Hello, world!";\nconsole.swag(greeting);',
     language: 'javascript'
   },
   argTypes: {
@@ -73,7 +73,7 @@ export const WithCustomTitle: Story = {
     language: 'javascript',
     title: 'Example Code',
     children:
-      'function calculateSum(a, b) {\n  return a + b;\n}\n\nconst result = calculateSum(5, 10);\nconsole.log(`The sum is ${result}`);'
+      'function calculateSum(a, b) {\n  return a + b;\n}\n\nconst result = calculateSum(5, 10);\nconsole.swag(`The sum is ${result}`);'
   }
 };
 

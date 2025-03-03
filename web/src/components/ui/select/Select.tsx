@@ -26,19 +26,34 @@ export interface SelectItem {
 export interface SelectProps {
   items: SelectItem[] | SelectItemGroup[];
   disabled?: boolean;
-  onSelect?: (value: string) => void;
+  onChange: (value: string) => void;
   placeholder?: string;
   value?: string;
   onOpenChange?: (open: boolean) => void;
   open?: boolean;
   showIndex?: boolean;
+  className?: string;
 }
 
 export const Select: React.FC<SelectProps> = React.memo(
-  ({ items, showIndex, disabled, onSelect, placeholder, value, onOpenChange, open }) => {
+  ({
+    items,
+    showIndex,
+    disabled,
+    onChange,
+    placeholder,
+    value,
+    onOpenChange,
+    open,
+    className = ''
+  }) => {
     return (
-      <SelectBase disabled={disabled} onOpenChange={onOpenChange} open={open}>
-        <SelectTrigger>
+      <SelectBase
+        disabled={disabled}
+        onOpenChange={onOpenChange}
+        open={open}
+        onValueChange={onChange}>
+        <SelectTrigger className={className}>
           <SelectValue placeholder={placeholder} defaultValue={value} />
         </SelectTrigger>
         <SelectContent>

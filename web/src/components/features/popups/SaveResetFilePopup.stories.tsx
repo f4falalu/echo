@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { SaveResetFilePopup } from './SaveResetFilePopup';
 import React from 'react';
 import { Button } from '@/components/ui/buttons';
+import { fn } from '@storybook/test';
 
 const meta: Meta<typeof SaveResetFilePopup> = {
   title: 'Features/Popups/SaveResetFilePopup',
@@ -58,8 +59,8 @@ export const Default: Story = {
   render: (args) => <PopupContainer {...args} />,
   args: {
     open: true,
-    onReset: () => console.log('Reset clicked'),
-    onSave: () => console.log('Save clicked')
+    onReset: fn(),
+    onSave: fn()
   }
 };
 
@@ -67,7 +68,7 @@ export const Hidden: Story = {
   render: (args) => <PopupContainer {...args} />,
   args: {
     open: false,
-    onReset: () => console.log('Reset clicked'),
-    onSave: () => console.log('Save clicked')
+    onReset: fn(),
+    onSave: fn()
   }
 };

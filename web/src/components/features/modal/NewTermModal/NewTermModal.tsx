@@ -135,7 +135,7 @@ const DatasetListContainer: React.FC<{
     <SelectMultiple
       items={selectOptions}
       disabled={!isFetched}
-      onSelect={onChange}
+      onChange={onChange}
       placeholder="Select a dataset"
       value={selectedDatasets}
     />
