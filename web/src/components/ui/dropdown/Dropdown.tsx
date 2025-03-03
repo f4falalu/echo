@@ -126,6 +126,9 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
       };
     }, [selectType, filteredItems]);
 
+    // Keep track of selectable item index
+    let hotkeyIndex = -1;
+
     const dropdownItems = selectType === 'multiple' ? unselectedItems : filteredItems;
 
     return (
@@ -155,29 +158,41 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
           <div className="max-h-[350px] overflow-y-auto">
             {hasShownItem ? (
               <>
-                {selectedItems.map((item, index) => (
-                  <DropdownItemSelector
-                    item={item}
-                    index={index}
-                    selectType={selectType}
-                    onSelect={onSelect}
-                    closeOnSelect={closeOnSelect}
-                    key={dropdownItemKey(item, index)}
-                  />
-                ))}
+                {selectedItems.map((item) => {
+                  // Only increment index for selectable items
+                  if ((item as DropdownItem).value && !(item as DropdownItem).items) {
+                    hotkeyIndex++;
+                  }
+                  return (
+                    <DropdownItemSelector
+                      item={item}
+                      index={hotkeyIndex}
+                      selectType={selectType}
+                      onSelect={onSelect}
+                      closeOnSelect={closeOnSelect}
+                      key={dropdownItemKey(item, hotkeyIndex)}
+                    />
+                  );
+                })}
 
                 {selectedItems.length > 0 && <DropdownMenuSeparator />}
 
-                {dropdownItems.map((item, index) => (
-                  <DropdownItemSelector
-                    item={item}
-                    index={index}
-                    selectType={selectType}
-                    onSelect={onSelect}
-                    closeOnSelect={closeOnSelect}
-                    key={dropdownItemKey(item, index)}
-                  />
-                ))}
+                {dropdownItems.map((item) => {
+                  // Only increment index for selectable items
+                  if ((item as DropdownItem).value && !(item as DropdownItem).items) {
+                    hotkeyIndex++;
+                  }
+                  return (
+                    <DropdownItemSelector
+                      item={item}
+                      index={hotkeyIndex}
+                      selectType={selectType}
+                      onSelect={onSelect}
+                      closeOnSelect={closeOnSelect}
+                      key={dropdownItemKey(item, hotkeyIndex)}
+                    />
+                  );
+                })}
               </>
             ) : (
               <DropdownMenuItem disabled className="text-gray-light text-center">
@@ -252,6 +267,26 @@ const DropdownItem: React.FC<
     if (onClick) onClick();
     if (onSelect) onSelect(value);
   });
+
+  // Add hotkey support when showIndex is true
+  useHotkeys(
+    showIndex ? `${index}` : '',
+    (e) => {
+      e.preventDefault();
+      if (!disabled) {
+        onClickItem(e as unknown as React.MouseEvent<HTMLDivElement>);
+        // Close the dropdown if closeOnSelect is true
+        if (closeOnSelect) {
+          const dropdownTrigger = document.querySelector('[data-state="open"][role="menu"]');
+          if (dropdownTrigger) {
+            const closeEvent = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
+            dropdownTrigger.dispatchEvent(closeEvent);
+          }
+        }
+      }
+    },
+    { enabled: showIndex && !disabled }
+  );
 
   const isSubItem = items && items.length > 0;
   const isSelectable = !!selectType && selectType !== 'none';

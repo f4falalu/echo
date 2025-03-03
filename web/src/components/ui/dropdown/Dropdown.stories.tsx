@@ -541,7 +541,6 @@ export const WithFooterContent: Story = {
 // Example with numbered items
 export const WithNumberedItems: Story = {
   args: {
-    menuHeader: 'Numbered Menu Items',
     items: [
       {
         value: '1',
