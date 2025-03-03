@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { AppContent, BusterUserAvatar } from '@/components/ui';
-import { formatDate, makeHumanReadble } from '@/utils';
+import { AppPageLayoutContent } from '@/components/ui/layouts/AppPageLayoutContent';
+import { Avatar } from '@/components/ui/avatar';
+import { formatDate, makeHumanReadble } from '@/lib';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useBusterCollectionListContextSelector } from '@/context/Collections';
 import {
@@ -12,7 +13,7 @@ import {
   ListEmptyStateWithButton
 } from '@/components/ui/list';
 import { useMemoizedFn } from 'ahooks';
-import { NewCollectionModal } from '@/components/features/modals/NewCollectionModal';
+import { NewCollectionModal } from '@/components/features/modal/NewCollectionModal';
 import { BusterCollectionListItem } from '@/api/asset_interfaces';
 import { CollectionListSelectedPopup } from './CollectionListSelectedPopup';
 
@@ -31,13 +32,13 @@ export const CollectionsListContent: React.FC<{
 
   return (
     <>
-      <AppContent>
+      <AppPageLayoutContent>
         <CollectionList
           collectionsList={collectionsList}
           setOpenNewCollectionModal={setOpenNewCollectionModal}
           loadedCollections={isCollectionListFetched}
         />
-      </AppContent>
+      </AppPageLayoutContent>
 
       <NewCollectionModal
         open={openNewCollectionModal}
@@ -74,9 +75,7 @@ const columns: BusterListColumn[] = [
     title: 'Owner',
     width: 50,
     render: (owner: BusterCollectionListItem['owner']) => {
-      return (
-        <BusterUserAvatar image={owner?.avatar_url || undefined} name={owner?.name} size={18} />
-      );
+      return <Avatar image={owner?.avatar_url || undefined} name={owner?.name} size={18} />;
     }
   }
 ];

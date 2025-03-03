@@ -1,6 +1,6 @@
 import { extractFieldsFromChain } from '@/components/ui/charts/chartHooks';
 import type { BusterChartProps } from '@/components/ui/charts/interfaces';
-import { formatLabel } from '@/utils';
+import { formatLabel } from '@/lib';
 import type { Chart } from 'chart.js';
 
 export const getPercentage = (

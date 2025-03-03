@@ -1,0 +1,105 @@
+.container {
+  line-height: 1.25rem; /* leading-5 */
+}
+
+.container h1 {
+  font-size: var(--text-2xl);
+  line-height: var(--text-2xl--line-height);
+}
+
+.container h2 {
+  font-size: var(--text-xl);
+  line-height: var(--text-xl--line-height);
+}
+
+.container h3 {
+  font-size: var(--text-lg);
+  line-height: var(--text-lg--line-height);
+}
+
+.container h4 {
+  font-size: var(--text-md);
+  line-height: var(--text-md--line-height);
+}
+
+.container h5 {
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
+}
+
+.container p {
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
+}
+
+.container h1,
+.container h2,
+.container h3,
+.container h4,
+.container h5 {
+  margin-top: calc(var(--spacing) * 5);
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  gap: var(--spacing);
+}
+
+.container h1:first-child,
+.container h2:first-child,
+.container h3:first-child,
+.container h4:first-child,
+.container h5:first-child {
+  margin-top: 0;
+}
+
+.container table {
+  border-color: var(--color-border);
+  border-radius: var(--radius-xs);
+  border-width: var(--default-border-width);
+  border-style: solid;
+}
+
+.container th {
+  border-color: var(--color-border);
+  min-width: 30px;
+  border-right-width: var(--default-border-width);
+  border-bottom-width: var(--default-border-width);
+  border-style: solid;
+  padding: calc(var(--spacing) * 1.5);
+}
+
+.container th:last-child {
+  border-right-width: 0;
+}
+
+.container td {
+  border-color: var(--color-border);
+  border-right-width: var(--default-border-width);
+  border-style: solid;
+  padding: calc(var(--spacing) * 1.5);
+}
+
+.container td:last-child {
+  border-right-width: 0;
+}
+
+.container tr {
+  border-bottom-width: var(--default-border-width);
+  border-style: solid;
+  border-color: var(--color-gray-light);
+}
+
+.container tr:last-child {
+  border-bottom-width: 0;
+}
+
+.container ul,
+.container ol,
+.container dl {
+  list-style-position: revert;
+  margin-left: calc(var(--spacing) * 4);
+}
+
+.container a {
+  color: var(--color-primary);
+}

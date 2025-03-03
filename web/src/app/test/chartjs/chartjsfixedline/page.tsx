@@ -124,7 +124,6 @@ export default function ChartjsFixedLine() {
           columnSettings={columnSettings}
           metricColumnId="sales"
           columnMetadata={columnMetadata}
-          renderType="chartjs"
         />
       </div>
 

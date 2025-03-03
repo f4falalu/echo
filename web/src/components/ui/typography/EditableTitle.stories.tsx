@@ -1,0 +1,137 @@
+import type { Meta, StoryObj } from '@storybook/react';
+import { EditableTitle } from './EditableTitle';
+import React from 'react';
+
+const meta: Meta<typeof EditableTitle> = {
+  title: 'UI/Typography/EditableTitle',
+  component: EditableTitle,
+  argTypes: {
+    children: {
+      control: 'text',
+      description: 'The text content of the title'
+    },
+    level: {
+      control: { type: 'select', options: [1, 2, 3, 4, 5] },
+      description: 'The heading level, affecting the font size'
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Whether the title is editable or not'
+    },
+    editing: {
+      control: 'boolean',
+      description: 'Whether the title is currently in edit mode'
+    },
+    placeholder: {
+      control: 'text',
+      description: 'Placeholder text when the title is empty'
+    },
+    className: {
+      control: 'text',
+      description: 'Additional CSS class names for the container'
+    },
+    inputClassName: {
+      control: 'text',
+      description: 'Additional CSS class names for the input element'
+    }
+  }
+};
+
+export default meta;
+type Story = StoryObj<typeof EditableTitle>;
+
+// Helper component to control editable state in Storybook
+const EditableTitleContainer = (args: React.ComponentProps<typeof EditableTitle>) => {
+  const [value, setValue] = React.useState(args.children);
+  const [isEditing, setIsEditing] = React.useState(args.editing || false);
+
+  return (
+    <EditableTitle
+      {...args}
+      children={value}
+      editing={isEditing}
+      onChange={(newValue) => {
+        setValue(newValue);
+        args.onChange?.(newValue);
+      }}
+      onEdit={(editing) => {
+        setIsEditing(editing);
+        args.onEdit?.(editing);
+      }}
+    />
+  );
+};
+
+export const Default: Story = {
+  render: (args) => <EditableTitleContainer {...args} />,
+  args: {
+    children: 'Editable Title',
+    level: 4,
+    onChange: (value) => console.log('Value changed:', value),
+    onEdit: (editing) => console.log('Editing state:', editing),
+    placeholder: 'Enter a title'
+  }
+};
+
+export const Level1: Story = {
+  render: (args) => <EditableTitleContainer {...args} />,
+  args: {
+    children: 'Large Heading',
+    level: 1,
+    onChange: (value) => console.log('Value changed:', value),
+    onEdit: (editing) => console.log('Editing state:', editing)
+  }
+};
+
+export const Level2: Story = {
+  render: (args) => <EditableTitleContainer {...args} />,
+  args: {
+    children: 'Medium Heading',
+    level: 2,
+    onChange: (value) => console.log('Value changed:', value),
+    onEdit: (editing) => console.log('Editing state:', editing)
+  }
+};
+
+export const Level3: Story = {
+  render: (args) => <EditableTitleContainer {...args} />,
+  args: {
+    children: 'Small Heading',
+    level: 3,
+    onChange: (value) => console.log('Value changed:', value),
+    onEdit: (editing) => console.log('Editing state:', editing)
+  }
+};
+
+export const Disabled: Story = {
+  render: (args) => <EditableTitleContainer {...args} />,
+  args: {
+    children: 'Non-editable Title',
+    level: 4,
+    disabled: true,
+    onChange: (value) => console.log('Value changed:', value),
+    onEdit: (editing) => console.log('Editing state:', editing)
+  }
+};
+
+export const WithPlaceholder: Story = {
+  render: (args) => <EditableTitleContainer {...args} />,
+  args: {
+    children: '',
+    level: 4,
+    placeholder: 'Enter your title here...',
+    onChange: (value) => console.log('Value changed:', value),
+    onEdit: (editing) => console.log('Editing state:', editing)
+  }
+};
+
+export const InitiallyEditing: Story = {
+  render: (args) => <EditableTitleContainer {...args} />,
+  args: {
+    children: 'Initially in Edit Mode',
+    level: 4,
+    editing: true,
+    onChange: (value) => console.log('Value changed:', value),
+    onEdit: (editing) => console.log('Editing state:', editing)
+  }
+};

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { BusterChartConfigProps, ChartEncodes } from '../interfaces';
-import { formatLabel } from '@/utils/columnFormatter';
+import { formatLabel } from '@/lib/columnFormatter';
 import { AXIS_TITLE_SEPARATOR } from './axisHelper';
 import { truncateWithEllipsis } from './titleHelpers';
 

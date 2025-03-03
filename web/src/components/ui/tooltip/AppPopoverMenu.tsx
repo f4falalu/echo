@@ -4,7 +4,6 @@ import React, { useLayoutEffect, useMemo } from 'react';
 import { Divider, Dropdown, MenuProps, DropdownProps, Input } from 'antd';
 import { useAntToken } from '@/styles/useAntToken';
 import { createStyles } from 'antd-style';
-import { AppSelectItem } from '../select/AppSelectItem';
 import { useMemoizedFn } from 'ahooks';
 
 type Item = {
@@ -100,17 +99,18 @@ export const AppPopoverMenu: React.FC<AppPopoverMenuProps> = React.memo(
       icon: item.icon,
       index,
       label: (
-        <AppSelectItem
-          disabled={item.disabled}
-          index={item.index}
-          content={item?.label}
-          hideCheckbox={hideCheckbox}
-          link={item.link}
-          onClick={() => {
-            item.onClick && item.onClick();
-          }}
-          selected={selectedItems.includes(item.key as string)}
-        />
+        <></>
+        // <AppSelectItem
+        //   disabled={item.disabled}
+        //   index={item.index}
+        //   content={item?.label}
+        //   hideCheckbox={hideCheckbox}
+        //   link={item.link}
+        //   onClick={() => {
+        //     item.onClick && item.onClick();
+        //   }}
+        //   selected={selectedItems.includes(item.key as string)}
+        // />
       ),
       key: (item?.key as string) || (index.toString() as string)
     }));

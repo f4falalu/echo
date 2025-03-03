@@ -6,7 +6,7 @@ import {
   ChatEvent_GeneratingResponseMessage,
   ChatEvent_GeneratingTitle
 } from '@/api/buster_socket/chats';
-import { updateChatToIChat } from '@/utils/chat';
+import { updateChatToIChat } from '@/lib/chat';
 import { useAutoAppendThought } from './useAutoAppendThought';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';

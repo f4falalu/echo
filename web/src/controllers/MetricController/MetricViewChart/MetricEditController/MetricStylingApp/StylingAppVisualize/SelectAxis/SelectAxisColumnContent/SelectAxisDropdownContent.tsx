@@ -3,7 +3,7 @@ import type { IColumnLabelFormat } from '@/components/ui/charts/interfaces/colum
 import { useMemoizedFn } from 'ahooks';
 import React, { useMemo } from 'react';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
-import { formatLabel } from '@/utils';
+import { formatLabel } from '@/lib';
 import { EditTitle } from './EditTitle';
 import { EditDisplayAs } from './EditDisplayAs';
 import { BarAndLineAxis, ChartEncodes, ChartType, ColumnSettings } from '@/components/ui/charts';

@@ -1,14 +1,18 @@
 import { ShareAssetType, VerificationStatus, BusterMetricListItem } from '@/api/asset_interfaces';
-import { makeHumanReadble, formatDate } from '@/utils';
+import { makeHumanReadble, formatDate } from '@/lib';
 import React, { memo, useMemo, useRef, useState } from 'react';
-import { StatusBadgeIndicator, getShareStatus } from '@/components/features/lists';
-import { BusterUserAvatar, Text } from '@/components/ui';
+import {
+  StatusBadgeIndicator,
+  getShareStatus
+} from '@/components/features/metrics/StatusBadgeIndicator';
+import { Text } from '@/components/ui/typography';
+import { Avatar } from '@/components/ui/avatar';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
 import { BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { MetricSelectedOptionPopup } from './MetricItemsSelectedPopup';
 import { BusterList, ListEmptyStateWithButton } from '@/components/ui/list';
-import { FavoriteStar } from '@/components/features/lists';
+import { FavoriteStar } from '@/components/features/list';
 import { useCreateListByDate } from '@/components/ui/list/useCreateListByDate';
 
 export const MetricItemsContainer: React.FC<{
@@ -178,7 +182,7 @@ const TitleCell = React.memo<{ title: string; status: VerificationStatus; metric
         <div className="flex items-center justify-center">
           <StatusBadgeIndicator status={status} />
         </div>
-        <Text ellipsis={true}>{title}</Text>
+        <Text truncate>{title}</Text>
         <div className="flex items-center" onClick={onFavoriteDivClick}>
           <FavoriteStar
             id={metricId}
@@ -194,9 +198,9 @@ const TitleCell = React.memo<{ title: string; status: VerificationStatus; metric
 );
 TitleCell.displayName = 'TitleCell';
 
-const OwnerCell = memo<{ name: string; image: string | null | undefined }>(({ name, image }) => (
+const OwnerCell = memo<{ name: string; image: string | undefined }>(({ name, image }) => (
   <div className="flex pl-0">
-    <BusterUserAvatar image={image || undefined} name={name} size={18} />
+    <Avatar image={image} name={name} size={18} />
   </div>
 ));
 OwnerCell.displayName = 'OwnerCell';

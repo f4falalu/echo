@@ -1,11 +1,11 @@
 import type { IColumnLabelFormat } from '@/components/ui/charts/interfaces/columnLabelInterfaces';
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
-import { AppSegmented } from '@/components/ui';
+import { AppSegmented, type SegmentedItem } from '@/components/ui/segmented';
 import { ColumnTypeIcon } from '../config';
-import { useEditAppSegmented } from './useEditAppSegmented';
 import { createStyles } from 'antd-style';
-import { isDateColumnType, isNumericColumnType } from '@/utils';
+import { isDateColumnType, isNumericColumnType } from '@/lib';
+import { useMemoizedFn } from 'ahooks';
 
 export const EditLabelStyle: React.FC<{
   onUpdateColumnConfig: (columnLabelFormat: Partial<IColumnLabelFormat>) => void;
@@ -33,12 +33,10 @@ export const EditLabelStyle: React.FC<{
     }));
   }, [enabledOptions]);
 
-  const { onClick } = useEditAppSegmented({
-    onClick: (value) => {
-      onUpdateColumnConfig({
-        style: value as IColumnLabelFormat['style']
-      });
-    }
+  const onChange = useMemoizedFn((value: SegmentedItem<string>) => {
+    onUpdateColumnConfig({
+      style: value.value as IColumnLabelFormat['style']
+    });
   });
 
   if (enabledOptions.length === 0) return null;
@@ -46,7 +44,7 @@ export const EditLabelStyle: React.FC<{
   return (
     <LabelAndInput label="Style">
       <div className="flex items-center justify-end">
-        <AppSegmented bordered={false} options={options} value={style} onClick={onClick} />
+        <AppSegmented options={options} value={style} onChange={onChange} />
       </div>
     </LabelAndInput>
   );

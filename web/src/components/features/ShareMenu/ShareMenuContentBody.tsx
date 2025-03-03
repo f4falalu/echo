@@ -18,7 +18,7 @@ import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useStyles } from './useStyles';
-import { inputHasText } from '@/utils/text';
+import { inputHasText } from '@/lib/text';
 
 export const ShareMenuContentBody: React.FC<{
   selectedOptions: ShareMenuTopBarOptions;

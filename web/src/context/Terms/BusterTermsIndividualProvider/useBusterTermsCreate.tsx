@@ -12,7 +12,7 @@ export const useBusterTermsCreate = () => {
   const { openConfirmModal } = useBusterNotifications();
   const refetchTermsList = useBusterTermsListContextSelector((x) => x.refetchTermsList);
 
-  const { mutateAsync: createTerm } = useSocketQueryMutation({
+  const { mutateAsync: createTerm, isPending: isCreatingTerm } = useSocketQueryMutation({
     emitEvent: '/terms/post',
     responseEvent: '/terms/post:PostTerm',
     options: queryOptions<BusterTerm>({
@@ -24,7 +24,7 @@ export const useBusterTermsCreate = () => {
     }
   });
 
-  const { mutate: deleteTermMutation } = useSocketQueryMutation({
+  const { mutate: deleteTermMutation, isPending: isDeletingTerm } = useSocketQueryMutation({
     emitEvent: '/terms/delete',
     responseEvent: '/terms/delete:DeleteTerm',
     options: queryKeys.termsGetList,
@@ -51,6 +51,8 @@ export const useBusterTermsCreate = () => {
 
   return {
     createTerm,
-    onDeleteTerm
+    onDeleteTerm,
+    isCreatingTerm,
+    isDeletingTerm
   };
 };

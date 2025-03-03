@@ -7,7 +7,7 @@ import type {
 } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui';
 import { motion, AnimatePresence } from 'framer-motion';
-import { itemAnimationConfig } from '@/components/features/Streaming/animationConfig';
+import { itemAnimationConfig } from '@/components/ui/streaming/animationConfig';
 import { useMemoizedFn } from 'ahooks';
 import { StatusIndicator } from '@/components/ui/indicators';
 import { useChatLayoutContextSelector } from '../../../../ChatLayoutContext';

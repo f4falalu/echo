@@ -9,7 +9,7 @@ import {
   getDefaultQuarterOptions
 } from './dateConfig';
 import first from 'lodash/last';
-import { formatDate, getNow } from '@/utils/date';
+import { formatDate, getNow } from '@/lib/date';
 import { useMemoizedFn } from 'ahooks';
 
 export const EditDateFormat: React.FC<{

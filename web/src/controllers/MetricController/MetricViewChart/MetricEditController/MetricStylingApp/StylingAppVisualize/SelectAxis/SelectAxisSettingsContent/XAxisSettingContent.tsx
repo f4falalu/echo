@@ -2,7 +2,7 @@ import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import React, { useMemo } from 'react';
 import { useSelectAxisContextSelector } from '../useSelectAxisContext';
 import { ColumnLabelFormat } from '@/components/ui/charts';
-import { formatLabel } from '@/utils';
+import { formatLabel } from '@/lib';
 import { useMemoizedFn } from 'ahooks';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { EditShowAxisTitle } from './EditShowAxisTitle';

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { TermIndividualHeader } from './TermIndividualHeader';
-import { AppContentHeader, AppContent, AppSplitter } from '@/components/ui/layout';
+import { AppPageLayout, AppSplitter } from '@/components/ui/layouts';
 import { TermIndividualHeaderSider } from './TermIndividualHeaderSider';
 import { TermIndividualContentSider } from './TermIndividualContentSider';
 import { useBusterTermsListContextSelector } from '@/context/Terms';
@@ -29,14 +29,9 @@ export const TermIndividualController: React.FC<{
       }
       rightHidden={!isFetchedTermsList}
       rightChildren={
-        <>
-          <AppContentHeader>
-            <TermIndividualHeaderSider />
-          </AppContentHeader>
-          <AppContent>
-            <TermIndividualContentSider termId={termId} />
-          </AppContent>
-        </>
+        <AppPageLayout header={<TermIndividualHeaderSider />}>
+          <TermIndividualContentSider termId={termId} />
+        </AppPageLayout>
       }
     />
   );

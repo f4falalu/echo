@@ -44,3 +44,6 @@ next-env.d.ts
 # Million Lint
 .million
 .million/store.json
+
+*storybook.log
+/storybook-static

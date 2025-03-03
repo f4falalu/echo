@@ -1,14 +1,17 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { AppContent } from '@/components/ui/layout/AppContent';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
-import { BusterUserAvatar } from '@/components/ui';
-import { formatDate } from '@/utils';
-import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';
+import { Avatar } from '@/components/ui/avatar';
+import { formatDate } from '@/lib';
+import {
+  BusterList,
+  BusterListColumn,
+  BusterListRow,
+  ListEmptyStateWithButton
+} from '@/components/ui/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { getShareStatus } from '@/components/features/lists';
-import { ListEmptyStateWithButton } from '@/components/ui/list';
+import { getShareStatus } from '@/components/features/list';
 import { useMemoizedFn } from 'ahooks';
 import { DashboardSelectedOptionPopup } from './DashboardSelectedPopup';
 import type { BusterDashboardListItem } from '@/api/asset_interfaces';
@@ -45,7 +48,7 @@ const columns: BusterListColumn[] = [
     title: 'Owner',
     width: 55,
     render: (_, data) => {
-      return <BusterUserAvatar image={data?.avatar_url} name={data?.name} size={18} />;
+      return <Avatar image={data?.avatar_url} name={data?.name} size={18} />;
     }
   }
 ];
@@ -81,36 +84,32 @@ export const DashboardListContent: React.FC<{
   });
 
   return (
-    <>
-      <AppContent>
-        <div className={`${className} relative flex h-full flex-col items-center`}>
-          <BusterList
-            rows={rows}
-            columns={columns}
-            selectedRowKeys={selectedDashboardIds}
-            onSelectChange={setSelectedDashboardIds}
-            emptyState={
-              !loading ? (
-                <ListEmptyStateWithButton
-                  title={`You don’t have any dashboards yet.`}
-                  buttonText="New dashboard"
-                  description={`You don’t have any dashboards. As soon as you do, they will start to  appear here.`}
-                  onClick={onClickEmptyState}
-                  loading={isCreatingDashboard}
-                />
-              ) : (
-                <></>
-              )
-            }
-          />
+    <div className={`${className} relative flex h-full flex-col items-center`}>
+      <BusterList
+        rows={rows}
+        columns={columns}
+        selectedRowKeys={selectedDashboardIds}
+        onSelectChange={setSelectedDashboardIds}
+        emptyState={
+          !loading ? (
+            <ListEmptyStateWithButton
+              title={`You don’t have any dashboards yet.`}
+              buttonText="New dashboard"
+              description={`You don’t have any dashboards. As soon as you do, they will start to  appear here.`}
+              onClick={onClickEmptyState}
+              loading={isCreatingDashboard}
+            />
+          ) : (
+            <></>
+          )
+        }
+      />
 
-          <DashboardSelectedOptionPopup
-            selectedRowKeys={selectedDashboardIds}
-            onSelectChange={setSelectedDashboardIds}
-            hasSelected={selectedDashboardIds.length > 0}
-          />
-        </div>
-      </AppContent>
-    </>
+      <DashboardSelectedOptionPopup
+        selectedRowKeys={selectedDashboardIds}
+        onSelectChange={setSelectedDashboardIds}
+        hasSelected={selectedDashboardIds.length > 0}
+      />
+    </div>
   );
 };

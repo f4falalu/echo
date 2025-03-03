@@ -1,24 +1,23 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { AppContentHeader } from '@/components/ui/layout';
 import {
   canEditCollection,
   useBusterCollectionIndividualContextSelector
 } from '@/context/Collections';
-import { Breadcrumb, Button, Dropdown, MenuProps } from 'antd';
-import Link from 'next/link';
+import { Button, Dropdown, MenuProps } from 'antd';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
-import { AppMaterialIcons, EditableTitle } from '@/components/ui';
-import { FavoriteStar } from '@/components/features/lists/FavoriteStar';
+import { AppMaterialIcons } from '@/components/ui';
+import { EditableTitle } from '@/components/ui/typography/EditableTitle';
+import { FavoriteStar } from '@/components/features/list/FavoriteStar';
 import { ShareMenu } from '@/components/features/ShareMenu';
 import { BusterCollection, ShareAssetType } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui';
 import { useAntToken } from '@/styles/useAntToken';
 import { useMemoizedFn } from 'ahooks';
-import { BreadcrumbSeperator } from '@/components/ui/breadcrumb';
-import { measureTextWidth } from '@/utils/canvas';
+import { measureTextWidth } from '@/lib/canvas';
+import { type BreadcrumbItem, Breadcrumb } from '@/components/ui/breadcrumb';
 
 export const CollectionsIndividualHeader: React.FC<{
   openAddTypeModal: boolean;
@@ -26,7 +25,6 @@ export const CollectionsIndividualHeader: React.FC<{
   collection: BusterCollection | undefined;
   isFetched: boolean;
 }> = ({ openAddTypeModal, setOpenAddTypeModal, collection, isFetched }) => {
-  const createPageLink = useAppLayoutContextSelector((s) => s.createPageLink);
   const updateCollection = useBusterCollectionIndividualContextSelector((x) => x.updateCollection);
   const [editingTitle, setEditingTitle] = React.useState(false);
 
@@ -35,8 +33,6 @@ export const CollectionsIndividualHeader: React.FC<{
   const textWidth = useMemo(() => {
     return measureTextWidth(collectionTitle);
   }, [collectionTitle, editingTitle]);
-
-  const collectionBaseTitle = 'Collections';
 
   const onSetTitleValue = useMemoizedFn((value: string) => {
     updateCollection({
@@ -52,7 +48,6 @@ export const CollectionsIndividualHeader: React.FC<{
         <EditableTitle
           level={5}
           editing={editingTitle}
-          showBottomBorder
           style={{ width: textWidth.width }}
           onSetValue={onSetTitleValue}
           onChange={onSetTitleValue}
@@ -71,55 +66,32 @@ export const CollectionsIndividualHeader: React.FC<{
     };
   }, [collectionTitle, editingTitle, textWidth.width, onSetTitleValue, setEditingTitle, isFetched]);
 
-  const items = useMemo(
-    () => [
-      {
-        title: (
-          <Link
-            suppressHydrationWarning
-            className={`!flex !h-full cursor-pointer items-center truncate`}
-            href={createPageLink({ route: BusterRoutes.APP_COLLECTIONS })}>
-            {collectionBaseTitle}
-          </Link>
-        )
-      },
-      collectionItemBreadcrumb
-    ],
-    [collectionBaseTitle, collectionItemBreadcrumb, isFetched, createPageLink]
-  );
-
   return (
-    <AppContentHeader>
-      <div className="flex h-full w-full items-center justify-between space-x-3 overflow-hidden">
-        <div className="flex h-full items-center space-x-1 overflow-hidden">
-          <Breadcrumb
-            className="flex h-full items-center"
-            items={items}
-            separator={<BreadcrumbSeperator />}
-          />
+    <div className="flex h-full w-full items-center justify-between space-x-3 overflow-hidden">
+      <div className="flex h-full items-center space-x-1 overflow-hidden">
+        <CollectionBreadcrumb collectionName={collectionTitle} />
 
-          {collection && (
-            <div className="flex items-center space-x-0">
-              <ThreeDotDropdown collection={collection} setEditingTitle={setEditingTitle} />
+        {collection && (
+          <div className="flex items-center space-x-0">
+            <ThreeDotDropdown collection={collection} setEditingTitle={setEditingTitle} />
 
-              <FavoriteStar
-                id={collection.id}
-                type={ShareAssetType.COLLECTION}
-                title={collectionTitle}
-              />
-            </div>
-          )}
-        </div>
-
-        {collection && canEditCollection(collection) && (
-          <ContentRight
-            collection={collection}
-            openAddTypeModal={openAddTypeModal}
-            setOpenAddTypeModal={setOpenAddTypeModal}
-          />
+            <FavoriteStar
+              id={collection.id}
+              type={ShareAssetType.COLLECTION}
+              title={collectionTitle}
+            />
+          </div>
         )}
       </div>
-    </AppContentHeader>
+
+      {collection && canEditCollection(collection) && (
+        <ContentRight
+          collection={collection}
+          openAddTypeModal={openAddTypeModal}
+          setOpenAddTypeModal={setOpenAddTypeModal}
+        />
+      )}
+    </div>
   );
 };
 
@@ -208,3 +180,23 @@ const ThreeDotDropdown: React.FC<{
   );
 });
 ThreeDotDropdown.displayName = 'ThreeDotDropdown';
+
+const CollectionBreadcrumb: React.FC<{
+  collectionName: string;
+}> = React.memo(({ collectionName }) => {
+  const collectionBaseTitle = 'Collections';
+
+  const items: BreadcrumbItem[] = useMemo(
+    () => [
+      {
+        label: collectionBaseTitle,
+        route: { route: BusterRoutes.APP_COLLECTIONS }
+      },
+      { label: collectionName }
+    ],
+    [collectionBaseTitle, collectionName]
+  );
+
+  return <Breadcrumb items={items} />;
+});
+CollectionBreadcrumb.displayName = 'CollectionBreadcrumb';

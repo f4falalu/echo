@@ -1,10 +1,10 @@
 'use client';
 
-import { Title } from '@/components/ui';
+import { Title } from '@/components/ui/typography';
 import React, { useState } from 'react';
 import { Button, Input } from 'antd';
 import { useMemoizedFn } from 'ahooks';
-import { BusterAppRoutes } from '@/routes/busterRoutes/busterAppRoutes';
+import { BusterRoutes } from '@/routes/busterRoutes';
 import type { User } from '@supabase/supabase-js';
 import type { BusterUserResponse } from '@/api/asset_interfaces';
 import { useRouter } from 'next/navigation';
@@ -36,7 +36,7 @@ export const ResetPasswordForm: React.FC<{
       setCountdown((prev) => {
         if (prev === 0) {
           clearInterval(interval);
-          router.replace(createBusterRoute({ route: BusterAppRoutes.APP_ROOT }));
+          router.replace(createBusterRoute({ route: BusterRoutes.APP_ROOT }));
           return 0;
         }
         return prev - 1;
@@ -67,7 +67,7 @@ export const ResetPasswordForm: React.FC<{
     <div className="flex h-full flex-col items-center justify-center gap-4">
       {!resetSuccess && (
         <>
-          <Title className="mb-0" level={1}>
+          <Title className="mb-0" as="h1">
             Reset Password
           </Title>
           <div className="flex w-[330px] flex-col gap-2">

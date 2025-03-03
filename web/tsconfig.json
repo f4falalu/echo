@@ -20,11 +20,12 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@utils/*": ["./src/utils/*"],
+      "@utils/*": ["./src/lib/*"],
       "@components/*": ["./src/components/*"],
       "@layouts/*": ["./src/layouts/*"],
       "@controllers/*": ["./src/controllers/*"],
-      "@chatLayout/*": ["./src/layouts/ChatLayout/*"]
+      "@chatLayout/*": ["./src/layouts/ChatLayout/*"],
+      "@hooks/*": ["./src/hooks/*"]
     },
     "target": "ES2017"
   },

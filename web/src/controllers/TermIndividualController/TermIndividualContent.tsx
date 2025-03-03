@@ -1,20 +1,28 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { AppContent } from '@/components/ui/layout/AppContent';
+import { AppPageLayoutContent } from '@/components/ui/layouts/AppPageLayoutContent';
 import { useBusterTermsIndividualContextSelector, useBusterTermsIndividual } from '@/context/Terms';
 import { Dropdown, Input } from 'antd';
 import { useDebounceFn } from 'ahooks';
-import { formatDate } from '@/utils';
-import { AppMaterialIcons, EditableTitle } from '@/components/ui';
+import { formatDate } from '@/lib';
+import { AppMaterialIcons } from '@/components/ui/icons';
+import { EditableTitle } from '@/components/ui/typography/EditableTitle';
 import { useAntToken } from '@/styles/useAntToken';
 import { AppCodeEditor } from '@/components/ui/inputs/AppCodeEditor';
 import clamp from 'lodash/clamp';
 import { MenuProps } from 'antd/lib';
-import { ItemContainer } from '@/components/ui/card/ItemContainer';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 import { BusterRoutes } from '@/routes';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  CardContent
+} from '@/components/ui/card/CardBase';
 
 export const TermIndividualContent: React.FC<{
   termId: string;
@@ -63,7 +71,7 @@ export const TermIndividualContent: React.FC<{
   }, [selectedTerm?.name, selectedTerm?.definition]);
 
   return (
-    <AppContent className="overflow-auto p-8">
+    <AppPageLayoutContent className="overflow-auto p-8">
       {loadingSelectedTerm ? (
         <SkeletonLoader />
       ) : (
@@ -82,7 +90,7 @@ export const TermIndividualContent: React.FC<{
                 </EditableTitle>
               </div>
               <div>
-                <Text type="secondary">
+                <Text variant="secondary">
                   Last updated:{' '}
                   {formatDate({
                     date: selectedTerm?.updated_at!,
@@ -142,7 +150,7 @@ export const TermIndividualContent: React.FC<{
           </div>
         </div>
       )}
-    </AppContent>
+    </AppPageLayoutContent>
   );
 };
 
@@ -207,5 +215,18 @@ const MoreDropdown: React.FC<{ termId: string; setEditingTermName: (value: boole
         <AppMaterialIcons size={18} icon="more_horiz" />
       </div>
     </Dropdown>
+  );
+};
+
+const ItemContainer: React.FC<{
+  title: string | React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+}> = ({ title, children, className }) => {
+  return (
+    <Card className={className}>
+      <CardHeader variant={'gray'}>{title}</CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
   );
 };

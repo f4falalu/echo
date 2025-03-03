@@ -15,7 +15,7 @@ export const pathNameToRoute = (pathName: string, params: any): BusterRoutes => 
     [BusterRoutes.APP_DATASETS_ID_OVERVIEW]: BusterRoutes.APP_DATASETS,
     [BusterRoutes.APP_DATASETS_ID_EDITOR]: BusterRoutes.APP_DATASETS,
     [BusterRoutes.APP_TERMS_ID]: BusterRoutes.APP_TERMS,
-    [BusterRoutes.APP_SETTINGS_USERS_ID]: BusterRoutes.APP_SETTINGS_USERS
+    [BusterRoutes.SETTINGS_USERS_ID]: BusterRoutes.SETTINGS_USERS
   };
   if (route && paramRoutesToParent[route as string]) {
     return paramRoutesToParent[route as string];

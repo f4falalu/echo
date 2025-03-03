@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { AppMaterialIcons } from '@/components/ui';
 import { createStyles } from 'antd-style';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -34,8 +34,8 @@ export const SubmitButton: React.FC<SubmitButtonProps> = React.memo(
       <AppTooltip
         title={tooltipText}
         shortcuts={tooltipShortcuts}
-        mouseEnterDelay={1.75}
-        mouseLeaveDelay={0}>
+        delayDuration={1.5}
+        skipDelayDuration={0}>
         <motion.button
           onClick={onSubmitPreflight}
           disabled={disableSendButton}

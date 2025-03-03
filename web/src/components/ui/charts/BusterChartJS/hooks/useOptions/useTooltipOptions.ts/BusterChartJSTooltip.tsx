@@ -5,7 +5,7 @@ import type { Chart, TooltipItem, ChartType as ChartJSChartType } from 'chart.js
 import type { ITooltipItem } from '@/components/ui/charts/BusterChartTooltip/interfaces';
 import { barAndLineTooltipHelper } from './barAndLineTooltipHelper';
 import { pieTooltipHelper } from './pieTooltipHelper';
-import { formatLabel } from '@/utils';
+import { formatLabel } from '@/lib';
 import { scatterTooltipHelper } from './scatterTooltipHelper';
 
 export const BusterChartJSTooltip: React.FC<{
@@ -16,7 +16,6 @@ export const BusterChartJSTooltip: React.FC<{
   hasCategoryAxis: boolean;
   hasMultipleMeasures: boolean;
   keyToUsePercentage: string[];
-  columnSettings: NonNullable<BusterChartProps['columnSettings']>;
 }> = ({
   chart,
   dataPoints: dataPointsProp,
@@ -24,8 +23,7 @@ export const BusterChartJSTooltip: React.FC<{
   selectedChartType,
   hasCategoryAxis,
   keyToUsePercentage,
-  hasMultipleMeasures,
-  columnSettings
+  hasMultipleMeasures
 }) => {
   const isPieChart = selectedChartType === ChartType.Pie;
   const isScatter = selectedChartType === ChartType.Scatter;

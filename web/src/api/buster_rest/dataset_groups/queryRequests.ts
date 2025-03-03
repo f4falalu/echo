@@ -23,7 +23,7 @@ import type {
   GetDatasetGroupPermissionGroupsResponse,
   GetDatasetGroupUsersResponse
 } from '../../asset_interfaces';
-import { timeout } from '@/utils';
+import { timeout } from '@/lib';
 import { queryKeys } from '@/api/query_keys';
 
 export const useListDatasetGroups = () => {

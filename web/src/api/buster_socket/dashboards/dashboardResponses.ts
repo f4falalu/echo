@@ -1,8 +1,4 @@
-import type {
-  BusterDashboard,
-  BusterDashboardListItem,
-  BusterDashboardResponse
-} from '@/api/asset_interfaces';
+import type { BusterDashboardListItem, BusterDashboardResponse } from '@/api/asset_interfaces';
 
 export enum DashboardResponses {
   '/dashboards/get:getDashboardState' = '/dashboards/get:getDashboardState',

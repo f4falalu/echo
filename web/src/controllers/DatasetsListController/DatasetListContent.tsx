@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { AppContent } from '@/components/ui/layout/AppContent';
-import { BusterUserAvatar } from '@/components/ui';
-import { formatDate } from '@/utils';
+import { AppPageLayoutContent } from '@/components/ui/layouts/AppPageLayoutContent';
+import { Avatar } from '@/components/ui/avatar';
+import { formatDate } from '@/lib';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import type { BusterDatasetListItem } from '@/api/asset_interfaces';
@@ -45,11 +45,7 @@ const columns: BusterListColumn[] = [
     width: 60,
     render: (_, dataset: BusterDatasetListItem) => (
       <div className="flex w-full justify-start">
-        <BusterUserAvatar
-          image={dataset.owner.avatar_url || undefined}
-          name={dataset.owner.name}
-          size={18}
-        />
+        <Avatar image={dataset.owner.avatar_url || undefined} name={dataset.owner.name} size={18} />
       </div>
     )
   }
@@ -82,7 +78,7 @@ export const DatasetListContent: React.FC<{
 
   return (
     <>
-      <AppContent>
+      <AppPageLayoutContent>
         <BusterList
           columns={columns}
           rows={rows}
@@ -107,7 +103,7 @@ export const DatasetListContent: React.FC<{
           selectedRowKeys={selectedRowKeys}
           onSelectChange={setSelectedRowKeys}
         />
-      </AppContent>
+      </AppPageLayoutContent>
     </>
   );
 });

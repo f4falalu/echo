@@ -1,4 +1,4 @@
-import { updateChatToIChat } from '@/utils/chat';
+import { updateChatToIChat } from '@/lib/chat';
 import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
 import { queryKeys } from '@/api/query_keys';
 import { useQueryClient } from '@tanstack/react-query';

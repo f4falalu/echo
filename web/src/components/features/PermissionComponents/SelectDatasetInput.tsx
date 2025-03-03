@@ -1,5 +1,4 @@
 import { useGetDatasets } from '@/api/buster_rest';
-import { AppSelectMultiple } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 import { Select } from 'antd';
 import React, { useMemo, useState } from 'react';
@@ -36,16 +35,18 @@ export const SelectedDatasetInput: React.FC<{
     );
   }
 
-  return (
-    <AppSelectMultiple
-      options={options}
-      onChange={onChangePreflight}
-      value={value}
-      placeholder="Select a dataset"
-      loading={!isFetched}
-      className="w-full"
-    />
-  );
+  // return (
+  //   <AppSelectMultiple
+  //     options={options}
+  //     onChange={onChangePreflight}
+  //     value={value}
+  //     placeholder="Select a dataset"
+  //     loading={!isFetched}
+  //     className="w-full"
+  //   />
+  // );
+
+  return <></>;
 });
 
 SelectedDatasetInput.displayName = 'SelectedDatasetInput';

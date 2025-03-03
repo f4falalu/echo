@@ -1,10 +1,10 @@
-import { AppSegmented, AppSegmentedProps } from '@/components/ui';
+import { AppSegmented } from '@/components/ui/segmented';
 import React, { useMemo } from 'react';
 import { CopyLinkButton } from './CopyLinkButton';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { ShareRole } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
-import { SegmentedValue } from 'antd/es/segmented';
+import { type SegmentedItem } from '@/components/ui/segmented';
 
 export enum ShareMenuTopBarOptions {
   Share = 'Share',
@@ -23,7 +23,7 @@ export const ShareMenuTopBar: React.FC<{
   ({ assetType, onCopyLink, selectedOptions, onChangeSelectedOption, permission }) => {
     const isOwner = permission === ShareRole.OWNER;
 
-    const options: AppSegmentedProps['options'] = useMemo(() => {
+    const options: SegmentedItem<ShareMenuTopBarOptions>[] = useMemo(() => {
       return [
         {
           value: ShareMenuTopBarOptions.Share,
@@ -45,8 +45,8 @@ export const ShareMenuTopBar: React.FC<{
         .map((o) => ({ ...o, show: undefined }));
     }, [assetType, isOwner]);
 
-    const onChange = useMemoizedFn((v: SegmentedValue) => {
-      onChangeSelectedOption(v as ShareMenuTopBarOptions);
+    const onChange = useMemoizedFn((v: SegmentedItem<ShareMenuTopBarOptions>) => {
+      onChangeSelectedOption(v.value);
     });
 
     return (

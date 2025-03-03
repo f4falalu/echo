@@ -25,7 +25,7 @@ export const MetricChartEvaluation: React.FC<{
   }, [evaluationScore]);
 
   const colorClass = useMemo(() => {
-    if (evaluationScore === 'Low') return 'bg-red-100 text-red-500';
+    if (evaluationScore === 'Low') return 'bg-red-200 text-red-500';
     if (evaluationScore === 'High') return 'bg-lime-100 text-lime-700';
     if (evaluationScore === 'Moderate') return 'bg-[#FFFBE6] text-amber-500';
     return 'bg-gray-100 text-gray-500';

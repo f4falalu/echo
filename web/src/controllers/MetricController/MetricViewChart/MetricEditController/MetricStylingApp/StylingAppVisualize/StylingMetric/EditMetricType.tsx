@@ -4,7 +4,7 @@ import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { LabelAndInput } from '../../Common';
 import last from 'lodash/last';
 import { useMemoizedFn } from 'ahooks';
-import { isNumericColumnStyle, isNumericColumnType } from '@/utils';
+import { isNumericColumnStyle, isNumericColumnType } from '@/lib';
 import { ColumnLabelFormat } from '@/components/ui/charts';
 
 export const AGGREGATE_OPTIONS: {

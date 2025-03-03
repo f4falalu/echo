@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { AppMaterialIcons } from '@/components/ui';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { Button, Dropdown, DropdownProps } from 'antd';
-import { StatusBadgeButton } from '@/components/features/lists';
+import { StatusBadgeButton } from '@/components/features/list';
 import { VerificationStatus } from '@/api/asset_interfaces';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useUserConfigContextSelector } from '@/context/Users';
@@ -123,14 +123,22 @@ const StatusButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
+  const onVerifiedMetric = useBusterMetricsIndividualContextSelector(
+    (state) => state.onVerifiedMetric
+  );
+  const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
+
+  const onVerify = useMemoizedFn(async (d: { id: string; status: VerificationStatus }[]) => {
+    //   await onVerifiedMetric(d);
+    onSelectChange([]);
+  });
+
   return (
     <StatusBadgeButton
       status={VerificationStatus.notRequested}
-      type="metric"
       id={selectedRowKeys}
-      onChangedStatus={async () => {
-        onSelectChange([]);
-      }}
+      onVerify={onVerify}
+      isAdmin={isAdmin}
     />
   );
 };

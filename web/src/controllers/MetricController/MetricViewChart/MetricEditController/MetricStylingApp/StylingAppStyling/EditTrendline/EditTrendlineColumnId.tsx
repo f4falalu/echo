@@ -1,5 +1,5 @@
 import type { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { formatLabel } from '@/utils';
+import { formatLabel } from '@/lib';
 import { Select } from 'antd';
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../Common';

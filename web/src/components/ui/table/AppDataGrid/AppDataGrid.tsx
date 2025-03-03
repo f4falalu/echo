@@ -15,10 +15,10 @@ import isString from 'lodash/isString';
 import { Text } from '@/components/ui';
 import round from 'lodash/round';
 import { ErrorBoundary } from '@/components/ui/error';
+import { CaretDown } from '../../icons/NucleoIconFilled';
 
 //https://www.npmjs.com/package/react-spreadsheet-grid#live-playground
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { createStyles } from 'antd-style';
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   useDebounce,
   useDebounceEffect,
@@ -28,7 +28,6 @@ import {
   useSize
 } from 'ahooks';
 import sampleSize from 'lodash/sampleSize';
-import { AppMaterialIcons } from '../../icons';
 import isEmpty from 'lodash/isEmpty';
 import {
   createInitialColumnWidths,
@@ -36,6 +35,7 @@ import {
   defaultHeaderFormat,
   MIN_WIDTH
 } from './helpers';
+import styles from './AppDataGrid.module.css';
 
 type Row = Record<string, string | number | null | Date>;
 
@@ -87,7 +87,6 @@ export const AppDataGrid: React.FC<AppDataGridProps> = React.memo(
 
     const hasErroredOnce = useRef(false);
     const containerRef = useRef<HTMLDivElement | null>(null);
-    const { styles, cx } = useStyles();
 
     const widthOfContainer = useDebounce(useSize(containerRef)?.width ?? initialWidth, {
       wait: 20,
@@ -345,12 +344,12 @@ export const AppDataGrid: React.FC<AppDataGridProps> = React.memo(
         <ErrorBoundary onError={handleErrorBoundary}>
           <div
             ref={containerRef}
-            className={cx('flex h-full w-full', styles.dataGridContainer)}
+            className={'bg-background flex h-full w-full flex-col'}
             style={{
               transition: animate ? 'opacity 0.25s' : undefined
             }}>
             <DataGrid
-              className={cx(styles.dataGrid)}
+              className={styles.dataGrid}
               columns={reorderedColumns}
               rows={sortedRows}
               sortColumns={sortColumns}
@@ -397,14 +396,13 @@ const HeaderCell: React.FC<
         {headerFormat(name, key)}
       </Text>
       {sortable && sortDirection && (
-        <AppMaterialIcons
-          size={19}
-          className="transition"
+        <div
+          className="text-icon-color text-xs transition"
           style={{
             transform: `rotate(${sortDirection === 'ASC' ? 0 : 180}deg)`
-          }}
-          icon="arrow_drop_down"
-        />
+          }}>
+          <CaretDown />
+        </div>
       )}
     </div>
   );
@@ -425,86 +423,3 @@ const GridCell: React.FC<
 GridCell.displayName = 'GridCell';
 
 export default AppDataGrid;
-
-const useStyles = createStyles(({ css, token }) => {
-  return {
-    dataGridContainer: css`
-      display: flex;
-      flex-direction: column;
-      background: ${token.colorBgBase};
-    `,
-    dataGrid: css`
-      block-size: 100%;
-      // border-width: revert-layer;
-      // border-style: revert-layer;
-      // border-color: ${token.colorBorder};
-
-      .rdg-header-row {
-        .rdg-cell {
-          font-weight: ${token.fontWeightStrong};
-          overflow: hidden;
-          border-width: 0.5px;
-
-          .rdg-header-sort-name {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: block !important;
-          }
-
-          span:nth-child(1) {
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-
-          &:last-child {
-            border-right: 0px solid;
-          }
-        }
-      }
-
-      .rdg-row {
-        .rdg-cell {
-          border-bottom-color: ${token.colorBorder};
-          white-space: break-spaces;
-          word-wrap: break-word;
-          overflow-y: auto;
-          border-width: 0.5px;
-
-          &:last-child {
-            border-right: 0px solid;
-          }
-        }
-
-        &:has(+ div.rdg-row) {
-          .rdg-cell {
-            border-bottom: 0.5px solid ${token.colorBorder} !important;
-          }
-        }
-      }
-
-      .rdg-cell-copied {
-        background-color: ${token.colorPrimaryBgHover};
-      }
-
-      * {
-        border-width: revert-layer;
-        border-style: revert-layer;
-        border-color: ${token.colorBorder};
-      }
-
-      --rdg-color: ${token.colorTextBase};
-      --rdg-border-color: ${token.colorBorder};
-      --rdg-header-background-color: ${token.colorBgBase};
-      --rdg-selection-color: ${token.colorPrimary};
-      --rdg-checkbox-focus-color: ${token.colorPrimaryHover};
-      --rdg-font-size: ${token.fontSize}px;
-      --rdg-row-selected-background-color: ${token.colorPrimaryBg};
-      --rdg-row-selected-hover-background-color: ${token.colorPrimaryBgHover};
-      --rdg-row-hover-background-color: ${token.controlItemBgHover};
-      --rdg-header-draggable-background-color: ${token.colorPrimaryBgHover};
-      --rdg-background-color: ${token.colorBgBase};
-    `
-  };
-});

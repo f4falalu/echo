@@ -4,7 +4,7 @@ import { BusterListRow } from './interfaces';
 import { useMemoizedFn } from 'ahooks';
 import { CheckboxColumn } from './CheckboxColumn';
 import { getAllIdsInSection } from './helpers';
-import { createStyles } from 'antd-style';
+import { cn } from '@/lib/classMerge';
 import { HEIGHT_OF_SECTION_ROW } from './config';
 
 export const BusterListSectionComponent = React.memo(
@@ -24,8 +24,6 @@ export const BusterListSectionComponent = React.memo(
       { rowSection, onSelectSectionChange, id, selectedRowKeys, rows, style, rowClassName },
       ref
     ) => {
-      const { styles, cx } = useStyles();
-
       const indexOfSection = useMemo(() => {
         return rows.findIndex((row) => row.id === id);
       }, [rows.length, id]);
@@ -52,20 +50,23 @@ export const BusterListSectionComponent = React.memo(
 
       return (
         <div
-          className={cx(
-            styles.sectionRow,
-            'group flex items-center',
-            !!onSelectSectionChange && 'hoverable',
+          className={cn(
+            'bg-item-select group flex items-center',
+            !!onSelectSectionChange && 'hover:bg-item-hover-active',
             !onSelectSectionChange && 'pl-3.5',
             rowClassName
           )}
-          style={style}
+          style={{
+            height: `${HEIGHT_OF_SECTION_ROW}px`,
+            minHeight: `${HEIGHT_OF_SECTION_ROW}px`,
+            ...style
+          }}
           ref={ref}>
           {onSelectSectionChange && (
             <CheckboxColumn checkStatus={checkStatus} onChange={onChange} />
           )}
 
-          <div className={cx('flex items-center space-x-2 pl-[0px] leading-none')}>
+          <div className={cn('flex items-center space-x-2 pl-[0px] leading-none')}>
             <Text size="sm">{rowSection.title}</Text>
             <Text size="sm" type="tertiary">
               {rowSection.secondaryTitle}
@@ -77,17 +78,3 @@ export const BusterListSectionComponent = React.memo(
   )
 );
 BusterListSectionComponent.displayName = 'BusterListSectionComponent';
-
-export const useStyles = createStyles(({ css, token }) => ({
-  sectionRow: css`
-    height: ${HEIGHT_OF_SECTION_ROW}px;
-    min-height: ${HEIGHT_OF_SECTION_ROW}px;
-    background-color: ${token.controlItemBgActive};
-
-    .hoverable {
-      &:hover {
-        background-color: ${token.controlItemBgActiveHover};
-      }
-    }
-  `
-}));

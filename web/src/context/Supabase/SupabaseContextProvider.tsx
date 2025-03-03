@@ -4,7 +4,7 @@ import React, { PropsWithChildren, useLayoutEffect, useRef, useState } from 'rea
 import { UseSupabaseContextType } from './useSupabaseContext';
 import { useMemoizedFn } from 'ahooks';
 import { User } from '@supabase/supabase-js';
-import { millisecondsFromUnixTimestamp } from '@/utils';
+import { millisecondsFromUnixTimestamp } from '@/lib';
 import {
   createContext,
   useContextSelector,
@@ -12,8 +12,6 @@ import {
 } from '@fluentui/react-context-selector';
 import { checkTokenValidityFromServer as checkTokenValidityFromServerApiCall } from '@/api/buster_rest/nextjs/auth';
 import { jwtDecode } from 'jwt-decode';
-
-const STAGING_DEBUGGER = process.env.NODE_ENV === 'production';
 
 export type SupabaseContextType = {
   accessToken: string;

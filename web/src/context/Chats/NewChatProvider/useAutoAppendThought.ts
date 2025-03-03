@@ -6,7 +6,7 @@ import { useMemoizedFn } from 'ahooks';
 import sample from 'lodash/sample';
 import last from 'lodash/last';
 import { useBusterChatContextSelector } from '../ChatProvider';
-import { timeout } from '@/utils';
+import { timeout } from '@/lib';
 import random from 'lodash/random';
 
 export const useAutoAppendThought = () => {

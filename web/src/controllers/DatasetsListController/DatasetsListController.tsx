@@ -6,7 +6,8 @@ import { useUserConfigContextSelector } from '@/context/Users';
 import { useMemo, useState } from 'react';
 import { DatasetListContent } from './DatasetListContent';
 import { DatasetHeader } from './DatasetsHeader';
-import { NewDatasetModal } from '@/components/features/modals/NewDatasetModal';
+import { NewDatasetModal } from '@/components/features/modal/NewDatasetModal';
+import { AppPageLayout } from '@/components/ui/layouts';
 
 export const DatasetsListController: React.FC<{}> = ({}) => {
   const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
@@ -36,13 +37,15 @@ export const DatasetsListController: React.FC<{}> = ({}) => {
   const { isFetched: isFetchedDatasets, data: datasetsList } = useGetDatasets(datasetsParams);
 
   return (
-    <>
-      <DatasetHeader
-        datasetFilter={datasetFilter}
-        setDatasetFilter={setDatasetFilter}
-        openNewDatasetModal={openDatasetModal}
-        setOpenNewDatasetModal={setOpenDatasetModal}
-      />
+    <AppPageLayout
+      header={
+        <DatasetHeader
+          datasetFilter={datasetFilter}
+          setDatasetFilter={setDatasetFilter}
+          openNewDatasetModal={openDatasetModal}
+          setOpenNewDatasetModal={setOpenDatasetModal}
+        />
+      }>
       <DatasetListContent
         datasetsList={datasetsList || []}
         isFetchedDatasets={isFetchedDatasets}
@@ -51,6 +54,6 @@ export const DatasetsListController: React.FC<{}> = ({}) => {
       />
 
       <NewDatasetModal open={openDatasetModal} onClose={() => setOpenDatasetModal(false)} />
-    </>
+    </AppPageLayout>
   );
 };

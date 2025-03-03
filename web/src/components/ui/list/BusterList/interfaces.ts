@@ -1,20 +1,14 @@
-import { MenuProps } from 'antd';
-import type { MenuDividerType } from 'antd/es/menu/interface';
-import type {
-  MenuItemType as RcMenuItemType,
-  SubMenuType as RcSubMenuType
-} from 'rc-menu/lib/interface';
-
 import React from 'react';
+import { type ContextMenuProps } from '../../context/ContextMenu';
 export interface BusterListProps {
   columns: BusterListColumn[];
-  columnRowVariant?: 'default' | 'containerized';
+  hideLastRowBorder?: boolean;
   rows: BusterListRow[];
   onSelectChange?: (selectedRowKeys: string[]) => void;
   emptyState?: undefined | React.ReactNode | string;
   showHeader?: boolean;
   selectedRowKeys?: string[];
-  contextMenu?: BusterListContextMenu;
+  contextMenu?: ContextMenuProps;
   showSelectAll?: boolean;
   useRowClickSelectChange?: boolean;
   rowClassName?: string;
@@ -47,27 +41,3 @@ export interface BusterListSectionRow {
   secondaryTitle?: string;
   disableSection?: boolean;
 }
-
-//CONTEXT MENU INTERFACES
-export interface BusterListContextMenu extends Omit<MenuProps, 'items'> {
-  items: BusterListMenuItemType[];
-}
-
-export interface BusterMenuItemType extends Omit<RcMenuItemType, 'onSelect' | 'onClick'> {
-  danger?: boolean;
-  icon?: React.ReactNode;
-  title?: string;
-  onClick?: (id: string) => void;
-  key: string;
-}
-export interface SubMenuType<T extends BusterMenuItemType = BusterMenuItemType>
-  extends Omit<RcSubMenuType, 'children' | 'onClick'> {
-  icon?: React.ReactNode;
-  theme?: 'dark' | 'light';
-  children: BusterListMenuItemType<T>[];
-}
-export type BusterListMenuItemType<T extends BusterMenuItemType = BusterMenuItemType> =
-  | T
-  | SubMenuType<T>
-  | MenuDividerType
-  | null;

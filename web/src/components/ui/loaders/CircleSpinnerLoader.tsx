@@ -3,7 +3,6 @@ import React from 'react';
 export const CircleSpinnerLoader: React.FC<{
   size?: number;
   fill?: string;
-  trackColor?: string;
 }> = ({ size = 28, fill = '#7E3AF2' }) => {
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
@@ -15,7 +14,7 @@ export const CircleSpinnerLoader: React.FC<{
         }}>
         <svg
           aria-hidden="true"
-          className={`mr-2 animate-spin text-gray-200`} /*dark:text-gray-600 */
+          className={`mr-2 animate-spin text-gray-200 dark:text-gray-500`} /* */
           viewBox="0 0 100 101"
           fill={fill}
           style={{

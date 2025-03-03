@@ -6,14 +6,10 @@ import {
 } from '@/components/ui/charts/interfaces';
 import { AnnotationOptions, AnnotationPluginOptions } from 'chartjs-plugin-annotation';
 import { useMemo } from 'react';
-import { ChartOptions, PluginChartOptions } from 'chart.js';
-import { busterAppStyleConfig } from '@/styles/busterAntDStyleConfig';
-import { formatLabel } from '@/utils/columnFormatter';
+import { formatLabel } from '@/lib/columnFormatter';
 import { yAxisSimilar } from '@/components/ui/charts/commonHelpers';
 import { extractFieldsFromChain } from '@/components/ui/charts/chartHooks';
 import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOptionConfig';
-
-const token = busterAppStyleConfig.token!;
 
 export const useGoalLines = ({
   goalLines,

@@ -1,6 +1,8 @@
 import React from 'react';
 import { createStyles } from 'antd-style';
-import { Text, EditableTitle } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
+import { EditableTitle } from '@/components/ui/typography/EditableTitle';
+
 import { ConfigProvider, Skeleton } from 'antd';
 
 export const MetricViewChartHeader: React.FC<{
@@ -24,16 +26,16 @@ export const MetricViewChartHeader: React.FC<{
           <div className="flex items-center space-x-1">
             {!!timeFrame && (
               <>
-                <Text type="secondary" className="text-sm!">
+                <Text size={'sm'} variant="secondary">
                   {timeFrame}
                 </Text>
-                <Text type="secondary" className="text-sm!">
+                <Text size={'sm'} variant="secondary">
                   •
                 </Text>
               </>
             )}
 
-            <Text type="secondary" className="truncate text-sm!">
+            <Text size={'sm'} variant="secondary" truncate>
               {description}
             </Text>
           </div>

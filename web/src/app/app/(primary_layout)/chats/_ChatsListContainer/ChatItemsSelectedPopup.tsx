@@ -1,0 +1,175 @@
+import React, { useState } from 'react';
+import { AppMaterialIcons } from '@/components/ui';
+import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
+import { Button, Dropdown, DropdownProps } from 'antd';
+import { StatusBadgeButton } from '@/components/features/list';
+import { VerificationStatus } from '@/api/asset_interfaces';
+import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
+import { useUserConfigContextSelector } from '@/context/Users';
+import { useBusterCollectionListContextSelector } from '@/context/Collections';
+import { useMemoizedFn, useMount } from 'ahooks';
+import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+
+export const ChatSelectedOptionPopup: React.FC<{
+  selectedRowKeys: string[];
+  onSelectChange: (selectedRowKeys: string[]) => void;
+  hasSelected: boolean;
+}> = ({ selectedRowKeys, onSelectChange, hasSelected }) => {
+  return (
+    <BusterListSelectedOptionPopupContainer
+      selectedRowKeys={selectedRowKeys}
+      onSelectChange={onSelectChange}
+      buttons={[
+        <CollectionsButton
+          key="collections"
+          selectedRowKeys={selectedRowKeys}
+          onSelectChange={onSelectChange}
+        />,
+        <DashboardButton
+          key="dashboard"
+          selectedRowKeys={selectedRowKeys}
+          onSelectChange={onSelectChange}
+        />,
+
+        <DeleteButton
+          key="delete"
+          selectedRowKeys={selectedRowKeys}
+          onSelectChange={onSelectChange}
+        />,
+        <ThreeDotButton
+          key="three-dot"
+          selectedRowKeys={selectedRowKeys}
+          onSelectChange={onSelectChange}
+        />
+      ]}
+      show={hasSelected}
+    />
+  );
+};
+
+const CollectionsButton: React.FC<{
+  selectedRowKeys: string[];
+  onSelectChange: (selectedRowKeys: string[]) => void;
+}> = ({ selectedRowKeys, onSelectChange }) => {
+  const { openInfoMessage } = useBusterNotifications();
+  const saveMetricToCollection = useBusterMetricsIndividualContextSelector(
+    (state) => state.saveMetricToCollection
+  );
+  const removeMetricFromCollection = useBusterMetricsIndividualContextSelector(
+    (state) => state.removeMetricFromCollection
+  );
+
+  const collectionsList = useBusterCollectionListContextSelector((state) => state.collectionsList);
+
+  const [selectedCollections, setSelectedCollections] = useState<
+    Parameters<typeof SaveToCollectionsDropdown>[0]['selectedCollections']
+  >([]);
+
+  const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
+    setSelectedCollections(collectionIds);
+    const allSaves: Promise<void>[] = selectedRowKeys.map((metricId) => {
+      return saveMetricToCollection({
+        metricId,
+        collectionIds
+      });
+    });
+    await Promise.all(allSaves);
+    openInfoMessage('Metrics saved to collections');
+  });
+
+  const onRemoveFromCollection = useMemoizedFn(async (collectionId: string) => {
+    setSelectedCollections((prev) => prev.filter((id) => id !== collectionId));
+    const allSelectedButLast = selectedRowKeys.slice(0, -1);
+    const lastMetricId = selectedRowKeys[selectedRowKeys.length - 1];
+    const allRemoves: Promise<void>[] = allSelectedButLast.map((metricId) => {
+      return removeMetricFromCollection({ metricId, collectionId });
+    });
+    await removeMetricFromCollection({
+      metricId: lastMetricId,
+      collectionId
+    });
+    await Promise.all(allRemoves);
+    openInfoMessage('Metrics removed from collections');
+  });
+
+  return (
+    <SaveToCollectionsDropdown
+      onSaveToCollection={onSaveToCollection}
+      onRemoveFromCollection={onRemoveFromCollection}
+      selectedCollections={selectedCollections}>
+      <Button icon={<AppMaterialIcons icon="note_stack" />} type="default">
+        Collections
+      </Button>
+    </SaveToCollectionsDropdown>
+  );
+};
+
+const DashboardButton: React.FC<{
+  selectedRowKeys: string[];
+  onSelectChange: (selectedRowKeys: string[]) => void;
+}> = ({ selectedRowKeys, onSelectChange }) => {
+  return (
+    <Dropdown menu={{ items: [{ label: 'Dashboard', key: 'dashboard' }] }}>
+      <Button icon={<AppMaterialIcons icon="grid_view" fill />} type="default">
+        Dashboard
+      </Button>
+    </Dropdown>
+  );
+};
+
+const DeleteButton: React.FC<{
+  selectedRowKeys: string[];
+  onSelectChange: (selectedRowKeys: string[]) => void;
+}> = ({ selectedRowKeys, onSelectChange }) => {
+  const deleteMetric = useBusterMetricsIndividualContextSelector((state) => state.deleteMetric);
+
+  const onDeleteClick = async () => {
+    await deleteMetric({ ids: selectedRowKeys });
+    onSelectChange([]);
+  };
+
+  return (
+    <Button icon={<AppMaterialIcons icon="delete" />} type="default" onClick={onDeleteClick}>
+      Delete
+    </Button>
+  );
+};
+
+const ThreeDotButton: React.FC<{
+  selectedRowKeys: string[];
+  onSelectChange: (selectedRowKeys: string[]) => void;
+}> = ({ selectedRowKeys, onSelectChange }) => {
+  const bulkEditFavorites = useUserConfigContextSelector((state) => state.bulkEditFavorites);
+  const userFavorites = useUserConfigContextSelector((state) => state.userFavorites);
+
+  const dropdownOptions: Required<DropdownProps>['menu']['items'] = [
+    {
+      label: 'Add to favorites',
+      icon: <AppMaterialIcons icon="star" />,
+      key: 'add-to-favorites',
+      onClick: async () => {
+        const allFavorites: string[] = [...userFavorites.map((f) => f.id), ...selectedRowKeys];
+        //   bulkEditFavorites(allFavorites);
+        alert('TODO - feature not implemented yet');
+      }
+    },
+    {
+      label: 'Remove from favorites',
+      icon: <AppMaterialIcons icon="close" />,
+      key: 'remove-from-favorites',
+      onClick: async () => {
+        const allFavorites: string[] = userFavorites
+          .map((f) => f.id)
+          .filter((id) => !selectedRowKeys.includes(id));
+        bulkEditFavorites(allFavorites);
+      }
+    }
+  ];
+
+  return (
+    <Dropdown menu={{ items: dropdownOptions }} trigger={['click']}>
+      <Button icon={<AppMaterialIcons icon="more_horiz" />} type="default" />
+    </Dropdown>
+  );
+};

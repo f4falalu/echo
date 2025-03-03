@@ -355,7 +355,8 @@ const theme: editor.IStandaloneThemeData = {
     'editorWhitespace.foreground': '#959da5',
     'editorIndentGuide.background': '#959da5',
     'editorIndentGuide.activeBackground': '#24292e',
-    'editor.selectionHighlightBorder': '#fafbfc'
+    'editor.selectionHighlightBorder': '#fafbfc',
+    focusBorder: '#00000000'
   }
 };
 

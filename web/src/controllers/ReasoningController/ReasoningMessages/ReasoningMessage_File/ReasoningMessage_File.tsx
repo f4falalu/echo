@@ -4,8 +4,7 @@ import { BusterChatMessageReasoning_file } from '@/api/asset_interfaces';
 import {
   AppCodeBlockWrapper,
   SyntaxHighlighterLightTheme
-} from '@/components/ui/text/AppMarkdown/AppCodeBlock';
-import { useBusterStylesContext } from '@/context/BusterStyles';
+} from '@/components/ui/typography/AppCodeBlock';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LoaderDot } from './LoaderDot';
@@ -36,7 +35,6 @@ export const ReasoningMessage_File: React.FC<ReasoningMessageProps> = React.memo
   ({ reasoningMessage, isCompletedStream, isLastMessageItem, chatId }) => {
     const { file, file_name, file_type, version_id, version_number, status } =
       reasoningMessage as BusterChatMessageReasoning_file;
-    const isDarkMode = useBusterStylesContext((s) => s.isDarkMode);
 
     const showLoader = !isCompletedStream && isLastMessageItem;
 
@@ -76,7 +74,6 @@ export const ReasoningMessage_File: React.FC<ReasoningMessageProps> = React.memo
           title={<ReasoningFileTitle file_name={file_name} version_number={version_number} />}
           language={'yaml'}
           showCopyButton={false}
-          isDarkMode={isDarkMode}
           buttons={
             <ReasoningFileButtons
               fileType={file_type}

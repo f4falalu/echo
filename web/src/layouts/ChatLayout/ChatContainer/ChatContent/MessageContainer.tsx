@@ -1,4 +1,4 @@
-import { BusterUserAvatar, BusterAvatar } from '@/components/ui/image';
+import { Avatar } from '@/components/ui/avatar';
 import { createStyles } from 'antd-style';
 import React from 'react';
 
@@ -13,9 +13,9 @@ export const MessageContainer: React.FC<{
   return (
     <div className={cx('flex w-full space-x-2 overflow-hidden')}>
       {senderName ? (
-        <BusterUserAvatar size={24} name={senderName} src={senderAvatar} useToolTip={true} />
+        <Avatar size={24} name={senderName} image={senderAvatar || ''} useToolTip={true} />
       ) : (
-        <BusterAvatar size={24} />
+        <Avatar size={24} />
       )}
       <div className={cx(className, 'px-1')}>{children}</div>
     </div>

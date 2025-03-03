@@ -3,13 +3,8 @@ import type { ChartType as ChartJSChartType } from 'chart.js';
 import type { DeepPartial } from 'utility-types';
 import type { PluginChartOptions } from 'chart.js';
 import { ChartSpecificOptionsProps } from './interfaces';
-import { busterAppStyleConfig } from '@/styles/busterAntDStyleConfig';
 import { AnnotationPluginOptions } from 'chartjs-plugin-annotation';
 import { ChartEncodes } from '@/components/ui/charts/interfaces';
-import { defaultLabelOptionConfig } from './labelOptionConfig';
-import { formatYAxisLabel } from '@/components/ui/charts/commonHelpers';
-
-const token = busterAppStyleConfig.token!;
 
 export const barOptionsHandler = (
   props: ChartSpecificOptionsProps

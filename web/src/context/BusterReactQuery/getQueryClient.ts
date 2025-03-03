@@ -5,7 +5,8 @@ function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: PREFETCH_STALE_TIME
+        staleTime: PREFETCH_STALE_TIME,
+        queryFn: () => Promise.resolve()
       },
       dehydrate: {
         // include pending queries in dehydration

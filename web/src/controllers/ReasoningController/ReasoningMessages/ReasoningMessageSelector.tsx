@@ -3,7 +3,7 @@ import type {
   BusterChatMessageReasoning,
   BusterChatMessageReasoning_text
 } from '@/api/asset_interfaces';
-import { StreamingMessage_Text } from '@/components/features/Streaming/StreamingMessage_Text';
+import { StreamingMessage_Text } from '@/components/ui/streaming/StreamingMessage_Text';
 import { ReasoningMessage_Thought } from './ReasoningMessage_Thought';
 import { ReasoningMessage_File } from './ReasoningMessage_File';
 

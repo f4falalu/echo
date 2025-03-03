@@ -1,0 +1,67 @@
+.dataGrid {
+  block-size: 100%;
+}
+
+.dataGrid .rdg-header-row .rdg-cell {
+  font-weight: 600;
+  overflow: hidden;
+  border-width: 0.5px;
+}
+
+.dataGrid .rdg-header-row .rdg-cell .rdg-header-sort-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block !important;
+}
+
+.dataGrid .rdg-header-row .rdg-cell span:nth-child(1) {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dataGrid .rdg-header-row .rdg-cell:last-child {
+  border-right: 0px solid;
+}
+
+.dataGrid .rdg-row .rdg-cell {
+  border-bottom-color: var(--color-border);
+  white-space: break-spaces;
+  word-wrap: break-word;
+  overflow-y: auto;
+  border-width: 0.5px;
+}
+
+.dataGrid .rdg-row .rdg-cell:last-child {
+  border-right: 0px solid;
+}
+
+.dataGrid .rdg-row:has(+ div.rdg-row) .rdg-cell {
+  border-bottom: 0.5px solid var(--color-border) !important;
+}
+
+.dataGrid .rdg-cell-copied {
+  background-color: var(--color-item-hover);
+}
+
+.dataGrid * {
+  border-width: revert-layer;
+  border-style: revert-layer;
+  border-color: var(--color-border);
+}
+
+/* React Data Grid variables */
+.dataGrid {
+  --rdg-color: var(--color-text-default);
+  --rdg-border-color: var(--color-border);
+  --rdg-header-background-color: var(--color-background);
+  --rdg-selection-color: var(--color-primary);
+  --rdg-checkbox-focus-color: var(--color-primary-light);
+  --rdg-font-size: var(--text-base);
+  --rdg-row-selected-background-color: var(--color-item-select);
+  --rdg-row-selected-hover-background-color: var(--color-item-hover);
+  --rdg-row-hover-background-color: var(--color-item-hover);
+  --rdg-header-draggable-background-color: var(--color-item-hover);
+  --rdg-background-color: var(--color-background);
+}

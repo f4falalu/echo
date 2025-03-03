@@ -168,7 +168,6 @@ export default function ChartJS() {
           pieDisplayLabelAs={displayLabelAs}
           pieShowInnerLabel={true}
           showLegendHeadline={'average'}
-          renderType="chartjs"
           showLegend={true}
           yAxisStartAxisAtZero={yAxisStartAxisAtZero}
           yAxisScaleType={yAxisScaleType}

@@ -1,5 +1,6 @@
 import type { BusterMetric } from '@/api/asset_interfaces';
-import { AppMaterialIcons, Title, Text } from '@/components/ui';
+import { AppMaterialIcons, Text } from '@/components/ui';
+import { Title } from '@/components/ui/typography';
 import { SortableItemContext } from '@/components/ui/grid/_BusterSortableItemDragContainer';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';
@@ -50,7 +51,7 @@ export const MetricTitle: React.FC<{
           <div className="flex w-full justify-between space-x-0.5">
             <Title
               {...titleConfig}
-              level={4}
+              as="h4"
               className="text-md! max-w-[calc(100%_-_22px)]"
               style={{ fontSize: '14px' }}>
               {`${title}`}

@@ -1,5 +1,5 @@
 import { IColumnLabelFormat } from '@/components/ui/charts';
-import { formatLabel } from '@/utils';
+import { formatLabel } from '@/lib';
 import React, { useMemo } from 'react';
 import { Text } from '@/components/ui';
 import { createStyles } from 'antd-style';

@@ -16,7 +16,7 @@ import React, { useMemo, useState } from 'react';
 import { PermissionUsersSelectedPopup } from './PermissionUsersSelectedPopup';
 import { PERMISSION_USERS_OPTIONS } from './config';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { ListUserItem } from '@/components/features/lists';
+import { ListUserItem } from '@/components/features/list';
 
 export const PermissionListUsersContainer: React.FC<{
   filteredPermissionUsers: ListPermissionUsersResponse[];
@@ -73,7 +73,7 @@ export const PermissionListUsersContainer: React.FC<{
           id: permissionUser.id,
           data: permissionUser,
           link: createBusterRoute({
-            route: BusterRoutes.APP_SETTINGS_USERS_ID,
+            route: BusterRoutes.SETTINGS_USERS_ID,
             userId: permissionUser.id
           })
         };

@@ -1,14 +1,16 @@
 import React from 'react';
-import { AppMaterialIcons, Text, Title } from '@/components/ui';
-import { Button } from 'antd';
+import { AppMaterialIcons } from '@/components/ui';
+import { Title, Text } from '@/components/ui/typography';
+import { Button } from '../buttons/Button';
 
 export const ListEmptyStateWithButton: React.FC<{
   isAdmin?: boolean;
   title: string;
   description: string;
-  onClick: () => void;
+  onClick?: () => void;
   buttonText: string;
   loading?: boolean;
+  linkButton?: string;
 }> = React.memo(({ isAdmin = true, title, buttonText, description, onClick, loading = false }) => {
   return (
     <div className="flex h-full w-full flex-col">
@@ -18,17 +20,17 @@ export const ListEmptyStateWithButton: React.FC<{
           marginTop: '25vh'
         }}>
         <div className="flex w-[350px] flex-col justify-center space-y-3">
-          <Title level={4} className="text-center [text-wrap:balance]">
+          <Title as="h4" className="text-center [text-wrap:balance]">
             {title}
           </Title>
 
-          <Text type="secondary">{description}</Text>
+          <Text variant="secondary">{description}</Text>
         </div>
 
         {isAdmin && (
           <Button
-            type="default"
-            icon={<AppMaterialIcons icon="add" />}
+            variant="default"
+            prefix={<AppMaterialIcons icon="add" />}
             loading={loading}
             onClick={onClick}>
             {buttonText}

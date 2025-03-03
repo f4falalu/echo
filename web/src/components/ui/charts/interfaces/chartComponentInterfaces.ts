@@ -6,7 +6,6 @@ export interface BusterChartTypeComponentProps
   extends Omit<
     Required<BusterChartComponentProps>,
     | 'data'
-    | 'renderType'
     | 'loading'
     | 'showLegend'
     | 'showLegendHeadline'
@@ -21,7 +20,7 @@ export interface BusterChartTypeComponentProps
 export interface BusterChartComponentProps
   extends Omit<
       Required<BusterChartRenderComponentProps>,
-      'renderType' | 'selectedAxis' | 'barSortBy' | 'trendlines' | 'data'
+      'selectedAxis' | 'barSortBy' | 'trendlines' | 'data'
     >,
     ReturnType<typeof useDatasetOptions> {
   selectedAxis: ChartEncodes;

@@ -3,13 +3,12 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { BusterResizeableGridRow } from './interfaces';
 import { BusterResizeColumns } from './BusterResizeColumns';
-import classNames from 'classnames';
 import { BusterNewItemDropzone } from './_BusterBusterNewItemDropzone';
 import { MIN_ROW_HEIGHT, TOP_SASH_ID, NEW_ROW_ID, MAX_ROW_HEIGHT } from './config';
-import { createStyles } from 'antd-style';
 import clamp from 'lodash/clamp';
 import { useDebounceFn, useMemoizedFn, useUpdateLayoutEffect } from 'ahooks';
 import { useDroppable } from '@dnd-kit/core';
+import { cn } from '@/lib/classMerge';
 
 export const BusterResizeRows: React.FC<{
   rows: BusterResizeableGridRow[];
@@ -57,10 +56,10 @@ export const BusterResizeRows: React.FC<{
   return (
     <div
       ref={ref}
-      className={classNames(
+      className={cn(
+        className,
         'buster-resize-row relative',
         'mb-10 flex h-full w-full flex-col space-y-3 transition',
-        className,
         'opacity-100'
       )}>
       <ResizeRowHandle
@@ -107,60 +106,6 @@ export const BusterResizeRows: React.FC<{
   );
 };
 
-export const useDropzoneStyles = createStyles(({ css, token }) => ({
-  dropzone: css`
-    transition: background-color 0.2s ease;
-    background-color: ${token.colorBorderSecondary};
-
-    &.active {
-      opacity: 1;
-      z-index: 2;
-      background: ${token.colorPrimary} !important;
-    }
-  `
-}));
-
-const useStyles = createStyles(({ css, token }) => ({
-  dragger: css`
-    transition: background-color 0.2s ease;
-
-    &.dragger {
-      cursor: row-resize;
-      &:hover {
-        background-color: ${token.colorBorder};
-      }
-    }
-
-    &.active {
-      background-color: ${token.colorPrimary} !important;
-    }
-  `,
-  hitArea: css`
-    left: 0;
-    right: 0;
-    height: 54px; // Reduced from 54px to be more reasonable
-    position: absolute;
-    z-index: 9;
-    pointer-events: none;
-
-    // Remove background-color and opacity for production
-    // background-color: red;
-    opacity: 0;
-
-    // &.active {
-    //   opacity: 0;
-    // }
-
-    &.top {
-      top: -36px; // Position the hit area to straddle the dragger
-    }
-
-    &:not(.top) {
-      bottom: -15px; // Position the hit area to straddle the dragger
-    }
-  `
-}));
-
 const ResizeRowHandle: React.FC<{
   id: string;
   index?: number;
@@ -173,8 +118,6 @@ const ResizeRowHandle: React.FC<{
   hideDropzone?: boolean;
 }> = React.memo(
   ({ hideDropzone, top, id, active, allowEdit, setIsDraggingResizeId, index, sizes, onResize }) => {
-    const { styles, cx } = useStyles();
-    const { styles: dropzoneStyles } = useDropzoneStyles();
     const { setNodeRef, isOver, over } = useDroppable({
       id: `${NEW_ROW_ID}_${id}}`,
       disabled: !allowEdit,
@@ -221,18 +164,24 @@ const ResizeRowHandle: React.FC<{
       <div className="relative">
         <div
           id={id}
-          className={cx(
-            showDropzone && allowEdit && dropzoneStyles.dropzone,
-            'h-[4px] w-2 w-full select-none rounded-sm',
-            allowEdit && styles.dragger,
-            !top && 'dragger absolute',
-            showActive && 'active'
+          className={cn(
+            allowEdit && 'hover:bg-border cursor-row-resize',
+            showActive && 'bg-primary! z-10 opacity-100',
+            'h-[4px] w-full rounded-sm transition-colors duration-200 ease-in-out select-none',
+            !top && 'dragger absolute'
           )}
           style={memoizedStyle}
           onMouseDown={onMouseDown}
         />
         <div
-          className={cx(styles.hitArea, top && 'top', showActive && 'active')}
+          className={cn(
+            // 'pointer-events-none absolute right-0 left-0 z-50 h-[54px] bg-red-200 opacity-20',
+            // top ? '-top-[36px]' : '-bottom-[15px]',
+            // showActive && 'opacity-80',
+            // styles.hitArea
+            'pointer-events-all absolute right-0 left-0 z-50 h-[54px] opacity-0',
+            top ? '-top-[36px]' : '-bottom-[15px]'
+          )}
           ref={setNodeRef}
         />
       </div>

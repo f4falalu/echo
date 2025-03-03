@@ -1,7 +1,8 @@
 'use client';
 
-import { ShimmerText, Text } from '@/components/ui';
+import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 import React from 'react';
+import { cn } from '@/lib/utils';
 
 export const PreparingYourRequestLoader: React.FC<{
   className?: string;
@@ -12,10 +13,7 @@ export const PreparingYourRequestLoader: React.FC<{
   return (
     <div className={`flex h-full w-full items-center justify-center space-x-1.5 ${className}`}>
       {error || useShimmer === false ? (
-        <Text type="tertiary" className="flex items-center text-center">
-          {/* {!!error && <AppMaterialIcons icon="error" className="mr-1" />} */}
-          {error || text}
-        </Text>
+        <span className="text-text-tertiary flex items-center text-center">{error || text}</span>
       ) : (
         <ShimmerText text={text} />
       )}
@@ -29,9 +27,7 @@ export const NoChartData: React.FC<{
 }> = ({ className = '', noDataText = 'The query ran successfully but didn’t return any data' }) => {
   return (
     <div className={`flex h-full w-full items-center justify-center ${className}`}>
-      <Text type="tertiary" className={`${className}`}>
-        {noDataText}
-      </Text>
+      <span className={cn('text-text-tertiary', className)}>{noDataText}</span>
     </div>
   );
 };

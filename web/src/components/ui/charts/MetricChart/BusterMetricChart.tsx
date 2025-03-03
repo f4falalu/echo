@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { useMount } from 'ahooks';
-import { formatLabel, JsonDataFrameOperationsSingle, timeout } from '@/utils';
+import { formatLabel, JsonDataFrameOperationsSingle, timeout } from '@/lib';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Title } from '@/components/ui';
+import { Title } from '@/components/ui/typography';
 import { ColumnLabelFormat, MetricChartProps } from '../interfaces';
 import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces';
 import type { BusterMetricChartProps } from './interfaces';
@@ -16,7 +16,6 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
     metricSubHeader,
     metricValueAggregate,
     data,
-    isDarkMode,
     animate,
     columnLabelFormats,
     metricValueLabel,
@@ -212,7 +211,7 @@ const AnimatedTitleWrapper = ({ title, type }: { title: string; type: 'header' |
       {title && (
         <motion.div className="overflow-visible" {...memoizedAnimation}>
           <motion.div className="origin-center">
-            <Title {...titleProps} level={4}>
+            <Title {...titleProps} as="h4">
               {title}
             </Title>
           </motion.div>

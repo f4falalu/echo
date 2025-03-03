@@ -22,7 +22,7 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
   showHeader = true,
   useRowClickSelectChange = false,
   contextMenu,
-  columnRowVariant = 'containerized',
+  hideLastRowBorder = true,
   showSelectAll = true,
   onScrollEnd,
   loadingNewContent,
@@ -77,7 +77,7 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
       onSelectChange: onSelectChange ? onSelectChangePreflight : undefined,
       onSelectSectionChange: onSelectChange ? onSelectSectionChange : undefined,
       onContextMenuClick: undefined,
-      columnRowVariant,
+      hideLastRowBorder,
       useRowClickSelectChange,
       rowClassName
     };
@@ -86,7 +86,7 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = ({
     rows,
     onSelectChange,
     useRowClickSelectChange,
-    columnRowVariant,
+    hideLastRowBorder,
     onSelectSectionChange,
     contextMenu,
     selectedRowKeys

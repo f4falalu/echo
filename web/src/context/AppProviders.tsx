@@ -20,12 +20,10 @@ import { BusterTermsProvider } from './Terms/BusterTermsProvider';
 import { BusterSearchProvider } from './Search';
 import { BusterAssetsProvider } from './Assets/BusterAssetsProvider';
 import { BusterPosthogProvider } from './Posthog/usePosthog';
-import { BusterNotificationsProvider } from './BusterNotifications';
 import { BusterChatProvider } from './Chats';
 import { RoutePrefetcher } from './RoutePrefetcher';
 import { BusterMetricsProvider } from './Metrics';
 import type { BusterUserResponse } from '@/api/asset_interfaces';
-import { QueryClient } from '@tanstack/react-query';
 
 // scan({
 //   enabled: true,
@@ -53,43 +51,41 @@ export const AppProviders: React.FC<
   });
 
   return (
-    <BusterNotificationsProvider>
-      <SupabaseContextProvider supabaseContext={supabaseContext}>
-        <BusterReactQueryProvider>
-          <BusterWebSocketProvider>
-            <AppLayoutProvider>
-              <BusterUserConfigProvider userInfo={userInfo}>
-                <BusterAssetsProvider>
-                  <BusterSearchProvider>
-                    <DataSourceProvider>
-                      <DatasetProviders>
-                        <BusterCollectionsProvider>
-                          <BusterMetricsProvider>
-                            <BusterDashboardProvider>
-                              <BusterSQLProvider>
-                                <BusterTermsProvider>
-                                  <BusterChatProvider>
-                                    <AppHotKeysProvider>
-                                      <BusterPosthogProvider>
-                                        {children}
-                                        <RoutePrefetcher />
-                                      </BusterPosthogProvider>
-                                    </AppHotKeysProvider>
-                                  </BusterChatProvider>
-                                </BusterTermsProvider>
-                              </BusterSQLProvider>
-                            </BusterDashboardProvider>
-                          </BusterMetricsProvider>
-                        </BusterCollectionsProvider>
-                      </DatasetProviders>
-                    </DataSourceProvider>
-                  </BusterSearchProvider>
-                </BusterAssetsProvider>
-              </BusterUserConfigProvider>
-            </AppLayoutProvider>
-          </BusterWebSocketProvider>
-        </BusterReactQueryProvider>
-      </SupabaseContextProvider>
-    </BusterNotificationsProvider>
+    <SupabaseContextProvider supabaseContext={supabaseContext}>
+      <BusterReactQueryProvider>
+        <BusterWebSocketProvider>
+          <AppLayoutProvider>
+            <BusterUserConfigProvider userInfo={userInfo}>
+              <BusterAssetsProvider>
+                <BusterSearchProvider>
+                  <DataSourceProvider>
+                    <DatasetProviders>
+                      <BusterCollectionsProvider>
+                        <BusterMetricsProvider>
+                          <BusterDashboardProvider>
+                            <BusterSQLProvider>
+                              <BusterTermsProvider>
+                                <BusterChatProvider>
+                                  <AppHotKeysProvider>
+                                    <BusterPosthogProvider>
+                                      {children}
+                                      <RoutePrefetcher />
+                                    </BusterPosthogProvider>
+                                  </AppHotKeysProvider>
+                                </BusterChatProvider>
+                              </BusterTermsProvider>
+                            </BusterSQLProvider>
+                          </BusterDashboardProvider>
+                        </BusterMetricsProvider>
+                      </BusterCollectionsProvider>
+                    </DatasetProviders>
+                  </DataSourceProvider>
+                </BusterSearchProvider>
+              </BusterAssetsProvider>
+            </BusterUserConfigProvider>
+          </AppLayoutProvider>
+        </BusterWebSocketProvider>
+      </BusterReactQueryProvider>
+    </SupabaseContextProvider>
   );
 };

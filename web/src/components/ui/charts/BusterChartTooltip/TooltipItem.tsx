@@ -1,8 +1,8 @@
 import React from 'react';
-import { useStyles } from './useStyles';
 import type { ITooltipItem, TooltipItemValueProps } from './interfaces';
-import { LegendItemDot } from '../BusterChartLegend';
+import { LegendItemDot } from '../BusterChartLegend/LegendDot';
 import { ChartType } from '../interfaces';
+import { cn } from '@/lib/classMerge';
 
 export const TooltipItem: React.FC<ITooltipItem> = ({
   values,
@@ -11,24 +11,23 @@ export const TooltipItem: React.FC<ITooltipItem> = ({
   formattedLabel,
   usePercentage
 }) => {
-  const { styles, cx } = useStyles();
   const isScatter = seriesType === 'scatter';
 
   return (
     <>
       {formattedLabel && (
         <>
-          <div className="flex items-center space-x-1.5 overflow-hidden pl-3 pr-3">
+          <div className="flex items-center space-x-1.5 overflow-hidden pr-3 pl-3">
             <LegendItemDot color={color} type={seriesType as ChartType} inactive={false} />
             <span
-              className={cx(styles.tooltipItemLabel, 'truncate', {
-                title: isScatter
+              className={cn('truncate text-base', {
+                'text-foreground font-medium': isScatter
               })}>
               {formattedLabel}
             </span>
           </div>
 
-          {isScatter && <div className={cx(styles.tooltipItemSeparator)} />}
+          {isScatter && <div className="bg-border h-[0.5px] w-full" />}
         </>
       )}
 
@@ -42,8 +41,6 @@ const TooltipItemValue: React.FC<{
   usePercentage: boolean;
   isScatter: boolean;
 }> = ({ values, usePercentage, isScatter }) => {
-  const { styles, cx } = useStyles();
-
   const chooseValue = (
     value: string | number | undefined,
     percentage: string | number | undefined
@@ -67,7 +64,10 @@ const TooltipItemValue: React.FC<{
 
   const formattedValue = values[0]?.formattedValue;
   return (
-    <div className={cx(styles.tooltipItemValue, 'tooltip-values px-3')}>
+    <div
+      className={cn(
+        'text-text-default tooltip-values overflow-hidden px-3 text-right text-xs font-medium text-ellipsis whitespace-nowrap'
+      )}>
       {chooseValue(formattedValue, values[0]?.formattedPercentage)}
     </div>
   );
@@ -77,12 +77,15 @@ const GroupTooltipValue: React.FC<{
   label: string;
   value: string | number | undefined;
 }> = ({ label, value }) => {
-  const { styles, cx } = useStyles();
-
   return (
     <>
-      <div className={cx(styles.tooltipItemLabel, 'truncate')}>{label}</div>
-      <div className={cx(styles.tooltipItemValue)}>{value}</div>
+      <div className={cn('text-md text-text-secondary max-w-fit truncate')}>{label}</div>
+      <div
+        className={cn(
+          'text-text-default overflow-hidden text-right text-sm font-medium text-ellipsis whitespace-nowrap'
+        )}>
+        {value}
+      </div>
     </>
   );
 };

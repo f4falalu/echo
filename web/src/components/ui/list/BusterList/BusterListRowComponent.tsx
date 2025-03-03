@@ -4,8 +4,8 @@ import React, { useMemo } from 'react';
 import { BusterListRow, BusterListColumn, BusterListRowItem, BusterListProps } from './interfaces';
 import Link from 'next/link';
 import { CheckboxColumn } from './CheckboxColumn';
-import { createStyles } from 'antd-style';
 import { HEIGHT_OF_ROW } from './config';
+import { cn } from '@/lib/classMerge';
 
 export const BusterListRowComponent = React.memo(
   React.forwardRef<
@@ -17,7 +17,7 @@ export const BusterListRowComponent = React.memo(
       onSelectChange?: (v: boolean, id: string) => void;
       onContextMenuClick?: (e: React.MouseEvent<HTMLDivElement>, id: string) => void;
       style?: React.CSSProperties;
-      columnRowVariant: BusterListProps['columnRowVariant'];
+      hideLastRowBorder: NonNullable<BusterListProps['hideLastRowBorder']>;
       useRowClickSelectChange: boolean;
       rowClassName?: string;
       isLastChild: boolean;
@@ -26,7 +26,7 @@ export const BusterListRowComponent = React.memo(
     (
       {
         style,
-        columnRowVariant,
+        hideLastRowBorder,
         row,
         columns,
         onSelectChange,
@@ -38,7 +38,6 @@ export const BusterListRowComponent = React.memo(
       },
       ref
     ) => {
-      const { styles, cx } = useStyles();
       const link = row.link;
 
       const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
@@ -56,22 +55,28 @@ export const BusterListRowComponent = React.memo(
         row.onClick?.();
       });
 
+      const rowStyles = {
+        height: `${HEIGHT_OF_ROW}px`,
+        minHeight: `${HEIGHT_OF_ROW}px`,
+        ...style
+      };
+
       return (
         <LinkWrapper href={link}>
           <div
             onClick={onContainerClick}
-            style={style}
+            style={rowStyles}
             onContextMenu={onContextMenu}
-            className={cx(
-              styles.row,
-              rowClassName,
-              'group flex items-center pr-6',
-              checked ? 'checked' : '',
-              columnRowVariant,
-              isLastChild ? 'last-child' : '',
+            className={cn(
+              'border-border flex items-center border-b pr-6',
+              checked ? 'bg-primary-background hover:bg-primary-background-hover' : '',
+              isLastChild && hideLastRowBorder ? '!border-b-0' : '',
               !onSelectChange ? 'pl-3.5' : '',
-
-              { clickable: !!(link || row.onClick || (onSelectChange && useRowClickSelectChange)) }
+              link || row.onClick || (onSelectChange && useRowClickSelectChange)
+                ? 'hover:bg-item-hover cursor-pointer'
+                : '',
+              rowClassName,
+              'group'
             )}
             ref={ref}>
             {!!onSelectChange ? (
@@ -108,8 +113,6 @@ const BusterListCellComponent: React.FC<{
   onSelectChange?: (v: boolean, id: string) => void;
   render?: (data: string | number | React.ReactNode, row: BusterListRowItem) => React.ReactNode;
 }> = React.memo(({ data, width, row, render, isFirstCell, isLastCell, onSelectChange }) => {
-  const { styles, cx } = useStyles();
-
   const memoizedStyle = useMemo(() => {
     return {
       width: width || '100%',
@@ -119,9 +122,10 @@ const BusterListCellComponent: React.FC<{
 
   return (
     <div
-      className={cx(styles.cell, 'row-cell flex items-center overflow-hidden', {
-        secondary: !isFirstCell
-      })}
+      className={cn(
+        'row-cell flex h-full items-center overflow-hidden px-1',
+        isFirstCell ? 'text-text-default text-base' : 'text-text-tertiary text-sm'
+      )}
       style={memoizedStyle}>
       <div className="w-full truncate">{render ? render(data, row?.data) : data}</div>
     </div>
@@ -140,57 +144,3 @@ const LinkWrapper: React.FC<{
     </Link>
   );
 };
-
-export const useStyles = createStyles(({ css, token }) => ({
-  row: css`
-    height: ${HEIGHT_OF_ROW}px;
-    min-height: ${HEIGHT_OF_ROW}px;
-    border-bottom: 0.5px solid ${token.colorBorder};
-
-    &.clickable {
-      cursor: pointer;
-
-      &:hover {
-        background-color: ${token.controlItemBgHover};
-      }
-    }
-
-    .row-cell {
-      padding: 0 4px;
-      display: flex;
-      align-items: center;
-      height: 100%;
-    }
-
-    &.checked {
-      background-color: ${token.colorPrimaryBg};
-      &:hover {
-        background-color: ${token.colorPrimaryBgHover};
-      }
-    }
-
-    &.containerized:not(.checked) {
-      background-color: ${token.colorBgContainer};
-
-      &.clickable {
-        &:hover {
-          background-color: ${token.controlItemBgHover};
-        }
-      }
-
-      &.last-child {
-        border-bottom: 0px;
-      }
-    }
-  `,
-  cell: css`
-    color: ${token.colorText};
-    font-size: 13px;
-    @apply text-base;
-
-    &.secondary {
-      color: ${token.colorTextTertiary};
-      @apply text-xs;
-    }
-  `
-}));

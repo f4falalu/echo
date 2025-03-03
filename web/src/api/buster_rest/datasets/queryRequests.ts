@@ -25,7 +25,8 @@ export const useGetDatasets = (params?: Parameters<typeof getDatasets>[0]) => {
 
   const res = useCreateReactQuery({
     ...queryKeys.datasetsListQueryOptions(params),
-    queryFn
+    queryFn,
+    enabled: true
   });
 
   return {

@@ -1,7 +1,7 @@
 import type { BusterChatMessageReasoning } from '@/api/asset_interfaces';
 import React, { useMemo } from 'react';
 import last from 'lodash/last';
-import { ShimmerText } from '@/components/ui';
+import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 import { useMemoizedFn } from 'ahooks';
 import { motion } from 'framer-motion';
 import { AnimatePresence } from 'framer-motion';

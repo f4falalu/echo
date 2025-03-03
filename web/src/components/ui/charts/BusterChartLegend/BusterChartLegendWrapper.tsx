@@ -1,12 +1,11 @@
-import { createStyles } from 'antd-style';
-import React, { useRef } from 'react';
+import React from 'react';
 import { BusterChartLegend, BusterChartLegendItem } from '.';
-import { useSize } from 'ahooks';
 import { ShowLegendHeadline } from '../interfaces';
 import {
   ChartLegendWrapperProvider,
   useChartWrapperContextSelector
 } from '../chartHooks/useChartWrapperProvider';
+import { cn } from '@/lib/classMerge';
 
 export type BusterChartLegendWrapper = {
   children: React.ReactNode;
@@ -36,12 +35,11 @@ export const BusterChartLegendWrapper: React.FC<BusterChartLegendWrapper> = Reac
     onLegendItemClick,
     onLegendItemFocus
   }) => {
-    const { cx } = useStyles();
     const width = useChartWrapperContextSelector(({ width }) => width);
 
     return (
       <ChartLegendWrapperProvider inactiveDatasets={inactiveDatasets}>
-        <div className={cx(className, 'flex h-full w-full flex-col overflow-hidden')}>
+        <div className={cn(className, 'flex h-full w-full flex-col overflow-hidden')}>
           {renderLegend && (
             <BusterChartLegend
               show={showLegend}
@@ -62,7 +60,3 @@ export const BusterChartLegendWrapper: React.FC<BusterChartLegendWrapper> = Reac
   }
 );
 BusterChartLegendWrapper.displayName = 'BusterChartLegendWrapper';
-
-const useStyles = createStyles(({ token }) => {
-  return {};
-});

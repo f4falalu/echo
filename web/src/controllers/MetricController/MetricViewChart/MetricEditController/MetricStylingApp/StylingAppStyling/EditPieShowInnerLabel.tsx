@@ -15,12 +15,10 @@ export const EditPieShowInnerLabel = React.memo(
     return (
       <LabelAndInput label="Show inner label">
         <div className="flex w-full items-center justify-end space-x-2.5">
-          <AppTooltip mouseEnterDelay={0.25}>
-            <Switch
-              defaultChecked={pieShowInnerLabel}
-              onChange={(value) => onUpdateChartConfig({ pieShowInnerLabel: value })}
-            />
-          </AppTooltip>
+          <Switch
+            defaultChecked={pieShowInnerLabel}
+            onChange={(value) => onUpdateChartConfig({ pieShowInnerLabel: value })}
+          />
         </div>
       </LabelAndInput>
     );

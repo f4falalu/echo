@@ -1,1 +1,1 @@
-export * from './BreadcrumbSeperator';
+export * from './Breadcrumb';

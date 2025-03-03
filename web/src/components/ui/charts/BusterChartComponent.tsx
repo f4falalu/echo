@@ -7,14 +7,7 @@ import {
 import { BusterChartJS } from './BusterChartJS';
 import { useDatasetOptions } from './chartHooks';
 
-// Dynamic import for BusterEChart with SSR disabled
-const BusterEChart = dynamic(() => import('./BusterChartE').then((mod) => mod.BusterEChart), {
-  ssr: false,
-  loading: () => <></>
-});
-
 export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = ({
-  renderType,
   data: dataProp,
   barSortBy,
   pieMinimumSlicePercentage,
@@ -66,9 +59,5 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
     ]
   );
 
-  if (renderType === 'chartjs') {
-    return <BusterChartJS {...chartProps} />;
-  }
-
-  return <BusterEChart {...chartProps} />;
+  return <BusterChartJS {...chartProps} />;
 };

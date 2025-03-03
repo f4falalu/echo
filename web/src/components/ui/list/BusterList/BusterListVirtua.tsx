@@ -1,13 +1,14 @@
+'use client';
+
 import { VList } from 'virtua';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo } from 'react';
 import { BusterListProps } from './interfaces';
 import { useMemoizedFn } from 'ahooks';
 import { getAllIdsInSection } from './helpers';
 import { HEIGHT_OF_ROW, HEIGHT_OF_SECTION_ROW } from './config';
-import { useListContextMenu } from './useListContextMenu';
 import { BusterListHeader } from './BusterListHeader';
-import { BusterListContentMenu } from './BusterListContentMenu';
 import { BusterListRowComponentSelector } from './BusterListRowComponentSelector';
+import { ContextMenu, ContextMenuProps } from '../../context/ContextMenu';
 
 export const BusterListVirtua = React.memo(
   ({
@@ -20,9 +21,9 @@ export const BusterListVirtua = React.memo(
     contextMenu,
     showSelectAll = true,
     useRowClickSelectChange = false,
-    rowClassName = ''
+    rowClassName = '',
+    hideLastRowBorder = false
   }: BusterListProps) => {
-    const contextMenuRef = useRef<HTMLDivElement>(null);
     const showEmptyState = (!rows || rows.length === 0) && !!emptyState;
     const lastChildIndex = rows.length - 1;
 
@@ -32,10 +33,6 @@ export const BusterListVirtua = React.memo(
       if (selectedRowKeys.length === rows.length) return 'checked';
       return 'indeterminate';
     }, [selectedRowKeys?.length, rows.length]);
-
-    const { contextMenuPosition, setContextMenuPosition, onContextMenuClick } = useListContextMenu({
-      contextMenu
-    });
 
     const onGlobalSelectChange = useMemoizedFn((v: boolean) => {
       onSelectChange?.(v ? rows.map((row) => row.id) : []);
@@ -73,8 +70,8 @@ export const BusterListVirtua = React.memo(
         selectedRowKeys,
         onSelectChange: onSelectChange ? onSelectChangePreflight : undefined,
         onSelectSectionChange: onSelectChange ? onSelectSectionChange : undefined,
-        onContextMenuClick,
-        useRowClickSelectChange
+        useRowClickSelectChange,
+        hideLastRowBorder
       };
     }, [
       columns,
@@ -83,68 +80,48 @@ export const BusterListVirtua = React.memo(
       selectedRowKeys,
       onSelectChange,
       onSelectSectionChange,
-      onContextMenuClick
+      hideLastRowBorder
     ]);
 
-    useEffect(() => {
-      if (contextMenu && contextMenuPosition?.show) {
-        const listenForClickAwayFromContextMenu = (e: MouseEvent) => {
-          if (!contextMenuRef.current?.contains(e.target as Node)) {
-            setContextMenuPosition((v) => ({
-              ...v!,
-              show: false
-            }));
-          }
-        };
-        document.addEventListener('click', listenForClickAwayFromContextMenu);
-        return () => {
-          document.removeEventListener('click', listenForClickAwayFromContextMenu);
-        };
-      }
-    }, [contextMenuRef, contextMenuPosition?.show, contextMenu]);
+    const WrapperNode = !!contextMenu ? ContextMenu : React.Fragment;
+    const wrapperNodeProps: ContextMenuProps = !!contextMenu
+      ? contextMenu
+      : ({} as ContextMenuProps);
 
     return (
-      <div className="list-container relative flex h-full w-full flex-col overflow-hidden">
-        {showHeader && !showEmptyState && (
-          <BusterListHeader
-            columns={columns}
-            onGlobalSelectChange={onSelectChange ? onGlobalSelectChange : undefined}
-            globalCheckStatus={globalCheckStatus}
-            rowsLength={rows.length}
-            showSelectAll={showSelectAll}
-            rowClassName={rowClassName}
-          />
-        )}
+      <WrapperNode {...wrapperNodeProps}>
+        <div className="list-container relative flex h-full w-full flex-col overflow-hidden">
+          {showHeader && !showEmptyState && (
+            <BusterListHeader
+              columns={columns}
+              onGlobalSelectChange={onSelectChange ? onGlobalSelectChange : undefined}
+              globalCheckStatus={globalCheckStatus}
+              rowsLength={rows.length}
+              showSelectAll={showSelectAll}
+              rowClassName={rowClassName}
+            />
+          )}
 
-        {!showEmptyState && (
-          <VList>
-            {rows.map((row, index) => (
-              <div key={index} style={{ height: itemSize(index) }}>
-                <BusterListRowComponentSelector
-                  row={row}
-                  id={row.id}
-                  isLastChild={index === lastChildIndex}
-                  {...itemData}
-                />
-              </div>
-            ))}
-          </VList>
-        )}
+          {!showEmptyState && (
+            <VList>
+              {rows.map((row, index) => (
+                <div key={index} style={{ height: itemSize(index) }}>
+                  <BusterListRowComponentSelector
+                    row={row}
+                    id={row.id}
+                    isLastChild={index === lastChildIndex}
+                    {...itemData}
+                  />
+                </div>
+              ))}
+            </VList>
+          )}
 
-        {showEmptyState && (
-          <div className="flex h-full items-center justify-center">{emptyState}</div>
-        )}
-
-        {contextMenu && contextMenuPosition?.id && (
-          <BusterListContentMenu
-            ref={contextMenuRef}
-            open={!!contextMenuPosition?.show}
-            menu={contextMenu}
-            id={contextMenuPosition?.id || ''}
-            placement={{ x: contextMenuPosition?.x || 0, y: contextMenuPosition?.y || 0 }}
-          />
-        )}
-      </div>
+          {showEmptyState && (
+            <div className="flex h-full items-center justify-center">{emptyState}</div>
+          )}
+        </div>
+      </WrapperNode>
     );
   }
 );

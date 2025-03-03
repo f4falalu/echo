@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { Segmented } from 'antd';
+import { AppSegmented, type SegmentedItem } from '@/components/ui/segmented';
+import { useMemoizedFn } from 'ahooks';
 
-const options: { label: string; value: IBusterMetricChartConfig['xAxisLabelRotation'] }[] = [
+const options: SegmentedItem<IBusterMetricChartConfig['xAxisLabelRotation']>[] = [
   { label: 'Auto', value: 'auto' },
   { label: '0°', value: 0 },
   { label: '45°', value: 45 },
@@ -13,27 +14,26 @@ const options: { label: string; value: IBusterMetricChartConfig['xAxisLabelRotat
 export const EditAxisLabelRotation: React.FC<{
   xAxisLabelRotation: IBusterMetricChartConfig['xAxisLabelRotation'];
   onChangeLabelRotation: (value: IBusterMetricChartConfig['xAxisLabelRotation']) => void;
-}> = React.memo(
-  ({ xAxisLabelRotation, onChangeLabelRotation }) => {
-    const selectedOption: IBusterMetricChartConfig['xAxisLabelRotation'] = useMemo(() => {
-      return (
-        options.find((option) => option.value === xAxisLabelRotation)?.value || options[0]?.value!
-      );
-    }, [xAxisLabelRotation]);
-
+}> = React.memo(({ xAxisLabelRotation, onChangeLabelRotation }) => {
+  const selectedOption: IBusterMetricChartConfig['xAxisLabelRotation'] = useMemo(() => {
     return (
-      <LabelAndInput label="Axis scale">
-        <Segmented
-          block
-          options={options}
-          defaultValue={selectedOption}
-          onChange={onChangeLabelRotation}
-        />
-      </LabelAndInput>
+      options.find((option) => option.value === xAxisLabelRotation)?.value || options[0]?.value!
     );
-  },
-  () => {
-    return true;
-  }
-);
+  }, [xAxisLabelRotation]);
+
+  const onChange = useMemoizedFn((value: SegmentedItem<string>) => {
+    onChangeLabelRotation(value.value as IBusterMetricChartConfig['xAxisLabelRotation']);
+  });
+
+  return (
+    <LabelAndInput label="Axis scale">
+      <AppSegmented
+        block
+        options={options as SegmentedItem<string>[]}
+        value={selectedOption as string}
+        onChange={onChange}
+      />
+    </LabelAndInput>
+  );
+});
 EditAxisLabelRotation.displayName = 'EditAxisLabelRotation';

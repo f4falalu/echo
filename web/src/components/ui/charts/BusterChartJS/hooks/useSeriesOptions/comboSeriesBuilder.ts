@@ -4,7 +4,7 @@ import { SeriesBuilderProps } from './interfaces';
 import { extractFieldsFromChain } from '@/components/ui/charts/chartHooks';
 import { DEFAULT_COLUMN_SETTINGS, ENABLED_DOTS_ON_LINE_SIZE } from '@/api/asset_interfaces';
 import { barBuilder } from './barSeriesBuilder';
-import { createDayjsDate } from '@/utils/date';
+import { createDayjsDate } from '@/lib/date';
 import { formatChartLabelDelimiter } from '@/components/ui/charts/commonHelpers';
 import { lineBuilder } from './lineSeriesBuilder';
 import { ColumnSettings } from '@/components/ui/charts/interfaces';

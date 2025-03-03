@@ -1,29 +1,25 @@
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../Common';
-import { Segmented } from 'antd';
-import { useEditAppSegmented } from '../StylingAppVisualize/SelectAxis/SelectAxisColumnContent/useEditAppSegmented';
 import { BarSortBy } from '@/components/ui/charts';
-import { AppMaterialIconIcon, AppMaterialIcons } from '@/components/ui';
-import { AppTooltip } from '@/components/ui';
+import { AppSegmented, SegmentedItem } from '@/components/ui/segmented';
+import { ChartBarAxisX, ChartBarTrendDown, ChartBarTrendUp } from '@/components/ui/icons';
+import { useMemoizedFn } from 'ahooks';
 
-const allOptions: {
-  value: BarSortBy[0];
-  icon: string;
-  tooltip: string;
-}[] = [
+const options: SegmentedItem<BarSortBy[0]>[] = [
   {
-    icon: 'bar_sort_none',
+    label: 'None',
     value: 'none',
-    tooltip: 'No sorting'
+    tooltip: 'No sorting',
+    icon: <ChartBarAxisX />
   },
   {
-    icon: 'bar_sort_asc',
+    icon: <ChartBarTrendUp />,
     value: 'asc',
     tooltip: 'Sort ascending'
   },
   {
-    icon: 'bar_sort_desc',
+    icon: <ChartBarTrendDown />,
     value: 'desc',
     tooltip: 'Sort descending'
   }
@@ -33,19 +29,6 @@ export const EditBarSorting: React.FC<{
   barSortBy: IBusterMetricChartConfig['barSortBy'];
   onUpdateChartConfig: (v: Partial<IBusterMetricChartConfig>) => void;
 }> = React.memo(({ barSortBy, onUpdateChartConfig }) => {
-  const options = useMemo(() => {
-    return allOptions.map((x) => ({
-      label: (
-        <AppTooltip mouseEnterDelay={0.75} trigger={'hover'} title={x.tooltip}>
-          <div className="flex h-full w-full items-center justify-center">
-            <AppMaterialIcons icon={x.icon as AppMaterialIconIcon} data-value={x.value} />
-          </div>
-        </AppTooltip>
-      ),
-      value: x.value as BarSortBy[0]
-    }));
-  }, []);
-
   const selectedOption = useMemo(() => {
     return (
       options.find((option) => {
@@ -54,16 +37,13 @@ export const EditBarSorting: React.FC<{
     );
   }, [barSortBy]);
 
-  const { onClick } = useEditAppSegmented({
-    onClick: (value) => {
-      const fiveValues = [0, 1, 2]; //kind of hack for now...
-      onUpdateChartConfig({ barSortBy: fiveValues.map((v) => value as BarSortBy[0]) });
-    }
+  const onChange = useMemoizedFn((value: SegmentedItem<'none' | 'asc' | 'desc'>) => {
+    onUpdateChartConfig({ barSortBy: [value.value] });
   });
 
   return (
     <LabelAndInput label="Sorting">
-      <Segmented options={options} defaultValue={selectedOption} onClick={onClick} block />
+      <AppSegmented options={options} value={selectedOption} onChange={onChange} block />
     </LabelAndInput>
   );
 });

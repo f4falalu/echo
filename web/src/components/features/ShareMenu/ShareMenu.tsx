@@ -47,7 +47,7 @@ export const ShareMenu: React.FC<
           />
         ) : null
       }>
-      <AppTooltip performant={false} title={!isOpen ? 'Share item' : ''}>
+      <AppTooltip title={!isOpen ? 'Share item' : ''}>
         <div className="flex">{children}</div>
       </AppTooltip>
     </AppPopover>

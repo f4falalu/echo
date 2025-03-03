@@ -5,7 +5,7 @@ import {
   type SimplifiedColumnType
 } from '@/api/asset_interfaces';
 import type { ColumnLabelFormat, IColumnLabelFormat } from '@/components/ui/charts';
-import { isDateColumnType, isNumericColumnType, simplifyColumnType } from '@/utils/messages';
+import { isDateColumnType, isNumericColumnType, simplifyColumnType } from '@/lib/messages';
 
 export const createDefaultColumnLabelFormats = (
   columnLabelFormats: Record<string, IColumnLabelFormat> | undefined,

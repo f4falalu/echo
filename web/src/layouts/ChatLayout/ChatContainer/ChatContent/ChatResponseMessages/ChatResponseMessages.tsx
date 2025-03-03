@@ -7,7 +7,7 @@ import type {
 import { MessageContainer } from '../MessageContainer';
 import { ChatResponseMessageSelector } from './ChatResponseMessageSelector';
 import { ChatResponseReasoning } from './ChatResponseReasoning';
-import { ShimmerText } from '@/components/ui';
+import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 
 interface ChatResponseMessagesProps {
   responseMessages: BusterChatMessageResponse[];

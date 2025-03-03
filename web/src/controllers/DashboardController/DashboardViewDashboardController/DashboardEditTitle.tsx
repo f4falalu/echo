@@ -1,5 +1,5 @@
 import { useMemoizedFn } from 'ahooks';
-import { EditableTitle } from '@/components/ui';
+import { EditableTitle } from '@/components/ui/typography/EditableTitle';
 import { Input } from 'antd';
 import React from 'react';
 import { useBusterDashboards } from '@/context/Dashboards';

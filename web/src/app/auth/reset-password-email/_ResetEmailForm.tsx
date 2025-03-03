@@ -1,11 +1,11 @@
 'use client';
 
 import { createBusterRoute, BusterRoutes } from '@/routes';
-import { isValidEmail, timeout } from '@/utils';
+import { isValidEmail, timeout } from '@/lib';
 import { Button, Input, Result } from 'antd';
 import Link from 'next/link';
 import React, { useState } from 'react';
-import { Title, Text } from '@/components/ui';
+import { Title, Text } from '@/components/ui/typography';
 import { useMemoizedFn } from 'ahooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useStyles } from '@/app/auth/_LoginComponents/LoginForm';
@@ -48,7 +48,7 @@ export const ResetEmailForm: React.FC<{
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-4">
-      <Title className="mb-0" level={1}>
+      <Title className="mb-0" as="h1">
         Reset Password
       </Title>
 
@@ -80,7 +80,7 @@ export const ResetEmailForm: React.FC<{
         href={createBusterRoute({
           route: BusterRoutes.AUTH_LOGIN
         })}>
-        <Text type="primary" size="xxs">
+        <Text variant="link" size="2xs">
           Return to login
         </Text>
       </Link>

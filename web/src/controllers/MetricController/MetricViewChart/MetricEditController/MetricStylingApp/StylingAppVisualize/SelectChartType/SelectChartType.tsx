@@ -11,7 +11,7 @@ import {
 } from './SelectedChartTypeMethod';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from 'ahooks';
-import { addOpacityToColor, NUMBER_TYPES } from '@/utils';
+import { addOpacityToColor, NUMBER_TYPES } from '@/lib';
 
 export interface SelectChartTypeProps {
   selectedChartType: ChartType;
@@ -147,7 +147,7 @@ const ChartButton: React.FC<{
     const { styles, cx } = useStyles();
 
     return (
-      <AppTooltip title={tooltipText} performant mouseEnterDelay={0.75}>
+      <AppTooltip title={tooltipText} delayDuration={0.65}>
         <div
           key={id}
           onClick={() => !disabled && onSelectChartType(id)}

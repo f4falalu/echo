@@ -1,4 +1,4 @@
-import { formatLabel } from '@/utils';
+import { formatLabel } from '@/lib';
 import isEmpty from 'lodash/isEmpty';
 import type { ColumnLabelFormat } from '../interfaces';
 import { extractFieldsFromChain } from '../chartHooks';

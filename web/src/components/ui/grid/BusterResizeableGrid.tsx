@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import {
   closestCenter,
@@ -18,7 +18,7 @@ import {
 import { arrayMove } from '@dnd-kit/sortable';
 import { BusterSortableOverlay } from './_BusterSortableOverlay';
 import { BusterResizeableGridRow } from './interfaces';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { v4 as uuidv4 } from 'uuid';
 import { useMemoizedFn } from 'ahooks';
 import isEqual from 'lodash/isEqual';
@@ -331,7 +331,7 @@ export const BusterResizeableGrid: React.FC<{
       onDragCancel={onDragCancel}
       collisionDetection={collisionDetectionStrategy}
       sensors={sensors}>
-      <div className={classNames('h-full w-full', 'buster-resizeable-grid', className)}>
+      <div className={clsx('h-full w-full', 'buster-resizeable-grid', className)}>
         <BusterResizeRows
           rows={rows}
           className={className}

@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { useBusterTermsIndividualContextSelector, useBusterTermsIndividual } from '@/context/Terms';
-import { BusterUserAvatar } from '@/components/ui';
-import { formatDate } from '@/utils';
+import { Avatar } from '@/components/ui/avatar';
+import { formatDate } from '@/lib';
 import { Text } from '@/components/ui';
 import { DatasetList } from './TermDatasetSelect';
 
@@ -44,7 +44,7 @@ export const TermIndividualContentSider: React.FC<{ termId: string }> = ({ termI
         </Text>
 
         <div className="flex items-center space-x-1.5">
-          <BusterUserAvatar size={24} name={selectedTerm?.created_by.name} />
+          <Avatar size={24} name={selectedTerm?.created_by.name} />
           <Text>{selectedTerm?.created_by.name}</Text>
           <Text type="secondary">
             (

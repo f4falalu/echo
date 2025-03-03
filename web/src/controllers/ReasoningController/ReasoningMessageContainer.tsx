@@ -71,7 +71,7 @@ const useStyles = createStyles(({ token, css }) => ({
       margin-bottom: 3px;
     }
 
-    &:has(+ .thought-card) {
+    &:has(+ .pills-card) {
       .vertical-divider {
         display: none;
       }

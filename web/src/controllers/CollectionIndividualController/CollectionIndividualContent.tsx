@@ -1,13 +1,11 @@
 'use client';
 
-import {
-  useBusterCollectionIndividualContextSelector,
-  useCollectionIndividual
-} from '@/context/Collections';
+import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import React, { useMemo, useState } from 'react';
-import { AppMaterialIcons, BusterUserAvatar } from '@/components/ui';
+import { AppMaterialIcons } from '@/components/ui';
+import { Avatar } from '@/components/ui/avatar';
 import { createBusterRoute, BusterRoutes } from '@/routes';
-import { formatDate } from '@/utils';
+import { formatDate } from '@/lib';
 import {
   BusterCollection,
   BusterCollectionItemAsset,
@@ -15,7 +13,7 @@ import {
 } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui';
 import { ListEmptyStateWithButton } from '@/components/ui/list';
-import { AddTypeModal } from '@/components/features/modals/AddTypeModal';
+import { AddTypeModal } from '@/components/features/modal/AddTypeModal';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';
@@ -93,11 +91,7 @@ const columns: BusterListColumn[] = [
     width: 50,
     render: (created_by: BusterCollectionListItem['owner']) => {
       return (
-        <BusterUserAvatar
-          image={created_by?.avatar_url || undefined}
-          name={created_by?.name}
-          size={18}
-        />
+        <Avatar image={created_by?.avatar_url || undefined} name={created_by?.name} size={18} />
       );
     }
   }

@@ -1,6 +1,7 @@
 import React from 'react';
-import { Checkbox, CheckboxChangeEvent } from 'antd';
 import { useMemoizedFn } from 'ahooks';
+import { Checkbox } from '@/components/ui/checkbox';
+import { CheckedState } from '@radix-ui/react-checkbox';
 
 export const MemoizedCheckbox = React.memo(
   ({
@@ -12,11 +13,13 @@ export const MemoizedCheckbox = React.memo(
     indeterminate: boolean;
     onChange: (v: boolean) => void;
   }) => {
-    const handleChange = useMemoizedFn((e: CheckboxChangeEvent) => {
-      onChange?.(e.target.checked);
+    const handleChange = useMemoizedFn((checkedState: CheckedState) => {
+      onChange?.(checkedState === true);
     });
 
-    return <Checkbox checked={checked} indeterminate={indeterminate} onChange={handleChange} />;
+    return (
+      <Checkbox checked={checked} indeterminate={indeterminate} onCheckedChange={handleChange} />
+    );
   }
 );
 MemoizedCheckbox.displayName = 'MemoizedCheckbox';

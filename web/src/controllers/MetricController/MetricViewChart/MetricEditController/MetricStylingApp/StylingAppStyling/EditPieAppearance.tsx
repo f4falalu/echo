@@ -1,14 +1,15 @@
 import React, { useMemo, useState } from 'react';
 import { LabelAndInput } from '../Common';
 import {
+  type IBusterMetricChartConfig,
   DEFAULT_CHART_CONFIG,
-  IBusterMetricChartConfig,
   MIN_DONUT_WIDTH
 } from '@/api/asset_interfaces';
-import { InputNumber, Segmented, Slider } from 'antd';
+import { InputNumber, Slider } from 'antd';
 import { useMemoizedFn } from 'ahooks';
+import { AppSegmented, SegmentedItem } from '@/components/ui/segmented';
 
-const options: { label: string; value: string }[] = [
+const options: SegmentedItem<'donut' | 'pie'>[] = [
   { label: 'Donut', value: 'donut' },
   { label: 'Pie', value: 'pie' }
 ];
@@ -41,23 +42,25 @@ export const EditPieAppearance = React.memo(
       setValue(value || 0);
     });
 
+    const onChange = useMemoizedFn((value: SegmentedItem<'donut' | 'pie'>) => {
+      setShowDonutWidthSelector(value.value === 'donut');
+      if (value.value === 'donut') {
+        setPieDonutWidth(DEFAULT_CHART_CONFIG.pieDonutWidth);
+      } else {
+        setPieDonutWidth(0);
+      }
+    });
+
     return (
       <>
         <LabelAndInput label="Appearance">
-          <Segmented
+          <AppSegmented
             block
             className="w-full"
             options={options}
-            defaultValue={selectedAppearance}
+            value={selectedAppearance}
             disabled={hasMultipleYAxis}
-            onChange={(value) => {
-              setShowDonutWidthSelector(value === 'donut');
-              if (value === 'donut') {
-                setPieDonutWidth(DEFAULT_CHART_CONFIG.pieDonutWidth);
-              } else {
-                setPieDonutWidth(0);
-              }
-            }}
+            onChange={onChange}
           />
         </LabelAndInput>
 
@@ -83,9 +86,6 @@ export const EditPieAppearance = React.memo(
         )}
       </>
     );
-  },
-  (prevProps, nextProps) => {
-    return prevProps.pieChartAxis.y.length === nextProps.pieChartAxis.y.length;
   }
 );
 EditPieAppearance.displayName = 'EditPieAppearance';

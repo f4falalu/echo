@@ -3,7 +3,7 @@ import { ConfigProvider, Select, Tag } from 'antd';
 import type { SelectProps } from 'antd';
 import type { CustomTagProps } from 'rc-select/lib/BaseSelect';
 import { createStyles } from 'antd-style';
-import { getPredictableItemBasedOnText } from '@/utils';
+import { getPredictableItemBasedOnText } from '@/lib';
 import { AppMaterialIcons } from '../icons';
 import { useMemoizedFn } from 'ahooks';
 

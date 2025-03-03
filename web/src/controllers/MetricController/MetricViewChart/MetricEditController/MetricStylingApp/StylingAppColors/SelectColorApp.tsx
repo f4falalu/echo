@@ -1,42 +1,31 @@
-import React, { useMemo } from 'react';
-import { Segmented } from 'antd';
+import React from 'react';
 import { StylingAppColorsTab } from './config';
-import { AppMaterialIconIcon, AppMaterialIcons } from '@/components/ui';
+import { type SegmentedItem, AppSegmented } from '@/components/ui/segmented';
+import { Palette, Cards, Paintbrush } from '@/components/ui/icons';
+import { useMemoizedFn } from 'ahooks';
+
+const options: SegmentedItem<StylingAppColorsTab>[] = [
+  { label: 'Colors', icon: <Palette />, value: StylingAppColorsTab.Colors },
+  { label: 'Palettes', icon: <Cards />, value: StylingAppColorsTab.Palettes },
+  { label: 'Custom', icon: <Paintbrush />, value: StylingAppColorsTab.Custom }
+];
 
 export const SelectColorApp: React.FC<{
   selectedTab: StylingAppColorsTab;
   onChange: (value: StylingAppColorsTab) => void;
 }> = React.memo(({ selectedTab, onChange }) => {
-  const options: { label: React.ReactNode; value: StylingAppColorsTab }[] = useMemo(
-    () =>
-      [
-        { text: 'Colors', icon: 'palette', value: StylingAppColorsTab.Colors },
-        { text: 'Palettes', icon: 'transition_chop', value: StylingAppColorsTab.Palettes },
-        { text: 'Custom', icon: 'format_paint', value: StylingAppColorsTab.Custom }
-      ].map(({ text, value, icon }) => ({
-        label: (
-          <div className="groupflex flex-col space-y-1.5 py-2.5">
-            <div className="flex items-center justify-center">
-              <AppMaterialIcons icon={icon as AppMaterialIconIcon} />
-            </div>
-            <span className="flex leading-none">{text}</span>
-          </div>
-        ),
-        value
-      })),
-    [selectedTab]
-  );
+  const onChangePreflight = useMemoizedFn((value: SegmentedItem<StylingAppColorsTab>) => {
+    onChange(value.value);
+  });
 
   return (
-    <div className="flex w-full">
-      <Segmented
-        block
-        className="w-full"
-        options={options}
-        defaultValue={selectedTab}
-        onChange={onChange}
-      />
-    </div>
+    <AppSegmented
+      size="large"
+      block
+      options={options}
+      value={selectedTab}
+      onChange={onChangePreflight}
+    />
   );
 });
 SelectColorApp.displayName = 'SelectColorApp';

@@ -7,7 +7,7 @@ import { useMemoizedFn } from 'ahooks';
 import React, { useMemo, useState } from 'react';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { Button } from 'antd';
-import { AppDropdownSelect, AppDropdownSelectProps } from '@/components/ui/dropdown';
+import { Dropdown, type DropdownProps } from '@/components/ui/dropdown/Dropdown';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { AppMaterialIcons } from '@/components/ui';
 import type { BusterMetric, BusterDashboardListItem } from '@/api/asset_interfaces';
@@ -35,12 +35,13 @@ export const SaveToDashboardDropdown: React.FC<{
     }
   });
 
-  const items = useMemo(
+  const items: DropdownProps['items'] = useMemo(
     () =>
       (dashboardsList || [])?.map((dashboard) => {
         return {
-          key: dashboard.id,
+          value: dashboard.id,
           label: dashboard.name || 'New dashboard',
+          selected: selectedDashboards.some((d) => d.id === dashboard.id),
           onClick: () => onClickItem(dashboard),
           link: createBusterRoute({
             route: BusterRoutes.APP_DASHBOARD_ID,
@@ -50,10 +51,6 @@ export const SaveToDashboardDropdown: React.FC<{
       }),
     [dashboardsList]
   );
-
-  const selectedItems = useMemo(() => {
-    return selectedDashboards.map((d) => d.id);
-  }, [selectedDashboards]);
 
   const onClickNewDashboardButton = useMemoizedFn(async () => {
     const res = await onCreateNewDashboard({
@@ -82,8 +79,6 @@ export const SaveToDashboardDropdown: React.FC<{
     setShowDropdown(open);
   });
 
-  const memoizedTrigger = useMemo<AppDropdownSelectProps['trigger']>(() => ['click'], []);
-
   const memoizedButton = useMemo(() => {
     return (
       <Button
@@ -99,18 +94,15 @@ export const SaveToDashboardDropdown: React.FC<{
   }, [isCreatingDashboard, onClickNewDashboardButton]);
 
   return (
-    <>
-      <AppDropdownSelect
-        trigger={memoizedTrigger}
-        headerContent={'Save to a dashboard'}
-        placement="bottomRight"
-        open={showDropdown}
-        onOpenChange={onOpenChange}
-        footerContent={memoizedButton}
-        items={items}
-        selectedItems={selectedItems}>
-        <AppTooltip title={showDropdown ? '' : 'Save to dashboard'}>{children}</AppTooltip>
-      </AppDropdownSelect>
-    </>
+    <Dropdown
+      side="bottom"
+      align="start"
+      menuHeader={'Save to a dashboard'}
+      open={showDropdown}
+      onOpenChange={onOpenChange}
+      footerContent={memoizedButton}
+      items={items}>
+      <AppTooltip title={showDropdown ? '' : 'Save to collection'}>{children} </AppTooltip>
+    </Dropdown>
   );
 };

@@ -9,3 +9,10 @@ start:
 
 fast:
 	npm run dev
+
+build-storybook:
+	npm run build-storybook
+
+storybook:
+	npm run storybook
+

@@ -1,10 +1,9 @@
-import React, { useMemo, useEffect, useLayoutEffect } from 'react';
-import { BusterChartLegendItem, BusterChartLegendProps } from './interfaces';
-import { Text, Title } from '@/components/ui';
-import { createStyles } from 'antd-style';
+import React, { useMemo } from 'react';
+import { type BusterChartLegendItem, type BusterChartLegendProps } from './interfaces';
 import { useMemoizedFn } from 'ahooks';
 import { LegendItemDot } from './LegendDot';
 import { AnimatePresence, motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 export const LegendItem: React.FC<{
   item: BusterChartLegendItem;
@@ -69,7 +68,6 @@ const LegendItemStandard = React.memo(
       item: BusterChartLegendItem;
     }
   >(({ onClickItem, onHoverItemPreflight, onFocusItem, item }, ref) => {
-    const { styles, cx } = useStyles();
     const clickable = onClickItem !== undefined;
     const { formattedName, inactive, headline } = item;
     const hasHeadline = headline !== undefined && headline.type;
@@ -106,38 +104,42 @@ const LegendItemStandard = React.memo(
         onClick={onClickItemHandler}
         onMouseEnter={onMouseEnterHandler}
         onMouseLeave={onMouseLeaveHandler}
-        className={cx(styles.legendItem, 'flex flex-col justify-center space-y-0', {
-          clickable: clickable
-        })}>
+        className={cn(
+          'flex flex-col justify-center space-y-1',
+          'h-[24px] rounded-sm px-2.5',
+          clickable && 'transition-background hover:bg-item-hover cursor-pointer duration-100'
+        )}>
         <AnimatePresence initial={false}>
           {hasHeadline && (
             <motion.div {...headlineAnimation} className="flex items-center space-x-1.5">
-              <Title
-                level={4}
-                className="leading-none font-semibold!"
-                type={!inactive ? 'default' : 'tertiary'}>
+              <span
+                className={cn(
+                  'text-[15px] leading-none font-semibold!',
+                  !inactive ? 'text-foreground' : 'text-text-secondary'
+                )}>
                 {headline?.titleAmount}
-              </Title>
+              </span>
             </motion.div>
           )}
         </AnimatePresence>
 
         <div
-          className={cx('flex flex-nowrap items-center space-x-1.5 whitespace-nowrap', {
+          className={cn('flex flex-nowrap items-center space-x-1.5 whitespace-nowrap', {
             clickable: clickable
           })}>
           <LegendItemDot
-            size={!hasHeadline ? 'md' : 'sm'}
+            size={!hasHeadline ? 'default' : 'sm'}
             onFocusItem={onFocusItem}
             color={item.color}
             type={item.type}
             inactive={item.inactive}
           />
 
-          <Text
-            size="sm"
-            className="flex! items-center truncate transition-all duration-100 select-none"
-            type={!inactive ? 'default' : 'tertiary'}>
+          <span
+            className={cn(
+              'flex! items-center truncate text-base transition-all duration-100 select-none',
+              !inactive ? 'text-foreground' : 'text-text-secondary'
+            )}>
             <AnimatePresence mode="wait" initial={false}>
               {headlinePreText && (
                 <motion.div
@@ -149,49 +151,10 @@ const LegendItemStandard = React.memo(
             </AnimatePresence>
 
             {formattedName}
-          </Text>
+          </span>
         </div>
       </motion.div>
     );
   })
 );
 LegendItemStandard.displayName = 'LegendItemStandard';
-
-const useStyles = createStyles(({ token, css }) => {
-  return {
-    legendItem: css`
-      padding: 0px 8px;
-      border-radius: 4px;
-      height: 24px;
-      &.clickable {
-        transition: background 0.125s ease;
-        cursor: pointer;
-        &:hover {
-          background: ${token.controlItemBgHover};
-        }
-      }
-
-      &.inactive {
-        border-color: ${token.colorBgContainerDisabled};
-      }
-    `
-    // legendItemHeadline: css`
-    //   padding: 0px 8px;
-    //   border-radius: 8px;
-    //   height: 44px;
-    //   overflow: hidden;
-
-    //   &.clickable {
-    //     cursor: pointer;
-    //     transition: background 0.125s ease;
-    //     &:hover {
-    //       background: ${token.controlItemBgHover};
-    //     }
-    //   }
-
-    //   &.inactive {
-    //     border-color: ${token.colorBgContainerDisabled};
-    //   }
-    // `
-  };
-});

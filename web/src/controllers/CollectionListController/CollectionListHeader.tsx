@@ -9,13 +9,13 @@ import {
   useCollectionIndividual,
   useCollectionLists
 } from '@/context/Collections';
-import { AppContentHeader, AppMaterialIcons, AppSegmented, AppTooltip } from '@/components/ui';
+import { AppMaterialIcons, AppSegmented, AppTooltip } from '@/components/ui';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { CollectionsListEmit } from '@/api/buster_socket/collections';
 import isEmpty from 'lodash/isEmpty';
 import omit from 'lodash/omit';
 import { useMemoizedFn } from 'ahooks';
-import { SegmentedValue } from 'antd/es/segmented';
+import { type SegmentedItem } from '@/components/ui/segmented';
 
 export const CollectionListHeader: React.FC<{
   collectionId?: string;
@@ -71,34 +71,32 @@ export const CollectionListHeader: React.FC<{
 
   return (
     <>
-      <AppContentHeader className="items-center justify-between space-x-2">
-        <div className="flex space-x-1">
-          <Breadcrumb className="flex items-center" items={breadcrumbItems} />
-          {showFilters && (
-            <CollectionFilters
-              collectionListFilters={collectionListFilters}
-              setCollectionListFilters={onSetCollectionListFilters}
-            />
-          )}
-        </div>
+      <div className="flex space-x-1">
+        <Breadcrumb className="flex items-center" items={breadcrumbItems} />
+        {showFilters && (
+          <CollectionFilters
+            collectionListFilters={collectionListFilters}
+            setCollectionListFilters={onSetCollectionListFilters}
+          />
+        )}
+      </div>
 
-        <div className="flex items-center">
-          <AppTooltip title={'Create new collection'} shortcuts={['N']}>
-            <Button
-              type="default"
-              icon={<AppMaterialIcons icon="add" />}
-              onClick={() => setOpenNewCollectionModal(true)}>
-              New Collection
-            </Button>
-          </AppTooltip>
-        </div>
-      </AppContentHeader>
+      <div className="flex items-center">
+        <AppTooltip title={'Create new collection'} shortcuts={['N']}>
+          <Button
+            type="default"
+            icon={<AppMaterialIcons icon="add" />}
+            onClick={() => setOpenNewCollectionModal(true)}>
+            New Collection
+          </Button>
+        </AppTooltip>
+      </div>
     </>
   );
 });
 CollectionListHeader.displayName = 'CollectionListHeader';
 
-const filters = [
+const filters: SegmentedItem<string>[] = [
   {
     label: 'All',
     value: JSON.stringify({})
@@ -122,10 +120,10 @@ const CollectionFilters: React.FC<{
     return filters.find((f) => f.value === activeFiltersValue)?.value || filters[0].value;
   }, [filters, collectionListFilters]);
 
-  const onChangeFilter = useMemoizedFn((v: SegmentedValue) => {
+  const onChangeFilter = useMemoizedFn((v: SegmentedItem) => {
     let parsedValue;
     try {
-      parsedValue = JSON.parse(v as string);
+      parsedValue = JSON.parse(v.value as string);
     } catch (error) {
       console.error('error', error);
     }

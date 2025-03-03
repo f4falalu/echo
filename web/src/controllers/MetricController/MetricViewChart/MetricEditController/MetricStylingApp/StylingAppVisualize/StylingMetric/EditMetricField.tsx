@@ -1,5 +1,5 @@
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { isNumericColumnStyle, isNumericColumnType } from '@/utils';
+import { isNumericColumnStyle, isNumericColumnType } from '@/lib';
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../Common';
 import { Button, Select } from 'antd';

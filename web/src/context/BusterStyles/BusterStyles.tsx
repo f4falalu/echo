@@ -1,3 +1,43 @@
+// import 'react-material-symbols/rounded';
+// import React, { PropsWithChildren } from 'react';
+// import { ThemeProvider as NextThemeProvider } from 'next-themes';
+// import { BusterNotificationsProvider } from '../BusterNotifications';
+
+// const ENABLE_DARK_MODE = false;
+
+// export const BusterStyleProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
+//   return (
+//     <NextThemeProvider
+//       attribute="class"
+//       defaultTheme="light"
+//       enableSystem={ENABLE_DARK_MODE}
+//       themes={['light', 'dark']}
+//       disableTransitionOnChange>
+//       <BusterNotificationsProvider>{children}</BusterNotificationsProvider>
+//     </NextThemeProvider>
+//   );
+// };
+
+// import 'react-material-symbols/rounded';
+// import React, { PropsWithChildren } from 'react';
+// import { ThemeProvider as NextThemeProvider } from 'next-themes';
+// import { BusterNotificationsProvider } from '../BusterNotifications';
+
+// const ENABLE_DARK_MODE = false;
+
+// export const BusterStyleProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
+//   return (
+//     <NextThemeProvider
+//       attribute="class"
+//       defaultTheme="light"
+//       enableSystem={ENABLE_DARK_MODE}
+//       themes={['light', 'dark']}
+//       disableTransitionOnChange>
+//       <BusterNotificationsProvider>{children}</BusterNotificationsProvider>
+//     </NextThemeProvider>
+//   );
+// };
+
 'use client';
 
 import 'react-material-symbols/rounded';
@@ -18,6 +58,7 @@ import {
   createContext,
   ContextSelector
 } from '@fluentui/react-context-selector';
+import { BusterNotificationsProvider } from '../BusterNotifications';
 
 const { defaultAlgorithm, darkAlgorithm } = theme;
 
@@ -44,7 +85,7 @@ export const BaseBusterStyleProvider: React.FC<PropsWithChildren<{}>> = React.me
 
     return (
       <StyleRegistry>
-        <BusterStyles.Provider value={{ isDarkMode, theme: selectedTheme }}>
+        <BusterStyles.Provider value={{ theme: selectedTheme }}>
           <ThemeProvider
             themeMode={isDarkMode ? 'dark' : 'light'}
             appearance={isDarkMode ? 'dark' : 'light'}
@@ -69,7 +110,7 @@ export const BaseBusterStyleProvider: React.FC<PropsWithChildren<{}>> = React.me
                 style={{
                   ...(cssVariables as any)
                 }}>
-                {children}
+                <BusterNotificationsProvider>{children}</BusterNotificationsProvider>
                 <div id="modal-root"></div>
               </App>
             </ConfigProvider>
@@ -94,15 +135,13 @@ export const BusterStyleProvider: React.FC<PropsWithChildren<{}>> = ({ children 
   );
 };
 
-const BusterStyles = createContext<{ isDarkMode: boolean; theme: ThemeConfig }>({
-  isDarkMode: false,
+const BusterStyles = createContext<{ theme: ThemeConfig }>({
   theme: busterAppStyleConfig
 });
 
 export const useBusterStylesContext = <T,>(
   selector: ContextSelector<
     {
-      isDarkMode: boolean;
       theme: ThemeConfig;
     },
     T

@@ -1,4 +1,3 @@
-import { type MutableRefObject, useCallback } from 'react';
 import type { IBusterChat, IBusterChatMessage } from '../interfaces';
 import { useMemoizedFn } from 'ahooks';
 import { useQueryClient } from '@tanstack/react-query';

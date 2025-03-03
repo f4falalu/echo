@@ -1,8 +1,7 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { createStyles } from 'antd-style';
-import { CircleSpinnerLoader } from '@/components/ui/loaders/CircleSpinnerLoader';
-import { AppMaterialIcons } from '@/components/ui';
+import { RadioChecked, Radio, CircleWarning } from '../icons';
+import { cn } from '@/lib/classMerge';
 
 const animationConfig = {
   initial: { opacity: 0 },
@@ -13,28 +12,22 @@ const animationConfig = {
 
 export const StatusIndicator: React.FC<{ status?: 'completed' | 'loading' | 'failed' }> =
   React.memo(({ status }) => {
-    const { styles, cx } = useStyles();
     const inProgress = status === 'loading';
+    const failed = status === 'failed';
 
     return (
       <div
-        className={cx(
-          styles.indicatorContainer,
-          inProgress && 'in-progress',
-          'relative flex items-center justify-center transition-all duration-300'
+        className={cn(
+          'text-gray-light relative flex h-[11px] w-[11px] items-center justify-center rounded-full transition-all duration-300',
+          inProgress && 'text-primary',
+          failed && 'text-danger-foreground'
         )}>
         <AnimatePresence mode="wait">
           <motion.div
             {...animationConfig}
-            className={cx(
-              inProgress && 'in-progress',
-              'ml-[0.5px] flex items-center justify-center transition-all duration-300'
-            )}>
-            {inProgress ? (
-              <AppMaterialIcons icon="circle_with_ring" size={10} />
-            ) : (
-              <AppMaterialIcons icon="circle_with_ring" size={10} />
-            )}
+            key={status === 'failed' ? 'failed' : 'completed'}
+            className={cn('ml-[0.5px] flex items-center justify-center')}>
+            {failed ? <CircleWarning /> : <RadioChecked />}
           </motion.div>
         </AnimatePresence>
       </div>
@@ -42,17 +35,3 @@ export const StatusIndicator: React.FC<{ status?: 'completed' | 'loading' | 'fai
   });
 
 StatusIndicator.displayName = 'StatusIndicator';
-
-const useStyles = createStyles(({ token, css }) => ({
-  indicatorContainer: css`
-    width: 11px;
-    height: 11px;
-    border-radius: 100%;
-
-    color: ${token.colorTextPlaceholder};
-
-    &.in-progress {
-      color: ${token.colorPrimary};
-    }
-  `
-}));

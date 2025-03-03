@@ -1,4 +1,4 @@
-import { formatLabel } from '@/utils';
+import { formatLabel } from '@/lib';
 import { useMemo } from 'react';
 import { AXIS_TITLE_SEPARATOR } from '@/components/ui/charts/commonHelpers/axisHelper';
 import { BusterChartConfigProps } from '../interfaces';

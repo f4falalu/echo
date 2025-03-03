@@ -1,4 +1,4 @@
-import { determineFontColorContrast, formatLabel } from '@/utils';
+import { determineFontColorContrast, formatLabel } from '@/lib';
 import type { Context } from 'chartjs-plugin-datalabels';
 import { formatChartLabelDelimiter } from '../../commonHelpers';
 import { extractFieldsFromChain, appendToKeyValueChain } from '../../chartHooks';

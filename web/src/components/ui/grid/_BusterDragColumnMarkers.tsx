@@ -1,16 +1,6 @@
-import { createStyles } from 'antd-style';
 import React from 'react';
 import { NUMBER_OF_COLUMNS } from './config';
-
-const useStyles = createStyles(({ token, css }) => ({
-  dot: css`
-    background: ${token.colorBorder};
-    &.active {
-      background: ${token.colorPrimary};
-      box-shadow: 0 0 1px 2px ${token.colorPrimaryBg};
-    }
-  `
-}));
+import { cn } from '@/lib/utils';
 
 export const BusterDragColumnMarkers: React.FC<{
   isDraggingIndex: number | null;
@@ -18,7 +8,6 @@ export const BusterDragColumnMarkers: React.FC<{
   stagedLayoutColumns: number[];
   disabled?: boolean;
 }> = ({ disabled = false, stagedLayoutColumns, isDraggingIndex, itemsLength }) => {
-  const { cx, styles } = useStyles();
   const isDragging = isDraggingIndex !== null;
   const snappedDot = getSnappedDot(isDraggingIndex, stagedLayoutColumns);
 
@@ -37,9 +26,9 @@ export const BusterDragColumnMarkers: React.FC<{
         {Array.from({ length: NUMBER_OF_COLUMNS + 1 }).map((_, index) => (
           <div
             key={index}
-            className={cx(
-              styles.dot,
-              snappedDot === index ? 'active' : '',
+            className={cn(
+              'bg-border',
+              snappedDot === index && 'bg-primary shadow-primary-light',
               `snap-dot-${index} absolute h-2 w-2 rounded-full transition duration-500`
             )}
             style={{
