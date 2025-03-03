@@ -7,3 +7,4 @@ alwaysApply: false
 - Instead of console log for click events, you should do native storybook actions
 - If a new story is made in the controller directory, I would like it title "Controllers/{controller name or parent controller name}/{componentName}"
 - If a new story is found in the features directory, I would like it titled "Features/{featureName or parent feature name}/{componentName}"
+- onClick events (or similar) should be mocked with fn() from the storybook test package
