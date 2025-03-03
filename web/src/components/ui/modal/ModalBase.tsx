@@ -48,11 +48,11 @@ const DialogContent = React.memo(
         {...props}>
         {children}
         <DialogPrimitive.Close
+          asChild
           className={cn(
             'absolute top-4 right-4 opacity-70 transition-opacity hover:opacity-100 disabled:pointer-events-none'
           )}>
           <Button prefix={<Xmark />} variant="ghost" />
-          <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>
     </DialogPortal>

@@ -1,16 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { SelectTagInput } from './SelectTagInput';
+import { SelectMultipleInput } from './SelectMultiple';
 import { useState } from 'react';
 import { type SelectItem } from './Select';
 
 const meta = {
-  title: 'UI/Select/SelectTagInput',
-  component: SelectTagInput,
+  title: 'UI/Select/SelectMultipleInput',
+  component: SelectMultipleInput,
   parameters: {
     layout: 'centered'
   },
   tags: ['autodocs']
-} satisfies Meta<typeof SelectTagInput>;
+} satisfies Meta<typeof SelectMultipleInput>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -24,7 +24,7 @@ const baseItems: SelectItem[] = [
 ];
 
 // Interactive story with state management
-const SelectTagInputWithHooks = () => {
+const SelectMultipleInputWithHooks = () => {
   const [items, setItems] = useState<SelectItem[]>(baseItems);
 
   const handleSelect = (selectedValues: string[]) => {
@@ -38,7 +38,7 @@ const SelectTagInputWithHooks = () => {
 
   return (
     <div className="w-[300px]">
-      <SelectTagInput
+      <SelectMultipleInput
         items={items}
         onSelect={handleSelect}
         placeholder="Select multiple options..."
@@ -53,7 +53,7 @@ export const Default: Story = {
     onSelect: () => {},
     placeholder: 'Select multiple options...'
   },
-  render: () => <SelectTagInputWithHooks />
+  render: () => <SelectMultipleInputWithHooks />
 };
 
 export const WithPreselectedValues: Story = {
@@ -67,7 +67,7 @@ export const WithPreselectedValues: Story = {
   },
   render: (args) => (
     <div className="w-[300px]">
-      <SelectTagInput {...args} />
+      <SelectMultipleInput {...args} />
     </div>
   )
 };
@@ -80,7 +80,7 @@ export const Empty: Story = {
   },
   render: (args) => (
     <div className="w-[300px]">
-      <SelectTagInput {...args} />
+      <SelectMultipleInput {...args} />
     </div>
   )
 };
@@ -96,7 +96,7 @@ export const FullySelected: Story = {
   },
   render: (args) => (
     <div className="w-[300px]">
-      <SelectTagInput {...args} />
+      <SelectMultipleInput {...args} />
     </div>
   )
 };
@@ -112,7 +112,7 @@ export const CustomWidth: Story = {
   },
   render: (args) => (
     <div className="w-[500px]">
-      <SelectTagInput {...args} />
+      <SelectMultipleInput {...args} />
     </div>
   )
 };

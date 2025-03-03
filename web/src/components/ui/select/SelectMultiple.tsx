@@ -9,14 +9,14 @@ import { Dropdown } from '../dropdown/Dropdown';
 import { VariantProps } from 'class-variance-authority';
 import { useMemoizedFn } from 'ahooks';
 
-interface SelectTagInputProps extends VariantProps<typeof selectVariants> {
+interface SelectMultipleInputProps extends VariantProps<typeof selectVariants> {
   items: SelectItem[];
   onSelect: (item: string[]) => void;
   className?: string;
   placeholder?: string;
 }
 
-export const SelectTagInput: React.FC<SelectTagInputProps> = React.memo(
+export const SelectMultipleInput: React.FC<SelectMultipleInputProps> = React.memo(
   ({
     items,
     onSelect,
@@ -54,14 +54,15 @@ export const SelectTagInput: React.FC<SelectTagInputProps> = React.memo(
         onSelect={handleSelect}
         selectType="multiple"
         align="start"
-        className="w-[var(--radix-dropdown-menu-trigger-width)]">
+        modal={false}
+        className="w-[var(--radix-dropdown-menu-trigger-width)] max-w-full!">
         <div
           className={cn(
             selectVariants({ variant, size }),
             'relative overflow-hidden pr-0',
             className
           )}>
-          <div className="scrollbar-hide flex flex-nowrap gap-1 overflow-x-auto">
+          <div className="scrollbar-hide flex h-full flex-nowrap items-center gap-1 overflow-x-auto">
             {selectedItems.map((item) => (
               <Tag
                 key={item.value}
@@ -82,7 +83,7 @@ export const SelectTagInput: React.FC<SelectTagInputProps> = React.memo(
     );
   }
 );
-SelectTagInput.displayName = 'SelectTagInput';
+SelectMultipleInput.displayName = 'SelectMultipleInput';
 
 const Tag: React.FC<{
   label: string;
@@ -92,23 +93,20 @@ const Tag: React.FC<{
 }> = React.memo(({ label, value, onRemove, className }) => {
   return (
     <div
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
+      data-tag="true"
       className={cn(
-        'bg-item-hover text-foreground inline-flex h-4 flex-shrink-0 items-center gap-1 rounded-sm border pr-0.5 pl-1.5 text-xs',
+        'bg-item-hover text-foreground inline-flex h-full flex-shrink-0 items-center gap-1 rounded-sm border pr-0.5 pl-1.5 text-xs',
         className
       )}>
       <span className="max-w-[80px] truncate">{label}</span>
       <button
-        onClick={(e) => {
+        onPointerDown={(e) => {
           e.preventDefault();
           e.stopPropagation();
           onRemove(value);
         }}
         className="hover:text-foreground text-icon-color hover:bg-item-hover-active pointer-events-auto flex h-3.5 w-3.5 cursor-pointer items-center justify-center rounded-sm focus:outline-none">
-        <div className="text2xs">
+        <div className="text-xs">
           <Xmark />
         </div>
       </button>

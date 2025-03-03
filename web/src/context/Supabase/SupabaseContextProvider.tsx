@@ -13,8 +13,6 @@ import {
 import { checkTokenValidityFromServer as checkTokenValidityFromServerApiCall } from '@/api/buster_rest/nextjs/auth';
 import { jwtDecode } from 'jwt-decode';
 
-const STAGING_DEBUGGER = process.env.NODE_ENV === 'production';
-
 export type SupabaseContextType = {
   accessToken: string;
   expiresAt: number;

@@ -31,11 +31,11 @@ export const useCreateReactQuery = <TData = unknown, TError = unknown>({
   ...options
 }: CreateQueryProps<TData, TError>) => {
   const { openErrorNotification } = useBusterNotifications();
-  const accessToken = useSupabaseContext((state) => state.accessToken);
-  const baseEnabled = isUseSession ? !!accessToken : true;
+  // const accessToken = useSupabaseContext((state) => state.accessToken);
+  //  const baseEnabled = isUseSession ? !!accessToken : true;
 
   const q = useQuery({
-    enabled: baseEnabled && !!enabled,
+    enabled: !!enabled,
     retry: 0,
     refetchOnWindowFocus,
     refetchOnMount,

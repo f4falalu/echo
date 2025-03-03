@@ -1,48 +1,44 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { NewTermModal } from '.';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { NewTermModal } from './NewTermModal';
+import { http, HttpResponse } from 'msw';
+import { fn } from '@storybook/test';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false
-    }
-  }
-});
-
-// Create a wrapper component that provides necessary context
-const ModalWithProviders = (props: React.ComponentProps<typeof NewTermModal>) => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <NewTermModal {...props} />
-    </QueryClientProvider>
-  );
-};
+interface TermRequestBody {
+  name: string;
+  definition: string;
+  dataset_ids: string[];
+}
 
 const meta = {
-  title: 'Features/NewTermModal',
-  component: ModalWithProviders,
+  title: 'Features/Modal/NewTermModal',
+  component: NewTermModal,
   parameters: {
-    layout: 'centered'
-  },
-  decorators: [
-    (Story) => {
-      // Mock the terms context and dataset query
-      queryClient.setQueryData(
-        ['datasets'],
-        [
-          { id: '1', name: 'Customer Data' },
-          { id: '2', name: 'Sales Data' },
-          { id: '3', name: 'Product Analytics' }
-        ]
-      );
-
-      return <Story />;
+    layout: 'centered',
+    msw: {
+      handlers: [
+        http.get(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/datasets`, () => {
+          return HttpResponse.json([
+            { id: '1', name: 'Customer Data' },
+            { id: '2', name: 'Sales Data' },
+            { id: '3', name: 'Product Analytics' }
+          ]);
+        }),
+        http.post(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/terms`, async ({ request }) => {
+          const body = (await request.json()) as TermRequestBody;
+          return HttpResponse.json({
+            success: true,
+            data: {
+              id: '123',
+              name: body.name,
+              definition: body.definition,
+              dataset_ids: body.dataset_ids
+            }
+          });
+        })
+      ]
     }
-  ],
-  tags: ['autodocs']
-} satisfies Meta<typeof ModalWithProviders>;
+  }
+} satisfies Meta<typeof NewTermModal>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -50,47 +46,18 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     open: true,
-    onClose: () => {}
+    onClose: fn()
+  },
+  parameters: {
+    reactQuery: {
+      logger: console
+    }
   }
 };
 
 export const Closed: Story = {
   args: {
     open: false,
-    onClose: () => {}
+    onClose: fn()
   }
-};
-
-export const WithMockedData: Story = {
-  args: {
-    open: true,
-    onClose: () => {}
-  },
-  decorators: [
-    (Story) => {
-      queryClient.setQueryData(
-        ['datasets'],
-        [
-          { id: '1', name: 'Customer Data' },
-          { id: '2', name: 'Sales Data' },
-          { id: '3', name: 'Product Analytics' }
-        ]
-      );
-      return <Story />;
-    }
-  ]
-};
-
-export const Loading: Story = {
-  args: {
-    open: true,
-    onClose: () => {}
-  },
-  decorators: [
-    (Story) => {
-      // Clear any existing data to show loading state
-      queryClient.removeQueries({ queryKey: ['datasets'] });
-      return <Story />;
-    }
-  ]
 };

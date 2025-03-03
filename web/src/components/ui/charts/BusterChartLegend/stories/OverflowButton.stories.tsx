@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { OverflowButton } from '../OverflowContainer';
 import { ChartType } from '../../interfaces';
+import { fn } from '@storybook/test';
 
 const meta = {
   title: 'UI/Charts/OverflowButton',
@@ -44,8 +45,8 @@ const mockLegendItems = [
 export const Default: Story = {
   args: {
     legendItems: mockLegendItems,
-    onClickItem: (item) => alert(`Clicked: ${item.formattedName}`),
-    onFocusClick: (item) => alert(`Focused: ${item.formattedName}`)
+    onClickItem: fn,
+    onFocusClick: fn
   }
 };
 

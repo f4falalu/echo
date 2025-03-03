@@ -155,7 +155,7 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
             </>
           )}
 
-          <div className="max-h-[350px] overflow-y-auto">
+          <div className="max-h-[375px] overflow-y-auto">
             {hasShownItem ? (
               <>
                 {selectedItems.map((item) => {

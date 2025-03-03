@@ -4,6 +4,7 @@ import { Button } from '../buttons/Button';
 import { PaintRoller, Star, Storage } from '../icons';
 import { faker } from '@faker-js/faker';
 import React from 'react';
+import { fn } from '@storybook/test';
 
 const meta: Meta<typeof Dropdown> = {
   title: 'UI/Dropdowns/Dropdown',
@@ -35,20 +36,20 @@ export const Basic: Story = {
       {
         value: '1',
         label: 'Profile',
-        onClick: () => alert('Profile clicked'),
+        onClick: fn(),
         loading: false,
         icon: <PaintRoller />
       },
       {
         value: '2',
         label: 'Settings',
-        onClick: () => alert('Settings clicked'),
+        onClick: fn(),
         shortcut: '⌘S'
       },
       {
         value: '3',
         label: 'Logout',
-        onClick: () => alert('Logout clicked'),
+        onClick: fn(),
         items: [
           {
             value: '3-1',
@@ -75,21 +76,21 @@ export const WithIconsAndShortcuts: Story = {
         label: 'Profile',
         icon: '👤',
         shortcut: '⌘P',
-        onClick: () => alert('Profile clicked')
+        onClick: fn()
       },
       {
         value: '2',
         label: 'Settings',
         icon: '⚙️',
         shortcut: '⌘S',
-        onClick: () => alert('Settings clicked')
+        onClick: fn()
       },
       {
         value: '3',
         label: 'Logout',
         icon: '🚪',
         shortcut: '⌘L',
-        onClick: () => alert('Logout clicked')
+        onClick: fn()
       }
     ],
     children: <Button>Menu with Icons</Button>
@@ -108,12 +109,12 @@ export const WithNestedItems: Story = {
           {
             value: '1-1',
             label: 'Option 1',
-            onClick: () => alert('Option 1 clicked')
+            onClick: fn()
           },
           {
             value: '1-2',
             label: 'Option 2',
-            onClick: () => alert('Option 2 clicked')
+            onClick: fn()
           }
         ]
       },
@@ -124,12 +125,12 @@ export const WithNestedItems: Story = {
           {
             value: '2-1',
             label: 'Sub Option 1',
-            onClick: () => alert('Sub Option 1 clicked')
+            onClick: fn()
           },
           {
             value: '2-2',
             label: 'Sub Option 2',
-            onClick: () => alert('Sub Option 2 clicked')
+            onClick: fn()
           }
         ]
       }
@@ -145,18 +146,18 @@ export const WithDisabledItems: Story = {
       {
         value: '1',
         label: 'Available Option',
-        onClick: () => alert('Available clicked')
+        onClick: fn()
       },
       {
         value: '2',
         label: 'Disabled Option',
         disabled: true,
-        onClick: () => alert('Should not be called')
+        onClick: fn()
       },
       {
         value: '3',
         label: 'Another Available',
-        onClick: () => alert('Another clicked')
+        onClick: fn()
       }
     ],
     children: <Button>Menu with Disabled Items</Button>
@@ -171,12 +172,12 @@ export const CustomWidth: Story = {
       {
         value: '1',
         label: 'This is a very long menu item that might need wrapping',
-        onClick: () => alert('Long item clicked')
+        onClick: fn()
       },
       {
         value: '2',
         label: 'Short item',
-        onClick: () => alert('Short item clicked')
+        onClick: fn()
       }
     ],
     children: <Button>Wide Menu</Button>
@@ -190,29 +191,29 @@ export const WithLoadingItems: Story = {
       {
         value: '1',
         label: 'Normal Item',
-        onClick: () => alert('Normal clicked')
+        onClick: fn()
       },
       {
         value: '2',
         label: 'Loading Item',
         loading: true,
-        onClick: () => alert('Loading clicked')
+        onClick: fn()
       },
       {
         value: '3',
         label: 'Another Normal',
-        onClick: () => alert('Another clicked')
+        onClick: fn()
       },
       { type: 'divider' },
       {
         value: '4',
         label: 'Option 4',
-        onClick: () => alert('Option 4 clicked')
+        onClick: fn()
       },
       {
         value: '5',
         label: 'Option 5',
-        onClick: () => alert('Option 5 clicked')
+        onClick: fn()
       }
     ],
     children: <Button>Menu with Loading</Button>
@@ -228,17 +229,17 @@ export const WithSelectionSingle: Story = {
         value: '1',
         label: 'Option 1',
         selected: false,
-        onClick: () => alert('Option 1 clicked')
+        onClick: fn()
       },
       {
         value: '2',
         label: 'Option 2',
-        onClick: () => alert('Option 2 clicked')
+        onClick: fn()
       },
       {
         value: '3',
         label: 'Option 3 - Selected',
-        onClick: () => alert('Option 3 clicked'),
+        onClick: fn(),
         selected: true
       }
     ],
@@ -255,32 +256,32 @@ export const WithSelectionMultiple: Story = {
         value: '1',
         label: 'Option 1',
         selected: selectedIds.has('1'),
-        onClick: () => alert('Option 1 clicked')
+        onClick: fn()
       },
       {
         value: '2',
         label: 'Option 2',
         selected: selectedIds.has('2'),
-        onClick: () => alert('Option 2 clicked')
+        onClick: fn()
       },
       {
         value: '3',
         label: 'Option 3',
         selected: selectedIds.has('3'),
-        onClick: () => alert('Option 3 clicked')
+        onClick: fn()
       },
       { type: 'divider' as const },
       {
         value: '4',
         label: 'Option 4',
         selected: selectedIds.has('4'),
-        onClick: () => alert('Option 4 clicked')
+        onClick: fn()
       },
       {
         value: '5',
         label: 'Option 5',
         selected: selectedIds.has('5'),
-        onClick: () => alert('Option 5 clicked')
+        onClick: fn()
       }
     ];
 
@@ -317,14 +318,14 @@ export const WithSecondaryLabel: Story = {
         value: '1',
         label: 'Profile Settings',
         secondaryLabel: 'User preferences',
-        onClick: () => alert('Profile clicked'),
+        onClick: fn(),
         icon: <PaintRoller />
       },
       {
         value: '2',
         label: 'Storage',
         secondaryLabel: '45GB used',
-        onClick: () => alert('Storage clicked'),
+        onClick: fn(),
         icon: <Storage />
       },
       { type: 'divider' },
@@ -332,7 +333,7 @@ export const WithSecondaryLabel: Story = {
         value: '3',
         label: 'Subscription',
         secondaryLabel: 'Pro Plan',
-        onClick: () => alert('Subscription clicked'),
+        onClick: fn(),
         icon: <Star />
       }
     ],
@@ -350,7 +351,7 @@ export const WithSearchHeader: Story = {
         label: 'Profile Settings',
         searchLabel: 'profile settings user preferences account',
         secondaryLabel: 'User preferences',
-        onClick: () => alert('Profile clicked'),
+        onClick: fn(),
         icon: <PaintRoller />
       },
       {
@@ -358,7 +359,7 @@ export const WithSearchHeader: Story = {
         label: 'Storage Options',
         searchLabel: 'storage disk space memory',
         secondaryLabel: 'Manage storage space',
-        onClick: () => alert('Storage clicked'),
+        onClick: fn(),
         icon: <Storage />
       },
       {
@@ -366,20 +367,19 @@ export const WithSearchHeader: Story = {
         label: 'Favorites',
         searchLabel: 'favorites starred items bookmarks',
         secondaryLabel: 'View starred items',
-        onClick: () => alert('Favorites clicked'),
+        onClick: fn(),
         icon: <Star />
       },
       { type: 'divider' },
       {
         value: '4',
         label: 'Logout',
-
-        onClick: () => alert('Logout clicked')
+        onClick: fn()
       },
       {
         value: '5',
         label: 'Invite User',
-        onClick: () => alert('Invite User clicked')
+        onClick: fn()
       }
     ],
     children: <Button>Searchable Menu</Button>
@@ -399,7 +399,7 @@ export const WithLongText: Story = {
           label,
           secondaryLabel,
           searchLabel: label + ' ' + secondaryLabel,
-          onClick: () => alert('Long text clicked'),
+          onClick: fn(),
           truncate: true
         };
       })
@@ -418,7 +418,7 @@ export const WithLinks: Story = {
         label: 'Documentation',
         link: '/docs',
         icon: <Storage />,
-        onClick: () => alert('Documentation clicked')
+        onClick: fn()
       },
       {
         value: '2',
@@ -516,17 +516,17 @@ export const WithFooterContent: Story = {
       {
         value: '1',
         label: 'Option 1',
-        onClick: () => alert('Option 1 clicked')
+        onClick: fn()
       },
       {
         value: '2',
         label: 'Option 2',
-        onClick: () => alert('Option 2 clicked')
+        onClick: fn()
       },
       {
         value: '3',
         label: 'Option 3',
-        onClick: () => alert('Option 3 clicked')
+        onClick: fn()
       }
     ],
     footerContent: (
@@ -546,14 +546,14 @@ export const WithNumberedItems: Story = {
         value: '1',
         label: 'First Item',
         showIndex: true,
-        onClick: () => alert('First item clicked'),
+        onClick: fn(),
         icon: <PaintRoller />
       },
       {
         value: '2',
         label: 'Second Item',
         showIndex: true,
-        onClick: () => alert('Second item clicked'),
+        onClick: fn(),
         icon: <Star />
       },
       { type: 'divider' },
@@ -561,7 +561,7 @@ export const WithNumberedItems: Story = {
         value: '3',
         label: 'Third Item',
         showIndex: true,
-        onClick: () => alert('Third item clicked'),
+        onClick: fn(),
         icon: <Storage />,
         secondaryLabel: 'With secondary label'
       },
@@ -569,7 +569,7 @@ export const WithNumberedItems: Story = {
         value: '4',
         label: 'Fourth Item',
         showIndex: true,
-        onClick: () => alert('Fourth item clicked'),
+        onClick: fn(),
         disabled: true
       }
     ],

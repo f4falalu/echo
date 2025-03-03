@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { LegendItem } from '../LegendItem';
 import { ChartType } from '../../interfaces';
+import { fn } from '@storybook/test';
 
 const meta = {
   title: 'UI/Charts/LegendItem',
@@ -145,8 +146,8 @@ export const WithFocusEvent: Story = {
       id: '7',
       serieName: 'series7'
     },
-    onClickItem: (item) => alert(`Clicked: ${item.formattedName}`),
-    onFocusItem: (item) => alert(`Focused: ${item.formattedName}`)
-    //  onHoverItem: (item, isHover) => alert(`Hover: ${item.formattedName} ${isHover}`)
+    onClickItem: fn,
+    onFocusItem: fn,
+    onHoverItem: fn
   }
 };

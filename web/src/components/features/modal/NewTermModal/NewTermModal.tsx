@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useBusterTermsIndividualContextSelector } from '@/context/Terms';
 import { Text } from '@/components/ui/typography';
 import { AppModal } from '@/components/ui/modal';
@@ -13,10 +13,10 @@ export const NewTermModal: React.FC<{
 }> = React.memo(({ open, onClose }) => {
   const titleRef = React.useRef<HTMLInputElement>(null);
   const createTerm = useBusterTermsIndividualContextSelector((x) => x.createTerm);
-  const [creatingTerm, setCreatingTerm] = React.useState(false);
-  const [title, setTitle] = React.useState('');
-  const [definition, setDefinition] = React.useState('');
-  const [selectedDatasets, setSelectedDatasets] = React.useState<string[]>([]);
+  const isCreatingTerm = useBusterTermsIndividualContextSelector((x) => x.isCreatingTerm);
+  const [title, setTitle] = useState('');
+  const [definition, setDefinition] = useState('');
+  const [selectedDatasets, setSelectedDatasets] = useState<string[]>([]);
 
   const disableSubmit = selectedDatasets.length === 0 || !title || !definition;
 
@@ -24,11 +24,9 @@ export const NewTermModal: React.FC<{
     setTitle('');
     setDefinition('');
     setSelectedDatasets([]);
-    setCreatingTerm(false);
   });
 
   const onCreateNewTerm = useMemoizedFn(async () => {
-    setCreatingTerm(true);
     await createTerm({
       name: title,
       definition,
@@ -63,10 +61,10 @@ export const NewTermModal: React.FC<{
         text: 'Create term',
         onClick: onCreateNewTerm,
         disabled: disableSubmit,
-        loading: creatingTerm
+        loading: isCreatingTerm
       }
     };
-  }, [disableSubmit, creatingTerm]);
+  }, [disableSubmit, isCreatingTerm]);
 
   useEffect(() => {
     if (open) {

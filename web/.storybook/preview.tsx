@@ -1,8 +1,12 @@
 import React from 'react';
 import type { Preview } from '@storybook/react';
 
+import { initialize, mswLoader } from 'msw-storybook-addon';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BusterStyleProvider } from '../src/context/BusterStyles/BusterStyles';
 import '../src/styles/styles.scss';
+
+initialize();
 
 const preview: Preview = {
   parameters: {
@@ -22,11 +26,22 @@ const preview: Preview = {
       default: 'Light'
     }
   },
+  loaders: [mswLoader],
   decorators: [
     (Story) => {
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: {
+            gcTime: 0,
+            staleTime: 0
+          }
+        }
+      });
       return (
         <BusterStyleProvider>
-          <Story />
+          <QueryClientProvider client={queryClient}>
+            <Story />
+          </QueryClientProvider>
         </BusterStyleProvider>
       );
     }
