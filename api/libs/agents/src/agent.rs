@@ -353,6 +353,8 @@ impl Agent {
         let mut content_buffer = String::new();
         let mut message_id: Option<String> = None;
         let mut is_complete = false;
+        // Flag to track if we've sent the first message
+        let mut first_message_sent = false;
 
         while let Some(chunk_result) = stream_rx.recv().await {
             match chunk_result {
@@ -367,17 +369,19 @@ impl Agent {
                     if let Some(content) = &delta.content {
                         content_buffer.push_str(content);
 
-                        // Stream the content update
+                        // Stream the content update with initial=true for the first message only
                         let partial_message = AgentMessage::assistant(
                             message_id.clone(),
                             Some(content_buffer.clone()),
                             None,
                             Some(MessageProgress::InProgress),
-                            Some(false),
+                            Some(!first_message_sent), // Set initial=true only for the first message
                             Some(self.name.clone()),
                         );
 
                         self.get_stream_sender().await.send(Ok(partial_message))?;
+                        // Mark that we've sent the first message
+                        first_message_sent = true;
                     }
 
                     // Process tool calls if present
@@ -423,11 +427,13 @@ impl Agent {
                                 },
                                 Some(tool_calls_vec),
                                 Some(MessageProgress::InProgress),
-                                Some(false),
+                                Some(!first_message_sent), // Set initial=true only for the first message
                                 Some(self.name.clone()),
                             );
 
                             self.get_stream_sender().await.send(Ok(partial_message))?;
+                            // Mark that we've sent the first message
+                            first_message_sent = true;
                         }
                     }
 

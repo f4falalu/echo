@@ -20,7 +20,7 @@ impl StreamingParser {
         }
     }
 
-    pub fn process_chunk(&mut self, chunk: &str) -> Result<Option<BusterChatContainer>> {
+    pub fn process_chunk(&mut self, id: String, chunk: &str) -> Result<Option<BusterChatContainer>> {
         // Add new chunk to buffer
         self.buffer.push_str(chunk);
 
@@ -87,7 +87,7 @@ impl StreamingParser {
                         let has_yml_content = last_file.get("yml_content").is_some();
 
                         if has_name && has_file_type && has_yml_content {
-                            return self.convert_to_message(value);
+                            return self.convert_to_message(id, value);
                         }
                     }
                 }
@@ -148,7 +148,7 @@ impl StreamingParser {
         processed
     }
 
-    fn convert_to_message(&self, value: Value) -> Result<Option<BusterChatContainer>> {
+    fn convert_to_message(&self, id: String, value: Value) -> Result<Option<BusterChatContainer>> {
         if let Some(files) = value.get("files").and_then(Value::as_array) {
             if let Some(last_file) = files.last().and_then(Value::as_object) {
                 let name = last_file.get("name").and_then(Value::as_str).unwrap_or("");
@@ -171,7 +171,7 @@ impl StreamingParser {
                 }
 
                 return Ok(Some(BusterChatContainer::File(BusterFileMessage {
-                    id: name.to_string(),
+                    id,
                     message_type: "file".to_string(),
                     file_type: file_type.to_string(),
                     file_name: name.to_string(),

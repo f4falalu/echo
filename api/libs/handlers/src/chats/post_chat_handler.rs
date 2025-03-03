@@ -27,6 +27,7 @@ use super::types::ChatWithMessages;
 use tokio::sync::mpsc;
 
 // Define ThreadEvent
+#[derive(Clone, Copy, Debug)]
 pub enum ThreadEvent {
     GeneratingResponseMessage,
     GeneratingReasoningMessage,
@@ -42,7 +43,7 @@ pub struct ChatCreateNewChat {
 pub async fn post_chat_handler(
     request: ChatCreateNewChat,
     user: User,
-    tx: Option<mpsc::Sender<Result<BusterContainer>>>,
+    tx: Option<mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
 ) -> Result<ChatWithMessages> {
     let chat_id = request.chat_id.unwrap_or_else(Uuid::new_v4);
     let message_id = request.message_id.unwrap_or_else(Uuid::new_v4);
@@ -118,31 +119,17 @@ pub async fn post_chat_handler(
     // Collect all messages for final processing
     let mut all_messages: Vec<AgentMessage> = Vec::new();
     let mut all_transformed_containers: Vec<BusterContainer> = Vec::new();
-    let mut final_message: Option<String> = None;
 
     // Process all messages from the agent
     while let Ok(message_result) = rx.recv().await {
         match message_result {
             Ok(msg) => {
-                // Check for final message from manager_agent
-                if let AgentMessage::Assistant {
-                    name: Some(name),
-                    content: Some(content),
-                    tool_calls: None,
-                    ..
-                } = &msg
-                {
-                    if name == "manager_agent" {
-                        final_message = Some(content.clone());
-                    }
-                }
-
                 // Store the original message
                 all_messages.push(msg.clone());
 
                 // Always transform the message
                 match transform_message(&chat_id, &message_id, msg) {
-                    Ok((containers, _event)) => {
+                    Ok((containers, event)) => {
                         // Store all transformed containers
                         for container in containers.clone() {
                             all_transformed_containers.push(container.clone());
@@ -151,8 +138,8 @@ pub async fn post_chat_handler(
                         // If we have a tx channel, send the transformed messages
                         if let Some(tx) = &tx {
                             for container in containers {
-                                if tx.send(Ok(container)).await.is_err() {
-                                    // Client disconnected, but continue processing
+                                if tx.send(Ok((container, event.clone()))).await.is_err() {
+                                    // Client disconnected, but continue processing messages
                                     tracing::warn!(
                                         "Client disconnected, but continuing to process messages"
                                     );
@@ -241,13 +228,6 @@ pub async fn post_chat_handler(
         // Collect valid response messages
         let mut final_response_messages: Vec<Value> =
             response_messages.into_iter().flatten().collect();
-
-        // Add the final message from manager_agent if available
-        if let Some(final_msg) = final_message {
-            if let Ok(value) = serde_json::to_value(final_msg) {
-                final_response_messages.push(value);
-            }
-        }
 
         // Update the chat message with processed content
         chat_message.response_messages = final_response_messages;
@@ -526,8 +506,9 @@ pub fn transform_message(
                         filtered_messages
                     }
                     Err(e) => {
+                        tracing::warn!("Error transforming text message: {:?}", e);
                         println!("MESSAGE_STREAM: Error transforming text message: {:?}", e);
-                        vec![] // Silently ignore errors by returning empty vec
+                        vec![] // Return empty vec but warn about the error
                     }
                 };
 
@@ -543,35 +524,17 @@ pub fn transform_message(
                     chat_id.clone(),
                     message_id.clone(),
                 ) {
-                    Ok(messages) => {
-                        let filtered_messages: Vec<BusterContainer> = messages
-                            .into_iter()
-                            .filter(|msg| match &msg.reasoning {
-                                ReasoningMessage::Thought(thought) => thought.status == "completed",
-                                ReasoningMessage::File(file) => file.status == "completed",
-                            })
-                            .map(BusterContainer::ReasoningMessage)
-                            .collect();
-
-                        println!(
-                            "MESSAGE_STREAM: Transformed assistant tool message into {} containers",
-                            filtered_messages.len()
-                        );
-                        if !filtered_messages.is_empty() {
-                            println!(
-                                "MESSAGE_STREAM: First container: {:?}",
-                                filtered_messages[0]
-                            );
-                        }
-
-                        filtered_messages
-                    }
+                    Ok(messages) => messages
+                        .into_iter()
+                        .map(BusterContainer::ReasoningMessage)
+                        .collect(),
                     Err(e) => {
+                        tracing::warn!("Error transforming assistant tool message: {:?}", e);
                         println!(
                             "MESSAGE_STREAM: Error transforming assistant tool message: {:?}",
                             e
                         );
-                        vec![] // Silently ignore errors by returning empty vec
+                        vec![] // Return empty vec but warn about the error
                     }
                 };
 
@@ -589,48 +552,30 @@ pub fn transform_message(
         } => {
             if let Some(name) = name {
                 let name_str = name.clone(); // Clone here to use in println later
+                
+                // Use tool_call_id directly as it's already a String
                 let messages = match transform_tool_message(
-                    id,
+                    tool_call_id,
                     name,
                     content.clone(),
-                    progress,
                     chat_id.clone(),
                     message_id.clone(),
                 ) {
-                    Ok(messages) => {
-                        let filtered_messages: Vec<BusterContainer> = messages
-                            .into_iter()
-                            .filter(|msg| match &msg.reasoning {
-                                ReasoningMessage::Thought(thought) => thought.status == "completed",
-                                ReasoningMessage::File(file) => file.status == "completed",
-                            })
-                            .map(BusterContainer::ReasoningMessage)
-                            .collect();
-
-                        println!(
-                            "MESSAGE_STREAM: Transformed tool message '{}' into {} containers",
-                            name_str,
-                            filtered_messages.len()
-                        );
-                        if !filtered_messages.is_empty() {
-                            println!(
-                                "MESSAGE_STREAM: First container: {:?}",
-                                filtered_messages[0]
-                            );
-                        }
-
-                        filtered_messages
-                    }
+                    Ok(messages) => messages
+                        .into_iter()
+                        .map(BusterContainer::ReasoningMessage)
+                        .collect(),
                     Err(e) => {
+                        tracing::warn!("Error transforming tool message '{}': {:?}", name_str, e);
                         println!("MESSAGE_STREAM: Error transforming tool message: {:?}", e);
-                        vec![] // Silently ignore errors by returning empty vec
+                        vec![] // Return empty vec but warn about the error
                     }
                 };
 
                 return Ok((messages, ThreadEvent::GeneratingReasoningMessage));
             }
 
-            Ok((vec![], ThreadEvent::GeneratingReasoningMessage)) // Return empty vec instead of error
+            Ok((vec![], ThreadEvent::GeneratingResponseMessage)) // Return empty vec instead of error
         }
         _ => Ok((vec![], ThreadEvent::GeneratingResponseMessage)), // Return empty vec instead of error
     }
@@ -708,203 +653,200 @@ fn transform_text_message(
     }
 }
 
+// Update transform_tool_message to require ID and not include progress parameter
 fn transform_tool_message(
-    id: Option<String>,
+    id: String,
     name: String,
     content: String,
-    progress: Option<MessageProgress>,
     chat_id: Uuid,
     message_id: Uuid,
 ) -> Result<Vec<BusterReasoningMessageContainer>> {
-    let name_str = name.clone(); // Clone here to use in println later
-    println!(
-        "MESSAGE_STREAM: transform_tool_message called with name: {}",
-        name_str
-    );
+    // Use required ID (tool call ID) for all function calls
+    let containers = match name.as_str() {
+        "data_catalog_search" => tool_data_catalog_search(id.clone(), content)?,
+        "create_file" => tool_create_file(id.clone(), content)?,
+        "modify_file" => tool_modify_file(id.clone(), content)?,
+        "create_metrics" => tool_create_metrics(id.clone(), content)?,
+        "modify_metrics" => tool_modify_metrics(id.clone(), content)?,
+        "create_dashboards" => tool_create_dashboards(id.clone(), content)?,
+        "modify_dashboards" => tool_modify_dashboards(id.clone(), content)?,
+        "create_plan" => tool_create_plan(id.clone(), content)?,
+        _ => return Err(anyhow::anyhow!("Unknown tool name: {}", name)),
+    };
 
-    let messages = match name.as_str() {
-        "search_data_catalog" => tool_data_catalog_search(id, content.clone(), progress),
-        "create_files" => tool_create_file(id.clone(), content.clone(), progress),
-        "modify_files" => tool_modify_file(id.clone(), content.clone(), progress),
-        "create_metrics" => tool_create_metrics(id.clone(), content.clone(), progress),
-        "update_metrics" => tool_modify_metrics(id.clone(), content.clone(), progress),
-        "create_dashboards" => tool_create_dashboards(id.clone(), content.clone(), progress),
-        "update_dashboards" => tool_modify_dashboards(id.clone(), content.clone(), progress),
-        "create_plan" => tool_create_plan(id, content.clone(), progress),
-        _ => {
-            println!("MESSAGE_STREAM: Unsupported tool name: {}", name_str);
-            Err(anyhow::anyhow!("Unsupported tool name: {}", name))
-        }
-    }?;
-
-    println!(
-        "MESSAGE_STREAM: transform_tool_message for '{}' returning {} containers",
-        name_str,
-        messages.len()
-    );
-    if !messages.is_empty() {
-        println!("MESSAGE_STREAM: First container: {:?}", messages[0]);
-    }
-
-    Ok(messages
-        .into_iter()
-        .map(|message| BusterReasoningMessageContainer {
-            reasoning: match message {
-                BusterChatContainer::Thought(thought) => ReasoningMessage::Thought(thought),
-                BusterChatContainer::File(file) => ReasoningMessage::File(file),
-                _ => unreachable!("Tool messages should only return Thought or File"),
-            },
-            chat_id,
-            message_id,
-        })
-        .collect())
+    // Transform to reasoning containers
+    let reasoning_containers = transform_to_reasoning_container(containers, chat_id, message_id);
+    Ok(reasoning_containers)
 }
 
-fn transform_assistant_tool_message(
-    id: Option<String>,
-    tool_calls: Vec<ToolCall>,
-    progress: Option<MessageProgress>,
-    initial: bool,
-    chat_id: Uuid,
-    message_id: Uuid,
-) -> Result<Vec<BusterReasoningMessageContainer>> {
-    println!(
-        "MESSAGE_STREAM: transform_assistant_tool_message called with tool_calls: {:?}",
-        tool_calls
-    );
-
-    if tool_calls.is_empty() {
-        println!("MESSAGE_STREAM: No tool calls found");
-        return Ok(vec![]);
-    }
-
-    let tool_call = &tool_calls[0];
-    let messages = match tool_call.function.name.as_str() {
-        "search_data_catalog" => assistant_data_catalog_search(id, progress, initial),
-        "create_metrics" => assistant_create_metrics(id, tool_calls.clone(), progress),
-        "update_metrics" => assistant_modify_metrics(id, tool_calls.clone(), progress),
-        "create_dashboards" => assistant_create_dashboards(id, tool_calls.clone(), progress),
-        "update_dashboards" => assistant_modify_dashboards(id, tool_calls.clone(), progress),
-        "create_plan" => assistant_create_plan(id, tool_calls.clone(), progress),
-        _ => Err(anyhow::anyhow!(
-            "Unsupported tool name: {}",
-            tool_call.function.name
-        )),
-    }?;
-
-    println!(
-        "MESSAGE_STREAM: transform_assistant_tool_message returning {} containers",
-        messages.len()
-    );
-    Ok(messages
-        .into_iter()
-        .map(|message| BusterReasoningMessageContainer {
-            reasoning: match message {
-                BusterChatContainer::Thought(thought) => ReasoningMessage::Thought(thought),
-                BusterChatContainer::File(file) => ReasoningMessage::File(file),
-                _ => unreachable!("Assistant tool messages should only return Thought or File"),
-            },
-            chat_id,
-            message_id,
-        })
-        .collect())
-}
-
-fn assistant_data_catalog_search(
-    id: Option<String>,
-    progress: Option<MessageProgress>,
-    initial: bool,
-) -> Result<Vec<BusterChatContainer>> {
-    if let Some(progress) = progress {
-        if initial {
-            match progress {
-                MessageProgress::InProgress => {
-                    let id = id.unwrap_or_else(|| Uuid::new_v4().to_string());
-
-                    Ok(vec![BusterChatContainer::Thought(BusterThought {
-                        id,
-                        thought_type: "thought".to_string(),
-                        thought_title: "Searching your data catalog...".to_string(),
-                        thought_secondary_title: "".to_string(),
-                        thoughts: None,
-                        status: "loading".to_string(),
-                    })])
-                }
-                _ => Err(anyhow::anyhow!(
-                    "Assistant data catalog search only supports in progress."
-                )),
-            }
-        } else {
-            Err(anyhow::anyhow!(
-                "Assistant data catalog search only supports initial."
-            ))
-        }
-    } else {
-        Err(anyhow::anyhow!(
-            "Assistant data catalog search requires progress."
-        ))
-    }
-}
-
-fn tool_data_catalog_search(
-    id: Option<String>,
+// Update tool_create_metrics to require ID
+fn tool_create_metrics(
+    id: String,
     content: String,
-    progress: Option<MessageProgress>,
 ) -> Result<Vec<BusterChatContainer>> {
-    if let Some(progress) = progress {
-        let data_catalog_result = match serde_json::from_str::<SearchDataCatalogOutput>(&content) {
-            Ok(result) => result,
-            Err(_) => return Ok(vec![]), // Silently ignore parsing errors
-        };
-
-        let duration = (data_catalog_result.duration.clone() as f64 / 1000.0 * 10.0).round() / 10.0;
-        let result_count = data_catalog_result.results.len();
-        let query_params = data_catalog_result.search_requirements.clone();
-
-        let thought_pill_containters =
-            match proccess_data_catalog_search_results(data_catalog_result) {
-                Ok(object) => object,
-                Err(_) => return Ok(vec![]), // Silently ignore processing errors
-            };
-
-        let buster_thought = if result_count > 0 {
-            BusterChatContainer::Thought(BusterThought {
-                id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
-                thought_type: "thought".to_string(),
-                thought_title: format!("Found {} results", result_count),
-                thought_secondary_title: format!("{} seconds", duration),
-                thoughts: Some(thought_pill_containters),
-                status: "completed".to_string(),
-            })
-        } else {
-            BusterChatContainer::Thought(BusterThought {
-                id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
-                thought_type: "thought".to_string(),
-                thought_title: "No data catalog items found".to_string(),
-                thought_secondary_title: format!("{} seconds", duration),
-                thoughts: Some(vec![BusterThoughtPillContainer {
-                    title: "No results found".to_string(),
-                    thought_pills: vec![BusterThoughtPill {
-                        id: "".to_string(),
-                        text: query_params,
-                        thought_file_type: "empty".to_string(),
-                    }],
-                }]),
-                status: "completed".to_string(),
-            })
-        };
-
-        match progress {
-            MessageProgress::Complete => Ok(vec![buster_thought]),
-            _ => Err(anyhow::anyhow!(
-                "Tool data catalog search only supports complete."
-            )),
+    println!("MESSAGE_STREAM: Processing tool create metrics message");
+    
+    let mut parser = StreamingParser::new();
+    
+    match parser.process_chunk(id, &content)? {
+        Some(message) => {
+            println!(
+                "MESSAGE_STREAM: StreamingParser produced create metrics message: {:?}",
+                message
+            );
+            Ok(vec![message])
         }
-    } else {
-        Err(anyhow::anyhow!(
-            "Tool data catalog search requires progress."
-        ))
+        None => {
+            println!("MESSAGE_STREAM: No valid metrics data found in content");
+            Err(anyhow::anyhow!("Failed to parse metrics data from content"))
+        }
     }
+}
+
+// Update tool_modify_metrics to require ID
+fn tool_modify_metrics(
+    id: String,
+    content: String,
+) -> Result<Vec<BusterChatContainer>> {
+    println!("MESSAGE_STREAM: Processing tool modify metrics message");
+    
+    let mut parser = StreamingParser::new();
+    
+    match parser.process_chunk(id, &content)? {
+        Some(message) => {
+            println!(
+                "MESSAGE_STREAM: StreamingParser produced modify metrics message: {:?}",
+                message
+            );
+            Ok(vec![message])
+        }
+        None => {
+            println!("MESSAGE_STREAM: No valid metrics data found in content");
+            Err(anyhow::anyhow!("Failed to parse metrics data from content"))
+        }
+    }
+}
+
+// Update tool_create_dashboards to require ID
+fn tool_create_dashboards(
+    id: String,
+    content: String,
+) -> Result<Vec<BusterChatContainer>> {
+    println!("MESSAGE_STREAM: Processing tool create dashboards message");
+    
+    let mut parser = StreamingParser::new();
+    
+    match parser.process_chunk(id, &content)? {
+        Some(message) => {
+            println!(
+                "MESSAGE_STREAM: StreamingParser produced create dashboards message: {:?}",
+                message
+            );
+            Ok(vec![message])
+        }
+        None => {
+            println!("MESSAGE_STREAM: No valid dashboard data found in content");
+            Err(anyhow::anyhow!("Failed to parse dashboard data from content"))
+        }
+    }
+}
+
+// Update tool_modify_dashboards to require ID
+fn tool_modify_dashboards(
+    id: String,
+    content: String,
+) -> Result<Vec<BusterChatContainer>> {
+    println!("MESSAGE_STREAM: Processing tool modify dashboards message");
+    
+    let mut parser = StreamingParser::new();
+    
+    match parser.process_chunk(id, &content)? {
+        Some(message) => {
+            println!(
+                "MESSAGE_STREAM: StreamingParser produced modify dashboard message: {:?}",
+                message
+            );
+            Ok(vec![message])
+        }
+        None => {
+            println!("MESSAGE_STREAM: No valid dashboard data found in content");
+            Err(anyhow::anyhow!("Failed to parse dashboard data from content"))
+        }
+    }
+}
+
+// Update tool_create_plan to require ID
+fn tool_create_plan(
+    id: String,
+    content: String,
+) -> Result<Vec<BusterChatContainer>> {
+    println!("MESSAGE_STREAM: Processing tool create plan message");
+    
+    let mut parser = StreamingParser::new();
+    
+    match parser.process_chunk(id, &content)? {
+        Some(message) => {
+            println!(
+                "MESSAGE_STREAM: StreamingParser produced create plan message: {:?}",
+                message
+            );
+            Ok(vec![message])
+        }
+        None => {
+            println!("MESSAGE_STREAM: No valid plan data found in content");
+            Err(anyhow::anyhow!("Failed to parse plan data from content"))
+        }
+    }
+}
+
+// Fix tool_data_catalog_search to use required ID directly
+fn tool_data_catalog_search(
+    id: String,
+    content: String,
+) -> Result<Vec<BusterChatContainer>> {
+    let data_catalog_result = match serde_json::from_str::<SearchDataCatalogOutput>(&content) {
+        Ok(result) => result,
+        Err(_) => return Ok(vec![]), // Silently ignore parsing errors
+    };
+
+    let duration = (data_catalog_result.duration.clone() as f64 / 1000.0 * 10.0).round() / 10.0;
+    let result_count = data_catalog_result.results.len();
+    let query_params = data_catalog_result.search_requirements.clone();
+
+    let thought_pill_containters =
+        match proccess_data_catalog_search_results(data_catalog_result) {
+            Ok(object) => object,
+            Err(_) => return Ok(vec![]), // Silently ignore processing errors
+        };
+
+    let buster_thought = if result_count > 0 {
+        BusterChatContainer::Thought(BusterThought {
+            id: id, // Use required ID directly
+            thought_type: "thought".to_string(),
+            thought_title: format!("Found {} results", result_count),
+            thought_secondary_title: format!("{} seconds", duration),
+            thoughts: Some(thought_pill_containters),
+            status: "completed".to_string(),
+        })
+    } else {
+        BusterChatContainer::Thought(BusterThought {
+            id: id, // Use required ID directly
+            thought_type: "thought".to_string(),
+            thought_title: "No data catalog items found".to_string(),
+            thought_secondary_title: format!("{} seconds", duration),
+            thoughts: Some(vec![BusterThoughtPillContainer {
+                title: "No results found".to_string(),
+                thought_pills: vec![BusterThoughtPill {
+                    id: "".to_string(),
+                    text: query_params,
+                    thought_file_type: "empty".to_string(),
+                }],
+            }]),
+            status: "completed".to_string(),
+        })
+    };
+
+    Ok(vec![buster_thought])
 }
 
 fn proccess_data_catalog_search_results(
@@ -947,10 +889,171 @@ fn proccess_data_catalog_search_results(
     Ok(buster_thought_pill_containers)
 }
 
+// Implement tool_create_file with required ID
+fn tool_create_file(
+    id: String,
+    content: String,
+) -> Result<Vec<BusterChatContainer>> {
+    println!("MESSAGE_STREAM: Processing tool create file message");
+    
+    let mut parser = StreamingParser::new();
+    
+    match parser.process_chunk(id, &content)? {
+        Some(message) => {
+            println!(
+                "MESSAGE_STREAM: StreamingParser produced create file message: {:?}",
+                message
+            );
+            Ok(vec![message])
+        }
+        None => {
+            println!("MESSAGE_STREAM: No valid file data found in content");
+            Err(anyhow::anyhow!("Failed to parse file data from content"))
+        }
+    }
+}
+
+// Implement tool_modify_file with required ID
+fn tool_modify_file(
+    id: String,
+    content: String,
+) -> Result<Vec<BusterChatContainer>> {
+    println!("MESSAGE_STREAM: Processing tool modify file message");
+    
+    let mut parser = StreamingParser::new();
+    
+    match parser.process_chunk(id, &content)? {
+        Some(message) => {
+            println!(
+                "MESSAGE_STREAM: StreamingParser produced modify file message: {:?}",
+                message
+            );
+            Ok(vec![message])
+        }
+        None => {
+            println!("MESSAGE_STREAM: No valid file data found in content");
+            Err(anyhow::anyhow!("Failed to parse file data from content"))
+        }
+    }
+}
+
+// Helper function to transform BusterChatContainer to BusterReasoningMessageContainer
+fn transform_to_reasoning_container(
+    containers: Vec<BusterChatContainer>,
+    chat_id: Uuid,
+    message_id: Uuid,
+) -> Vec<BusterReasoningMessageContainer> {
+    containers
+        .into_iter()
+        .map(|container| match container {
+            BusterChatContainer::Thought(thought) => BusterReasoningMessageContainer {
+                reasoning: ReasoningMessage::Thought(thought),
+                chat_id,
+                message_id,
+            },
+            BusterChatContainer::File(file) => BusterReasoningMessageContainer {
+                reasoning: ReasoningMessage::File(file),
+                chat_id,
+                message_id,
+            },
+            _ => unreachable!("Tool messages should only return Thought or File"),
+        })
+        .collect()
+}
+
+fn transform_assistant_tool_message(
+    id: Option<String>,
+    tool_calls: Vec<ToolCall>,
+    progress: Option<MessageProgress>,
+    initial: bool,
+    chat_id: Uuid,
+    message_id: Uuid,
+) -> Result<Vec<BusterReasoningMessageContainer>> {
+    println!(
+        "MESSAGE_STREAM: transform_assistant_tool_message called with tool_calls: {:?}",
+        tool_calls
+    );
+
+    if tool_calls.is_empty() {
+        println!("MESSAGE_STREAM: No tool calls found");
+        return Ok(vec![]);
+    }
+
+    let tool_call = &tool_calls[0];
+    let messages = match tool_call.function.name.as_str() {
+        "search_data_catalog" => assistant_data_catalog_search(id, progress, initial),
+        "create_metrics" => assistant_create_metrics(id, tool_calls.clone(), progress, initial),
+        "update_metrics" => assistant_modify_metrics(id, tool_calls.clone(), progress, initial),
+        "create_dashboards" => {
+            assistant_create_dashboards(id, tool_calls.clone(), progress, initial)
+        }
+        "update_dashboards" => {
+            assistant_modify_dashboards(id, tool_calls.clone(), progress, initial)
+        }
+        "create_plan" => assistant_create_plan(id, tool_calls.clone(), progress, initial),
+        _ => Err(anyhow::anyhow!(
+            "Unsupported tool name: {}",
+            tool_call.function.name
+        )),
+    }?;
+
+    println!(
+        "MESSAGE_STREAM: transform_assistant_tool_message returning {} containers",
+        messages.len()
+    );
+    Ok(messages
+        .into_iter()
+        .map(|message| BusterReasoningMessageContainer {
+            reasoning: match message {
+                BusterChatContainer::Thought(thought) => ReasoningMessage::Thought(thought),
+                BusterChatContainer::File(file) => ReasoningMessage::File(file),
+                _ => unreachable!("Assistant tool messages should only return Thought or File"),
+            },
+            chat_id,
+            message_id,
+        })
+        .collect())
+}
+
+fn assistant_data_catalog_search(
+    id: Option<String>,
+    progress: Option<MessageProgress>,
+    initial: bool,
+) -> Result<Vec<BusterChatContainer>> {
+    if let Some(progress) = progress {
+        match progress {
+            MessageProgress::InProgress => {
+                if initial {
+                    let id = id.unwrap_or_else(|| Uuid::new_v4().to_string());
+
+                    Ok(vec![BusterChatContainer::Thought(BusterThought {
+                        id,
+                        thought_type: "thought".to_string(),
+                        thought_title: "Searching your data catalog...".to_string(),
+                        thought_secondary_title: "".to_string(),
+                        thoughts: None,
+                        status: "loading".to_string(),
+                    })])
+                } else {
+                    Ok(vec![])
+                }
+            }
+            _ => Err(anyhow::anyhow!(
+                "Assistant data catalog search only supports in progress."
+            )),
+        }
+    } else {
+        Err(anyhow::anyhow!(
+            "Assistant data catalog search requires progress."
+        ))
+    }
+}
+
 fn assistant_create_metrics(
     id: Option<String>,
     tool_calls: Vec<ToolCall>,
     progress: Option<MessageProgress>,
+    initial: bool,
 ) -> Result<Vec<BusterChatContainer>> {
     if let Some(progress) = progress {
         match progress {
@@ -993,7 +1096,7 @@ fn process_assistant_create_metrics(tool_call: &ToolCall) -> Result<Vec<BusterCh
     let mut parser = StreamingParser::new();
 
     // Process the arguments from the tool call
-    match parser.process_chunk(&tool_call.function.arguments)? {
+    match parser.process_chunk(id, &tool_call.function.arguments)? {
         Some(message) => {
             println!(
                 "MESSAGE_STREAM: StreamingParser produced metric message: {:?}",
@@ -1014,6 +1117,7 @@ fn assistant_modify_metrics(
     id: Option<String>,
     tool_calls: Vec<ToolCall>,
     progress: Option<MessageProgress>,
+    initial: bool,
 ) -> Result<Vec<BusterChatContainer>> {
     if let Some(progress) = progress {
         match progress {
@@ -1056,7 +1160,7 @@ fn process_assistant_modify_metrics(tool_call: &ToolCall) -> Result<Vec<BusterCh
     let mut parser = StreamingParser::new();
 
     // Process the arguments from the tool call
-    match parser.process_chunk(&tool_call.function.arguments)? {
+    match parser.process_chunk(id, &tool_call.function.arguments)? {
         Some(message) => {
             println!(
                 "MESSAGE_STREAM: StreamingParser produced modify metric message: {:?}",
@@ -1075,6 +1179,7 @@ fn assistant_create_dashboards(
     id: Option<String>,
     tool_calls: Vec<ToolCall>,
     progress: Option<MessageProgress>,
+    initial: bool,
 ) -> Result<Vec<BusterChatContainer>> {
     if let Some(progress) = progress {
         match progress {
@@ -1117,7 +1222,7 @@ fn process_assistant_create_dashboards(tool_call: &ToolCall) -> Result<Vec<Buste
     let mut parser = StreamingParser::new();
 
     // Process the arguments from the tool call
-    match parser.process_chunk(&tool_call.function.arguments)? {
+    match parser.process_chunk(id, &tool_call.function.arguments)? {
         Some(message) => {
             println!(
                 "MESSAGE_STREAM: StreamingParser produced dashboard message: {:?}",
@@ -1136,6 +1241,7 @@ fn assistant_modify_dashboards(
     id: Option<String>,
     tool_calls: Vec<ToolCall>,
     progress: Option<MessageProgress>,
+    initial: bool,
 ) -> Result<Vec<BusterChatContainer>> {
     if let Some(progress) = progress {
         match progress {
@@ -1178,7 +1284,7 @@ fn process_assistant_modify_dashboards(tool_call: &ToolCall) -> Result<Vec<Buste
     let mut parser = StreamingParser::new();
 
     // Process the arguments from the tool call
-    match parser.process_chunk(&tool_call.function.arguments)? {
+    match parser.process_chunk(id, &tool_call.function.arguments)? {
         Some(message) => {
             println!(
                 "MESSAGE_STREAM: StreamingParser produced modify dashboard message: {:?}",
@@ -1193,279 +1299,11 @@ fn process_assistant_modify_dashboards(tool_call: &ToolCall) -> Result<Vec<Buste
     }
 }
 
-fn tool_create_file(
-    id: Option<String>,
-    content: String,
-    progress: Option<MessageProgress>,
-) -> Result<Vec<BusterChatContainer>> {
-    println!(
-        "MESSAGE_STREAM: tool_create_file called with content: {}",
-        content
-    );
-
-    if let Some(progress) = progress {
-        match progress {
-            MessageProgress::InProgress => {
-                // Return a loading thought for in-progress file creation
-                Ok(vec![BusterChatContainer::Thought(BusterThought {
-                    id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
-                    thought_type: "thought".to_string(),
-                    thought_title: "Creating file...".to_string(),
-                    thought_secondary_title: "".to_string(),
-                    thoughts: None,
-                    status: "loading".to_string(),
-                })])
-            }
-            MessageProgress::Complete => {
-                // Process the completed file creation
-                let mut parser = StreamingParser::new();
-                match parser.process_chunk(&content)? {
-                    Some(message) => {
-                        println!(
-                            "MESSAGE_STREAM: StreamingParser produced file message from tool: {:?}",
-                            message
-                        );
-                        Ok(vec![message])
-                    }
-                    None => {
-                        println!(
-                            "MESSAGE_STREAM: StreamingParser returned None for create file tool"
-                        );
-                        Ok(vec![]) // Return empty vec instead of error
-                    }
-                }
-            }
-        }
-    } else {
-        Err(anyhow::anyhow!("Tool create file requires progress."))
-    }
-}
-
-fn tool_modify_file(
-    id: Option<String>,
-    content: String,
-    progress: Option<MessageProgress>,
-) -> Result<Vec<BusterChatContainer>> {
-    println!(
-        "MESSAGE_STREAM: tool_modify_file called with content: {}",
-        content
-    );
-
-    if let Some(progress) = progress {
-        match progress {
-            MessageProgress::InProgress => {
-                // Return a loading thought for in-progress file modification
-                Ok(vec![BusterChatContainer::Thought(BusterThought {
-                    id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
-                    thought_type: "thought".to_string(),
-                    thought_title: "Modifying file...".to_string(),
-                    thought_secondary_title: "".to_string(),
-                    thoughts: None,
-                    status: "loading".to_string(),
-                })])
-            }
-            MessageProgress::Complete => {
-                // Process the completed file modification
-                let mut parser = StreamingParser::new();
-                match parser.process_chunk(&content)? {
-                    Some(message) => {
-                        println!("MESSAGE_STREAM: StreamingParser produced modify file message from tool: {:?}", message);
-                        Ok(vec![message])
-                    }
-                    None => {
-                        println!(
-                            "MESSAGE_STREAM: StreamingParser returned None for modify file tool"
-                        );
-                        Ok(vec![]) // Return empty vec instead of error
-                    }
-                }
-            }
-        }
-    } else {
-        Err(anyhow::anyhow!("Tool modify file requires progress."))
-    }
-}
-
-fn tool_create_metrics(
-    id: Option<String>,
-    content: String,
-    progress: Option<MessageProgress>,
-) -> Result<Vec<BusterChatContainer>> {
-    println!(
-        "MESSAGE_STREAM: tool_create_metrics called with content: {}",
-        content
-    );
-
-    if let Some(progress) = progress {
-        match progress {
-            MessageProgress::InProgress => {
-                // Return a loading thought for in-progress metrics
-                Ok(vec![BusterChatContainer::Thought(BusterThought {
-                    id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
-                    thought_type: "thought".to_string(),
-                    thought_title: "Creating metrics...".to_string(),
-                    thought_secondary_title: "".to_string(),
-                    thoughts: None,
-                    status: "loading".to_string(),
-                })])
-            }
-            MessageProgress::Complete => {
-                // Process the completed metrics
-                let mut parser = StreamingParser::new();
-                match parser.process_chunk(&content)? {
-                    Some(message) => {
-                        println!("MESSAGE_STREAM: StreamingParser produced metric message from tool: {:?}", message);
-                        Ok(vec![message])
-                    }
-                    None => {
-                        println!("MESSAGE_STREAM: StreamingParser returned None for metrics tool");
-                        Ok(vec![]) // Return empty vec instead of error
-                    }
-                }
-            }
-        }
-    } else {
-        Err(anyhow::anyhow!("Tool create metrics requires progress."))
-    }
-}
-
-fn tool_modify_metrics(
-    id: Option<String>,
-    content: String,
-    progress: Option<MessageProgress>,
-) -> Result<Vec<BusterChatContainer>> {
-    println!(
-        "MESSAGE_STREAM: tool_modify_metrics called with content: {}",
-        content
-    );
-
-    if let Some(progress) = progress {
-        match progress {
-            MessageProgress::InProgress => {
-                // Return a loading thought for in-progress metric modifications
-                Ok(vec![BusterChatContainer::Thought(BusterThought {
-                    id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
-                    thought_type: "thought".to_string(),
-                    thought_title: "Updating metrics...".to_string(),
-                    thought_secondary_title: "".to_string(),
-                    thoughts: None,
-                    status: "loading".to_string(),
-                })])
-            }
-            MessageProgress::Complete => {
-                // Process the completed metric modifications
-                let mut parser = StreamingParser::new();
-                match parser.process_chunk(&content)? {
-                    Some(message) => {
-                        println!("MESSAGE_STREAM: StreamingParser produced modify metric message from tool: {:?}", message);
-                        Ok(vec![message])
-                    }
-                    None => {
-                        println!(
-                            "MESSAGE_STREAM: StreamingParser returned None for modify metrics tool"
-                        );
-                        Ok(vec![]) // Return empty vec instead of error
-                    }
-                }
-            }
-        }
-    } else {
-        Err(anyhow::anyhow!("Tool modify metrics requires progress."))
-    }
-}
-
-fn tool_create_dashboards(
-    id: Option<String>,
-    content: String,
-    progress: Option<MessageProgress>,
-) -> Result<Vec<BusterChatContainer>> {
-    println!(
-        "MESSAGE_STREAM: tool_create_dashboards called with content: {}",
-        content
-    );
-
-    if let Some(progress) = progress {
-        match progress {
-            MessageProgress::InProgress => {
-                // Return a loading thought for in-progress dashboards
-                Ok(vec![BusterChatContainer::Thought(BusterThought {
-                    id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
-                    thought_type: "thought".to_string(),
-                    thought_title: "Creating dashboards...".to_string(),
-                    thought_secondary_title: "".to_string(),
-                    thoughts: None,
-                    status: "loading".to_string(),
-                })])
-            }
-            MessageProgress::Complete => {
-                // Process the completed dashboards
-                let mut parser = StreamingParser::new();
-                match parser.process_chunk(&content)? {
-                    Some(message) => {
-                        println!("MESSAGE_STREAM: StreamingParser produced dashboard message from tool: {:?}", message);
-                        Ok(vec![message])
-                    }
-                    None => {
-                        println!(
-                            "MESSAGE_STREAM: StreamingParser returned None for dashboards tool"
-                        );
-                        Ok(vec![]) // Return empty vec instead of error
-                    }
-                }
-            }
-        }
-    } else {
-        Err(anyhow::anyhow!("Tool create dashboards requires progress."))
-    }
-}
-
-fn tool_modify_dashboards(
-    id: Option<String>,
-    content: String,
-    progress: Option<MessageProgress>,
-) -> Result<Vec<BusterChatContainer>> {
-    println!(
-        "MESSAGE_STREAM: tool_modify_dashboards called with content: {}",
-        content
-    );
-
-    if let Some(progress) = progress {
-        match progress {
-            MessageProgress::InProgress => {
-                // Return a loading thought for in-progress dashboard modifications
-                Ok(vec![BusterChatContainer::Thought(BusterThought {
-                    id: id.unwrap_or_else(|| Uuid::new_v4().to_string()),
-                    thought_type: "thought".to_string(),
-                    thought_title: "Updating dashboards...".to_string(),
-                    thought_secondary_title: "".to_string(),
-                    thoughts: None,
-                    status: "loading".to_string(),
-                })])
-            }
-            MessageProgress::Complete => {
-                // Process the completed dashboard modifications
-                let mut parser = StreamingParser::new();
-                match parser.process_chunk(&content)? {
-                    Some(message) => {
-                        println!("MESSAGE_STREAM: StreamingParser produced modify dashboard message from tool: {:?}", message);
-                        Ok(vec![message])
-                    }
-                    None => {
-                        println!("MESSAGE_STREAM: StreamingParser returned None for modify dashboards tool");
-                        Ok(vec![]) // Return empty vec instead of error
-                    }
-                }
-            }
-        }
-    } else {
-        Err(anyhow::anyhow!("Tool modify dashboards requires progress."))
-    }
-}
-
 fn assistant_create_plan(
     id: Option<String>,
     tool_calls: Vec<ToolCall>,
     progress: Option<MessageProgress>,
+    initial: bool,
 ) -> Result<Vec<BusterChatContainer>> {
     if let Some(progress) = progress {
         match progress {
@@ -1497,17 +1335,4 @@ fn assistant_create_plan(
             "Assistant create metrics requires progress."
         ))
     }
-}
-
-fn tool_create_plan(
-    id: Option<String>,
-    content: String,
-    progress: Option<MessageProgress>,
-) -> Result<Vec<BusterChatContainer>> {
-    println!(
-        "MESSAGE_STREAM: tool_create_plan called with content: {}",
-        content
-    );
-
-    Ok(vec![])
 }
