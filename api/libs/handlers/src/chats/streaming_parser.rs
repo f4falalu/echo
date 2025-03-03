@@ -20,27 +20,50 @@ impl StreamingParser {
         }
     }
 
-    // Main entry point to process chunks based on type
+    // Clear the buffer - useful when reusing the parser for different content formats
+    pub fn clear_buffer(&mut self) {
+        self.buffer.clear();
+    }
+
+    // Main entry point to process chunks based on type (kept for backward compatibility)
     pub fn process_chunk(&mut self, id: String, chunk: &str) -> Result<Option<BusterReasoningMessage>> {
         // Add new chunk to buffer
         self.buffer.push_str(chunk);
 
         // Try to process as a plan first
-        if let Some(plan) = self.process_plan_chunk(id.clone())? {
+        let mut plan_parser = StreamingParser::new();
+        if let Some(plan) = plan_parser.process_plan_chunk(id.clone(), chunk)? {
             return Ok(Some(plan));
         }
 
         // Then try to process as search data catalog
-        if let Some(search) = self.process_search_catalog_chunk(id.clone())? {
+        let mut search_parser = StreamingParser::new();
+        if let Some(search) = search_parser.process_search_data_catalog_chunk(id.clone(), chunk)? {
             return Ok(Some(search));
         }
 
-        // Finally try to process as a file
-        self.process_file_chunk(id)
+        // Try to process as a metric
+        let mut metric_parser = StreamingParser::new();
+        if let Some(metric) = metric_parser.process_metric_chunk(id.clone(), chunk)? {
+            return Ok(Some(metric));
+        }
+
+        // Try to process as a dashboard
+        let mut dashboard_parser = StreamingParser::new();
+        if let Some(dashboard) = dashboard_parser.process_dashboard_chunk(id.clone(), chunk)? {
+            return Ok(Some(dashboard));
+        }
+
+        // Finally try to process as a general file
+        self.process_file_data(id)
     }
 
     // Process chunks meant for plan creation
-    pub fn process_plan_chunk(&mut self, id: String) -> Result<Option<BusterReasoningMessage>> {
+    pub fn process_plan_chunk(&mut self, id: String, chunk: &str) -> Result<Option<BusterReasoningMessage>> {
+        // Clear buffer and add new chunk
+        self.clear_buffer();
+        self.buffer.push_str(chunk);
+        
         // Complete any incomplete JSON structure
         let processed_json = self.complete_json_structure(self.buffer.clone());
 
@@ -65,7 +88,11 @@ impl StreamingParser {
     }
 
     // Process chunks meant for search data catalog
-    pub fn process_search_catalog_chunk(&mut self, id: String) -> Result<Option<BusterReasoningMessage>> {
+    pub fn process_search_data_catalog_chunk(&mut self, id: String, chunk: &str) -> Result<Option<BusterReasoningMessage>> {
+        // Clear buffer and add new chunk
+        self.clear_buffer();
+        self.buffer.push_str(chunk);
+        
         // Complete any incomplete JSON structure
         let processed_json = self.complete_json_structure(self.buffer.clone());
 
@@ -89,8 +116,46 @@ impl StreamingParser {
         Ok(None)
     }
 
-    // Process chunks meant for files (original implementation)
-    pub fn process_file_chunk(&mut self, id: String) -> Result<Option<BusterReasoningMessage>> {
+    // Process chunks meant for metric files
+    pub fn process_metric_chunk(&mut self, id: String, chunk: &str) -> Result<Option<BusterReasoningMessage>> {
+        // Clear buffer and add new chunk
+        self.clear_buffer();
+        self.buffer.push_str(chunk);
+        
+        // Process the buffer as a file
+        let processed_file = self.process_file_data(id.clone())?;
+        
+        // Check if it's a metric file
+        if let Some(BusterReasoningMessage::File(file)) = processed_file {
+            if file.file_type == "metric" || file.file_name.ends_with(".metric.yml") {
+                return Ok(Some(BusterReasoningMessage::File(file)));
+            }
+        }
+        
+        Ok(None)
+    }
+    
+    // Process chunks meant for dashboard files
+    pub fn process_dashboard_chunk(&mut self, id: String, chunk: &str) -> Result<Option<BusterReasoningMessage>> {
+        // Clear buffer and add new chunk
+        self.clear_buffer();
+        self.buffer.push_str(chunk);
+        
+        // Process the buffer as a file
+        let processed_file = self.process_file_data(id.clone())?;
+        
+        // Check if it's a dashboard file
+        if let Some(BusterReasoningMessage::File(file)) = processed_file {
+            if file.file_type == "dashboard" || file.file_name.ends_with(".dashboard.yml") {
+                return Ok(Some(BusterReasoningMessage::File(file)));
+            }
+        }
+        
+        Ok(None)
+    }
+
+    // Internal function to process file data (shared by metric and dashboard processing)
+    pub fn process_file_data(&mut self, id: String) -> Result<Option<BusterReasoningMessage>> {
         // Extract and replace yml_content with placeholders
         let mut yml_contents = Vec::new();
         let mut positions = Vec::new();

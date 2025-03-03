@@ -682,7 +682,7 @@ fn tool_create_metrics(id: String, content: String) -> Result<Vec<BusterReasonin
 
     let mut parser = StreamingParser::new();
 
-    match parser.process_chunk(id, &content)? {
+    match parser.process_metric_chunk(id, &content)? {
         Some(message) => {
             println!(
                 "MESSAGE_STREAM: StreamingParser produced create metrics message: {:?}",
@@ -703,7 +703,7 @@ fn tool_modify_metrics(id: String, content: String) -> Result<Vec<BusterReasonin
 
     let mut parser = StreamingParser::new();
 
-    match parser.process_chunk(id, &content)? {
+    match parser.process_metric_chunk(id, &content)? {
         Some(message) => {
             println!(
                 "MESSAGE_STREAM: StreamingParser produced modify metrics message: {:?}",
@@ -724,7 +724,7 @@ fn tool_create_dashboards(id: String, content: String) -> Result<Vec<BusterReaso
 
     let mut parser = StreamingParser::new();
 
-    match parser.process_chunk(id, &content)? {
+    match parser.process_dashboard_chunk(id, &content)? {
         Some(message) => {
             println!(
                 "MESSAGE_STREAM: StreamingParser produced create dashboards message: {:?}",
@@ -747,7 +747,7 @@ fn tool_modify_dashboards(id: String, content: String) -> Result<Vec<BusterReaso
 
     let mut parser = StreamingParser::new();
 
-    match parser.process_chunk(id, &content)? {
+    match parser.process_dashboard_chunk(id, &content)? {
         Some(message) => {
             println!(
                 "MESSAGE_STREAM: StreamingParser produced modify dashboard message: {:?}",
@@ -769,7 +769,7 @@ fn tool_create_plan(id: String, content: String) -> Result<Vec<BusterReasoningMe
     let mut parser = StreamingParser::new();
     
     // First try to parse as plan data using StreamingParser
-    if let Ok(Some(message)) = parser.process_chunk(id.clone(), &content) {
+    if let Ok(Some(message)) = parser.process_plan_chunk(id.clone(), &content) {
         println!(
             "MESSAGE_STREAM: StreamingParser produced create plan message: {:?}",
             message
@@ -808,7 +808,7 @@ fn tool_create_plan(id: String, content: String) -> Result<Vec<BusterReasoningMe
 fn tool_data_catalog_search(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
     // First try to parse as search requirements using StreamingParser
     let mut parser = StreamingParser::new();
-    if let Ok(Some(message)) = parser.process_chunk(id.clone(), &content) {
+    if let Ok(Some(message)) = parser.process_search_data_catalog_chunk(id.clone(), &content) {
         match message {
             BusterReasoningMessage::Text(text) => {
                 // If we successfully parsed search requirements, convert to appropriate format
@@ -935,14 +935,18 @@ fn tool_create_file(id: String, content: String) -> Result<Vec<BusterReasoningMe
 
     let mut parser = StreamingParser::new();
 
-    match parser.process_chunk(id, &content)? {
-        Some(message) => {
-            println!(
-                "MESSAGE_STREAM: StreamingParser produced create file message: {:?}",
-                message
-            );
-            Ok(vec![message])
-        }
+    // For now we'll try both metric and dashboard processing since this is a general file function
+    if let Ok(Some(message)) = parser.process_metric_chunk(id.clone(), &content) {
+        return Ok(vec![message]);
+    }
+    
+    if let Ok(Some(message)) = parser.process_dashboard_chunk(id.clone(), &content) {
+        return Ok(vec![message]);
+    }
+
+    // If it's neither a metric nor dashboard, parse it as a general file
+    match parser.process_file_data(id)? {
+        Some(message) => Ok(vec![message]),
         None => {
             println!("MESSAGE_STREAM: No valid file data found in content");
             Err(anyhow::anyhow!("Failed to parse file data from content"))
@@ -956,14 +960,18 @@ fn tool_modify_file(id: String, content: String) -> Result<Vec<BusterReasoningMe
 
     let mut parser = StreamingParser::new();
 
-    match parser.process_chunk(id, &content)? {
-        Some(message) => {
-            println!(
-                "MESSAGE_STREAM: StreamingParser produced modify file message: {:?}",
-                message
-            );
-            Ok(vec![message])
-        }
+    // For now we'll try both metric and dashboard processing since this is a general file function
+    if let Ok(Some(message)) = parser.process_metric_chunk(id.clone(), &content) {
+        return Ok(vec![message]);
+    }
+    
+    if let Ok(Some(message)) = parser.process_dashboard_chunk(id.clone(), &content) {
+        return Ok(vec![message]);
+    }
+
+    // If it's neither a metric nor dashboard, parse it as a general file
+    match parser.process_file_data(id)? {
+        Some(message) => Ok(vec![message]),
         None => {
             println!("MESSAGE_STREAM: No valid file data found in content");
             Err(anyhow::anyhow!("Failed to parse file data from content"))
@@ -1064,87 +1072,82 @@ fn assistant_data_catalog_search(
     progress: MessageProgress,
     initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
-    // Only process complete messages for data catalog search
-    if matches!(progress, MessageProgress::Complete) {
-        // First try to parse as search requirements using StreamingParser
-        let mut parser = StreamingParser::new();
-        if let Ok(Some(message)) = parser.process_chunk(id.clone(), &content) {
-            match message {
-                BusterReasoningMessage::Text(text) => {
-                    // If we successfully parsed search requirements, convert to appropriate format
-                    return Ok(vec![BusterReasoningMessage::Pill(BusterReasoningPill {
-                        id: text.id,
-                        thought_type: "thought".to_string(),
-                        title: "Search Query".to_string(),
-                        secondary_title: "Processing search...".to_string(),
-                        pill_containers: Some(vec![BusterThoughtPillContainer {
-                            title: "Search Requirements".to_string(),
-                            pills: vec![BusterThoughtPill {
-                                id: Uuid::new_v4().to_string(),
-                                text: text.message.unwrap_or_default(),
-                                thought_file_type: "text".to_string(),
-                            }],
-                        }]),
-                        status: "completed".to_string(),
-                    })]);
-                }
-                _ => unreachable!("Data catalog search should only return Text type"),
+    let mut parser = StreamingParser::new();
+    
+    if let Ok(Some(message)) = parser.process_search_data_catalog_chunk(id.clone(), &content) {
+        match message {
+            BusterReasoningMessage::Text(text) => {
+                // If we successfully parsed search requirements, convert to appropriate format
+                return Ok(vec![BusterReasoningMessage::Pill(BusterReasoningPill {
+                    id: text.id,
+                    thought_type: "thought".to_string(),
+                    title: "Search Query".to_string(),
+                    secondary_title: "Processing search...".to_string(),
+                    pill_containers: Some(vec![BusterThoughtPillContainer {
+                        title: "Search Requirements".to_string(),
+                        pills: vec![BusterThoughtPill {
+                            id: Uuid::new_v4().to_string(),
+                            text: text.message.unwrap_or_default(),
+                            thought_file_type: "text".to_string(),
+                        }],
+                    }]),
+                    status: "completed".to_string(),
+                })]);
             }
+            _ => unreachable!("Data catalog search should only return Text type"),
         }
+    }
 
-        // Fall back to existing logic for full search results
-        let data_catalog_result = match serde_json::from_str::<SearchDataCatalogOutput>(&content) {
-            Ok(result) => result,
+    // Fall back to existing logic for full search results
+    let data_catalog_result = match serde_json::from_str::<SearchDataCatalogOutput>(&content) {
+        Ok(result) => result,
+        Err(e) => {
+            println!("Failed to parse SearchDataCatalogOutput: {:?}", e);
+            return Ok(vec![]);
+        }
+    };
+
+    let duration = (data_catalog_result.duration as f64 / 1000.0 * 10.0).round() / 10.0;
+    let result_count = data_catalog_result.results.len();
+    let query_params = data_catalog_result.search_requirements.clone();
+
+    let thought_pill_containers =
+        match proccess_data_catalog_search_results(data_catalog_result) {
+            Ok(containers) => containers,
             Err(e) => {
-                println!("Failed to parse SearchDataCatalogOutput: {:?}", e);
+                println!("Failed to process data catalog search results: {:?}", e);
                 return Ok(vec![]);
             }
         };
 
-        let duration = (data_catalog_result.duration as f64 / 1000.0 * 10.0).round() / 10.0;
-        let result_count = data_catalog_result.results.len();
-        let query_params = data_catalog_result.search_requirements.clone();
-
-        let thought_pill_containers =
-            match proccess_data_catalog_search_results(data_catalog_result) {
-                Ok(containers) => containers,
-                Err(e) => {
-                    println!("Failed to process data catalog search results: {:?}", e);
-                    return Ok(vec![]);
-                }
-            };
-
-        let thought = if result_count > 0 {
-            BusterReasoningMessage::Pill(BusterReasoningPill {
-                id: id.clone(),
-                thought_type: "thought".to_string(),
-                title: format!("Found {} results", result_count),
-                secondary_title: format!("{} seconds", duration),
-                pill_containers: Some(thought_pill_containers),
-                status: "completed".to_string(),
-            })
-        } else {
-            BusterReasoningMessage::Pill(BusterReasoningPill {
-                id: id.clone(),
-                thought_type: "thought".to_string(),
-                title: "No data catalog items found".to_string(),
-                secondary_title: format!("{} seconds", duration),
-                pill_containers: Some(vec![BusterThoughtPillContainer {
-                    title: "No results found".to_string(),
-                    pills: vec![BusterThoughtPill {
-                        id: "".to_string(),
-                        text: query_params,
-                        thought_file_type: "empty".to_string(),
-                    }],
-                }]),
-                status: "completed".to_string(),
-            })
-        };
-
-        Ok(vec![thought])
+    let thought = if result_count > 0 {
+        BusterReasoningMessage::Pill(BusterReasoningPill {
+            id: id.clone(),
+            thought_type: "thought".to_string(),
+            title: format!("Found {} results", result_count),
+            secondary_title: format!("{} seconds", duration),
+            pill_containers: Some(thought_pill_containers),
+            status: "completed".to_string(),
+        })
     } else {
-        Ok(vec![]) // Skip in-progress messages
-    }
+        BusterReasoningMessage::Pill(BusterReasoningPill {
+            id: id.clone(),
+            thought_type: "thought".to_string(),
+            title: "No data catalog items found".to_string(),
+            secondary_title: format!("{} seconds", duration),
+            pill_containers: Some(vec![BusterThoughtPillContainer {
+                title: "No results found".to_string(),
+                pills: vec![BusterThoughtPill {
+                    id: "".to_string(),
+                    text: query_params,
+                    thought_file_type: "empty".to_string(),
+                }],
+            }]),
+            status: "completed".to_string(),
+        })
+    };
+
+    Ok(vec![thought])
 }
 
 fn assistant_create_metrics(
@@ -1154,8 +1157,8 @@ fn assistant_create_metrics(
     initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
-    // Process both in-progress and complete messages for metrics
-    match parser.process_chunk(id.clone(), &content) {
+    
+    match parser.process_metric_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
             let status = match progress {
                 MessageProgress::InProgress => "in_progress",
@@ -1184,8 +1187,8 @@ fn assistant_modify_metrics(
     initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
-    // Process both in-progress and complete messages for metrics
-    match parser.process_chunk(id.clone(), &content) {
+    
+    match parser.process_metric_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
             let status = match progress {
                 MessageProgress::InProgress => "in_progress",
@@ -1213,8 +1216,8 @@ fn assistant_create_dashboards(
     initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
-    // Process both in-progress and complete messages for dashboards
-    match parser.process_chunk(id.clone(), &content) {
+    
+    match parser.process_dashboard_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
             let status = match progress {
                 MessageProgress::InProgress => "in_progress",
@@ -1243,8 +1246,8 @@ fn assistant_modify_dashboards(
     initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
-    // Process both in-progress and complete messages for dashboards
-    match parser.process_chunk(id.clone(), &content) {
+    
+    match parser.process_dashboard_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
             let status = match progress {
                 MessageProgress::InProgress => "in_progress",
@@ -1273,8 +1276,9 @@ fn assistant_create_plan(
     initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
+    
     // Process both in-progress and complete messages for plan creation
-    match parser.process_chunk(id.clone(), &content) {
+    match parser.process_plan_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
             let status = match progress {
                 MessageProgress::InProgress => "in_progress",
