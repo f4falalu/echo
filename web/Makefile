@@ -14,5 +14,5 @@ build-storybook:
 	npm run build-storybook
 
 storybook:
-	npm run start-storybook
+	npm run storybook
 

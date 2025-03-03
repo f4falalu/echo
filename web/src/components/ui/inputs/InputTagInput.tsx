@@ -9,11 +9,11 @@ import { inputVariants } from './Input';
 
 // Define tag variants that will change based on input size
 const tagVariants = cva(
-  'bg-item-select text-foreground inline-flex shrink-0 items-center gap-1 rounded px-2 truncate transition-opacity',
+  'bg-item-select text-foreground inline-flex shrink-0 items-center leading-1.5 gap-1 border rounded pl-2 pr-1.5 truncate transition-opacity shadow-sm',
   {
     variants: {
       size: {
-        default: 'h-5 text-sm',
+        default: 'h-5 text-xs',
         tall: 'h-6 text-sm',
         small: 'h-4 text-xs'
       },
@@ -45,12 +45,12 @@ const Tag = React.forwardRef<
       <button
         type="button"
         onClick={onRemove}
-        className="ring-offset-ring focus:ring-ring flex h-4 w-4 cursor-pointer items-center justify-center rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-1 focus:ring-offset-1 focus:outline-none"
+        className="hover:bg-item-hover flex h-4 w-4 cursor-pointer items-center justify-center rounded-sm opacity-70 transition-opacity hover:opacity-100"
         aria-label="Remove tag">
         <div
           className={cn('flex items-center justify-center', {
-            'h-3 w-3': size !== 'small',
-            'h-2.5 w-2.5': size === 'small'
+            'text-xs': size !== 'small',
+            'text-2xs': size === 'small'
           })}>
           <Xmark />
         </div>
@@ -141,7 +141,8 @@ const TagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
     const gapClasses = variant === 'ghost' ? 'gap-2' : variant === 'default' ? 'gap-2' : 'gap-1';
 
     // Determine if the component is disabled
-    const isDisabled = disabled || (maxTags !== undefined && tags.length >= maxTags);
+    const isDisabledTags = disabled;
+    const isDisabledInput = disabled || (maxTags !== undefined && tags.length >= maxTags);
 
     return (
       <div
@@ -150,19 +151,21 @@ const TagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
           inputVariants({ variant, size }),
           gapClasses,
           'flex items-center',
-          isDisabled && 'bg-item-select cursor-not-allowed',
+          isDisabledInput && 'bg-item-select cursor-not-allowed',
           className
         )}
         onClick={handleContainerClick}>
         <div
           ref={scrollRef}
-          className="scrollbar-none flex flex-1 items-center gap-1.5 overflow-x-auto py-1 whitespace-nowrap">
+          className={cn(
+            'scrollbar-none flex flex-1 items-center gap-1.5 overflow-x-auto py-1 whitespace-nowrap'
+          )}>
           {tags.map((tag, index) => (
             <Tag
               key={`${tag}-${index}`}
               onRemove={() => onTagRemove?.(index)}
               size={size as TagSize}
-              disabled={isDisabled}>
+              disabled={isDisabledTags}>
               {tag}
             </Tag>
           ))}
@@ -174,7 +177,7 @@ const TagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
             onKeyDown={handleKeyDown}
             className="placeholder:text-gray-light min-w-[120px] flex-1 bg-transparent outline-none disabled:cursor-not-allowed disabled:opacity-50"
             placeholder={tags.length === 0 ? placeholder : undefined}
-            disabled={isDisabled}
+            disabled={isDisabledInput}
             {...props}
           />
         </div>
