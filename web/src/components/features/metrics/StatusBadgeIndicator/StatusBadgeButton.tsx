@@ -72,27 +72,27 @@ export const StatusBadgeButton: React.FC<{
   const buttonText = Array.isArray(id) ? 'Status' : '';
 
   return (
-    <AppPopoverMenu
-      items={items}
-      trigger={['click']}
-      onOpenChange={onOpenChange}
-      open={isOpen}
-      hideCheckbox
-      doNotSortSelected={true}
-      disabled={disabled}
-      destroyPopupOnHide={true}
-      selectedItems={selectedItem?.key ? [selectedItem.key! as string] : []}
-      placement="bottomRight"
-      headerContent={'Verification status...'}>
-      <AppTooltip title={showButtonTooltip ? '' : 'Request verification from data team'}>
-        <Button
-          disabled={disabled || ((!id || status === 'verified') && !isAdmin)}
-          prefix={<StatusBadgeIndicator showTooltip={false} status={status} size={14} />}
-          variant={buttonVariant}>
-          {buttonText}
-        </Button>
-      </AppTooltip>
-    </AppPopoverMenu>
+    // <AppPopoverMenu
+    //   items={items}
+    //   trigger={['click']}
+    //   onOpenChange={onOpenChange}
+    //   open={isOpen}
+    //   hideCheckbox
+    //   doNotSortSelected={true}
+    //   disabled={disabled}
+    //   destroyPopupOnHide={true}
+    //   selectedItems={selectedItem?.key ? [selectedItem.key! as string] : []}
+    //   placement="bottomRight"
+    //   headerContent={'Verification status...'}>
+    <AppTooltip title={showButtonTooltip ? '' : 'Request verification from data team'}>
+      <Button
+        disabled={disabled || ((!id || status === 'verified') && !isAdmin)}
+        prefix={<StatusBadgeIndicator showTooltip={false} status={status} size={14} />}
+        variant={buttonVariant}>
+        {buttonText}
+      </Button>
+    </AppTooltip>
+    // </AppPopoverMenu>
   );
 });
 StatusBadgeButton.displayName = 'StatusBadgeButton';

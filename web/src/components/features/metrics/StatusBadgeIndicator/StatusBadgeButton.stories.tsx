@@ -40,7 +40,14 @@ const meta = {
     onVerify: {
       description: 'Function called when verification status is changed'
     }
-  }
+  },
+  decorators: [
+    (Story) => (
+      <div className="p-5">
+        <Story />
+      </div>
+    )
+  ]
 } satisfies Meta<typeof StatusBadgeButton>;
 
 export default meta;

@@ -25,12 +25,12 @@ import { useDebounceSearch } from '@/hooks';
 import Link from 'next/link';
 import { useHotkeys } from 'react-hotkeys-hook';
 
-export interface DropdownItem {
+export interface DropdownItem<T = string> {
   label: React.ReactNode | string;
   truncate?: boolean;
   searchLabel?: string; // Used for filtering
   secondaryLabel?: string;
-  value: string;
+  value: T;
   showIndex?: boolean;
   shortcut?: string;
   onClick?: () => void;
@@ -47,14 +47,14 @@ export interface DropdownDivider {
   type: 'divider';
 }
 
-export type DropdownItems = (DropdownItem | DropdownDivider | React.ReactNode)[];
+export type DropdownItems<T = string> = (DropdownItem<T> | DropdownDivider | React.ReactNode)[];
 
-export interface DropdownProps extends DropdownMenuProps {
+export interface DropdownProps<T = string> extends DropdownMenuProps {
   items: DropdownItems;
   selectType?: 'single' | 'multiple' | 'none';
   menuHeader?: string | React.ReactNode; //if string it will render a search box
   closeOnSelect?: boolean;
-  onSelect?: (itemId: string) => void;
+  onSelect?: (value: T) => void;
   align?: 'start' | 'center' | 'end';
   side?: 'top' | 'right' | 'bottom' | 'left';
   emptyStateText?: string;
@@ -70,7 +70,7 @@ const dropdownItemKey = (item: DropdownItems[number], index: number) => {
 
 export const Dropdown: React.FC<DropdownProps> = React.memo(
   ({
-    items = [],
+    items,
     selectType = 'none',
     menuHeader,
     closeOnSelect = true,

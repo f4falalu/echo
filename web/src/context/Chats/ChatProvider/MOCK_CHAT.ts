@@ -6,7 +6,8 @@ import type {
   BusterChatMessage_fileMetadata,
   BusterChatMessageReasoning_pills,
   BusterChatMessageReasoning_Pill,
-  BusterChatMessageReasoning_file
+  BusterChatMessageReasoning_file,
+  BusterChatMessageReasoning_text
 } from '@/api/asset_interfaces';
 import { faker } from '@faker-js/faker';
 
@@ -29,7 +30,7 @@ const createMockResponseMessageText = (): BusterChatMessage_text => ({
   })
 });
 
-const createMockResponseMessageThought = (): BusterChatMessageReasoning_pills => {
+const createMockResponseMessagePills = (): BusterChatMessageReasoning_pills => {
   const randomPillCount = faker.number.int({ min: 0, max: 10 });
   const fourRandomPills: BusterChatMessageReasoning_Pill[] = Array.from(
     { length: randomPillCount },
@@ -119,6 +120,17 @@ const createMockReasoningMessageFile = (): BusterChatMessageReasoning_file => {
   };
 };
 
+const createMockReasoningMessageText = (): BusterChatMessageReasoning_text => {
+  return {
+    id: faker.string.uuid(),
+    type: 'text',
+    message: faker.lorem.sentence(),
+    title: faker.lorem.words(4),
+    secondary_title: faker.lorem.sentence(),
+    status: 'loading'
+  };
+};
+
 export const MOCK_CHAT: BusterChat = {
   id: '0',
   title: 'Mock Chat',
@@ -130,11 +142,10 @@ export const MOCK_CHAT: BusterChat = {
       request_message: createMockUserMessage(),
       final_reasoning_message: null,
       reasoning: [
-        ...Array.from({ length: 1 }, () => createMockResponseMessageThought()),
+        createMockReasoningMessageText(),
+        createMockReasoningMessageText(),
+        ...Array.from({ length: 1 }, () => createMockResponseMessagePills()),
         createMockReasoningMessageFile()
-        // createMockReasoningMessageFile(),
-        // createMockResponseMessageThought(),
-        // createMockResponseMessageThought()
       ],
       response_messages: [
         createMockResponseMessageText(),
