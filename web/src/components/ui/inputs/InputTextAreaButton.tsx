@@ -8,12 +8,12 @@ import { ShapeSquare } from '../icons/NucleoIconFilled';
 import { useMemoizedFn } from 'ahooks';
 
 const inputTextAreaButtonVariants = cva(
-  'relative flex w-full items-center overflow-hidden rounded border border-border transition-all duration-200',
+  'relative flex w-full items-center overflow-hidden rounded-xl border border-border transition-all duration-200',
   {
     variants: {
       variant: {
         default:
-          'has-[textarea:hover]:border-foreground has-[textarea:focus]:border-foreground has-[textarea:disabled]:border-border'
+          'has-[textarea:hover]:border-foreground shadow has-[textarea:focus]:border-foreground has-[textarea:disabled]:border-border'
       }
     }
   }
@@ -25,6 +25,7 @@ export interface InputTextAreaButtonProps extends Omit<InputTextAreaProps, 'vari
   loading?: boolean;
   onSubmit: (text: string) => void;
   variant?: 'default';
+  disabledSubmit?: boolean;
 }
 
 export const InputTextAreaButton: React.FC<InputTextAreaButtonProps> = ({
@@ -36,6 +37,7 @@ export const InputTextAreaButton: React.FC<InputTextAreaButtonProps> = ({
   loading = false,
   onSubmit,
   variant = 'default',
+  disabledSubmit,
   ...props
 }) => {
   const textRef = useRef<HTMLTextAreaElement>(null);
@@ -52,12 +54,20 @@ export const InputTextAreaButton: React.FC<InputTextAreaButtonProps> = ({
   });
 
   return (
-    <div className={cn(inputTextAreaButtonVariants(), loading && 'border-border!', className)}>
+    <div
+      className={cn(
+        inputTextAreaButtonVariants({ variant }),
+        loading && 'border-border!',
+        className
+      )}>
       <InputTextArea
         ref={textRef}
         disabled={disabled || loading}
         variant="ghost"
-        className={cn('w-full pr-10 align-middle leading-[1.2]', loading && '!cursor-default')}
+        className={cn(
+          'leading-1.3 w-full px-5! py-4! pr-10 align-middle',
+          loading && '!cursor-default'
+        )}
         autoResize={autoResize}
         rounding="xl"
         onPressMetaEnter={onPressMetaEnter}
@@ -66,7 +76,7 @@ export const InputTextAreaButton: React.FC<InputTextAreaButtonProps> = ({
 
       <div className="absolute right-2 bottom-2">
         <SubmitButton
-          disabled={disabled}
+          disabled={disabled || disabledSubmit}
           loading={loading}
           sendIcon={sendIcon}
           loadingIcon={loadingIcon}

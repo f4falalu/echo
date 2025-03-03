@@ -7,7 +7,7 @@ import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
 export const buttonTypeClasses = {
   default:
     'bg-background border hover:bg-item-hover disabled:bg-disabled disabled:text-gray-light active:bg-item-active data-[selected=true]:bg-item-select',
-  black: 'bg-black text-white hover:bg-foreground-hover disabled:bg-black/30',
+  black: 'bg-black text-white hover:bg-foreground-hover disabled:bg-black/60',
   primary:
     'bg-primary text-white hover:bg-primary-light active:bg-primary-dark data-[selected=true]:bg-primary-dark',
   ghost:
@@ -36,7 +36,7 @@ const sizeVariants = {
 };
 
 export const buttonVariants = cva(
-  'inline-flex items-center overflow-hidden text-base justify-center gap-[5px] shadow rounded transition-all duration-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:cursor-not-allowed data-[loading=true]:cursor-progress',
+  'inline-flex items-center overflow-hidden text-base justify-center gap-[5px] shadow rounded transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:cursor-not-allowed data-[loading=true]:cursor-progress',
   {
     variants: {
       variant: buttonTypeClasses,

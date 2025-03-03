@@ -11,7 +11,7 @@ export const AppPageLayoutContent: React.FC<
     <main
       className={cn(
         'app-content-page',
-        'bg-background app-content h-full max-h-[100%] overflow-hidden p-0',
+        'bg-page-background app-content h-full max-h-[100%] overflow-hidden p-0',
         scrollable && 'overflow-y-auto',
         className
       )}>

@@ -150,12 +150,12 @@ const SidebarPrimaryHeader = React.memo(() => {
           </Link>
         </Tooltip>
         <Tooltip title="Start a chat">
-          <Link href={createBusterRoute({ route: BusterRoutes.SETTINGS_PROFILE })}>
+          <Link href={createBusterRoute({ route: BusterRoutes.APP_HOME })}>
             <Button
               size="tall"
               rounding={'large'}
               prefix={
-                <div className="translate-x-[0px] translate-y-[-1px]">
+                <div className="flex items-center justify-center">
                   <PencilSquareIcon />
                 </div>
               }

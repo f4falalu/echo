@@ -6,11 +6,11 @@ import { textColorVariants } from './variants';
 const titleVariants = cva('', {
   variants: {
     size: {
-      h1: 'text-3xl',
-      h2: 'text-2xl',
-      h3: 'text-xl',
-      h4: 'text-lg',
-      h5: 'text-md'
+      h1: 'text-4xl font-normal! ',
+      h2: 'text-2xl font-normal!',
+      h3: 'text-xl font-normal!',
+      h4: 'text-lg font-normal!',
+      h5: 'text-md font-normal!'
     },
     truncate: {
       true: 'truncate',

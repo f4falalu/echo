@@ -41,7 +41,16 @@ export interface InputTextAreaProps
 
 export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextAreaProps>(
   (
-    { className, variant = 'default', autoResize, style, rows = 1, rounding = 'default', ...props },
+    {
+      className,
+      variant = 'default',
+      autoResize,
+      style,
+      rows = 1,
+      rounding = 'default',
+      onPressMetaEnter,
+      ...props
+    },
     ref
   ) => {
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -84,7 +93,7 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
 
     const adjustHeight = useMemoizedFn(() => {
       const textarea = textareaRef.current;
-      if (!textarea || !autoResize) return;
+      if (!textarea || !autoResize || textarea.value === '') return;
 
       const minHeight = calculateMinHeight();
       if (!minHeight) return;
@@ -93,14 +102,14 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
 
       const computedStyle = window.getComputedStyle(textarea);
       const lineHeight =
-        parseFloat(computedStyle.lineHeight) || parseFloat(computedStyle.fontSize) * 1.2;
+        parseFloat(computedStyle.lineHeight) || parseFloat(computedStyle.fontSize) * 1.3;
       const { top, bottom } = getPaddingValues();
       const maxHeight = autoResize.maxRows
         ? autoResize.maxRows * lineHeight + top + bottom
         : Infinity;
 
       const scrollHeight = Math.max(textarea.scrollHeight, minHeight);
-      const newHeight = Math.min(scrollHeight, maxHeight) + 3;
+      const newHeight = Math.min(scrollHeight, maxHeight);
 
       textarea.style.height = `${newHeight}px`;
       textarea.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden';
@@ -108,6 +117,14 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
 
     const handleInput = useMemoizedFn(() => {
       requestAnimationFrame(adjustHeight);
+    });
+
+    const handleKeyDown = useMemoizedFn((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        onPressMetaEnter?.(e);
+      }
+      props.onKeyDown?.(e);
     });
 
     useEffect(() => {
@@ -138,10 +155,11 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
           inputTextAreaVariants({ variant }),
           textAreaVariants({ rounding }),
           'px-2.5 py-2.5',
-          autoResize && 'resize-none',
+          autoResize && 'resize-none!',
           className
         )}
         rows={autoResize ? 1 : rows}
+        onKeyDown={handleKeyDown}
         {...props}
       />
     );
