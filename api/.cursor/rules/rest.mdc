@@ -1,5 +1,5 @@
 ---
-description: This rule is helpful for understanding how to build our rest functions. Structure, common patterns, where to look for types, etc.
+description: This rule is helpful for understanding how to build our rest functions. Structure, common patterns, where to look for types, etc.Ï
 globs: src/routes/rest/**/*.rs
 alwaysApply: false
 ---
