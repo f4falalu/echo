@@ -4,7 +4,7 @@ import * as React from 'react';
 import * as Tabs from '@radix-ui/react-tabs';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
-import { useEffect, useState, useLayoutEffect } from 'react';
+import { useEffect, useState, useLayoutEffect, useTransition } from 'react';
 import { cva } from 'class-variance-authority';
 import { useMemoizedFn } from 'ahooks';
 import { Tooltip } from '../tooltip/Tooltip';
@@ -120,10 +120,13 @@ export const AppSegmented: AppSegmentedComponent = React.memo(
         transform: 'translateX(0)'
       });
       const [isMeasured, setIsMeasured] = useState(false);
+      const [isPending, startTransition] = useTransition();
 
       useEffect(() => {
         if (value !== undefined && value !== selectedValue) {
-          setSelectedValue(value);
+          startTransition(() => {
+            setSelectedValue(value);
+          });
         }
       }, [value, selectedValue]);
 
@@ -134,11 +137,13 @@ export const AppSegmented: AppSegmentedComponent = React.memo(
           if (selectedTab) {
             const { offsetWidth, offsetLeft } = selectedTab;
             if (offsetWidth > 0) {
-              setGliderStyle({
-                width: offsetWidth,
-                transform: `translateX(${offsetLeft}px)`
+              startTransition(() => {
+                setGliderStyle({
+                  width: offsetWidth,
+                  transform: `translateX(${offsetLeft}px)`
+                });
+                setIsMeasured(true);
               });
-              setIsMeasured(true);
             }
           }
         };
@@ -155,8 +160,10 @@ export const AppSegmented: AppSegmentedComponent = React.memo(
       const handleTabClick = useMemoizedFn((value: string) => {
         const item = options.find((item) => item.value === value);
         if (item && !item.disabled) {
-          setSelectedValue(item.value);
-          onChange?.(item);
+          startTransition(() => {
+            setSelectedValue(item.value);
+            onChange?.(item);
+          });
         }
       });
 
