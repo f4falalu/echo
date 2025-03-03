@@ -2,7 +2,7 @@ use anyhow::Result;
 use serde_json::Value;
 use uuid::Uuid;
 
-use super::post_chat_handler::{BusterChatContainer, BusterFileLine, BusterFileMessage};
+use super::post_chat_handler::{BusterChatContainer, BusterFileLine, BusterReasoningFile};
 
 pub struct StreamingParser {
     buffer: String,
@@ -170,7 +170,7 @@ impl StreamingParser {
                     });
                 }
 
-                return Ok(Some(BusterChatContainer::File(BusterFileMessage {
+                return Ok(Some(BusterChatContainer::File(BusterReasoningFile {
                     id,
                     message_type: "file".to_string(),
                     file_type: file_type.to_string(),

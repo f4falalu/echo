@@ -212,8 +212,9 @@ pub async fn post_chat_handler(
                 }
                 BusterContainer::ReasoningMessage(reasoning) => {
                     let reasoning_value = match &reasoning.reasoning {
-                        ReasoningMessage::Thought(thought) => serde_json::to_value(thought).ok(),
+                        ReasoningMessage::Pill(thought) => serde_json::to_value(thought).ok(),
                         ReasoningMessage::File(file) => serde_json::to_value(file).ok(),
+                        ReasoningMessage::Text(text) => serde_json::to_value(text).ok(),
                     };
 
                     if let Some(value) = reasoning_value {
@@ -362,8 +363,8 @@ async fn store_final_message_state(
 #[serde(untagged)]
 pub enum BusterChatContainer {
     ChatMessage(BusterChatMessage),
-    Thought(BusterThought),
-    File(BusterFileMessage),
+    Thought(BusterReasoningPill),
+    File(BusterReasoningFile),
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -376,8 +377,9 @@ pub struct BusterChatMessageContainer {
 #[derive(Debug, Serialize, Clone)]
 #[serde(untagged)]
 pub enum ReasoningMessage {
-    Thought(BusterThought),
-    File(BusterFileMessage),
+    Pill(BusterReasoningPill),
+    File(BusterReasoningFile),
+    Text(BusterReasoningText),
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -398,23 +400,33 @@ pub struct BusterChatMessage {
 }
 
 #[derive(Debug, Serialize, Clone)]
-pub struct BusterThought {
+pub struct BusterReasoningPill {
     pub id: String,
     #[serde(rename = "type")]
     pub thought_type: String,
-    #[serde(rename = "title")]
-    pub thought_title: String,
-    #[serde(rename = "secondary_title")]
-    pub thought_secondary_title: String,
-    #[serde(rename = "pill_containers")]
-    pub thoughts: Option<Vec<BusterThoughtPillContainer>>,
+    pub title: String,
+    pub secondary_title: String,
+    pub pill_containers: Option<Vec<BusterThoughtPillContainer>>,
     pub status: String,
 }
 
 #[derive(Debug, Serialize, Clone)]
+pub struct BusterReasoningText {
+    pub id: String,
+    #[serde(rename = "type")]
+    pub reasoning_type: String,
+    pub title: String,
+    pub secondary_title: Option<String>,
+    pub message: Option<String>,
+    pub message_chunk: Option<String>,
+    pub status: Option<String>,
+}
+
+
+#[derive(Debug, Serialize, Clone)]
 pub struct BusterThoughtPillContainer {
     pub title: String,
-    pub thought_pills: Vec<BusterThoughtPill>,
+    pub pills: Vec<BusterThoughtPill>,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -426,7 +438,7 @@ pub struct BusterThoughtPill {
 }
 
 #[derive(Debug, Serialize, Clone)]
-pub struct BusterFileMessage {
+pub struct BusterReasoningFile {
     pub id: String,
     #[serde(rename = "type")]
     pub message_type: String,
@@ -819,23 +831,23 @@ fn tool_data_catalog_search(
         };
 
     let buster_thought = if result_count > 0 {
-        BusterChatContainer::Thought(BusterThought {
+        BusterChatContainer::Thought(BusterReasoningPill {
             id: id, // Use required ID directly
             thought_type: "thought".to_string(),
-            thought_title: format!("Found {} results", result_count),
-            thought_secondary_title: format!("{} seconds", duration),
-            thoughts: Some(thought_pill_containters),
+            title: format!("Found {} results", result_count),
+            secondary_title: format!("{} seconds", duration),
+            pill_containers: Some(thought_pill_containters),
             status: "completed".to_string(),
         })
     } else {
-        BusterChatContainer::Thought(BusterThought {
+        BusterChatContainer::Thought(BusterReasoningPill {
             id: id, // Use required ID directly
             thought_type: "thought".to_string(),
-            thought_title: "No data catalog items found".to_string(),
-            thought_secondary_title: format!("{} seconds", duration),
-            thoughts: Some(vec![BusterThoughtPillContainer {
+            title: "No data catalog items found".to_string(),
+            secondary_title: format!("{} seconds", duration),
+            pill_containers: Some(vec![BusterThoughtPillContainer {
                 title: "No results found".to_string(),
-                thought_pills: vec![BusterThoughtPill {
+                pills: vec![BusterThoughtPill {
                     id: "".to_string(),
                     text: query_params,
                     thought_file_type: "empty".to_string(),
@@ -854,7 +866,7 @@ fn proccess_data_catalog_search_results(
     if results.results.is_empty() {
         return Ok(vec![BusterThoughtPillContainer {
             title: "No results found".to_string(),
-            thought_pills: vec![],
+            pills: vec![],
         }]);
     }
 
@@ -880,7 +892,7 @@ fn proccess_data_catalog_search_results(
                     "{count} {} found",
                     title.chars().next().unwrap().to_uppercase().to_string() + &title[1..]
                 ),
-                thought_pills,
+                pills: thought_pills,
             }
         })
         .collect();
@@ -946,7 +958,7 @@ fn transform_to_reasoning_container(
         .into_iter()
         .map(|container| match container {
             BusterChatContainer::Thought(thought) => BusterReasoningMessageContainer {
-                reasoning: ReasoningMessage::Thought(thought),
+                reasoning: ReasoningMessage::Pill(thought),
                 chat_id,
                 message_id,
             },
@@ -1057,7 +1069,7 @@ fn transform_assistant_tool_message(
         .into_iter()
         .map(|message| BusterReasoningMessageContainer {
             reasoning: match message {
-                BusterChatContainer::Thought(thought) => ReasoningMessage::Thought(thought),
+                BusterChatContainer::Thought(thought) => ReasoningMessage::Pill(thought),
                 BusterChatContainer::File(file) => ReasoningMessage::File(file),
                 _ => unreachable!("Assistant tool messages should only return Thought or File"),
             },
@@ -1076,12 +1088,12 @@ fn assistant_data_catalog_search(
         match progress {
             MessageProgress::InProgress => {
                 if initial {
-                    Ok(vec![BusterChatContainer::Thought(BusterThought {
+                    Ok(vec![BusterChatContainer::Thought(BusterReasoningPill {
                         id,
                         thought_type: "thought".to_string(),
-                        thought_title: "Searching your data catalog...".to_string(),
-                        thought_secondary_title: "".to_string(),
-                        thoughts: None,
+                        title: "Searching your data catalog...".to_string(),
+                        secondary_title: "".to_string(),
+                        pill_containers: None,
                         status: "loading".to_string(),
                     })])
                 } else {
@@ -1107,12 +1119,12 @@ fn assistant_create_metrics(
     if let Some(progress) = progress {
         match progress {
             MessageProgress::InProgress => {
-                Ok(vec![BusterChatContainer::Thought(BusterThought {
+                Ok(vec![BusterChatContainer::Thought(BusterReasoningPill {
                     id,
                     thought_type: "thought".to_string(),
-                    thought_title: "Creating metrics...".to_string(),
-                    thought_secondary_title: "".to_string(),
-                    thoughts: None,
+                    title: "Creating metrics...".to_string(),
+                    secondary_title: "".to_string(),
+                    pill_containers: None,
                     status: "loading".to_string(),
                 })])
             }
@@ -1191,12 +1203,12 @@ fn assistant_create_dashboards(
     if let Some(progress) = progress {
         match progress {
             MessageProgress::InProgress => {
-                Ok(vec![BusterChatContainer::Thought(BusterThought {
+                Ok(vec![BusterChatContainer::Thought(BusterReasoningPill {
                     id,
                     thought_type: "thought".to_string(),
-                    thought_title: "Creating dashboards...".to_string(),
-                    thought_secondary_title: "".to_string(),
-                    thoughts: None,
+                    title: "Creating dashboards...".to_string(),
+                    secondary_title: "".to_string(),
+                    pill_containers: None,
                     status: "loading".to_string(),
                 })])
             }
@@ -1247,12 +1259,12 @@ fn assistant_modify_dashboards(
     if let Some(progress) = progress {
         match progress {
             MessageProgress::InProgress => {
-                Ok(vec![BusterChatContainer::Thought(BusterThought {
+                Ok(vec![BusterChatContainer::Thought(BusterReasoningPill {
                     id,
                     thought_type: "thought".to_string(),
-                    thought_title: "Updating dashboards...".to_string(),
-                    thought_secondary_title: "".to_string(),
-                    thoughts: None,
+                    title: "Updating dashboards...".to_string(),
+                    secondary_title: "".to_string(),
+                    pill_containers: None,
                     status: "loading".to_string(),
                 })])
             }
@@ -1303,12 +1315,12 @@ fn assistant_create_plan(
     if let Some(progress) = progress {
         match progress {
             MessageProgress::InProgress => {
-                Ok(vec![BusterChatContainer::Thought(BusterThought {
+                Ok(vec![BusterChatContainer::Thought(BusterReasoningPill {
                     id,
                     thought_type: "thought".to_string(),
-                    thought_title: "Creating plan...".to_string(),
-                    thought_secondary_title: "".to_string(),
-                    thoughts: None,
+                    title: "Creating plan...".to_string(),
+                    secondary_title: "".to_string(),
+                    pill_containers: None,
                     status: "loading".to_string(),
                 })])
             }
@@ -1359,12 +1371,12 @@ fn assistant_modify_metrics(
     if let Some(progress) = progress {
         match progress {
             MessageProgress::InProgress => {
-                Ok(vec![BusterChatContainer::Thought(BusterThought {
+                Ok(vec![BusterChatContainer::Thought(BusterReasoningPill {
                     id,
                     thought_type: "thought".to_string(),
-                    thought_title: "Updating metrics...".to_string(),
-                    thought_secondary_title: "".to_string(),
-                    thoughts: None,
+                    title: "Updating metrics...".to_string(),
+                    secondary_title: "".to_string(),
+                    pill_containers: None,
                     status: "loading".to_string(),
                 })])
             }
