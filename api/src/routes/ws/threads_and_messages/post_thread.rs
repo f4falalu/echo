@@ -40,6 +40,9 @@ pub async fn post_thread(
                         ThreadEvent::GeneratingReasoningMessage => {
                             WsEvent::Threads(WSThreadEvent::GeneratingReasoningMessage)
                         }
+                        ThreadEvent::GeneratingTitle => {
+                            WsEvent::Threads(WSThreadEvent::GeneratingTitle)
+                        }
                     };
 
                     let response = WsResponseMessage::new_no_user(

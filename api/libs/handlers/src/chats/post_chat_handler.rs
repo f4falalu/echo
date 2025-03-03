@@ -15,7 +15,10 @@ use database::{
 };
 use diesel::{insert_into, ExpressionMethods};
 use diesel_async::RunQueryDsl;
-use litellm::{MessageProgress, ToolCall};
+use litellm::{
+    AgentMessage as LiteLLMAgentMessage, ChatCompletionRequest, LiteLLMClient, MessageProgress,
+    Metadata, ToolCall,
+};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
@@ -24,6 +27,7 @@ use crate::chats::streaming_parser::StreamingParser;
 use crate::messages::types::{ChatMessage, ChatUserMessage};
 
 use super::types::ChatWithMessages;
+use futures::{stream::Stream, StreamExt};
 use tokio::sync::mpsc;
 
 // Define ThreadEvent
@@ -31,6 +35,7 @@ use tokio::sync::mpsc;
 pub enum ThreadEvent {
     GeneratingResponseMessage,
     GeneratingReasoningMessage,
+    GeneratingTitle,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -113,6 +118,17 @@ pub async fn post_chat_handler(
         vec![AgentMessage::user(request.prompt.clone())],
     );
 
+    let title_handle = {
+        let tx = tx.clone();
+        let chat_id = chat_id.clone();
+        let message_id = message_id.clone();
+        let user_id = user.id.clone();
+        let chat_messages = chat.messages.clone();
+        tokio::spawn(async move {
+            generate_conversation_title(&chat_messages, &message_id, &user_id, &chat_id, tx).await
+        })
+    };
+
     // Get the receiver and collect all messages
     let mut rx = agent.run(&mut chat).await?;
 
@@ -173,6 +189,8 @@ pub async fn post_chat_handler(
         }
     }
 
+    let title = title_handle.await??;
+
     // Create and store message in the database
     let message = Message {
         id: message_id,
@@ -223,6 +241,7 @@ pub async fn post_chat_handler(
                         None
                     }
                 }
+                _ => None,
             })
             .unzip();
 
@@ -233,6 +252,10 @@ pub async fn post_chat_handler(
         // Update the chat message with processed content
         chat_message.response_messages = final_response_messages;
         chat_message.reasoning = reasoning_messages.into_iter().flatten().collect();
+    }
+
+    if let Some(title) = title.title {
+        chat_with_messages.title = title;
     }
 
     tracing::info!("Completed post_chat_handler for chat_id: {}", chat_id);
@@ -470,6 +493,7 @@ pub struct BusterFileMetadata {
 pub enum BusterContainer {
     ChatMessage(BusterChatMessageContainer),
     ReasoningMessage(BusterReasoningMessageContainer),
+    GeneratingTitle(BusterGeneratingTitle),
 }
 
 pub fn transform_message(
@@ -498,11 +522,13 @@ pub fn transform_message(
                 ) {
                     Ok(messages) => messages
                         .into_iter()
-                        .map(|msg| BusterContainer::ChatMessage(BusterChatMessageContainer {
-                            response_message: msg,
-                            chat_id: chat_id.clone(),
-                            message_id: message_id.clone(),
-                        }))
+                        .map(|msg| {
+                            BusterContainer::ChatMessage(BusterChatMessageContainer {
+                                response_message: msg,
+                                chat_id: chat_id.clone(),
+                                message_id: message_id.clone(),
+                            })
+                        })
                         .collect(),
                     Err(e) => {
                         tracing::warn!("Error transforming text message: {:?}", e);
@@ -1162,4 +1188,128 @@ fn assistant_create_plan(
         Ok(None) => Ok(vec![]),
         Err(e) => Err(e),
     }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum BusterGeneratingTitleProgress {
+    Completed,
+    InProgress,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct BusterGeneratingTitle {
+    pub chat_id: Uuid,
+    pub message_id: Uuid,
+    pub title: Option<String>,
+    pub title_chunk: Option<String>,
+    pub progress: BusterGeneratingTitleProgress,
+}
+
+// Conversation title generation functionality
+// -----------------------------------------
+
+// Constants for title generation
+const TITLE_GENERATION_PROMPT: &str = r#"
+You are a conversation title generator. Your task is to generate a clear, concise, and descriptive title for a conversation based on the user messages and assistant responses provided.
+
+Guidelines:
+1. The title should be 3-10 words and should capture the core topic or intent of the conversation
+2. Focus on key topics, questions, or themes from the conversation
+3. Be specific rather than generic when possible
+4. Avoid phrases like "Conversation about..." or "Discussion on..."
+5. Don't include mentions of yourself in the title
+6. The title should make sense out of context
+7. Pay attention to the most recent messages to guide topic changes, etc.
+
+Conversation:
+{conversation_messages}
+
+Return only the title text with no additional formatting, explanation, quotes, new lines, special characters, etc.
+"#;
+
+/// Generates a title for a conversation by processing user and assistant messages.
+/// The function streams the title back as it's being generated.
+pub async fn generate_conversation_title(
+    messages: &[AgentMessage],
+    message_id: &Uuid,
+    user_id: &Uuid,
+    session_id: &Uuid,
+    tx: Option<mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
+) -> Result<BusterGeneratingTitle> {
+    // Format conversation messages for the prompt
+    let mut formatted_messages = vec![];
+    for message in messages {
+        if message.get_role() == "user"
+            || (message.get_role() == "assistant" && message.get_content().is_some())
+        {
+            formatted_messages.push(format!(
+                "{}: {}",
+                message.get_role(),
+                message.get_content().unwrap_or_default()
+            ));
+        }
+    }
+
+    let formatted_messages = formatted_messages.join("\n\n");
+    // Create the prompt with the formatted messages
+    let prompt = TITLE_GENERATION_PROMPT.replace("{conversation_messages}", &formatted_messages);
+
+    // Set up LiteLLM client
+    let llm_client = LiteLLMClient::new(None, None);
+
+    // Create the request
+    let request = ChatCompletionRequest {
+        model: "gemini-2".to_string(),
+        messages: vec![LiteLLMAgentMessage::User {
+            id: None,
+            content: prompt,
+            name: None,
+        }],
+        metadata: Some(Metadata {
+            generation_name: "conversation_title".to_string(),
+            user_id: user_id.to_string(),
+            session_id: session_id.to_string(),
+            trace_id: session_id.to_string(),
+        }),
+        ..Default::default()
+    };
+
+    // Get streaming response - use chat_completion with stream parameter set to true
+    let response = match llm_client.chat_completion(request).await {
+        Ok(response) => response,
+        Err(e) => {
+            return Err(anyhow::anyhow!("Failed to start title generation: {}", e));
+        }
+    };
+
+    // Parse LLM response
+    let content = match &response.choices[0].message {
+        AgentMessage::Assistant {
+            content: Some(content),
+            ..
+        } => content,
+        _ => {
+            tracing::error!("LLM response missing content");
+            return Err(anyhow::anyhow!("LLM response missing content"));
+        }
+    };
+
+    let title = BusterGeneratingTitle {
+        chat_id: session_id.clone(),
+        message_id: message_id.clone(),
+        title: Some(content.clone().replace("\n", "")),
+        title_chunk: None,
+        progress: BusterGeneratingTitleProgress::Completed,
+    };
+
+    if let Some(tx) = tx {
+        tx.send(Ok((
+            BusterContainer::GeneratingTitle(title.clone()),
+            ThreadEvent::GeneratingTitle,
+        )))
+        .await?;
+    }
+
+    Ok(title)
 }
