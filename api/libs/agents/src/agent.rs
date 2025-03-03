@@ -1,8 +1,8 @@
 use crate::tools::{IntoToolCallExecutor, ToolExecutor};
 use anyhow::Result;
 use litellm::{
-    AgentMessage, ChatCompletionRequest, DeltaToolCall, FunctionCall, LiteLLMClient, Metadata,
-    MessageProgress, Tool, ToolCall, ToolChoice,
+    AgentMessage, ChatCompletionRequest, DeltaToolCall, FunctionCall, LiteLLMClient,
+    MessageProgress, Metadata, Tool, ToolCall, ToolChoice,
 };
 use serde_json::Value;
 use std::{collections::HashMap, env, sync::Arc};
@@ -362,11 +362,11 @@ impl Agent {
                     }
 
                     let delta = &chunk.choices[0].delta;
-                    
+
                     // Accumulate content if present
                     if let Some(content) = &delta.content {
                         content_buffer.push_str(content);
-                        
+
                         // Stream the content update
                         let partial_message = AgentMessage::assistant(
                             message_id.clone(),
@@ -376,29 +376,31 @@ impl Agent {
                             Some(false),
                             Some(self.name.clone()),
                         );
-                        
+
                         self.get_stream_sender().await.send(Ok(partial_message))?;
                     }
-                    
+
                     // Process tool calls if present
                     if let Some(tool_calls) = &delta.tool_calls {
                         for tool_call in tool_calls {
                             let id = tool_call.id.clone().unwrap_or_else(|| {
                                 // If no ID is provided, use existing IDs or generate a new one
-                                pending_tool_calls.keys().next()
+                                pending_tool_calls
+                                    .keys()
+                                    .next()
                                     .map(|s| s.clone())
                                     .unwrap_or_else(|| uuid::Uuid::new_v4().to_string())
                             });
-                            
+
                             // Get or create the pending tool call
                             let pending_call = pending_tool_calls
                                 .entry(id.clone())
                                 .or_insert_with(PendingToolCall::new);
-                            
+
                             // Update the pending call with the delta
                             pending_call.update_from_delta(tool_call);
                         }
-                        
+
                         // Stream the updated tool calls
                         let tool_calls_vec: Vec<ToolCall> = pending_tool_calls
                             .values()
@@ -410,72 +412,81 @@ impl Agent {
                                 }
                             })
                             .collect();
-                        
+
                         if !tool_calls_vec.is_empty() {
                             let partial_message = AgentMessage::assistant(
                                 message_id.clone(),
-                                if content_buffer.is_empty() { None } else { Some(content_buffer.clone()) },
+                                if content_buffer.is_empty() {
+                                    None
+                                } else {
+                                    Some(content_buffer.clone())
+                                },
                                 Some(tool_calls_vec),
                                 Some(MessageProgress::InProgress),
                                 Some(false),
                                 Some(self.name.clone()),
                             );
-                            
+
                             self.get_stream_sender().await.send(Ok(partial_message))?;
                         }
                     }
-                    
+
                     // Check if this is the final chunk
                     if chunk.choices[0].finish_reason.is_some() {
                         is_complete = true;
                     }
-                },
+                }
                 Err(e) => return Err(anyhow::anyhow!("Error in stream: {:?}", e)),
             }
         }
-        
+
         // Create the final assistant message
         let final_tool_calls: Option<Vec<ToolCall>> = if !pending_tool_calls.is_empty() {
             Some(
                 pending_tool_calls
                     .values()
                     .map(|p| p.clone().into_tool_call())
-                    .collect()
+                    .collect(),
             )
         } else {
             None
         };
-        
+
         let final_message = AgentMessage::assistant(
             message_id,
-            if content_buffer.is_empty() { None } else { Some(content_buffer) },
+            if content_buffer.is_empty() {
+                None
+            } else {
+                Some(content_buffer)
+            },
             final_tool_calls.clone(),
             Some(MessageProgress::Complete),
             Some(false),
             Some(self.name.clone()),
         );
-        
+
         // Broadcast the final assistant message
-        self.get_stream_sender().await.send(Ok(final_message.clone()))?;
-        
+        self.get_stream_sender()
+            .await
+            .send(Ok(final_message.clone()))?;
+
         // Update thread with assistant message
         self.update_current_thread(final_message.clone()).await?;
-        
+
         // If this is an auto response without tool calls, it means we're done
         if final_tool_calls.is_none() {
             return Ok(());
         }
-        
+
         // If the LLM wants to use tools, execute them and continue
         if let Some(tool_calls) = final_tool_calls {
             let mut results = Vec::new();
-            
+
             // Execute each requested tool
             for tool_call in tool_calls {
                 if let Some(tool) = self.tools.read().await.get(&tool_call.function.name) {
                     let params: Value = serde_json::from_str(&tool_call.function.arguments)?;
                     let result = tool.execute(params).await?;
-                    println!("Tool Call result: {:?}", result);
                     let result_str = serde_json::to_string(&result)?;
                     let tool_message = AgentMessage::tool(
                         None,
@@ -484,23 +495,23 @@ impl Agent {
                         Some(tool_call.function.name.clone()),
                         None,
                     );
-                    
+
                     // Broadcast the tool message as soon as we receive it
                     self.get_stream_sender()
                         .await
                         .send(Ok(tool_message.clone()))?;
-                    
+
                     // Update thread with tool response
                     self.update_current_thread(tool_message.clone()).await?;
                     results.push(tool_message);
                 }
             }
-            
+
             // Create a new thread with the tool results and continue recursively
             let mut new_thread = thread.clone();
             new_thread.messages.push(final_message);
             new_thread.messages.extend(results);
-            
+
             Box::pin(self.process_thread_with_depth(&new_thread, recursion_depth + 1)).await
         } else {
             Ok(())
@@ -731,8 +742,6 @@ mod tests {
             Ok(response) => response,
             Err(e) => panic!("Error processing thread: {:?}", e),
         };
-
-        println!("Response: {:?}", response);
     }
 
     #[tokio::test]
@@ -766,8 +775,6 @@ mod tests {
             Ok(response) => response,
             Err(e) => panic!("Error processing thread: {:?}", e),
         };
-
-        println!("Response: {:?}", response);
     }
 
     #[tokio::test]
@@ -799,8 +806,6 @@ mod tests {
             Ok(response) => response,
             Err(e) => panic!("Error processing thread: {:?}", e),
         };
-
-        println!("Response: {:?}", response);
     }
 
     #[tokio::test]

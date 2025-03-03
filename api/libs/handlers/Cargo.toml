@@ -16,6 +16,8 @@ uuid = { workspace = true }
 diesel = { workspace = true }
 diesel-async = { workspace = true }
 futures = { workspace = true }
+redis = { workspace = true }
+regex = { workspace = true }
 
 # Local dependencies
 database = { path = "../database" }

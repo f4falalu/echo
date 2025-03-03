@@ -13,7 +13,7 @@ pub async fn post_chat_route(
     Extension(user): Extension<User>,
     Json(request): Json<ChatCreateNewChat>,
 ) -> Result<ApiResponse<ChatWithMessages>, (StatusCode, &'static str)> {
-    match post_chat_handler(request, user).await {
+    match post_chat_handler(request, user, None).await {
         Ok(response) => Ok(ApiResponse::JsonData(response)),
         Err(e) => {
             tracing::error!("Error processing chat: {}", e);

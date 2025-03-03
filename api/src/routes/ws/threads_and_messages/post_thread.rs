@@ -4,6 +4,7 @@ use anyhow::Result;
 use handlers::chats::post_chat_handler;
 use handlers::chats::post_chat_handler::ChatCreateNewChat;
 use handlers::chats::types::ChatWithMessages;
+use tokio::sync::mpsc;
 
 use crate::{
     database::models::User,
@@ -11,7 +12,7 @@ use crate::{
         threads_and_messages::threads_router::{ThreadEvent, ThreadRoute},
         ws::{SubscriptionRwLock, WsEvent, WsResponseMessage, WsSendMethod},
         ws_router::WsRoutes,
-        ws_utils::{send_ws_message, subscribe_to_stream},
+        ws_utils::send_ws_message,
     },
 };
 
@@ -22,21 +23,36 @@ pub async fn post_thread(
     user: &User,
     request: ChatCreateNewChat,
 ) -> Result<()> {
-    // Call the shared handler
-    let result = post_chat_handler::post_chat_handler(request, user.clone()).await;
+    let (tx, mut rx) = mpsc::channel(1000);
 
-    match result {
-        Ok(chat_with_messages) => {
-            // Send the response through WebSocket
-            send_ws_response(&user.id.to_string(), &chat_with_messages).await?;
-            Ok(())
-        }
-        Err(err) => {
-            // Handle error
-            tracing::error!("Error creating thread: {:?}", err);
-            Err(err)
+    // Call the shared handler
+    post_chat_handler::post_chat_handler(request, user.clone(), Some(tx)).await?;
+
+    while let Some(result) = rx.recv().await {
+        match result {
+            Ok(chat_with_messages) => {
+                println!("MESSAGE SHOULD BE SENT: {:?}", chat_with_messages);
+
+                let response = WsResponseMessage::new_no_user(
+                    WsRoutes::Threads(ThreadRoute::Post),
+                    WsEvent::Threads(ThreadEvent::InitializeChat),
+                    &chat_with_messages,
+                    None,
+                    WsSendMethod::All,
+                );
+
+                if let Err(e) = send_ws_message(&user.id.to_string(), &response).await {
+                    tracing::error!("Failed to send websocket message: {}", e);
+                }
+            }
+            Err(err) => {
+                tracing::error!("Error in message stream: {:?}", err);
+                return Err(err);
+            }
         }
     }
+
+    Ok(())
 }
 
 /// Sends the chat response to the client via WebSocket
