@@ -13,6 +13,6 @@ fast:
 build-storybook:
 	npm run build-storybook
 
-start-storybook:
+storybook:
 	npm run start-storybook
 

@@ -15,5 +15,4 @@ export type BusterChartProps = {
   editable?: boolean;
   onInitialAnimationEnd?: () => void;
   onChartMounted?: (chart?: any) => void;
-  renderType?: 'echart' | 'chartjs';
 } & BusterChartConfigProps;

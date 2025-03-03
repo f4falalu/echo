@@ -8,7 +8,6 @@ import { BusterChartJS } from './BusterChartJS';
 import { useDatasetOptions } from './chartHooks';
 
 export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = ({
-  renderType,
   data: dataProp,
   barSortBy,
   pieMinimumSlicePercentage,
@@ -60,9 +59,5 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
     ]
   );
 
-  if (renderType === 'chartjs') {
-    return <BusterChartJS {...chartProps} />;
-  }
-
-  return <></>;
+  return <BusterChartJS {...chartProps} />;
 };
