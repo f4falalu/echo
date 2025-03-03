@@ -1,0 +1,71 @@
+---
+description: Rules for the components ui directory
+globs: src/components/ui/**/*
+---
+
+# Component Directory Structure and Organization
+
+## Component Purpose
+- This directory contains basic, reusable UI components that serve as building blocks
+- These basic components are designed to be combined and composed into larger feature components
+- Feature components (which combine these basic components) should be placed in their respective feature directories
+- The goal is to maintain a library of simple, pure components that can be easily reused across features
+
+## Directory Organization
+- Each directory within `src/components` should represent a specific category of components
+- Directory names should clearly indicate the type of components contained within
+- Examples:
+  - `buttons/` - Button components
+  - `inputs/` - Input field components
+  - `card/` - Card and container components
+  - `icons/` - Icon components
+  - `layout/` - Layout-related components
+  - `text/` - Text and typography components
+
+## Component Dependencies and Imports
+- When a component needs to use another component, prefer relative imports
+- Example: 
+  ```typescript
+  // Good
+  import { IconButton } from '../buttons/ui/IconButton';
+  ```
+- Exception: Only use absolute imports (@/) when the relative path would be overly complex (>3 levels deep)
+
+## Styling Guidelines
+1. Primary Styling Method:
+   - Use Tailwind CSS for general styling and layout
+   - Class names should follow Tailwind's utility-first approach
+
+2. Color Management:
+   - Always use `createStyles` from antd-style for color-related styling
+   - Access theme colors through the token system
+   - Example:
+     ```typescript
+     const useStyles = createStyles(({ token, css }) => {
+       return {
+         container: css`
+           border: 0.5px solid ${token.colorBorderSecondary};
+           background: ${token.colorBgContainer};
+         `
+       };
+     });
+     ```
+
+3. Border Rules:
+   - When using borders with createStyles, always use 0.5px as the border width
+   - Access border colors through the token system
+
+## Component Implementation
+- Use functional components exclusively
+- Implement proper TypeScript types for props and state
+- Use React.memo() for performance optimization when appropriate
+- Import text elements from dedicated components:
+  ```typescript
+  import { Text } from '@/components/ui';
+  import { Title } from '@/components/ui';
+  ```
+
+## File Naming
+- Use PascalCase for component files
+- File name should match the component name
+

@@ -6,7 +6,7 @@ import type { DataSource } from '@/api/asset_interfaces';
 import React from 'react';
 import { FormWrapper } from './FormWrapper';
 import { Form, Input } from 'antd';
-import { AppSelectTagInput } from '@/components/select/AppSelectTagInput';
+import { AppSelectTagInput } from '@/components/ui/select/AppSelectTagInput';
 
 export const DataBricksForm: React.FC<{
   dataSource?: DataSource;

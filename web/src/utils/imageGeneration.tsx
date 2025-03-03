@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { timeout } from './timeout';
 import { BusterLogoWithTextBW } from '@/assets/svg/BusterLogoWithTextBW';
 import React, { useEffect, useRef } from 'react';
-import { BusterChart } from '@/components/charts';
+import { BusterChart } from '@/components/ui/charts';
 import type { BusterMetricData } from '@/context/MetricData';
 
 export const generateChartDownloadImage = async (
@@ -29,7 +29,7 @@ export const generateChartDownloadImage = async (
 
   const renderChart: Promise<void> = new Promise((resolve) => {
     container = (
-      // bg-gradient-to-br ${darkClass}
+      // bg-linear-to-br ${darkClass}
       <div className={`h-[655px] w-[880px]`}>
         <div className="relative flex h-full w-full items-center justify-center p-0">
           <BusterChart
@@ -189,7 +189,7 @@ export const PreviewImageReactComponent: React.FC<{
 
   const BusterLogo = (
     <div
-      className="w-[165px] rounded p-1"
+      className="w-[165px] rounded-sm p-1"
       style={{
         color: isDark ? 'white' : 'black',
         filter: isDark
@@ -206,7 +206,7 @@ export const PreviewImageReactComponent: React.FC<{
 
   return (
     <div
-      className={`relative flex h-[630px] w-[1200px] items-center justify-center bg-gradient-to-br ${
+      className={`relative flex h-[630px] w-[1200px] items-center justify-center bg-linear-to-br ${
         isDark ? darkGradient : lightGradient
       } p-6`}>
       <DotPattern isDark={isDark}>

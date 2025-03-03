@@ -1,4 +1,4 @@
-import { EditableTitle, Text } from '@/components';
+import { EditableTitle, Text } from '@/components/ui';
 import React from 'react';
 import { useMemoizedFn } from 'ahooks';
 import { useUpdateDataset } from '@/api/buster_rest';
@@ -23,7 +23,7 @@ export const OverviewHeader: React.FC<{ datasetId: string; description: string; 
             <EditableTitle onChange={onEditTitle} level={3}>
               {name}
             </EditableTitle>
-            <Text className="!text-md" type="secondary">
+            <Text className="text-md!" type="secondary">
               {description}
             </Text>
           </div>

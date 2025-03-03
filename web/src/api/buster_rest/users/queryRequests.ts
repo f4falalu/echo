@@ -3,34 +3,48 @@ import {
   useCreateReactMutation,
   useCreateReactQuery
 } from '@/api/createReactQuery';
-import { getUser, getUser_server, updateOrganizationUser, getMyUserInfo } from './requests';
+import {
+  getUser,
+  getUser_server,
+  updateOrganizationUser,
+  getMyUserInfo,
+  getMyUserInfo_server
+} from './requests';
 import { useMemoizedFn } from 'ahooks';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
 
 export const useGetMyUserInfo = () => {
-  const queryFn = useMemoizedFn(async () => getMyUserInfo());
+  const queryFn = useMemoizedFn(async () => {
+    return getMyUserInfo();
+  });
   return useCreateReactQuery({
-    queryKey: queryKeys['/users/response:getUserMyself'].queryKey,
+    ...queryKeys.userGetUserMyself,
     queryFn,
     staleTime: PREFETCH_STALE_TIME,
     enabled: false //This is a server only query
   });
 };
 
-export const prefetchGetMyUserInfo = async (queryClientProp?: QueryClient) => {
+export const prefetchGetMyUserInfo = async (
+  params: Parameters<typeof getMyUserInfo_server>[0],
+  queryClientProp?: QueryClient
+) => {
   const queryClient = queryClientProp || new QueryClient();
+  const initialData = await getMyUserInfo_server(params);
   await queryClient.prefetchQuery({
-    ...queryKeys['/users/response:getUserMyself'],
-    queryFn: () => getMyUserInfo()
+    ...queryKeys.userGetUserMyself,
+    queryFn: () => initialData!,
+    initialData
   });
+  return { queryClient, initialData };
 };
 
 export const useGetUser = (params: Parameters<typeof getUser>[0]) => {
   const queryFn = useMemoizedFn(() => getUser(params));
 
   return useCreateReactQuery({
-    queryKey: queryKeys['/users/response:getUser'](params.userId).queryKey,
+    ...queryKeys.userGetUser(params.userId),
     queryFn,
     staleTime: PREFETCH_STALE_TIME
   });
@@ -39,7 +53,7 @@ export const useGetUser = (params: Parameters<typeof getUser>[0]) => {
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
   const mutationFn = useMemoizedFn(async (params: Parameters<typeof updateOrganizationUser>[0]) => {
-    const options = queryKeys['/users/response:getUser'](params.userId);
+    const options = queryKeys.userGetUser(params.userId);
     queryClient.setQueryData(options.queryKey, (oldData) => {
       return {
         ...oldData!,
@@ -58,7 +72,7 @@ export const useUpdateUser = () => {
 export const prefetchGetUser = async (userId: string, queryClientProp?: QueryClient) => {
   const queryClient = queryClientProp || new QueryClient();
   await queryClient.prefetchQuery({
-    ...queryKeys['/users/response:getUser'](userId),
+    ...queryKeys.userGetUser(userId),
     queryFn: () => getUser_server({ userId })
   });
   return queryClient;

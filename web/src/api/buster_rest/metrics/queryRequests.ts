@@ -3,9 +3,8 @@ import { QueryClient } from '@tanstack/react-query';
 import { useMemoizedFn } from 'ahooks';
 import { getMetric, getMetric_server, listMetrics, listMetrics_server } from './requests';
 import type { GetMetricParams, ListMetricsParams } from './interfaces';
-import { BusterMetric, BusterMetricListItem } from '@/api/asset_interfaces';
-import { IBusterMetric } from '@/context/Metrics';
 import { upgradeMetricToIMetric } from '@/context/Metrics/helpers';
+import { queryKeys } from '@/api/query_keys';
 
 export const useGetMetric = (params: GetMetricParams) => {
   const queryFn = useMemoizedFn(async () => {
@@ -13,8 +12,8 @@ export const useGetMetric = (params: GetMetricParams) => {
     return upgradeMetricToIMetric(result, null);
   });
 
-  return useCreateReactQuery<IBusterMetric>({
-    queryKey: ['metric', params],
+  return useCreateReactQuery({
+    ...queryKeys.useMetricsGetMetric(params.id),
     queryFn,
     enabled: false //this is handle via a socket query? maybe it should not be?
   });
@@ -22,10 +21,12 @@ export const useGetMetric = (params: GetMetricParams) => {
 
 export const prefetchGetMetric = async (params: GetMetricParams, queryClientProp?: QueryClient) => {
   const queryClient = queryClientProp || new QueryClient();
-
   await queryClient.prefetchQuery({
-    queryKey: ['metric', params],
-    queryFn: () => getMetric_server(params)
+    ...queryKeys.useMetricsGetMetric(params.id),
+    queryFn: async () => {
+      const result = await getMetric_server(params);
+      return upgradeMetricToIMetric(result, null);
+    }
   });
 
   return queryClient;
@@ -36,8 +37,8 @@ export const useGetMetricsList = (params: ListMetricsParams) => {
     return listMetrics(params);
   });
 
-  const res = useCreateReactQuery<BusterMetricListItem[]>({
-    queryKey: ['metrics', 'list', params],
+  const res = useCreateReactQuery({
+    ...queryKeys.metricsGetList(params),
     queryFn
   });
 
@@ -54,7 +55,7 @@ export const prefetchGetMetricsList = async (
   const queryClient = queryClientProp || new QueryClient();
 
   await queryClient.prefetchQuery({
-    queryKey: ['metrics', 'list', params],
+    ...queryKeys.metricsGetList(params),
     queryFn: () => listMetrics_server(params)
   });
 

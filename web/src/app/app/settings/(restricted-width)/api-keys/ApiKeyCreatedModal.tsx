@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, Alert } from 'antd';
-import { AppModal } from '@/components';
+import { AppModal } from '@/components/ui';
 
 const { Paragraph } = Typography;
 
@@ -33,7 +33,7 @@ const ApiKeyCreatedModal = React.memo(({ apiKey, onCopy, onClose }: ApiKeyCreate
           type="warning"
           message="Important: This API key will only be shown once. Please copy it now and store it safely."
         />
-        <Paragraph className="mt-4 break-all rounded border bg-gray-50 p-4 font-mono">
+        <Paragraph className="mt-4 rounded-sm border bg-gray-50 p-4 font-mono break-all">
           {apiKey}
         </Paragraph>
       </div>

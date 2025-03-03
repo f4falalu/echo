@@ -1,13 +1,13 @@
 'use client';
 import React, { useState } from 'react';
 import { SettingsPageHeader } from '../../_components/SettingsPageHeader';
-import { PermissionSearch, NewDatasetGroupModal } from '@appComponents/PermissionComponents';
+import { PermissionSearch, NewDatasetGroupModal } from '@/components/features/PermissionComponents';
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
 import { useListDatasetGroups } from '@/api/buster_rest';
 import { ListDatasetGroupsComponent } from './ListDatasetGroupsComponent';
 import { useMemoizedFn } from 'ahooks';
 import { Button } from 'antd';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 
 export default function Page() {
   const { data: datasetGroups, isFetched } = useListDatasetGroups();

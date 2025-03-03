@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useMemo, useRef, useState } from 'react';
-import { useDatasetPageContextSelector } from '../_DatasetPageContext';
 import { useMemoizedFn, useRequest } from 'ahooks';
 import type { IDataResult } from '@/api/asset_interfaces';
 import { EditorApps, EditorContainerSubHeader } from './EditorContainerSubHeader';
@@ -10,8 +9,9 @@ import { MetadataContainer } from './MetadataContainer';
 import { runSQL } from '@/api/buster_rest';
 import type { RustApiError } from '@/api/buster_rest/errors';
 import isEmpty from 'lodash/isEmpty';
-import type { AppSplitterRef } from '@/components/layout/AppSplitter';
-import { AppVerticalCodeSplitter } from '@/components/layout/AppVerticalCodeSplitter';
+import type { AppSplitterRef } from '@/components/ui/layout/AppSplitter';
+import { AppVerticalCodeSplitter } from '@/components/ui/layout/AppVerticalCodeSplitter';
+import { useDatasetPageContextSelector } from '../_DatasetsLayout/DatasetPageContext';
 
 export const EditorContent: React.FC<{
   defaultLayout: [string, string];

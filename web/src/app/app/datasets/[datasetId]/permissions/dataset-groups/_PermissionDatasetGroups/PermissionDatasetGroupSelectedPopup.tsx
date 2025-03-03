@@ -1,6 +1,6 @@
-import { BusterListSelectedOptionPopupContainer } from '@/components/list';
+import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import React from 'react';
-import { PermissionAssignedButton } from '@appComponents/PermissionComponents';
+import { PermissionAssignedButton } from '@/components/features/PermissionComponents';
 import { useDatasetUpdateDatasetGroups } from '@/api/buster_rest';
 
 export const PermissionDatasetGroupSelectedPopup: React.FC<{

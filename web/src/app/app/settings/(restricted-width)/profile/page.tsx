@@ -5,8 +5,8 @@ import { SettingsPageHeader } from '../../_components/SettingsPageHeader';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { createStyles } from 'antd-style';
 import { formatDate } from '@/utils/date';
-import { Text, Title } from '@/components/text';
-import { BusterUserAvatar } from '@/components';
+import { Text, Title } from '@/components/ui';
+import { BusterUserAvatar } from '@/components/ui';
 import { Card } from 'antd';
 
 const useStyles = createStyles(({ token, css }) => ({

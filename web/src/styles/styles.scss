@@ -1,13 +1,12 @@
-@import './base/_fonts';
-@import './base/_tailwind';
-@import './base/_antd';
-@import './base/_reset';
-@import './base/_sql';
+@import './tailwind';
+@import './fonts';
+@import './antd';
+@import './reset';
+@import './sql';
 @import './loaders';
-@import './transitions.scss';
-@import './animations.scss';
-@import './monaco.scss';
-@import '../components/layout/AppSplitter/SplitPane/themes/default.scss';
+@import './animations';
+@import './monaco';
+@import '../components/ui/layout/AppSplitter/SplitPane/themes/default';
 @import 'react-data-grid/lib/styles.css';
 
 h1,

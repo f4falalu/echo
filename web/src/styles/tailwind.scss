@@ -1,0 +1,33 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  // Text
+  --text-xxs: 10px;
+  --text-xxs--line-height: 1;
+  --text-xs: 11px;
+  --text-xs--line-height: 1;
+  --text-sm: 12px;
+  --text-sm--line-height: 1;
+  --text-base: 13px;
+  --text-base--line-height: 1;
+  --text-md: 14px;
+  --text-md--line-height: 1;
+  --text-lg: 18px;
+  --text-lg--line-height: 1;
+  --text-xl: 18px;
+  --text-xl--line-height: 1;
+  --text-2xl: 20px;
+  --text-2xl--line-height: 1;
+  --text-3xl: 24px;
+  --text-3xl--line-height: 1;
+  --text-4xl: 30px;
+  --text-4xl--line-height: 1;
+
+  // Colors
+}
+
+body {
+  background: 'blue' !important;
+}

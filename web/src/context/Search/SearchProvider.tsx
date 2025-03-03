@@ -11,45 +11,13 @@ import {
 } from '@fluentui/react-context-selector';
 
 export const useBusterSearch = () => {
-  const busterSocket = useBusterWebSocket();
+  const onBusterSearch = useMemoizedFn(async ({ query }: { query: string }) => {
+    const payload: BusterSearchRequest['payload'] = {
+      query
+    };
 
-  const onBusterSearch = useMemoizedFn(
-    async ({
-      query,
-      include,
-      exclude
-    }: {
-      include?: (keyof BusterSearchRequest['payload'])[];
-      exclude?: (keyof BusterSearchRequest['payload'])[];
-      query: string;
-    }) => {
-      const reducedParams = allBusterSearchRequestKeys.reduce((acc, curr) => {
-        const value = include?.includes(curr) && !exclude?.includes(curr) ? true : false;
-        return { ...acc, [curr]: !value };
-      }, {});
-      const payload: BusterSearchRequest['payload'] = {
-        query,
-        ...reducedParams
-      };
-
-      const callback = (d: BusterSearchResult[]) => {
-        return d || [];
-      };
-
-      const res = await busterSocket.emitAndOnce({
-        emitEvent: {
-          route: '/search',
-          payload
-        },
-        responseEvent: {
-          route: '/search:search',
-          callback,
-          onError: (e) => {}
-        }
-      });
-      return res as BusterSearchResult[];
-    }
-  );
+    return [];
+  });
 
   return { onBusterSearch };
 };

@@ -13,6 +13,6 @@ export const termsGetTerm = (termId: string) =>
   });
 
 export const termsQueryKeys = {
-  '/terms/list:getTermsList': termsGetList,
-  '/terms/get:getTerm': termsGetTerm
+  termsGetList,
+  termsGetTerm
 };

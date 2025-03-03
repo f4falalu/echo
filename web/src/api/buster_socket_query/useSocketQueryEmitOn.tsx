@@ -1,56 +1,65 @@
 import type { BusterSocketResponseRoute, BusterSocketRequest } from '@/api/buster_socket';
 import {
-  queryOptions,
+  useIsMutating,
   useQueryClient,
   useMutation,
+  useMutationState,
   type QueryKey,
   type UseQueryOptions
 } from '@tanstack/react-query';
 import type { InferBusterSocketResponseData } from './types';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
-import { useEffect } from 'react';
-import { useMemoizedFn } from 'ahooks';
+import { useEffect, useMemo, useRef } from 'react';
 import { useSocketQueryOn } from './useSocketQueryOn';
+import { timeout } from '@/utils';
+import { useMemoizedFn } from 'ahooks';
 
 export const useSocketQueryEmitOn = <
   TRoute extends BusterSocketResponseRoute,
   TError = unknown,
   TData = InferBusterSocketResponseData<TRoute>,
   TQueryKey extends QueryKey = QueryKey
->(
-  socketRequest: BusterSocketRequest,
-  socketResponse: TRoute,
-  options: UseQueryOptions<TData, TError, TData, TQueryKey>,
+>({
+  emitEvent,
+  responseEvent,
+  options,
+  callback,
+  enabledTrigger: enabledTriggerProp
+}: {
+  emitEvent: BusterSocketRequest;
+  responseEvent: TRoute;
+  options: UseQueryOptions<TData, TError, TData, TQueryKey>;
   callback?:
     | ((currentData: TData | null, newData: InferBusterSocketResponseData<TRoute>) => TData)
-    | null,
-  enabledTriggerProp?: boolean | string
-) => {
-  const queryClient = useQueryClient();
+    | null;
+  enabledTrigger?: boolean | string;
+}) => {
   const busterSocket = useBusterWebSocket();
+
   const enabledTrigger = enabledTriggerProp ?? true;
 
-  // Use mutation for deduped socket emissions
-  const { mutate: emitQueryFn } = useMutation({
-    mutationKey: ['socket-emit', ...options.queryKey],
-    mutationFn: async () => {
-      busterSocket.emit(socketRequest);
-      return null;
-    }
+  const queryFn = useMemoizedFn(async () => {
+    return await busterSocket.emitAndOnce({
+      emitEvent,
+      responseEvent: {
+        route: responseEvent as '/chats/get:getChat',
+        callback: (data: unknown) => data
+      }
+    });
   });
 
-  const queryResult = useSocketQueryOn(socketResponse, options, callback);
+  const emitOptions: UseQueryOptions<TData, TError, TData, TQueryKey> = useMemo(() => {
+    return {
+      ...options,
+      queryFn,
+      enabled: !!enabledTrigger
+    } as UseQueryOptions<TData, TError, TData, TQueryKey>;
+  }, [options.queryKey, enabledTrigger]);
 
-  useEffect(() => {
-    const queryState = queryClient.getQueryState(options.queryKey);
-    const staleTime = (options.staleTime as number) ?? 0;
-    const isStale =
-      !queryState?.dataUpdatedAt || Date.now() - queryState.dataUpdatedAt >= staleTime;
-
-    if (enabledTrigger && (isStale || !queryState)) {
-      emitQueryFn();
-    }
-  }, [enabledTrigger]);
-
-  return { ...queryResult, refetch: emitQueryFn };
+  return useSocketQueryOn({
+    responseEvent,
+    options: emitOptions,
+    callback,
+    isEmitOn: true
+  });
 };

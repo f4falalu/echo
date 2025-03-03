@@ -5,12 +5,12 @@ import {
   BusterListRowItem,
   EmptyStateList,
   InfiniteListContainer
-} from '@/components/list';
+} from '@/components/ui/list';
 import React, { useMemo, useState } from 'react';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import { OrganizationUserRoleText } from './config';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { ListUserItem } from '@appComponents/Lists';
+import { ListUserItem } from '@/components/features/lists';
 
 export const ListUsersComponent: React.FC<{
   users: OrganizationUser[];
@@ -99,7 +99,7 @@ export const ListUsersComponent: React.FC<{
         rows={rows}
         showHeader={true}
         showSelectAll={false}
-        rowClassName="!pl-[30px]"
+        rowClassName="pl-[30px]!"
         // onSelectChange={setSelectedRowKeys}
         // selectedRowKeys={selectedRowKeys}
         columnRowVariant="default"

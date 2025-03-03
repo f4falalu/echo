@@ -6,7 +6,7 @@ import { useDebounceSearch } from '@/hooks/useDebounceSearch';
 import { useGetOrganizationUsers } from '@/api/buster_rest';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { ListUsersComponent } from './ListUsersComponent';
-import { PermissionSearch } from '../../../_components/PermissionComponents';
+import { PermissionSearch } from '../../../../../components/features/PermissionComponents';
 
 export default function Page() {
   const userOrganization = useUserConfigContextSelector((x) => x.userOrganizations);

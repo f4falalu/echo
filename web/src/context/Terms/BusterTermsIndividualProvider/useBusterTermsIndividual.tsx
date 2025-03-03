@@ -6,13 +6,12 @@ export const useBusterTermsIndividual = ({ termId }: { termId: string }) => {
     data: term,
     refetch: refetchTerm,
     isFetched: isFetchedTerm
-  } = useSocketQueryEmitOn(
-    { route: '/terms/get', payload: { id: termId } },
-    '/terms/get:GetTerm',
-    queryKeys['/terms/get:getTerm'](termId),
-    null,
-    termId
-  );
+  } = useSocketQueryEmitOn({
+    emitEvent: { route: '/terms/get', payload: { id: termId } },
+    responseEvent: '/terms/get:GetTerm',
+    options: queryKeys.termsGetTerm(termId),
+    enabledTrigger: termId
+  });
 
   return {
     term,

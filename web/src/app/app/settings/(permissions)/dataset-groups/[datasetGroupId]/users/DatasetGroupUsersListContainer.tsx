@@ -3,18 +3,18 @@ import type {
   GetPermissionGroupUsersResponse
 } from '@/api/asset_interfaces';
 import { useUpdateDatasetGroupUsers } from '@/api/buster_rest';
-import { PermissionAssignedCell } from '@/app/app/_components/PermissionComponents';
+import { PermissionAssignedCell } from '@/components/features/PermissionComponents';
 import {
   BusterInfiniteList,
   BusterListColumn,
   BusterListRowItem,
   EmptyStateList,
   InfiniteListContainer
-} from '@/components/list';
+} from '@/components/ui/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
 import React, { useMemo, useState } from 'react';
-import { ListUserItem } from '@appComponents/Lists';
+import { ListUserItem } from '@/components/features/lists';
 import { DatasetGroupUsersSelectedPopup } from './DatasetGroupUsersSelectedPopup';
 
 export const DatasetGroupUsersListContainer: React.FC<{

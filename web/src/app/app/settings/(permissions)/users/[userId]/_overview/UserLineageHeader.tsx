@@ -1,5 +1,5 @@
 import React from 'react';
-import { HeaderExplanation } from '@/app/app/_components/PermissionComponents';
+import { HeaderExplanation } from '@/components/features/PermissionComponents';
 import type { OrganizationUser } from '@/api/asset_interfaces';
 
 export const UserLineageHeader = React.memo(

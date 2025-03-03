@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import { Button } from 'antd';
 import type { BusterApiKeyListItem } from '@/api/asset_interfaces';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { formatDate } from '@/utils/date';
-import { Text } from '@/components';
+import { Text } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 
 interface ApiKeyListItemProps {
@@ -22,7 +22,7 @@ export const ApiKeyListItem: React.FC<ApiKeyListItemProps> = ({ apiKey, onDelete
   });
 
   return (
-    <div className="flex items-center justify-between rounded-md border border-gray-200 bg-white p-3 transition-shadow hover:shadow-sm">
+    <div className="flex items-center justify-between rounded-md border border-gray-200 bg-white p-3 transition-shadow hover:shadow-xs">
       <div className="flex flex-col">
         <Text>{apiKey.owner_email}</Text>
         <div className="flex items-center gap-1">

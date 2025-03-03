@@ -13,10 +13,15 @@ export const getMyUserInfo_server = async ({
   jwtToken: string | undefined;
 }): Promise<BusterUserResponse | undefined> => {
   if (!jwtToken) {
-    const res = await serverFetch<BusterUserResponse>(`/users`, {
-      method: 'GET'
-    });
-    return res;
+    try {
+      //If Anonymous user, it will fail, so we catch the error and return undefined
+      const res = await serverFetch<BusterUserResponse>(`/users`, {
+        method: 'GET'
+      });
+      return res;
+    } catch (error) {
+      return undefined;
+    }
   }
 
   //use fetch instead of serverFetch because...
@@ -28,6 +33,9 @@ export const getMyUserInfo_server = async ({
     }
   })
     .then((response) => {
+      if (!response.ok) {
+        return undefined;
+      }
       return response.json();
     })
     .catch((error) => {
@@ -49,9 +57,22 @@ export const updateOrganizationUser = async ({
 }: {
   userId: string;
   name?: string;
-  role: OrganizationUser['role'];
+  role?: OrganizationUser['role'];
 }) => {
   return mainApi
     .put<OrganizationUser>(`/users/${userId}`, params)
     .then((response) => response.data);
+};
+
+export const inviteUser = async ({
+  emails,
+  team_ids
+}: {
+  emails: string[];
+  team_ids?: string[];
+}) => {
+  return mainApi.post(`/users/invite`, {
+    emails,
+    team_ids
+  });
 };

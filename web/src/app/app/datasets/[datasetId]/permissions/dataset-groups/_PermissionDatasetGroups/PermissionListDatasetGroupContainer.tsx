@@ -5,12 +5,12 @@ import {
   BusterListRowItem,
   EmptyStateList,
   InfiniteListContainer
-} from '@/components/list';
-import { BusterInfiniteList } from '@/components/list/BusterInfiniteList';
+} from '@/components/ui/list';
+import { BusterInfiniteList } from '@/components/ui/list/BusterInfiniteList';
 import { useMemoizedFn } from 'ahooks';
 import React, { useMemo, useState } from 'react';
 import { PermissionDatasetGroupSelectedPopup } from './PermissionDatasetGroupSelectedPopup';
-import { PermissionAssignedCell } from '@appComponents/PermissionComponents';
+import { PermissionAssignedCell } from '@/components/features/PermissionComponents';
 
 export const PermissionListDatasetGroupContainer: React.FC<{
   filteredDatasetGroups: ListDatasetGroupsResponse[];

@@ -1,0 +1,42 @@
+import React from 'react';
+
+import { iconProps } from './iconProps';
+
+function blockquote(props: iconProps) {
+  const fill = props.fill || 'currentColor';
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || '1em';
+  const height = props.height || '1em';
+  const title = props.title || 'blockquote';
+
+  return (
+    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <title>{title}</title>
+      <g fill={fill}>
+        <path
+          d="M15.25,15H5.75c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75H15.25c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"
+          fill={fill}
+        />
+        <path
+          d="M15.25,11.5H5.75c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75H15.25c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"
+          fill={fill}
+        />
+        <path
+          d="M15.25,7.5H2.75c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75H15.25c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"
+          fill={fill}
+        />
+        <path
+          d="M15.25,4H2.75c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75H15.25c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"
+          fill={fill}
+        />
+        <path
+          d="M2.75,16c-.414,0-.75-.336-.75-.75v-5.5c0-.414,.336-.75,.75-.75s.75,.336,.75,.75v5.5c0,.414-.336,.75-.75,.75Z"
+          fill={secondaryfill}
+        />
+      </g>
+    </svg>
+  );
+}
+
+export default blockquote;

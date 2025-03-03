@@ -1,19 +1,19 @@
 import { useUpdateUserTeams } from '@/api/buster_rest';
 import type { BusterUserTeamListItem, TeamRole } from '@/api/asset_interfaces';
-import { PermissionAssignTeamRole } from '@appComponents/PermissionComponents';
+import { PermissionAssignTeamRole } from '@/components/features/PermissionComponents';
 import {
   BusterInfiniteList,
   BusterListColumn,
   BusterListRowItem,
   EmptyStateList,
   InfiniteListContainer
-} from '@/components/list';
+} from '@/components/ui/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMemoizedFn } from 'ahooks';
 import React, { useMemo, useState } from 'react';
 import { UserTeamsSelectedPopup } from './UserTeamsSelectedPopup';
 import pluralize from 'pluralize';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 
 export const UserTeamsListContainer: React.FC<{
   filteredTeams: BusterUserTeamListItem[];

@@ -4,8 +4,8 @@ import {
   type BusterChatMessage_file,
   type BusterChatMessageRequest,
   BusterChatMessage_fileMetadata,
-  BusterChatMessageReasoning_thought,
-  BusterChatMessageReasoning_thoughtPill,
+  BusterChatMessageReasoning_pills,
+  BusterChatMessageReasoning_Pill,
   BusterChatMessageReasoning_file
 } from '@/api/asset_interfaces';
 import { faker } from '@faker-js/faker';
@@ -29,9 +29,9 @@ export const createMockResponseMessageText = (): BusterChatMessage_text => ({
   })
 });
 
-export const createMockResponseMessageThought = (): BusterChatMessageReasoning_thought => {
+export const createMockResponseMessageThought = (): BusterChatMessageReasoning_pills => {
   const randomPillCount = faker.number.int({ min: 0, max: 10 });
-  const fourRandomPills: BusterChatMessageReasoning_thoughtPill[] = Array.from(
+  const fourRandomPills: BusterChatMessageReasoning_Pill[] = Array.from(
     { length: randomPillCount },
     () => {
       return {
@@ -43,17 +43,17 @@ export const createMockResponseMessageThought = (): BusterChatMessageReasoning_t
   );
   return {
     id: faker.string.uuid(),
-    type: 'thought',
-    thought_title: `Found ${faker.number.int(100)} terms`,
-    thought_secondary_title: faker.lorem.word(),
-    thoughts: [
+    type: 'pills',
+    title: `Found ${faker.number.int(100)} terms`,
+    secondary_title: faker.lorem.word(),
+    pill_containers: [
       {
         title: `Found ${faker.number.int(100)} terms`,
-        thought_pills: fourRandomPills
+        pills: fourRandomPills
       },
       {
         title: `Found ${faker.number.int(100)} terms 2`,
-        thought_pills: fourRandomPills
+        pills: fourRandomPills
       }
     ],
     status: undefined
@@ -128,6 +128,7 @@ export const MOCK_CHAT: BusterChat = {
       id: '123',
       created_at: '2025-01-01',
       request_message: createMockUserMessage(),
+      final_reasoning_message: null,
       reasoning: [
         ...Array.from({ length: 1 }, () => createMockResponseMessageThought()),
         createMockReasoningMessageFile()

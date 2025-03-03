@@ -1,7 +1,12 @@
 import { queryOptions } from '@tanstack/react-query';
 import type {
+  BusterUserAttribute,
+  BusterUserDataset,
+  BusterUserDatasetGroup,
   BusterUserFavorite,
+  BusterUserPermissionGroup,
   BusterUserResponse,
+  BusterUserTeamListItem,
   OrganizationUser
 } from '@/api/asset_interfaces';
 
@@ -15,11 +20,41 @@ const userGetUserMyself = queryOptions<BusterUserResponse>({
 
 const userGetUser = (userId: string) =>
   queryOptions<OrganizationUser>({
-    queryKey: ['users', 'organization', userId] as const
+    queryKey: ['users', userId, 'organization'] as const
+  });
+
+const userGetUserPermissionsGroups = (userId: string) =>
+  queryOptions<BusterUserPermissionGroup[]>({
+    queryKey: ['users', userId, 'permissionsGroups'] as const
+  });
+
+const userGetUserTeams = (userId: string) =>
+  queryOptions<BusterUserTeamListItem[]>({
+    queryKey: ['users', userId, 'teams'] as const
+  });
+
+const userGetUserAttributes = (userId: string) =>
+  queryOptions<BusterUserAttribute[]>({
+    queryKey: ['users', userId, 'attributes'] as const
+  });
+
+const userGetUserDatasets = (userId: string) =>
+  queryOptions<BusterUserDataset[]>({
+    queryKey: ['users', userId, 'datasets'] as const
+  });
+
+const userGetUserDatasetGroups = (userId: string) =>
+  queryOptions<BusterUserDatasetGroup[]>({
+    queryKey: ['users', userId, 'datasetGroups'] as const
   });
 
 export const userQueryKeys = {
-  '/favorites/list:getFavoritesList': favoritesGetList,
-  '/users/response:getUserMyself': userGetUserMyself,
-  '/users/response:getUser': userGetUser
+  favoritesGetList,
+  userGetUserMyself,
+  userGetUser,
+  userGetUserPermissionsGroups,
+  userGetUserTeams,
+  userGetUserAttributes,
+  userGetUserDatasets,
+  userGetUserDatasetGroups
 };

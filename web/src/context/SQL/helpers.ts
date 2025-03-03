@@ -4,7 +4,7 @@ import type {
   BusterChartConfigProps,
   ColumnLabelFormat,
   IColumnLabelFormat
-} from '@/components/charts';
+} from '@/components/ui/charts';
 import { createDefaultChartConfig } from '../Metrics/helpers';
 
 export const didColumnDataChange = (

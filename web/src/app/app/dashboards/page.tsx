@@ -1,4 +1,4 @@
-import { DashboardListController } from '../_controllers/DashboardListController';
+import { DashboardListController } from '@controllers/DashboardListController';
 
 export default function DashboardPage() {
   return <DashboardListController />;

@@ -1,0 +1,30 @@
+import React from 'react';
+
+import { iconProps } from './iconProps';
+
+function databasePen(props: iconProps) {
+  const fill = props.fill || 'currentColor';
+  const secondaryfill = props.secondaryfill || fill;
+  const strokewidth = props.strokewidth || 1;
+  const width = props.width || '1em';
+  const height = props.height || '1em';
+  const title = props.title || 'database pen';
+
+  return (
+    <svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <title>{title}</title>
+      <g fill={fill}>
+        <path
+          d="M8.557,15.245c-3.336-.088-5.057-1.088-5.057-1.495v-2.829c1.349,.711,3.429,1.079,5.5,1.079,.981,0,1.926-.077,2.808-.228,.408-.07,.683-.458,.613-.866s-.46-.68-.866-.613c-.798,.137-1.658,.206-2.555,.206-3.573,0-5.5-1.064-5.5-1.5v-2.829c1.349,.711,3.429,1.079,5.5,1.079s4.151-.368,5.5-1.079v2.156c0,.414,.336,.75,.75,.75s.75-.336,.75-.75V4.25c0-1.97-3.521-3-7-3S2,2.28,2,4.25V13.75c0,1.949,3.273,2.908,6.517,2.994,.007,0,.014,0,.021,0,.405,0,.738-.323,.749-.73,.011-.414-.315-.759-.729-.77Z"
+          fill={fill}
+        />
+        <path
+          d="M14.61,10.58l-3.305,3.304c-.186,.188-.33,.418-.415,.665l-.849,2.457c-.094,.271-.024,.572,.179,.775,.143,.143,.334,.22,.53,.22,.082,0,.165-.014,.245-.041l2.457-.849c.248-.085,.478-.229,.666-.417l3.303-3.303c.772-.772,.77-2.03-.005-2.805-.774-.775-2.034-.778-2.805-.005Z"
+          fill={secondaryfill}
+        />
+      </g>
+    </svg>
+  );
+}
+
+export default databasePen;

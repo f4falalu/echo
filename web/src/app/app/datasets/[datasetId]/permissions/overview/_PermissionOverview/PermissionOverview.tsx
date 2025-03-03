@@ -5,7 +5,7 @@ import React from 'react';
 import {
   PermissionSearchAndListWrapper,
   HeaderExplanation
-} from '@/app/app/_components/PermissionComponents';
+} from '@/components/features/PermissionComponents';
 import { PermissionListUserContainer } from './PermissionListUserContainer';
 import { useDebounceSearch } from '@/hooks';
 

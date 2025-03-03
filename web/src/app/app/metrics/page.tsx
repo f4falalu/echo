@@ -1,4 +1,4 @@
-import { MetricListContainer } from './_MetricListContainer';
+import { MetricListContainer } from '@/controllers/MetricListContainer';
 
 export default function MetricsPage() {
   return <MetricListContainer type="metrics" />;

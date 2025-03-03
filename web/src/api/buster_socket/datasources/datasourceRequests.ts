@@ -1,5 +1,11 @@
 import type { BusterSocketRequestBase } from '../base_interfaces';
-import type { DatasourceCreateCredentials } from './interface';
+import type {
+  DatasourceListParams,
+  DatasourceGetParams,
+  DatasourceDeleteParams,
+  DatasourcePostParams,
+  DatasourceUpdateParams
+} from '../../request_interfaces/datasources/interfaces';
 
 /**
  * Request type for listing data sources with pagination.
@@ -7,12 +13,7 @@ import type { DatasourceCreateCredentials } from './interface';
  */
 export type DatasourceListRequest = BusterSocketRequestBase<
   '/data_sources/list',
-  {
-    /** The page number for pagination */
-    page: number;
-    /** Number of items per page */
-    page_size: number;
-  }
+  DatasourceListParams
 >;
 
 /**
@@ -21,10 +22,7 @@ export type DatasourceListRequest = BusterSocketRequestBase<
  */
 export type DatasourceGetRequest = BusterSocketRequestBase<
   '/data_sources/get',
-  {
-    /** Unique identifier of the data source */
-    id: string;
-  }
+  DatasourceGetParams
 >;
 
 /**
@@ -33,10 +31,7 @@ export type DatasourceGetRequest = BusterSocketRequestBase<
  */
 export type DatasourceDeleteRequest = BusterSocketRequestBase<
   '/data_sources/delete',
-  {
-    /** Unique identifier of the data source to delete */
-    id: string;
-  }
+  DatasourceDeleteParams
 >;
 
 /**
@@ -45,14 +40,7 @@ export type DatasourceDeleteRequest = BusterSocketRequestBase<
  */
 export type DatasourcePostRequest = BusterSocketRequestBase<
   '/data_sources/post',
-  {
-    /** Name of the data source */
-    name: string;
-    /** Type of the data source */
-    type: string;
-    /** Authentication credentials for the data source */
-    credentials: DatasourceCreateCredentials;
-  }
+  DatasourcePostParams
 >;
 
 /**
@@ -61,16 +49,7 @@ export type DatasourcePostRequest = BusterSocketRequestBase<
  */
 export type DatasourceUpdateRequest = BusterSocketRequestBase<
   '/data_sources/update',
-  {
-    /** Unique identifier of the data source to update */
-    id: string;
-    /** Optional new name for the data source */
-    name?: string;
-    /** Optional new type for the data source */
-    type?: string;
-    /** Updated authentication credentials */
-    credentials: DatasourceCreateCredentials;
-  }
+  DatasourceUpdateParams
 >;
 
 /** Union type of all possible data source request types */

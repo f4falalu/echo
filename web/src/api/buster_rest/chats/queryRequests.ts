@@ -2,15 +2,17 @@ import { useCreateReactQuery } from '@/api/createReactQuery';
 import { useMemoizedFn } from 'ahooks';
 import { QueryClient } from '@tanstack/react-query';
 import { getListChats, getListChats_server, getChat, getChat_server } from './requests';
-import type { BusterChatListItem, BusterChat } from '@/api/asset_interfaces';
+import type { BusterChatListItem } from '@/api/asset_interfaces';
+import { queryKeys } from '@/api/query_keys';
+import { updateChatToIChat } from '@/utils/chat';
 
 export const useGetListChats = (params?: Parameters<typeof getListChats>[0]) => {
-  const queryFn = useMemoizedFn(() => {
+  const queryFn = useMemoizedFn((): Promise<BusterChatListItem[]> => {
     return getListChats(params);
   });
 
-  const res = useCreateReactQuery<BusterChatListItem[]>({
-    queryKey: ['chats', 'list', params || {}],
+  const res = useCreateReactQuery({
+    ...queryKeys.chatsGetList(params),
     queryFn
   });
 
@@ -27,7 +29,7 @@ export const prefetchGetListChats = async (
   const queryClient = queryClientProp || new QueryClient();
 
   await queryClient.prefetchQuery({
-    queryKey: ['chats', 'list', params || {}],
+    ...queryKeys.chatsGetList(params),
     queryFn: () => getListChats_server(params)
   });
 
@@ -35,13 +37,16 @@ export const prefetchGetListChats = async (
 };
 
 export const useGetChat = (params: Parameters<typeof getChat>[0]) => {
-  const queryFn = useMemoizedFn(() => {
-    return getChat(params);
+  const queryFn = useMemoizedFn(async () => {
+    const chat = await getChat(params);
+    const iChat = updateChatToIChat(chat, true).iChat;
+    return iChat;
   });
 
-  return useCreateReactQuery<BusterChat>({
-    queryKey: ['chats', 'get', params.id],
-    queryFn
+  return useCreateReactQuery({
+    ...queryKeys.chatsGetChat(params.id),
+    queryFn,
+    enabled: true
   });
 };
 
@@ -52,8 +57,12 @@ export const prefetchGetChat = async (
   const queryClient = queryClientProp || new QueryClient();
 
   await queryClient.prefetchQuery({
-    queryKey: ['chats', 'get', params.id],
-    queryFn: () => getChat_server(params)
+    ...queryKeys.chatsGetChat(params.id),
+    queryFn: async () => {
+      const chat = await getChat_server(params);
+      const iChat = updateChatToIChat(chat, true).iChat;
+      return iChat;
+    }
   });
 
   return queryClient;

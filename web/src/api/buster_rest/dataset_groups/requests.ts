@@ -4,18 +4,26 @@ import type {
   DatasetGroup,
   GetDatasetGroupPermissionGroupsResponse,
   GetDatasetGroupDatasetsResponse,
-  GetDatasetGroupUsersResponse
+  GetDatasetGroupUsersResponse,
+  ListDatasetGroupsResponse
 } from '../../asset_interfaces';
+import type {
+  CreateDatasetGroupRequest,
+  UpdateDatasetGroupRequest,
+  UpdateDatasetGroupUsersRequest,
+  UpdateDatasetGroupDatasetsRequest,
+  UpdateDatasetGroupPermissionGroupsRequest
+} from '@/api/request_interfaces/dataset_groups';
 
 export const listDatasetGroups = async () => {
-  return mainApi.get<DatasetGroup[]>(`/dataset_groups`).then((res) => res.data);
+  return mainApi.get<ListDatasetGroupsResponse[]>(`/dataset_groups`).then((res) => res.data);
 };
 
-export const createDatasetGroup = async (data: { name: string }) => {
+export const createDatasetGroup = async (data: CreateDatasetGroupRequest) => {
   return mainApi.post(`/dataset_groups`, data).then((res) => res.data);
 };
 
-export const updateDatasetGroup = async (data: { id: string; name: string }[]) => {
+export const updateDatasetGroup = async (data: UpdateDatasetGroupRequest[]) => {
   return mainApi.put(`/dataset_groups`, data).then((res) => res.data);
 };
 
@@ -24,7 +32,7 @@ export const deleteDatasetGroup = async (id: string) => {
 };
 
 export const getDatasetGroup = async (id: string) => {
-  return mainApi.get(`/dataset_groups/${id}`).then((res) => res.data);
+  return mainApi.get<DatasetGroup>(`/dataset_groups/${id}`).then((res) => res.data);
 };
 
 export const getDatasetGroup_server = async (id: string) => {
@@ -63,23 +71,20 @@ export const getDatasetGroupPermissionGroups_server = async (id: string) => {
   );
 };
 
-export const updateDatasetGroupUsers = async (
-  id: string,
-  data: { id: string; assigned: boolean }[]
-) => {
+export const updateDatasetGroupUsers = async (id: string, data: UpdateDatasetGroupUsersRequest) => {
   return mainApi.put(`/dataset_groups/${id}/users`, data).then((res) => res.data);
 };
 
 export const updateDatasetGroupDatasets = async (
   id: string,
-  data: { id: string; assigned: boolean }[]
+  data: UpdateDatasetGroupDatasetsRequest
 ) => {
   return mainApi.put(`/dataset_groups/${id}/datasets`, data).then((res) => res.data);
 };
 
 export const updateDatasetGroupPermissionGroups = async (
   id: string,
-  data: { id: string; assigned: boolean }[]
+  data: UpdateDatasetGroupPermissionGroupsRequest
 ) => {
   return mainApi.put(`/dataset_groups/${id}/permission_groups`, data).then((res) => res.data);
 };

@@ -1,39 +1,40 @@
 'use client';
 
-import { useDataSourceContextSelector } from '@/context/DataSources';
+import {
+  useDataSourceIndividualContextSelector,
+  useDataSourceListContextSelector
+} from '@/context/DataSources';
 import React from 'react';
 import { Button, Dropdown, Skeleton } from 'antd';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { useAntToken } from '@/styles/useAntToken';
-import { AppDataSourceIcon } from '@/components/icons/AppDataSourceIcons';
+import { AppDataSourceIcon } from '@/components/ui';
 import type { DataSourceListItem } from '@/api/asset_interfaces';
 import { createStyles } from 'antd-style';
 import { MenuProps } from 'antd/lib';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useMount } from 'ahooks';
-import { Text } from '@/components';
+import { Text } from '@/components/ui';
 import { SettingsEmptyState } from '../../_components/SettingsEmptyState';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useUserConfigContextSelector } from '@/context/Users';
 
 export const DatasourceList: React.FC = () => {
-  const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
-  const dataSourcesList = useDataSourceContextSelector((state) => state.dataSourcesList);
-  const loadingDatasources = useDataSourceContextSelector((state) => state.loadingDatasources);
-  const initDataSourceList = useDataSourceContextSelector((state) => state.initDataSourceList);
-  const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
-  const hasDataSources = dataSourcesList.length > 0 && !loadingDatasources;
+  const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
+  const dataSourcesList = useDataSourceListContextSelector((x) => x.dataSourcesList) || [];
+  const isFetchedDatasourcesList = useDataSourceListContextSelector(
+    (state) => state.isFetchedDatasourcesList
+  );
 
-  useMount(() => {
-    initDataSourceList();
-  });
+  const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
+  const hasDataSources = dataSourcesList.length > 0 && !isFetchedDatasourcesList;
 
   return (
     <div className="flex flex-col space-y-4">
       <AddSourceHeader isAdmin={isAdmin} />
 
-      {loadingDatasources ? (
+      {!isFetchedDatasourcesList ? (
         <SkeletonLoader />
       ) : hasDataSources ? (
         <DataSourceItems sources={dataSourcesList} />
@@ -99,7 +100,7 @@ const ListItem: React.FC<{
 }> = ({ source }) => {
   const token = useAntToken();
   const { styles, cx } = useStyle();
-  const onDeleteDataSource = useDataSourceContextSelector((state) => state.onDeleteDataSource);
+  const onDeleteDataSource = useDataSourceIndividualContextSelector((x) => x.onDeleteDataSource);
 
   const dropdownItems: MenuProps['items'] = [
     {
@@ -156,9 +157,9 @@ const ListItem: React.FC<{
 const SkeletonLoader: React.FC<{}> = () => {
   return (
     <div className="flex flex-col space-y-4">
-      <Skeleton.Input className="!h-[50px] !w-full" />
-      <Skeleton.Input className="!h-[50px] !w-full" />
-      <Skeleton.Input className="!h-[50px] !w-full" />
+      <Skeleton.Input className="h-[50px]! w-full!" />
+      <Skeleton.Input className="h-[50px]! w-full!" />
+      <Skeleton.Input className="h-[50px]! w-full!" />
     </div>
   );
 };

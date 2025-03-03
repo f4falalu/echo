@@ -1,5 +1,5 @@
 import { useMetricDataIndividual } from '@/context/MetricData';
-import { useSocketQueryEmitOn, useSocketQueryEmitAndOnce } from '@/api/buster_socket_query';
+import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
 import { queryKeys } from '@/api/query_keys';
 import { resolveEmptyMetric, upgradeMetricToIMetric } from '../helpers';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
@@ -13,14 +13,17 @@ export const useMetricIndividual = ({ metricId }: { metricId: string }) => {
     refetch: refetchMetric,
     isFetched: isMetricFetched,
     error: metricError
-  } = useSocketQueryEmitOn(
-    { route: '/metrics/get', payload: { id: metricId, password: assetPassword.password } },
-    '/metrics/get:updateMetricState',
-    queryKeys['/metrics/get:getMetric'](metricId),
-    (currentData, newData) => {
+  } = useSocketQueryEmitOn({
+    emitEvent: {
+      route: '/metrics/get',
+      payload: { id: metricId, password: assetPassword.password }
+    },
+    responseEvent: '/metrics/get:updateMetricState',
+    options: queryKeys.useMetricsGetMetric(metricId),
+    callback: (currentData, newData) => {
       return upgradeMetricToIMetric(newData, currentData);
     }
-  );
+  });
 
   const metricIndividualData = useMetricDataIndividual({
     metricId

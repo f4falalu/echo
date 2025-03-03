@@ -3,13 +3,13 @@
 import React, { useState } from 'react';
 import { useMemoizedFn } from 'ahooks';
 import { Button } from 'antd';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { PermissionListPermissionGroupContainer } from './PermissionListPermissionGroupContainer';
 import {
   PermissionSearchAndListWrapper,
   HeaderExplanation,
   NewPermissionGroupModal
-} from '@appComponents/PermissionComponents';
+} from '@/components/features/PermissionComponents';
 import { useDebounceSearch } from '@/hooks';
 import { useDatasetListPermissionGroups } from '@/api/buster_rest';
 

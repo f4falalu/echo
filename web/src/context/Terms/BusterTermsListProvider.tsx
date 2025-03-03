@@ -6,17 +6,21 @@ import {
   useContextSelector,
   ContextSelector
 } from '@fluentui/react-context-selector';
+import { useAppLayoutContextSelector } from '../BusterAppLayout';
 
 export const useBusterTermsList = () => {
+  const currentSegment = useAppLayoutContextSelector((x) => x.currentSegment);
+  const enabled = currentSegment === 'terms';
   const {
     data: termsList,
     refetch: refetchTermsList,
     isFetched: isFetchedTermsList
-  } = useSocketQueryEmitOn(
-    { route: '/terms/list', payload: { page: 0, page_size: 3000 } },
-    '/terms/list:ListTerms',
-    queryKeys['/terms/list:getTermsList']
-  );
+  } = useSocketQueryEmitOn({
+    emitEvent: { route: '/terms/list', payload: { page: 0, page_size: 3000 } },
+    responseEvent: '/terms/list:ListTerms',
+    options: queryKeys.termsGetList,
+    enabledTrigger: enabled
+  });
 
   return {
     termsList,

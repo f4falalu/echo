@@ -1,6 +1,6 @@
 import { useUpdateDatasetGroupDatasets } from '@/api/buster_rest';
-import { PermissionAssignedButton } from '@/app/app/_components/PermissionComponents';
-import { BusterListSelectedOptionPopupContainer } from '@/components/list';
+import { PermissionAssignedButton } from '@/components/features/PermissionComponents';
+import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { useMemoizedFn } from 'ahooks';
 import React from 'react';
 

@@ -1,6 +1,7 @@
 import { useMemoizedFn } from 'ahooks';
 import { useSocketQueryMutation } from '@/api/buster_socket_query';
-import { BusterUserResponse } from '@/api/asset_interfaces';
+import type { BusterUserResponse } from '@/api/asset_interfaces';
+import { useUpdateUser } from '@/api/buster_rest';
 
 export const useUserOrganization = ({
   userResponse,
@@ -9,14 +10,12 @@ export const useUserOrganization = ({
   userResponse: BusterUserResponse | null | undefined;
   refetchUserResponse: () => Promise<unknown>;
 }) => {
-  const { mutateAsync: createOrganization } = useSocketQueryMutation(
-    '/organizations/post',
-    '/organizations/post:post'
-  );
-  const { mutateAsync: updateUserInfo } = useSocketQueryMutation(
-    '/permissions/users/update',
-    '/permissions/users/update:updateUserPermission'
-  );
+  const { mutateAsync: createOrganization } = useSocketQueryMutation({
+    emitEvent: '/organizations/post',
+    responseEvent: '/organizations/post:post'
+  });
+
+  const { mutateAsync: updateUserInfo } = useUpdateUser();
 
   const onCreateUserOrganization = useMemoizedFn(
     async ({ name, company }: { name: string; company: string }) => {
@@ -24,7 +23,10 @@ export const useUserOrganization = ({
       if (!alreadyHasOrganization && userResponse) {
         await Promise.all([
           createOrganization({ name: company }),
-          updateUserInfo({ name, id: userResponse?.user?.id })
+          updateUserInfo({
+            userId: userResponse.user.id,
+            name
+          })
         ]);
 
         await refetchUserResponse();

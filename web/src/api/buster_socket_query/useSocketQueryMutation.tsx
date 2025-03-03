@@ -43,37 +43,65 @@ import { RustApiError } from '../buster_rest/errors';
  *
  * @example
  * ```tsx
- * // Example usage in a component
- * function ChatComponent() {
- *   const mutation = useSocketQueryMutation(
- *     { route: 'chat:send' },
- *     { route: 'chat:message' },
- *     {
- *       queryKey: ['chat', 'messages']
+ * interface Message {
+ *   id: string;
+ *   content: string;
+ *   timestamp: string;
+ *   pending?: boolean;
+ * }
+ *
+ * interface SendMessagePayload {
+ *   content: string;
+ *   chatId: string;
+ * }
+ *
+ * const ChatComponent = () => {
+ *   const mutation = useSocketQueryMutation({
+ *     emitEvent: 'chat:send',
+ *     responseEvent: 'chat:message',
+ *     options: {
+ *       queryKey: ['chat', 'messages', chatId]
  *     },
- *     // Pre-callback: Optimistically update the UI
- *     (currentMessages, newMessage) => {
- *       return [...currentMessages, { pending: true, ...newMessage }];
+ *     // Pre-callback: Optimistically update messages
+ *     preCallback: (currentMessages: Message[] | null, variables: SendMessagePayload) => {
+ *       const optimisticMessage: Message = {
+ *         id: `temp-${Date.now()}`,
+ *         content: variables.content,
+ *         timestamp: new Date().toISOString(),
+ *         pending: true
+ *       };
+ *       return [...(currentMessages ?? []), optimisticMessage];
  *     },
- *     // Post-callback: Update with the actual response
- *     (socketResponse, currentMessages) => {
+ *     // Post-callback: Replace optimistic message with server response
+ *     callback: (socketResponse: Message, currentMessages: Message[] | null) => {
+ *       if (!currentMessages) return [socketResponse];
  *       return currentMessages.map(msg =>
  *         msg.pending ? socketResponse : msg
  *       );
  *     }
- *   );
+ *   });
  *
- *   const sendMessage = (message: string) => {
- *     mutation.mutate({ content: message });
+ *   const handleSendMessage = (content: string) => {
+ *     mutation.mutate({
+ *       content,
+ *       chatId: '123'
+ *     });
  *   };
  *
  *   return (
- *     <button
- *       onClick={() => sendMessage('Hello!')}
- *       disabled={mutation.isPending}
- *     >
- *       Send Message
- *     </button>
+ *     <div>
+ *       <button
+ *         onClick={() => handleSendMessage('Hello!')}
+ *         disabled={mutation.isPending}
+ *       >
+ *         {mutation.isPending ? 'Sending...' : 'Send Message'}
+ *       </button>
+ *       {mutation.isError && (
+ *         <div className="error">
+ *           Failed to send message: {mutation.error.message}
+ *         </div>
+ *       )}
+ *     </div>
  *   );
  * }
  * ```
@@ -85,21 +113,27 @@ export function useSocketQueryMutation<
   TData = InferBusterSocketResponseData<TRoute>,
   TPayload = InferBusterSocketRequestPayload<TRequestRoute>,
   TQueryData = unknown
->(
-  socketRequest: TRequestRoute,
-  socketResponse: TRoute,
-  options?: (UseQueryOptions<TQueryData, any, TQueryData, any> & { queryKey?: QueryKey }) | null,
+>({
+  emitEvent,
+  responseEvent,
+  options,
+  preCallback,
+  callback
+}: {
+  emitEvent: TRequestRoute;
+  responseEvent: TRoute;
+  options?: (UseQueryOptions<TQueryData, any, TQueryData, any> & { queryKey?: QueryKey }) | null;
   preCallback?:
     | ((currentData: TQueryData | null, variables: TPayload) => TQueryData | Promise<TQueryData>)
-    | null,
+    | null;
   callback?:
     | ((
         newData: InferBusterSocketResponseData<TRoute>,
         currentData: TQueryData | null,
         variables: TPayload
       ) => TQueryData)
-    | null
-) {
+    | null;
+}) {
   const busterSocket = useBusterWebSocket();
   const queryClient = useQueryClient();
 
@@ -118,11 +152,11 @@ export function useSocketQueryMutation<
       try {
         const result = await busterSocket.emitAndOnce({
           emitEvent: {
-            route: socketRequest,
+            route: emitEvent,
             payload: variables
           } as BusterSocketRequest,
           responseEvent: {
-            route: socketResponse,
+            route: responseEvent,
             onError: (error: RustApiError) => {
               throw error;
             },

@@ -1,18 +1,21 @@
 'use client';
 
 import type { DataSource } from '@/api/asset_interfaces';
-import { AppMaterialIcons, PulseLoader } from '@/components';
-import { AppDataSourceIcon } from '@/components/icons/AppDataSourceIcons';
+import { AppMaterialIcons, PulseLoader } from '@/components/ui';
+import { AppDataSourceIcon } from '@/components/ui';
 import { useAntToken } from '@/styles/useAntToken';
 import { formatDate } from '@/utils';
 import { Button, Divider, Dropdown, MenuProps } from 'antd';
 import React from 'react';
 import { DataSourceFormContent } from './_DatasourceFormContent';
-import { useDataSourceContextSelector, useDataSourceIndividual } from '@/context/DataSources';
-import { Text, Title } from '@/components';
+import { Text, Title } from '@/components/ui';
+import {
+  useDataSourceIndividual,
+  useDataSourceIndividualContextSelector
+} from '@/context/DataSources';
 
 export const DatasourceForm: React.FC<{ datasourceId: string }> = ({ datasourceId }) => {
-  const { dataSource } = useDataSourceIndividual({ dataSourceId: datasourceId });
+  const { dataSource } = useDataSourceIndividual(datasourceId);
   const loadingDataSource = !dataSource?.id;
 
   if (loadingDataSource) {
@@ -54,7 +57,9 @@ const DataSourceFormHeader: React.FC<{ dataSource: DataSource }> = ({ dataSource
 };
 
 const ThreeDotsMenu: React.FC<{ dataSource: DataSource }> = ({ dataSource }) => {
-  const onDeleteDataSource = useDataSourceContextSelector((state) => state.onDeleteDataSource);
+  const onDeleteDataSource = useDataSourceIndividualContextSelector(
+    (state) => state.onDeleteDataSource
+  );
   const token = useAntToken();
   const items: MenuProps['items'] = [
     {
@@ -104,7 +109,9 @@ const ThreeDotsMenu: React.FC<{ dataSource: DataSource }> = ({ dataSource }) => 
 const DataSourceFormStatus: React.FC<{ dataSource: DataSource }> = ({ dataSource }) => {
   const token = useAntToken();
   const [isOpenDropdown, setIsOpenDropdown] = React.useState(false);
-  const onDeleteDataSource = useDataSourceContextSelector((state) => state.onDeleteDataSource);
+  const onDeleteDataSource = useDataSourceIndividualContextSelector(
+    (state) => state.onDeleteDataSource
+  );
 
   const dropdownItems: MenuProps['items'] = [
     {
@@ -141,7 +148,7 @@ const DataSourceFormStatus: React.FC<{ dataSource: DataSource }> = ({ dataSource
             items: dropdownItems
           }}
           onOpenChange={(open) => setIsOpenDropdown(open)}>
-          <div className="!flex cursor-pointer items-center space-x-2 pl-2">
+          <div className="flex! cursor-pointer items-center space-x-2 pl-2">
             <PulseLoader color={token.colorSuccess} size={10} />
             <Text className="select-none">Connected</Text>
             <AppMaterialIcons

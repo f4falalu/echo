@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect } from 'react';
 import isFunction from 'lodash/isFunction';
 
@@ -24,12 +26,12 @@ export const useWindowFocus = (callback: () => void, offFocusCallback?: () => vo
 
     // Add event listener for window focus
     window.addEventListener('focus', handleFocus);
-    window.addEventListener('blur', handleBlur);
+    window.addEventListener('blur-sm', handleBlur);
 
     // Cleanup the event listener on component unmount
     return () => {
       window.removeEventListener('focus', handleFocus);
-      window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('blur-sm', handleBlur);
     };
   }, [callback]); // Dependency array ensures the effect runs again if the callback changes
 };

@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { AppContent } from '../../../../components/layout/AppContent';
+import { AppContent } from '../../../../components/ui/layout/AppContent';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn, useMount } from 'ahooks';
-import { VerificationStatus } from '@/api/asset_interfaces';
-import { useBusterMetricListByFilter } from '@/context/Metrics';
+import { useBusterChatListByFilter } from '@/context/Chats';
 import { ChatListHeader } from './ChatListHeader';
 import { ChatItemsContainer } from './ChatItemsContainer';
 
@@ -13,21 +12,20 @@ export const ChatListContainer: React.FC<{
   className?: string;
 }> = ({ className = '' }) => {
   const onToggleChatsModal = useAppLayoutContextSelector((s) => s.onToggleChatsModal);
-  const [filters, setFilters] = useState<VerificationStatus[]>([]);
-  const type = 'logs';
-
-  const adminView = type === 'logs';
-  // const { list, fetched } = useBusterMetricListByFilter({
-  //   filters,
-  //   admin_view: adminView
-  // });
-
-  const onSetFilters = useMemoizedFn((newFilters: VerificationStatus[]) => {
-    setFilters(newFilters);
+  const [filters, setFilters] = useState<Parameters<typeof useBusterChatListByFilter>[0]>({
+    admin_view: false
   });
 
+  const { list, isFetched } = useBusterChatListByFilter(filters);
+
+  const onSetFilters = useMemoizedFn(
+    (newFilters: Parameters<typeof useBusterChatListByFilter>[0]) => {
+      setFilters(newFilters);
+    }
+  );
+
   useMount(async () => {
-    onSetFilters([]);
+    onSetFilters({ admin_view: false });
   });
 
   return (
@@ -35,9 +33,8 @@ export const ChatListContainer: React.FC<{
       <ChatListHeader />
       <AppContent>
         <ChatItemsContainer
-          type={type}
-          metrics={[]}
-          loading={false}
+          chats={list}
+          loading={!isFetched}
           openNewMetricModal={onToggleChatsModal}
           className="flex-col overflow-hidden"
         />

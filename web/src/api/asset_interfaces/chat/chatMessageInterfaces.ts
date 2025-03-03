@@ -6,6 +6,7 @@ export type BusterChatMessage = {
   response_messages: BusterChatMessageResponse[];
   reasoning: BusterChatMessageReasoning[];
   created_at: string;
+  final_reasoning_message: string | null;
 };
 
 export type BusterChatMessageRequest = null | {
@@ -43,36 +44,38 @@ export type BusterChatMessage_file = {
 };
 
 export type BusterChatMessageReasoning =
-  | BusterChatMessageReasoning_thought
+  | BusterChatMessageReasoning_pills
   | BusterChatMessageReasoning_text
   | BusterChatMessageReasoning_file;
 
-export type BusterChatMessageReasoning_thoughtPill = {
+export type BusterChatMessageReasoning_Pill = {
   text: string;
-  type: ThoughtFileType;
+  type: ThoughtFileType | null; //if null then the pill will not link anywhere
   id: string;
 };
 
-export type BusterChatMessageReasoning_thoughtPillContainer = {
+export type BusterChatMessageReasoning_PillsContainer = {
   title: string;
-  thought_pills: BusterChatMessageReasoning_thoughtPill[];
+  pills: BusterChatMessageReasoning_Pill[];
 };
 
 export type BusterChatMessageReasoning_status = 'loading' | 'completed' | 'failed';
 
-export type BusterChatMessageReasoning_thought = {
+export type BusterChatMessageReasoning_pills = {
   id: string;
-  type: 'thought';
-  thought_title: string;
-  thought_secondary_title: string;
-  thoughts?: BusterChatMessageReasoning_thoughtPillContainer[];
+  type: 'pills';
+  title: string;
+  secondary_title?: string;
+  pill_containers?: BusterChatMessageReasoning_PillsContainer[];
   status?: BusterChatMessageReasoning_status; //if left undefined, will automatically be set to 'loading' if the chat stream is in progress AND there is no message after it
 };
 
 export type BusterChatMessageReasoning_text = {
   id: string;
   type: 'text';
-  message: string;
+  title: string;
+  secondary_title?: string;
+  message?: string;
   message_chunk?: string;
   status?: BusterChatMessageReasoning_status;
 };
@@ -85,10 +88,9 @@ export type BusterChatMessageReasoning_file = {
   version_number: number;
   version_id: string;
   status?: BusterChatMessageReasoning_status;
-  //when we are streaming, the whole file will always be streamed back, not chunks
   file?: {
     text: string;
     line_number: number;
-    modified?: boolean; //defaults to true
-  }[]; //will be defined if the file has been completed OR on a page refresh
+    modified?: boolean; //only toggle to true if we want to hide previous lines
+  }[];
 };

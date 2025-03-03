@@ -1,4 +1,4 @@
-import { AppCodeEditor } from '@/components/inputs/AppCodeEditor';
+import { AppCodeEditor } from '@/components/ui/inputs/AppCodeEditor';
 import { createStyles } from 'antd-style';
 import React from 'react';
 

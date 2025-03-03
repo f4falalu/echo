@@ -1,4 +1,4 @@
-import { BusterListSelectedOptionPopupContainer } from '@/components/list';
+import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import React from 'react';
 
 export const UserListPopupContainer = React.memo(

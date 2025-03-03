@@ -17,7 +17,6 @@ import { BusterCollectionsProvider } from './Collections/CollectionsProvider';
 import { DataSourceProvider } from './DataSources';
 import { BusterSQLProvider } from './SQL/useSQLProvider';
 import { BusterTermsProvider } from './Terms/BusterTermsProvider';
-import { BusterPermissionsProvider } from './Permissions';
 import { BusterSearchProvider } from './Search';
 import { BusterAssetsProvider } from './Assets/BusterAssetsProvider';
 import { BusterPosthogProvider } from './Posthog/usePosthog';
@@ -26,6 +25,7 @@ import { BusterChatProvider } from './Chats';
 import { RoutePrefetcher } from './RoutePrefetcher';
 import { BusterMetricsProvider } from './Metrics';
 import type { BusterUserResponse } from '@/api/asset_interfaces';
+import { QueryClient } from '@tanstack/react-query';
 
 // scan({
 //   enabled: true,
@@ -68,16 +68,14 @@ export const AppProviders: React.FC<
                             <BusterDashboardProvider>
                               <BusterSQLProvider>
                                 <BusterTermsProvider>
-                                  <BusterPermissionsProvider>
-                                    <BusterChatProvider>
-                                      <AppHotKeysProvider>
-                                        <BusterPosthogProvider>
-                                          {children}
-                                          <RoutePrefetcher />
-                                        </BusterPosthogProvider>
-                                      </AppHotKeysProvider>
-                                    </BusterChatProvider>
-                                  </BusterPermissionsProvider>
+                                  <BusterChatProvider>
+                                    <AppHotKeysProvider>
+                                      <BusterPosthogProvider>
+                                        {children}
+                                        <RoutePrefetcher />
+                                      </BusterPosthogProvider>
+                                    </AppHotKeysProvider>
+                                  </BusterChatProvider>
                                 </BusterTermsProvider>
                               </BusterSQLProvider>
                             </BusterDashboardProvider>

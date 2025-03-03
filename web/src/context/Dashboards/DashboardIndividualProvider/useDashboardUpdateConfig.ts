@@ -6,7 +6,6 @@ import {
 import { queryKeys } from '@/api/query_keys';
 
 import { DashboardUpdate } from '@/api/buster_socket/dashboards';
-import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useSocketQueryMutation } from '@/api/buster_socket_query';
 import { useMemoizedFn } from 'ahooks';
 import { create } from 'mutative';
@@ -17,15 +16,13 @@ export const useDashboardUpdateConfig = ({
 }: {
   getDashboardMemoized: (dashboardId: string) => BusterDashboardResponse | undefined;
 }) => {
-  const busterSocket = useBusterWebSocket();
   const queryClient = useQueryClient();
 
   const { mutateAsync: updateDashboardMutation, isPending: isUpdatingDashboard } =
-    useSocketQueryMutation(
-      '/dashboards/update',
-      '/dashboards/update:updateDashboard',
-      null,
-      (_, variables) => {
+    useSocketQueryMutation({
+      emitEvent: '/dashboards/update',
+      responseEvent: '/dashboards/update:updateDashboard',
+      preCallback: (_, variables) => {
         const options = queryKeys['/dashboards/get:getDashboardState'](variables.id);
         const queryKey = options.queryKey;
         const currentData = getDashboardMemoized(variables.id);
@@ -52,7 +49,7 @@ export const useDashboardUpdateConfig = ({
         }
         return null;
       }
-    );
+    });
 
   const onUpdateDashboard = useMemoizedFn(
     (newDashboard: Partial<BusterDashboard> & { id: string }) => {
@@ -106,17 +103,12 @@ export const useDashboardUpdateConfig = ({
     }
   );
 
-  const refreshDashboard = useMemoizedFn((dashboardId: string) => {
-    busterSocket.emit({ route: '/dashboards/get', payload: { id: dashboardId } });
-  });
-
   return {
     isUpdatingDashboard,
     updateDashboardMutation,
     onShareDashboard,
     onUpdateDashboardConfig,
     onUpdateDashboard,
-    onVerifiedDashboard,
-    refreshDashboard
+    onVerifiedDashboard
   };
 };

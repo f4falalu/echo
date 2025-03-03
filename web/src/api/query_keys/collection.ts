@@ -4,7 +4,8 @@ import type { GetCollectionListParams } from '@/api/request_interfaces/collectio
 
 const collectionsGetList = (filters?: GetCollectionListParams) =>
   queryOptions<BusterCollectionListItem[]>({
-    queryKey: ['collections', 'list', filters] as const
+    queryKey: ['collections', 'list', filters] as const,
+    staleTime: 4 * 1000
   });
 
 const collectionsGetCollection = (collectionId: string) =>
@@ -13,6 +14,6 @@ const collectionsGetCollection = (collectionId: string) =>
   });
 
 export const collectionQueryKeys = {
-  '/collections/list:getCollectionsList': collectionsGetList,
-  '/collections/get:collectionState': collectionsGetCollection
+  collectionsGetList,
+  collectionsGetCollection
 };

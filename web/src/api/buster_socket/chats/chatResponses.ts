@@ -7,7 +7,7 @@ import {
 } from './eventInterfaces';
 
 export enum ChatsResponses {
-  '/chats/list:getChatsList' = '/chats/list:getChatsList',
+  '/chats/list:getThreadsList' = '/chats/list:getThreadsList',
   '/chats/unsubscribe:unsubscribe' = '/chats/unsubscribe:unsubscribe',
   '/chats/get:getChat' = '/chats/get:getChat',
   '/chats/post:initializeChat' = '/chats/post:initializeChat',
@@ -15,11 +15,12 @@ export enum ChatsResponses {
   '/chats/post:generatingResponseMessage' = '/chats/post:generatingResponseMessage',
   '/chats/post:generatingReasoningMessage' = '/chats/post:generatingReasoningMessage',
   '/chats/post:complete' = '/chats/post:complete',
-  '/chats/delete:deleteChat' = '/chats/delete:deleteChat'
+  '/chats/delete:deleteChat' = '/chats/delete:deleteChat',
+  '/chats/update:updateChat' = '/chats/update:updateChat'
 }
 
 export type ChatList_getChatsList = {
-  route: '/chats/list:getChatsList';
+  route: '/chats/list:getThreadsList';
   callback: (d: BusterChatListItem[]) => void;
   onError?: (d: unknown | RustApiError) => void;
 };
@@ -46,6 +47,12 @@ export type Chat_unsubscribe = {
 export type Chat_deleteChat = {
   route: '/chats/delete:deleteChat';
   callback: (d: { id: string }[]) => void;
+  onError?: (d: unknown | RustApiError) => void;
+};
+
+export type Chat_updateChat = {
+  route: '/chats/update:updateChat';
+  callback: (d: BusterChat) => void;
   onError?: (d: unknown | RustApiError) => void;
 };
 

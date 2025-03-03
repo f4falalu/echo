@@ -27,14 +27,12 @@ const useBusterMetricsIndividual = () => {
 
   const getMetricMemoized = useMemoizedFn(({ metricId }: { metricId?: string }): IBusterMetric => {
     const _metricId = getMetricId(metricId);
-    const options = queryKeys['/metrics/get:getMetric'](_metricId);
+    const options = queryKeys.metricsGetMetric(_metricId);
     const data = queryClient.getQueryData(options.queryKey);
     return resolveEmptyMetric(data, _metricId);
   });
 
-  //STATE UPDATERS
-
-  // EMITTERS
+  // STATE UPDATERS
 
   const metricUpdateConfig = useUpdateMetricConfig({
     getMetricId,

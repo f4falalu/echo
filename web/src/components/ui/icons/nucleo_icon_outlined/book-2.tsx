@@ -1,0 +1,28 @@
+import React from 'react';
+import { iconProps } from './iconProps';
+
+
+
+function book2(props: iconProps) {
+	const fill = props.fill || 'currentColor';
+	const secondaryfill = props.secondaryfill || fill;
+	const strokewidth = props.strokewidth || 1;
+	const width = props.width || '1em';
+	const height = props.height || '1em';
+	const title = props.title || "18px book 2";
+
+	return (
+		<svg height={height} width={width} viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+	<title>{title}</title>
+	<g fill={fill}>
+		<path d="M5.75 1.75L5.75 12.75" fill="none" stroke={fill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
+		<path d="M2.75,14.5V3.75c0-1.105,.895-2,2-2H15.25V12.75" fill="none" stroke={fill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
+		<path d="M5.25,16.25h-.75c-.966,0-1.75-.783-1.75-1.75s.784-1.75,1.75-1.75H15.25c-.641,.844-.734,2.547,0,3.5H5.25Z" fill="none" stroke={fill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
+		<path d="M8.75 5.25L12.25 5.25" fill="none" stroke={secondaryfill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
+		<path d="M8.75 8.25L12.25 8.25" fill="none" stroke={secondaryfill} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokewidth}/>
+	</g>
+</svg>
+	);
+};
+
+export default book2;

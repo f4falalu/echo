@@ -2,7 +2,7 @@ import { DataSource } from '@/api/asset_interfaces';
 import React, { useRef } from 'react';
 import { Form, Input, InputNumber, Select } from 'antd';
 import { useKeyPress } from 'ahooks';
-import { AppSelectTagInput } from '@/components/select/AppSelectTagInput';
+import { AppSelectTagInput } from '@/components/ui/select/AppSelectTagInput';
 import { FormWrapper, FormWrapperHandle } from './FormWrapper';
 import { formatDate } from '@/utils';
 import {

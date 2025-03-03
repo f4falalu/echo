@@ -1,4 +1,5 @@
 import type { BusterSocketRequestBase } from '../base_interfaces';
+import type { SearchParams } from '../../request_interfaces/search/interfaces';
 
 /**
  * Represents a search request in the Buster system.
@@ -30,21 +31,7 @@ import type { BusterSocketRequestBase } from '../base_interfaces';
  * };
  * ```
  */
-export type BusterSearchRequest = BusterSocketRequestBase<
-  '/search',
-  {
-    query: string;
-    num_results?: null | number;
-    exclude_metrics?: null | boolean;
-    exclude_collections?: null | boolean;
-    exclude_dashboards?: null | boolean;
-    exclude_data_sources?: null | boolean;
-    exclude_datasets?: null | boolean;
-    exclude_permission_groups?: null | boolean;
-    exclude_teams?: null | boolean;
-    exclude_terms?: null | boolean;
-  }
->;
+export type BusterSearchRequest = BusterSocketRequestBase<'/search', SearchParams>;
 
 /**
  * Type alias for BusterSearchRequest, representing the emitted search events

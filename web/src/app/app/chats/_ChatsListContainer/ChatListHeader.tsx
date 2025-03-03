@@ -1,12 +1,10 @@
 'use client';
 
 import React from 'react';
-import { AppContentHeader } from '../../../../components/layout/AppContentHeader';
-import { Text } from '@/components/text';
+import { AppContentHeader } from '../../../../components/ui/layout/AppContentHeader';
+import { Text } from '@/components/ui';
 
 export const ChatListHeader: React.FC<{}> = ({}) => {
-  const showFilters: boolean = true;
-
   return (
     <AppContentHeader>
       <div className="flex w-full items-center justify-between">

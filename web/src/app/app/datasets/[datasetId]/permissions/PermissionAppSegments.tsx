@@ -1,26 +1,22 @@
 'use client';
 
 import React, { useMemo, useRef } from 'react';
-import { AppSegmented } from '@/components';
+import { AppSegmented } from '@/components/ui';
 import { PermissionApps } from './config';
 import { useMemoizedFn, useSet } from 'ahooks';
-import { SegmentedValue } from 'antd/es/segmented';
 import { Divider } from 'antd';
 import {
   useDatasetListDatasetGroups,
   useDatasetListPermissionGroups,
   useDatasetListPermissionUsers
 } from '@/api/buster_rest';
-import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { useRouter } from 'next/navigation';
 
 export const PermissionAppSegments: React.FC<{
   datasetId: string;
   selectedApp: PermissionApps;
 }> = React.memo(({ datasetId, selectedApp }) => {
   const [prefetchedRoutes, setPrefetchedRoutes] = useSet<string>();
-  const router = useRouter();
   const ref = useRef<HTMLDivElement>(null);
 
   useDatasetListDatasetGroups(prefetchedRoutes.has(PermissionApps.DATASET_GROUPS) ? datasetId : '');
@@ -72,7 +68,7 @@ export const PermissionAppSegments: React.FC<{
   );
 
   return (
-    <div ref={ref} className="flex flex-col justify-center space-x-0 space-y-2">
+    <div ref={ref} className="flex flex-col justify-center space-y-2 space-x-0">
       <AppSegmented options={options} value={selectedApp} />
       <Divider className="" />
     </div>

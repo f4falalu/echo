@@ -1,7 +1,12 @@
 'use client';
 
 import { ColumnMetaData, DEFAULT_COLUMN_SETTINGS } from '@/api/asset_interfaces';
-import { BusterChart, BusterChartProps, ChartType, IColumnLabelFormat } from '@/components/charts';
+import {
+  BusterChart,
+  BusterChartProps,
+  ChartType,
+  IColumnLabelFormat
+} from '@/components/ui/charts';
 import { faker } from '@faker-js/faker';
 import { Button, Checkbox, Select, Slider } from 'antd';
 import { useMemo, useState } from 'react';
@@ -104,7 +109,7 @@ export default function ChartjsFixedLine() {
   }, [numberOfPoints, useGeneratedData]);
 
   return (
-    <div className="flex h-[1000px] w-[75vw] flex-col rounded bg-white">
+    <div className="flex h-[1000px] w-[75vw] flex-col rounded-sm bg-white">
       <div className="h-[500px] w-full p-3">
         <BusterChart
           key={rerenderNumber}

@@ -7,7 +7,7 @@ import {
 } from '@/api/asset_interfaces';
 import { IBusterMetric } from '../interfaces';
 import { faker } from '@faker-js/faker';
-import { ChartType } from '@/components/charts';
+import { ChartType } from '@/components/ui/charts';
 
 const createMockChartConfig = (): IBusterMetricChartConfig => {
   const chartType = faker.helpers.arrayElement([

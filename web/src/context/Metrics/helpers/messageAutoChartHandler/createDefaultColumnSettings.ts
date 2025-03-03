@@ -3,7 +3,7 @@ import {
   type ColumnMetaData,
   type IBusterMetricChartConfig
 } from '@/api/asset_interfaces';
-import type { ColumnSettings } from '@/components/charts';
+import type { ColumnSettings } from '@/components/ui/charts';
 
 export const createDefaultColumnSettings = (
   existingColumnSettings: Record<string, ColumnSettings> | undefined,

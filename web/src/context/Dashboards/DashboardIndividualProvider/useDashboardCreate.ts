@@ -5,32 +5,31 @@ import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { useMemoizedFn } from 'ahooks';
 import { useRouter } from 'next/navigation';
 import { useSocketQueryMutation } from '@/api/buster_socket_query';
+import { useQueryClient } from '@tanstack/react-query';
 
-export const useDashboardCreate = ({
-  onUpdateDashboard
-}: {
-  onUpdateDashboard: (dashboard: BusterDashboard) => void;
-}) => {
+export const useDashboardCreate = ({}: {}) => {
   const router = useRouter();
-  const { mutateAsync: deleteDashboard, isPending: isDeletingDashboard } = useSocketQueryMutation(
-    '/dashboards/delete',
-    '/dashboards/delete:deleteDashboard',
-    queryKeys['/dashboards/list:getDashboardsList'],
-    (currentData, variables) => {
+  const queryClient = useQueryClient();
+  const { mutateAsync: deleteDashboard, isPending: isDeletingDashboard } = useSocketQueryMutation({
+    emitEvent: '/dashboards/delete',
+    responseEvent: '/dashboards/delete:deleteDashboard',
+    options: queryKeys['/dashboards/list:getDashboardsList']({}),
+    preCallback: (currentData, variables) => {
       return currentData?.filter((t) => !variables.ids.includes(t.id)) || [];
     }
-  );
+  });
   const { openConfirmModal } = useBusterNotifications();
 
-  const { mutateAsync: createDashboard, isPending: isCreatingDashboard } = useSocketQueryMutation(
-    '/dashboards/post',
-    '/dashboards/post:postDashboard',
-    null,
-    null,
-    (res) => {
-      onUpdateDashboard(res);
+  const { mutateAsync: createDashboard, isPending: isCreatingDashboard } = useSocketQueryMutation({
+    emitEvent: '/dashboards/post',
+    responseEvent: '/dashboards/post:postDashboard',
+    callback: (newData, currentData, variables) => {
+      const dashboardId = newData.dashboard.id;
+      const options = queryKeys['/dashboards/get:getDashboardState'](dashboardId);
+      queryClient.setQueryData(options.queryKey, newData);
+      return currentData;
     }
-  );
+  });
 
   const onCreateNewDashboard = useMemoizedFn(
     async (newDashboard: {
@@ -49,12 +48,12 @@ export const useDashboardCreate = ({
         router.push(
           createBusterRoute({
             route: BusterRoutes.APP_DASHBOARD_ID,
-            dashboardId: res.id
+            dashboardId: res.dashboard.id
           })
         );
       }
 
-      return res as BusterDashboard;
+      return res.dashboard;
     }
   );
 

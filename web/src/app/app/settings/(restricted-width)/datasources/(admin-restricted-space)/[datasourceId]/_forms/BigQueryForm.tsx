@@ -6,10 +6,10 @@ import type {
   DatasourceCreateCredentials
 } from '@/api/buster_socket/datasources/interface';
 import { Form, Input } from 'antd';
-import { AppTooltip } from '@/components';
-import { AppCodeEditor } from '@/components/inputs/AppCodeEditor';
+import { AppTooltip } from '@/components/ui';
+import { AppCodeEditor } from '@/components/ui/inputs/AppCodeEditor';
 import { useAntToken } from '@/styles/useAntToken';
-import { AppSelectTagInput } from '@/components/select/AppSelectTagInput';
+import { AppSelectTagInput } from '@/components/ui/select/AppSelectTagInput';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 
 type RawBigQueryCreateCredentials = Omit<BigQueryCreateCredentials, 'credentials_json'> & {

@@ -5,12 +5,12 @@ import { useDebounceSearch } from '@/hooks';
 import {
   NewPermissionGroupModal,
   PermissionSearchAndListWrapper
-} from '@appComponents/PermissionComponents';
+} from '@/components/features/PermissionComponents';
 import React, { useMemo, useState } from 'react';
 import { UserPermissionGroupsListContainer } from './UserPermissionGroupsListContainer';
 import { Button } from 'antd';
 import { useMemoizedFn } from 'ahooks';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 
 export const UserPermissionGroupsController: React.FC<{ userId: string }> = ({ userId }) => {
   const { data: permissionGroups } = useGetUserPermissionGroups({ userId });

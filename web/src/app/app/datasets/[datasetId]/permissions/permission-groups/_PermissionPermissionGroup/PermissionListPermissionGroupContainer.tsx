@@ -1,11 +1,11 @@
 import type { ListPermissionGroupsResponse } from '@/api/asset_interfaces';
 import { useDatasetUpdatePermissionGroups } from '@/api/buster_rest/datasets';
-import { BusterListColumn, BusterListRowItem, EmptyStateList } from '@/components/list';
+import { BusterListColumn, BusterListRowItem, EmptyStateList } from '@/components/ui/list';
 import { useMemoizedFn } from 'ahooks';
 import React, { useMemo, useState } from 'react';
 import { PermissionGroupSelectedPopup } from './PermissionGroupSelectedPopup';
-import { BusterInfiniteList, InfiniteListContainer } from '@/components/list';
-import { PermissionAssignedCell } from '@/app/app/_components/PermissionComponents';
+import { BusterInfiniteList, InfiniteListContainer } from '@/components/ui/list';
+import { PermissionAssignedCell } from '@/components/features/PermissionComponents';
 
 export const PermissionListPermissionGroupContainer: React.FC<{
   filteredPermissionGroups: ListPermissionGroupsResponse[];

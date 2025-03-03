@@ -1,10 +1,16 @@
 import { queryOptions } from '@tanstack/react-query';
-import type { BusterDashboard, BusterDashboardResponse } from '@/api/asset_interfaces';
+import type {
+  BusterDashboard,
+  BusterDashboardListItem,
+  BusterDashboardResponse
+} from '@/api/asset_interfaces';
+import { DashboardListFilters } from '@/context/Dashboards/DashboardListProvider/interfaces';
 
-const dashboardGetList = queryOptions<BusterDashboard[]>({
-  queryKey: ['dashboard', 'list'] as const,
-  staleTime: 10 * 1000
-});
+const dashboardGetList = (filters: DashboardListFilters) =>
+  queryOptions<BusterDashboardListItem[]>({
+    queryKey: ['dashboard', 'list', filters] as const,
+    staleTime: 10 * 1000
+  });
 
 const dashboardGetDashboard = (dashboardId: string) =>
   queryOptions<BusterDashboardResponse>({

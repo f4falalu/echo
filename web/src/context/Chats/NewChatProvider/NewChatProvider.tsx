@@ -7,19 +7,17 @@ import {
 import { useMemoizedFn } from 'ahooks';
 import type { BusterSearchResult, FileType } from '@/api/asset_interfaces';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
-import { useChatUpdateMessage } from './useChatUpdateMessage';
+import { useChatStreamMessage } from './useChatStreamMessage';
 
 export const useBusterNewChat = () => {
   const busterSocket = useBusterWebSocket();
 
   const {
     completeChatCallback,
-    startListeningForChatProgress,
-    stopListeningForChatProgress,
     stopChatCallback,
     initializeNewChatCallback,
     replaceMessageCallback
-  } = useChatUpdateMessage();
+  } = useChatStreamMessage();
 
   const onSelectSearchAsset = useMemoizedFn(async (asset: BusterSearchResult) => {
     console.log('select search asset');
@@ -38,8 +36,6 @@ export const useBusterNewChat = () => {
       metricId?: string;
       dashboardId?: string;
     }) => {
-      startListeningForChatProgress();
-
       await busterSocket.emitAndOnce({
         emitEvent: {
           route: '/chats/post',
@@ -56,14 +52,10 @@ export const useBusterNewChat = () => {
         }
       });
 
-      busterSocket
-        .once({
-          route: '/chats/post:complete',
-          callback: completeChatCallback
-        })
-        .then(() => {
-          stopListeningForChatProgress();
-        });
+      busterSocket.once({
+        route: '/chats/post:complete',
+        callback: completeChatCallback
+      });
     }
   );
 
@@ -95,7 +87,6 @@ export const useBusterNewChat = () => {
       messageId: string;
       chatId: string;
     }) => {
-      startListeningForChatProgress();
       replaceMessageCallback({
         prompt,
         messageId
@@ -114,14 +105,11 @@ export const useBusterNewChat = () => {
           callback: completeChatCallback
         }
       });
-      stopListeningForChatProgress();
     }
   );
 
   const onFollowUpChat = useMemoizedFn(
     async ({ prompt, chatId }: { prompt: string; chatId: string }) => {
-      startListeningForChatProgress();
-
       await busterSocket.emitAndOnce({
         emitEvent: {
           route: '/chats/post',
@@ -135,7 +123,6 @@ export const useBusterNewChat = () => {
           callback: completeChatCallback
         }
       });
-      stopListeningForChatProgress();
     }
   );
 
@@ -148,7 +135,6 @@ export const useBusterNewChat = () => {
           message_id: messageId
         }
       });
-      stopListeningForChatProgress();
       stopChatCallback(chatId);
     }
   );

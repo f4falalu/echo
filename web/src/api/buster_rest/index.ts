@@ -8,3 +8,4 @@ export * from './dataset_groups';
 export * from './permission_groups';
 export * from './organizations';
 export * from './sql';
+export * from './teams';

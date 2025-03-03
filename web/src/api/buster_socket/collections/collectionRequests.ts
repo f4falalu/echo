@@ -1,10 +1,12 @@
-import { ShareAssetType } from '../../asset_interfaces';
 import { BusterSocketRequestBase } from '../base_interfaces';
-import { ShareRequest } from '../shared_interfaces';
+import type { ShareRequest } from '../shared_interfaces';
 import type {
   GetCollectionListParams,
-  GetCollectionParams
-} from '../../request_interfaces/collections';
+  GetCollectionParams,
+  CreateCollectionParams,
+  UpdateCollectionParams,
+  DeleteCollectionParams
+} from '../../request_interfaces/collections/interfaces';
 
 /**
  * WebSocket request for listing collections with pagination support.
@@ -27,12 +29,7 @@ export type CollectionGetIndividual = BusterSocketRequestBase<
  */
 export type CollectionCreateNewCollection = BusterSocketRequestBase<
   '/collections/post',
-  {
-    /** Name of the new collection */
-    name: string;
-    /** Description detailing the purpose or contents of the collection */
-    description: string;
-  }
+  CreateCollectionParams
 >;
 
 /**
@@ -40,19 +37,7 @@ export type CollectionCreateNewCollection = BusterSocketRequestBase<
  */
 export type CollectionUpdateCollection = BusterSocketRequestBase<
   '/collections/update',
-  {
-    /** Unique identifier of the collection to update */
-    id: string;
-    /** Optional new name for the collection */
-    name?: string;
-    /** Optional array of assets to be associated with the collection */
-    assets?: {
-      /** Type of the asset being added */
-      type: ShareAssetType;
-      /** Unique identifier of the asset */
-      id: string;
-    }[];
-  } & ShareRequest
+  UpdateCollectionParams & ShareRequest
 >;
 
 /**
@@ -60,10 +45,7 @@ export type CollectionUpdateCollection = BusterSocketRequestBase<
  */
 export type CollectionDeleteCollection = BusterSocketRequestBase<
   '/collections/delete',
-  {
-    /** Array of collection IDs to be deleted */
-    ids: string[];
-  }
+  DeleteCollectionParams
 >;
 
 /**

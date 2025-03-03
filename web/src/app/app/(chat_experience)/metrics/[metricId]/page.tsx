@@ -1,5 +1,5 @@
-import { MetricController } from '@appControllers/MetricController';
-import { AppAssetCheckLayout } from '@appLayouts/AppAssetCheckLayout';
+import { MetricController } from '@controllers/MetricController';
+import { AppAssetCheckLayout } from '@layouts/AppAssetCheckLayout';
 
 export default function MetricPage({
   params: { metricId },

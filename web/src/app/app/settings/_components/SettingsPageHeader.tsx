@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Text, Title } from '@/components';
+import { Text, Title } from '@/components/ui';
 import { Divider } from 'antd';
 
 export const SettingsPageHeader: React.FC<{
@@ -16,7 +16,7 @@ export const SettingsPageHeader: React.FC<{
         <Text type="secondary">{description}</Text>
       </div>
 
-      <Divider className="!my-6" />
+      <Divider className="my-6!" />
     </div>
   );
 });

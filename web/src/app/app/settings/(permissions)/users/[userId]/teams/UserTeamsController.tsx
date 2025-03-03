@@ -2,13 +2,13 @@
 
 import { useGetUserTeams } from '@/api/buster_rest';
 import { useDebounceSearch } from '@/hooks';
-import { PermissionSearchAndListWrapper } from '@appComponents/PermissionComponents';
+import { PermissionSearchAndListWrapper } from '@/components/features/PermissionComponents';
 import React, { useMemo, useState } from 'react';
 import { Button } from 'antd';
 import { useMemoizedFn } from 'ahooks';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 import { UserTeamsListContainer } from './UserTeamsListContainer';
-import { NewTeamModal } from '@appComponents/NewTeamModal';
+import { NewTeamModal } from '@/components/features/modals/NewTeamModal';
 
 export const UserTeamsController: React.FC<{ userId: string }> = ({ userId }) => {
   const { data: teams, refetch } = useGetUserTeams({ userId });

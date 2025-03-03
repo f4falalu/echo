@@ -1,6 +1,6 @@
 import type { DataSource, DataSourceTypes } from '@/api/asset_interfaces';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { useDataSourceContextSelector } from '@/context/DataSources';
+import { useDataSourceIndividualContextSelector } from '@/context/DataSources/DataSourceIndividualProvider';
 import { BusterRoutes } from '@/routes';
 import { useAntToken } from '@/styles/useAntToken';
 import { useMemoizedFn } from 'ahooks';
@@ -45,8 +45,12 @@ export const DataSourceFormContent: React.FC<{
 }> = ({ dataSource, type, useConnection = false }) => {
   const SelectedForm = FormRecord[type];
   const token = useAntToken();
-  const onUpdateDataSource = useDataSourceContextSelector((state) => state.onUpdateDataSource);
-  const onCreateDataSource = useDataSourceContextSelector((state) => state.onCreateDataSource);
+  const onUpdateDataSource = useDataSourceIndividualContextSelector(
+    (state) => state.onUpdateDataSource
+  );
+  const onCreateDataSource = useDataSourceIndividualContextSelector(
+    (state) => state.onCreateDataSource
+  );
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
   const { openConfirmModal } = useBusterNotifications();
   const { fireConfetti } = useConfetti();
@@ -82,7 +86,7 @@ export const DataSourceFormContent: React.FC<{
               datasourceId: res.id
             });
           },
-          cancelButtonProps: { className: '!hidden' }
+          cancelButtonProps: { className: 'hidden!' }
         });
       }
     } catch (error) {

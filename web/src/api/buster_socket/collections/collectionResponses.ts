@@ -1,4 +1,4 @@
-import { BusterCollection, BusterCollectionListItem } from '@/api/asset_interfaces';
+import type { BusterCollection, BusterCollectionListItem } from '@/api/asset_interfaces';
 
 export enum CollectionResponses {
   '/collections/list:listCollections' = '/collections/list:listCollections',

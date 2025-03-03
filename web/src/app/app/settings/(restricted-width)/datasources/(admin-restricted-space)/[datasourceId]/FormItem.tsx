@@ -1,6 +1,6 @@
 import { useAntToken } from '@/styles/useAntToken';
 import React, { PropsWithChildren } from 'react';
-import { Text } from '@/components';
+import { Text } from '@/components/ui';
 
 export const FormItem: React.FC<PropsWithChildren<{ label: string }>> = ({ label, children }) => {
   const token = useAntToken();

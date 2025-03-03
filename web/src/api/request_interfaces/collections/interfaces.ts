@@ -1,3 +1,5 @@
+import { ShareAssetType } from '../../asset_interfaces';
+
 export interface GetCollectionListParams {
   /** Current page number (1-based indexing) */
   page: number;
@@ -12,4 +14,33 @@ export interface GetCollectionListParams {
 export interface GetCollectionParams {
   /** Unique identifier of the collection to retrieve */
   id: string;
+}
+
+export interface CreateCollectionParams {
+  /** Name of the new collection */
+  name: string;
+  /** Description detailing the purpose or contents of the collection */
+  description: string;
+}
+
+export interface UpdateCollectionParams {
+  /** Unique identifier of the collection to update */
+  id: string;
+  /** Optional new name for the collection */
+  name?: string;
+  /** Optional array of assets to be associated with the collection */
+  assets?: {
+    /** Type of the asset being added */
+    type: ShareAssetType;
+    /** Unique identifier of the asset */
+    id: string;
+  }[];
+  /** Share request parameters */
+  share_with?: string[];
+  share_type?: string;
+}
+
+export interface DeleteCollectionParams {
+  /** Array of collection IDs to be deleted */
+  ids: string[];
 }

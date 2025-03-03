@@ -1,37 +1,36 @@
-import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useMemoizedFn } from 'ahooks';
-import { type MutableRefObject } from 'react';
+import { useTransition } from 'react';
 import type { IBusterChat, IBusterChatMessage } from '../interfaces';
+import { useSocketQueryMutation } from '@/api/buster_socket_query';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/query_keys';
 
-export const useChatUpdate = ({
-  chatsRef,
-  chatsMessagesRef,
-  startTransition
-}: {
-  chatsRef: MutableRefObject<Record<string, IBusterChat>>;
-  chatsMessagesRef: MutableRefObject<Record<string, IBusterChatMessage>>;
-  startTransition: (fn: () => void) => void;
-}) => {
-  const busterSocket = useBusterWebSocket();
+export const useChatUpdate = () => {
+  const [isPending, startTransition] = useTransition();
+  const queryClient = useQueryClient();
+
+  const { mutate: updateChat } = useSocketQueryMutation({
+    emitEvent: '/chats/update',
+    responseEvent: '/chats/update:updateChat'
+  });
 
   const onUpdateChat = useMemoizedFn(
     async (newChatConfig: Partial<IBusterChat> & { id: string }, saveToServer: boolean = false) => {
-      chatsRef.current[newChatConfig.id] = {
-        ...chatsRef.current[newChatConfig.id],
+      const options = queryKeys['chatsGetChat'](newChatConfig.id);
+      const queryKey = options.queryKey;
+      const currentData = queryClient.getQueryData<IBusterChat>(queryKey);
+      const iChat: IBusterChat = {
+        ...currentData!,
         ...newChatConfig
       };
+      queryClient.setQueryData(queryKey, iChat);
       startTransition(() => {
         //just used to trigger UI update
-
         if (saveToServer) {
-          const { title, is_favorited, id } = chatsRef.current[newChatConfig.id];
-          busterSocket.emit({
-            route: '/chats/update',
-            payload: {
-              id,
-              title,
-              is_favorited
-            }
+          updateChat({
+            id: iChat.id,
+            title: iChat.title,
+            is_favorited: iChat.is_favorited
           });
         }
       });
@@ -40,31 +39,19 @@ export const useChatUpdate = ({
 
   const onUpdateChatMessage = useMemoizedFn(
     async (newMessageConfig: Partial<IBusterChatMessage> & { id: string }) => {
-      chatsMessagesRef.current[newMessageConfig.id] = {
-        ...chatsMessagesRef.current[newMessageConfig.id],
+      const options = queryKeys['chatsMessages'](newMessageConfig.id);
+      const queryKey = options.queryKey;
+      const currentData = queryClient.getQueryData<IBusterChatMessage>(queryKey);
+      const iChatMessage: IBusterChatMessage = {
+        ...currentData!,
         ...newMessageConfig
       };
-      startTransition(() => {
-        //just used to trigger UI update
-      });
-    }
-  );
-
-  const onBulkSetChatMessages = useMemoizedFn(
-    (newMessagesConfig: Record<string, IBusterChatMessage>) => {
-      chatsMessagesRef.current = {
-        ...chatsMessagesRef.current,
-        ...newMessagesConfig
-      };
-      startTransition(() => {
-        //just used to trigger UI update
-      });
+      queryClient.setQueryData(queryKey, iChatMessage);
     }
   );
 
   return {
     onUpdateChat,
-    onUpdateChatMessage,
-    onBulkSetChatMessages
+    onUpdateChatMessage
   };
 };

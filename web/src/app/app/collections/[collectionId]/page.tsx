@@ -1,4 +1,4 @@
-import { CollectionIndividualController } from '../../_controllers/CollectionIndividualController';
+import { CollectionIndividualController } from '@controllers/CollectionIndividualController';
 
 export default function CollectionIdPage({ params }: { params: { collectionId: string } }) {
   const { collectionId } = params;

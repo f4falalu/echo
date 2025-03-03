@@ -3,12 +3,12 @@ import type { IBusterMetric } from '../interfaces';
 import {
   BusterMetric,
   DEFAULT_CHART_CONFIG,
-  IBusterMetricChartConfig,
+  type IBusterMetricChartConfig,
   ShareRole,
   VerificationStatus
 } from '@/api/asset_interfaces';
 import { prepareMetricUpdateMetric, upgradeMetricToIMetric } from '../helpers';
-import { ColumnSettings, IColumnLabelFormat } from '@/components/charts';
+import { ColumnSettings, IColumnLabelFormat } from '@/components/ui/charts';
 import { useTransition } from 'react';
 import { queryKeys } from '@/api/query_keys';
 import { useQueryClient } from '@tanstack/react-query';
@@ -26,7 +26,7 @@ export const useUpdateMetricConfig = ({
 
   const setMetricToState = useMemoizedFn((metric: IBusterMetric) => {
     const metricId = getMetricId(metric.id);
-    const options = queryKeys['/metrics/get:getMetric'](metricId);
+    const options = queryKeys.metricsGetMetric(metricId);
     queryClient.setQueryData(options.queryKey, metric);
   });
 
@@ -50,12 +50,10 @@ export const useUpdateMetricConfig = ({
     }
   );
 
-  const { mutateAsync: updateMetricMutation } = useSocketQueryMutation(
-    '/metrics/update',
-    '/metrics/update:updateMetricState',
-    null,
-    null,
-    (metric, currentData, variables) => {
+  const { mutateAsync: updateMetricMutation } = useSocketQueryMutation({
+    emitEvent: '/metrics/update',
+    responseEvent: '/metrics/update:updateMetricState',
+    callback: (metric, currentData, variables) => {
       const draftSessionId = metric.draft_session_id;
       const currentMessage = getMetricMemoized({ metricId: metric.id });
       if (draftSessionId && !currentMessage?.draft_session_id) {
@@ -69,7 +67,7 @@ export const useUpdateMetricConfig = ({
       }
       return metric;
     }
-  );
+  });
 
   const { run: _prepareMetricAndSaveToServer } = useDebounceFn(
     useMemoizedFn((newMetric: IBusterMetric, oldMetric: IBusterMetric) => {

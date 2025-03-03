@@ -1,10 +1,10 @@
 import type { IDataResult } from '@/api/asset_interfaces';
-import { ShimmerText } from '@/components';
-import AppDataGrid from '@/components/table/AppDataGrid';
+import { ShimmerText } from '@/components/ui';
+import AppDataGrid from '@/components/ui/table/AppDataGrid';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useAntToken } from '@/styles/useAntToken';
 import React from 'react';
-import { Text } from '@/components/text';
+import { Text } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 import isEmpty from 'lodash/isEmpty';
 import { createStyles } from 'antd-style';

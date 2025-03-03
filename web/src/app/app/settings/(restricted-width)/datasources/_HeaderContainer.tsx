@@ -1,6 +1,6 @@
 'use client';
 
-import { BackButton } from '@/components';
+import { BackButton } from '@/components/ui';
 import React from 'react';
 import { createStyles } from 'antd-style';
 

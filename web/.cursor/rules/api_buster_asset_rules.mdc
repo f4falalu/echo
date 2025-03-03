@@ -44,7 +44,7 @@ src/api/asset_interfaces/
 
      const chatsGetChat = (chatId: string) =>
        queryOptions<BusterChat>({
-         queryKey: ['chats', 'get', chatId] as const,
+         queryKey: ['chats', chatId, 'get'] as const,
          staleTime: 10 * 1000
        });
      ```

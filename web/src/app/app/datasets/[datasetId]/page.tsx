@@ -6,9 +6,7 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 export default function DashboardPage({
   params: { datasetId }
 }: {
-  params: {
-    datasetId: string;
-  };
+  params: { datasetId: string };
 }) {
   permanentRedirect(
     createBusterRoute({

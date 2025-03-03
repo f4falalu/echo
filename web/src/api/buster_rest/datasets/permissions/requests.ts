@@ -5,82 +5,71 @@ import type {
   ListPermissionGroupsResponse,
   ListPermissionUsersResponse
 } from '../../../asset_interfaces';
-import * as config from './config';
 import { serverFetch } from '../../../createServerInstance';
+import type {
+  ListIndividualDatasetPermissionGroupsParams,
+  ListDatasetDatasetGroupsParams,
+  ListDatasetPermissionUsersParams,
+  UpdateDatasetPermissionUsersParams,
+  UpdateDatasetPermissionGroupsParams,
+  UpdateDatasetDatasetGroupsParams,
+  GetDatasetPermissionsOverviewParams
+} from '../../../request_interfaces/dataset_permissions';
 
-export const listIndividualDatasetPermissionGroups = async ({
-  dataset_id
-}: {
-  dataset_id: string;
-}): Promise<ListPermissionGroupsResponse[]> => {
-  return await mainApi.get(`/datasets/${dataset_id}/permission_groups`).then((res) => res.data);
+export const listIndividualDatasetPermissionGroups = async (
+  params: ListIndividualDatasetPermissionGroupsParams
+): Promise<ListPermissionGroupsResponse[]> => {
+  return await mainApi
+    .get(`/datasets/${params.dataset_id}/permission_groups`)
+    .then((res) => res.data);
 };
 
-export const listDatasetDatasetGroups = async ({
-  dataset_id
-}: {
-  dataset_id: string;
-}): Promise<ListDatasetGroupsResponse[]> => {
-  return await mainApi.get(`/datasets/${dataset_id}/dataset_groups`).then((res) => res.data);
+export const listDatasetDatasetGroups = async (params: ListDatasetDatasetGroupsParams) => {
+  return await mainApi
+    .get<ListDatasetGroupsResponse[]>(`/datasets/${params.dataset_id}/dataset_groups`)
+    .then((res) => res.data);
 };
 
-export const listDatasetPermissionUsers = async ({
-  dataset_id
-}: {
-  dataset_id: string;
-}): Promise<ListPermissionUsersResponse[]> => {
-  return await mainApi.get(`/datasets/${dataset_id}/users`).then((res) => res.data);
+export const listDatasetPermissionUsers = async (
+  params: ListDatasetPermissionUsersParams
+): Promise<ListPermissionUsersResponse[]> => {
+  return await mainApi.get(`/datasets/${params.dataset_id}/users`).then((res) => res.data);
 };
 
-export const updateDatasetPermissionUsers = async ({
-  dataset_id,
-  users
-}: {
-  dataset_id: string;
-  users: {
-    id: string;
-    assigned: boolean;
-  }[];
-}): Promise<void> => {
-  return await mainApi.put(`/datasets/${dataset_id}/users`, users);
+export const updateDatasetPermissionUsers = async (
+  params: UpdateDatasetPermissionUsersParams
+): Promise<void> => {
+  return await mainApi.put(`/datasets/${params.dataset_id}/users`, params.users);
 };
 
-export const updateDatasetPermissionGroups = async ({
-  dataset_id,
-  groups
-}: {
-  dataset_id: string;
-  groups: { id: string; assigned: boolean }[];
-}): Promise<
+export const updateDatasetPermissionGroups = async (
+  params: UpdateDatasetPermissionGroupsParams
+): Promise<
   {
     id: string;
     assigned: boolean;
   }[]
 > => {
-  return await mainApi.put(`/datasets/${dataset_id}/permission_groups`, groups);
+  return await mainApi.put(`/datasets/${params.dataset_id}/permission_groups`, params.groups);
 };
 
-export const updateDatasetDatasetGroups = async ({
-  dataset_id,
-  groups
-}: {
-  dataset_id: string;
-  groups: { id: string; assigned: boolean }[];
-}): Promise<void> => {
-  return await mainApi.put(`/datasets/${dataset_id}/dataset_groups`, groups);
+export const updateDatasetDatasetGroups = async (
+  params: UpdateDatasetDatasetGroupsParams
+): Promise<void> => {
+  return await mainApi.put(`/datasets/${params.dataset_id}/dataset_groups`, params.groups);
 };
 
-export const getDatasetPermissionsOverview = async ({
-  dataset_id
-}: {
-  dataset_id: string;
-}): Promise<DatasetPermissionsOverviewResponse> => {
-  return await mainApi.get(config.GET_PERMISSIONS_OVERVIEW(dataset_id)).then((res) => res.data);
+const GET_PERMISSIONS_OVERVIEW = (datasetId: string) => `/datasets/${datasetId}/overview`;
+
+export const getDatasetPermissionsOverview = async (
+  params: GetDatasetPermissionsOverviewParams
+): Promise<DatasetPermissionsOverviewResponse> => {
+  return await mainApi.get(GET_PERMISSIONS_OVERVIEW(params.dataset_id)).then((res) => res.data);
 };
 
 export const getDatasetPermissionsOverview_server = async (datasetId: string) => {
   const response = await serverFetch<DatasetPermissionsOverviewResponse>(
-    config.GET_PERMISSIONS_OVERVIEW(datasetId)
+    GET_PERMISSIONS_OVERVIEW(datasetId)
   );
   return response;
 };

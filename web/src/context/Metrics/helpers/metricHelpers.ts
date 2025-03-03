@@ -1,7 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
 import { IBusterMetric } from '../interfaces';
 import { isNumericColumnType } from '@/utils';
-import { BusterChartConfigProps } from '@/components/charts';
+import { BusterChartConfigProps } from '@/components/ui/charts';
 import { defaultIBusterMetric } from '../config';
 import { BusterMetricData } from '@/context/MetricData';
 

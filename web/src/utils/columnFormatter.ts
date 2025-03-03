@@ -4,7 +4,7 @@ import {
   DEFAULT_DATE_FORMAT_MONTH_OF_YEAR,
   DEFAULT_DATE_FORMAT_QUARTER
 } from '@/api/asset_interfaces';
-import type { ColumnLabelFormat, IColumnLabelFormat } from '@/components/charts';
+import type { ColumnLabelFormat, IColumnLabelFormat } from '@/components/ui/charts';
 import { formatDate } from './date';
 import { formatNumber, roundNumber } from './numbers';
 import { makeHumanReadble } from './text';

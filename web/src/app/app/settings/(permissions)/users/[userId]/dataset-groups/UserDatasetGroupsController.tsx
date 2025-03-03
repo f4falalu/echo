@@ -5,12 +5,12 @@ import { useDebounceSearch } from '@/hooks';
 import {
   NewDatasetGroupModal,
   PermissionSearchAndListWrapper
-} from '@appComponents/PermissionComponents';
+} from '@/components/features/PermissionComponents';
 import React, { useMemo, useState } from 'react';
 import { UserDatasetGroupListContainer } from './UserDatasetGroupListContainer';
 import { Button } from 'antd';
 import { useMemoizedFn } from 'ahooks';
-import { AppMaterialIcons } from '@/components/icons';
+import { AppMaterialIcons } from '@/components/ui';
 
 export const UserDatasetGroupsController: React.FC<{ userId: string }> = ({ userId }) => {
   const { data: datasetGroups } = useGetUserDatasetGroups({ userId });

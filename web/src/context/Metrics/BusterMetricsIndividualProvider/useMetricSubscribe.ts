@@ -23,15 +23,14 @@ export const useMetricSubscribe = ({
   );
   const queryClient = useQueryClient();
 
-  const { mutate: subscribeToMetricMutation } = useSocketQueryMutation(
-    '/metrics/get',
-    '/metrics/get:updateMetricState',
-    null,
-    null,
-    (newData, currentData, variables) => {
+  const { mutate: subscribeToMetricMutation } = useSocketQueryMutation({
+    emitEvent: '/metrics/get',
+    responseEvent: '/metrics/get:updateMetricState',
+    callback: (newData, currentData, variables) => {
       onInitializeMetric(newData);
+      return currentData;
     }
-  );
+  });
 
   const _onGetMetricStateError = useMemoizedFn((_error: any, metricId: string) => {
     const error = _error as RustApiError;

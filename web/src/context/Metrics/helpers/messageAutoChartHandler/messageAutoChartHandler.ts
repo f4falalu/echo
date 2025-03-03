@@ -5,7 +5,7 @@ import {
   DEFAULT_CHART_CONFIG,
   DEFAULT_CHART_CONFIG_ENTRIES
 } from '@/api/asset_interfaces';
-import type { BusterChartConfigProps } from '@/components/charts';
+import type { BusterChartConfigProps } from '@/components/ui/charts';
 import { create } from 'mutative';
 import isEmpty from 'lodash/isEmpty';
 import { createDefaultColumnLabelFormats } from './createDefaultColumnFormats';

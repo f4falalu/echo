@@ -21,8 +21,8 @@ export const useBusterMetricListByFilter = (params: {
     data: metricList,
     isFetching,
     isFetched
-  } = useSocketQueryEmitOn(
-    {
+  } = useSocketQueryEmitOn({
+    emitEvent: {
       route: '/metrics/list',
       payload: {
         page_token: 0,
@@ -30,9 +30,9 @@ export const useBusterMetricListByFilter = (params: {
         ...metricListFilters
       }
     },
-    '/metrics/list:getMetricList',
-    queryKeys['/metrics/list:getMetricsList']()
-  );
+    responseEvent: '/metrics/list:getMetricList',
+    options: queryKeys.metricsGetList()
+  });
 
   return {
     metricList,
