@@ -537,3 +537,43 @@ export const WithFooterContent: Story = {
     children: <Button>Menu with Footer Content</Button>
   }
 };
+
+// Example with numbered items
+export const WithNumberedItems: Story = {
+  args: {
+    menuHeader: 'Numbered Menu Items',
+    items: [
+      {
+        value: '1',
+        label: 'First Item',
+        showIndex: true,
+        onClick: () => alert('First item clicked'),
+        icon: <PaintRoller />
+      },
+      {
+        value: '2',
+        label: 'Second Item',
+        showIndex: true,
+        onClick: () => alert('Second item clicked'),
+        icon: <Star />
+      },
+      { type: 'divider' },
+      {
+        value: '3',
+        label: 'Third Item',
+        showIndex: true,
+        onClick: () => alert('Third item clicked'),
+        icon: <Storage />,
+        secondaryLabel: 'With secondary label'
+      },
+      {
+        value: '4',
+        label: 'Fourth Item',
+        showIndex: true,
+        onClick: () => alert('Fourth item clicked'),
+        disabled: true
+      }
+    ],
+    children: <Button>Numbered Menu</Button>
+  }
+};

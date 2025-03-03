@@ -23,6 +23,7 @@ import { cn } from '@/lib/classMerge';
 import { Input } from '../inputs/Input';
 import { useDebounceSearch } from '@/hooks';
 import Link from 'next/link';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 export interface DropdownItem {
   label: React.ReactNode | string;
