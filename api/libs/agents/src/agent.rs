@@ -286,7 +286,7 @@ impl Agent {
                             Some("shutdown_message".to_string()),
                             Some("Processing interrupted due to shutdown signal".to_string()),
                             None,
-                            None,
+                            MessageProgress::Complete,
                             None,
                             Some(agent_clone.name.clone()),
                         ))
@@ -314,7 +314,7 @@ impl Agent {
                 Some("max_recursion_depth_message".to_string()),
                 Some("I apologize, but I've reached the maximum number of actions (30). Please try breaking your request into smaller parts.".to_string()),
                 None,
-                None,
+                MessageProgress::Complete,
                 None,
                 Some(self.name.clone()),
             );
@@ -374,7 +374,7 @@ impl Agent {
                             message_id.clone(),
                             Some(content_buffer.clone()),
                             None,
-                            Some(MessageProgress::InProgress),
+                            MessageProgress::InProgress,
                             Some(!first_message_sent), // Set initial=true only for the first message
                             Some(self.name.clone()),
                         );
@@ -426,7 +426,7 @@ impl Agent {
                                     Some(content_buffer.clone())
                                 },
                                 Some(tool_calls_vec),
-                                Some(MessageProgress::InProgress),
+                                MessageProgress::InProgress,
                                 Some(!first_message_sent), // Set initial=true only for the first message
                                 Some(self.name.clone()),
                             );
@@ -466,7 +466,7 @@ impl Agent {
                 Some(content_buffer)
             },
             final_tool_calls.clone(),
-            Some(MessageProgress::Complete),
+            MessageProgress::Complete,
             Some(false),
             Some(self.name.clone()),
         );
@@ -499,7 +499,7 @@ impl Agent {
                         result_str,
                         tool_call.id.clone(),
                         Some(tool_call.function.name.clone()),
-                        None,
+                        MessageProgress::Complete,
                     );
 
                     // Broadcast the tool message as soon as we receive it
@@ -656,7 +656,7 @@ mod tests {
                 content,
                 tool_id,
                 Some(self.get_name()),
-                Some(progress),
+                progress,
             );
             self.agent.get_stream_sender().await.send(Ok(message))?;
             Ok(())

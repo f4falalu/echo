@@ -100,6 +100,12 @@ pub enum MessageProgress {
     Complete,
 }
 
+impl Default for MessageProgress {
+    fn default() -> Self {
+        Self::Complete
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "role")]
 #[serde(rename_all = "lowercase")]
@@ -129,7 +135,7 @@ pub enum AgentMessage {
         #[serde(skip_serializing_if = "Option::is_none")]
         tool_calls: Option<Vec<ToolCall>>,
         #[serde(skip)]
-        progress: Option<MessageProgress>,
+        progress: MessageProgress,
         #[serde(skip)]
         initial: bool,
     },
@@ -141,7 +147,7 @@ pub enum AgentMessage {
         #[serde(skip_serializing_if = "Option::is_none")]
         name: Option<String>,
         #[serde(skip)]
-        progress: Option<MessageProgress>,
+        progress: MessageProgress,
     },
 }
 
@@ -168,7 +174,7 @@ impl AgentMessage {
         id: Option<String>,
         content: Option<String>,
         tool_calls: Option<Vec<ToolCall>>,
-        progress: Option<MessageProgress>,
+        progress: MessageProgress,
         initial: Option<bool>,
         name: Option<String>,
     ) -> Self {
@@ -189,7 +195,7 @@ impl AgentMessage {
         content: impl Into<String>,
         tool_call_id: impl Into<String>,
         name: Option<String>,
-        progress: Option<MessageProgress>,
+        progress: MessageProgress,
     ) -> Self {
         Self::Tool {
             id,
@@ -501,7 +507,7 @@ mod tests {
                     Some("\n\nHello there, how may I assist you today?".to_string()),
                     None,
                     None,
-                    None,
+                    MessageProgress::Complete,
                     None,
                     None,
                 ),
@@ -645,7 +651,14 @@ mod tests {
             choices: vec![Choice {
                 finish_reason: Some("length".to_string()),
                 index: 0,
-                message: AgentMessage::assistant(Some("".to_string()), None, None, None, None, None),
+                message: AgentMessage::assistant(
+                    Some("".to_string()),
+                    None,
+                    None,
+                    MessageProgress::Complete,
+                    None,
+                    None,
+                ),
                 delta: None,
                 logprobs: None,
             }],
@@ -934,7 +947,7 @@ mod tests {
                         code_interpreter: None,
                         retrieval: None,
                     }]),
-                    None,
+                    MessageProgress::Complete,
                     None,
                     None,
                 ),

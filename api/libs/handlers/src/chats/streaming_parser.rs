@@ -2,7 +2,7 @@ use anyhow::Result;
 use serde_json::Value;
 use uuid::Uuid;
 
-use super::post_chat_handler::{BusterChatContainer, BusterFileLine, BusterReasoningFile};
+use super::post_chat_handler::{BusterReasoningMessage, BusterFileLine, BusterReasoningFile, BusterReasoningPill, BusterThoughtPill, BusterThoughtPillContainer, BusterReasoningText};
 
 pub struct StreamingParser {
     buffer: String,
@@ -20,10 +20,77 @@ impl StreamingParser {
         }
     }
 
-    pub fn process_chunk(&mut self, id: String, chunk: &str) -> Result<Option<BusterChatContainer>> {
+    // Main entry point to process chunks based on type
+    pub fn process_chunk(&mut self, id: String, chunk: &str) -> Result<Option<BusterReasoningMessage>> {
         // Add new chunk to buffer
         self.buffer.push_str(chunk);
 
+        // Try to process as a plan first
+        if let Some(plan) = self.process_plan_chunk(id.clone())? {
+            return Ok(Some(plan));
+        }
+
+        // Then try to process as search data catalog
+        if let Some(search) = self.process_search_catalog_chunk(id.clone())? {
+            return Ok(Some(search));
+        }
+
+        // Finally try to process as a file
+        self.process_file_chunk(id)
+    }
+
+    // Process chunks meant for plan creation
+    pub fn process_plan_chunk(&mut self, id: String) -> Result<Option<BusterReasoningMessage>> {
+        // Complete any incomplete JSON structure
+        let processed_json = self.complete_json_structure(self.buffer.clone());
+
+        // Try to parse the JSON
+        if let Ok(value) = serde_json::from_str::<Value>(&processed_json) {
+            // Check if it's a plan structure (has plan_markdown key)
+            if let Some(plan_markdown) = value.get("plan_markdown").and_then(Value::as_str) {
+                // Return the plan as a BusterReasoningText
+                return Ok(Some(BusterReasoningMessage::Text(BusterReasoningText {
+                    id,
+                    reasoning_type: "text".to_string(),
+                    title: "Generated Plan".to_string(),
+                    secondary_title: Some("Plan details".to_string()),
+                    message: Some(plan_markdown.to_string()),
+                    message_chunk: None,
+                    status: Some("loading".to_string()),
+                })));
+            }
+        }
+
+        Ok(None)
+    }
+
+    // Process chunks meant for search data catalog
+    pub fn process_search_catalog_chunk(&mut self, id: String) -> Result<Option<BusterReasoningMessage>> {
+        // Complete any incomplete JSON structure
+        let processed_json = self.complete_json_structure(self.buffer.clone());
+
+        // Try to parse the JSON
+        if let Ok(value) = serde_json::from_str::<Value>(&processed_json) {
+            // Check if it's a search requirements structure
+            if let Some(search_requirements) = value.get("search_requirements").and_then(Value::as_str) {
+                // Return the search requirements as a BusterReasoningText
+                return Ok(Some(BusterReasoningMessage::Text(BusterReasoningText {
+                    id,
+                    reasoning_type: "text".to_string(),
+                    title: "Search Requirements".to_string(),
+                    secondary_title: Some("Processing search...".to_string()),
+                    message: Some(search_requirements.to_string()),
+                    message_chunk: None,
+                    status: Some("loading".to_string()),
+                })));
+            }
+        }
+
+        Ok(None)
+    }
+
+    // Process chunks meant for files (original implementation)
+    pub fn process_file_chunk(&mut self, id: String) -> Result<Option<BusterReasoningMessage>> {
         // Extract and replace yml_content with placeholders
         let mut yml_contents = Vec::new();
         let mut positions = Vec::new();
@@ -78,25 +145,13 @@ impl StreamingParser {
             }
 
             // Now check the structure after modifications
-            if let Some(obj) = value.as_object() {
-                if let Some(files) = obj.get("files").and_then(Value::as_array) {
-                    if let Some(last_file) = files.last().and_then(Value::as_object) {
-                        let has_name = last_file.get("name").and_then(Value::as_str).is_some();
-                        let has_file_type =
-                            last_file.get("file_type").and_then(Value::as_str).is_some();
-                        let has_yml_content = last_file.get("yml_content").is_some();
-
-                        if has_name && has_file_type && has_yml_content {
-                            return self.convert_to_message(id, value);
-                        }
-                    }
-                }
-            }
+            return self.convert_file_to_message(id, value);
         }
 
         Ok(None)
     }
 
+    // Helper method to complete JSON structure (shared functionality)
     fn complete_json_structure(&self, json: String) -> String {
         let mut processed = String::with_capacity(json.len());
         let mut nesting_stack = Vec::new();
@@ -144,44 +199,44 @@ impl StreamingParser {
             }
         }
 
-        println!("complete_json_structure: {:?}", processed);
         processed
     }
 
-    fn convert_to_message(&self, id: String, value: Value) -> Result<Option<BusterChatContainer>> {
+    // Helper method to convert file JSON to message
+    fn convert_file_to_message(&self, id: String, value: Value) -> Result<Option<BusterReasoningMessage>> {
         if let Some(files) = value.get("files").and_then(Value::as_array) {
             if let Some(last_file) = files.last().and_then(Value::as_object) {
-                let name = last_file.get("name").and_then(Value::as_str).unwrap_or("");
-                let file_type = last_file
-                    .get("file_type")
-                    .and_then(Value::as_str)
-                    .unwrap_or("");
-                let yml_content = last_file
-                    .get("yml_content")
-                    .and_then(Value::as_str)
-                    .unwrap_or("");
+                let has_name = last_file.get("name").and_then(Value::as_str).is_some();
+                let has_file_type = last_file.get("file_type").and_then(Value::as_str).is_some();
+                let has_yml_content = last_file.get("yml_content").is_some();
 
-                let mut current_lines = Vec::new();
-                for (i, line) in yml_content.lines().enumerate() {
-                    current_lines.push(BusterFileLine {
-                        line_number: i + 1,
-                        text: line.to_string(),
-                        modified: Some(false),
-                    });
+                if has_name && has_file_type && has_yml_content {
+                    let name = last_file.get("name").and_then(Value::as_str).unwrap_or("");
+                    let file_type = last_file.get("file_type").and_then(Value::as_str).unwrap_or("");
+                    let yml_content = last_file.get("yml_content").and_then(Value::as_str).unwrap_or("");
+
+                    let mut current_lines = Vec::new();
+                    for (i, line) in yml_content.lines().enumerate() {
+                        current_lines.push(BusterFileLine {
+                            line_number: i + 1,
+                            text: line.to_string(),
+                            modified: Some(false),
+                        });
+                    }
+
+                    return Ok(Some(BusterReasoningMessage::File(BusterReasoningFile {
+                        id,
+                        message_type: "file".to_string(),
+                        file_type: file_type.to_string(),
+                        file_name: name.to_string(),
+                        version_number: 1,
+                        version_id: Uuid::new_v4().to_string(),
+                        status: "loading".to_string(),
+                        file: Some(current_lines),
+                        filter_version_id: None,
+                        metadata: None,
+                    })));
                 }
-
-                return Ok(Some(BusterChatContainer::File(BusterReasoningFile {
-                    id,
-                    message_type: "file".to_string(),
-                    file_type: file_type.to_string(),
-                    file_name: name.to_string(),
-                    version_number: 1,
-                    version_id: Uuid::new_v4().to_string(),
-                    status: "loading".to_string(),
-                    file: Some(current_lines),
-                    filter_version_id: None,
-                    metadata: None,
-                })));
             }
         }
         Ok(None)
