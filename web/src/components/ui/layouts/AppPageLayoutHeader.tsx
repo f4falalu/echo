@@ -6,7 +6,7 @@ const headerVariants = cva('bg-background flex max-h-[38px] min-h-[38px] items-c
   variants: {
     variant: {
       default: 'px-4.5',
-      list: 'px-10'
+      list: 'px-7.5'
     }
   }
 });

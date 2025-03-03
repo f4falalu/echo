@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/classMerge';
 import { type ISidebarItem } from './interfaces';
-import { cva, VariantProps } from 'class-variance-authority';
+import { cva, type VariantProps } from 'class-variance-authority';
 
 const itemVariants = cva(
   'flex items-center gap-2 rounded px-1.5 py-1.5 text-base transition-colors cursor-pointer min-h-7',
