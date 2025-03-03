@@ -21,7 +21,6 @@ export interface SelectItem {
   icon?: React.ReactNode;
   searchLabel?: string; // Used for filtering
   disabled?: boolean;
-  selected?: boolean;
 }
 
 export interface SelectProps {

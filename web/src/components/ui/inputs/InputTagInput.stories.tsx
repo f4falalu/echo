@@ -4,7 +4,7 @@ import { useState } from 'react';
 import React from 'react';
 
 const meta: Meta<typeof TagInput> = {
-  title: 'UI/Inputs/TagInput',
+  title: 'UI/Inputs/InputTagInput',
   component: TagInput,
   tags: ['autodocs'],
   argTypes: {

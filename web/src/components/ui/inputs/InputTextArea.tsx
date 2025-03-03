@@ -18,7 +18,7 @@ interface PaddingValues {
   bottom: number;
 }
 
-const textAreaVariants = cva('', {
+const textAreaVariants = cva('leading-1.3', {
   variants: {
     rounding: {
       none: 'rounded-none',

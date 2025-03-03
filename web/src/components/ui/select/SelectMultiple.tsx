@@ -5,46 +5,65 @@ import { type SelectItem } from './Select';
 import { selectVariants } from './SelectBase';
 import { cn } from '@/lib/classMerge';
 import { Xmark } from '../icons/NucleoIconOutlined';
-import { Dropdown } from '../dropdown/Dropdown';
+import { Dropdown, DropdownItem } from '../dropdown/Dropdown';
 import { VariantProps } from 'class-variance-authority';
 import { useMemoizedFn } from 'ahooks';
+import { InputTag } from '../inputs/InputTag';
 
-interface SelectMultipleInputProps extends VariantProps<typeof selectVariants> {
+interface SelectMultipleProps extends VariantProps<typeof selectVariants> {
   items: SelectItem[];
   onSelect: (item: string[]) => void;
   className?: string;
   placeholder?: string;
+  value: string[];
 }
 
-export const SelectMultipleInput: React.FC<SelectMultipleInputProps> = React.memo(
+export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
   ({
-    items,
+    items: itemsProp,
     onSelect,
     className,
     placeholder = 'Select items...',
     size = 'default',
-    variant = 'default'
+    variant = 'default',
+    value
   }) => {
+    const selectedRecord = useMemo(() => {
+      return itemsProp.reduce<Record<string, boolean>>((acc, item) => {
+        acc[item.value] = value.includes(item.value);
+        return acc;
+      }, {});
+    }, [value]);
+
     const handleRemoveTag = (valueToRemove: string) => {
-      const newSelected = items
-        .filter((item) => item.value !== valueToRemove && item.selected)
+      const newSelected = itemsProp
+        .filter((item) => item.value !== valueToRemove && selectedRecord[item.value])
         .map((item) => item.value);
       onSelect(newSelected);
     };
 
     const handleSelect = useMemoizedFn((itemId: string) => {
-      const item = items.find((item) => item.value === itemId);
+      const item = itemsProp.find((item) => item.value === itemId);
       if (item) {
-        if (item.selected) {
+        if (selectedRecord[item.value]) {
           handleRemoveTag(item.value);
         } else {
-          const newSelected = items.filter((item) => item.selected).map((item) => item.value);
+          const newSelected = itemsProp
+            .filter((item) => selectedRecord[item.value])
+            .map((item) => item.value);
           onSelect([...newSelected, item.value]);
         }
       }
     });
 
-    const selectedItems = useMemo(() => {
+    const items = useMemo(() => {
+      return itemsProp.map((item) => ({
+        ...item,
+        selected: selectedRecord[item.value]
+      }));
+    }, [itemsProp, selectedRecord]);
+
+    const selectedItems: DropdownItem[] = useMemo(() => {
       return items.filter((item) => item.selected);
     }, [items]);
 
@@ -60,11 +79,12 @@ export const SelectMultipleInput: React.FC<SelectMultipleInputProps> = React.mem
           className={cn(
             selectVariants({ variant, size }),
             'relative overflow-hidden pr-0',
+            selectedItems.length > 0 && 'pl-1!',
             className
           )}>
           <div className="scrollbar-hide flex h-full flex-nowrap items-center gap-1 overflow-x-auto">
             {selectedItems.map((item) => (
-              <Tag
+              <InputTag
                 key={item.value}
                 label={item.label}
                 value={item.value}
@@ -83,34 +103,4 @@ export const SelectMultipleInput: React.FC<SelectMultipleInputProps> = React.mem
     );
   }
 );
-SelectMultipleInput.displayName = 'SelectMultipleInput';
-
-const Tag: React.FC<{
-  label: string;
-  value: string;
-  onRemove: (valueToRemove: string) => void;
-  className?: string;
-}> = React.memo(({ label, value, onRemove, className }) => {
-  return (
-    <div
-      data-tag="true"
-      className={cn(
-        'bg-item-hover text-foreground inline-flex h-full flex-shrink-0 items-center gap-1 rounded-sm border pr-0.5 pl-1.5 text-xs',
-        className
-      )}>
-      <span className="max-w-[80px] truncate">{label}</span>
-      <button
-        onPointerDown={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          onRemove(value);
-        }}
-        className="hover:text-foreground text-icon-color hover:bg-item-hover-active pointer-events-auto flex h-3.5 w-3.5 cursor-pointer items-center justify-center rounded-sm focus:outline-none">
-        <div className="text-xs">
-          <Xmark />
-        </div>
-      </button>
-    </div>
-  );
-});
-Tag.displayName = 'Tag';
+SelectMultiple.displayName = 'SelectMultiple';

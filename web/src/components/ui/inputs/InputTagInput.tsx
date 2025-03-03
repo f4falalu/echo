@@ -6,60 +6,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { useMemoizedFn } from 'ahooks';
 import { inputVariants } from './Input';
-
-// Define tag variants that will change based on input size
-const tagVariants = cva(
-  'bg-item-select text-foreground inline-flex shrink-0 items-center leading-1.5 gap-1 border rounded pl-2 pr-1.5 truncate transition-opacity shadow-sm',
-  {
-    variants: {
-      size: {
-        default: 'h-5 text-xs',
-        tall: 'h-6 text-sm',
-        small: 'h-4 text-xs'
-      },
-      disabled: {
-        true: 'opacity-80 cursor-not-allowed',
-        false: 'opacity-100'
-      }
-    },
-    defaultVariants: {
-      size: 'default',
-      disabled: false
-    }
-  }
-);
-
-type TagSize = 'default' | 'tall' | 'small';
-
-const Tag = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & {
-    onRemove?: () => void;
-    size?: TagSize;
-    disabled?: boolean;
-  }
->(({ className, onRemove, children, size = 'default', disabled = false, ...props }, ref) => (
-  <div ref={ref} className={cn(tagVariants({ size, disabled }), className)} {...props}>
-    <span className="truncate">{children}</span>
-    {onRemove && !disabled && (
-      <button
-        type="button"
-        onClick={onRemove}
-        className="hover:bg-item-hover flex h-4 w-4 cursor-pointer items-center justify-center rounded-sm opacity-70 transition-opacity hover:opacity-100"
-        aria-label="Remove tag">
-        <div
-          className={cn('flex items-center justify-center', {
-            'text-xs': size !== 'small',
-            'text-2xs': size === 'small'
-          })}>
-          <Xmark />
-        </div>
-        <span className="sr-only">Remove</span>
-      </button>
-    )}
-  </div>
-));
-Tag.displayName = 'Tag';
+import { InputTag } from './InputTag';
 
 export interface TagInputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>,
@@ -161,13 +108,12 @@ const TagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
             'scrollbar-none flex flex-1 items-center gap-1.5 overflow-x-auto py-1 whitespace-nowrap'
           )}>
           {tags.map((tag, index) => (
-            <Tag
+            <InputTag
               key={`${tag}-${index}`}
+              value={tag}
+              label={tag}
               onRemove={() => onTagRemove?.(index)}
-              size={size as TagSize}
-              disabled={isDisabledTags}>
-              {tag}
-            </Tag>
+              disabled={isDisabledTags}></InputTag>
           ))}
           <input
             ref={ref}
@@ -187,4 +133,4 @@ const TagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
 );
 TagInput.displayName = 'TagInput';
 
-export { Tag, TagInput };
+export { TagInput };

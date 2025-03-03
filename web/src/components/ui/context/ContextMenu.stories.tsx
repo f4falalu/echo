@@ -385,7 +385,7 @@ export const ContextMenuWithEverything: Story = {
         items: [
           <div
             key="nested-item"
-            className="flex min-h-10 min-w-10 items-center rounded bg-red-300 p-1 text-red-600">
+            className="flex min-h-10 min-w-10 items-center rounded bg-red-200 p-1 text-red-600">
             This is a nested item
           </div>
         ]

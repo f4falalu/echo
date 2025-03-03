@@ -1,47 +1,44 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { SelectMultipleInput } from './SelectMultiple';
+import { SelectMultiple } from './SelectMultiple';
 import { useState } from 'react';
 import { type SelectItem } from './Select';
 
 const meta = {
-  title: 'UI/Select/SelectMultipleInput',
-  component: SelectMultipleInput,
+  title: 'UI/Select/SelectMultiple',
+  component: SelectMultiple,
   parameters: {
     layout: 'centered'
   },
   tags: ['autodocs']
-} satisfies Meta<typeof SelectMultipleInput>;
+} satisfies Meta<typeof SelectMultiple>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 const baseItems: SelectItem[] = [
-  { value: '1', label: 'Option 1', selected: false },
-  { value: '2', label: 'Option 2', selected: false },
-  { value: '3', label: 'Option 3', selected: false },
-  { value: '4', label: 'Option 4', selected: false },
-  { value: '5', label: 'Option 5', selected: false }
+  { value: '1', label: 'Option 1' },
+  { value: '2', label: 'Option 2' },
+  { value: '3', label: 'Option 3' },
+  { value: '4', label: 'Option 4' },
+  { value: '5', label: 'Option 5' }
 ];
 
 // Interactive story with state management
-const SelectMultipleInputWithHooks = () => {
+const SelectMultipleWithHooks = () => {
   const [items, setItems] = useState<SelectItem[]>(baseItems);
+  const [value, setValue] = useState<string[]>([]);
 
   const handleSelect = (selectedValues: string[]) => {
-    setItems(
-      items.map((item) => ({
-        ...item,
-        selected: selectedValues.includes(item.value)
-      }))
-    );
+    setValue(selectedValues);
   };
 
   return (
     <div className="w-[300px]">
-      <SelectMultipleInput
+      <SelectMultiple
         items={items}
         onSelect={handleSelect}
         placeholder="Select multiple options..."
+        value={value}
       />
     </div>
   );
@@ -51,23 +48,22 @@ export const Default: Story = {
   args: {
     items: baseItems,
     onSelect: () => {},
+    value: [],
     placeholder: 'Select multiple options...'
   },
-  render: () => <SelectMultipleInputWithHooks />
+  render: () => <SelectMultipleWithHooks />
 };
 
 export const WithPreselectedValues: Story = {
   args: {
-    items: baseItems.map((item) => ({
-      ...item,
-      selected: ['1', '2'].includes(item.value)
-    })),
+    items: baseItems,
+    value: ['1', '2'],
     onSelect: () => {},
     placeholder: 'Select multiple options...'
   },
   render: (args) => (
     <div className="w-[300px]">
-      <SelectMultipleInput {...args} />
+      <SelectMultiple {...args} />
     </div>
   )
 };
@@ -76,43 +72,40 @@ export const Empty: Story = {
   args: {
     items: baseItems,
     onSelect: () => {},
-    placeholder: 'Select multiple options...'
+    placeholder: 'Select multiple options...',
+    value: []
   },
   render: (args) => (
     <div className="w-[300px]">
-      <SelectMultipleInput {...args} />
+      <SelectMultiple {...args} />
     </div>
   )
 };
 
 export const FullySelected: Story = {
   args: {
-    items: baseItems.map((item) => ({
-      ...item,
-      selected: true
-    })),
+    items: baseItems,
+    value: baseItems.map((item) => item.value),
     onSelect: () => {},
     placeholder: 'Select multiple options...'
   },
   render: (args) => (
     <div className="w-[300px]">
-      <SelectMultipleInput {...args} />
+      <SelectMultiple {...args} />
     </div>
   )
 };
 
 export const CustomWidth: Story = {
   args: {
-    items: baseItems.map((item) => ({
-      ...item,
-      selected: ['1', '2'].includes(item.value)
-    })),
+    items: baseItems,
+    value: ['1'],
     onSelect: () => {},
     placeholder: 'Select multiple options...'
   },
   render: (args) => (
     <div className="w-[500px]">
-      <SelectMultipleInput {...args} />
+      <SelectMultiple {...args} />
     </div>
   )
 };

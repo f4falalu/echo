@@ -21,7 +21,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const LeftContent = () => (
-  <div className="flex h-full w-full flex-col gap-3 bg-red-100 p-4">
+  <div className="flex h-full w-full flex-col gap-3 bg-red-200 p-4">
     <h2 className="text-lg font-semibold">Left Panel</h2>
     <p>This is the left panel content</p>
   </div>

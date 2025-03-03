@@ -6,6 +6,8 @@ import { useMemoizedFn } from 'ahooks';
 import { useGetDatasets } from '@/api/buster_rest/datasets';
 import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
 import { Input } from '@/components/ui/inputs/Input';
+import { SelectMultiple } from '@/components/ui/select/SelectMultiple';
+import { SelectItem } from '@/components/ui/select';
 
 export const NewTermModal: React.FC<{
   open: boolean;
@@ -114,13 +116,13 @@ const DatasetListContainer: React.FC<{
   selectedDatasets: string[];
   setSelectedDatasets: React.Dispatch<React.SetStateAction<string[]>>;
 }> = React.memo(({ selectedDatasets, setSelectedDatasets }) => {
-  const { data: datasetsList } = useGetDatasets();
+  const { data: datasetsList, isLoading } = useGetDatasets();
 
   const onChange = useMemoizedFn((v: string[]) => {
     setSelectedDatasets(v);
   });
 
-  const selectOptions = useMemo(
+  const selectOptions: SelectItem[] = useMemo(
     () =>
       datasetsList.map((item) => ({
         label: item.name,
@@ -129,7 +131,14 @@ const DatasetListContainer: React.FC<{
     [datasetsList]
   );
 
-  return <></>;
+  return (
+    <SelectMultiple
+      items={selectOptions}
+      onSelect={onChange}
+      placeholder="Select a dataset"
+      value={selectedDatasets}
+    />
+  );
 
   // return (
   //   <AppSelectMultiple

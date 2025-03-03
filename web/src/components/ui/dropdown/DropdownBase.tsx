@@ -101,7 +101,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition-colors outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-60 [&_svg]:pointer-events-none [&_svg]:shrink-0',
+      'relative flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-60 [&_svg]:pointer-events-none [&_svg]:shrink-0',
       'focus:bg-item-hover focus:text-foreground',
       inset && 'pl-8',
       truncate && 'overflow-hidden',
@@ -122,7 +122,7 @@ DropdownMenuItem.displayName = DropdownMenuPrimitive.Item.displayName;
 
 const itemClass = cn(
   'focus:bg-item-hover focus:text-foreground',
-  'relative flex cursor-pointer items-center rounded-sm py-1.5 text-sm transition-colors outline-none select-none',
+  'relative flex cursor-pointer items-center rounded-sm py-1.5 text-sm outline-none select-none',
   'data-[disabled]:pointer-events-none data-[disabled]:opacity-60',
   'gap-1.5'
 );

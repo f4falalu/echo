@@ -48,6 +48,9 @@
   --text-icon-size-lg: 18px;
   --text-icon-size-lg--line-height: 1.05;
 
+  /* line height */
+  --leading-1_3: 1.3;
+
   /* radius */
   --radius: 6px;
   --radius-xs: calc(var(--radius) - 4px);
