@@ -5,7 +5,7 @@ import { type BusterRoutes, BusterRoutes as BusterRouteEnum } from '@/routes/bus
 import { useAsyncEffect } from 'ahooks';
 
 const PRIORITY_ROUTES: Array<BusterRoutes> = [
-  BusterRouteEnum.APP_ROOT,
+  BusterRouteEnum.APP_HOME,
   BusterRouteEnum.APP_COLLECTIONS,
   BusterRouteEnum.APP_DASHBOARDS,
   BusterRouteEnum.APP_METRIC,

@@ -6,6 +6,7 @@ import { Button } from '../buttons/Button';
 import { ArrowUp } from '../icons/NucleoIconOutlined';
 import { ShapeSquare } from '../icons/NucleoIconFilled';
 import { useMemoizedFn } from 'ahooks';
+import { Tooltip } from '../tooltip';
 
 const inputTextAreaButtonVariants = cva(
   'relative flex w-full items-center overflow-hidden rounded-xl border border-border transition-all duration-200',
@@ -24,6 +25,7 @@ export interface InputTextAreaButtonProps extends Omit<InputTextAreaProps, 'vari
   loadingIcon?: React.ReactNode;
   loading?: boolean;
   onSubmit: (text: string) => void;
+  onStop?: () => void;
   variant?: 'default';
   disabledSubmit?: boolean;
 }
@@ -36,6 +38,7 @@ export const InputTextAreaButton: React.FC<InputTextAreaButtonProps> = ({
   loadingIcon = <ShapeSquare />,
   loading = false,
   onSubmit,
+  onStop,
   variant = 'default',
   disabledSubmit,
   ...props
@@ -65,8 +68,8 @@ export const InputTextAreaButton: React.FC<InputTextAreaButtonProps> = ({
         disabled={disabled || loading}
         variant="ghost"
         className={cn(
-          'leading-1.3 w-full px-5! py-4! pr-10 align-middle',
-          loading && '!cursor-default'
+          'leading-1.3 w-full px-5! py-4! pr-10 align-middle transition-all duration-400',
+          loading && 'cursor-default! opacity-60'
         )}
         autoResize={autoResize}
         rounding="xl"
@@ -80,6 +83,7 @@ export const InputTextAreaButton: React.FC<InputTextAreaButtonProps> = ({
           loading={loading}
           sendIcon={sendIcon}
           loadingIcon={loadingIcon}
+          onStop={onStop}
           onSubmitPreflight={onSubmitPreflight}
         />
       </div>
@@ -93,23 +97,22 @@ const SubmitButton: React.FC<{
   sendIcon: React.ReactNode;
   loadingIcon: React.ReactNode;
   onSubmitPreflight: () => void;
-}> = ({ disabled, sendIcon, loading, loadingIcon, onSubmitPreflight }) => {
+  onStop?: () => void;
+}> = ({ disabled, sendIcon, loading, loadingIcon, onSubmitPreflight, onStop }) => {
   const memoizedPrefix = useMemo(() => {
     return (
-      <div
-        className={cn(
-          'relative h-4 w-4 transition-all duration-300 active:scale-80',
-          loading && '!cursor-default'
-        )}>
-        <div
-          className={`absolute inset-0 transition-all duration-300 ${loading ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
-          {sendIcon}
+      <Tooltip sideOffset={7} title={loading ? 'Stop' : 'Send'}>
+        <div className={cn('relative h-4 w-4 transition-all duration-200')}>
+          <div
+            className={`absolute inset-0 transition-all duration-300 ${loading ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
+            {sendIcon}
+          </div>
+          <div
+            className={`absolute inset-0 flex items-center justify-center text-sm transition-all duration-300 ${loading ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
+            {loadingIcon}
+          </div>
         </div>
-        <div
-          className={`absolute inset-0 flex items-center justify-center text-sm transition-all duration-300 ${loading ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
-          {loadingIcon}
-        </div>
-      </div>
+      </Tooltip>
     );
   }, [loading, sendIcon, loadingIcon]);
 
@@ -118,8 +121,7 @@ const SubmitButton: React.FC<{
       rounding={'large'}
       variant="black"
       prefix={memoizedPrefix}
-      className="active:scale-95"
-      onClick={onSubmitPreflight}
+      onClick={loading && onStop ? onStop : onSubmitPreflight}
       disabled={disabled}
     />
   );

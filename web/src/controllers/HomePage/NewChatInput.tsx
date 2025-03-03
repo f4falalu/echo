@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { InputTextAreaButton } from '@/components/ui/inputs/InputTextAreaButton';
-import { useBusterNewChatContextSelector } from '@/context/Chats';
+import { useBusterChatContextSelector, useBusterNewChatContextSelector } from '@/context/Chats';
 import { inputHasText } from '@/lib/text';
 import { useMemoizedFn } from 'ahooks';
 import { ChangeEvent, useMemo, useState } from 'react';
@@ -22,7 +22,17 @@ export const NewChatInput: React.FC<{}> = () => {
   }, [inputValue]);
 
   const onSubmit = useMemoizedFn(async (value: string) => {
-    await onStartNewChat({ prompt: value });
+    if (disabledSubmit) return;
+    try {
+      setLoading(true);
+      await onStartNewChat({ prompt: value });
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  const onStop = useMemoizedFn(() => {
+    setLoading(false);
   });
 
   const onChange = useMemoizedFn((e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -35,8 +45,10 @@ export const NewChatInput: React.FC<{}> = () => {
       autoResize={autoResizeConfig}
       onSubmit={onSubmit}
       onChange={onChange}
-      autoFocus
+      onStop={onStop}
+      loading={loading}
       disabledSubmit={disabledSubmit}
+      autoFocus
     />
   );
 };
