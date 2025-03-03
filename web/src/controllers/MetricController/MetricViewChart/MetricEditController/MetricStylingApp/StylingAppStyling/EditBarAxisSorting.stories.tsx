@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { EditBarSorting } from './EditBarAxisSorting';
-import { action } from '@storybook/addon-actions';
+import { fn } from '@storybook/test';
 
 const meta: Meta<typeof EditBarSorting> = {
   title: 'Controllers/EditMetricController/EditBarAxisSorting',
@@ -34,28 +34,28 @@ type Story = StoryObj<typeof EditBarSorting>;
 export const Default: Story = {
   args: {
     barSortBy: ['none'],
-    onUpdateChartConfig: action('onUpdateChartConfig')
+    onUpdateChartConfig: fn()
   }
 };
 
 export const SortAscending: Story = {
   args: {
     barSortBy: ['asc'],
-    onUpdateChartConfig: action('onUpdateChartConfig')
+    onUpdateChartConfig: fn()
   }
 };
 
 export const SortDescending: Story = {
   args: {
     barSortBy: ['desc'],
-    onUpdateChartConfig: action('onUpdateChartConfig')
+    onUpdateChartConfig: fn()
   }
 };
 
 export const WithInteraction: Story = {
   args: {
     barSortBy: ['none'],
-    onUpdateChartConfig: action('onUpdateChartConfig')
+    onUpdateChartConfig: fn()
   },
   play: async ({ canvasElement, args }) => {
     // This is where you could add interaction tests using the @storybook/testing-library

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { StatusBadgeButton } from './StatusBadgeButton';
 import { VerificationStatus } from '@/api/asset_interfaces';
-import { action } from '@storybook/addon-actions';
+import { fn } from '@storybook/test';
 
 const meta = {
   title: 'Features/Metrics/StatusBadgeButton',
@@ -14,10 +14,9 @@ const meta = {
     status: VerificationStatus.notRequested,
     id: 'metric-123',
     isAdmin: false,
-    onVerify: async (params) => {
-      action('onVerify')(params);
+    onVerify: fn(async (params) => {
       return Promise.resolve();
-    },
+    }),
     disabled: false
   },
   argTypes: {

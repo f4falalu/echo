@@ -1,6 +1,6 @@
 import React from 'react';
 import { Meta, StoryObj } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
+import { fn } from '@storybook/test';
 import { MetricStylingAppSegment } from './MetricStylingAppSegment';
 import { MetricStylingAppSegments } from './config';
 import { ChartType } from '@/components/ui/charts/interfaces/enum';
@@ -47,7 +47,7 @@ export default meta;
 type Story = StoryObj<typeof MetricStylingAppSegment>;
 
 // Create a reusable action handler
-const handleSetSegment = action('setSegment');
+const handleSetSegment = fn();
 
 export const Default: Story = {
   args: {

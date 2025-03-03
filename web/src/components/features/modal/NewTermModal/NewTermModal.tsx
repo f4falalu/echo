@@ -1,15 +1,17 @@
 import React, { useEffect, useMemo } from 'react';
-import { InputRef, Input } from 'antd';
 import { useBusterTermsIndividualContextSelector } from '@/context/Terms';
-import { AppModal, AppSelectMultiple, Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
+import { AppModal } from '@/components/ui/modal';
 import { useMemoizedFn } from 'ahooks';
 import { useGetDatasets } from '@/api/buster_rest/datasets';
+import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
+import { Input } from '@/components/ui/inputs/Input';
 
 export const NewTermModal: React.FC<{
   open: boolean;
   onClose: () => void;
 }> = React.memo(({ open, onClose }) => {
-  const titleRef = React.useRef<InputRef>(null);
+  const titleRef = React.useRef<HTMLInputElement>(null);
   const createTerm = useBusterTermsIndividualContextSelector((x) => x.createTerm);
   const [creatingTerm, setCreatingTerm] = React.useState(false);
   const [title, setTitle] = React.useState('');
@@ -78,25 +80,25 @@ export const NewTermModal: React.FC<{
     <AppModal open={open} onClose={onClose} header={memoizedHeader} footer={memoizedFooter}>
       <div className="flex flex-col space-y-3">
         <div className="flex flex-col space-y-1.5">
-          <Text size="sm" type="secondary">
+          <Text size="sm" variant="secondary">
             Term
           </Text>
           <Input placeholder="LTV" value={title} onChange={onSetTitle} />
         </div>
         <div className="flex flex-col space-y-1.5">
-          <Text size="sm" type="secondary">
+          <Text size="sm" variant="secondary">
             Definition
           </Text>
 
-          <Input.TextArea
+          <InputTextArea
             defaultValue={definition}
             onChange={onSetDefinition}
-            autoSize={{ minRows: 3, maxRows: 7 }}
+            autoResize={{ minRows: 3, maxRows: 7 }}
             placeholder="LTV is the total amount of money a customer is expected to spend on a product or service over their lifetime."
           />
         </div>
         <div className="flex flex-col space-y-1.5">
-          <Text size="sm" type="secondary">
+          <Text size="sm" variant="secondary">
             Relevant datasets
           </Text>
           <DatasetListContainer
@@ -129,17 +131,19 @@ const DatasetListContainer: React.FC<{
     [datasetsList]
   );
 
-  return (
-    <AppSelectMultiple
-      loading={datasetsList.length === 0}
-      className="w-full"
-      placeholder="Select datasets"
-      popupMatchSelectWidth
-      defaultActiveFirstOption={true}
-      options={selectOptions}
-      value={selectedDatasets}
-      onChange={onChange}
-    />
-  );
+  return <></>;
+
+  // return (
+  //   <AppSelectMultiple
+  //     loading={datasetsList.length === 0}
+  //     className="w-full"
+  //     placeholder="Select datasets"
+  //     popupMatchSelectWidth
+  //     defaultActiveFirstOption={true}
+  //     options={selectOptions}
+  //     value={selectedDatasets}
+  //     onChange={onChange}
+  //   />
+  // );
 });
 DatasetListContainer.displayName = 'DatasetListContainer';

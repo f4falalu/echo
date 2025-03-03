@@ -1,7 +1,7 @@
 import React from 'react';
 import { Meta, StoryObj } from '@storybook/react';
 import { EditPieAppearance } from './EditPieAppearance';
-import { action } from '@storybook/addon-actions';
+import { fn } from '@storybook/test';
 import { DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces';
 
 const meta: Meta<typeof EditPieAppearance> = {
@@ -25,7 +25,7 @@ type Story = StoryObj<typeof EditPieAppearance>;
 export const Default: Story = {
   args: {
     pieDonutWidth: DEFAULT_CHART_CONFIG.pieDonutWidth,
-    onUpdateChartConfig: action('onUpdateChartConfig'),
+    onUpdateChartConfig: fn(),
     pieChartAxis: {
       x: [],
       y: [],
@@ -37,7 +37,7 @@ export const Default: Story = {
 export const PieChart: Story = {
   args: {
     pieDonutWidth: 0,
-    onUpdateChartConfig: action('onUpdateChartConfig'),
+    onUpdateChartConfig: fn(),
     pieChartAxis: {
       x: [],
       y: [],
@@ -49,7 +49,7 @@ export const PieChart: Story = {
 export const DonutChart: Story = {
   args: {
     pieDonutWidth: 30,
-    onUpdateChartConfig: action('onUpdateChartConfig'),
+    onUpdateChartConfig: fn(),
     pieChartAxis: {
       x: [],
       y: [],
@@ -61,7 +61,7 @@ export const DonutChart: Story = {
 export const MultipleYAxis: Story = {
   args: {
     pieDonutWidth: 40,
-    onUpdateChartConfig: action('onUpdateChartConfig'),
+    onUpdateChartConfig: fn(),
     pieChartAxis: {
       x: [],
       y: ['column1', 'column2'],

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { BusterListSelectedOptionPopupContainer } from './ListSelectedOptionPopup';
 import React from 'react';
 import { Garage, Dog, Cat } from '@/components/ui/icons';
-import { action } from '@storybook/addon-actions';
+import { fn } from '@storybook/test';
 import { Button } from '@/components/ui/buttons';
 
 const meta: Meta<typeof BusterListSelectedOptionPopupContainer> = {
@@ -35,11 +35,11 @@ type Story = StoryObj<typeof BusterListSelectedOptionPopupContainer>;
 const sampleSelectedRowKeys = ['1', '2', '3'];
 
 // Define actions
-const deleteAction = action('Delete clicked');
-const editAction = action('Edit clicked');
-const addAction = action('Add clicked');
-const viewAction = action('View clicked');
-const selectionChangedAction = action('Selection changed');
+const deleteAction = fn();
+const editAction = fn();
+const addAction = fn();
+const viewAction = fn();
+const selectionChangedAction = fn();
 
 export const Default: Story = {
   args: {
