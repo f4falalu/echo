@@ -1,4 +1,4 @@
-import { BusterChatMessageReasoning_pillsPillContainer } from '@/api/asset_interfaces';
+import { BusterChatMessageReasoning_PillsContainer } from '@/api/asset_interfaces';
 import React from 'react';
 import { Text } from '@/components/ui';
 import { PillContainer } from './ReasoningMessage_ThoughtPills';
@@ -6,7 +6,7 @@ import { itemAnimationConfig } from '../animationConfig';
 import { AnimatePresence, motion } from 'framer-motion';
 
 export const ReasoningMessage_ThoughtContainer: React.FC<{
-  pillContainer: BusterChatMessageReasoning_pillsPillContainer;
+  pillContainer: BusterChatMessageReasoning_PillsContainer;
   isCompletedStream: boolean;
 }> = React.memo(({ pillContainer, isCompletedStream }) => {
   return (
@@ -16,10 +16,7 @@ export const ReasoningMessage_ThoughtContainer: React.FC<{
           <Text size="xs" type="tertiary">
             {pillContainer.title}
           </Text>
-          <PillContainer
-            pills={pillContainer.thought_pills}
-            isCompletedStream={isCompletedStream}
-          />
+          <PillContainer pills={pillContainer.pills} isCompletedStream={isCompletedStream} />
         </div>
       </motion.div>
     </AnimatePresence>

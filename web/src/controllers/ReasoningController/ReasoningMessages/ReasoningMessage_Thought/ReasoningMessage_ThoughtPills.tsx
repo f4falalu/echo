@@ -1,4 +1,4 @@
-import type { BusterChatMessageReasoning_pillsPill } from '@/api/asset_interfaces';
+import type { BusterChatMessageReasoning_Pill } from '@/api/asset_interfaces';
 import { createStyles } from 'antd-style';
 import React, { useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -36,7 +36,7 @@ const pillVariants = {
 };
 
 export const PillContainer: React.FC<{
-  pills: BusterChatMessageReasoning_pillsPill[];
+  pills: BusterChatMessageReasoning_Pill[];
   isCompletedStream: boolean;
 }> = React.memo(({ pills = [], isCompletedStream }) => {
   const { cx } = useStyles();
@@ -45,7 +45,7 @@ export const PillContainer: React.FC<{
   const useAnimation = !isCompletedStream;
 
   const handlePillClick = useMemoizedFn(
-    (pill: Pick<BusterChatMessageReasoning_pillsPill, 'id' | 'type'>) => {
+    (pill: Pick<BusterChatMessageReasoning_Pill, 'id' | 'type'>) => {
       if (isOpenableFile(pill.type)) {
         onSetSelectedFile(pill as SelectedFile);
       }
@@ -78,10 +78,10 @@ PillContainer.displayName = 'PillContainer';
 const Pill: React.FC<{
   text: string;
   id?: string;
-  type?: BusterChatMessageReasoning_pillsPill['type'];
+  type?: BusterChatMessageReasoning_Pill['type'];
   useAnimation: boolean;
   className?: string;
-  onClick?: (pill: Pick<BusterChatMessageReasoning_pillsPill, 'id' | 'type'>) => void;
+  onClick?: (pill: Pick<BusterChatMessageReasoning_Pill, 'id' | 'type'>) => void;
 }> = React.memo(({ text, type, id, useAnimation, className = '', onClick }) => {
   const { styles, cx } = useStyles();
   return (
@@ -110,9 +110,9 @@ const OverflowPill = React.memo(
     useAnimation,
     onClickPill
   }: {
-    hiddenPills: BusterChatMessageReasoning_pillsPill[];
+    hiddenPills: BusterChatMessageReasoning_Pill[];
     useAnimation: boolean;
-    onClickPill: (pill: Pick<BusterChatMessageReasoning_pillsPill, 'id' | 'type'>) => void;
+    onClickPill: (pill: Pick<BusterChatMessageReasoning_Pill, 'id' | 'type'>) => void;
   }) => {
     const count = hiddenPills.length;
 

@@ -48,15 +48,15 @@ export type BusterChatMessageReasoning =
   | BusterChatMessageReasoning_text
   | BusterChatMessageReasoning_file;
 
-export type BusterChatMessageReasoning_pillsPill = {
+export type BusterChatMessageReasoning_Pill = {
   text: string;
   type: ThoughtFileType | null; //if null then the pill will not link anywhere
   id: string;
 };
 
-export type BusterChatMessageReasoning_pillsPillContainer = {
+export type BusterChatMessageReasoning_PillsContainer = {
   title: string;
-  thought_pills: BusterChatMessageReasoning_pillsPill[];
+  pills: BusterChatMessageReasoning_Pill[];
 };
 
 export type BusterChatMessageReasoning_status = 'loading' | 'completed' | 'failed';
@@ -65,8 +65,8 @@ export type BusterChatMessageReasoning_pills = {
   id: string;
   type: 'pills';
   title: string;
-  secondary_title: string;
-  pill_containers?: BusterChatMessageReasoning_pillsPillContainer[];
+  secondary_title?: string;
+  pill_containers?: BusterChatMessageReasoning_PillsContainer[];
   status?: BusterChatMessageReasoning_status; //if left undefined, will automatically be set to 'loading' if the chat stream is in progress AND there is no message after it
 };
 
@@ -74,6 +74,7 @@ export type BusterChatMessageReasoning_text = {
   id: string;
   type: 'text';
   title: string;
+  secondary_title?: string;
   message?: string;
   message_chunk?: string;
   status?: BusterChatMessageReasoning_status;
