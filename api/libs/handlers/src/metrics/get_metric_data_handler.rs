@@ -6,8 +6,8 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::files::metric_files::get_metric;
-use query_engine::data_types::DataType;
 use query_engine::data_source_helpers;
+use query_engine::data_types::DataType;
 
 /// Request structure for the get_metric_data handler
 #[derive(Debug, Deserialize)]
@@ -87,7 +87,5 @@ pub async fn get_metric_data_handler(
     };
 
     // Construct and return the response
-    Ok(MetricDataResponse {
-        data: result,
-    })
+    Ok(MetricDataResponse { data: result })
 }
