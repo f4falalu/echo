@@ -6,6 +6,7 @@ use axum::Extension;
 use axum::Json;
 use chrono::DateTime;
 use chrono::Utc;
+use database::vault::create_secret;
 use diesel::insert_into;
 use diesel::upsert::excluded;
 use diesel::BoolExpressionMethods;
@@ -15,15 +16,14 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use crate::routes::rest::ApiResponse;
+use crate::utils::query_engine::credentials::Credential;
 use database::enums::DataSourceOnboardingStatus;
 use database::enums::UserOrganizationRole;
-use database::pool::get_pg_pool;
 use database::models::{DataSource, User};
+use database::pool::get_pg_pool;
 use database::schema::data_sources;
 use database::schema::users_to_organizations;
-use crate::routes::rest::ApiResponse;
-use crate::utils::clients::supabase_vault::create_secrets;
-use crate::utils::query_engine::credentials::Credential;
 
 #[derive(Debug, Deserialize)]
 pub struct CreateDataSourceRequest {
@@ -88,42 +88,22 @@ async fn post_data_sources_handler(
         }
     };
 
-    let secret_values = requests
-        .iter()
-        .map(|request| {
-            (
-                request.name.clone(),
-                serde_json::to_string(&request.credential).unwrap(),
-            )
-        })
-        .collect::<HashMap<String, String>>();
-
-    let secret_ids = match create_secrets(&secret_values).await {
-        Ok(secret_ids) => secret_ids,
-        Err(e) => {
-            return Err(anyhow!("Error creating secret: {}", e));
-        }
-    };
-
     let data_sources = requests
         .iter()
-        .map(|request| {
-            let secret_id = secret_ids.get(&request.name).unwrap();
-            DataSource {
-                id: Uuid::new_v4(),
-                name: request.name.clone(),
-                type_: request.credential.get_type(),
-                secret_id: *secret_id,
-                organization_id,
-                created_by: *user_id,
-                updated_by: *user_id,
-                created_at: Utc::now(),
-                updated_at: Utc::now(),
-                deleted_at: None,
-                onboarding_status: DataSourceOnboardingStatus::NotStarted,
-                onboarding_error: None,
-                env: request.env.clone(),
-            }
+        .map(|request| DataSource {
+            id: Uuid::new_v4(),
+            name: request.name.clone(),
+            type_: request.credential.get_type(),
+            secret_id: Uuid::new_v4(),
+            organization_id,
+            created_by: *user_id,
+            updated_by: *user_id,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            deleted_at: None,
+            onboarding_status: DataSourceOnboardingStatus::NotStarted,
+            onboarding_error: None,
+            env: request.env.clone(),
         })
         .collect::<Vec<DataSource>>();
 
@@ -151,6 +131,27 @@ async fn post_data_sources_handler(
             return Err(anyhow!("Error inserting data source: {}", e));
         }
     };
+
+    let secret_values = requests
+        .iter()
+        .map(|request| {
+            (
+                request.name.clone(),
+                serde_json::to_string(&request.credential).unwrap(),
+            )
+        })
+        .collect::<HashMap<String, String>>();
+
+    for data_source in data_sources.iter() {
+        if let Some(secret_value) = secret_values.get(&data_source.name) {
+            match create_secret(&data_source.id, secret_value).await {
+                Ok(_) => (),
+                Err(e) => {
+                    return Err(anyhow!("Error creating secret: {}", e));
+                }
+            };
+        }
+    }
 
     Ok(data_sources.iter().map(|ds| ds.id).collect())
 }

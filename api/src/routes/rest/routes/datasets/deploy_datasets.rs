@@ -323,7 +323,7 @@ async fn deploy_datasets_handler(
         };
 
         // Get credentials for the data source
-        let credentials = match get_data_source_credentials(&data_source.secret_id, &data_source.type_, false).await {
+        let credentials = match get_data_source_credentials(&data_source.id, &data_source.type_, false).await {
             Ok(creds) => creds,
             Err(e) => {
                 for req in group {
@@ -685,7 +685,7 @@ async fn batch_validate_datasets(
 
         // Get credentials
         let credentials =
-            match get_data_source_credentials(&data_source.secret_id, &data_source.type_, false)
+            match get_data_source_credentials(&data_source.id, &data_source.type_, false)
                 .await
             {
                 Ok(creds) => creds,

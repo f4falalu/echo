@@ -8,10 +8,6 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use database::{enums::{AssetPermissionRole, AssetType},
-        pool::get_pg_pool,
-        models::{ThreadToDashboard, User},
-        schema::{dashboards, threads_to_dashboards},};
 use crate::{
     routes::ws::{
         dashboards::dashboards_router::{DashboardEvent, DashboardRoute},
@@ -20,12 +16,19 @@ use crate::{
         ws_utils::{send_error_message, send_ws_message, subscribe_to_stream},
     },
     utils::{
-        clients::{sentry_utils::send_sentry_error, supabase_vault::create_secret},
+        clients::sentry_utils::send_sentry_error,
         sharing::asset_sharing::{
             create_asset_collection_association, delete_asset_collection_association,
             update_asset_permissions, ShareWithTeamsReqObject, ShareWithUsersReqObject,
         },
     },
+};
+use database::{
+    enums::{AssetPermissionRole, AssetType},
+    models::{ThreadToDashboard, User},
+    pool::get_pg_pool,
+    schema::{dashboards, threads_to_dashboards},
+    vault::create_secret,
 };
 
 use super::dashboard_utils::{get_dashboard_state_by_id, get_user_dashboard_permission};
@@ -288,7 +291,7 @@ async fn update_dashboard_record(
     public_expiry_date: Option<Option<chrono::NaiveDateTime>>,
 ) -> Result<()> {
     let password_secret_id = match public_password {
-        Some(Some(password)) => match create_secret(&password).await {
+        Some(Some(password)) => match create_secret(&dashboard_id, &password).await {
             Ok(secret_id) => Some(Some(secret_id)),
             Err(e) => {
                 tracing::error!("Error creating secret: {}", e);
@@ -323,7 +326,7 @@ async fn update_dashboard_record(
         config,
         publicly_accessible,
         publicly_enabled_by,
-        password_secret_id,
+        password_secret_id: None,
         public_expiry_date,
     };
 
@@ -371,7 +374,7 @@ async fn update_dashboard_record(
             let query = diesel::sql_query(
                 "UPDATE asset_search 
                 SET content = $1, updated_at = NOW()
-                WHERE asset_id = $2 AND asset_type = 'dashboard'"
+                WHERE asset_id = $2 AND asset_type = 'dashboard'",
             )
             .bind::<diesel::sql_types::Text, _>(dashboard_name)
             .bind::<diesel::sql_types::Uuid, _>(*dashboard_id);

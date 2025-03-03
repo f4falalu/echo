@@ -300,7 +300,7 @@ async fn generate_datasets_handler(
     };
 
     // Get credentials
-    let credentials = get_data_source_credentials(&data_source.secret_id, &data_source.type_, false).await?;
+    let credentials = get_data_source_credentials(&data_source.id, &data_source.type_, false).await?;
 
     // Prepare tables for batch validation
     let tables_to_validate: Vec<(String, String)> = request

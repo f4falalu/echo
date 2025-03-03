@@ -6,10 +6,6 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use database::{enums::{DataSourceOnboardingStatus, DataSourceType, UserOrganizationRole},
-        pool::get_pg_pool,
-        models::{DataSource, User},
-        schema::{data_sources, users_to_organizations},};
 use crate::{
     routes::ws::{
         data_sources::data_sources_router::{DataSourceEvent, DataSourceRoute},
@@ -18,12 +14,19 @@ use crate::{
         ws_utils::{send_error_message, send_ws_message},
     },
     utils::{
-        clients::{sentry_utils::send_sentry_error, supabase_vault::create_secret},
+        clients::sentry_utils::send_sentry_error,
         query_engine::{
             credentials::Credential, import_datasets::import_datasets,
             test_data_source_connections::test_data_source_connection,
         },
     },
+};
+use database::{
+    enums::{DataSourceOnboardingStatus, DataSourceType, UserOrganizationRole},
+    models::{DataSource, User},
+    pool::get_pg_pool,
+    schema::{data_sources, users_to_organizations},
+    vault::create_secret,
 };
 
 use super::data_source_utils::data_source_utils::{get_data_source_state, DataSourceState};
@@ -64,13 +67,7 @@ pub async fn post_data_source(user: &User, req: PostDataSourceReq) -> Result<()>
             }
         };
 
-    match import_datasets(
-        &req.credentials,
-        &post_data_source_res.id,
-        &user.id,
-    )
-    .await
-    {
+    match import_datasets(&req.credentials, &post_data_source_res.id, &user.id).await {
         Ok(_) => (),
         Err(e) => {
             return Err(anyhow!("Error getting data source: {}", e));
@@ -140,18 +137,11 @@ async fn post_data_source_handler(
         }
     };
 
-    let secret_id = match create_secret(&secret_value).await {
-        Ok(secret_id) => secret_id,
-        Err(e) => {
-            return Err(anyhow!("Error creating secret: {}", e));
-        }
-    };
-
     let data_source = DataSource {
         id: Uuid::new_v4(),
         name,
         type_,
-        secret_id,
+        secret_id: Uuid::new_v4(),
         organization_id,
         created_by: *user_id,
         updated_by: *user_id,
@@ -172,6 +162,13 @@ async fn post_data_source_handler(
         Err(e) => {
             tracing::error!("Error inserting data source: {}", e);
             return Err(anyhow!("Error inserting data source: {}", e));
+        }
+    };
+
+    match create_secret(&data_source.id, &secret_value).await {
+        Ok(secret_id) => secret_id,
+        Err(e) => {
+            return Err(anyhow!("Error creating secret: {}", e));
         }
     };
 

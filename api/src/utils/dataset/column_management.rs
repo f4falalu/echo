@@ -33,7 +33,7 @@ pub async fn get_column_types(
     data_source: &DataSource,
 ) -> Result<Vec<ColumnUpdate>> {
     let credentials =
-        get_data_source_credentials(&data_source.secret_id, &data_source.type_, false)
+        get_data_source_credentials(&data_source.id, &data_source.type_, false)
             .await
             .map_err(|e| anyhow!("Error getting data source credentials: {}", e))?;
 

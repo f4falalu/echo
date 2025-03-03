@@ -16,7 +16,7 @@ use uuid::Uuid;
 use crate::{
     routes::ws::threads_and_messages::messages_utils::MessageDraftState,
     utils::{
-        clients::{sentry_utils::send_sentry_error, supabase_vault::read_secret},
+        clients::sentry_utils::send_sentry_error,
         query_engine::{data_types::DataType, query_engine::query_engine},
         sharing::asset_sharing::{
             get_asset_collections, get_asset_sharing_info, CollectionNameAndId,
@@ -34,6 +34,7 @@ use database::{
         messages_deprecated, sql_evaluations, teams_to_users, threads_deprecated,
         threads_to_dashboards, users, users_to_organizations,
     },
+    vault::read_secret,
 };
 
 #[derive(Serialize, Clone, Debug)]
@@ -156,7 +157,7 @@ pub async fn get_thread_state_by_id(
     };
 
     let public_password = if let Some(password_secret_id) = thread.password_secret_id {
-        let public_password = match read_secret(&password_secret_id).await {
+        let public_password = match read_secret(&thread.id).await {
             Ok(public_password) => public_password,
             Err(e) => {
                 tracing::error!("Error getting public password: {}", e);

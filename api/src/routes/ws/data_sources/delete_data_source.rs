@@ -6,10 +6,6 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use database::{enums::UserOrganizationRole,
-        pool::get_pg_pool,
-        models::User,
-        schema::{data_sources, users_to_organizations},};
 use crate::{
     routes::ws::{
         data_sources::data_sources_router::{DataSourceEvent, DataSourceRoute},
@@ -17,7 +13,14 @@ use crate::{
         ws_router::WsRoutes,
         ws_utils::{send_error_message, send_ws_message},
     },
-    utils::clients::{sentry_utils::send_sentry_error, supabase_vault::delete_secret},
+    utils::clients::sentry_utils::send_sentry_error,
+};
+use database::{
+    enums::UserOrganizationRole,
+    models::User,
+    pool::get_pg_pool,
+    schema::{data_sources, users_to_organizations},
+    vault::delete_secret,
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

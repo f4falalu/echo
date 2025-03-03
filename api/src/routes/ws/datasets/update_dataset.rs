@@ -196,7 +196,7 @@ async fn update_dataset_handler(
             };
 
             let credentials = match get_data_source_credentials(
-                &dataset_state.data_source.secret_id,
+                &dataset_state.data_source.id,
                 &dataset_state.data_source.type_,
                 false,
             )

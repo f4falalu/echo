@@ -104,7 +104,7 @@ pub async fn get_data_source_state(user_id: &Uuid, id: Uuid) -> Result<DataSourc
     };
 
     let credentials =
-        match get_data_source_credentials(&data_source.secret_id, &data_source.type_, true).await {
+        match get_data_source_credentials(&data_source.id, &data_source.type_, true).await {
             Ok(credential) => credential,
             Err(e) => return Err(anyhow!("Error getting data source credentials: {:}", e)),
         };

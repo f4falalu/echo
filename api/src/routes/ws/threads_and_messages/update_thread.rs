@@ -10,10 +10,14 @@ use std::sync::Arc;
 
 use uuid::Uuid;
 
-use database::{enums::AssetType,
-        pool::get_pg_pool,
-        models::{MessageDeprecated, ThreadToDashboard, User},
-        schema::{messages_deprecated, threads_deprecated, threads_to_dashboards},};
+use database::{
+    enums::AssetType,
+    models::{MessageDeprecated, ThreadToDashboard, User},
+    pool::get_pg_pool,
+    schema::{messages_deprecated, threads_deprecated, threads_to_dashboards},
+    vault::create_secret,
+};
+
 use crate::{
     routes::ws::{
         ws::{SubscriptionRwLock, WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
@@ -21,7 +25,7 @@ use crate::{
         ws_utils::{get_key_value, send_error_message, send_ws_message, subscribe_to_stream},
     },
     utils::{
-        clients::{sentry_utils::send_sentry_error, supabase_vault::create_secret},
+        clients::sentry_utils::send_sentry_error,
         sharing::asset_sharing::{
             create_asset_collection_association, delete_asset_collection_association,
             update_asset_permissions, ShareWithTeamsReqObject, ShareWithUsersReqObject,
@@ -266,7 +270,7 @@ async fn update_thread_record(
     let password_secret_id = match public_password {
         Some(Some(password)) => {
             // Password provided - create new secret
-            match create_secret(&password).await {
+            match create_secret(&thread_id, &password).await {
                 Ok(secret_id) => Some(Some(secret_id)),
                 Err(e) => {
                     tracing::error!("Error creating secret: {}", e);
@@ -275,13 +279,13 @@ async fn update_thread_record(
             }
         }
         Some(None) => Some(None), // Explicitly set to null
-        None => None, // Not included in request
+        None => None,             // Not included in request
     };
 
     let public_expiry_date = match public_expiry_date {
         Some(Some(date)) => Some(Some(date)), // Date provided
-        Some(None) => Some(None), // Explicitly set to null
-        None => None, // Not included in request
+        Some(None) => Some(None),             // Explicitly set to null
+        None => None,                         // Not included in request
     };
 
     let publicly_enabled_by = if let Some(publicly_accessible) = publicly_accessible {
@@ -300,7 +304,7 @@ async fn update_thread_record(
         state_message_id,
         publicly_accessible,
         publicly_enabled_by,
-        password_secret_id,
+        password_secret_id: None,
         public_expiry_date,
     };
 

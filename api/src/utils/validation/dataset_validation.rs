@@ -30,7 +30,7 @@ pub async fn validate_model(
 
     // Get credentials
     let credentials = match get_data_source_credentials(
-        &data_source.secret_id,
+        &data_source.id,
         &data_source.type_,
         false,
     )

@@ -1,25 +1,22 @@
 use indexmap::IndexMap;
 
 use anyhow::{anyhow, Result};
-use database::{enums::DataSourceType, models::DataSource};
+use database::{enums::DataSourceType, models::DataSource, vault::read_secret};
 
-use crate::utils::{
-    clients::supabase_vault::read_secret,
-    query_engine::{
-        credentials::{
-            BigqueryCredentials, DatabricksCredentials, MySqlCredentials, PostgresCredentials,
-            SnowflakeCredentials, SqlServerCredentials,
-        },
-        data_source_connections::{
-            get_bigquery_client::get_bigquery_client, get_databricks_client::get_databricks_client,
-            get_mysql_connection::get_mysql_connection,
-            get_postgres_connection::get_postgres_connection,
-            get_redshift_connection::get_redshift_connection,
-            get_snowflake_client::get_snowflake_client,
-            get_sql_server_connection::get_sql_server_connection, ssh_tunneling::kill_ssh_tunnel,
-        },
-        data_types::DataType,
+use crate::utils::query_engine::{
+    credentials::{
+        BigqueryCredentials, DatabricksCredentials, MySqlCredentials, PostgresCredentials,
+        SnowflakeCredentials, SqlServerCredentials,
     },
+    data_source_connections::{
+        get_bigquery_client::get_bigquery_client, get_databricks_client::get_databricks_client,
+        get_mysql_connection::get_mysql_connection,
+        get_postgres_connection::get_postgres_connection,
+        get_redshift_connection::get_redshift_connection,
+        get_snowflake_client::get_snowflake_client,
+        get_sql_server_connection::get_sql_server_connection, ssh_tunneling::kill_ssh_tunnel,
+    },
+    data_types::DataType,
 };
 
 use super::{
@@ -74,7 +71,7 @@ async fn route_to_query(
     sql: &String,
     limit: Option<i64>,
 ) -> Result<Vec<IndexMap<String, DataType>>> {
-    let credentials_string = match read_secret(&data_source.secret_id).await {
+    let credentials_string = match read_secret(&data_source.id).await {
         Ok(credentials) => credentials,
         Err(e) => return Err(anyhow!(e)),
     };

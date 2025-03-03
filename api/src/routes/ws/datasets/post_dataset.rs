@@ -118,7 +118,7 @@ async fn update_dataset(user_id: &Uuid, dataset_id: &Uuid, name: &String) -> Res
     };
 
     let credentials = match get_data_source_credentials(
-        &dataset.data_source.secret_id,
+        &dataset.data_source.id,
         &dataset.data_source.type_,
         false,
     )

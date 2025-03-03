@@ -9,13 +9,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
-use database::{enums::{AssetPermissionRole, AssetType},
-        pool::get_pg_pool,
-        models::{Dashboard, MessageDeprecated},
-        schema::{asset_permissions, dashboards, messages_deprecated, threads_to_dashboards, users_to_organizations},};
+use database::{enums::{AssetPermissionRole, AssetType}, models::{Dashboard, MessageDeprecated}, pool::get_pg_pool, schema::{asset_permissions, dashboards, messages_deprecated, threads_to_dashboards, users_to_organizations}, vault::read_secret};
 use crate::{
     utils::{
-        clients::{sentry_utils::send_sentry_error, supabase_vault::read_secret},
+        clients::{sentry_utils::send_sentry_error},
         query_engine::data_types::DataType,
         sharing::asset_sharing::{
             get_asset_collections, get_asset_sharing_info, CollectionNameAndId,
