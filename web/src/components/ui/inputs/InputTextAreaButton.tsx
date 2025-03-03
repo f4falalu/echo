@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, forwardRef } from 'react';
 import { InputTextArea, InputTextAreaProps } from './InputTextArea';
 import { cn } from '@/lib/classMerge';
 import { cva } from 'class-variance-authority';
@@ -9,7 +9,7 @@ import { useMemoizedFn } from 'ahooks';
 import { Tooltip } from '../tooltip';
 
 const inputTextAreaButtonVariants = cva(
-  'relative flex w-full items-center overflow-hidden rounded-xl border border-border transition-all duration-200',
+  'relative flex w-full items-center overflow-visible rounded-xl border border-border transition-all duration-200',
   {
     variants: {
       variant: {
@@ -30,66 +30,68 @@ export interface InputTextAreaButtonProps extends Omit<InputTextAreaProps, 'vari
   disabledSubmit?: boolean;
 }
 
-export const InputTextAreaButton: React.FC<InputTextAreaButtonProps> = ({
-  className,
-  disabled,
-  autoResize,
-  sendIcon = <ArrowUp />,
-  loadingIcon = <ShapeSquare />,
-  loading = false,
-  onSubmit,
-  onStop,
-  variant = 'default',
-  disabledSubmit,
-  ...props
-}) => {
-  const textRef = useRef<HTMLTextAreaElement>(null);
+export const InputTextAreaButton = forwardRef<HTMLTextAreaElement, InputTextAreaButtonProps>(
+  (
+    {
+      className,
+      disabled,
+      autoResize,
+      sendIcon = <ArrowUp />,
+      loadingIcon = <ShapeSquare />,
+      loading = false,
+      onSubmit,
+      onStop,
+      variant = 'default',
+      disabledSubmit,
+      ...props
+    },
+    textRef
+  ) => {
+    const onSubmitPreflight = useMemoizedFn(() => {
+      if (disabled) return;
+      const text = (textRef as React.RefObject<HTMLTextAreaElement>).current?.value || '';
+      onSubmit(text);
+    });
 
-  const onSubmitPreflight = useMemoizedFn(() => {
-    if (disabled) return;
-    const text = textRef.current?.value || '';
-    if (text.trim() === '') return;
-    onSubmit(text);
-  });
+    const onPressMetaEnter = useMemoizedFn(() => {
+      onSubmitPreflight();
+    });
 
-  const onPressMetaEnter = useMemoizedFn(() => {
-    onSubmitPreflight();
-  });
-
-  return (
-    <div
-      className={cn(
-        inputTextAreaButtonVariants({ variant }),
-        loading && 'border-border!',
-        className
-      )}>
-      <InputTextArea
-        ref={textRef}
-        disabled={disabled || loading}
-        variant="ghost"
+    return (
+      <div
         className={cn(
-          'leading-1.3 w-full px-5! py-4! pr-10 align-middle transition-all duration-400',
-          loading && 'cursor-default! opacity-60'
-        )}
-        autoResize={autoResize}
-        rounding="xl"
-        onPressMetaEnter={onPressMetaEnter}
-        {...props}
-      />
-
-      <div className="absolute right-2 bottom-2">
-        <SubmitButton
-          disabled={disabled || disabledSubmit}
-          loading={loading}
-          sendIcon={sendIcon}
-          loadingIcon={loadingIcon}
-          onStop={onStop}
-          onSubmitPreflight={onSubmitPreflight}
+          inputTextAreaButtonVariants({ variant }),
+          loading && 'border-border!',
+          className
+        )}>
+        <InputTextArea
+          ref={textRef}
+          disabled={disabled || loading}
+          variant="ghost"
+          className={cn(
+            'leading-1.3 w-full px-5! py-4! pr-10 align-middle transition-all duration-500',
+            loading && 'cursor-not-allowed! opacity-70'
+          )}
+          autoResize={autoResize}
+          rounding="xl"
+          onPressMetaEnter={onPressMetaEnter}
+          {...props}
         />
+
+        <div className="absolute right-2 bottom-2">
+          <SubmitButton
+            disabled={disabled || disabledSubmit}
+            loading={loading}
+            sendIcon={sendIcon}
+            loadingIcon={loadingIcon}
+            onStop={onStop}
+            onSubmitPreflight={onSubmitPreflight}
+          />
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
 
 const SubmitButton: React.FC<{
   loading: boolean;
@@ -101,18 +103,19 @@ const SubmitButton: React.FC<{
 }> = ({ disabled, sendIcon, loading, loadingIcon, onSubmitPreflight, onStop }) => {
   const memoizedPrefix = useMemo(() => {
     return (
-      <Tooltip sideOffset={7} title={loading ? 'Stop' : 'Send'}>
-        <div className={cn('relative h-4 w-4 transition-all duration-200')}>
-          <div
-            className={`absolute inset-0 transition-all duration-300 ${loading ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
-            {sendIcon}
-          </div>
-          <div
-            className={`absolute inset-0 flex items-center justify-center text-sm transition-all duration-300 ${loading ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
-            {loadingIcon}
-          </div>
+      <div
+        className={cn(
+          'relative h-4 w-4 transition-all duration-300 ease-out will-change-transform'
+        )}>
+        <div
+          className={`absolute inset-0 transition-all duration-300 ease-out ${loading ? 'scale-80 opacity-0' : 'scale-100 opacity-100'}`}>
+          {sendIcon}
         </div>
-      </Tooltip>
+        <div
+          className={`absolute inset-0 flex items-center justify-center text-sm transition-all duration-300 ease-out ${loading ? 'scale-100 opacity-100' : 'scale-85 opacity-0'}`}>
+          {loadingIcon}
+        </div>
+      </div>
     );
   }, [loading, sendIcon, loadingIcon]);
 
@@ -123,6 +126,10 @@ const SubmitButton: React.FC<{
       prefix={memoizedPrefix}
       onClick={loading && onStop ? onStop : onSubmitPreflight}
       disabled={disabled}
+      className={cn(
+        'origin-center transform-gpu transition-all duration-300 ease-out will-change-transform',
+        !disabled && 'hover:scale-110 active:scale-95'
+      )}
     />
   );
 };
