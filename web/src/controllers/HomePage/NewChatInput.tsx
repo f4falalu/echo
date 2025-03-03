@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { InputTextAreaButton } from '@/components/ui/inputs/InputTextAreaButton';
 import { useBusterNewChatContextSelector } from '@/context/Chats';
 import { inputHasText } from '@/lib/text';
@@ -14,13 +15,14 @@ const autoResizeConfig = {
 export const NewChatInput: React.FC<{}> = () => {
   const onStartNewChat = useBusterNewChatContextSelector((state) => state.onStartNewChat);
   const [inputValue, setInputValue] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const disabledSubmit = useMemo(() => {
     return !inputHasText(inputValue);
   }, [inputValue]);
 
-  const onSubmit = useMemoizedFn((value: string) => {
-    onStartNewChat({ prompt: value });
+  const onSubmit = useMemoizedFn(async (value: string) => {
+    await onStartNewChat({ prompt: value });
   });
 
   const onChange = useMemoizedFn((e: ChangeEvent<HTMLTextAreaElement>) => {
