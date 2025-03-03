@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::{
-    database_dep::models::User,
+    database::models::User,
     routes::ws::{
         dashboards::dashboards_router::dashboards_router,
         datasets::datasets_router::datasets_router,

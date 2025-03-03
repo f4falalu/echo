@@ -11,8 +11,8 @@ use regex::Regex;
 use tokio::task::JoinSet;
 
 use crate::{
-    database_dep::{
-        lib::get_pg_pool,
+    database::{
+        pool::get_pg_pool,
         models::{Dataset, DataSource, User},
         schema::{data_sources, datasets},
     },

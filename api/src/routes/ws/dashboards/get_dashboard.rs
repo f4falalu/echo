@@ -5,12 +5,9 @@ use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use database::{enums::AssetPermissionRole,
+        models::{StepProgress, User},};
 use crate::{
-    database_dep::{
-        enums::AssetPermissionRole,
-        lib::StepProgress,
-        models::User,
-    },
     routes::ws::{
         ws::{SubscriptionRwLock, WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
         ws_router::WsRoutes,

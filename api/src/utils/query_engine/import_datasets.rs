@@ -7,9 +7,10 @@ use gcp_bigquery_client::model::query_request::QueryRequest;
 use sqlx::FromRow;
 use uuid::Uuid;
 
-use crate::{
-    database_dep::{enums::DatasetType, lib::get_pg_pool, models::Dataset, schema::datasets},
-    utils::{query_engine::credentials::Credential, user::user_info::get_user_organization_id},
+use database::{enums::DatasetType, pool::get_pg_pool, models::Dataset, schema::datasets};
+
+use crate::utils::{
+    query_engine::credentials::Credential, user::user_info::get_user_organization_id,
 };
 
 use super::{

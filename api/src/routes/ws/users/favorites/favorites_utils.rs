@@ -6,9 +6,9 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::database_dep::{
+use database::{
     enums::AssetType,
-    lib::get_pg_pool,
+    pool::get_pg_pool,
     models::{User, UserFavorite},
     schema::{collections, collections_to_assets, dashboards, messages_deprecated, threads_deprecated, user_favorites},
 };

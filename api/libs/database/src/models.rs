@@ -652,3 +652,49 @@ pub struct DatasetToDatasetGroup {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
 }
+
+// TODO: These are json types that go in the db.
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(untagged)]
+pub enum MinMaxValue {
+    Number(f64),
+    String(String),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ColumnMetadata {
+    pub name: String,
+    #[serde(rename = "type")]
+    pub type_: String,
+    pub simple_type: Option<String>,
+    pub unique_values: i32,
+    pub min_value: Option<MinMaxValue>,
+    pub max_value: Option<MinMaxValue>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct DataMetadataJsonBody {
+    pub column_count: i32,
+    pub row_count: i32,
+    pub column_metadata: Vec<ColumnMetadata>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct MessageResponses {
+    pub messages: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UserConfig {
+    pub color_palettes: Option<Vec<Vec<String>>>,
+    pub last_used_color_palette: Option<Vec<String>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub enum StepProgress {
+    InProgress,
+    Completed,
+    Failed,
+}

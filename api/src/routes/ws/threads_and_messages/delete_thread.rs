@@ -6,12 +6,10 @@ use std::sync::Arc;
 
 use uuid::Uuid;
 
-use crate::{
-    database_dep::{
-        lib::get_pg_pool,
+use database::{pool::get_pg_pool,
         models::User,
-        schema::threads_deprecated,
-    },
+        schema::threads_deprecated,};
+use crate::{
     routes::ws::{
         ws::{SubscriptionRwLock, WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
         ws_router::WsRoutes,

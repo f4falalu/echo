@@ -1,28 +1,24 @@
 use indexmap::IndexMap;
 
 use anyhow::{anyhow, Result};
+use database::{enums::DataSourceType, models::DataSource};
 
-use crate::{
-    database_dep::{enums::DataSourceType, models::DataSource},
-    utils::{
-        clients::supabase_vault::read_secret,
-        query_engine::{
-            credentials::{
-                BigqueryCredentials, DatabricksCredentials, MySqlCredentials, PostgresCredentials,
-                SnowflakeCredentials, SqlServerCredentials,
-            },
-            data_source_connections::{
-                get_bigquery_client::get_bigquery_client,
-                get_databricks_client::get_databricks_client,
-                get_mysql_connection::get_mysql_connection,
-                get_postgres_connection::get_postgres_connection,
-                get_redshift_connection::get_redshift_connection,
-                get_snowflake_client::get_snowflake_client,
-                get_sql_server_connection::get_sql_server_connection,
-                ssh_tunneling::kill_ssh_tunnel,
-            },
-            data_types::DataType,
+use crate::utils::{
+    clients::supabase_vault::read_secret,
+    query_engine::{
+        credentials::{
+            BigqueryCredentials, DatabricksCredentials, MySqlCredentials, PostgresCredentials,
+            SnowflakeCredentials, SqlServerCredentials,
         },
+        data_source_connections::{
+            get_bigquery_client::get_bigquery_client, get_databricks_client::get_databricks_client,
+            get_mysql_connection::get_mysql_connection,
+            get_postgres_connection::get_postgres_connection,
+            get_redshift_connection::get_redshift_connection,
+            get_snowflake_client::get_snowflake_client,
+            get_sql_server_connection::get_sql_server_connection, ssh_tunneling::kill_ssh_tunnel,
+        },
+        data_types::DataType,
     },
 };
 

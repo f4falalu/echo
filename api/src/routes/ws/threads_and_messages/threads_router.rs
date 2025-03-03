@@ -4,8 +4,9 @@ use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+use database::models::User;
+
 use crate::{
-    database_dep::models::User,
     routes::ws::{threads_and_messages::unsubscribe::unsubscribe, ws::SubscriptionRwLock},
 };
 

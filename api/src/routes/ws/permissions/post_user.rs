@@ -7,18 +7,18 @@ use serde_json::json;
 use uuid::Uuid;
 
 use crate::{
-    database_dep::{
-        enums::{SharingSetting, UserOrganizationRole, UserOrganizationStatus},
-        lib::{get_pg_pool, UserConfig},
-        models::{User, UserToOrganization},
-        schema::{users, users_to_organizations},
-    },
     routes::ws::{
         ws::{WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
         ws_router::WsRoutes,
         ws_utils::{send_error_message, send_ws_message},
     },
     utils::{clients::sentry_utils::send_sentry_error, user::user_info::get_user_organization_id},
+};
+use database::{
+    enums::{SharingSetting, UserOrganizationRole, UserOrganizationStatus},
+    models::{User, UserConfig, UserToOrganization},
+    pool::get_pg_pool,
+    schema::{users, users_to_organizations},
 };
 
 use super::{

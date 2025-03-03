@@ -6,14 +6,14 @@ use diesel_async::RunQueryDsl;
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::database_dep::enums::IdentityType;
-use crate::database_dep::schema::{
+use database::enums::IdentityType;
+use database::schema::{
     dataset_groups, dataset_groups_permissions, dataset_permissions, datasets, permission_groups,
     permission_groups_to_identities,
 };
-use crate::database_dep::{
+use database::{
     enums::{UserOrganizationRole, UserOrganizationStatus},
-    lib::get_pg_pool,
+    pool::get_pg_pool,
     models::User,
     schema::{users, users_to_organizations},
 };

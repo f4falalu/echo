@@ -8,13 +8,11 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    database_dep::{
-        enums::{AssetPermissionRole, AssetType},
-        lib::get_pg_pool,
+use database::{enums::{AssetPermissionRole, AssetType},
+        pool::get_pg_pool,
         models::{ThreadToDashboard, User},
-        schema::{dashboards, threads_to_dashboards},
-    },
+        schema::{dashboards, threads_to_dashboards},};
+use crate::{
     routes::ws::{
         dashboards::dashboards_router::{DashboardEvent, DashboardRoute},
         ws::{SubscriptionRwLock, WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},

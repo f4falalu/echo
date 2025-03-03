@@ -7,13 +7,11 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{
-    database_dep::{
-        enums::{DataSourceType, UserOrganizationRole},
-        lib::get_pg_pool,
+use database::{enums::{DataSourceType, UserOrganizationRole},
+        pool::get_pg_pool,
         models::Dataset,
-        schema::{data_sources, datasets, organizations, users, users_to_organizations},
-    },
+        schema::{data_sources, datasets, organizations, users, users_to_organizations},};
+use crate::{
     utils::query_engine::credentials::{get_data_source_credentials, Credential},
 };
 

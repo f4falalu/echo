@@ -14,9 +14,9 @@ use diesel::{
     QueryDsl,
 };
 
-use crate::database_dep::{
+use database::{
     enums::SharingSetting,
-    lib::get_pg_pool,
+    pool::get_pg_pool,
     models::{PermissionGroupToIdentity, UserToOrganization},
     schema::{datasets, sql_types::IdentityTypeEnum},
 };
@@ -24,7 +24,7 @@ use crate::database_dep::{
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::database_dep::{
+use database::{
     enums::{TeamToUserRole, UserOrganizationRole},
     models::{PermissionGroup, Team, User},
     schema::{
@@ -33,7 +33,7 @@ use crate::database_dep::{
     },
 };
 
-use crate::database_dep::enums::IdentityType;
+use database::enums::IdentityType;
 
 #[derive(Serialize, QueryableByName)]
 pub struct PermissionGroupItem {

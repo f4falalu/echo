@@ -12,13 +12,11 @@ use tracing;
 use uuid::Uuid;
 
 use crate::utils::tools::interaction_tools::SendMessageToUser;
-use crate::{
-    database_dep::{
-        enums::Verification,
-        lib::get_pg_pool,
+use database::{enums::Verification,
+        pool::get_pg_pool,
         models::{DashboardFile, Message, MessageToFile, MetricFile, Thread, User},
-        schema::{dashboard_files, messages, messages_to_files, metric_files, threads},
-    },
+        schema::{dashboard_files, messages, messages_to_files, metric_files, threads},};
+use crate::{
     routes::ws::{
         threads_and_messages::{
             post_thread::agent_message_transformer::{

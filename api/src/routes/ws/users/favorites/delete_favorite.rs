@@ -5,12 +5,10 @@ use diesel_async::RunQueryDsl;
 use serde::Deserialize;
 use uuid::Uuid;
 
-use crate::{
-    database_dep::{
-        lib::get_pg_pool,
+use database::{pool::get_pg_pool,
         models::User,
-        schema::user_favorites,
-    },
+        schema::user_favorites,};
+use crate::{
     routes::ws::{
         users::users_router::{UserEvent, UserRoute},
         ws::{WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},

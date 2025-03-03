@@ -10,9 +10,9 @@ use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
 
 use crate::{
-    database_dep::{
+    database::{
         enums::DatasetType,
-        lib::get_pg_pool,
+        pool::get_pg_pool,
         models::{DataSource, Dataset, DatasetColumn, EntityRelationship, User},
         schema::{data_sources, dataset_columns, datasets, entity_relationship},
     },

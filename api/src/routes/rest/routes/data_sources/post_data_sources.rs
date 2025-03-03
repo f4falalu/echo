@@ -15,12 +15,12 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::database_dep::enums::DataSourceOnboardingStatus;
-use crate::database_dep::enums::UserOrganizationRole;
-use crate::database_dep::lib::get_pg_pool;
-use crate::database_dep::models::{DataSource, User};
-use crate::database_dep::schema::data_sources;
-use crate::database_dep::schema::users_to_organizations;
+use database::enums::DataSourceOnboardingStatus;
+use database::enums::UserOrganizationRole;
+use database::pool::get_pg_pool;
+use database::models::{DataSource, User};
+use database::schema::data_sources;
+use database::schema::users_to_organizations;
 use crate::routes::rest::ApiResponse;
 use crate::utils::clients::supabase_vault::create_secrets;
 use crate::utils::query_engine::credentials::Credential;

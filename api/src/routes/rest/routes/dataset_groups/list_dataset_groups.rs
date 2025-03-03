@@ -7,9 +7,9 @@ use diesel_async::RunQueryDsl;
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::database_dep::lib::get_pg_pool;
-use crate::database_dep::models::User;
-use crate::database_dep::schema::dataset_groups;
+use database::pool::get_pg_pool;
+use database::models::{DatasetGroup, User};
+use database::schema::dataset_groups;
 use crate::routes::rest::ApiResponse;
 use crate::utils::user::user_info::get_user_organization_id;
 
@@ -46,7 +46,7 @@ async fn list_dataset_groups_handler(user: User) -> Result<Vec<DatasetGroupInfo>
         .filter(dataset_groups::deleted_at.is_null())
         .filter(dataset_groups::organization_id.eq(organization_id))
         .order_by(dataset_groups::created_at.desc())
-        .load::<crate::database_dep::models::DatasetGroup>(&mut *conn)
+        .load::<DatasetGroup>(&mut *conn)
         .await?;
 
     Ok(dataset_groups

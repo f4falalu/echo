@@ -3,7 +3,7 @@ use serde::Deserialize;
 use uuid::Uuid;
 
 use crate::{
-    database_dep::models::User,
+    database::models::User,
     routes::ws::{
         users::users_router::{UserEvent, UserRoute},
         ws::{WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},

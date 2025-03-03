@@ -5,13 +5,11 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{
-    database_dep::{
-        enums::StoredValuesStatus,
-        lib::get_pg_pool,
+use database::{enums::StoredValuesStatus,
+        pool::get_pg_pool,
         models::User,
-        schema::dataset_columns,
-    },
+        schema::dataset_columns,};
+use crate::{
     routes::ws::{
         datasets::datasets_router::{DatasetEvent, DatasetRoute},
         ws::{WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},

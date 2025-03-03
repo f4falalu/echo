@@ -6,15 +6,13 @@ use diesel_async::RunQueryDsl;
 use std::collections::HashSet;
 use uuid::Uuid;
 
-use crate::{
-    database_dep::{
-        lib::get_pg_pool,
-        models::{DataSource, Dataset, DatasetColumn},
-        schema::dataset_columns,
-    },
-    utils::query_engine::{
-        credentials::get_data_source_credentials, import_dataset_columns::retrieve_dataset_columns,
-    },
+use database::{
+    models::{DataSource, Dataset, DatasetColumn},
+    pool::get_pg_pool,
+    schema::dataset_columns,
+};
+use crate::utils::query_engine::{
+    credentials::get_data_source_credentials, import_dataset_columns::retrieve_dataset_columns,
 };
 
 pub struct ColumnUpdate {

@@ -9,13 +9,11 @@ use uuid::Uuid;
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 
+use database::{
+    enums::UserOrganizationRole, models::{ColumnMetadata, DataMetadataJsonBody, MinMaxValue, User}, pool::get_pg_pool, schema::{data_sources, datasets, users_to_organizations}
+};
+
 use crate::{
-    database_dep::{
-        enums::UserOrganizationRole,
-        lib::{get_pg_pool, ColumnMetadata, DataMetadataJsonBody, MinMaxValue},
-        models::User,
-        schema::{data_sources, datasets, users_to_organizations},
-    },
     routes::rest::ApiResponse,
     utils::{
         query_engine::{

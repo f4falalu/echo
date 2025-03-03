@@ -6,13 +6,11 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    database_dep::{
-        enums::{DataSourceType, UserOrganizationRole},
-        lib::get_pg_pool,
+use database::{enums::{DataSourceType, UserOrganizationRole},
+        pool::get_pg_pool,
         models::User,
-        schema::{data_sources, organizations, users_to_organizations},
-    },
+        schema::{data_sources, organizations, users_to_organizations},};
+use crate::{
     routes::ws::{
         data_sources::data_sources_router::{DataSourceEvent, DataSourceRoute},
         ws::{WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},

@@ -8,9 +8,9 @@ use serde::Serialize;
 use serde_json::Value;
 use uuid::Uuid;
 
-use crate::database_dep::lib::get_pg_pool;
-use crate::database_dep::models::User;
-use crate::database_dep::schema::{users, users_to_organizations};
+use database::pool::get_pg_pool;
+use database::models::User;
+use database::schema::{users, users_to_organizations};
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
 use crate::utils::user::user_info::get_user_organization_id;

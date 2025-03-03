@@ -3,7 +3,9 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
-use crate::{database_dep::enums::DataSourceType, utils::clients::supabase_vault::read_secret};
+use database::enums::DataSourceType;
+
+use crate::utils::clients::supabase_vault::read_secret;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type")]

@@ -10,13 +10,11 @@ use std::sync::Arc;
 
 use uuid::Uuid;
 
-use crate::{
-    database_dep::{
-        enums::AssetType,
-        lib::get_pg_pool,
+use database::{enums::AssetType,
+        pool::get_pg_pool,
         models::{MessageDeprecated, ThreadToDashboard, User},
-        schema::{messages_deprecated, threads_deprecated, threads_to_dashboards},
-    },
+        schema::{messages_deprecated, threads_deprecated, threads_to_dashboards},};
+use crate::{
     routes::ws::{
         ws::{SubscriptionRwLock, WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
         ws_router::WsRoutes,

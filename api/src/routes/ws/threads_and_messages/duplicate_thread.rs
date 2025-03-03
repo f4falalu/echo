@@ -1,18 +1,14 @@
 use anyhow::{anyhow, Result};
 use diesel::insert_into;
 use diesel_async::RunQueryDsl;
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::sync::Arc;
 
 use uuid::Uuid;
 
 use crate::{
-    database_dep::{
-        enums::{AssetPermissionRole, AssetType, IdentityType},
-        lib::{get_pg_pool, FetchingData, StepProgress},
-        models::{AssetPermission, MessageDeprecated, User},
-        schema::{asset_permissions, messages_deprecated, threads_deprecated},
-    },
     routes::ws::{
         ws::{SubscriptionRwLock, WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
         ws_router::WsRoutes,
@@ -26,14 +22,31 @@ use crate::{
             },
             sentry_utils::send_sentry_error,
         },
-        query_engine::query_engine::query_engine,
+        query_engine::{data_types::DataType, query_engine::query_engine},
     },
+};
+use database::{
+    enums::{AssetPermissionRole, AssetType, IdentityType},
+    models::StepProgress,
+    models::{AssetPermission, MessageDeprecated, User},
+    pool::get_pg_pool,
+    schema::{asset_permissions, messages_deprecated, threads_deprecated},
 };
 
 use super::{
     thread_utils::{get_thread_state_by_id, ThreadState},
     threads_router::{ThreadEvent, ThreadRoute},
 };
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct FetchingData {
+    pub thread_id: Uuid,
+    pub message_id: Uuid,
+    pub progress: StepProgress,
+    pub data: Option<Vec<IndexMap<String, DataType>>>,
+    pub chart_config: Option<Value>,
+    pub code: Option<String>,
+}
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct DuplicateThreadRequest {
@@ -260,7 +273,9 @@ async fn fetch_data_handler(
     thread_id: &Uuid,
     message_id: &Uuid,
 ) -> Result<()> {
-    match send_fetching_data_in_progress_to_sub(subscription, user, thread_id, message_id, sql).await {
+    match send_fetching_data_in_progress_to_sub(subscription, user, thread_id, message_id, sql)
+        .await
+    {
         Ok(_) => (),
         Err(e) => {
             tracing::error!(
@@ -351,7 +366,10 @@ async fn duplicate_thread_handler(
 
     for message in &mut thread_state.messages {
         message.message.id = Uuid::new_v4();
-        message.message.title = Some(format!("{} (Copy)", message.message.title.clone().unwrap_or_default()));
+        message.message.title = Some(format!(
+            "{} (Copy)",
+            message.message.title.clone().unwrap_or_default()
+        ));
         message.message.thread_id = new_thread_id;
         message.message.draft_session_id = None;
         message.message.created_at = chrono::Utc::now();

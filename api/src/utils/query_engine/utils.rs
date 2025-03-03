@@ -2,7 +2,7 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use tokio::process::Command;
 
-use crate::database_dep::enums::DataSourceType;
+use database::enums::DataSourceType;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "lowercase")]

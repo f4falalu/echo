@@ -24,7 +24,7 @@ use super::{
 use crate::{
     database_dep::{
         enums::Verification,
-        lib::get_pg_pool,
+        pool::get_pg_pool,
         models::{DashboardFile, MetricFile},
         schema::{dashboard_files, metric_files},
     },
@@ -313,7 +313,7 @@ impl ToolExecutor for FilterDashboardsTool {
 
         // Fetch metric files
         if !metric_ids.is_empty() {
-            use crate::database_dep::schema::metric_files::dsl::*;
+            use database::schema::metric_files::dsl::*;
             match metric_files
                 .filter(id.eq_any(metric_ids))
                 .filter(deleted_at.is_null())

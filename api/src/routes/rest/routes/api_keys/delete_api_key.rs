@@ -9,9 +9,9 @@ use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use uuid::Uuid;
 
-use crate::database_dep::lib::get_pg_pool;
-use crate::database_dep::models::User;
-use crate::database_dep::schema::api_keys;
+use database::pool::get_pg_pool;
+use database::models::User;
+use database::schema::api_keys;
 use crate::routes::rest::ApiResponse;
 
 pub async fn delete_api_key(

@@ -10,16 +10,14 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{
-    database_dep::{
-        enums::{AssetPermissionRole, AssetType},
-        lib::get_pg_pool,
+use database::{enums::{AssetPermissionRole, AssetType},
+        pool::get_pg_pool,
         models::Collection,
         schema::{
             asset_permissions, collections, collections_to_assets, dashboards, messages_deprecated,
             teams_to_users, threads_deprecated, users,
-        },
-    },
+        },};
+use crate::{
     utils::{
         clients::sentry_utils::send_sentry_error,
         sharing::asset_sharing::{get_asset_sharing_info, IndividualPermission, TeamPermissions},
