@@ -38,7 +38,7 @@ export interface DropdownItem<T = string> {
   disabled?: boolean;
   loading?: boolean;
   selected?: boolean;
-  items?: DropdownItems;
+  items?: DropdownItems<T>;
   link?: string;
   linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right';
 }
@@ -50,7 +50,7 @@ export interface DropdownDivider {
 export type DropdownItems<T = string> = (DropdownItem<T> | DropdownDivider | React.ReactNode)[];
 
 export interface DropdownProps<T = string> extends DropdownMenuProps {
-  items: DropdownItems;
+  items: DropdownItems<T>;
   selectType?: 'single' | 'multiple' | 'none';
   menuHeader?: string | React.ReactNode; //if string it will render a search box
   closeOnSelect?: boolean;
@@ -68,8 +68,12 @@ const dropdownItemKey = (item: DropdownItems[number], index: number) => {
   return `item-${index}`;
 };
 
-export const Dropdown: React.FC<DropdownProps> = React.memo(
-  ({
+export const Test = <T extends string = string>({}: { items: DropdownItems<T> }) => {
+  return <></>;
+};
+
+export const Dropdown = React.memo(
+  <T extends string>({
     items,
     selectType = 'none',
     menuHeader,
@@ -86,7 +90,7 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
     footerContent,
     dir,
     modal
-  }) => {
+  }: DropdownProps<T>) => {
     const { filteredItems, searchText, handleSearchChange } = useDebounceSearch({
       items,
       searchPredicate: (item, searchText) => {
@@ -163,9 +167,11 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
                   if ((item as DropdownItem).value && !(item as DropdownItem).items) {
                     hotkeyIndex++;
                   }
+
+                  onSelect;
                   return (
                     <DropdownItemSelector
-                      item={item}
+                      item={item as DropdownItems<T>[number]}
                       index={hotkeyIndex}
                       selectType={selectType}
                       onSelect={onSelect}
@@ -182,9 +188,10 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
                   if ((item as DropdownItem).value && !(item as DropdownItem).items) {
                     hotkeyIndex++;
                   }
+
                   return (
                     <DropdownItemSelector
-                      item={item}
+                      item={item as DropdownItems<T>[number]}
                       index={hotkeyIndex}
                       selectType={selectType}
                       onSelect={onSelect}
@@ -208,42 +215,47 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
 
 Dropdown.displayName = 'Dropdown';
 
-const DropdownItemSelector: React.FC<{
-  item: DropdownItems[number];
-  index: number;
-  onSelect: DropdownProps['onSelect'];
-  closeOnSelect: boolean;
-  selectType: DropdownProps['selectType'];
-}> = React.memo(({ item, index, onSelect, closeOnSelect, selectType }) => {
-  if ((item as DropdownDivider).type === 'divider') {
-    return <DropdownMenuSeparator />;
-  }
-
-  if (typeof item === 'object' && React.isValidElement(item)) {
-    return item;
-  }
-
-  return (
-    <DropdownItem
-      {...(item as DropdownItem)}
-      closeOnSelect={closeOnSelect}
-      onSelect={onSelect}
-      selectType={selectType}
-      index={index}
-    />
-  );
-});
-
-DropdownItemSelector.displayName = 'DropdownItemSelector';
-
-const DropdownItem: React.FC<
-  DropdownItem & {
-    onSelect: DropdownProps['onSelect'];
-    closeOnSelect: boolean;
+const DropdownItemSelector = React.memo(
+  <T extends string>({
+    item,
+    index,
+    onSelect,
+    closeOnSelect,
+    selectType
+  }: {
+    item: DropdownItems<T>[number];
     index: number;
-    selectType: DropdownProps['selectType'];
+    onSelect?: (value: T) => void;
+    closeOnSelect: boolean;
+    selectType: DropdownProps<T>['selectType'];
+  }) => {
+    if ((item as DropdownDivider).type === 'divider') {
+      return <DropdownMenuSeparator />;
+    }
+
+    if (typeof item === 'object' && React.isValidElement(item)) {
+      return item;
+    }
+
+    return (
+      <DropdownItem<T>
+        {...(item as DropdownItem<T>)}
+        closeOnSelect={closeOnSelect}
+        onSelect={onSelect}
+        selectType={selectType}
+        index={index}
+      />
+    );
   }
-> = ({
+) as <T extends string>(props: {
+  item: DropdownItems<T>[number];
+  index: number;
+  onSelect?: (value: T) => void;
+  closeOnSelect: boolean;
+  selectType: DropdownProps<T>['selectType'];
+}) => JSX.Element;
+
+const DropdownItem = <T extends string>({
   label,
   value,
   showIndex,
@@ -262,6 +274,11 @@ const DropdownItem: React.FC<
   truncate,
   link,
   linkIcon
+}: DropdownItem<T> & {
+  onSelect?: (value: T) => void;
+  closeOnSelect: boolean;
+  index: number;
+  selectType: DropdownProps<T>['selectType'];
 }) => {
   const onClickItem = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
     if (onClick) onClick();
@@ -295,7 +312,6 @@ const DropdownItem: React.FC<
   const renderContent = () => {
     const content = (
       <>
-        {showIndex && <span className="text-gray-light">{index}</span>}
         {icon && !loading && <span className="text-icon-color">{icon}</span>}
         {loading && <CircleSpinnerLoader size={9} />}
         <div className={cn('flex flex-col gap-y-1', truncate && 'overflow-hidden')}>
@@ -310,6 +326,7 @@ const DropdownItem: React.FC<
             linkIcon={linkIcon}
           />
         )}
+        {showIndex && <span className="text-gray-light ml-auto w-2 text-center">{index}</span>}
       </>
     );
 
@@ -372,41 +389,42 @@ const DropdownItem: React.FC<
   );
 };
 
-const DropdownSubMenuWrapper = React.memo(
-  ({
-    items,
-    children,
-    closeOnSelect,
-    onSelect,
-    selectType
-  }: {
-    items: DropdownItems | undefined;
-    children: React.ReactNode;
-    closeOnSelect: boolean;
-    onSelect?: DropdownProps['onSelect'];
-    selectType: DropdownProps['selectType'];
-  }) => {
-    return (
-      <DropdownMenuSub>
-        <DropdownMenuSubTrigger>{children}</DropdownMenuSubTrigger>
-        <DropdownMenuPortal>
-          <DropdownMenuSubContent>
-            {items?.map((item, index) => (
-              <DropdownItemSelector
-                key={dropdownItemKey(item, index)}
-                item={item}
-                index={index}
-                onSelect={onSelect}
-                closeOnSelect={closeOnSelect}
-                selectType={selectType}
-              />
-            ))}
-          </DropdownMenuSubContent>
-        </DropdownMenuPortal>
-      </DropdownMenuSub>
-    );
-  }
-);
+interface DropdownSubMenuWrapperProps<T extends string> {
+  items: DropdownItems<T> | undefined;
+  children: React.ReactNode;
+  closeOnSelect: boolean;
+  onSelect?: (value: T) => void;
+  selectType: DropdownProps<T>['selectType'];
+}
+
+const DropdownSubMenuWrapper = <T extends string>({
+  items,
+  children,
+  closeOnSelect,
+  onSelect,
+  selectType
+}: DropdownSubMenuWrapperProps<T>) => {
+  return (
+    <DropdownMenuSub>
+      <DropdownMenuSubTrigger>{children}</DropdownMenuSubTrigger>
+      <DropdownMenuPortal>
+        <DropdownMenuSubContent>
+          {items?.map((item, index) => (
+            <DropdownItemSelector<T>
+              key={dropdownItemKey(item, index)}
+              item={item}
+              index={index}
+              onSelect={onSelect}
+              closeOnSelect={closeOnSelect}
+              selectType={selectType}
+            />
+          ))}
+        </DropdownMenuSubContent>
+      </DropdownMenuPortal>
+    </DropdownMenuSub>
+  );
+};
+
 DropdownSubMenuWrapper.displayName = 'DropdownSubMenuWrapper';
 
 const DropdownMenuHeaderSelector: React.FC<{

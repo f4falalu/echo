@@ -44,7 +44,7 @@ export const StatusDropdownContent: React.FC<{
     });
   }, [isAdmin, status, onChangeStatus]);
 
-  const onSelect = useMemoizedFn((item: DropdownItems[number]) => {
+  const onSelect = useMemoizedFn((item: DropdownItem<VerificationStatus>) => {
     const _item = item as DropdownItem<VerificationStatus>;
     onChangeStatus(_item.value as VerificationStatus);
   });
@@ -54,7 +54,7 @@ export const StatusDropdownContent: React.FC<{
       emptyStateText="Nothing to see here..."
       items={items}
       onSelect={(v) => {
-        console.log(v);
+        v;
       }}
       selectType="single"
       menuHeader="Status">
