@@ -16,6 +16,7 @@ interface SelectMultipleProps extends VariantProps<typeof selectVariants> {
   className?: string;
   placeholder?: string;
   value: string[];
+  disabled?: boolean;
 }
 
 export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
@@ -26,7 +27,8 @@ export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
     placeholder = 'Select items...',
     size = 'default',
     variant = 'default',
-    value
+    value,
+    disabled
   }) => {
     const selectedRecord = useMemo(() => {
       return itemsProp.reduce<Record<string, boolean>>((acc, item) => {
@@ -80,6 +82,7 @@ export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
             selectVariants({ variant, size }),
             'relative overflow-hidden pr-0',
             selectedItems.length > 0 && 'pl-1!',
+            disabled && 'cursor-not-allowed opacity-80',
             className
           )}>
           <div className="scrollbar-hide flex h-full flex-nowrap items-center gap-1 overflow-x-auto">

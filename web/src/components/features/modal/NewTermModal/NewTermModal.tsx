@@ -116,7 +116,7 @@ const DatasetListContainer: React.FC<{
   selectedDatasets: string[];
   setSelectedDatasets: React.Dispatch<React.SetStateAction<string[]>>;
 }> = React.memo(({ selectedDatasets, setSelectedDatasets }) => {
-  const { data: datasetsList, isLoading } = useGetDatasets();
+  const { data: datasetsList, isLoading, isFetched } = useGetDatasets();
 
   const onChange = useMemoizedFn((v: string[]) => {
     setSelectedDatasets(v);
@@ -134,6 +134,7 @@ const DatasetListContainer: React.FC<{
   return (
     <SelectMultiple
       items={selectOptions}
+      disabled={!isFetched}
       onSelect={onChange}
       placeholder="Select a dataset"
       value={selectedDatasets}
