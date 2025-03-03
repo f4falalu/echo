@@ -4,8 +4,7 @@ import React, { useMemo } from 'react';
 import { type SelectItem } from './Select';
 import { selectVariants } from './SelectBase';
 import { cn } from '@/lib/classMerge';
-import { Xmark } from '../icons/NucleoIconOutlined';
-import { Dropdown, DropdownItem } from '../dropdown/Dropdown';
+import { Dropdown, type DropdownItem } from '../dropdown/Dropdown';
 import { VariantProps } from 'class-variance-authority';
 import { useMemoizedFn } from 'ahooks';
 import { InputTag } from '../inputs/InputTag';
@@ -91,6 +90,7 @@ export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
                 key={item.value}
                 label={item.label}
                 value={item.value}
+                disabled={disabled}
                 onRemove={handleRemoveTag}
               />
             ))}
