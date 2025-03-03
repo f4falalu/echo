@@ -28,15 +28,21 @@ export interface AppSegmentedProps<T extends string | number = string> {
   disabled?: boolean;
 }
 
+const heightVariants = cva('h-[24px]', {
+  variants: {
+    size: {
+      default: 'h-[24px]',
+      medium: 'h-[28px]',
+      large: 'h-[50px]'
+    }
+  }
+});
+
 const segmentedVariants = cva('relative inline-flex items-center rounded', {
   variants: {
     block: {
       true: 'w-full',
       false: ''
-    },
-    size: {
-      default: '',
-      large: ''
     },
     type: {
       button: 'bg-transparent',
@@ -46,11 +52,12 @@ const segmentedVariants = cva('relative inline-flex items-center rounded', {
 });
 
 const triggerVariants = cva(
-  'relative z-10 flex items-center justify-center gap-x-1.5 gap-y-1 rounded transition-colors',
+  'relative z-10 flex items-center justify-center gap-x-1.5 gap-y-1 rounded transition-colors ',
   {
     variants: {
       size: {
-        default: 'px-2.5 flex-row',
+        default: 'px-2 flex-row',
+        medium: 'px-3 flex-row',
         large: 'px-3 flex-col'
       },
       block: {
@@ -65,6 +72,12 @@ const triggerVariants = cva(
         true: 'text-foreground',
         false: 'text-gray-dark hover:text-foreground'
       }
+    },
+    defaultVariants: {
+      size: 'default',
+      block: false,
+      disabled: false,
+      selected: false
     }
   }
 );
@@ -107,8 +120,6 @@ export const AppSegmented: AppSegmentedComponent = React.memo(
         transform: 'translateX(0)'
       });
       const [isMeasured, setIsMeasured] = useState(false);
-
-      const height = size === 'default' ? 'h-[28px]' : 'h-[50px]';
 
       useEffect(() => {
         if (value !== undefined && value !== selectedValue) {
@@ -154,10 +165,10 @@ export const AppSegmented: AppSegmentedComponent = React.memo(
           ref={ref}
           value={selectedValue as string}
           onValueChange={handleTabClick}
-          className={cn(segmentedVariants({ block, type }), height, className)}>
+          className={cn(segmentedVariants({ block, type }), heightVariants({ size }), className)}>
           {isMeasured && (
             <motion.div
-              className={cn(gliderVariants({ type }), height)}
+              className={cn(gliderVariants({ type }), heightVariants({ size }))}
               initial={{
                 width: gliderStyle.width,
                 x: parseInt(gliderStyle.transform.replace('translateX(', '').replace('px)', ''))
@@ -174,7 +185,7 @@ export const AppSegmented: AppSegmentedComponent = React.memo(
             />
           )}
           <Tabs.List
-            className="relative z-10 flex w-full items-center gap-1"
+            className="relative z-10 flex w-full items-center gap-0.5"
             aria-label="Segmented Control">
             {options.map((item) => (
               <SegmentedTrigger
@@ -205,12 +216,6 @@ interface SegmentedTriggerProps<T extends string = string> {
 
 function SegmentedTriggerComponent<T extends string = string>(props: SegmentedTriggerProps<T>) {
   const { item, selectedValue, size, block, tabRefs } = props;
-
-  const NodeWrapper = item.tooltip
-    ? ({ children }: { children: React.ReactNode }) => (
-        <div className="flex items-center gap-x-1">{children}</div>
-      )
-    : React.Fragment;
 
   return (
     <Tooltip title={item.tooltip || ''} sideOffset={10}>

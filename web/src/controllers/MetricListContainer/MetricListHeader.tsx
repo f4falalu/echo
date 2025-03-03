@@ -63,6 +63,14 @@ const MetricsFilters: React.FC<{
     }
   });
 
-  return <AppSegmented value={selectedOption?.value} options={options} onChange={onChange} />;
+  return (
+    <AppSegmented
+      type="button"
+      size="default"
+      value={selectedOption?.value}
+      options={options}
+      onChange={onChange}
+    />
+  );
 });
 MetricsFilters.displayName = 'MetricsFilters';
