@@ -15,7 +15,7 @@ export const useBusterDashboards = () => {
   const queryClient = useQueryClient();
 
   const getDashboardMemoized = useMemoizedFn((dashboardId: string) => {
-    const options = queryKeys['/dashboards/get:getDashboardState'](dashboardId);
+    const options = queryKeys.dashboardGetDashboard(dashboardId);
     const queryKey = options.queryKey;
     return queryClient.getQueryData(queryKey);
   });

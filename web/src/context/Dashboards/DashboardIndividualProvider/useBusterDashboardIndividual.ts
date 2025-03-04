@@ -22,7 +22,7 @@ export const useBusterDashboardIndividual = ({
       payload: { id: dashboardId, password }
     },
     responseEvent: '/dashboards/get:getDashboardState',
-    options: queryKeys['/dashboards/get:getDashboardState'](dashboardId || ''),
+    options: queryKeys.dashboardGetDashboard(dashboardId || ''),
     callback: (_, newData) => {
       initializeDashboardMetrics(newData.metrics);
       return newData;

@@ -2,7 +2,7 @@
 
 import React, { useRef } from 'react';
 import { InputTextAreaButton } from '@/components/ui/inputs/InputTextAreaButton';
-import { useBusterChatContextSelector, useBusterNewChatContextSelector } from '@/context/Chats';
+import { useBusterNewChatContextSelector } from '@/context/Chats';
 import { inputHasText } from '@/lib/text';
 import { useMemoizedFn, useMount } from 'ahooks';
 import { ChangeEvent, useMemo, useState } from 'react';

@@ -19,6 +19,6 @@ const dashboardGetDashboard = (dashboardId: string) =>
   });
 
 export const dashboardQueryKeys = {
-  '/dashboards/get:getDashboardState': dashboardGetDashboard,
-  '/dashboards/list:getDashboardsList': dashboardGetList
+  dashboardGetDashboard,
+  dashboardGetList
 };

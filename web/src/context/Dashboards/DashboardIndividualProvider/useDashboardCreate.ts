@@ -1,4 +1,3 @@
-import { type BusterDashboard } from '@/api/asset_interfaces';
 import { queryKeys } from '@/api/query_keys';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
@@ -13,7 +12,7 @@ export const useDashboardCreate = ({}: {}) => {
   const { mutateAsync: deleteDashboard, isPending: isDeletingDashboard } = useSocketQueryMutation({
     emitEvent: '/dashboards/delete',
     responseEvent: '/dashboards/delete:deleteDashboard',
-    options: queryKeys['/dashboards/list:getDashboardsList']({}),
+    options: queryKeys.dashboardGetList({}),
     preCallback: (currentData, variables) => {
       return currentData?.filter((t) => !variables.ids.includes(t.id)) || [];
     }
@@ -25,7 +24,7 @@ export const useDashboardCreate = ({}: {}) => {
     responseEvent: '/dashboards/post:postDashboard',
     callback: (newData, currentData, variables) => {
       const dashboardId = newData.dashboard.id;
-      const options = queryKeys['/dashboards/get:getDashboardState'](dashboardId);
+      const options = queryKeys.dashboardGetDashboard(dashboardId);
       queryClient.setQueryData(options.queryKey, newData);
       return currentData;
     }

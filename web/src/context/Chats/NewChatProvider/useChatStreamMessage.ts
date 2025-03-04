@@ -67,7 +67,7 @@ export const useChatStreamMessage = () => {
 
   const normalizeChatMessage = useMemoizedFn((iChatMessages: IBusterChatMessage[]) => {
     for (const message of iChatMessages) {
-      const options = queryKeys['chatsMessages'](message.id);
+      const options = queryKeys.chatsMessages(message.id);
       const queryKey = options.queryKey;
       queryClient.setQueryData(queryKey, message);
     }

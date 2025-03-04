@@ -13,6 +13,6 @@ export const datasourceGet = (id: string) =>
   });
 
 export const datasourceQueryKeys = {
-  '/data_sources/list:getDatasourcesList': datasourceGetList,
-  '/data_sources/get:getDataSource': datasourceGet
+  datasourceGetList,
+  datasourceGet
 };

@@ -102,7 +102,7 @@ const SubmitButton: React.FC<{
   loadingIcon: React.ReactNode;
   onSubmitPreflight: () => void;
   onStop?: () => void;
-}> = ({ disabled, sendIcon, loading, loadingIcon, onSubmitPreflight, onStop }) => {
+}> = React.memo(({ disabled, sendIcon, loading, loadingIcon, onSubmitPreflight, onStop }) => {
   const memoizedPrefix = useMemo(() => {
     return (
       <div
@@ -134,4 +134,6 @@ const SubmitButton: React.FC<{
       )}
     />
   );
-};
+});
+
+SubmitButton.displayName = 'SubmitButton';

@@ -8,7 +8,7 @@ export const useDataSourceIndividual = (id: string) => {
       payload: { id }
     },
     responseEvent: '/data_sources/get:getDataSource',
-    options: queryKeys['/data_sources/get:getDataSource'](id)
+    options: queryKeys.datasourceGet(id)
   });
 
   return {
