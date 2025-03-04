@@ -72,7 +72,7 @@ pub async fn get_thread_ws(
 
     let get_thread_ws_message = WsResponseMessage::new(
         WsRoutes::Threads(ThreadRoute::Get),
-        WsEvent::Threads(ThreadEvent::GetThreadState),
+        WsEvent::Threads(ThreadEvent::GetChat),
         &thread,
         None,
         user,

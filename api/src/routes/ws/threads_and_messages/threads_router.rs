@@ -75,6 +75,7 @@ pub enum ThreadEvent {
     GeneratingResponseMessage,
     GeneratingReasoningMessage,
     Complete,
+    GetChat,
 }
 
 pub async fn threads_router(
