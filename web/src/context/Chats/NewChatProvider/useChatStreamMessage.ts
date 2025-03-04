@@ -47,7 +47,6 @@ export const useChatStreamMessage = () => {
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const onUpdateChat = useBusterChatContextSelector((x) => x.onUpdateChat);
   const onUpdateChatMessage = useBusterChatContextSelector((x) => x.onUpdateChatMessage);
-  const onToggleChatsModal = useAppLayoutContextSelector((s) => s.onToggleChatsModal);
   const [isPending, startTransition] = useTransition();
 
   const onUpdateChatMessageTransition = useMemoizedFn(
@@ -98,7 +97,6 @@ export const useChatStreamMessage = () => {
       route: BusterRoutes.APP_CHAT_ID,
       chatId: iChat.id
     });
-    onToggleChatsModal(false);
   });
 
   const replaceMessageCallback = useMemoizedFn(

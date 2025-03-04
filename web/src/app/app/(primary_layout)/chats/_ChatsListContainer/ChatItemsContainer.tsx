@@ -1,4 +1,10 @@
-import { ShareAssetType, VerificationStatus, BusterChatListItem } from '@/api/asset_interfaces';
+'use client';
+
+import {
+  ShareAssetType,
+  VerificationStatus,
+  type BusterChatListItem
+} from '@/api/asset_interfaces';
 import { makeHumanReadble, formatDate } from '@/lib';
 import React, { memo, useMemo, useRef, useState } from 'react';
 import { FavoriteStar, getShareStatus } from '@/components/features/list';
@@ -10,7 +16,6 @@ import { BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { ChatSelectedOptionPopup } from './ChatItemsSelectedPopup';
 import { BusterList, ListEmptyStateWithButton } from '@/components/ui/list';
 import { useCreateListByDate } from '@/components/ui/list/useCreateListByDate';
-import { cn } from '@/lib/utils';
 
 export const ChatItemsContainer: React.FC<{
   chats: BusterChatListItem[];
@@ -126,23 +131,18 @@ export const ChatItemsContainer: React.FC<{
 const EmptyState: React.FC<{
   loading: boolean;
 }> = React.memo(({ loading }) => {
-  if (loading) {
-    return <></>;
-  }
+  if (loading) return <></>;
 
-  return <ChatsEmptyState />;
-});
-EmptyState.displayName = 'EmptyState';
-
-const ChatsEmptyState: React.FC<{}> = ({}) => {
   return (
     <ListEmptyStateWithButton
       title="You don't have any chats yet."
       description="You don't have any chats. As soon as you do, they will start to appear here."
       buttonText="New chat"
+      linkButton={createBusterRoute({ route: BusterRoutes.APP_HOME })}
     />
   );
-};
+});
+EmptyState.displayName = 'EmptyState';
 
 const TitleCell = React.memo<{ title: string; status: VerificationStatus; chatId: string }>(
   ({ title, status, chatId }) => {

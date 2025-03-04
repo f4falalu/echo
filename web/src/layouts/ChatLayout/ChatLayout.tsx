@@ -6,7 +6,7 @@ import { ChatContainer } from './ChatContainer';
 import { FileContainer } from './FileContainer';
 import { ChatLayoutContextProvider } from './ChatLayoutContext';
 import { useChatLayout } from './ChatLayoutContext';
-import { SelectedFile } from './interfaces';
+import type { SelectedFile } from './interfaces';
 import { useDefaultSplitterLayout } from './hooks';
 import { ChatContextProvider, useChatIndividualContext } from './ChatContext/ChatContext';
 import { DEFAULT_CHAT_OPTION_SIDEBAR_SIZE } from './ChatLayoutContext/config';

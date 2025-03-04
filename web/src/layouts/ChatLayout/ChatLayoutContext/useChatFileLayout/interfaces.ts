@@ -13,6 +13,7 @@ export type FileView =
   | DatasetFileView
   | CollectionFileView
   | ReasoningFileView;
+
 export type MetricFileView = 'chart' | 'results' | 'file';
 export type DashboardFileView = 'dashboard' | 'file';
 export type TermFileView = 'file';
