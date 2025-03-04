@@ -4,8 +4,47 @@ import * as React from 'react';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
 
 import { cn } from '@/lib/utils';
+import { useMemoizedFn } from 'ahooks';
+
+export type PopoverTriggerType = 'click' | 'hover';
 
 const Popover = PopoverPrimitive.Root;
+
+interface PopoverProps extends React.ComponentPropsWithoutRef<typeof Popover> {
+  triggerType?: PopoverTriggerType;
+}
+
+const PopoverRoot: React.FC<PopoverProps> = ({ children, triggerType = 'click', ...props }) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  const handleMouseEnter = useMemoizedFn(() => {
+    if (triggerType === 'hover') {
+      setIsOpen(true);
+    }
+  });
+
+  const handleMouseLeave = useMemoizedFn(() => {
+    if (triggerType === 'hover') {
+      setIsOpen(false);
+    }
+  });
+
+  const content =
+    triggerType === 'hover' ? (
+      <div className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <div className="absolute -inset-[4px]" />
+        <div className="relative z-10">{children}</div>
+      </div>
+    ) : (
+      children
+    );
+
+  return (
+    <Popover {...props} open={triggerType === 'hover' ? isOpen : undefined}>
+      {content}
+    </Popover>
+  );
+};
 
 const PopoverTrigger = PopoverPrimitive.Trigger;
 
@@ -33,4 +72,4 @@ const PopoverContent = React.forwardRef<
 ));
 PopoverContent.displayName = PopoverPrimitive.Content.displayName;
 
-export { Popover, PopoverTrigger, PopoverContent };
+export { PopoverRoot, PopoverTrigger, PopoverContent };

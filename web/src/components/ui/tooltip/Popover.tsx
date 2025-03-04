@@ -1,4 +1,9 @@
-import { Popover as PopoverBase, PopoverContent, PopoverTrigger } from './PopoverBase';
+import {
+  PopoverRoot as PopoverBase,
+  PopoverContent,
+  PopoverTrigger,
+  PopoverTriggerType
+} from './PopoverBase';
 import React from 'react';
 import { Separator } from '../seperator/Separator';
 
@@ -9,12 +14,22 @@ interface PopoverProps
   content: React.ReactNode;
   className?: string;
   headerContent?: string | React.ReactNode;
+  triggerType?: PopoverTriggerType;
 }
 
 export const Popover = React.memo<PopoverProps>(
-  ({ children, content, align, side, className = '', headerContent, ...props }) => {
+  ({
+    children,
+    content,
+    align,
+    side,
+    className = '',
+    headerContent,
+    triggerType = 'click',
+    ...props
+  }) => {
     return (
-      <PopoverBase {...props}>
+      <PopoverBase triggerType={triggerType} {...props}>
         <PopoverTrigger asChild>{children}</PopoverTrigger>
         <PopoverContent
           align={align}
