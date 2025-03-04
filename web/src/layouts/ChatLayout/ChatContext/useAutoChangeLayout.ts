@@ -19,6 +19,8 @@ export const useAutoChangeLayout = ({
   const hasReasoning = !!reasoningMessagesLength;
   const previousIsEmpty = previousReasoningMessagesLength === 0;
 
+  console.log(isLoading, previousIsEmpty, hasReasoning, message);
+
   //change the page to reasoning file if we get a reasoning message
   useEffect(() => {
     if (isLoading && previousIsEmpty && hasReasoning) {
