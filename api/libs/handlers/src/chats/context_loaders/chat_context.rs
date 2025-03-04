@@ -65,33 +65,32 @@ impl ContextLoader for ChatContextLoader {
             .first::<database::models::Chat>(&mut conn)
             .await?;
 
-        // Get all messages for the chat
-        let messages = messages::table
+        // Get only the most recent message for the chat
+        let message = messages::table
             .filter(messages::chat_id.eq(chat.id))
-            .order_by(messages::created_at.asc())
-            .load::<database::models::Message>(&mut conn)
+            .order_by(messages::created_at.desc())
+            .first::<database::models::Message>(&mut conn)
             .await?;
 
         // Track seen message IDs
         let mut seen_ids = HashSet::new();
         // Convert messages to AgentMessages
         let mut agent_messages = Vec::new();
-        for message in messages {
-            // Add raw LLM messages if they exist - this contains the complete conversation flow
-            if let Ok(raw_messages) = serde_json::from_value::<Vec<AgentMessage>>(message.raw_llm_messages) {
-                // Check each message for tool calls and update context
-                for agent_message in &raw_messages {
-                    Self::update_context_from_tool_calls(agent, agent_message).await;
-                    
-                    // Only add messages with new IDs
-                    if let Some(id) = agent_message.get_id() {
-                        if seen_ids.insert(id.to_string()) {
-                            agent_messages.push(agent_message.clone());
-                        }
-                    } else {
-                        // Messages without IDs are always included
+        
+        // Process only the most recent message's raw LLM messages
+        if let Ok(raw_messages) = serde_json::from_value::<Vec<AgentMessage>>(message.raw_llm_messages) {
+            // Check each message for tool calls and update context
+            for agent_message in &raw_messages {
+                Self::update_context_from_tool_calls(agent, agent_message).await;
+                
+                // Only add messages with new IDs
+                if let Some(id) = agent_message.get_id() {
+                    if seen_ids.insert(id.to_string()) {
                         agent_messages.push(agent_message.clone());
                     }
+                } else {
+                    // Messages without IDs are always included
+                    agent_messages.push(agent_message.clone());
                 }
             }
         }
