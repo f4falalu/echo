@@ -126,7 +126,11 @@ export const PolicyCheck: React.FC<{
         </div>
       }>
       {!children ? (
-        <Button variant={'ghost'} prefix={allCompleted ? <CircleCheck /> : <CircleInfo />}></Button>
+        <Button
+          variant={'ghost'}
+          type="button"
+          size={'small'}
+          prefix={allCompleted ? <CircleCheck /> : <CircleInfo />}></Button>
       ) : (
         children
       )}

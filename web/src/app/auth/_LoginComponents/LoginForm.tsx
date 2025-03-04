@@ -1,30 +1,26 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Button, Divider, Input, Result } from 'antd';
+import { Result } from 'antd';
 import { User } from '@supabase/auth-js';
+import { Button } from '@/components/ui/buttons';
+import { Input } from '@/components/ui/inputs';
 import { inputHasText, isValidEmail } from '@/lib';
 import { useKeyPress, useMemoizedFn } from 'ahooks';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { BsGithub, BsGoogle, BsMicrosoft } from 'react-icons/bs';
-import { createStyles } from 'antd-style';
 import { Title, Text } from '@/components/ui/typography';
 import Cookies from 'js-cookie';
 import { useBusterSupabaseAuthMethods } from '@/hooks/useBusterSupabaseAuthMethods';
 import { PolicyCheck } from './PolicyCheck';
 import { rustErrorHandler } from '@/api/buster_rest/errors';
+import { cn } from '@/lib/classMerge';
 
 const DEFAULT_CREDENTIALS = {
   email: process.env.NEXT_PUBLIC_USER!,
   password: process.env.NEXT_PUBLIC_USER_PASSWORD!
 };
-
-export const useStyles = createStyles(({ token, css }) => ({
-  link: {
-    color: token.colorPrimary
-  }
-}));
 
 export const LoginForm: React.FC<{
   user: null | User;
@@ -188,8 +184,6 @@ const LoginOptions: React.FC<{
   setErrorMessages,
   signUpFlow
 }) => {
-  const { styles, cx } = useStyles();
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [password2, setPassword2] = useState('');
@@ -232,8 +226,7 @@ const LoginOptions: React.FC<{
           });
         }}>
         <Button
-          type={'default'}
-          icon={<BsGoogle size={12} />}
+          prefix={<BsGoogle size={12} />}
           onClick={() => {
             clearAllCookies();
             onSignInWithGoogle();
@@ -243,8 +236,7 @@ const LoginOptions: React.FC<{
           {hasUser ? `Continue with Google` : `Sign up with Google`}
         </Button>
         <Button
-          type={'default'}
-          icon={<BsGithub size={12} />}
+          prefix={<BsGithub size={12} />}
           onClick={() => {
             clearAllCookies();
             onSignInWithGithub();
@@ -254,8 +246,7 @@ const LoginOptions: React.FC<{
           {hasUser ? `Continue with Github` : `Sign up with Github`}
         </Button>
         <Button
-          type={'default'}
-          icon={<BsMicrosoft size={12} />}
+          prefix={<BsMicrosoft size={12} />}
           onClick={() => {
             clearAllCookies();
             onSignInWithAzure();
@@ -265,22 +256,21 @@ const LoginOptions: React.FC<{
           {hasUser ? `Continue with Azure` : `Sign up with Azure`}
         </Button>
 
-        <Divider plain>or</Divider>
+        <div className="bg-border h-[0.5px] w-full" />
 
-        <div>
-          <Input
-            type="email"
-            placeholder="What is your email address?"
-            name="email"
-            id="email"
-            value={email}
-            onChange={(v) => {
-              setEmail(v.target.value);
-            }}
-            disabled={!!loading}
-            autoComplete="email"
-          />
-        </div>
+        <Input
+          type="email"
+          placeholder="What is your email address?"
+          name="email"
+          id="email"
+          value={email}
+          onChange={(v) => {
+            setEmail(v.target.value);
+          }}
+          disabled={!!loading}
+          autoComplete="email"
+        />
+
         <div className="relative">
           <Input
             value={password}
@@ -294,7 +284,7 @@ const LoginOptions: React.FC<{
             placeholder="Password"
             autoComplete="new-password"
           />
-          <div className="absolute top-0 flex h-full items-center" style={{ right: 10 }}>
+          <div className="absolute top-0 right-1.5 flex h-full items-center">
             <PolicyCheck password={password} show={!hasUser} onCheckChange={setPasswordCheck} />
           </div>
         </div>
@@ -325,9 +315,9 @@ const LoginOptions: React.FC<{
           placement="top">
           <Button
             block={true}
-            htmlType="submit"
+            type="submit"
             loading={loading === 'email'}
-            type="primary"
+            variant="black"
             disabled={hasUser ? false : disableSubmitButton}>
             {hasUser ? `Sign in` : `Sign up`}
           </Button>
@@ -361,7 +351,7 @@ const SignUpSuccess: React.FC<{
       extra={[
         <Button
           key="login"
-          type="primary"
+          variant="black"
           onClick={() => {
             setSignUpSuccess(false);
             setSignUpFlow(true);
@@ -402,34 +392,29 @@ const AlreadyHaveAccount: React.FC<{
   setSignUpFlow: (value: boolean) => void;
   signUpFlow: boolean;
 }> = React.memo(({ hasUser, setErrorMessages, setPassword2, setSignUpFlow, signUpFlow }) => {
-  const { styles, cx } = useStyles();
   return (
-    <>
-      <Text
-        className="mb-1.5 flex w-full justify-center text-center"
-        variant="secondary"
-        size="2xs">
+    <div className="flex items-center justify-center gap-0.5">
+      <Text className="" variant="secondary" size="xs">
         {!hasUser ? `Already have an account? ` : `Don’t already have an account? `}
-        <Text
-          variant="primary"
-          size="2xs"
-          className={cx('ml-1 cursor-pointer font-normal', styles.link)}
-          onClick={() => {
-            setErrorMessages([]);
-            setPassword2('');
-            setSignUpFlow(!signUpFlow);
-          }}>
-          {hasUser ? `Sign up` : `Sign in`}
-        </Text>
       </Text>
-    </>
+
+      <Text
+        variant="primary"
+        size="xs"
+        className={cn('ml-1 cursor-pointer font-normal')}
+        onClick={() => {
+          setErrorMessages([]);
+          setPassword2('');
+          setSignUpFlow(!signUpFlow);
+        }}>
+        {hasUser ? `Sign up` : `Sign in`}
+      </Text>
+    </div>
   );
 });
 AlreadyHaveAccount.displayName = 'AlreadyHaveAccount';
 
 const ResetPasswordLink: React.FC<{ email: string }> = ({ email }) => {
-  const { styles, cx } = useStyles();
-
   const scrubbedEmail = useMemo(() => {
     if (!email || !isValidEmail(email)) return '';
     try {
@@ -442,10 +427,7 @@ const ResetPasswordLink: React.FC<{ email: string }> = ({ email }) => {
 
   return (
     <Link
-      className={cx(
-        'flex w-full cursor-pointer justify-center text-center font-normal',
-        styles.link
-      )}
+      className={cn('flex w-full cursor-pointer justify-center text-center font-normal')}
       href={
         createBusterRoute({
           route: BusterRoutes.AUTH_RESET_PASSWORD_EMAIL
