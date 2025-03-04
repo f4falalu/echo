@@ -1,20 +1,19 @@
-import { AppMaterialIcons } from '@/components/ui';
-import { AppPopover } from '@/components/ui/tooltip';
-import type { PopoverProps } from 'antd';
+import { AlertWarning } from '@/components/ui/icons';
 import { createStyles } from 'antd-style';
 import React from 'react';
+import { cn } from '@/lib/classMerge';
+import { Popover } from '@/components/ui/tooltip/Popover';
 
 export const WarningIcon: React.FC<{
   rowCountThreshold?: number;
   rowCount: number;
-  placement?: PopoverProps['placement'];
+
   warningText?: string;
 }> = React.memo(
   ({
     rowCount,
     rowCountThreshold = 35,
-    warningText = 'Data labels will be hidden if there are too many.',
-    placement = 'left'
+    warningText = 'Data labels will be hidden if there are too many.'
   }) => {
     const { styles, cx } = useStyles();
 
@@ -22,12 +21,14 @@ export const WarningIcon: React.FC<{
       return null;
     }
     return (
-      <AppPopover
-        placement={placement}
-        trigger="click"
-        content={<div className="max-w-[200px] p-2">{warningText}</div>}>
-        <AppMaterialIcons className={cx(styles.warningIcon, 'cursor-pointer')} icon="warning" />
-      </AppPopover>
+      <Popover
+        side="left"
+        align="center"
+        content={<div className="max-w-[200px]">{warningText}</div>}>
+        <div className={cn(styles.warningIcon, 'cursor-pointer')}>
+          <AlertWarning />
+        </div>
+      </Popover>
     );
   }
 );
