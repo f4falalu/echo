@@ -43,7 +43,6 @@ let mut conn = get_pg_pool().get().await?;
 ### Concurrency Guidelines
 - Prioritize concurrent operations, especially for:
   - API requests
-  - Database transactions
   - File operations
 - Optimize database connection usage:
   - Batch operations where possible

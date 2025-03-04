@@ -1,6 +1,6 @@
 ---
-description: This is helpul docs for buildng hanlders in the project.
-globs: ibs/handlers/**/*.rs
+description: This is helpul docs for buildng hanlders in the project.l
+globs: libs/handlers/**/*.rs
 alwaysApply: false
 ---
 # Handler Rules and Best Practices
@@ -59,7 +59,6 @@ match operation() {
 ### Database Operations
 - Use the connection pool: `get_pg_pool().get().await?`
 - Run concurrent operations when possible
-- Use transactions for related operations
 - Handle database-specific errors appropriately
 - Example:
 ```rust
