@@ -14,6 +14,8 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
   const hasChat = useChatIndividualContextSelector((state) => state.hasChat);
   const message = useMessageIndividual(messageId);
 
+  console.log(hasChat, message);
+
   if (!hasChat || !message) return null;
 
   const reasoningMessages = message.reasoning;

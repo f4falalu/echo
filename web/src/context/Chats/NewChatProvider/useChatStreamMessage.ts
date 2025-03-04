@@ -136,7 +136,6 @@ export const useChatStreamMessage = () => {
   const _generatingResponseMessageCallback = useMemoizedFn(
     (_: null, d: ChatEvent_GeneratingResponseMessage) => {
       const { message_id, response_message, chat_id } = d;
-      console.log(response_message?.id);
 
       if (!response_message?.id) return;
 
@@ -208,6 +207,8 @@ export const useChatStreamMessage = () => {
             reasoning,
             ...currentReasoning.slice(foundReasoningMessage.index + 1)
           ];
+
+      console.log(updatedReasoning.length);
 
       onUpdateChatMessageTransition({
         id: message_id,
