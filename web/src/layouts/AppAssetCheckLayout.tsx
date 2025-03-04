@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { AppPasswordAccess } from '@controllers/AppPasswordAccess';
 import { AppNoPageAccess } from '@controllers/AppNoPageAccess';
-import { signInWithAnonymousUser } from '@/hooks/supabaseAuthMethods';
+import { signInWithAnonymousUser } from '@/server_context/supabaseAuthMethods';
 
 export type AppAssetCheckLayoutProps = {
   metricId?: string;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { resetPassword } from '@/hooks/supabaseAuthMethods';
+import { resetPassword } from '@/server_context/supabaseAuthMethods';
 import { redirect } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { useSupabaseServerContext } from '@/context/Supabase/useSupabaseContext';

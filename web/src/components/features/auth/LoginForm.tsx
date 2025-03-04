@@ -20,7 +20,7 @@ import {
   signInWithGithub,
   signInWithGoogle,
   signUp
-} from '@/hooks/supabaseAuthMethods';
+} from '@/server_context/supabaseAuthMethods';
 import { StatusCard } from '@/components/ui/card/StatusCard';
 import { SuccessCard } from '@/components/ui/card/SuccessCard';
 

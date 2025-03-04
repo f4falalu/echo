@@ -15,7 +15,7 @@ import { BUSTER_DOCS_URL } from '@/routes/externalRoutes';
 import { type DropdownProps, Dropdown } from '@/components/ui/dropdown/Dropdown';
 import { AvatarUserButton } from '@/components/ui/avatar/AvatarUserButton';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { signOut } from '@/hooks/supabaseAuthMethods';
+import { signOut } from '@/server_context/supabaseAuthMethods';
 
 export const SidebarUserFooter: React.FC<{}> = () => {
   const user = useUserConfigContextSelector((x) => x.user);

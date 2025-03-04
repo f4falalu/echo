@@ -1,5 +1,5 @@
 import { ResetEmailForm } from '@/components/features/auth/ResetEmailForm';
-import { resetPasswordEmailSend } from '@/hooks/supabaseAuthMethods';
+import { resetPasswordEmailSend } from '@/server_context/supabaseAuthMethods';
 import React from 'react';
 
 export default function ResetPassword(p: { searchParams: { email: string } }) {
