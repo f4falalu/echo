@@ -1,4 +1,4 @@
-import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import type { IColumnLabelFormat } from '@/components/ui/charts/interfaces/columnLabelInterfaces';
 import { useMemoizedFn } from 'ahooks';
 import React, { useMemo } from 'react';
@@ -10,7 +10,6 @@ import { BarAndLineAxis, ChartEncodes, ChartType, ColumnSettings } from '@/compo
 import { EditBarRoundness } from './EditBarRoundness';
 import { EditShowDataLabel } from './EditShowDataLabel';
 import { EditShowBarLabelAsPercentage } from './EditShowLabelAsPercentage';
-import { Divider } from 'antd';
 import { EditLabelStyle } from './EditLabelStyle';
 import { EditSeparator } from './EditSeparator';
 import { EditDecimals } from './EditDecimals';
@@ -26,6 +25,7 @@ import { EditReplaceMissingData } from './EditReplaceMissingData';
 import { EditLineStyle } from './EditLineStyle';
 import isEmpty from 'lodash/isEmpty';
 import { useGetCurrencies } from '@/api/buster_rest/nextjs/currency';
+import { cn } from '@/lib/classMerge';
 
 export const SelectAxisDropdownContent: React.FC<{
   columnSetting: IBusterMetricChartConfig['columnSettings'][string];
@@ -85,7 +85,7 @@ export const SelectAxisDropdownContent: React.FC<{
   });
 
   return (
-    <div className={`${className}`}>
+    <div className={cn(className)}>
       {!hideTitle && <TitleComponent formattedTitle={formattedTitle} />}
 
       <ColumnSettingComponent
@@ -268,7 +268,7 @@ const ColumnSettingComponent: React.FC<{
         })}
       </div>
 
-      {<Divider />}
+      {<div className="bg-border h-[0.5px] w-full" />}
     </>
   );
 };
@@ -450,7 +450,7 @@ const TitleComponent: React.FC<{
       <div className="px-3 py-2.5">
         <Text className="break-words">{formattedTitle}</Text>
       </div>
-      <Divider />
+      <div className="bg-border h-[0.5px] w-full" />
     </div>
   );
 });

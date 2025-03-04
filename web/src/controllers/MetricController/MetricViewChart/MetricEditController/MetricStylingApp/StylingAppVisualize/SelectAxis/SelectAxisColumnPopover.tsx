@@ -5,7 +5,7 @@ import { SelectAxisDropdownContent } from './SelectAxisColumnContent';
 import { type IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import type { SelectAxisContainerId } from './config';
 
-interface SelectAxisColumnPopoverProps {
+export interface SelectAxisColumnPopoverProps {
   columnLabelFormat: IColumnLabelFormat;
   columnSetting: IBusterMetricChartConfig['columnSettings'][string];
   children: React.ReactNode;
@@ -24,6 +24,7 @@ export const SelectAxisColumnPopover = React.memo(
       <Popover
         side="left"
         align="end"
+        size={'none'}
         content={
           <SelectAxisDropdownContent {...props} className="w-full max-w-[315px] min-w-[315px]" />
         }>
