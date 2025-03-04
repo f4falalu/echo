@@ -7,7 +7,7 @@ import {
 import React from 'react';
 import { Separator } from '../seperator/Separator';
 
-interface PopoverProps
+export interface PopoverProps
   extends React.ComponentProps<typeof PopoverBase>,
     Pick<React.ComponentProps<typeof PopoverContent>, 'align' | 'side'> {
   children: React.ReactNode;

@@ -1,7 +1,7 @@
 import { CircleCheck, CircleXmark, CircleInfo } from '@/components/ui/icons';
 import React, { useEffect, useMemo } from 'react';
 import { Text } from '@/components/ui/typography';
-import { Popover } from '@/components/ui/tooltip/Popover';
+import { Popover, PopoverProps } from '@/components/ui/tooltip/Popover';
 import { Button } from '@/components/ui/buttons/Button';
 
 export const PolicyCheck: React.FC<{
@@ -87,11 +87,39 @@ export const PolicyCheck: React.FC<{
     );
   };
 
+  const sideMemo: PopoverProps['side'] = useMemo(() => {
+    switch (placement) {
+      case 'top':
+        return 'top';
+      case 'right':
+        return 'right';
+      case 'bottom':
+        return 'bottom';
+      case 'left':
+        return 'left';
+    }
+  }, [placement]);
+
+  console.log(placement);
+
+  const alignMemo: PopoverProps['align'] = useMemo(() => {
+    switch (placement) {
+      case 'top':
+        return 'start';
+      case 'right':
+        return 'end';
+      case 'bottom':
+        return 'start';
+      case 'left':
+        return 'end';
+    }
+  }, [placement]);
+
   return (
     <Popover
       open={show === false ? false : undefined}
-      side={'left'}
-      align={'start'}
+      side={sideMemo}
+      align={alignMemo}
       content={
         <div className="flex flex-col gap-y-1 p-1.5">
           {items.map((item, index) => (
@@ -99,10 +127,11 @@ export const PolicyCheck: React.FC<{
           ))}
         </div>
       }>
-      {!children && (
+      {!children ? (
         <Button variant={'ghost'} prefix={allCompleted ? <CircleCheck /> : <CircleInfo />}></Button>
+      ) : (
+        children
       )}
-      {children && children}
     </Popover>
   );
 };

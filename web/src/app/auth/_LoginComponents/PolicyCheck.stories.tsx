@@ -50,15 +50,6 @@ export const InvalidPassword: Story = {
   }
 };
 
-export const Hidden: Story = {
-  args: {
-    password: 'Test123!@#',
-    show: false,
-    placement: 'left',
-    onCheckChange: fn()
-  }
-};
-
 export const DifferentPlacement: Story = {
   args: {
     password: 'Test123!@#',
