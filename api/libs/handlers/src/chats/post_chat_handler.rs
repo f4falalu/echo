@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use agents::{
-    tools::file_tools::search_data_catalog::SearchDataCatalogOutput, AgentMessage, AgentThread,
-    BusterSuperAgent,
+    tools::file_tools::search_data_catalog::SearchDataCatalogOutput, AgentExt, AgentMessage,
+    AgentThread, BusterSuperAgent,
 };
 
 use anyhow::{anyhow, Result};
@@ -23,7 +23,13 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
-use crate::chats::streaming_parser::StreamingParser;
+use crate::chats::{
+    context_loaders::{
+        chat_context::ChatContextLoader, dashboard_context::DashboardContextLoader,
+        metric_context::MetricContextLoader, validate_context_request, ContextLoader,
+    },
+    streaming_parser::StreamingParser,
+};
 use crate::messages::types::{ChatMessage, ChatUserMessage};
 
 use super::types::ChatWithMessages;
@@ -44,6 +50,8 @@ pub struct ChatCreateNewChat {
     pub prompt: String,
     pub chat_id: Option<Uuid>,
     pub message_id: Option<Uuid>,
+    pub metric_id: Option<Uuid>,
+    pub dashboard_id: Option<Uuid>,
 }
 
 pub async fn post_chat_handler(
@@ -51,6 +59,9 @@ pub async fn post_chat_handler(
     user: User,
     tx: Option<mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
 ) -> Result<ChatWithMessages> {
+    // Validate context request
+    validate_context_request(request.chat_id, request.metric_id, request.dashboard_id)?;
+
     let chat_id = request.chat_id.unwrap_or_else(Uuid::new_v4);
     let message_id = request.message_id.unwrap_or_else(Uuid::new_v4);
 
@@ -120,13 +131,38 @@ pub async fn post_chat_handler(
         .execute(&mut conn)
         .await?;
 
-    // Initialize agent and process request
+    // Initialize agent with context if provided
+    let mut initial_messages = vec![];
+
+    // Initialize agent to add context
     let agent = BusterSuperAgent::new(user.id, chat_id).await?;
-    let mut chat = AgentThread::new(
-        Some(chat_id),
-        user.id,
-        vec![AgentMessage::user(request.prompt.clone())],
-    );
+
+    // Load context if provided
+    if let Some(existing_chat_id) = request.chat_id {
+        let context_loader = ChatContextLoader::new(existing_chat_id);
+        let context_messages = context_loader
+            .load_context(&user, agent.get_agent())
+            .await?;
+        initial_messages.extend(context_messages);
+    } else if let Some(metric_id) = request.metric_id {
+        let context_loader = MetricContextLoader::new(metric_id);
+        let context_messages = context_loader
+            .load_context(&user, agent.get_agent())
+            .await?;
+        initial_messages.extend(context_messages);
+    } else if let Some(dashboard_id) = request.dashboard_id {
+        let context_loader = DashboardContextLoader::new(dashboard_id);
+        let context_messages = context_loader
+            .load_context(&user, agent.get_agent())
+            .await?;
+        initial_messages.extend(context_messages);
+    }
+
+    // Add the new user message
+    initial_messages.push(AgentMessage::user(request.prompt.clone()));
+
+    // Initialize the agent thread
+    let mut chat = AgentThread::new(Some(chat_id), user.id, initial_messages);
 
     let title_handle = {
         let tx = tx.clone();

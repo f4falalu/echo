@@ -115,7 +115,7 @@ Reference these example PRDs for guidance:
 - [ ] All template sections completed
 - [ ] Technical design is detailed and complete
 - [ ] File changes are documented
-- [ ] Implementation phases are clear
+- [ ] Implementation phases are clear (can be as many as you need.)
 - [ ] Testing strategy is defined
 - [ ] Security considerations addressed
 - [ ] Dependencies and Files listed
