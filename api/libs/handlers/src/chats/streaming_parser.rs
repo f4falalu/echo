@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use super::post_chat_handler::{
     BusterFileLine, BusterReasoningFile, BusterReasoningMessage, BusterReasoningPill,
-    BusterReasoningText, BusterThoughtPill, BusterThoughtPillContainer,
+    BusterReasoningText, BusterThoughtPill, BusterThoughtPillContainer, BusterFileContent,
 };
 
 pub struct StreamingParser {
@@ -245,39 +245,52 @@ impl StreamingParser {
         file_type: String,
     ) -> Result<Option<BusterReasoningMessage>> {
         if let Some(files) = value.get("files").and_then(Value::as_array) {
-            if let Some(last_file) = files.last().and_then(Value::as_object) {
-                let has_name = last_file.get("name").and_then(Value::as_str).is_some();
-                let has_yml_content = last_file.get("yml_content").is_some();
+            let mut file_contents = Vec::new();
 
-                if has_name && has_yml_content {
-                    let name = last_file.get("name").and_then(Value::as_str).unwrap_or("");
-                    let yml_content = last_file
-                        .get("yml_content")
-                        .and_then(Value::as_str)
-                        .unwrap_or("");
+            for file in files {
+                if let Some(file_obj) = file.as_object() {
+                    let has_name = file_obj.get("name").and_then(Value::as_str).is_some();
+                    let has_yml_content = file_obj.get("yml_content").is_some();
 
-                    let mut current_lines = Vec::new();
-                    for (i, line) in yml_content.lines().enumerate() {
-                        current_lines.push(BusterFileLine {
-                            line_number: i + 1,
-                            text: line.to_string(),
-                            modified: Some(false),
+                    if has_name && has_yml_content {
+                        let name = file_obj.get("name").and_then(Value::as_str).unwrap_or("");
+                        let yml_content = file_obj
+                            .get("yml_content")
+                            .and_then(Value::as_str)
+                            .unwrap_or("");
+
+                        let mut current_lines = Vec::new();
+                        for (i, line) in yml_content.lines().enumerate() {
+                            current_lines.push(BusterFileLine {
+                                line_number: i + 1,
+                                text: line.to_string(),
+                                modified: Some(false),
+                            });
+                        }
+
+                        file_contents.push(BusterFileContent {
+                            id: Uuid::new_v4().to_string(),
+                            file_type: file_type.clone(),
+                            file_name: name.to_string(),
+                            version_number: 1,
+                            version_id: Uuid::new_v4().to_string(),
+                            status: "loading".to_string(),
+                            content: current_lines,
+                            metadata: None,
                         });
                     }
-
-                    return Ok(Some(BusterReasoningMessage::File(BusterReasoningFile {
-                        id,
-                        message_type: "file".to_string(),
-                        file_type,
-                        file_name: name.to_string(),
-                        version_number: 1,
-                        version_id: Uuid::new_v4().to_string(),
-                        status: "loading".to_string(),
-                        file: Some(current_lines),
-                        filter_version_id: None,
-                        metadata: None,
-                    })));
                 }
+            }
+
+            if !file_contents.is_empty() {
+                return Ok(Some(BusterReasoningMessage::File(BusterReasoningFile {
+                    id,
+                    message_type: "files".to_string(),
+                    title: format!("Creating {} files...", file_type),
+                    secondary_title: String::new(),
+                    status: "loading".to_string(),
+                    files: file_contents,
+                })));
             }
         }
         Ok(None)

@@ -261,6 +261,7 @@ pub async fn post_chat_handler(
         reasoning: serde_json::to_value(&reasoning_messages)?,
         final_reasoning_message,
         title: title.title.clone().unwrap_or_default(),
+        raw_llm_messages: Value::Array(vec![]),
     };
 
     // Insert message into database
@@ -359,83 +360,87 @@ async fn process_completed_files(
     for container in transformed_messages {
         match container {
             BusterContainer::ReasoningMessage(msg) => match &msg.reasoning {
-                BusterReasoningMessage::File(file) if file.file_type == "metric" => {
-                    if let Some(file_content) = &file.file {
-                        let metric_file = MetricFile {
-                            id: Uuid::new_v4(),
-                            name: file.file_name.clone(),
-                            file_name: format!(
-                                "{}",
-                                file.file_name.to_lowercase().replace(' ', "_")
-                            ),
-                            content: serde_json::to_value(&file_content)?,
-                            verification: Verification::NotRequested,
-                            evaluation_obj: None,
-                            evaluation_summary: None,
-                            evaluation_score: None,
-                            organization_id: organization_id.clone(),
-                            created_by: user_id.clone(),
-                            created_at: Utc::now(),
-                            updated_at: Utc::now(),
-                            deleted_at: None,
-                        };
+                BusterReasoningMessage::File(file) if file.message_type == "files" => {
+                    // Process each file in the files array
+                    for file_content in &file.files {
+                        match file_content.file_type.as_str() {
+                            "metric" => {
+                                let metric_file = MetricFile {
+                                    id: Uuid::new_v4(),
+                                    name: file_content.file_name.clone(),
+                                    file_name: format!(
+                                        "{}",
+                                        file_content.file_name.to_lowercase().replace(' ', "_")
+                                    ),
+                                    content: serde_json::to_value(&file_content.content)?,
+                                    verification: Verification::NotRequested,
+                                    evaluation_obj: None,
+                                    evaluation_summary: None,
+                                    evaluation_score: None,
+                                    organization_id: organization_id.clone(),
+                                    created_by: user_id.clone(),
+                                    created_at: Utc::now(),
+                                    updated_at: Utc::now(),
+                                    deleted_at: None,
+                                };
 
-                        insert_into(metric_files::table)
-                            .values(&metric_file)
-                            .execute(conn)
-                            .await?;
+                                insert_into(metric_files::table)
+                                    .values(&metric_file)
+                                    .execute(conn)
+                                    .await?;
 
-                        let message_to_file = MessageToFile {
-                            id: Uuid::new_v4(),
-                            message_id: message.id,
-                            file_id: metric_file.id,
-                            created_at: Utc::now(),
-                            updated_at: Utc::now(),
-                            deleted_at: None,
-                        };
+                                let message_to_file = MessageToFile {
+                                    id: Uuid::new_v4(),
+                                    message_id: message.id,
+                                    file_id: metric_file.id,
+                                    created_at: Utc::now(),
+                                    updated_at: Utc::now(),
+                                    deleted_at: None,
+                                };
 
-                        insert_into(messages_to_files::table)
-                            .values(&message_to_file)
-                            .execute(conn)
-                            .await?;
-                    }
-                }
-                BusterReasoningMessage::File(file) if file.file_type == "dashboard" => {
-                    if let Some(file_content) = &file.file {
-                        let dashboard_file = DashboardFile {
-                            id: Uuid::new_v4(),
-                            name: file.file_name.clone(),
-                            file_name: format!(
-                                "{}",
-                                file.file_name.to_lowercase().replace(' ', "_")
-                            ),
-                            content: serde_json::to_value(&file_content)?,
-                            filter: None,
-                            organization_id: organization_id.clone(),
-                            created_by: user_id.clone(),
-                            created_at: Utc::now(),
-                            updated_at: Utc::now(),
-                            deleted_at: None,
-                        };
+                                insert_into(messages_to_files::table)
+                                    .values(&message_to_file)
+                                    .execute(conn)
+                                    .await?;
+                            }
+                            "dashboard" => {
+                                let dashboard_file = DashboardFile {
+                                    id: Uuid::new_v4(),
+                                    name: file_content.file_name.clone(),
+                                    file_name: format!(
+                                        "{}",
+                                        file_content.file_name.to_lowercase().replace(' ', "_")
+                                    ),
+                                    content: serde_json::to_value(&file_content.content)?,
+                                    filter: None,
+                                    organization_id: organization_id.clone(),
+                                    created_by: user_id.clone(),
+                                    created_at: Utc::now(),
+                                    updated_at: Utc::now(),
+                                    deleted_at: None,
+                                };
 
-                        insert_into(dashboard_files::table)
-                            .values(&dashboard_file)
-                            .execute(conn)
-                            .await?;
+                                insert_into(dashboard_files::table)
+                                    .values(&dashboard_file)
+                                    .execute(conn)
+                                    .await?;
 
-                        let message_to_file = MessageToFile {
-                            id: Uuid::new_v4(),
-                            message_id: message.id,
-                            file_id: dashboard_file.id,
-                            created_at: Utc::now(),
-                            updated_at: Utc::now(),
-                            deleted_at: None,
-                        };
+                                let message_to_file = MessageToFile {
+                                    id: Uuid::new_v4(),
+                                    message_id: message.id,
+                                    file_id: dashboard_file.id,
+                                    created_at: Utc::now(),
+                                    updated_at: Utc::now(),
+                                    deleted_at: None,
+                                };
 
-                        insert_into(messages_to_files::table)
-                            .values(&message_to_file)
-                            .execute(conn)
-                            .await?;
+                                insert_into(messages_to_files::table)
+                                    .values(&message_to_file)
+                                    .execute(conn)
+                                    .await?;
+                            }
+                            _ => (),
+                        }
                     }
                 }
                 _ => (),
@@ -525,18 +530,26 @@ pub struct BusterThoughtPill {
 }
 
 #[derive(Debug, Serialize, Clone)]
-pub struct BusterReasoningFile {
+pub struct BusterFileContent {
     pub id: String,
-    #[serde(rename = "type")]
-    pub message_type: String,
     pub file_type: String,
     pub file_name: String,
     pub version_number: i32,
     pub version_id: String,
     pub status: String,
-    pub file: Option<Vec<BusterFileLine>>,
-    pub filter_version_id: Option<String>,
+    pub content: Vec<BusterFileLine>,
     pub metadata: Option<Vec<BusterFileMetadata>>,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct BusterReasoningFile {
+    pub id: String,
+    #[serde(rename = "type")]
+    pub message_type: String,
+    pub title: String,
+    pub secondary_title: String,
+    pub status: String,
+    pub files: Vec<BusterFileContent>,
 }
 
 #[derive(Debug, Serialize, Clone)]
