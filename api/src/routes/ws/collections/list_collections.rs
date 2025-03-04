@@ -8,13 +8,11 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    database_dep::{
-        enums::{AssetPermissionRole, AssetType, IdentityType},
-        lib::get_pg_pool,
+use database::{enums::{AssetPermissionRole, AssetType, IdentityType},
+        pool::get_pg_pool,
         models::User,
-        schema::{asset_permissions, collections, teams_to_users, users},
-    },
+        schema::{asset_permissions, collections, teams_to_users, users},};
+use crate::{
     routes::ws::{
         collections::collections_router::{CollectionEvent, CollectionRoute},
         ws::{WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},

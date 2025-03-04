@@ -4,15 +4,16 @@ use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+use database::models::User;
+
 use crate::{
-    database_dep::models::User,
     routes::ws::{threads_and_messages::unsubscribe::unsubscribe, ws::SubscriptionRwLock},
 };
 
 use super::{
     delete_thread::delete_thread, duplicate_thread::duplicate_thread,
     get_message_data::get_message_data, get_thread::get_thread_ws, list_threads::list_threads,
-    update_message::update_message, update_thread::update_thread,
+    post_thread::post_thread, update_message::update_message, update_thread::update_thread,
 };
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -21,8 +22,8 @@ pub enum ThreadRoute {
     List,
     #[serde(rename = "/chats/get")]
     Get,
-    // #[serde(rename = "/chats/post")]
-    // Post,
+    #[serde(rename = "/chats/post")]
+    Post,
     #[serde(rename = "/chats/unsubscribe")]
     Unsubscribe,
     #[serde(rename = "/chats/update")]
@@ -99,11 +100,11 @@ pub async fn threads_router(
 
             unsubscribe(&subscriptions, user, user_group, req).await?;
         }
-        // ThreadRoute::Post => {
-        //     let req = serde_json::from_value(data)?;
+        ThreadRoute::Post => {
+            let req = serde_json::from_value(data)?;
 
-        //     post_thread(subscriptions, user_group, user, req).await?;
-        // }
+            post_thread(subscriptions, user_group, user, req).await?;
+        }
         ThreadRoute::Update => {
             let req = serde_json::from_value(data)?;
 
@@ -139,7 +140,7 @@ impl ThreadRoute {
         match path {
             "/chats/list" => Ok(Self::List),
             "/chats/get" => Ok(Self::Get),
-            // "/chats/post" => Ok(Self::Post),
+            "/chats/post" => Ok(Self::Post),
             "/chats/unsubscribe" => Ok(Self::Unsubscribe),
             "/chats/update" => Ok(Self::Update),
             "/chats/delete" => Ok(Self::Delete),

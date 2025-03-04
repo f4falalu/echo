@@ -7,13 +7,11 @@ use std::sync::Arc;
 
 use uuid::Uuid;
 
-use crate::{
-    database_dep::{
-        enums::{AssetPermissionRole, MessageFeedback, Verification},
-        lib::get_pg_pool,
+use database::{enums::{AssetPermissionRole, MessageFeedback, Verification},
+        pool::get_pg_pool,
         models::User,
-        schema::{messages_deprecated, threads_deprecated},
-    },
+        schema::{messages_deprecated, threads_deprecated},};
+use crate::{
     routes::ws::{
         ws::{SubscriptionRwLock, WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
         ws_router::WsRoutes,

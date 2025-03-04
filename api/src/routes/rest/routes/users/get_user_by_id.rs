@@ -4,19 +4,17 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{
-    database_dep::{
-        enums::{IdentityType, UserOrganizationRole, UserOrganizationStatus},
-        lib::get_pg_pool,
-        models::User,
-        schema::{
-            dataset_groups, dataset_groups_permissions, dataset_permissions, datasets,
-            permission_groups, permission_groups_to_identities, users, users_to_organizations,
-        },
+use database::{
+    enums::{IdentityType, UserOrganizationRole, UserOrganizationStatus},
+    models::User,
+    pool::get_pg_pool,
+    schema::{
+        dataset_groups, dataset_groups_permissions, dataset_permissions, datasets,
+        permission_groups, permission_groups_to_identities, users, users_to_organizations,
     },
-    routes::rest::ApiResponse,
-    utils::clients::sentry_utils::send_sentry_error,
 };
+
+use crate::{routes::rest::ApiResponse, utils::clients::sentry_utils::send_sentry_error};
 use axum::http::StatusCode;
 use diesel::{
     BoolExpressionMethods, ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl,
@@ -85,18 +83,18 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
                 .inner_join(
                     users_to_organizations::table.on(users::id.eq(users_to_organizations::user_id)),
                 )
-        .select((
-            (users::id, users::email, users::name.nullable()),
-            (users_to_organizations::role, users_to_organizations::status),
+                .select((
+                    (users::id, users::email, users::name.nullable()),
+                    (users_to_organizations::role, users_to_organizations::status),
                     users_to_organizations::organization_id,
-        ))
-        .filter(users::id.eq(user_id))
-        .filter(users_to_organizations::deleted_at.is_null())
-        .first::<(
-            (Uuid, String, Option<String>),
-            (UserOrganizationRole, UserOrganizationStatus),
+                ))
+                .filter(users::id.eq(user_id))
+                .filter(users_to_organizations::deleted_at.is_null())
+                .first::<(
+                    (Uuid, String, Option<String>),
+                    (UserOrganizationRole, UserOrganizationStatus),
                     Uuid,
-        )>(&mut conn)
+                )>(&mut conn)
                 .await
             {
                 Ok(user_info) => user_info,
@@ -204,9 +202,8 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
 
             let org_datasets = match datasets::table
                 .inner_join(
-                    users_to_organizations::table.on(
-                        datasets::organization_id.eq(users_to_organizations::organization_id),
-                    ),
+                    users_to_organizations::table
+                        .on(datasets::organization_id.eq(users_to_organizations::organization_id)),
                 )
                 .filter(users_to_organizations::user_id.eq(user_id))
                 .filter(datasets::deleted_at.is_null())
@@ -238,9 +235,13 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
             };
 
             let dataset_groups_data = match dataset_groups_permissions::table
-                .inner_join(dataset_groups::table.on(dataset_groups_permissions::dataset_group_id.eq(dataset_groups::id)))
                 .inner_join(
-                    dataset_permissions::table.on(dataset_permissions::permission_id.eq(dataset_groups::id)
+                    dataset_groups::table
+                        .on(dataset_groups_permissions::dataset_group_id.eq(dataset_groups::id)),
+                )
+                .inner_join(
+                    dataset_permissions::table.on(dataset_permissions::permission_id
+                        .eq(dataset_groups::id)
                         .and(dataset_permissions::permission_type.eq("dataset_group"))),
                 )
                 .inner_join(datasets::table.on(dataset_permissions::dataset_id.eq(datasets::id)))
@@ -256,13 +257,14 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
                     dataset_groups::name,
                 ))
                 .load::<(Uuid, String, Uuid, String)>(&mut conn)
-                .await {
-                    Ok(data) => data,
-                    Err(e) => {
-                        tracing::error!("Error getting dataset groups data: {:?}", e);
-                        return Err(anyhow::anyhow!(e));
-                    }
-                };
+                .await
+            {
+                Ok(data) => data,
+                Err(e) => {
+                    tracing::error!("Error getting dataset groups data: {:?}", e);
+                    return Err(anyhow::anyhow!(e));
+                }
+            };
 
             Ok(dataset_groups_data)
         })
@@ -280,19 +282,21 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
             };
 
             let pg_dataset_groups = match permission_groups_to_identities::table
+                .inner_join(permission_groups::table.on(
+                    permission_groups_to_identities::permission_group_id.eq(permission_groups::id),
+                ))
                 .inner_join(
-                    permission_groups::table
-                        .on(permission_groups_to_identities::permission_group_id.eq(permission_groups::id)),
-                )
-                .inner_join(
-                    dataset_groups_permissions::table.on(permission_groups::id.eq(dataset_groups_permissions::permission_id)
+                    dataset_groups_permissions::table.on(permission_groups::id
+                        .eq(dataset_groups_permissions::permission_id)
                         .and(dataset_groups_permissions::permission_type.eq("permission_group"))),
                 )
                 .inner_join(
-                    dataset_groups::table.on(dataset_groups_permissions::dataset_group_id.eq(dataset_groups::id)),
+                    dataset_groups::table
+                        .on(dataset_groups_permissions::dataset_group_id.eq(dataset_groups::id)),
                 )
                 .inner_join(
-                    dataset_permissions::table.on(dataset_permissions::permission_id.eq(dataset_groups::id)
+                    dataset_permissions::table.on(dataset_permissions::permission_id
+                        .eq(dataset_groups::id)
                         .and(dataset_permissions::permission_type.eq("dataset_group"))),
                 )
                 .inner_join(datasets::table.on(dataset_permissions::dataset_id.eq(datasets::id)))
@@ -313,13 +317,14 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
                     permission_groups::name,
                 ))
                 .load::<(Uuid, String, Uuid, String, Uuid, String)>(&mut conn)
-                .await {
-                    Ok(data) => data,
-                    Err(e) => {
-                        tracing::error!("Error getting permission group dataset groups: {:?}", e);
-                        return Err(anyhow::anyhow!(e));
-                    }
-                };
+                .await
+            {
+                Ok(data) => data,
+                Err(e) => {
+                    tracing::error!("Error getting permission group dataset groups: {:?}", e);
+                    return Err(anyhow::anyhow!(e));
+                }
+            };
 
             Ok(pg_dataset_groups)
         })
@@ -363,7 +368,9 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
     let mut datasets = Vec::new();
 
     match role {
-        UserOrganizationRole::WorkspaceAdmin | UserOrganizationRole::DataAdmin | UserOrganizationRole::Querier => {
+        UserOrganizationRole::WorkspaceAdmin
+        | UserOrganizationRole::DataAdmin
+        | UserOrganizationRole::Querier => {
             // All datasets have default access
             for (dataset_id, dataset_name) in org_datasets {
                 let role_name = match role {
@@ -372,7 +379,7 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
                     UserOrganizationRole::Querier => "Querier",
                     _ => unreachable!(),
                 };
-                
+
                 datasets.push(DatasetInfo {
                     id: dataset_id,
                     name: dataset_name,
@@ -391,7 +398,7 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
                     ]],
                 });
             }
-        },
+        }
         UserOrganizationRole::Viewer => {
             // No access to any datasets
             for (dataset_id, dataset_name) in org_datasets {
@@ -413,7 +420,7 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
                     ]],
                 });
             }
-        },
+        }
         UserOrganizationRole::RestrictedQuerier => {
             let mut processed_dataset_ids = std::collections::HashSet::new();
 
@@ -490,7 +497,9 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
             }
 
             // Add datasets with permission group to dataset group access
-            for (dataset_id, dataset_name, group_id, group_name, perm_group_id, perm_group_name) in permission_group_dataset_groups {
+            for (dataset_id, dataset_name, group_id, group_name, perm_group_id, perm_group_name) in
+                permission_group_dataset_groups
+            {
                 if processed_dataset_ids.contains(&dataset_id) {
                     continue;
                 }
@@ -547,7 +556,7 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserResponse> {
                     ]],
                 });
             }
-        },
+        }
     }
 
     Ok(UserResponse {

@@ -7,10 +7,10 @@ use diesel_async::RunQueryDsl;
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::database_dep::enums::IdentityType;
-use crate::database_dep::lib::get_pg_pool;
-use crate::database_dep::models::User;
-use crate::database_dep::schema::{
+use database::enums::IdentityType;
+use database::pool::get_pg_pool;
+use database::models::User;
+use database::schema::{
     dataset_groups_permissions, permission_groups, permission_groups_to_identities,
 };
 use crate::routes::rest::ApiResponse;

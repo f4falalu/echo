@@ -1,18 +1,15 @@
 use anyhow::Result;
+use database::models::DataSource;
 use tracing;
 
-use crate::{
-    database_dep::models::DataSource,
-    utils::{
-        query_engine::{
-            credentials::get_data_source_credentials,
-            import_dataset_columns::retrieve_dataset_columns_batch,
-        },
-        validation::{
-            types::{ValidationError, ValidationResult},
-            type_mapping::{normalize_type, types_compatible},
-        },
-    },
+use crate::utils::query_engine::{
+    credentials::get_data_source_credentials,
+    import_dataset_columns::retrieve_dataset_columns_batch,
+};
+
+use crate::utils::validation::{
+    type_mapping::{normalize_type, types_compatible},
+    types::{ValidationError, ValidationResult},
 };
 
 pub async fn validate_model(
@@ -33,7 +30,7 @@ pub async fn validate_model(
 
     // Get credentials
     let credentials = match get_data_source_credentials(
-        &data_source.secret_id,
+        &data_source.id,
         &data_source.type_,
         false,
     )
@@ -52,14 +49,14 @@ pub async fn validate_model(
 
     // Collect all tables that need validation (including those referenced in relationships)
     let mut tables_to_validate = vec![(model_database_name.to_string(), schema.to_string())];
-    
+
     // Add tables from relationships if any
     if let Some(rels) = relationships {
         for (from_model, to_model, _) in rels {
             // Add both from and to models if they're not already in the list
             let from_pair = (from_model.to_string(), schema.to_string());
             let to_pair = (to_model.to_string(), schema.to_string());
-            
+
             if !tables_to_validate.contains(&from_pair) {
                 tables_to_validate.push(from_pair);
             }
@@ -70,17 +67,18 @@ pub async fn validate_model(
     }
 
     // Get data source columns using batched retrieval for all tables at once
-    let ds_columns_result = match retrieve_dataset_columns_batch(&tables_to_validate, &credentials, database).await {
-        Ok(cols) => cols,
-        Err(e) => {
-            tracing::error!("Failed to get columns from data source: {}", e);
-            result.add_error(ValidationError::data_source_error(format!(
-                "Failed to get columns from data source: {}",
-                e
-            )));
-            return Ok(result);
-        }
-    };
+    let ds_columns_result =
+        match retrieve_dataset_columns_batch(&tables_to_validate, &credentials, database).await {
+            Ok(cols) => cols,
+            Err(e) => {
+                tracing::error!("Failed to get columns from data source: {}", e);
+                result.add_error(ValidationError::data_source_error(format!(
+                    "Failed to get columns from data source: {}",
+                    e
+                )));
+                return Ok(result);
+            }
+        };
 
     if ds_columns_result.is_empty() {
         result.add_error(ValidationError::table_not_found(model_database_name));
@@ -119,7 +117,10 @@ pub async fn validate_model(
                     result.add_error(ValidationError::expression_error(
                         col_name,
                         expr,
-                        &format!("Referenced column '{}' not found in model definition", expr_col),
+                        &format!(
+                            "Referenced column '{}' not found in model definition",
+                            expr_col
+                        ),
                     ));
                 }
             }

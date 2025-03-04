@@ -16,8 +16,18 @@ uuid = { workspace = true }
 diesel = { workspace = true }
 diesel-async = { workspace = true }
 futures = { workspace = true }
+redis = { workspace = true }
+regex = { workspace = true }
+indexmap = { workspace = true }
+async-trait = { workspace = true }
 
 # Local dependencies
 database = { path = "../database" }
+agents = { path = "../agents" }
+litellm = { path = "../litellm" }
+query_engine = { path = "../query_engine" }
 
 # Add any handler-specific dependencies here 
+
+[dev-dependencies]
+tokio-test = { workspace = true } 

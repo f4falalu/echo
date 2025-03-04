@@ -27,7 +27,7 @@ export const NewChatInput: React.FC<{}> = () => {
     try {
       setLoading(true);
       await onStartNewChat({ prompt: value });
-    } finally {
+    } catch (error) {
       setLoading(false);
     }
   });

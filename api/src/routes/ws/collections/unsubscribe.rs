@@ -4,8 +4,9 @@ use std::sync::Arc;
 
 use uuid::Uuid;
 
+use database::models::User;
+
 use crate::{
-    database_dep::models::User,
     routes::ws::{
         ws::{SubscriptionRwLock, WsEvent, WsResponseMessage, WsSendMethod},
         ws_router::WsRoutes,

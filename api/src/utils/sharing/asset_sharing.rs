@@ -18,16 +18,14 @@ use std::{
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{
-    database_dep::{
-        enums::{AssetPermissionRole, AssetType, IdentityType},
-        lib::get_pg_pool,
+use database::{enums::{AssetPermissionRole, AssetType, IdentityType},
+        pool::get_pg_pool,
         models::{AssetPermission, CollectionToAsset, User},
         schema::{
             asset_permissions, collections, collections_to_assets, dashboards, messages_deprecated,
             organizations, teams, teams_to_users, threads_deprecated, user_favorites, users,
-        },
-    },
+        },};
+use crate::{
     utils::clients::{
         email::resend::{send_email, CollectionInvite, DashboardInvite, EmailType, ThreadInvite},
         sentry_utils::send_sentry_error,

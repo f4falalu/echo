@@ -2,25 +2,23 @@ use anyhow::{anyhow, Result};
 use axum::{extract::Query, Extension};
 use chrono::{DateTime, Utc};
 use diesel::{
-    dsl::sql,
-    sql_types::{Nullable, Timestamptz},
     BoolExpressionMethods, ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl,
 };
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{
-    database_dep::{
-        enums::{IdentityType, UserOrganizationRole},
-        lib::get_pg_pool,
-        models::{User, UserToOrganization},
-        schema::{
-            data_sources, dataset_groups, dataset_groups_permissions, dataset_permissions, datasets, messages_deprecated, permission_groups_to_identities, users, users_to_organizations
-        },
+use database::{
+    enums::{IdentityType, UserOrganizationRole},
+    models::{User, UserToOrganization},
+    pool::get_pg_pool,
+    schema::{
+        data_sources, dataset_groups, dataset_groups_permissions, dataset_permissions, datasets,
+        messages_deprecated, permission_groups_to_identities, users, users_to_organizations,
     },
-    routes::rest::ApiResponse,
 };
+
+use crate::routes::rest::ApiResponse;
 
 #[derive(Deserialize)]
 pub struct ListDatasetsQuery {
@@ -168,7 +166,10 @@ async fn get_org_datasets(
     let mut query = datasets::table
         .inner_join(data_sources::table.on(datasets::data_source_id.eq(data_sources::id)))
         .inner_join(users::table.on(datasets::created_by.eq(users::id)))
-        .left_join(messages_deprecated::table.on(messages_deprecated::dataset_id.eq(datasets::id.nullable())))
+        .left_join(
+            messages_deprecated::table
+                .on(messages_deprecated::dataset_id.eq(datasets::id.nullable())),
+        )
         .select((
             datasets::id,
             datasets::name,
@@ -312,7 +313,16 @@ async fn get_restricted_user_datasets(
                     data_sources::id,
                     data_sources::name,
                 ))
-                .load::<(Uuid, String, DateTime<Utc>, DateTime<Utc>, bool, bool, Uuid, String)>(&mut conn)
+                .load::<(
+                    Uuid,
+                    String,
+                    DateTime<Utc>,
+                    DateTime<Utc>,
+                    bool,
+                    bool,
+                    Uuid,
+                    String,
+                )>(&mut conn)
                 .await
             {
                 Ok(datasets) => datasets,
@@ -339,13 +349,17 @@ async fn get_restricted_user_datasets(
                 )
                 .inner_join(
                     permission_groups_to_identities::table.on(
-                        permission_groups_to_identities::identity_id.eq(user_id)
-                            .and(permission_groups_to_identities::identity_type.eq(IdentityType::User))
-                    )
+                        permission_groups_to_identities::identity_id
+                            .eq(user_id)
+                            .and(
+                                permission_groups_to_identities::identity_type
+                                    .eq(IdentityType::User),
+                            ),
+                    ),
                 )
                 .filter(
                     dataset_permissions::permission_id
-                        .eq(permission_groups_to_identities::permission_group_id)
+                        .eq(permission_groups_to_identities::permission_group_id),
                 )
                 .filter(dataset_permissions::permission_type.eq("permission_group"))
                 .filter(dataset_permissions::deleted_at.is_null())
@@ -363,7 +377,16 @@ async fn get_restricted_user_datasets(
                     data_sources::id,
                     data_sources::name,
                 ))
-                .load::<(Uuid, String, DateTime<Utc>, DateTime<Utc>, bool, bool, Uuid, String)>(&mut conn)
+                .load::<(
+                    Uuid,
+                    String,
+                    DateTime<Utc>,
+                    DateTime<Utc>,
+                    bool,
+                    bool,
+                    Uuid,
+                    String,
+                )>(&mut conn)
                 .await
             {
                 Ok(datasets) => datasets,
@@ -386,18 +409,16 @@ async fn get_restricted_user_datasets(
             let result = match datasets::table
                 .inner_join(data_sources::table.on(datasets::data_source_id.eq(data_sources::id)))
                 .inner_join(
-                    dataset_permissions::table.on(dataset_permissions::dataset_id.eq(datasets::id))
+                    dataset_permissions::table.on(dataset_permissions::dataset_id.eq(datasets::id)),
                 )
                 .inner_join(
-                    dataset_groups_permissions::table.on(
-                        dataset_groups_permissions::permission_id.eq(user_id)
-                            .and(dataset_groups_permissions::permission_type.eq("user"))
-                    )
+                    dataset_groups_permissions::table.on(dataset_groups_permissions::permission_id
+                        .eq(user_id)
+                        .and(dataset_groups_permissions::permission_type.eq("user"))),
                 )
                 .inner_join(
-                    dataset_groups::table.on(
-                        dataset_groups::id.eq(dataset_groups_permissions::dataset_group_id)
-                    )
+                    dataset_groups::table
+                        .on(dataset_groups::id.eq(dataset_groups_permissions::dataset_group_id)),
                 )
                 .filter(dataset_permissions::permission_id.eq(dataset_groups::id))
                 .filter(dataset_permissions::permission_type.eq("dataset_group"))
@@ -417,7 +438,16 @@ async fn get_restricted_user_datasets(
                     data_sources::id,
                     data_sources::name,
                 ))
-                .load::<(Uuid, String, DateTime<Utc>, DateTime<Utc>, bool, bool, Uuid, String)>(&mut conn)
+                .load::<(
+                    Uuid,
+                    String,
+                    DateTime<Utc>,
+                    DateTime<Utc>,
+                    bool,
+                    bool,
+                    Uuid,
+                    String,
+                )>(&mut conn)
                 .await
             {
                 Ok(datasets) => datasets,
@@ -440,27 +470,33 @@ async fn get_restricted_user_datasets(
             let result = match datasets::table
                 .inner_join(data_sources::table.on(datasets::data_source_id.eq(data_sources::id)))
                 .inner_join(
-                    dataset_permissions::table.on(dataset_permissions::dataset_id.eq(datasets::id))
+                    dataset_permissions::table.on(dataset_permissions::dataset_id.eq(datasets::id)),
                 )
                 .inner_join(
-                    dataset_groups::table.on(
-                        dataset_groups::id.eq(dataset_permissions::permission_id)
-                            .and(dataset_permissions::permission_type.eq("dataset_group"))
-                    )
+                    dataset_groups::table.on(dataset_groups::id
+                        .eq(dataset_permissions::permission_id)
+                        .and(dataset_permissions::permission_type.eq("dataset_group"))),
                 )
                 .inner_join(
-                    dataset_groups_permissions::table.on(
-                        dataset_groups::id.eq(dataset_groups_permissions::dataset_group_id)
-                    )
+                    dataset_groups_permissions::table
+                        .on(dataset_groups::id.eq(dataset_groups_permissions::dataset_group_id)),
                 )
                 .inner_join(
                     permission_groups_to_identities::table.on(
-                        permission_groups_to_identities::identity_id.eq(user_id)
-                            .and(permission_groups_to_identities::identity_type.eq(IdentityType::User))
-                            .and(dataset_groups_permissions::permission_id
-                                .eq(permission_groups_to_identities::permission_group_id))
-                            .and(dataset_groups_permissions::permission_type.eq("permission_group"))
-                    )
+                        permission_groups_to_identities::identity_id
+                            .eq(user_id)
+                            .and(
+                                permission_groups_to_identities::identity_type
+                                    .eq(IdentityType::User),
+                            )
+                            .and(
+                                dataset_groups_permissions::permission_id
+                                    .eq(permission_groups_to_identities::permission_group_id),
+                            )
+                            .and(
+                                dataset_groups_permissions::permission_type.eq("permission_group"),
+                            ),
+                    ),
                 )
                 .filter(dataset_permissions::deleted_at.is_null())
                 .filter(dataset_groups_permissions::deleted_at.is_null())
@@ -479,7 +515,16 @@ async fn get_restricted_user_datasets(
                     data_sources::id,
                     data_sources::name,
                 ))
-                .load::<(Uuid, String, DateTime<Utc>, DateTime<Utc>, bool, bool, Uuid, String)>(&mut conn)
+                .load::<(
+                    Uuid,
+                    String,
+                    DateTime<Utc>,
+                    DateTime<Utc>,
+                    bool,
+                    bool,
+                    Uuid,
+                    String,
+                )>(&mut conn)
                 .await
             {
                 Ok(datasets) => datasets,
@@ -502,7 +547,12 @@ async fn get_restricted_user_datasets(
     match permission_group_datasets_handle.await {
         Ok(Ok(datasets)) => all_datasets.extend(datasets),
         Ok(Err(e)) => return Err(anyhow!("Unable to get permission group datasets: {}", e)),
-        Err(e) => return Err(anyhow!("Task join error for permission group datasets: {}", e)),
+        Err(e) => {
+            return Err(anyhow!(
+                "Task join error for permission group datasets: {}",
+                e
+            ))
+        }
     }
 
     match dataset_group_datasets_handle.await {
@@ -513,8 +563,18 @@ async fn get_restricted_user_datasets(
 
     match permission_group_dataset_groups_handle.await {
         Ok(Ok(datasets)) => all_datasets.extend(datasets),
-        Ok(Err(e)) => return Err(anyhow!("Unable to get permission group dataset group datasets: {}", e)),
-        Err(e) => return Err(anyhow!("Task join error for permission group dataset group datasets: {}", e)),
+        Ok(Err(e)) => {
+            return Err(anyhow!(
+                "Unable to get permission group dataset group datasets: {}",
+                e
+            ))
+        }
+        Err(e) => {
+            return Err(anyhow!(
+                "Task join error for permission group dataset group datasets: {}",
+                e
+            ))
+        }
     }
 
     // Deduplicate based on dataset id

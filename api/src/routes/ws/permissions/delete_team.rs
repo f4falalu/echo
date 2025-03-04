@@ -6,11 +6,6 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::{
-    database_dep::{
-        lib::get_pg_pool,
-        models::User,
-        schema::teams,
-    },
     routes::ws::{
         permissions::permissions_router::{PermissionEvent, PermissionRoute},
         ws::{WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
@@ -19,6 +14,7 @@ use crate::{
     },
     utils::clients::sentry_utils::send_sentry_error,
 };
+use database::{models::User, pool::get_pg_pool, schema::teams};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DeleteTeamsRequest {

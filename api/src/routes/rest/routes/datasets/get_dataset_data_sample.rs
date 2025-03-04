@@ -7,9 +7,9 @@ use serde::Serialize;
 use uuid::Uuid;
 
 use crate::{
-    database_dep::{
+    database::{
         enums::UserOrganizationRole,
-        lib::get_pg_pool,
+        pool::get_pg_pool,
         models::{Dataset, User},
         schema::{datasets, users_to_organizations},
     },

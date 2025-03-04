@@ -5,13 +5,11 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{
-    database_dep::{
-        enums::SharingSetting,
-        lib::get_pg_pool,
+use database::{enums::SharingSetting,
+        pool::get_pg_pool,
         models::{Team, User},
-        schema::teams,
-    },
+        schema::teams,};
+use crate::{
     routes::ws::{
         ws::{WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
         ws_router::WsRoutes,

@@ -8,12 +8,6 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    database_dep::{
-        enums::UserOrganizationRole,
-        lib::{get_pg_pool, ColumnMetadata, DataMetadataJsonBody, MinMaxValue},
-        models::User,
-        schema::{data_sources, datasets, users_to_organizations},
-    },
     routes::ws::{
         sql::sql_router::{SqlEvent, SqlRoute},
         ws::{WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
@@ -28,6 +22,12 @@ use crate::{
         },
         security::dataset_security::has_dataset_access,
     },
+};
+use database::{
+    enums::UserOrganizationRole,
+    models::{ColumnMetadata, DataMetadataJsonBody, MinMaxValue, User},
+    pool::get_pg_pool,
+    schema::{data_sources, datasets, users_to_organizations},
 };
 
 const MAX_UNIQUE_VALUES: usize = 100;

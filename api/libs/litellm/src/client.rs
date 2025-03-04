@@ -66,12 +66,17 @@ impl LiteLLMClient {
             .post(&url)
             .json(&request)
             .send()
-            .await?
-            .json::<ChatCompletionResponse>()
             .await?;
 
+        // Print the raw response text
+        let response_text = response.text().await?;
+        println!("DEBUG: Raw response payload: {}", response_text);
+
+        // Parse the response text into the expected type
+        let response: ChatCompletionResponse = serde_json::from_str(&response_text)?;
+
         // Print tool calls if present
-        if let Some(Message::Assistant {
+        if let Some(AgentMessage::Assistant {
             tool_calls: Some(tool_calls),
             ..
         }) = response.choices.first().map(|c| &c.message)
@@ -128,7 +133,7 @@ impl LiteLLMClient {
                 match chunk_result {
                     Ok(chunk) => {
                         let chunk_str = String::from_utf8_lossy(&chunk);
-                        println!("DEBUG: Received raw stream chunk: {}", chunk_str);
+                        println!("DEBUG: Raw response payload: {}", chunk_str);
                         buffer.push_str(&chunk_str);
 
                         while let Some(pos) = buffer.find("\n\n") {
@@ -216,8 +221,8 @@ mod tests {
         (api_key, base_url)
     }
 
-    fn create_test_message() -> Message {
-        Message::user("Hello".to_string())
+    fn create_test_message() -> AgentMessage {
+        AgentMessage::user("Hello".to_string())
     }
 
     fn create_test_request() -> ChatCompletionRequest {
@@ -276,7 +281,7 @@ mod tests {
 
         let response = client.chat_completion(request).await.unwrap();
         assert_eq!(response.id, "test-id");
-        if let Message::Assistant { content, .. } = response.choices[0].message.clone() {
+        if let AgentMessage::Assistant { content, .. } = response.choices[0].message.clone() {
             assert_eq!(content.unwrap(), "Hello there!");
         } else {
             panic!("Expected assistant message");
@@ -411,7 +416,7 @@ mod tests {
 
         let response = client.chat_completion(request).await.unwrap();
         assert_eq!(response.id, "test-id");
-        if let Message::Assistant {
+        if let AgentMessage::Assistant {
             content,
             tool_calls,
             ..
@@ -466,7 +471,7 @@ mod tests {
 
         let request = ChatCompletionRequest {
             model: "o1".to_string(),
-            messages: vec![Message::user("Hello, world!".to_string())],
+            messages: vec![AgentMessage::user("Hello, world!".to_string())],
             ..Default::default()
         };
 

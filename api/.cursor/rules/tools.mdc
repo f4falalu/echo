@@ -1,6 +1,7 @@
 ---
 description: Helpful for working with and building tools
-globs: */tools/*
+globs: libs/agents/src/tools/**/*.rs
+alwaysApply: false
 ---
 # Tools Documentation and Guidelines
 

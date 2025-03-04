@@ -10,9 +10,9 @@ use serde_json::Value;
 use tokio::io::AsyncWriteExt;
 use uuid::Uuid;
 
-use crate::database_dep::{
+use database::{
     enums::{TeamToUserRole, UserOrganizationRole},
-    lib::{get_pg_pool, get_redis_pool},
+    pool::{get_pg_pool, get_redis_pool},
     models::{Organization, Team, User},
     schema::{organizations, teams, teams_to_users, users, users_to_organizations},
 };

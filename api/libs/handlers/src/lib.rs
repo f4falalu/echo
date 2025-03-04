@@ -1,7 +1,7 @@
 pub mod messages;
-pub mod threads;
+pub mod chats;
 pub mod files;
+pub mod metrics;
 
 // Re-export commonly used types and functions
-pub use threads::types as thread_types;
-pub use threads::helpers as thread_helpers;
+pub use chats::types as thread_types;

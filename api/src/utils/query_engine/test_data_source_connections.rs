@@ -1,6 +1,6 @@
-use crate::database_dep::enums::DataSourceType;
+use database::enums::DataSourceType;
 
-use super::{
+use crate::utils::query_engine::{
     credentials::Credential,
     data_source_connections::{
         get_bigquery_client::get_bigquery_client, get_databricks_client::get_databricks_client,

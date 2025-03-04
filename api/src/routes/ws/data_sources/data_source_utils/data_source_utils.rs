@@ -7,13 +7,11 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{
-    database_dep::{
-        enums::{DataSourceType, UserOrganizationRole},
-        lib::get_pg_pool,
+use database::{enums::{DataSourceType, UserOrganizationRole},
+        pool::get_pg_pool,
         models::Dataset,
-        schema::{data_sources, datasets, organizations, users, users_to_organizations},
-    },
+        schema::{data_sources, datasets, organizations, users, users_to_organizations},};
+use crate::{
     utils::query_engine::credentials::{get_data_source_credentials, Credential},
 };
 
@@ -106,7 +104,7 @@ pub async fn get_data_source_state(user_id: &Uuid, id: Uuid) -> Result<DataSourc
     };
 
     let credentials =
-        match get_data_source_credentials(&data_source.secret_id, &data_source.type_, true).await {
+        match get_data_source_credentials(&data_source.id, &data_source.type_, true).await {
             Ok(credential) => credential,
             Err(e) => return Err(anyhow!("Error getting data source credentials: {:}", e)),
         };

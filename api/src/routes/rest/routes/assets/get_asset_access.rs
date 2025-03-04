@@ -10,10 +10,10 @@ use uuid::Uuid;
 use axum::extract::Path;
 use axum::http::StatusCode;
 
-use crate::database_dep::enums::{AssetPermissionRole, AssetType, UserOrganizationRole};
-use crate::database_dep::lib::{get_pg_pool, PgPool};
-use crate::database_dep::models::User;
-use crate::database_dep::schema::{
+use database::enums::{AssetPermissionRole, AssetType, UserOrganizationRole};
+use database::pool::{get_pg_pool, PgPool};
+use database::models::User;
+use database::schema::{
     asset_permissions, collections_to_assets, dashboards, teams_to_users, threads_deprecated,
     threads_to_dashboards, users_to_organizations,
 };

@@ -1,6 +1,5 @@
-
-use crate::schema::*;
 use crate::enums::*;
+use crate::schema::*;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -36,14 +35,16 @@ pub struct DashboardFile {
 }
 
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug, Clone, Serialize)]
-#[diesel(belongs_to(Thread))]
 #[diesel(belongs_to(User, foreign_key = created_by))]
 #[diesel(table_name = messages)]
 pub struct Message {
     pub id: Uuid,
-    pub request: String,
-    pub response: Value,
-    pub thread_id: Uuid,
+    pub request_message: String,
+    pub response_messages: Value,
+    pub reasoning: Value,
+    pub final_reasoning_message: String,
+    pub title: String,
+    pub chat_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -82,8 +83,8 @@ pub struct MetricFile {
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug, Clone, Serialize)]
 #[diesel(belongs_to(Organization))]
 #[diesel(belongs_to(User, foreign_key = created_by))]
-#[diesel(table_name = threads)]
-pub struct Thread {
+#[diesel(table_name = chats)]
+pub struct Chat {
     pub id: Uuid,
     pub title: String,
     pub organization_id: Uuid,
@@ -91,6 +92,7 @@ pub struct Thread {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub created_by: Uuid,
+    pub updated_by: Uuid,
 }
 
 #[derive(Queryable, Insertable, Associations, Debug)]
@@ -655,3 +657,48 @@ pub struct DatasetToDatasetGroup {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
+// TODO: These are json types that go in the db.
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(untagged)]
+pub enum MinMaxValue {
+    Number(f64),
+    String(String),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ColumnMetadata {
+    pub name: String,
+    #[serde(rename = "type")]
+    pub type_: String,
+    pub simple_type: Option<String>,
+    pub unique_values: i32,
+    pub min_value: Option<MinMaxValue>,
+    pub max_value: Option<MinMaxValue>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct DataMetadataJsonBody {
+    pub column_count: i32,
+    pub row_count: i32,
+    pub column_metadata: Vec<ColumnMetadata>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct MessageResponses {
+    pub messages: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UserConfig {
+    pub color_palettes: Option<Vec<Vec<String>>>,
+    pub last_used_color_palette: Option<Vec<String>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub enum StepProgress {
+    InProgress,
+    Completed,
+    Failed,
+}

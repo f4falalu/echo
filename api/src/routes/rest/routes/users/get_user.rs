@@ -2,10 +2,10 @@ use anyhow::Result;
 use axum::Extension;
 use diesel_async::RunQueryDsl;
 
-use crate::database_dep::enums::{TeamToUserRole, UserOrganizationRole};
-use crate::database_dep::lib::get_pg_pool;
-use crate::database_dep::models::{Organization, Team, User};
-use crate::database_dep::schema::{
+use database::enums::{TeamToUserRole, UserOrganizationRole};
+use database::pool::get_pg_pool;
+use database::models::{Organization, Team, User};
+use database::schema::{
     organizations, teams, teams_to_users, users, users_to_organizations,
 };
 use crate::routes::rest::ApiResponse;

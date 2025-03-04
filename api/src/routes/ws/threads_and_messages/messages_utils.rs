@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
-use crate::database_dep::{
+use database::{
     enums::{AssetPermissionRole, UserOrganizationRole},
-    lib::get_pg_pool,
+    pool::get_pg_pool,
     models::MessageDeprecated,
     schema::{
         asset_permissions, data_sources, datasets, messages_deprecated, teams_to_users, threads_deprecated,

@@ -6,15 +6,13 @@ use diesel_async::RunQueryDsl;
 use std::collections::HashSet;
 use uuid::Uuid;
 
-use crate::{
-    database_dep::{
-        lib::get_pg_pool,
-        models::{DataSource, Dataset, DatasetColumn},
-        schema::dataset_columns,
-    },
-    utils::query_engine::{
-        credentials::get_data_source_credentials, import_dataset_columns::retrieve_dataset_columns,
-    },
+use database::{
+    models::{DataSource, Dataset, DatasetColumn},
+    pool::get_pg_pool,
+    schema::dataset_columns,
+};
+use crate::utils::query_engine::{
+    credentials::get_data_source_credentials, import_dataset_columns::retrieve_dataset_columns,
 };
 
 pub struct ColumnUpdate {
@@ -35,7 +33,7 @@ pub async fn get_column_types(
     data_source: &DataSource,
 ) -> Result<Vec<ColumnUpdate>> {
     let credentials =
-        get_data_source_credentials(&data_source.secret_id, &data_source.type_, false)
+        get_data_source_credentials(&data_source.id, &data_source.type_, false)
             .await
             .map_err(|e| anyhow!("Error getting data source credentials: {}", e))?;
 

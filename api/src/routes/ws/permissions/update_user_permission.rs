@@ -6,13 +6,11 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use uuid::Uuid;
 
-use crate::{
-    database_dep::{
-        enums::{IdentityType, SharingSetting, TeamToUserRole},
-        lib::get_pg_pool,
+use database::{enums::{IdentityType, SharingSetting, TeamToUserRole},
+        pool::get_pg_pool,
         models::{PermissionGroupToIdentity, TeamToUser, User},
-        schema::{permission_groups_to_identities, teams_to_users, users, users_to_organizations},
-    },
+        schema::{permission_groups_to_identities, teams_to_users, users, users_to_organizations},};
+use crate::{
     routes::ws::{
         permissions::permissions_router::{PermissionEvent, PermissionRoute},
         ws::{WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},

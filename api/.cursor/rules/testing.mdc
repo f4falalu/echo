@@ -1,6 +1,7 @@
 ---
 description: This is designed to help understand how to do testing in this project.
-globs: */tests/*
+globs: 
+alwaysApply: false
 ---
 # Testing Rules and Best Practices
 

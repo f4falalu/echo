@@ -36,7 +36,6 @@ pub async fn get_metric(metric_id: &Uuid, user_id: &Uuid) -> Result<BusterMetric
     // Query the metric file
     let metric_file = metric_files::table
         .filter(metric_files::id.eq(metric_id))
-        .filter(metric_files::created_by.eq(user_id))
         .filter(metric_files::deleted_at.is_null())
         .select((
             metric_files::id,

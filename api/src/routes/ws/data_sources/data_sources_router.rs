@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
-use crate::database_dep::models::User;
+use database::models::User;
 
 use super::{
     delete_data_source::delete_data_source, get_data_source::get_data_source,

@@ -1,4 +1,7 @@
 use anyhow::{anyhow, Result};
+use database::schema::{api_keys, users};
+use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl};
+use diesel_async::RunQueryDsl;
 use std::{collections::HashMap, env};
 
 use axum::{extract::Request, http::StatusCode, middleware::Next, response::Response};
@@ -6,7 +9,7 @@ use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::database_dep::{lib::get_pg_pool, models::User};
+use crate::database::{models::User, pool::get_pg_pool};
 
 /// Authentication is done via Bearer token with a JWT issued from Supabase.  We also offer API access that
 /// is done via a Bearer token with a JWT issued from us.
@@ -97,7 +100,7 @@ pub async fn auth(mut req: Request, next: Next) -> Result<Response, StatusCode> 
 
 async fn authorize_current_user(token: &str) -> Result<Option<User>> {
     let pg_pool = get_pg_pool();
-    
+
     let _conn = pg_pool.get().await.map_err(|e| {
         tracing::error!("Pool connection error in auth: {:?}", e);
         anyhow!("Database connection error in auth")
@@ -117,8 +120,8 @@ async fn authorize_current_user(token: &str) -> Result<Option<User>> {
         };
 
     let user = match token_data.aud.contains("api") {
-        true => User::find_by_api_key(token, &pg_pool).await,
-        false => User::find_by_id(&Uuid::parse_str(&token_data.sub).unwrap(), &pg_pool).await,
+        true => find_user_by_api_key(token).await,
+        false => find_user_by_id(&Uuid::parse_str(&token_data.sub).unwrap()).await,
     };
 
     let user = match user {
@@ -130,4 +133,43 @@ async fn authorize_current_user(token: &str) -> Result<Option<User>> {
     };
 
     Ok(user)
+}
+
+async fn find_user_by_id(id: &Uuid) -> Result<Option<User>> {
+    let mut conn = match get_pg_pool().get().await {
+        Ok(conn) => conn,
+        Err(e) => return Err(anyhow!("Error while querying user: {}", e)),
+    };
+
+    let user = match users::table
+        .filter(users::id.eq(id))
+        .first::<User>(&mut conn)
+        .await
+    {
+        Ok(user) => user,
+        Err(e) => return Err(anyhow!("Error while querying user: {}", e)),
+    };
+
+    Ok(Some(user))
+}
+
+async fn find_user_by_api_key(token: &str) -> Result<Option<User>> {
+    let mut conn = match get_pg_pool().get().await {
+        Ok(conn) => conn,
+        Err(e) => return Err(anyhow!("Error while querying user: {}", e)),
+    };
+
+    let user = match users::table
+        .inner_join(api_keys::table.on(users::id.eq(api_keys::owner_id)))
+        .filter(api_keys::key.eq(token))
+        .filter(api_keys::deleted_at.is_null())
+        .select(users::all_columns)
+        .first::<User>(&mut conn)
+        .await
+    {
+        Ok(user) => user,
+        Err(e) => return Err(anyhow!("Error while querying user: {}", e)),
+    };
+
+    Ok(Some(user))
 }

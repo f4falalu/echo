@@ -2,10 +2,10 @@ use anyhow::Result;
 use axum::extract::Path;
 use axum::{Extension, Json};
 
-use crate::database_dep::enums::UserOrganizationStatus;
-use crate::database_dep::models::User;
-use crate::database_dep::schema::{users, users_to_organizations};
-use crate::database_dep::{enums::UserOrganizationRole, lib::get_pg_pool};
+use database::enums::UserOrganizationStatus;
+use database::models::User;
+use database::schema::{users, users_to_organizations};
+use database::{enums::UserOrganizationRole, pool::get_pg_pool};
 use crate::routes::rest::ApiResponse;
 use crate::utils::clients::sentry_utils::send_sentry_error;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;

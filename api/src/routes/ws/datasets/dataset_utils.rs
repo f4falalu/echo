@@ -8,16 +8,14 @@ use futures::future::join_all;
 use serde_json::Value;
 use std::{collections::HashMap, sync::Arc};
 
-use crate::{
-    database_dep::{
-        enums::UserOrganizationRole,
-        lib::get_pg_pool,
+use database::{enums::UserOrganizationRole,
+        pool::get_pg_pool,
         models::DatasetColumn,
         schema::{
             data_sources, dataset_columns, datasets, datasets_to_permission_groups,
             permission_groups_to_identities, teams_to_users, users, users_to_organizations,
-        },
-    },
+        },};
+use crate::{
     utils::clients::ai::{
         langfuse::PromptName,
         llm_router::{llm_chat, LlmMessage, LlmModel, LlmRole},
@@ -27,7 +25,7 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::database_dep::models::{DataSource, Dataset};
+use database::models::{DataSource, Dataset};
 
 #[derive(Serialize, Clone, Debug)]
 pub struct DatasetState {

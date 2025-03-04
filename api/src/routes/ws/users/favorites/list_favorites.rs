@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 
 use crate::{
-    database_dep::models::User,
+    database::models::User,
     routes::ws::{
         users::users_router::{UserEvent, UserRoute},
         ws::{WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},

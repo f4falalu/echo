@@ -3,7 +3,7 @@ use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::database_dep::models::User;
+use database::models::User;
 
 use super::{
     delete_dataset::delete_dataset, get_dataset::get_dataset, list_datasets::list_datasets,

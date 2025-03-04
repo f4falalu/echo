@@ -1,20 +1,17 @@
-use crate::{
-    database_dep::{
-        enums::StoredValuesStatus,
-        lib::get_pg_pool,
-        schema::{dataset_columns, datasets},
-    },
-    utils::clients::typesense,
-};
 use anyhow::{anyhow, Result};
 use chrono::Utc;
+use database::{
+    enums::StoredValuesStatus,
+    pool::get_pg_pool,
+    schema::{dataset_columns, datasets},
+};
 use diesel::{update, AsChangeset, ExpressionMethods, JoinOnDsl, QueryDsl};
 use diesel_async::RunQueryDsl;
 
 use serde::Serialize;
 use uuid::Uuid;
 
-use super::{data_types::DataType, query_engine::query_engine};
+use crate::utils::query_engine::{data_types::DataType, query_engine::query_engine};
 
 #[derive(Debug, AsChangeset)]
 #[diesel(table_name = dataset_columns)]
@@ -126,21 +123,6 @@ pub async fn start_stored_values_sync(dataset_column_id: &Uuid) -> Result<()> {
             dataset_column_id: dataset_column_id.clone(),
         });
     }
-
-    let collection_name = format!("dataset_index_{}", dataset_id);
-
-    match typesense::bulk_insert_documents(&collection_name, &documents).await {
-        Ok(_) => {
-            dataset_column_changeset.stored_values_status = Some(StoredValuesStatus::Success);
-        }
-        Err(e) => {
-            dataset_column_changeset.stored_values_error =
-                Some(format!("Error inserting documents: {}", e));
-            dataset_column_changeset.stored_values_status = Some(StoredValuesStatus::Failed);
-            update_collection_record(dataset_column_id, dataset_column_changeset).await?;
-            return Err(anyhow!("Error inserting documents: {}", e));
-        }
-    };
 
     match update_collection_record(dataset_column_id, dataset_column_changeset).await {
         Ok(_) => (),

@@ -1,6 +1,7 @@
 ---
 description: These are global rules and recommendations for the rust server.
-globs: *
+globs: 
+alwaysApply: true
 ---
 
 # Global Rules and Project Structure
@@ -35,6 +36,9 @@ let mut conn = get_pg_pool().get().await?;
 - Avoid unnecessary `.clone()` calls
 - Use `&str` instead of `String` for function parameters when the string doesn't need to be owned
 
+### Importing packages/crates
+- Please make the dependency as short as possible in the actual logic by importing the crate/package.
+
 ### Database Operations
 - Use Diesel for database migrations and query building
 - Migrations are stored in the `migrations/` directory
@@ -42,7 +46,6 @@ let mut conn = get_pg_pool().get().await?;
 ### Concurrency Guidelines
 - Prioritize concurrent operations, especially for:
   - API requests
-  - Database transactions
   - File operations
 - Optimize database connection usage:
   - Batch operations where possible

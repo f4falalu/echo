@@ -14,25 +14,27 @@ use serde::Serialize;
 use uuid::Uuid;
 
 use crate::{
-    database_dep::{
-        enums::{AssetPermissionRole, AssetType, UserOrganizationRole},
-        lib::{get_pg_pool, ColumnMetadata, DataMetadataJsonBody, MinMaxValue, PgPool},
-        models::{MessageDeprecated, ThreadDeprecated},
-        schema::{
-            asset_permissions, collections_to_assets, dashboards, data_sources, datasets, messages_deprecated,
-            sql_evaluations, teams_to_users, threads_deprecated, threads_to_dashboards, users,
-            users_to_organizations,
-        },
-    },
     routes::ws::threads_and_messages::messages_utils::MessageDraftState,
     utils::{
-        clients::{sentry_utils::send_sentry_error, supabase_vault::read_secret},
+        clients::sentry_utils::send_sentry_error,
         query_engine::{data_types::DataType, query_engine::query_engine},
         sharing::asset_sharing::{
             get_asset_collections, get_asset_sharing_info, CollectionNameAndId,
             IndividualPermission, TeamPermissions,
         },
     },
+};
+use database::{
+    enums::{AssetPermissionRole, AssetType, UserOrganizationRole},
+    models::{ColumnMetadata, DataMetadataJsonBody, MinMaxValue},
+    models::{MessageDeprecated, ThreadDeprecated},
+    pool::get_pg_pool,
+    schema::{
+        asset_permissions, collections_to_assets, dashboards, data_sources, datasets,
+        messages_deprecated, sql_evaluations, teams_to_users, threads_deprecated,
+        threads_to_dashboards, users, users_to_organizations,
+    },
+    vault::read_secret,
 };
 
 #[derive(Serialize, Clone, Debug)]
@@ -155,7 +157,7 @@ pub async fn get_thread_state_by_id(
     };
 
     let public_password = if let Some(password_secret_id) = thread.password_secret_id {
-        let public_password = match read_secret(&password_secret_id).await {
+        let public_password = match read_secret(&thread.id).await {
             Ok(public_password) => public_password,
             Err(e) => {
                 tracing::error!("Error getting public password: {}", e);
@@ -507,7 +509,10 @@ async fn is_organization_admin_or_owner(user_id: Arc<Uuid>, thread_id: Arc<Uuid>
                 .on(users_to_organizations::organization_id.eq(data_sources::organization_id)),
         )
         .inner_join(datasets::table.on(data_sources::id.eq(datasets::data_source_id)))
-        .inner_join(messages_deprecated::table.on(datasets::id.nullable().eq(messages_deprecated::dataset_id)))
+        .inner_join(
+            messages_deprecated::table
+                .on(datasets::id.nullable().eq(messages_deprecated::dataset_id)),
+        )
         .select(users_to_organizations::role)
         .filter(messages_deprecated::thread_id.eq(thread_id.as_ref()))
         .filter(users_to_organizations::user_id.eq(user_id.as_ref()))
@@ -534,11 +539,10 @@ async fn is_organization_admin_or_owner(user_id: Arc<Uuid>, thread_id: Arc<Uuid>
 }
 
 pub async fn get_bulk_user_thread_permission(
-    pg_pool: &PgPool,
     user_id: &Uuid,
     thread_ids: &Vec<Uuid>,
 ) -> Result<HashMap<Uuid, AssetPermissionRole>> {
-    let mut conn = match pg_pool.get().await {
+    let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => {
             tracing::error!("Error getting pg connection: {}", e);
@@ -789,7 +793,10 @@ async fn get_thread_messages(
     Ok(messages)
 }
 
-fn apply_draft_state(message: MessageDeprecated, draft_state: &MessageDraftState) -> MessageDeprecated {
+fn apply_draft_state(
+    message: MessageDeprecated,
+    draft_state: &MessageDraftState,
+) -> MessageDeprecated {
     let mut message = message;
 
     if let Some(title) = &draft_state.title {

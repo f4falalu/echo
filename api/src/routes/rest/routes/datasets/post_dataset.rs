@@ -7,9 +7,9 @@ use serde::Deserialize;
 use uuid::Uuid;
 
 use crate::{
-    database_dep::{
+    database::{
         enums::DatasetType,
-        lib::get_pg_pool,
+        pool::get_pg_pool,
         models::{DataSource, Dataset, User},
         schema::{data_sources, datasets},
     },

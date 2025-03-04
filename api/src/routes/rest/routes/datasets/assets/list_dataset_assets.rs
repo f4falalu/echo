@@ -6,9 +6,9 @@ use diesel_async::RunQueryDsl;
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::database_dep::schema::users_to_organizations;
-use crate::database_dep::{
-    lib::get_pg_pool,
+use database::schema::users_to_organizations;
+use database::{
+    pool::get_pg_pool,
     models::{DatasetGroup, PermissionGroup, User},
     schema::{dataset_groups, dataset_permissions, permission_groups, users},
 };

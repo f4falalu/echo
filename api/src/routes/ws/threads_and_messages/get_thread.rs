@@ -1,16 +1,13 @@
 use anyhow::{anyhow, Result};
-use handlers::threads::helpers::get_thread;
+use handlers::chats::get_chat_handler;
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::sync::Arc;
 
 use uuid::Uuid;
 
 use crate::{
-    database_dep::{
-        enums::AssetPermissionRole,
-        lib::{FetchingData, StepProgress},
-        models::User,
-    },
     routes::ws::{
         ws::{SubscriptionRwLock, WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
         ws_router::WsRoutes,
@@ -24,14 +21,25 @@ use crate::{
             },
             sentry_utils::send_sentry_error,
         },
-        query_engine::query_engine::query_engine,
+        query_engine::{data_types::DataType, query_engine::query_engine},
     },
 };
+use database::{enums::AssetPermissionRole, models::StepProgress, models::User};
 
 use super::{
     thread_utils::get_thread_state_by_id,
     threads_router::{ThreadEvent, ThreadRoute},
 };
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct FetchingData {
+    pub thread_id: Uuid,
+    pub message_id: Uuid,
+    pub progress: StepProgress,
+    pub data: Option<Vec<IndexMap<String, DataType>>>,
+    pub chart_config: Option<Value>,
+    pub code: Option<String>,
+}
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetThreadRequest {
@@ -60,7 +68,7 @@ pub async fn get_thread_ws(
         Err(e) => return Err(anyhow!("Error subscribing to thread: {}", e)),
     };
 
-    let thread = get_thread::get_thread(&req.id, &user.id).await?;
+    let thread = get_chat_handler::get_chat_handler(&req.id, &user.id).await?;
 
     let get_thread_ws_message = WsResponseMessage::new(
         WsRoutes::Threads(ThreadRoute::Get),

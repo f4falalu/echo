@@ -1,4 +1,4 @@
-use crate::database_dep::{lib::get_pg_pool, models::DatasetColumn, schema::dataset_columns};
+use database::{pool::get_pg_pool, models::DatasetColumn, schema::dataset_columns};
 
 use super::{
     credentials::{

@@ -5,16 +5,14 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{
-    database_dep::{
-        enums::{UserOrganizationRole, UserOrganizationStatus},
-        lib::get_pg_pool,
-        models::User,
-        schema::{users, users_to_organizations},
-    },
-    routes::rest::ApiResponse,
-    utils::clients::sentry_utils::send_sentry_error,
+use database::{
+    enums::{UserOrganizationRole, UserOrganizationStatus},
+    models::User,
+    pool::get_pg_pool,
+    schema::{users, users_to_organizations},
 };
+
+use crate::{routes::rest::ApiResponse, utils::clients::sentry_utils::send_sentry_error};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct UserResponse {

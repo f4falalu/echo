@@ -1,0 +1,23 @@
+use anyhow::Result;
+use axum::http::StatusCode;
+use axum::Extension;
+use axum::Json;
+use database::models::User;
+use handlers::chats::delete_chats_handler::{ChatDeleteResult};
+use handlers::chats::delete_chats_handler;
+use uuid::Uuid;
+
+use crate::routes::rest::ApiResponse;
+
+pub async fn delete_chats_route(
+    Extension(user): Extension<User>,
+    Json(chat_ids): Json<Vec<Uuid>>,
+) -> Result<ApiResponse<Vec<ChatDeleteResult>>, (StatusCode, &'static str)> {
+    match delete_chats_handler(chat_ids, &user.id).await {
+        Ok(results) => Ok(ApiResponse::JsonData(results)),
+        Err(e) => {
+            tracing::error!("Error deleting chats: {}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Failed to delete chats"))
+        }
+    }
+} 

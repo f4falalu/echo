@@ -6,13 +6,11 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    database_dep::{
-        enums::AssetPermissionRole,
-        lib::get_pg_pool,
+use database::{enums::AssetPermissionRole,
+        pool::get_pg_pool,
         models::User,
-        schema::dashboards,
-    },
+        schema::dashboards,};
+use crate::{
     routes::ws::{
         dashboards::dashboards_router::{DashboardEvent, DashboardRoute},
         ws::{WsEvent, WsResponseMessage, WsSendMethod},

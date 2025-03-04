@@ -9,12 +9,6 @@ use serde::Deserialize;
 use uuid::Uuid;
 
 use crate::{
-    database_dep::{
-        enums::{SharingSetting, TeamToUserRole, UserOrganizationRole, UserOrganizationStatus},
-        lib::{get_pg_pool, UserConfig},
-        models::{TeamToUser, User, UserToOrganization},
-        schema::{teams_to_users, users, users_to_organizations},
-    },
     routes::ws::{
         ws::{WsEvent, WsResponseMessage, WsSendMethod},
         ws_router::WsRoutes,
@@ -27,6 +21,12 @@ use crate::{
         },
         user::user_info::get_user_organization,
     },
+};
+use database::{
+    enums::{SharingSetting, TeamToUserRole, UserOrganizationRole, UserOrganizationStatus},
+    models::{TeamToUser, User, UserConfig, UserToOrganization},
+    pool::get_pg_pool,
+    schema::{teams_to_users, users, users_to_organizations},
 };
 
 use super::users_router::{UserEvent, UserRoute};
@@ -157,16 +157,22 @@ async fn invite_users_handler(user: &User, req: InviteUsersRequest) -> Result<()
     // Insert user-organization relationships
     match insert_into(users_to_organizations::table)
         .values(user_organization)
-        .on_conflict((users_to_organizations::user_id, users_to_organizations::organization_id))
+        .on_conflict((
+            users_to_organizations::user_id,
+            users_to_organizations::organization_id,
+        ))
         .do_update()
         .set((
             users_to_organizations::updated_at.eq(chrono::Utc::now()),
             users_to_organizations::role.eq(excluded(users_to_organizations::role)),
-            users_to_organizations::sharing_setting.eq(excluded(users_to_organizations::sharing_setting)),
+            users_to_organizations::sharing_setting
+                .eq(excluded(users_to_organizations::sharing_setting)),
             users_to_organizations::edit_sql.eq(excluded(users_to_organizations::edit_sql)),
             users_to_organizations::upload_csv.eq(excluded(users_to_organizations::upload_csv)),
-            users_to_organizations::export_assets.eq(excluded(users_to_organizations::export_assets)),
-            users_to_organizations::email_slack_enabled.eq(excluded(users_to_organizations::email_slack_enabled)),
+            users_to_organizations::export_assets
+                .eq(excluded(users_to_organizations::export_assets)),
+            users_to_organizations::email_slack_enabled
+                .eq(excluded(users_to_organizations::email_slack_enabled)),
             users_to_organizations::deleted_at.eq(excluded(users_to_organizations::deleted_at)),
             users_to_organizations::created_by.eq(excluded(users_to_organizations::created_by)),
             users_to_organizations::updated_by.eq(excluded(users_to_organizations::updated_by)),

@@ -7,11 +7,11 @@ use diesel_async::RunQueryDsl;
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::database_dep::lib::get_pg_pool;
-use crate::database_dep::models::{ApiKey, User};
-use crate::database_dep::schema::api_keys;
+use database::pool::get_pg_pool;
+use database::models::{ApiKey, User};
+use database::schema::api_keys;
 use crate::routes::rest::ApiResponse;
-use crate::database_dep::schema::users;
+use database::schema::users;
 
 #[derive(Debug, Serialize)]
 pub struct ApiKeyInfo {

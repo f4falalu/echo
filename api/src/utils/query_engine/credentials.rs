@@ -4,7 +4,8 @@ use serde_json::Value;
 use uuid::Uuid;
 use tracing;
 
-use crate::{database_dep::enums::DataSourceType, utils::clients::supabase_vault::read_secret};
+use database::enums::DataSourceType;
+use database::vault::read_secret;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type")]
@@ -143,11 +144,11 @@ impl Credential {
 }
 
 pub async fn get_data_source_credentials(
-    secret_id: &Uuid,
+    data_source_id: &Uuid,
     data_source_type: &DataSourceType,
     redact_secret: bool,
 ) -> Result<Credential> {
-    let secret_string = match read_secret(&secret_id).await {
+    let secret_string = match read_secret(&data_source_id).await {
         Ok(secret) => secret,
         Err(e) => return Err(anyhow!("Error reading secret: {:?}", e)),
     };

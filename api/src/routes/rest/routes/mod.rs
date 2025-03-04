@@ -5,6 +5,7 @@ mod dashboards;
 mod data_sources;
 mod dataset_groups;
 mod datasets;
+mod messages;
 mod metrics;
 mod organizations;
 mod permission_groups;
@@ -26,6 +27,7 @@ pub fn router() -> Router {
             .nest("/sql", sql::router())
             .nest("/organizations", organizations::router())
             .nest("/chats", chats::router())
+            .nest("/messages", messages::router())
             .nest("/metrics", metrics::router())
             .nest("/dashboards", dashboards::router())
             .nest("/users", users::router())

@@ -1,13 +1,14 @@
 use anyhow::Result;
+use database::{
+    enums::UserOrganizationRole,
+    models::DataSource,
+    pool::get_pg_pool,
+    schema::{data_sources, datasets, users_to_organizations},
+};
 use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryDsl};
 use diesel_async::RunQueryDsl;
 use indexmap::IndexMap;
 use uuid::Uuid;
-
-use crate::database_dep::enums::UserOrganizationRole;
-use crate::database_dep::lib::get_pg_pool;
-use crate::database_dep::models::DataSource;
-use crate::database_dep::schema::{data_sources, users_to_organizations};
 
 use super::data_source_query_routes::query_router::query_router;
 use super::data_types::DataType;
@@ -16,9 +17,26 @@ pub async fn query_engine(
     dataset_id: &Uuid,
     sql: &String,
 ) -> Result<Vec<IndexMap<String, DataType>>> {
-    let data_source = match DataSource::find_by_dataset_id(dataset_id).await? {
-        Some(data_source) => data_source,
-        None => return Err(anyhow::anyhow!("Data source not found")),
+    let mut conn = match get_pg_pool().get().await {
+        Ok(conn) => conn,
+        Err(e) => {
+            return Err(anyhow::anyhow!(
+                "Error getting connection from pool: {:?}",
+                e
+            ))
+        }
+    };
+
+    let data_source = match data_sources::table
+        .inner_join(datasets::table.on(data_sources::id.eq(datasets::data_source_id)))
+        .filter(datasets::id.eq(dataset_id))
+        .filter(data_sources::deleted_at.is_null())
+        .select(data_sources::all_columns)
+        .first::<DataSource>(&mut conn)
+        .await
+    {
+        Ok(data_source) => data_source,
+        Err(e) => return Err(anyhow::anyhow!("Data source not found")),
     };
 
     let results = match query_router(&data_source, sql, None, false).await {
@@ -67,9 +85,13 @@ pub async fn modeling_query_engine(
         ));
     }
 
-    let data_source = match DataSource::find_by_id(data_source_id).await? {
-        Some(data_source) => data_source,
-        None => return Err(anyhow::anyhow!("Data source not found")),
+    let data_source = match data_sources::table
+        .filter(data_sources::id.eq(data_source_id))
+        .first::<DataSource>(&mut conn)
+        .await
+    {
+        Ok(data_source) => data_source,
+        Err(e) => return Err(anyhow::anyhow!("Data source not found")),
     };
 
     let results = match query_router(&data_source, sql, Some(25), false).await {

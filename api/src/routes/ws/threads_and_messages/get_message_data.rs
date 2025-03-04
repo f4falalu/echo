@@ -1,12 +1,10 @@
 use anyhow::{anyhow, Result};
-use serde::Deserialize;
+use indexmap::IndexMap;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use uuid::Uuid;
 
 use crate::{
-    database_dep::{
-        lib::{FetchingData, StepProgress},
-        models::User,
-    },
     routes::ws::{
         ws::{WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
         ws_router::WsRoutes,
@@ -20,14 +18,25 @@ use crate::{
             },
             sentry_utils::send_sentry_error,
         },
-        query_engine::query_engine::query_engine,
+        query_engine::{data_types::DataType, query_engine::query_engine},
     },
 };
+use database::models::{StepProgress, User};
 
 use super::{
     messages_utils::get_message_with_permission,
     threads_router::{ThreadEvent, ThreadRoute},
 };
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct FetchingData {
+    pub thread_id: Uuid,
+    pub message_id: Uuid,
+    pub progress: StepProgress,
+    pub data: Option<Vec<IndexMap<String, DataType>>>,
+    pub chart_config: Option<Value>,
+    pub code: Option<String>,
+}
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetMessageDataRequest {

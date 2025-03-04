@@ -7,13 +7,11 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    database_dep::{
-        enums::IdentityType,
-        lib::get_pg_pool,
+use database::{enums::IdentityType,
+        pool::get_pg_pool,
         models::User,
-        schema::{permission_groups_to_identities, teams, teams_to_users},
-    },
+        schema::{permission_groups_to_identities, teams, teams_to_users},};
+use crate::{
     routes::ws::{
         ws::{WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
         ws_router::WsRoutes,

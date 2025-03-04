@@ -6,7 +6,7 @@ use diesel_async::RunQueryDsl;
 use serde_json::Value;
 use uuid::Uuid;
 
-use crate::database_dep::{lib::get_pg_pool, models::User, schema::datasets};
+use database::{pool::get_pg_pool, models::User, schema::datasets};
 
 pub async fn delete_dataset(
     Extension(user): Extension<User>,

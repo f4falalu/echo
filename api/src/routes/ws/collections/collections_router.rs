@@ -4,7 +4,9 @@ use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::{database_dep::models::User, routes::ws::ws::SubscriptionRwLock};
+use database::models::User;
+
+use crate::routes::ws::ws::SubscriptionRwLock;
 
 use super::{
     delete_collection::delete_collection, get_collection::get_collection,

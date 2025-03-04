@@ -3,8 +3,8 @@ use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryDsl};
 use diesel_async::RunQueryDsl;
 use uuid::Uuid;
 
-use crate::database_dep::{
-    lib::{get_pg_pool, PgPool},
+use database::{
+    pool::{get_pg_pool, PgPool},
     models::Dataset,
     schema::{
         datasets, datasets_to_permission_groups, permission_groups,

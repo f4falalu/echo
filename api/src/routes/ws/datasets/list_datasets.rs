@@ -11,17 +11,15 @@ use tokio;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    database_dep::{
-        enums::{IdentityType, UserOrganizationRole},
-        lib::get_pg_pool,
+use database::{enums::{IdentityType, UserOrganizationRole},
+        pool::get_pg_pool,
         models::{User, UserToOrganization},
         schema::{
             data_sources, dataset_permissions, datasets, datasets_to_permission_groups, messages_deprecated,
             permission_groups_to_identities, permission_groups_to_users, teams_to_users, users,
             users_to_organizations,
-        },
-    },
+        },};
+use crate::{
     routes::ws::{
         datasets::datasets_router::{DatasetEvent, DatasetRoute},
         ws::{WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},

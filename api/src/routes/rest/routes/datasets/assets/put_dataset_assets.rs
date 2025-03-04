@@ -8,8 +8,8 @@ use serde::Deserialize;
 use tokio::spawn;
 use uuid::Uuid;
 
-use crate::database_dep::{
-    lib::get_pg_pool,
+use database::{
+    pool::get_pg_pool,
     models::{DatasetPermission, User},
     schema::dataset_permissions,
 };

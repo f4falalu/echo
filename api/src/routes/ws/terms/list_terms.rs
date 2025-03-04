@@ -6,12 +6,10 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    database_dep::{
-        lib::get_pg_pool,
+use database::{pool::get_pg_pool,
         models::{Term, User},
-        schema::{terms, terms_to_datasets, users},
-    },
+        schema::{terms, terms_to_datasets, users},};
+use crate::{
     routes::ws::{
         ws::{WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
         ws_router::WsRoutes,

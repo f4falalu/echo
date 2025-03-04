@@ -7,13 +7,11 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    database_dep::{
-        enums::DatasetType,
-        lib::get_pg_pool,
+use database::{enums::DatasetType,
+        pool::get_pg_pool,
         models::{Dataset, User},
-        schema::{dataset_columns, datasets},
-    },
+        schema::{dataset_columns, datasets},};
+use crate::{
     routes::ws::{
         datasets::datasets_router::{DatasetEvent, DatasetRoute},
         ws::{WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
@@ -120,7 +118,7 @@ async fn update_dataset(user_id: &Uuid, dataset_id: &Uuid, name: &String) -> Res
     };
 
     let credentials = match get_data_source_credentials(
-        &dataset.data_source.secret_id,
+        &dataset.data_source.id,
         &dataset.data_source.type_,
         false,
     )
