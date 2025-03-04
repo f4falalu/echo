@@ -14,7 +14,7 @@ export const ChatHeader: React.FC<{
   return (
     <AppPageLayoutHeader
       className={cn(
-        'relative z-2 flex w-full items-center justify-between space-x-2 px-4 transition-shadow',
+        'relative z-2 flex w-full items-center justify-between space-x-2 border-b-0 px-4 transition-shadow',
         showScrollOverflow && 'shadow-scroll-indicator'
       )}>
       {hasFile && chatTitle && (
