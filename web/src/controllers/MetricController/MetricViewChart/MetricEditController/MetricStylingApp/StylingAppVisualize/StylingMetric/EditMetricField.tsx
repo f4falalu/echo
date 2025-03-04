@@ -1,15 +1,17 @@
-import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { isNumericColumnStyle, isNumericColumnType } from '@/lib/messages';
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../Common';
-import { Button, Select } from 'antd';
+import { Select } from '@/components/ui/select';
+import { Button } from '@/components/ui/buttons';
 import { DEFAULT_COLUMN_SETTINGS } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
 import { createColumnFieldOptions } from './helpers';
-import { AppMaterialIcons, AppPopover } from '@/components/ui';
+import { Popover } from '@/components/ui/tooltip/Popover';
 import { SelectAxisDropdownContent } from '../SelectAxis/SelectAxisColumnContent';
 import { ChartType, DerivedMetricTitle } from '@/components/ui/charts';
 import { SelectAxisContainerId } from '../SelectAxis/config';
+import { Dots } from '@/components/ui/icons';
 
 export const EditMetricField: React.FC<{
   label?: string;
@@ -61,9 +63,8 @@ export const EditMetricField: React.FC<{
       <LabelAndInput label={label}>
         <div className="flex items-center justify-between space-x-1.5 overflow-hidden">
           <Select
-            options={columnFieldOptions}
+            items={columnFieldOptions}
             className="w-full overflow-hidden"
-            popupMatchSelectWidth={false}
             value={selectedOption}
             onChange={onChangeOption}
           />
@@ -87,9 +88,7 @@ const StylingPopover: React.FC<{
   rowCount: number;
 }> = ({ metricColumnId, columnLabelFormat, rowCount }) => {
   return (
-    <AppPopover
-      trigger="click"
-      destroyTooltipOnHide
+    <Popover
       content={
         <div className="w-full max-w-[315px] min-w-[315px]">
           <SelectAxisDropdownContent
@@ -107,8 +106,9 @@ const StylingPopover: React.FC<{
           />
         </div>
       }
-      placement="leftBottom">
-      <Button type="text" icon={<AppMaterialIcons icon="more_horiz" />} />
-    </AppPopover>
+      align="end"
+      side="left">
+      <Button variant="ghost" prefix={<Dots />} />
+    </Popover>
   );
 };

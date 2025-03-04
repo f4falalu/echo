@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Select as SelectBase,
   SelectContent,
@@ -24,7 +24,7 @@ export interface SelectItem<T = string> {
   disabled?: boolean;
 }
 
-export interface SelectProps<T = string> {
+export interface SelectProps<T> {
   items: SelectItem<T>[] | SelectItemGroup[];
   disabled?: boolean;
   onChange: (value: T) => void;
@@ -36,7 +36,7 @@ export interface SelectProps<T = string> {
   className?: string;
 }
 
-const _Select = <T,>({
+const _Select = <T extends string>({
   items,
   showIndex,
   disabled,
@@ -68,7 +68,7 @@ const _Select = <T,>({
   );
 };
 _Select.displayName = 'Select';
-export const Select = React.memo(_Select) as typeof _Select;
+export const Select = _Select;
 
 const SelectItemSelector = <T,>({
   item,
@@ -112,4 +112,27 @@ const SelectItemSelector = <T,>({
 SelectItemSelector.displayName = 'SelectItemSelector';
 const SelectItemSecondaryText: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <span className="text-gray-light text2xs">{children}</span>;
+};
+
+const ExampleUsage = () => {
+  const [value, setValue] = useState<string>('');
+  const values: SelectItem<'1' | '2'>[] = [
+    {
+      value: '1',
+      label: '1'
+    },
+    {
+      value: '2',
+      label: '2'
+    }
+  ];
+
+  return (
+    <Select
+      items={values}
+      onChange={(v) => {
+        console.log(v);
+      }}
+    />
+  );
 };

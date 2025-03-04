@@ -3,9 +3,8 @@ import { createStyles } from 'antd-style';
 import React, { useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMemoizedFn } from 'ahooks';
-import { AppPopover } from '@/components/ui';
-import { PopoverProps } from 'antd';
 import { isOpenableFile, SelectedFile, useChatLayoutContextSelector } from '@layouts/ChatLayout';
+import { Popover } from '@/components/ui/tooltip/Popover';
 
 const duration = 0.25;
 
@@ -103,7 +102,6 @@ const Pill: React.FC<{
 
 Pill.displayName = 'Pill';
 
-const memoizedTrigger: PopoverProps['trigger'] = ['click'];
 const OverflowPill = React.memo(
   ({
     hiddenPills,
@@ -117,7 +115,7 @@ const OverflowPill = React.memo(
     const count = hiddenPills.length;
 
     const content = (
-      <div className="flex max-w-[400px] flex-wrap gap-1 p-1.5">
+      <div className="flex max-w-[400px] flex-wrap gap-1">
         {hiddenPills.map((pill) => (
           <Pill key={pill.id} useAnimation={useAnimation} {...pill} onClick={undefined} />
         ))}
@@ -125,11 +123,11 @@ const OverflowPill = React.memo(
     );
 
     return (
-      <AppPopover destroyTooltipOnHide content={content} trigger={memoizedTrigger}>
+      <Popover size={'sm'} content={content}>
         <div>
           <Pill className="cursor-pointer" useAnimation={useAnimation} text={`+${count} more`} />
         </div>
-      </AppPopover>
+      </Popover>
     );
   }
 );

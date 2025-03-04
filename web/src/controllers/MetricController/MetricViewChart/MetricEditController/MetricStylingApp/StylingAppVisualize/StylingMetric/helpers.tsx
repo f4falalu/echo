@@ -7,8 +7,8 @@ export const createColumnFieldOptions = (
   columnMetadata: ColumnMetaData[],
   columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'],
   iconClass: string
-): SelectItem[] => {
-  return columnMetadata.map<SelectItem>((column) => {
+): SelectItem<string>[] => {
+  return columnMetadata.map<SelectItem<string>>((column) => {
     const labelFormat = columnLabelFormats[column.name];
     const formattedLabel = formatLabel(column.name, labelFormat, true);
     const Icon = ColumnTypeIcon[labelFormat.style];
