@@ -3,8 +3,12 @@ import { createStyles } from 'antd-style';
 import React, { useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMemoizedFn } from 'ahooks';
-import { isOpenableFile, SelectedFile, useChatLayoutContextSelector } from '@layouts/ChatLayout';
 import { Popover } from '@/components/ui/tooltip/Popover';
+import {
+  isOpenableFile,
+  useChatLayoutContextSelector
+} from '@/layouts/ChatLayout/ChatLayoutContext';
+import { type SelectedFile } from '@/layouts/ChatLayout/interfaces';
 
 const duration = 0.25;
 
