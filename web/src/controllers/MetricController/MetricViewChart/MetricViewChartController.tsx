@@ -38,22 +38,3 @@ export const MetricViewChartController: React.FC<MetricViewProps> = React.memo((
 });
 
 MetricViewChartController.displayName = 'MetricViewChartController';
-
-/*
-  // return (
-  //   <AppSplitter
-  //     ref={appSplitterRef}
-  //     initialReady={false}
-  //     leftChildren={
-  //       <MetricViewController metricId={metricId} selectedFileView={selectedFileView} />
-  //     }
-  //     rightChildren={<MetricEditController metricId={metricId} />}
-  //     rightHidden={!renderSecondary}
-  //     autoSaveId="metric-controller"
-  //     defaultLayout={defaultLayout}
-  //     preserveSide={'right'}
-  //     rightPanelMinSize={250}
-  //     rightPanelMaxSize={360}
-  //   />
-  //);
-*/

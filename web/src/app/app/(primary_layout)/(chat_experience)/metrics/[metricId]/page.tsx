@@ -11,8 +11,8 @@ export default function MetricPage({
   const embedView = embed === 'true';
 
   return (
-    // <AppAssetCheckLayout metricId={metricId} type="metric">
-    <MetricController metricId={metricId} />
-    // </AppAssetCheckLayout>
+    <AppAssetCheckLayout metricId={metricId} type="metric">
+      <MetricController metricId={metricId} />
+    </AppAssetCheckLayout>
   );
 }
