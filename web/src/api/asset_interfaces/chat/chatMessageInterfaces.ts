@@ -87,6 +87,7 @@ export type BusterChatMessageReasoning_file = {
   file_name: string;
   version_number: number;
   version_id: string;
+  secondary_title?: string;
   status?: BusterChatMessageReasoning_status;
   file?: {
     text: string;

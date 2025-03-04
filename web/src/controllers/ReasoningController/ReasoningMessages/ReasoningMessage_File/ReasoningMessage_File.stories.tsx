@@ -2,9 +2,10 @@ import React from 'react';
 import { Meta, StoryObj } from '@storybook/react';
 import { ReasoningMessage_File } from './ReasoningMessage_File';
 import { BusterChatMessageReasoning_file } from '@/api/asset_interfaces';
+import { Button } from '@/components/ui/buttons';
 
 const meta: Meta<typeof ReasoningMessage_File> = {
-  title: 'Controllers/ReasoningController/ReasoningMessages/ReasoningMessage_File',
+  title: 'Controllers/ReasoningController/ReasoningMessage_File',
   component: ReasoningMessage_File,
   parameters: {
     layout: 'centered'
@@ -47,17 +48,38 @@ export const Default: Story = {
 };
 
 export const Loading: Story = {
-  args: {
-    reasoningMessage: createMockReasoningFile({
-      status: 'loading',
-      file: [
-        { line_number: 1, text: 'function example() {' },
-        { line_number: 2, text: '  console.log("Hello, world!");' }
-      ]
-    }),
-    isCompletedStream: false,
-    isLastMessageItem: true,
-    chatId: 'chat-123'
+  render: () => {
+    const [lines, setLines] = React.useState([
+      { line_number: 1, text: 'function example() {' },
+      { line_number: 2, text: '  console.log("Hello, world!");' }
+    ]);
+
+    const addLine = () => {
+      const nextLineNumber = lines.length + 1;
+      const newLine = {
+        line_number: nextLineNumber,
+        text: nextLineNumber === 3 ? '  return true;' : '}'
+      };
+      setLines([...lines, newLine]);
+    };
+
+    return (
+      <div className="flex flex-col gap-4">
+        <Button onClick={addLine}>Add Next Line</Button>
+
+        <ReasoningMessage_File
+          reasoningMessage={{
+            ...createMockReasoningFile({
+              status: 'loading',
+              file: lines
+            })
+          }}
+          isCompletedStream={false}
+          isLastMessageItem={true}
+          chatId="chat-123"
+        />
+      </div>
+    );
   }
 };
 
