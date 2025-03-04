@@ -1,9 +1,6 @@
 import React, { useMemo } from 'react';
 import { CopyLinkButton } from './CopyLinkButton';
-import { Button, Divider } from 'antd';
-import { AppMaterialIcons } from '@/components/ui';
-import { BackButton } from '@/components/ui/buttons';
-import { useStyles } from './useStyles';
+import { BackButton, Button } from '@/components/ui/buttons';
 import { AccessDropdown } from './AccessDropdown';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { ShareRole } from '@/api/asset_interfaces';
@@ -13,7 +10,8 @@ import {
 } from '@/context/Dashboards';
 import type { ShareRequest } from '@/api/buster_socket';
 import { useMemoizedFn } from 'ahooks';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
+import { UserGroup } from '@/components/ui/icons';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import {
@@ -99,7 +97,7 @@ export const ShareWithGroupAndTeam: React.FC<{
         </div>
       </div>
 
-      <Divider />
+      <div />
 
       <div className="">
         {listedTeam.map((team) => (
@@ -118,13 +116,13 @@ export const ShareWithGroupAndTeam: React.FC<{
 
         {userTeams.length === 0 && (
           <div className="flex w-full items-center justify-center p-3">
-            <Text type="secondary">Not currently a member of any teams</Text>
+            <Text variant="secondary">Not currently a member of any teams</Text>
           </div>
         )}
 
         {!stuffToShow && (
           <div className="flex w-full items-center justify-center p-3">
-            <Text type="secondary">No teams to share with</Text>
+            <Text variant="secondary">No teams to share with</Text>
           </div>
         )}
       </div>
@@ -137,16 +135,10 @@ const ShareOption: React.FC<{
   onUpdateShareRole: (role: ShareRole | null) => void;
   role: ShareRole | null;
 }> = ({ onUpdateShareRole, title, role }) => {
-  const { cx } = useStyles();
-
   return (
-    <div
-      className={cx(
-        'flex h-[40px] cursor-pointer items-center justify-between space-x-2 px-3'
-        //   styles.hoverListItem
-      )}>
+    <div className={'flex h-[40px] cursor-pointer items-center justify-between space-x-2 px-3'}>
       <div className="flex items-center space-x-2">
-        <Button shape="circle" icon={<AppMaterialIcons icon={'groups_2'} size={14} />} />
+        <Button prefix={<UserGroup />} />
 
         <Text>{title}</Text>
       </div>

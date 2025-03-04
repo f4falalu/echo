@@ -1,15 +1,17 @@
 import { ShareAssetType } from '@/api/asset_interfaces';
-import { AppMaterialIcons } from '@/components/ui';
 import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useAntToken } from '@/styles/useAntToken';
-import { Button, Divider, Input, Space } from 'antd';
+import { Divider, Space } from 'antd';
+import { Button } from '@/components/ui/buttons';
+import { Text } from '@/components/ui/typography';
+import { Input } from '@/components/ui/inputs';
 import React, { useMemo } from 'react';
-import { Text } from '@/components/ui';
 import { useMemoizedFn } from 'ahooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
+import { Link, BracketsCurly } from '@/components/ui/icons';
 
 export const ShareMenuContentEmbed: React.FC<{
   publicExpirationDate: string;
@@ -80,17 +82,11 @@ export const ShareMenuContentEmbed: React.FC<{
       <div className="w-full p-3">
         <Space.Compact className="w-full">
           <Input className="h-[24px]!" value={createIframe(embedURL)} />
-          <Button className="flex" type="default" onClick={onCopyLink}>
-            <AppMaterialIcons icon="link" />
-          </Button>
+          <Button prefix={<Link />} className="flex" onClick={onCopyLink} />
         </Space.Compact>
 
-        <div className="flex justify-end">
-          <Button
-            icon={<AppMaterialIcons icon="data_object" />}
-            type="default"
-            className="mt-3"
-            onClick={onCopyLink}>
+        <div className="mt-3 flex justify-end">
+          <Button prefix={<BracketsCurly />} onClick={onCopyLink}>
             Copy code snippet
           </Button>
         </div>
@@ -105,7 +101,7 @@ export const ShareMenuContentEmbed: React.FC<{
             background: token.controlItemBgHover,
             borderRadius: `0 0 ${token.borderRadiusLG}px ${token.borderRadiusLG}px `
           }}>
-          <Text type="secondary" className="text-xs!">
+          <Text variant="secondary" className="text-xs!">
             {`Your dashboard currently isn’t published.`}
 
             <span

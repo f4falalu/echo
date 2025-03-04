@@ -50,8 +50,8 @@ export const ShareMenuTopBar: React.FC<{
     });
 
     return (
-      <div className="flex h-[40px] items-center justify-between px-3">
-        <AppSegmented options={options} value={selectedOptions} onChange={onChange} />
+      <div className="flex items-center justify-between">
+        <AppSegmented type="button" options={options} value={selectedOptions} onChange={onChange} />
 
         <div className="flex items-center space-x-2">
           <CopyLinkButton onCopyLink={onCopyLink} />

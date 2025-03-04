@@ -53,7 +53,7 @@ const popoverContentVariant = cva('', {
   variants: {
     size: {
       none: '',
-      sm: 'p-1.5',
+      sm: 'p-2',
       default: 'p-2.5',
       md: 'p-3',
       lg: 'p-4'

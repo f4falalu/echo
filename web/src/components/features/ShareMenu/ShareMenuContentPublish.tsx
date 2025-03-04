@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Button, Divider, DatePicker, Input, Space, Switch } from 'antd';
-import { AppMaterialIcons, PulseLoader } from '@/components/ui';
+import { PulseLoader } from '@/components/ui/loaders';
 import { useMemoizedFn } from 'ahooks';
 import { createStyles } from 'antd-style';
 import { createDayjsDate } from '@/lib/date';
@@ -10,10 +10,11 @@ import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { ShareAssetType } from '@/api/asset_interfaces';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import type { Dayjs } from 'dayjs';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
+import { Link, ArrowBoldDown, Eye, EyeSlash } from '@/components/ui/icons';
 
 export const ShareMenuContentPublish: React.FC<{
   onCopyLink: () => void;
@@ -128,9 +129,7 @@ export const ShareMenuContentPublish: React.FC<{
 
               <Space.Compact className="w-full!">
                 <Input className="h-[24px]!" value={url} />
-                <Button type="default" className="flex" onClick={onCopyLink}>
-                  <AppMaterialIcons icon="link" />
-                </Button>
+                <Button type="default" className="flex" icon={<Link />} onClick={onCopyLink} />
               </Space.Compact>
 
               <LinkExpiration linkExpiry={linkExpiry} onChangeLinkExpiry={onSetExpirationDate} />
@@ -144,7 +143,7 @@ export const ShareMenuContentPublish: React.FC<{
             </>
           ) : (
             <div className="flex flex-col space-y-2">
-              <Text type="secondary">Anyone with the link will be able to view.</Text>
+              <Text variant="secondary">Anyone with the link will be able to view.</Text>
 
               <Button
                 type="default"
@@ -189,7 +188,7 @@ const IsPublishedInfo: React.FC<{ isPublished: boolean }> = React.memo(({ isPubl
   return (
     <div className="flex items-center space-x-2">
       <PulseLoader />
-      <Text type="primary">Live on the web</Text>
+      <Text variant="link">Live on the web</Text>
     </div>
   );
 });
@@ -260,7 +259,7 @@ const LinkExpiration: React.FC<{
         maxDate={maxDate}
         placeholder="Never"
         variant="borderless"
-        suffixIcon={<AppMaterialIcons icon="keyboard_arrow_down" />}
+        suffixIcon={<ArrowBoldDown />}
         onChange={onChangeLinkExpiryPreflight}
         inputReadOnly
       />
@@ -334,13 +333,7 @@ const SetAPassword: React.FC<{
                 <Button
                   type="default"
                   className="h-full!"
-                  icon={
-                    !visibilityToggle ? (
-                      <AppMaterialIcons icon="visibility" />
-                    ) : (
-                      <AppMaterialIcons icon="visibility_off" />
-                    )
-                  }
+                  icon={!visibilityToggle ? <Eye /> : <EyeSlash />}
                   onClick={onClickVisibilityToggle}></Button>
               </Space.Compact>
             </div>
