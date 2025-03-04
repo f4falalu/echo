@@ -1,6 +1,6 @@
 import {
   BusterChatMessageReasoning,
-  BusterChatMessageReasoning_pills
+  BusterChatMessageReasoning_Pills
 } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
 import sample from 'lodash/sample';
@@ -75,7 +75,7 @@ const getRandomThought = (currentThought?: string): string => {
 };
 
 const AUTO_THOUGHT_ID = 'stub-thought-id';
-const createAutoThought = (currentThought?: string): BusterChatMessageReasoning_pills => {
+const createAutoThought = (currentThought?: string): BusterChatMessageReasoning_Pills => {
   return {
     id: AUTO_THOUGHT_ID,
     type: 'pills',

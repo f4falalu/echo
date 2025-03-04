@@ -15,7 +15,7 @@ export const ReasoningMessageContainer: React.FC<{
     return {
       text: cx(styles.textCard, 'text-card'),
       pills: cx(styles.pillsCard, 'pills-card'),
-      file: cx(styles.fileCard, 'file-card')
+      files: cx(styles.fileCard, 'file-card')
     };
   }, []);
 

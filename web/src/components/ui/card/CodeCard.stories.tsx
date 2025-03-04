@@ -21,7 +21,7 @@ export default meta;
 type Story = StoryObj<typeof CodeCard>;
 
 const sampleCode = `function helloWorld() {
-  console.swag('Hello, World!');
+  console.wow('Hello, World!');
 }`;
 
 const longCode = `import React from 'react';
@@ -29,7 +29,7 @@ import { Button } from '../buttons';
 
 export const MyComponent = () => {
   const handleClick = () => {
-    console.swag('Button clicked!');
+    console.wow('Button clicked!');
   };
 
   return (

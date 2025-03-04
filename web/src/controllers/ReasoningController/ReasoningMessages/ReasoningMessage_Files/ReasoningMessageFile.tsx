@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { ReasoningMessageProps } from '../ReasoningMessageSelector';
-import { BusterChatMessageReasoning_file } from '@/api/asset_interfaces';
+import { type ReasoningMessageProps } from '../ReasoningMessageSelector';
+import {
+  BusterChatMessageReasoning_file,
+  type BusterChatMessageReasoning_files
+} from '@/api/asset_interfaces';
 import {
   AppCodeBlockWrapper,
   SyntaxHighlighterLightTheme
@@ -10,7 +13,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { LoaderDot } from './LoaderDot';
 import { ReasoningFileButtons } from './ReasoningFileButtons';
 import { ReasoningFileTitle } from './ReasoningFileTitle';
-import { BarContainer } from '../BarContainer';
 
 const style = SyntaxHighlighterLightTheme;
 
@@ -31,12 +33,24 @@ const itemVariants = {
   show: { opacity: 1, x: 0 }
 };
 
-export const ReasoningMessage_File: React.FC<ReasoningMessageProps> = React.memo(
-  ({ reasoningMessage, isCompletedStream, isLastMessageItem, chatId }) => {
-    const { file, file_name, file_type, version_id, version_number, status } =
-      reasoningMessage as BusterChatMessageReasoning_file;
+export type ReasoningMessageFileProps = BusterChatMessageReasoning_file & {
+  chatId: string;
+  isCompletedStream: boolean;
+};
 
-    const showLoader = !isCompletedStream && isLastMessageItem;
+export const ReasoningMessage_File: React.FC<ReasoningMessageFileProps> = React.memo(
+  ({
+    file,
+    file_name,
+    chatId,
+    file_type,
+    version_id,
+    version_number,
+    status,
+    isCompletedStream
+  }) => {
+    const showLoader = status === 'loading';
+    const fileButtonType = status === 'loading' || !isCompletedStream ? 'status' : 'file';
 
     // Initialize with complete file if available
     const [lineMap, setLineMap] = useState<Map<number, string>>(() => {
@@ -63,45 +77,37 @@ export const ReasoningMessage_File: React.FC<ReasoningMessageProps> = React.memo
     }, [file]);
 
     return (
-      <BarContainer
-        showBar={true}
-        status={status ?? 'loading'}
-        isCompletedStream={isCompletedStream}
-        title={file_name}
-        secondaryTitle={`v${version_number}`}
-        contentClassName="mb-2">
-        <AppCodeBlockWrapper
-          title={<ReasoningFileTitle file_name={file_name} version_number={version_number} />}
-          language={'yaml'}
-          showCopyButton={false}
-          buttons={
-            <ReasoningFileButtons
-              fileType={file_type}
-              fileId={version_id}
-              isCompletedStream={isCompletedStream}
-              chatId={chatId}
-            />
-          }>
-          <AnimatePresence initial={!isCompletedStream}>
-            <motion.div
-              className="w-full overflow-x-auto p-3"
-              variants={containerVariants}
-              initial="hidden"
-              animate="show">
-              {Array.from(lineMap.entries()).map(([lineNumber, text]) => (
-                <motion.div
-                  key={lineNumber}
-                  variants={itemVariants}
-                  className="line-number w-fit pr-1">
-                  <MemoizedSyntaxHighlighter lineNumber={lineNumber} text={text} />
-                </motion.div>
-              ))}
+      <AppCodeBlockWrapper
+        title={<ReasoningFileTitle file_name={file_name} version_number={version_number} />}
+        language={'yaml'}
+        showCopyButton={false}
+        buttons={
+          <ReasoningFileButtons
+            fileType={file_type}
+            fileId={version_id}
+            type={fileButtonType}
+            chatId={chatId}
+          />
+        }>
+        <AnimatePresence initial={!isCompletedStream}>
+          <motion.div
+            className="w-full overflow-x-auto p-3"
+            variants={containerVariants}
+            initial="hidden"
+            animate="show">
+            {Array.from(lineMap.entries()).map(([lineNumber, text]) => (
+              <motion.div
+                key={lineNumber}
+                variants={itemVariants}
+                className="line-number w-fit pr-1">
+                <MemoizedSyntaxHighlighter lineNumber={lineNumber} text={text} />
+              </motion.div>
+            ))}
 
-              {showLoader && <LoaderDot />}
-            </motion.div>
-          </AnimatePresence>
-        </AppCodeBlockWrapper>
-      </BarContainer>
+            {showLoader && <LoaderDot />}
+          </motion.div>
+        </AnimatePresence>
+      </AppCodeBlockWrapper>
     );
   }
 );

@@ -48,7 +48,7 @@ const pillVariants = {
   }
 };
 
-export const ReasoningMessage_Pills: React.FC<{
+export const ReasoningMessagePills: React.FC<{
   pills: BusterChatMessageReasoning_Pill[];
   isCompletedStream: boolean;
 }> = React.memo(({ pills = [], isCompletedStream }) => {
@@ -85,7 +85,7 @@ export const ReasoningMessage_Pills: React.FC<{
   );
 });
 
-ReasoningMessage_Pills.displayName = 'PillContainer';
+ReasoningMessagePills.displayName = 'ReasoningMessagePills';
 
 const Pill: React.FC<{
   text: string;

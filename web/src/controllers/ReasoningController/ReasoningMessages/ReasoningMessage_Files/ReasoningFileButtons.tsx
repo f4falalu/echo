@@ -12,12 +12,12 @@ export const ReasoningFileButtons = React.memo(
     fileType,
     fileId,
     chatId,
-    isCompletedStream
+    type
   }: {
     fileType: FileType;
     fileId: string;
     chatId: string;
-    isCompletedStream: boolean;
+    type: 'file' | 'status';
   }) => {
     const onSetSelectedFile = useChatLayoutContextSelector((state) => state.onSetSelectedFile);
 
@@ -36,7 +36,7 @@ export const ReasoningFileButtons = React.memo(
       });
     });
 
-    if (!isCompletedStream) return null;
+    if (type === 'status') return null;
 
     return (
       <div>

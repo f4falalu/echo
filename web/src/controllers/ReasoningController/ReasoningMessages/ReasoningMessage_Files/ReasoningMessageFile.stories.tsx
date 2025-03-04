@@ -1,6 +1,6 @@
 import React from 'react';
 import { Meta, StoryObj } from '@storybook/react';
-import { ReasoningMessage_File } from './ReasoningMessage_File';
+import { ReasoningMessage_File, ReasoningMessageFileProps } from './ReasoningMessageFile';
 import { BusterChatMessageReasoning_file } from '@/api/asset_interfaces';
 import { Button } from '@/components/ui/buttons';
 
@@ -18,11 +18,12 @@ type Story = StoryObj<typeof ReasoningMessage_File>;
 
 // Create a mock reasoning message
 const createMockReasoningFile = (
-  overrides: Partial<BusterChatMessageReasoning_file> = {}
-): BusterChatMessageReasoning_file => {
+  overrides: Partial<ReasoningMessageFileProps> = {}
+): ReasoningMessageFileProps => {
   return {
     id: 'file-123',
-    type: 'file',
+    chatId: 'chat-123',
+    isCompletedStream: false,
     file_type: 'reasoning',
     file_name: 'example.js',
     version_number: 1,
@@ -40,9 +41,8 @@ const createMockReasoningFile = (
 
 export const Default: Story = {
   args: {
-    reasoningMessage: createMockReasoningFile(),
+    ...createMockReasoningFile(),
     isCompletedStream: true,
-    isLastMessageItem: false,
     chatId: 'chat-123'
   }
 };
@@ -68,14 +68,11 @@ export const Loading: Story = {
         <Button onClick={addLine}>Add Next Line</Button>
 
         <ReasoningMessage_File
-          reasoningMessage={{
-            ...createMockReasoningFile({
-              status: 'loading',
-              file: lines
-            })
-          }}
+          {...createMockReasoningFile({
+            status: 'loading',
+            file: lines
+          })}
           isCompletedStream={false}
-          isLastMessageItem={true}
           chatId="chat-123"
         />
       </div>
@@ -85,18 +82,17 @@ export const Loading: Story = {
 
 export const Failed: Story = {
   args: {
-    reasoningMessage: createMockReasoningFile({
+    ...createMockReasoningFile({
       status: 'failed'
     }),
     isCompletedStream: true,
-    isLastMessageItem: false,
     chatId: 'chat-123'
   }
 };
 
 export const LongFile: Story = {
   args: {
-    reasoningMessage: createMockReasoningFile({
+    ...createMockReasoningFile({
       file_name: 'longExample.js',
       file: Array.from({ length: 20 }, (_, i) => ({
         line_number: i + 1,
@@ -109,14 +105,13 @@ export const LongFile: Story = {
       }))
     }),
     isCompletedStream: true,
-    isLastMessageItem: false,
     chatId: 'chat-123'
   }
 };
 
 export const DifferentFileType: Story = {
   args: {
-    reasoningMessage: createMockReasoningFile({
+    ...createMockReasoningFile({
       file_type: 'metric',
       file_name: 'metrics.json',
       file: [
@@ -128,7 +123,6 @@ export const DifferentFileType: Story = {
       ]
     }),
     isCompletedStream: true,
-    isLastMessageItem: false,
     chatId: 'chat-123'
   }
 };

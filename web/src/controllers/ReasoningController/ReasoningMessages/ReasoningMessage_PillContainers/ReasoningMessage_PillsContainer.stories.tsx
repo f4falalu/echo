@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { ReasoningMessage_PillsContainer } from './ReasoningMessage_PillsContainer';
-import type { BusterChatMessageReasoning_pills, ThoughtFileType } from '@/api/asset_interfaces';
+import type { BusterChatMessageReasoning_Pills, ThoughtFileType } from '@/api/asset_interfaces';
 import { useState } from 'react';
 import { Button } from '@/components/ui/buttons';
 
@@ -23,7 +23,7 @@ const meta: Meta<typeof ReasoningMessage_PillsContainer> = {
 export default meta;
 type Story = StoryObj<typeof ReasoningMessage_PillsContainer>;
 
-const mockReasoningMessage: BusterChatMessageReasoning_pills = {
+const mockReasoningMessage: BusterChatMessageReasoning_Pills = {
   id: '1',
   type: 'pills',
   title: 'Found Terms',
@@ -80,7 +80,7 @@ const InteractiveLoadingWrapper = () => {
     setPillContainers([...pillContainers, newContainer]);
   };
 
-  const message: BusterChatMessageReasoning_pills = {
+  const message: BusterChatMessageReasoning_Pills = {
     ...mockReasoningMessage,
     status: 'loading',
     pill_containers: pillContainers

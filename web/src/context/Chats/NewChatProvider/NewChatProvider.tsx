@@ -35,7 +35,7 @@ export const useBusterNewChat = () => {
       metricId?: string;
       dashboardId?: string;
     }) => {
-      await busterSocket.emitAndOnce({
+      const res = await busterSocket.emitAndOnce({
         emitEvent: {
           route: '/chats/post',
           payload: {
@@ -50,6 +50,7 @@ export const useBusterNewChat = () => {
           callback: initializeNewChatCallback
         }
       });
+      console.log('res', res);
 
       busterSocket.once({
         route: '/chats/post:complete',
