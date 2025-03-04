@@ -560,10 +560,13 @@ pub fn transform_message(
             initial,
         } => {
             if let Some(content) = content {
-                let messages = match transform_text_message(
-                    id.unwrap_or_else(|| Uuid::new_v4().to_string()),
+                let mut containers = Vec::new();
+                
+                // Create the regular content message
+                let chat_messages = match transform_text_message(
+                    id.clone().unwrap_or_else(|| Uuid::new_v4().to_string()),
                     content,
-                    progress,
+                    progress.clone(),
                     chat_id.clone(),
                     message_id.clone(),
                 ) {
@@ -572,19 +575,38 @@ pub fn transform_message(
                         .map(|msg| {
                             BusterContainer::ChatMessage(BusterChatMessageContainer {
                                 response_message: msg,
-                                chat_id: chat_id.clone(),
-                                message_id: message_id.clone(),
+                                chat_id: *chat_id,
+                                message_id: *message_id,
                             })
                         })
-                        .collect(),
+                        .collect::<Vec<_>>(),
                     Err(e) => {
                         tracing::warn!("Error transforming text message: {:?}", e);
-                        println!("MESSAGE_STREAM: Error transforming text message: {:?}", e);
-                        vec![] // Return empty vec but warn about the error
+                        vec![]
                     }
                 };
+                containers.extend(chat_messages);
 
-                return Ok((messages, ThreadEvent::GeneratingResponseMessage));
+                // Add the "Finished reasoning" message if we're just starting
+                if initial {
+                    let reasoning_message = BusterReasoningMessage::Text(BusterReasoningText {
+                        id: Uuid::new_v4().to_string(),
+                        reasoning_type: "text".to_string(),
+                        title: "Finished reasoning".to_string(),
+                        secondary_title: String::new(),
+                        message: None,
+                        message_chunk: None,
+                        status: Some("completed".to_string()),
+                    });
+
+                    containers.push(BusterContainer::ReasoningMessage(BusterReasoningMessageContainer {
+                        reasoning: reasoning_message,
+                        chat_id: *chat_id,
+                        message_id: *message_id,
+                    }));
+                }
+
+                return Ok((containers, ThreadEvent::GeneratingResponseMessage));
             }
 
             if let Some(tool_calls) = tool_calls {
@@ -1200,36 +1222,13 @@ fn assistant_create_plan(
                 _ => "loading",
             };
 
-            // Convert BusterReasoningMessage to BusterChatContainer and update status
+            // Update status based on message type
             match message {
-                BusterReasoningMessage::Text(text) => {
-                    // Create a thought pill container for the plan text
-                    let plan_container = BusterThoughtPillContainer {
-                        title: text.title.clone(),
-                        pills: vec![BusterThoughtPill {
-                            id: Uuid::new_v4().to_string(),
-                            text: text.message.unwrap_or_default(),
-                            thought_file_type: "markdown".to_string(),
-                        }],
-                    };
-
-                    Ok(vec![BusterReasoningMessage::Pill(BusterReasoningPill {
-                        id: text.id,
-                        thought_type: "thought".to_string(),
-                        title: text.title,
-                        secondary_title: text.secondary_title,
-                        pill_containers: Some(vec![plan_container]),
-                        status: status.to_string(),
-                    })])
+                BusterReasoningMessage::Text(mut text) => {
+                    text.status = Some(status.to_string());
+                    Ok(vec![BusterReasoningMessage::Text(text)])
                 }
-                BusterReasoningMessage::File(mut file) => {
-                    file.status = status.to_string();
-                    Ok(vec![BusterReasoningMessage::File(file)])
-                }
-                BusterReasoningMessage::Pill(mut thought) => {
-                    thought.status = status.to_string();
-                    Ok(vec![BusterReasoningMessage::Pill(thought)])
-                }
+                _ => Ok(vec![message]),
             }
         }
         Ok(None) => Ok(vec![]),
