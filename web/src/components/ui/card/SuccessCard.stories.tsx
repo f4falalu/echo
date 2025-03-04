@@ -4,7 +4,7 @@ import { Button } from '../buttons/Button';
 import { fn } from '@storybook/test';
 
 const meta: Meta<typeof SuccessCard> = {
-  title: 'UI/card/SuccessCard',
+  title: 'UI/Cards/SuccessCard',
   component: SuccessCard,
   parameters: {
     layout: 'centered'

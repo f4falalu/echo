@@ -4,7 +4,7 @@ import { Button } from '../buttons';
 import { fn } from '@storybook/test';
 
 const meta: Meta<typeof StatusCard> = {
-  title: 'UI/Card/StatusCard',
+  title: 'UI/Cards/StatusCard',
   component: StatusCard,
   tags: ['autodocs'],
   argTypes: {
