@@ -12,26 +12,26 @@ export type PopoverTriggerType = 'click' | 'hover';
 const Popover = PopoverPrimitive.Root;
 
 interface PopoverProps extends React.ComponentPropsWithoutRef<typeof Popover> {
-  triggerType?: PopoverTriggerType;
+  trigger?: PopoverTriggerType;
 }
 
-const PopoverRoot: React.FC<PopoverProps> = ({ children, triggerType = 'click', ...props }) => {
+const PopoverRoot: React.FC<PopoverProps> = ({ children, trigger = 'click', ...props }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const handleMouseEnter = useMemoizedFn(() => {
-    if (triggerType === 'hover') {
+    if (trigger === 'hover') {
       setIsOpen(true);
     }
   });
 
   const handleMouseLeave = useMemoizedFn(() => {
-    if (triggerType === 'hover') {
+    if (trigger === 'hover') {
       setIsOpen(false);
     }
   });
 
   const content =
-    triggerType === 'hover' ? (
+    trigger === 'hover' ? (
       <div className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
         <div className="absolute -inset-[4px]" />
         <div className="relative z-10">{children}</div>
@@ -41,7 +41,7 @@ const PopoverRoot: React.FC<PopoverProps> = ({ children, triggerType = 'click', 
     );
 
   return (
-    <Popover {...props} open={triggerType === 'hover' ? isOpen : undefined}>
+    <Popover {...props} open={trigger === 'hover' ? isOpen : undefined}>
       {content}
     </Popover>
   );
@@ -64,11 +64,13 @@ const popoverContentVariant = cva('', {
   }
 });
 
+export type PopoverContentVariant = VariantProps<typeof popoverContentVariant>;
+
 const PopoverContent = React.forwardRef<
   React.ElementRef<typeof PopoverPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> & {
     headerContent?: React.ReactNode;
-  } & VariantProps<typeof popoverContentVariant>
+  } & PopoverContentVariant
 >(
   (
     { className, align = 'center', children, sideOffset = 4, headerContent, size, ...props },

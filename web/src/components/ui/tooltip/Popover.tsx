@@ -1,6 +1,7 @@
 import {
   PopoverRoot as PopoverBase,
   PopoverContent,
+  PopoverContentVariant,
   PopoverTrigger,
   PopoverTriggerType
 } from './PopoverBase';
@@ -14,7 +15,8 @@ export interface PopoverProps
   content: React.ReactNode;
   className?: string;
   headerContent?: string | React.ReactNode;
-  triggerType?: PopoverTriggerType;
+  trigger?: PopoverTriggerType;
+  size?: PopoverContentVariant['size'];
 }
 
 export const Popover = React.memo<PopoverProps>(
@@ -25,16 +27,18 @@ export const Popover = React.memo<PopoverProps>(
     side,
     className = '',
     headerContent,
-    triggerType = 'click',
+    trigger = 'click',
+    size = 'default',
     ...props
   }) => {
     return (
-      <PopoverBase triggerType={triggerType} {...props}>
+      <PopoverBase trigger={trigger} {...props}>
         <PopoverTrigger asChild>{children}</PopoverTrigger>
         <PopoverContent
           align={align}
           side={side}
           className={className}
+          size={size}
           headerContent={headerContent && <PopoverHeaderContent title={headerContent} />}>
           {content}
         </PopoverContent>

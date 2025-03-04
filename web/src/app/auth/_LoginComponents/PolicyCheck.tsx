@@ -100,8 +100,6 @@ export const PolicyCheck: React.FC<{
     }
   }, [placement]);
 
-  console.log(placement);
-
   const alignMemo: PopoverProps['align'] = useMemo(() => {
     switch (placement) {
       case 'top':
