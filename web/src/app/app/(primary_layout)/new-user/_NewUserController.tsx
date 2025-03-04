@@ -80,8 +80,8 @@ export const NewUserController = () => {
           <Input
             placeholder="What is your full name"
             className="w-full"
-            value={name}
-            defaultValue={user?.name}
+            value={name || ''}
+            defaultValue={user?.name || ''}
             name="name"
             onChange={(e) => setName(e.target.value)}
           />
@@ -90,10 +90,10 @@ export const NewUserController = () => {
             className="w-full"
             name="company"
             disabled={!!userOrganizations?.name}
-            value={company}
+            value={company || ''}
             onChange={(e) => setCompany(e.target.value)}
             onPressEnter={handleSubmit}
-            defaultValue={userOrganizations?.name}
+            defaultValue={userOrganizations?.name || ''}
           />
           <Button
             variant="black"
