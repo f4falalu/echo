@@ -12,6 +12,7 @@ import { createBusterRoute } from '@/routes';
 import { Result } from 'antd';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { PolicyCheck } from '@/app/auth/_LoginComponents/PolicyCheck';
+import { SuccessCard } from '@/components/ui/card/SuccessCard';
 
 export const ResetPasswordForm: React.FC<{
   supabaseUser: User;
@@ -126,10 +127,9 @@ export const ResetPasswordForm: React.FC<{
 
       {resetSuccess && (
         <div className="flex w-[330px] flex-col gap-2">
-          <Result
-            status="success"
+          <SuccessCard
             title="Password reset successfully"
-            subTitle={`Navigating to app in ${countdown} seconds`}
+            message={`Navigating to app in ${countdown} seconds`}
           />
         </div>
       )}

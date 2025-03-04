@@ -2,12 +2,12 @@ import React from 'react';
 import { getAssetCheck } from '@/api/buster_rest/assets/requests';
 import { useSupabaseServerContext } from '@/context/Supabase/useSupabaseContext';
 import { ShareAssetType } from '@/api/asset_interfaces';
-import { useBusterSupabaseAuthMethods } from '@/hooks/useBusterSupabaseAuthMethods';
 import { ClientSideAnonCheck } from './ClientSideAnonCheck';
 import { redirect } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { AppPasswordAccess } from '@controllers/AppPasswordAccess';
 import { AppNoPageAccess } from '@controllers/AppNoPageAccess';
+import { signInWithAnonymousUser } from '@/hooks/supabaseAuthMethods';
 
 export type AppAssetCheckLayoutProps = {
   metricId?: string;
@@ -21,7 +21,6 @@ export const AppAssetCheckLayout: React.FC<
   } & AppAssetCheckLayoutProps
 > = async ({ children, type, ...props }) => {
   const { accessToken, user } = await useSupabaseServerContext();
-  const { signInWithAnonymousUser } = useBusterSupabaseAuthMethods();
   const isMetric = type === 'metric';
 
   let jwtToken = accessToken;

@@ -1,4 +1,4 @@
-import { ErrorCard } from '@/components/ui/error/ErrorCard';
+import { StatusCard } from '@/components/ui/card/StatusCard';
 import { ReactNode } from 'react';
 import { ErrorBoundary } from '../error/ErrorBoundary';
 import React from 'react';
@@ -9,7 +9,11 @@ interface Props {
 
 const ErrorCardComponent: React.FC = () => {
   return (
-    <ErrorCard error="Something went wrong rendering the chart. This is likely an error on our end. Please contact Buster support." />
+    <StatusCard
+      title="Chart rendiner error"
+      message="Something went wrong rendering the chart. This is likely an error on our end. Please contact Buster support."
+      variant={'danger'}
+    />
   );
 };
 

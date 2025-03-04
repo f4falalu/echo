@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Result } from 'antd';
 import { User } from '@supabase/auth-js';
 import { Button } from '@/components/ui/buttons';
 import { Input } from '@/components/ui/inputs';
@@ -12,10 +11,18 @@ import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { BsGithub, BsGoogle, BsMicrosoft } from 'react-icons/bs';
 import { Title, Text } from '@/components/ui/typography';
 import Cookies from 'js-cookie';
-import { useBusterSupabaseAuthMethods } from '@/hooks/useBusterSupabaseAuthMethods';
 import { PolicyCheck } from './PolicyCheck';
 import { rustErrorHandler } from '@/api/buster_rest/errors';
 import { cn } from '@/lib/classMerge';
+import {
+  signInWithAzure,
+  signInWithEmailAndPassword,
+  signInWithGithub,
+  signInWithGoogle,
+  signUp
+} from '@/hooks/supabaseAuthMethods';
+import { StatusCard } from '@/components/ui/card/StatusCard';
+import { SuccessCard } from '@/components/ui/card/SuccessCard';
 
 const DEFAULT_CREDENTIALS = {
   email: process.env.NEXT_PUBLIC_USER!,
@@ -24,21 +31,7 @@ const DEFAULT_CREDENTIALS = {
 
 export const LoginForm: React.FC<{
   user: null | User;
-  signInWithEmailAndPassword: ReturnType<
-    typeof useBusterSupabaseAuthMethods
-  >['signInWithEmailAndPassword'];
-  signInWithGoogle: ReturnType<typeof useBusterSupabaseAuthMethods>['signInWithGoogle'];
-  signUp: ReturnType<typeof useBusterSupabaseAuthMethods>['signUp'];
-  signInWithGithub: ReturnType<typeof useBusterSupabaseAuthMethods>['signInWithGithub'];
-  signInWithAzure: ReturnType<typeof useBusterSupabaseAuthMethods>['signInWithAzure'];
-}> = ({
-  user,
-  signInWithEmailAndPassword,
-  signInWithGoogle,
-  signInWithGithub,
-  signInWithAzure,
-  signUp
-}) => {
+}> = ({ user }) => {
   const hasSupabaseUser = !!user;
 
   const [loading, setLoading] = useState<'google' | 'github' | 'azure' | 'email' | null>(null);
@@ -344,10 +337,9 @@ const SignUpSuccess: React.FC<{
   setSignUpFlow: (value: boolean) => void;
 }> = ({ setSignUpSuccess, setSignUpFlow }) => {
   return (
-    <Result
-      status="success"
+    <SuccessCard
       title="Thanks for signing up"
-      subTitle="Please check your email to verify your account."
+      message="Please check your email to verify your account."
       extra={[
         <Button
           key="login"

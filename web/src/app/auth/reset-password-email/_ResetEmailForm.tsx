@@ -2,13 +2,16 @@
 
 import { createBusterRoute, BusterRoutes } from '@/routes';
 import { isValidEmail, timeout } from '@/lib';
-import { Button, Input, Result } from 'antd';
+import { Button } from '@/components/ui/buttons';
+import { Input } from '@/components/ui/inputs';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { Title, Text } from '@/components/ui/typography';
 import { useMemoizedFn } from 'ahooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useStyles } from '@/app/auth/_LoginComponents/LoginForm';
+import { cn } from '@/lib/classMerge';
+import { StatusCard } from '@/components/ui/card/StatusCard';
+import { SuccessCard } from '@/components/ui/card/SuccessCard';
 
 export const ResetEmailForm: React.FC<{
   queryEmail: string;
@@ -16,7 +19,6 @@ export const ResetEmailForm: React.FC<{
 }> = ({ queryEmail, resetPasswordEmailSend }) => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState(queryEmail);
-  const { styles, cx } = useStyles();
   const [emailSent, setEmailSent] = useState(false);
   const { openErrorNotification } = useBusterNotifications();
 
@@ -37,10 +39,9 @@ export const ResetEmailForm: React.FC<{
   if (emailSent) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4">
-        <Result
-          status="success"
+        <SuccessCard
           title="Email sent"
-          subTitle="Please check your email for the reset password link"
+          message="Please check your email for the reset password link"
         />
       </div>
     );
@@ -65,7 +66,7 @@ export const ResetEmailForm: React.FC<{
         <Button
           block
           loading={loading}
-          type="primary"
+          variant="primary"
           disabled={disabled}
           onClick={handleResetPassword}>
           Send reset password email
@@ -73,9 +74,9 @@ export const ResetEmailForm: React.FC<{
       </div>
 
       <Link
-        className={cx(
+        className={cn(
           'flex w-full cursor-pointer justify-center text-center font-normal',
-          styles.link
+          'text-primary'
         )}
         href={createBusterRoute({
           route: BusterRoutes.AUTH_LOGIN
