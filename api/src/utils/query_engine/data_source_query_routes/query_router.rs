@@ -114,11 +114,22 @@ async fn route_to_query(
             results
         }
         DataSourceType::Redshift => {
-            let credentials: PostgresCredentials = serde_json::from_str(&credentials_string)?;
+            tracing::info!("Raw Redshift credentials string before deserialization: {}", credentials_string);
+            
+            let credentials: PostgresCredentials = match serde_json::from_str(&credentials_string) {
+                Ok(creds) => creds,
+                Err(e) => {
+                    tracing::error!("Error deserializing Redshift credentials: {:?}", e);
+                    return Err(anyhow!("Error deserializing Redshift credentials: {:?}", e));
+                }
+            };
+            
+            tracing::info!("Redshift query using credentials - database: {:?}, host: {}, port: {}", 
+                credentials.database, credentials.host, credentials.port);
 
             let redshift_client = get_redshift_connection(&credentials).await?;
 
-            let results = match redshift_query(redshift_client, sql.clone()).await {
+            let results = match redshift_query(redshift_client, sql.clone(), limit).await {
                 Ok(results) => results,
                 Err(e) => {
                     tracing::error!("There was an issue while fetching the tables: {}", e);

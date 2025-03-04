@@ -5,8 +5,7 @@ mod utils;
 
 use clap::{Parser, Subcommand};
 use colored::*;
-use commands::{auth::AuthArgs, deploy, deploy_v2, import, init, GenerateCommand};
-use std::path::PathBuf;
+use commands::{auth::AuthArgs, deploy, init};
 
 pub const APP_NAME: &str = "buster";
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -16,7 +15,11 @@ pub const GIT_HASH: &str = env!("GIT_HASH");
 #[derive(Subcommand)]
 #[clap(rename_all = "kebab-case")]
 pub enum Commands {
-    Init,
+    Init {
+        /// Path to create the buster.yml file (defaults to current directory)
+        #[arg(long)]
+        destination_path: Option<String>,
+    },
     /// Authenticate with Buster API
     Auth {
         /// The Buster API host URL
@@ -56,13 +59,18 @@ pub enum Commands {
         schema: Option<String>,
         #[arg(long)]
         database: Option<String>,
+        /// Output YML files in a flat structure instead of maintaining directory hierarchy
+        #[arg(long, default_value_t = false)]
+        flat_structure: bool,
     },
-    Import,
     Deploy {
         #[arg(long)]
         path: Option<String>,
         #[arg(long, default_value_t = false)]
         dry_run: bool,
+        /// Recursively search for model files in subdirectories
+        #[arg(long, default_value_t = true)]
+        recursive: bool,
     },
 }
 
@@ -78,7 +86,7 @@ async fn main() {
 
     // TODO: All commands should check for an update.
     let result = match args.cmd {
-        Commands::Init => init().await,
+        Commands::Init { destination_path } => init(destination_path.as_deref()).await,
         Commands::Auth {
             host,
             api_key,
@@ -126,18 +134,23 @@ async fn main() {
             data_source_name,
             schema,
             database,
+            flat_structure,
         } => {
-            let source = source_path
-                .map(PathBuf::from)
-                .unwrap_or_else(|| PathBuf::from("."));
-            let dest = destination_path
-                .map(PathBuf::from)
-                .unwrap_or_else(|| PathBuf::from("."));
-            let cmd = GenerateCommand::new(source, dest, data_source_name, schema, database);
-            cmd.execute().await
+            commands::generate(
+                source_path.as_deref(),
+                destination_path.as_deref(),
+                data_source_name,
+                schema,
+                database,
+                flat_structure,
+            )
+            .await
         }
-        Commands::Import => import().await,
-        Commands::Deploy { path, dry_run } => deploy_v2(path.as_deref(), dry_run).await,
+        Commands::Deploy {
+            path,
+            dry_run,
+            recursive,
+        } => deploy(path.as_deref(), dry_run, recursive).await,
     };
 
     if let Err(e) = result {

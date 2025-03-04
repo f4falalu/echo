@@ -91,10 +91,30 @@ async fn post_data_sources_handler(
     let secret_values = requests
         .iter()
         .map(|request| {
-            (
-                request.name.clone(),
-                serde_json::to_string(&request.credential).unwrap(),
-            )
+            // Special handling for Redshift credentials
+            let credential = if let Credential::Redshift(redshift_creds) = &request.credential {
+                tracing::info!(
+                    "Redshift credentials before conversion - database: {:?}, host: {}, port: {}",
+                    redshift_creds.database,
+                    redshift_creds.host,
+                    redshift_creds.port
+                );
+
+                Credential::Redshift(redshift_creds.clone())
+            } else {
+                request.credential.clone()
+            };
+
+            let serialized = serde_json::to_string(&credential).unwrap();
+
+            if let Credential::Redshift(_) = &request.credential {
+                tracing::info!(
+                    "Serialized Redshift credentials (converted to Postgres): {}",
+                    serialized
+                );
+            }
+
+            (request.name.clone(), serialized)
         })
         .collect::<HashMap<String, String>>();
 
