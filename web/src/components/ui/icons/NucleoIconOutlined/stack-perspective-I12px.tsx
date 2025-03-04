@@ -8,7 +8,6 @@ function stackPerspective(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m9.135,9.074l-3,1.929c-.166.107-.385-.013-.385-.21V1.208c0-.198.219-.317.385-.21l3,1.929c.072.046.115.125.115.21v5.727c0,.085-.043.164-.115.21Z"

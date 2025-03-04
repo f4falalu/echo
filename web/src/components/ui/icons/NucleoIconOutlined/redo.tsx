@@ -8,7 +8,6 @@ function redo(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M15,10c-.528-.461-2.7-2.251-6-2.251s-5.472,1.79-6,2.251"

@@ -8,7 +8,6 @@ function arrowTurnDown2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M8.25,15.25V4.75c0-1.105,.895-2,2-2h4"

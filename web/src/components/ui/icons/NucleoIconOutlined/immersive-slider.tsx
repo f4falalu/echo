@@ -8,7 +8,6 @@ function immersiveSlider(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m12.75,4.75h-7.5l-3.126-1.7863c-.1667-.0952-.374.0251-.374.2171v11.1384c0,.192.2074.3123.374.2171l3.126-1.7863h7.5l3.126,1.7863c.1667.0952.374-.0251.374-.2171V3.1808c0-.192-.2074-.3123-.374-.2171l-3.126,1.7863Z"

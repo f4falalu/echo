@@ -8,7 +8,6 @@ function cloudStreaming(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M10.704,6.042l-2.308-1.346c-.397-.232-.896,.055-.896,.515v2.693c0,.46,.499,.747,.896,.515l2.308-1.346c.394-.23,.394-.8,0-1.03Z"

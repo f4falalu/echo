@@ -8,7 +8,6 @@ function lipstick(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M7.25,7.75V3.29c0-.179,.096-.345,.252-.434l2.5-1.429c.333-.19,.748,.05,.748,.434V7.75"

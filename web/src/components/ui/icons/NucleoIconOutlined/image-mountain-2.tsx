@@ -8,7 +8,6 @@ function imageMountain2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M5,6.25c.966,0,1.75-.784,1.75-1.75s-.784-1.75-1.75-1.75-1.75,.784-1.75,1.75,.784,1.75,1.75,1.75Z"

@@ -8,7 +8,6 @@ function refreshAnticlockwise(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M7.75 8.25L10.75 8.25 10.75 11.25"

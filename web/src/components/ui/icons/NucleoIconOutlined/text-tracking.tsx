@@ -8,7 +8,6 @@ function textTracking(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M15.125 9.25L12.395 2.75 12.259 2.75 9.529 9.25"

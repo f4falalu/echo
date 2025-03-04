@@ -8,7 +8,6 @@ function eyeDropper(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m8.375,5.875l-4.142,4.142c-.621.621-1.629.621-2.25,0h0c-.621-.621-.621-1.629,0-2.25L6.125,3.625"

@@ -8,7 +8,6 @@ function globeSearch(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M9.795,16.207c-.261,.029-.527,.043-.795,.043-4.004,0-7.25-3.246-7.25-7.25S4.996,1.75,9,1.75s7.25,3.246,7.25,7.25c0,.269-.015,.534-.043,.795"

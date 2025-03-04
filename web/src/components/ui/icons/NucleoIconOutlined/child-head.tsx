@@ -8,7 +8,6 @@ function childHead(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M10.416,5.662c-.362,.363-.863,.588-1.416,.588-1.105,0-2-.895-2-2s.895-2,2-2"

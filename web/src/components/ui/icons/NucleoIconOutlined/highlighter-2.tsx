@@ -8,7 +8,6 @@ function highlighter2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M7.352,2.991c.179,.643,.344,1.537,.287,2.6-.03,.556-.115,1.052-.218,1.476-.075,.305,.076,.619,.365,.742l1.388,.593,1.388,.593c.289,.123,.62,.016,.789-.249,.234-.368,.534-.772,.915-1.178,.725-.772,1.481-1.271,2.068-1.586"

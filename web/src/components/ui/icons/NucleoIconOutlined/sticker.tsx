@@ -8,7 +8,6 @@ function sticker(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M16.237,9.267h0c-.681-.323-1.433-.517-2.237-.517-2.899,0-5.25,2.351-5.25,5.25,0,.803,.195,1.556,.517,2.237"

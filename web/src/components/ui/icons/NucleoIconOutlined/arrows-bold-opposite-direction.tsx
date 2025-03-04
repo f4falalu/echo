@@ -8,7 +8,6 @@ function arrowsBoldOppositeDirection(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M9.65,4.75h-3.4s0-2.506,0-2.506c0-.451-.549-.671-.861-.346L.942,6.538c-.247,.258-.247,.665,0,.923l2.308,2.408"

@@ -8,7 +8,6 @@ function screenReader(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m15.75,7.8134v-3.0634c0-1.105-.895-2-2-2H3.75c-1.105,0-2,.895-2,2v8.5c0,1.105.895,2,2,2h.7923"

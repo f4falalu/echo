@@ -8,7 +8,6 @@ function mapDownload(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M15.75 14.75L13.25 17.25 10.75 14.75"

@@ -8,7 +8,6 @@ function shadow3(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M6.25,11.75v2.5c0,.552,.448,1,1,1h7c.552,0,1-.448,1-1V7.25c0-.552-.448-1-1-1h-2.5"

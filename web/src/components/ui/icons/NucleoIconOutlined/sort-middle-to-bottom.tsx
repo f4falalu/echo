@@ -8,7 +8,6 @@ function sortMiddleToBottom(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M11.5 12L9.25 14.25 11.5 16.5"

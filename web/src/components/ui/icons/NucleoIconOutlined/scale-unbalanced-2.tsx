@@ -8,7 +8,6 @@ function scaleUnbalanced2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M10.72 4.064L14.475 4.75"

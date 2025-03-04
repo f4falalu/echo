@@ -8,7 +8,6 @@ function mortarPestle(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M11.281,7.75l2.703-3.76c.456-.634,.312-1.518-.322-1.974s-1.518-.312-1.974,.322l-3.901,5.412"

@@ -8,7 +8,6 @@ function medal(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M5.033,8.917L1.204,2.507c-.2-.333,.04-.757,.429-.757h3.084c.176,0,.338,.092,.429,.243l2.906,4.853"

@@ -8,7 +8,6 @@ function music(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m11.25,3.25l-7,1v-1.786c0-.498.366-.92.859-.99l5-.714c.602-.086,1.141.381,1.141.99v1.5Z"

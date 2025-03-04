@@ -8,7 +8,6 @@ function doNotWash(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M13.65,7.886c.5,.213,1.044,.325,1.6,.322"

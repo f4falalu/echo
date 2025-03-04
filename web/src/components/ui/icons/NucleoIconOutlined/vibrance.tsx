@@ -8,7 +8,6 @@ function vibrance(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M9.881,15.105L15.711,4.222c.357-.666-.126-1.472-.881-1.472H3.17c-.756,0-1.238,.806-.881,1.472l5.83,10.882c.377,.704,1.386,.704,1.763,0Z"

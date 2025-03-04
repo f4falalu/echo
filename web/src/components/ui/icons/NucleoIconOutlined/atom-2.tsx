@@ -8,7 +8,6 @@ function atom2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M4.365,4.065c.022-.861,.269-1.493,.76-1.777,1.406-.812,4.281,1.535,6.421,5.242,.285,.493,.542,.985,.771,1.47"

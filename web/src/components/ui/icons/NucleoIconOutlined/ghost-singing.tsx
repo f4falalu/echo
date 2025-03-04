@@ -8,7 +8,6 @@ function ghostSinging(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M10.478,2.504c-.885-.481-1.9-.754-2.978-.754C4.048,1.75,1.25,4.548,1.25,8v8.25c1.75,0,1.781-1.5,3.25-1.5s1.562,1.5,3,1.5c1.438,0,1.531-1.5,3-1.5,1.469,0,1.5,1.5,3.25,1.5v-7"

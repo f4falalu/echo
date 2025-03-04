@@ -8,7 +8,6 @@ function caretExpandX(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m.865,5.8l2.985-2.249c.165-.124.4-.007.4.2v4.497c0,.206-.236.324-.4.2L.865,6.2c-.133-.1-.133-.299,0-.399Z"

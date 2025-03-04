@@ -8,7 +8,6 @@ function watch3(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M5.775,4.858l.167-2.67c.033-.527,.47-.938,.998-.938h4.121c.528,0,.965,.411,.998,.938l.167,2.67"

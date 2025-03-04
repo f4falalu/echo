@@ -8,7 +8,6 @@ function pickaxe(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M11.681,3.569c-2.934-1.889-6.067-1.509-6.469-1.453,1.62,1.219,3.053,2.44,4.312,3.611"

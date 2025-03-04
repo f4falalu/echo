@@ -8,7 +8,6 @@ function designFile(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <circle cx="11.5" cy="8" fill="currentColor" r="2" />
         <rect height="3.5" width="3.5" fill="currentColor" rx=".9" ry=".9" x="6" y="10" />

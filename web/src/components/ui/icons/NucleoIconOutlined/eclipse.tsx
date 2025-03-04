@@ -8,7 +8,6 @@ function eclipse(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M10.876,1.995c3.095,.827,5.374,3.65,5.374,7.005s-2.272,6.169-5.359,7.001"

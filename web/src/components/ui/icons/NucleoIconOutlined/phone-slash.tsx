@@ -8,7 +8,6 @@ function phoneSlash(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M8.119,13.612c1.791,1.228,3.875,2.062,6.132,2.379,.489,.067,.952-.242,1.076-.719l.642-2.475c.119-.459-.111-.936-.544-1.129l-2.927-1.3c-.402-.179-.874-.064-1.15,.279l-1.141,1.426c-.155-.091-.309-.186-.459-.284"

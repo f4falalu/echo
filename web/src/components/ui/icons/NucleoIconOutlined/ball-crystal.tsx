@@ -8,7 +8,6 @@ function ballCrystal(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M13.06,13.25l.919,2.316c.13,.328-.112,.684-.465,.684H4.486c-.353,0-.595-.356-.465-.684l.918-2.316"

@@ -8,7 +8,6 @@ function raindrops(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M3.5,7.25c.966,0,1.75-.767,1.75-1.712,0-1.301-.981-1.857-1.75-2.788-.769,.931-1.75,1.487-1.75,2.788,0,.946,.784,1.712,1.75,1.712Z"

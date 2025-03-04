@@ -8,7 +8,6 @@ function eyelash(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M2.712,10.693c-.032,.15-.075,.297-.129,.44h0c.127-.336,.192-.692,.192-1.052,0-.491-.122-.975-.356-1.407"

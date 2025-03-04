@@ -8,7 +8,6 @@ function bottleWine(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M9,7.016c-.42-.208-.75-.266-.75-.266V2.25c0-.552-.448-1-1-1h-1c-.552,0-1,.448-1,1V6.75s-2.5,.438-2.5,3.25v5.75c0,.552,.448,1,1,1h5"

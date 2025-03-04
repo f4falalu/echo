@@ -8,7 +8,6 @@ function ballTennis(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m.773,6.227c.077.003.149.023.227.023,2.899,0,5.25-2.351,5.25-5.25,0-.078-.02-.15-.023-.227"

@@ -8,7 +8,6 @@ function book(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M2.75,5.5h0c0-1.733,1.249-3.213,2.957-3.505L11.721,.903c.448-.081,.895,.15,1.086,.564"

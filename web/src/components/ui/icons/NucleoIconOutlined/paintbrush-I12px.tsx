@@ -8,7 +8,6 @@ function paintbrush(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m6.206,7.791l4.63-4.627c.552-.552.552-1.448,0-2s-1.448-.552-2,0l-4.627,4.629"

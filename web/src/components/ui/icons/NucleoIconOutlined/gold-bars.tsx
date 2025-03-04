@@ -8,7 +8,6 @@ function goldBars(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M3.048,9.25h3.404c.467,0,.872,.323,.975,.778l1.073,4.722H1l1.073-4.722c.103-.455,.508-.778,.975-.778Z"

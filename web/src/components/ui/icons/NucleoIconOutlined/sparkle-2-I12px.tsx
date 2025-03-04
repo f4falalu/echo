@@ -8,7 +8,6 @@ function sparkle2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M6.5 10.25L7.845 6.846 11.25 5.5 7.845 4.154 6.5 0.75 5.154 4.154 1.75 5.5 5.154 6.846 6.5 10.25z"

@@ -8,7 +8,6 @@ function chartStackedLine(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M5.169,8.753l1.557-3.192c.14-.288,.512-.371,.762-.171l4.078,3.263c.232,.186,.573,.129,.733-.121l3.7-5.782"

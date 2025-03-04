@@ -8,7 +8,6 @@ function headset(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M13,13.25l-.342,1.447c-.208,.909-1.017,1.553-1.949,1.553h-1.959"

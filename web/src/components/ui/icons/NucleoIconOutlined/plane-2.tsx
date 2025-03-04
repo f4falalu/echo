@@ -8,7 +8,6 @@ function plane2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M10.485 4.9777L2.5 4 1.5 5.25 7.747 8.0264"

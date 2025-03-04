@@ -8,7 +8,6 @@ function flipUpHelmet(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M15,7.25h-6.788c-.703,0-1.187,.707-.932,1.362l.972,2.5c.149,.384,.52,.638,.932,.638h6.066"

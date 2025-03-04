@@ -8,7 +8,6 @@ function portalSparkle(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M3.295,9.999c-.965,.552-1.545,1.246-1.545,2.001,0,1.795,3.246,3.25,7.25,3.25s7.25-1.455,7.25-3.25c0-1.742-3.059-3.159-6.898-3.242"

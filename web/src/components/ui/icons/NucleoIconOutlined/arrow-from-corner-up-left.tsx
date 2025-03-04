@@ -8,7 +8,6 @@ function arrowFromCornerUpLeft(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M3.75,15.25H13.25c1.105,0,2-.895,2-2V3.75"

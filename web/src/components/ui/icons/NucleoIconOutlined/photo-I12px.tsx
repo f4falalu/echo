@@ -8,7 +8,6 @@ function photo(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m2.939,10.189l4-4c.586-.586,1.536-.586,2.121,0l2.125,2.125"

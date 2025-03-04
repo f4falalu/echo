@@ -8,7 +8,6 @@ function cubeTransparent(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m15.254,10.541l-.002.932c0,.357-.096.699-.269.998-.172.299-.421.553-.73.732l-.7984.4628"

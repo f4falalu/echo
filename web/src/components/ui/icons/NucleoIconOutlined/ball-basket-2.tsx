@@ -8,7 +8,6 @@ function ballBasket2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M8.823,1.753c-.044,1.796-.751,3.579-2.121,4.949s-3.153,2.078-4.949,2.121"

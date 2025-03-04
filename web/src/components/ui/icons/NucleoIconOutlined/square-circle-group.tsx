@@ -8,7 +8,6 @@ function squareCircleGroup(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M8.127,9.75c-.075,.238-.127,.487-.127,.75,0,1.381,1.119,2.5,2.5,2.5s2.5-1.119,2.5-2.5-1.119-2.5-2.5-2.5c-.263,0-.512,.052-.75,.127"

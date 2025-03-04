@@ -8,7 +8,6 @@ function moneyBillsDollar(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M10.264,8.22c-.321-.519-.835-.644-1.235-.644-.421,0-1.526,.224-1.423,1.285,.072,.745,.774,1.022,1.387,1.131s1.504,.343,1.526,1.241c.019,.759-.664,1.277-1.489,1.277-.684,0-1.186-.23-1.446-.744"

@@ -8,7 +8,6 @@ function paragraphSpacing(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M7.25 9.25L9 11 10.75 9.25"

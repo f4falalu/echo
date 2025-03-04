@@ -8,7 +8,6 @@ function circleDashed(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m6.854.819c-.278-.045-.563-.069-.854-.069s-.576.024-.854.069"

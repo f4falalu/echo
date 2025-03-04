@@ -8,7 +8,6 @@ function graduationCap(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M9.458,2.361l6.332,3.26c.613,.316,.613,1.192,0,1.508l-6.332,3.26c-.288,.148-.629,.148-.916,0L2.21,7.129c-.613-.316-.613-1.192,0-1.508l6.332-3.26c.288-.148,.629-.148,.916,0Z"

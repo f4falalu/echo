@@ -8,7 +8,6 @@ function tabs(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m5.75,1.25h3c1.105,0,2,.895,2,2v1.25"

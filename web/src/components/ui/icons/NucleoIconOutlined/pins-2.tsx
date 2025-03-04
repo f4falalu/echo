@@ -8,7 +8,6 @@ function pins2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M13.75,8.325c0,2.155-2.817,5.616-4.113,7.094-.339,.387-.936,.387-1.275,0-1.295-1.477-4.113-4.938-4.113-7.094,0-2.869,2.455-4.534,4.75-4.534s4.75,1.665,4.75,4.534Z"

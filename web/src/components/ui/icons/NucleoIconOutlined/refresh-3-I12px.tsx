@@ -8,7 +8,6 @@ function refresh3(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m.754,6.201c.105,2.807,2.414,5.049,5.246,5.049,2.072,0,3.896-1.257,4.75-3v3"

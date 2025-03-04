@@ -8,7 +8,6 @@ function playlist3(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m10.7098,8.4835l-2.2964-1.3853c-.402-.2425-.9148.047-.9148.5165v2.7706c0,.4695.5128.759.9148.5165l2.2964-1.3853c.3888-.2346.3888-.7984,0-1.033Z"

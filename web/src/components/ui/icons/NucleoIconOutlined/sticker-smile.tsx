@@ -8,7 +8,6 @@ function stickerSmile(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M9,12.25c-1.621,0-3.033-.912-3.749-2.25"

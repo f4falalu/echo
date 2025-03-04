@@ -8,7 +8,6 @@ function inputPasswordXmark(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <circle cx="5.5" cy="9" fill="currentColor" r="1" />
         <circle cx="9" cy="9" fill="currentColor" r="1" />

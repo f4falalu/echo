@@ -8,7 +8,6 @@ function slippers(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M7.746,5.065c-2.02-.655-4.233-.277-5.92,1.012"

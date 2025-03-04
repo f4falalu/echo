@@ -8,7 +8,6 @@ function eggDecorated(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M3.214 10.318L6.422 8.341 9 10.318 11.578 8.341 14.786 10.318"

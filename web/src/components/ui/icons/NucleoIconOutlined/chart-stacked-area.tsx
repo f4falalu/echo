@@ -8,7 +8,6 @@ function chartStackedArea(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M1.75,11.25l2.954-2.045c.177-.123,.412-.118,.585,.011l3.484,2.613c.141,.106,.328,.13,.491,.062l6.987-2.891"

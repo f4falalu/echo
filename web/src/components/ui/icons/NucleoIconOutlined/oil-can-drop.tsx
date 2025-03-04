@@ -8,7 +8,6 @@ function oilCanDrop(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M3.75,6.75h5.912c.363,0,.698,.197,.874,.514l.964,1.736,5.75-2.25-4.901,5.792c-.38,.449-.938,.708-1.527,.708H5.75c-1.105,0-2-.895-2-2V6.75Z"

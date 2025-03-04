@@ -8,7 +8,6 @@ function bikeDelivery(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M6.75,12.75c0,1.657-1.343,3-3,3s-3-1.343-3-3,1.343-3,3-3c.576,0,1.114,.162,1.571,.444"

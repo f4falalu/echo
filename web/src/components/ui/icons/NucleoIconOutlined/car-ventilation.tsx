@@ -8,7 +8,6 @@ function carVentilation(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M11.187,7.75c-.882,1.047-1.215,1.992-.998,2.833,.321,1.248,1.675,1.583,1.997,2.833,.217,.842-.116,1.786-.998,2.833"

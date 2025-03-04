@@ -8,7 +8,6 @@ function liveOff(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M5.995,12.005c-.769-.769-1.245-1.832-1.245-3.005,0-2.347,1.903-4.25,4.25-4.25,1.174,0,2.236,.476,3.005,1.245"

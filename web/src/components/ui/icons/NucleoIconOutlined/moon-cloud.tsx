@@ -8,7 +8,6 @@ function moonCloud(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M15.172,9c.209-.39,.369-.811,.47-1.254-.361,.083-.732,.135-1.118,.135-2.769,0-5.014-2.245-5.014-5.014,0-.386,.053-.757,.135-1.118-2.229,.51-3.896,2.495-3.896,4.878,0,.125,.005,.249,.014,.372"

@@ -8,7 +8,6 @@ function layerBack(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M6.5,12.059l-3.837-2.02c-.267-.141-.401-.402-.401-.664"

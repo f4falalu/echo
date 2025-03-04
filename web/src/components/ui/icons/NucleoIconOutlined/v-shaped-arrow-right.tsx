@@ -8,7 +8,6 @@ function vShapedArrowRight(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M7.5 2.75L11.75 9 7.5 15.25"

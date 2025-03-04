@@ -8,7 +8,6 @@ function rings2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M9,12.562c-.761,.588-1.715,.938-2.75,.938-2.485,0-4.5-2.015-4.5-4.5S3.765,4.5,6.25,4.5s4.5,2.015,4.5,4.5c0,.542-.096,1.061-.271,1.542"

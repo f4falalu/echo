@@ -8,7 +8,6 @@ function penArrowClockwise(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m8.2067,11.4009c.1432-.0495.2733-.1309.3805-.238l3.3031-3.3031c.4832-.4833.4778-1.2613-.0054-1.7446h0c-.4833-.4833-1.2613-.4887-1.7446-.0055l-3.3031,3.3031c-.1071.1071-.1885.2372-.238.3805l-.8491,2.4567,2.4567-.8491Z"

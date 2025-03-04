@@ -8,7 +8,6 @@ function bag(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M3.424,5.75H14.576c.522,0,.956,.401,.997,.921l.507,6.421c.092,1.163-.827,2.157-1.994,2.157H3.914c-1.167,0-2.086-.994-1.994-2.157l.507-6.421c.041-.52,.475-.921,.997-.921Z"

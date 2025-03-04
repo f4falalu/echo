@@ -8,7 +8,6 @@ function squareArrowDownLeft2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M7,11l5.689-5.689c.945-.945,2.561-.276,2.561,1.061v6.879c0,1.105-.895,2-2,2H4.75c-1.105,0-2-.895-2-2V4.75c0-1.105,.895-2,2-2h6.5"

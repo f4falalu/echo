@@ -8,7 +8,6 @@ function arrowUpFromLine(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M5 6.75L9 2.75 13 6.75"

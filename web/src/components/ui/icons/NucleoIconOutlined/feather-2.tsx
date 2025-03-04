@@ -8,7 +8,6 @@ function feather2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m4.25,13.75v-4.268c0-.53.211-1.039.586-1.414l4.884-4.884c1.407-1.407,3.689-1.407,5.096,0h0c1.407,1.407,1.407,3.689,0,5.096l-4.884,4.884c-.375.375-.884.586-1.414.586h-.067"

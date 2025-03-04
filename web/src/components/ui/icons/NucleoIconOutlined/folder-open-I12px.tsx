@@ -8,7 +8,6 @@ function folderOpen(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m1.75,5.25v-2.5c0-.828.672-1.5,1.5-1.5h.952c.606,0,1.179.275,1.559.748l.603.752h1.886c1.105,0,2,.895,2,2v.5"

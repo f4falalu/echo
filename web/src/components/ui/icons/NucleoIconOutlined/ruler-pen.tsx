@@ -8,7 +8,6 @@ function rulerPen(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M9.533,5.437l-3.331-3.331c-.391-.391-1.024-.391-1.414,0l-2.682,2.682c-.391,.391-.391,1.024,0,1.414l3.331,3.331"

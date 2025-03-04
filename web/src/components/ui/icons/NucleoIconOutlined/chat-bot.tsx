@@ -8,7 +8,6 @@ function chatBot(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M15.75,.75h-4.5c-.827,0-1.5,.673-1.5,1.5v2c0,.827,.673,1.5,1.5,1.5h.5v2l2.227-2h1.773c.827,0,1.5-.673,1.5-1.5V2.25c0-.827-.673-1.5-1.5-1.5Z"

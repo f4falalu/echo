@@ -8,7 +8,6 @@ function circleDollarUp(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m13.07,15.001c-1.16.789-2.561,1.249-4.07,1.249-4.004,0-7.25-3.246-7.25-7.25S4.996,1.75,9,1.75c1.454,0,2.808.428,3.943,1.165"

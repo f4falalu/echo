@@ -8,7 +8,6 @@ function connections3(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M7.055 2.298H10.943999999999999V6.186999999999999H7.055z"

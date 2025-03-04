@@ -8,7 +8,6 @@ function timer(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M2.029,7c-.182,.635-.279,1.306-.279,2,0,4.004,3.246,7.25,7.25,7.25s7.25-3.246,7.25-7.25S13.004,1.75,9,1.75v2.5"

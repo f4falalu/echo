@@ -8,7 +8,6 @@ function babyClothes(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M15.491,7.353l.759-.603-1.78-2.769c-.3-.466-.779-.787-1.325-.886l-1.662-.302c-.088,1.301-1.16,2.333-2.483,2.333-1.323,0-2.395-1.031-2.483-2.333l-1.662,.302c-.545,.099-1.025,.42-1.325,.886l-1.78,2.769,.759,.603"

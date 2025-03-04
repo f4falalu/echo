@@ -8,7 +8,6 @@ function circleCheck2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M11.626,3.334c-.799-.371-1.687-.584-2.626-.584-3.452,0-6.25,2.798-6.25,6.25s2.798,6.25,6.25,6.25,6.25-2.798,6.25-6.25c0-.637-.097-1.251-.274-1.83"

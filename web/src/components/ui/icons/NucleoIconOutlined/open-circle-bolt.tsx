@@ -8,7 +8,6 @@ function openCircleBolt(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M12.765,2.803c2.089,1.272,3.485,3.572,3.485,6.197,0,2.734-1.513,5.114-3.747,6.349"

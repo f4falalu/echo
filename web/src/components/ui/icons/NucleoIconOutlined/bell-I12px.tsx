@@ -8,7 +8,6 @@ function bell(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m10.75,8.25c-.828,0-1.5-.672-1.5-1.5v-2.75c0-1.795-1.455-3.25-3.25-3.25-1.795,0-3.25,1.455-3.25,3.25v2.75c0,.828-.672,1.5-1.5,1.5h9.5Z"

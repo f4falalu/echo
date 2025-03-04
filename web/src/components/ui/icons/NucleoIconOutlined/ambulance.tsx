@@ -8,7 +8,6 @@ function ambulance(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M6.25,3.75v-1.25c0-.414,.336-.75,.75-.75h0c.414,0,.75,.336,.75,.75v1.25"

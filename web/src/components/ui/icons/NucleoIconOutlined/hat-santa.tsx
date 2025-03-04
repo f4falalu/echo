@@ -8,7 +8,6 @@ function hatSanta(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M2.979,6.75C3.75,3.87,6.377,1.75,9.5,1.75c3.728,0,6.75,3.022,6.75,6.75v5"

@@ -8,7 +8,6 @@ function linkSlash(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M9.75,11.423c.352-.168,.682-.398,.973-.69l.01-.01c.426-.426,.721-.934,.884-1.473"

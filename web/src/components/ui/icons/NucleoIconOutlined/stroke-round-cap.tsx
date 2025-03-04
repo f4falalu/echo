@@ -8,7 +8,6 @@ function strokeRoundCap(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M1.75,14.25H11c2.899,0,5.25-2.351,5.25-5.25h0c0-2.9-2.351-5.25-5.25-5.25H1.75"

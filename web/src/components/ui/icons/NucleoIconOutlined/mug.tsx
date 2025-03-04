@@ -8,7 +8,6 @@ function mug(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M12.821,4.75h2.429c.552,0,1,.448,1,1v1.5c0,1.657-1.343,3-3,3h-.76"

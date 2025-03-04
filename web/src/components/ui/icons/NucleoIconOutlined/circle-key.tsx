@@ -8,7 +8,6 @@ function circleKey(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M3.75,4c1.321-1.386,3.184-2.25,5.25-2.25,4.004,0,7.25,3.246,7.25,7.25s-3.246,7.25-7.25,7.25c-2.066,0-3.929-.864-5.25-2.25"

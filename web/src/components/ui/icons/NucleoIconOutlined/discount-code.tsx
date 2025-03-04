@@ -8,7 +8,6 @@ function discountCode(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <circle cx="7" cy="7" fill="currentColor" r="1" />
         <circle cx="11" cy="11" fill="currentColor" r="1" />

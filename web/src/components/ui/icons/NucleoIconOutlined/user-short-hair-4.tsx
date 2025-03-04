@@ -8,7 +8,6 @@ function userShortHair4(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M12.615,7.5c.088-.318,.135-.654,.135-1,0-2.071-1.679-3.75-3.75-3.75s-3.75,1.679-3.75,3.75c0,.346,.047,.682,.135,1h.381c-.009-.826,.659-1.5,1.484-1.5h3.5c.826,0,1.493,.674,1.484,1.5h.381Z"

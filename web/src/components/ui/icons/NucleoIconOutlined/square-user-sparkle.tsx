@@ -8,7 +8,6 @@ function squareUserSparkle(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M5.126,15.25c.444-1.725,2.01-3,3.874-3s3.43,1.275,3.874,3"

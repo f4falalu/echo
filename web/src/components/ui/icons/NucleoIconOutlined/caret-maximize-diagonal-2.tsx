@@ -8,7 +8,6 @@ function caretMaximizeDiagonal2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M14.25,9.354v4.646c0,.138-.112,.25-.25,.25h-4.646c-.223,0-.334-.269-.177-.427l4.646-4.646c.157-.157,.427-.046,.427,.177Z"

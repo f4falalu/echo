@@ -8,7 +8,6 @@ function gameConsoleHandheld(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M4.25,2.25H13.75c.552,0,1,.448,1,1V12.75c0,1.656-1.344,3-3,3H4.25c-.552,0-1-.448-1-1V3.25c0-.552,.448-1,1-1Z"

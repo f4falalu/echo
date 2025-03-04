@@ -8,7 +8,6 @@ function envelopeContent(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M16.25,7.254v5.996c0,1.105-.895,2-2,2H3.75c-1.105,0-2-.895-2-2V7.25l6.815,3.29c.275,.133,.595,.133,.869,0l6.815-3.29v.004Z"

@@ -8,7 +8,6 @@ function rocket(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M13.035,10.418c3.655-3.835,3.208-8.305,3.17-8.623-.319-.038-4.788-.485-8.623,3.17-2.323,2.214-3.105,4.686-3.332,5.513l3.272,3.272c.827-.227,3.299-1.009,5.513-3.332Z"

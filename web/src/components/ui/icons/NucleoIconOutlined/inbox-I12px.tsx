@@ -8,7 +8,6 @@ function inbox(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M11.25 6.25L7.75 6.25 7.75 7.75 4.25 7.75 4.25 6.25 0.75 6.25"

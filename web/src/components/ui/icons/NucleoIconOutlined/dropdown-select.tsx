@@ -8,7 +8,6 @@ function dropdownSelect(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M14.583,7.5h-2.5c-.158,0-.302,.089-.373,.23-.07,.141-.055,.31,.039,.436l1.25,1.667c.079,.105,.202,.167,.333,.167s.255-.062,.333-.167l1.25-1.667c.095-.126,.11-.295,.039-.436-.071-.141-.215-.23-.373-.23Z"

@@ -8,7 +8,6 @@ function stars(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M14.741 7.308L16.25 5.837 12.363 5.272 10.625 1.75 9.47 4.09"

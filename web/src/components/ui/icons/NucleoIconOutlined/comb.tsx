@@ -8,7 +8,6 @@ function comb(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M5.518,16.124l-2.932-2.932c-.781-.781-.781-2.047,0-2.828L10.364,2.586c.781-.781,2.047-.781,2.828,0l2.932,2.932"

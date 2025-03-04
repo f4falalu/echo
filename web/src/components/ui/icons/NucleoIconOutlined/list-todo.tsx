@@ -8,7 +8,6 @@ function listTodo(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M2.25 13.391L3.609 14.75 7.006 10.333"

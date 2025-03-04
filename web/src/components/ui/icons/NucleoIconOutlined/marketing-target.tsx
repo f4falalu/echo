@@ -8,7 +8,6 @@ function marketingTarget(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M9.217,9.622l2.016,5.781c.099,.283,.498,.285,.599,.003l.895-2.487c.032-.089,.102-.159,.191-.191l2.487-.895c.282-.101,.28-.501-.003-.599l-5.781-2.016c-.251-.088-.492,.154-.405,.405Z"

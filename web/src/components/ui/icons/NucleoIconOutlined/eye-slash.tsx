@@ -8,7 +8,6 @@ function eyeSlash(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m7.409,10.591c-.8787-.8787-.8787-2.3033,0-3.182s2.3033-.8787,3.182,0"

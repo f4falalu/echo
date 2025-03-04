@@ -8,7 +8,6 @@ function filters(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M10.496,9.757c.164,.467,.254,.97,.254,1.493,0,2.485-2.015,4.5-4.5,4.5S1.75,13.735,1.75,11.25c0-.911,.271-1.759,.736-2.467"

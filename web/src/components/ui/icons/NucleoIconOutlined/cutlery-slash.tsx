@@ -8,7 +8,6 @@ function cutlerySlash(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M5.75,12.25V2.25c-.483,.718-.999,1.621-1.438,2.708-.817,2.029-1.028,3.866-1.062,5.147l2.5,2.145"

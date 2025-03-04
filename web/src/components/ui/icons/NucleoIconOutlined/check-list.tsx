@@ -8,7 +8,6 @@ function checkList(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M4.318 10.774L7.059 14.247 15.25 3.753"

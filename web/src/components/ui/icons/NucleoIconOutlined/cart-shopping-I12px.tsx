@@ -8,7 +8,6 @@ function cartShopping(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <circle cx="9.5" cy="11" fill="currentColor" r="1" strokeWidth="0" />
         <circle cx="3" cy="11" fill="currentColor" r="1" strokeWidth="0" />

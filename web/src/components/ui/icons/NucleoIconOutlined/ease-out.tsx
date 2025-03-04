@@ -8,7 +8,6 @@ function easeOut(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M15.25,3.25c-5.25,.354-9.678,6.235-11.5,12"

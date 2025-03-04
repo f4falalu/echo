@@ -8,7 +8,6 @@ function rulerTriangle(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M14.586,15.25H3.75c-.552,0-1-.448-1-1V3.414c0-.891,1.077-1.337,1.707-.707L15.293,13.543c.63,.63,.184,1.707-.707,1.707Z"

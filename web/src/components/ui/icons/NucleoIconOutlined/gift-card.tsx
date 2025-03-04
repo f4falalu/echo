@@ -8,7 +8,6 @@ function giftCard(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M4.5,1.25c-.966,0-1.75,.784-1.75,1.75s.784,1.75,1.75,1.75h2.75s-.203-3.5-2.75-3.5Z"

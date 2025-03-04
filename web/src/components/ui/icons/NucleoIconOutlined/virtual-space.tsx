@@ -8,7 +8,6 @@ function virtualSpace(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M12.253,10.989c-.978-.153-2.083-.239-3.253-.239-1.17,0-2.274,.086-3.253,.239"

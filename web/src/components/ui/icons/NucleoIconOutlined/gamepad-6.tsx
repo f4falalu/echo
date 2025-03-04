@@ -8,7 +8,6 @@ function gamepad6(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <circle cx="14.25" cy="9" fill="currentColor" r=".75" />
         <circle cx="12.75" cy="10.5" fill="currentColor" r=".75" />

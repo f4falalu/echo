@@ -8,7 +8,6 @@ function gauge5(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M3.75,4.5V2.25c6.627,0,12,5.373,12,12h-2.25"

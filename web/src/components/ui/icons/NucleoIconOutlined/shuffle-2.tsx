@@ -8,7 +8,6 @@ function shuffle2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M10,11.731c.882,.62,2.185,1.019,4.25,1.019h2l-2.75,2.75"

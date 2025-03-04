@@ -8,7 +8,6 @@ function baseballCap(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M2.75,10.75l.187-4.103c.044-.965,.543-1.853,1.354-2.376,1.089-.701,2.776-1.521,4.709-1.521s3.62,.82,4.709,1.521c.812,.523,1.311,1.411,1.354,2.376l.187,4.103"

@@ -8,7 +8,6 @@ function deviceMockup(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M1.829,8.709l3.694,1.965c.542,.289,1.194,.284,1.732-.012l8.924-4.906c.432-.237,.428-.859-.007-1.091l-3.694-1.965c-.542-.289-1.194-.284-1.732,.012L1.821,7.618c-.432,.237-.428,.859,.007,1.091Z"

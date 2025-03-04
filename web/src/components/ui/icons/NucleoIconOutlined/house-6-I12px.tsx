@@ -8,7 +8,6 @@ function house6(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M0.75 3.798L6 0.75 11.25 3.798"

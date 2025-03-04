@@ -8,7 +8,6 @@ function tornado(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M14.295,9c-.927,.733-3.173,1.25-5.795,1.25-3.452,0-6.25-.895-6.25-2,0-.603,.834-1.144,2.153-1.51"

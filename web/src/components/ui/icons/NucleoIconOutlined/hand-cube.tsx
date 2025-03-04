@@ -8,7 +8,6 @@ function handCube(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M11.478,.945l-2.21,1.282c-.321,.186-.518,.529-.518,.9v2.572c0,.371,.197,.714,.518,.9l2.21,1.282c.323,.187,.721,.187,1.044,0l2.21-1.282c.321-.186,.518-.529,.518-.9V3.127c0-.371-.197-.714-.518-.9l-2.21-1.282c-.323-.187-.721-.187-1.044,0Z"
