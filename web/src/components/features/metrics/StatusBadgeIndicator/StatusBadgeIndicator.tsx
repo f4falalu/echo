@@ -9,6 +9,9 @@ import {
   ProgressCircle2Of4
 } from '@/components/ui/icons/NucleoIconFilled';
 import { getTooltipText } from './helpers';
+import { cn } from '@/lib/classMerge';
+import { HalfIcon } from './HalfIcon';
+import { ThreeFourthIcon } from './ThreeFourthIcon';
 
 export const StatusBadgeIndicator: React.FC<{
   status: BusterMetricListItem['status'];
@@ -22,7 +25,7 @@ export const StatusBadgeIndicator: React.FC<{
     const tooltipText = getTooltipText(status);
     const isNotVerified =
       status === VerificationStatus.notVerified || VerificationStatus.notRequested;
-    const sharedClass = `h-[16px] w-[16px] flex items-center justify-center rounded-full ${colorClasses}`;
+    const sharedClass = cn(`flex items-center justify-center rounded-full`, colorClasses);
     const _size = isNotVerified ? size : 16;
 
     return (
@@ -43,8 +46,8 @@ StatusBadgeIndicator.displayName = 'StatusBadgeIndicator';
 
 const statusRecordIcon: Record<VerificationStatus, React.FC<any>> = {
   [VerificationStatus.verified]: () => <CircleCheck />,
-  [VerificationStatus.requested]: () => <ProgressCircle1Of4 />, //contrast
-  [VerificationStatus.inReview]: () => <ProgressCircle2Of4 />,
+  [VerificationStatus.requested]: () => <HalfIcon />,
+  [VerificationStatus.inReview]: () => <ThreeFourthIcon />,
   [VerificationStatus.backlogged]: () => <CircleXmark />,
   [VerificationStatus.notVerified]: () => <StatusNotRequestedIcon />,
   [VerificationStatus.notRequested]: () => <StatusNotRequestedIcon />
@@ -58,9 +61,9 @@ const statusRecordColors: Record<VerificationStatus, string> = {
   verified: 'text-[#34A32D]!',
   requested: 'text-[#F2BE01]!',
   inReview: 'text-[#7C3AED]!',
-  backlogged: 'text-[#575859]!',
-  notVerified: 'text-[#575859]!',
-  notRequested: 'text-[#575859]!'
+  backlogged: 'text-icon-color',
+  notVerified: 'text-icon-color',
+  notRequested: 'text-icon-color'
 };
 
 const getColorClasses = (status: BusterMetricListItem['status']) => {

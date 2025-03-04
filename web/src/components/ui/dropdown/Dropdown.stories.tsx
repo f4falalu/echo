@@ -541,18 +541,17 @@ export const WithFooterContent: Story = {
 // Example with numbered items
 export const WithNumberedItems: Story = {
   args: {
+    showIndex: true,
     items: [
       {
         value: '1',
         label: 'First Item',
-        showIndex: true,
         onClick: fn(),
         icon: <PaintRoller />
       },
       {
         value: '2',
         label: 'Second Item',
-        showIndex: true,
         onClick: fn(),
         icon: <Star />
       },
@@ -560,7 +559,6 @@ export const WithNumberedItems: Story = {
       {
         value: '3',
         label: 'Third Item',
-        showIndex: true,
         onClick: fn(),
         icon: <Storage />,
         secondaryLabel: 'With secondary label'
@@ -568,7 +566,6 @@ export const WithNumberedItems: Story = {
       {
         value: '4',
         label: 'Fourth Item',
-        showIndex: true,
         onClick: fn(),
         disabled: true
       }

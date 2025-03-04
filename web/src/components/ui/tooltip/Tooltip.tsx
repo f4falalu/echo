@@ -17,33 +17,40 @@ export interface TooltipProps
   open?: boolean;
 }
 
-export const Tooltip = React.memo<TooltipProps>(
-  ({
-    children,
-    title,
-    sideOffset,
-    shortcuts,
-    delayDuration = 0,
-    skipDelayDuration,
-    align,
-    side,
-    open
-  }) => {
-    if (!title || (!title && !shortcuts?.length)) return children;
+export const Tooltip = React.memo(
+  React.forwardRef<HTMLSpanElement, TooltipProps>(
+    (
+      {
+        children,
+        title,
+        sideOffset,
+        shortcuts,
+        delayDuration = 0,
+        skipDelayDuration,
+        align,
+        side,
+        open
+      },
+      ref
+    ) => {
+      if (!title || (!title && !shortcuts?.length)) return children;
 
-    return (
-      <TooltipProvider delayDuration={delayDuration} skipDelayDuration={skipDelayDuration}>
-        <TooltipBase open={open}>
-          <TooltipTrigger asChild>
-            <span className="inline-block">{children}</span>
-          </TooltipTrigger>
-          <TooltipContentBase align={align} side={side} sideOffset={sideOffset}>
-            <TooltipContent title={title} shortcut={shortcuts} />
-          </TooltipContentBase>
-        </TooltipBase>
-      </TooltipProvider>
-    );
-  },
+      return (
+        <TooltipProvider delayDuration={delayDuration} skipDelayDuration={skipDelayDuration}>
+          <TooltipBase open={open}>
+            <TooltipTrigger asChild>
+              <span ref={ref} className="inline-block">
+                {children}
+              </span>
+            </TooltipTrigger>
+            <TooltipContentBase align={align} side={side} sideOffset={sideOffset}>
+              <TooltipContent title={title} shortcut={shortcuts} />
+            </TooltipContentBase>
+          </TooltipBase>
+        </TooltipProvider>
+      );
+    }
+  ),
   (prevProps, nextProps) => {
     return omit(prevProps, 'shortcut') === omit(nextProps, 'shortcut');
   }

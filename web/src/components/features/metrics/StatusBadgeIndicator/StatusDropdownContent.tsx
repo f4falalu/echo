@@ -24,16 +24,15 @@ export const StatusDropdownContent: React.FC<{
   status: VerificationStatus;
   children: React.ReactNode;
   onChangeStatus: (status: VerificationStatus) => void;
-}> = React.memo(({ isAdmin, status, onChangeStatus, children }) => {
-  const items: DropdownItems<VerificationStatus> = useMemo(() => {
-    return statuses.map<DropdownItems<VerificationStatus>[number]>((status, index) => {
+  onOpenChange: (open: boolean) => void;
+}> = React.memo(({ isAdmin, status, onChangeStatus, children, onOpenChange }) => {
+  const items = useMemo(() => {
+    return statuses.map<DropdownItem<VerificationStatus>>((status) => {
       const requiresAdmin = requiresAdminItems.includes(status);
       return {
-        index,
         label: getTooltipText(status),
         value: status,
-        icon: <StatusBadgeIndicator status={status} />,
-        key: status,
+        icon: <StatusBadgeIndicator status={status} showTooltip={false} />,
         disabled: requiresAdmin && !isAdmin,
         onClick: () => {
           if (!requiresAdmin || isAdmin) {
@@ -44,21 +43,20 @@ export const StatusDropdownContent: React.FC<{
     });
   }, [isAdmin, status, onChangeStatus]);
 
-  const onSelect = useMemoizedFn((item: DropdownItem<VerificationStatus>) => {
-    const _item = item as DropdownItem<VerificationStatus>;
-    onChangeStatus(_item.value as VerificationStatus);
+  const onSelect = useMemoizedFn((item: VerificationStatus) => {
+    onChangeStatus(item);
   });
 
   return (
     <Dropdown
       emptyStateText="Nothing to see here..."
       items={items}
-      onSelect={(v) => {
-        v;
-      }}
+      showIndex
+      onOpenChange={onOpenChange}
+      onSelect={onSelect}
       selectType="single"
-      menuHeader="Status">
-      {children}
+      menuHeader="Verification status...">
+      <span className="inline-block">{children}</span>
     </Dropdown>
   );
 });
