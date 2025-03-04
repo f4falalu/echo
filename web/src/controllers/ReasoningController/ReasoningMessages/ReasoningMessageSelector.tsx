@@ -4,7 +4,7 @@ import type {
   BusterChatMessageReasoning_text
 } from '@/api/asset_interfaces';
 import { StreamingMessage_Text } from '@/components/ui/streaming/StreamingMessage_Text';
-import { ReasoningMessage_Thought } from './ReasoningMessage_Thought';
+import { ReasoningMessage_PillsContainer } from './ReasoningMessage_PillContainers';
 import { ReasoningMessage_File } from './ReasoningMessage_File';
 
 export interface ReasoningMessageProps {
@@ -18,7 +18,7 @@ const ReasoningMessageRecord: Record<
   BusterChatMessageReasoning['type'],
   React.FC<ReasoningMessageProps>
 > = {
-  pills: ReasoningMessage_Thought,
+  pills: ReasoningMessage_PillsContainer,
   text: (props) => (
     <StreamingMessage_Text
       {...props}

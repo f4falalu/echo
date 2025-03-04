@@ -1,0 +1,73 @@
+import React from 'react';
+import type { BusterChatMessageReasoning_pills } from '@/api/asset_interfaces';
+import { ReasoningMessageProps } from '../ReasoningMessageSelector';
+import { ReasoningMessage_PillContainer } from './ReasoningMessage_PillContainer';
+import { BarContainer } from '../BarContainer';
+import { motion } from 'framer-motion';
+
+const containerVariants = {
+  hidden: {
+    opacity: 0
+  },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.05
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: {
+    opacity: 0
+  },
+  visible: {
+    opacity: 1,
+    transition: {
+      duration: 0.3,
+      ease: 'easeOut'
+    }
+  }
+};
+
+export const ReasoningMessage_PillsContainer: React.FC<ReasoningMessageProps> = React.memo(
+  ({ reasoningMessage, isCompletedStream, isLastMessageItem }) => {
+    const { title, secondary_title, pill_containers, status, id } =
+      reasoningMessage as BusterChatMessageReasoning_pills;
+
+    const hasPills = !!pill_containers && pill_containers.length > 0;
+    const loadingStatus: NonNullable<BusterChatMessageReasoning_pills['status']> =
+      (status ?? (isLastMessageItem && !isCompletedStream)) ? status || 'loading' : 'completed';
+
+    return (
+      <BarContainer
+        showBar={hasPills || !isLastMessageItem}
+        status={loadingStatus}
+        isCompletedStream={isCompletedStream}
+        title={title}
+        secondaryTitle={secondary_title}
+        contentClassName="mb-3">
+        {hasPills && (
+          <motion.div
+            variants={containerVariants}
+            initial={!isCompletedStream ? 'hidden' : false}
+            animate="visible"
+            className="flex flex-col space-y-3">
+            {pill_containers.map((pill_container, index) => (
+              <motion.div key={index} variants={itemVariants}>
+                <ReasoningMessage_PillContainer
+                  key={index}
+                  pillContainer={pill_container}
+                  isCompletedStream={isCompletedStream}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+      </BarContainer>
+    );
+  }
+);
+
+ReasoningMessage_PillsContainer.displayName = 'ReasoningMessage_PillsContainer';

@@ -14,13 +14,20 @@ const duration = 0.25;
 
 const containerVariants = {
   hidden: {
-    height: 0
+    height: 0,
+    opacity: 0,
+    transition: {
+      height: { duration: duration, ease: 'easeInOut' },
+      opacity: { duration: duration * 0.5, ease: 'easeOut' }
+    }
   },
   visible: {
     height: 'auto',
+    opacity: 1,
     transition: {
-      duration: duration,
-      staggerChildren: 0.035,
+      height: { duration: duration, ease: 'easeInOut' },
+      opacity: { duration: duration * 0.5, ease: 'easeIn' },
+      staggerChildren: 0.055,
       delayChildren: 0.075
     }
   }
@@ -28,17 +35,22 @@ const containerVariants = {
 
 const pillVariants = {
   hidden: {
-    opacity: 0
+    opacity: 0,
+    scale: 0.95,
+    y: 5
   },
   visible: {
     opacity: 1,
+    scale: 1,
+    y: 0,
     transition: {
-      duration: duration
+      duration: duration * 0.75,
+      ease: 'easeOut'
     }
   }
 };
 
-export const PillContainer: React.FC<{
+export const ReasoningMessage_Pills: React.FC<{
   pills: BusterChatMessageReasoning_Pill[];
   isCompletedStream: boolean;
 }> = React.memo(({ pills = [], isCompletedStream }) => {
@@ -76,7 +88,7 @@ export const PillContainer: React.FC<{
   );
 });
 
-PillContainer.displayName = 'PillContainer';
+ReasoningMessage_Pills.displayName = 'PillContainer';
 
 const Pill: React.FC<{
   text: string;
