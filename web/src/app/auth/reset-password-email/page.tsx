@@ -1,5 +1,5 @@
 import React from 'react';
-import { useBusterSupabaseAuthMethods } from '@/hooks/useBusterSupabaseAuthMethods';
+import { useBusterSupabaseAuthMethods } from '@/hooks/useSupabaseAuthMethods/useBusterSupabaseAuthMethods';
 import { ResetEmailForm } from './_ResetEmailForm';
 
 export default function ResetPassword(p: { searchParams: { email: string } }) {

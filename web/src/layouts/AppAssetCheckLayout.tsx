@@ -2,7 +2,7 @@ import React from 'react';
 import { getAssetCheck } from '@/api/buster_rest/assets/requests';
 import { useSupabaseServerContext } from '@/context/Supabase/useSupabaseContext';
 import { ShareAssetType } from '@/api/asset_interfaces';
-import { useBusterSupabaseAuthMethods } from '@/hooks/useBusterSupabaseAuthMethods';
+import { useBusterSupabaseAuthMethods } from '@/hooks/useSupabaseAuthMethods/useBusterSupabaseAuthMethods';
 import { ClientSideAnonCheck } from './ClientSideAnonCheck';
 import { redirect } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes';

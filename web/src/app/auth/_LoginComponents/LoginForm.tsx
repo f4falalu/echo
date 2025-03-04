@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Button, Divider, Input, Result } from 'antd';
+import { Result } from 'antd';
+import { Input } from '@/components/ui/inputs';
+import { Button } from '@/components/ui/buttons';
 import { User } from '@supabase/auth-js';
 import { inputHasText, isValidEmail } from '@/lib';
 import { useKeyPress, useMemoizedFn } from 'ahooks';
@@ -11,7 +13,7 @@ import { BsGithub, BsGoogle, BsMicrosoft } from 'react-icons/bs';
 import { createStyles } from 'antd-style';
 import { Title, Text } from '@/components/ui/typography';
 import Cookies from 'js-cookie';
-import { useBusterSupabaseAuthMethods } from '@/hooks/useBusterSupabaseAuthMethods';
+import { useBusterSupabaseAuthMethods } from '@/hooks/useSupabaseAuthMethods/useBusterSupabaseAuthMethods';
 import { PolicyCheck } from './PolicyCheck';
 import { rustErrorHandler } from '@/api/buster_rest/errors';
 
@@ -188,8 +190,6 @@ const LoginOptions: React.FC<{
   setErrorMessages,
   signUpFlow
 }) => {
-  const { styles, cx } = useStyles();
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [password2, setPassword2] = useState('');
@@ -232,8 +232,7 @@ const LoginOptions: React.FC<{
           });
         }}>
         <Button
-          type={'default'}
-          icon={<BsGoogle size={12} />}
+          prefix={<BsGoogle size={12} />}
           onClick={() => {
             clearAllCookies();
             onSignInWithGoogle();
@@ -243,8 +242,7 @@ const LoginOptions: React.FC<{
           {hasUser ? `Continue with Google` : `Sign up with Google`}
         </Button>
         <Button
-          type={'default'}
-          icon={<BsGithub size={12} />}
+          prefix={<BsGithub size={12} />}
           onClick={() => {
             clearAllCookies();
             onSignInWithGithub();
@@ -254,8 +252,7 @@ const LoginOptions: React.FC<{
           {hasUser ? `Continue with Github` : `Sign up with Github`}
         </Button>
         <Button
-          type={'default'}
-          icon={<BsMicrosoft size={12} />}
+          prefix={<BsMicrosoft size={12} />}
           onClick={() => {
             clearAllCookies();
             onSignInWithAzure();
@@ -265,7 +262,7 @@ const LoginOptions: React.FC<{
           {hasUser ? `Continue with Azure` : `Sign up with Azure`}
         </Button>
 
-        <Divider plain>or</Divider>
+        <div className="bg-border my-2 h-[0.px] w-full" />
 
         <div>
           <Input
@@ -325,9 +322,9 @@ const LoginOptions: React.FC<{
           placement="top">
           <Button
             block={true}
-            htmlType="submit"
+            type="submit"
             loading={loading === 'email'}
-            type="primary"
+            variant="primary"
             disabled={hasUser ? false : disableSubmitButton}>
             {hasUser ? `Sign in` : `Sign up`}
           </Button>
@@ -361,7 +358,7 @@ const SignUpSuccess: React.FC<{
       extra={[
         <Button
           key="login"
-          type="primary"
+          variant="primary"
           onClick={() => {
             setSignUpSuccess(false);
             setSignUpFlow(true);

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResetPasswordForm } from './_ResetPasswordForm';
-import { useBusterSupabaseAuthMethods } from '@/hooks/useBusterSupabaseAuthMethods';
+import { useBusterSupabaseAuthMethods } from '@/hooks/useSupabaseAuthMethods/useBusterSupabaseAuthMethods';
 import { redirect } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { useSupabaseServerContext } from '@/context/Supabase/useSupabaseContext';

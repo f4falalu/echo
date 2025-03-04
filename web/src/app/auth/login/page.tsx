@@ -1,5 +1,5 @@
 import { LoginForm } from '@/app/auth/_LoginComponents/LoginForm';
-import { useBusterSupabaseAuthMethods } from '@/hooks/useBusterSupabaseAuthMethods';
+import { useBusterSupabaseAuthMethods } from '@/hooks/useSupabaseAuthMethods/useBusterSupabaseAuthMethods';
 import { redirect } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useSupabaseServerContext } from '@/context/Supabase/useSupabaseContext';
@@ -14,6 +14,7 @@ export default async function Login({}: {}) {
     signInWithAzure,
     signUp
   } = useBusterSupabaseAuthMethods();
+
   if (user?.id) {
     return redirect(
       createBusterRoute({
