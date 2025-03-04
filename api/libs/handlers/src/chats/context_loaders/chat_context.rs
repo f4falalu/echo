@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use std::collections::HashSet;
 
 use anyhow::Result;
 use async_trait::async_trait;
@@ -10,6 +11,7 @@ use database::{
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use agents::{Agent, AgentMessage};
+use serde_json::Value;
 use uuid::Uuid;
 
 use super::ContextLoader;
@@ -21,6 +23,33 @@ pub struct ChatContextLoader {
 impl ChatContextLoader {
     pub fn new(chat_id: Uuid) -> Self {
         Self { chat_id }
+    }
+
+    // Helper function to check for tool usage and set appropriate context
+    async fn update_context_from_tool_calls(agent: &Arc<Agent>, message: &AgentMessage) {
+        if let AgentMessage::Assistant { tool_calls: Some(tool_calls), .. } = message {
+            for tool_call in tool_calls {
+                match tool_call.function.name.as_str() {
+                    "search_data_catalog" => {
+                        agent.set_state_value(String::from("data_context"), Value::Bool(true))
+                            .await;
+                    },
+                    "create_metrics" | "update_metrics" => {
+                        agent.set_state_value(String::from("metrics_available"), Value::Bool(true))
+                            .await;
+                    },
+                    "create_dashboard" | "update_dashboard" => {
+                        agent.set_state_value(String::from("dashboards_available"), Value::Bool(true))
+                            .await;
+                    },
+                    name if name.contains("file") || name.contains("read") || name.contains("write") || name.contains("edit") => {
+                        agent.set_state_value(String::from("files_available"), Value::Bool(true))
+                            .await;
+                    },
+                    _ => {}
+                }
+            }
+        }
     }
 }
 
@@ -43,16 +72,27 @@ impl ContextLoader for ChatContextLoader {
             .load::<database::models::Message>(&mut conn)
             .await?;
 
+        // Track seen message IDs
+        let mut seen_ids = HashSet::new();
         // Convert messages to AgentMessages
         let mut agent_messages = Vec::new();
         for message in messages {
-            // Add user message
-            agent_messages.push(AgentMessage::user(message.request_message));
-
-            // Add assistant messages from response
-            if let Ok(response_messages) = serde_json::from_value::<Vec<AgentMessage>>(message.response_messages)
-            {
-                agent_messages.extend(response_messages);
+            // Add raw LLM messages if they exist - this contains the complete conversation flow
+            if let Ok(raw_messages) = serde_json::from_value::<Vec<AgentMessage>>(message.raw_llm_messages) {
+                // Check each message for tool calls and update context
+                for agent_message in &raw_messages {
+                    Self::update_context_from_tool_calls(agent, agent_message).await;
+                    
+                    // Only add messages with new IDs
+                    if let Some(id) = agent_message.get_id() {
+                        if seen_ids.insert(id.to_string()) {
+                            agent_messages.push(agent_message.clone());
+                        }
+                    } else {
+                        // Messages without IDs are always included
+                        agent_messages.push(agent_message.clone());
+                    }
+                }
             }
         }
 
