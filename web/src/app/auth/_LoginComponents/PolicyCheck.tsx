@@ -1,6 +1,8 @@
-import { AppMaterialIcons } from '@/components/ui';
+import { CircleCheck, CircleXmark, CircleInfo } from '@/components/ui/icons';
 import React, { useEffect, useMemo } from 'react';
-import { AppPopover, Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
+import { Popover } from '@/components/ui/tooltip/Popover';
+import { Button } from '@/components/ui/buttons/Button';
 
 export const PolicyCheck: React.FC<{
   password: string;
@@ -72,9 +74,13 @@ export const PolicyCheck: React.FC<{
     return (
       <div className="flex items-center space-x-1">
         {passwordGood ? (
-          <AppMaterialIcons className="text-green-600" icon={'check_circle'} />
+          <div className="text-success-foreground">
+            <CircleCheck />
+          </div>
         ) : (
-          <AppMaterialIcons className="text-red-600" icon={'close'} />
+          <div className="text-danger-foreground">
+            <CircleXmark />
+          </div>
         )}
         <Text size="sm">{text}</Text>
       </div>
@@ -82,25 +88,21 @@ export const PolicyCheck: React.FC<{
   };
 
   return (
-    <AppPopover
+    <Popover
       open={show === false ? false : undefined}
-      placement={placement}
+      side={'left'}
+      align={'start'}
       content={
-        <div className="flex flex-col p-1.5">
+        <div className="flex flex-col gap-y-1 p-1.5">
           {items.map((item, index) => (
             <PasswordCheck key={index} passwordGood={item.check} text={item.text} />
           ))}
         </div>
       }>
-      <div className="flex w-full cursor-pointer items-center space-x-1">
-        {children ? (
-          children
-        ) : allCompleted ? (
-          <AppMaterialIcons icon={'check_circle'} size={12} />
-        ) : (
-          <AppMaterialIcons icon={'info'} size={12} />
-        )}
-      </div>
-    </AppPopover>
+      {!children && (
+        <Button variant={'ghost'} prefix={allCompleted ? <CircleCheck /> : <CircleInfo />}></Button>
+      )}
+      {children && children}
+    </Popover>
   );
 };
