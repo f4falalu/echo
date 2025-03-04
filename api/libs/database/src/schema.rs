@@ -319,6 +319,7 @@ diesel::table! {
         request_message -> Text,
         response_messages -> Jsonb,
         reasoning -> Jsonb,
+        title -> Text,
         final_reasoning_message -> Text,
         chat_id -> Uuid,
         created_at -> Timestamptz,

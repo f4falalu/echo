@@ -13,7 +13,7 @@ use database::{
     pool::get_pg_pool,
     schema::{chats, dashboard_files, messages, messages_to_files, metric_files},
 };
-use diesel::{insert_into, ExpressionMethods};
+use diesel::insert_into;
 use diesel_async::RunQueryDsl;
 use litellm::{
     AgentMessage as LiteLLMAgentMessage, ChatCompletionRequest, LiteLLMClient, MessageProgress,
@@ -33,7 +33,6 @@ use crate::chats::{
 use crate::messages::types::{ChatMessage, ChatUserMessage};
 
 use super::types::ChatWithMessages;
-use futures::{stream::Stream, StreamExt};
 use tokio::sync::mpsc;
 
 // Define ThreadEvent
@@ -242,7 +241,11 @@ pub async fn post_chat_handler(
 
     let final_reasoning_message = format!("Reasoned for {} seconds", reasoning_duration);
 
-    // Create and store message in the database
+    // Transform all messages for final storage
+    let (response_messages, reasoning_messages) =
+        prepare_final_message_state(&all_transformed_containers)?;
+
+    // Create and store message in the database with final state
     let message = Message {
         id: message_id,
         request_message: request.prompt,
@@ -251,9 +254,10 @@ pub async fn post_chat_handler(
         created_at: Utc::now(),
         updated_at: Utc::now(),
         deleted_at: None,
-        response_messages: serde_json::to_value(&all_messages)?,
-        reasoning: serde_json::to_value(&all_messages)?,
+        response_messages: serde_json::to_value(&response_messages)?,
+        reasoning: serde_json::to_value(&reasoning_messages)?,
         final_reasoning_message,
+        title: title.title.clone().unwrap_or_default(),
     };
 
     // Insert message into database
@@ -262,49 +266,13 @@ pub async fn post_chat_handler(
         .execute(&mut conn)
         .await?;
 
-    // Store final message state and process any completed files
-    store_final_message_state(&mut conn, &message, &all_messages, &user_org_id, &user.id).await?;
+    // Process any completed files
+    process_completed_files(&mut conn, &message, &all_messages, &user_org_id, &user.id).await?;
 
-    // When we get to the section where we transform all messages for the response, use the already transformed containers
+    // Update chat_with_messages with final state
     if let Some(chat_message) = chat_with_messages.messages.first_mut() {
-        // Split containers into response messages and reasoning messages
-        let (response_messages, reasoning_messages): (Vec<_>, Vec<_>) = all_transformed_containers
-            .iter()
-            .filter_map(|container| match container {
-                BusterContainer::ChatMessage(chat) => {
-                    if let Some(message_text) = &chat.response_message.message {
-                        Some((
-                            Some(serde_json::to_value(&chat.response_message).unwrap_or_default()),
-                            None,
-                        ))
-                    } else {
-                        None
-                    }
-                }
-                BusterContainer::ReasoningMessage(reasoning) => {
-                    let reasoning_value = match &reasoning.reasoning {
-                        BusterReasoningMessage::Pill(thought) => serde_json::to_value(thought).ok(),
-                        BusterReasoningMessage::File(file) => serde_json::to_value(file).ok(),
-                        BusterReasoningMessage::Text(text) => serde_json::to_value(text).ok(),
-                    };
-
-                    if let Some(value) = reasoning_value {
-                        Some((None, Some(value)))
-                    } else {
-                        None
-                    }
-                }
-                _ => None,
-            })
-            .unzip();
-
-        // Collect valid response messages
-        let mut final_response_messages: Vec<Value> =
-            response_messages.into_iter().flatten().collect();
-
-        // Update the chat message with processed content
-        chat_message.response_messages = final_response_messages;
-        chat_message.reasoning = reasoning_messages.into_iter().flatten().collect();
+        chat_message.response_messages = response_messages;
+        chat_message.reasoning = reasoning_messages;
     }
 
     if let Some(title) = title.title {
@@ -315,23 +283,64 @@ pub async fn post_chat_handler(
     Ok(chat_with_messages)
 }
 
-async fn store_final_message_state(
+/// Prepares the final message state from transformed containers
+fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Value>, Vec<Value>)> {
+    let mut response_messages = Vec::new();
+    let mut reasoning_messages = Vec::new();
+
+    for container in containers {
+        match container {
+            BusterContainer::ChatMessage(chat) => {
+                if chat.response_message.is_final_message.unwrap_or(false) {
+                    if let Ok(value) = serde_json::to_value(&chat.response_message) {
+                        response_messages.push(value);
+                    }
+                }
+            }
+            BusterContainer::ReasoningMessage(reasoning) => {
+                let reasoning_value = match &reasoning.reasoning {
+                    BusterReasoningMessage::Pill(thought) => {
+                        if thought.status == "completed" {
+                            serde_json::to_value(thought).ok()
+                        } else {
+                            None
+                        }
+                    }
+                    BusterReasoningMessage::File(file) => {
+                        if file.status == "completed" {
+                            serde_json::to_value(file).ok()
+                        } else {
+                            None
+                        }
+                    }
+                    BusterReasoningMessage::Text(text) => {
+                        if text.status.as_deref() == Some("completed") {
+                            serde_json::to_value(text).ok()
+                        } else {
+                            None
+                        }
+                    }
+                };
+
+                if let Some(value) = reasoning_value {
+                    reasoning_messages.push(value);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    Ok((response_messages, reasoning_messages))
+}
+
+/// Process any completed files and create necessary database records
+async fn process_completed_files(
     conn: &mut diesel_async::AsyncPgConnection,
     message: &Message,
     messages: &[AgentMessage],
     organization_id: &Uuid,
     user_id: &Uuid,
 ) -> Result<()> {
-    // Update final message state
-    diesel::update(messages::table)
-        .filter(messages::id.eq(message.id))
-        .set((
-            messages::response_messages.eq(&message.response_messages),
-            messages::updated_at.eq(message.updated_at),
-        ))
-        .execute(conn)
-        .await?;
-
     // Transform messages to BusterContainer format
     let transformed_messages: Vec<BusterContainer> = messages
         .iter()
@@ -353,7 +362,7 @@ async fn store_final_message_state(
                             id: Uuid::new_v4(),
                             name: file.file_name.clone(),
                             file_name: format!(
-                                "{}.yml",
+                                "{}",
                                 file.file_name.to_lowercase().replace(' ', "_")
                             ),
                             content: serde_json::to_value(&file_content)?,
@@ -394,7 +403,7 @@ async fn store_final_message_state(
                             id: Uuid::new_v4(),
                             name: file.file_name.clone(),
                             file_name: format!(
-                                "{}.yml",
+                                "{}",
                                 file.file_name.to_lowercase().replace(' ', "_")
                             ),
                             content: serde_json::to_value(&file_content)?,

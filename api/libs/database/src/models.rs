@@ -43,6 +43,7 @@ pub struct Message {
     pub response_messages: Value,
     pub reasoning: Value,
     pub final_reasoning_message: String,
+    pub title: String,
     pub chat_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,

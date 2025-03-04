@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.1 (Ubuntu 15.1-1.pgdg20.04+1)
+-- Dumped from database version 15.8
 -- Dumped by pg_dump version 16.2
 
 SET statement_timeout = 0;
@@ -17,41 +17,269 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Data for Name: tenants; Type: TABLE DATA; Schema: _realtime; Owner: supabase_admin
+--
+
+INSERT INTO _realtime.tenants VALUES ('57c2710c-d081-48be-acf0-cc2e89133e72', 'realtime-dev', 'realtime-dev', 'iNjicxc4+llvc9wovDvqymwfnj9teWMlyOIbJ8Fh6j2WNU8CIJ2ZgjR6MUIKqSmeDmvpsKLsZ9jgXJmQPpwL8w==', 200, '2025-03-04 18:41:56', '2025-03-04 18:41:56', 100, 'postgres_cdc_rls', 100000, 100, 100, false, '{"keys": [{"k": "c3VwZXItc2VjcmV0LWp3dC10b2tlbi13aXRoLWF0LWxlYXN0LTMyLWNoYXJhY3RlcnMtbG9uZw", "kty": "oct"}]}', true, false);
+
+
+--
+-- Data for Name: extensions; Type: TABLE DATA; Schema: _realtime; Owner: supabase_admin
+--
+
+INSERT INTO _realtime.extensions VALUES ('35ec64c3-de04-47a2-a403-00b60b234da3', 'postgres_cdc_rls', '{"region": "us-east-1", "db_host": "Gx2oy6eFRzMfDQLVoL/nRRIg3q4KGWZe9ki6tTQqMrg=", "db_name": "sWBpZNdjggEPTQVlI52Zfw==", "db_port": "+enMDFi1J/3IrrquHHwUmA==", "db_user": "uxbEq/zz8DXVD53TOI1zmw==", "slot_name": "supabase_realtime_replication_slot", "db_password": "sWBpZNdjggEPTQVlI52Zfw==", "publication": "supabase_realtime", "ssl_enforced": false, "poll_interval_ms": 100, "poll_max_changes": 100, "poll_max_record_bytes": 1048576}', 'realtime-dev', '2025-03-04 18:41:56', '2025-03-04 18:41:56');
+
+
+--
+-- Data for Name: schema_migrations; Type: TABLE DATA; Schema: _realtime; Owner: supabase_admin
+--
+
+INSERT INTO _realtime.schema_migrations VALUES (20210706140551, '2025-03-04 18:41:52');
+INSERT INTO _realtime.schema_migrations VALUES (20220329161857, '2025-03-04 18:41:52');
+INSERT INTO _realtime.schema_migrations VALUES (20220410212326, '2025-03-04 18:41:52');
+INSERT INTO _realtime.schema_migrations VALUES (20220506102948, '2025-03-04 18:41:52');
+INSERT INTO _realtime.schema_migrations VALUES (20220527210857, '2025-03-04 18:41:52');
+INSERT INTO _realtime.schema_migrations VALUES (20220815211129, '2025-03-04 18:41:52');
+INSERT INTO _realtime.schema_migrations VALUES (20220815215024, '2025-03-04 18:41:52');
+INSERT INTO _realtime.schema_migrations VALUES (20220818141501, '2025-03-04 18:41:52');
+INSERT INTO _realtime.schema_migrations VALUES (20221018173709, '2025-03-04 18:41:52');
+INSERT INTO _realtime.schema_migrations VALUES (20221102172703, '2025-03-04 18:41:52');
+INSERT INTO _realtime.schema_migrations VALUES (20221223010058, '2025-03-04 18:41:52');
+INSERT INTO _realtime.schema_migrations VALUES (20230110180046, '2025-03-04 18:41:52');
+INSERT INTO _realtime.schema_migrations VALUES (20230810220907, '2025-03-04 18:41:52');
+INSERT INTO _realtime.schema_migrations VALUES (20230810220924, '2025-03-04 18:41:52');
+INSERT INTO _realtime.schema_migrations VALUES (20231024094642, '2025-03-04 18:41:52');
+INSERT INTO _realtime.schema_migrations VALUES (20240306114423, '2025-03-04 18:41:52');
+INSERT INTO _realtime.schema_migrations VALUES (20240418082835, '2025-03-04 18:41:52');
+INSERT INTO _realtime.schema_migrations VALUES (20240625211759, '2025-03-04 18:41:52');
+INSERT INTO _realtime.schema_migrations VALUES (20240704172020, '2025-03-04 18:41:52');
+INSERT INTO _realtime.schema_migrations VALUES (20240902173232, '2025-03-04 18:41:52');
+INSERT INTO _realtime.schema_migrations VALUES (20241106103258, '2025-03-04 18:41:52');
+
+
+--
+-- Data for Name: audit_log_entries; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: flow_state; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: users; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+INSERT INTO auth.users VALUES ('00000000-0000-0000-0000-000000000000', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'authenticated', 'authenticated', 'chad@buster.so', '$2a$06$BKy/23Yp58fItuTD0aKWluB2ayXyww8AeXNQ0KHgh9TeRxJ/tbmaC', '2025-03-04 18:42:05.801697+00', NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{}', NULL, '2025-03-04 18:42:05.801697+00', '2025-03-04 18:42:05.801697+00', NULL, NULL, '', '', NULL, DEFAULT, '', 0, NULL, '', NULL, false, NULL, false);
+INSERT INTO auth.users VALUES ('00000000-0000-0000-0000-000000000000', '1fe85021-e799-471b-8837-953e9ae06e4c', 'authenticated', 'authenticated', 'blake@buster.so', '$2a$06$TGfhnVxsa/Iy/rHmPnjiTuCMkui64yaAOEJl3qqaplGDrbUioCfPS', '2025-03-04 18:42:05.801697+00', NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{}', NULL, '2025-03-04 18:42:05.801697+00', '2025-03-04 18:42:05.801697+00', NULL, NULL, '', '', NULL, DEFAULT, '', 0, NULL, '', NULL, false, NULL, false);
+INSERT INTO auth.users VALUES ('00000000-0000-0000-0000-000000000000', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'authenticated', 'authenticated', 'nate@buster.so', '$2a$06$Qy7COradxcriaW2vMkfFce1GNSvt3NVq/7LI0bPid.rk.gMZ20Thi', '2025-03-04 18:42:05.801697+00', NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{}', NULL, '2025-03-04 18:42:05.801697+00', '2025-03-04 18:42:05.801697+00', NULL, NULL, '', '', NULL, DEFAULT, '', 0, NULL, '', NULL, false, NULL, false);
+
+
+--
+-- Data for Name: identities; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+INSERT INTO auth.identities VALUES ('c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '{"sub": "c2dd64cd-f7f3-4884-bc91-d46ae431901e"}', 'email', '2025-03-04 18:42:05.81425+00', '2025-03-04 18:42:05.81425+00', '2025-03-04 18:42:05.81425+00', DEFAULT, 'c2dd64cd-f7f3-4884-bc91-d46ae431901e');
+INSERT INTO auth.identities VALUES ('1fe85021-e799-471b-8837-953e9ae06e4c', '1fe85021-e799-471b-8837-953e9ae06e4c', '{"sub": "1fe85021-e799-471b-8837-953e9ae06e4c"}', 'email', '2025-03-04 18:42:05.81425+00', '2025-03-04 18:42:05.81425+00', '2025-03-04 18:42:05.81425+00', DEFAULT, '1fe85021-e799-471b-8837-953e9ae06e4c');
+INSERT INTO auth.identities VALUES ('6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '{"sub": "6840fa04-c0d7-4e0e-8d3d-ea9190d93874"}', 'email', '2025-03-04 18:42:05.81425+00', '2025-03-04 18:42:05.81425+00', '2025-03-04 18:42:05.81425+00', DEFAULT, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874');
+
+
+--
+-- Data for Name: instances; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: sessions; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: mfa_amr_claims; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: mfa_factors; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: mfa_challenges; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: one_time_tokens; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: refresh_tokens; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: sso_providers; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: saml_providers; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: saml_relay_states; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: schema_migrations; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+INSERT INTO auth.schema_migrations VALUES ('20171026211738');
+INSERT INTO auth.schema_migrations VALUES ('20171026211808');
+INSERT INTO auth.schema_migrations VALUES ('20171026211834');
+INSERT INTO auth.schema_migrations VALUES ('20180103212743');
+INSERT INTO auth.schema_migrations VALUES ('20180108183307');
+INSERT INTO auth.schema_migrations VALUES ('20180119214651');
+INSERT INTO auth.schema_migrations VALUES ('20180125194653');
+INSERT INTO auth.schema_migrations VALUES ('00');
+INSERT INTO auth.schema_migrations VALUES ('20210710035447');
+INSERT INTO auth.schema_migrations VALUES ('20210722035447');
+INSERT INTO auth.schema_migrations VALUES ('20210730183235');
+INSERT INTO auth.schema_migrations VALUES ('20210909172000');
+INSERT INTO auth.schema_migrations VALUES ('20210927181326');
+INSERT INTO auth.schema_migrations VALUES ('20211122151130');
+INSERT INTO auth.schema_migrations VALUES ('20211124214934');
+INSERT INTO auth.schema_migrations VALUES ('20211202183645');
+INSERT INTO auth.schema_migrations VALUES ('20220114185221');
+INSERT INTO auth.schema_migrations VALUES ('20220114185340');
+INSERT INTO auth.schema_migrations VALUES ('20220224000811');
+INSERT INTO auth.schema_migrations VALUES ('20220323170000');
+INSERT INTO auth.schema_migrations VALUES ('20220429102000');
+INSERT INTO auth.schema_migrations VALUES ('20220531120530');
+INSERT INTO auth.schema_migrations VALUES ('20220614074223');
+INSERT INTO auth.schema_migrations VALUES ('20220811173540');
+INSERT INTO auth.schema_migrations VALUES ('20221003041349');
+INSERT INTO auth.schema_migrations VALUES ('20221003041400');
+INSERT INTO auth.schema_migrations VALUES ('20221011041400');
+INSERT INTO auth.schema_migrations VALUES ('20221020193600');
+INSERT INTO auth.schema_migrations VALUES ('20221021073300');
+INSERT INTO auth.schema_migrations VALUES ('20221021082433');
+INSERT INTO auth.schema_migrations VALUES ('20221027105023');
+INSERT INTO auth.schema_migrations VALUES ('20221114143122');
+INSERT INTO auth.schema_migrations VALUES ('20221114143410');
+INSERT INTO auth.schema_migrations VALUES ('20221125140132');
+INSERT INTO auth.schema_migrations VALUES ('20221208132122');
+INSERT INTO auth.schema_migrations VALUES ('20221215195500');
+INSERT INTO auth.schema_migrations VALUES ('20221215195800');
+INSERT INTO auth.schema_migrations VALUES ('20221215195900');
+INSERT INTO auth.schema_migrations VALUES ('20230116124310');
+INSERT INTO auth.schema_migrations VALUES ('20230116124412');
+INSERT INTO auth.schema_migrations VALUES ('20230131181311');
+INSERT INTO auth.schema_migrations VALUES ('20230322519590');
+INSERT INTO auth.schema_migrations VALUES ('20230402418590');
+INSERT INTO auth.schema_migrations VALUES ('20230411005111');
+INSERT INTO auth.schema_migrations VALUES ('20230508135423');
+INSERT INTO auth.schema_migrations VALUES ('20230523124323');
+INSERT INTO auth.schema_migrations VALUES ('20230818113222');
+INSERT INTO auth.schema_migrations VALUES ('20230914180801');
+INSERT INTO auth.schema_migrations VALUES ('20231027141322');
+INSERT INTO auth.schema_migrations VALUES ('20231114161723');
+INSERT INTO auth.schema_migrations VALUES ('20231117164230');
+INSERT INTO auth.schema_migrations VALUES ('20240115144230');
+INSERT INTO auth.schema_migrations VALUES ('20240214120130');
+INSERT INTO auth.schema_migrations VALUES ('20240306115329');
+INSERT INTO auth.schema_migrations VALUES ('20240314092811');
+INSERT INTO auth.schema_migrations VALUES ('20240427152123');
+INSERT INTO auth.schema_migrations VALUES ('20240612123726');
+INSERT INTO auth.schema_migrations VALUES ('20240729123726');
+INSERT INTO auth.schema_migrations VALUES ('20240802193726');
+INSERT INTO auth.schema_migrations VALUES ('20240806073726');
+INSERT INTO auth.schema_migrations VALUES ('20241009103726');
+
+
+--
+-- Data for Name: sso_domains; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: job; Type: TABLE DATA; Schema: cron; Owner: supabase_admin
+--
+
+INSERT INTO cron.job VALUES (1, '0 3 * * *', 'SELECT delete_old_anon_users()', 'localhost', 5432, 'postgres', 'postgres', true, 'delete_old_anon_users_job');
+
+
+--
+-- Data for Name: job_run_details; Type: TABLE DATA; Schema: cron; Owner: supabase_admin
+--
+
+
+
+--
+-- Data for Name: key; Type: TABLE DATA; Schema: pgsodium; Owner: supabase_admin
+--
+
+INSERT INTO pgsodium.key VALUES ('24ad8983-035e-4eb2-bc4a-40a348a11d0b', 'valid', '2025-03-04 18:42:05.815044+00', NULL, 'aead-det', 1, '\x7067736f6469756d', NULL, '', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO pgsodium.key VALUES ('b7bb1425-9c8f-46e9-88c3-89eb03f109ab', 'valid', '2025-03-04 18:43:59.677122+00', NULL, 'aead-det', 2, '\x7067736f6469756d', NULL, '', NULL, NULL, NULL, NULL, NULL);
+
+
+--
 -- Data for Name: organizations; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.organizations (id, name, domain, created_at, updated_at, deleted_at) VALUES ('bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'Buster', 'buster.so', '2024-11-05 15:41:13.864677+00', '2024-11-05 15:41:13.8647+00', NULL);
+INSERT INTO public.organizations VALUES ('bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'Buster', 'buster.so', '2024-11-05 15:41:13.864677+00', '2024-11-05 15:41:13.8647+00', NULL);
 
 
 --
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.users (id, email, name, config, created_at, updated_at) VALUES ('c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'chad@buster.so', 'Chad', '{}', '2024-11-05 15:41:13.939119+00', '2024-11-05 15:41:13.939119+00');
-INSERT INTO public.users (id, email, name, config, created_at, updated_at) VALUES ('1fe85021-e799-471b-8837-953e9ae06e4c', 'blake@buster.so', 'Blake', '{}', '2024-11-05 15:41:13.946991+00', '2024-11-05 15:41:13.946991+00');
-INSERT INTO public.users (id, email, name, config, created_at, updated_at) VALUES ('6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'nate@buster.so', 'Nate', '{}', '2024-11-05 15:41:13.953321+00', '2024-11-05 15:41:13.953321+00');
+INSERT INTO public.users VALUES ('c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'chad@buster.so', 'Chad', '{}', '2024-11-05 15:41:13.939119+00', '2024-11-05 15:41:13.939119+00', '{"user_id": "c2dd64cd-f7f3-4884-bc91-d46ae431901e", "user_email": "chad@buster.so", "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce", "organization_role": "workspace_admin"}');
+INSERT INTO public.users VALUES ('1fe85021-e799-471b-8837-953e9ae06e4c', 'blake@buster.so', 'Blake', '{}', '2024-11-05 15:41:13.946991+00', '2024-11-05 15:41:13.946991+00', '{"user_id": "1fe85021-e799-471b-8837-953e9ae06e4c", "user_email": "blake@buster.so", "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce", "organization_role": "querier"}');
+INSERT INTO public.users VALUES ('6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'nate@buster.so', 'Nate', '{}', '2024-11-05 15:41:13.953321+00', '2024-11-05 15:41:13.953321+00', '{"user_id": "6840fa04-c0d7-4e0e-8d3d-ea9190d93874", "user_email": "nate@buster.so", "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce", "organization_role": "data_admin"}');
 
 
 --
 -- Data for Name: api_keys; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.api_keys (id, owner_id, key, organization_id, created_at, updated_at, deleted_at) VALUES ('bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODQwZmEwNC1jMGQ3LTRlMGUtOGQzZC1lYTkxOTBkOTM4NzQiLCJuYW1lIjoiTmF0ZSIsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNzE4NTU1MzI2LCJhdWQiOiJhcGkifQ.5fMeYiupd0DGF9N7-LWsMr85b0jrf3uIz5Atnm5xlEw', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '2024-11-05 15:41:13.966021+00', '2024-11-05 15:41:13.966022+00', NULL);
+INSERT INTO public.api_keys VALUES ('d596bfa2-8efb-4583-a46c-939c4eae96c7', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE4OTg3OTM3NzIsImF1ZCI6ImFwaSIsInN1YiI6ImMyZGQ2NGNkLWY3ZjMtNDg4NC1iYzkxLWQ0NmFlNDMxOTAxZSJ9.beASQcaww_gcW9mwnqj-7GyYaVW5xQBEsju_qUZ-PlE', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '2025-03-04 18:42:52.360993+00', '2025-03-04 18:42:52.360994+00', NULL);
 
 
 --
 -- Data for Name: asset_permissions; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.asset_permissions (identity_id, identity_type, asset_id, asset_type, role, created_at, updated_at, deleted_at, created_by, updated_by) VALUES ('c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'user', '2542947a-09c1-4bcf-b49f-a3cd2358868d', 'dashboard', 'owner', '2024-11-05 15:41:13.979797+00', '2024-11-05 15:41:13.979797+00', NULL, 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e');
-INSERT INTO public.asset_permissions (identity_id, identity_type, asset_id, asset_type, role, created_at, updated_at, deleted_at, created_by, updated_by) VALUES ('1fe85021-e799-471b-8837-953e9ae06e4c', 'user', 'df167ca3-4d72-495c-a7ed-d209fc11a71f', 'dashboard', 'editor', '2024-11-05 15:41:13.979798+00', '2024-11-05 15:41:13.979799+00', NULL, '1fe85021-e799-471b-8837-953e9ae06e4c', '1fe85021-e799-471b-8837-953e9ae06e4c');
-INSERT INTO public.asset_permissions (identity_id, identity_type, asset_id, asset_type, role, created_at, updated_at, deleted_at, created_by, updated_by) VALUES ('c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'user', '1e25b3ff-8b89-4ef3-bfe2-9773ed0f5164', 'dashboard', 'editor', '2024-11-05 15:41:13.9798+00', '2024-11-05 15:41:13.9798+00', NULL, 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e');
-INSERT INTO public.asset_permissions (identity_id, identity_type, asset_id, asset_type, role, created_at, updated_at, deleted_at, created_by, updated_by) VALUES ('c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'user', '3912181d-0f67-4b92-b340-37fa11dddc4c', 'thread', 'owner', '2024-11-05 15:41:13.979801+00', '2024-11-05 15:41:13.979801+00', NULL, 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e');
-INSERT INTO public.asset_permissions (identity_id, identity_type, asset_id, asset_type, role, created_at, updated_at, deleted_at, created_by, updated_by) VALUES ('1fe85021-e799-471b-8837-953e9ae06e4c', 'user', '98fd8412-ddb0-43de-acde-edec299c44f2', 'thread', 'owner', '2024-11-05 15:41:13.979802+00', '2024-11-05 15:41:13.979802+00', NULL, '1fe85021-e799-471b-8837-953e9ae06e4c', '1fe85021-e799-471b-8837-953e9ae06e4c');
-INSERT INTO public.asset_permissions (identity_id, identity_type, asset_id, asset_type, role, created_at, updated_at, deleted_at, created_by, updated_by) VALUES ('c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'user', 'c43991a5-f1e3-42e4-b489-a5056a43ddba', 'thread', 'owner', '2024-11-05 15:41:13.979803+00', '2024-11-05 15:41:13.979803+00', NULL, 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e');
-INSERT INTO public.asset_permissions (identity_id, identity_type, asset_id, asset_type, role, created_at, updated_at, deleted_at, created_by, updated_by) VALUES ('1fe85021-e799-471b-8837-953e9ae06e4c', 'user', 'b77bd132-c15f-4ad2-bf73-6a3c8a07ab99', 'thread', 'owner', '2024-11-05 15:41:13.979804+00', '2024-11-05 15:41:13.979804+00', NULL, '1fe85021-e799-471b-8837-953e9ae06e4c', '1fe85021-e799-471b-8837-953e9ae06e4c');
-INSERT INTO public.asset_permissions (identity_id, identity_type, asset_id, asset_type, role, created_at, updated_at, deleted_at, created_by, updated_by) VALUES ('c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'user', 'c95aa411-3be2-425d-8f0f-b57d51706add', 'thread', 'owner', '2024-11-05 15:41:13.979805+00', '2024-11-05 15:41:13.979806+00', NULL, 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e');
-INSERT INTO public.asset_permissions (identity_id, identity_type, asset_id, asset_type, role, created_at, updated_at, deleted_at, created_by, updated_by) VALUES ('6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'user', 'ea3bab5e-7a0d-4ecf-b592-6a1fa7afc303', 'thread', 'owner', '2024-11-05 15:41:13.979807+00', '2024-11-05 15:41:13.979807+00', NULL, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874');
+
+
+--
+-- Data for Name: asset_search; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
+
+--
+-- Data for Name: chats; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
 
 
 --
@@ -67,12 +295,15 @@ INSERT INTO public.asset_permissions (identity_id, identity_type, asset_id, asse
 
 
 --
+-- Data for Name: dashboard_files; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
+
+--
 -- Data for Name: dashboards; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.dashboards (id, name, description, config, publicly_accessible, publicly_enabled_by, public_expiry_date, password_secret_id, created_by, updated_by, created_at, updated_at, deleted_at, organization_id) VALUES ('2542947a-09c1-4bcf-b49f-a3cd2358868d', 'Sales', NULL, '{}', false, NULL, NULL, NULL, 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2024-11-05 15:41:13.975771+00', '2024-11-05 15:41:13.975771+00', NULL, 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce');
-INSERT INTO public.dashboards (id, name, description, config, publicly_accessible, publicly_enabled_by, public_expiry_date, password_secret_id, created_by, updated_by, created_at, updated_at, deleted_at, organization_id) VALUES ('df167ca3-4d72-495c-a7ed-d209fc11a71f', 'Product Metrics', NULL, '{}', true, '1fe85021-e799-471b-8837-953e9ae06e4c', NULL, NULL, '1fe85021-e799-471b-8837-953e9ae06e4c', '1fe85021-e799-471b-8837-953e9ae06e4c', '2024-11-05 15:41:13.975773+00', '2024-11-05 15:41:13.975773+00', NULL, 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce');
-INSERT INTO public.dashboards (id, name, description, config, publicly_accessible, publicly_enabled_by, public_expiry_date, password_secret_id, created_by, updated_by, created_at, updated_at, deleted_at, organization_id) VALUES ('1e25b3ff-8b89-4ef3-bfe2-9773ed0f5164', 'Sales by Product', NULL, '{}', false, NULL, NULL, NULL, 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2024-11-05 15:41:13.975775+00', '2024-11-05 15:41:13.975775+00', NULL, 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce');
 
 
 --
@@ -85,834 +316,3868 @@ INSERT INTO public.dashboards (id, name, description, config, publicly_accessibl
 -- Data for Name: data_sources; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.data_sources (id, name, type, secret_id, onboarding_status, onboarding_error, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'Buster Demo Db', 'postgres', 'c2b736c1-7714-4ac2-bec7-0633b7febef6', 'completed', NULL, 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:41:13.966815+00', '2024-11-05 15:41:13.966815+00', NULL);
+INSERT INTO public.data_sources VALUES ('cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'adventure_works', 'postgres', '211887e9-e359-4d10-bcad-8abd2d5d10a7', 'notStarted', NULL, 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:43:59.670034+00', '2025-03-04 18:43:59.670039+00', NULL, 'dev');
 
 
 --
 -- Data for Name: dataset_columns; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'product_id', 'integer', NULL, false, '2024-11-05 15:41:13.972678+00', '2024-11-05 15:41:13.972678+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('032070a5-fa83-465f-b776-805c40149154', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'product_name', 'varchar', NULL, false, '2024-11-05 15:41:13.972679+00', '2024-11-05 15:41:13.972679+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a53e8b6d-233d-48d4-9571-2c86f062744f', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'supplier_id', 'integer', NULL, true, '2024-11-05 15:41:13.972683+00', '2024-11-05 15:41:13.972683+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0dd66c7a-6957-4aa9-8584-07dd60c5874c', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'supplier_name', 'varchar', NULL, true, '2024-11-05 15:41:13.972684+00', '2024-11-05 15:41:13.972684+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a5b324a9-5f07-4abf-9e28-19d8ea43d13c', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'category_id', 'integer', NULL, true, '2024-11-05 15:41:13.972685+00', '2024-11-05 15:41:13.972685+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('65cfd82b-d451-41cc-b1a0-90e421e75449', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'category_name', 'varchar', NULL, true, '2024-11-05 15:41:13.972686+00', '2024-11-05 15:41:13.972686+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('70014d60-e40a-4d77-b5f1-92d6b0d57f0e', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'quantity_per_unit', 'varchar', NULL, true, '2024-11-05 15:41:13.972687+00', '2024-11-05 15:41:13.972687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('256735db-e1fc-4292-96e5-e7dfa6d22574', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'unit_price', 'numeric', NULL, true, '2024-11-05 15:41:13.972688+00', '2024-11-05 15:41:13.972688+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('758fd67d-7da6-43e1-b74a-d4b75062a71f', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'units_in_stock', 'integer', NULL, true, '2024-11-05 15:41:13.972689+00', '2024-11-05 15:41:13.972689+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ac6daaa1-e79b-4476-80d9-931c3a50e39e', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'units_on_order', 'integer', NULL, true, '2024-11-05 15:41:13.972689+00', '2024-11-05 15:41:13.972689+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('1a110235-8bf6-4d5b-a226-9ef03500cec3', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'reorder_level', 'integer', NULL, true, '2024-11-05 15:41:13.97269+00', '2024-11-05 15:41:13.97269+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c8a0ad66-42ca-4496-8ec7-f84770d59f23', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'discontinued', 'boolean', NULL, false, '2024-11-05 15:41:13.972691+00', '2024-11-05 15:41:13.972691+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('251c0447-a7ff-4b7f-aa3e-6ede3667d2f2', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'total_quantity_sold', 'bigint', NULL, true, '2024-11-05 15:41:13.972692+00', '2024-11-05 15:41:13.972692+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ceac0125-9fe4-4573-8bfa-a6de9f3996f2', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'total_sales_amount', 'double precision', NULL, true, '2024-11-05 15:41:13.972693+00', '2024-11-05 15:41:13.972693+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('1c810036-6860-4add-b651-bea7c0395c3a', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'total_orders', 'integer', NULL, true, '2024-11-05 15:41:13.972694+00', '2024-11-05 15:41:13.972694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e39b31fd-5793-4e87-a30d-7abdefcb3135', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'distinct_customers', 'integer', NULL, true, '2024-11-05 15:41:13.972695+00', '2024-11-05 15:41:13.972695+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('f31dd6fa-6092-48bd-ac72-0482417df39b', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'distinct_employees', 'integer', NULL, true, '2024-11-05 15:41:13.972697+00', '2024-11-05 15:41:13.972697+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ea917ddd-d22a-499e-9880-c1b7ae01b7ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'avg_purchase_frequency_per_month', 'numeric', NULL, true, '2024-11-05 15:41:13.972698+00', '2024-11-05 15:41:13.972698+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('936c9855-07b7-4c57-b64b-adc67c876e01', '5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'order_id', 'integer', NULL, false, '2024-11-05 15:41:13.972709+00', '2024-11-05 15:41:13.972709+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('78bfe051-baaa-4f0e-97d7-0b57c1c02e9b', '5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'order_date', 'timestamp', NULL, false, '2024-11-05 15:41:13.97271+00', '2024-11-05 15:41:13.97271+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8bcf6460-f9af-43ce-9bfa-e06792ee4905', '5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'shipped_date', 'timestamp', NULL, true, '2024-11-05 15:41:13.972711+00', '2024-11-05 15:41:13.972711+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('1163046d-b90c-4670-af6c-9ec6c5a81405', '5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'customer_id', 'integer', NULL, false, '2024-11-05 15:41:13.972712+00', '2024-11-05 15:41:13.972712+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('d05d5c57-9ce2-4e4d-8796-580f4c863157', '5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'customer_name', 'varchar', NULL, false, '2024-11-05 15:41:13.972713+00', '2024-11-05 15:41:13.972713+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('013499a2-a485-4ea9-b5bd-2612ccf44988', '5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'customer_contact', 'varchar', NULL, true, '2024-11-05 15:41:13.972713+00', '2024-11-05 15:41:13.972714+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0ec10d8c-f8bf-4980-bd21-d945ebf7b5e4', '5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'employee_id', 'integer', NULL, false, '2024-11-05 15:41:13.972714+00', '2024-11-05 15:41:13.972714+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('cbab086c-d2e4-4adb-a727-0c8de244d5de', '5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'employee_name', 'varchar', NULL, false, '2024-11-05 15:41:13.972715+00', '2024-11-05 15:41:13.972715+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e1e86b3d-601c-4808-ac51-321a1754e67d', '5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'shipper_id', 'integer', NULL, false, '2024-11-05 15:41:13.972716+00', '2024-11-05 15:41:13.972716+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('3e00299a-3341-4a14-9127-f5ed9c9055b7', '5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'shipper_name', 'varchar', NULL, false, '2024-11-05 15:41:13.972717+00', '2024-11-05 15:41:13.972717+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('de778405-b522-4cdd-aa74-cb4381f1178e', '5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'product_id', 'integer', NULL, false, '2024-11-05 15:41:13.972718+00', '2024-11-05 15:41:13.972718+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('128becbe-dc63-41a6-9371-a16f86578ec8', '5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'product_name', 'varchar', NULL, false, '2024-11-05 15:41:13.972719+00', '2024-11-05 15:41:13.972719+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a4adad6c-bb0e-418c-a1c9-3755d8d58cf3', '5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'category_id', 'integer', NULL, false, '2024-11-05 15:41:13.97272+00', '2024-11-05 15:41:13.97272+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('df4f6ad7-128c-480a-a3d4-2963f74ab31c', '5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'category_name', 'varchar', NULL, false, '2024-11-05 15:41:13.972721+00', '2024-11-05 15:41:13.972721+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('9629da04-64ad-4259-84a4-c9dfb176fbc9', '5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'unit_price', 'numeric', NULL, false, '2024-11-05 15:41:13.972722+00', '2024-11-05 15:41:13.972723+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8f6370e5-998d-4550-b536-809a01be4669', '5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'quantity', 'integer', NULL, false, '2024-11-05 15:41:13.972723+00', '2024-11-05 15:41:13.972723+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('86d8011f-fbed-4e99-a5b4-62356b0547b9', '5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'discount', 'numeric', NULL, false, '2024-11-05 15:41:13.972724+00', '2024-11-05 15:41:13.972724+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ac370292-95d3-497a-bbd4-628e054b6854', '5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'total_sales_amount', 'numeric', NULL, false, '2024-11-05 15:41:13.972725+00', '2024-11-05 15:41:13.972725+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('99a74012-b2e8-4a2e-b269-edbef07e1096', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'interaction_id', 'SERIAL', 'Unique identifier for each interaction', false, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('cbb4072d-a856-46e5-96f3-130e5752ef35', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'customer_id', 'INTEGER', 'Unique identifier for the customer involved in the interaction', false, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6652b357-35af-4607-a9a0-3490228c309f', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'agent_id', 'INTEGER', 'Unique identifier for the agent handling the interaction', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c070e1b2-4213-411a-addf-0614556176f2', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'interaction_type', 'VARCHAR(50)', 'Type of interaction (e.g., ''Call'', ''Email'', ''Chat'')', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('40ad55bb-bf43-4ef7-b201-c054fcda34ab', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'interaction_channel', 'VARCHAR(50)', 'Channel through which the interaction occurred (e.g., ''Phone'', ''Web'', ''social Media'')', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4d5b0cff-4e75-490f-9611-6fa9a806614e', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'interaction_start_time', 'TIMESTAMP', 'The start time of the interaction', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('5100edbe-e972-4d7c-8b0c-6f5617d1edbc', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'interaction_end_time', 'TIMESTAMP', 'The end time of the interaction', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('11cdd26f-b49d-4a07-a7ad-05e9d09706b8', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'duration_seconds', 'INTEGER', 'Duration of the interaction in seconds', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0cd0dfec-60f5-45db-acb9-287ebfb437a0', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'issue_category', 'VARCHAR(100)', 'General category of the issue discussed', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6759a17c-0a00-42ab-809c-d9a5c4f4c45f', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'issue_subcategory', 'VARCHAR(100)', 'Specific subcategory of the issue', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('10fb0cad-e510-4c9e-be5e-752d775e7bfa', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'interaction_summary', 'TEXT', 'Summary or notes of the interaction', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('92aa7ea6-5311-4ede-b783-f7a8796c63a1', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'resolution_status', 'VARCHAR(50)', 'Outcome of the interaction (e.g., ''Resolved'', ''Unresolved'')', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8dbdf575-9328-432a-888d-96589ee3f687', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'customer_sentiment', 'VARCHAR(20)', 'Customers sentiment during the interaction (e.g., ''Positive'', ''Neutral'', ''Negative'')', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6e816d9c-4651-4724-a10a-8064aac256d7', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'follow_up_required', 'BOOLEAN', 'Indicates whether a follow-up is needed', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('078368f8-97dc-45e7-a8d1-38e026fdef65', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'follow_up_date', 'TIMESTAMP', 'Scheduled date for follow-up if required', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('abf2a0c8-6eb1-4c54-b2a6-1271cf08fab3', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'escalation_level', 'INTEGER', 'Level to which the issue was escalated', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ed53cf28-e378-4a9c-b987-1aadbc49e661', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'escalation_reason', 'VARCHAR(255)', 'Reason for escalation', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a7f291f2-4487-43ec-b030-43c7534812dd', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'tags', 'VARCHAR(255)', 'Tags or keywords associated with the interaction', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4bd98f00-62f9-4c17-b176-5c4bce535cd6', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'feedback', 'TEXT', 'Customers feedback regarding the interaction', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('64fc3dc6-5b49-485f-9709-3d46e2644ac1', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'attachment_url', 'VARCHAR(255)', 'URL of any attachment related to the interaction', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('21c6b586-8f1d-4bd5-bfc1-3d28e5bd1fef', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'language', 'VARCHAR(50)', 'Language used during the interaction', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('228ec164-82a9-4cb2-add3-7dfccc816002', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'country', 'VARCHAR(50)', 'Customers country', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('bfba9471-6591-471b-96b0-ac28baa0dbbe', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'region', 'VARCHAR(50)', 'Customers region', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e02adcc9-c921-4633-9f52-3a780bf2058d', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'timezone', 'VARCHAR(50)', 'Customers time zone', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('816020f8-65c2-485b-a65d-dac470c9312d', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'response_time_seconds', 'INTEGER', 'Time taken by the agent to respond', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('33852a29-5582-4fd1-ab51-f5be16d6b307', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'wait_time_seconds', 'INTEGER', 'Time the customer waited before the interaction started', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('3d55b7e8-c1c3-4600-b35d-96944f46727c', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'priority', 'VARCHAR(50)', 'Priority level of the interaction', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('40a89827-194e-48ee-90b1-f0561cb97401', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'survey_score', 'INTEGER', 'Score from any surveys conducted post-interaction', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4745912a-bdc7-4229-b831-c8f94d13c87a', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'csat_score', 'INTEGER', 'Customer Satisfaction (CSAT) score', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('dd192710-f48b-4c13-ba11-cb29572978db', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'nps_score', 'INTEGER', 'Net Promoter Score', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('341919f3-9262-4c29-a048-8b4216c3a156', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'created_at', 'TIMESTAMP', 'Record creation timestamp', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a7727487-7114-47e0-87cf-c60e339d6620', 'ddc31f11-a56e-4e8a-a2bb-2bea4c0dc7bc', 'updated_at', 'TIMESTAMP', 'Record last update timestamp', true, '2024-10-31 16:59:02.264258+00', '2024-10-31 16:59:02.264258+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0a4a3de7-a504-4e4d-afd3-0f45fb2886a2', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'ticket_id', 'SERIAL', NULL, false, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('57416f82-83f3-44ba-bfbb-be14668c4caf', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'customer_id', 'INTEGER', NULL, false, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('848fca93-fd4d-4796-b0e8-c43ddbc312d4', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'agent_id', 'INTEGER', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('b88c81dc-9879-44ea-b12d-65f8dc65e673', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'ticket_status', 'VARCHAR(50)', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c47b91e4-a19a-4a21-9bf8-529a7ed74c29', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'ticket_priority', 'VARCHAR(50)', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('275a7145-ce03-42d8-87c4-1ff40abce6e8', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'issue_type', 'VARCHAR(100)', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e283f761-cb7e-4092-a2c6-ae8d10e07397', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'issue_description', 'TEXT', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('263c5199-e4a9-47a8-9f2d-54d08b609cf3', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'date_created', 'TIMESTAMP', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('96a6b63e-a3e0-4746-b6aa-be86acdc5c04', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'date_closed', 'TIMESTAMP', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('2407a5c3-8a30-4d93-bdaa-321620fd3bab', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'resolution_time_minutes', 'INTEGER', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('5e798430-4e40-4354-9463-87f21a09a16a', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'first_response_time_minutes', 'INTEGER', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('5fc44202-a673-4ec8-bb52-37503f1b605f', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'sla_breached', 'BOOLEAN', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('53284545-6f8b-48de-9133-c729f1c17758', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'sla_violation_reason', 'VARCHAR(255)', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('9fa5bc54-aa70-4bb8-90c2-c2052e688101', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'channel', 'VARCHAR(50)', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('3e10fcdc-2b7b-4c0e-a768-78a7baa4caf7', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'attachment_url', 'VARCHAR(255)', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6b297f30-6d7e-41ea-811d-228f9c9b1ca9', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'escalation_level', 'INTEGER', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('2f3ca028-a512-4c14-b072-ddc60e2dab52', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'tags', 'VARCHAR(255)', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('85057680-a33b-4f52-a6eb-dabe903818b1', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'reassign_count', 'INTEGER', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('29323a67-f149-4065-ba1f-4ed1920c85f2', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'last_updated', 'TIMESTAMP', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ffe4652a-605c-4bcf-8089-74c03c2e40ab', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'customer_satisfaction_rating', 'INTEGER', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('07c3f7e6-2e83-495f-860c-a03831663818', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'feedback_comments', 'TEXT', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('d29488a3-9176-41ae-98cc-5cc1b933a1d8', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'root_cause', 'VARCHAR(255)', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('44e068f5-1a3f-407f-9612-d81ab108d288', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'corrective_action', 'VARCHAR(255)', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e0e5b314-d0ad-487e-9890-7c5ef1ed10df', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'follow_up_required', 'BOOLEAN', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('319b0a38-1b2f-486c-b0f8-1f16543fcb46', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'follow_up_date', 'TIMESTAMP', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('028f3ccc-239c-4b6d-8d14-bbfc9289481e', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'linked_ticket_id', 'INTEGER', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e2ef89df-aa62-42b9-8343-106fdafd1d11', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'product_id', 'INTEGER', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c413b1d2-bf15-4d39-a858-9e11525c11e3', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'product_version', 'VARCHAR(50)', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c343a712-997f-4fca-a61e-3869a5328811', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'operating_system', 'VARCHAR(50)', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('5631e8d4-3c21-4807-b52f-8dbc28367d43', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'browser_info', 'VARCHAR(100)', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('af083646-6d8c-4763-af48-098e9dda591b', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'ip_address', 'VARCHAR(45)', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c0728bc4-3857-4894-bd19-398ba4102dc9', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'device_type', 'VARCHAR(50)', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('aa495ee5-bf83-483e-a9af-670ebd958e52', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'communication_language', 'VARCHAR(50)', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('04dd0c03-5e47-451f-8e89-d8b8e287eb17', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'time_zone', 'VARCHAR(50)', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('adad3030-360a-4abd-b592-9be0f08cf8fb', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'department', 'VARCHAR(100)', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('5eff8410-f46b-4800-9f38-3d9918b64067', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'agent_notes', 'TEXT', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('49b674fe-54aa-4dc3-b2aa-f5a606aa88b9', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'customer_type', 'VARCHAR(50)', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('25aaf7b0-1462-40de-93ad-53a9457b27a8', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'contact_method', 'VARCHAR(50)', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6ffb0de8-cebd-4aa5-a926-ce3249dd6535', 'd1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'resolution_summary', 'TEXT', NULL, true, '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6f32d1a9-f55d-439f-8956-45b45b01701f', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'agent_performance_id', 'SERIAL', 'Unique identifier for the agent performance record', false, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('31f5b171-fa3b-4315-b26a-93ab0f77ab54', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'agent_id', 'INTEGER', 'Unique identifier for the agent', false, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6e0f9d81-419b-4bd0-90b8-e33186af39f5', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'agent_name', 'VARCHAR(255)', 'Full name of the agent', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ee8590e0-a130-4860-b835-a24bbb82cb83', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'total_tickets_handled', 'INTEGER', 'Total number of tickets handled by the agent', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c1479535-524b-4f4f-9686-ce2505669949', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'tickets_resolved', 'INTEGER', 'Number of tickets resolved by the agent', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7935f069-c14e-453f-8858-48b470389b61', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'tickets_escalated', 'INTEGER', 'Number of tickets escalated by the agent', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('88a206ce-7f3a-44ce-beb3-4c7d0f38d8be', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'average_resolution_time_minutes', 'DECIMAL(10,2)', 'Average time in minutes to resolve tickets', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0f3987eb-e957-4fa1-b342-de34e6ab3f46', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'average_first_response_time_minutes', 'DECIMAL(10,2)', 'Average time in minutes for first response', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('334650b7-52f2-462a-84f2-7867a51fb5ec', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'customer_satisfaction_score', 'DECIMAL(5,2)', 'Average customer satisfaction score', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('38c53fda-700e-4575-827d-49ddadff662c', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'nps_score', 'DECIMAL(5,2)', 'Net Promoter Score for the agent', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0fa6e990-5f1e-4d6b-bdfe-14bec0a1cab2', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'adherence_to_schedule_percentage', 'DECIMAL(5,2)', 'Percentage of adherence to scheduled work hours', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('dbe6c69b-132b-4a6d-9544-7bce98746673', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'quality_assurance_score', 'DECIMAL(5,2)', 'Score from quality assurance evaluations', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('18f1b5c8-4019-4a86-b125-ece3ab0d5526', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'absent_days', 'INTEGER', 'Number of days the agent was absent', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c4215db6-b41b-423e-8ce6-98c070d8ff3e', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'late_logins', 'INTEGER', 'Number of times the agent logged in late', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7e4f65d9-7380-4351-abd2-8b825657a07f', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'total_interactions', 'INTEGER', 'Total number of interactions handled', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('733b2586-ab89-4539-a562-9bec0edd508f', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'chat_handled', 'INTEGER', 'Number of chat interactions handled', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('de8b2024-d4ca-44c2-9786-6b8621d909b9', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'calls_handled', 'INTEGER', 'Number of calls handled', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6141db53-65bc-47b1-b9ef-637b753e0ad6', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'emails_handled', 'INTEGER', 'Number of emails handled', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('17c646bd-d67c-4793-8fab-765e58818058', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'average_call_duration_seconds', 'DECIMAL(10,2)', 'Average call duration in seconds', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('2848fa21-aa52-4b64-ab74-6f30ab62a042', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'average_chat_duration_seconds', 'DECIMAL(10,2)', 'Average chat duration in seconds', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('63711777-8687-4b85-bef0-8faef83d21f4', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'average_email_response_time_minutes', 'DECIMAL(10,2)', 'Average email response time in minutes', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('81f82455-aa40-4db4-914f-85078ee6e520', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'productivity_score', 'DECIMAL(5,2)', 'Overall productivity score', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('1738c50b-825b-4037-ab67-5605cec705da', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'training_hours', 'INTEGER', 'Number of training hours completed', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('607e8933-9d88-43bf-9f97-6f252bd88396', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'certifications_obtained', 'VARCHAR(255)', 'Certifications obtained by the agent', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('48bf4d55-98ad-4d6f-9d9e-8d8c416d540b', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'customer_feedback_positive', 'INTEGER', 'Number of positive feedbacks received', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7506451b-4089-43a7-ab2b-986da103463e', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'customer_feedback_negative', 'INTEGER', 'Number of negative feedbacks received', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('868bdf08-241c-46f7-813b-02321c92d6d9', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'peer_reviews_positive', 'INTEGER', 'Number of positive peer reviews', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c7e9ae59-5814-48f4-999d-0ec75696ac83', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'peer_reviews_negative', 'INTEGER', 'Number of negative peer reviews', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c6c92879-8f2e-4b6e-a0c5-57c78c5b6a33', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'compliance_violations', 'INTEGER', 'Number of compliance violations', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4852677e-b38f-408e-88bd-b0b0e25a3444', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'last_performance_review_date', 'DATE', 'Date of the last performance review', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('42f57b6d-9014-4cad-a9eb-c7bada9be86c', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'supervisor_id', 'INTEGER', 'Unique identifier for the supervisor', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('da5f7b7c-0789-41f8-a40b-9383bebf1d4d', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'department', 'VARCHAR(100)', 'Department where the agent works', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('5b2d0d8d-54ab-4884-acb5-67dc33a15593', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'shift', 'VARCHAR(50)', 'Work shift of the agent', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a48eac91-d172-4a88-b237-489a58a3de48', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'language_proficiency', 'VARCHAR(100)', 'Languages the agent is proficient in', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('330b4675-6ccd-4fdf-8838-4a233622d408', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'skills', 'VARCHAR(255)', 'Skills the agent possesses', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7cad7af3-e666-4171-adc9-9607f790cee4', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'created_at', 'TIMESTAMP', 'Record creation timestamp', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ee2df221-1d92-44b8-a2d8-6efa82ea758e', 'e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'updated_at', 'TIMESTAMP', 'Record last update timestamp', true, '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('675a488c-05a4-40bb-b3f8-b30ed3624732', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'feedback_id', 'SERIAL', 'Unique identifier for the feedback record', false, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('05166e1b-e92a-496d-b523-49f9162daf4e', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'customer_id', 'INTEGER', 'Unique identifier for the customer providing feedback', false, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('916e4787-90c0-400a-ae6f-a43770e5d3c1', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'interaction_id', 'INTEGER', 'Unique identifier for the related interaction', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('5dffd31e-f597-4773-82ce-8a008ac0cc5f', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'feedback_date', 'TIMESTAMP', 'Date and time the feedback was provided', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7bfa90ac-248f-4220-ae4a-573d28360d13', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'satisfaction_rating', 'INTEGER', 'Satisfaction rating on a scale (e.g., 1-5)', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('65dbc590-1ca8-45cd-b00b-624d95ab8fe2', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'nps_score', 'INTEGER', 'Net Promoter Score provided by the customer', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a32e5b77-260b-4b8b-8aa5-71b560ca4701', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'comments', 'TEXT', 'Additional comments from the customer', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8ccf61e5-7465-43c7-9954-1c5f198d4a5b', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'agent_id', 'INTEGER', 'Unique identifier for the agent involved', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('f6decd27-e555-47ee-8fb7-d09a66ba8947', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'resolution_status', 'VARCHAR(50)', 'Status of the issue at the time of feedback', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e2f5be7a-f134-4753-aad6-ee68066fb411', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'issue_type', 'VARCHAR(100)', 'Type of issue the feedback relates to', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e1f23939-9c65-49e9-82b7-d66fbe3fd866', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'would_recommend', 'BOOLEAN', 'Indicates if the customer would recommend the service', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('51ccb2c6-c30d-4329-99e8-4f0ee1bb9c5b', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'improvement_suggestions', 'TEXT', 'Customers suggestions for improvement', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('95f49bbc-adca-4d26-8362-c33e456c333e', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'feedback_channel', 'VARCHAR(50)', 'Channel through which feedback was provided (e.g., ''Email'', ''Phone Survey'', ''Web Form'')', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('27e10298-bd9c-4530-818e-5cb3ef2d89cf', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'response_time_rating', 'INTEGER', 'Rating for response time', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('cd6f0901-8193-4f18-b3f7-28fc134d1785', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'knowledge_rating', 'INTEGER', 'Rating for agents knowledge', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('3293c4c7-3d99-4e5d-a30e-4dbe2517f1d3', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'professionalism_rating', 'INTEGER', 'Rating for agents professionalism', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('cdaf0cbb-5ff7-4d9d-9cec-dbb073078a91', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'overall_experience_rating', 'INTEGER', 'Overall experience rating', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c03a3d38-8a45-4475-8b30-6efac8dfcfd6', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'product_satisfaction_rating', 'INTEGER', 'Satisfaction rating specific to the product', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('346388ac-fe66-46bc-b2a6-0d9612b01f54', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'service_satisfaction_rating', 'INTEGER', 'Satisfaction rating specific to the service', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('fedee3bd-ffc6-49ba-8543-ca4ea629e41c', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'empathy_rating', 'INTEGER', 'Rating for agent empathy', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ce435666-b9b1-4d6a-861f-1a0e959f1b9c', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'feedback_type', 'VARCHAR(50)', 'Type of feedback (e.g., ''Complaint'', ''Praise'', ''suggestion'')', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4610d84d-8836-40b1-866a-8231e11048b5', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'follow_up_requested', 'BOOLEAN', 'Indicates if the customer requested a follow-up', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('f7f99dc0-7625-4468-b081-bfe79a95353a', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'follow_up_date', 'TIMESTAMP', 'Scheduled date for follow-up if requested', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('852f370f-c4ca-4d3a-8719-767076a6c9f8', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'handled_by_supervisor', 'BOOLEAN', 'Indicates if the feedback was handled by a supervisor', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c83530e3-4dbb-4ce4-8d70-62380c1eeedc', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'supervisor_comments', 'TEXT', 'Comments from the supervisor', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c89cd784-2625-4ef8-9f81-28b6180f1e62', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'tags', 'VARCHAR(255)', 'Tags or keywords associated with the feedback', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('14f41435-9ba2-4d3d-b9f9-18b8bdcbde74', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'appended_to_customer_profile', 'BOOLEAN', 'Indicates if feedback was added to customers profile', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ae167e81-2ef8-467b-a6b9-5342f4585ddf', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'escalated', 'BOOLEAN', 'Indicates if the feedback led to escalation', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6c08d4b1-e6dc-4912-8e88-865a6c3b63e4', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'created_at', 'TIMESTAMP', 'Record creation timestamp', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a840ce62-43f3-41f3-b0d7-b7c8b1c3e6f2', 'e32015c7-89cb-460e-af8a-3f3852a8ff14', 'updated_at', 'TIMESTAMP', 'Record last update timestamp', true, '2024-10-31 17:20:39.018694+00', '2024-10-31 17:20:39.018694+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('978316a8-08fa-43ab-a89d-e777f9f1d193', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'churn_analysis_id', 'SERIAL', 'Unique identifier for the churn analysis record', false, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('9eebff9d-fffa-4251-af43-f078ca667e04', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'customer_id', 'INTEGER', 'Unique identifier for the customer', false, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('42c55d4a-ced6-4500-a54d-3fca113e5332', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'signup_date', 'DATE', 'Date the customer signed up', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0106d48e-0ae8-499b-ac9c-7f2c6b33e80b', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'churn_date', 'DATE', 'Date the customer churned (ended subscription)', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('f84130ef-de1c-4e65-acbf-9cf5378dba3c', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'churn_reason', 'VARCHAR(255)', 'Reason why the customer churned', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('db7bd631-afa1-4847-a102-523810718174', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'customer_lifetime_value', 'DECIMAL(10,2)', 'Total value of the customer over their lifetime', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('48521fc0-eee1-485c-a445-e7408e35ec0a', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'total_revenue', 'DECIMAL(10,2)', 'Total revenue generated from the customer', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('cc9a96d2-45a6-4d29-adf1-f9bf5cc5e811', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'number_of_tickets', 'INTEGER', 'Number of support tickets raised by the customer', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8c7bdea4-9650-43b3-bce0-d71d8bf2df4d', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'average_satisfaction_rating', 'DECIMAL(5,2)', 'Average satisfaction rating of the customer', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('3ec0d814-d7de-4084-97a4-d996db66e956', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'last_interaction_date', 'DATE', 'Date of the last interaction with the customer', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('751d298a-f8ba-4535-812b-195e0c37915f', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'product_id', 'INTEGER', 'Identifier of the product used by the customer', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('b3b048e6-a97b-47a2-8efb-c384d6debfe1', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'product_usage_frequency', 'INTEGER', 'Frequency of product usage', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ec98a244-4816-4f1e-8a8c-42ecda6784fd', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'days_since_last_login', 'INTEGER', 'Number of days since the customer last logged in', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('cf554121-d5f2-4209-a77a-459eab9111d3', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'support_tier', 'VARCHAR(50)', 'Support tier the customer belonged to (e.g., ''Basic'', ''Premium'')', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('efb2c7c8-49d8-4f18-8713-efcc58b00f71', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'contract_type', 'VARCHAR(50)', 'Type of contract (e.g., ''Monthly'', ''Annual'')', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('aa79c6a2-9237-4b94-bf27-9fbcdadbff66', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'auto_renewal_enabled', 'BOOLEAN', 'Indicates if auto-renewal was enabled', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('b4a03c8e-4f79-4b64-9ae4-2a2bde18e6c9', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'discount_applied', 'BOOLEAN', 'Indicates if discounts were applied', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('984a2572-69b5-4178-83ff-f521ebbf234f', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'competitor_switched_to', 'VARCHAR(100)', 'Competitor the customer switched to, if known', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7e107ec4-5a53-49b0-82c2-ff0b01820051', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'at_risk_score', 'DECIMAL(5,2)', 'Score indicating risk of churn', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('187ea120-91ef-412a-a8e4-9a8fa1cec0a0', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'retention_efforts_made', 'BOOLEAN', 'Indicates if retention efforts were made', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('5eaada14-af7f-42b0-ab43-729fea20429d', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'retention_outcome', 'VARCHAR(50)', 'Outcome of retention efforts (e.g., ''Retained'', ''Lost'')', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4f443064-c903-4108-afa9-6d8b63f237d7', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'feedback_on_churn', 'TEXT', 'Feedback provided by the customer upon churn', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('3c2a224b-13c4-46b8-9b51-0b5a8be094c4', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'marketing_emails_opened', 'INTEGER', 'Number of marketing emails opened', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('9c7efb08-256d-416c-a9f2-4a5eb86a7940', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'webinars_attended', 'INTEGER', 'Number of webinars attended', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0a879a0b-08d9-4de6-bdcd-fe8503883715', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'nps_score', 'INTEGER', 'Net Promoter Score at time of churn', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c05be1b5-ae52-4c65-8050-e3d66e1b2218', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'customer_segment', 'VARCHAR(50)', 'Segment the customer belongs to', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('dd11feeb-af4d-4d83-aa9d-30e87634ad6f', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'referral_source', 'VARCHAR(100)', 'How the customer was referred', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('38db4195-0df2-4590-8da2-c939d7f725fa', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'account_manager_id', 'INTEGER', 'Identifier of the account manager', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a12d412f-768c-42d0-a2db-41697b5ebee7', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'upsell_attempted', 'BOOLEAN', 'Indicates if upselling was attempted', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('2c95e940-00ec-460e-834b-45796abb1a05', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'upsell_successful', 'BOOLEAN', 'Indicates if upselling was successful', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('18dfd0c1-52da-4280-9dff-4fa27d15f157', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'cross_sell_attempted', 'BOOLEAN', 'Indicates if cross-selling was attempted', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('153f1a45-775e-4a35-a931-48d4d1b4d504', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'cross_sell_successful', 'BOOLEAN', 'Indicates if cross-selling was successful', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('45183f96-b50c-4f18-9763-823956b1f5a3', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'escalated_issues', 'INTEGER', 'Number of escalated issues', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4bbcc7f0-f5ec-4e26-bbcf-3d9299034694', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'social_media_mentions', 'INTEGER', 'Number of mentions on social media', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4440b251-d75a-40fe-af0e-43b82c6c6fdf', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'created_at', 'TIMESTAMP', 'Record creation timestamp', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('921c3146-2153-4ba3-ad03-1b14563cb115', '4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'updated_at', 'TIMESTAMP', 'Record last update timestamp', true, '2024-10-31 17:24:22.3509+00', '2024-10-31 17:24:22.3509+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('730466b0-4124-43f7-b540-b0b1e5caea48', '21c91803-c324-4341-98d1-960ef6a3e003', 'response_time_id', 'SERIAL', 'Unique identifier for the response time record', false, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('9113f1d4-d361-4bd5-bfeb-bfe75b2a6d5c', '21c91803-c324-4341-98d1-960ef6a3e003', 'interaction_id', 'INTEGER', 'Unique identifier for the interaction', false, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('1bd73571-b03b-4562-85ae-1e005c85121e', '21c91803-c324-4341-98d1-960ef6a3e003', 'agent_id', 'INTEGER', 'Unique identifier for the agent involved', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a7063afa-fd4d-43e7-b521-68a4e1c21670', '21c91803-c324-4341-98d1-960ef6a3e003', 'customer_id', 'INTEGER', 'Unique identifier for the customer', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('b14039e8-4db8-46ec-933e-da61ef518f3d', '21c91803-c324-4341-98d1-960ef6a3e003', 'channel', 'VARCHAR(50)', 'Channel of interaction (e.g., ''Email'', ''Chat'')', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('1d7d3bf1-0bce-4c11-bf81-65298b43b196', '21c91803-c324-4341-98d1-960ef6a3e003', 'issue_type', 'VARCHAR(100)', 'Type of issue', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('634d6cfa-a86a-4836-9a61-c7aab362047a', '21c91803-c324-4341-98d1-960ef6a3e003', 'first_response_time_seconds', 'INTEGER', 'Time in seconds to first response', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('40176844-1f90-464c-a6f6-9d474b8df3cf', '21c91803-c324-4341-98d1-960ef6a3e003', 'resolution_time_seconds', 'INTEGER', 'Time in seconds to resolve the issue', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('691bfcbf-57ec-410b-b44d-6a21c75f40f9', '21c91803-c324-4341-98d1-960ef6a3e003', 'time_to_assign_seconds', 'INTEGER', 'Time in seconds to assign the interaction/ticket', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('b609aaae-f5ea-4672-8d0b-df72510eba39', '21c91803-c324-4341-98d1-960ef6a3e003', 'waiting_time_seconds', 'INTEGER', 'Total waiting time in seconds', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('d6b17f32-0fbb-4293-8cda-e9fe3cf647d1', '21c91803-c324-4341-98d1-960ef6a3e003', 'sla_met', 'BOOLEAN', 'Indicates if SLA was met', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('09659ed9-e407-46ff-9a8c-a05064e61c57', '21c91803-c324-4341-98d1-960ef6a3e003', 'date', 'TIMESTAMP', 'Date the response time was recorded', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ae7a81eb-428e-4535-b505-504ec203aa88', '21c91803-c324-4341-98d1-960ef6a3e003', 'priority', 'VARCHAR(50)', 'Priority level of the interaction', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('2a96a81d-e945-413c-87ea-575583e174f1', '21c91803-c324-4341-98d1-960ef6a3e003', 'escalation_level', 'INTEGER', 'Level of escalation', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('79702251-8779-465d-abcc-37df5fe5c849', '21c91803-c324-4341-98d1-960ef6a3e003', 'reopened', 'BOOLEAN', 'Indicates if the ticket was reopened', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6f90fd19-20cd-4f96-817e-487eb5a933a6', '21c91803-c324-4341-98d1-960ef6a3e003', 'reopened_count', 'INTEGER', 'Number of times the ticket was reopened', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('d51f431d-5c21-4d07-8070-5b9ef5d054b3', '21c91803-c324-4341-98d1-960ef6a3e003', 'follow_up_required', 'BOOLEAN', 'Indicates if follow-up is required', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('5268faec-9691-450d-912a-637a896ca6e0', '21c91803-c324-4341-98d1-960ef6a3e003', 'interactions_in_thread', 'INTEGER', 'Number of interactions in the thread', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('98d1a794-ae09-4450-a70f-be25f4bbd52f', '21c91803-c324-4341-98d1-960ef6a3e003', 'is_first_contact_resolution', 'BOOLEAN', 'Indicates if issue was resolved on first contact', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('d46e8056-8c35-4b73-b59f-1e8d5f413eb8', '21c91803-c324-4341-98d1-960ef6a3e003', 'agent_response_time_average_seconds', 'DECIMAL(10,2)', 'Average response time of the agent', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0ef6fa8d-fc5c-4c28-83bb-f78021cbe01a', '21c91803-c324-4341-98d1-960ef6a3e003', 'customer_response_time_average_seconds', 'DECIMAL(10,2)', 'Average response time of the customer', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('48863fab-2f74-4fb6-a167-578a2206bb28', '21c91803-c324-4341-98d1-960ef6a3e003', 'number_of_responses', 'INTEGER', 'Total number of responses exchanged', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('5c3a20b4-c32b-4145-973e-e39a07023ec6', '21c91803-c324-4341-98d1-960ef6a3e003', 'time_to_first_action_seconds', 'INTEGER', 'Time in seconds to first action taken', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c29fa010-c350-48fd-ac30-9535dafb086a', '21c91803-c324-4341-98d1-960ef6a3e003', 'time_in_pending_status_seconds', 'INTEGER', 'Total time in ''Pending'' status', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('abb24860-0454-4959-9fb0-28d603ba81af', '21c91803-c324-4341-98d1-960ef6a3e003', 'time_in_on_hold_status_seconds', 'INTEGER', 'Total time in ''On Hold'' status', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('cbede19d-b070-4983-903a-9a76f5d3f1ad', '21c91803-c324-4341-98d1-960ef6a3e003', 'time_in_resolved_status_seconds', 'INTEGER', 'Total time in ''Resolved'' status', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('2790c371-38ec-495c-9262-8cebfc2b45ca', '21c91803-c324-4341-98d1-960ef6a3e003', 'business_hours', 'BOOLEAN', 'Indicates if interaction occurred during business hours', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('942a8434-2014-4305-9619-52841db78fd0', '21c91803-c324-4341-98d1-960ef6a3e003', 'working_hours_response_time_seconds', 'INTEGER', 'Response time during working hours', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('807d31d7-1802-453d-944e-b3372cb2520c', '21c91803-c324-4341-98d1-960ef6a3e003', 'after_hours_response_time_seconds', 'INTEGER', 'Response time after working hours', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e8d81bf5-fbcc-4ead-881d-de70220bc4c6', '21c91803-c324-4341-98d1-960ef6a3e003', 'response_time_sla_seconds', 'INTEGER', 'Target response time SLA in seconds', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('421bf4dc-763f-4190-8717-3e6d1c0e336d', '21c91803-c324-4341-98d1-960ef6a3e003', 'resolution_time_sla_seconds', 'INTEGER', 'Target resolution time SLA in seconds', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('d94c288d-18d3-415b-aa7e-0907b9bd00a7', '21c91803-c324-4341-98d1-960ef6a3e003', 'created_at', 'TIMESTAMP', 'Record creation timestamp', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('d503fb0a-6605-4c31-abf7-ef34fb5b4e0e', '21c91803-c324-4341-98d1-960ef6a3e003', 'updated_at', 'TIMESTAMP', 'Record last update timestamp', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c54fddb0-2b97-4a20-a865-d672ae6a7de0', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'escalation_id', 'SERIAL', 'Unique identifier for the escalation record', false, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('bbb7f08e-904a-43b4-8b13-d4b1928a48f7', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'ticket_id', 'INTEGER', 'Unique identifier for the ticket', false, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8dfcadba-5571-43c7-8b8e-9e0ed76b7e15', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'customer_id', 'INTEGER', 'Unique identifier for the customer', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('1efbd343-a6be-4c10-8d1c-2b9d851efe1e', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'original_agent_id', 'INTEGER', 'Unique identifier for the original agent', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('1461defd-a192-46e5-bdb4-b5cea07b1f84', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'escalated_to_agent_id', 'INTEGER', 'Unique identifier for the agent to whom it was escalated', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8844357b-0834-4b2c-9047-7869d8a99a62', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'escalation_date', 'TIMESTAMP', 'Date and time of escalation', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7aba51c9-df7e-4bd6-8976-98425a8493b4', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'escalation_reason', 'VARCHAR(255)', 'Reason for escalation', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7de59462-8ba9-4b2a-b03f-b96d4cb756c3', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'escalation_level', 'INTEGER', 'Level of escalation', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('da56419b-ac8a-4f16-9384-e010aaf2614e', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'issue_type', 'VARCHAR(100)', 'Type of issue', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('dedfc515-2c67-4011-b0a6-86ef77628b0b', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'priority', 'VARCHAR(50)', 'Priority level at time of escalation', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('15a0ac26-1cff-4b47-b42f-1a49d33da22c', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'resolution_status', 'VARCHAR(50)', 'Status after escalation (e.g., ''Resolved'', ''Pending'')', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('47891379-7566-45be-ad2d-46b0ba53bbc0', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'resolution_date', 'TIMESTAMP', 'Date and time of resolution', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('77e11ccd-ac0a-43df-9e93-1d9d10be6754', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'comments', 'TEXT', 'Additional comments', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ae70a621-1f47-4c9d-811d-e0d8624c722e', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'supervisor_id', 'INTEGER', 'Unique identifier for the supervisor', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('1983e632-d72a-4839-9f81-f3e2ea0d06f1', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'action_taken', 'VARCHAR(255)', 'Actions taken during escalation', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7f5ee4c0-6f10-4ec0-be9e-13d4eb238b2e', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'follow_up_required', 'BOOLEAN', 'Indicates if follow-up is needed', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('2621bc6c-9960-4266-b78e-be1508b20e63', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'follow_up_date', 'TIMESTAMP', 'Scheduled date for follow-up', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c39ad496-2d4b-4d37-8940-409b8da44717', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'customer_notified', 'BOOLEAN', 'Indicates if the customer was notified about escalation', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('93d1f9f5-9745-4ba8-8faf-e541647fb1e9', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'notification_method', 'VARCHAR(50)', 'Method used to notify the customer', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('db1160c7-04b2-4802-887d-4f63c6d5bdb4', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'tags', 'VARCHAR(255)', 'Tags associated with the escalation', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('5656445d-2e16-4757-b2fd-1187aed3ee06', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'sla_breached', 'BOOLEAN', 'Indicates if SLA was breached during escalation', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('dba9500c-4471-40d8-bd70-922c6486e1c2', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'initial_response_time_seconds', 'INTEGER', 'Initial response time in seconds before escalation', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('dc372898-776b-43bb-8d99-6085a9124ff1', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'total_resolution_time_seconds', 'INTEGER', 'Total resolution time including escalation', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4eb425d8-825e-4828-84e6-222f64ff396e', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'agent_notes', 'TEXT', 'Notes from agents involved', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('35bc2832-fddd-4ef5-8fd2-8ef7e29cb55b', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'customer_feedback_rating', 'INTEGER', 'Customer feedback rating after escalation', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('61af0abe-b3f4-453d-932e-c5863a95bbf7', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'quality_assurance_passed', 'BOOLEAN', 'Indicates if quality assurance checks passed', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7c121113-c861-4dfd-a1aa-959722879dda', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'policy_violation', 'BOOLEAN', 'Indicates if any policy violations occurred', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a48e76d2-9c56-47bb-8702-2c9e7ebbadca', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'violation_details', 'VARCHAR(255)', 'Details of any policy violations', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('cfb2ddfd-b7fb-4e94-8de9-6daef656e5e6', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'training_needed', 'BOOLEAN', 'Indicates if training is needed for agents', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8b45fe5f-7830-4b06-993b-095a7b7a338c', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'training_completed', 'BOOLEAN', 'Indicates if training was completed', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('366d625b-b5f6-419d-9f7b-36ea53344ff7', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'created_at', 'TIMESTAMP', 'Record creation timestamp', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('952704f5-fcc8-4370-8e6c-d7b4a4955c73', 'a59484d0-8b6d-48cf-aa4e-f673cd530039', 'updated_at', 'TIMESTAMP', 'Record last update timestamp', true, '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('837151e5-51e0-41b2-90fe-fc4fad2eeede', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'kb_usage_id', 'SERIAL', 'Unique identifier for the knowledge base usage record', false, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('9e7c309d-5c71-4927-bbad-4f0ec65d95c5', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'user_id', 'INTEGER', 'Unique identifier for the user', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('252cafae-53df-4ab7-81d7-46c03374dff1', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'resource_id', 'INTEGER', 'Unique identifier for the knowledge base resource', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('eb716371-9518-4e83-b8bc-b5a15ef90b9d', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'resource_type', 'VARCHAR(50)', 'Type of resource (e.g., ''Article'', ''Video'', ''FAQ'')', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c496bc30-b4f2-435d-852a-125f6ab22532', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'access_date', 'TIMESTAMP', 'Date and time the resource was accessed', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('db9c76c3-fa8c-40bc-8d38-5185e35ddd9d', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'time_spent_seconds', 'INTEGER', 'Time spent on the resource in seconds', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ac0e93df-4868-40df-bc24-31253604f2e6', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'accessed_from', 'VARCHAR(50)', 'Where the resource was accessed from (e.g., ''Agent Portal'', ''Customer Portal'')', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('cf11cbe8-5d97-4425-adca-32cf8f21cddf', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'device_type', 'VARCHAR(50)', 'Device type used to access the resource', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6609031f-8121-4363-bac3-5a380df012bc', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'search_terms', 'VARCHAR(255)', 'Search terms used to find the resource', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('65cf9708-dd45-4791-9eed-492b39d63bd3', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'helpful_votes', 'INTEGER', 'Number of ''helpful'' votes received', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('fc028b74-f8ee-42fc-815c-6814eafdb9c3', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'not_helpful_votes', 'INTEGER', 'Number of ''not helpful'' votes received', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('07a861f0-7d7a-42dc-96e0-72b9bb85f067', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'feedback_comments', 'TEXT', 'User feedback comments', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('bf6426e2-8bd1-4174-9dd4-de750479e917', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'resource_category', 'VARCHAR(100)', 'Category of the resource', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('51a70c46-23b2-48ae-a396-776d467dd371', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'resource_subcategory', 'VARCHAR(100)', 'Subcategory of the resource', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('9579719d-7902-426f-9814-6770100b86b5', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'language', 'VARCHAR(50)', 'Language of the resource', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('88462299-a740-44d6-aced-1f23e59bf11f', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'download_action', 'BOOLEAN', 'Indicates if the resource was downloaded', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('9c2a2bfe-ee05-4131-957f-cdc38d0d8c52', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'share_action', 'BOOLEAN', 'Indicates if the resource was shared', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('f9a6b9a1-2679-45a7-9b4a-37faf5c88fed', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'print_action', 'BOOLEAN', 'Indicates if the resource was printed', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('195c5b39-d124-4cd0-b65e-696b7f7370d1', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'rating', 'INTEGER', 'User rating of the resource', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('af0ffb0f-1f2d-40be-a239-804a51d019e6', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'bookmarked', 'BOOLEAN', 'Indicates if the resource was bookmarked', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('26b561b1-2de9-4b78-8623-b8c7ec8cdafa', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'last_updated', 'TIMESTAMP', 'Timestamp when the resource was last updated', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8d4b0587-8dca-43ea-b7a8-381857a2ac63', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'created_by', 'INTEGER', 'Unique identifier of the user who created the resource', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('9f21e6d9-a781-42f6-bcd4-d134886e92a5', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'updated_by', 'INTEGER', 'Unique identifier of the user who last updated the resource', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('75696f05-eaaa-4762-8272-28c6fc24baea', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'associated_ticket_id', 'INTEGER', 'Ticket identifier if the resource is associated with a ticket', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('d09330b4-f0e8-4acf-89b2-23828ee0b463', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'ip_address', 'VARCHAR(45)', 'IP address of the user', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6078c930-5342-4a9c-89d9-f1d680ef729b', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'browser_info', 'VARCHAR(100)', 'Browser information', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c2005755-67c1-4290-abd2-a91f0d8ef965', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'os_info', 'VARCHAR(100)', 'Operating system information', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a39f415f-44dc-40ec-9d22-1b1e5ebd5790', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'referral_url', 'VARCHAR(255)', 'Referring URL', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7abba1cc-a376-4c6b-9a33-401ff6078aba', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'session_id', 'VARCHAR(255)', 'Session identifier', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e7507efa-dec0-4a7e-9d75-ee0733e48aa7', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'tags', 'VARCHAR(255)', 'Tags associated with the resource', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a4e6918d-5ba9-4a07-be4b-d1ec5ecc23cb', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'content_version', 'VARCHAR(50)', 'Version of the resource content', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('dc8fadbe-7556-4bdc-a66f-d4908b0febae', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'related_resources', 'VARCHAR(255)', 'Related resources', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('f3512023-fe76-49db-8826-e884eafd2b05', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'viewed_in_training', 'BOOLEAN', 'Indicates if viewed as part of training', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('9bd95aca-20ee-4d2d-8430-8fc79fa80ca1', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'access_channel', 'VARCHAR(50)', 'Channel used to access the resource', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7f231cc8-ebf9-4493-b13c-81a5a25709c3', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'created_at', 'TIMESTAMP', 'Record creation timestamp', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ce215dbb-0866-4956-8fd4-eeb9bf49dd06', '57e196b1-6f27-45d4-95ae-fd368be161a8', 'updated_at', 'TIMESTAMP', 'Record last update timestamp', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8443ac69-4a38-4013-ad0d-c0ea96e4e190', '62b85e7e-a376-4e93-92be-ccda3a433438', 'call_log_id', 'SERIAL', 'Unique identifier for the call log record', false, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8aac2f0f-15ef-4c14-b579-7dea69f32ea4', '62b85e7e-a376-4e93-92be-ccda3a433438', 'call_id', 'VARCHAR(100)', 'Unique identifier for the call', false, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7b97f75b-13f3-4756-85ee-c44081e8756b', '62b85e7e-a376-4e93-92be-ccda3a433438', 'agent_id', 'INTEGER', 'Unique identifier for the agent involved', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7121aecd-3c6d-4ebb-bd87-900e83280621', '62b85e7e-a376-4e93-92be-ccda3a433438', 'customer_id', 'INTEGER', 'Unique identifier for the customer', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('9e2972cf-ec8e-4711-8413-0a5648699b32', '62b85e7e-a376-4e93-92be-ccda3a433438', 'call_start_time', 'TIMESTAMP', 'Start time of the call', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('9a5a2a21-4e58-44e3-825e-4756f8cf0c5b', '62b85e7e-a376-4e93-92be-ccda3a433438', 'call_end_time', 'TIMESTAMP', 'End time of the call', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('f41710d0-fe68-4c4a-b7c5-dfeebd0b9702', '62b85e7e-a376-4e93-92be-ccda3a433438', 'call_duration_seconds', 'INTEGER', 'Duration of the call in seconds', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('794b5a26-dfb1-4160-b404-bbffb1f187d0', '62b85e7e-a376-4e93-92be-ccda3a433438', 'is_inbound', 'BOOLEAN', 'Indicates if the call was inbound', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('06665ac3-d6d6-4509-a879-8d304dd5a22c', '62b85e7e-a376-4e93-92be-ccda3a433438', 'phone_number', 'VARCHAR(20)', 'Phone number used', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e1722d92-7685-4d04-b0d3-daef20eb1a43', '62b85e7e-a376-4e93-92be-ccda3a433438', 'call_type', 'VARCHAR(50)', 'Type of call (e.g., support'', sales'')', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('f6a0b9a1-2a83-4db9-8f48-06bad67d2888', '62b85e7e-a376-4e93-92be-ccda3a433438', 'call_result', 'VARCHAR(50)', 'Result of the call (e.g., ''Completed'', ''Missed'')', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('b2e22597-32a3-4824-8260-25a22a741fac', '62b85e7e-a376-4e93-92be-ccda3a433438', 'queue_time_seconds', 'INTEGER', 'Time spent in queue before the call', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('61118327-eb4b-4d9c-940a-6a3f274bb6cc', '62b85e7e-a376-4e93-92be-ccda3a433438', 'hold_time_seconds', 'INTEGER', 'Time spent on hold during the call', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('f7d739da-d5f8-4084-b12b-859b366cfd51', '62b85e7e-a376-4e93-92be-ccda3a433438', 'recording_url', 'VARCHAR(255)', 'URL of the call recording', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0519f7ca-b502-46b3-91bd-dbccafa992cc', '62b85e7e-a376-4e93-92be-ccda3a433438', 'disposition', 'VARCHAR(100)', 'Final disposition of the call', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6032bbd1-76a7-4930-9c2e-7325b31d88a0', '62b85e7e-a376-4e93-92be-ccda3a433438', 'notes', 'TEXT', 'Additional notes from the call', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('bf9ffd19-50aa-416a-b960-84c4c91ad0ea', '62b85e7e-a376-4e93-92be-ccda3a433438', 'transferred', 'BOOLEAN', 'Indicates if the call was transferred', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c286296a-3e56-4449-b36a-364e40e50a45', '62b85e7e-a376-4e93-92be-ccda3a433438', 'transferred_to_agent_id', 'INTEGER', 'Identifier of the agent the call was transferred to', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('eead3923-b17e-4765-9450-23e38885e4d0', '62b85e7e-a376-4e93-92be-ccda3a433438', 'conference_call', 'BOOLEAN', 'Indicates if it was a conference call', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('eff75872-928c-48a7-9552-7e307f21ee15', '62b85e7e-a376-4e93-92be-ccda3a433438', 'participants_count', 'INTEGER', 'Number of participants in the call', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('86e6f6f9-43b8-43df-9dac-ae5532f01bb7', '62b85e7e-a376-4e93-92be-ccda3a433438', 'call_reason', 'VARCHAR(255)', 'Reason for the call', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('bf468e98-653d-46d6-a371-0d64e7de2783', '62b85e7e-a376-4e93-92be-ccda3a433438', 'follow_up_required', 'BOOLEAN', 'Indicates if follow-up is needed', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('06f928fc-7136-4058-a2b0-d5c954b6c18f', '62b85e7e-a376-4e93-92be-ccda3a433438', 'follow_up_date', 'TIMESTAMP', 'Scheduled date for follow-up', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e248c6df-3f2e-4c8a-b353-f8d90d722597', '62b85e7e-a376-4e93-92be-ccda3a433438', 'survey_offered', 'BOOLEAN', 'Indicates if a survey was offered after the call', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('dc365701-50a9-4b0e-af63-c02360eb8a54', '62b85e7e-a376-4e93-92be-ccda3a433438', 'survey_completed', 'BOOLEAN', 'Indicates if the survey was completed', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('18cf437c-468d-4570-921c-f05c7b07687d', '62b85e7e-a376-4e93-92be-ccda3a433438', 'survey_score', 'INTEGER', 'Score from the survey', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('d997ec59-34fe-48f9-baf4-f1dad4ae6ea3', '62b85e7e-a376-4e93-92be-ccda3a433438', 'customer_sat_score', 'INTEGER', 'Customer satisfaction score', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ba5df805-6ae6-4c9c-988f-63f12f4a5e8f', '62b85e7e-a376-4e93-92be-ccda3a433438', 'first_contact_resolution', 'BOOLEAN', 'Indicates if the issue was resolved on first contact', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0beaa259-9afc-47d4-87d4-a220fa67c87a', '62b85e7e-a376-4e93-92be-ccda3a433438', 'escalated', 'BOOLEAN', 'Indicates if the call was escalated', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e728fb73-df73-472c-b796-c4b737e1af5f', '62b85e7e-a376-4e93-92be-ccda3a433438', 'escalation_level', 'INTEGER', 'Level of escalation', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('b20db0b1-ea5d-4fbf-97c6-5aa87c83b517', '62b85e7e-a376-4e93-92be-ccda3a433438', 'language', 'VARCHAR(50)', 'Language used during the call', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('861d6f35-2f12-4b5b-8dee-b45f8cd90acc', '62b85e7e-a376-4e93-92be-ccda3a433438', 'script_adherence_score', 'DECIMAL(5,2)', 'Score for adherence to call scripts', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('5cb96e18-69c5-425e-b0aa-f94afcfa7a24', '62b85e7e-a376-4e93-92be-ccda3a433438', 'policy_compliance', 'BOOLEAN', 'Indicates if policies were complied with', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('be9889da-7825-42a3-9ebf-e8e0fbfe970c', '62b85e7e-a376-4e93-92be-ccda3a433438', 'service_level_met', 'BOOLEAN', 'Indicates if service level was met', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8d17247e-1782-405b-8876-eeb8a9ed906f', '62b85e7e-a376-4e93-92be-ccda3a433438', 'abandoned', 'BOOLEAN', 'Indicates if the call was abandoned', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('b357017f-7498-4cf2-ad2a-dfcb576a8b9c', '62b85e7e-a376-4e93-92be-ccda3a433438', 'abandon_time_seconds', 'INTEGER', 'Time when the call was abandoned', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('94eef270-1207-4f1c-82d6-4c4c2daab2fb', '62b85e7e-a376-4e93-92be-ccda3a433438', 'wrap_up_time_seconds', 'INTEGER', 'Time spent on post-call wrap-up', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e7e35e9d-0327-40f6-b040-ec8e2235c180', '62b85e7e-a376-4e93-92be-ccda3a433438', 'acd_group', 'VARCHAR(100)', 'Automatic Call Distribution group', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('5b2b1f41-337d-4d82-90ff-f458564b2be4', '62b85e7e-a376-4e93-92be-ccda3a433438', 'dialed_number', 'VARCHAR(20)', 'Number dialed by the customer', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('d9e3b116-36ad-414d-a271-a3de2f871b58', '62b85e7e-a376-4e93-92be-ccda3a433438', 'caller_id', 'VARCHAR(100)', 'Caller ID information', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('286f7406-6d1e-40be-ab67-cd9c2facca23', '62b85e7e-a376-4e93-92be-ccda3a433438', 'device_used', 'VARCHAR(50)', 'Device used during the call', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6d686005-8de2-4ea5-9721-bad872d02cb3', '62b85e7e-a376-4e93-92be-ccda3a433438', 'network_quality', 'VARCHAR(50)', 'Quality of the network connection', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('40b64396-1afe-4266-a356-301ed98cf094', '62b85e7e-a376-4e93-92be-ccda3a433438', 'agent_location', 'VARCHAR(100)', 'Location of the agent', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('5be50556-f4e9-49e2-ae01-fe4110c098d5', '62b85e7e-a376-4e93-92be-ccda3a433438', 'created_at', 'TIMESTAMP', 'Record creation timestamp', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('3c8ac980-59bd-475e-a0ec-e0e26f26ffc0', '62b85e7e-a376-4e93-92be-ccda3a433438', 'updated_at', 'TIMESTAMP', 'Record last update timestamp', true, '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0d78bdb7-9956-430b-af49-ae4e74792bf2', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'email_id', 'SERIAL', 'Unique identifier for the email record', false, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('b2eee02e-22d4-4091-aaaa-2b0d50c49dea', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'message_id', 'VARCHAR(255)', 'Unique message identifier', false, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('d130a345-103c-4089-9a23-224e307dc43e', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'ticket_id', 'INTEGER', 'Associated support ticket identifier', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e77cfa58-3858-4440-b7d3-9bffddeb1fcb', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'customer_id', 'INTEGER', 'Unique identifier for the customer', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ec976e27-e027-4d4c-8597-b7756d4e1331', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'agent_id', 'INTEGER', 'Unique identifier for the agent', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('efef8eb9-745b-4b25-a2a1-af5a83f02be1', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'sent_time', 'TIMESTAMP', 'Time the email was sent', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ff024597-04a1-450f-aca2-c0474c2e8a7c', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'received_time', 'TIMESTAMP', 'Time the email was received', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('f54a0287-35df-433e-9b5a-2ea219a59eb1', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'subject', 'VARCHAR(255)', 'Email subject line', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('173f62c6-a43f-4755-b271-ca49cf12b73d', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'body', 'TEXT', 'Email body content', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('2e0f0b0e-f239-49f6-af6d-cafc1d2a6e51', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'attachment_exists', 'BOOLEAN', 'Indicates if there are attachments', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('094033c9-97cb-4152-8f47-829091113a6c', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'attachment_urls', 'VARCHAR(255)', 'URLs of the attachments', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('78c32b27-d0a1-4917-bd73-2005c98fcdc8', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'email_direction', 'VARCHAR(20)', 'Direction of the email (''Inbound'' or ''Outbound'')', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('bcadb7d0-571c-4ee9-839a-67c13e88e196', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'email_status', 'VARCHAR(50)', 'Status of the email (e.g., ''Sent'', ''Delivered'', ''Bounced'')', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('5b3ae89d-045c-4a9a-8ca5-01bc1e94ad0a', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'sender_email', 'VARCHAR(255)', 'Senders email address', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('eea2eb09-94a8-44d6-acc4-f2d6e9613fe1', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'recipient_email', 'VARCHAR(255)', 'Recipients email address', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('f11311b3-44dc-41bd-a561-2867fc6f7cea', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'cc_list', 'VARCHAR(255)', 'CC recipients', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('643eac41-3e58-430c-9ef2-cbbebc223755', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'bcc_list', 'VARCHAR(255)', 'BCC recipients', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('f2630400-9246-4b5e-be9d-637a4d802c30', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'reply_to_id', 'VARCHAR(255)', 'Message ID of the email being replied to', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('f1a8328b-4397-4e11-864f-222b02397386', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'thread_id', 'VARCHAR(255)', 'Thread identifier for the email conversation', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('1ca0b596-47b6-4d86-9164-0475b9e943c9', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'is_auto_reply', 'BOOLEAN', 'Indicates if the email is an auto-reply', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4f0f77fd-abbb-486e-8993-8612cb9a08ff', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'spam_score', 'DECIMAL(5,2)', 'Spam score of the email', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('252bd128-2e5c-4246-89e8-11dd4302b201', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'language', 'VARCHAR(50)', 'Language of the email content', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6f8cf830-3678-4b39-9f82-05f933780c04', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'sentiment', 'VARCHAR(20)', 'Sentiment analysis result', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('b8608e8b-6d3d-45fd-ad2b-089061cb4c42', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'tags', 'VARCHAR(255)', 'Tags associated with the email', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('9ac70bc6-094a-4b0c-be6e-b4d2c8c080bc', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'read_receipt_requested', 'BOOLEAN', 'Indicates if read receipt was requested', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e1c65c6e-5d3e-4899-811d-5eda9f0889b7', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'read_receipt_received', 'BOOLEAN', 'Indicates if read receipt was received', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('22e4f65e-0392-45a4-9830-a58fde4c4dc2', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'priority', 'VARCHAR(50)', 'Priority level of the email', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c0c214bf-6f70-460d-8629-cdc4be3da41f', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'escalation_level', 'INTEGER', 'Escalation level', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('952ba6e0-bb7f-4117-8201-cc43be1d25eb', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'forwarding_addresses', 'VARCHAR(255)', 'Email addresses to which the email was forwarded', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('05476caf-0b0b-4b8d-813a-24b47e6fdedd', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'email_client', 'VARCHAR(100)', 'Email client used (e.g., ''Outlook'', ''Gmail'')', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('42037c53-63b9-404c-97a8-259c76b834a8', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'ip_address', 'VARCHAR(45)', 'IP address from which the email was sent', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('60f390aa-390f-40c2-9916-8dad80db226c', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'smtp_server', 'VARCHAR(100)', 'SMTP server used', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('56f12490-962d-42a6-936f-cb49a0432d47', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'is_encrypted', 'BOOLEAN', 'Indicates if the email was encrypted', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4674a2ff-b734-4875-aec5-91fbee08fb1f', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'encryption_method', 'VARCHAR(50)', 'Encryption method used', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('93078d8b-05c4-4094-8189-cb2af26f7818', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'email_size_bytes', 'INTEGER', 'Size of the email in bytes', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('f9539cde-4e4c-4298-bf0e-9129d126d11b', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'headers', 'TEXT', 'Email headers', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ef57e621-fffc-4327-9db0-eb5048cad84d', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'is_draft', 'BOOLEAN', 'Indicates if the email is a draft', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('9008ec71-32e8-4901-832e-639fd5150761', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'is_template_used', 'BOOLEAN', 'Indicates if an email template was used', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7ebb59dc-fad6-4eef-b4b7-ee269b8d0add', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'template_id', 'INTEGER', 'Identifier of the email template used', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('64e4781b-4909-4b53-ae64-83fd81808145', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'created_at', 'TIMESTAMP', 'Record creation timestamp', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('41b49800-bbc6-4533-a889-8182accb171e', '6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'updated_at', 'TIMESTAMP', 'Record last update timestamp', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7f92c3a8-e767-4d6e-8094-1637462b7bcf', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'chat_session_id', 'SERIAL', 'Unique identifier for the chat session', false, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('334aa65c-e946-4036-a11f-eb3e7afa598c', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'session_token', 'VARCHAR(255)', 'Unique token for the chat session', false, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('641a0ca2-ad8f-4e3d-b2e0-5b687cbbf995', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'customer_id', 'INTEGER', 'Unique identifier for the customer', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('129d789c-b015-4e56-b09b-bbe7f9f171ed', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'agent_id', 'INTEGER', 'Unique identifier for the agent', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('2b493db3-b095-4549-8409-e69fc66f5079', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'start_time', 'TIMESTAMP', 'Start time of the chat session', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('eb2109d1-72c2-474d-95da-badd0c23bd5e', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'end_time', 'TIMESTAMP', 'End time of the chat session', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4ddb3182-a645-4bdd-ba41-f50303f8b8da', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'duration_seconds', 'INTEGER', 'Duration of the chat session in seconds', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('42a30d62-6de8-4786-82e6-bc73a0c569a9', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'number_of_messages', 'INTEGER', 'Total number of messages exchanged', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ea8db6c1-3799-46fc-a973-ab4849853695', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'customer_wait_time_seconds', 'INTEGER', 'Time customer waited before chat started', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4715b89f-e13a-4da0-beb5-3d58f6a2c435', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'agent_response_time_average_seconds', 'DECIMAL(10,2)', 'Agents average response time in seconds', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('98ba6ae4-0ca9-454a-ad69-d1003c7c6354', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'issue_resolved', 'BOOLEAN', 'Indicates if the issue was resolved during the chat', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('65ad5fca-385c-4994-a04b-265007f43708', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'satisfaction_rating', 'INTEGER', 'Customers satisfaction rating', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('abdc4de8-b0f1-4d79-aef0-d1600d438a27', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'transcript', 'TEXT', 'Transcript of the chat session', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a783e075-7d34-4179-b62b-930632cf6e9f', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'language', 'VARCHAR(50)', 'Language used during the chat', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('49eb0e8b-666f-4398-bedc-eea430942753', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'channel', 'VARCHAR(50)', 'Channel used for the chat (e.g., ''Web'', ''Mobile App'')', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4e688aaa-e214-43d9-bc41-cdf3678d2e09', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'device_info', 'VARCHAR(100)', 'Information about the customers device', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6550a5ac-835a-4343-8467-e447b4190d84', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'browser_info', 'VARCHAR(100)', 'Browser information', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0bbdeb89-495a-40ca-963e-ea908bc92235', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'os_info', 'VARCHAR(100)', 'Operating system information', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4d36de07-c689-4512-8338-c9a1558c8996', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'ip_address', 'VARCHAR(45)', 'IP address of the customer', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c8b20998-65c5-4d25-b534-da1a4cc82001', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'geo_location', 'VARCHAR(100)', 'Geographical location', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('21dbbf9b-a03e-4838-83a0-a538f0d2f926', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'escalation_needed', 'BOOLEAN', 'Indicates if escalation was needed', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8681d398-0f4d-4564-b07a-b44f29792374', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'transferred', 'BOOLEAN', 'Indicates if the chat was transferred to another agent', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('74eb95c5-71f5-4148-af39-e4f525ed6833', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'transferred_to_agent_id', 'INTEGER', 'Identifier of the agent to whom the chat was transferred', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('50774fc7-1ef9-4e95-9288-2730c21e7da2', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'co_browsing_used', 'BOOLEAN', 'Indicates if co-browsing was used', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('39911853-a0b1-4817-9af9-3c30f918cf3b', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'file_transfer_used', 'BOOLEAN', 'Indicates if file transfer was used', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('3e49d528-3d74-47a6-ba39-ead0b9d3c8bd', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'file_urls', 'VARCHAR(255)', 'URLs of files transferred', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('088f5668-81eb-4b1c-b345-262097b37e18', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'proactive_chat', 'BOOLEAN', 'Indicates if the chat was initiated proactively', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('72a2f53e-f47e-43e3-93bb-d2aac69318f3', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'chat_queue_time_seconds', 'INTEGER', 'Time spent in chat queue', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('d8d4da88-78c5-4835-9158-a221024b94e5', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'chat_skill', 'VARCHAR(100)', 'Skill or department handling the chat', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('38eeaae9-5ba0-4a0d-a47e-3c31fde9bc60', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'tags', 'VARCHAR(255)', 'Tags associated with the chat session', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('12847b2e-a3a7-4d5c-a6a9-ab2448553db9', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'chatbot_involved', 'BOOLEAN', 'Indicates if a chatbot was involved', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('37a153c5-8dd5-4873-adeb-5174345b298a', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'handoff_to_agent', 'BOOLEAN', 'Indicates if there was a handoff from a chatbot to an agent', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('35bfe766-90c8-4a84-b280-6b6f44f08e58', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'feedback_requested', 'BOOLEAN', 'Indicates if feedback was requested', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('9ca03137-5884-43ae-b052-22a825e2daac', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'feedback_received', 'BOOLEAN', 'Indicates if feedback was received', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('46989d0f-3f7f-46d2-b11c-1f1a453ec4af', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'feedback_comments', 'TEXT', 'Comments from the feedback', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('9d816110-792e-454f-a9a6-8285fb887d88', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'created_at', 'TIMESTAMP', 'Record creation timestamp', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7bc5198b-e645-40b8-aa7d-b3dd3c38f3fa', 'a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'updated_at', 'TIMESTAMP', 'Record last update timestamp', true, '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('645db7d1-7fb6-4a99-b584-3ec6c6f6f65b', '38e0e307-ed32-44ef-8169-1339e021e56a', 'engagement_id', 'SERIAL', 'Unique identifier for the engagement record', false, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('cd0c7ce6-f94c-4a09-b0d1-d07d754becdf', '38e0e307-ed32-44ef-8169-1339e021e56a', 'post_id', 'VARCHAR(255)', 'Unique identifier for the social media post', false, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c251c422-a203-4fe5-8448-9af9880c827d', '38e0e307-ed32-44ef-8169-1339e021e56a', 'customer_id', 'INTEGER', 'Unique identifier for the customer', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('32467b50-3635-4f94-a0f7-aae96a0252b3', '38e0e307-ed32-44ef-8169-1339e021e56a', 'agent_id', 'INTEGER', 'Unique identifier for the agent', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0014e535-b6f9-49b3-99f6-26b6dc8c8d5a', '38e0e307-ed32-44ef-8169-1339e021e56a', 'platform', 'VARCHAR(50)', 'Social media platform (e.g., ''Twitter'', ''Facebook'')', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('59873f62-d91e-4f1f-9c98-df6e394cbb85', '38e0e307-ed32-44ef-8169-1339e021e56a', 'post_date', 'TIMESTAMP', 'Date and time of the customers post', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('763378a1-e9bb-426e-9483-dbaa05f219b0', '38e0e307-ed32-44ef-8169-1339e021e56a', 'response_date', 'TIMESTAMP', 'Date and time of the companys response', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0c9a604c-3730-4a20-8f36-875754596b54', '38e0e307-ed32-44ef-8169-1339e021e56a', 'response_time_minutes', 'INTEGER', 'Time in minutes to respond', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('db0005a9-8cea-4631-a295-c996fde10ee5', '38e0e307-ed32-44ef-8169-1339e021e56a', 'post_content', 'TEXT', 'Content of the customers post', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a49d3684-17c7-4fa5-8da1-abc431225bb6', '38e0e307-ed32-44ef-8169-1339e021e56a', 'response_content', 'TEXT', 'Content of the companys response', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('5cf1e7a9-2aa5-40be-a1e3-1b8f33a6a243', '38e0e307-ed32-44ef-8169-1339e021e56a', 'sentiment', 'VARCHAR(20)', 'Sentiment analysis of the post', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('14d98153-5993-400a-b790-8507572049c3', '38e0e307-ed32-44ef-8169-1339e021e56a', 'issue_type', 'VARCHAR(100)', 'Type of issue discussed', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('82a58961-00d0-4171-9afa-2638b9f98009', '38e0e307-ed32-44ef-8169-1339e021e56a', 'resolution_status', 'VARCHAR(50)', 'Outcome after engagement (e.g., ''Resolved'', ''Pending'')', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7f80d131-2bc5-455a-859c-49759b3b690b', '38e0e307-ed32-44ef-8169-1339e021e56a', 'escalation_level', 'INTEGER', 'Escalation level if applicable', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('714c2cf2-164d-4ff5-857a-0c8df0002a5e', '38e0e307-ed32-44ef-8169-1339e021e56a', 'likes', 'INTEGER', 'Number of likes on the post', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('092f1cff-934b-4d7e-a547-dc166f33cc1c', '38e0e307-ed32-44ef-8169-1339e021e56a', 'shares', 'INTEGER', 'Number of shares', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6615c095-16d9-40f9-9449-d13ee58dca9c', '38e0e307-ed32-44ef-8169-1339e021e56a', 'comments', 'INTEGER', 'Number of comments', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a212f124-ccae-45cc-b4e1-2c4c75a415ee', '38e0e307-ed32-44ef-8169-1339e021e56a', 'tags', 'VARCHAR(255)', 'Tags or hashtags associated', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0b5e656d-0013-49fd-ad18-1be1fa44915f', '38e0e307-ed32-44ef-8169-1339e021e56a', 'media_url', 'VARCHAR(255)', 'URL of any media associated with the post', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('cf71801b-7291-4588-9da4-61fa759827ac', '38e0e307-ed32-44ef-8169-1339e021e56a', 'is_direct_message', 'BOOLEAN', 'Indicates if the engagement was via direct message', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('57c1df02-80db-4073-ba1e-3df3b44c88a2', '38e0e307-ed32-44ef-8169-1339e021e56a', 'is_public', 'BOOLEAN', 'Indicates if the post is public', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('38d1b504-b338-4446-a24f-5079a98d7d3d', '38e0e307-ed32-44ef-8169-1339e021e56a', 'follower_count', 'INTEGER', 'Number of followers of the customer', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('cfd3f1ae-7e59-4dfb-8b3b-41b683f8aebb', '38e0e307-ed32-44ef-8169-1339e021e56a', 'influencer_score', 'DECIMAL(5,2)', 'Influencer score based on engagement', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('1f352fb2-ac5e-43f6-adec-bd9bc1af079e', '38e0e307-ed32-44ef-8169-1339e021e56a', 'campaign_id', 'VARCHAR(100)', 'Marketing campaign identifier if applicable', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c875e29d-cf37-4536-a9be-f6cf55140534', '38e0e307-ed32-44ef-8169-1339e021e56a', 'scheduled_post', 'BOOLEAN', 'Indicates if the post was scheduled', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('36987c2c-f16f-4d3b-842c-6d75694101cf', '38e0e307-ed32-44ef-8169-1339e021e56a', 'third_party_tool', 'VARCHAR(100)', 'Tool used for social media engagement', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e63ce1e3-0e13-4cab-836f-3b42fca64b96', '38e0e307-ed32-44ef-8169-1339e021e56a', 'compliance_checked', 'BOOLEAN', 'Indicates if compliance checks were performed', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('46eb9e49-dfc1-4c13-9244-1415575e2a56', '38e0e307-ed32-44ef-8169-1339e021e56a', 'policy_violations', 'INTEGER', 'Number of policy violations detected', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('77add677-145a-4639-b26c-ff35a841fa12', '38e0e307-ed32-44ef-8169-1339e021e56a', 'follow_up_required', 'BOOLEAN', 'Indicates if follow-up is needed', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('3fb5789f-aa2f-4210-980d-d857077ef142', '38e0e307-ed32-44ef-8169-1339e021e56a', 'follow_up_date', 'TIMESTAMP', 'Scheduled date for follow-up', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ecb1e9d2-805d-4fdb-b443-a527e4619513', '38e0e307-ed32-44ef-8169-1339e021e56a', 'ticket_id', 'INTEGER', 'Associated support ticket identifier', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('54099aa6-115c-4757-8b8b-3a7368c98c69', '38e0e307-ed32-44ef-8169-1339e021e56a', 'created_at', 'TIMESTAMP', 'Record creation timestamp', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('313dbc80-ed0a-4e88-9926-5b6917b1a625', '38e0e307-ed32-44ef-8169-1339e021e56a', 'updated_at', 'TIMESTAMP', 'Record last update timestamp', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('01f9fa91-9a38-4df5-b288-704fda5833ad', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'sla_id', 'SERIAL', 'Unique identifier for the SLA compliance record', false, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8a221636-f2d9-46bf-8530-c37010811372', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'ticket_id', 'INTEGER', 'Unique identifier for the associated ticket', false, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('cfc6d401-379a-4163-97bf-251c4b843b23', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'customer_id', 'INTEGER', 'Unique identifier for the customer', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('eda28e09-2872-4d2a-a9e6-c173c49822e0', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'agent_id', 'INTEGER', 'Unique identifier for the agent', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('07070183-4649-49ee-8a57-379a11eb8be7', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'sla_type', 'VARCHAR(100)', 'Type of SLA (e.g., ''Response Time'', ''Resolution Time'')', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('38b8492d-afb2-4e0e-a5ca-5dffcca5f3be', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'sla_target_seconds', 'INTEGER', 'Target time in seconds defined by the SLA', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('77b0c89e-d0c2-485d-9ea4-1223fbbe7a35', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'actual_seconds', 'INTEGER', 'Actual time taken in seconds', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('5e4e9f79-7ec0-4258-a8df-0cbe150b3cb7', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'sla_met', 'BOOLEAN', 'Indicates if SLA was met', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('3fa4125a-dbaa-4a7b-8b97-47aa7f950062', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'breach_time_seconds', 'INTEGER', 'Time by which SLA was breached', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('203d55df-0c0b-47ae-a0ae-ca64ee064da9', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'breach_reason', 'VARCHAR(255)', 'Reason for SLA breach', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4acd5d10-be28-4898-aa65-aafad225bd73', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'escalation_level', 'INTEGER', 'Escalation level due to SLA breach', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('b08eac41-7b25-433f-ba65-b7b8495846f0', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'notified', 'BOOLEAN', 'Indicates if relevant parties were notified', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('efb6d157-bac1-48ad-bd09-17966c978dff', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'notification_time', 'TIMESTAMP', 'Time when notification was sent', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('126bd5cf-d671-4bd0-aebf-3d8b4ac437fa', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'priority', 'VARCHAR(50)', 'Priority level of the ticket', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('33ab4221-75e6-460f-9de5-6de903d32878', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'issue_type', 'VARCHAR(100)', 'Type of issue', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a964d2ad-45c9-4452-ac03-738c1d507f35', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'start_time', 'TIMESTAMP', 'Time when the SLA measurement started', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ea5e6a89-1a7c-43d3-b1af-b1741150b258', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'end_time', 'TIMESTAMP', 'Time when the SLA measurement ended', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('01276063-2b72-48fe-bdea-c0ae83f9c35d', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'adjustments_seconds', 'INTEGER', 'Adjustments made to SLA time (e.g., pauses)', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('801c4897-1abc-40a7-987a-45f8076eaa38', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'adjustment_reason', 'VARCHAR(255)', 'Reason for adjustment', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('da557d42-85ad-45be-b089-6a011c9a0942', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'exclusions_applied', 'BOOLEAN', 'Indicates if any SLA exclusions were applied', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0bef72a4-08fe-46a0-b456-3c7e9b96e38a', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'sla_policy_version', 'VARCHAR(50)', 'Version of the SLA policy applied', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('3463544b-e893-472e-ad02-30659b706a1b', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'comments', 'TEXT', 'Additional comments or notes', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('fc24636b-5812-45fb-8685-171f69447926', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'root_cause_analysis', 'TEXT', 'Analysis of the root cause for SLA breach', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('cf82f1ee-d522-43c0-95d0-008e65fbfb89', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'corrective_action_taken', 'BOOLEAN', 'Indicates if corrective action was taken', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('84224b28-7e17-45ae-b967-8df70676e9aa', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'responsible_team', 'VARCHAR(100)', 'Team responsible for the breach', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8a72eb03-79e7-4b02-805b-2cb6c8b7a655', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'compliance_percentage', 'DECIMAL(5,2)', 'SLA compliance percentage', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('89c900d0-b6a8-4f71-a937-d3fe39709741', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'reporting_period', 'DATE', 'Reporting period for compliance tracking', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('43c059e3-9359-4701-b9f4-5ca82a2d7485', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'created_at', 'TIMESTAMP', 'Record creation timestamp', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('1a462177-a74f-4644-b42b-746a3d73047c', 'cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'updated_at', 'TIMESTAMP', 'Record last update timestamp', true, '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('15648525-952c-4fd3-8388-2581fbed94e8', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'usage_stats_id', 'SERIAL', 'Unique identifier for the product usage stats record', false, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a69d0457-777c-4548-a950-ea2c94d15cb9', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'customer_id', 'INTEGER', 'Unique identifier for the customer', false, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ab3ac51b-0b91-4439-99e7-70fcf1bd1be6', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'product_id', 'INTEGER', 'Unique identifier for the product', false, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6f6ad81c-caab-4b6b-a6b7-ff4e41aa72fc', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'usage_date', 'DATE', 'Date of usage', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8981c135-bf50-4cdb-b78e-0222eb5cfb11', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'active_hours', 'DECIMAL(5,2)', 'Number of hours the product was actively used', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('47ea0054-8a98-4bc1-900f-91737c8ccdb7', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'feature_used', 'VARCHAR(100)', 'Specific feature used', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('9e95471c-3aae-4e4d-a08e-7f8fe3181019', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'feature_usage_count', 'INTEGER', 'Count of how many times the feature was used', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4c2561fc-7871-454a-ab21-0ae8161add4a', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'session_count', 'INTEGER', 'Number of sessions in a day', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0bb545f3-a184-47be-be38-c2093f8aac99', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'last_login_date', 'TIMESTAMP', 'Timestamp of the last login', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('834df352-a1b7-4c3b-996b-113e427b4dc9', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'days_since_last_login', 'INTEGER', 'Days since last login', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8719cea5-ace3-44de-a92b-00a8a1db18e2', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'total_logins', 'INTEGER', 'Total number of logins', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('d87761e9-ab20-458f-b28e-ed5cb2c722eb', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'average_session_duration_minutes', 'DECIMAL(5,2)', 'Average duration of sessions in minutes', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('bde86ae3-24a1-4645-8200-9ac09189a731', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'max_session_duration_minutes', 'DECIMAL(5,2)', 'Maximum session duration in minutes', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c9b3f705-8c86-4ecd-91af-84746c804d6d', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'min_session_duration_minutes', 'DECIMAL(5,2)', 'Minimum session duration in minutes', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('2bbe23ea-5a96-44ab-948f-71f76782ab10', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'errors_encountered', 'INTEGER', 'Number of errors encountered', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ab521ef2-2547-415a-bafd-1d872fbddab5', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'error_types', 'VARCHAR(255)', 'Types of errors encountered', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7d5669b2-c565-4df1-bbb7-eb9949ae54a3', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'crashes', 'INTEGER', 'Number of application crashes', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('1858eb3e-f675-4e47-860c-dd59bbf5d87b', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'platform', 'VARCHAR(50)', 'Platform used (e.g., ''Web'', ''iOS'', ''Android'')', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('b957003c-dfc8-4b47-b8b5-2d0e84ae608d', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'os_version', 'VARCHAR(50)', 'Operating system version', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('32ff42a3-4bc2-4b96-a027-725e1e85c15a', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'app_version', 'VARCHAR(50)', 'Application version', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('eeaebc26-7278-432d-9ba9-d15a32275bb5', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'device_type', 'VARCHAR(50)', 'Type of device used', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('2d6ccc53-1a2c-4b63-b04f-1a01cb7dd1b0', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'screen_resolution', 'VARCHAR(50)', 'Screen resolution', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6178b950-cfe1-4048-8e13-1f13b7b1e4e4', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'location_country', 'VARCHAR(50)', 'Country of usage', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('d2b59314-59c6-4cc3-83f4-ec3c5031da85', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'location_region', 'VARCHAR(50)', 'Region of usage', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('56a0db8b-4392-47c8-bff9-920adb5d9be4', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'ip_address', 'VARCHAR(45)', 'IP address during usage', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('11ef53a3-03d9-4b9e-9c89-c383b023220d', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'network_type', 'VARCHAR(50)', 'Type of network used (e.g., ''Wi-Fi'', ''4G'')', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('be377cd8-4992-4937-bfa4-faf26d7e5eed', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'data_consumed_mb', 'DECIMAL(10,2)', 'Data consumed in megabytes', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('91a6b471-30b1-45f9-b6c0-021d43f77431', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'push_notifications_enabled', 'BOOLEAN', 'Indicates if push notifications are enabled', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('90863257-3269-4a94-8d0e-70f69898f96c', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'in_app_purchases_made', 'BOOLEAN', 'Indicates if in-app purchases were made', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c1a59b40-24c7-4e48-9d86-d97a1bcb47d6', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'in_app_purchase_amount', 'DECIMAL(10,2)', 'Amount spent on in-app purchases', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7546c311-3de7-4f57-8175-e4448ac4a1cb', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'trial_user', 'BOOLEAN', 'Indicates if the user is on a trial', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('33ea7dbf-5835-4f7b-ade8-0a17bf46f264', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'subscription_tier', 'VARCHAR(50)', 'Subscription tier of the customer', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('68db531c-751f-49b7-969d-d9f0dabfabc5', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'referral_source', 'VARCHAR(100)', 'Source from where the customer was referred', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('d99e90f1-34f4-47be-a6f7-428971194900', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'feedback_provided', 'BOOLEAN', 'Indicates if feedback was provided', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('773ee8c4-13cd-49d6-9054-d48c8cd0401e', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'created_at', 'TIMESTAMP', 'Record creation timestamp', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('00de2581-502e-4461-9c8e-71e88a518b45', '6eef8685-20e4-4049-9d4e-e8b5319e685f', 'updated_at', 'TIMESTAMP', 'Record last update timestamp', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8bbc2cfa-68f7-43a3-bd5d-45586c21c13e', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'revenue_id', 'SERIAL', 'Unique identifier for the revenue record', false, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ed6c1fde-83f8-4f30-a711-25c85a36e133', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'customer_id', 'INTEGER', 'Unique identifier for the customer', false, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8daca564-8a71-4a20-8228-5fb84a71e826', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'billing_cycle', 'VARCHAR(50)', 'Billing cycle (e.g., ''Monthly'', ''Quarterly'', ''Annually'')', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a662f282-425c-4b75-9755-a7c78af0f3a1', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'amount_due', 'DECIMAL(10,2)', 'Amount due for the billing period', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('730a0f70-9431-4ed5-8d16-c1fbb01b8c71', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'amount_paid', 'DECIMAL(10,2)', 'Amount paid by the customer', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('92b68b1c-d090-480e-a7a0-ff4294b10af8', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'payment_date', 'DATE', 'Date when payment was made', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4886d212-9f37-4025-9b7f-a9c7a2ce08d9', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'payment_method', 'VARCHAR(50)', 'Payment method used', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0513aebf-50d7-4aff-b043-099dac7cdcc7', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'outstanding_balance', 'DECIMAL(10,2)', 'Balance that is outstanding', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('64305419-a119-4fae-bbea-bfd940cfc88b', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'last_payment_amount', 'DECIMAL(10,2)', 'Amount of the last payment made', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8592eb27-c943-4973-b542-5e461414a114', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'last_payment_date', 'DATE', 'Date of the last payment', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('6eaa0257-9912-4314-942a-9819446d42d7', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'total_revenue', 'DECIMAL(10,2)', 'Total revenue generated from the customer', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('d06b532c-cb4e-4bf0-9a17-775daadfc0eb', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'total_refunds', 'DECIMAL(10,2)', 'Total refunds issued to the customer', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('d84feb62-b283-4699-ac7f-4873bf1210ce', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'refund_reason', 'VARCHAR(255)', 'Reason for refunds', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a31f38f8-b8e6-439b-aef4-c0084d9fe1cd', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'discount_applied', 'BOOLEAN', 'Indicates if a discount was applied', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('91c47924-0083-436e-9837-db3bf1bedb89', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'discount_amount', 'DECIMAL(10,2)', 'Amount of discount applied', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('58a86813-d8bf-4973-b582-c865e9f0b5bc', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'promotion_code', 'VARCHAR(50)', 'Promotion code used', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('12a08cb0-7a7f-4a0b-b45d-10ccf822f26c', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'subscription_start_date', 'DATE', 'Start date of the subscription', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4e68391d-b9a0-496e-82f3-76598bda3e9d', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'subscription_end_date', 'DATE', 'End date of the subscription', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('40a4e7e9-41c4-4869-b2de-f0ef5f4eca4a', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'auto_renewal', 'BOOLEAN', 'Indicates if auto-renewal is enabled', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4523801b-9f38-4d86-840d-9b8dc7677377', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'upsell_potential', 'BOOLEAN', 'Indicates potential for upselling', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('dc20f173-7145-427e-bf8c-a0d5c82d422d', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'cross_sell_potential', 'BOOLEAN', 'Indicates potential for cross-selling', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('beeb7285-4af7-4f5b-b2dd-e3777eb488f8', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'credit_limit', 'DECIMAL(10,2)', 'Credit limit assigned to the customer', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a0e39e3c-948b-428a-a4ba-42d2ee986d83', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'credit_score', 'INTEGER', 'Credit score of the customer', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('fabdea8d-49dc-41c1-9280-cb75d933262c', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'account_status', 'VARCHAR(50)', 'Account status (e.g., ''Active'', ''Suspended'')', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('b7decdd2-b6c6-484d-b7fe-615d7f4bccf3', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'overdue_payments', 'INTEGER', 'Number of overdue payments', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('92ed7c98-5c39-42be-9b0e-6ce435cd78f3', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'average_revenue_per_month', 'DECIMAL(10,2)', 'Average monthly revenue from the customer', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('57dcb41d-3757-498e-a945-192a9050943e', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'lifetime_value', 'DECIMAL(10,2)', 'Lifetime value of the customer', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('f5f3790c-a868-4ab5-ae66-62efe44174a6', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'currency', 'VARCHAR(10)', 'Currency used', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('79934468-f1fe-47b3-bde0-84de60327999', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'tax_rate', 'DECIMAL(5,2)', 'Tax rate applied', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('519db256-baa9-48dc-b8f9-20cb96dcd611', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'tax_amount', 'DECIMAL(10,2)', 'Amount of tax charged', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('017da47a-9567-4a54-bcf7-d045cc14154c', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'invoice_id', 'VARCHAR(100)', 'Identifier for the invoice', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4eeb4db6-8cf5-499a-ab7c-d6dc19f7189e', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'payment_gateway', 'VARCHAR(50)', 'Payment gateway used', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ac8f7527-bb33-4b57-be1e-0ffba157589d', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'transaction_id', 'VARCHAR(100)', 'Transaction identifier', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('1b82d4ce-d804-4d04-9e9f-77e64b39c532', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'payment_failed', 'BOOLEAN', 'Indicates if the payment failed', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7cd977fd-9b04-4fbf-aa57-3ecdf8473b89', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'failure_reason', 'VARCHAR(255)', 'Reason for payment failure', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('21ec7f73-c96c-4037-bf94-7265357b3526', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'collection_agency_involved', 'BOOLEAN', 'Indicates if a collection agency is involved', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4bfb5aef-c931-4605-a764-d70a86e0e4f5', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'comments', 'TEXT', 'Additional comments', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('3fd5bbcb-e6f7-4b6d-8043-dfa5fb3e2d20', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'created_at', 'TIMESTAMP', 'Record creation timestamp', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8016d890-9f50-4f88-b00d-9c840db426b5', 'e1350025-ee5e-4141-816d-a8dc026bf64b', 'updated_at', 'TIMESTAMP', 'Record last update timestamp', true, '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e22844ae-f0ad-4198-9d14-e4d27d1d9739', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'account_history_id', 'SERIAL', 'Unique identifier for the account history record', false, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('04baa7dd-466b-4d8d-8848-99f342920e59', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'customer_id', 'INTEGER', 'Unique identifier for the customer', false, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('044770b2-29c1-4ec4-9dd6-e66b360940d7', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'action_date', 'TIMESTAMP', 'Date and time the action was performed', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7567bf2a-6aa7-4996-b599-22a0829c74c4', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'action_type', 'VARCHAR(100)', 'Type of action (e.g., ''Update'', ''Delete'', ''Create'')', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('faf2baed-8b18-4a80-ac47-3a591b9ec068', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'action_description', 'TEXT', 'Description of the action performed', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e57c8131-3390-49f6-a3f3-bd517ad79619', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'performed_by', 'INTEGER', 'Unique identifier of the agent or system performing the action', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8358c9d3-10c2-431b-8b51-9b1fc679625c', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'changes_made', 'TEXT', 'Summary of changes made', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('11564434-3e3b-4d49-bab5-b188fdc9b553', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'previous_values', 'TEXT', 'Previous values before the change', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ebc24155-ca96-45e9-98fc-1148c6ef408d', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'new_values', 'TEXT', 'New values after the change', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('dcace4d9-8d23-4ed6-8277-8ee2f3cb3c74', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'reason_for_change', 'VARCHAR(255)', 'Reason why the change was made', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('137feac9-24b2-4c6b-946b-f75f71fca7c6', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'authorized_by', 'INTEGER', 'Unique identifier of the authorizer', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4144288f-d626-4df7-b6ab-c8d057d0560b', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'ip_address', 'VARCHAR(45)', 'IP address from where the action was performed', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('62fc7f01-e669-44e2-b454-baaab09dc480', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'device_info', 'VARCHAR(100)', 'Information about the device used', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('f395b761-4f98-452c-8be9-d257e45c1257', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'os_info', 'VARCHAR(100)', 'Operating system information', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('5479b91e-03b6-4c96-bd3f-70fcae7d851c', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'browser_info', 'VARCHAR(100)', 'Browser information', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('70cdc784-ae08-4bb3-919d-227b72636ece', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'location', 'VARCHAR(100)', 'Geographical location', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('06a170e6-d544-4549-bfbd-b7cb8f4ec241', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'session_id', 'VARCHAR(255)', 'Session identifier', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a8308d69-a7b2-4a9d-b83d-c6dc0ff14e74', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'compliance_checked', 'BOOLEAN', 'Indicates if compliance checks were performed', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0734558b-fe8f-4172-9b57-c96a1f2cdeb7', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'policy_violations', 'INTEGER', 'Number of policy violations detected', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('3100e043-bf38-48a6-8d9d-7b1804e0e8b6', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'notification_sent', 'BOOLEAN', 'Indicates if the customer was notified', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4027ae0a-8e80-4ea3-a739-b5cbb609a79c', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'notification_method', 'VARCHAR(50)', 'Method used to notify the customer', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('74b049de-a573-4124-ad3c-02401e052139', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'customer_acknowledged', 'BOOLEAN', 'Indicates if the customer acknowledged the change', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ebbd8a13-d90b-4bb5-9928-0cc61081a64a', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'acknowledgment_date', 'TIMESTAMP', 'Date and time of acknowledgment', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('11a24458-2e14-42fd-b67d-85e74a1f2cfe', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'related_ticket_id', 'INTEGER', 'Identifier of related support ticket if any', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('11c6eee0-4781-417d-ab49-32b2fe8df678', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'comments', 'TEXT', 'Additional comments', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('fb7b31ec-5708-4632-99d3-9111658205a5', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'attachment_url', 'VARCHAR(255)', 'URL of any attachment related to the action', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e2b8ad6c-d4b2-4a08-8554-02e5b6916f7e', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'tags', 'VARCHAR(255)', 'Tags associated with the action', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('2d8c399d-99de-4787-8978-f88deafb6901', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'linked_account_id', 'INTEGER', 'Identifier of linked account if applicable', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('77a6c69b-acb6-4e86-8b86-e3d76123c18c', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'change_request_id', 'INTEGER', 'Identifier for the change request', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('8ca031e3-0384-44fa-ad66-350daa54e40c', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'created_at', 'TIMESTAMP', 'Record creation timestamp', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('b278fb8b-89e1-4848-9371-600b8620c6a0', '7401c8f2-b217-47b7-8e9e-4d70193ecb36', 'updated_at', 'TIMESTAMP', 'Record last update timestamp', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('dca3d059-4ab4-4592-b116-8320e10bf321', '97989b32-4c54-43a7-90ec-50476db1c988', 'renewal_rate_id', 'SERIAL', 'Unique identifier for the renewal rate record', false, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7cf1a106-166f-4412-aae1-54a0afd2a644', '97989b32-4c54-43a7-90ec-50476db1c988', 'customer_id', 'INTEGER', 'Unique identifier for the customer', false, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c6e7a383-e654-480e-b443-9bf6c976930b', '97989b32-4c54-43a7-90ec-50476db1c988', 'subscription_id', 'INTEGER', 'Unique identifier for the subscription', false, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0fdc6fa3-f545-4a64-86f5-5245b3af914a', '97989b32-4c54-43a7-90ec-50476db1c988', 'subscription_start_date', 'DATE', 'Start date of the subscription', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('fce13a2a-9e46-438c-b601-297c2484b310', '97989b32-4c54-43a7-90ec-50476db1c988', 'subscription_end_date', 'DATE', 'End date of the subscription', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('58938fb9-7599-4b12-ba13-d388d6743b55', '97989b32-4c54-43a7-90ec-50476db1c988', 'renewal_date', 'DATE', 'Date of renewal', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('d276d6e0-231f-48b0-9df9-657f86dafe7a', '97989b32-4c54-43a7-90ec-50476db1c988', 'renewal_status', 'VARCHAR(50)', 'Status of the renewal (e.g., ''Renewed'', ''Canceled'', ''Pending'')', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0092c135-3a84-4f5c-9d4c-3ee51a54dc8c', '97989b32-4c54-43a7-90ec-50476db1c988', 'renewal_method', 'VARCHAR(50)', 'Method of renewal (e.g., ''Auto'', ''Manual'')', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('50716da4-7f3c-450e-9785-2f082be03f4c', '97989b32-4c54-43a7-90ec-50476db1c988', 'cancellation_reason', 'VARCHAR(255)', 'Reason for cancellation', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('93e452b2-5a4e-4cd7-a195-7a084870acec', '97989b32-4c54-43a7-90ec-50476db1c988', 'notification_sent', 'BOOLEAN', 'Indicates if renewal notification was sent', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('1ce50e14-0027-4bac-8730-5841fd0b860f', '97989b32-4c54-43a7-90ec-50476db1c988', 'notification_date', 'DATE', 'Date when notification was sent', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('657d5b03-824d-46d0-9fef-9dca7dbf7e49', '97989b32-4c54-43a7-90ec-50476db1c988', 'payment_successful', 'BOOLEAN', 'Indicates if payment was successful', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('815a1826-1adc-4474-9042-d7e64094e918', '97989b32-4c54-43a7-90ec-50476db1c988', 'payment_date', 'DATE', 'Date when payment was received', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('f36a9ce1-67df-4200-b816-19ad192af4a1', '97989b32-4c54-43a7-90ec-50476db1c988', 'payment_method', 'VARCHAR(50)', 'Method used for payment', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('30bc7463-d3b5-4efe-8aab-a78701b9787c', '97989b32-4c54-43a7-90ec-50476db1c988', 'discount_applied', 'BOOLEAN', 'Indicates if discount was applied during renewal', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('85146266-a198-4b1e-b2e0-c1396419b386', '97989b32-4c54-43a7-90ec-50476db1c988', 'discount_amount', 'DECIMAL(10,2)', 'Amount of discount applied', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('22cb73d7-1478-4fd4-8073-966c7bc38dcd', '97989b32-4c54-43a7-90ec-50476db1c988', 'contract_length_months', 'INTEGER', 'Length of the contract in months', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c5427bae-eb0d-4052-bbbe-b84202df8f5e', '97989b32-4c54-43a7-90ec-50476db1c988', 'early_termination_fee', 'DECIMAL(10,2)', 'Fee charged for early termination', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('0ebe76aa-469a-464b-8012-bdab15761ffa', '97989b32-4c54-43a7-90ec-50476db1c988', 'upsell_during_renewal', 'BOOLEAN', 'Indicates if upsell occurred during renewal', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('b6b99778-312e-49e9-92cb-1448417f96e0', '97989b32-4c54-43a7-90ec-50476db1c988', 'cross_sell_during_renewal', 'BOOLEAN', 'Indicates if cross-sell occurred during renewal', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('4bdaf986-5e1c-42bc-a28e-dfd08b956870', '97989b32-4c54-43a7-90ec-50476db1c988', 'account_manager_id', 'INTEGER', 'Unique identifier for the account manager', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('19db74d3-6478-4ccb-bf96-6c7c05efe3ee', '97989b32-4c54-43a7-90ec-50476db1c988', 'customer_satisfaction_rating', 'INTEGER', 'Customers satisfaction rating after renewal', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('26db7dd1-858d-46ce-960c-17bfb93b602d', '97989b32-4c54-43a7-90ec-50476db1c988', 'feedback_comments', 'TEXT', 'Feedback from the customer', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('1d7a0dbf-9bf1-4a4a-98f1-4d4a56f48c80', '97989b32-4c54-43a7-90ec-50476db1c988', 'at_risk_flag', 'BOOLEAN', 'Indicates if the customer is at risk of churn', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('dcb02c93-cafa-42e1-aad8-173a5cce5e50', '97989b32-4c54-43a7-90ec-50476db1c988', 'risk_score', 'DECIMAL(5,2)', 'Risk score indicating likelihood of churn', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('49bd45b5-824e-4f18-91a3-ab4c9196eb07', '97989b32-4c54-43a7-90ec-50476db1c988', 'retention_offers_made', 'BOOLEAN', 'Indicates if retention offers were made', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('fd306757-63f8-41a4-947c-15f9208196d5', '97989b32-4c54-43a7-90ec-50476db1c988', 'retention_offer_details', 'VARCHAR(255)', 'Details of retention offers', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('985d4594-22fb-4708-a4a4-1a27f6306ba3', '97989b32-4c54-43a7-90ec-50476db1c988', 'new_subscription_tier', 'VARCHAR(50)', 'New subscription tier after renewal', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a2682510-82d3-4122-ac08-8ef54ab8943e', '97989b32-4c54-43a7-90ec-50476db1c988', 'usage_since_last_renewal', 'DECIMAL(10,2)', 'Product usage since last renewal', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e362ef02-e1a7-42c7-b935-33aa1fddb000', '97989b32-4c54-43a7-90ec-50476db1c988', 'created_at', 'TIMESTAMP', 'Record creation timestamp', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('90018a36-4250-44ee-8015-0f8ed969a025', '97989b32-4c54-43a7-90ec-50476db1c988', 'updated_at', 'TIMESTAMP', 'Record last update timestamp', true, '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('097b8d8d-4d97-4e8f-85f9-02ce7f346bfe', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'account_history_id', 'SERIAL', 'Unique identifier for the account history record', false, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('016427dd-cfd6-48d2-bb79-91e6dbc26a70', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'customer_id', 'INTEGER', 'Unique identifier for the customer', false, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7867354c-3f7e-427f-97f2-596c3808c8ce', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'action_date', 'TIMESTAMP', 'Date and time the action was performed', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('f1a70898-e958-4782-8f86-d1ecf3f42cc0', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'action_type', 'VARCHAR(100)', 'Type of action (e.g., ''Update'', ''Delete'', ''Create'')', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7a0fdd53-2e0e-4e40-972f-acb95abacb28', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'action_description', 'TEXT', 'Description of the action performed', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('d8ec42d1-84a3-4eca-a3f5-49e1f6a166a5', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'performed_by', 'INTEGER', 'Unique identifier of the agent or system performing the action', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('7702470c-ec18-42ad-a2c9-e22901d7e767', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'changes_made', 'TEXT', 'Summary of changes made', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c1eef3a8-424d-421a-8fad-43461f8868c1', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'previous_values', 'TEXT', 'Previous values before the change', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('84628f61-d3df-4771-a67a-46f0f8e86030', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'new_values', 'TEXT', 'New values after the change', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('35d0383b-692b-4d3d-a891-516604498d18', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'reason_for_change', 'VARCHAR(255)', 'Reason why the change was made', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('ea721fca-1ddd-4e64-b4e6-b7ef8c58ebe6', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'authorized_by', 'INTEGER', 'Unique identifier of the authorizer', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('b223f503-b166-4eba-8fbb-581b9a38c295', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'ip_address', 'VARCHAR(45)', 'IP address from where the action was performed', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('14d86faf-06f9-48fe-acd1-bc22c08d3a33', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'device_info', 'VARCHAR(100)', 'Information about the device used', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('bbb93f64-a038-45b3-8a27-3e470db44bff', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'os_info', 'VARCHAR(100)', 'Operating system information', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('2eda8c1c-3bfd-4ab5-a9a3-e49695b2fd2b', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'browser_info', 'VARCHAR(100)', 'Browser information', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('2db4677b-8e9a-4900-9bfb-b2aa308f7ed4', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'location', 'VARCHAR(100)', 'Geographical location', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('65fe98e5-7b74-48ee-af2d-a026b0c09102', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'session_id', 'VARCHAR(255)', 'Session identifier', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('1a0f4c8e-aa59-44e6-a4dc-81b99dd26576', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'compliance_checked', 'BOOLEAN', 'Indicates if compliance checks were performed', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('9c34cf78-dfeb-428c-a259-5af4193a4df4', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'policy_violations', 'INTEGER', 'Number of policy violations detected', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('d104566d-bd37-484d-978f-3c4ede62322b', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'notification_sent', 'BOOLEAN', 'Indicates if the customer was notified', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('24010dfa-ee00-42f6-b9e8-19f95f015d28', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'notification_method', 'VARCHAR(50)', 'Method used to notify the customer', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('50edf14f-eba7-466c-957c-d86decd4f3c7', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'customer_acknowledged', 'BOOLEAN', 'Indicates if the customer acknowledged the change', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('818af358-ff2f-45e5-a89f-5ea98aa7e3a6', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'acknowledgment_date', 'TIMESTAMP', 'Date and time of acknowledgment', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('c087df20-ef1e-4c98-b0e4-0f70708ec948', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'related_ticket_id', 'INTEGER', 'Identifier of related support ticket if any', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('25f68c61-173e-4781-a1c8-8c5c86c75f57', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'comments', 'TEXT', 'Additional comments', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('722dd1cb-3d40-43df-9b0c-a5fc3bdb2ff2', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'attachment_url', 'VARCHAR(255)', 'URL of any attachment related to the action', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('e16227a4-87ac-41e0-8b43-bc300df959e8', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'tags', 'VARCHAR(255)', 'Tags associated with the action', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('407f5205-0fbe-4d17-a038-c3f98d7feb76', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'linked_account_id', 'INTEGER', 'Identifier of linked account if applicable', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('b64a20b4-8c41-4083-8d40-62f9855a01bc', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'change_request_id', 'INTEGER', 'Identifier for the change request', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('a699c48d-347c-44b1-a96f-08a0bb4000f3', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'created_at', 'TIMESTAMP', 'Record creation timestamp', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
-INSERT INTO public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced) VALUES ('33b31767-89da-4b35-aef1-da00a4ed3a10', '046589cd-52c3-419b-b5b2-2401fa35ed68', 'updated_at', 'TIMESTAMP', 'Record last update timestamp', true, '2024-10-31 17:42:46.566769+00', '2024-10-31 17:42:46.566769+00', NULL, false, NULL, NULL, NULL, NULL);
+INSERT INTO public.dataset_columns VALUES ('e8345d76-0ab3-4407-b91c-46ae3321431f', 'f4298ca8-9e61-4e88-b958-59975a06bcec', 'transaction_date', 'timestamp without time zone', 'The date and time when the transaction occurred.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'transaction_date');
+INSERT INTO public.dataset_columns VALUES ('abc42be0-efe5-4efa-8ebf-e2af61dd7746', 'f4298ca8-9e61-4e88-b958-59975a06bcec', 'transaction_type', 'character', 'The type or classification of the transaction.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character', 'transaction_type');
+INSERT INTO public.dataset_columns VALUES ('af5d6489-e046-431c-a7fd-dec13a13afde', 'f4298ca8-9e61-4e88-b958-59975a06bcec', 'modified_date', 'timestamp without time zone', 'Timestamp indicating the last modification date of the record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('bae40987-7089-465a-a121-0fb1ab08d702', 'f4298ca8-9e61-4e88-b958-59975a06bcec', 'transaction_history_archive_key', 'integer', 'Unique key identifier for archived transaction history records.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'transaction_history_archive_key');
+INSERT INTO public.dataset_columns VALUES ('13331ac7-241a-41ef-829c-9c7239936c6c', 'f4298ca8-9e61-4e88-b958-59975a06bcec', 'transaction_id', 'integer', 'Unique identifier for the transaction.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'transaction_id');
+INSERT INTO public.dataset_columns VALUES ('8b5c7be6-bb1f-4626-97b6-8142b7db2f29', 'f4298ca8-9e61-4e88-b958-59975a06bcec', 'product_id', 'integer', 'Identifier for the product involved in the transaction.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'product_id');
+INSERT INTO public.dataset_columns VALUES ('c8185905-05a2-4d55-aa97-8f15fba5c5fe', 'f4298ca8-9e61-4e88-b958-59975a06bcec', 'reference_order_id', 'integer', 'Identifier for the associated order.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'reference_order_id');
+INSERT INTO public.dataset_columns VALUES ('860fbd9e-9165-47ca-9ef7-53ae4334e35b', 'f4298ca8-9e61-4e88-b958-59975a06bcec', 'reference_order_line_id', 'integer', 'Identifier for the specific order line in the associated order.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'reference_order_line_id');
+INSERT INTO public.dataset_columns VALUES ('7a74e8c4-8c8b-4dc4-bec3-5cf27dae949a', 'f4298ca8-9e61-4e88-b958-59975a06bcec', 'quantity', 'integer', 'The count of products involved in the transaction.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'quantity');
+INSERT INTO public.dataset_columns VALUES ('1a842dc2-344b-415b-b245-1ada87b6e578', 'f4298ca8-9e61-4e88-b958-59975a06bcec', 'actual_cost', 'numeric', 'The actual cost incurred in the transaction.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'actual_cost');
+INSERT INTO public.dataset_columns VALUES ('7407fb99-ac88-4d00-9003-65db7ac001d3', '5ff9b5f5-096b-48a6-b217-a0fe520f5962', 'name', 'character varying', 'The name of the sales reason entity.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'name');
+INSERT INTO public.dataset_columns VALUES ('68c4179a-9a7e-4d97-bfd6-b1103d601b27', '5ff9b5f5-096b-48a6-b217-a0fe520f5962', 'reason_type', 'character varying', 'The classification type indicating the nature of the sales reason.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'reason_type');
+INSERT INTO public.dataset_columns VALUES ('39ed8c32-8516-409f-a927-5d8c908df070', '5ff9b5f5-096b-48a6-b217-a0fe520f5962', 'modified_date', 'timestamp without time zone', 'The date and time when the sales reason entity was last modified.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('12772fb0-e88e-4341-aac8-55480a000a91', '5ff9b5f5-096b-48a6-b217-a0fe520f5962', 'sales_reason_key', 'integer', 'The key identifier for aggregating sales reason data.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'sales_reason_key');
+INSERT INTO public.dataset_columns VALUES ('31f37c74-746a-4784-9ae3-020828b17cfd', '5ff9b5f5-096b-48a6-b217-a0fe520f5962', 'sales_reason_id', 'integer', 'The unique identifier for sales reason instances used in aggregation.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'sales_reason_id');
+INSERT INTO public.dataset_columns VALUES ('f30875c2-8439-4f57-bd6a-e689f812b2d2', 'e9d9b89e-d070-4bea-8f28-65045c84e7e1', 'name', 'character varying', 'The name of the product', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'name');
+INSERT INTO public.dataset_columns VALUES ('01b9283b-a349-4fdf-9cc2-34d7f4f768f4', 'e9d9b89e-d070-4bea-8f28-65045c84e7e1', 'product_number', 'character varying', 'The unique product identification number', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'product_number');
+INSERT INTO public.dataset_columns VALUES ('7314121a-b182-4f0c-954f-be1bf29b8351', 'e9d9b89e-d070-4bea-8f28-65045c84e7e1', 'color', 'character varying', 'The color of the product', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'color');
+INSERT INTO public.dataset_columns VALUES ('8b3e61ce-5566-42c2-81bc-b450136ac646', 'e9d9b89e-d070-4bea-8f28-65045c84e7e1', 'product_category', 'character varying', 'The main category to which the product belongs', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'product_category');
+INSERT INTO public.dataset_columns VALUES ('e098fd2f-a310-4211-8b8d-7b3485bd92ef', 'e9d9b89e-d070-4bea-8f28-65045c84e7e1', 'product_subcategory', 'character varying', 'The subcategory classification for the product', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'product_subcategory');
+INSERT INTO public.dataset_columns VALUES ('fc172317-07b3-41f7-9951-32b9a9b8119b', 'e9d9b89e-d070-4bea-8f28-65045c84e7e1', 'product_model', 'character varying', 'The model identifier for the product', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'product_model');
+INSERT INTO public.dataset_columns VALUES ('48e7e5d5-d7cf-4931-a2cd-2566c87192bd', 'e9d9b89e-d070-4bea-8f28-65045c84e7e1', 'sell_start_date', 'timestamp without time zone', 'The date when the product became available for sale', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'sell_start_date');
+INSERT INTO public.dataset_columns VALUES ('c3a756aa-330b-4bc8-a382-d889f329cf35', 'e9d9b89e-d070-4bea-8f28-65045c84e7e1', 'sell_end_date', 'timestamp without time zone', 'The date when the product was discontinued from sale', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'sell_end_date');
+INSERT INTO public.dataset_columns VALUES ('e1caa6db-0e96-4c85-9e17-9e877d4eb4f6', 'e9d9b89e-d070-4bea-8f28-65045c84e7e1', 'modified_date', 'timestamp without time zone', 'The date when the product details were last updated', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('ca5e740a-48fd-4f50-9e95-f7aca8653ad6', 'e9d9b89e-d070-4bea-8f28-65045c84e7e1', 'segment_product_value', 'text', 'Descriptive segment that categorizes product value', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'text', 'segment_product_value');
+INSERT INTO public.dataset_columns VALUES ('c37c0d76-b6a2-4208-a0df-9313e862ae90', 'e9d9b89e-d070-4bea-8f28-65045c84e7e1', 'product_key', 'integer', 'A unique key used to identify the product record', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'product_key');
+INSERT INTO public.dataset_columns VALUES ('ffd4ba7e-0ec7-422e-82dd-9cb70e9c1828', 'e9d9b89e-d070-4bea-8f28-65045c84e7e1', 'product_id', 'integer', 'A unique numeric identifier for the product', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'product_id');
+INSERT INTO public.dataset_columns VALUES ('cd687df4-a54b-4f4c-b04b-15bfc9ad129e', 'e9d9b89e-d070-4bea-8f28-65045c84e7e1', 'standard_cost', 'numeric', 'The standard cost to produce or procure the product', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'standard_cost');
+INSERT INTO public.dataset_columns VALUES ('964fa742-1cb9-4c2f-ba4f-01ae7e53a7a3', 'e9d9b89e-d070-4bea-8f28-65045c84e7e1', 'list_price', 'numeric', 'The retail list price of the product', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'list_price');
+INSERT INTO public.dataset_columns VALUES ('fe34d2aa-f4cd-4f24-bcfe-19a58d08f124', 'e9d9b89e-d070-4bea-8f28-65045c84e7e1', 'current_list_price', 'numeric', 'The current effective retail price of the product', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'current_list_price');
+INSERT INTO public.dataset_columns VALUES ('e676a414-ca6a-4f25-a0dd-bf0f1fb4a808', 'e9d9b89e-d070-4bea-8f28-65045c84e7e1', 'inventory_quantity', 'bigint', 'The total quantity available in inventory', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'bigint', 'inventory_quantity');
+INSERT INTO public.dataset_columns VALUES ('e1b4e089-f66f-43d8-8992-d820652a6057', 'e9d9b89e-d070-4bea-8f28-65045c84e7e1', 'avg_rating', 'numeric', 'The average customer rating for the product', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'avg_rating');
+INSERT INTO public.dataset_columns VALUES ('4a0ab691-8b59-4da6-a88b-1b3c56bca190', 'e9d9b89e-d070-4bea-8f28-65045c84e7e1', 'total_units_sold_last_12_months', 'bigint', 'Total number of product units sold in the last 12 months', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'bigint', 'total_units_sold_last_12_months');
+INSERT INTO public.dataset_columns VALUES ('6adb500f-e804-426b-8b0d-6bb29a209c5c', 'e9d9b89e-d070-4bea-8f28-65045c84e7e1', 'total_product_revenue_last_12_months', 'numeric', 'Total revenue generated by the product in the last 12 months', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'total_product_revenue_last_12_months');
+INSERT INTO public.dataset_columns VALUES ('3ddbf246-eb0a-4214-9977-e873c2ae55d8', '222e07e9-5212-4a87-b8eb-4bd4f02cca62', 'name', 'character varying', 'The name of the phone number type.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'name');
+INSERT INTO public.dataset_columns VALUES ('80094b43-1b80-4b51-85ff-fccce33f9ec6', '222e07e9-5212-4a87-b8eb-4bd4f02cca62', 'modified_date', 'timestamp without time zone', 'The date when the record was last modified.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('bf1ab355-c9ee-42bc-bd44-51c6ef8c2cd9', '222e07e9-5212-4a87-b8eb-4bd4f02cca62', 'phone_number_type_key', 'integer', 'A unique key identifier for the phone number type.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'phone_number_type_key');
+INSERT INTO public.dataset_columns VALUES ('e28c8093-8b53-47a6-8fc2-0518f553bcea', '222e07e9-5212-4a87-b8eb-4bd4f02cca62', 'phone_number_type_id', 'integer', 'The identifier associated with the phone number type.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'phone_number_type_id');
+INSERT INTO public.dataset_columns VALUES ('b48ded12-5499-4b18-b5df-3cd4cde70342', '40fc4d7f-0035-4597-9173-7b72a5e6bdde', 'currency_rate_date', 'timestamp without time zone', 'Date of the currency exchange rate. Represents the specific day the rate was recorded.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'currency_rate_date');
+INSERT INTO public.dataset_columns VALUES ('03e15792-a90c-4248-ad7f-a3181fe57f8b', '40fc4d7f-0035-4597-9173-7b72a5e6bdde', 'from_currency_code', 'character', 'Currency code representing the source currency.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character', 'from_currency_code');
+INSERT INTO public.dataset_columns VALUES ('590b6e4a-58d4-4f86-92c8-0db6cae280e6', '40fc4d7f-0035-4597-9173-7b72a5e6bdde', 'to_currency_code', 'character', 'Currency code representing the target currency.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character', 'to_currency_code');
+INSERT INTO public.dataset_columns VALUES ('f26ea146-7e00-4655-9944-7cf6ebd3881e', '40fc4d7f-0035-4597-9173-7b72a5e6bdde', 'modified_date', 'timestamp without time zone', 'Timestamp of the last modification to the record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('bfe75a57-d07c-4e8c-9801-740fca280a9f', '40fc4d7f-0035-4597-9173-7b72a5e6bdde', 'currency_rate_key', 'integer', 'Unique key identifier for the currency rate record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'currency_rate_key');
+INSERT INTO public.dataset_columns VALUES ('34bfc9d8-3189-41af-afcc-ed3275fc7bf3', '40fc4d7f-0035-4597-9173-7b72a5e6bdde', 'currency_rate_id', 'integer', 'Identifier for the currency rate.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'currency_rate_id');
+INSERT INTO public.dataset_columns VALUES ('8bf5f70a-0cd1-43b6-81e8-eb92b3bc8ece', '40fc4d7f-0035-4597-9173-7b72a5e6bdde', 'average_rate', 'numeric', 'The average exchange rate calculated for the day.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'average_rate');
+INSERT INTO public.dataset_columns VALUES ('e413e08d-0278-4de8-a206-4b4e98b8519e', '40fc4d7f-0035-4597-9173-7b72a5e6bdde', 'end_of_day_rate', 'numeric', 'The final exchange rate recorded at the end of the day.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'end_of_day_rate');
+INSERT INTO public.dataset_columns VALUES ('30654a48-e870-4281-9dc2-dc69bf47bee0', '16a38e0e-5699-43a7-addf-1cbf8bafdea7', 'country_region_code', 'character varying', 'The unique code representing a country or region.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'country_region_code');
+INSERT INTO public.dataset_columns VALUES ('0f18d439-ea49-400f-891b-3375f26fa2db', '16a38e0e-5699-43a7-addf-1cbf8bafdea7', 'name', 'character varying', 'The name of the country or region.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'name');
+INSERT INTO public.dataset_columns VALUES ('0788f57b-cf4a-4b62-b96f-4bfd5060792c', '16a38e0e-5699-43a7-addf-1cbf8bafdea7', 'modified_date', 'timestamp without time zone', 'The date and time when the record was last updated.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('7b5cb419-a156-4f30-86bf-334c8014ef7c', '16a38e0e-5699-43a7-addf-1cbf8bafdea7', 'country_region_key', 'integer', 'Identifier key used for aggregating country or region data.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'country_region_key');
+INSERT INTO public.dataset_columns VALUES ('19da9dce-c97f-4bc8-881f-99223a0ef348', 'eeb0ca19-e3cf-4d83-9761-f175a9fbbedc', 'country_region_code', 'character varying', 'Unique code representing the country and region.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'country_region_code');
+INSERT INTO public.dataset_columns VALUES ('98ae148a-a8d2-4ad1-9639-6e44cf799552', 'eeb0ca19-e3cf-4d83-9761-f175a9fbbedc', 'currency_code', 'character', 'Currency identifier code corresponding to the country/region.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character', 'currency_code');
+INSERT INTO public.dataset_columns VALUES ('c58818b0-ebc4-47fb-88ff-4190f612e9d9', 'eeb0ca19-e3cf-4d83-9761-f175a9fbbedc', 'modified_date', 'timestamp without time zone', 'Timestamp when the record was last modified.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('90117721-8fed-4a42-8a54-056be09dda44', 'eeb0ca19-e3cf-4d83-9761-f175a9fbbedc', 'bridge_country_region_currency_key', 'integer', 'Aggregated key linking country, region, and currency.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'bridge_country_region_currency_key');
+INSERT INTO public.dataset_columns VALUES ('9b116461-476e-4951-acdf-aa6102dae4b9', 'bcab71b8-a432-4e8b-9b7f-9cca1709f9a4', 'rowguid', 'uuid', 'A unique identifier for each entity row, ensuring data integrity.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'uuid', 'rowguid');
+INSERT INTO public.dataset_columns VALUES ('c112204d-7736-4a78-8f3f-bbd0a949fb97', 'bcab71b8-a432-4e8b-9b7f-9cca1709f9a4', 'modified_date', 'timestamp without time zone', 'The timestamp when the record was last updated, useful for tracking changes.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('b3730577-3aed-4eb3-b740-1034c71dca12', 'bcab71b8-a432-4e8b-9b7f-9cca1709f9a4', 'business_entity_key', 'integer', 'The cumulative sum of business entity keys, representing aggregated identifier data.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'business_entity_key');
+INSERT INTO public.dataset_columns VALUES ('40166909-55b3-41e2-9735-a6e9b4ffecd7', 'bcab71b8-a432-4e8b-9b7f-9cca1709f9a4', 'business_entity_id', 'integer', 'The cumulative sum of business entity IDs, useful for summarizing entity counts.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'business_entity_id');
+INSERT INTO public.dataset_columns VALUES ('aa71380f-f7dc-41f0-944a-6c6effd938aa', 'c4f322cc-ebe8-41d8-a929-d4723ec826b3', 'shopping_cart_id', 'character varying', 'Unique identifier for the shopping cart.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'shopping_cart_id');
+INSERT INTO public.dataset_columns VALUES ('ddbed792-0e94-428a-87e9-0eb2b85f23d6', 'c4f322cc-ebe8-41d8-a929-d4723ec826b3', 'date_created', 'timestamp without time zone', 'Timestamp marking when the shopping cart item was created.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'date_created');
+INSERT INTO public.dataset_columns VALUES ('b691d445-9e6a-49d9-8b5e-baebcc9089ca', 'c4f322cc-ebe8-41d8-a929-d4723ec826b3', 'modified_date', 'timestamp without time zone', 'Timestamp indicating the last time the shopping cart item was modified.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('941013fe-65d2-46a3-b9f8-a591d4fe5254', 'c4f322cc-ebe8-41d8-a929-d4723ec826b3', 'shopping_cart_item_key', 'integer', 'Summarizes unique keys of shopping cart items for aggregation purposes.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'shopping_cart_item_key');
+INSERT INTO public.dataset_columns VALUES ('14b578a3-4a7b-46d2-aced-2fb3097e55cb', 'c4f322cc-ebe8-41d8-a929-d4723ec826b3', 'shopping_cart_item_id', 'integer', 'Aggregates the unique identifiers of each shopping cart item.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'shopping_cart_item_id');
+INSERT INTO public.dataset_columns VALUES ('b8ed2bb6-f822-4921-bbfd-a9df8893cf52', 'c4f322cc-ebe8-41d8-a929-d4723ec826b3', 'quantity', 'integer', 'Total quantity of the product captured in the shopping cart item.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'quantity');
+INSERT INTO public.dataset_columns VALUES ('93e2483d-2f61-4a15-9da9-74dd23013da3', 'c4f322cc-ebe8-41d8-a929-d4723ec826b3', 'product_id', 'integer', 'Aggregated identifier for the product associated with the shopping cart item.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'product_id');
+INSERT INTO public.dataset_columns VALUES ('3aeb54b2-3369-4756-8f61-ea7782f04f24', 'cca26df0-c191-487a-a3fd-71496f96359f', 'assembly_name', 'character varying', 'Name of the assembly in the bill of materials record', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'assembly_name');
+INSERT INTO public.dataset_columns VALUES ('9c5b8f2b-29c0-4dc7-b4aa-700f9ee3b8df', 'cca26df0-c191-487a-a3fd-71496f96359f', 'component_name', 'character varying', 'Name for the component included in the assembly', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'component_name');
+INSERT INTO public.dataset_columns VALUES ('c424cdd3-dd85-45b8-9b13-c7e531a61e37', 'cca26df0-c191-487a-a3fd-71496f96359f', 'start_date', 'timestamp without time zone', 'The start date when the assembly component relationship becomes valid', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'start_date');
+INSERT INTO public.dataset_columns VALUES ('51fd11e5-ee97-4547-a7b9-212a943d4df5', 'cca26df0-c191-487a-a3fd-71496f96359f', 'end_date', 'timestamp without time zone', 'The end date when the assembly component relationship expires', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'end_date');
+INSERT INTO public.dataset_columns VALUES ('730f3aaa-eeca-4266-a6e8-fc924f3e1895', 'cca26df0-c191-487a-a3fd-71496f96359f', 'unit_measure_code', 'character', 'Code representing the unit of measure for component quantity', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character', 'unit_measure_code');
+INSERT INTO public.dataset_columns VALUES ('dbb47587-742d-40b2-93de-aa871638d08d', 'cca26df0-c191-487a-a3fd-71496f96359f', 'modified_date', 'timestamp without time zone', 'Timestamp indicating the last modification date of the record', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('4b5bf326-bd70-4f49-ae54-8ee7f8546abe', 'cca26df0-c191-487a-a3fd-71496f96359f', 'bom_key', 'integer', 'Unique key identifying the bill of materials record', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'bom_key');
+INSERT INTO public.dataset_columns VALUES ('effe3f62-d19c-47c7-bffd-b0cb9dc254b0', 'cca26df0-c191-487a-a3fd-71496f96359f', 'bill_of_materials_id', 'integer', 'Identifier for the bill of materials entry', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'bill_of_materials_id');
+INSERT INTO public.dataset_columns VALUES ('447d7cb0-ecba-4795-a606-36468217db43', 'cca26df0-c191-487a-a3fd-71496f96359f', 'fk_assembly', 'integer', 'Foreign key linking to the assembly entity', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_assembly');
+INSERT INTO public.dataset_columns VALUES ('c3b73e20-4e49-47fa-896e-a3e4c49070c3', 'cca26df0-c191-487a-a3fd-71496f96359f', 'fk_component', 'integer', 'Foreign key linking to the component entity', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_component');
+INSERT INTO public.dataset_columns VALUES ('c59df372-fe9e-4892-96d7-0199a3bc1624', 'cca26df0-c191-487a-a3fd-71496f96359f', 'bom_level', 'smallint', 'Level of the component within the assembly hierarchy', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'smallint', 'bom_level');
+INSERT INTO public.dataset_columns VALUES ('51b740dc-afad-467a-9c86-d6450f2ce957', 'cca26df0-c191-487a-a3fd-71496f96359f', 'per_assembly_qty', 'numeric', 'Quantity of the component required per assembly', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'per_assembly_qty');
+INSERT INTO public.dataset_columns VALUES ('ced2c326-cf14-47d2-beda-fd6ada1fd748', '5114cd6f-71b2-4843-8354-ddf0746ec22d', 'diagram', 'xml', 'XML representation of the diagram for the entity illustration', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'xml', 'diagram');
+INSERT INTO public.dataset_columns VALUES ('1597b7da-2d13-41d6-963e-55df9c2c3598', '5114cd6f-71b2-4843-8354-ddf0746ec22d', 'modified_date', 'timestamp without time zone', 'Timestamp indicating when the entity illustration was last modified', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('69f7b58c-3d9c-458a-9cc7-d27b131681bf', '5114cd6f-71b2-4843-8354-ddf0746ec22d', 'illustration_key', 'integer', 'Unique key associated with the illustration for aggregate computations', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'illustration_key');
+INSERT INTO public.dataset_columns VALUES ('d87ea94b-e302-4fdd-aba3-d1f4f35aba81', '5114cd6f-71b2-4843-8354-ddf0746ec22d', 'illustration_id', 'integer', 'Unique identifier used for the illustration', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'illustration_id');
+INSERT INTO public.dataset_columns VALUES ('5ec6d3f1-739b-440c-bc40-66fd3e15fffe', '129a0d01-a139-471d-af2e-627ee136369c', 'document_node', 'character varying', 'Unique identifier for the document node', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'document_node');
+INSERT INTO public.dataset_columns VALUES ('2f9d9837-265d-479c-9560-66419424118f', '129a0d01-a139-471d-af2e-627ee136369c', 'title', 'character varying', 'The title of the document', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'title');
+INSERT INTO public.dataset_columns VALUES ('0ce44243-81c0-4c0e-92d5-2096ba2f7868', '129a0d01-a139-471d-af2e-627ee136369c', 'folder_flag', 'boolean', 'Indicates if the document is a folder', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'boolean', 'folder_flag');
+INSERT INTO public.dataset_columns VALUES ('2460c247-f2e4-4a86-86aa-d880a4bbc699', '129a0d01-a139-471d-af2e-627ee136369c', 'file_name', 'character varying', 'Name of the file associated with the document', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'file_name');
+INSERT INTO public.dataset_columns VALUES ('58f4ce6a-ff6e-4a1e-bdb1-eae8b6bc26d5', '129a0d01-a139-471d-af2e-627ee136369c', 'file_extension', 'character varying', 'File extension of the document', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'file_extension');
+INSERT INTO public.dataset_columns VALUES ('e4e5af1d-2c87-4743-a812-63b3aa478149', '129a0d01-a139-471d-af2e-627ee136369c', 'revision', 'character', 'Revision identifier of the document', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character', 'revision');
+INSERT INTO public.dataset_columns VALUES ('46f8d130-9a1f-42c5-b874-011fe4074575', '129a0d01-a139-471d-af2e-627ee136369c', 'document_summary', 'text', 'Summary or description of the document', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'text', 'document_summary');
+INSERT INTO public.dataset_columns VALUES ('1175a9dd-38ec-4a7e-a8fa-6a950011bdd8', '129a0d01-a139-471d-af2e-627ee136369c', 'modified_date', 'timestamp without time zone', 'Date when the document was last modified', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('c4852776-6c2f-4dc5-90b3-c1e4f1e81a5d', '129a0d01-a139-471d-af2e-627ee136369c', 'rowguid', 'uuid', 'Unique global identifier for the record', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'uuid', 'rowguid');
+INSERT INTO public.dataset_columns VALUES ('1d668606-1b53-4e77-9ffd-b23a1b59b57b', '129a0d01-a139-471d-af2e-627ee136369c', 'document_key', 'integer', 'Aggregated key representing the document identifier', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'document_key');
+INSERT INTO public.dataset_columns VALUES ('c9ee9513-bb37-4ae6-9e54-739d3f579cce', '129a0d01-a139-471d-af2e-627ee136369c', 'owner', 'integer', 'Aggregated numeric identifier for the document owner', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'owner');
+INSERT INTO public.dataset_columns VALUES ('5812e7b8-6f3f-49e2-9ceb-d5ed0123e1cc', '129a0d01-a139-471d-af2e-627ee136369c', 'change_number', 'integer', 'Total change number count for revisions', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'change_number');
+INSERT INTO public.dataset_columns VALUES ('0668801a-93f5-434c-8168-25e44192d979', '129a0d01-a139-471d-af2e-627ee136369c', 'status', 'smallint', 'Aggregated status code for the document', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'smallint', 'status');
+INSERT INTO public.dataset_columns VALUES ('51e4ef9c-e2cd-4f68-9ba8-1ed3f8064cad', '3702c05b-e03b-40fe-b7a1-1e9cdf592b25', 'modified_date', 'timestamp without time zone', 'Indicates the timestamp when the record was last updated', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('1cd3e201-1f25-4473-82ef-8d3005aef2e2', '3702c05b-e03b-40fe-b7a1-1e9cdf592b25', 'business_entity_contact_key', 'integer', 'Unique identifier for the business entity contact', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'business_entity_contact_key');
+INSERT INTO public.dataset_columns VALUES ('ff023add-96e1-4464-9a3e-e60d9b88d773', '3702c05b-e03b-40fe-b7a1-1e9cdf592b25', 'business_entity_id', 'integer', 'Identifier linking to the corresponding business entity', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'business_entity_id');
+INSERT INTO public.dataset_columns VALUES ('06ec0b0d-1806-45ae-9e19-2d252f164306', '3702c05b-e03b-40fe-b7a1-1e9cdf592b25', 'fk_person', 'integer', 'Foreign key linking to the person entity', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_person');
+INSERT INTO public.dataset_columns VALUES ('c151e088-fba5-4e31-857c-f05d3ae6957b', '3702c05b-e03b-40fe-b7a1-1e9cdf592b25', 'contact_type_id', 'integer', 'Identifier for the type of contact', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'contact_type_id');
+INSERT INTO public.dataset_columns VALUES ('4562e088-a29d-4452-b666-6d0f1d5abcee', '4d2fd88a-3779-42d8-a9fb-d2b2373705ba', 'transaction_date', 'timestamp without time zone', 'The date and time when the transaction occurred.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'transaction_date');
+INSERT INTO public.dataset_columns VALUES ('b2a416ac-800c-4ae7-a239-be706739344e', '4d2fd88a-3779-42d8-a9fb-d2b2373705ba', 'transaction_type', 'character', 'The type or category of the transaction.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character', 'transaction_type');
+INSERT INTO public.dataset_columns VALUES ('e4fdfa8e-dcba-47c3-8df7-a598853ad692', '4d2fd88a-3779-42d8-a9fb-d2b2373705ba', 'modified_date', 'timestamp without time zone', 'The date and time when the record was last modified.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('6f318b6a-ba68-44f8-aedc-40bcf0092420', '4d2fd88a-3779-42d8-a9fb-d2b2373705ba', 'transaction_history_key', 'integer', 'Unique key for the transaction history record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'transaction_history_key');
+INSERT INTO public.dataset_columns VALUES ('3427bea4-456a-4904-9cd2-867dc1a64950', '4d2fd88a-3779-42d8-a9fb-d2b2373705ba', 'transaction_id', 'integer', 'Identifier for the transaction.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'transaction_id');
+INSERT INTO public.dataset_columns VALUES ('ca665b61-f8a4-41c9-8489-20e21c55b135', '4d2fd88a-3779-42d8-a9fb-d2b2373705ba', 'product_id', 'integer', 'Identifier for the product involved in the transaction.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'product_id');
+INSERT INTO public.dataset_columns VALUES ('89445465-6dd8-41c2-b30b-d6298661b891', '4d2fd88a-3779-42d8-a9fb-d2b2373705ba', 'reference_order_id', 'integer', 'Identifier for the reference order related to the transaction.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'reference_order_id');
+INSERT INTO public.dataset_columns VALUES ('0edf8d3d-a08d-4d55-998e-38b52ca5a62d', '4d2fd88a-3779-42d8-a9fb-d2b2373705ba', 'reference_order_line_id', 'integer', 'Identifier for the specific line in the reference order.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'reference_order_line_id');
+INSERT INTO public.dataset_columns VALUES ('9335e6a4-d035-4d77-9874-457b1c6994cd', '4d2fd88a-3779-42d8-a9fb-d2b2373705ba', 'quantity', 'integer', 'Quantity of the product transacted.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'quantity');
+INSERT INTO public.dataset_columns VALUES ('ae696f4b-1b75-4081-b9ae-89f352f98aec', '4d2fd88a-3779-42d8-a9fb-d2b2373705ba', 'actual_cost', 'numeric', 'The actual cost recorded for the transaction.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'actual_cost');
+INSERT INTO public.dataset_columns VALUES ('02e2d876-cb07-42e6-bde8-20f0fd71deee', 'ade73c2d-3866-40e5-bf92-0be3884e8ee2', 'description', 'character varying', 'Textual details providing information about the product.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'description');
+INSERT INTO public.dataset_columns VALUES ('3f4152b7-e26f-488c-a649-04ca36d8b3b3', 'ade73c2d-3866-40e5-bf92-0be3884e8ee2', 'rowguid', 'uuid', 'Unique identifier ensuring distinct row entries.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'uuid', 'rowguid');
+INSERT INTO public.dataset_columns VALUES ('12e79cd4-cccb-48b4-8da0-a7d0a1817507', 'ade73c2d-3866-40e5-bf92-0be3884e8ee2', 'modified_date', 'timestamp without time zone', 'The timestamp marking the last update to the record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('f7dbc85d-6263-4283-ac66-e6303f2d761d', 'ade73c2d-3866-40e5-bf92-0be3884e8ee2', 'product_description_key', 'integer', 'Summed numeric key uniquely identifying the record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'product_description_key');
+INSERT INTO public.dataset_columns VALUES ('348f160b-5b91-4228-a8a2-90025c94cff9', 'ade73c2d-3866-40e5-bf92-0be3884e8ee2', 'product_description_id', 'integer', 'Summed identifier representing the product description record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'product_description_id');
+INSERT INTO public.dataset_columns VALUES ('d553a3c8-6b8d-4ae0-a892-68b3ec4f0445', 'd484cfbd-bb0f-4d68-b501-e4b33d606085', 'start_date', 'timestamp without time zone', 'The date when the sales territory history record becomes effective.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'start_date');
+INSERT INTO public.dataset_columns VALUES ('a153af97-d0c5-44d8-bf8e-6f64dd055d5c', 'd484cfbd-bb0f-4d68-b501-e4b33d606085', 'end_date', 'timestamp without time zone', 'The date when the sales territory history record expires.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'end_date');
+INSERT INTO public.dataset_columns VALUES ('5558108f-b0cb-468c-8f95-38a9eea41c36', 'd484cfbd-bb0f-4d68-b501-e4b33d606085', 'rowguid', 'uuid', 'Unique identifier for the record, typically used for replication purposes.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'uuid', 'rowguid');
+INSERT INTO public.dataset_columns VALUES ('386ea6c5-4787-43b2-b434-e8126f9300c8', 'd484cfbd-bb0f-4d68-b501-e4b33d606085', 'modified_date', 'timestamp without time zone', 'Timestamp indicating when the record was last modified.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('44d3da66-9b7b-4cbb-865c-913e9070bec8', 'd484cfbd-bb0f-4d68-b501-e4b33d606085', 'sales_territory_history_key', 'integer', 'Primary key for aggregating sales territory history records.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'sales_territory_history_key');
+INSERT INTO public.dataset_columns VALUES ('20641fda-bfb3-418c-99b7-8b331ae7740b', 'd484cfbd-bb0f-4d68-b501-e4b33d606085', 'business_entity_id', 'integer', 'Identifier for the business entity associated with this sales territory history.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'business_entity_id');
+INSERT INTO public.dataset_columns VALUES ('b5611d17-094f-4119-aa0f-c74e72c9eb9a', 'd484cfbd-bb0f-4d68-b501-e4b33d606085', 'territory_id', 'integer', 'Identifier for the sales territory associated with this record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'territory_id');
+INSERT INTO public.dataset_columns VALUES ('297e8412-b7c0-4f92-922d-8381b7c755d1', '986d5fd4-a7bb-4d9f-8736-5c400cee591f', 'card_type', 'character varying', 'Type of credit card, e.g., Visa, MasterCard', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'card_type');
+INSERT INTO public.dataset_columns VALUES ('5f1c9477-e86b-48c2-939f-b2acdcd9f673', '986d5fd4-a7bb-4d9f-8736-5c400cee591f', 'card_number', 'character varying', 'Credit card number used for transactions', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'card_number');
+INSERT INTO public.dataset_columns VALUES ('2b1d52b2-36e7-4c46-81c1-a3ea719c7ac3', '986d5fd4-a7bb-4d9f-8736-5c400cee591f', 'modified_date', 'timestamp without time zone', 'The date when the credit card record was last updated', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('d369fdb6-fcab-4e76-a2ed-9f880581de3c', '986d5fd4-a7bb-4d9f-8736-5c400cee591f', 'credit_card_key', 'integer', 'Unique key identifier for the credit card', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'credit_card_key');
+INSERT INTO public.dataset_columns VALUES ('972e10e8-6fbc-4a93-b408-703c76d6fa37', '986d5fd4-a7bb-4d9f-8736-5c400cee591f', 'credit_card_id', 'integer', 'Credit card identifier corresponding to external records', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'credit_card_id');
+INSERT INTO public.dataset_columns VALUES ('00473c1f-771a-4321-b329-af224cc12167', '986d5fd4-a7bb-4d9f-8736-5c400cee591f', 'exp_month', 'smallint', 'Expiration month of the credit card', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'smallint', 'exp_month');
+INSERT INTO public.dataset_columns VALUES ('c19bb532-5f27-4620-acaa-10b5a05a2f63', '986d5fd4-a7bb-4d9f-8736-5c400cee591f', 'exp_year', 'smallint', 'Expiration year of the credit card', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'smallint', 'exp_year');
+INSERT INTO public.dataset_columns VALUES ('9a1cecfe-ad6e-45ff-a521-150d0558ead6', '4d452aad-a4ca-4f9e-a91c-b954025eaa34', 'product_name', 'character varying', 'The name of the product.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'product_name');
+INSERT INTO public.dataset_columns VALUES ('b154be01-9eea-433e-8c8a-a2024abf10be', '4d452aad-a4ca-4f9e-a91c-b954025eaa34', 'location_name', 'character varying', 'The location where the product is stored or sold.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'location_name');
+INSERT INTO public.dataset_columns VALUES ('0cb6bdaa-0a17-487f-9da0-3450eb3f92c6', '4d452aad-a4ca-4f9e-a91c-b954025eaa34', 'modified_date', 'timestamp without time zone', 'The timestamp when the inventory record was last updated.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('7f6893bd-697e-4e20-8b46-37351e01af20', '4d452aad-a4ca-4f9e-a91c-b954025eaa34', 'product_inventory_key', 'integer', 'Unique key identifier for product inventory records.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'product_inventory_key');
+INSERT INTO public.dataset_columns VALUES ('a95f528a-2db8-41c6-8a75-c9ec1791331f', '4d452aad-a4ca-4f9e-a91c-b954025eaa34', 'fk_product', 'integer', 'Foreign key linking to product entity.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_product');
+INSERT INTO public.dataset_columns VALUES ('24ea16b7-a2ca-492c-bbda-4c425b155469', '4d452aad-a4ca-4f9e-a91c-b954025eaa34', 'fk_location', 'integer', 'Foreign key linking to location entity.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_location');
+INSERT INTO public.dataset_columns VALUES ('df52cfd0-ec20-4c29-9955-61b2eb18e937', '4d452aad-a4ca-4f9e-a91c-b954025eaa34', 'quantity', 'smallint', 'The quantity of product available in inventory.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'smallint', 'quantity');
+INSERT INTO public.dataset_columns VALUES ('9247bb53-161b-436d-8e6a-91679f005c7f', 'd49bcdad-4a59-48f3-b1e5-13970a621829', 'modified_date', 'timestamp without time zone', 'Timestamp representing the last update to the record', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('4b5f7d57-e078-407f-84e3-a38a017b987a', 'd49bcdad-4a59-48f3-b1e5-13970a621829', 'person_credit_card_key', 'integer', 'Unique identifier for the person credit card record', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'person_credit_card_key');
+INSERT INTO public.dataset_columns VALUES ('d50a05dd-4a69-476e-b652-820565b1d295', 'd49bcdad-4a59-48f3-b1e5-13970a621829', 'fk_person', 'integer', 'Foreign key linking to the person entity', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_person');
+INSERT INTO public.dataset_columns VALUES ('116ddcfa-3fbe-4b88-9b84-17fa3e6ef973', 'd49bcdad-4a59-48f3-b1e5-13970a621829', 'fk_credit_card', 'integer', 'Foreign key linking to the credit card entity', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_credit_card');
+INSERT INTO public.dataset_columns VALUES ('02cf3857-1d7d-4513-b3ae-d4cb5f62d855', '9711ca55-8329-4fd9-8b20-b6a3289f3d38', 'first_name', 'character varying', 'The first name of the sales person', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'first_name');
+INSERT INTO public.dataset_columns VALUES ('9cb8ece5-29e6-4ee1-9658-cee482a29d1d', '9711ca55-8329-4fd9-8b20-b6a3289f3d38', 'last_name', 'character varying', 'The last name of the sales person', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'last_name');
+INSERT INTO public.dataset_columns VALUES ('76b2d365-8757-4a5d-9cf7-d6431790d657', '9711ca55-8329-4fd9-8b20-b6a3289f3d38', 'territory_name', 'character varying', 'The name of the territory assigned to the sales person', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'territory_name');
+INSERT INTO public.dataset_columns VALUES ('f5fc2a29-f0af-4252-ac81-75dbecbb667e', '9711ca55-8329-4fd9-8b20-b6a3289f3d38', 'modified_date', 'timestamp without time zone', 'The date and time when the record was last modified', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('9d293662-0f61-4c62-bf31-d049955da1b3', '9711ca55-8329-4fd9-8b20-b6a3289f3d38', 'segment_quota_status', 'text', 'The current quota status segment of the sales person', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'text', 'segment_quota_status');
+INSERT INTO public.dataset_columns VALUES ('104aef71-1aea-426d-92e1-9b9139c9e089', '9711ca55-8329-4fd9-8b20-b6a3289f3d38', 'sales_person_key', 'integer', 'A unique key identifying the sales person', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'sales_person_key');
+INSERT INTO public.dataset_columns VALUES ('8b49f604-df82-4069-a550-1bfef06e17b4', '9711ca55-8329-4fd9-8b20-b6a3289f3d38', 'fk_person', 'integer', 'Foreign key linking to the person entity', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_person');
+INSERT INTO public.dataset_columns VALUES ('925a2115-0561-4204-8b4f-1eb6a0d243d9', '9711ca55-8329-4fd9-8b20-b6a3289f3d38', 'fk_territory', 'integer', 'Foreign key linking to the territory entity', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_territory');
+INSERT INTO public.dataset_columns VALUES ('1f31b59f-f1a5-4f41-be6a-4fc04777e508', '9711ca55-8329-4fd9-8b20-b6a3289f3d38', 'sales_quota', 'numeric', 'The total sales quota assigned to the sales person', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'sales_quota');
+INSERT INTO public.dataset_columns VALUES ('493c276d-4930-4811-be29-17c8cf1ee66a', '9711ca55-8329-4fd9-8b20-b6a3289f3d38', 'bonus', 'numeric', 'Bonus earned by the sales person', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'bonus');
+INSERT INTO public.dataset_columns VALUES ('4619ef26-c32f-4292-bed4-20f5ce2928c9', '9711ca55-8329-4fd9-8b20-b6a3289f3d38', 'commission_pct', 'numeric', 'The commission percentage applicable to the sales person', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'commission_pct');
+INSERT INTO public.dataset_columns VALUES ('fb16342b-184d-4465-b07a-728a9140d590', '9711ca55-8329-4fd9-8b20-b6a3289f3d38', 'sales_ytd', 'numeric', 'Year-to-date sales figure for the sales person', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'sales_ytd');
+INSERT INTO public.dataset_columns VALUES ('42d5c8ee-a9f0-4af8-8b77-4fce26dccb86', '9711ca55-8329-4fd9-8b20-b6a3289f3d38', 'sales_last_year', 'numeric', 'Total sales made by the sales person in the previous year', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'sales_last_year');
+INSERT INTO public.dataset_columns VALUES ('e706e63f-b0d7-49e4-a77b-6ab44dd29de3', '9711ca55-8329-4fd9-8b20-b6a3289f3d38', 'total_sales_last_12_months', 'numeric', 'Aggregate sales over the last twelve months', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'total_sales_last_12_months');
+INSERT INTO public.dataset_columns VALUES ('83ccdc38-ae7a-41b2-b4db-a467d823bc4c', '9711ca55-8329-4fd9-8b20-b6a3289f3d38', 'total_orders_last_12_months', 'bigint', 'Total number of orders processed in the last twelve months', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'bigint', 'total_orders_last_12_months');
+INSERT INTO public.dataset_columns VALUES ('26514a33-f061-4961-a9db-75920b271d02', '9711ca55-8329-4fd9-8b20-b6a3289f3d38', 'average_order_value_last_12_months', 'numeric', 'Average value of orders over the last twelve months', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'average_order_value_last_12_months');
+INSERT INTO public.dataset_columns VALUES ('f259994d-e526-4560-bb30-f5772ec81872', '3e614f8c-7c61-4acb-ba7b-c006faea1aa5', 'scheduled_start_date', 'timestamp without time zone', 'The timestamp indicating when the work order is scheduled to begin.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'scheduled_start_date');
+INSERT INTO public.dataset_columns VALUES ('91a5560d-a3aa-4d46-aa92-bf9d776a9008', '3e614f8c-7c61-4acb-ba7b-c006faea1aa5', 'scheduled_end_date', 'timestamp without time zone', 'The timestamp indicating when the work order is scheduled to be completed.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'scheduled_end_date');
+INSERT INTO public.dataset_columns VALUES ('8c16a6ef-47c4-4ac4-bf97-b5a3ad355f09', '3e614f8c-7c61-4acb-ba7b-c006faea1aa5', 'actual_start_date', 'timestamp without time zone', 'The recorded timestamp when the work order actually began.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'actual_start_date');
+INSERT INTO public.dataset_columns VALUES ('445c0c06-1735-4e19-a106-c275dde1edfa', '3e614f8c-7c61-4acb-ba7b-c006faea1aa5', 'actual_end_date', 'timestamp without time zone', 'The recorded timestamp when the work order actually ended.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'actual_end_date');
+INSERT INTO public.dataset_columns VALUES ('be533a80-e97a-49a7-a4f2-dbf164d979d1', '3e614f8c-7c61-4acb-ba7b-c006faea1aa5', 'modified_date', 'timestamp without time zone', 'The timestamp of the last modification made to the work order routing record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('f414e650-23ef-4ef4-b763-1d0d8871bc6f', '3e614f8c-7c61-4acb-ba7b-c006faea1aa5', 'work_order_routing_key', 'integer', 'A unique identifier for the work order routing record, used for aggregation.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'work_order_routing_key');
+INSERT INTO public.dataset_columns VALUES ('0c5cb128-0749-4af1-b596-105a976b46b9', '3e614f8c-7c61-4acb-ba7b-c006faea1aa5', 'work_order_id', 'integer', 'The identifier linking the record to a specific work order for aggregation purposes.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'work_order_id');
+INSERT INTO public.dataset_columns VALUES ('ea93f536-cb2a-4217-b932-2a97e37e8ad7', '3e614f8c-7c61-4acb-ba7b-c006faea1aa5', 'product_id', 'integer', 'The identifier of the product associated with the work order routing, used for aggregation.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'product_id');
+INSERT INTO public.dataset_columns VALUES ('d6f08f00-b006-42aa-a199-fbab3c38d6b0', '3e614f8c-7c61-4acb-ba7b-c006faea1aa5', 'operation_sequence', 'smallint', 'The sequence order of operations in the routing process, summed for analysis.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'smallint', 'operation_sequence');
+INSERT INTO public.dataset_columns VALUES ('3ffb0fa6-70ab-4e8f-8e58-b95a763bdd20', '3e614f8c-7c61-4acb-ba7b-c006faea1aa5', 'location_id', 'integer', 'The identifier for the location where the work order routing is executed, used in aggregations.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'location_id');
+INSERT INTO public.dataset_columns VALUES ('ed69ebf3-9edd-4e6e-b5e4-bb823dc2e07e', '3e614f8c-7c61-4acb-ba7b-c006faea1aa5', 'actual_resource_hrs', 'numeric', 'The total hours of resources actually utilized in the work order routing.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'actual_resource_hrs');
+INSERT INTO public.dataset_columns VALUES ('d59d7181-b5b2-40e9-b9b3-5070075ae303', '3e614f8c-7c61-4acb-ba7b-c006faea1aa5', 'planned_cost', 'numeric', 'The estimated cost associated with the work order routing, summed across records.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'planned_cost');
+INSERT INTO public.dataset_columns VALUES ('32ab2aea-b2ce-4024-b58f-223b5f5b4a36', '3e614f8c-7c61-4acb-ba7b-c006faea1aa5', 'actual_cost', 'numeric', 'The actual cost incurred during the execution of the work order routing.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'actual_cost');
+INSERT INTO public.dataset_columns VALUES ('8a4d2777-3613-4aca-9471-63dc3fe4a1c6', '2ca39c75-70bc-48d8-aa5e-3e77a5dcb7a8', 'address_line1', 'character varying', 'The primary address line', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'address_line1');
+INSERT INTO public.dataset_columns VALUES ('c3233272-9163-4362-aea3-834e426cca96', '2ca39c75-70bc-48d8-aa5e-3e77a5dcb7a8', 'address_line2', 'character varying', 'The secondary address line, if applicable', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'address_line2');
+INSERT INTO public.dataset_columns VALUES ('86f30e09-a315-4b2a-9233-455f3715b5d5', '2ca39c75-70bc-48d8-aa5e-3e77a5dcb7a8', 'city', 'character varying', 'The city of the address', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'city');
+INSERT INTO public.dataset_columns VALUES ('c2f81c25-5f7c-483c-931b-793ddac64e9c', '2ca39c75-70bc-48d8-aa5e-3e77a5dcb7a8', 'postal_code', 'character varying', 'The postal or ZIP code', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'postal_code');
+INSERT INTO public.dataset_columns VALUES ('d9a352e6-6282-45fa-b624-2f47e7929108', '2ca39c75-70bc-48d8-aa5e-3e77a5dcb7a8', 'address_type', 'character varying', 'The type of address (e.g., residential, commercial)', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'address_type');
+INSERT INTO public.dataset_columns VALUES ('5931d758-ad82-43c3-9c3f-d906da743397', '2ca39c75-70bc-48d8-aa5e-3e77a5dcb7a8', 'modified_date', 'timestamp without time zone', 'The date and time when the address was last updated', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('be0a1f72-39a9-4dc8-a22e-de1039781383', '2ca39c75-70bc-48d8-aa5e-3e77a5dcb7a8', 'address_key', 'integer', 'Aggregate key for address records', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'address_key');
+INSERT INTO public.dataset_columns VALUES ('f3551240-d7cb-4a03-9b47-597b04990dab', '2ca39c75-70bc-48d8-aa5e-3e77a5dcb7a8', 'address_id', 'integer', 'Unique identifier for the address', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'address_id');
+INSERT INTO public.dataset_columns VALUES ('333d55da-0330-4a5b-8f9c-464bad28870c', '2ca39c75-70bc-48d8-aa5e-3e77a5dcb7a8', 'state_province_id', 'integer', 'Identifier for the state or province', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'state_province_id');
+INSERT INTO public.dataset_columns VALUES ('d3f59c71-e8bc-47b3-828f-901f7b264881', '239bd917-3736-433e-95e9-17bcc38af6de', 'currency_code', 'character', 'Unique code representing the currency', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character', 'currency_code');
+INSERT INTO public.dataset_columns VALUES ('2000354e-6f84-44c9-8796-1e94bdaede5e', '239bd917-3736-433e-95e9-17bcc38af6de', 'name', 'character varying', 'Official name of the currency', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'name');
+INSERT INTO public.dataset_columns VALUES ('09d93c28-7acd-4ce5-a481-98335c4e93ff', '239bd917-3736-433e-95e9-17bcc38af6de', 'modified_date', 'timestamp without time zone', 'Timestamp indicating when the record was last updated', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('f6dacfa6-c299-4657-b221-22f41e5b4090', '239bd917-3736-433e-95e9-17bcc38af6de', 'currency_key', 'integer', 'Aggregate key used for summing currency values', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'currency_key');
+INSERT INTO public.dataset_columns VALUES ('c9750e09-b554-43bf-acf2-b2c88bfced19', '547f20e6-f3ef-4ed8-9d66-f70f629e3b23', 'order_date', 'timestamp without time zone', 'Date when the order was placed', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'order_date');
+INSERT INTO public.dataset_columns VALUES ('586db430-fb24-40ce-935b-3e864279068d', '547f20e6-f3ef-4ed8-9d66-f70f629e3b23', 'due_date', 'timestamp without time zone', 'Due date for order delivery', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'due_date');
+INSERT INTO public.dataset_columns VALUES ('cfd0d57d-708b-4831-a3a3-56d5a1e37156', '547f20e6-f3ef-4ed8-9d66-f70f629e3b23', 'vendor_name', 'character varying', 'Name of the vendor supplying the order', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'vendor_name');
+INSERT INTO public.dataset_columns VALUES ('8068fbd5-c4ef-4806-9aba-4f6172c09bbe', '547f20e6-f3ef-4ed8-9d66-f70f629e3b23', 'product_name', 'character varying', 'Name or description of the product ordered', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'product_name');
+INSERT INTO public.dataset_columns VALUES ('69187625-6b47-49d7-ab04-e77d0c3b6d93', '547f20e6-f3ef-4ed8-9d66-f70f629e3b23', 'modified_date', 'timestamp without time zone', 'Date when the order record was last modified', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('b3a24342-7815-4a25-9dc9-e3a7955fe4c4', '547f20e6-f3ef-4ed8-9d66-f70f629e3b23', 'segment_recent_purchase', 'text', 'Segment categorization for recent purchases', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'text', 'segment_recent_purchase');
+INSERT INTO public.dataset_columns VALUES ('c25717e7-aa4d-4f3e-b0d9-1e68533fff8a', '547f20e6-f3ef-4ed8-9d66-f70f629e3b23', 'purchase_key', 'integer', 'Unique key identifying the purchase', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'purchase_key');
+INSERT INTO public.dataset_columns VALUES ('bab97e2e-eff0-4b06-92b2-35a8382b3015', '547f20e6-f3ef-4ed8-9d66-f70f629e3b23', 'purchase_order_id', 'integer', 'Identifier associated with the purchase order', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'purchase_order_id');
+INSERT INTO public.dataset_columns VALUES ('47119bab-476c-496a-b122-6795e974c930', '547f20e6-f3ef-4ed8-9d66-f70f629e3b23', 'fk_vendor', 'integer', 'Foreign key linking to the vendor entity', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_vendor');
+INSERT INTO public.dataset_columns VALUES ('d26720ea-f87e-466a-8135-5019b80ac206', '547f20e6-f3ef-4ed8-9d66-f70f629e3b23', 'fk_product', 'integer', 'Foreign key linking to the product entity', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_product');
+INSERT INTO public.dataset_columns VALUES ('2dc44ada-0b1a-4a41-af76-ce174a98d34a', '547f20e6-f3ef-4ed8-9d66-f70f629e3b23', 'order_qty', 'smallint', 'Quantity of products ordered', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'smallint', 'order_qty');
+INSERT INTO public.dataset_columns VALUES ('d734de7d-1fcc-4703-af32-935cb3872894', '547f20e6-f3ef-4ed8-9d66-f70f629e3b23', 'unit_price', 'numeric', 'Price per unit of the product at the time of purchase', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'unit_price');
+INSERT INTO public.dataset_columns VALUES ('e3bc9907-a6f7-4392-8a32-9f587cfa72f1', '547f20e6-f3ef-4ed8-9d66-f70f629e3b23', 'total_cost', 'numeric', 'Total cost computed for the order', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'total_cost');
+INSERT INTO public.dataset_columns VALUES ('d5a51d4a-e1e5-43de-a1ec-9b375053bf04', 'a452d58f-af91-40ca-82c6-c3eb94139684', 'name', 'character varying', 'The descriptive name for the scrap reason.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'name');
+INSERT INTO public.dataset_columns VALUES ('cb0f9505-5569-43cf-8078-04ffd506e88b', 'a452d58f-af91-40ca-82c6-c3eb94139684', 'modified_date', 'timestamp without time zone', 'The timestamp indicating when the scrap reason was last modified.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('e68d9ae0-1cd3-468c-b4fe-704f9e79dfac', 'a452d58f-af91-40ca-82c6-c3eb94139684', 'scrap_reason_key', 'integer', 'The key identifier used for aggregating scrap reasons.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'scrap_reason_key');
+INSERT INTO public.dataset_columns VALUES ('f41f9ee4-cc33-49d5-8399-766e25ae629b', 'a452d58f-af91-40ca-82c6-c3eb94139684', 'scrap_reason_id', 'integer', 'The unique identifier for each scrap reason entry.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'scrap_reason_id');
+INSERT INTO public.dataset_columns VALUES ('c55102ca-c932-453e-b204-99c56a933bb0', '3b177be3-b9b7-4d50-8429-2619727f503d', 'product_name', 'character varying', 'The name of the product associated with the work order.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'product_name');
+INSERT INTO public.dataset_columns VALUES ('20cd1409-0d0d-4c58-9d33-0ac1dcccaa63', '3b177be3-b9b7-4d50-8429-2619727f503d', 'start_date', 'timestamp without time zone', 'The starting date when the work order becomes active.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'start_date');
+INSERT INTO public.dataset_columns VALUES ('481b4fc0-41d8-46c5-89ab-31510e7ea084', '3b177be3-b9b7-4d50-8429-2619727f503d', 'end_date', 'timestamp without time zone', 'The ending date when the work order is scheduled to finish.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'end_date');
+INSERT INTO public.dataset_columns VALUES ('2239700c-636a-4c17-8412-9b76fd8ad29f', '3b177be3-b9b7-4d50-8429-2619727f503d', 'due_date', 'timestamp without time zone', 'The due date by which the work order must be completed.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'due_date');
+INSERT INTO public.dataset_columns VALUES ('b380e16b-62f0-4ba0-bd63-a38ac8d58149', '3b177be3-b9b7-4d50-8429-2619727f503d', 'modified_date', 'timestamp without time zone', 'The date when modifications were last made to the work order.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('4378ccc3-b5e4-4a60-a8c5-45f7c7f54747', '3b177be3-b9b7-4d50-8429-2619727f503d', 'segment_scrap_status', 'text', 'Indicator of whether any segment of the work order has been scrapped.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'text', 'segment_scrap_status');
+INSERT INTO public.dataset_columns VALUES ('8077ec90-e1b4-4403-a34a-d8e274b2fde3', '3b177be3-b9b7-4d50-8429-2619727f503d', 'work_order_key', 'integer', 'A unique key used for aggregating work order data.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'work_order_key');
+INSERT INTO public.dataset_columns VALUES ('effaf7bc-28aa-45e4-932c-628856f3b76a', '3b177be3-b9b7-4d50-8429-2619727f503d', 'work_order_id', 'integer', 'An identifier for the work order used in aggregation tasks.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'work_order_id');
+INSERT INTO public.dataset_columns VALUES ('e26876e5-7c1b-4920-b2b4-5ab6d91aca06', '3b177be3-b9b7-4d50-8429-2619727f503d', 'fk_product', 'integer', 'Foreign key linking the work order to a specific product.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_product');
+INSERT INTO public.dataset_columns VALUES ('80a0d7b6-6cae-4937-8a8f-d156b8914da3', '3b177be3-b9b7-4d50-8429-2619727f503d', 'order_qty', 'integer', 'The total quantity ordered in this work order.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'order_qty');
+INSERT INTO public.dataset_columns VALUES ('569f817b-5bbd-41e4-bff2-4cef7dd7ad53', '3b177be3-b9b7-4d50-8429-2619727f503d', 'scrapped_qty', 'smallint', 'The total quantity that has been scrapped or rejected.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'smallint', 'scrapped_qty');
+INSERT INTO public.dataset_columns VALUES ('212b99af-d50a-4c8e-8585-c734e7062f8c', '3b177be3-b9b7-4d50-8429-2619727f503d', 'order_completion_ratio', 'numeric', 'A ratio that indicates the degree of order completion relative to the total quantity.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'order_completion_ratio');
+INSERT INTO public.dataset_columns VALUES ('8a65cf9c-0828-425f-8a7c-e574295e6aba', 'f74d1538-8402-4e4c-a380-49287263de9d', 'name', 'character varying', 'The name of the sales territory', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'name');
+INSERT INTO public.dataset_columns VALUES ('8238f373-35fa-47d1-8ff2-ba9306c04638', 'f74d1538-8402-4e4c-a380-49287263de9d', 'country_region_code', 'character varying', 'The country or region code associated with the territory', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'country_region_code');
+INSERT INTO public.dataset_columns VALUES ('fe385496-7a6a-4acd-932b-29820c9d46b8', 'f74d1538-8402-4e4c-a380-49287263de9d', 'group_name', 'character varying', 'The group or department name within the sales structure', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'group_name');
+INSERT INTO public.dataset_columns VALUES ('c1feb1d8-f164-4292-aa92-fbfea1951d45', 'f74d1538-8402-4e4c-a380-49287263de9d', 'rowguid', 'uuid', 'A unique identifier (GUID) for the record', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'uuid', 'rowguid');
+INSERT INTO public.dataset_columns VALUES ('ab5a5f45-b97c-41e2-ab30-ef0668eb3f40', 'f74d1538-8402-4e4c-a380-49287263de9d', 'modified_date', 'timestamp without time zone', 'The date and time when the record was last modified', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('1226006d-736f-43e7-ae89-d5c9af41772a', 'f74d1538-8402-4e4c-a380-49287263de9d', 'territory_key', 'integer', 'A numerical key representing the territory', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'territory_key');
+INSERT INTO public.dataset_columns VALUES ('efc33faf-9d53-49df-aaf3-218ec2503103', 'f74d1538-8402-4e4c-a380-49287263de9d', 'territory_id', 'integer', 'The unique identifier for the territory used in aggregations', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'territory_id');
+INSERT INTO public.dataset_columns VALUES ('3886d499-6194-4cd7-bbb0-9cbcc76d37dc', 'f74d1538-8402-4e4c-a380-49287263de9d', 'sales_ytd', 'numeric', 'Year-to-date total sales for the territory', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'sales_ytd');
+INSERT INTO public.dataset_columns VALUES ('9581c3ee-7670-4314-9386-bb154b778948', 'f74d1538-8402-4e4c-a380-49287263de9d', 'sales_last_year', 'numeric', 'Total sales from the previous year for the territory', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'sales_last_year');
+INSERT INTO public.dataset_columns VALUES ('ca63154d-3169-4374-9381-1eff434ad3d6', 'f74d1538-8402-4e4c-a380-49287263de9d', 'cost_ytd', 'numeric', 'Year-to-date total cost associated with the territory', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'cost_ytd');
+INSERT INTO public.dataset_columns VALUES ('31b156e0-a0e8-44e4-9a28-cb40eb3ac376', 'f74d1538-8402-4e4c-a380-49287263de9d', 'cost_last_year', 'numeric', 'Total cost incurred in the previous year for the territory', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'cost_last_year');
+INSERT INTO public.dataset_columns VALUES ('a33fb0ba-22a4-46c8-8336-603e95a1748e', '494b86b1-f12f-41a6-b03b-2ae17653684b', 'name', 'character varying', 'The name of the shipping method.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'name');
+INSERT INTO public.dataset_columns VALUES ('104030d5-bcaf-41c6-a5a1-d75a06cfa9e1', '494b86b1-f12f-41a6-b03b-2ae17653684b', 'rowguid', 'uuid', 'The unique identifier (UUID) for the record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'uuid', 'rowguid');
+INSERT INTO public.dataset_columns VALUES ('e2fb3eaf-39eb-4f80-87c5-5a3f581cc764', '494b86b1-f12f-41a6-b03b-2ae17653684b', 'modified_date', 'timestamp without time zone', 'The date and time when the record was last updated.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('18b5b183-bea1-4dd3-998b-376865e16636', '494b86b1-f12f-41a6-b03b-2ae17653684b', 'ship_method_key', 'integer', 'Sum of unique keys for shipping methods.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'ship_method_key');
+INSERT INTO public.dataset_columns VALUES ('6bbac76e-f35b-4208-9388-665c2e4ab08e', '494b86b1-f12f-41a6-b03b-2ae17653684b', 'ship_method_id', 'integer', 'Sum of shipping method IDs.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'ship_method_id');
+INSERT INTO public.dataset_columns VALUES ('eec4334a-8d48-4a79-b551-7fd5b0296df9', '494b86b1-f12f-41a6-b03b-2ae17653684b', 'ship_base', 'numeric', 'Sum of base shipping costs.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'ship_base');
+INSERT INTO public.dataset_columns VALUES ('3c85fc22-ecaa-4a3d-97d0-88ccc9226ccf', '494b86b1-f12f-41a6-b03b-2ae17653684b', 'ship_rate', 'numeric', 'Sum of shipping rates applied.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'ship_rate');
+INSERT INTO public.dataset_columns VALUES ('56fb457c-686d-4b7d-87ab-070e69b5e171', '22799ae1-d5b5-4a75-969f-971e796465c8', 'name', 'character varying', 'The name of the sales tax rate, typically describing the tax category or designation.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'name');
+INSERT INTO public.dataset_columns VALUES ('576beca9-23bb-4661-a295-92fdb4acd21f', '22799ae1-d5b5-4a75-969f-971e796465c8', 'rowguid', 'uuid', 'Unique row identifier (GUID) for the sales tax rate record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'uuid', 'rowguid');
+INSERT INTO public.dataset_columns VALUES ('e9c72ecb-0716-43a3-b8c1-b1a421931433', '22799ae1-d5b5-4a75-969f-971e796465c8', 'modified_date', 'timestamp without time zone', 'Timestamp marking the last modification date of the sales tax rate record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('80f98509-026a-45ad-bdf8-7b09d5fc64b1', '22799ae1-d5b5-4a75-969f-971e796465c8', 'sales_tax_rate_key', 'integer', 'Unique key for the sales tax rate used in calculations and aggregations.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'sales_tax_rate_key');
+INSERT INTO public.dataset_columns VALUES ('4c38e74d-e0f6-4265-8f7d-3e3ca42bdbab', '22799ae1-d5b5-4a75-969f-971e796465c8', 'sales_tax_rate_id', 'integer', 'Identifier for the sales tax rate record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'sales_tax_rate_id');
+INSERT INTO public.dataset_columns VALUES ('5992cbb5-06cd-4938-b141-808f4118d3c0', '22799ae1-d5b5-4a75-969f-971e796465c8', 'state_province_id', 'integer', 'Identifier linking the tax rate to its respective state or province.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'state_province_id');
+INSERT INTO public.dataset_columns VALUES ('6ea6598e-9972-4b75-bddf-2c4cebf1d1d2', '22799ae1-d5b5-4a75-969f-971e796465c8', 'tax_type', 'smallint', 'Indicator representing the type of tax, such as state or local.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'smallint', 'tax_type');
+INSERT INTO public.dataset_columns VALUES ('f4d36461-7b86-4f92-bc81-9550ecc171bc', '22799ae1-d5b5-4a75-969f-971e796465c8', 'tax_rate', 'numeric', 'Numeric value indicating the percentage rate of the sales tax.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'tax_rate');
+INSERT INTO public.dataset_columns VALUES ('29882cbb-af57-41fa-a8f5-9cb4ed1e90e6', 'e5aa8a57-3ef3-4470-b463-79ad0ecaad8e', 'modified_date', 'timestamp without time zone', 'Represents the timestamp of the last modification to the record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('17eea3a7-c641-4a30-8a98-ef2986057f41', 'e5aa8a57-3ef3-4470-b463-79ad0ecaad8e', 'sales_order_header_sales_reason_key', 'integer', 'Aggregated identifier for the sales order header sales reason.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'sales_order_header_sales_reason_key');
+INSERT INTO public.dataset_columns VALUES ('9baaa17a-1d28-4fa7-a270-bc1c8976281f', 'e5aa8a57-3ef3-4470-b463-79ad0ecaad8e', 'sales_order_id', 'integer', 'Aggregated unique identifier for the sales order.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'sales_order_id');
+INSERT INTO public.dataset_columns VALUES ('4d216c7d-04f7-4b3a-81e1-cba8e3f5c7d4', 'e5aa8a57-3ef3-4470-b463-79ad0ecaad8e', 'sales_reason_id', 'integer', 'Aggregated unique identifier for the sales reason category.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'sales_reason_id');
+INSERT INTO public.dataset_columns VALUES ('f9f7533a-b16b-4ce2-83c6-053d6012eb42', '8c4ff2e6-7897-4d1b-8700-df76144c5f78', 'first_name', 'character varying', 'Employee''s first name', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'first_name');
+INSERT INTO public.dataset_columns VALUES ('fc4e0a7a-63e4-406b-afdf-dd92c57e8d89', '8c4ff2e6-7897-4d1b-8700-df76144c5f78', 'last_name', 'character varying', 'Employee''s last name', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'last_name');
+INSERT INTO public.dataset_columns VALUES ('e33239b4-48d6-43d9-9ed6-a609d66ee4ac', '8c4ff2e6-7897-4d1b-8700-df76144c5f78', 'job_title', 'character varying', 'Title of the employee''s job position', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'job_title');
+INSERT INTO public.dataset_columns VALUES ('b421bd99-2d06-44a1-aacd-3ea0270df3b4', '8c4ff2e6-7897-4d1b-8700-df76144c5f78', 'hire_date', 'date', 'Employee''s hire date', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'date', 'hire_date');
+INSERT INTO public.dataset_columns VALUES ('0233fa28-69b0-49d1-b628-7b18274cfd12', '8c4ff2e6-7897-4d1b-8700-df76144c5f78', 'birth_date', 'date', 'Employee''s date of birth', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'date', 'birth_date');
+INSERT INTO public.dataset_columns VALUES ('1518e576-3eb8-41ae-89dd-c3a691db877f', '8c4ff2e6-7897-4d1b-8700-df76144c5f78', 'marital_status', 'character', 'Employee''s marital status', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character', 'marital_status');
+INSERT INTO public.dataset_columns VALUES ('b9680755-4975-4802-8ad1-0073dc5f78e1', '8c4ff2e6-7897-4d1b-8700-df76144c5f78', 'gender', 'character', 'Employee''s gender', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character', 'gender');
+INSERT INTO public.dataset_columns VALUES ('f4be1099-148d-4fa0-86e8-fda35db479c1', '8c4ff2e6-7897-4d1b-8700-df76144c5f78', 'modified_date', 'timestamp without time zone', 'Record''s last modified date', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('86f690d9-13b3-44d2-bb43-958e3d24881c', '8c4ff2e6-7897-4d1b-8700-df76144c5f78', 'segment_employment_status', 'text', 'Segment classification of employment status', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'text', 'segment_employment_status');
+INSERT INTO public.dataset_columns VALUES ('fe18fa87-3fa3-4b4e-bff8-18090f088b59', '8c4ff2e6-7897-4d1b-8700-df76144c5f78', 'employee_key', 'integer', 'Unique key identifier for the employee', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'employee_key');
+INSERT INTO public.dataset_columns VALUES ('9a160be8-c1bb-47c5-ae3f-fdfb8c7f0f9c', '8c4ff2e6-7897-4d1b-8700-df76144c5f78', 'fk_person', 'integer', 'Foreign key to the associated person record', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_person');
+INSERT INTO public.dataset_columns VALUES ('d1303092-3d8f-4ce8-8e08-d4242bf58400', '8c4ff2e6-7897-4d1b-8700-df76144c5f78', 'avg_pay_rate', 'numeric', 'Average pay rate for the employee', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'avg_pay_rate');
+INSERT INTO public.dataset_columns VALUES ('cfbfd6d2-9fa9-4458-8570-da83093d14d7', '8c4ff2e6-7897-4d1b-8700-df76144c5f78', 'tenure_years', 'numeric', 'Calculated employee tenure in years', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'tenure_years');
+INSERT INTO public.dataset_columns VALUES ('3777a588-9ef6-4a14-b374-7cfe3c899fba', 'd39747a7-1a07-4ea2-b057-49541771a647', 'name', 'character varying', 'The name identifying the entity or shift record', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'name');
+INSERT INTO public.dataset_columns VALUES ('b325819f-ce59-4bd7-903e-0a0ee44db65e', 'd39747a7-1a07-4ea2-b057-49541771a647', 'start_time', 'time without time zone', 'The starting time of the shift', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'time without time zone', 'start_time');
+INSERT INTO public.dataset_columns VALUES ('0ee87e86-776b-48d2-8cf6-0873e2cc5bcd', 'd39747a7-1a07-4ea2-b057-49541771a647', 'end_time', 'time without time zone', 'The ending time of the shift', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'time without time zone', 'end_time');
+INSERT INTO public.dataset_columns VALUES ('2b99c9a1-f5df-4e15-9fdd-14e63905740a', 'd39747a7-1a07-4ea2-b057-49541771a647', 'modified_date', 'timestamp without time zone', 'The timestamp when the record was last modified', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('1abeba43-4ecf-4c9f-8fb6-1270ca349f63', 'd39747a7-1a07-4ea2-b057-49541771a647', 'shift_key', 'integer', 'Aggregate sum of shift keys for numerical summarization', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'shift_key');
+INSERT INTO public.dataset_columns VALUES ('79c375b3-f9f6-406c-9cdb-f6543fdba7a1', 'd39747a7-1a07-4ea2-b057-49541771a647', 'shift_id', 'integer', 'Aggregate sum of shift IDs for numerical summarization', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'shift_id');
+INSERT INTO public.dataset_columns VALUES ('6532ea5c-b4a4-40bb-80f0-6b86ce4c5468', 'fbd94258-7e8b-461c-9174-e3730b38428b', 'first_name', 'character varying', 'The first name of the customer.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'first_name');
+INSERT INTO public.dataset_columns VALUES ('bfeeaced-4ba3-4f28-95c7-66a590242949', 'fbd94258-7e8b-461c-9174-e3730b38428b', 'last_name', 'character varying', 'The last name of the customer.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'last_name');
+INSERT INTO public.dataset_columns VALUES ('206631f9-8478-4a6f-8279-a1acb916f176', 'fbd94258-7e8b-461c-9174-e3730b38428b', 'email_address', 'character varying', 'The email address of the customer.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'email_address');
+INSERT INTO public.dataset_columns VALUES ('e491351b-09fe-483c-a40d-f6aee9fb4039', 'fbd94258-7e8b-461c-9174-e3730b38428b', 'modified_date', 'timestamp without time zone', 'The date when the customer record was last modified.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('d4edda71-6fcb-46b7-b4eb-aa9cd1907078', 'fbd94258-7e8b-461c-9174-e3730b38428b', 'segment_active_customer', 'text', 'Indicator if the customer is actively engaged.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'text', 'segment_active_customer');
+INSERT INTO public.dataset_columns VALUES ('fc01c3ea-349e-4562-b02f-8183ac7684ae', 'fbd94258-7e8b-461c-9174-e3730b38428b', 'customer_key', 'integer', 'Unique identifier key for the customer.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'customer_key');
+INSERT INTO public.dataset_columns VALUES ('571ca6a3-1358-4b89-ae11-63b0450fe6db', 'fbd94258-7e8b-461c-9174-e3730b38428b', 'customer_id', 'integer', 'Identifier for the customer record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'customer_id');
+INSERT INTO public.dataset_columns VALUES ('f9b1319d-46e5-4d4e-b080-b4f8b0e17f48', 'fbd94258-7e8b-461c-9174-e3730b38428b', 'fk_person', 'integer', 'Foreign key linking to the person record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_person');
+INSERT INTO public.dataset_columns VALUES ('56eefd7c-9f26-41e9-bb20-792f35ffe5a9', 'fbd94258-7e8b-461c-9174-e3730b38428b', 'fk_store', 'integer', 'Foreign key linking to the store record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_store');
+INSERT INTO public.dataset_columns VALUES ('08710e63-9f10-45e4-9ff4-d1d7919b5511', 'fbd94258-7e8b-461c-9174-e3730b38428b', 'fk_territory', 'integer', 'Foreign key linking to the territory record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_territory');
+INSERT INTO public.dataset_columns VALUES ('6700b8fe-1485-4de5-8b0f-0cf9fa45a3c7', 'fbd94258-7e8b-461c-9174-e3730b38428b', 'total_orders_last_12_months', 'bigint', 'Total number of orders in the last 12 months.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'bigint', 'total_orders_last_12_months');
+INSERT INTO public.dataset_columns VALUES ('80a397ac-9290-4bfb-a2f6-34f798781c6b', 'fbd94258-7e8b-461c-9174-e3730b38428b', 'total_revenue_last_12_months', 'numeric', 'Total revenue generated in the last 12 months.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'total_revenue_last_12_months');
+INSERT INTO public.dataset_columns VALUES ('97c34213-4ac3-4434-badc-62297b7de0b9', 'fbd94258-7e8b-461c-9174-e3730b38428b', 'avg_order_value_last_12_months', 'numeric', 'Average order value over the last 12 months.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'avg_order_value_last_12_months');
+INSERT INTO public.dataset_columns VALUES ('8f6f5bb6-471d-4571-9d8d-4ef2ce5a4153', 'bf277d59-9cca-4e26-bb1d-9bb2f6b91b93', 'rowguid', 'uuid', 'Unique identifier for the special offer product.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'uuid', 'rowguid');
+INSERT INTO public.dataset_columns VALUES ('432f5452-deb4-4f5a-910c-62211718b7f6', 'bf277d59-9cca-4e26-bb1d-9bb2f6b91b93', 'modified_date', 'timestamp without time zone', 'Date and time when the record was last modified.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('6fe0916d-9ad1-4566-bfa8-8f605207ebb6', 'bf277d59-9cca-4e26-bb1d-9bb2f6b91b93', 'special_offer_product_key', 'integer', 'Primary key for the special offer product record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'special_offer_product_key');
+INSERT INTO public.dataset_columns VALUES ('2d4495f4-1d19-47e9-af68-d63a13a707ce', 'bf277d59-9cca-4e26-bb1d-9bb2f6b91b93', 'special_offer_id', 'integer', 'Identifier for the special offer associated with the product.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'special_offer_id');
+INSERT INTO public.dataset_columns VALUES ('9e5ff26f-63b3-434a-a63a-9ee10d089b26', 'bf277d59-9cca-4e26-bb1d-9bb2f6b91b93', 'product_id', 'integer', 'Identifier for the product in the special offer.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'product_id');
+INSERT INTO public.dataset_columns VALUES ('3403a1e3-e773-482a-bf37-1d8aaa4abf2c', '2c2cd754-7969-4e2c-8912-44329e528c5d', 'first_name', 'character varying', 'Candidate''s first name', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'first_name');
+INSERT INTO public.dataset_columns VALUES ('e6b62527-d03e-44f1-97d9-951b7f9e56b9', '2c2cd754-7969-4e2c-8912-44329e528c5d', 'last_name', 'character varying', 'Candidate''s last name', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'last_name');
+INSERT INTO public.dataset_columns VALUES ('dd2467e2-8d6a-4f73-8231-831f762782dc', '2c2cd754-7969-4e2c-8912-44329e528c5d', 'resume', 'xml', 'Candidate''s resume in XML format', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'xml', 'resume');
+INSERT INTO public.dataset_columns VALUES ('4b310a48-ef1a-4bc6-b2a4-a58ed0e464ad', '2c2cd754-7969-4e2c-8912-44329e528c5d', 'modified_date', 'timestamp without time zone', 'Timestamp for when candidate record was modified', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('dff6dfdf-338b-48fe-a300-07294df463ee', '2c2cd754-7969-4e2c-8912-44329e528c5d', 'job_candidate_key', 'integer', 'Unique key identifier for job candidate', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'job_candidate_key');
+INSERT INTO public.dataset_columns VALUES ('a81d93ca-f2fb-4be8-bf1f-491bb195bd52', '2c2cd754-7969-4e2c-8912-44329e528c5d', 'job_candidate_id', 'integer', 'ID assigned to job candidate', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'job_candidate_id');
+INSERT INTO public.dataset_columns VALUES ('ad93ee44-8439-4b40-8e1d-e49d6e50029d', '2c2cd754-7969-4e2c-8912-44329e528c5d', 'fk_person', 'integer', 'Foreign key referencing the person entity', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_person');
+INSERT INTO public.dataset_columns VALUES ('fa478bf4-6bf4-4b5e-8e9a-168ef50765b9', '67e5062a-788d-4608-a05f-4d70b84f24cf', 'start_date', 'timestamp without time zone', 'Timestamp when the product cost history record becomes effective.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'start_date');
+INSERT INTO public.dataset_columns VALUES ('530ac9b5-594d-46e9-85be-49e1d9506c3d', '67e5062a-788d-4608-a05f-4d70b84f24cf', 'end_date', 'timestamp without time zone', 'Timestamp when the product cost history record expires.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'end_date');
+INSERT INTO public.dataset_columns VALUES ('11896b6b-1743-45d3-bd16-7c7f98b2197c', '67e5062a-788d-4608-a05f-4d70b84f24cf', 'modified_date', 'timestamp without time zone', 'Timestamp when the record was last updated.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('4f9191b0-a6e4-416e-81b9-82cc3f0009ae', '67e5062a-788d-4608-a05f-4d70b84f24cf', 'product_cost_history_key', 'integer', 'Unique key identifying the product cost history entry.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'product_cost_history_key');
+INSERT INTO public.dataset_columns VALUES ('0623cc94-a164-40ed-bbc6-6cd7e751ff72', '67e5062a-788d-4608-a05f-4d70b84f24cf', 'product_id', 'integer', 'Identifier for the product associated with this cost history record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'product_id');
+INSERT INTO public.dataset_columns VALUES ('2943b8ee-cc6c-4d0e-89f0-4c30aea438af', '67e5062a-788d-4608-a05f-4d70b84f24cf', 'standard_cost', 'numeric', 'Recorded standard cost for the product.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'standard_cost');
+INSERT INTO public.dataset_columns VALUES ('ac133f67-6a19-402f-bc13-d4c083c1a03b', '32cc8810-05e7-4703-aea3-5b7e8216eaf1', 'description', 'character varying', 'Text describing the details of the special offer.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'description');
+INSERT INTO public.dataset_columns VALUES ('4f83b9da-044d-441c-afe7-ee099cad2645', '32cc8810-05e7-4703-aea3-5b7e8216eaf1', 'type', 'character varying', 'Text indicating the type of offer.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'type');
+INSERT INTO public.dataset_columns VALUES ('afa1d7f0-b085-4741-a2f6-625bb5dc5f0c', '32cc8810-05e7-4703-aea3-5b7e8216eaf1', 'category', 'character varying', 'Text representing the category of the offer.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'category');
+INSERT INTO public.dataset_columns VALUES ('923c5118-3a54-48d2-ab7f-6dd4b49f3e98', '32cc8810-05e7-4703-aea3-5b7e8216eaf1', 'start_date', 'timestamp without time zone', 'Timestamp when the offer starts.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'start_date');
+INSERT INTO public.dataset_columns VALUES ('d2147d60-f547-4a6c-b84e-c222bc8e6ef4', '32cc8810-05e7-4703-aea3-5b7e8216eaf1', 'end_date', 'timestamp without time zone', 'Timestamp when the offer ends.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'end_date');
+INSERT INTO public.dataset_columns VALUES ('ef3ac8e7-7cdb-4fd6-8a47-353a488ecb09', '32cc8810-05e7-4703-aea3-5b7e8216eaf1', 'modified_date', 'timestamp without time zone', 'Timestamp of the last modification to the offer details.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('9e3440fb-259e-4806-86dc-43b8d086f529', '32cc8810-05e7-4703-aea3-5b7e8216eaf1', 'segment_discount_level', 'text', 'Text denoting the discount level based on segment criteria.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'text', 'segment_discount_level');
+INSERT INTO public.dataset_columns VALUES ('64d87583-7315-481f-a615-d4f2c741f339', '32cc8810-05e7-4703-aea3-5b7e8216eaf1', 'special_offer_key', 'integer', 'Unique key identifier for the special offer.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'special_offer_key');
+INSERT INTO public.dataset_columns VALUES ('e4d9a291-405e-4fd5-8f6e-04bc0e2d41cd', '32cc8810-05e7-4703-aea3-5b7e8216eaf1', 'special_offer_id', 'integer', 'Identifier for the special offer.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'special_offer_id');
+INSERT INTO public.dataset_columns VALUES ('6c66215d-8cfd-45f5-90eb-e0f815ecb951', '32cc8810-05e7-4703-aea3-5b7e8216eaf1', 'discount_pct', 'numeric', 'Sum of discount percentages applied in the offer.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'discount_pct');
+INSERT INTO public.dataset_columns VALUES ('f8176094-88d7-4e51-afa5-bc6a4381334f', '32cc8810-05e7-4703-aea3-5b7e8216eaf1', 'min_qty', 'integer', 'Minimum quantity required for the offer.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'min_qty');
+INSERT INTO public.dataset_columns VALUES ('e5a44c41-e633-4e6b-ae52-35e36c0c0c08', '32cc8810-05e7-4703-aea3-5b7e8216eaf1', 'max_qty', 'integer', 'Maximum quantity valid for the offer.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'max_qty');
+INSERT INTO public.dataset_columns VALUES ('8102872d-3429-43d0-851c-1d417e3128a4', '55b4fb53-159c-4638-9136-745c2670143d', 'culture_id', 'character', 'Unique identifier representing the culture.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character', 'culture_id');
+INSERT INTO public.dataset_columns VALUES ('fa7f4023-5e77-4a44-a941-ada7536023c4', '55b4fb53-159c-4638-9136-745c2670143d', 'name', 'character varying', 'The name of the culture.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'name');
+INSERT INTO public.dataset_columns VALUES ('d55a9264-0de0-4f62-b728-264879b042b0', '55b4fb53-159c-4638-9136-745c2670143d', 'modified_date', 'timestamp without time zone', 'The timestamp marking when the record was last updated.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('d1ce2c3b-3881-40ff-9491-9a8a6c984a3f', '55b4fb53-159c-4638-9136-745c2670143d', 'culture_key', 'integer', 'The aggregation of culture keys for summarizing culture data.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'culture_key');
+INSERT INTO public.dataset_columns VALUES ('9a1e46a5-b499-4cd8-80f4-eb6018aaba22', '0b0f0ceb-1e0f-428b-bfd5-cc8aa8bd612b', 'first_name', 'character varying', 'The given name of the person', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'first_name');
+INSERT INTO public.dataset_columns VALUES ('0832005a-3997-4772-bc9b-73f3342c01d1', '0b0f0ceb-1e0f-428b-bfd5-cc8aa8bd612b', 'last_name', 'character varying', 'The family name or surname of the person', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'last_name');
+INSERT INTO public.dataset_columns VALUES ('d6d75cb1-defb-430c-8e99-459350f8f0af', '0b0f0ceb-1e0f-428b-bfd5-cc8aa8bd612b', 'title', 'character varying', 'The professional title or honorific of the person', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'title');
+INSERT INTO public.dataset_columns VALUES ('437f9a57-6172-4271-93ba-eb6dcf3ff065', '0b0f0ceb-1e0f-428b-bfd5-cc8aa8bd612b', 'email_address', 'character varying', 'The email address of the person', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'email_address');
+INSERT INTO public.dataset_columns VALUES ('216c58fb-76a2-41c0-8973-f2e65699982f', '0b0f0ceb-1e0f-428b-bfd5-cc8aa8bd612b', 'phone_number', 'character varying', 'The contact phone number of the person', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'phone_number');
+INSERT INTO public.dataset_columns VALUES ('a4273091-f8e5-400b-b8d0-17efee0a1b05', '0b0f0ceb-1e0f-428b-bfd5-cc8aa8bd612b', 'segment_recent_update', 'text', 'A textual segment indicating recent changes', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'text', 'segment_recent_update');
+INSERT INTO public.dataset_columns VALUES ('4159e082-2094-47a1-8167-14fa5ae1ad7b', '0b0f0ceb-1e0f-428b-bfd5-cc8aa8bd612b', 'modified_date', 'timestamp without time zone', 'The timestamp when the record was last updated', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('1cc189d4-18e8-4ae8-ab8d-9f357fa9e3d9', '0b0f0ceb-1e0f-428b-bfd5-cc8aa8bd612b', 'person_key', 'integer', 'A unique key identifier for the person', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'person_key');
+INSERT INTO public.dataset_columns VALUES ('01777da5-a155-4f5f-be6e-a4b2ba38c693', '0b0f0ceb-1e0f-428b-bfd5-cc8aa8bd612b', 'fk_business_entity', 'integer', 'A foreign key referencing the associated business entity', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_business_entity');
+INSERT INTO public.dataset_columns VALUES ('6e726425-fd3f-428e-86a4-b0b04bc23e71', '45cc0bcb-a906-4505-9337-1cfb59b9e71c', 'department_name', 'character varying', 'The name of the department within the organization', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'department_name');
+INSERT INTO public.dataset_columns VALUES ('78b09bac-9129-43d2-b465-3cdc2e563180', '45cc0bcb-a906-4505-9337-1cfb59b9e71c', 'group_name', 'character varying', 'The name of the group associated with the department', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'group_name');
+INSERT INTO public.dataset_columns VALUES ('42c61362-7f33-4284-b2d9-248cde18ef0d', '45cc0bcb-a906-4505-9337-1cfb59b9e71c', 'modified_date', 'timestamp without time zone', 'The date and time when the department record was last updated', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('90d215db-1f39-4b6d-ac91-f0643b87fbdb', '45cc0bcb-a906-4505-9337-1cfb59b9e71c', 'department_key', 'integer', 'A unique key identifier for the department, used for aggregation', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'department_key');
+INSERT INTO public.dataset_columns VALUES ('b85e2cbe-7efc-4d33-8811-490e2a75347b', '45cc0bcb-a906-4505-9337-1cfb59b9e71c', 'department_id', 'integer', 'The identifier for the department used in system records', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'department_id');
+INSERT INTO public.dataset_columns VALUES ('d0345501-1bf4-4bc4-8f4e-704d16ffe892', '45cc0bcb-a906-4505-9337-1cfb59b9e71c', 'employee_count', 'bigint', 'The total number of employees in the department', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'bigint', 'employee_count');
+INSERT INTO public.dataset_columns VALUES ('d0beff55-731b-4b78-8657-96380c80f000', '12da0036-fee2-4724-9124-53f8540c0f57', 'thumbnail_photo', 'bytea', 'Photo stored as bytea for thumbnail representation.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'bytea', 'thumbnail_photo');
+INSERT INTO public.dataset_columns VALUES ('968ebaea-3500-49b0-a0e4-8dc7e5f9df6a', '12da0036-fee2-4724-9124-53f8540c0f57', 'thumbnail_photo_file_name', 'character varying', 'Filename for the thumbnail photo.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'thumbnail_photo_file_name');
+INSERT INTO public.dataset_columns VALUES ('4e5618b5-3f7f-4796-b38f-0b28838f9c13', '12da0036-fee2-4724-9124-53f8540c0f57', 'large_photo', 'bytea', 'Photo stored as bytea for large representation.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'bytea', 'large_photo');
+INSERT INTO public.dataset_columns VALUES ('03e00619-969c-42f8-9ce4-8080ca5ab27e', '12da0036-fee2-4724-9124-53f8540c0f57', 'large_photo_file_name', 'character varying', 'Filename for the large photo.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'large_photo_file_name');
+INSERT INTO public.dataset_columns VALUES ('1e86c13b-9d22-4376-865e-fd2eb497b192', '12da0036-fee2-4724-9124-53f8540c0f57', 'modified_date', 'timestamp without time zone', 'Timestamp indicating when the photo was last modified.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('1406fad1-a308-45e6-940b-d6712fc32556', '12da0036-fee2-4724-9124-53f8540c0f57', 'product_photo_key', 'integer', 'Unique numeric key representing the photo entry for aggregation.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'product_photo_key');
+INSERT INTO public.dataset_columns VALUES ('e74eded1-8676-40d2-887d-d9d4d04541ea', '12da0036-fee2-4724-9124-53f8540c0f57', 'product_photo_id', 'integer', 'Unique identifier for the photo used in aggregations.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'product_photo_id');
+INSERT INTO public.dataset_columns VALUES ('017d0d3f-c537-425a-83e1-9444567c0f6d', '2e28469d-47a4-425e-bdd7-07356e1214d8', 'quota_date', 'timestamp without time zone', 'The date on which the sales quota was applied or recorded', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'quota_date');
+INSERT INTO public.dataset_columns VALUES ('e0530b53-b344-4cd6-adca-9093206c0057', '2e28469d-47a4-425e-bdd7-07356e1214d8', 'rowguid', 'uuid', 'Unique identifier for the record', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'uuid', 'rowguid');
+INSERT INTO public.dataset_columns VALUES ('368774a9-9d22-45a8-a689-f5f3689cb4c3', '2e28469d-47a4-425e-bdd7-07356e1214d8', 'modified_date', 'timestamp without time zone', 'Timestamp when the record was last modified', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('23ee8f29-3e5e-48e5-b619-9fc4a4dca5d4', '2e28469d-47a4-425e-bdd7-07356e1214d8', 'sales_person_quota_history_key', 'integer', 'Primary key for the sales quota history record', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'sales_person_quota_history_key');
+INSERT INTO public.dataset_columns VALUES ('29cf4e1a-64fb-4be5-bed8-0d90015f03ea', '2e28469d-47a4-425e-bdd7-07356e1214d8', 'business_entity_id', 'integer', 'Identifier for the business entity associated with the sales person', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'business_entity_id');
+INSERT INTO public.dataset_columns VALUES ('ab1730f4-be81-4d6a-bd4f-7fb757457a69', '2e28469d-47a4-425e-bdd7-07356e1214d8', 'sales_quota', 'numeric', 'The allocated sales quota amount for the sales person', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'sales_quota');
+INSERT INTO public.dataset_columns VALUES ('92bb342e-ca90-4576-85d7-bb7ccdbfaa81', 'b72ef391-fcb0-4b8f-91fb-675a4052d9b0', 'name', 'character varying', 'The name of the contact type', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'name');
+INSERT INTO public.dataset_columns VALUES ('fa7384ac-ea5b-4228-a644-e065b249962d', 'b72ef391-fcb0-4b8f-91fb-675a4052d9b0', 'modified_date', 'timestamp without time zone', 'The date when the record was last modified', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('d4967356-0ef2-4b46-b6af-4d511c76360f', 'b72ef391-fcb0-4b8f-91fb-675a4052d9b0', 'contact_type_key', 'integer', 'Aggregated key identifying the contact type', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'contact_type_key');
+INSERT INTO public.dataset_columns VALUES ('262c07be-07a0-4e03-9e59-e44df14f3b75', 'b72ef391-fcb0-4b8f-91fb-675a4052d9b0', 'contact_type_id', 'integer', 'Aggregated identifier for the contact type', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'contact_type_id');
+INSERT INTO public.dataset_columns VALUES ('cadeda04-99cd-45a0-bb20-8aa081d91995', '8b6a1dfd-da0a-4412-b707-eb444d94ae33', 'name', 'character varying', 'Name of the vendor', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'name');
+INSERT INTO public.dataset_columns VALUES ('e001d12f-357e-4d7d-a485-7a5179f195d8', '8b6a1dfd-da0a-4412-b707-eb444d94ae33', 'preferred_vendor_status', 'boolean', 'Indicates if the vendor is preferred', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'boolean', 'preferred_vendor_status');
+INSERT INTO public.dataset_columns VALUES ('cbefdcd3-47fc-4266-88ba-6bd2efd9cbd6', '8b6a1dfd-da0a-4412-b707-eb444d94ae33', 'active_flag', 'boolean', 'Status flag representing if the vendor is currently active', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'boolean', 'active_flag');
+INSERT INTO public.dataset_columns VALUES ('0d7891c3-4bf2-44c0-85e3-e35b66793046', '8b6a1dfd-da0a-4412-b707-eb444d94ae33', 'email_address', 'character varying', 'Contact email address for the vendor', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'email_address');
+INSERT INTO public.dataset_columns VALUES ('01f19435-b994-408e-a49a-328b831b3840', '8b6a1dfd-da0a-4412-b707-eb444d94ae33', 'modified_date', 'timestamp without time zone', 'The date and time when the vendor record was last modified', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('fcb14fa3-31c5-45f7-8e20-ae4709c554df', '8b6a1dfd-da0a-4412-b707-eb444d94ae33', 'segment_vendor_rating', 'text', 'Rating of vendor segment based on performance metrics', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'text', 'segment_vendor_rating');
+INSERT INTO public.dataset_columns VALUES ('b300385f-a71a-4ec5-a60c-143197462b22', '8b6a1dfd-da0a-4412-b707-eb444d94ae33', 'vendor_key', 'integer', 'Unique key identifier for the vendor', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'vendor_key');
+INSERT INTO public.dataset_columns VALUES ('f5dd4c2d-d36c-456c-ba2e-90674b0d63d3', '8b6a1dfd-da0a-4412-b707-eb444d94ae33', 'fk_person', 'integer', 'Foreign key linking to the person entity associated with the vendor', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_person');
+INSERT INTO public.dataset_columns VALUES ('b30def7b-a614-4cf6-9ea0-ff41b2fa59c3', '8b6a1dfd-da0a-4412-b707-eb444d94ae33', 'credit_rating', 'smallint', 'Credit rating score assigned to the vendor', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'smallint', 'credit_rating');
+INSERT INTO public.dataset_columns VALUES ('458037c8-bbff-4ed4-b3bd-d35d7f3f7237', '8b6a1dfd-da0a-4412-b707-eb444d94ae33', 'average_lead_time', 'numeric', 'Average lead time for vendor deliveries', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'average_lead_time');
+INSERT INTO public.dataset_columns VALUES ('421dea16-f8b1-47bf-bff2-e470cdeedb1d', '8b6a1dfd-da0a-4412-b707-eb444d94ae33', 'total_purchase_orders_last_12_months', 'bigint', 'Total number of purchase orders placed in the last 12 months', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'bigint', 'total_purchase_orders_last_12_months');
+INSERT INTO public.dataset_columns VALUES ('26f85fde-bb0a-4eee-8137-a4c8594eb8b7', '8b6a1dfd-da0a-4412-b707-eb444d94ae33', 'total_purchase_cost_last_12_months', 'numeric', 'Aggregate cost of purchases made in the last 12 months', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'total_purchase_cost_last_12_months');
+INSERT INTO public.dataset_columns VALUES ('15d7420f-d032-4164-b889-9f641ecb0e7f', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'order_date', 'timestamp without time zone', 'The date when the order was placed.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'order_date');
+INSERT INTO public.dataset_columns VALUES ('d7e0079a-610f-40a3-b78f-af4077fb1810', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'due_date', 'timestamp without time zone', 'The expected date for order delivery.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'due_date');
+INSERT INTO public.dataset_columns VALUES ('8ab15d43-87f1-4e4f-bb5f-cf37f8eee7de', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'ship_date', 'timestamp without time zone', 'The date when the order was shipped.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'ship_date');
+INSERT INTO public.dataset_columns VALUES ('8e69197f-146f-46e2-9097-0d7313470414', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'product_name', 'character varying', 'The name of the product ordered.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'product_name');
+INSERT INTO public.dataset_columns VALUES ('c2e9adf7-2aa4-4157-8a9f-a895e98783c6', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'territory_name', 'character varying', 'The name of the sales territory associated with the order.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'territory_name');
+INSERT INTO public.dataset_columns VALUES ('cf94f7ed-ed23-44f2-bf2e-f5d2bbcf4041', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'modified_date', 'timestamp without time zone', 'The date when the order record was last modified.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('311a4af3-8fa4-4904-8bf7-928a83277c47', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'segment_recent_order', 'text', 'A segment identifier indicating recent order status.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'text', 'segment_recent_order');
+INSERT INTO public.dataset_columns VALUES ('0909ac3c-0f6d-4c1e-972b-e71d6a44875f', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'sales_key', 'integer', 'The aggregated sum of sales key values, uniquely identifying sales transactions.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'sales_key');
+INSERT INTO public.dataset_columns VALUES ('66439729-f6d7-479b-9a6e-3e7080468a6b', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'sales_order_id', 'integer', 'The aggregated sum of sales order IDs for reporting purposes.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'sales_order_id');
+INSERT INTO public.dataset_columns VALUES ('a24e548d-3378-4d94-b3cb-5b85fe5454f0', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'fk_customer', 'integer', 'The aggregated foreign key linking to customer records.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_customer');
+INSERT INTO public.dataset_columns VALUES ('b2cf4552-a749-4126-a588-46f07b13e496', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'customer_id', 'integer', 'The aggregated sum of customer IDs associated with the orders.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'customer_id');
+INSERT INTO public.dataset_columns VALUES ('a0328d2a-b15a-4a10-b63d-01c0a09ee328', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'fk_product', 'integer', 'The aggregated foreign key linking to product records.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_product');
+INSERT INTO public.dataset_columns VALUES ('1adac669-9b37-4839-b213-4736bf691522', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'order_qty', 'smallint', 'The total quantity of items ordered aggregated across orders.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'smallint', 'order_qty');
+INSERT INTO public.dataset_columns VALUES ('f40d9c21-3d42-4644-98b9-9ec176ae8fb5', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'unit_price', 'numeric', 'The aggregated sum of unit prices for the ordered products.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'unit_price');
+INSERT INTO public.dataset_columns VALUES ('4b8cee4c-5ae8-48bd-80c1-1592ea2781d9', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'unit_price_discount', 'numeric', 'The aggregated sum of discounts applied to the unit prices.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'unit_price_discount');
+INSERT INTO public.dataset_columns VALUES ('ded956fd-cfb9-4b61-946e-f46d85eaedb3', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'line_total', 'numeric', 'The total sum of line totals, representing order value after discounts.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'line_total');
+INSERT INTO public.dataset_columns VALUES ('46e045b0-f126-48b2-b7da-13414f4e770b', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'fk_sales_person', 'integer', 'The aggregated foreign key identifying the sales person associated with the sale.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_sales_person');
+INSERT INTO public.dataset_columns VALUES ('909f2b5b-88ad-419c-9215-dba2da77406e', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'business_entity_id', 'integer', 'The aggregated identifier linking to the business entity responsible for the sale.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'business_entity_id');
+INSERT INTO public.dataset_columns VALUES ('834c3a0e-ff8b-42af-a381-6109e797ea01', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'fk_territory', 'integer', 'The aggregated foreign key linking to the sales territory record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_territory');
+INSERT INTO public.dataset_columns VALUES ('8294adbd-1a55-41a3-913c-c996ffee65c4', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'fk_bill_to_address', 'integer', 'The aggregated foreign key linking to the billing address record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_bill_to_address');
+INSERT INTO public.dataset_columns VALUES ('20653185-bebe-4269-a121-b87cde1fd553', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'fk_ship_to_address', 'integer', 'The aggregated foreign key linking to the shipping address record.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_ship_to_address');
+INSERT INTO public.dataset_columns VALUES ('7487b304-6125-47e5-982d-b35c829512dc', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'days_to_ship', 'numeric', 'The total aggregated count of days taken to ship the orders.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'days_to_ship');
+INSERT INTO public.dataset_columns VALUES ('e19be221-9b98-4122-8ed2-d9ee0a4c1216', '9fa460b4-1410-4e74-aa34-eb79027cd59c', 'delivery_delay', 'numeric', 'The aggregated sum of delays between the expected delivery date and the actual ship date.', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'numeric', 'delivery_delay');
+INSERT INTO public.dataset_columns VALUES ('15b7c4f3-dfdf-4c25-b207-cd73b1c1349a', '92b226a7-4255-47ec-83a1-499255a09fe7', 'name', 'character varying', 'Unique identifier for the store name', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'character varying', 'name');
+INSERT INTO public.dataset_columns VALUES ('41b38c6f-f64f-436d-8782-ecc0328b5826', '92b226a7-4255-47ec-83a1-499255a09fe7', 'demographics', 'xml', 'XML containing demographic details about the store', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'xml', 'demographics');
+INSERT INTO public.dataset_columns VALUES ('0198b02e-f731-4e8b-bbb7-a0592f5f20b8', '92b226a7-4255-47ec-83a1-499255a09fe7', 'rowguid', 'uuid', 'Unique identifier for each record row', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'uuid', 'rowguid');
+INSERT INTO public.dataset_columns VALUES ('1290285c-f29f-47a9-a22c-c416008fa8ee', '92b226a7-4255-47ec-83a1-499255a09fe7', 'modified_date', 'timestamp without time zone', 'Timestamp marking the date of the last modification', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'dimension', 'timestamp without time zone', 'modified_date');
+INSERT INTO public.dataset_columns VALUES ('d27f97de-a2a2-42e3-87f6-ae6f91eff46c', '92b226a7-4255-47ec-83a1-499255a09fe7', 'store_key', 'integer', 'Aggregated sum representing the unique store key', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'store_key');
+INSERT INTO public.dataset_columns VALUES ('4522a2c6-4097-4643-a362-4efe3525acfb', '92b226a7-4255-47ec-83a1-499255a09fe7', 'fk_person', 'integer', 'Aggregated sum for foreign key references to person entries', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'fk_person');
+INSERT INTO public.dataset_columns VALUES ('8a61f3e8-af13-402e-8bf5-af55f8e6ca12', '92b226a7-4255-47ec-83a1-499255a09fe7', 'sales_person_id', 'integer', 'Aggregated sum for the sales person identifier', true, '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, false, NULL, NULL, NULL, NULL, 'measure', 'integer', 'sales_person_id');
+
+
+--
+-- Data for Name: dataset_groups; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
+
+--
+-- Data for Name: dataset_groups_permissions; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
 
 
 --
 -- Data for Name: datasets; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.datasets (id, name, database_name, when_to_use, when_not_to_use, type, definition, schema, enabled, imported, data_source_id, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'Sales Dataset', 'sales_summary', 'Useful for information about sales. Information about each order, the total sales amount of that order, quantities, discounts, shippers, employees. Specifically useful when the core of the analysis is around sales and orders.', 'Although this is a sales summary, it is missing a lot of aggregate insights and is focused on being granular in the details about orders/sales.', 'view', 'create view
-        public.sales_summary as
-      select
-        o.order_id,
-        o.order_date,
-        o.shipped_date,
-        o.customer_id,
-        c.company_name as customer_name,
-        c.contact_name as customer_contact,
-        e.employee_id,
-        (e.first_name::text || '' ''::text) || e.last_name::text as employee_name,
-        s.shipper_id,
-        s.company_name as shipper_name,
-        od.product_id,
-        p.product_name,
-        p.category_id,
-        cat.category_name,
-        od.unit_price,
-        od.quantity,
-        od.discount,
-        od.unit_price * od.quantity::double precision * (1::double precision - od.discount) as total_sales_amount
-      from
-        orders o
-        join order_details od on o.order_id = od.order_id
-        join products p on od.product_id = p.product_id
-        join categories cat on p.category_id = cat.category_id
-        join customers c on o.customer_id::text = c.customer_id::text
-        join employees e on o.employee_id = e.employee_id
-        join shippers s on o.ship_via = s.shipper_id
-      where
-        o.deleted_at is null
-        and od.deleted_at is null;', 'public', true, true, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:29:19.087846+00', '2024-11-05 15:29:19.087846+00', NULL);
-INSERT INTO public.datasets (id, name, database_name, when_to_use, when_not_to_use, type, definition, schema, enabled, imported, data_source_id, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'Product Dataset', 'product_sales_summary', 'Use for analysis around product sales. Includes information about suppliers, product details, product cateogires, aggregates around quantity sold, sales amount, number of orders each is in, distinct employees selling it, average frequency, etc.', 'Not useful for generic sales analysis or time series information about products.', 'view', 'create view
-        public.product_sales_summary as
-      select
-        p.product_id,
-        p.product_name,
-        p.supplier_id,
-        s.company_name as supplier_name,
-        p.category_id,
-        c.category_name,
-        p.quantity_per_unit,
-        p.unit_price,
-        p.units_in_stock,
-        p.units_on_order,
-        p.reorder_level,
-        p.discontinued,
-        coalesce(sum(od.quantity), 0::bigint) as total_quantity_sold,
-        coalesce(
-          sum(
-            od.unit_price * od.quantity::double precision * (1::double precision - od.discount)
-          ),
-          0::double precision
-        ) as total_sales_amount,
-        count(distinct o.order_id) as total_orders,
-        count(distinct o.customer_id) as distinct_customers,
-        count(distinct o.employee_id) as distinct_employees,
-        coalesce(
-          avg(
-            extract(
-              month
-              from
-                o.order_date
-            )
-          ),
-          0::numeric
-        ) as avg_purchase_frequency_per_month
-      from
-        products p
-        left join order_details od on p.product_id = od.product_id
-        left join orders o on od.order_id = o.order_id
-        left join suppliers s on p.supplier_id = s.supplier_id
-        left join categories c on p.category_id = c.category_id
-        left join customers cu on o.customer_id::text = cu.customer_id::text
-        left join employees e on o.employee_id = e.employee_id
-      where
-        p.discontinued = 0
-        and od.deleted_at is null
-        and o.deleted_at is null
-      group by
-        p.product_id,
-        p.product_name,
-        p.supplier_id,
-        s.company_name,
-        p.category_id,
-        c.category_name,
-        p.quantity_per_unit,
-        p.unit_price,
-        p.units_in_stock,
-        p.units_on_order,
-        p.reorder_level,
-        p.discontinued;', 'public', true, true, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:29:19.087814+00', '2024-11-05 15:29:19.087815+00', NULL);
-INSERT INTO public.datasets (id, name, database_name, when_to_use, when_not_to_use, type, definition, schema, enabled, imported, data_source_id, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('046589cd-52c3-419b-b5b2-2401fa35ed68', 'account_histories', 'account_histories', 'Tracks the history of changes made to customer accounts, including details of the action and who performed it.', NULL, 'table', 'select * from demo.account_histories', 'demo', true, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-10-31 17:40:52.760805+00', '2024-10-31 17:40:52.760805+00', NULL);
-INSERT INTO public.datasets (id, name, database_name, when_to_use, when_not_to_use, type, definition, schema, enabled, imported, data_source_id, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('97989b32-4c54-43a7-90ec-50476db1c988', 'renewal_rates', 'renewal_rates', 'Manages subscription renewals for customers, tracking statuses, methods, and outcomes.', NULL, 'table', 'select * from demo.renewal_rates', 'demo', true, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-10-31 17:38:15.700126+00', '2024-10-31 17:38:15.700126+00', NULL);
-INSERT INTO public.datasets (id, name, database_name, when_to_use, when_not_to_use, type, definition, schema, enabled, imported, data_source_id, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('e1350025-ee5e-4141-816d-a8dc026bf64b', 'revenue_per_customer', 'revenue_per_customer', 'Tracks revenue-related information for each customer, including payments, balances, and billing cycles.', NULL, 'table', 'select * from demo.revenue_per_customer', 'demo', true, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL);
-INSERT INTO public.datasets (id, name, database_name, when_to_use, when_not_to_use, type, definition, schema, enabled, imported, data_source_id, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('6eef8685-20e4-4049-9d4e-e8b5319e685f', 'product_usage_stats', 'product_usage_stats', 'Collects statistics on customer product usage to monitor engagement and performance.', NULL, 'table', 'select * from demo.product_usage_stats', 'demo', true, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-10-31 17:36:40.652687+00', '2024-10-31 17:36:40.652687+00', NULL);
-INSERT INTO public.datasets (id, name, database_name, when_to_use, when_not_to_use, type, definition, schema, enabled, imported, data_source_id, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('cbe0384a-4be7-4975-a3c7-bbe83e98b373', 'sla_compliance', 'sla_compliance', 'Monitors compliance with Service Level Agreements (SLAs) for support processes.', NULL, 'table', 'select * from demo.sla_compliance', 'demo', true, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL);
-INSERT INTO public.datasets (id, name, database_name, when_to_use, when_not_to_use, type, definition, schema, enabled, imported, data_source_id, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('38e0e307-ed32-44ef-8169-1339e021e56a', 'social_media_engagement', 'social_media_engagement', 'Tracks engagements and interactions on social media platforms, including customer posts and company responses.', NULL, 'table', 'select * from demo.social_media_engagement', 'demo', true, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-10-31 17:34:48.625318+00', '2024-10-31 17:34:48.625318+00', NULL);
-INSERT INTO public.datasets (id, name, database_name, when_to_use, when_not_to_use, type, definition, schema, enabled, imported, data_source_id, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('6cfa6a07-5e1c-45f0-8724-695e89d8ff23', 'email_communications', 'email_communications', 'Stores records of email communications between customers and the support team, including metadata and content.', NULL, 'table', 'select * from demo.email_communications', 'demo', true, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL);
-INSERT INTO public.datasets (id, name, database_name, when_to_use, when_not_to_use, type, definition, schema, enabled, imported, data_source_id, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', 'chat_sessions', 'chat_sessions', 'Stores records of chat sessions between customers and agents, including session details and outcomes.', NULL, 'table', 'select * from demo.chat_sessions', 'demo', true, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-10-31 17:33:03.978876+00', '2024-10-31 17:33:03.978876+00', NULL);
-INSERT INTO public.datasets (id, name, database_name, when_to_use, when_not_to_use, type, definition, schema, enabled, imported, data_source_id, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('62b85e7e-a376-4e93-92be-ccda3a433438', 'call_center_logs', 'call_center_logs', 'Logs details of call center interactions, including call metadata and outcomes.', NULL, 'table', 'select * from demo.call_center_logs', 'demo', true, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-10-31 17:30:51.195342+00', '2024-10-31 17:30:51.195342+00', NULL);
-INSERT INTO public.datasets (id, name, database_name, when_to_use, when_not_to_use, type, definition, schema, enabled, imported, data_source_id, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('a59484d0-8b6d-48cf-aa4e-f673cd530039', 'escalation_history', 'escalation_history', 'Maintains a history of escalations for support tickets, including details of the escalation process and outcomes.', NULL, 'table', 'select * from demo.escalation_history', 'demo', true, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL);
-INSERT INTO public.datasets (id, name, database_name, when_to_use, when_not_to_use, type, definition, schema, enabled, imported, data_source_id, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('57e196b1-6f27-45d4-95ae-fd368be161a8', 'knowledge_base_usage', 'knowledge_base_usage', 'Tracks the usage of knowledge base resources by users, including access details and feedback.', NULL, 'table', 'select * from demo.knowledge_base_usage', 'demo', true, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL);
-INSERT INTO public.datasets (id, name, database_name, when_to_use, when_not_to_use, type, definition, schema, enabled, imported, data_source_id, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('21c91803-c324-4341-98d1-960ef6a3e003', 'response_times', 'response_times', 'Records response time metrics for interactions, tickets, and resolutions to monitor performance against SLAs.', NULL, 'table', 'select * from demo.response_times', 'demo', true, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-10-31 17:28:07.33065+00', '2024-10-31 17:28:07.33065+00', NULL);
-INSERT INTO public.datasets (id, name, database_name, when_to_use, when_not_to_use, type, definition, schema, enabled, imported, data_source_id, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('e32015c7-89cb-460e-af8a-3f3852a8ff14', 'customer_feedback', 'customer_feedback', 'Stores feedback provided by customers after interactions, including ratings, comments, and other qualitative data.', 'Do not use for internal feedback.', 'table', 'select * from demo.customer_feedback', 'demo', true, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL);
-INSERT INTO public.datasets (id, name, database_name, when_to_use, when_not_to_use, type, definition, schema, enabled, imported, data_source_id, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('e26b93c0-e2d1-4db3-a6b2-92240d71e130', 'agent_performance', 'agent_performance', 'Tracks performance metrics of agents, including ticket handling, response times, customer satisfaction scores, and other KPIs.', 'Do not use for non-agent related performance metrics.', 'table', 'select * from demo.agent_performance', 'demo', true, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL);
-INSERT INTO public.datasets (id, name, database_name, when_to_use, when_not_to_use, type, definition, schema, enabled, imported, data_source_id, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', 'churn_analysis', 'churn_analysis', 'Analyzes customer churn data, including reasons for churn, customer value, and retention efforts.', 'Do not use for non-churn related analysis.', 'table', 'select * from demo.churn_analysis', 'demo', true, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-10-31 17:18:42.15202+00', '2024-10-31 17:18:42.15202+00', NULL);
-INSERT INTO public.datasets (id, name, database_name, when_to_use, when_not_to_use, type, definition, schema, enabled, imported, data_source_id, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('d1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', 'support_tickets', 'support_tickets', 'Contains support ticket records logged by customers, including status, priority, and resolution details.', NULL, 'table', 'select * from demo.support_tickets', 'demo', true, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-10-31 17:13:48.276212+00', '2024-10-31 17:13:48.276212+00', NULL);
-INSERT INTO public.datasets (id, name, database_name, when_to_use, when_not_to_use, type, definition, schema, enabled, imported, data_source_id, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('d5ac5710-66f8-4dc4-ad57-f13924c2bc60', 'support_tickets', 'support_tickets', 'Contains support ticket records logged by customers, including status, priority, and resolution details.', NULL, 'table', 'select * from demo.support_tickets', 'demo', true, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-10-31 17:07:48.167076+00', '2024-10-31 17:07:48.167076+00', NULL);
+INSERT INTO public.datasets VALUES ('f4298ca8-9e61-4e88-b958-59975a06bcec', 'entity_transaction_history_archive', 'entity_transaction_history_archive', 'Generated model for entity_transaction_history_archive', NULL, 'view', '/* entity_transaction_history_archive */
+DROP TABLE IF EXISTS sem.entity_transaction_history_archive CASCADE;
+CREATE TABLE sem.entity_transaction_history_archive AS
+SELECT 
+    tha.transaction_history_archive_key,
+    tha.transaction_id,
+    tha.product_id,
+    tha.reference_order_id,
+    tha.reference_order_line_id,
+    tha.transaction_date,
+    tha.transaction_type,
+    tha.quantity,
+    tha.actual_cost,
+    tha.modified_date
+FROM dw.fact_transaction_history_archive tha; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_transaction_history_archive
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_transaction_history_archive
+  model: null
+  entities:
+  - name: entity_product
+    ref_: null
+    expr: product_id
+    type: foreign
+    description: Reference to the product
+    project_path: null
+  - name: entity_sales_order
+    ref_: null
+    expr: reference_order_id
+    type: foreign
+    description: Reference to the sales order
+    project_path: null
+  dimensions:
+  - name: transaction_date
+    expr: transaction_date
+    type: timestamp without time zone
+    description: The date and time when the transaction occurred.
+    searchable: false
+  - name: transaction_type
+    expr: transaction_type
+    type: character
+    description: The type or classification of the transaction.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Timestamp indicating the last modification date of the record.
+    searchable: false
+  measures:
+  - name: transaction_history_archive_key
+    expr: transaction_history_archive_key
+    agg: sum
+    description: Unique key identifier for archived transaction history records.
+    type: integer
+  - name: transaction_id
+    expr: transaction_id
+    agg: sum
+    description: Unique identifier for the transaction.
+    type: integer
+  - name: product_id
+    expr: product_id
+    agg: sum
+    description: Identifier for the product involved in the transaction.
+    type: integer
+  - name: reference_order_id
+    expr: reference_order_id
+    agg: sum
+    description: Identifier for the associated order.
+    type: integer
+  - name: reference_order_line_id
+    expr: reference_order_line_id
+    agg: sum
+    description: Identifier for the specific order line in the associated order.
+    type: integer
+  - name: quantity
+    expr: quantity
+    agg: sum
+    description: The count of products involved in the transaction.
+    type: integer
+  - name: actual_cost
+    expr: actual_cost
+    agg: sum
+    description: The actual cost incurred in the transaction.
+    type: numeric
+', 'postgres');
+INSERT INTO public.datasets VALUES ('5ff9b5f5-096b-48a6-b217-a0fe520f5962', 'entity_sales_reason', 'entity_sales_reason', 'Generated model for entity_sales_reason', NULL, 'view', '/* entity_sales_reason */
+DROP TABLE IF EXISTS sem.entity_sales_reason CASCADE;
+CREATE TABLE sem.entity_sales_reason AS
+SELECT 
+    sr.sales_reason_key,
+    sr.sales_reason_id,
+    sr.name,
+    sr.reason_type,
+    sr.modified_date
+FROM dw.dim_sales_reason sr; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_sales_reason
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_sales_reason
+  model: null
+  entities: []
+  dimensions:
+  - name: name
+    expr: name
+    type: character varying
+    description: The name of the sales reason entity.
+    searchable: false
+  - name: reason_type
+    expr: reason_type
+    type: character varying
+    description: The classification type indicating the nature of the sales reason.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The date and time when the sales reason entity was last modified.
+    searchable: false
+  measures:
+  - name: sales_reason_key
+    expr: sales_reason_key
+    agg: sum
+    description: The key identifier for aggregating sales reason data.
+    type: integer
+  - name: sales_reason_id
+    expr: sales_reason_id
+    agg: sum
+    description: The unique identifier for sales reason instances used in aggregation.
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('e9d9b89e-d070-4bea-8f28-65045c84e7e1', 'entity_product', 'entity_product', 'Generated model for entity_product', NULL, 'view', '/* entity_product */
+DROP TABLE IF EXISTS sem.entity_product CASCADE;
+CREATE TABLE sem.entity_product AS
+SELECT 
+    p.product_key,
+    p.product_id,
+    p.name,
+    p.product_number,
+    p.color,
+    p.standard_cost,
+    p.list_price,
+    cat.name AS product_category,
+    subcat.name AS product_subcategory,
+    pm.name AS product_model,
+    pli.list_price AS current_list_price,
+    inv.quantity AS inventory_quantity,
+    pr.avg_rating,
+    p.sell_start_date,
+    p.sell_end_date,
+    p.modified_date,
+    CASE WHEN p.list_price > 1000 THEN ''High Value''
+         ELSE ''Standard'' END AS segment_product_value,
+    (
+     SELECT COALESCE(SUM(s.order_qty),0) FROM dw.fact_sales s 
+     WHERE s.product_key = p.product_id 
+       AND s.order_date >= CURRENT_DATE - INTERVAL ''12 months''
+    ) AS total_units_sold_last_12_months,
+    (
+     SELECT COALESCE(SUM(s.line_total),0) FROM dw.fact_sales s 
+     WHERE s.product_key = p.product_id 
+       AND s.order_date >= CURRENT_DATE - INTERVAL ''12 months''
+    ) AS total_product_revenue_last_12_months
+FROM dw.dim_product p
+LEFT JOIN dw.dim_product_subcategory subcat
+    ON p.product_subcategory_id = subcat.product_subcategory_id
+LEFT JOIN dw.dim_product_category cat
+    ON subcat.product_category_id = cat.product_category_id
+LEFT JOIN dw.dim_product_model pm
+    ON p.product_model_id = pm.product_model_id
+LEFT JOIN (
+    SELECT product_id, MAX(list_price) AS list_price
+    FROM dw.fact_product_list_price_history
+    GROUP BY product_id
+) pli
+    ON p.product_id = pli.product_id
+LEFT JOIN (
+    SELECT product_id, SUM(quantity) AS quantity
+    FROM dw.fact_product_inventory
+    GROUP BY product_id
+) inv
+    ON p.product_id = inv.product_id
+LEFT JOIN (
+    SELECT product_id, AVG(rating) AS avg_rating
+    FROM dw.fact_product_review
+    GROUP BY product_id
+) pr
+    ON p.product_id = pr.product_id; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_product
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_product
+  model: null
+  entities: []
+  dimensions:
+  - name: name
+    expr: name
+    type: character varying
+    description: The name of the product
+    searchable: false
+  - name: product_number
+    expr: product_number
+    type: character varying
+    description: The unique product identification number
+    searchable: false
+  - name: color
+    expr: color
+    type: character varying
+    description: The color of the product
+    searchable: false
+  - name: product_category
+    expr: product_category
+    type: character varying
+    description: The main category to which the product belongs
+    searchable: false
+  - name: product_subcategory
+    expr: product_subcategory
+    type: character varying
+    description: The subcategory classification for the product
+    searchable: false
+  - name: product_model
+    expr: product_model
+    type: character varying
+    description: The model identifier for the product
+    searchable: false
+  - name: sell_start_date
+    expr: sell_start_date
+    type: timestamp without time zone
+    description: The date when the product became available for sale
+    searchable: false
+  - name: sell_end_date
+    expr: sell_end_date
+    type: timestamp without time zone
+    description: The date when the product was discontinued from sale
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The date when the product details were last updated
+    searchable: false
+  - name: segment_product_value
+    expr: segment_product_value
+    type: text
+    description: Descriptive segment that categorizes product value
+    searchable: false
+  measures:
+  - name: product_key
+    expr: product_key
+    agg: sum
+    description: A unique key used to identify the product record
+    type: integer
+  - name: product_id
+    expr: product_id
+    agg: sum
+    description: A unique numeric identifier for the product
+    type: integer
+  - name: standard_cost
+    expr: standard_cost
+    agg: sum
+    description: The standard cost to produce or procure the product
+    type: numeric
+  - name: list_price
+    expr: list_price
+    agg: sum
+    description: The retail list price of the product
+    type: numeric
+  - name: current_list_price
+    expr: current_list_price
+    agg: sum
+    description: The current effective retail price of the product
+    type: numeric
+  - name: inventory_quantity
+    expr: inventory_quantity
+    agg: sum
+    description: The total quantity available in inventory
+    type: bigint
+  - name: avg_rating
+    expr: avg_rating
+    agg: sum
+    description: The average customer rating for the product
+    type: numeric
+  - name: total_units_sold_last_12_months
+    expr: total_units_sold_last_12_months
+    agg: sum
+    description: Total number of product units sold in the last 12 months
+    type: bigint
+  - name: total_product_revenue_last_12_months
+    expr: total_product_revenue_last_12_months
+    agg: sum
+    description: Total revenue generated by the product in the last 12 months
+    type: numeric
+', 'postgres');
+INSERT INTO public.datasets VALUES ('222e07e9-5212-4a87-b8eb-4bd4f02cca62', 'entity_phone_number_type', 'entity_phone_number_type', 'Generated model for entity_phone_number_type', NULL, 'view', '/* entity_phone_number_type */
+DROP TABLE IF EXISTS sem.entity_phone_number_type CASCADE;
+CREATE TABLE sem.entity_phone_number_type AS
+SELECT 
+    phone_number_type_key,
+    phone_number_type_id,
+    name,
+FROM dw.dim_phone_number_type; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_phone_number_type
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_phone_number_type
+  model: null
+  entities: []
+  dimensions:
+  - name: name
+    expr: name
+    type: character varying
+    description: The name of the phone number type.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The date when the record was last modified.
+    searchable: false
+  measures:
+  - name: phone_number_type_key
+    expr: phone_number_type_key
+    agg: sum
+    description: A unique key identifier for the phone number type.
+    type: integer
+  - name: phone_number_type_id
+    expr: phone_number_type_id
+    agg: sum
+    description: The identifier associated with the phone number type.
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('40fc4d7f-0035-4597-9173-7b72a5e6bdde', 'entity_currency_rate', 'entity_currency_rate', 'Generated model for entity_currency_rate', NULL, 'view', '/* entity_currency_rate */
+DROP TABLE IF EXISTS sem.entity_currency_rate CASCADE;
+CREATE TABLE sem.entity_currency_rate AS
+SELECT 
+    cr.currency_rate_key,
+    cr.currency_rate_id,
+    cr.currency_rate_date,
+    cr.from_currency_code,
+    cr.to_currency_code,
+    cr.average_rate,
+    cr.end_of_day_rate,
+    cr.modified_date
+FROM dw.fact_currency_rate cr; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_currency_rate
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_currency_rate
+  model: null
+  entities:
+  - name: entity_currency
+    ref_: null
+    expr: from_currency_code
+    type: foreign
+    description: Reference to the source currency
+    project_path: null
+  - name: entity_currency
+    ref_: null
+    expr: to_currency_code
+    type: foreign
+    description: Reference to the target currency
+    project_path: null
+  dimensions:
+  - name: currency_rate_date
+    expr: currency_rate_date
+    type: timestamp without time zone
+    description: Date of the currency exchange rate. Represents the specific day the rate was recorded.
+    searchable: false
+  - name: from_currency_code
+    expr: from_currency_code
+    type: character
+    description: Currency code representing the source currency.
+    searchable: false
+  - name: to_currency_code
+    expr: to_currency_code
+    type: character
+    description: Currency code representing the target currency.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Timestamp of the last modification to the record.
+    searchable: false
+  measures:
+  - name: currency_rate_key
+    expr: currency_rate_key
+    agg: sum
+    description: Unique key identifier for the currency rate record.
+    type: integer
+  - name: currency_rate_id
+    expr: currency_rate_id
+    agg: sum
+    description: Identifier for the currency rate.
+    type: integer
+  - name: average_rate
+    expr: average_rate
+    agg: sum
+    description: The average exchange rate calculated for the day.
+    type: numeric
+  - name: end_of_day_rate
+    expr: end_of_day_rate
+    agg: sum
+    description: The final exchange rate recorded at the end of the day.
+    type: numeric
+', 'postgres');
+INSERT INTO public.datasets VALUES ('16a38e0e-5699-43a7-addf-1cbf8bafdea7', 'entity_country_region', 'entity_country_region', 'Generated model for entity_country_region', NULL, 'view', '/* entity_country_region */
+/* entity_country_region */
+DROP TABLE IF EXISTS sem.entity_country_region CASCADE;
+CREATE TABLE sem.entity_country_region AS
+SELECT 
+    country_region_key,
+    country_region_code,
+    name,
+    modified_date
+FROM dw.dim_country_region; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_country_region
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_country_region
+  model: null
+  entities: []
+  dimensions:
+  - name: country_region_code
+    expr: country_region_code
+    type: character varying
+    description: The unique code representing a country or region.
+    searchable: false
+  - name: name
+    expr: name
+    type: character varying
+    description: The name of the country or region.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The date and time when the record was last updated.
+    searchable: false
+  measures:
+  - name: country_region_key
+    expr: country_region_key
+    agg: sum
+    description: Identifier key used for aggregating country or region data.
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('eeb0ca19-e3cf-4d83-9761-f175a9fbbedc', 'entity_country_region_currency', 'entity_country_region_currency', 'Generated model for entity_country_region_currency', NULL, 'view', '/* entity_country_region_currency */
+DROP TABLE IF EXISTS sem.entity_country_region_currency CASCADE;
+CREATE TABLE sem.entity_country_region_currency AS
+SELECT 
+    crc.bridge_country_region_currency_key,
+    crc.country_region_code,
+    crc.currency_code,
+    crc.modified_date
+FROM dw.bridge_country_region_currency crc; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_country_region_currency
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_country_region_currency
+  model: null
+  entities:
+  - name: entity_country_region
+    ref_: null
+    expr: country_region_code
+    type: foreign
+    description: Reference to the country/region
+    project_path: null
+  - name: entity_currency
+    ref_: null
+    expr: currency_code
+    type: foreign
+    description: Reference to the currency
+    project_path: null
+  dimensions:
+  - name: country_region_code
+    expr: country_region_code
+    type: character varying
+    description: Unique code representing the country and region.
+    searchable: false
+  - name: currency_code
+    expr: currency_code
+    type: character
+    description: Currency identifier code corresponding to the country/region.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Timestamp when the record was last modified.
+    searchable: false
+  measures:
+  - name: bridge_country_region_currency_key
+    expr: bridge_country_region_currency_key
+    agg: sum
+    description: Aggregated key linking country, region, and currency.
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('bcab71b8-a432-4e8b-9b7f-9cca1709f9a4', 'entity_business_entity', 'entity_business_entity', 'Generated model for entity_business_entity', NULL, 'view', '/* entity_business_entity */
+/* entity_business_entity */
+DROP TABLE IF EXISTS sem.entity_business_entity CASCADE;
+CREATE TABLE sem.entity_business_entity AS
+SELECT 
+    business_entity_key,
+    business_entity_id,
+    rowguid,
+    modified_date
+FROM dw.dim_business_entity; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_business_entity
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_business_entity
+  model: null
+  entities: []
+  dimensions:
+  - name: rowguid
+    expr: rowguid
+    type: uuid
+    description: A unique identifier for each entity row, ensuring data integrity.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The timestamp when the record was last updated, useful for tracking changes.
+    searchable: false
+  measures:
+  - name: business_entity_key
+    expr: business_entity_key
+    agg: sum
+    description: The cumulative sum of business entity keys, representing aggregated identifier data.
+    type: integer
+  - name: business_entity_id
+    expr: business_entity_id
+    agg: sum
+    description: The cumulative sum of business entity IDs, useful for summarizing entity counts.
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('c4f322cc-ebe8-41d8-a929-d4723ec826b3', 'entity_shopping_cart_item', 'entity_shopping_cart_item', 'Generated model for entity_shopping_cart_item', NULL, 'view', '/* entity_shopping_cart_item */
+DROP TABLE IF EXISTS sem.entity_shopping_cart_item CASCADE;
+CREATE TABLE sem.entity_shopping_cart_item AS
+SELECT 
+    sci.shopping_cart_item_key,
+    sci.shopping_cart_item_id,
+    sci.shopping_cart_id,
+    sci.quantity,
+    sci.product_id,
+    sci.date_created,
+    sci.modified_date
+FROM dw.fact_shopping_cart_item sci; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_shopping_cart_item
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_shopping_cart_item
+  model: null
+  entities:
+  - name: entity_product
+    ref_: null
+    expr: product_id
+    type: foreign
+    description: Reference to the product
+    project_path: null
+  dimensions:
+  - name: shopping_cart_id
+    expr: shopping_cart_id
+    type: character varying
+    description: Unique identifier for the shopping cart.
+    searchable: false
+  - name: date_created
+    expr: date_created
+    type: timestamp without time zone
+    description: Timestamp marking when the shopping cart item was created.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Timestamp indicating the last time the shopping cart item was modified.
+    searchable: false
+  measures:
+  - name: shopping_cart_item_key
+    expr: shopping_cart_item_key
+    agg: sum
+    description: Summarizes unique keys of shopping cart items for aggregation purposes.
+    type: integer
+  - name: shopping_cart_item_id
+    expr: shopping_cart_item_id
+    agg: sum
+    description: Aggregates the unique identifiers of each shopping cart item.
+    type: integer
+  - name: quantity
+    expr: quantity
+    agg: sum
+    description: Total quantity of the product captured in the shopping cart item.
+    type: integer
+  - name: product_id
+    expr: product_id
+    agg: sum
+    description: Aggregated identifier for the product associated with the shopping cart item.
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('cca26df0-c191-487a-a3fd-71496f96359f', 'entity_bill_of_materials', 'entity_bill_of_materials', 'Generated model for entity_bill_of_materials', NULL, 'view', '/* entity_bill_of_materials */
+DROP TABLE IF EXISTS sem.entity_bill_of_materials CASCADE;
+CREATE TABLE sem.entity_bill_of_materials AS
+SELECT 
+    bom.bom_key,
+    bom.bill_of_materials_id,
+    bom.product_assembly_id AS fk_assembly,
+    pa.name AS assembly_name,
+    bom.component_id AS fk_component,
+    pc.name AS component_name,
+    bom.start_date,
+    bom.end_date,
+    bom.unit_measure_code,
+    bom.bom_level,
+    bom.per_assembly_qty,
+    bom.modified_date
+FROM dw.fact_bill_of_materials bom
+LEFT JOIN dw.dim_product pa
+    ON bom.product_assembly_id = pa.product_id
+LEFT JOIN dw.dim_product pc
+    ON bom.component_id = pc.product_id; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_bill_of_materials
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_bill_of_materials
+  model: null
+  entities:
+  - name: entity_product
+    ref_: null
+    expr: fk_assembly
+    type: foreign
+    description: Reference to the product assembly
+    project_path: null
+  - name: entity_product
+    ref_: null
+    expr: fk_component
+    type: foreign
+    description: Reference to the product component
+    project_path: null
+  dimensions:
+  - name: assembly_name
+    expr: assembly_name
+    type: character varying
+    description: Name of the assembly in the bill of materials record
+    searchable: false
+  - name: component_name
+    expr: component_name
+    type: character varying
+    description: Name for the component included in the assembly
+    searchable: false
+  - name: start_date
+    expr: start_date
+    type: timestamp without time zone
+    description: The start date when the assembly component relationship becomes valid
+    searchable: false
+  - name: end_date
+    expr: end_date
+    type: timestamp without time zone
+    description: The end date when the assembly component relationship expires
+    searchable: false
+  - name: unit_measure_code
+    expr: unit_measure_code
+    type: character
+    description: Code representing the unit of measure for component quantity
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Timestamp indicating the last modification date of the record
+    searchable: false
+  measures:
+  - name: bom_key
+    expr: bom_key
+    agg: sum
+    description: Unique key identifying the bill of materials record
+    type: integer
+  - name: bill_of_materials_id
+    expr: bill_of_materials_id
+    agg: sum
+    description: Identifier for the bill of materials entry
+    type: integer
+  - name: fk_assembly
+    expr: fk_assembly
+    agg: sum
+    description: Foreign key linking to the assembly entity
+    type: integer
+  - name: fk_component
+    expr: fk_component
+    agg: sum
+    description: Foreign key linking to the component entity
+    type: integer
+  - name: bom_level
+    expr: bom_level
+    agg: sum
+    description: Level of the component within the assembly hierarchy
+    type: smallint
+  - name: per_assembly_qty
+    expr: per_assembly_qty
+    agg: sum
+    description: Quantity of the component required per assembly
+    type: numeric
+', 'postgres');
+INSERT INTO public.datasets VALUES ('5114cd6f-71b2-4843-8354-ddf0746ec22d', 'entity_illustration', 'entity_illustration', 'Generated model for entity_illustration', NULL, 'view', '/* entity_illustration */
+DROP TABLE IF EXISTS sem.entity_illustration CASCADE;
+CREATE TABLE sem.entity_illustration AS
+SELECT 
+    i.illustration_key,
+    i.illustration_id,
+    i.diagram,
+    i.modified_date
+FROM dw.dim_illustration i; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_illustration
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_illustration
+  model: null
+  entities: []
+  dimensions:
+  - name: diagram
+    expr: diagram
+    type: xml
+    description: XML representation of the diagram for the entity illustration
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Timestamp indicating when the entity illustration was last modified
+    searchable: false
+  measures:
+  - name: illustration_key
+    expr: illustration_key
+    agg: sum
+    description: Unique key associated with the illustration for aggregate computations
+    type: integer
+  - name: illustration_id
+    expr: illustration_id
+    agg: sum
+    description: Unique identifier used for the illustration
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('129a0d01-a139-471d-af2e-627ee136369c', 'entity_document', 'entity_document', 'Generated model for entity_document', NULL, 'view', '/* entity_document */
+DROP TABLE IF EXISTS sem.entity_document CASCADE;
+CREATE TABLE sem.entity_document AS
+SELECT 
+    d.document_key,
+    d.document_node,
+    d.title,
+    d.owner,
+    d.folder_flag,
+    d.file_name,
+    d.file_extension,
+    d.revision,
+    d.change_number,
+    d.status,
+    d.document_summary,
+    d.modified_date,
+    d.rowguid
+FROM dw.dim_document d; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_document
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_document
+  model: null
+  entities: []
+  dimensions:
+  - name: document_node
+    expr: document_node
+    type: character varying
+    description: Unique identifier for the document node
+    searchable: false
+  - name: title
+    expr: title
+    type: character varying
+    description: The title of the document
+    searchable: false
+  - name: folder_flag
+    expr: folder_flag
+    type: boolean
+    description: Indicates if the document is a folder
+    searchable: false
+  - name: file_name
+    expr: file_name
+    type: character varying
+    description: Name of the file associated with the document
+    searchable: false
+  - name: file_extension
+    expr: file_extension
+    type: character varying
+    description: File extension of the document
+    searchable: false
+  - name: revision
+    expr: revision
+    type: character
+    description: Revision identifier of the document
+    searchable: false
+  - name: document_summary
+    expr: document_summary
+    type: text
+    description: Summary or description of the document
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Date when the document was last modified
+    searchable: false
+  - name: rowguid
+    expr: rowguid
+    type: uuid
+    description: Unique global identifier for the record
+    searchable: false
+  measures:
+  - name: document_key
+    expr: document_key
+    agg: sum
+    description: Aggregated key representing the document identifier
+    type: integer
+  - name: owner
+    expr: owner
+    agg: sum
+    description: Aggregated numeric identifier for the document owner
+    type: integer
+  - name: change_number
+    expr: change_number
+    agg: sum
+    description: Total change number count for revisions
+    type: integer
+  - name: status
+    expr: status
+    agg: sum
+    description: Aggregated status code for the document
+    type: smallint
+', 'postgres');
+INSERT INTO public.datasets VALUES ('3702c05b-e03b-40fe-b7a1-1e9cdf592b25', 'entity_contact', 'entity_contact', 'Generated model for entity_contact', NULL, 'view', '/* entity_contact */
+DROP TABLE IF EXISTS sem.entity_contact CASCADE;
+CREATE TABLE sem.entity_contact AS
+SELECT 
+    bec.business_entity_contact_key,
+    bec.business_entity_id,
+    bec.person_id AS fk_person,
+    bec.contact_type_id,
+    bec.modified_date
+FROM dw.bridge_business_entity_contact bec; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_contact
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_contact
+  model: null
+  entities:
+  - name: entity_person
+    ref_: null
+    expr: fk_person
+    type: foreign
+    description: Reference to the person record
+    project_path: null
+  - name: entity_business_entity
+    ref_: null
+    expr: business_entity_id
+    type: foreign
+    description: Reference to the business entity
+    project_path: null
+  - name: entity_contact_type
+    ref_: null
+    expr: contact_type_id
+    type: foreign
+    description: Reference to the contact type
+    project_path: null
+  dimensions:
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Indicates the timestamp when the record was last updated
+    searchable: false
+  measures:
+  - name: business_entity_contact_key
+    expr: business_entity_contact_key
+    agg: sum
+    description: Unique identifier for the business entity contact
+    type: integer
+  - name: business_entity_id
+    expr: business_entity_id
+    agg: sum
+    description: Identifier linking to the corresponding business entity
+    type: integer
+  - name: fk_person
+    expr: fk_person
+    agg: sum
+    description: Foreign key linking to the person entity
+    type: integer
+  - name: contact_type_id
+    expr: contact_type_id
+    agg: sum
+    description: Identifier for the type of contact
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('4d2fd88a-3779-42d8-a9fb-d2b2373705ba', 'entity_transaction_history', 'entity_transaction_history', 'Generated model for entity_transaction_history', NULL, 'view', '/* entity_transaction_history */
+DROP TABLE IF EXISTS sem.entity_transaction_history CASCADE;
+CREATE TABLE sem.entity_transaction_history AS
+SELECT 
+    th.transaction_history_key,
+    th.transaction_id,
+    th.product_id,
+    th.reference_order_id,
+    th.reference_order_line_id,
+    th.transaction_date,
+    th.transaction_type,
+    th.quantity,
+    th.actual_cost,
+    th.modified_date
+FROM dw.fact_transaction_history th; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_transaction_history
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_transaction_history
+  model: null
+  entities:
+  - name: entity_product
+    ref_: null
+    expr: product_id
+    type: foreign
+    description: Reference to the product
+    project_path: null
+  - name: entity_sales_order
+    ref_: null
+    expr: reference_order_id
+    type: foreign
+    description: Reference to the sales order
+    project_path: null
+  dimensions:
+  - name: transaction_date
+    expr: transaction_date
+    type: timestamp without time zone
+    description: The date and time when the transaction occurred.
+    searchable: false
+  - name: transaction_type
+    expr: transaction_type
+    type: character
+    description: The type or category of the transaction.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The date and time when the record was last modified.
+    searchable: false
+  measures:
+  - name: transaction_history_key
+    expr: transaction_history_key
+    agg: sum
+    description: Unique key for the transaction history record.
+    type: integer
+  - name: transaction_id
+    expr: transaction_id
+    agg: sum
+    description: Identifier for the transaction.
+    type: integer
+  - name: product_id
+    expr: product_id
+    agg: sum
+    description: Identifier for the product involved in the transaction.
+    type: integer
+  - name: reference_order_id
+    expr: reference_order_id
+    agg: sum
+    description: Identifier for the reference order related to the transaction.
+    type: integer
+  - name: reference_order_line_id
+    expr: reference_order_line_id
+    agg: sum
+    description: Identifier for the specific line in the reference order.
+    type: integer
+  - name: quantity
+    expr: quantity
+    agg: sum
+    description: Quantity of the product transacted.
+    type: integer
+  - name: actual_cost
+    expr: actual_cost
+    agg: sum
+    description: The actual cost recorded for the transaction.
+    type: numeric
+', 'postgres');
+INSERT INTO public.datasets VALUES ('ade73c2d-3866-40e5-bf92-0be3884e8ee2', 'entity_product_description', 'entity_product_description', 'Generated model for entity_product_description', NULL, 'view', '/* entity_product_description */
+DROP TABLE IF EXISTS sem.entity_product_description CASCADE;
+CREATE TABLE sem.entity_product_description AS
+SELECT 
+    pd.product_description_key,
+    pd.product_description_id,
+    pd.description,
+    pd.rowguid,
+    pd.modified_date
+FROM dw.dim_product_description pd; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_product_description
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_product_description
+  model: null
+  entities: []
+  dimensions:
+  - name: description
+    expr: description
+    type: character varying
+    description: Textual details providing information about the product.
+    searchable: false
+  - name: rowguid
+    expr: rowguid
+    type: uuid
+    description: Unique identifier ensuring distinct row entries.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The timestamp marking the last update to the record.
+    searchable: false
+  measures:
+  - name: product_description_key
+    expr: product_description_key
+    agg: sum
+    description: Summed numeric key uniquely identifying the record.
+    type: integer
+  - name: product_description_id
+    expr: product_description_id
+    agg: sum
+    description: Summed identifier representing the product description record.
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('d484cfbd-bb0f-4d68-b501-e4b33d606085', 'entity_sales_territory_history', 'entity_sales_territory_history', 'Generated model for entity_sales_territory_history', NULL, 'view', '/* entity_sales_territory_history */
+DROP TABLE IF EXISTS sem.entity_sales_territory_history CASCADE;
+CREATE TABLE sem.entity_sales_territory_history AS
+SELECT 
+    sth.sales_territory_history_key,
+    sth.business_entity_id,
+    sth.territory_id,
+    sth.start_date,
+    sth.end_date,
+    sth.rowguid,
+    sth.modified_date
+FROM dw.fact_sales_territory_history sth; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_sales_territory_history
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_sales_territory_history
+  model: null
+  entities:
+  - name: entity_sales_person
+    ref_: null
+    expr: business_entity_id
+    type: foreign
+    description: Reference to the sales person
+    project_path: null
+  - name: entity_sales_territory
+    ref_: null
+    expr: territory_id
+    type: foreign
+    description: Reference to the sales territory
+    project_path: null
+  dimensions:
+  - name: start_date
+    expr: start_date
+    type: timestamp without time zone
+    description: The date when the sales territory history record becomes effective.
+    searchable: false
+  - name: end_date
+    expr: end_date
+    type: timestamp without time zone
+    description: The date when the sales territory history record expires.
+    searchable: false
+  - name: rowguid
+    expr: rowguid
+    type: uuid
+    description: Unique identifier for the record, typically used for replication purposes.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Timestamp indicating when the record was last modified.
+    searchable: false
+  measures:
+  - name: sales_territory_history_key
+    expr: sales_territory_history_key
+    agg: sum
+    description: Primary key for aggregating sales territory history records.
+    type: integer
+  - name: business_entity_id
+    expr: business_entity_id
+    agg: sum
+    description: Identifier for the business entity associated with this sales territory history.
+    type: integer
+  - name: territory_id
+    expr: territory_id
+    agg: sum
+    description: Identifier for the sales territory associated with this record.
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('986d5fd4-a7bb-4d9f-8736-5c400cee591f', 'entity_credit_card', 'entity_credit_card', 'Generated model for entity_credit_card', NULL, 'view', '/* entity_credit_card */
+DROP TABLE IF EXISTS sem.entity_credit_card CASCADE;
+CREATE TABLE sem.entity_credit_card AS
+SELECT 
+    cc.credit_card_key,
+    cc.credit_card_id,
+    cc.card_type,
+    cc.card_number,
+    cc.exp_month,
+    cc.exp_year,
+    cc.modified_date
+FROM dw.dim_credit_card cc; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_credit_card
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_credit_card
+  model: null
+  entities: []
+  dimensions:
+  - name: card_type
+    expr: card_type
+    type: character varying
+    description: Type of credit card, e.g., Visa, MasterCard
+    searchable: false
+  - name: card_number
+    expr: card_number
+    type: character varying
+    description: Credit card number used for transactions
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The date when the credit card record was last updated
+    searchable: false
+  measures:
+  - name: credit_card_key
+    expr: credit_card_key
+    agg: sum
+    description: Unique key identifier for the credit card
+    type: integer
+  - name: credit_card_id
+    expr: credit_card_id
+    agg: sum
+    description: Credit card identifier corresponding to external records
+    type: integer
+  - name: exp_month
+    expr: exp_month
+    agg: sum
+    description: Expiration month of the credit card
+    type: smallint
+  - name: exp_year
+    expr: exp_year
+    agg: sum
+    description: Expiration year of the credit card
+    type: smallint
+', 'postgres');
+INSERT INTO public.datasets VALUES ('4d452aad-a4ca-4f9e-a91c-b954025eaa34', 'entity_inventory', 'entity_inventory', 'Generated model for entity_inventory', NULL, 'view', '/* entity_inventory */
+DROP TABLE IF EXISTS sem.entity_inventory CASCADE;
+CREATE TABLE sem.entity_inventory AS
+SELECT 
+    i.product_inventory_key,
+    i.product_id AS fk_product,
+    prod.name AS product_name,
+    i.location_id AS fk_location,
+    loc.name AS location_name,
+    i.quantity,
+    i.modified_date
+FROM dw.fact_product_inventory i
+LEFT JOIN dw.dim_product prod
+    ON i.product_id = prod.product_id
+LEFT JOIN dw.dim_location loc
+    ON i.location_id = loc.location_id; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_inventory
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_inventory
+  model: null
+  entities:
+  - name: entity_product
+    ref_: null
+    expr: fk_product
+    type: foreign
+    description: Reference to the product
+    project_path: null
+  dimensions:
+  - name: product_name
+    expr: product_name
+    type: character varying
+    description: The name of the product.
+    searchable: false
+  - name: location_name
+    expr: location_name
+    type: character varying
+    description: The location where the product is stored or sold.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The timestamp when the inventory record was last updated.
+    searchable: false
+  measures:
+  - name: product_inventory_key
+    expr: product_inventory_key
+    agg: sum
+    description: Unique key identifier for product inventory records.
+    type: integer
+  - name: fk_product
+    expr: fk_product
+    agg: sum
+    description: Foreign key linking to product entity.
+    type: integer
+  - name: fk_location
+    expr: fk_location
+    agg: sum
+    description: Foreign key linking to location entity.
+    type: integer
+  - name: quantity
+    expr: quantity
+    agg: sum
+    description: The quantity of product available in inventory.
+    type: smallint
+', 'postgres');
+INSERT INTO public.datasets VALUES ('d49bcdad-4a59-48f3-b1e5-13970a621829', 'entity_person_credit_card', 'entity_person_credit_card', 'Generated model for entity_person_credit_card', NULL, 'view', '/* entity_person_credit_card */
+DROP TABLE IF EXISTS sem.entity_person_credit_card CASCADE;
+CREATE TABLE sem.entity_person_credit_card AS
+SELECT 
+    pcc.person_credit_card_key,
+    pcc.business_entity_id AS fk_person,
+    pcc.credit_card_id AS fk_credit_card,
+    pcc.modified_date
+FROM dw.bridge_person_credit_card pcc; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_person_credit_card
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_person_credit_card
+  model: null
+  entities:
+  - name: entity_person
+    ref_: null
+    expr: fk_person
+    type: foreign
+    description: Reference to the person record
+    project_path: null
+  - name: entity_credit_card
+    ref_: null
+    expr: fk_credit_card
+    type: foreign
+    description: Reference to the credit card record
+    project_path: null
+  dimensions:
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Timestamp representing the last update to the record
+    searchable: false
+  measures:
+  - name: person_credit_card_key
+    expr: person_credit_card_key
+    agg: sum
+    description: Unique identifier for the person credit card record
+    type: integer
+  - name: fk_person
+    expr: fk_person
+    agg: sum
+    description: Foreign key linking to the person entity
+    type: integer
+  - name: fk_credit_card
+    expr: fk_credit_card
+    agg: sum
+    description: Foreign key linking to the credit card entity
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('9711ca55-8329-4fd9-8b20-b6a3289f3d38', 'entity_sales_person', 'entity_sales_person', 'Generated model for entity_sales_person', NULL, 'view', '/* entity_sales_person */
+DROP TABLE IF EXISTS sem.entity_sales_person CASCADE;
+CREATE TABLE sem.entity_sales_person AS
+SELECT 
+    sp.sales_person_key,
+    sp.business_entity_id AS fk_person,
+    p.first_name,
+    p.last_name,
+    sp.territory_id AS fk_territory,
+    st.name AS territory_name,
+    sp.sales_quota,
+    sp.bonus,
+    sp.commission_pct,
+    sp.sales_ytd,
+    sp.sales_last_year,
+    sp.modified_date,
+    CASE WHEN sp.sales_ytd >= sp.sales_quota THEN ''Met Quota''
+         ELSE ''Below Quota'' END AS segment_quota_status,
+    (
+     SELECT COALESCE(SUM(x.line_total),0) FROM dw.fact_sales x 
+     WHERE x.sales_person_id = sp.business_entity_id 
+       AND x.order_date >= CURRENT_DATE - INTERVAL ''12 months''
+    ) AS total_sales_last_12_months,
+    (
+     SELECT COUNT(*) FROM dw.fact_sales x 
+     WHERE x.sales_person_id = sp.business_entity_id 
+       AND x.order_date >= CURRENT_DATE - INTERVAL ''12 months''
+    ) AS total_orders_last_12_months,
+    (
+     SELECT CASE WHEN COUNT(*) = 0 THEN NULL 
+                 ELSE COALESCE(SUM(x.line_total),0) / COUNT(*) END 
+     FROM dw.fact_sales x 
+     WHERE x.sales_person_id = sp.business_entity_id 
+       AND x.order_date >= CURRENT_DATE - INTERVAL ''12 months''
+    ) AS average_order_value_last_12_months
+FROM dw.dim_sales_person sp
+LEFT JOIN dw.dim_person p
+    ON sp.business_entity_id = p.business_entity_id
+LEFT JOIN dw.dim_sales_territory st
+    ON sp.territory_id = st.territory_id; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_sales_person
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_sales_person
+  model: null
+  entities:
+  - name: entity_person
+    ref_: null
+    expr: fk_person
+    type: foreign
+    description: Reference to the person record
+    project_path: null
+  - name: entity_sales_territory
+    ref_: null
+    expr: fk_territory
+    type: foreign
+    description: Reference to the sales territory
+    project_path: null
+  dimensions:
+  - name: first_name
+    expr: first_name
+    type: character varying
+    description: The first name of the sales person
+    searchable: false
+  - name: last_name
+    expr: last_name
+    type: character varying
+    description: The last name of the sales person
+    searchable: false
+  - name: territory_name
+    expr: territory_name
+    type: character varying
+    description: The name of the territory assigned to the sales person
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The date and time when the record was last modified
+    searchable: false
+  - name: segment_quota_status
+    expr: segment_quota_status
+    type: text
+    description: The current quota status segment of the sales person
+    searchable: false
+  measures:
+  - name: sales_person_key
+    expr: sales_person_key
+    agg: sum
+    description: A unique key identifying the sales person
+    type: integer
+  - name: fk_person
+    expr: fk_person
+    agg: sum
+    description: Foreign key linking to the person entity
+    type: integer
+  - name: fk_territory
+    expr: fk_territory
+    agg: sum
+    description: Foreign key linking to the territory entity
+    type: integer
+  - name: sales_quota
+    expr: sales_quota
+    agg: sum
+    description: The total sales quota assigned to the sales person
+    type: numeric
+  - name: bonus
+    expr: bonus
+    agg: sum
+    description: Bonus earned by the sales person
+    type: numeric
+  - name: commission_pct
+    expr: commission_pct
+    agg: sum
+    description: The commission percentage applicable to the sales person
+    type: numeric
+  - name: sales_ytd
+    expr: sales_ytd
+    agg: sum
+    description: Year-to-date sales figure for the sales person
+    type: numeric
+  - name: sales_last_year
+    expr: sales_last_year
+    agg: sum
+    description: Total sales made by the sales person in the previous year
+    type: numeric
+  - name: total_sales_last_12_months
+    expr: total_sales_last_12_months
+    agg: sum
+    description: Aggregate sales over the last twelve months
+    type: numeric
+  - name: total_orders_last_12_months
+    expr: total_orders_last_12_months
+    agg: sum
+    description: Total number of orders processed in the last twelve months
+    type: bigint
+  - name: average_order_value_last_12_months
+    expr: average_order_value_last_12_months
+    agg: sum
+    description: Average value of orders over the last twelve months
+    type: numeric
+', 'postgres');
+INSERT INTO public.datasets VALUES ('3e614f8c-7c61-4acb-ba7b-c006faea1aa5', 'entity_work_order_routing', 'entity_work_order_routing', 'Generated model for entity_work_order_routing', NULL, 'view', '/* entity_work_order_routing */
+DROP TABLE IF EXISTS sem.entity_work_order_routing CASCADE;
+CREATE TABLE sem.entity_work_order_routing AS
+SELECT 
+    wor.work_order_routing_key,
+    wor.work_order_id,
+    wor.product_id,
+    wor.operation_sequence,
+    wor.location_id,
+    wor.scheduled_start_date,
+    wor.scheduled_end_date,
+    wor.actual_start_date,
+    wor.actual_end_date,
+    wor.actual_resource_hrs,
+    wor.planned_cost,
+    wor.actual_cost,
+    wor.modified_date
+FROM dw.fact_work_order_routing wor; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_work_order_routing
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_work_order_routing
+  model: null
+  entities:
+  - name: entity_work_order
+    ref_: null
+    expr: work_order_id
+    type: foreign
+    description: Reference to the work order
+    project_path: null
+  - name: entity_product
+    ref_: null
+    expr: product_id
+    type: foreign
+    description: Reference to the product
+    project_path: null
+  dimensions:
+  - name: scheduled_start_date
+    expr: scheduled_start_date
+    type: timestamp without time zone
+    description: The timestamp indicating when the work order is scheduled to begin.
+    searchable: false
+  - name: scheduled_end_date
+    expr: scheduled_end_date
+    type: timestamp without time zone
+    description: The timestamp indicating when the work order is scheduled to be completed.
+    searchable: false
+  - name: actual_start_date
+    expr: actual_start_date
+    type: timestamp without time zone
+    description: The recorded timestamp when the work order actually began.
+    searchable: false
+  - name: actual_end_date
+    expr: actual_end_date
+    type: timestamp without time zone
+    description: The recorded timestamp when the work order actually ended.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The timestamp of the last modification made to the work order routing record.
+    searchable: false
+  measures:
+  - name: work_order_routing_key
+    expr: work_order_routing_key
+    agg: sum
+    description: A unique identifier for the work order routing record, used for aggregation.
+    type: integer
+  - name: work_order_id
+    expr: work_order_id
+    agg: sum
+    description: The identifier linking the record to a specific work order for aggregation purposes.
+    type: integer
+  - name: product_id
+    expr: product_id
+    agg: sum
+    description: The identifier of the product associated with the work order routing, used for aggregation.
+    type: integer
+  - name: operation_sequence
+    expr: operation_sequence
+    agg: sum
+    description: The sequence order of operations in the routing process, summed for analysis.
+    type: smallint
+  - name: location_id
+    expr: location_id
+    agg: sum
+    description: The identifier for the location where the work order routing is executed, used in aggregations.
+    type: integer
+  - name: actual_resource_hrs
+    expr: actual_resource_hrs
+    agg: sum
+    description: The total hours of resources actually utilized in the work order routing.
+    type: numeric
+  - name: planned_cost
+    expr: planned_cost
+    agg: sum
+    description: The estimated cost associated with the work order routing, summed across records.
+    type: numeric
+  - name: actual_cost
+    expr: actual_cost
+    agg: sum
+    description: The actual cost incurred during the execution of the work order routing.
+    type: numeric
+', 'postgres');
+INSERT INTO public.datasets VALUES ('2ca39c75-70bc-48d8-aa5e-3e77a5dcb7a8', 'entity_address', 'entity_address', 'Generated model for entity_address', NULL, 'view', '/* entity_address */
+DROP TABLE IF EXISTS sem.entity_address CASCADE;
+CREATE TABLE sem.entity_address AS
+SELECT 
+    a.address_key,
+    a.address_id,
+    a.address_line1,
+    a.address_line2,
+    a.city,
+    a.state_province_id,
+    a.postal_code,
+    at.name AS address_type,
+    a.modified_date
+FROM dw.dim_address a
+LEFT JOIN dw.bridge_business_entity_address bea
+    ON a.address_id = bea.address_id
+LEFT JOIN dw.dim_address_type at
+    ON bea.address_type_id = at.address_type_id; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_address
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_address
+  model: null
+  entities: []
+  dimensions:
+  - name: address_line1
+    expr: address_line1
+    type: character varying
+    description: The primary address line
+    searchable: false
+  - name: address_line2
+    expr: address_line2
+    type: character varying
+    description: The secondary address line, if applicable
+    searchable: false
+  - name: city
+    expr: city
+    type: character varying
+    description: The city of the address
+    searchable: false
+  - name: postal_code
+    expr: postal_code
+    type: character varying
+    description: The postal or ZIP code
+    searchable: false
+  - name: address_type
+    expr: address_type
+    type: character varying
+    description: The type of address (e.g., residential, commercial)
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The date and time when the address was last updated
+    searchable: false
+  measures:
+  - name: address_key
+    expr: address_key
+    agg: sum
+    description: Aggregate key for address records
+    type: integer
+  - name: address_id
+    expr: address_id
+    agg: sum
+    description: Unique identifier for the address
+    type: integer
+  - name: state_province_id
+    expr: state_province_id
+    agg: sum
+    description: Identifier for the state or province
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('239bd917-3736-433e-95e9-17bcc38af6de', 'entity_currency', 'entity_currency', 'Generated model for entity_currency', NULL, 'view', '/* entity_currency */
+DROP TABLE IF EXISTS sem.entity_currency CASCADE;
+CREATE TABLE sem.entity_currency AS
+SELECT 
+    c.currency_key,
+    c.currency_code,
+    c.name,
+    c.modified_date
+FROM dw.dim_currency c; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_currency
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_currency
+  model: null
+  entities: []
+  dimensions:
+  - name: currency_code
+    expr: currency_code
+    type: character
+    description: Unique code representing the currency
+    searchable: false
+  - name: name
+    expr: name
+    type: character varying
+    description: Official name of the currency
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Timestamp indicating when the record was last updated
+    searchable: false
+  measures:
+  - name: currency_key
+    expr: currency_key
+    agg: sum
+    description: Aggregate key used for summing currency values
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('547f20e6-f3ef-4ed8-9d66-f70f629e3b23', 'entity_purchase_order', 'entity_purchase_order', 'Generated model for entity_purchase_order', NULL, 'view', '/* entity_purchase_order */
+DROP TABLE IF EXISTS sem.entity_purchase_order CASCADE;
+CREATE TABLE sem.entity_purchase_order AS
+SELECT 
+    p.purchase_key,
+    p.purchase_order_id,
+    p.order_date,
+    p.due_date,
+    p.vendor_key AS fk_vendor,
+    v.name AS vendor_name,
+    p.product_key AS fk_product,
+    prod.name AS product_name,
+    p.order_qty,
+    p.unit_price,
+    (p.order_qty * p.unit_price) AS total_cost,
+    p.modified_date,
+    CASE WHEN p.order_date >= CURRENT_DATE - INTERVAL ''12 months''
+         THEN ''Recent'' ELSE ''Older'' END AS segment_recent_purchase
+FROM dw.fact_purchases p
+LEFT JOIN dw.dim_vendor v
+    ON p.vendor_key = v.business_entity_id
+LEFT JOIN dw.dim_product prod
+    ON p.product_key = prod.product_id; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_purchase_order
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_purchase_order
+  model: null
+  entities:
+  - name: entity_vendor
+    ref_: null
+    expr: fk_vendor
+    type: foreign
+    description: Reference to the vendor
+    project_path: null
+  - name: entity_product
+    ref_: null
+    expr: fk_product
+    type: foreign
+    description: Reference to the product
+    project_path: null
+  dimensions:
+  - name: order_date
+    expr: order_date
+    type: timestamp without time zone
+    description: Date when the order was placed
+    searchable: false
+  - name: due_date
+    expr: due_date
+    type: timestamp without time zone
+    description: Due date for order delivery
+    searchable: false
+  - name: vendor_name
+    expr: vendor_name
+    type: character varying
+    description: Name of the vendor supplying the order
+    searchable: false
+  - name: product_name
+    expr: product_name
+    type: character varying
+    description: Name or description of the product ordered
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Date when the order record was last modified
+    searchable: false
+  - name: segment_recent_purchase
+    expr: segment_recent_purchase
+    type: text
+    description: Segment categorization for recent purchases
+    searchable: false
+  measures:
+  - name: purchase_key
+    expr: purchase_key
+    agg: sum
+    description: Unique key identifying the purchase
+    type: integer
+  - name: purchase_order_id
+    expr: purchase_order_id
+    agg: sum
+    description: Identifier associated with the purchase order
+    type: integer
+  - name: fk_vendor
+    expr: fk_vendor
+    agg: sum
+    description: Foreign key linking to the vendor entity
+    type: integer
+  - name: fk_product
+    expr: fk_product
+    agg: sum
+    description: Foreign key linking to the product entity
+    type: integer
+  - name: order_qty
+    expr: order_qty
+    agg: sum
+    description: Quantity of products ordered
+    type: smallint
+  - name: unit_price
+    expr: unit_price
+    agg: sum
+    description: Price per unit of the product at the time of purchase
+    type: numeric
+  - name: total_cost
+    expr: total_cost
+    agg: sum
+    description: Total cost computed for the order
+    type: numeric
+', 'postgres');
+INSERT INTO public.datasets VALUES ('a452d58f-af91-40ca-82c6-c3eb94139684', 'entity_scrap_reason', 'entity_scrap_reason', 'Generated model for entity_scrap_reason', NULL, 'view', '/* entity_scrap_reason */
+DROP TABLE IF EXISTS sem.entity_scrap_reason CASCADE;
+CREATE TABLE sem.entity_scrap_reason AS
+SELECT 
+    sr.scrap_reason_key,
+    sr.scrap_reason_id,
+    sr.name,
+    sr.modified_date
+FROM dw.dim_scrap_reason sr; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_scrap_reason
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_scrap_reason
+  model: null
+  entities: []
+  dimensions:
+  - name: name
+    expr: name
+    type: character varying
+    description: The descriptive name for the scrap reason.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The timestamp indicating when the scrap reason was last modified.
+    searchable: false
+  measures:
+  - name: scrap_reason_key
+    expr: scrap_reason_key
+    agg: sum
+    description: The key identifier used for aggregating scrap reasons.
+    type: integer
+  - name: scrap_reason_id
+    expr: scrap_reason_id
+    agg: sum
+    description: The unique identifier for each scrap reason entry.
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('3b177be3-b9b7-4d50-8429-2619727f503d', 'entity_work_order', 'entity_work_order', 'Generated model for entity_work_order', NULL, 'view', '/* entity_work_order */
+DROP TABLE IF EXISTS sem.entity_work_order CASCADE;
+CREATE TABLE sem.entity_work_order AS
+SELECT 
+    w.work_order_key,
+    w.work_order_id,
+    w.product_id AS fk_product,
+    prod.name AS product_name,
+    w.order_qty,
+    w.scrapped_qty,
+    w.start_date,
+    w.end_date,
+    w.due_date,
+    w.modified_date,
+    CASE WHEN w.order_qty > 0 THEN (w.order_qty - w.scrapped_qty) / w.order_qty::decimal 
+         ELSE NULL END AS order_completion_ratio,
+    CASE WHEN w.scrapped_qty > 0 THEN ''Scrapped''
+         ELSE ''Clean'' END AS segment_scrap_status
+FROM dw.fact_work_order w
+LEFT JOIN dw.dim_product prod
+    ON w.product_id = prod.product_id; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_work_order
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_work_order
+  model: null
+  entities:
+  - name: entity_product
+    ref_: null
+    expr: fk_product
+    type: foreign
+    description: Reference to the product
+    project_path: null
+  dimensions:
+  - name: product_name
+    expr: product_name
+    type: character varying
+    description: The name of the product associated with the work order.
+    searchable: false
+  - name: start_date
+    expr: start_date
+    type: timestamp without time zone
+    description: The starting date when the work order becomes active.
+    searchable: false
+  - name: end_date
+    expr: end_date
+    type: timestamp without time zone
+    description: The ending date when the work order is scheduled to finish.
+    searchable: false
+  - name: due_date
+    expr: due_date
+    type: timestamp without time zone
+    description: The due date by which the work order must be completed.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The date when modifications were last made to the work order.
+    searchable: false
+  - name: segment_scrap_status
+    expr: segment_scrap_status
+    type: text
+    description: Indicator of whether any segment of the work order has been scrapped.
+    searchable: false
+  measures:
+  - name: work_order_key
+    expr: work_order_key
+    agg: sum
+    description: A unique key used for aggregating work order data.
+    type: integer
+  - name: work_order_id
+    expr: work_order_id
+    agg: sum
+    description: An identifier for the work order used in aggregation tasks.
+    type: integer
+  - name: fk_product
+    expr: fk_product
+    agg: sum
+    description: Foreign key linking the work order to a specific product.
+    type: integer
+  - name: order_qty
+    expr: order_qty
+    agg: sum
+    description: The total quantity ordered in this work order.
+    type: integer
+  - name: scrapped_qty
+    expr: scrapped_qty
+    agg: sum
+    description: The total quantity that has been scrapped or rejected.
+    type: smallint
+  - name: order_completion_ratio
+    expr: order_completion_ratio
+    agg: sum
+    description: A ratio that indicates the degree of order completion relative to the total quantity.
+    type: numeric
+', 'postgres');
+INSERT INTO public.datasets VALUES ('f74d1538-8402-4e4c-a380-49287263de9d', 'entity_sales_territory', 'entity_sales_territory', 'Generated model for entity_sales_territory', NULL, 'view', '/* entity_sales_territory */
+DROP TABLE IF EXISTS sem.entity_sales_territory CASCADE;
+CREATE TABLE sem.entity_sales_territory AS
+SELECT
+    t.territory_key,
+    t.territory_id,
+    t.name,
+    t.country_region_code,
+    t.group_name,
+    t.sales_ytd,
+    t.sales_last_year,
+    t.cost_ytd,
+    t.cost_last_year,
+    t.rowguid,
+    t.modified_date
+FROM dw.dim_sales_territory t; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_sales_territory
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_sales_territory
+  model: null
+  entities: []
+  dimensions:
+  - name: name
+    expr: name
+    type: character varying
+    description: The name of the sales territory
+    searchable: false
+  - name: country_region_code
+    expr: country_region_code
+    type: character varying
+    description: The country or region code associated with the territory
+    searchable: false
+  - name: group_name
+    expr: group_name
+    type: character varying
+    description: The group or department name within the sales structure
+    searchable: false
+  - name: rowguid
+    expr: rowguid
+    type: uuid
+    description: A unique identifier (GUID) for the record
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The date and time when the record was last modified
+    searchable: false
+  measures:
+  - name: territory_key
+    expr: territory_key
+    agg: sum
+    description: A numerical key representing the territory
+    type: integer
+  - name: territory_id
+    expr: territory_id
+    agg: sum
+    description: The unique identifier for the territory used in aggregations
+    type: integer
+  - name: sales_ytd
+    expr: sales_ytd
+    agg: sum
+    description: Year-to-date total sales for the territory
+    type: numeric
+  - name: sales_last_year
+    expr: sales_last_year
+    agg: sum
+    description: Total sales from the previous year for the territory
+    type: numeric
+  - name: cost_ytd
+    expr: cost_ytd
+    agg: sum
+    description: Year-to-date total cost associated with the territory
+    type: numeric
+  - name: cost_last_year
+    expr: cost_last_year
+    agg: sum
+    description: Total cost incurred in the previous year for the territory
+    type: numeric
+', 'postgres');
+INSERT INTO public.datasets VALUES ('494b86b1-f12f-41a6-b03b-2ae17653684b', 'entity_ship_method', 'entity_ship_method', 'Generated model for entity_ship_method', NULL, 'view', '/* entity_ship_method */
+DROP TABLE IF EXISTS sem.entity_ship_method CASCADE;
+CREATE TABLE sem.entity_ship_method AS
+SELECT 
+    sm.ship_method_key,
+    sm.ship_method_id,
+    sm.name,
+    sm.ship_base,
+    sm.ship_rate,
+    sm.rowguid,
+    sm.modified_date
+FROM dw.dim_ship_method sm; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_ship_method
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_ship_method
+  model: null
+  entities: []
+  dimensions:
+  - name: name
+    expr: name
+    type: character varying
+    description: The name of the shipping method.
+    searchable: false
+  - name: rowguid
+    expr: rowguid
+    type: uuid
+    description: The unique identifier (UUID) for the record.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The date and time when the record was last updated.
+    searchable: false
+  measures:
+  - name: ship_method_key
+    expr: ship_method_key
+    agg: sum
+    description: Sum of unique keys for shipping methods.
+    type: integer
+  - name: ship_method_id
+    expr: ship_method_id
+    agg: sum
+    description: Sum of shipping method IDs.
+    type: integer
+  - name: ship_base
+    expr: ship_base
+    agg: sum
+    description: Sum of base shipping costs.
+    type: numeric
+  - name: ship_rate
+    expr: ship_rate
+    agg: sum
+    description: Sum of shipping rates applied.
+    type: numeric
+', 'postgres');
+INSERT INTO public.datasets VALUES ('22799ae1-d5b5-4a75-969f-971e796465c8', 'entity_sales_tax_rate', 'entity_sales_tax_rate', 'Generated model for entity_sales_tax_rate', NULL, 'view', '/* entity_sales_tax_rate */
+DROP TABLE IF EXISTS sem.entity_sales_tax_rate CASCADE;
+CREATE TABLE sem.entity_sales_tax_rate AS
+SELECT 
+    str.sales_tax_rate_key,
+    str.sales_tax_rate_id,
+    str.state_province_id,
+    str.tax_type,
+    str.tax_rate,
+    str.name,
+    str.rowguid,
+    str.modified_date
+FROM dw.dim_sales_tax_rate str; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_sales_tax_rate
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_sales_tax_rate
+  model: null
+  entities: []
+  dimensions:
+  - name: name
+    expr: name
+    type: character varying
+    description: The name of the sales tax rate, typically describing the tax category or designation.
+    searchable: false
+  - name: rowguid
+    expr: rowguid
+    type: uuid
+    description: Unique row identifier (GUID) for the sales tax rate record.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Timestamp marking the last modification date of the sales tax rate record.
+    searchable: false
+  measures:
+  - name: sales_tax_rate_key
+    expr: sales_tax_rate_key
+    agg: sum
+    description: Unique key for the sales tax rate used in calculations and aggregations.
+    type: integer
+  - name: sales_tax_rate_id
+    expr: sales_tax_rate_id
+    agg: sum
+    description: Identifier for the sales tax rate record.
+    type: integer
+  - name: state_province_id
+    expr: state_province_id
+    agg: sum
+    description: Identifier linking the tax rate to its respective state or province.
+    type: integer
+  - name: tax_type
+    expr: tax_type
+    agg: sum
+    description: Indicator representing the type of tax, such as state or local.
+    type: smallint
+  - name: tax_rate
+    expr: tax_rate
+    agg: sum
+    description: Numeric value indicating the percentage rate of the sales tax.
+    type: numeric
+', 'postgres');
+INSERT INTO public.datasets VALUES ('e5aa8a57-3ef3-4470-b463-79ad0ecaad8e', 'entity_sales_order_sales_reason', 'entity_sales_order_sales_reason', 'Generated model for entity_sales_order_sales_reason', NULL, 'view', '/* entity_sales_order_sales_reason */
+DROP TABLE IF EXISTS sem.entity_sales_order_sales_reason CASCADE;
+CREATE TABLE sem.entity_sales_order_sales_reason AS
+SELECT 
+    shsr.sales_order_header_sales_reason_key,
+    shsr.sales_order_id,
+    shsr.sales_reason_id,
+    shsr.modified_date
+FROM dw.bridge_sales_order_header_sales_reason shsr; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_sales_order_sales_reason
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_sales_order_sales_reason
+  model: null
+  entities:
+  - name: entity_sales_order
+    ref_: null
+    expr: sales_order_id
+    type: foreign
+    description: Reference to the sales order
+    project_path: null
+  - name: entity_sales_reason
+    ref_: null
+    expr: sales_reason_id
+    type: foreign
+    description: Reference to the sales reason
+    project_path: null
+  dimensions:
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Represents the timestamp of the last modification to the record.
+    searchable: false
+  measures:
+  - name: sales_order_header_sales_reason_key
+    expr: sales_order_header_sales_reason_key
+    agg: sum
+    description: Aggregated identifier for the sales order header sales reason.
+    type: integer
+  - name: sales_order_id
+    expr: sales_order_id
+    agg: sum
+    description: Aggregated unique identifier for the sales order.
+    type: integer
+  - name: sales_reason_id
+    expr: sales_reason_id
+    agg: sum
+    description: Aggregated unique identifier for the sales reason category.
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('8c4ff2e6-7897-4d1b-8700-df76144c5f78', 'entity_employee', 'entity_employee', 'Generated model for entity_employee', NULL, 'view', '/* entity_employee */
+DROP TABLE IF EXISTS sem.entity_employee CASCADE;
+CREATE TABLE sem.entity_employee AS
+SELECT 
+    e.employee_key,
+    e.business_entity_id AS fk_person,
+    p.first_name,
+    p.last_name,
+    e.job_title,
+    e.hire_date,
+    e.birth_date,
+    e.marital_status,
+    e.gender,
+    COALESCE(ep.avg_rate, 0) AS avg_pay_rate,
+    e.modified_date,
+    EXTRACT(YEAR FROM age(CURRENT_DATE, e.hire_date)) AS tenure_years,
+    CASE WHEN e.current_flag THEN ''Active''
+         ELSE ''Inactive'' END AS segment_employment_status
+FROM dw.dim_employee e
+JOIN dw.dim_person p
+    ON e.business_entity_id = p.business_entity_id
+LEFT JOIN (
+    SELECT business_entity_id, AVG(rate) AS avg_rate
+    FROM dw.fact_employee_pay_history
+    GROUP BY business_entity_id
+) ep
+    ON e.business_entity_id = ep.business_entity_id; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_employee
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_employee
+  model: null
+  entities:
+  - name: entity_person
+    ref_: null
+    expr: fk_person
+    type: foreign
+    description: Reference to the person record
+    project_path: null
+  dimensions:
+  - name: first_name
+    expr: first_name
+    type: character varying
+    description: Employee''s first name
+    searchable: false
+  - name: last_name
+    expr: last_name
+    type: character varying
+    description: Employee''s last name
+    searchable: false
+  - name: job_title
+    expr: job_title
+    type: character varying
+    description: Title of the employee''s job position
+    searchable: false
+  - name: hire_date
+    expr: hire_date
+    type: date
+    description: Employee''s hire date
+    searchable: false
+  - name: birth_date
+    expr: birth_date
+    type: date
+    description: Employee''s date of birth
+    searchable: false
+  - name: marital_status
+    expr: marital_status
+    type: character
+    description: Employee''s marital status
+    searchable: false
+  - name: gender
+    expr: gender
+    type: character
+    description: Employee''s gender
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Record''s last modified date
+    searchable: false
+  - name: segment_employment_status
+    expr: segment_employment_status
+    type: text
+    description: Segment classification of employment status
+    searchable: false
+  measures:
+  - name: employee_key
+    expr: employee_key
+    agg: sum
+    description: Unique key identifier for the employee
+    type: integer
+  - name: fk_person
+    expr: fk_person
+    agg: sum
+    description: Foreign key to the associated person record
+    type: integer
+  - name: avg_pay_rate
+    expr: avg_pay_rate
+    agg: sum
+    description: Average pay rate for the employee
+    type: numeric
+  - name: tenure_years
+    expr: tenure_years
+    agg: sum
+    description: Calculated employee tenure in years
+    type: numeric
+', 'postgres');
+INSERT INTO public.datasets VALUES ('d39747a7-1a07-4ea2-b057-49541771a647', 'entity_shift', 'entity_shift', 'Generated model for entity_shift', NULL, 'view', '/* entity_shift */
+DROP TABLE IF EXISTS sem.entity_shift CASCADE;
+CREATE TABLE sem.entity_shift AS
+SELECT 
+    s.shift_key,
+    s.shift_id,
+    s.name,
+    s.start_time,
+    s.end_time,
+    s.modified_date
+FROM dw.dim_shift s; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_shift
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_shift
+  model: null
+  entities: []
+  dimensions:
+  - name: name
+    expr: name
+    type: character varying
+    description: The name identifying the entity or shift record
+    searchable: false
+  - name: start_time
+    expr: start_time
+    type: time without time zone
+    description: The starting time of the shift
+    searchable: false
+  - name: end_time
+    expr: end_time
+    type: time without time zone
+    description: The ending time of the shift
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The timestamp when the record was last modified
+    searchable: false
+  measures:
+  - name: shift_key
+    expr: shift_key
+    agg: sum
+    description: Aggregate sum of shift keys for numerical summarization
+    type: integer
+  - name: shift_id
+    expr: shift_id
+    agg: sum
+    description: Aggregate sum of shift IDs for numerical summarization
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('fbd94258-7e8b-461c-9174-e3730b38428b', 'entity_customer', 'entity_customer', 'Generated model for entity_customer', NULL, 'view', '/* entity_customer */
+DROP TABLE IF EXISTS sem.entity_customer CASCADE;
+CREATE TABLE sem.entity_customer AS
+SELECT 
+    c.customer_key,
+    c.customer_id,
+    c.person_id AS fk_person,
+    p.first_name,
+    p.last_name,
+    e.email_address,
+    c.store_id AS fk_store,
+    c.territory_id AS fk_territory,
+    c.modified_date,
+    CASE WHEN recent_order.order_count > 0 THEN ''Active''
+         ELSE ''Inactive'' END AS segment_active_customer,
+    (
+     SELECT COUNT(*) FROM dw.fact_sales s 
+     WHERE s.customer_key = c.customer_id 
+       AND s.order_date >= CURRENT_DATE - INTERVAL ''12 months''
+    ) AS total_orders_last_12_months,
+    (
+     SELECT COALESCE(SUM(s.line_total),0) FROM dw.fact_sales s 
+     WHERE s.customer_key = c.customer_id 
+       AND s.order_date >= CURRENT_DATE - INTERVAL ''12 months''
+    ) AS total_revenue_last_12_months,
+    (
+     SELECT CASE WHEN COUNT(*) = 0 THEN NULL 
+                 ELSE COALESCE(SUM(s.line_total),0) / COUNT(*) END 
+     FROM dw.fact_sales s 
+     WHERE s.customer_key = c.customer_id 
+       AND s.order_date >= CURRENT_DATE - INTERVAL ''12 months''
+    ) AS avg_order_value_last_12_months
+FROM dw.dim_customer c
+JOIN dw.dim_person p
+    ON c.person_id = p.business_entity_id
+LEFT JOIN dw.dim_email_address e
+    ON p.business_entity_id = e.business_entity_id
+LEFT JOIN (
+    SELECT s.customer_key, COUNT(*) AS order_count
+    FROM dw.fact_sales s
+    WHERE s.order_date >= CURRENT_DATE - INTERVAL ''12 months''
+    GROUP BY s.customer_key
+) recent_order
+    ON recent_order.customer_key = c.customer_id; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_customer
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_customer
+  model: null
+  entities: []
+  dimensions:
+  - name: first_name
+    expr: first_name
+    type: character varying
+    description: The first name of the customer.
+    searchable: false
+  - name: last_name
+    expr: last_name
+    type: character varying
+    description: The last name of the customer.
+    searchable: false
+  - name: email_address
+    expr: email_address
+    type: character varying
+    description: The email address of the customer.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The date when the customer record was last modified.
+    searchable: false
+  - name: segment_active_customer
+    expr: segment_active_customer
+    type: text
+    description: Indicator if the customer is actively engaged.
+    searchable: false
+  measures:
+  - name: customer_key
+    expr: customer_key
+    agg: sum
+    description: Unique identifier key for the customer.
+    type: integer
+  - name: customer_id
+    expr: customer_id
+    agg: sum
+    description: Identifier for the customer record.
+    type: integer
+  - name: fk_person
+    expr: fk_person
+    agg: sum
+    description: Foreign key linking to the person record.
+    type: integer
+  - name: fk_store
+    expr: fk_store
+    agg: sum
+    description: Foreign key linking to the store record.
+    type: integer
+  - name: fk_territory
+    expr: fk_territory
+    agg: sum
+    description: Foreign key linking to the territory record.
+    type: integer
+  - name: total_orders_last_12_months
+    expr: total_orders_last_12_months
+    agg: sum
+    description: Total number of orders in the last 12 months.
+    type: bigint
+  - name: total_revenue_last_12_months
+    expr: total_revenue_last_12_months
+    agg: sum
+    description: Total revenue generated in the last 12 months.
+    type: numeric
+  - name: avg_order_value_last_12_months
+    expr: avg_order_value_last_12_months
+    agg: sum
+    description: Average order value over the last 12 months.
+    type: numeric
+', 'postgres');
+INSERT INTO public.datasets VALUES ('bf277d59-9cca-4e26-bb1d-9bb2f6b91b93', 'entity_special_offer_product', 'entity_special_offer_product', 'Generated model for entity_special_offer_product', NULL, 'view', '/* entity_special_offer_product */
+DROP TABLE IF EXISTS sem.entity_special_offer_product CASCADE;
+CREATE TABLE sem.entity_special_offer_product AS
+SELECT 
+    sop.special_offer_product_key,
+    sop.special_offer_id,
+    sop.product_id,
+    sop.rowguid,
+    sop.modified_date
+FROM dw.bridge_special_offer_product sop; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_special_offer_product
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_special_offer_product
+  model: null
+  entities:
+  - name: entity_special_offer
+    ref_: null
+    expr: special_offer_id
+    type: foreign
+    description: Reference to the special offer
+    project_path: null
+  - name: entity_product
+    ref_: null
+    expr: product_id
+    type: foreign
+    description: Reference to the product
+    project_path: null
+  dimensions:
+  - name: rowguid
+    expr: rowguid
+    type: uuid
+    description: Unique identifier for the special offer product.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Date and time when the record was last modified.
+    searchable: false
+  measures:
+  - name: special_offer_product_key
+    expr: special_offer_product_key
+    agg: sum
+    description: Primary key for the special offer product record.
+    type: integer
+  - name: special_offer_id
+    expr: special_offer_id
+    agg: sum
+    description: Identifier for the special offer associated with the product.
+    type: integer
+  - name: product_id
+    expr: product_id
+    agg: sum
+    description: Identifier for the product in the special offer.
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('2c2cd754-7969-4e2c-8912-44329e528c5d', 'entity_job_candidate', 'entity_job_candidate', 'Generated model for entity_job_candidate', NULL, 'view', '/* entity_job_candidate */
+DROP TABLE IF EXISTS sem.entity_job_candidate CASCADE;
+CREATE TABLE sem.entity_job_candidate AS
+SELECT 
+    jc.job_candidate_key,
+    jc.job_candidate_id,
+    jc.business_entity_id AS fk_person,
+    p.first_name,
+    p.last_name,
+    jc.resume,
+    jc.modified_date
+FROM dw.dim_job_candidate jc
+LEFT JOIN dw.dim_person p
+    ON jc.business_entity_id = p.business_entity_id; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_job_candidate
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_job_candidate
+  model: null
+  entities:
+  - name: entity_person
+    ref_: null
+    expr: fk_person
+    type: foreign
+    description: Reference to the person record
+    project_path: null
+  dimensions:
+  - name: first_name
+    expr: first_name
+    type: character varying
+    description: Candidate''s first name
+    searchable: false
+  - name: last_name
+    expr: last_name
+    type: character varying
+    description: Candidate''s last name
+    searchable: false
+  - name: resume
+    expr: resume
+    type: xml
+    description: Candidate''s resume in XML format
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Timestamp for when candidate record was modified
+    searchable: false
+  measures:
+  - name: job_candidate_key
+    expr: job_candidate_key
+    agg: sum
+    description: Unique key identifier for job candidate
+    type: integer
+  - name: job_candidate_id
+    expr: job_candidate_id
+    agg: sum
+    description: ID assigned to job candidate
+    type: integer
+  - name: fk_person
+    expr: fk_person
+    agg: sum
+    description: Foreign key referencing the person entity
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('67e5062a-788d-4608-a05f-4d70b84f24cf', 'entity_product_cost_history', 'entity_product_cost_history', 'Generated model for entity_product_cost_history', NULL, 'view', '/* entity_product_cost_history */
+DROP TABLE IF EXISTS sem.entity_product_cost_history CASCADE;
+CREATE TABLE sem.entity_product_cost_history AS
+SELECT 
+    pch.product_cost_history_key,
+    pch.product_id,
+    pch.start_date,
+    pch.end_date,
+    pch.standard_cost,
+    pch.modified_date
+FROM dw.fact_product_cost_history pch; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_product_cost_history
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_product_cost_history
+  model: null
+  entities:
+  - name: entity_product
+    ref_: null
+    expr: product_id
+    type: foreign
+    description: Reference to the product
+    project_path: null
+  dimensions:
+  - name: start_date
+    expr: start_date
+    type: timestamp without time zone
+    description: Timestamp when the product cost history record becomes effective.
+    searchable: false
+  - name: end_date
+    expr: end_date
+    type: timestamp without time zone
+    description: Timestamp when the product cost history record expires.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Timestamp when the record was last updated.
+    searchable: false
+  measures:
+  - name: product_cost_history_key
+    expr: product_cost_history_key
+    agg: sum
+    description: Unique key identifying the product cost history entry.
+    type: integer
+  - name: product_id
+    expr: product_id
+    agg: sum
+    description: Identifier for the product associated with this cost history record.
+    type: integer
+  - name: standard_cost
+    expr: standard_cost
+    agg: sum
+    description: Recorded standard cost for the product.
+    type: numeric
+', 'postgres');
+INSERT INTO public.datasets VALUES ('32cc8810-05e7-4703-aea3-5b7e8216eaf1', 'entity_special_offer', 'entity_special_offer', 'Generated model for entity_special_offer', NULL, 'view', '/* entity_special_offer */
+DROP TABLE IF EXISTS sem.entity_special_offer CASCADE;
+CREATE TABLE sem.entity_special_offer AS
+SELECT 
+    so.special_offer_key,
+    so.special_offer_id,
+    so.description,
+    so.discount_pct,
+    so.type,
+    so.category,
+    so.start_date,
+    so.end_date,
+    so.min_qty,
+    so.max_qty,
+    so.modified_date,
+    CASE WHEN so.discount_pct > 0.2 THEN ''High Discount''
+         ELSE ''Standard Discount'' END AS segment_discount_level
+FROM dw.dim_special_offer so; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_special_offer
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_special_offer
+  model: null
+  entities: []
+  dimensions:
+  - name: description
+    expr: description
+    type: character varying
+    description: Text describing the details of the special offer.
+    searchable: false
+  - name: type
+    expr: type
+    type: character varying
+    description: Text indicating the type of offer.
+    searchable: false
+  - name: category
+    expr: category
+    type: character varying
+    description: Text representing the category of the offer.
+    searchable: false
+  - name: start_date
+    expr: start_date
+    type: timestamp without time zone
+    description: Timestamp when the offer starts.
+    searchable: false
+  - name: end_date
+    expr: end_date
+    type: timestamp without time zone
+    description: Timestamp when the offer ends.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Timestamp of the last modification to the offer details.
+    searchable: false
+  - name: segment_discount_level
+    expr: segment_discount_level
+    type: text
+    description: Text denoting the discount level based on segment criteria.
+    searchable: false
+  measures:
+  - name: special_offer_key
+    expr: special_offer_key
+    agg: sum
+    description: Unique key identifier for the special offer.
+    type: integer
+  - name: special_offer_id
+    expr: special_offer_id
+    agg: sum
+    description: Identifier for the special offer.
+    type: integer
+  - name: discount_pct
+    expr: discount_pct
+    agg: sum
+    description: Sum of discount percentages applied in the offer.
+    type: numeric
+  - name: min_qty
+    expr: min_qty
+    agg: sum
+    description: Minimum quantity required for the offer.
+    type: integer
+  - name: max_qty
+    expr: max_qty
+    agg: sum
+    description: Maximum quantity valid for the offer.
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('55b4fb53-159c-4638-9136-745c2670143d', 'entity_culture', 'entity_culture', 'Generated model for entity_culture', NULL, 'view', '
+/* entity_culture */
+DROP TABLE IF EXISTS sem.entity_culture CASCADE;
+CREATE TABLE sem.entity_culture AS
+SELECT 
+    culture_key,
+    culture_id,
+    name,
+    modified_date
+FROM dw.dim_culture; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_culture
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_culture
+  model: null
+  entities: []
+  dimensions:
+  - name: culture_id
+    expr: culture_id
+    type: character
+    description: Unique identifier representing the culture.
+    searchable: false
+  - name: name
+    expr: name
+    type: character varying
+    description: The name of the culture.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The timestamp marking when the record was last updated.
+    searchable: false
+  measures:
+  - name: culture_key
+    expr: culture_key
+    agg: sum
+    description: The aggregation of culture keys for summarizing culture data.
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('b72ef391-fcb0-4b8f-91fb-675a4052d9b0', 'entity_contact_type', 'entity_contact_type', 'Generated model for entity_contact_type', NULL, 'view', '/* entity_contact_type */
+/* entity_contact_type */
+DROP TABLE IF EXISTS sem.entity_contact_type CASCADE;
+CREATE TABLE sem.entity_contact_type AS
+SELECT 
+    contact_type_key,
+    contact_type_id,
+    name,
+    modified_date
+FROM dw.dim_contact_type; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_contact_type
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_contact_type
+  model: null
+  entities: []
+  dimensions:
+  - name: name
+    expr: name
+    type: character varying
+    description: The name of the contact type
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The date when the record was last modified
+    searchable: false
+  measures:
+  - name: contact_type_key
+    expr: contact_type_key
+    agg: sum
+    description: Aggregated key identifying the contact type
+    type: integer
+  - name: contact_type_id
+    expr: contact_type_id
+    agg: sum
+    description: Aggregated identifier for the contact type
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('0b0f0ceb-1e0f-428b-bfd5-cc8aa8bd612b', 'entity_person', 'entity_person', 'Generated model for entity_person', NULL, 'view', '/* entity_person */
+DROP TABLE IF EXISTS sem.entity_person CASCADE;
+CREATE TABLE sem.entity_person AS
+SELECT 
+    p.person_key,
+    p.business_entity_id AS fk_business_entity,
+    p.first_name,
+    p.last_name,
+    p.title,
+    e.email_address,
+    pp.phone_number,
+    CASE WHEN p.modified_date >= CURRENT_DATE - INTERVAL ''1 year''
+         THEN ''Active'' ELSE ''Stale'' END AS segment_recent_update,
+    p.modified_date
+FROM dw.dim_person p
+LEFT JOIN dw.dim_email_address e
+    ON p.business_entity_id = e.business_entity_id
+LEFT JOIN dw.dim_person_phone pp
+    ON p.business_entity_id = pp.business_entity_id; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_person
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_person
+  model: null
+  entities:
+  - name: entity_business_entity
+    ref_: null
+    expr: fk_business_entity
+    type: foreign
+    description: Reference to the business entity record
+    project_path: null
+  dimensions:
+  - name: first_name
+    expr: first_name
+    type: character varying
+    description: The given name of the person
+    searchable: false
+  - name: last_name
+    expr: last_name
+    type: character varying
+    description: The family name or surname of the person
+    searchable: false
+  - name: title
+    expr: title
+    type: character varying
+    description: The professional title or honorific of the person
+    searchable: false
+  - name: email_address
+    expr: email_address
+    type: character varying
+    description: The email address of the person
+    searchable: false
+  - name: phone_number
+    expr: phone_number
+    type: character varying
+    description: The contact phone number of the person
+    searchable: false
+  - name: segment_recent_update
+    expr: segment_recent_update
+    type: text
+    description: A textual segment indicating recent changes
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The timestamp when the record was last updated
+    searchable: false
+  measures:
+  - name: person_key
+    expr: person_key
+    agg: sum
+    description: A unique key identifier for the person
+    type: integer
+  - name: fk_business_entity
+    expr: fk_business_entity
+    agg: sum
+    description: A foreign key referencing the associated business entity
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('45cc0bcb-a906-4505-9337-1cfb59b9e71c', 'entity_department', 'entity_department', 'Generated model for entity_department', NULL, 'view', '/* entity_department */
+DROP TABLE IF EXISTS sem.entity_department CASCADE;
+CREATE TABLE sem.entity_department AS
+SELECT 
+    d.department_key,
+    d.department_id,
+    d.name AS department_name,
+    d.group_name,
+    d.modified_date,
+    edh_count.employee_count
+FROM dw.dim_department d
+LEFT JOIN (
+  SELECT department_id, COUNT(*) AS employee_count
+  FROM dw.fact_employee_department_history
+  GROUP BY department_id
+) edh_count
+    ON d.department_id = edh_count.department_id; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_department
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_department
+  model: null
+  entities: []
+  dimensions:
+  - name: department_name
+    expr: department_name
+    type: character varying
+    description: The name of the department within the organization
+    searchable: false
+  - name: group_name
+    expr: group_name
+    type: character varying
+    description: The name of the group associated with the department
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The date and time when the department record was last updated
+    searchable: false
+  measures:
+  - name: department_key
+    expr: department_key
+    agg: sum
+    description: A unique key identifier for the department, used for aggregation
+    type: integer
+  - name: department_id
+    expr: department_id
+    agg: sum
+    description: The identifier for the department used in system records
+    type: integer
+  - name: employee_count
+    expr: employee_count
+    agg: sum
+    description: The total number of employees in the department
+    type: bigint
+', 'postgres');
+INSERT INTO public.datasets VALUES ('12da0036-fee2-4724-9124-53f8540c0f57', 'entity_product_photo', 'entity_product_photo', 'Generated model for entity_product_photo', NULL, 'view', '/* entity_product_photo */
+DROP TABLE IF EXISTS sem.entity_product_photo CASCADE;
+CREATE TABLE sem.entity_product_photo AS
+SELECT 
+    pp.product_photo_key,
+    pp.product_photo_id,
+    pp.thumbnail_photo,
+    pp.thumbnail_photo_file_name,
+    pp.large_photo,
+    pp.large_photo_file_name,
+    pp.modified_date
+FROM dw.dim_product_photo pp; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_product_photo
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_product_photo
+  model: null
+  entities: []
+  dimensions:
+  - name: thumbnail_photo
+    expr: thumbnail_photo
+    type: bytea
+    description: Photo stored as bytea for thumbnail representation.
+    searchable: false
+  - name: thumbnail_photo_file_name
+    expr: thumbnail_photo_file_name
+    type: character varying
+    description: Filename for the thumbnail photo.
+    searchable: false
+  - name: large_photo
+    expr: large_photo
+    type: bytea
+    description: Photo stored as bytea for large representation.
+    searchable: false
+  - name: large_photo_file_name
+    expr: large_photo_file_name
+    type: character varying
+    description: Filename for the large photo.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Timestamp indicating when the photo was last modified.
+    searchable: false
+  measures:
+  - name: product_photo_key
+    expr: product_photo_key
+    agg: sum
+    description: Unique numeric key representing the photo entry for aggregation.
+    type: integer
+  - name: product_photo_id
+    expr: product_photo_id
+    agg: sum
+    description: Unique identifier for the photo used in aggregations.
+    type: integer
+', 'postgres');
+INSERT INTO public.datasets VALUES ('2e28469d-47a4-425e-bdd7-07356e1214d8', 'entity_sales_person_quota_history', 'entity_sales_person_quota_history', 'Generated model for entity_sales_person_quota_history', NULL, 'view', '/* entity_sales_person_quota_history */
+DROP TABLE IF EXISTS sem.entity_sales_person_quota_history CASCADE;
+CREATE TABLE sem.entity_sales_person_quota_history AS
+SELECT 
+    sph.sales_person_quota_history_key,
+    sph.business_entity_id,
+    sph.quota_date,
+    sph.sales_quota,
+    sph.rowguid,
+    sph.modified_date
+FROM dw.fact_sales_person_quota_history sph; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_sales_person_quota_history
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_sales_person_quota_history
+  model: null
+  entities:
+  - name: entity_sales_person
+    ref_: null
+    expr: business_entity_id
+    type: foreign
+    description: Reference to the sales person
+    project_path: null
+  dimensions:
+  - name: quota_date
+    expr: quota_date
+    type: timestamp without time zone
+    description: The date on which the sales quota was applied or recorded
+    searchable: false
+  - name: rowguid
+    expr: rowguid
+    type: uuid
+    description: Unique identifier for the record
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Timestamp when the record was last modified
+    searchable: false
+  measures:
+  - name: sales_person_quota_history_key
+    expr: sales_person_quota_history_key
+    agg: sum
+    description: Primary key for the sales quota history record
+    type: integer
+  - name: business_entity_id
+    expr: business_entity_id
+    agg: sum
+    description: Identifier for the business entity associated with the sales person
+    type: integer
+  - name: sales_quota
+    expr: sales_quota
+    agg: sum
+    description: The allocated sales quota amount for the sales person
+    type: numeric
+', 'postgres');
+INSERT INTO public.datasets VALUES ('8b6a1dfd-da0a-4412-b707-eb444d94ae33', 'entity_vendor', 'entity_vendor', 'Generated model for entity_vendor', NULL, 'view', '/* entity_vendor */
+DROP TABLE IF EXISTS sem.entity_vendor CASCADE;
+CREATE TABLE sem.entity_vendor AS
+SELECT 
+    v.vendor_key,
+    v.business_entity_id AS fk_person,
+    v.name,
+    v.credit_rating,
+    v.preferred_vendor_status,
+    v.active_flag,
+    e.email_address,
+    fv.average_lead_time,
+    v.modified_date,
+    CASE WHEN v.credit_rating >= 5 THEN ''High''
+         ELSE ''Standard'' END AS segment_vendor_rating,
+    (
+     SELECT COUNT(*) FROM dw.fact_purchases x 
+     WHERE x.vendor_key = v.business_entity_id 
+       AND x.order_date >= CURRENT_DATE - INTERVAL ''12 months''
+    ) AS total_purchase_orders_last_12_months,
+    (
+     SELECT COALESCE(SUM(x.order_qty * x.unit_price),0) FROM dw.fact_purchases x 
+     WHERE x.vendor_key = v.business_entity_id 
+       AND x.order_date >= CURRENT_DATE - INTERVAL ''12 months''
+    ) AS total_purchase_cost_last_12_months
+FROM dw.dim_vendor v
+LEFT JOIN dw.dim_email_address e
+    ON v.business_entity_id = e.business_entity_id
+LEFT JOIN (
+    SELECT business_entity_id, AVG(average_lead_time) AS average_lead_time
+    FROM dw.fact_product_vendor
+    GROUP BY business_entity_id
+) fv
+    ON v.business_entity_id = fv.business_entity_id; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_vendor
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_vendor
+  model: null
+  entities:
+  - name: entity_person
+    ref_: null
+    expr: fk_person
+    type: foreign
+    description: Reference to the person record
+    project_path: null
+  dimensions:
+  - name: name
+    expr: name
+    type: character varying
+    description: Name of the vendor
+    searchable: false
+  - name: preferred_vendor_status
+    expr: preferred_vendor_status
+    type: boolean
+    description: Indicates if the vendor is preferred
+    searchable: false
+  - name: active_flag
+    expr: active_flag
+    type: boolean
+    description: Status flag representing if the vendor is currently active
+    searchable: false
+  - name: email_address
+    expr: email_address
+    type: character varying
+    description: Contact email address for the vendor
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The date and time when the vendor record was last modified
+    searchable: false
+  - name: segment_vendor_rating
+    expr: segment_vendor_rating
+    type: text
+    description: Rating of vendor segment based on performance metrics
+    searchable: false
+  measures:
+  - name: vendor_key
+    expr: vendor_key
+    agg: sum
+    description: Unique key identifier for the vendor
+    type: integer
+  - name: fk_person
+    expr: fk_person
+    agg: sum
+    description: Foreign key linking to the person entity associated with the vendor
+    type: integer
+  - name: credit_rating
+    expr: credit_rating
+    agg: sum
+    description: Credit rating score assigned to the vendor
+    type: smallint
+  - name: average_lead_time
+    expr: average_lead_time
+    agg: sum
+    description: Average lead time for vendor deliveries
+    type: numeric
+  - name: total_purchase_orders_last_12_months
+    expr: total_purchase_orders_last_12_months
+    agg: sum
+    description: Total number of purchase orders placed in the last 12 months
+    type: bigint
+  - name: total_purchase_cost_last_12_months
+    expr: total_purchase_cost_last_12_months
+    agg: sum
+    description: Aggregate cost of purchases made in the last 12 months
+    type: numeric
+', 'postgres');
+INSERT INTO public.datasets VALUES ('9fa460b4-1410-4e74-aa34-eb79027cd59c', 'entity_sales_order', 'entity_sales_order', 'Generated model for entity_sales_order', NULL, 'view', '/* entity_sales_order */
+DROP TABLE IF EXISTS sem.entity_sales_order CASCADE;
+CREATE TABLE sem.entity_sales_order AS
+SELECT 
+    s.sales_key,
+    s.sales_order_id,
+    s.order_date,
+    s.due_date,
+    s.ship_date,
+    s.customer_key AS fk_customer,
+    c.customer_id,
+    s.product_key AS fk_product,
+    prod.name AS product_name,
+    s.order_qty,
+    s.unit_price,
+    s.unit_price_discount,
+    s.line_total,
+    s.sales_person_id AS fk_sales_person,
+    sp.business_entity_id,
+    s.territory_key AS fk_territory,
+    st.name AS territory_name,
+    s.bill_to_address AS fk_bill_to_address,
+    s.ship_to_address AS fk_ship_to_address,
+    s.modified_date,
+    CASE WHEN s.order_date >= CURRENT_DATE - INTERVAL ''12 months''
+         THEN ''Recent'' ELSE ''Older'' END AS segment_recent_order,
+    EXTRACT(DAY FROM (s.ship_date - s.order_date)) AS days_to_ship,
+    EXTRACT(DAY FROM (s.ship_date - s.due_date)) AS delivery_delay
+FROM dw.fact_sales s
+LEFT JOIN dw.dim_customer c
+    ON s.customer_key = c.customer_id
+LEFT JOIN dw.dim_product prod
+    ON s.product_key = prod.product_id
+LEFT JOIN dw.dim_sales_person sp
+    ON s.sales_person_id = sp.business_entity_id
+LEFT JOIN dw.dim_sales_territory st
+    ON s.territory_key = st.territory_id; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_sales_order
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_sales_order
+  model: null
+  entities:
+  - name: entity_customer
+    ref_: null
+    expr: fk_customer
+    type: foreign
+    description: Reference to the customer
+    project_path: null
+  - name: entity_product
+    ref_: null
+    expr: fk_product
+    type: foreign
+    description: Reference to the product
+    project_path: null
+  - name: entity_sales_person
+    ref_: null
+    expr: fk_sales_person
+    type: foreign
+    description: Reference to the sales person
+    project_path: null
+  - name: entity_sales_territory
+    ref_: null
+    expr: fk_territory
+    type: foreign
+    description: Reference to the sales territory
+    project_path: null
+  - name: entity_address
+    ref_: null
+    expr: fk_bill_to_address
+    type: foreign
+    description: Reference to the billing address
+    project_path: null
+  - name: entity_address
+    ref_: null
+    expr: fk_ship_to_address
+    type: foreign
+    description: Reference to the shipping address
+    project_path: null
+  dimensions:
+  - name: order_date
+    expr: order_date
+    type: timestamp without time zone
+    description: The date when the order was placed.
+    searchable: false
+  - name: due_date
+    expr: due_date
+    type: timestamp without time zone
+    description: The expected date for order delivery.
+    searchable: false
+  - name: ship_date
+    expr: ship_date
+    type: timestamp without time zone
+    description: The date when the order was shipped.
+    searchable: false
+  - name: product_name
+    expr: product_name
+    type: character varying
+    description: The name of the product ordered.
+    searchable: false
+  - name: territory_name
+    expr: territory_name
+    type: character varying
+    description: The name of the sales territory associated with the order.
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: The date when the order record was last modified.
+    searchable: false
+  - name: segment_recent_order
+    expr: segment_recent_order
+    type: text
+    description: A segment identifier indicating recent order status.
+    searchable: false
+  measures:
+  - name: sales_key
+    expr: sales_key
+    agg: sum
+    description: The aggregated sum of sales key values, uniquely identifying sales transactions.
+    type: integer
+  - name: sales_order_id
+    expr: sales_order_id
+    agg: sum
+    description: The aggregated sum of sales order IDs for reporting purposes.
+    type: integer
+  - name: fk_customer
+    expr: fk_customer
+    agg: sum
+    description: The aggregated foreign key linking to customer records.
+    type: integer
+  - name: customer_id
+    expr: customer_id
+    agg: sum
+    description: The aggregated sum of customer IDs associated with the orders.
+    type: integer
+  - name: fk_product
+    expr: fk_product
+    agg: sum
+    description: The aggregated foreign key linking to product records.
+    type: integer
+  - name: order_qty
+    expr: order_qty
+    agg: sum
+    description: The total quantity of items ordered aggregated across orders.
+    type: smallint
+  - name: unit_price
+    expr: unit_price
+    agg: sum
+    description: The aggregated sum of unit prices for the ordered products.
+    type: numeric
+  - name: unit_price_discount
+    expr: unit_price_discount
+    agg: sum
+    description: The aggregated sum of discounts applied to the unit prices.
+    type: numeric
+  - name: line_total
+    expr: line_total
+    agg: sum
+    description: The total sum of line totals, representing order value after discounts.
+    type: numeric
+  - name: fk_sales_person
+    expr: fk_sales_person
+    agg: sum
+    description: The aggregated foreign key identifying the sales person associated with the sale.
+    type: integer
+  - name: business_entity_id
+    expr: business_entity_id
+    agg: sum
+    description: The aggregated identifier linking to the business entity responsible for the sale.
+    type: integer
+  - name: fk_territory
+    expr: fk_territory
+    agg: sum
+    description: The aggregated foreign key linking to the sales territory record.
+    type: integer
+  - name: fk_bill_to_address
+    expr: fk_bill_to_address
+    agg: sum
+    description: The aggregated foreign key linking to the billing address record.
+    type: integer
+  - name: fk_ship_to_address
+    expr: fk_ship_to_address
+    agg: sum
+    description: The aggregated foreign key linking to the shipping address record.
+    type: integer
+  - name: days_to_ship
+    expr: days_to_ship
+    agg: sum
+    description: The total aggregated count of days taken to ship the orders.
+    type: numeric
+  - name: delivery_delay
+    expr: delivery_delay
+    agg: sum
+    description: The aggregated sum of delays between the expected delivery date and the actual ship date.
+    type: numeric
+', 'postgres');
+INSERT INTO public.datasets VALUES ('92b226a7-4255-47ec-83a1-499255a09fe7', 'entity_store', 'entity_store', 'Generated model for entity_store', NULL, 'view', '/* entity_store */
+DROP TABLE IF EXISTS sem.entity_store CASCADE;
+CREATE TABLE sem.entity_store AS
+SELECT 
+    s.store_key,
+    s.business_entity_id AS fk_person,
+    s.name,
+    s.sales_person_id,
+    s.demographics,
+    s.rowguid,
+    s.modified_date
+FROM dw.dim_store s; ', 'sem', true, false, 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2025-03-04 18:44:10.084964+00', '2025-03-04 18:44:10.084964+00', NULL, NULL, 'version: 0
+models:
+- name: entity_store
+  data_source_name: null
+  schema: sem
+  database: postgres
+  description: Generated model for entity_store
+  model: null
+  entities:
+  - name: entity_person
+    ref_: null
+    expr: fk_person
+    type: foreign
+    description: Reference to the person record
+    project_path: null
+  dimensions:
+  - name: name
+    expr: name
+    type: character varying
+    description: Unique identifier for the store name
+    searchable: false
+  - name: demographics
+    expr: demographics
+    type: xml
+    description: XML containing demographic details about the store
+    searchable: false
+  - name: rowguid
+    expr: rowguid
+    type: uuid
+    description: Unique identifier for each record row
+    searchable: false
+  - name: modified_date
+    expr: modified_date
+    type: timestamp without time zone
+    description: Timestamp marking the date of the last modification
+    searchable: false
+  measures:
+  - name: store_key
+    expr: store_key
+    agg: sum
+    description: Aggregated sum representing the unique store key
+    type: integer
+  - name: fk_person
+    expr: fk_person
+    agg: sum
+    description: Aggregated sum for foreign key references to person entries
+    type: integer
+  - name: sales_person_id
+    expr: sales_person_id
+    agg: sum
+    description: Aggregated sum for the sales person identifier
+    type: integer
+', 'postgres');
+
+
+--
+-- Data for Name: dataset_permissions; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
+
+--
+-- Data for Name: datasets_to_dataset_groups; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
 
 
 --
 -- Data for Name: permission_groups; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.permission_groups (id, name, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'Product', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:41:13.974669+00', '2024-11-05 15:41:13.97467+00', NULL);
-INSERT INTO public.permission_groups (id, name, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'Demo', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2024-11-05 15:41:13.974669+00', '2024-11-05 15:55:00.592421+00', NULL);
+INSERT INTO public.permission_groups VALUES ('5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'Product', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:41:13.974669+00', '2024-11-05 15:41:13.97467+00', NULL);
+INSERT INTO public.permission_groups VALUES ('6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'Demo', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2024-11-05 15:41:13.974669+00', '2024-11-05 15:55:00.592421+00', NULL);
 
 
 --
 -- Data for Name: datasets_to_permission_groups; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.datasets_to_permission_groups (dataset_id, permission_group_id, created_at, updated_at, deleted_at) VALUES ('046589cd-52c3-419b-b5b2-2401fa35ed68', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:55:25.996602+00', '2024-11-05 15:55:25.996605+00', NULL);
-INSERT INTO public.datasets_to_permission_groups (dataset_id, permission_group_id, created_at, updated_at, deleted_at) VALUES ('97989b32-4c54-43a7-90ec-50476db1c988', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:55:25.996605+00', '2024-11-05 15:55:25.996605+00', NULL);
-INSERT INTO public.datasets_to_permission_groups (dataset_id, permission_group_id, created_at, updated_at, deleted_at) VALUES ('e1350025-ee5e-4141-816d-a8dc026bf64b', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:55:25.996606+00', '2024-11-05 15:55:25.996606+00', NULL);
-INSERT INTO public.datasets_to_permission_groups (dataset_id, permission_group_id, created_at, updated_at, deleted_at) VALUES ('6eef8685-20e4-4049-9d4e-e8b5319e685f', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:55:25.996606+00', '2024-11-05 15:55:25.996606+00', NULL);
-INSERT INTO public.datasets_to_permission_groups (dataset_id, permission_group_id, created_at, updated_at, deleted_at) VALUES ('cbe0384a-4be7-4975-a3c7-bbe83e98b373', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:55:25.996607+00', '2024-11-05 15:55:25.996607+00', NULL);
-INSERT INTO public.datasets_to_permission_groups (dataset_id, permission_group_id, created_at, updated_at, deleted_at) VALUES ('38e0e307-ed32-44ef-8169-1339e021e56a', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:55:25.996607+00', '2024-11-05 15:55:25.996607+00', NULL);
-INSERT INTO public.datasets_to_permission_groups (dataset_id, permission_group_id, created_at, updated_at, deleted_at) VALUES ('6cfa6a07-5e1c-45f0-8724-695e89d8ff23', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:55:25.996607+00', '2024-11-05 15:55:25.996608+00', NULL);
-INSERT INTO public.datasets_to_permission_groups (dataset_id, permission_group_id, created_at, updated_at, deleted_at) VALUES ('a0cc6c47-ddb9-4a07-962c-37cf7a1f63a6', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:55:25.996608+00', '2024-11-05 15:55:25.996608+00', NULL);
-INSERT INTO public.datasets_to_permission_groups (dataset_id, permission_group_id, created_at, updated_at, deleted_at) VALUES ('62b85e7e-a376-4e93-92be-ccda3a433438', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:55:25.996608+00', '2024-11-05 15:55:25.996608+00', NULL);
-INSERT INTO public.datasets_to_permission_groups (dataset_id, permission_group_id, created_at, updated_at, deleted_at) VALUES ('a59484d0-8b6d-48cf-aa4e-f673cd530039', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:55:25.996609+00', '2024-11-05 15:55:25.996609+00', NULL);
-INSERT INTO public.datasets_to_permission_groups (dataset_id, permission_group_id, created_at, updated_at, deleted_at) VALUES ('57e196b1-6f27-45d4-95ae-fd368be161a8', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:55:25.996609+00', '2024-11-05 15:55:25.996609+00', NULL);
-INSERT INTO public.datasets_to_permission_groups (dataset_id, permission_group_id, created_at, updated_at, deleted_at) VALUES ('21c91803-c324-4341-98d1-960ef6a3e003', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:55:25.996609+00', '2024-11-05 15:55:25.996609+00', NULL);
-INSERT INTO public.datasets_to_permission_groups (dataset_id, permission_group_id, created_at, updated_at, deleted_at) VALUES ('e32015c7-89cb-460e-af8a-3f3852a8ff14', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:55:25.99661+00', '2024-11-05 15:55:25.99661+00', NULL);
-INSERT INTO public.datasets_to_permission_groups (dataset_id, permission_group_id, created_at, updated_at, deleted_at) VALUES ('e26b93c0-e2d1-4db3-a6b2-92240d71e130', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:55:25.99661+00', '2024-11-05 15:55:25.99661+00', NULL);
-INSERT INTO public.datasets_to_permission_groups (dataset_id, permission_group_id, created_at, updated_at, deleted_at) VALUES ('4852494e-3d2a-4c5e-b3eb-af13d75cbf9d', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:55:25.99661+00', '2024-11-05 15:55:25.996611+00', NULL);
-INSERT INTO public.datasets_to_permission_groups (dataset_id, permission_group_id, created_at, updated_at, deleted_at) VALUES ('d1e8f7a0-4b5c-4f8e-9b8e-2f3d4e5f6a7b', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:55:25.996611+00', '2024-11-05 15:55:25.996611+00', NULL);
 
 
 --
--- Data for Name: threads; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: entity_relationship; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.threads (id, created_by, updated_by, publicly_accessible, publicly_enabled_by, public_expiry_date, password_secret_id, state_message_id, parent_thread_id, created_at, updated_at, deleted_at) VALUES ('3912181d-0f67-4b92-b340-37fa11dddc4c', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', false, NULL, NULL, NULL, NULL, NULL, '2024-11-05 15:41:13.977123+00', '2024-11-05 15:41:13.977124+00', NULL);
-INSERT INTO public.threads (id, created_by, updated_by, publicly_accessible, publicly_enabled_by, public_expiry_date, password_secret_id, state_message_id, parent_thread_id, created_at, updated_at, deleted_at) VALUES ('98fd8412-ddb0-43de-acde-edec299c44f2', '1fe85021-e799-471b-8837-953e9ae06e4c', '1fe85021-e799-471b-8837-953e9ae06e4c', false, NULL, NULL, NULL, NULL, NULL, '2024-11-05 15:41:13.977124+00', '2024-11-05 15:41:13.977125+00', NULL);
-INSERT INTO public.threads (id, created_by, updated_by, publicly_accessible, publicly_enabled_by, public_expiry_date, password_secret_id, state_message_id, parent_thread_id, created_at, updated_at, deleted_at) VALUES ('c43991a5-f1e3-42e4-b489-a5056a43ddba', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', false, NULL, NULL, NULL, NULL, NULL, '2024-11-05 15:41:13.977126+00', '2024-11-05 15:41:13.977126+00', NULL);
-INSERT INTO public.threads (id, created_by, updated_by, publicly_accessible, publicly_enabled_by, public_expiry_date, password_secret_id, state_message_id, parent_thread_id, created_at, updated_at, deleted_at) VALUES ('b77bd132-c15f-4ad2-bf73-6a3c8a07ab99', '1fe85021-e799-471b-8837-953e9ae06e4c', '1fe85021-e799-471b-8837-953e9ae06e4c', false, NULL, NULL, NULL, NULL, NULL, '2024-11-05 15:41:13.977127+00', '2024-11-05 15:41:13.977127+00', NULL);
-INSERT INTO public.threads (id, created_by, updated_by, publicly_accessible, publicly_enabled_by, public_expiry_date, password_secret_id, state_message_id, parent_thread_id, created_at, updated_at, deleted_at) VALUES ('c95aa411-3be2-425d-8f0f-b57d51706add', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', false, NULL, NULL, NULL, NULL, NULL, '2024-11-05 15:41:13.977128+00', '2024-11-05 15:41:13.977128+00', NULL);
-INSERT INTO public.threads (id, created_by, updated_by, publicly_accessible, publicly_enabled_by, public_expiry_date, password_secret_id, state_message_id, parent_thread_id, created_at, updated_at, deleted_at) VALUES ('ea3bab5e-7a0d-4ecf-b592-6a1fa7afc303', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', false, NULL, NULL, NULL, NULL, NULL, '2024-11-05 15:41:13.977143+00', '2024-11-05 15:41:13.977143+00', NULL);
 
 
 --
@@ -922,45 +4187,80 @@ INSERT INTO public.threads (id, created_by, updated_by, publicly_accessible, pub
 
 
 --
+-- Data for Name: messages_deprecated; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
+
+--
+-- Data for Name: messages_to_files; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
+
+--
+-- Data for Name: metric_files; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
+
+--
 -- Data for Name: permission_groups_to_identities; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.permission_groups_to_identities (permission_group_id, identity_id, identity_type, created_at, updated_at, deleted_at, created_by, updated_by) VALUES ('5381a3ac-9671-4318-a8d3-3dc34b7d3c42', '1fe85021-e799-471b-8837-953e9ae06e4c', 'user', '2024-11-05 15:41:13.983059+00', '2024-11-05 15:41:13.983059+00', NULL, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874');
-INSERT INTO public.permission_groups_to_identities (permission_group_id, identity_id, identity_type, created_at, updated_at, deleted_at, created_by, updated_by) VALUES ('6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'team', '2024-11-05 15:41:13.98306+00', '2024-11-05 15:41:13.98306+00', NULL, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874');
-INSERT INTO public.permission_groups_to_identities (permission_group_id, identity_id, identity_type, created_at, updated_at, deleted_at, created_by, updated_by) VALUES ('5381a3ac-9671-4318-a8d3-3dc34b7d3c42', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'team', '2024-11-05 15:41:13.983061+00', '2024-11-05 15:41:13.983061+00', NULL, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874');
+INSERT INTO public.permission_groups_to_identities VALUES ('6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'team', '2024-11-05 15:41:13.98306+00', '2024-11-05 15:41:13.98306+00', NULL, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874');
+INSERT INTO public.permission_groups_to_identities VALUES ('5381a3ac-9671-4318-a8d3-3dc34b7d3c42', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'team', '2024-11-05 15:41:13.983061+00', '2024-11-05 15:41:13.983061+00', NULL, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874');
+INSERT INTO public.permission_groups_to_identities VALUES ('5381a3ac-9671-4318-a8d3-3dc34b7d3c42', '1fe85021-e799-471b-8837-953e9ae06e4c', 'user', '2024-11-05 15:41:13.983059+00', '2024-11-05 15:41:13.983059+00', NULL, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874');
+
+
+--
+-- Data for Name: permission_groups_to_users; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
+
+--
+-- Data for Name: sql_evaluations; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
 
 
 --
 -- Data for Name: teams; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.teams (id, name, organization_id, sharing_setting, edit_sql, upload_csv, export_assets, email_slack_enabled, created_by, created_at, updated_at, deleted_at) VALUES ('c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'Sales', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'none', false, false, false, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:41:13.962104+00', '2024-11-05 15:41:13.962105+00', NULL);
-INSERT INTO public.teams (id, name, organization_id, sharing_setting, edit_sql, upload_csv, export_assets, email_slack_enabled, created_by, created_at, updated_at, deleted_at) VALUES ('6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'Product', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'none', false, false, false, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:41:13.962105+00', '2024-11-05 15:41:13.962106+00', NULL);
+INSERT INTO public.teams VALUES ('c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'Sales', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'none', false, false, false, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:41:13.962104+00', '2024-11-05 15:41:13.962105+00', NULL);
+INSERT INTO public.teams VALUES ('6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'Product', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'none', false, false, false, false, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:41:13.962105+00', '2024-11-05 15:41:13.962106+00', NULL);
 
 
 --
 -- Data for Name: teams_to_users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.teams_to_users (team_id, user_id, role, created_at, updated_at, deleted_at) VALUES ('c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'manager', '2024-11-05 15:41:13.964456+00', '2024-11-05 15:41:13.964457+00', NULL);
-INSERT INTO public.teams_to_users (team_id, user_id, role, created_at, updated_at, deleted_at) VALUES ('6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '1fe85021-e799-471b-8837-953e9ae06e4c', 'member', '2024-11-05 15:41:13.964458+00', '2024-11-05 15:41:13.964458+00', NULL);
+INSERT INTO public.teams_to_users VALUES ('c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'manager', '2024-11-05 15:41:13.964456+00', '2024-11-05 15:41:13.964457+00', NULL);
+INSERT INTO public.teams_to_users VALUES ('6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '1fe85021-e799-471b-8837-953e9ae06e4c', 'member', '2024-11-05 15:41:13.964458+00', '2024-11-05 15:41:13.964458+00', NULL);
 
 
 --
 -- Data for Name: terms; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.terms (id, name, definition, sql_snippet, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('3028e20b-22c1-4c47-9e6a-b1c8eba532fa', 'dumb fast', 'when a user uses this term, they are typically referring to when the `order_date` - `shipped_date` is less than 1 day.', 'SELECT * FROM sales WHERE order_date - shipped_date < INTERVAL ''1 day''', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2024-11-05 15:41:13.984677+00', '2024-11-05 15:41:13.984677+00', NULL);
-INSERT INTO public.terms (id, name, definition, sql_snippet, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('5e1bfece-8887-42ab-96e5-3a641d2ee0be', 'top customer', 'when a user uses this term, they are referring to the customer that has spent the most with us while subtracting 100', 'SELECT customer_id, SUM(total_amount) - 100 AS adjusted_total_spent
-FROM sales
-GROUP BY customer_id
-ORDER BY adjusted_total_spent DESC
-LIMIT 1', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2024-11-05 15:41:13.984678+00', '2024-11-05 15:41:13.984678+00', NULL);
-INSERT INTO public.terms (id, name, definition, sql_snippet, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) VALUES ('23c46351-e175-4402-867c-c780c8fe0cc0', 'hamburger', 'when a user uses this term, they are referring to any customer who bought from us once, had a gap of 3 or more months, then bought again in the last year.', 'SELECT * FROM sales WHERE order_date - shipped_date < INTERVAL ''1 day'' AND customer_id IN (SELECT customer_id FROM sales GROUP BY customer_id HAVING COUNT(*) > 1 AND MAX(order_date) - MIN(order_date) > INTERVAL ''3 months'')', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2024-11-05 15:41:13.984679+00', '2024-11-05 15:41:13.984679+00', NULL);
+
+
+--
+-- Data for Name: terms_search; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
 
 
 --
 -- Data for Name: terms_to_datasets; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
+
+--
+-- Data for Name: threads_deprecated; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 
@@ -981,61 +4281,207 @@ INSERT INTO public.terms (id, name, definition, sql_snippet, organization_id, cr
 -- Data for Name: users_to_organizations; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.users_to_organizations (
-    user_id,
-    organization_id,
-    role,
-    status,
-    sharing_setting,
-    edit_sql,
-    upload_csv,
-    export_assets,
-    email_slack_enabled,
-    created_at,
-    updated_at,
-    deleted_at,
-    created_by,
-    updated_by,
-    deleted_by
-) VALUES 
-('c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'workspace_admin', 'active', 'none', false, false, false, false, '2024-11-05 15:41:13.958254+00', '2024-11-05 15:41:13.958254+00', NULL, 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', NULL),
-('1fe85021-e799-471b-8837-953e9ae06e4c', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'querier', 'active', 'none', false, false, false, false, '2024-11-05 15:41:13.958255+00', '2024-11-05 15:41:13.958255+00', NULL, '1fe85021-e799-471b-8837-953e9ae06e4c', '1fe85021-e799-471b-8837-953e9ae06e4c', NULL),
-('6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'data_admin', 'active', 'none', false, false, false, false, '2024-11-05 15:41:13.958256+00', '2024-11-05 15:41:13.958256+00', NULL, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', NULL);
+INSERT INTO public.users_to_organizations VALUES ('c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'workspace_admin', 'none', false, false, false, false, '2024-11-05 15:41:13.958254+00', '2024-11-05 15:41:13.958254+00', NULL, 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', NULL, 'active');
+INSERT INTO public.users_to_organizations VALUES ('1fe85021-e799-471b-8837-953e9ae06e4c', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'querier', 'none', false, false, false, false, '2024-11-05 15:41:13.958255+00', '2024-11-05 15:41:13.958255+00', NULL, '1fe85021-e799-471b-8837-953e9ae06e4c', '1fe85021-e799-471b-8837-953e9ae06e4c', NULL, 'active');
+INSERT INTO public.users_to_organizations VALUES ('6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', 'data_admin', 'none', false, false, false, false, '2024-11-05 15:41:13.958256+00', '2024-11-05 15:41:13.958256+00', NULL, '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', NULL, 'active');
 
+
+--
+-- Data for Name: schema_migrations; Type: TABLE DATA; Schema: realtime; Owner: supabase_admin
+--
+
+INSERT INTO realtime.schema_migrations VALUES (20211116024918, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20211116045059, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20211116050929, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20211116051442, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20211116212300, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20211116213355, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20211116213934, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20211116214523, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20211122062447, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20211124070109, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20211202204204, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20211202204605, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20211210212804, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20211228014915, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20220107221237, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20220228202821, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20220312004840, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20220603231003, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20220603232444, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20220615214548, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20220712093339, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20220908172859, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20220916233421, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20230119133233, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20230128025114, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20230128025212, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20230227211149, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20230228184745, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20230308225145, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20230328144023, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20231018144023, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20231204144023, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20231204144024, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20231204144025, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20240108234812, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20240109165339, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20240227174441, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20240311171622, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20240321100241, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20240401105812, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20240418121054, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20240523004032, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20240618124746, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20240801235015, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20240805133720, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20240827160934, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20240919163303, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20240919163305, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20241019105805, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20241030150047, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20241108114728, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20241121104152, '2025-03-04 18:41:53');
+INSERT INTO realtime.schema_migrations VALUES (20241130184212, '2025-03-04 18:41:53');
+
+
+--
+-- Data for Name: subscription; Type: TABLE DATA; Schema: realtime; Owner: supabase_admin
+--
+
+
+
+--
+-- Data for Name: buckets; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
+--
+
+
+
+--
+-- Data for Name: migrations; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
+--
+
+INSERT INTO storage.migrations VALUES (0, 'create-migrations-table', 'e18db593bcde2aca2a408c4d1100f6abba2195df', '2025-03-04 18:41:54.070122');
+INSERT INTO storage.migrations VALUES (1, 'initialmigration', '6ab16121fbaa08bbd11b712d05f358f9b555d777', '2025-03-04 18:41:54.071768');
+INSERT INTO storage.migrations VALUES (2, 'storage-schema', '5c7968fd083fcea04050c1b7f6253c9771b99011', '2025-03-04 18:41:54.072546');
+INSERT INTO storage.migrations VALUES (3, 'pathtoken-column', '2cb1b0004b817b29d5b0a971af16bafeede4b70d', '2025-03-04 18:41:54.077115');
+INSERT INTO storage.migrations VALUES (4, 'add-migrations-rls', '427c5b63fe1c5937495d9c635c263ee7a5905058', '2025-03-04 18:41:54.083989');
+INSERT INTO storage.migrations VALUES (5, 'add-size-functions', '79e081a1455b63666c1294a440f8ad4b1e6a7f84', '2025-03-04 18:41:54.084809');
+INSERT INTO storage.migrations VALUES (6, 'change-column-name-in-get-size', 'f93f62afdf6613ee5e7e815b30d02dc990201044', '2025-03-04 18:41:54.086382');
+INSERT INTO storage.migrations VALUES (7, 'add-rls-to-buckets', 'e7e7f86adbc51049f341dfe8d30256c1abca17aa', '2025-03-04 18:41:54.087537');
+INSERT INTO storage.migrations VALUES (8, 'add-public-to-buckets', 'fd670db39ed65f9d08b01db09d6202503ca2bab3', '2025-03-04 18:41:54.088532');
+INSERT INTO storage.migrations VALUES (9, 'fix-search-function', '3a0af29f42e35a4d101c259ed955b67e1bee6825', '2025-03-04 18:41:54.089626');
+INSERT INTO storage.migrations VALUES (10, 'search-files-search-function', '68dc14822daad0ffac3746a502234f486182ef6e', '2025-03-04 18:41:54.090864');
+INSERT INTO storage.migrations VALUES (11, 'add-trigger-to-auto-update-updated_at-column', '7425bdb14366d1739fa8a18c83100636d74dcaa2', '2025-03-04 18:41:54.09211');
+INSERT INTO storage.migrations VALUES (12, 'add-automatic-avif-detection-flag', '8e92e1266eb29518b6a4c5313ab8f29dd0d08df9', '2025-03-04 18:41:54.093488');
+INSERT INTO storage.migrations VALUES (13, 'add-bucket-custom-limits', 'cce962054138135cd9a8c4bcd531598684b25e7d', '2025-03-04 18:41:54.094903');
+INSERT INTO storage.migrations VALUES (14, 'use-bytes-for-max-size', '941c41b346f9802b411f06f30e972ad4744dad27', '2025-03-04 18:41:54.096238');
+INSERT INTO storage.migrations VALUES (15, 'add-can-insert-object-function', '934146bc38ead475f4ef4b555c524ee5d66799e5', '2025-03-04 18:41:54.103392');
+INSERT INTO storage.migrations VALUES (16, 'add-version', '76debf38d3fd07dcfc747ca49096457d95b1221b', '2025-03-04 18:41:54.104558');
+INSERT INTO storage.migrations VALUES (17, 'drop-owner-foreign-key', 'f1cbb288f1b7a4c1eb8c38504b80ae2a0153d101', '2025-03-04 18:41:54.105467');
+INSERT INTO storage.migrations VALUES (18, 'add_owner_id_column_deprecate_owner', 'e7a511b379110b08e2f214be852c35414749fe66', '2025-03-04 18:41:54.106588');
+INSERT INTO storage.migrations VALUES (19, 'alter-default-value-objects-id', '02e5e22a78626187e00d173dc45f58fa66a4f043', '2025-03-04 18:41:54.108131');
+INSERT INTO storage.migrations VALUES (20, 'list-objects-with-delimiter', 'cd694ae708e51ba82bf012bba00caf4f3b6393b7', '2025-03-04 18:41:54.109147');
+INSERT INTO storage.migrations VALUES (21, 's3-multipart-uploads', '8c804d4a566c40cd1e4cc5b3725a664a9303657f', '2025-03-04 18:41:54.110997');
+INSERT INTO storage.migrations VALUES (22, 's3-multipart-uploads-big-ints', '9737dc258d2397953c9953d9b86920b8be0cdb73', '2025-03-04 18:41:54.119791');
+INSERT INTO storage.migrations VALUES (23, 'optimize-search-function', '9d7e604cddc4b56a5422dc68c9313f4a1b6f132c', '2025-03-04 18:41:54.126467');
+INSERT INTO storage.migrations VALUES (24, 'operation-function', '8312e37c2bf9e76bbe841aa5fda889206d2bf8aa', '2025-03-04 18:41:54.127505');
+INSERT INTO storage.migrations VALUES (25, 'custom-metadata', '67eb93b7e8d401cafcdc97f9ac779e71a79bfe03', '2025-03-04 18:41:54.128405');
+
+
+--
+-- Data for Name: objects; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
+--
+
+
+
+--
+-- Data for Name: s3_multipart_uploads; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
+--
+
+
+
+--
+-- Data for Name: s3_multipart_uploads_parts; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
+--
+
+
+
+--
+-- Data for Name: hooks; Type: TABLE DATA; Schema: supabase_functions; Owner: supabase_functions_admin
+--
+
+
+
+--
+-- Data for Name: migrations; Type: TABLE DATA; Schema: supabase_functions; Owner: supabase_functions_admin
+--
+
+INSERT INTO supabase_functions.migrations VALUES ('initial', '2025-03-04 18:41:42.548349+00');
+INSERT INTO supabase_functions.migrations VALUES ('20210809183423_update_grants', '2025-03-04 18:41:42.548349+00');
+
+
+--
+-- Data for Name: seed_files; Type: TABLE DATA; Schema: supabase_migrations; Owner: postgres
+--
+
+INSERT INTO supabase_migrations.seed_files VALUES ('supabase/seed.sql', 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
+
+
+--
+-- Data for Name: secrets; Type: TABLE DATA; Schema: vault; Owner: supabase_admin
+--
+
+INSERT INTO vault.secrets VALUES ('cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', NULL, '', 'GT/Ml1srIO4sa/Qv2E10GcMJkmkQby/s1yLnSR/zBs8kjLzXVRwYZSaaEgcQms7pD37dpLs4jf7j
+KIUblDQtpUS8uzwuien6u/6lQP28XCyXTmXRAm5uIpvsYLt3Vec6/XT+NKjrf4/MkS+UgaPS5Qn7
+0e47mKwPPLMUh3o46Z0gdE6J5qyE9p5dOywuUsBrkGnAM/0Aj5t8JglvmpnA33nPqj1/MZbzCipw
+AAUKj8FBZnilnYQVjwVMlA3+jkVi5/YJy0PriWsOhZLZzV796sGMU1jJr/bcr9C5uklx0xLcdJpf
+WkiyHlHkEnI3RVER2ASWy/LxXfcoYsIHdtm2IJbK6smVh26W2462DFasL1BvHVKXVt8=', 'b7bb1425-9c8f-46e9-88c3-89eb03f109ab', '\x112103b790985ae632e33b7859335b19', '2025-03-04 18:43:59.677122+00', '2025-03-04 18:43:59.677122+00');
+
+
+--
+-- Name: refresh_tokens_id_seq; Type: SEQUENCE SET; Schema: auth; Owner: supabase_auth_admin
+--
+
+SELECT pg_catalog.setval('auth.refresh_tokens_id_seq', 1, false);
+
+
+--
+-- Name: jobid_seq; Type: SEQUENCE SET; Schema: cron; Owner: supabase_admin
+--
+
+SELECT pg_catalog.setval('cron.jobid_seq', 1, true);
+
+
+--
+-- Name: runid_seq; Type: SEQUENCE SET; Schema: cron; Owner: supabase_admin
+--
+
+SELECT pg_catalog.setval('cron.runid_seq', 1, false);
+
+
+--
+-- Name: key_key_id_seq; Type: SEQUENCE SET; Schema: pgsodium; Owner: supabase_admin
+--
+
+SELECT pg_catalog.setval('pgsodium.key_key_id_seq', 2, true);
+
+
+--
+-- Name: subscription_id_seq; Type: SEQUENCE SET; Schema: realtime; Owner: supabase_admin
+--
+
+SELECT pg_catalog.setval('realtime.subscription_id_seq', 1, false);
+
+
+--
+-- Name: hooks_id_seq; Type: SEQUENCE SET; Schema: supabase_functions; Owner: supabase_functions_admin
+--
+
+SELECT pg_catalog.setval('supabase_functions.hooks_id_seq', 1, false);
 
 
 --
 -- PostgreSQL database dump complete
 --
-
---
--- Data for Name: auth.users; Type: TABLE DATA; Schema: auth; Owner: postgres
---
-
-INSERT INTO auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at, confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at, email_change_token_new, email_change, email_change_sent_at, last_sign_in_at, raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone, phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at, email_change_token_current, email_change_confirm_status, banned_until, reauthentication_token, reauthentication_sent_at)
-VALUES 
-  ('00000000-0000-0000-0000-000000000000', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'authenticated', 'authenticated', 'chad@buster.so',  extensions.crypt('password', extensions.gen_salt('bf')), timezone('utc'::text, now()), NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{}', NULL, timezone('utc'::text, now()), timezone('utc'::text, now()), NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL),
-  ('00000000-0000-0000-0000-000000000000', '1fe85021-e799-471b-8837-953e9ae06e4c', 'authenticated', 'authenticated', 'blake@buster.so',  extensions.crypt('password', extensions.gen_salt('bf')), timezone('utc'::text, now()), NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{}', NULL, timezone('utc'::text, now()), timezone('utc'::text, now()), NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL),
-  ('00000000-0000-0000-0000-000000000000', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'authenticated', 'authenticated', 'nate@buster.so',  extensions.crypt('password', extensions.gen_salt('bf')), timezone('utc'::text, now()), NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{}', NULL, timezone('utc'::text, now()), timezone('utc'::text, now()), NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL);
-
---
--- Data for Name: auth.identities; Type: TABLE DATA; Schema: auth; Owner: postgres
---
-
-INSERT INTO auth.identities (id,user_id,identity_data,provider,provider_id,last_sign_in_at,created_at,updated_at)
-VALUES 
-  ('c2dd64cd-f7f3-4884-bc91-d46ae431901e', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e'::uuid, '{"sub": "c2dd64cd-f7f3-4884-bc91-d46ae431901e"}', 'email', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', timezone('utc'::text, now()), timezone('utc'::text, now()), timezone('utc'::text, now())),
-  ('1fe85021-e799-471b-8837-953e9ae06e4c', '1fe85021-e799-471b-8837-953e9ae06e4c'::uuid, '{"sub": "1fe85021-e799-471b-8837-953e9ae06e4c"}', 'email', '1fe85021-e799-471b-8837-953e9ae06e4c', timezone('utc'::text, now()), timezone('utc'::text, now()), timezone('utc'::text, now())),
-  ('6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874'::uuid, '{"sub": "6840fa04-c0d7-4e0e-8d3d-ea9190d93874"}', 'email', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', timezone('utc'::text, now()), timezone('utc'::text, now()), timezone('utc'::text, now()));
-
---
--- Data for Name: vault.secrets; Type: TABLE DATA; Schema: vault; Owner: postgres
---
-
-INSERT INTO vault.secrets (id, secret)
-VALUES
-  (
-    'c2b736c1-7714-4ac2-bec7-0633b7febef6',
-    '{"host":"aws-0-us-east-1.pooler.supabase.com","port":5432,"username":"postgres.fjbidcbjvmpesoonimhl","password":"S8Jrts05EqxsfA3q","database":"postgres","jump_host":null,"ssh_username":null,"ssh_private_key":null}'
-  );
 

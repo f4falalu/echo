@@ -10,6 +10,7 @@ CREATE TABLE messages (
     request_message TEXT NOT NULL,
     response_messages JSONB NOT NULL,
     reasoning JSONB NOT NULL,
+    title TEXT NOT NULL,
     final_reasoning_message TEXT NOT NULL,
     chat_id UUID NOT NULL REFERENCES chats(id),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
