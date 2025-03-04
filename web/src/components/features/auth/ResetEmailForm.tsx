@@ -10,7 +10,6 @@ import { Title, Text } from '@/components/ui/typography';
 import { useMemoizedFn } from 'ahooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { cn } from '@/lib/classMerge';
-import { StatusCard } from '@/components/ui/card/StatusCard';
 import { SuccessCard } from '@/components/ui/card/SuccessCard';
 
 export const ResetEmailForm: React.FC<{
@@ -66,7 +65,7 @@ export const ResetEmailForm: React.FC<{
         <Button
           block
           loading={loading}
-          variant="primary"
+          variant="black"
           disabled={disabled}
           onClick={handleResetPassword}>
           Send reset password email
@@ -81,7 +80,7 @@ export const ResetEmailForm: React.FC<{
         href={createBusterRoute({
           route: BusterRoutes.AUTH_LOGIN
         })}>
-        <Text variant="link" size="2xs">
+        <Text variant="link" size="xs">
           Return to login
         </Text>
       </Link>

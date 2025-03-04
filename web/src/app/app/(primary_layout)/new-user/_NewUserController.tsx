@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Input } from 'antd';
 import { Title, Text } from '@/components/ui/typography';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useUserConfigContextSelector } from '@/context/Users';
@@ -10,6 +9,8 @@ import { useMemoizedFn } from 'ahooks';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes/busterRoutes';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { Button } from '@/components/ui/buttons';
+import { Input } from '@/components/ui/inputs';
 
 export const NewUserController = () => {
   const [started, setStarted] = useState(false);
@@ -61,7 +62,7 @@ export const NewUserController = () => {
           <Text variant="secondary">
             With Buster, you can ask data questions in plain english & instantly get back data.
           </Text>
-          <Button type="primary" onClick={() => setStarted(true)}>
+          <Button variant="black" onClick={() => setStarted(true)}>
             Get Started
           </Button>
         </motion.div>
@@ -95,7 +96,7 @@ export const NewUserController = () => {
             defaultValue={userOrganizations?.name}
           />
           <Button
-            type="primary"
+            variant="black"
             loading={submitting}
             onClick={async () => {
               handleSubmit();

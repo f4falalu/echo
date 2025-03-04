@@ -2,17 +2,17 @@
 
 import { Title } from '@/components/ui/typography';
 import React, { useState } from 'react';
-import { Button, Input } from 'antd';
 import { useMemoizedFn } from 'ahooks';
 import { BusterRoutes } from '@/routes/busterRoutes';
 import type { User } from '@supabase/supabase-js';
 import type { BusterUserResponse } from '@/api/asset_interfaces';
 import { useRouter } from 'next/navigation';
 import { createBusterRoute } from '@/routes';
-import { Result } from 'antd';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { PolicyCheck } from '@/app/auth/_LoginComponents/PolicyCheck';
+import { PolicyCheck } from './PolicyCheck';
 import { SuccessCard } from '@/components/ui/card/SuccessCard';
+import { Button } from '@/components/ui/buttons';
+import { Input } from '@/components/ui/inputs';
 
 export const ResetPasswordForm: React.FC<{
   supabaseUser: User;
@@ -114,7 +114,7 @@ export const ResetPasswordForm: React.FC<{
               }}>
               <Button
                 block
-                type="primary"
+                variant="black"
                 disabled={disabled}
                 loading={loading}
                 onClick={handleResetPassword}>
@@ -133,19 +133,6 @@ export const ResetPasswordForm: React.FC<{
           />
         </div>
       )}
-
-      {/* <Link
-        className={cx(
-          'flex w-full cursor-pointer justify-center text-center font-normal',
-          styles.link
-        )}
-        href={createBusterRoute({
-          route: BusterRoutes.AUTH_LOGIN
-        })}>
-        <Text type="primary" size="xxs">
-          Return to login
-        </Text>
-      </Link> */}
     </div>
   );
 };

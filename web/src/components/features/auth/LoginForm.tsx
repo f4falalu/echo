@@ -317,7 +317,7 @@ const LoginOptions: React.FC<{
         </PolicyCheck>
       </form>
 
-      <div className="pt-0">
+      <div className="flex flex-col gap-y-2 pt-0">
         <AlreadyHaveAccount
           hasUser={hasUser}
           setErrorMessages={setErrorMessages}
@@ -371,7 +371,7 @@ const LoginAlertMessage: React.FC<{
   message: string;
 }> = ({ message }) => {
   return (
-    <Text size="2xs" variant="danger" className="">
+    <Text size="xs" variant="danger" className="">
       {message}
     </Text>
   );
@@ -425,7 +425,7 @@ const ResetPasswordLink: React.FC<{ email: string }> = ({ email }) => {
           route: BusterRoutes.AUTH_RESET_PASSWORD_EMAIL
         }) + `?email=${scrubbedEmail}`
       }>
-      <Text variant="primary" size="2xs">
+      <Text variant="primary" size="xs">
         Reset password
       </Text>
     </Link>
