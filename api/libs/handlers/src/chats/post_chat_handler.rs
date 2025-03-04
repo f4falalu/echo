@@ -232,9 +232,12 @@ pub async fn post_chat_handler(
 
                 tracing::error!("Error receiving message from agent: {}", e);
                 // Don't return early, continue processing remaining messages
+                break;
             }
         }
     }
+
+    println!("Finishing up the agent and moving on to store the final message");
 
     let title = title_handle.await??;
     let reasoning_duration = reasoning_duration.elapsed().as_secs();
