@@ -28,6 +28,7 @@ use crate::chats::{
         chat_context::ChatContextLoader, dashboard_context::DashboardContextLoader,
         metric_context::MetricContextLoader, validate_context_request, ContextLoader,
     },
+    get_chat_handler,
     streaming_parser::StreamingParser,
 };
 use crate::messages::types::{ChatMessage, ChatUserMessage};
@@ -42,6 +43,7 @@ pub enum ThreadEvent {
     GeneratingReasoningMessage,
     GeneratingTitle,
     InitializeChat,
+    Completed,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -59,11 +61,7 @@ pub async fn post_chat_handler(
     tx: Option<mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
 ) -> Result<ChatWithMessages> {
     let reasoning_duration = Instant::now();
-    // Validate context request
     validate_context_request(request.chat_id, request.metric_id, request.dashboard_id)?;
-
-    let chat_id = request.chat_id.unwrap_or_else(Uuid::new_v4);
-    let message_id = request.message_id.unwrap_or_else(Uuid::new_v4);
 
     let user_org_id = match user.attributes.get("organization_id") {
         Some(Value::String(org_id)) => Uuid::parse_str(&org_id).unwrap_or_default(),
@@ -73,46 +71,14 @@ pub async fn post_chat_handler(
         }
     };
 
+    // Initialize chat - either get existing or create new
+    let (chat_id, message_id, mut chat_with_messages) =
+        initialize_chat(&request, &user, user_org_id).await?;
+
     tracing::info!(
         "Starting post_chat_handler for chat_id: {}, message_id: {}, organization_id: {}, user_id: {}",
         chat_id, message_id, user_org_id, user.id
     );
-
-    // Create chat
-    let chat = Chat {
-        id: chat_id,
-        title: request.prompt.clone(),
-        organization_id: user_org_id,
-        created_by: user.id.clone(),
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
-        deleted_at: None,
-        updated_by: user.id.clone(),
-    };
-
-    let mut chat_with_messages = ChatWithMessages {
-        id: chat_id,
-        title: request.prompt.clone(),
-        is_favorited: false,
-        messages: vec![ChatMessage {
-            id: message_id,
-            request_message: ChatUserMessage {
-                request: request.prompt.clone(),
-                sender_id: user.id.clone(),
-                sender_name: user.name.clone().unwrap_or_default(),
-                sender_avatar: None,
-            },
-            response_messages: vec![],
-            reasoning: vec![],
-            created_at: Utc::now().to_string(),
-        }],
-        created_at: Utc::now().to_string(),
-        updated_at: Utc::now().to_string(),
-        created_by: user.id.to_string(),
-        created_by_id: user.id.to_string(),
-        created_by_name: user.name.clone().unwrap_or_default(),
-        created_by_avatar: None,
-    };
 
     // Send initial chat state to client
     if let Some(tx) = tx.clone() {
@@ -125,12 +91,6 @@ pub async fn post_chat_handler(
 
     // Create database connection
     let mut conn = get_pg_pool().get().await?;
-
-    // Create chat in database
-    insert_into(chats::table)
-        .values(&chat)
-        .execute(&mut conn)
-        .await?;
 
     // Initialize agent with context if provided
     let mut initial_messages = vec![];
@@ -162,6 +122,9 @@ pub async fn post_chat_handler(
     // Add the new user message
     initial_messages.push(AgentMessage::user(request.prompt.clone()));
 
+    // Initialize raw_llm_messages with initial_messages
+    let mut raw_llm_messages = initial_messages.clone();
+
     // Initialize the agent thread
     let mut chat = AgentThread::new(Some(chat_id), user.id, initial_messages);
 
@@ -187,11 +150,30 @@ pub async fn post_chat_handler(
     while let Ok(message_result) = rx.recv().await {
         match message_result {
             Ok(msg) => {
-                // Store the original message
+                // Store the original message for file processing
                 all_messages.push(msg.clone());
 
+                // Only store completed messages in raw_llm_messages
+                match &msg {
+                    AgentMessage::Assistant { progress, .. } => {
+                        if matches!(progress, MessageProgress::Complete) {
+                            raw_llm_messages.push(msg.clone());
+                        }
+                    }
+                    AgentMessage::Tool { progress, .. } => {
+                        if matches!(progress, MessageProgress::Complete) {
+                            raw_llm_messages.push(msg.clone());
+                        }
+                    }
+                    // User messages and other types don't have progress, so we store them all
+                    AgentMessage::User { .. } => {
+                        raw_llm_messages.push(msg.clone());
+                    }
+                    _ => {} // Ignore other message types
+                }
+
                 // Always transform the message
-                match transform_message(&chat_id, &message_id, msg) {
+                match transform_message(&chat_id, &message_id, msg, tx.as_ref()).await {
                     Ok((containers, event)) => {
                         // Store all transformed containers
                         for container in containers.clone() {
@@ -261,7 +243,7 @@ pub async fn post_chat_handler(
         reasoning: serde_json::to_value(&reasoning_messages)?,
         final_reasoning_message,
         title: title.title.clone().unwrap_or_default(),
-        raw_llm_messages: Value::Array(vec![]),
+        raw_llm_messages: serde_json::to_value(&raw_llm_messages)?,
     };
 
     // Insert message into database
@@ -281,6 +263,15 @@ pub async fn post_chat_handler(
 
     if let Some(title) = title.title {
         chat_with_messages.title = title;
+    }
+
+    // Send final completed state
+    if let Some(tx) = &tx {
+        tx.send(Ok((
+            BusterContainer::Chat(chat_with_messages.clone()),
+            ThreadEvent::Completed,
+        )))
+        .await?;
     }
 
     tracing::info!("Completed post_chat_handler for chat_id: {}", chat_id);
@@ -346,15 +337,14 @@ async fn process_completed_files(
     user_id: &Uuid,
 ) -> Result<()> {
     // Transform messages to BusterContainer format
-    let transformed_messages: Vec<BusterContainer> = messages
-        .iter()
-        .filter_map(|msg| {
-            transform_message(&message.chat_id, &message.id, msg.clone())
-                .ok()
-                .map(|(containers, _)| containers)
-        })
-        .flatten()
-        .collect();
+    let mut transformed_messages = Vec::new();
+    for msg in messages {
+        if let Ok((containers, _)) =
+            transform_message(&message.chat_id, &message.id, msg.clone(), None).await
+        {
+            transformed_messages.extend(containers);
+        }
+    }
 
     // Process any completed metric or dashboard files
     for container in transformed_messages {
@@ -575,10 +565,11 @@ pub enum BusterContainer {
     GeneratingTitle(BusterGeneratingTitle),
 }
 
-pub fn transform_message(
+pub async fn transform_message(
     chat_id: &Uuid,
     message_id: &Uuid,
     message: AgentMessage,
+    tx: Option<&mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
 ) -> Result<(Vec<BusterContainer>, ThreadEvent)> {
     println!("MESSAGE_STREAM: Transforming message: {:?}", message);
 
@@ -631,13 +622,25 @@ pub fn transform_message(
                         status: Some("completed".to_string()),
                     });
 
-                    containers.push(BusterContainer::ReasoningMessage(
-                        BusterReasoningMessageContainer {
+                    let reasoning_container =
+                        BusterContainer::ReasoningMessage(BusterReasoningMessageContainer {
                             reasoning: reasoning_message,
                             chat_id: *chat_id,
                             message_id: *message_id,
-                        },
-                    ));
+                        });
+
+                    // Send the finished reasoning message separately
+                    if let Some(tx) = tx {
+                        if let Err(e) = tx
+                            .send(Ok((
+                                reasoning_container,
+                                ThreadEvent::GeneratingReasoningMessage,
+                            )))
+                            .await
+                        {
+                            tracing::warn!("Failed to send finished reasoning message: {:?}", e);
+                        }
+                    }
                 }
 
                 return Ok((containers, ThreadEvent::GeneratingResponseMessage));
@@ -1392,4 +1395,79 @@ pub async fn generate_conversation_title(
     }
 
     Ok(title)
+}
+
+async fn initialize_chat(
+    request: &ChatCreateNewChat,
+    user: &User,
+    user_org_id: Uuid,
+) -> Result<(Uuid, Uuid, ChatWithMessages)> {
+    let message_id = request.message_id.unwrap_or_else(Uuid::new_v4);
+
+    if let Some(existing_chat_id) = request.chat_id {
+        // Get existing chat - no need to create new chat in DB
+        let mut existing_chat = get_chat_handler(&existing_chat_id, &user.id).await?;
+
+        // Add new message to existing chat
+        existing_chat.messages.push(ChatMessage {
+            id: message_id,
+            request_message: ChatUserMessage {
+                request: request.prompt.clone(),
+                sender_id: user.id.clone(),
+                sender_name: user.name.clone().unwrap_or_default(),
+                sender_avatar: None,
+            },
+            response_messages: vec![],
+            reasoning: vec![],
+            created_at: Utc::now().to_string(),
+        });
+
+        Ok((existing_chat_id, message_id, existing_chat))
+    } else {
+        // Create new chat since we don't have an existing one
+        let chat_id = Uuid::new_v4();
+        let chat = Chat {
+            id: chat_id,
+            title: request.prompt.clone(),
+            organization_id: user_org_id,
+            created_by: user.id.clone(),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            deleted_at: None,
+            updated_by: user.id.clone(),
+        };
+
+        let chat_with_messages = ChatWithMessages {
+            id: chat_id,
+            title: request.prompt.clone(),
+            is_favorited: false,
+            messages: vec![ChatMessage {
+                id: message_id,
+                request_message: ChatUserMessage {
+                    request: request.prompt.clone(),
+                    sender_id: user.id.clone(),
+                    sender_name: user.name.clone().unwrap_or_default(),
+                    sender_avatar: None,
+                },
+                response_messages: vec![],
+                reasoning: vec![],
+                created_at: Utc::now().to_string(),
+            }],
+            created_at: Utc::now().to_string(),
+            updated_at: Utc::now().to_string(),
+            created_by: user.id.to_string(),
+            created_by_id: user.id.to_string(),
+            created_by_name: user.name.clone().unwrap_or_default(),
+            created_by_avatar: None,
+        };
+
+        // Only create new chat in DB if this is a new chat
+        let mut conn = get_pg_pool().get().await?;
+        insert_into(chats::table)
+            .values(&chat)
+            .execute(&mut conn)
+            .await?;
+
+        Ok((chat_id, message_id, chat_with_messages))
+    }
 }

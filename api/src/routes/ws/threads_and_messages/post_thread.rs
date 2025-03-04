@@ -46,6 +46,9 @@ pub async fn post_thread(
                         ThreadEvent::InitializeChat => {
                             WsEvent::Threads(WSThreadEvent::InitializeChat)
                         }
+                        ThreadEvent::Completed => {
+                            WsEvent::Threads(WSThreadEvent::Complete)
+                        }
                     };
 
                     let response = WsResponseMessage::new_no_user(

@@ -250,6 +250,15 @@ impl AgentMessage {
             Self::User { id, .. } => *id = Some(new_id),
         }
     }
+
+    pub fn get_id(&self) -> Option<String> {
+        match self {
+            Self::Assistant { id, .. } => id.clone(),
+            Self::Tool { id, .. } => id.clone(),
+            Self::Developer { id, .. } => id.clone(),
+            Self::User { id, .. } => id.clone(),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -584,7 +593,9 @@ mod tests {
     async fn test_chat_completion_request_with_tools() {
         let request = ChatCompletionRequest {
             model: "o1".to_string(),
-            messages: vec![AgentMessage::user("Hello whats the weather in vineyard ut!")],
+            messages: vec![AgentMessage::user(
+                "Hello whats the weather in vineyard ut!",
+            )],
             max_completion_tokens: Some(100),
             tools: Some(vec![Tool {
                 tool_type: "function".to_string(),
@@ -877,7 +888,9 @@ mod tests {
         // Test request with function tool
         let request = ChatCompletionRequest {
             model: "gpt-4o".to_string(),
-            messages: vec![AgentMessage::user("What's the weather like in Boston today?")],
+            messages: vec![AgentMessage::user(
+                "What's the weather like in Boston today?",
+            )],
             tools: Some(vec![Tool {
                 tool_type: "function".to_string(),
                 function: json!({

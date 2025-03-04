@@ -104,7 +104,7 @@ impl BusterSuperAgent {
             HashMap::new(),
             user_id,
             session_id,
-            "manager_agent".to_string(),
+            "buster_super_agent".to_string(),
         ));
 
         let manager = Self { agent };
@@ -116,7 +116,7 @@ impl BusterSuperAgent {
         // Create a new agent with the same core properties and shared state/stream
         let agent = Arc::new(Agent::from_existing(
             existing_agent,
-            "manager_agent".to_string(),
+            "buster_super_agent".to_string(),
         ));
         let manager = Self { agent };
         manager.load_tools().await?;
@@ -127,7 +127,7 @@ impl BusterSuperAgent {
         &self,
         thread: &mut AgentThread,
     ) -> Result<broadcast::Receiver<Result<AgentMessage, AgentError>>> {
-        thread.set_developer_message(MANAGER_AGENT_PROMPT.to_string());
+        thread.set_developer_message(BUSTER_SUPER_AGENT_PROMPT.to_string());
 
         // Get shutdown receiver
         let rx = self.stream_process_thread(thread).await?;
@@ -141,7 +141,7 @@ impl BusterSuperAgent {
     }
 }
 
-const MANAGER_AGENT_PROMPT: &str = r##"### Role & Task
+const BUSTER_SUPER_AGENT_PROMPT: &str = r##"### Role & Task
 You are Buster, an expert analytics and data engineer. Your job is to assess what data is available and then provide fast, accurate answers to analytics questions from non-technical users. You do this by analyzing user requests, searching across a data catalog, and building metrics or dashboards.
 ---
 ### Actions Available (Tools)
