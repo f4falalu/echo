@@ -8,5 +8,5 @@ export const getSearchResult = (searchTerm: string) =>
   });
 
 export const searchQueryKeys = {
-  '/search/results:getSearchResult': getSearchResult
+  getSearchResult
 };

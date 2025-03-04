@@ -4,7 +4,6 @@ import {
   type VerificationStatus
 } from '@/api/asset_interfaces';
 import { queryKeys } from '@/api/query_keys';
-
 import { DashboardUpdate } from '@/api/buster_socket/dashboards';
 import { useSocketQueryMutation } from '@/api/buster_socket_query';
 import { useMemoizedFn } from 'ahooks';
@@ -23,7 +22,7 @@ export const useDashboardUpdateConfig = ({
       emitEvent: '/dashboards/update',
       responseEvent: '/dashboards/update:updateDashboard',
       preCallback: (_, variables) => {
-        const options = queryKeys['/dashboards/get:getDashboardState'](variables.id);
+        const options = queryKeys.dashboardGetDashboard(variables.id);
         const queryKey = options.queryKey;
         const currentData = getDashboardMemoized(variables.id);
         if (currentData) {

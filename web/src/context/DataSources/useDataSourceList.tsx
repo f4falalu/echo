@@ -21,7 +21,7 @@ export const useDataSourceList = () => {
       }
     },
     responseEvent: '/data_sources/list:listDataSources',
-    options: queryKeys['/data_sources/list:getDatasourcesList']
+    options: queryKeys.datasourceGetList
   });
 
   return {

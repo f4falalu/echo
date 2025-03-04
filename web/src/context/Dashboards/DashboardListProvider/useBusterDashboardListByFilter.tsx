@@ -13,7 +13,7 @@ export const useBusterDashboardListByFilter = (filters: DashboardListFilters) =>
       }
     },
     responseEvent: '/dashboards/list:getDashboardsList',
-    options: queryKeys['/dashboards/list:getDashboardsList'](filters)
+    options: queryKeys.dashboardGetList(filters)
   });
 
   //ACTIONS

@@ -15,7 +15,7 @@ export const useDatasourceCreate = () => {
     emitEvent: '/data_sources/post',
     responseEvent: '/data_sources/get:getDataSource',
     callback: (newData, currentData, variables) => {
-      const options = queryKeys['/data_sources/get:getDataSource'](newData.id);
+      const options = queryKeys.datasourceGet(newData.id);
       queryClient.setQueryData(options.queryKey, newData);
       return currentData;
     }
@@ -24,7 +24,7 @@ export const useDatasourceCreate = () => {
   const { mutateAsync: deleteDataSourceMutation } = useSocketQueryMutation({
     emitEvent: '/data_sources/delete',
     responseEvent: '/data_sources/delete:deleteDataSource',
-    options: queryKeys['/data_sources/list:getDatasourcesList'],
+    options: queryKeys.datasourceGetList,
     preCallback: (currentData, variables) => {
       return currentData?.filter((d) => d.id !== variables.id) || [];
     }
