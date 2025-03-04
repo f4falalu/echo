@@ -1,6 +1,10 @@
 import { useMemoizedFn } from 'ahooks';
 import { useBusterChatContextSelector } from '../ChatProvider';
-import { BusterChat, BusterChatMessage_text } from '@/api/asset_interfaces';
+import {
+  BusterChat,
+  BusterChatMessage_text,
+  BusterChatMessageReasoning
+} from '@/api/asset_interfaces';
 import {
   ChatEvent_GeneratingReasoningMessage,
   ChatEvent_GeneratingResponseMessage,
@@ -27,14 +31,14 @@ type ChatMessageResponseMessagesRef = Record<
   //message_id
   string,
   //response_message_id
-  Record<string, ChatMessageResponseMessage>
+  Record<string, ChatMessageResponseMessage> | undefined
 >;
 
 type ChatMessageReasoningMessageRef = Record<
   //message_id
   string,
   //reasoning_message_id
-  Record<string, ChatMessageReasoning>
+  Record<string, ChatMessageReasoning> | undefined
 >;
 
 export const useChatStreamMessage = () => {
@@ -134,7 +138,7 @@ export const useChatStreamMessage = () => {
       const { message_id, response_message, chat_id } = d;
       const responseMessageId = response_message.id;
       const foundResponseMessage: undefined | ChatMessageResponseMessage =
-        chatMessageResponseMessagesRef.current[message_id][responseMessageId];
+        chatMessageResponseMessagesRef.current[message_id]?.[responseMessageId];
       const isNewMessage = !foundResponseMessage;
       const currentResponseMessages = chatMessagesRef.current[message_id]?.response_messages ?? [];
 
@@ -147,13 +151,16 @@ export const useChatStreamMessage = () => {
       }
 
       if (isNewMessage) {
-        chatMessageResponseMessagesRef.current[message_id][responseMessageId] = {
-          ...response_message,
-          index: currentResponseMessages.length
+        chatMessageResponseMessagesRef.current[message_id] = {
+          ...(chatMessageResponseMessagesRef.current[message_id] || {}),
+          [responseMessageId]: {
+            ...response_message,
+            index: currentResponseMessages.length
+          }
         };
       }
 
-      const messageToUse = chatMessageResponseMessagesRef.current[message_id][responseMessageId];
+      const messageToUse = chatMessageResponseMessagesRef.current[message_id]?.[responseMessageId]!;
 
       onUpdateChatMessageTransition({
         id: message_id,
@@ -173,20 +180,24 @@ export const useChatStreamMessage = () => {
       const { message_id, reasoning, chat_id } = d;
       const reasoningMessageId = reasoning.id;
       const foundReasoningMessage: undefined | ChatMessageReasoning =
-        chatMessageReasoningMessageRef.current[message_id][reasoningMessageId];
+        chatMessageReasoningMessageRef.current[message_id]?.[reasoningMessageId];
       const isNewMessage = !foundReasoningMessage;
       const currentReasoning = chatMessagesRef.current[message_id]?.reasoning ?? [];
 
       if (isNewMessage) {
-        chatMessageReasoningMessageRef.current[message_id][reasoningMessageId] = {
-          ...reasoning,
-          index: currentReasoning.length
+        chatMessageReasoningMessageRef.current[message_id] = {
+          ...chatMessageReasoningMessageRef.current[message_id],
+          [reasoningMessageId]: {
+            ...reasoning,
+            index: currentReasoning.length
+          }
         };
       }
 
-      const messageToUse = chatMessageReasoningMessageRef.current[message_id][reasoningMessageId];
+      const messageToUse =
+        chatMessageReasoningMessageRef.current[message_id]?.[reasoningMessageId]!;
 
-      const updatedReasoning = isNewMessage
+      const updatedReasoning: BusterChatMessageReasoning[] = isNewMessage
         ? [...currentReasoning, messageToUse]
         : [
             ...currentReasoning.slice(0, foundReasoningMessage.index),
