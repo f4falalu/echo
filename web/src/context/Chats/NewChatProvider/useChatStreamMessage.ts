@@ -91,6 +91,8 @@ export const useChatStreamMessage = () => {
 
   const initializeNewChatCallback = useMemoizedFn((d: BusterChat) => {
     const { iChat, iChatMessages } = updateChatToIChat(d, true);
+    console.log('iChatMessages', iChatMessages);
+    console.log('iChat', iChat);
     normalizeChatMessage(iChatMessages);
     onUpdateChat(iChat);
     onChangePage({
