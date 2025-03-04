@@ -70,10 +70,20 @@ const PopoverContent = React.forwardRef<
   React.ElementRef<typeof PopoverPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> & {
     headerContent?: React.ReactNode;
+    footerContent?: React.ReactNode;
   } & PopoverContentVariant
 >(
   (
-    { className, align = 'center', children, sideOffset = 4, headerContent, size, ...props },
+    {
+      className,
+      align = 'center',
+      children,
+      sideOffset = 4,
+      headerContent,
+      size,
+      footerContent,
+      ...props
+    },
     ref
   ) => (
     <PopoverPrimitive.Portal>
@@ -91,6 +101,7 @@ const PopoverContent = React.forwardRef<
         <div className={cn(popoverContentVariant({ size }), className)}>
           <>{children}</>
         </div>
+        {footerContent && <>{footerContent}</>}
       </PopoverPrimitive.Content>
     </PopoverPrimitive.Portal>
   )

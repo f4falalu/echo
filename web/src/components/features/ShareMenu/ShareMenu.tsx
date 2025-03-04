@@ -10,6 +10,7 @@ import { isShareMenuVisible } from './publicHelpers';
 import { ShareMenuTopBar, ShareMenuTopBarOptions } from './ShareMenuTopBar';
 import { createBusterRoute, BusterRoutes } from '@/routes';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { ShareMenuContentEmbedFooter } from './ShareMenuContentEmbed';
 
 export const ShareMenu: React.FC<
   PropsWithChildren<{
@@ -59,12 +60,8 @@ export const ShareMenu: React.FC<
   });
 
   const showShareMenu = shareAssetConfig && isShareMenuVisible(shareAssetConfig);
-
-  if (!showShareMenu) {
-    return null;
-  }
-
   const permission = shareAssetConfig?.permission;
+  const publicly_accessible = shareAssetConfig?.publicly_accessible;
 
   const header = useMemo(
     () => (
@@ -73,17 +70,30 @@ export const ShareMenu: React.FC<
         selectedOptions={selectedOptions}
         onChangeSelectedOption={setSelectedOptions}
         onCopyLink={onCopyLink}
-        permission={permission}
+        permission={permission!}
       />
     ),
     [assetType, selectedOptions, setSelectedOptions, onCopyLink, permission]
   );
+
+  const footerContent = useMemo(() => {
+    if (selectedOptions === ShareMenuTopBarOptions.Embed && !publicly_accessible) {
+      return <ShareMenuContentEmbedFooter assetId={assetId} assetType={assetType} />;
+    }
+
+    return undefined;
+  }, [assetId, assetType, selectedOptions, publicly_accessible]);
+
+  if (!showShareMenu) {
+    return null;
+  }
 
   return (
     <Popover
       size={'sm'}
       onOpenChange={onOpenChange}
       headerContent={header}
+      footerContent={footerContent}
       content={
         shareAssetConfig ? (
           <ShareMenuContent

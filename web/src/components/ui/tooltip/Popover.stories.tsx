@@ -98,6 +98,6 @@ export const WithTriggerType: Story = {
   args: {
     children: <Button>Trigger Type</Button>,
     content: <div className="p-0">This popover uses the hover trigger type</div>,
-    triggerType: 'hover'
+    trigger: 'hover'
   }
 };
