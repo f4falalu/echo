@@ -3,7 +3,10 @@ import { useBusterChatContextSelector } from '../ChatProvider';
 import {
   BusterChat,
   BusterChatMessage_text,
-  BusterChatMessageReasoning
+  BusterChatMessageReasoning,
+  BusterChatMessageReasoning_files,
+  BusterChatMessageReasoning_text,
+  BusterChatMessageReasoning_Pills
 } from '@/api/asset_interfaces';
 import {
   ChatEvent_GeneratingReasoningMessage,
@@ -91,8 +94,6 @@ export const useChatStreamMessage = () => {
 
   const initializeNewChatCallback = useMemoizedFn((d: BusterChat) => {
     const { iChat, iChatMessages } = updateChatToIChat(d, true);
-    console.log('iChatMessages', iChatMessages);
-    console.log('iChat', iChat);
     normalizeChatMessage(iChatMessages);
     onUpdateChat(iChat);
     onChangePage({
@@ -182,9 +183,9 @@ export const useChatStreamMessage = () => {
     (_: null, d: ChatEvent_GeneratingReasoningMessage) => {
       const { message_id, reasoning, chat_id } = d;
       const reasoningMessageId = reasoning.id;
-      const foundReasoningMessage: undefined | ChatMessageReasoning =
+      let messageToUse: undefined | ChatMessageReasoning =
         chatMessageReasoningMessageRef.current[message_id]?.[reasoningMessageId];
-      const isNewMessage = !foundReasoningMessage;
+      const isNewMessage = !messageToUse;
       const currentReasoning = chatMessagesRef.current[message_id]?.reasoning ?? [];
 
       if (isNewMessage) {
@@ -195,20 +196,85 @@ export const useChatStreamMessage = () => {
             index: currentReasoning.length
           }
         };
+        messageToUse = chatMessageReasoningMessageRef.current[message_id]?.[reasoningMessageId]!;
       }
 
-      const messageToUse =
-        chatMessageReasoningMessageRef.current[message_id]?.[reasoningMessageId]!;
+      switch (reasoning.type) {
+        case 'text':
+          const existingReasoningMessageText = messageToUse as BusterChatMessageReasoning_text;
+          const isStreaming = reasoning.message_chunk !== null;
+          if (isStreaming) {
+            existingReasoningMessageText.message =
+              (existingReasoningMessageText.message || '') + reasoning.message_chunk!;
+          }
+
+          console.log(existingReasoningMessageText.message?.length);
+
+          break;
+        case 'files':
+          const existingReasoningMessageFiles = messageToUse as BusterChatMessageReasoning_files;
+
+          const updatedFiles = reasoning.files.reduce(
+            (acc, newFile) => {
+              const existingFile = acc.find((f) => f.file_name === newFile.file_name);
+              if (existingFile) {
+                // Update existing file with new content
+                if (existingFile.file && newFile.file) {
+                  existingFile.file =
+                    Array.isArray(existingFile.file) && Array.isArray(newFile.file)
+                      ? [...existingFile.file, ...newFile.file]
+                      : existingFile.file;
+                }
+              } else {
+                // Add new file
+                acc.push(newFile);
+              }
+              return acc;
+            },
+            [...existingReasoningMessageFiles.files]
+          );
+
+          reasoning.files = updatedFiles;
+          break;
+        case 'pills':
+          const existingReasoningMessagePills = messageToUse as BusterChatMessageReasoning_Pills;
+
+          // Handle pill containers
+          if (reasoning.pill_containers) {
+            const updatedContainers = reasoning.pill_containers.reduce(
+              (acc, newContainer) => {
+                const existingContainer = acc.find((c) => c.title === newContainer.title);
+
+                if (existingContainer) {
+                  // Update existing container by merging pills
+                  existingContainer.pills = [...existingContainer.pills, ...newContainer.pills];
+                } else {
+                  // Add new container
+                  acc.push(newContainer);
+                }
+
+                return acc;
+              },
+              [...(existingReasoningMessagePills.pill_containers || [])]
+            );
+
+            reasoning.pill_containers = updatedContainers;
+          }
+          break;
+        default:
+          const type: never = reasoning;
+          break;
+      }
+
+      if (!messageToUse) return;
 
       const updatedReasoning: BusterChatMessageReasoning[] = isNewMessage
         ? [...currentReasoning, messageToUse]
         : [
-            ...currentReasoning.slice(0, foundReasoningMessage.index),
-            reasoning,
-            ...currentReasoning.slice(foundReasoningMessage.index + 1)
+            ...currentReasoning.slice(0, messageToUse.index),
+            messageToUse,
+            ...currentReasoning.slice(messageToUse.index + 1)
           ];
-
-      console.log(updatedReasoning.length);
 
       onUpdateChatMessageTransition({
         id: message_id,

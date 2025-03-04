@@ -16,7 +16,7 @@ export const useChatUpdate = () => {
 
   const onUpdateChat = useMemoizedFn(
     async (newChatConfig: Partial<IBusterChat> & { id: string }, saveToServer: boolean = false) => {
-      const options = queryKeys['chatsGetChat'](newChatConfig.id);
+      const options = queryKeys.chatsGetChat(newChatConfig.id);
       const queryKey = options.queryKey;
       const currentData = queryClient.getQueryData<IBusterChat>(queryKey);
       const iChat: IBusterChat = {

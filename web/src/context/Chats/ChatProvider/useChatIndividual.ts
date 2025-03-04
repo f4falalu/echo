@@ -12,7 +12,7 @@ export const useChatIndividual = (chatId: string) => {
       payload: { id: chatId }
     },
     responseEvent: '/chats/get:getChat',
-    options: queryKeys['chatsGetChat'](chatId),
+    options: queryKeys.chatsGetChat(chatId),
     callback: (_currentData, newData) => {
       const { iChat, iChatMessages } = updateChatToIChat(newData, false);
       for (const message of iChatMessages) {
