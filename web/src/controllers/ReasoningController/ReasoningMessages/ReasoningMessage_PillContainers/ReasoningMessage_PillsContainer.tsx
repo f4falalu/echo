@@ -6,14 +6,11 @@ import { BarContainer } from '../BarContainer';
 import { motion } from 'framer-motion';
 
 const containerVariants = {
-  hidden: {
-    opacity: 0
-  },
+  hidden: {},
   visible: {
-    opacity: 1,
     transition: {
       staggerChildren: 0.15,
-      delayChildren: 0.05
+      delayChildren: 0.1
     }
   }
 };
@@ -32,7 +29,7 @@ const itemVariants = {
         ease: [0.4, 0, 0.2, 1] // Smooth easeInOutQuart
       },
       opacity: {
-        duration: 0.32,
+        duration: 0.62,
         ease: [0.34, 1.56, 0.64, 1] // Bouncy easeOutBack
       }
     }

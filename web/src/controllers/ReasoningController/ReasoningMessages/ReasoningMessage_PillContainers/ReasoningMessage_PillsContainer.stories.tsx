@@ -10,7 +10,14 @@ const meta: Meta<typeof ReasoningMessage_PillsContainer> = {
   parameters: {
     layout: 'centered'
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
+  decorators: [
+    (Story) => (
+      <div className="p-2">
+        <Story />
+      </div>
+    )
+  ]
 };
 
 export default meta;
@@ -20,7 +27,7 @@ const mockReasoningMessage: BusterChatMessageReasoning_pills = {
   id: '1',
   type: 'pills',
   title: 'Found Terms',
-  secondary_title: 'Analyzing content',
+  secondary_title: '4.2 seconds',
   pill_containers: [
     {
       title: 'Important Terms',
