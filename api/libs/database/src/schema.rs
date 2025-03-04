@@ -320,6 +320,7 @@ diesel::table! {
         response_messages -> Jsonb,
         reasoning -> Jsonb,
         title -> Text,
+        raw_llm_messages -> Jsonb,
         final_reasoning_message -> Text,
         chat_id -> Uuid,
         created_at -> Timestamptz,

@@ -261,6 +261,7 @@ pub async fn post_chat_handler(
         reasoning: serde_json::to_value(&reasoning_messages)?,
         final_reasoning_message,
         title: title.title.clone().unwrap_or_default(),
+        raw_llm_messages: todo!(),
     };
 
     // Insert message into database
