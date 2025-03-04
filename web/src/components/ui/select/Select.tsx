@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Select as SelectBase,
   SelectContent,
@@ -112,27 +112,4 @@ const SelectItemSelector = <T,>({
 SelectItemSelector.displayName = 'SelectItemSelector';
 const SelectItemSecondaryText: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <span className="text-gray-light text2xs">{children}</span>;
-};
-
-const ExampleUsage = () => {
-  const [value, setValue] = useState<string>('');
-  const values: SelectItem<'1' | '2'>[] = [
-    {
-      value: '1',
-      label: '1'
-    },
-    {
-      value: '2',
-      label: '2'
-    }
-  ];
-
-  return (
-    <Select
-      items={values}
-      onChange={(v) => {
-        console.log(v);
-      }}
-    />
-  );
 };
