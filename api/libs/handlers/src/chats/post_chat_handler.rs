@@ -43,6 +43,7 @@ pub enum ThreadEvent {
     GeneratingReasoningMessage,
     GeneratingTitle,
     InitializeChat,
+    Completed,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -262,6 +263,15 @@ pub async fn post_chat_handler(
 
     if let Some(title) = title.title {
         chat_with_messages.title = title;
+    }
+
+    // Send final completed state
+    if let Some(tx) = &tx {
+        tx.send(Ok((
+            BusterContainer::Chat(chat_with_messages.clone()),
+            ThreadEvent::Completed,
+        )))
+        .await?;
     }
 
     tracing::info!("Completed post_chat_handler for chat_id: {}", chat_id);
