@@ -91,6 +91,7 @@ diesel::table! {
         updated_at -> Timestamptz,
         deleted_at -> Nullable<Timestamptz>,
         created_by -> Uuid,
+        updated_by -> Uuid,
     }
 }
 
@@ -315,8 +316,10 @@ diesel::table! {
 diesel::table! {
     messages (id) {
         id -> Uuid,
-        request -> Text,
-        response -> Jsonb,
+        request_message -> Text,
+        response_messages -> Jsonb,
+        reasoning -> Jsonb,
+        final_reasoning_message -> Text,
         chat_id -> Uuid,
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
@@ -590,7 +593,6 @@ diesel::table! {
 diesel::joinable!(api_keys -> organizations (organization_id));
 diesel::joinable!(api_keys -> users (owner_id));
 diesel::joinable!(chats -> organizations (organization_id));
-diesel::joinable!(chats -> users (created_by));
 diesel::joinable!(collections -> organizations (organization_id));
 diesel::joinable!(dashboard_versions -> dashboards (dashboard_id));
 diesel::joinable!(dashboards -> organizations (organization_id));

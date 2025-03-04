@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, time::Instant};
 
 use agents::{
     tools::file_tools::search_data_catalog::SearchDataCatalogOutput, AgentExt, AgentMessage,
@@ -59,6 +59,7 @@ pub async fn post_chat_handler(
     user: User,
     tx: Option<mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
 ) -> Result<ChatWithMessages> {
+    let reasoning_duration = Instant::now();
     // Validate context request
     validate_context_request(request.chat_id, request.metric_id, request.dashboard_id)?;
 
@@ -87,6 +88,7 @@ pub async fn post_chat_handler(
         created_at: Utc::now(),
         updated_at: Utc::now(),
         deleted_at: None,
+        updated_by: user.id.clone(),
     };
 
     let mut chat_with_messages = ChatWithMessages {
@@ -236,17 +238,22 @@ pub async fn post_chat_handler(
     }
 
     let title = title_handle.await??;
+    let reasoning_duration = reasoning_duration.elapsed().as_secs();
+
+    let final_reasoning_message = format!("Reasoned for {} seconds", reasoning_duration);
 
     // Create and store message in the database
     let message = Message {
         id: message_id,
-        request: request.prompt,
-        response: serde_json::to_value(&all_messages)?,
-        chat_id: chat_id,
+        request_message: request.prompt,
+        chat_id,
         created_by: user.id.clone(),
         created_at: Utc::now(),
         updated_at: Utc::now(),
         deleted_at: None,
+        response_messages: serde_json::to_value(&all_messages)?,
+        reasoning: serde_json::to_value(&all_messages)?,
+        final_reasoning_message,
     };
 
     // Insert message into database
@@ -319,7 +326,7 @@ async fn store_final_message_state(
     diesel::update(messages::table)
         .filter(messages::id.eq(message.id))
         .set((
-            messages::response.eq(&message.response),
+            messages::response_messages.eq(&message.response_messages),
             messages::updated_at.eq(message.updated_at),
         ))
         .execute(conn)
@@ -561,7 +568,7 @@ pub fn transform_message(
         } => {
             if let Some(content) = content {
                 let mut containers = Vec::new();
-                
+
                 // Create the regular content message
                 let chat_messages = match transform_text_message(
                     id.clone().unwrap_or_else(|| Uuid::new_v4().to_string()),
@@ -599,11 +606,13 @@ pub fn transform_message(
                         status: Some("completed".to_string()),
                     });
 
-                    containers.push(BusterContainer::ReasoningMessage(BusterReasoningMessageContainer {
-                        reasoning: reasoning_message,
-                        chat_id: *chat_id,
-                        message_id: *message_id,
-                    }));
+                    containers.push(BusterContainer::ReasoningMessage(
+                        BusterReasoningMessageContainer {
+                            reasoning: reasoning_message,
+                            chat_id: *chat_id,
+                            message_id: *message_id,
+                        },
+                    ));
                 }
 
                 return Ok((containers, ThreadEvent::GeneratingResponseMessage));

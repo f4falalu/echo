@@ -98,7 +98,7 @@ pub async fn validate_metric_ids(ids: &[Uuid]) -> Result<Vec<Uuid>> {
 }
 
 pub const METRIC_YML_SCHEMA: &str = r##"
-# METRIC CONFIGURATION - YAML STRUCTURE
+# METRIC CONFIGURATION - YML STRUCTURE
 # -------------------------------------
 # Required top-level fields:
 #
@@ -483,7 +483,7 @@ definitions:
 "##;
 
 pub const DASHBOARD_YML_SCHEMA: &str = r##"
-# DASHBOARD CONFIGURATION - YAML STRUCTURE
+# DASHBOARD CONFIGURATION - YML STRUCTURE
 # ----------------------------------------
 # Required fields:
 #
@@ -590,7 +590,7 @@ pub async fn process_metric_file(
     let metric_file = MetricFile {
         id: metric_id,
         name: metric_yml.title.clone(),
-        file_name: format!("{}.yml", file_name),
+        file_name: file_name.clone(),
         content: serde_json::to_value(metric_yml.clone())
             .map_err(|e| format!("Failed to process metric: {}", e))?,
         created_by: Uuid::new_v4(),

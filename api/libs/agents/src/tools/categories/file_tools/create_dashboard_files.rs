@@ -101,7 +101,7 @@ async fn process_dashboard_file(
     let dashboard_file = DashboardFile {
         id: dashboard_id,
         name: dashboard_yml.name.clone(),
-        file_name: format!("{}.yml", file.name),
+        file_name: file.name.clone(),
         content: serde_json::to_value(dashboard_yml.clone())
             .map_err(|e| format!("Failed to process dashboard: {}", e))?,
         filter: None,
@@ -260,7 +260,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
                             "properties": {
                                 "name": {
                                     "type": "string",
-                                    "description": "The name of the dashboard file to be created. This should exclude the file extension. (i.e. '.yml')"
+                                    "description": "The name of the dashboard file to be created. Do not include the file_extension."
                                 },
                                 "yml_content": {
                                     "type": "string",

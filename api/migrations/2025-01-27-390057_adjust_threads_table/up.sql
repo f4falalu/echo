@@ -10,7 +10,8 @@ CREATE TABLE chats(
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     deleted_at TIMESTAMP WITH TIME ZONE,
-    created_by UUID NOT NULL REFERENCES users(id)
+    created_by UUID NOT NULL REFERENCES users(id),
+    updated_by UUID NOT NULL REFERENCES users(id)
 );
 
 -- Create indexes for common query patterns

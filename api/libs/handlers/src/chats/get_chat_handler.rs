@@ -27,8 +27,10 @@ pub struct ThreadWithUser {
 #[derive(Queryable)]
 pub struct MessageWithUser {
     pub id: Uuid,
-    pub request: String,
-    pub response: Value,
+    pub request_message: String,
+    pub response_messages: Value,
+    pub reasoning: Value,
+    pub final_reasoning_message: String,
     pub created_at: DateTime<Utc>,
     pub user_id: Uuid,
     pub user_name: Option<String>,
@@ -83,8 +85,10 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
                 .order_by(messages::created_at.desc())
                 .select((
                     messages::id,
-                    messages::request,
-                    messages::response,
+                    messages::request_message,
+                    messages::response_messages,
+                    messages::reasoning,
+                    messages::final_reasoning_message,
                     messages::created_at,
                     users::id,
                     users::name.nullable(),
@@ -124,29 +128,21 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
                 .and_then(|v| v.as_str())
                 .map(String::from);
 
-            // Parse the response JSON to extract reasoning and response messages
-            let (reasoning, response_messages) = msg
-                .response
+            // Convert response_messages and reasoning to Vec<Value>
+            let response_messages = msg.response_messages
                 .as_array()
-                .map(|arr| {
-                    arr.iter().fold(
-                        (Vec::new(), Vec::new()),
-                        |(mut reasoning, mut responses), item| {
-                            if let Some(reasoning_obj) = item.get("reasoning") {
-                                reasoning.push(reasoning_obj.clone());
-                            } else if let Some(response_obj) = item.get("response_message") {
-                                responses.push(response_obj.clone());
-                            }
-                            (reasoning, responses)
-                        },
-                    )
-                })
+                .map(|arr| arr.to_vec())
+                .unwrap_or_default();
+
+            let reasoning = msg.reasoning
+                .as_array()
+                .map(|arr| arr.to_vec())
                 .unwrap_or_default();
 
             ChatMessage {
                 id: msg.id,
                 request_message: crate::messages::types::ChatUserMessage {
-                    request: msg.request,
+                    request: msg.request_message,
                     sender_id: msg.user_id,
                     sender_name: msg.user_name.unwrap_or_else(|| "Unknown".to_string()),
                     sender_avatar,

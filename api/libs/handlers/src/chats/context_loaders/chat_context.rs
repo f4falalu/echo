@@ -47,10 +47,10 @@ impl ContextLoader for ChatContextLoader {
         let mut agent_messages = Vec::new();
         for message in messages {
             // Add user message
-            agent_messages.push(AgentMessage::user(message.request));
+            agent_messages.push(AgentMessage::user(message.request_message));
 
             // Add assistant messages from response
-            if let Ok(response_messages) = serde_json::from_value::<Vec<AgentMessage>>(message.response)
+            if let Ok(response_messages) = serde_json::from_value::<Vec<AgentMessage>>(message.response_messages)
             {
                 agent_messages.extend(response_messages);
             }

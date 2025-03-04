@@ -7,8 +7,10 @@ ALTER TABLE messages RENAME TO messages_deprecated;
 -- Create new messages table with updated schema
 CREATE TABLE messages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    request TEXT NOT NULL,
-    response JSONB NOT NULL,
+    request_message TEXT NOT NULL,
+    response_messages JSONB NOT NULL,
+    reasoning JSONB NOT NULL,
+    final_reasoning_message TEXT NOT NULL,
     chat_id UUID NOT NULL REFERENCES chats(id),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(), 

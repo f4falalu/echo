@@ -205,7 +205,7 @@ impl ToolExecutor for CreateMetricFilesTool {
                   "properties": {
                     "name": {
                       "type": "string",
-                      "description": "Name of the file"
+                      "description": "Name of the file. Do not include the file_extension."
                     },
                     "yml_content": {
                       "type": "string",

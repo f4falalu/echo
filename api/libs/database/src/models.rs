@@ -39,8 +39,10 @@ pub struct DashboardFile {
 #[diesel(table_name = messages)]
 pub struct Message {
     pub id: Uuid,
-    pub request: String,
-    pub response: Value,
+    pub request_message: String,
+    pub response_messages: Value,
+    pub reasoning: Value,
+    pub final_reasoning_message: String,
     pub chat_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -89,6 +91,7 @@ pub struct Chat {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub created_by: Uuid,
+    pub updated_by: Uuid,
 }
 
 #[derive(Queryable, Insertable, Associations, Debug)]
