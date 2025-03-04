@@ -1,5 +1,4 @@
 import type { BusterChatMessageReasoning_Pill } from '@/api/asset_interfaces';
-import { createStyles } from 'antd-style';
 import React, { useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMemoizedFn } from 'ahooks';
@@ -9,6 +8,7 @@ import {
   useChatLayoutContextSelector
 } from '@/layouts/ChatLayout/ChatLayoutContext';
 import { type SelectedFile } from '@/layouts/ChatLayout/interfaces';
+import { cn } from '@/lib/classMerge';
 
 const duration = 0.25;
 
@@ -52,7 +52,6 @@ export const ReasoningMessage_Pills: React.FC<{
   pills: BusterChatMessageReasoning_Pill[];
   isCompletedStream: boolean;
 }> = React.memo(({ pills = [], isCompletedStream }) => {
-  const { cx } = useStyles();
   const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
 
   const useAnimation = !isCompletedStream;
@@ -77,7 +76,7 @@ export const ReasoningMessage_Pills: React.FC<{
         variants={containerVariants}
         initial="hidden"
         animate={pills.length > 0 ? 'visible' : 'hidden'}
-        className={cx('flex w-full flex-wrap gap-1.5 overflow-hidden')}>
+        className={'flex w-full flex-wrap gap-1.5 overflow-hidden'}>
         {pills.map((pill) => (
           <Pill key={pill.id} useAnimation={useAnimation} {...pill} onClick={onClick} />
         ))}
@@ -96,14 +95,13 @@ const Pill: React.FC<{
   className?: string;
   onClick?: (pill: Pick<BusterChatMessageReasoning_Pill, 'id' | 'type'>) => void;
 }> = React.memo(({ text, type, id, useAnimation, className = '', onClick }) => {
-  const { styles, cx } = useStyles();
   return (
     <AnimatePresence initial={useAnimation}>
       <motion.div
         onClick={() => !!id && !!type && onClick?.({ id, type })}
         variants={pillVariants}
-        className={cx(
-          styles.pill,
+        className={cn(
+          'text-text-secondary bg-item-active border-border hover:bg-item-hover-active h-[18px] min-h-[18px] rounded-sm border px-1 text-xs',
           className,
           !!onClick && 'cursor-pointer',
           'flex items-center justify-center whitespace-nowrap'
@@ -147,21 +145,3 @@ const OverflowPill = React.memo(
 );
 
 OverflowPill.displayName = 'OverflowPill';
-
-const useStyles = createStyles(({ token, css }) => ({
-  pill: css`
-    color: ${token.colorTextSecondary};
-    background-color: ${token.controlItemBgActive};
-    border: 0.5px solid ${token.colorBorder};
-    border-radius: ${token.borderRadiusLG}px;
-    padding: 0px 4px;
-    height: 18px;
-    min-height: 18px;
-    font-size: 11px;
-    &.cursor-pointer {
-      &:hover {
-        background-color: ${token.controlItemBgActiveHover};
-      }
-    }
-  `
-}));

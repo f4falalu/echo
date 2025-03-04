@@ -1,6 +1,6 @@
-import { BusterChatMessageReasoning_PillsContainer } from '@/api/asset_interfaces';
+import { type BusterChatMessageReasoning_PillsContainer } from '@/api/asset_interfaces';
 import React from 'react';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 import { ReasoningMessage_Pills } from './ReasoningMessage_Pills';
 
 export const ReasoningMessage_PillContainer: React.FC<{
@@ -9,7 +9,7 @@ export const ReasoningMessage_PillContainer: React.FC<{
 }> = React.memo(({ pillContainer, isCompletedStream }) => {
   return (
     <div className="flex flex-col space-y-1">
-      <Text size="xs" type="tertiary">
+      <Text size="xs" variant="tertiary">
         {pillContainer.title}
       </Text>
       <ReasoningMessage_Pills pills={pillContainer.pills} isCompletedStream={isCompletedStream} />
