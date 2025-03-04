@@ -11,7 +11,7 @@ const meta = {
   },
   tags: ['autodocs'],
   args: {
-    status: VerificationStatus.notRequested,
+    status: VerificationStatus.NOT_REQUESTED,
     id: 'metric-123',
     isAdmin: false,
     onVerify: fn(),
@@ -56,44 +56,44 @@ type Story = StoryObj<typeof meta>;
 // Basic StatusBadgeButton examples for each status
 export const NotRequested: Story = {
   args: {
-    status: VerificationStatus.notRequested
+    status: VerificationStatus.NOT_REQUESTED
   }
 };
 
 export const Requested: Story = {
   args: {
-    status: VerificationStatus.requested
+    status: VerificationStatus.REQUESTED
   }
 };
 
 export const InReview: Story = {
   args: {
-    status: VerificationStatus.inReview
+    status: VerificationStatus.IN_REVIEW
   }
 };
 
 export const Verified: Story = {
   args: {
-    status: VerificationStatus.verified
+    status: VerificationStatus.VERIFIED
   }
 };
 
 export const Backlogged: Story = {
   args: {
-    status: VerificationStatus.backlogged
+    status: VerificationStatus.BACKLOGGED
   }
 };
 
 export const NotVerified: Story = {
   args: {
-    status: VerificationStatus.notVerified
+    status: VerificationStatus.NOT_VERIFIED
   }
 };
 
 // Admin user can change all statuses
 export const AdminUser: Story = {
   args: {
-    status: VerificationStatus.notRequested,
+    status: VerificationStatus.NOT_REQUESTED,
     isAdmin: true
   }
 };
@@ -101,7 +101,7 @@ export const AdminUser: Story = {
 // Disabled button
 export const DisabledButton: Story = {
   args: {
-    status: VerificationStatus.notRequested,
+    status: VerificationStatus.NOT_REQUESTED,
     disabled: true
   }
 };
@@ -109,7 +109,7 @@ export const DisabledButton: Story = {
 // Multiple IDs (shows "Status" text)
 export const MultipleIds: Story = {
   args: {
-    status: VerificationStatus.notRequested,
+    status: VerificationStatus.NOT_REQUESTED,
     id: ['metric-123', 'metric-456', 'metric-789']
   }
 };
@@ -117,7 +117,7 @@ export const MultipleIds: Story = {
 // Verified status (non-admin can't change)
 export const VerifiedNonAdmin: Story = {
   args: {
-    status: VerificationStatus.verified,
+    status: VerificationStatus.VERIFIED,
     isAdmin: false
   }
 };
@@ -125,7 +125,7 @@ export const VerifiedNonAdmin: Story = {
 // Admin with verified status (can change)
 export const VerifiedAdmin: Story = {
   args: {
-    status: VerificationStatus.verified,
+    status: VerificationStatus.VERIFIED,
     isAdmin: true
   }
 };

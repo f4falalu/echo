@@ -17,7 +17,7 @@ export const defaultBusterDashboard: BusterDashboard = {
   password_secret_id: null,
   sharingKey: '',
   public_enabled_by: '',
-  status: VerificationStatus.notRequested,
+  status: VerificationStatus.NOT_REQUESTED,
   public_password: null,
   version_number: 1,
   file: '',

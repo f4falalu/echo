@@ -3,20 +3,20 @@ import React, { useMemo } from 'react';
 import { getTooltipText } from './helpers';
 import { useMemoizedFn } from 'ahooks';
 import { StatusBadgeIndicator } from './StatusBadgeIndicator';
-import { Dropdown, DropdownItem, DropdownItems } from '@/components/ui/dropdown';
+import { Dropdown, DropdownItem } from '@/components/ui/dropdown';
 
 const statuses = [
-  VerificationStatus.notRequested,
-  VerificationStatus.requested,
-  VerificationStatus.inReview,
-  VerificationStatus.verified,
-  VerificationStatus.backlogged
+  VerificationStatus.NOT_REQUESTED,
+  VerificationStatus.REQUESTED,
+  VerificationStatus.IN_REVIEW,
+  VerificationStatus.VERIFIED,
+  VerificationStatus.BACKLOGGED
 ];
 
 const requiresAdminItems = [
-  VerificationStatus.inReview,
-  VerificationStatus.verified,
-  VerificationStatus.backlogged
+  VerificationStatus.IN_REVIEW,
+  VerificationStatus.VERIFIED,
+  VerificationStatus.BACKLOGGED
 ];
 
 export const StatusDropdownContent: React.FC<{

@@ -2,12 +2,7 @@ import { BusterMetricListItem, VerificationStatus } from '@/api/asset_interfaces
 import { AppTooltip } from '@/components/ui/tooltip';
 import React from 'react';
 import { StatusNotRequestedIcon } from '@/assets/svg/Status_NotRequested';
-import {
-  CircleCheck,
-  CircleXmark,
-  ProgressCircle1Of4,
-  ProgressCircle2Of4
-} from '@/components/ui/icons/NucleoIconFilled';
+import { CircleCheck, CircleXmark } from '@/components/ui/icons/NucleoIconFilled';
 import { getTooltipText } from './helpers';
 import { cn } from '@/lib/classMerge';
 import { HalfIcon } from './HalfIcon';
@@ -19,12 +14,17 @@ export const StatusBadgeIndicator: React.FC<{
   className?: string;
   showTooltip?: boolean;
 }> = React.memo(
-  ({ showTooltip = true, status = VerificationStatus.notRequested, size = 16, className = '' }) => {
+  ({
+    showTooltip = true,
+    status = VerificationStatus.NOT_REQUESTED,
+    size = 16,
+    className = ''
+  }) => {
     const Icon = getIcon(status);
     const colorClasses = getColorClasses(status);
     const tooltipText = getTooltipText(status);
     const isNotVerified =
-      status === VerificationStatus.notVerified || VerificationStatus.notRequested;
+      status === VerificationStatus.NOT_VERIFIED || VerificationStatus.NOT_REQUESTED;
     const sharedClass = cn(`flex items-center justify-center rounded-full`, colorClasses);
     const _size = isNotVerified ? size : 16;
 
@@ -45,12 +45,12 @@ export const StatusBadgeIndicator: React.FC<{
 StatusBadgeIndicator.displayName = 'StatusBadgeIndicator';
 
 const statusRecordIcon: Record<VerificationStatus, React.FC<any>> = {
-  [VerificationStatus.verified]: () => <CircleCheck />,
-  [VerificationStatus.requested]: () => <HalfIcon />,
-  [VerificationStatus.inReview]: () => <ThreeFourthIcon />,
-  [VerificationStatus.backlogged]: () => <CircleXmark />,
-  [VerificationStatus.notVerified]: () => <StatusNotRequestedIcon />,
-  [VerificationStatus.notRequested]: () => <StatusNotRequestedIcon />
+  [VerificationStatus.VERIFIED]: () => <CircleCheck />,
+  [VerificationStatus.REQUESTED]: () => <HalfIcon />,
+  [VerificationStatus.IN_REVIEW]: () => <ThreeFourthIcon />,
+  [VerificationStatus.BACKLOGGED]: () => <CircleXmark />,
+  [VerificationStatus.NOT_VERIFIED]: () => <StatusNotRequestedIcon />,
+  [VerificationStatus.NOT_REQUESTED]: () => <StatusNotRequestedIcon />
 };
 
 const getIcon = (status: BusterMetricListItem['status']) => {
@@ -58,14 +58,14 @@ const getIcon = (status: BusterMetricListItem['status']) => {
 };
 
 const statusRecordColors: Record<VerificationStatus, string> = {
-  verified: 'text-[#34A32D]!',
-  requested: 'text-[#F2BE01]!',
-  inReview: 'text-[#7C3AED]!',
-  backlogged: 'text-icon-color',
-  notVerified: 'text-icon-color',
-  notRequested: 'text-icon-color'
+  [VerificationStatus.VERIFIED]: 'text-[#34A32D]!',
+  [VerificationStatus.REQUESTED]: 'text-[#F2BE01]!',
+  [VerificationStatus.IN_REVIEW]: 'text-[#7C3AED]!',
+  [VerificationStatus.BACKLOGGED]: 'text-icon-color',
+  [VerificationStatus.NOT_VERIFIED]: 'text-icon-color',
+  [VerificationStatus.NOT_REQUESTED]: 'text-icon-color'
 };
 
 const getColorClasses = (status: BusterMetricListItem['status']) => {
-  return statusRecordColors[status] || statusRecordColors.notRequested;
+  return statusRecordColors[status] || statusRecordColors[VerificationStatus.NOT_REQUESTED];
 };

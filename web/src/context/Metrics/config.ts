@@ -20,7 +20,7 @@ export const defaultIBusterMetric: Required<IBusterMetric> = {
   dataset_name: null,
   error: null,
   data_metadata: null,
-  status: VerificationStatus.notRequested,
+  status: VerificationStatus.NOT_REQUESTED,
   evaluation_score: 'Moderate',
   evaluation_summary: '',
   file_name: '',
@@ -59,6 +59,6 @@ export const defaultBusterMetricListItem: Required<BusterMetricListItem> = {
   created_by_name: '',
   created_by_email: '',
   created_by_avatar: '',
-  status: VerificationStatus.notRequested,
+  status: VerificationStatus.NOT_REQUESTED,
   is_shared: false
 };

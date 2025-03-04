@@ -48,7 +48,7 @@ export interface DropdownDivider {
 
 export type DropdownItems<T = string> = (DropdownItem<T> | DropdownDivider | React.ReactNode)[];
 
-export interface DropdownProps<T> extends DropdownMenuProps {
+export interface DropdownProps<T = string> extends DropdownMenuProps {
   items: DropdownItems<T>;
   selectType?: 'single' | 'multiple' | 'none';
   menuHeader?: string | React.ReactNode; //if string it will render a search box
@@ -231,8 +231,8 @@ export const _Dropdown = <T,>({
     </DropdownMenu>
   );
 };
-
-export const Dropdown = React.memo(_Dropdown) as typeof _Dropdown;
+_Dropdown.displayName = 'Dropdown';
+export const Dropdown = React.memo(_Dropdown) as unknown as typeof _Dropdown;
 
 const DropdownItemSelector = React.memo(
   <T,>({
@@ -273,6 +273,7 @@ const DropdownItemSelector = React.memo(
     );
   }
 );
+DropdownItemSelector.displayName = 'DropdownItemSelector';
 
 const DropdownItem = <T,>({
   label,
