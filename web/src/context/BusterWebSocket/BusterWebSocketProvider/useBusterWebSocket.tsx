@@ -166,7 +166,7 @@ const useBusterSocketListeners = (props: {
   });
 
   const getCurrentListeners = useMemoizedFn((route: BusterSocketResponseRoute | string) => {
-    return listeners.current[route as string] || [];
+    return listeners.current[route] || [];
   });
 
   const busterSocket: BusterSocket = useMemo(
