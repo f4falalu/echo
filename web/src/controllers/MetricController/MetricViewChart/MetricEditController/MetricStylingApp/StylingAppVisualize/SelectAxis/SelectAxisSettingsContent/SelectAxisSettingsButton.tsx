@@ -1,10 +1,11 @@
-import { AppMaterialIcons, AppPopover } from '@/components/ui';
-import { Button } from 'antd';
+import { Button } from '@/components/ui/buttons';
 import React, { useMemo } from 'react';
 import { SelectAxisContainerId } from '../config';
 import { SelectAxisSettingContent } from './SelectAxisSettingContent';
 import { useSelectAxisContextSelector } from '../useSelectAxisContext';
 import { zoneIdToAxisSettingContent } from './config';
+import { Popover } from '@/components/ui/tooltip/Popover';
+import { Sliders3 } from '@/components/ui/icons';
 
 export const SelectAxisSettingsButton: React.FC<{
   zoneId: SelectAxisContainerId;
@@ -20,14 +21,13 @@ export const SelectAxisSettingsButton: React.FC<{
   if (!canUseAxisSetting) return null;
 
   return (
-    <AppPopover
+    <Popover
       content={<SelectAxisSettingContent zoneId={zoneId} />}
       trigger="click"
-      destroyTooltipOnHide
-      performant
-      placement="leftBottom">
-      <Button type="text" icon={<AppMaterialIcons icon="tune" />} />
-    </AppPopover>
+      align="end"
+      side="left">
+      <Button variant="ghost" prefix={<Sliders3 />} />
+    </Popover>
   );
 });
 SelectAxisSettingsButton.displayName = 'SelectAxisSettingsButton';

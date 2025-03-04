@@ -8,14 +8,15 @@ import {
   SelectTrigger,
   SelectValue
 } from './SelectBase';
+import { useMemoizedFn } from 'ahooks';
 
-interface SelectItemGroup {
+interface SelectItemGroup<T = string> {
   label: string;
-  items: SelectItem[];
+  items: SelectItem<T>[];
 }
 
-export interface SelectItem {
-  value: string;
+export interface SelectItem<T = string> {
+  value: T;
   label: string; //this will be used in the select item text
   secondaryLabel?: string;
   icon?: React.ReactNode;
@@ -23,10 +24,10 @@ export interface SelectItem {
   disabled?: boolean;
 }
 
-export interface SelectProps {
-  items: SelectItem[] | SelectItemGroup[];
+export interface SelectProps<T = string> {
+  items: SelectItem<T>[] | SelectItemGroup[];
   disabled?: boolean;
-  onChange: (value: string) => void;
+  onChange: (value: T) => void;
   placeholder?: string;
   value?: string;
   onOpenChange?: (open: boolean) => void;
@@ -35,44 +36,49 @@ export interface SelectProps {
   className?: string;
 }
 
-export const Select: React.FC<SelectProps> = React.memo(
-  ({
-    items,
-    showIndex,
-    disabled,
-    onChange,
-    placeholder,
-    value,
-    onOpenChange,
-    open,
-    className = ''
-  }) => {
-    return (
-      <SelectBase
-        disabled={disabled}
-        onOpenChange={onOpenChange}
-        open={open}
-        onValueChange={onChange}>
-        <SelectTrigger className={className}>
-          <SelectValue placeholder={placeholder} defaultValue={value} />
-        </SelectTrigger>
-        <SelectContent>
-          {items.map((item, index) => (
-            <SelectItemSelector key={index} item={item} index={index} showIndex={showIndex} />
-          ))}
-        </SelectContent>
-      </SelectBase>
-    );
-  }
-);
+const _Select = <T,>({
+  items,
+  showIndex,
+  disabled,
+  onChange,
+  placeholder,
+  value,
+  onOpenChange,
+  open,
+  className = ''
+}: SelectProps<T>) => {
+  const onValueChange = useMemoizedFn((value: string) => {
+    onChange(value as T);
+  });
+  return (
+    <SelectBase
+      disabled={disabled}
+      onOpenChange={onOpenChange}
+      open={open}
+      onValueChange={onValueChange}>
+      <SelectTrigger className={className}>
+        <SelectValue placeholder={placeholder} defaultValue={value} />
+      </SelectTrigger>
+      <SelectContent>
+        {items.map((item, index) => (
+          <SelectItemSelector key={index} item={item} index={index} showIndex={showIndex} />
+        ))}
+      </SelectContent>
+    </SelectBase>
+  );
+};
+_Select.displayName = 'Select';
+export const Select = React.memo(_Select) as typeof _Select;
 
-Select.displayName = 'Select';
-
-const SelectItemSelector: React.FC<{
-  item: SelectItem | SelectItemGroup;
+const SelectItemSelector = <T,>({
+  item,
+  index,
+  showIndex
+}: {
+  item: SelectItem<T> | SelectItemGroup;
   index: number;
   showIndex?: boolean;
-}> = React.memo(({ item, index, showIndex }) => {
+}) => {
   const isGroup = typeof item === 'object' && 'items' in item;
 
   if (isGroup) {
@@ -101,7 +107,7 @@ const SelectItemSelector: React.FC<{
       {label}
     </SelectItem>
   );
-});
+};
 
 SelectItemSelector.displayName = 'SelectItemSelector';
 const SelectItemSecondaryText: React.FC<{ children: React.ReactNode }> = ({ children }) => {
