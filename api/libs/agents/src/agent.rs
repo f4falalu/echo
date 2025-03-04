@@ -329,7 +329,7 @@ impl Agent {
             model: self.model.clone(),
             messages: thread.messages.clone(),
             tools: if tools.is_empty() { None } else { Some(tools) },
-            tool_choice: Some(ToolChoice::Required),
+            tool_choice: Some(ToolChoice::Auto),
             stream: Some(true), // Enable streaming
             metadata: Some(Metadata {
                 generation_name: "agent".to_string(),
@@ -337,7 +337,6 @@ impl Agent {
                 session_id: thread.id.to_string(),
                 trace_id: thread.id.to_string(),
             }),
-            store: Some(true),
             ..Default::default()
         };
 
