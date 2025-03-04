@@ -14,7 +14,7 @@ const duration = 0.25;
 
 const containerVariants = {
   hidden: {
-    height: 0,
+    //  height: 0,
     opacity: 0,
     transition: {
       height: { duration: duration, ease: 'easeInOut' },
@@ -22,12 +22,12 @@ const containerVariants = {
     }
   },
   visible: {
-    height: 'auto',
+    //   height: 'auto',
     opacity: 1,
     transition: {
       height: { duration: duration, ease: 'easeInOut' },
       opacity: { duration: duration * 0.5, ease: 'easeIn' },
-      staggerChildren: 0.055,
+      staggerChildren: 0.075,
       delayChildren: 0.075
     }
   }
@@ -36,15 +36,13 @@ const containerVariants = {
 const pillVariants = {
   hidden: {
     opacity: 0,
-    scale: 0.95,
-    y: 5
+    scale: 0.97
   },
   visible: {
     opacity: 1,
     scale: 1,
-    y: 0,
     transition: {
-      duration: duration * 0.75,
+      duration: duration * 0.85,
       ease: 'easeOut'
     }
   }

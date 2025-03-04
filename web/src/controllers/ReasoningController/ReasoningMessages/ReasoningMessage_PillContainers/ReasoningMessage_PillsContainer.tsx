@@ -12,7 +12,7 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.2,
+      staggerChildren: 0.15,
       delayChildren: 0.05
     }
   }
@@ -20,13 +20,21 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: {
-    opacity: 0
+    opacity: 0,
+    height: 0
   },
   visible: {
+    height: 'auto',
     opacity: 1,
     transition: {
-      duration: 0.3,
-      ease: 'easeOut'
+      height: {
+        duration: 0.15,
+        ease: [0.4, 0, 0.2, 1] // Smooth easeInOutQuart
+      },
+      opacity: {
+        duration: 0.32,
+        ease: [0.34, 1.56, 0.64, 1] // Bouncy easeOutBack
+      }
     }
   }
 };
