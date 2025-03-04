@@ -371,7 +371,7 @@ const LoginAlertMessage: React.FC<{
   message: string;
 }> = ({ message }) => {
   return (
-    <Text size="xs" variant="danger" className="">
+    <Text size="xs" variant="danger">
       {message}
     </Text>
   );
