@@ -16,48 +16,6 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
---
--- Data for Name: tenants; Type: TABLE DATA; Schema: _realtime; Owner: supabase_admin
---
-
-INSERT INTO _realtime.tenants VALUES ('57c2710c-d081-48be-acf0-cc2e89133e72', 'realtime-dev', 'realtime-dev', 'iNjicxc4+llvc9wovDvqymwfnj9teWMlyOIbJ8Fh6j2WNU8CIJ2ZgjR6MUIKqSmeDmvpsKLsZ9jgXJmQPpwL8w==', 200, '2025-03-04 18:41:56', '2025-03-04 18:41:56', 100, 'postgres_cdc_rls', 100000, 100, 100, false, '{"keys": [{"k": "c3VwZXItc2VjcmV0LWp3dC10b2tlbi13aXRoLWF0LWxlYXN0LTMyLWNoYXJhY3RlcnMtbG9uZw", "kty": "oct"}]}', true, false);
-
-
---
--- Data for Name: extensions; Type: TABLE DATA; Schema: _realtime; Owner: supabase_admin
---
-
-INSERT INTO _realtime.extensions VALUES ('35ec64c3-de04-47a2-a403-00b60b234da3', 'postgres_cdc_rls', '{"region": "us-east-1", "db_host": "Gx2oy6eFRzMfDQLVoL/nRRIg3q4KGWZe9ki6tTQqMrg=", "db_name": "sWBpZNdjggEPTQVlI52Zfw==", "db_port": "+enMDFi1J/3IrrquHHwUmA==", "db_user": "uxbEq/zz8DXVD53TOI1zmw==", "slot_name": "supabase_realtime_replication_slot", "db_password": "sWBpZNdjggEPTQVlI52Zfw==", "publication": "supabase_realtime", "ssl_enforced": false, "poll_interval_ms": 100, "poll_max_changes": 100, "poll_max_record_bytes": 1048576}', 'realtime-dev', '2025-03-04 18:41:56', '2025-03-04 18:41:56');
-
-
---
--- Data for Name: schema_migrations; Type: TABLE DATA; Schema: _realtime; Owner: supabase_admin
---
-
-INSERT INTO _realtime.schema_migrations VALUES (20210706140551, '2025-03-04 18:41:52');
-INSERT INTO _realtime.schema_migrations VALUES (20220329161857, '2025-03-04 18:41:52');
-INSERT INTO _realtime.schema_migrations VALUES (20220410212326, '2025-03-04 18:41:52');
-INSERT INTO _realtime.schema_migrations VALUES (20220506102948, '2025-03-04 18:41:52');
-INSERT INTO _realtime.schema_migrations VALUES (20220527210857, '2025-03-04 18:41:52');
-INSERT INTO _realtime.schema_migrations VALUES (20220815211129, '2025-03-04 18:41:52');
-INSERT INTO _realtime.schema_migrations VALUES (20220815215024, '2025-03-04 18:41:52');
-INSERT INTO _realtime.schema_migrations VALUES (20220818141501, '2025-03-04 18:41:52');
-INSERT INTO _realtime.schema_migrations VALUES (20221018173709, '2025-03-04 18:41:52');
-INSERT INTO _realtime.schema_migrations VALUES (20221102172703, '2025-03-04 18:41:52');
-INSERT INTO _realtime.schema_migrations VALUES (20221223010058, '2025-03-04 18:41:52');
-INSERT INTO _realtime.schema_migrations VALUES (20230110180046, '2025-03-04 18:41:52');
-INSERT INTO _realtime.schema_migrations VALUES (20230810220907, '2025-03-04 18:41:52');
-INSERT INTO _realtime.schema_migrations VALUES (20230810220924, '2025-03-04 18:41:52');
-INSERT INTO _realtime.schema_migrations VALUES (20231024094642, '2025-03-04 18:41:52');
-INSERT INTO _realtime.schema_migrations VALUES (20240306114423, '2025-03-04 18:41:52');
-INSERT INTO _realtime.schema_migrations VALUES (20240418082835, '2025-03-04 18:41:52');
-INSERT INTO _realtime.schema_migrations VALUES (20240625211759, '2025-03-04 18:41:52');
-INSERT INTO _realtime.schema_migrations VALUES (20240704172020, '2025-03-04 18:41:52');
-INSERT INTO _realtime.schema_migrations VALUES (20240902173232, '2025-03-04 18:41:52');
-INSERT INTO _realtime.schema_migrations VALUES (20241106103258, '2025-03-04 18:41:52');
-
-
---
 -- Data for Name: audit_log_entries; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
 --
 
@@ -4287,65 +4245,6 @@ INSERT INTO public.users_to_organizations VALUES ('6840fa04-c0d7-4e0e-8d3d-ea919
 
 
 --
--- Data for Name: schema_migrations; Type: TABLE DATA; Schema: realtime; Owner: supabase_admin
---
-
-INSERT INTO realtime.schema_migrations VALUES (20211116024918, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20211116045059, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20211116050929, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20211116051442, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20211116212300, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20211116213355, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20211116213934, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20211116214523, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20211122062447, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20211124070109, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20211202204204, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20211202204605, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20211210212804, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20211228014915, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20220107221237, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20220228202821, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20220312004840, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20220603231003, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20220603232444, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20220615214548, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20220712093339, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20220908172859, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20220916233421, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20230119133233, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20230128025114, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20230128025212, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20230227211149, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20230228184745, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20230308225145, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20230328144023, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20231018144023, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20231204144023, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20231204144024, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20231204144025, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20240108234812, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20240109165339, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20240227174441, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20240311171622, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20240321100241, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20240401105812, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20240418121054, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20240523004032, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20240618124746, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20240801235015, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20240805133720, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20240827160934, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20240919163303, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20240919163305, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20241019105805, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20241030150047, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20241108114728, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20241121104152, '2025-03-04 18:41:53');
-INSERT INTO realtime.schema_migrations VALUES (20241130184212, '2025-03-04 18:41:53');
-
-
---
 -- Data for Name: subscription; Type: TABLE DATA; Schema: realtime; Owner: supabase_admin
 --
 
@@ -4355,38 +4254,6 @@ INSERT INTO realtime.schema_migrations VALUES (20241130184212, '2025-03-04 18:41
 -- Data for Name: buckets; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
 --
 
-
-
---
--- Data for Name: migrations; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
---
-
-INSERT INTO storage.migrations VALUES (0, 'create-migrations-table', 'e18db593bcde2aca2a408c4d1100f6abba2195df', '2025-03-04 18:41:54.070122');
-INSERT INTO storage.migrations VALUES (1, 'initialmigration', '6ab16121fbaa08bbd11b712d05f358f9b555d777', '2025-03-04 18:41:54.071768');
-INSERT INTO storage.migrations VALUES (2, 'storage-schema', '5c7968fd083fcea04050c1b7f6253c9771b99011', '2025-03-04 18:41:54.072546');
-INSERT INTO storage.migrations VALUES (3, 'pathtoken-column', '2cb1b0004b817b29d5b0a971af16bafeede4b70d', '2025-03-04 18:41:54.077115');
-INSERT INTO storage.migrations VALUES (4, 'add-migrations-rls', '427c5b63fe1c5937495d9c635c263ee7a5905058', '2025-03-04 18:41:54.083989');
-INSERT INTO storage.migrations VALUES (5, 'add-size-functions', '79e081a1455b63666c1294a440f8ad4b1e6a7f84', '2025-03-04 18:41:54.084809');
-INSERT INTO storage.migrations VALUES (6, 'change-column-name-in-get-size', 'f93f62afdf6613ee5e7e815b30d02dc990201044', '2025-03-04 18:41:54.086382');
-INSERT INTO storage.migrations VALUES (7, 'add-rls-to-buckets', 'e7e7f86adbc51049f341dfe8d30256c1abca17aa', '2025-03-04 18:41:54.087537');
-INSERT INTO storage.migrations VALUES (8, 'add-public-to-buckets', 'fd670db39ed65f9d08b01db09d6202503ca2bab3', '2025-03-04 18:41:54.088532');
-INSERT INTO storage.migrations VALUES (9, 'fix-search-function', '3a0af29f42e35a4d101c259ed955b67e1bee6825', '2025-03-04 18:41:54.089626');
-INSERT INTO storage.migrations VALUES (10, 'search-files-search-function', '68dc14822daad0ffac3746a502234f486182ef6e', '2025-03-04 18:41:54.090864');
-INSERT INTO storage.migrations VALUES (11, 'add-trigger-to-auto-update-updated_at-column', '7425bdb14366d1739fa8a18c83100636d74dcaa2', '2025-03-04 18:41:54.09211');
-INSERT INTO storage.migrations VALUES (12, 'add-automatic-avif-detection-flag', '8e92e1266eb29518b6a4c5313ab8f29dd0d08df9', '2025-03-04 18:41:54.093488');
-INSERT INTO storage.migrations VALUES (13, 'add-bucket-custom-limits', 'cce962054138135cd9a8c4bcd531598684b25e7d', '2025-03-04 18:41:54.094903');
-INSERT INTO storage.migrations VALUES (14, 'use-bytes-for-max-size', '941c41b346f9802b411f06f30e972ad4744dad27', '2025-03-04 18:41:54.096238');
-INSERT INTO storage.migrations VALUES (15, 'add-can-insert-object-function', '934146bc38ead475f4ef4b555c524ee5d66799e5', '2025-03-04 18:41:54.103392');
-INSERT INTO storage.migrations VALUES (16, 'add-version', '76debf38d3fd07dcfc747ca49096457d95b1221b', '2025-03-04 18:41:54.104558');
-INSERT INTO storage.migrations VALUES (17, 'drop-owner-foreign-key', 'f1cbb288f1b7a4c1eb8c38504b80ae2a0153d101', '2025-03-04 18:41:54.105467');
-INSERT INTO storage.migrations VALUES (18, 'add_owner_id_column_deprecate_owner', 'e7a511b379110b08e2f214be852c35414749fe66', '2025-03-04 18:41:54.106588');
-INSERT INTO storage.migrations VALUES (19, 'alter-default-value-objects-id', '02e5e22a78626187e00d173dc45f58fa66a4f043', '2025-03-04 18:41:54.108131');
-INSERT INTO storage.migrations VALUES (20, 'list-objects-with-delimiter', 'cd694ae708e51ba82bf012bba00caf4f3b6393b7', '2025-03-04 18:41:54.109147');
-INSERT INTO storage.migrations VALUES (21, 's3-multipart-uploads', '8c804d4a566c40cd1e4cc5b3725a664a9303657f', '2025-03-04 18:41:54.110997');
-INSERT INTO storage.migrations VALUES (22, 's3-multipart-uploads-big-ints', '9737dc258d2397953c9953d9b86920b8be0cdb73', '2025-03-04 18:41:54.119791');
-INSERT INTO storage.migrations VALUES (23, 'optimize-search-function', '9d7e604cddc4b56a5422dc68c9313f4a1b6f132c', '2025-03-04 18:41:54.126467');
-INSERT INTO storage.migrations VALUES (24, 'operation-function', '8312e37c2bf9e76bbe841aa5fda889206d2bf8aa', '2025-03-04 18:41:54.127505');
-INSERT INTO storage.migrations VALUES (25, 'custom-metadata', '67eb93b7e8d401cafcdc97f9ac779e71a79bfe03', '2025-03-04 18:41:54.128405');
 
 
 --
@@ -4432,11 +4299,7 @@ INSERT INTO supabase_migrations.seed_files VALUES ('supabase/seed.sql', 'e3b0c44
 -- Data for Name: secrets; Type: TABLE DATA; Schema: vault; Owner: supabase_admin
 --
 
-INSERT INTO vault.secrets VALUES ('cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', NULL, '', 'GT/Ml1srIO4sa/Qv2E10GcMJkmkQby/s1yLnSR/zBs8kjLzXVRwYZSaaEgcQms7pD37dpLs4jf7j
-KIUblDQtpUS8uzwuien6u/6lQP28XCyXTmXRAm5uIpvsYLt3Vec6/XT+NKjrf4/MkS+UgaPS5Qn7
-0e47mKwPPLMUh3o46Z0gdE6J5qyE9p5dOywuUsBrkGnAM/0Aj5t8JglvmpnA33nPqj1/MZbzCipw
-AAUKj8FBZnilnYQVjwVMlA3+jkVi5/YJy0PriWsOhZLZzV796sGMU1jJr/bcr9C5uklx0xLcdJpf
-WkiyHlHkEnI3RVER2ASWy/LxXfcoYsIHdtm2IJbK6smVh26W2462DFasL1BvHVKXVt8=', 'b7bb1425-9c8f-46e9-88c3-89eb03f109ab', '\x112103b790985ae632e33b7859335b19', '2025-03-04 18:43:59.677122+00', '2025-03-04 18:43:59.677122+00');
+INSERT INTO vault.secrets VALUES ('cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', NULL, '', '{"type":"postgres","host":"aws-0-us-east-1.pooler.supabase.com","port":5432,"username":"postgres.fjbidcbjvmpesoonimhl","password":"S8Jrts05EqxsfA3q","database":"postgres","schema":"sem","jump_host":null,"ssh_username":null,"ssh_private_key":null}', 'b7bb1425-9c8f-46e9-88c3-89eb03f109ab', '\x112103b790985ae632e33b7859335b19', '2025-03-04 18:43:59.677122+00', '2025-03-04 18:43:59.677122+00');
 
 
 --
