@@ -6,25 +6,23 @@ import { AppPageLayout } from '@/components/ui/layouts';
 
 interface ChatContainerProps {}
 
-export const ChatContainer = React.memo(
-  React.forwardRef<HTMLDivElement, ChatContainerProps>((props) => {
-    const chatContentRef = useRef<HTMLDivElement>(null);
-    const scroll = useScroll(chatContentRef);
+export const ChatContainer = React.memo(({}: ChatContainerProps) => {
+  const chatContentRef = useRef<HTMLDivElement>(null);
+  const scroll = useScroll(chatContentRef);
 
-    const showScrollOverflow = useMemo(() => {
-      if (!chatContentRef.current || !scroll) return false;
-      const trigger = 25;
-      return scroll.top > trigger;
-    }, [chatContentRef, scroll?.top]);
+  const showScrollOverflow = useMemo(() => {
+    if (!chatContentRef.current || !scroll) return false;
+    const trigger = 25;
+    return scroll.top > trigger;
+  }, [chatContentRef, scroll?.top]);
 
-    return (
-      <AppPageLayout
-        header={<ChatHeader showScrollOverflow={showScrollOverflow} />}
-        className="flex h-full w-full min-w-[295px] flex-col">
-        <ChatContent chatContentRef={chatContentRef} />
-      </AppPageLayout>
-    );
-  })
-);
+  return (
+    <AppPageLayout
+      header={<ChatHeader showScrollOverflow={showScrollOverflow} />}
+      className="flex h-full w-full min-w-[295px] flex-col">
+      <ChatContent chatContentRef={chatContentRef} />
+    </AppPageLayout>
+  );
+});
 
 ChatContainer.displayName = 'ChatContainer';

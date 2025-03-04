@@ -51,6 +51,8 @@ export const useBusterNewChat = () => {
         }
       });
 
+      console.log('res', res);
+
       busterSocket.once({
         route: '/chats/post:complete',
         callback: completeChatCallback
