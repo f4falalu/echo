@@ -349,8 +349,8 @@ impl Agent {
         // Process the streaming chunks
         let mut pending_tool_calls: HashMap<String, PendingToolCall> = HashMap::new();
         let mut content_buffer = String::new();
-        let mut message_id: Option<String> = None;
         let mut is_complete = false;
+        let mut message_id: Option<String> = None;
         // Flag to track if we've sent the first message
         let mut first_message_sent = false;
 
@@ -361,24 +361,25 @@ impl Agent {
                         continue;
                     }
 
+                    message_id = Some(chunk.id.clone());
+
                     let delta = &chunk.choices[0].delta;
 
                     // Accumulate content if present
                     if let Some(content) = &delta.content {
                         content_buffer.push_str(content);
 
-                        // Stream the content update with initial=true for the first message only
+                        // Stream the content update using the ID directly from this chunk's delta
                         let partial_message = AgentMessage::assistant(
                             message_id.clone(),
                             Some(content_buffer.clone()),
                             None,
                             MessageProgress::InProgress,
-                            Some(!first_message_sent), // Set initial=true only for the first message
+                            Some(!first_message_sent),
                             Some(self.name.clone()),
                         );
 
                         self.get_stream_sender().await.send(Ok(partial_message))?;
-                        // Mark that we've sent the first message
                         first_message_sent = true;
                     }
 
@@ -457,7 +458,7 @@ impl Agent {
         };
 
         let final_message = AgentMessage::assistant(
-            message_id,
+            message_id.clone(),
             if content_buffer.is_empty() {
                 None
             } else {
