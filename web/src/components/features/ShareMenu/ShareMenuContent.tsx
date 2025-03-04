@@ -1,6 +1,6 @@
-import { BusterShare, ShareRole, ShareAssetType } from '@/api/asset_interfaces';
+import { type BusterShare, ShareRole, ShareAssetType } from '@/api/asset_interfaces';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import React from 'react';
+import React, { useState } from 'react';
 import { ShareMenuTopBar, ShareMenuTopBarOptions } from './ShareMenuTopBar';
 import { useMemoizedFn } from 'ahooks';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
@@ -15,7 +15,7 @@ export const ShareMenuContent: React.FC<{
 }> = React.memo(({ assetId, assetType, shareAssetConfig, permission }) => {
   const { openSuccessMessage } = useBusterNotifications();
   const isOwner = permission === ShareRole.OWNER;
-  const [selectedOptions, setSelectedOptions] = React.useState<ShareMenuTopBarOptions>(
+  const [selectedOptions, setSelectedOptions] = useState<ShareMenuTopBarOptions>(
     isOwner ? ShareMenuTopBarOptions.Share : ShareMenuTopBarOptions.Embed
   );
   const previousSelection = React.useRef<ShareMenuTopBarOptions>(selectedOptions);

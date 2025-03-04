@@ -87,7 +87,7 @@ const ShareMenuContentShare: React.FC<{
     ShareRole.VIEWER
   );
   const disableSubmit = !inputHasText(inputValue) || !validate(inputValue);
-  const hasUserTeams = userTeams.length > 0;
+  const hasUserTeams = userTeams?.length > 0;
 
   const onSubmitNewEmail = useMemoizedFn(async () => {
     const isValidEmail = validate(inputValue);

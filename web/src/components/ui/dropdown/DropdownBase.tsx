@@ -71,8 +71,8 @@ const DropdownMenuContent = React.forwardRef<
     footerContent?: React.ReactNode;
   }
 >(({ className, children, sideOffset = 4, footerContent, ...props }, ref) => {
-  const NodeWrapper = footerContent ? 'div' : React.Fragment;
-  const nodeWrapperProps = footerContent ? { className: 'p-2' } : {};
+  const NodeWrapper = footerContent ? 'div' : 'span';
+  const nodeWrapperProps = footerContent ? { className: 'p-2' } : { className: 'inline-block' };
 
   return (
     <DropdownMenuPrimitive.Portal>

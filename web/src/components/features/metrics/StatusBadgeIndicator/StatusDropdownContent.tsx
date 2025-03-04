@@ -56,7 +56,7 @@ export const StatusDropdownContent: React.FC<{
       onSelect={onSelect}
       selectType="single"
       menuHeader="Verification status...">
-      <span className="inline-block">{children}</span>
+      {children}
     </Dropdown>
   );
 });
