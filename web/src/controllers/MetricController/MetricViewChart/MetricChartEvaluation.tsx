@@ -34,7 +34,7 @@ export const MetricChartEvaluation: React.FC<{
     <Popover
       side="top"
       align="end"
-      content={<div className="max-w-[250px] p-2">{evaluationSummary}</div>}>
+      content={<div className="leading-1.3 max-w-[250px]">{evaluationSummary}</div>}>
       <Button variant={variant} prefix={icon}>
         {text}
       </Button>
