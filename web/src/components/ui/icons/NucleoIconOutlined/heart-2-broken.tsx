@@ -8,7 +8,6 @@ function heart2Broken(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M8.999 4.927L7.75 7 10.5 8.75 8.5 10.75"

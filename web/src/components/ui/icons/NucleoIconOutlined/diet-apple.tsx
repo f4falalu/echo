@@ -8,7 +8,6 @@ function dietApple(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M5.923,14.638c1.448,1.095,2.792,.385,3.634,.385,1.081,0,2.992,1.174,4.886-1.817,1.973-3.114,1.489-6.639,.021-7.801-1.595-1.267-3.391-.223-4.909-.223s-3.131-1.107-4.909,.223c-.137,.102-.264,.217-.382,.342"

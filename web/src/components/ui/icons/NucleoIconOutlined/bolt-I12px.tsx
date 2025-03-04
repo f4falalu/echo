@@ -8,7 +8,6 @@ function bolt(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m5.417,11.25l4.833-6.5h-4l.333-4L1.75,7.25h4l-.333,4Z"

@@ -8,7 +8,6 @@ function thread(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M16.933,7.567c.316,1.344-.517,2.69-1.861,3.006l-1.822,.429"

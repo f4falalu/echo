@@ -1,11 +1,11 @@
 import React from 'react';
-import { AppPopover } from '@/components/ui';
-import { ChartEncodes, IColumnLabelFormat } from '@/components/ui/charts';
+import { Popover } from '@/components/ui/tooltip/Popover';
+import type { ChartEncodes, IColumnLabelFormat } from '@/components/ui/charts';
 import { SelectAxisDropdownContent } from './SelectAxisColumnContent';
-import { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { SelectAxisContainerId } from './config';
+import { type IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { SelectAxisContainerId } from './config';
 
-interface SelectAxisColumnPopoverProps {
+export interface SelectAxisColumnPopoverProps {
   columnLabelFormat: IColumnLabelFormat;
   columnSetting: IBusterMetricChartConfig['columnSettings'][string];
   children: React.ReactNode;
@@ -21,16 +21,15 @@ interface SelectAxisColumnPopoverProps {
 export const SelectAxisColumnPopover = React.memo(
   ({ children, ...props }: SelectAxisColumnPopoverProps) => {
     return (
-      <AppPopover
-        trigger="click"
-        performant
-        destroyTooltipOnHide
-        placement="leftBottom"
+      <Popover
+        side="left"
+        align="end"
+        size={'none'}
         content={
           <SelectAxisDropdownContent {...props} className="w-full max-w-[315px] min-w-[315px]" />
         }>
         {children}
-      </AppPopover>
+      </Popover>
     );
   }
 );

@@ -8,7 +8,6 @@ function cursorRipple(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M10.004,5.79c-.55-.632-1.351-1.04-2.254-1.04-1.657,0-3,1.343-3,3,0,.904,.408,1.704,1.04,2.254"

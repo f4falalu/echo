@@ -34,11 +34,11 @@ const options: SegmentedItem<VerificationStatus | 'all'>[] = [
   },
   {
     label: 'Requested',
-    value: VerificationStatus.requested
+    value: VerificationStatus.REQUESTED
   },
   {
     label: 'Verified',
-    value: VerificationStatus.verified
+    value: VerificationStatus.VERIFIED
   }
 ];
 

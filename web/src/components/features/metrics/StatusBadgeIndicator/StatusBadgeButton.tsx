@@ -1,98 +1,60 @@
 import { type BusterMetricListItem, VerificationStatus } from '@/api/asset_interfaces';
-import React, { useMemo } from 'react';
-import { getTooltipText } from './helpers';
+import React from 'react';
 import { useMemoizedFn } from 'ahooks';
-import { AppPopoverMenu, AppTooltip } from '@/components/ui/tooltip';
+import { AppTooltip } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/buttons';
 import { StatusBadgeIndicator } from './StatusBadgeIndicator';
+import { StatusDropdownContent } from './StatusDropdownContent';
 
 export const StatusBadgeButton: React.FC<{
   status: BusterMetricListItem['status'];
   id: string | string[];
   disabled?: boolean;
   isAdmin: boolean | undefined;
+  variant?: 'default' | 'ghost';
   onVerify: (d: { id: string; status: VerificationStatus }[]) => Promise<void>;
-}> = React.memo(({ isAdmin, id, status = VerificationStatus.notRequested, onVerify, disabled }) => {
-  const text = useMemo(() => getTooltipText(status), [status]);
-  const [isOpen, setIsOpen] = React.useState(false);
+}> = React.memo(
+  ({
+    isAdmin = false,
+    variant = 'ghost',
+    id,
+    status = VerificationStatus.NOT_REQUESTED,
+    onVerify,
+    disabled
+  }) => {
+    const [isOpenDropdown, setIsOpenDropdown] = React.useState(false);
 
-  const onOpenChange = useMemoizedFn((open: boolean) => {
-    setIsOpen(open);
-  });
+    const showButtonTooltip =
+      !isAdmin && status === VerificationStatus.NOT_REQUESTED && !isOpenDropdown;
+    const buttonText = Array.isArray(id) ? 'Status' : '';
 
-  const onChangeStatus = useMemoizedFn(async (newStatus: VerificationStatus) => {
-    const userStatus = [VerificationStatus.notRequested, VerificationStatus.requested];
+    const onChangeStatus = useMemoizedFn(async (newStatus: VerificationStatus) => {
+      const userStatus = [VerificationStatus.NOT_REQUESTED, VerificationStatus.REQUESTED];
 
-    if ((!isAdmin && !userStatus.includes(newStatus)) || newStatus === status) {
-      return;
-    }
-    const ids = Array.isArray(id) ? id : [id];
-    const params = ids.map((id) => ({ id, status: newStatus }));
-    await onVerify(params);
-    setIsOpen(false);
-  });
-
-  const items = useMemo(() => {
-    const statuses = [
-      VerificationStatus.notRequested,
-      VerificationStatus.requested,
-      VerificationStatus.inReview,
-      VerificationStatus.verified,
-      VerificationStatus.backlogged
-    ];
-    const requiresAdminItems = [
-      VerificationStatus.inReview,
-      VerificationStatus.verified,
-      VerificationStatus.backlogged
-    ];
-    return statuses.map((status, index) => {
-      const requiresAdmin = requiresAdminItems.includes(status);
-      return {
-        index,
-        label: getTooltipText(status),
-        icon: <StatusBadgeIndicator status={status} />,
-        key: status,
-        disabled: requiresAdmin && !isAdmin,
-        onClick: () => {
-          if (!requiresAdmin || isAdmin) {
-            onChangeStatus(status);
-          }
-        }
-      };
+      if ((!isAdmin && !userStatus.includes(newStatus)) || newStatus === status) {
+        return;
+      }
+      const ids = Array.isArray(id) ? id : [id];
+      const params = ids.map((id) => ({ id, status: newStatus }));
+      await onVerify(params);
     });
-  }, [isAdmin, status, onChangeStatus]);
 
-  const selectedItem = useMemo(
-    () => items.find((item) => item!.key === status) || items[0],
-    [text]
-  );
-
-  const showButtonTooltip = !isAdmin && status === VerificationStatus.notRequested;
-  const buttonVariant = Array.isArray(id) ? 'default' : 'ghost';
-  const buttonText = Array.isArray(id) ? 'Status' : '';
-
-  return (
-    <AppPopoverMenu
-      items={items}
-      trigger={['click']}
-      onOpenChange={onOpenChange}
-      open={isOpen}
-      hideCheckbox
-      doNotSortSelected={true}
-      disabled={disabled}
-      destroyPopupOnHide={true}
-      selectedItems={selectedItem?.key ? [selectedItem.key! as string] : []}
-      placement="bottomRight"
-      headerContent={'Verification status...'}>
-      <AppTooltip title={showButtonTooltip ? '' : 'Request verification from data team'}>
-        <Button
-          disabled={disabled || ((!id || status === 'verified') && !isAdmin)}
-          prefix={<StatusBadgeIndicator showTooltip={false} status={status} size={14} />}
-          variant={buttonVariant}>
-          {buttonText}
-        </Button>
-      </AppTooltip>
-    </AppPopoverMenu>
-  );
-});
+    return (
+      <StatusDropdownContent
+        isAdmin={isAdmin}
+        status={status}
+        onChangeStatus={onChangeStatus}
+        onOpenChange={setIsOpenDropdown}>
+        <AppTooltip title={showButtonTooltip ? '' : 'Request verification from data team'}>
+          <Button
+            disabled={disabled || ((!id || status === 'VERIFIED') && !isAdmin)}
+            prefix={<StatusBadgeIndicator showTooltip={false} status={status} size={16} />}
+            variant={variant}>
+            {buttonText}
+          </Button>
+        </AppTooltip>
+      </StatusDropdownContent>
+    );
+  }
+);
 StatusBadgeButton.displayName = 'StatusBadgeButton';

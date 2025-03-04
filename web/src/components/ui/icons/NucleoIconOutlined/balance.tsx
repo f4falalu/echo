@@ -8,7 +8,6 @@ function balance(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M9,16.25c2.002,0,3.625-1.623,3.625-3.625s-1.623-3.625-3.625-3.625-3.625-1.623-3.625-3.625,1.623-3.625,3.625-3.625"

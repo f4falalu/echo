@@ -1,4 +1,3 @@
-import { AppMaterialIcons } from '@/components/ui';
 import { Dropdown, type DropdownItem, type DropdownProps } from '@/components/ui/dropdown';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
@@ -9,6 +8,7 @@ import { Button } from 'antd';
 import React, { useMemo } from 'react';
 import type { BusterCollectionListItem } from '@/api/asset_interfaces';
 import { NewCollectionModal } from '../modal/NewCollectionModal';
+import { Plus } from '@/components/ui/icons';
 
 export const SaveToCollectionsDropdown: React.FC<{
   children: React.ReactNode;
@@ -72,12 +72,7 @@ export const SaveToCollectionsDropdown: React.FC<{
 
   const memoizedButton = useMemo(() => {
     return (
-      <Button
-        type="text"
-        block
-        className="justify-start!"
-        icon={<AppMaterialIcons icon="add" />}
-        onClick={onClick}>
+      <Button type="text" block className="justify-start!" icon={<Plus />} onClick={onClick}>
         New collection
       </Button>
     );

@@ -8,7 +8,6 @@ function chartActivity2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m11.25,5.75h-2.25l-1.5,4.5L4.5,1.75l-1.5,4.5H.75"

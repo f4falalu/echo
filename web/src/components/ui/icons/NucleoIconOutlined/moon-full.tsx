@@ -8,7 +8,6 @@ function moonFull(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <circle cx="9.75" cy="11.75" fill="currentColor" r=".75" />
         <circle cx="6.5" cy="9" fill="currentColor" r="1" />

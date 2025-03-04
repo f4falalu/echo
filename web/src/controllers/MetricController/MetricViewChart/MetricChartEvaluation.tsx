@@ -1,15 +1,13 @@
-import { IBusterMetric } from '@/context/Metrics';
-import { createStyles } from 'antd-style';
+import type { IBusterMetric } from '@/context/Metrics';
 import React, { useMemo } from 'react';
-import { AppMaterialIcons } from '@/components/ui';
-import { AppPopover } from '@/components/ui/tooltip';
+import { CircleCheck, CircleWarning, CircleDotted } from '@/components/ui/icons';
+import { Popover } from '@/components/ui/tooltip/Popover';
+import { Button, type ButtonProps } from '@/components/ui/buttons';
 
 export const MetricChartEvaluation: React.FC<{
   evaluationScore: IBusterMetric['evaluation_score'];
   evaluationSummary: string;
 }> = React.memo(({ evaluationScore, evaluationSummary }) => {
-  const { styles, cx } = useStyles();
-
   const text = useMemo(() => {
     if (evaluationScore === 'High') return 'High confidence';
     if (evaluationScore === 'Moderate') return 'Moderate confidence';
@@ -18,41 +16,30 @@ export const MetricChartEvaluation: React.FC<{
   }, [evaluationScore]);
 
   const icon = useMemo(() => {
-    if (evaluationScore === 'High') return <AppMaterialIcons icon="check_circle" />;
-    if (evaluationScore === 'Moderate') return <AppMaterialIcons icon="warning" />;
-    if (evaluationScore === 'Low') return <AppMaterialIcons icon="report" />;
-    return <AppMaterialIcons icon="check_circle" />;
+    if (evaluationScore === 'High') return <CircleCheck />;
+    if (evaluationScore === 'Moderate') return <CircleDotted />;
+    if (evaluationScore === 'Low') return <CircleWarning />;
+    return <CircleCheck />;
   }, [evaluationScore]);
 
-  const colorClass = useMemo(() => {
-    if (evaluationScore === 'Low') return 'bg-red-200 text-red-500';
-    if (evaluationScore === 'High') return 'bg-lime-100 text-lime-700';
-    if (evaluationScore === 'Moderate') return 'bg-[#FFFBE6] text-amber-500';
-    return 'bg-gray-100 text-gray-500';
+  const variant: ButtonProps['variant'] = useMemo(() => {
+    if (evaluationScore === 'High') return 'success';
+    if (evaluationScore === 'Moderate') return 'warning';
+    if (evaluationScore === 'Low') return 'danger';
+
+    return 'default';
   }, [evaluationScore]);
 
   return (
-    <div className={cx('flex w-full cursor-pointer justify-end')}>
-      <AppPopover
-        placement="topRight"
-        trigger="hover"
-        content={<div className="max-w-[250px] p-2">{evaluationSummary}</div>}>
-        <div
-          className={cx(
-            styles.container,
-            colorClass,
-            'flex items-center gap-1 rounded-lg px-2 py-1 hover:shadow-xs'
-          )}>
-          {icon}
-          {text}
-        </div>
-      </AppPopover>
-    </div>
+    <Popover
+      side="top"
+      align="end"
+      content={<div className="leading-1.3 max-w-[250px]">{evaluationSummary}</div>}>
+      <Button variant={variant} prefix={icon}>
+        {text}
+      </Button>
+    </Popover>
   );
 });
 
 MetricChartEvaluation.displayName = 'MetricChartEvaluation';
-
-const useStyles = createStyles(({ css, token }) => ({
-  container: css``
-}));

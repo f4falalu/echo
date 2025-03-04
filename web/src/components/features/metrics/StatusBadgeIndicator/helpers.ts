@@ -1,16 +1,16 @@
-import type { VerificationStatus, BusterMetricListItem } from '@/api/asset_interfaces';
+import { VerificationStatus, type BusterMetricListItem } from '@/api/asset_interfaces';
 
 const statusRecordText: Record<VerificationStatus, string> = {
-  verified: 'Verified',
-  requested: 'Requested',
-  inReview: 'In review',
-  backlogged: 'Backlogged',
-  notVerified: 'Not verified',
-  notRequested: 'Not requested'
+  [VerificationStatus.VERIFIED]: 'Verified',
+  [VerificationStatus.REQUESTED]: 'Requested',
+  [VerificationStatus.IN_REVIEW]: 'In review',
+  [VerificationStatus.BACKLOGGED]: 'Backlogged',
+  [VerificationStatus.NOT_VERIFIED]: 'Not verified',
+  [VerificationStatus.NOT_REQUESTED]: 'Not requested'
 };
 
 export const getTooltipText = (status: VerificationStatus) => {
-  return statusRecordText[status] || statusRecordText.notRequested;
+  return statusRecordText[status] || statusRecordText[VerificationStatus.NOT_REQUESTED];
 };
 
 export const getShareStatus = ({ is_shared }: { is_shared: BusterMetricListItem['is_shared'] }) => {

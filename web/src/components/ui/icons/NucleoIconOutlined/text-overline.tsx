@@ -8,7 +8,6 @@ function textOverline(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M12.99 15.25L9.305 5.75 8.695 5.75 5.01 15.25"

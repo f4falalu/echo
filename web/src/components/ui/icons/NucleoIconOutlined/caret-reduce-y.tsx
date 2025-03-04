@@ -8,7 +8,6 @@ function caretReduceY(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M9.414,7.499l2.348-3.468c.225-.332-.013-.78-.414-.78H6.652c-.401,0-.639,.448-.414,.78l2.348,3.468c.198,.293,.63,.293,.828,0Z"

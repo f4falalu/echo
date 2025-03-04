@@ -8,7 +8,6 @@ function humidity2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M13.625,16.25c1.45,0,2.625-1.278,2.625-2.854,0-2.168-1.471-3.095-2.625-4.646-1.154,1.552-2.625,2.479-2.625,4.646,0,1.576,1.175,2.854,2.625,2.854Z"

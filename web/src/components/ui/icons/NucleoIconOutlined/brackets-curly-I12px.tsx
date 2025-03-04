@@ -8,7 +8,6 @@ function bracketsCurly(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m7.75,10.75c1.105,0,2-.895,2-2v-1.25c0-.828.672-1.5,1.5-1.5-.828,0-1.5-.672-1.5-1.5v-1.25c0-1.105-.895-2-2-2"

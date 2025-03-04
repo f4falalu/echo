@@ -71,8 +71,8 @@ const DropdownMenuContent = React.forwardRef<
     footerContent?: React.ReactNode;
   }
 >(({ className, children, sideOffset = 4, footerContent, ...props }, ref) => {
-  const NodeWrapper = footerContent ? 'div' : React.Fragment;
-  const nodeWrapperProps = footerContent ? { className: 'p-2' } : {};
+  const NodeWrapper = footerContent ? 'div' : 'span';
+  const nodeWrapperProps = footerContent ? { className: 'p-2' } : { className: 'inline-block' };
 
   return (
     <DropdownMenuPrimitive.Portal>
@@ -101,7 +101,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-60 [&_svg]:pointer-events-none [&_svg]:shrink-0',
+      'relative flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
       'focus:bg-item-hover focus:text-foreground',
       inset && 'pl-8',
       truncate && 'overflow-hidden',
@@ -123,7 +123,7 @@ DropdownMenuItem.displayName = DropdownMenuPrimitive.Item.displayName;
 const itemClass = cn(
   'focus:bg-item-hover focus:text-foreground',
   'relative flex cursor-pointer items-center rounded-sm py-1.5 text-sm outline-none select-none',
-  'data-[disabled]:pointer-events-none data-[disabled]:opacity-60',
+  'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
   'gap-1.5'
 );
 
@@ -132,30 +132,39 @@ const DropdownMenuCheckboxItemSingle = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.CheckboxItem> & {
     closeOnSelect?: boolean;
     selectType?: boolean;
+    index?: number;
   }
->(({ className, children, onClick, checked, closeOnSelect = true, selectType, ...props }, ref) => (
-  <DropdownMenuPrimitive.CheckboxItem
-    ref={ref}
-    className={cn(itemClass, 'data-[state=checked]:bg-item-hover', 'pr-6 pl-2', className)}
-    checked={checked}
-    onClick={(e) => {
-      if (closeOnSelect) {
-        e.stopPropagation();
-        e.preventDefault();
-      }
-      onClick?.(e);
-    }}
-    {...props}>
-    {children}
-    <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
-      <DropdownMenuPrimitive.ItemIndicator>
-        <div className="flex h-4 w-4 items-center justify-center">
-          <Check />
-        </div>
-      </DropdownMenuPrimitive.ItemIndicator>
-    </span>
-  </DropdownMenuPrimitive.CheckboxItem>
-));
+>(
+  (
+    { className, children, onClick, checked, closeOnSelect = true, selectType, index, ...props },
+    ref
+  ) => (
+    <DropdownMenuPrimitive.CheckboxItem
+      ref={ref}
+      className={cn(itemClass, 'data-[state=checked]:bg-item-hover', 'pr-6 pl-2', className)}
+      checked={checked}
+      onClick={(e) => {
+        if (closeOnSelect) {
+          e.stopPropagation();
+          e.preventDefault();
+        }
+        onClick?.(e);
+      }}
+      {...props}>
+      {children}
+      <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
+        <DropdownMenuPrimitive.ItemIndicator>
+          <div className="flex h-4 w-4 items-center justify-center">
+            <Check />
+          </div>
+        </DropdownMenuPrimitive.ItemIndicator>
+        {index !== undefined && (
+          <span className="text-gray-dark ml-auto w-2 text-center">{index}</span>
+        )}
+      </span>
+    </DropdownMenuPrimitive.CheckboxItem>
+  )
+);
 DropdownMenuCheckboxItemSingle.displayName = DropdownMenuPrimitive.CheckboxItem.displayName;
 
 const DropdownMenuCheckboxItemMultiple = React.forwardRef<

@@ -8,7 +8,6 @@ function tShirt(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M13.151,7c-.109,1.236-.178,2.574-.182,4-.005,1.918,.108,3.678,.281,5.25h-4.25s-4.25,0-4.25,0c.173-1.572,.286-3.332,.281-5.25-.004-1.426-.073-2.764-.182-4"

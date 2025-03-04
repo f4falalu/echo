@@ -8,7 +8,6 @@ function vrHeadsetSignal(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M4.757,3.507c2.343-2.343,6.142-2.343,8.485,0"

@@ -8,7 +8,6 @@ function circuits(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M6.25,5.25v2.586c0,.265,.105,.52,.293,.707l.914,.914c.188,.188,.293,.442,.293,.707v5.586"

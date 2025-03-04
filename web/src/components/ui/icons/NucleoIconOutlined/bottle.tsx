@@ -8,7 +8,6 @@ function bottle(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M4.75 9.75L9.25 9.75 9.25 14.25 4.75 14.25"

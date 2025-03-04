@@ -8,7 +8,6 @@ function starHand(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M5.579 11.092L3.09 12.4 3.813 8.185 0.75 5.2 4.982 4.585 6.875 0.75 8.768 4.585 13 5.2 11.676 6.49"

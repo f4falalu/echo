@@ -8,7 +8,6 @@ function dietCalendar(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M15.908,11.624c-.912-.724-1.938-.128-2.805-.128s-1.789-.632-2.805,.128-1.114,2.678,.014,4.457c1.083,1.708,2.175,1.038,2.792,1.038s1.709,.671,2.792-1.038c1.127-1.779,.851-3.794,.012-4.457Z"

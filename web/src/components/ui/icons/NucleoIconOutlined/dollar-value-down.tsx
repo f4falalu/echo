@@ -8,7 +8,6 @@ function dollarValueDown(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m2,11.75l2.588,2.588c.254.254.626.353.973.257l6.127-1.69c.347-.096.719.002.973.257l3.588,3.588"

@@ -8,7 +8,6 @@ function lifeRing(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M5.486,7.688c.379-1.016,1.187-1.823,2.203-2.203"

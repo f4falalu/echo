@@ -8,7 +8,6 @@ function baloonsHeart(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M11.587,17.245c-.475-.475-.475-1.245,0-1.72l.413-.418c.475-.475,.475-1.245,0-1.72h0"

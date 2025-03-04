@@ -8,7 +8,6 @@ function plugSensor(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M5.995,5.995c1.657-1.657,4.353-1.657,6.01,0"

@@ -13,7 +13,7 @@ const SelectGroup = SelectPrimitive.Group;
 const SelectValue = SelectPrimitive.Value;
 
 export const selectVariants = cva(
-  'flex w-full gap-x-1.5 transition-all duration-200 items-center justify-between rounded border px-3 py-1 text-sm focus:outline-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 [&>span]:line-clamp-1',
+  'flex w-full gap-x-1.5 transition-colors transition-border duration-200 items-center justify-between rounded border px-3 py-1 text-sm focus:outline-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 [&>span]:line-clamp-1',
   {
     variants: {
       variant: {
@@ -145,11 +145,6 @@ const SelectItem = React.forwardRef<
     {...props}>
     <div className="flex flex-col gap-y-0.5">
       <div className="flex items-center gap-x-1.5">
-        {index !== undefined && (
-          <span className="text-gray-light flex min-w-2 items-center justify-center text-xs">
-            {index}
-          </span>
-        )}
         {icon && <span className="text-icon-color">{icon}</span>}
         <SelectPrimitive.ItemText className="flex h-full items-center">
           {children}
@@ -158,11 +153,18 @@ const SelectItem = React.forwardRef<
       {secondaryChildren && <span className="text-gray-light text-xs">{secondaryChildren}</span>}
     </div>
 
-    <SelectPrimitive.ItemIndicator>
-      <div className="flex h-4 w-4 items-center justify-center">
-        <Check />
-      </div>
-    </SelectPrimitive.ItemIndicator>
+    <div className="flex items-center gap-x-1">
+      <SelectPrimitive.ItemIndicator>
+        <div className="flex h-4 w-4 items-center justify-center">
+          <Check />
+        </div>
+      </SelectPrimitive.ItemIndicator>
+      {index !== undefined && (
+        <span className="text-gray-light flex min-w-2 items-center justify-center text-xs">
+          {index}
+        </span>
+      )}
+    </div>
   </SelectPrimitive.Item>
 ));
 SelectItem.displayName = SelectPrimitive.Item.displayName;

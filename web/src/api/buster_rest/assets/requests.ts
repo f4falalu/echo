@@ -1,4 +1,4 @@
-import { BASE_URL } from '@/api/buster_rest/instances';
+import { BASE_URL } from '@/api/buster_rest/config';
 import { PublicAssetResponse } from './interface';
 import { FileType } from '@/api/asset_interfaces';
 

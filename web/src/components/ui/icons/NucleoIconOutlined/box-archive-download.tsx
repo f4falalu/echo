@@ -8,7 +8,6 @@ function boxArchiveDownload(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M10.25,15.25H5.25c-1.105,0-2-.895-2-2V6.25"

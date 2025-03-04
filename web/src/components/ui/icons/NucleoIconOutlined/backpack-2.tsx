@@ -8,7 +8,6 @@ function backpack2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M5.75,16.25H2.75c-.828,0-1.5-.672-1.5-1.5v-2c0-.299,.131-.567,.339-.75"

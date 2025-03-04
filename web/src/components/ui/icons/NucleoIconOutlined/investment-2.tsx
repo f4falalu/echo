@@ -8,7 +8,6 @@ function investment2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M9,10.75V5.25c0-2.209-1.791-4-4-4h-1.25c-.025,1.512,.727,2.912,1.979,3.65,1.486,.876,3.014,.43,3.271,.35"

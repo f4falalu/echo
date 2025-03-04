@@ -8,7 +8,6 @@ function carousel2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M3,13.5l-1.053,.451c-.33,.141-.697-.101-.697-.46V4.508c0-.359,.367-.601,.697-.46l1.053,.451"

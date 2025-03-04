@@ -8,7 +8,6 @@ function trash2Content(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m4.423,5.249l2.316-2.634c.402-.457,1.115-.452,1.51.01l2.247,2.624"

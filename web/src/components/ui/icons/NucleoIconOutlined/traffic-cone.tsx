@@ -8,7 +8,6 @@ function trafficCone(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M4.25,15.25L7.545,3.48c.121-.432,.515-.73,.963-.73h.983c.448,0,.842,.299,.963,.73l3.295,11.77"

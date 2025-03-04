@@ -8,7 +8,6 @@ function pen3(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M10,5l3.586,3.586c.781,.781,.781,2.047,0,2.828l-1.586,1.586"

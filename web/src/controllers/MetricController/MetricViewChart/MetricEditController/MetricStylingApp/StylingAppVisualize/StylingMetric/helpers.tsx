@@ -1,24 +1,21 @@
 import { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { formatLabel } from '@/lib';
 import { ColumnTypeIcon } from '../SelectAxis/config';
+import { type SelectItem } from '@/components/ui/select';
 
 export const createColumnFieldOptions = (
   columnMetadata: ColumnMetaData[],
   columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'],
   iconClass: string
-) => {
-  return columnMetadata.map((column) => {
+): SelectItem<string>[] => {
+  return columnMetadata.map<SelectItem<string>>((column) => {
     const labelFormat = columnLabelFormats[column.name];
     const formattedLabel = formatLabel(column.name, labelFormat, true);
     const Icon = ColumnTypeIcon[labelFormat.style];
 
     return {
-      label: (
-        <div className="flex w-full items-center space-x-1.5 overflow-hidden">
-          <div className={`${iconClass} flex`}>{Icon.icon}</div>
-          <span className="truncate">{formattedLabel}</span>
-        </div>
-      ),
+      icon: Icon.icon,
+      label: formattedLabel,
       value: column.name
     };
   });

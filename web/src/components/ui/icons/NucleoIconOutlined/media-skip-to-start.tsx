@@ -8,7 +8,6 @@ function mediaSkipToStart(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M16.5,4.946c-1.446,.872-4.6,2.776-6.011,3.628-.322,.194-.318,.661,.004,.856l6.002,3.623c.332,.2,.754-.04,.754-.429V5.377c0-.389-.418-.632-.75-.432Z"

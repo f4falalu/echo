@@ -8,7 +8,6 @@ function candy(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m12.25,5.215v-3.12c0-.17.17-.297.331-.243,1.606.54,2.843,1.643,3.55,3.554.06.163-.066.344-.24.344h-3.103"

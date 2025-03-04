@@ -8,7 +8,6 @@ function arrowBackToBottomRight(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M15.75,8.75v-3c0-1.105-.895-2-2-2H4.25c-1.105,0-2,.895-2,2v5.5c0,1.105,.895,2,2,2H14.242"

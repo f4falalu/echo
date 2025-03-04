@@ -6,11 +6,9 @@ import last from 'lodash/last';
 import { useMemoizedFn } from 'ahooks';
 import { isNumericColumnStyle, isNumericColumnType } from '@/lib';
 import { ColumnLabelFormat } from '@/components/ui/charts';
+import { SelectItem } from '@/components/ui/select';
 
-export const AGGREGATE_OPTIONS: {
-  label: string;
-  value: IBusterMetricChartConfig['metricValueAggregate'];
-}[] = [
+export const AGGREGATE_OPTIONS: SelectItem<IBusterMetricChartConfig['metricValueAggregate']>[] = [
   { label: 'Sum', value: 'sum' },
   { label: 'Average', value: 'average' },
   { label: 'Median', value: 'median' },

@@ -8,7 +8,6 @@ function camera3Off(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M3.336,14.664c-.362-.362-.586-.862-.586-1.414V4.75c0-1.105,.895-2,2-2H13.25c.552,0,1.052,.224,1.414,.586"

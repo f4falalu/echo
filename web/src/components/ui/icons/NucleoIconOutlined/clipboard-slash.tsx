@@ -8,7 +8,6 @@ function clipboardSlash(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M14.573,3.927c-.314-.694-1.012-1.177-1.823-1.177h-1"

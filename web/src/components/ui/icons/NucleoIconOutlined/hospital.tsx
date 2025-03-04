@@ -8,7 +8,6 @@ function hospital(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m3.75,16.25H1.75c-.5523,0-1-.4477-1-1v-3.5c0-.5523.4477-1,1-1h2"

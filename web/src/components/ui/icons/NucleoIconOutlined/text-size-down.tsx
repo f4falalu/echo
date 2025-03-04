@@ -8,7 +8,6 @@ function textSizeDown(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m11.1789,8.3244c.3715-.4093.9005-.5744,1.438-.5744h0c.9013,0,1.6314.7482,1.6314,1.6701v2.8299"

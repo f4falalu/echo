@@ -8,7 +8,6 @@ function seedling(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m8.5,8.051c1.597-.525,2.75-2.028,2.75-3.801v-.5h-1.75c-1.933,0-3.5,1.567-3.5,3.5v1"

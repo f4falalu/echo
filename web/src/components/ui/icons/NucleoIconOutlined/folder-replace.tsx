@@ -8,7 +8,6 @@ function folderReplace(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M11.874,10.75h2.876c.828,0,1.5,.672,1.5,1.5v2.5c0,.828-.672,1.5-1.5,1.5h-6c-.828,0-1.5-.672-1.5-1.5v-5c0-.552,.448-1,1-1h1.524c.301,0,.587,.136,.776,.37l1.323,1.63Z"

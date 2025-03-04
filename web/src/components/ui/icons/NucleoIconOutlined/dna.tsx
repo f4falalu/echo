@@ -8,7 +8,6 @@ function dna(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M6.411,11.589c-.906-.259-1.813-.518-3.107-.518-.562,0-1.109,.187-1.554,.531"

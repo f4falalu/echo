@@ -8,7 +8,6 @@ function clockMinus(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m15.8896,11.25c.2314-.7087.3604-1.4639.3604-2.25,0-4.0042-3.2459-7.25-7.25-7.25S1.75,4.9958,1.75,9s3.246,7.25,7.25,7.25c.4945,0,.9771-.0503,1.4438-.1445"

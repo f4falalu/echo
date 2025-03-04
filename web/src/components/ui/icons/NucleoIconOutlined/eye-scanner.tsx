@@ -8,7 +8,6 @@ function eyeScanner(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M3.756,9.809c-.342-.488-.342-1.13,0-1.618,.772-1.102,2.475-2.941,5.244-2.941s4.472,1.839,5.244,2.941c.342,.488,.342,1.13,0,1.618-.772,1.102-2.475,2.941-5.244,2.941s-4.472-1.839-5.244-2.941Z"

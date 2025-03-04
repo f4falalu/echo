@@ -8,7 +8,6 @@ function paintRoller(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M.75,4v1.242c0,1.66,1.348,3.004,3.008,3l4.239-.011c.553-.001,1.003,.447,1.003,1v1.519"

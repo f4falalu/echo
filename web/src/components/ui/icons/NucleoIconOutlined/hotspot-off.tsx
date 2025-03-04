@@ -8,7 +8,6 @@ function hotspotOff(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M15.581,5.954c.429,.926,.669,1.958,.669,3.046,0,2.593-1.361,4.867-3.407,6.149"

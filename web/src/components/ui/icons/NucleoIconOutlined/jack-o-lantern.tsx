@@ -8,7 +8,6 @@ function jackOLantern(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M11,4.75c-.709,0-1.383,.145-2,.399-.617-.254-1.291-.399-2-.399-2.899,0-5.25,2.351-5.25,5.25s2.351,5.25,5.25,5.25h4c2.899,0,5.25-2.351,5.25-5.25s-2.351-5.25-5.25-5.25Z"

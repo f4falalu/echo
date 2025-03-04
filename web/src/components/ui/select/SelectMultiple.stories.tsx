@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { SelectMultiple } from './SelectMultiple';
 import { useState } from 'react';
 import { type SelectItem } from './Select';
+import { fn } from '@storybook/test';
 
 const meta = {
   title: 'UI/Select/SelectMultiple',
@@ -36,7 +37,7 @@ const SelectMultipleWithHooks = () => {
     <div className="w-[300px]">
       <SelectMultiple
         items={items}
-        onSelect={handleSelect}
+        onChange={handleSelect}
         placeholder="Select multiple options..."
         value={value}
       />
@@ -47,7 +48,7 @@ const SelectMultipleWithHooks = () => {
 export const Default: Story = {
   args: {
     items: baseItems,
-    onSelect: () => {},
+    onChange: fn(),
     value: [],
     placeholder: 'Select multiple options...'
   },
@@ -58,7 +59,7 @@ export const WithPreselectedValues: Story = {
   args: {
     items: baseItems,
     value: ['1', '2'],
-    onSelect: () => {},
+    onChange: fn(),
     placeholder: 'Select multiple options...'
   },
   render: (args) => (
@@ -71,7 +72,7 @@ export const WithPreselectedValues: Story = {
 export const Empty: Story = {
   args: {
     items: baseItems,
-    onSelect: () => {},
+    onChange: fn(),
     placeholder: 'Select multiple options...',
     value: []
   },
@@ -86,7 +87,7 @@ export const FullySelected: Story = {
   args: {
     items: baseItems,
     value: baseItems.map((item) => item.value),
-    onSelect: () => {},
+    onChange: fn(),
     placeholder: 'Select multiple options...'
   },
   render: (args) => (
@@ -100,7 +101,7 @@ export const CustomWidth: Story = {
   args: {
     items: baseItems,
     value: ['1'],
-    onSelect: () => {},
+    onChange: fn(),
     placeholder: 'Select multiple options...'
   },
   render: (args) => (

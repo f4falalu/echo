@@ -8,7 +8,6 @@ function merge2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M2.75,13.75h3.5c1.105,0,2-.895,2-2v-2.75s0-2.75,0-2.75c0-1.105-.895-2-2-2H2.75"

@@ -20,7 +20,6 @@ export const useBusterNewChat = () => {
   } = useChatStreamMessage();
 
   const onSelectSearchAsset = useMemoizedFn(async (asset: BusterSearchResult) => {
-    console.log('select search asset');
     await new Promise((resolve) => setTimeout(resolve, 1000));
   });
 
@@ -36,7 +35,7 @@ export const useBusterNewChat = () => {
       metricId?: string;
       dashboardId?: string;
     }) => {
-      await busterSocket.emitAndOnce({
+      const res = await busterSocket.emitAndOnce({
         emitEvent: {
           route: '/chats/post',
           payload: {
@@ -51,6 +50,7 @@ export const useBusterNewChat = () => {
           callback: initializeNewChatCallback
         }
       });
+      console.log('res', res);
 
       busterSocket.once({
         route: '/chats/post:complete',

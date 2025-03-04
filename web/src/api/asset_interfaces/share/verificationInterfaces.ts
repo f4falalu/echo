@@ -1,8 +1,8 @@
 export enum VerificationStatus {
-  notRequested = 'notRequested',
-  requested = 'requested',
-  inReview = 'inReview',
-  verified = 'verified',
-  backlogged = 'backlogged',
-  notVerified = 'notVerified'
+  NOT_REQUESTED = 'NOT REQUESTED',
+  REQUESTED = 'REQUESTED',
+  IN_REVIEW = 'IN REVIEW',
+  VERIFIED = 'VERIFIED',
+  BACKLOGGED = 'BACKLOGGED',
+  NOT_VERIFIED = 'NOT VERIFIED'
 }

@@ -8,7 +8,6 @@ function bombSparkle(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M12.34,4.158l.72-.72c.486-.486,1.274-.486,1.76,0l.88,.88c.417,.417,1.057,.476,1.537,.177"

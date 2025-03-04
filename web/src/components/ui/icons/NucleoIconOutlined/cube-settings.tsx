@@ -8,7 +8,6 @@ function cubeSettings(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M14.233 5.53L8.25 9 2.267 5.53"

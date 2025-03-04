@@ -2,11 +2,11 @@ import React from 'react';
 
 import { validate } from 'email-validator';
 import { useMemoizedFn } from 'ahooks';
-import { Button, Divider, Input } from 'antd';
 import { BusterShare, ShareRole, ShareAssetType } from '@/api/asset_interfaces';
 import type { ShareRequest } from '@/api/buster_socket/shared_interfaces';
-import { Text } from '@/components/ui';
-import { AppMaterialIcons } from '@/components/ui';
+import { Input } from '@/components/ui/inputs';
+import { Button } from '@/components/ui/buttons';
+import { Text } from '@/components/ui/text';
 import { AccessDropdown } from './AccessDropdown';
 import { IndividualSharePerson } from './IndividualSharePerson';
 import { ShareMenuContentEmbed } from './ShareMenuContentEmbed';
@@ -17,8 +17,9 @@ import { useUserConfigContextSelector } from '@/context/Users';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
-import { useStyles } from './useStyles';
 import { inputHasText } from '@/lib/text';
+import { UserGroup, ChevronRight } from '@/components/ui/icons';
+import { cn } from '@/lib/classMerge';
 
 export const ShareMenuContentBody: React.FC<{
   selectedOptions: ShareMenuTopBarOptions;
@@ -40,7 +41,7 @@ export const ShareMenuContentBody: React.FC<{
   }) => {
     const Component = ContentRecord[selectedOptions];
 
-    const selectedClass = selectedOptions === ShareMenuTopBarOptions.Share ? 'pt-3' : '';
+    const selectedClass = selectedOptions === ShareMenuTopBarOptions.Share ? '' : '';
     const individual_permissions = shareAssetConfig.individual_permissions;
     const team_permissions = shareAssetConfig.team_permissions;
     const organization_permissions = shareAssetConfig.organization_permissions;
@@ -87,7 +88,8 @@ const ShareMenuContentShare: React.FC<{
     ShareRole.VIEWER
   );
   const disableSubmit = !inputHasText(inputValue) || !validate(inputValue);
-  const hasUserTeams = userTeams.length > 0;
+  const hasUserTeams = userTeams?.length > 0;
+  const hasIndividualPermissions = !!individual_permissions?.length;
 
   const onSubmitNewEmail = useMemoizedFn(async () => {
     const isValidEmail = validate(inputValue);
@@ -156,7 +158,7 @@ const ShareMenuContentShare: React.FC<{
 
   return (
     <div className="flex flex-col">
-      <div className="flex h-full items-center space-x-2 px-3">
+      <div className="flex h-full items-center space-x-2">
         <div className="relative flex w-full items-center">
           <Input
             className="w-full"
@@ -176,25 +178,32 @@ const ShareMenuContentShare: React.FC<{
             />
           )}
         </div>
-        <Button loading={isInviting} onClick={onSubmitNewEmail} disabled={disableSubmit}>
+        <Button
+          loading={isInviting}
+          size={'tall'}
+          onClick={onSubmitNewEmail}
+          disabled={disableSubmit}>
           Invite
         </Button>
       </div>
 
-      <div className="my-1 px-3">
-        {individual_permissions?.map((permission) => (
-          <IndividualSharePerson
-            key={permission.id}
-            {...permission}
-            onUpdateShareRole={onUpdateShareRole}
-          />
-        ))}
-      </div>
-
-      <Divider />
+      {hasIndividualPermissions && (
+        <div className="my-1 px-3">
+          {individual_permissions?.map((permission) => (
+            <IndividualSharePerson
+              key={permission.id}
+              {...permission}
+              onUpdateShareRole={onUpdateShareRole}
+            />
+          ))}
+        </div>
+      )}
 
       {hasUserTeams && (
-        <ShareWithGroupAndTeamOption onOpenShareWithGroupAndTeam={onOpenShareWithGroupAndTeam} />
+        <>
+          <div className="bg-border my-2 h-[0.5px]" />
+          <ShareWithGroupAndTeamOption onOpenShareWithGroupAndTeam={onOpenShareWithGroupAndTeam} />
+        </>
       )}
     </div>
   );
@@ -204,19 +213,14 @@ ShareMenuContentShare.displayName = 'ShareMenuContentShare';
 const ShareWithGroupAndTeamOption: React.FC<{
   onOpenShareWithGroupAndTeam: () => void;
 }> = React.memo(({ onOpenShareWithGroupAndTeam }) => {
-  const { styles, cx } = useStyles();
-
   return (
     <div
       onClick={onOpenShareWithGroupAndTeam}
-      className={cx(
-        'flex cursor-pointer items-center space-x-1.5 px-3 py-2',
-        styles.hoverListItem
-      )}>
-      <Button shape="circle" icon={<AppMaterialIcons icon="groups_2" size={14} />} />
-      <div className={cx('flex w-full items-center justify-between space-x-1.5')}>
+      className={cn('hover:bg-item-hover flex cursor-pointer items-center space-x-1.5 px-3 py-2')}>
+      <Button prefix={<UserGroup />} />
+      <div className={cn('flex w-full items-center justify-between space-x-1.5')}>
         <Text>Share with groups & teams</Text>
-        <AppMaterialIcons icon="chevron_right" />
+        <ChevronRight />
       </div>
     </div>
   );

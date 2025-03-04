@@ -8,7 +8,6 @@ function notebookBookmark(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m7.36,5.36l-1.36-1.36-1.36,1.36c-.236.236-.64.069-.64-.265V.75h4v4.345c0,.334-.404.501-.64.265Z"

@@ -59,8 +59,7 @@ const PageLayout: React.FC<
       className={cn(
         'h-screen w-full overflow-hidden',
         'py-2',
-
-        floating && 'pr-2 pl-2',
+        floating && hasSidebar ? 'pr-2' : 'pr-2 pl-2',
         className
       )}>
       <div className={cn('bg-background h-full overflow-hidden', floating && 'rounded border')}>

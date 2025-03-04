@@ -8,7 +8,6 @@ function presentation(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M8.75,3.75h5c1.105,0,2,.895,2,2v5c0,1.105-.895,2-2,2h-5"

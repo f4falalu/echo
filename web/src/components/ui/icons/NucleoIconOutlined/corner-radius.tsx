@@ -8,7 +8,6 @@ function cornerRadius(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m2.75,15.25v-6.5c0-3.3137,2.6863-6,6-6h6.5"

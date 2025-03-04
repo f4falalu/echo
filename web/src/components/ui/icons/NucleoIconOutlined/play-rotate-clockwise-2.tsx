@@ -8,7 +8,6 @@ function playRotateClockwise2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m15.71,6.25c-1.083-2.64-3.679-4.5-6.71-4.5-4.004,0-7.25,3.246-7.25,7.25,0,4.004,3.246,7.25,7.25,7.25s7.25-3.246,7.25-7.25"

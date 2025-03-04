@@ -8,7 +8,6 @@ function applications(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M7.75,10.25V4.75h-3.5c-1.105,0-2,.895-2,2v7c0,1.105,.895,2,2,2h7c1.105,0,2-.895,2-2v-3.5H7.75Z"

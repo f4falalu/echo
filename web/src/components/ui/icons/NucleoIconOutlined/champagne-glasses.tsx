@@ -8,7 +8,6 @@ function champagneGlasses(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M3.924,12.403h0c-1.389-.328-2.17-1.806-1.659-3.138l1.546-4.032,3.479,.847-.481,4.291c-.157,1.406-1.509,2.357-2.885,2.032Z"

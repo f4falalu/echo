@@ -8,7 +8,6 @@ function sack(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M7.25,4.75c-2.391,1.281-4.25,4.516-4.25,7.25,0,3.314,2.686,4.25,6,4.25,3.314,0,6-.936,6-4.25,0-2.734-1.859-5.969-4.25-7.25"

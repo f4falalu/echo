@@ -8,7 +8,6 @@ function penWriting8(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M7.821,12.75s2.501-.648,3.596-2.255l4.037-5.921c.529-.776,.329-1.835-.447-2.364h0c-.776-.529-1.835-.329-2.364,.447l-4.037,5.921c-1.095,1.607-.785,4.172-.785,4.172Z"

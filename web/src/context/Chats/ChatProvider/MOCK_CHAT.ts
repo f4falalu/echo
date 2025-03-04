@@ -4,8 +4,10 @@ import type {
   BusterChatMessage_file,
   BusterChatMessageRequest,
   BusterChatMessage_fileMetadata,
-  BusterChatMessageReasoning_pills,
+  BusterChatMessageReasoning_Pills,
   BusterChatMessageReasoning_Pill,
+  BusterChatMessageReasoning_files,
+  BusterChatMessageReasoning_text,
   BusterChatMessageReasoning_file
 } from '@/api/asset_interfaces';
 import { faker } from '@faker-js/faker';
@@ -29,7 +31,7 @@ const createMockResponseMessageText = (): BusterChatMessage_text => ({
   })
 });
 
-const createMockResponseMessageThought = (): BusterChatMessageReasoning_pills => {
+const createMockResponseMessagePills = (): BusterChatMessageReasoning_Pills => {
   const randomPillCount = faker.number.int({ min: 0, max: 10 });
   const fourRandomPills: BusterChatMessageReasoning_Pill[] = Array.from(
     { length: randomPillCount },
@@ -88,34 +90,48 @@ const createMockResponseMessageFile = (): BusterChatMessage_file => {
   };
 };
 
-const createMockReasoningMessageFile = (): BusterChatMessageReasoning_file => {
+const createMockReasoningMessageFile = (): BusterChatMessageReasoning_files => {
+  const randomFileCount = faker.number.int({ min: 1, max: 3 });
+  const files: BusterChatMessageReasoning_file[] = Array.from({ length: randomFileCount }, () => {
+    const randomLineCount = faker.number.int({ min: 0, max: 5 });
+    const fileLines =
+      randomLineCount > 0
+        ? Array.from({ length: randomLineCount }, (_, index) => ({
+            text: faker.lorem.sentence(),
+            line_number: index + 1,
+            modified: faker.datatype.boolean()
+          }))
+        : undefined;
+
+    return {
+      id: faker.string.uuid(),
+      file_type: faker.helpers.arrayElement(['metric', 'dashboard', 'reasoning']),
+      file_name: faker.system.fileName(),
+      version_number: faker.number.int({ min: 1, max: 10 }),
+      version_id: faker.string.uuid(),
+      status: faker.helpers.arrayElement(['loading', 'completed', 'failed']),
+      file: fileLines
+    };
+  });
+
   return {
-    id: 'swag' + faker.string.uuid(),
-    type: 'file',
-    file_type: 'metric',
-    status: 'completed',
-    file_name: faker.company.name(),
-    version_number: 1,
-    version_id: faker.string.uuid(),
-    file: [
-      {
-        text: 'name: my-service\nversion: 1.0.0\ndescription: A sample service',
-        line_number: 1,
-        modified: false
-      },
-      {
-        text: 'dependencies:\n  - name: redis\n    version: 6.2.0\n  - name: postgres\n    version: 13.4',
-        line_number: 2
-      },
-      {
-        text: 'ports:\n  - 8080\n  - 9000\n  - 6379',
-        line_number: 3
-      },
-      {
-        text: 'environment:\n  NODE_ENV: production\n  LOG_LEVEL: info\n  DB_HOST: localhost',
-        line_number: 4
-      }
-    ]
+    id: faker.string.uuid(),
+    type: 'files',
+    title: faker.lorem.words(3),
+    secondary_title: faker.datatype.boolean() ? faker.lorem.sentence() : undefined,
+    status: faker.helpers.arrayElement(['loading', 'completed', 'failed']),
+    files
+  };
+};
+
+const createMockReasoningMessageText = (): BusterChatMessageReasoning_text => {
+  return {
+    id: faker.string.uuid(),
+    type: 'text',
+    message: faker.lorem.sentence(),
+    title: faker.lorem.words(4),
+    secondary_title: faker.lorem.sentence(),
+    status: 'loading'
   };
 };
 
@@ -130,11 +146,10 @@ export const MOCK_CHAT: BusterChat = {
       request_message: createMockUserMessage(),
       final_reasoning_message: null,
       reasoning: [
-        ...Array.from({ length: 1 }, () => createMockResponseMessageThought()),
+        createMockReasoningMessageText(),
+        createMockReasoningMessageText(),
+        ...Array.from({ length: 1 }, () => createMockResponseMessagePills()),
         createMockReasoningMessageFile()
-        // createMockReasoningMessageFile(),
-        // createMockResponseMessageThought(),
-        // createMockResponseMessageThought()
       ],
       response_messages: [
         createMockResponseMessageText(),

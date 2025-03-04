@@ -8,7 +8,6 @@ function hours24(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m3.2193,11.7889c.2826-1.0053,1.2557-1.5546,2.3088-1.5386,1.0518.016,2.0409.4866,2.1035,1.5386s-1.0518,1.7586-2.2062,2.2305c-1.1544.4706-2.1115.9106-2.2062,2.2305h4.415"

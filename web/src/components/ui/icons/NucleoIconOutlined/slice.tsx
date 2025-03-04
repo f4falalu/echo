@@ -8,7 +8,6 @@ function slice(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M10.206,6.294L1.25,15.25c3.344,.25,6.125-.781,7.75-2.5l-.253-1.702,1.546-1.546"

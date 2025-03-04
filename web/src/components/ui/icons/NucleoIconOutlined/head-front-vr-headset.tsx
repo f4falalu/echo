@@ -8,7 +8,6 @@ function headFrontVrHeadset(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M14.094,5.745c-.571-2.257-2.637-3.995-5.094-3.995-2.454,0-4.519,1.735-5.092,3.989"

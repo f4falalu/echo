@@ -8,7 +8,6 @@ function patches(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M9,3.697l-.861-.861c-.781-.781-2.047-.781-2.828,0l-2.475,2.475c-.781,.781-.781,2.047,0,2.828l.861,.861"

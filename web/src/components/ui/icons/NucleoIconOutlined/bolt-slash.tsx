@@ -8,7 +8,6 @@ function boltSlash(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m8.465,13.07l-.319,3.159c-.037.26.299.394.451.18l5.872-8.265c.118-.166,0-.395-.204-.395h-.481"

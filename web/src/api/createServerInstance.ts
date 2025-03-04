@@ -1,6 +1,6 @@
 'use server';
 
-import { BASE_URL } from './buster_rest/instances';
+import { BASE_URL } from './buster_rest/config';
 import type { RequestInit } from 'next/dist/server/web/spec-extension/request';
 import { createClient } from '../context/Supabase/server';
 

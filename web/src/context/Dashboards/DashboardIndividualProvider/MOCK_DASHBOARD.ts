@@ -98,7 +98,7 @@ refresh_interval: 300`,
     updated_at: null,
     updated_by: 'user-123',
     deleted_at: null,
-    status: VerificationStatus.notRequested,
+    status: VerificationStatus.NOT_REQUESTED,
     config: {
       rows
     },

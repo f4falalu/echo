@@ -8,7 +8,6 @@ function panoramaImage(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M15.271,14.293l-4.19-5.697c-.4-.543-1.212-.543-1.611,0l-3.623,4.927"

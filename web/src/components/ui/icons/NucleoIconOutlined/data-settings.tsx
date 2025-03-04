@@ -8,7 +8,6 @@ function dataSettings(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M6.709,13.75H2.457c-.445,0-.669-.539-.354-.854L12.896,2.104c.315-.315,.854-.092,.854,.354V6.708"

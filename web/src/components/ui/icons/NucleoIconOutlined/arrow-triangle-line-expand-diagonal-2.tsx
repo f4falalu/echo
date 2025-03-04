@@ -8,7 +8,6 @@ function arrowTriangleLineExpandDiagonal2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M2.75,6.896V3c0-.138,.112-.25,.25-.25h3.896c.223,0,.334,.269,.177,.427l-3.896,3.896c-.157,.157-.427,.046-.427-.177Z"

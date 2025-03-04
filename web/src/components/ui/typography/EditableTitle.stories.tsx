@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { EditableTitle } from './EditableTitle';
 import React from 'react';
+import { fn } from '@storybook/test';
 
 const meta: Meta<typeof EditableTitle> = {
   title: 'UI/Typography/EditableTitle',
@@ -67,8 +68,8 @@ export const Default: Story = {
   args: {
     children: 'Editable Title',
     level: 4,
-    onChange: (value) => console.log('Value changed:', value),
-    onEdit: (editing) => console.log('Editing state:', editing),
+    onChange: fn(),
+    onEdit: fn(),
     placeholder: 'Enter a title'
   }
 };
@@ -78,8 +79,8 @@ export const Level1: Story = {
   args: {
     children: 'Large Heading',
     level: 1,
-    onChange: (value) => console.log('Value changed:', value),
-    onEdit: (editing) => console.log('Editing state:', editing)
+    onChange: fn(),
+    onEdit: fn()
   }
 };
 
@@ -88,8 +89,8 @@ export const Level2: Story = {
   args: {
     children: 'Medium Heading',
     level: 2,
-    onChange: (value) => console.log('Value changed:', value),
-    onEdit: (editing) => console.log('Editing state:', editing)
+    onChange: fn(),
+    onEdit: fn()
   }
 };
 
@@ -98,8 +99,8 @@ export const Level3: Story = {
   args: {
     children: 'Small Heading',
     level: 3,
-    onChange: (value) => console.log('Value changed:', value),
-    onEdit: (editing) => console.log('Editing state:', editing)
+    onChange: fn(),
+    onEdit: fn()
   }
 };
 
@@ -109,8 +110,8 @@ export const Disabled: Story = {
     children: 'Non-editable Title',
     level: 4,
     disabled: true,
-    onChange: (value) => console.log('Value changed:', value),
-    onEdit: (editing) => console.log('Editing state:', editing)
+    onChange: fn(),
+    onEdit: fn()
   }
 };
 
@@ -120,8 +121,8 @@ export const WithPlaceholder: Story = {
     children: '',
     level: 4,
     placeholder: 'Enter your title here...',
-    onChange: (value) => console.log('Value changed:', value),
-    onEdit: (editing) => console.log('Editing state:', editing)
+    onChange: fn(),
+    onEdit: fn()
   }
 };
 
@@ -131,7 +132,7 @@ export const InitiallyEditing: Story = {
     children: 'Initially in Edit Mode',
     level: 4,
     editing: true,
-    onChange: (value) => console.log('Value changed:', value),
-    onEdit: (editing) => console.log('Editing state:', editing)
+    onChange: fn(),
+    onEdit: fn()
   }
 };

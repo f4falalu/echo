@@ -8,7 +8,6 @@ function stickerSquare(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M7.25,15.25c.828,0,1.5-.672,1.5-1.5v-3c0-1.105,.895-2,2-2h3c.828,0,1.5-.672,1.5-1.5"

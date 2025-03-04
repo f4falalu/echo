@@ -8,7 +8,6 @@ function progressCircle6Of8(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M13.163,3.07c-.854-.601-1.843-1.019-2.913-1.205"

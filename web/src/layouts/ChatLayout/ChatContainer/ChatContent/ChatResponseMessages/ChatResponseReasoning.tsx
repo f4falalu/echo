@@ -5,7 +5,9 @@ import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 import { useMemoizedFn } from 'ahooks';
 import { motion } from 'framer-motion';
 import { AnimatePresence } from 'framer-motion';
-import { AppMaterialIcons, Text } from '@/components/ui';
+import { AppMaterialIcons } from '@/components/ui';
+import { Stars } from '@/components/ui/icons';
+import { Text } from '@/components/ui/typography';
 import { createStyles } from 'antd-style';
 import { useChatLayoutContextSelector } from '../../../ChatLayoutContext';
 
@@ -33,8 +35,8 @@ export const ChatResponseReasoning: React.FC<{
         return lastMessage.message;
       case 'pills':
         return lastMessage.title;
-      case 'file':
-        return lastMessage.file_name;
+      case 'files':
+        return lastMessage.title;
       default:
         const _exhaustiveCheck: never = lastMessage;
         return 'Thinking...';
@@ -85,9 +87,9 @@ const ShimmerTextWithIcon = React.memo(
             isSelected && 'is-selected'
           )}>
           <div>
-            <AppMaterialIcons icon="stars" />
+            <Stars />
           </div>
-          <Text type="inherit">{text}</Text>
+          <Text variant="inherit">{text}</Text>
         </div>
       );
     }
@@ -95,7 +97,7 @@ const ShimmerTextWithIcon = React.memo(
     return (
       <div className={cx(styles.iconContainer, 'flex items-center gap-1')}>
         <div className={cx(styles.icon)}>
-          <AppMaterialIcons icon="stars" />
+          <Stars />
         </div>
         <ShimmerText text={text} />
       </div>

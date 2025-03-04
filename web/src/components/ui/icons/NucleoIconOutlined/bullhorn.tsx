@@ -8,7 +8,6 @@ function bullhorn(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M8.805,10.75l.982,4.647c.114,.54-.231,1.071-.772,1.185l-.978,.207c-.54,.114-1.071-.231-1.185-.772l-1.102-5.267"

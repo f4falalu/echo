@@ -8,7 +8,6 @@ function magnifierSlash(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M12.57,6.417c.117,.425,.18,.872,.18,1.333,0,2.761-2.239,5-5,5-.441,0-.869-.057-1.277-.165"

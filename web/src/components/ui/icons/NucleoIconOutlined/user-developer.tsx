@@ -8,7 +8,6 @@ function userDeveloper(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M1.953,14c1.298-1.958,3.522-3.25,6.047-3.25"

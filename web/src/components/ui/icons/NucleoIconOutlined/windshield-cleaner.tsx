@@ -8,7 +8,6 @@ function windshieldCleaner(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M13.25,4c0-1.174-.951-2.125-2.125-2.125s-2.125,.951-2.125,2.125"

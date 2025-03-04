@@ -8,7 +8,6 @@ function gamepadButtons(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M7.75,2.25h2.5c.552,0,1,.448,1,1v1.336c0,.265-.105,.52-.293,.707l-1.604,1.604c-.195,.195-.512,.195-.707,0l-1.604-1.604c-.188-.188-.293-.442-.293-.707v-1.336c0-.552,.448-1,1-1Z"

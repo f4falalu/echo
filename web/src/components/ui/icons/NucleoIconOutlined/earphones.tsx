@@ -8,7 +8,6 @@ function earphones(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M5.25,8.75c-.675,0-1.287-.374-1.737-.983"

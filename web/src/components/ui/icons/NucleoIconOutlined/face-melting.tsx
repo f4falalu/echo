@@ -8,7 +8,6 @@ function faceMelting(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M10.312,13.438c-.259-.201-.492-.312-.656-.375-.756-.292-1.153-.017-2.007-.33-.314-.115-.527-.251-.648-.336,0,0-.296-.209-.526-.491-.557-.681-.589-1.655-.593-1.822"

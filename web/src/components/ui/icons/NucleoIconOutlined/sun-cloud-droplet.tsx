@@ -8,7 +8,6 @@ function sunCloudDroplet(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M17.25 6.75L16.75 6.75"

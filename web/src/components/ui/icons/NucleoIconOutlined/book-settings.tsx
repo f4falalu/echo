@@ -8,7 +8,6 @@ function bookSettings(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M15.25,12.75c-.641,.844-.734,2.547,0,3.5H4.5c-.966,0-1.75-.783-1.75-1.75"

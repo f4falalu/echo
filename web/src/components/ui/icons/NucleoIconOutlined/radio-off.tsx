@@ -8,7 +8,6 @@ function radioOff(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M7.763,10.237c-.317-.317-.513-.754-.513-1.237,0-.966,.784-1.75,1.75-1.75,.483,0,.921,.196,1.237,.513"

@@ -8,7 +8,6 @@ function undo(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m11.25,7.391c-.462-.403-2.362-1.97-5.25-1.97S1.212,6.988.75,7.391"

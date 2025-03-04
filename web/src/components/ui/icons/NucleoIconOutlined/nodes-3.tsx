@@ -8,7 +8,6 @@ function nodes3(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M2.84,8.689c.246-1.437,.982-2.707,2.031-3.631"

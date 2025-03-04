@@ -8,7 +8,6 @@ function axisY(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M9.725 4.237L7.25 1.763 4.775 4.237"

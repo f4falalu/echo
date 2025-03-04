@@ -8,7 +8,6 @@ function pencil(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M13.953,7.578l1.109-1.109c.586-.586,.586-1.536,0-2.121l-1.409-1.409c-.586-.586-1.536-.586-2.121,0l-1.109,1.109,3.53,3.53Z"

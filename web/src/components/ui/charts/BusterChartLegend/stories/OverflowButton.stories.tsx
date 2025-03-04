@@ -45,8 +45,8 @@ const mockLegendItems = [
 export const Default: Story = {
   args: {
     legendItems: mockLegendItems,
-    onClickItem: fn,
-    onFocusClick: fn
+    onClickItem: fn(),
+    onFocusClick: fn()
   }
 };
 

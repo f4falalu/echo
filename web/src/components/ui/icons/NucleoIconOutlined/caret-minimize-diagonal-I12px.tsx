@@ -8,7 +8,6 @@ function caretMinimizeDiagonal(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m5.25,10.896v-3.896c0-.138-.112-.25-.25-.25H1.104c-.223,0-.334.269-.177.427l3.896,3.896c.157.157.427.046.427-.177Z"

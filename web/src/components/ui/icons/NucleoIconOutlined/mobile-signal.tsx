@@ -8,7 +8,6 @@ function mobileSignal(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M14.018,10.768c.452-.452,.732-1.077,.732-1.768,0-.69-.28-1.315-.732-1.768"

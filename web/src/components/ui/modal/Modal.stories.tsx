@@ -3,6 +3,7 @@ import { AppModal } from './AppModal';
 import { Button } from '../buttons/Button';
 import React from 'react';
 import { ModalProps } from './AppModal';
+import { fn } from '@storybook/test';
 const meta: Meta<typeof AppModal> = {
   title: 'UI/Modal/AppModal',
   component: AppModal,
@@ -84,11 +85,11 @@ export const Default: Story = {
     footer: {
       primaryButton: {
         text: 'Confirm',
-        onClick: () => console.log('Primary button clicked')
+        onClick: fn()
       },
       secondaryButton: {
         text: 'Cancel',
-        onClick: () => console.log('Secondary button clicked')
+        onClick: fn()
       }
     },
     width: 600,
@@ -110,7 +111,7 @@ export const WithoutDescription: Story = {
     footer: {
       primaryButton: {
         text: 'OK',
-        onClick: () => console.log('OK clicked')
+        onClick: fn()
       }
     },
     width: 500,
@@ -132,12 +133,12 @@ export const LoadingState: Story = {
     footer: {
       primaryButton: {
         text: 'Submit',
-        onClick: () => console.log('Submit clicked'),
+        onClick: fn(),
         loading: true
       },
       secondaryButton: {
         text: 'Cancel',
-        onClick: () => console.log('Cancel clicked'),
+        onClick: fn(),
         disabled: true
       }
     },
@@ -160,11 +161,11 @@ export const CustomWidth: Story = {
     footer: {
       primaryButton: {
         text: 'Save',
-        onClick: () => console.log('Save clicked')
+        onClick: fn()
       },
       secondaryButton: {
         text: 'Discard',
-        onClick: () => console.log('Discard clicked')
+        onClick: fn()
       }
     },
     width: 300,
@@ -191,11 +192,11 @@ export const WithCustomFooterLeft: Story = {
       left: <span className="text-sm text-gray-500">Additional footer information</span>,
       primaryButton: {
         text: 'Continue',
-        onClick: () => console.log('Continue clicked')
+        onClick: fn()
       },
       secondaryButton: {
         text: 'Back',
-        onClick: () => console.log('Back clicked')
+        onClick: fn()
       }
     },
     width: 600,

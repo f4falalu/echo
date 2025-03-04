@@ -8,7 +8,6 @@ function mailbox(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M14.374,5.149c1.115,.585,1.876,1.754,1.876,3.101v5c0,.552-.448,1-1,1H7.75"

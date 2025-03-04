@@ -8,7 +8,6 @@ function report(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m15.16,6.25h-3.41c-.552,0-1-.448-1-1V1.852"

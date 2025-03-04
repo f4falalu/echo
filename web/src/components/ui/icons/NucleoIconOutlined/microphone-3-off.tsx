@@ -8,7 +8,6 @@ function microphone3Off(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M5.396,12.604c-1.6-1.133-2.646-2.999-2.646-5.104"

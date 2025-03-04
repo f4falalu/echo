@@ -8,7 +8,6 @@ function flask(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m4.25.75v5.25l-2.464,3.695c-.443.665.033,1.555.832,1.555h6.763c.799,0,1.275-.89.832-1.555l-2.464-3.695V.75"

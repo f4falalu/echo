@@ -135,7 +135,7 @@ const StatusButton: React.FC<{
 
   return (
     <StatusBadgeButton
-      status={VerificationStatus.notRequested}
+      status={VerificationStatus.NOT_REQUESTED}
       id={selectedRowKeys}
       onVerify={onVerify}
       isAdmin={isAdmin}

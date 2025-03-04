@@ -8,7 +8,6 @@ function flipVertical2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M3.75,7.25V2.543c0-.276,.224-.5,.5-.5,.075,0,.149,.017,.216,.049L14.256,6.774c.24,.115,.158,.476-.108,.476H3.75Z"

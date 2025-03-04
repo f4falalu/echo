@@ -8,7 +8,6 @@ function bellSlash(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M13.368,4.632c-.726-1.694-2.408-2.882-4.368-2.882h0c-2.623,0-4.75,2.127-4.75,4.75v4.75c0,1.105-.895,2-2,2h2.5"

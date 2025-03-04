@@ -8,7 +8,6 @@ function circleArrowOut(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M4.929,3c1.16-.789,2.562-1.25,4.071-1.25,4.004,0,7.25,3.246,7.25,7.25s-3.246,7.25-7.25,7.25c-1.509,0-2.91-.461-4.071-1.25"

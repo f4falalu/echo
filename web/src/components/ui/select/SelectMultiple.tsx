@@ -11,7 +11,7 @@ import { InputTag } from '../inputs/InputTag';
 
 interface SelectMultipleProps extends VariantProps<typeof selectVariants> {
   items: SelectItem[];
-  onSelect: (item: string[]) => void;
+  onChange: (item: string[]) => void;
   className?: string;
   placeholder?: string;
   value: string[];
@@ -21,7 +21,7 @@ interface SelectMultipleProps extends VariantProps<typeof selectVariants> {
 export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
   ({
     items: itemsProp,
-    onSelect,
+    onChange,
     className,
     placeholder = 'Select items...',
     size = 'default',
@@ -40,7 +40,7 @@ export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
       const newSelected = itemsProp
         .filter((item) => item.value !== valueToRemove && selectedRecord[item.value])
         .map((item) => item.value);
-      onSelect(newSelected);
+      onChange(newSelected);
     };
 
     const handleSelect = useMemoizedFn((itemId: string) => {
@@ -52,7 +52,7 @@ export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
           const newSelected = itemsProp
             .filter((item) => selectedRecord[item.value])
             .map((item) => item.value);
-          onSelect([...newSelected, item.value]);
+          onChange([...newSelected, item.value]);
         }
       }
     });

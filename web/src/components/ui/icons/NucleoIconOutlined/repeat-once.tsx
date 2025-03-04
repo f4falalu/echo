@@ -8,7 +8,6 @@ function repeatOnce(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M9.25,7.25V1.75s-.63,1.108-1.967,1.364"

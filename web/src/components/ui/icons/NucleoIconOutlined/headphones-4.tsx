@@ -8,7 +8,6 @@ function headphones4(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m15.75,12.75v-3.75c0-3.7279-3.0221-6.75-6.75-6.75h0c-3.7279,0-6.75,3.0221-6.75,6.75v3.75"

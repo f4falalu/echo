@@ -8,7 +8,6 @@ function axisDottedX(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M13.763 13.225L16.237 10.75 13.763 8.275"

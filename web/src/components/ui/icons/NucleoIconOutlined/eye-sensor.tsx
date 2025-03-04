@@ -8,7 +8,6 @@ function eyeSensor(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M15.282,10.424c.671,.76,.671,1.893,0,2.653-1.101,1.247-3.162,2.924-6.282,2.924s-5.181-1.677-6.282-2.924c-.671-.76-.671-1.893,0-2.653,1.101-1.247,3.162-2.924,6.282-2.924s5.181,1.677,6.282,2.924Z"

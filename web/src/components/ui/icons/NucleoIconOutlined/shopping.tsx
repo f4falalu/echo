@@ -8,7 +8,6 @@ function shopping(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M10,5.51c-.368-.465-.937-.76-1.569-.76H4.069c-1.031,0-1.893,.784-1.991,1.81l-.619,6.5c-.112,1.174,.812,2.19,1.991,2.19h1.55"

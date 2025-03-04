@@ -8,7 +8,6 @@ function steeringWheel(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M16,7.75l-4.763-.34c-.499-.7-1.312-1.16-2.237-1.16s-1.738,.46-2.237,1.16l-4.763,.34"

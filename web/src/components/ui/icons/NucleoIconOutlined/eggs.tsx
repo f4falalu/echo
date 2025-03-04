@@ -8,7 +8,6 @@ function eggs(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M1.75,11.375C1.75,8.125,3.877,3.25,6.5,3.25s4.75,4.875,4.75,8.125c.034,2.658-2.092,4.84-4.75,4.875-2.658-.035-4.784-2.217-4.75-4.875Z"

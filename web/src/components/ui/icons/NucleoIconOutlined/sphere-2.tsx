@@ -8,7 +8,6 @@ function sphere2(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M16.25,9c0,1.657-3.246,3-7.25,3s-7.25-1.343-7.25-3"

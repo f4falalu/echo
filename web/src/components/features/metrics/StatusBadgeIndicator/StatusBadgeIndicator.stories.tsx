@@ -10,7 +10,7 @@ const meta = {
   },
   tags: ['autodocs'],
   args: {
-    status: VerificationStatus.notRequested,
+    status: VerificationStatus.NOT_REQUESTED,
     size: 16,
     showTooltip: true
   },
@@ -43,51 +43,51 @@ type Story = StoryObj<typeof meta>;
 // Basic StatusBadgeIndicator examples for each status
 export const NotRequested: Story = {
   args: {
-    status: VerificationStatus.notRequested
+    status: VerificationStatus.NOT_REQUESTED
   }
 };
 
 export const Requested: Story = {
   args: {
-    status: VerificationStatus.requested
+    status: VerificationStatus.REQUESTED
   }
 };
 
 export const InReview: Story = {
   args: {
-    status: VerificationStatus.inReview
+    status: VerificationStatus.IN_REVIEW
   }
 };
 
 export const Verified: Story = {
   args: {
-    status: VerificationStatus.verified
+    status: VerificationStatus.VERIFIED
   }
 };
 
 export const Backlogged: Story = {
   args: {
-    status: VerificationStatus.backlogged
+    status: VerificationStatus.BACKLOGGED
   }
 };
 
 export const NotVerified: Story = {
   args: {
-    status: VerificationStatus.notVerified
+    status: VerificationStatus.NOT_VERIFIED
   }
 };
 
 // Size variations
 export const LargeSize: Story = {
   args: {
-    status: VerificationStatus.verified,
+    status: VerificationStatus.VERIFIED,
     size: 24
   }
 };
 
 export const SmallSize: Story = {
   args: {
-    status: VerificationStatus.verified,
+    status: VerificationStatus.VERIFIED,
     size: 12
   }
 };
@@ -95,7 +95,7 @@ export const SmallSize: Story = {
 // Without tooltip
 export const WithoutTooltip: Story = {
   args: {
-    status: VerificationStatus.verified,
+    status: VerificationStatus.VERIFIED,
     showTooltip: false
   }
 };

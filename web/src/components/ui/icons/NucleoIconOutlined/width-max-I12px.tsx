@@ -8,7 +8,6 @@ function widthMax(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m10.25,6.75H1.75c-.552,0-1,.448-1,1v2.5c0,.552.448,1,1,1h8.5c.552,0,1-.448,1-1v-2.5c0-.552-.448-1-1-1Z"

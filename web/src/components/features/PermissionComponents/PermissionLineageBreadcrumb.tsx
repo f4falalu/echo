@@ -1,10 +1,11 @@
 import type { DatasetPermissionOverviewUser } from '@/api/asset_interfaces';
-import { AppMaterialIcons, AppPopover } from '@/components/ui';
+import { ChevronRight } from '@/components/ui/icons';
+import { Popover } from '@/components/ui/tooltip/Popover';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { useMemoizedFn } from 'ahooks';
-import { createStyles } from 'antd-style';
 import Link from 'next/link';
 import React, { useMemo } from 'react';
+import { cn } from '@/lib/utils';
+import { cva } from 'class-variance-authority';
 
 export const PermissionLineageBreadcrumb: React.FC<{
   lineage: DatasetPermissionOverviewUser['lineage'];
@@ -56,10 +57,10 @@ const MultipleLineage: React.FC<{
   lineage: DatasetPermissionOverviewUser['lineage'];
   canQuery: DatasetPermissionOverviewUser['can_query'];
 }> = ({ lineage, canQuery }) => {
-  const { styles, cx } = useStyles();
+  // const { styles, cx } = useStyles();
   const Content = useMemo(() => {
     return (
-      <div className="flex min-w-[200px] flex-col space-y-2 p-2">
+      <div className="flex min-w-[200px] flex-col space-y-2">
         {lineage.map((item, lineageindex) => {
           const items = item.map((v, index) => {
             return <SelectedComponent key={index} item={v} />;
@@ -71,17 +72,10 @@ const MultipleLineage: React.FC<{
     );
   }, [lineage]);
 
-  const onClickPreflight = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation();
-    e.preventDefault();
-  });
-
   return (
-    <AppPopover placement="topRight" destroyTooltipOnHide trigger="click" content={Content}>
-      <div className={cx(styles.linearItem, 'clickable')} onClick={onClickPreflight}>
-        Multiple access sources
-      </div>
-    </AppPopover>
+    <Popover side="top" align="start" trigger="click" content={Content} size="sm">
+      <div className={linearItem({ clickable: true })}>Multiple access sources</div>
+    </Popover>
   );
 };
 
@@ -91,39 +85,30 @@ interface LineageItemProps {
 }
 
 const UserLineageItem: React.FC<LineageItemProps> = ({ name, id }) => {
-  const { styles, cx } = useStyles();
-  return <div className={cx(styles.linearItem)}>{name}</div>;
+  return <div className={linearItem({ clickable: false })}>{name}</div>;
 };
 
 const DatasetLineageItem: React.FC<LineageItemProps> = ({ name, id }) => {
-  const { styles, cx } = useStyles();
   return (
     <Link href={createBusterRoute({ route: BusterRoutes.APP_DATASETS_ID, datasetId: id })}>
-      <div className={cx(styles.linearItem, 'clickable')}>{name}</div>
+      <div className={linearItem({ clickable: true })}>{name}</div>
     </Link>
   );
 };
 
 const PermissionGroupLineageItem: React.FC<LineageItemProps> = ({ name, id }) => {
-  const { styles, cx } = useStyles();
-  return <div className={cx(styles.linearItem)}>{name}</div>;
+  return <div className={linearItem({ clickable: false })}>{name}</div>;
 };
 
 const DatasetGroupLineageItem: React.FC<LineageItemProps> = ({ name, id }) => {
-  const { styles, cx } = useStyles();
-  return <div className={cx(styles.linearItem)}>{name}</div>;
+  return <div className={linearItem({ clickable: false })}>{name}</div>;
 };
 
 const CanQueryTag: React.FC<{
   canQuery: boolean;
 }> = ({ canQuery }) => {
-  const { styles, cx } = useStyles();
   return (
-    <div
-      className={cx(
-        styles.canQueryTag,
-        canQuery ? styles.canQueryTagSuccess : styles.canQueryTagError
-      )}>
+    <div className={canQueryTag({ status: canQuery ? 'success' : 'error' })}>
       {canQuery ? 'Can query' : 'Cannot query'}
     </div>
   );
@@ -133,13 +118,12 @@ const LineageBreadcrumb: React.FC<{
   items: React.ReactNode[];
   canQuery: boolean;
 }> = ({ items, canQuery }) => {
-  const { styles, cx } = useStyles();
-  const BreadcrumbIcon = <AppMaterialIcons icon="chevron_right" />;
+  const BreadcrumbIcon = <ChevronRight />;
 
   const allItems = [...items, <CanQueryTag key="can-query" canQuery={canQuery} />];
 
   return (
-    <div className={cx(styles.linearContainer, 'flex justify-end space-x-0')}>
+    <div className={cn('text-text-secondary', 'flex justify-end space-x-0')}>
       {allItems.map((item, index) => {
         return (
           <div key={index} className="flex items-center space-x-0">
@@ -152,33 +136,36 @@ const LineageBreadcrumb: React.FC<{
   );
 };
 
-const useStyles = createStyles(({ token, css }) => ({
-  linearContainer: css`
-    color: ${token.colorTextSecondary};
-  `,
-  linearItem: css`
-    color: ${token.colorTextSecondary};
-    padding: 4px 6px;
-    border-radius: 4px;
-
-    &.clickable {
-      cursor: pointer;
-      &:hover {
-        color: ${token.colorText};
-        background-color: ${token.colorFillSecondary};
-      }
+const linearItem = cva('text-text-secondary text-base px-1 py-1.5 rounded-sm', {
+  variants: {
+    clickable: {
+      true: 'cursor-pointer hover:text-text hover:bg-item-hover-active',
+      false: ''
     }
-  `,
-  canQueryTag: css`
-    border-radius: 4px;
-    padding: 4px 6px;
-  `,
-  canQueryTagSuccess: css`
-    color: #34a32d;
-    background-color: #edfff0;
-  `,
-  canQueryTagError: css`
-    color: #ff9e00;
-    background-color: #fff7ed;
-  `
-}));
+  }
+});
+
+const canQueryTag = cva('rounded-sm px-1 py-1.5 text-base', {
+  variants: {
+    status: {
+      success: 'bg-success-background text-success-foreground',
+      error: 'bg-danger-background text-danger-foreground'
+    }
+  }
+});
+
+// const useStyles = createStyles(({ token, css }) => ({
+
+//   canQueryTag: css`
+//     border-radius: 4px;
+//     padding: 4px 6px;
+//   `,
+//   canQueryTagSuccess: css`
+//     color: #34a32d;
+//     background-color: #edfff0;
+//   `,
+//   canQueryTagError: css`
+//     color: #ff9e00;
+//     background-color: #fff7ed;
+//   `
+// }));

@@ -26,8 +26,10 @@ export type BusterChatMessage_text = {
   is_final_message?: boolean; //defaults to false
 };
 
+export type BusterChatMessageReasoning_status = 'loading' | 'completed' | 'failed';
+
 export type BusterChatMessage_fileMetadata = {
-  status: 'loading' | 'completed' | 'failed';
+  status: BusterChatMessageReasoning_status;
   message: string;
   timestamp?: number;
 };
@@ -44,9 +46,9 @@ export type BusterChatMessage_file = {
 };
 
 export type BusterChatMessageReasoning =
-  | BusterChatMessageReasoning_pills
+  | BusterChatMessageReasoning_Pills
   | BusterChatMessageReasoning_text
-  | BusterChatMessageReasoning_file;
+  | BusterChatMessageReasoning_files;
 
 export type BusterChatMessageReasoning_Pill = {
   text: string;
@@ -54,19 +56,17 @@ export type BusterChatMessageReasoning_Pill = {
   id: string;
 };
 
-export type BusterChatMessageReasoning_PillsContainer = {
+export type BusterChatMessageReasoning_PillContainer = {
   title: string;
   pills: BusterChatMessageReasoning_Pill[];
 };
 
-export type BusterChatMessageReasoning_status = 'loading' | 'completed' | 'failed';
-
-export type BusterChatMessageReasoning_pills = {
+export type BusterChatMessageReasoning_Pills = {
   id: string;
   type: 'pills';
   title: string;
   secondary_title?: string;
-  pill_containers?: BusterChatMessageReasoning_PillsContainer[];
+  pill_containers?: BusterChatMessageReasoning_PillContainer[];
   status?: BusterChatMessageReasoning_status; //if left undefined, will automatically be set to 'loading' if the chat stream is in progress AND there is no message after it
 };
 
@@ -77,12 +77,11 @@ export type BusterChatMessageReasoning_text = {
   secondary_title?: string;
   message?: string;
   message_chunk?: string;
-  status?: BusterChatMessageReasoning_status;
+  status: BusterChatMessageReasoning_status;
 };
 
 export type BusterChatMessageReasoning_file = {
   id: string;
-  type: 'file';
   file_type: FileType;
   file_name: string;
   version_number: number;
@@ -93,4 +92,13 @@ export type BusterChatMessageReasoning_file = {
     line_number: number;
     modified?: boolean; //only toggle to true if we want to hide previous lines
   }[];
+};
+
+export type BusterChatMessageReasoning_files = {
+  id: string;
+  type: 'files';
+  title: string;
+  status: BusterChatMessageReasoning_status;
+  secondary_title?: string;
+  files: BusterChatMessageReasoning_file[];
 };

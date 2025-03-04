@@ -8,7 +8,6 @@ function message(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m9.25,8.75h-2.5l-3,2.5v-2.5h-1c-1.105,0-2-.895-2-2v-3.5c0-1.105.895-2,2-2h6.5c1.105,0,2,.895,2,2v3.5c0,1.105-.895,2-2,2Z"

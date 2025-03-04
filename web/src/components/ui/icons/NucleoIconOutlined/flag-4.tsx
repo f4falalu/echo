@@ -8,7 +8,6 @@ function flag4(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M3.75,2.5l10.231,3.781c.436,.161,.436,.777,0,.938L3.75,11"

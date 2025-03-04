@@ -8,7 +8,6 @@ function arrowDashedRotateAnticlockwise(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M1.872 3.305L2.28 6.25 5.224 5.843"

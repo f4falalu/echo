@@ -8,7 +8,6 @@ function heartSlash(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m14.463,3.537c-.639-.483-1.426-.782-2.289-.787-1.277.016-2.464.66-3.173,1.72-.71-1.061-1.896-1.704-3.173-1.72-2.123.013-3.834,1.739-3.827,3.859,0,2.67,1.518,4.768,3.14,6.251"

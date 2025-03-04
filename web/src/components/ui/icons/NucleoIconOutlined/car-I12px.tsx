@@ -8,7 +8,6 @@ function car(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m1.189,5.311l.561-.561h8.5l.561.561c.281.281.439.663.439,1.061v2.879H.75v-2.879c0-.398.158-.779.439-1.061Z"

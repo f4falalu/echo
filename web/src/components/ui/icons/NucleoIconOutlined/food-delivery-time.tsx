@@ -8,7 +8,6 @@ function foodDeliveryTime(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M10.25,16.25V6.75c-.335,.611-.7,1.396-.991,2.344-.312,1.016-.45,1.928-.509,2.656l1.5,1.508"

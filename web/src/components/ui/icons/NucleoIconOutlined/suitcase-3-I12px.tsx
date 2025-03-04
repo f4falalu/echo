@@ -8,7 +8,6 @@ function suitcase3(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="m.75,6.75c3.547,1.337,7.047,1.337,10.5,0"

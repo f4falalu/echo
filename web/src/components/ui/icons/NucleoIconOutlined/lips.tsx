@@ -8,7 +8,6 @@ function lips(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M1.25,9c2.768,0,3.045-.607,4.429-.607s1.661,.607,3.321,.607,1.938-.607,3.321-.607,2.214,.607,4.429,.607"

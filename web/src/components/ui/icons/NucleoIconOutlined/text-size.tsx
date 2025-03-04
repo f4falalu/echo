@@ -8,7 +8,6 @@ function textSize(props: iconProps) {
 
   return (
     <svg height="1em" width="1em" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <path
           d="M17.25 13.25L13.565 3.75 12.955 3.75 9.27 13.25"
