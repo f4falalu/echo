@@ -212,9 +212,6 @@ definitions:
       selected_chart_type:
         type: string
         description: "Chart type (bar, line, scatter, pie, combo, metric, table)"
-      selected_view:
-        type: string
-        description: "View name"
       column_label_formats:
         type: object
         description: The formatting for each column.
@@ -243,7 +240,6 @@ definitions:
           $ref: "#/definitions/trendline"
     required:
       - selected_chart_type
-      - selected_view
       - column_label_formats
 
   # COLUMN FORMATTING
