@@ -19,6 +19,7 @@ export const ChatContainer = React.memo(({}: ChatContainerProps) => {
   return (
     <AppPageLayout
       header={<ChatHeader showScrollOverflow={showScrollOverflow} />}
+      headerBorderVariant="ghost"
       className="flex h-full w-full min-w-[295px] flex-col">
       <ChatContent chatContentRef={chatContentRef} />
     </AppPageLayout>

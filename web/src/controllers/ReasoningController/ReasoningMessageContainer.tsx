@@ -1,3 +1,5 @@
+'use client';
+
 import type { BusterChatMessageReasoning } from '@/api/asset_interfaces';
 import React, { useMemo } from 'react';
 import { ReasoningMessageSelector } from './ReasoningMessages';

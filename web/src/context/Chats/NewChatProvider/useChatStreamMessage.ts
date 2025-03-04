@@ -136,6 +136,10 @@ export const useChatStreamMessage = () => {
   const _generatingResponseMessageCallback = useMemoizedFn(
     (_: null, d: ChatEvent_GeneratingResponseMessage) => {
       const { message_id, response_message, chat_id } = d;
+      console.log(response_message?.id);
+
+      if (!response_message?.id) return;
+
       const responseMessageId = response_message.id;
       const foundResponseMessage: undefined | ChatMessageResponseMessage =
         chatMessageResponseMessagesRef.current[message_id]?.[responseMessageId];

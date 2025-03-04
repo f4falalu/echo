@@ -47,7 +47,7 @@ export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(
           <AppSplitter
             ref={appSplitterRef}
             leftChildren={<ChatContainer />}
-            rightChildren={<FileContainer children={children} />}
+            rightChildren={<FileContainer>{children}</FileContainer>}
             autoSaveId="chat-splitter"
             defaultLayout={defaultSplitterLayout}
             rightHidden={renderViewLayoutKey === 'chat'}

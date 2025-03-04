@@ -7,7 +7,7 @@ import {
 } from './eventInterfaces';
 
 export enum ChatsResponses {
-  '/chats/list:getThreadsList' = '/chats/list:getThreadsList',
+  '/chats/list:getChatsList' = '/chats/list:getChatsList',
   '/chats/unsubscribe:unsubscribe' = '/chats/unsubscribe:unsubscribe',
   '/chats/get:getChat' = '/chats/get:getChat',
   '/chats/post:initializeChat' = '/chats/post:initializeChat',

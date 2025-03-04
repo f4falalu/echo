@@ -16,9 +16,17 @@ export const AppPageLayout: React.FC<
     header?: React.ReactNode;
     scrollable?: boolean;
     className?: string;
-    headerVariant?: 'default' | 'list';
+    headerSizeVariant?: 'default' | 'list';
+    headerBorderVariant?: 'default' | 'ghost';
   }>
-> = ({ children, header, scrollable = false, className = '', headerVariant = 'default' }) => {
+> = ({
+  children,
+  header,
+  scrollable = false,
+  className = '',
+  headerSizeVariant = 'default',
+  headerBorderVariant = 'default'
+}) => {
   return (
     <div
       className={cn(
@@ -26,7 +34,11 @@ export const AppPageLayout: React.FC<
         scrollable && 'overflow-y-auto',
         className
       )}>
-      {header && <AppPageLayoutHeader variant={headerVariant}>{header}</AppPageLayoutHeader>}
+      {header && (
+        <AppPageLayoutHeader sizeVariant={headerSizeVariant} borderVariant={headerBorderVariant}>
+          {header}
+        </AppPageLayoutHeader>
+      )}
       <AppPageLayoutContent scrollable={scrollable}>{children}</AppPageLayoutContent>
     </div>
   );

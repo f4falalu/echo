@@ -5,7 +5,6 @@ import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 import { useMemoizedFn } from 'ahooks';
 import { motion } from 'framer-motion';
 import { AnimatePresence } from 'framer-motion';
-import { AppMaterialIcons } from '@/components/ui';
 import { Stars } from '@/components/ui/icons';
 import { Text } from '@/components/ui/typography';
 import { createStyles } from 'antd-style';

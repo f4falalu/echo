@@ -4,7 +4,7 @@ import React from 'react';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useMemoizedFn } from 'ahooks';
-import { AppTooltip } from '@/components/ui';
+import { AppTooltip } from '@/components/ui/tooltip';
 
 export const CreateChatButton = React.memo(() => {
   const onCollapseFileClick = useChatLayoutContextSelector((x) => x.onCollapseFileClick);

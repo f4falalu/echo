@@ -1,30 +1,28 @@
+'use client';
+
 import { useMessageIndividual } from '@/context/Chats';
 import type { SelectedFile } from '../interfaces';
-import { usePrevious } from 'ahooks';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export const useAutoChangeLayout = ({
   lastMessageId,
-
   onSetSelectedFile
 }: {
   lastMessageId: string;
   onSetSelectedFile: (file: SelectedFile) => void;
 }) => {
+  const hasSeeningReasoningPage = useRef(false); //used when there is a delay in page load
   const message = useMessageIndividual(lastMessageId);
   const reasoningMessagesLength = message?.reasoning?.length;
-  const previousReasoningMessagesLength = usePrevious(reasoningMessagesLength);
   const isCompletedStream = message?.isCompletedStream;
   const isLoading = !isCompletedStream;
   const hasReasoning = !!reasoningMessagesLength;
-  const previousIsEmpty = previousReasoningMessagesLength === 0;
-
-  console.log(isLoading, previousIsEmpty, hasReasoning, message);
 
   //change the page to reasoning file if we get a reasoning message
   useEffect(() => {
-    if (isLoading && previousIsEmpty && hasReasoning) {
+    if (isLoading && !hasSeeningReasoningPage.current && hasReasoning) {
+      hasSeeningReasoningPage.current = true;
       onSetSelectedFile({ id: lastMessageId, type: 'reasoning' });
     }
-  }, [isLoading, hasReasoning, previousIsEmpty]);
+  }, [isLoading, hasReasoning]);
 };

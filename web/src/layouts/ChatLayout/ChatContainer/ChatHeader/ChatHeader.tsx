@@ -1,9 +1,9 @@
+'use client';
+
 import React from 'react';
 import { ChatHeaderOptions } from './ChatHeaderOptions';
 import { ChatHeaderTitle } from './ChatHeaderTitle';
 import { useChatIndividualContextSelector } from '../../ChatContext';
-import { cn } from '@/lib/classMerge';
-import { AppPageLayoutHeader } from '@/components/ui/layouts/AppPageLayoutHeader';
 
 export const ChatHeader: React.FC<{
   showScrollOverflow: boolean;
@@ -11,19 +11,13 @@ export const ChatHeader: React.FC<{
   const hasFile = useChatIndividualContextSelector((state) => state.hasFile);
   const chatTitle = useChatIndividualContextSelector((state) => state.chatTitle);
 
+  if (!hasFile && !chatTitle) return null;
+
   return (
-    <AppPageLayoutHeader
-      className={cn(
-        'relative z-2 flex w-full items-center justify-between space-x-2 border-b-0 px-4 transition-shadow',
-        showScrollOverflow && 'shadow-scroll-indicator'
-      )}>
-      {hasFile && chatTitle && (
-        <>
-          <ChatHeaderTitle />
-          <ChatHeaderOptions />
-        </>
-      )}
-    </AppPageLayoutHeader>
+    <>
+      <ChatHeaderTitle />
+      <ChatHeaderOptions />
+    </>
   );
 });
 
