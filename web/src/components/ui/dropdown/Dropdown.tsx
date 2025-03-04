@@ -130,6 +130,26 @@ export const _Dropdown = <T,>({
 
   const dropdownItems = selectType === 'multiple' ? unselectedItems : filteredItems;
 
+  const onSelectItem = useMemoizedFn((index: number) => {
+    const correctIndex = dropdownItems.filter((item) => (item as DropdownItem).value);
+    const item = correctIndex[index] as DropdownItem<T>;
+
+    if (item) {
+      const disabled = (item as DropdownItem).disabled;
+      if (!disabled && onSelect) {
+        onSelect(item.value);
+        // Close the dropdown if closeOnSelect is true
+        if (closeOnSelect) {
+          const dropdownTrigger = document.querySelector('[data-state="open"][role="menu"]');
+          if (dropdownTrigger) {
+            const closeEvent = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
+            dropdownTrigger.dispatchEvent(closeEvent);
+          }
+        }
+      }
+    }
+  });
+
   return (
     <DropdownMenu
       open={open}
@@ -149,6 +169,7 @@ export const _Dropdown = <T,>({
               menuHeader={menuHeader}
               onChange={handleSearchChange}
               text={searchText}
+              onSelectItem={onSelectItem}
               showIndex={showIndex}
             />
             <DropdownMenuSeparator />
@@ -171,6 +192,7 @@ export const _Dropdown = <T,>({
                     index={hotkeyIndex}
                     selectType={selectType}
                     onSelect={onSelect}
+                    onSelectItem={onSelectItem}
                     closeOnSelect={closeOnSelect}
                     showIndex={showIndex}
                   />
@@ -191,6 +213,7 @@ export const _Dropdown = <T,>({
                     index={hotkeyIndex}
                     selectType={selectType}
                     onSelect={onSelect}
+                    onSelectItem={onSelectItem}
                     closeOnSelect={closeOnSelect}
                     key={dropdownItemKey(item, hotkeyIndex)}
                     showIndex={showIndex}
@@ -216,6 +239,7 @@ const DropdownItemSelector = React.memo(
     item,
     index,
     onSelect,
+    onSelectItem,
     closeOnSelect,
     selectType,
     showIndex
@@ -223,6 +247,7 @@ const DropdownItemSelector = React.memo(
     item: DropdownItems<T>[number];
     index: number;
     onSelect?: (value: any) => void; // Using any here to resolve the type mismatch
+    onSelectItem: (index: number) => void;
     closeOnSelect: boolean;
     showIndex: boolean;
     selectType: DropdownProps<T>['selectType'];
@@ -240,6 +265,7 @@ const DropdownItemSelector = React.memo(
         {...(item as DropdownItem<T>)}
         closeOnSelect={closeOnSelect}
         onSelect={onSelect}
+        onSelectItem={onSelectItem}
         selectType={selectType}
         index={index}
         showIndex={showIndex}
@@ -255,13 +281,14 @@ const DropdownItem = <T,>({
   shortcut,
   onClick,
   icon,
-  disabled,
+  disabled = false,
   loading,
   selected,
   index,
   items,
   closeOnSelect,
   onSelect,
+  onSelectItem,
   selectType,
   secondaryLabel,
   truncate,
@@ -269,6 +296,7 @@ const DropdownItem = <T,>({
   linkIcon
 }: DropdownItem<T> & {
   onSelect?: (value: T) => void;
+  onSelectItem: (index: number) => void;
   closeOnSelect: boolean;
   index: number;
   showIndex: boolean;
@@ -278,26 +306,12 @@ const DropdownItem = <T,>({
     if (onClick) onClick();
     if (onSelect) onSelect(value as T);
   });
+  const enabledHotKeys = showIndex && !disabled && !!onSelectItem;
 
   // Add hotkey support when showIndex is true
-  useHotkeys(
-    showIndex ? `${index}` : '',
-    (e) => {
-      e.preventDefault();
-      if (!disabled) {
-        onClickItem(e as unknown as React.MouseEvent<HTMLDivElement>);
-        // Close the dropdown if closeOnSelect is true
-        if (closeOnSelect) {
-          const dropdownTrigger = document.querySelector('[data-state="open"][role="menu"]');
-          if (dropdownTrigger) {
-            const closeEvent = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
-            dropdownTrigger.dispatchEvent(closeEvent);
-          }
-        }
-      }
-    },
-    { enabled: showIndex && !disabled }
-  );
+  useHotkeys(showIndex ? `${index}` : '', (e) => onSelectItem(index), {
+    enabled: enabledHotKeys
+  });
 
   const isSubItem = items && items.length > 0;
   const isSelectable = !!selectType && selectType !== 'none';
@@ -341,6 +355,7 @@ const DropdownItem = <T,>({
         items={items}
         closeOnSelect={closeOnSelect}
         onSelect={onSelect}
+        onSelectItem={onSelectItem}
         showIndex={showIndex}
         selectType={selectType}>
         {renderContent()}
@@ -390,6 +405,7 @@ interface DropdownSubMenuWrapperProps<T> {
   closeOnSelect: boolean;
   showIndex: boolean;
   onSelect?: (value: T) => void;
+  onSelectItem: (index: number) => void;
   selectType: DropdownProps<T>['selectType'];
 }
 
@@ -398,6 +414,7 @@ const DropdownSubMenuWrapper = <T,>({
   children,
   closeOnSelect,
   onSelect,
+  onSelectItem,
   selectType,
   showIndex
 }: DropdownSubMenuWrapperProps<T>) => {
@@ -412,6 +429,7 @@ const DropdownSubMenuWrapper = <T,>({
               item={item}
               index={index}
               onSelect={onSelect}
+              onSelectItem={onSelectItem}
               closeOnSelect={closeOnSelect}
               selectType={selectType}
               showIndex={showIndex}
@@ -423,72 +441,80 @@ const DropdownSubMenuWrapper = <T,>({
   );
 };
 
-const DropdownMenuHeaderSelector = React.memo(
-  <T,>({
-    menuHeader,
-    onChange,
-    text,
-    showIndex
-  }: {
-    menuHeader: NonNullable<DropdownProps<T>['menuHeader']>;
-    onChange: (text: string) => void;
-    text: string;
-    showIndex: boolean;
-  }) => {
-    if (typeof menuHeader === 'string') {
-      return (
-        <DropdownMenuHeaderSearch
-          showIndex={showIndex}
-          placeholder={menuHeader}
-          onChange={onChange}
-          text={text}
-        />
-      );
-    }
-    return menuHeader;
+const DropdownMenuHeaderSelector = <T,>({
+  menuHeader,
+  onChange,
+  onSelectItem,
+  text,
+  showIndex
+}: {
+  menuHeader: NonNullable<DropdownProps<T>['menuHeader']>;
+  onSelectItem: (index: number) => void;
+  onChange: (text: string) => void;
+  text: string;
+  showIndex: boolean;
+}) => {
+  if (typeof menuHeader === 'string') {
+    return (
+      <DropdownMenuHeaderSearch
+        showIndex={showIndex}
+        placeholder={menuHeader}
+        onChange={onChange}
+        onSelectItem={onSelectItem}
+        text={text}
+      />
+    );
   }
-);
-
+  return menuHeader;
+};
 DropdownMenuHeaderSelector.displayName = 'DropdownMenuHeaderSelector';
 
-interface DropdownMenuHeaderSearchProps {
+interface DropdownMenuHeaderSearchProps<T> {
   text: string;
   onChange: (text: string) => void;
+  onSelectItem: (index: number) => void;
   placeholder?: string;
   showIndex: boolean;
 }
 
-const DropdownMenuHeaderSearch = React.memo(
-  ({ text, onChange, showIndex, placeholder }: DropdownMenuHeaderSearchProps) => {
-    const onChangePreflight = useMemoizedFn((e: React.ChangeEvent<HTMLInputElement>) => {
-      e.stopPropagation();
+const DropdownMenuHeaderSearch = <T,>({
+  text,
+  onChange,
+  onSelectItem,
+  showIndex,
+  placeholder
+}: DropdownMenuHeaderSearchProps<T>) => {
+  const onChangePreflight = useMemoizedFn((e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    onChange(e.target.value);
+  });
+
+  const onKeyDownPreflight = useMemoizedFn((e: React.KeyboardEvent<HTMLInputElement>) => {
+    const isFirstCharacter = (e.target as HTMLInputElement).value.length === 0;
+
+    // Only prevent default for digit shortcuts when showIndex is true
+    if (showIndex && isFirstCharacter && /^Digit[0-9]$/.test(e.code)) {
       e.preventDefault();
-      onChange(e.target.value);
-    });
+      const index = parseInt(e.key);
+      onSelectItem?.(index);
+    } else {
+      e.stopPropagation();
+    }
+  });
 
-    const onKeyDownPreflight = useMemoizedFn((e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (showIndex && !isNaN(Number(e.currentTarget.value))) {
-        const isCurrentValueNumber = e.code.includes('Digit');
-        if (isCurrentValueNumber) {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-      }
-    });
-
-    return (
-      <div className="flex items-center gap-x-2">
-        <Input
-          autoFocus
-          variant={'ghost'}
-          placeholder={placeholder}
-          value={text}
-          onChange={onChangePreflight}
-          onKeyDown={onKeyDownPreflight}
-        />
-      </div>
-    );
-  }
-);
+  return (
+    <div className="flex items-center gap-x-2">
+      <Input
+        autoFocus
+        variant={'ghost'}
+        placeholder={placeholder}
+        value={text}
+        onChange={onChangePreflight}
+        onKeyDown={onKeyDownPreflight}
+      />
+    </div>
+  );
+};
 
 DropdownMenuHeaderSearch.displayName = 'DropdownMenuHeaderSearch';

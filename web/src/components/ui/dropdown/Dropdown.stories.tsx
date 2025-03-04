@@ -539,37 +539,46 @@ export const WithFooterContent: Story = {
 };
 
 // Example with numbered items
-export const WithNumberedItems: Story = {
+export const WithNumberedItemsNoFilter: Story = {
   args: {
     showIndex: true,
+    selectType: 'single',
+    onSelect: fn(),
     items: [
       {
-        value: '1',
+        value: 'value1',
         label: 'First Item',
         onClick: fn(),
         icon: <PaintRoller />
       },
       {
-        value: '2',
+        value: 'value2',
         label: 'Second Item',
         onClick: fn(),
         icon: <Star />
       },
       { type: 'divider' },
       {
-        value: '3',
+        value: 'value3',
         label: 'Third Item',
         onClick: fn(),
         icon: <Storage />,
         secondaryLabel: 'With secondary label'
       },
       {
-        value: '4',
+        value: 'value4',
         label: 'Fourth Item',
         onClick: fn(),
         disabled: true
       }
     ],
     children: <Button>Numbered Menu</Button>
+  }
+};
+
+export const WithNumberedItemsWithFilter: Story = {
+  args: {
+    ...{ ...WithNumberedItemsNoFilter.args },
+    menuHeader: 'Search items...'
   }
 };

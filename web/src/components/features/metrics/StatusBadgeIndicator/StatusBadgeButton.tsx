@@ -71,17 +71,12 @@ export const StatusBadgeButton: React.FC<{
       !isAdmin && status === VerificationStatus.notRequested && !isOpenDropdown;
     const buttonText = Array.isArray(id) ? 'Status' : '';
 
-    console.log(showButtonTooltip);
-
     return (
       <StatusDropdownContent
         isAdmin={isAdmin}
         status={status}
         onChangeStatus={onChangeStatus}
-        onOpenChange={(v) => {
-          console.log(v);
-          setIsOpenDropdown(v);
-        }}>
+        onOpenChange={setIsOpenDropdown}>
         <AppTooltip title={showButtonTooltip ? '' : 'Request verification from data team'}>
           <Button
             disabled={disabled || ((!id || status === 'verified') && !isAdmin)}
