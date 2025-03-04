@@ -9,7 +9,7 @@ export const useDatasourceUpdate = () => {
     emitEvent: '/data_sources/update',
     responseEvent: '/data_sources/get:getDataSource',
     callback: (newData, currentData, variables) => {
-      const options = queryKeys['/data_sources/get:getDataSource'](newData.id);
+      const options = queryKeys.datasourceGet(newData.id);
       queryClient.setQueryData(options.queryKey, newData);
       return currentData;
     }
