@@ -262,7 +262,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
         }
     }
 
-    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {
         let start_time = Instant::now();
 
         debug!("Starting file modification execution");

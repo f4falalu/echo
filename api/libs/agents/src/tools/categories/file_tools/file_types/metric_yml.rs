@@ -5,7 +5,9 @@ use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct MetricYml {
+    #[serde(skip_serializing)]
     pub id: Option<Uuid>,
+    #[serde(skip_serializing)]
     pub updated_at: Option<DateTime<Utc>>,
     #[serde(alias = "name")]
     pub title: String,
@@ -283,16 +285,10 @@ pub struct TableChartConfig {
 
 impl MetricYml {
     pub fn new(yml_content: String) -> Result<Self> {
-        let mut file: MetricYml = match serde_yaml::from_str(&yml_content) {
+        let file: MetricYml = match serde_yaml::from_str(&yml_content) {
             Ok(file) => file,
             Err(e) => return Err(anyhow::anyhow!("Error parsing YAML: {}", e)),
         };
-
-        if file.id.is_none() {
-            file.id = Some(Uuid::new_v4());
-        }
-
-        file.updated_at = Some(Utc::now());
 
         match file.validate() {
             Ok(_) => Ok(file),
@@ -356,8 +352,8 @@ mod tests {
         assert_eq!(metadata[1].data_type, "number");
 
         // Verify auto-generated fields
-        assert!(metric.id.is_some());
-        assert!(metric.updated_at.is_some());
+        assert!(metric.id.is_none());
+        assert!(metric.updated_at.is_none());
 
         Ok(())
     }

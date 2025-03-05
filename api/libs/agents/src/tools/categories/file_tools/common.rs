@@ -552,6 +552,7 @@ required:
 /// The string is a message about the number of records returned by the SQL query
 /// The vector of IndexMap<String, DataType> is the results of the SQL query.  Returns empty vector if more than 13 records or no results.
 pub async fn process_metric_file(
+    tool_call_id: String,
     file_name: String,
     yml_content: String,
 ) -> Result<
@@ -568,9 +569,7 @@ pub async fn process_metric_file(
     let metric_yml =
         MetricYml::new(yml_content.clone()).map_err(|e| format!("Invalid YAML format: {}", e))?;
 
-    let metric_id = metric_yml
-        .id
-        .ok_or_else(|| "Missing required field 'id'".to_string())?;
+    let metric_id = generate_deterministic_uuid(&tool_call_id, &file_name, "metric").unwrap();
 
     // Check if dataset_ids is empty
     if metric_yml.dataset_ids.is_empty() {
@@ -826,6 +825,22 @@ pub async fn process_metric_file_modification(
             Err(anyhow!(error))
         }
     }
+}
+
+/// Generates a deterministic UUID based on tool call ID, file name, and file type
+pub fn generate_deterministic_uuid(
+    tool_call_id: &str,
+    file_name: &str,
+    file_type: &str,
+) -> Result<Uuid> {
+    // Use a fixed namespace for the application
+    let namespace_uuid = Uuid::NAMESPACE_OID;
+
+    // Combine inputs to create a unique name
+    let name = format!("{}:{}:{}", tool_call_id, file_name, file_type);
+
+    // Generate v5 UUID (SHA1 based)
+    Ok(Uuid::new_v5(&namespace_uuid, name.as_bytes()))
 }
 
 #[cfg(test)]

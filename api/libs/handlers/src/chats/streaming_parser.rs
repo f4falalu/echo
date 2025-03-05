@@ -1,6 +1,8 @@
 use anyhow::Result;
 use serde_json::Value;
 use uuid::Uuid;
+use sha2::{Sha256, Digest};
+use agents::tools::categories::file_tools::common::generate_deterministic_uuid;
 
 use super::post_chat_handler::{
     BusterReasoningFile, BusterReasoningMessage, BusterReasoningPill,
@@ -126,6 +128,7 @@ impl StreamingParser {
 
     // Internal function to process file data (shared by metric and dashboard processing)
     pub fn process_file_data(&mut self, id: String, file_type: String) -> Result<Option<BusterReasoningMessage>> {
+        
         // Extract and replace yml_content with placeholders
         let mut yml_contents = Vec::new();
         let mut positions = Vec::new();
@@ -260,13 +263,13 @@ impl StreamingParser {
                             .and_then(Value::as_str)
                             .unwrap_or("");
 
-                        // Generate a consistent UUID based on the file name
-                        let file_id = Uuid::new_v4().to_string();
+                        // Generate deterministic UUID based on tool call ID, file name, and type
+                        let file_id = generate_deterministic_uuid(&id, name, &file_type)?;
                         
                         let buster_file = BusterFile {
-                            id: file_id.clone(),
+                            id: file_id.to_string(),
                             file_type: file_type.clone(),
-                            file_name: name.clone().to_string(),
+                            file_name: name.to_string(),
                             version_number: 1,
                             version_id: Uuid::new_v4().to_string(),
                             status: "loading".to_string(),
@@ -278,8 +281,8 @@ impl StreamingParser {
                             metadata: None,
                         };
 
-                        file_ids.push(name.clone().to_string());
-                        files_map.insert(name.clone().to_string(), buster_file);
+                        file_ids.push(file_id.to_string());
+                        files_map.insert(file_id.to_string(), buster_file);
                     }
                 }
             }
