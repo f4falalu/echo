@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ReasoningMessage_PillsContainer } from './ReasoningMessage_PillsContainer';
+import { ReasoningMessagePillsContainer } from './ReasoningMessagePillsContainer';
 import type { BusterChatMessageReasoning_pills, ThoughtFileType } from '@/api/asset_interfaces';
 import { useState } from 'react';
 import { Button } from '@/components/ui/buttons';
 
-const meta: Meta<typeof ReasoningMessage_PillsContainer> = {
-  title: 'Controllers/ReasoningController/ReasoningMessage_PillsContainer',
-  component: ReasoningMessage_PillsContainer,
+const meta: Meta<typeof ReasoningMessagePillsContainer> = {
+  title: 'Controllers/ReasoningController/ReasoningMessagePillsContainer',
+  component: ReasoningMessagePillsContainer,
   parameters: {
     layout: 'centered'
   },
@@ -21,7 +21,7 @@ const meta: Meta<typeof ReasoningMessage_PillsContainer> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof ReasoningMessage_PillsContainer>;
+type Story = StoryObj<typeof ReasoningMessagePillsContainer>;
 
 const mockReasoningMessage: BusterChatMessageReasoning_pills = {
   id: '1',
@@ -51,10 +51,8 @@ const mockReasoningMessage: BusterChatMessageReasoning_pills = {
 
 export const Default: Story = {
   args: {
-    reasoningMessage: mockReasoningMessage,
-    isCompletedStream: true,
-    isLastMessageItem: false,
-    chatId: '123'
+    ...mockReasoningMessage,
+    isCompletedStream: true
   }
 };
 
@@ -91,12 +89,7 @@ const InteractiveLoadingWrapper = () => {
       <Button onClick={addNewContainer} variant="default">
         Add New Container
       </Button>
-      <ReasoningMessage_PillsContainer
-        reasoningMessage={message}
-        isCompletedStream={false}
-        isLastMessageItem={true}
-        chatId="123"
-      />
+      <ReasoningMessagePillsContainer {...message} isCompletedStream={false} />
     </div>
   );
 };
@@ -107,36 +100,24 @@ export const Loading: Story = {
 
 export const Failed: Story = {
   args: {
-    reasoningMessage: {
-      ...mockReasoningMessage,
-      status: 'failed'
-    },
-    isCompletedStream: true,
-    isLastMessageItem: false,
-    chatId: '123'
+    ...mockReasoningMessage,
+    status: 'failed',
+    isCompletedStream: true
   }
 };
 
 export const EmptyPills: Story = {
   args: {
-    reasoningMessage: {
-      ...mockReasoningMessage,
-      pill_containers: []
-    },
-    isCompletedStream: true,
-    isLastMessageItem: false,
-    chatId: '123'
+    ...mockReasoningMessage,
+    pill_containers: [],
+    isCompletedStream: true
   }
 };
 
 export const SingleContainer: Story = {
   args: {
-    reasoningMessage: {
-      ...mockReasoningMessage,
-      pill_containers: [mockReasoningMessage.pill_containers![0]]
-    },
-    isCompletedStream: true,
-    isLastMessageItem: false,
-    chatId: '123'
+    ...mockReasoningMessage,
+    pill_containers: [mockReasoningMessage.pill_containers![0]],
+    isCompletedStream: true
   }
 };

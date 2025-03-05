@@ -3,11 +3,14 @@ import type { ReasoningMessageProps } from '../ReasoningMessageSelector';
 import type { BusterChatMessageReasoning_files } from '@/api/asset_interfaces/chat';
 import { BarContainer } from '../BarContainer';
 import { ReasoningMessage_File } from './ReasoningMessageFile';
+import { useMessageIndividual } from '@/context/Chats';
 
 export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.memo(
-  ({ isCompletedStream, isLastMessageItem, reasoningMessage, chatId }) => {
-    const { files, status, id, type, title, secondary_title } =
-      reasoningMessage as BusterChatMessageReasoning_files;
+  ({ isCompletedStream, chatId, reasoningMessageId, messageId }) => {
+    const { status, id, type, title, secondary_title, file_ids } = useMessageIndividual(
+      messageId,
+      (x) => x?.reasoning_messages[reasoningMessageId]
+    ) as BusterChatMessageReasoning_files;
 
     return (
       <BarContainer
@@ -18,14 +21,16 @@ export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.mem
         secondaryTitle={secondary_title}
         contentClassName="mb-2">
         <div className="flex flex-col gap-3">
-          {/* {files.map((file) => (
+          {file_ids.map((fileId) => (
             <ReasoningMessage_File
-              key={file.id}
-              {...file}
+              key={fileId}
+              fileId={fileId}
               chatId={chatId}
+              messageId={messageId}
+              reasoningMessageId={reasoningMessageId}
               isCompletedStream={isCompletedStream}
             />
-          ))} */}
+          ))}
         </div>
       </BarContainer>
     );

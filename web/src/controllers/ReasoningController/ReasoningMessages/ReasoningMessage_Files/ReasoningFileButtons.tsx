@@ -1,5 +1,4 @@
 import type { FileType } from '@/api/asset_interfaces';
-import { createChatAssetRoute } from '@layouts/ChatLayout/ChatLayoutContext/helpers';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { AppMaterialIcons } from '@/components/ui';
 import { Button } from 'antd';
@@ -8,24 +7,8 @@ import { useChatLayoutContextSelector } from '@chatLayout/ChatLayoutContext';
 import { useMemoizedFn } from 'ahooks';
 
 export const ReasoningFileButtons = React.memo(
-  ({
-    fileType,
-    fileId,
-    chatId,
-    type
-  }: {
-    fileType: FileType;
-    fileId: string;
-    chatId: string;
-    type: 'file' | 'status';
-  }) => {
+  ({ fileType, fileId, type }: { fileType: FileType; fileId: string; type: 'file' | 'status' }) => {
     const onSetSelectedFile = useChatLayoutContextSelector((state) => state.onSetSelectedFile);
-
-    const link = createChatAssetRoute({
-      chatId: chatId,
-      assetId: fileId,
-      type: fileType
-    });
 
     const onOpenFile = useMemoizedFn((e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault();
@@ -42,7 +25,6 @@ export const ReasoningFileButtons = React.memo(
       <div>
         <AppTooltip title="Open file" sideOffset={12}>
           <Button
-            href={link}
             onClick={onOpenFile}
             type="text"
             icon={<AppMaterialIcons icon="open_in_new" />}></Button>

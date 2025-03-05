@@ -3,11 +3,12 @@ import type { BusterChatMessageReasoning } from '@/api/asset_interfaces';
 import { ReasoningMessage_PillsContainer } from './ReasoningMessage_PillContainers';
 import { ReasoningMessage_Files } from './ReasoningMessage_Files';
 import { ReasoningMessage_Text } from './ReasoningMessage_Text';
+import { useMessageIndividual } from '@/context/Chats';
 
 export interface ReasoningMessageProps {
-  reasoningMessage: BusterChatMessageReasoning;
+  reasoningMessageId: string;
+  messageId: string;
   isCompletedStream: boolean;
-  isLastMessageItem: boolean;
   chatId: string;
 }
 
@@ -21,25 +22,32 @@ const ReasoningMessageRecord: Record<
 };
 
 export interface ReasoningMessageSelectorProps {
-  reasoningMessage: BusterChatMessageReasoning;
+  reasoningMessageId: string;
+  messageId: string;
   isCompletedStream: boolean;
-  isLastMessageItem: boolean;
   chatId: string;
 }
 
 export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> = ({
-  reasoningMessage,
+  reasoningMessageId,
   isCompletedStream,
-  isLastMessageItem,
-  chatId
+  chatId,
+  messageId
 }) => {
-  const ReasoningMessage = ReasoningMessageRecord[reasoningMessage.type];
-  console.log(reasoningMessage.type);
+  const reasoningMessageType = useMessageIndividual(
+    messageId,
+    (x) => x?.reasoning_messages[reasoningMessageId]?.type
+  );
+
+  if (!reasoningMessageType) return null;
+
+  const ReasoningMessage = ReasoningMessageRecord[reasoningMessageType];
+
   return (
     <ReasoningMessage
-      reasoningMessage={reasoningMessage}
+      reasoningMessageId={reasoningMessageId}
       isCompletedStream={isCompletedStream}
-      isLastMessageItem={isLastMessageItem}
+      messageId={messageId}
       chatId={chatId}
     />
   );
