@@ -14,7 +14,7 @@ export const useSelectedFileByParams = () => {
     messageId?: string;
   };
 
-  const router = useRouter(); //not sure why... but we need this here...
+  const router = useRouter(); //not sure why... but we need this here... or else the selectedFile will be undefined
   const segments = useSelectedLayoutSegments();
   const pathname = usePathname();
 
@@ -38,8 +38,6 @@ export const useSelectedFileByParams = () => {
     isReasoningSegments,
     pathname
   ]);
-
-  console.log(selectedFile, messageId, isReasoningSegments, segments, pathname);
 
   const selectedLayout: 'chat' | 'file' | 'both' = useMemo(() => {
     const hasFileId = metricId || collectionId || datasetId || dashboardId || messageId;
