@@ -313,17 +313,24 @@ pub async fn post_chat_handler(
         .await?;
 
     // First process completed files (database updates only)
-    let _ = process_completed_files(&mut conn, &message, &all_messages, &user_org_id, &user.id).await?;
+    let _ =
+        process_completed_files(&mut conn, &message, &all_messages, &user_org_id, &user.id).await?;
 
     // Then send text response messages
     if let Some(tx) = &tx {
         for container in &all_transformed_containers {
             if let BusterContainer::ChatMessage(chat) = container {
-                if let BusterChatMessage::Text { message: Some(_), message_chunk: None, .. } = &chat.response_message {
+                if let BusterChatMessage::Text {
+                    message: Some(_),
+                    message_chunk: None,
+                    ..
+                } = &chat.response_message
+                {
                     tx.send(Ok((
                         BusterContainer::ChatMessage(chat.clone()),
                         ThreadEvent::GeneratingResponseMessage,
-                    ))).await?;
+                    )))
+                    .await?;
                 }
             }
         }
@@ -356,7 +363,11 @@ fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Va
             BusterContainer::ChatMessage(chat) => {
                 // For text messages, only include complete ones (message present, chunk absent)
                 match &chat.response_message {
-                    BusterChatMessage::Text { message, message_chunk, .. } => {
+                    BusterChatMessage::Text {
+                        message,
+                        message_chunk,
+                        ..
+                    } => {
                         if message.is_some() && message_chunk.is_none() {
                             if let Ok(value) = serde_json::to_value(&chat.response_message) {
                                 response_messages.push(value);
@@ -691,7 +702,7 @@ pub async fn transform_message(
 
             if let Some(tool_calls) = tool_calls {
                 let mut containers = Vec::new();
-                
+
                 // Transform tool messages
                 match transform_assistant_tool_message(
                     tool_calls.clone(),
@@ -703,7 +714,9 @@ pub async fn transform_message(
                     Ok(messages) => {
                         for reasoning_container in messages {
                             // If this is a completed file reasoning message, send the file response separately
-                            if let BusterReasoningMessage::File(ref file) = reasoning_container.reasoning {
+                            if let BusterReasoningMessage::File(ref file) =
+                                reasoning_container.reasoning
+                            {
                                 if file.status == "completed" && file.message_type == "files" {
                                     // For each completed file, create and send a file response message
                                     for (file_id, file_content) in &file.files {
@@ -716,23 +729,30 @@ pub async fn transform_message(
                                             filter_version_id: None,
                                             metadata: Some(vec![BusterChatResponseFileMetadata {
                                                 status: "completed".to_string(),
-                                                message: format!("File {} completed", file_content.file_name),
+                                                message: format!(
+                                                    "File {} completed",
+                                                    file_content.file_name
+                                                ),
                                                 timestamp: Some(Utc::now().timestamp()),
                                             }]),
                                         };
 
-                                        let file_container = BusterContainer::ChatMessage(BusterChatMessageContainer {
-                                            response_message,
-                                            chat_id: *chat_id,
-                                            message_id: *message_id,
-                                        });
+                                        let file_container = BusterContainer::ChatMessage(
+                                            BusterChatMessageContainer {
+                                                response_message,
+                                                chat_id: *chat_id,
+                                                message_id: *message_id,
+                                            },
+                                        );
 
                                         // Send file response message separately with GeneratingResponseMessage event
                                         if let Some(tx) = tx {
-                                            let _ = tx.send(Ok((
-                                                file_container.clone(),
-                                                ThreadEvent::GeneratingResponseMessage,
-                                            ))).await;
+                                            let _ = tx
+                                                .send(Ok((
+                                                    file_container.clone(),
+                                                    ThreadEvent::GeneratingResponseMessage,
+                                                )))
+                                                .await;
                                         }
 
                                         // Add to containers so it gets saved to the database
@@ -1029,34 +1049,24 @@ fn proccess_data_catalog_search_results(
         }]);
     }
 
-    let mut file_results: HashMap<String, Vec<BusterThoughtPill>> = HashMap::new();
+    let mut dataset_pills = Vec::new();
 
+    // Create a pill for each result
     for result in results.results {
-        file_results
-            .entry(result.name.clone().unwrap_or_default())
-            .or_insert_with(Vec::new)
-            .push(BusterThoughtPill {
-                id: result.id.to_string(),
-                text: result.name.clone().unwrap_or_default(),
-                thought_file_type: result.name.clone().unwrap_or_default(),
-            });
+        dataset_pills.push(BusterThoughtPill {
+            id: result.id.to_string(),
+            text: result.name.clone().unwrap_or_default(),
+            thought_file_type: "dataset".to_string(), // Set type to "dataset" for all pills
+        });
     }
 
-    let buster_thought_pill_containers = file_results
-        .into_iter()
-        .map(|(title, thought_pills)| {
-            let count = thought_pills.len();
-            BusterThoughtPillContainer {
-                title: format!(
-                    "{count} {} found",
-                    title.chars().next().unwrap().to_uppercase().to_string() + &title[1..]
-                ),
-                pills: thought_pills,
-            }
-        })
-        .collect();
+    // Create a single container with all dataset pills
+    let container = BusterThoughtPillContainer {
+        title: String::from("Datasets"),
+        pills: dataset_pills,
+    };
 
-    Ok(buster_thought_pill_containers)
+    Ok(vec![container])
 }
 
 fn transform_assistant_tool_message(
