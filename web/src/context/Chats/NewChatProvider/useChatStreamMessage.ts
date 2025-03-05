@@ -31,26 +31,28 @@ export const useChatStreamMessage = () => {
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const onUpdateChat = useBusterChatContextSelector((x) => x.onUpdateChat);
   const onUpdateChatMessage = useBusterChatContextSelector((x) => x.onUpdateChatMessage);
+  const chatRef = useRef<Record<string, Partial<IBusterChat>>>({});
   const [isPending, startTransition] = useTransition();
 
   const onUpdateChatMessageTransition = useMemoizedFn(
-    (iChatMessage: Parameters<typeof onUpdateChatMessage>[0]) => {
-      onUpdateChatMessage(iChatMessage);
+    (chatMessage: Parameters<typeof onUpdateChatMessage>[0], chatId: string) => {
+      const currentChatMessage = chatRef.current[chatId]?.messages?.[chatMessage.id];
+      const iChatMessage = create(currentChatMessage, (draft) => {
+        Object.assign(draft || {}, chatMessage);
+      })!;
+
+      onUpdateChatMessage(iChatMessage!);
+
       console.log(
-        iChatMessage.reasoning_message_ids?.length,
-        Object.keys(iChatMessage.reasoning_messages || {}).length
+        chatRef.current[chatId]?.messages?.[chatMessage.id].reasoning_message_ids.length,
+        chatRef.current[chatId]?.messages?.[chatMessage.id].response_message_ids.length
       );
+
       startTransition(() => {
         //
       });
     }
   );
-
-  /*
-  We need to use refs here because events stream back faster than the query client can update the data. 
-  So we need to store the data in a ref and then update the query client when the data is updated.
-  */
-  const chatRef = useRef<Record<string, Partial<IBusterChat>>>({});
 
   const { autoAppendThought } = useAutoAppendThought();
 
@@ -75,6 +77,7 @@ export const useChatStreamMessage = () => {
             final_reasoning_message: null
           };
         }
+
         updateFn(draft);
       });
     }
@@ -180,11 +183,14 @@ export const useChatStreamMessage = () => {
       const response_message_ids =
         chatRef.current[chat_id]?.messages?.[message_id]?.response_message_ids;
 
-      onUpdateChatMessageTransition({
-        id: message_id,
-        response_messages,
-        response_message_ids
-      });
+      onUpdateChatMessageTransition(
+        {
+          id: message_id,
+          response_messages,
+          response_message_ids
+        },
+        chat_id
+      );
     }
   );
 
@@ -322,12 +328,15 @@ export const useChatStreamMessage = () => {
       const reasoning_message_ids =
         chatRef.current[chat_id]?.messages?.[message_id]?.reasoning_message_ids;
 
-      onUpdateChatMessageTransition({
-        id: message_id,
-        reasoning_messages,
-        reasoning_message_ids,
-        isCompletedStream: false
-      });
+      onUpdateChatMessageTransition(
+        {
+          id: message_id,
+          reasoning_messages,
+          reasoning_message_ids,
+          isCompletedStream: false
+        },
+        chat_id
+      );
     }
   );
 
