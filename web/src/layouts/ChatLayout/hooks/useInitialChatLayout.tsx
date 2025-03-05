@@ -2,38 +2,39 @@ import { useMemoizedFn, useUpdateEffect, useUpdateLayoutEffect } from 'ahooks';
 import { useEffect, useMemo, useState } from 'react';
 import { ChatSplitterProps } from '../ChatLayout';
 import { useBusterChatContextSelector } from '@/context/Chats';
+import { SelectedFileParams } from './useDefaultFile';
 
 export const useInitialChatLayout = ({
-  defaultSelectedLayout,
-  defaultSelectedFile,
+  selectedLayout,
+  selectedFile,
   chatId,
   onCollapseFileClick
 }: {
-  defaultSelectedLayout: 'chat' | 'file' | 'both' | undefined;
+  selectedLayout: SelectedFileParams['selectedLayout'];
   chatId: string | undefined;
-  defaultSelectedFile: ChatSplitterProps['defaultSelectedFile'];
+  selectedFile: SelectedFileParams['selectedFile'];
   onCollapseFileClick: (close?: boolean) => void;
 }) => {
   const getChatMemoized = useBusterChatContextSelector((x) => x.getChatMemoized);
-  const isReasoningFile = defaultSelectedFile?.type === 'reasoning';
+  const isReasoningFile = selectedFile?.type === 'reasoning';
   const [renderViewLayoutKey, setRenderViewLayoutKey] = useState<'chat' | 'file' | 'both'>(
-    defaultSelectedLayout || 'chat'
+    selectedLayout || 'chat'
   );
   const [isCollapseOpen, setIsCollapseOpen] = useState(isReasoningFile ? true : false);
 
   const collapseDirection: 'left' | 'right' = useMemo(() => {
-    if (defaultSelectedFile?.type === 'reasoning') return 'right';
+    if (selectedFile?.type === 'reasoning') return 'right';
 
-    return defaultSelectedLayout === 'file' ? 'left' : 'right';
-  }, [defaultSelectedLayout, defaultSelectedFile?.type]);
+    return selectedLayout === 'file' ? 'left' : 'right';
+  }, [selectedLayout, selectedFile?.type]);
 
   const resetChatForNewChat = useMemoizedFn(() => {
     onCollapseFileClick(true);
   });
 
   useUpdateLayoutEffect(() => {
-    if (defaultSelectedLayout === 'both') setRenderViewLayoutKey('both');
-  }, [defaultSelectedLayout]);
+    if (selectedLayout === 'both') setRenderViewLayoutKey('both');
+  }, [selectedLayout]);
 
   useUpdateEffect(() => {
     if (chatId && getChatMemoized(chatId)?.isNewChat) {

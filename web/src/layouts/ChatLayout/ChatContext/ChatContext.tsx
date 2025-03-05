@@ -11,15 +11,15 @@ import { useGetChat } from '@/api/buster_rest/chats';
 
 export const useChatIndividualContext = ({
   chatId,
-  defaultSelectedFile,
+  selectedFile,
   onSetSelectedFile
 }: {
   chatId?: string;
-  defaultSelectedFile?: SelectedFile;
+  selectedFile?: SelectedFile;
   onSetSelectedFile: (file: SelectedFile) => void;
 }) => {
-  const selectedFileId = defaultSelectedFile?.id;
-  const selectedFileType = defaultSelectedFile?.type;
+  const selectedFileId = selectedFile?.id;
+  const selectedFileType = selectedFile?.type;
 
   //CHAT
   const { data: chat } = useGetChat({ id: chatId || '' });
@@ -29,7 +29,7 @@ export const useChatIndividualContext = ({
   const chatMessageIds = chat?.message_ids ?? [];
 
   //FILE
-  const hasFile = !!defaultSelectedFile?.id;
+  const hasFile = !!selectedFileId;
 
   //MESSAGES
   const currentMessageId = chatMessageIds[chatMessageIds.length - 1];

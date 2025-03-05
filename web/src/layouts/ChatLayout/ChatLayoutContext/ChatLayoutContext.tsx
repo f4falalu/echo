@@ -1,3 +1,5 @@
+'use client';
+
 import {
   ContextSelector,
   createContext,
@@ -11,19 +13,19 @@ import type { AppSplitterRef } from '@/components/ui/layouts';
 import { createChatAssetRoute, createFileRoute } from './helpers';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { DEFAULT_CHAT_OPTION_SIDEBAR_SIZE } from './config';
-import { useInitialChatLayout } from '../hooks';
+import { SelectedFileParams, useInitialChatLayout } from '../hooks';
 import { useChatFileLayout } from './useChatFileLayout';
 
 interface UseChatSplitterProps {
-  defaultSelectedLayout: ChatSplitterProps['defaultSelectedLayout'];
-  defaultSelectedFile: ChatSplitterProps['defaultSelectedFile'];
+  selectedLayout: SelectedFileParams['selectedLayout'];
+  selectedFile: SelectedFileParams['selectedFile'];
   appSplitterRef: React.RefObject<AppSplitterRef>;
   chatId: string | undefined;
 }
 
 export const useChatLayout = ({
-  defaultSelectedLayout,
-  defaultSelectedFile,
+  selectedLayout,
+  selectedFile,
   appSplitterRef,
   chatId
 }: UseChatSplitterProps) => {
@@ -47,7 +49,7 @@ export const useChatLayout = ({
   });
 
   const onSetSelectedFile = useMemoizedFn((file: SelectedFile) => {
-    const isChatView = defaultSelectedLayout === 'chat' || defaultSelectedLayout === 'both';
+    const isChatView = selectedLayout === 'chat' || selectedLayout === 'both';
     const fileType = file.type;
     const fileId = file.id;
     const route =
@@ -66,15 +68,15 @@ export const useChatLayout = ({
 
   const onCollapseFileClick = useMemoizedFn((close?: boolean) => {
     const isCloseAction = close ?? isCollapseOpen;
-    const isFileLayout = defaultSelectedLayout === 'file';
+    const isFileLayout = selectedLayout === 'file';
 
     setIsCollapseOpen(!isCloseAction);
 
-    if (defaultSelectedFile && defaultSelectedFile.type === 'reasoning') {
+    if (selectedFile && selectedFile.type === 'reasoning') {
       animateOpenSplitter(!isCloseAction ? 'both' : 'left');
     } else if (isFileLayout) {
       // For file layout, toggle between 'both' and 'right'
-      animateOpenSplitter(!isCloseAction && defaultSelectedFile ? 'both' : 'right');
+      animateOpenSplitter(!isCloseAction && selectedFile ? 'both' : 'right');
     } else {
       // For other layouts, toggle between 'right' and 'both'
       animateOpenSplitter(isCloseAction ? 'left' : 'both');
@@ -88,15 +90,15 @@ export const useChatLayout = ({
     collapseDirection,
     isCollapseOpen
   } = useInitialChatLayout({
-    defaultSelectedLayout,
-    defaultSelectedFile,
+    selectedLayout,
+    selectedFile,
     chatId,
     onCollapseFileClick
   });
 
   const fileLayoutContext = useChatFileLayout({
-    selectedFileId: defaultSelectedFile?.id,
-    selectedFileType: defaultSelectedFile?.type
+    selectedFileId: selectedFile?.id,
+    selectedFileType: selectedFile?.type
   });
 
   return {

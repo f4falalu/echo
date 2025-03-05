@@ -24,7 +24,7 @@ export const BusterReactQueryProvider = ({ children }: { children: React.ReactEl
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {/* <ReactQueryDevtoolsPanel /> */}
+      <ReactQueryDevtoolsPanel />
     </QueryClientProvider>
   );
 };

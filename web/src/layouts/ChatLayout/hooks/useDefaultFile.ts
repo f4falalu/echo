@@ -3,7 +3,6 @@
 import { useMemo } from 'react';
 import { SelectedFile } from '../interfaces';
 import { useParams } from 'next/navigation';
-import { ChatSplitterProps } from '../ChatLayout';
 
 export const useSelectedFileByParams = () => {
   const { metricId, collectionId, datasetId, dashboardId, chatId, messageId } = useParams() as {
@@ -23,7 +22,7 @@ export const useSelectedFileByParams = () => {
     // if (datasetId) return { id: datasetId, type: 'dataset' };
   }, [metricId, collectionId, datasetId, dashboardId, chatId, messageId]);
 
-  const selectedLayout: ChatSplitterProps['defaultSelectedLayout'] = useMemo(() => {
+  const selectedLayout: 'chat' | 'file' | 'both' = useMemo(() => {
     const hasFileId = metricId || collectionId || datasetId || dashboardId || messageId;
 
     if (chatId) {
@@ -38,3 +37,5 @@ export const useSelectedFileByParams = () => {
 
   return { selectedFile, selectedLayout, chatId };
 };
+
+export type SelectedFileParams = ReturnType<typeof useSelectedFileByParams>;

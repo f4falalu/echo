@@ -99,7 +99,7 @@
     "react-markdown": "^9.0.3",
     "react-material-symbols": "^4.4.0",
     "react-monaco-editor": "^0.58.0",
-    "react-scan": "^0.2.8",
+    "react-scan": "^0.2.9",
     "react-syntax-highlighter": "^15.6.1",
     "react-virtualized-auto-sizer": "^1.0.25",
     "rehype-raw": "^7.0.0",
@@ -109,7 +109,7 @@
     "tailwind-merge": "^3.0.2",
     "utility-types": "^3.11.0",
     "uuid": "^11.1.0",
-    "virtua": "^0.40.0"
+    "virtua": "^0.40.1"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^3.2.5",

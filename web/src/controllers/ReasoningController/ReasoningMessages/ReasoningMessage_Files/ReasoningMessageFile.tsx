@@ -6,6 +6,7 @@ import {
 import { useMessageIndividual } from '@/context/Chats';
 import { ReasoningFileButtons } from './ReasoningFileButtons';
 import { StreamingMessageCode } from '@/components/ui/streaming/StreamingMessageCode';
+import isEmpty from 'lodash/isEmpty';
 
 export type ReasoningMessageFileProps = {
   chatId: string;
@@ -25,12 +26,15 @@ export const ReasoningMessage_File: React.FC<ReasoningMessageFileProps> = React.
         ]
     );
 
-    if (!file) return null;
+    if (isEmpty(file)) return null;
+
     const { status, file_type, version_id } = file;
     const isLoading = status === 'loading';
     const buttons = isLoading ? undefined : (
       <ReasoningFileButtons fileType={file_type} fileId={version_id} type="file" />
     );
+
+    console.log(fileId, file);
 
     return (
       <StreamingMessageCode {...file} buttons={buttons} isCompletedStream={isCompletedStream} />

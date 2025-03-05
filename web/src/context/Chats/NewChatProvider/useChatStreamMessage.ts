@@ -43,11 +43,6 @@ export const useChatStreamMessage = () => {
 
       onUpdateChatMessage(iChatMessage!);
 
-      console.log(
-        chatRef.current[chatId]?.messages?.[chatMessage.id].reasoning_message_ids.length,
-        chatRef.current[chatId]?.messages?.[chatMessage.id].response_message_ids.length
-      );
-
       startTransition(() => {
         //
       });

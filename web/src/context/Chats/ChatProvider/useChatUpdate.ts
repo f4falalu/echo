@@ -40,7 +40,7 @@ export const useChatUpdate = () => {
 
   const onUpdateChatMessage = useMemoizedFn(
     async (newMessageConfig: Partial<IBusterChatMessage> & { id: string }) => {
-      const options = queryKeys['chatsMessages'](newMessageConfig.id);
+      const options = queryKeys.chatsMessages(newMessageConfig.id);
       const queryKey = options.queryKey;
       const currentData = queryClient.getQueryData(queryKey);
 

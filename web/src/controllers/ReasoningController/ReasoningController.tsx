@@ -27,11 +27,11 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
   if (!hasChat || !reasoningMessageIds) return <></>;
 
   return (
-    <div className="h-full overflow-y-auto p-5">
-      {reasoningMessageIds?.map((messageId, index) => (
+    <div className="flex h-full flex-col space-y-2 overflow-y-auto p-5">
+      {reasoningMessageIds?.map((reasoningMessageId) => (
         <ReasoningMessageSelector
-          key={messageId}
-          reasoningMessageId={messageId}
+          key={reasoningMessageId}
+          reasoningMessageId={reasoningMessageId}
           isCompletedStream={isCompletedStream ?? true}
           chatId={chatId}
           messageId={messageId}

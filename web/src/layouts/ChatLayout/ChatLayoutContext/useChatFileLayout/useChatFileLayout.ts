@@ -78,6 +78,8 @@ export const useChatFileLayout = ({
     );
   });
 
+  console.log({ selectedFileType, selectedFileView, selectedFileId });
+
   return {
     selectedFileType,
     selectedFileView,
