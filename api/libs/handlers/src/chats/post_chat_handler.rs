@@ -1182,16 +1182,8 @@ fn transform_assistant_tool_message(
                                 let mut updated_files = std::collections::HashMap::new();
 
                                 for (file_id, file_content) in file.files.iter() {
-                                    let temp_file_id = if file.message_type == "files" {
-                                        use std::collections::hash_map::DefaultHasher;
-                                        use std::hash::{Hash, Hasher};
-                                        let mut hasher = DefaultHasher::new();
-                                        file_content.file_name.hash(&mut hasher);
-                                        format!("temp_{}", hasher.finish())
-                                    } else {
-                                        file_id.clone()
-                                    };
-
+                                    // Use the same temporary ID that was generated in the streaming parser
+                                    // This ensures consistency with the IDs generated earlier
                                     let chunk_id = format!("{}_{}", file.id, file_content.file_name);
 
                                     if let Some(chunk) = &file_content.file.text_chunk {
@@ -1201,8 +1193,9 @@ fn transform_assistant_tool_message(
                                             let mut updated_content = file_content.clone();
                                             updated_content.file.text_chunk = Some(delta);
                                             updated_content.file.text = None;
-                                            updated_content.id = temp_file_id.clone();
-                                            updated_files.insert(temp_file_id, updated_content);
+                                            // Keep the original ID which should already be the temp ID
+                                            updated_content.id = file_id.clone();
+                                            updated_files.insert(file_id.clone(), updated_content);
                                             has_updates = true;
                                         }
                                     }
