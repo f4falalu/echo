@@ -59,7 +59,7 @@ export const StreamingMessageCode: React.FC<
   useEffect(() => {
     const processText = () => {
       // Split the text into lines, keeping empty lines
-      const lines = text.split('\n');
+      const lines = (text || '').split('\n');
       const segments: LineSegment[] = [];
       let currentLine = 1;
 

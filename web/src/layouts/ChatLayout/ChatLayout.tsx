@@ -16,13 +16,11 @@ export interface ChatSplitterProps {
 }
 
 export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(({ children }) => {
-  const { selectedFile, selectedLayout, chatId } = useSelectedFileByParams();
-
   const appSplitterRef = useRef<AppSplitterRef>(null);
 
-  const defaultSplitterLayout = useDefaultSplitterLayout({ selectedLayout });
+  const { selectedFile, selectedLayout, chatId } = useSelectedFileByParams();
 
-  console.log(selectedLayout);
+  const defaultSplitterLayout = useDefaultSplitterLayout({ selectedLayout });
 
   const useChatLayoutProps = useChatLayout({
     appSplitterRef,

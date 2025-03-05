@@ -1,8 +1,14 @@
 'use client';
 
 import { useMemo } from 'react';
-import { SelectedFile } from '../interfaces';
-import { useParams } from 'next/navigation';
+import type { SelectedFile } from '../interfaces';
+import {
+  useParams,
+  useSearchParams,
+  usePathname,
+  useSelectedLayoutSegment,
+  useSelectedLayoutSegments
+} from 'next/navigation';
 
 export const useSelectedFileByParams = () => {
   const { metricId, collectionId, datasetId, dashboardId, chatId, messageId } = useParams() as {
@@ -12,15 +18,19 @@ export const useSelectedFileByParams = () => {
     dashboardId?: string;
     chatId?: string;
     messageId?: string;
+    reasoningMessageId?: string;
   };
+
+  const segments = useSelectedLayoutSegments();
 
   const selectedFile: SelectedFile | undefined = useMemo(() => {
     if (metricId) return { id: metricId, type: 'metric' };
     if (dashboardId) return { id: dashboardId, type: 'dashboard' };
-    if (messageId) return { id: messageId, type: 'reasoning' };
+    if (messageId && segments.some((segment) => segment === 'reasoning'))
+      return { id: messageId, type: 'reasoning' };
     // if (collectionId) return { id: collectionId, type: 'collection' };
     // if (datasetId) return { id: datasetId, type: 'dataset' };
-  }, [metricId, collectionId, datasetId, dashboardId, chatId, messageId]);
+  }, [metricId, collectionId, datasetId, dashboardId, chatId, messageId, segments]);
 
   const selectedLayout: 'chat' | 'file' | 'both' = useMemo(() => {
     const hasFileId = metricId || collectionId || datasetId || dashboardId || messageId;
