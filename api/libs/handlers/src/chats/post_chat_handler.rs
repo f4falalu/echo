@@ -63,7 +63,12 @@ pub struct ChatCreateNewChat {
 }
 
 struct ChunkTracker {
-    pub chunks: Mutex<HashMap<String, String>>,
+    chunks: Mutex<HashMap<String, ChunkState>>,
+}
+
+struct ChunkState {
+    complete_text: String,
+    last_seen_content: String,
 }
 
 impl ChunkTracker {
@@ -73,36 +78,50 @@ impl ChunkTracker {
         }
     }
 
-    pub fn add_chunk(&self, chunk_id: String, chunk_text: String) {
+    pub fn add_chunk(&self, chunk_id: String, new_chunk: String) -> String {
         if let Ok(mut chunks) = self.chunks.lock() {
-            if let Some(existing_chunk) = chunks.get_mut(&chunk_id) {
-                existing_chunk.push_str(&chunk_text);
+            let state = chunks.entry(chunk_id).or_insert(ChunkState {
+                complete_text: String::new(),
+                last_seen_content: String::new(),
+            });
+            
+            // Calculate the delta by finding what's new since last_seen_content
+            let delta = if state.last_seen_content.is_empty() {
+                // First chunk, use it as is
+                new_chunk.clone()
+            } else if new_chunk.starts_with(&state.last_seen_content) {
+                // New chunk contains all previous content at the start, extract only the new part
+                new_chunk[state.last_seen_content.len()..].to_string()
+            } else if state.complete_text.starts_with(&state.last_seen_content) {
+                // Try using complete_text if it contains the last_seen_content
+                let start = state.last_seen_content.len();
+                new_chunk[start.min(new_chunk.len())..].to_string()
             } else {
-                chunks.insert(chunk_id, chunk_text);
-            }
+                // If we can't find the previous content, return the new chunk
+                new_chunk.clone()
+            };
+            
+            // Only update the tracking state if we successfully processed the chunk
+            state.complete_text.push_str(&new_chunk);
+            state.last_seen_content = new_chunk;
+            
+            delta
+        } else {
+            new_chunk
         }
     }
 
-    pub fn get_chunk(&self, chunk_id: String) -> Option<String> {
+    pub fn get_complete_text(&self, chunk_id: String) -> Option<String> {
         self.chunks
             .lock()
             .ok()
-            .and_then(|chunks| chunks.get(&chunk_id).cloned())
+            .and_then(|chunks| chunks.get(&chunk_id).map(|state| state.complete_text.clone()))
     }
 
     pub fn clear_chunk(&self, chunk_id: String) {
         if let Ok(mut chunks) = self.chunks.lock() {
             chunks.remove(&chunk_id);
         }
-    }
-
-    pub fn exclude_chunk(&self, chunk_id: String, text: String) -> String {
-        if let Ok(chunks) = self.chunks.lock() {
-            if let Some(chunk) = chunks.get(&chunk_id) {
-                return text.replace(chunk, "");
-            }
-        }
-        text
     }
 }
 
@@ -644,8 +663,8 @@ pub async fn transform_message(
                     id.clone().unwrap_or_else(|| Uuid::new_v4().to_string()),
                     content,
                     progress.clone(),
-                    chat_id.clone(),
-                    message_id.clone(),
+                    *chat_id,
+                    *message_id,
                 ) {
                     Ok(messages) => messages
                         .into_iter()
@@ -708,8 +727,8 @@ pub async fn transform_message(
                     tool_calls.clone(),
                     progress,
                     initial,
-                    chat_id.clone(),
-                    message_id.clone(),
+                    *chat_id,
+                    *message_id,
                 ) {
                     Ok(messages) => {
                         for reasoning_container in messages {
@@ -792,8 +811,8 @@ pub async fn transform_message(
                     tool_call_id,
                     name,
                     content.clone(),
-                    chat_id.clone(),
-                    message_id.clone(),
+                    *chat_id,
+                    *message_id,
                 ) {
                     Ok(messages) => messages
                         .into_iter()
@@ -826,9 +845,7 @@ fn transform_text_message(
 
     match progress {
         MessageProgress::InProgress => {
-            let filtered_content = tracker.exclude_chunk(id.clone(), content.clone());
-            tracker.add_chunk(id.clone(), filtered_content.clone());
-
+            let filtered_content = tracker.add_chunk(id.clone(), content.clone());
             Ok(vec![BusterChatMessage::Text {
                 id: id.clone(),
                 message: None,
@@ -837,11 +854,11 @@ fn transform_text_message(
             }])
         }
         MessageProgress::Complete => {
+            let complete_text = tracker.get_complete_text(id.clone()).unwrap_or(content.clone());
             tracker.clear_chunk(id.clone());
-
             Ok(vec![BusterChatMessage::Text {
                 id: id.clone(),
-                message: Some(content),
+                message: Some(complete_text),
                 message_chunk: None,
                 is_final_message: Some(true),
             }])
@@ -875,9 +892,8 @@ fn transform_tool_message(
         .map(|reasoning| {
             let updated_reasoning = if let BusterReasoningMessage::Text(mut text) = reasoning {
                 if let Some(chunk) = text.message_chunk.clone() {
-                    let filtered_content = tracker.exclude_chunk(text.id.clone(), chunk.clone());
+                    let filtered_content = tracker.add_chunk(text.id.clone(), chunk.clone());
                     println!("MESSAGE_STREAM: Filtered content: {:?}", filtered_content);
-                    tracker.add_chunk(text.id.clone(), filtered_content.clone());
                     text.message_chunk = Some(filtered_content);
                 }
                 if text.status == Some("completed".to_string()) {
@@ -1076,25 +1092,12 @@ fn transform_assistant_tool_message(
     chat_id: Uuid,
     message_id: Uuid,
 ) -> Result<Vec<BusterReasoningMessageContainer>> {
-    println!(
-        "MESSAGE_STREAM: transform_assistant_tool_message called with {} tool_calls",
-        tool_calls.len()
-    );
-
-    if tool_calls.is_empty() {
-        println!("MESSAGE_STREAM: No tool calls found");
-        return Ok(vec![]);
-    }
-
     let mut all_messages = Vec::new();
     let tracker = get_chunk_tracker();
 
-    // Process each tool call individually
     for tool_call in &tool_calls {
         let tool_id = tool_call.id.clone();
 
-        // Always use the assistant_* functions, passing both arguments and progress
-        // Clone progress for each iteration to avoid moved value errors
         let messages = match tool_call.function.name.as_str() {
             "search_data_catalog" => assistant_data_catalog_search(
                 tool_id,
@@ -1132,40 +1135,79 @@ fn transform_assistant_tool_message(
                 progress.clone(),
                 initial,
             )?,
-            _ => {
-                println!(
-                    "MESSAGE_STREAM: Unknown tool name: {}",
-                    tool_call.function.name
-                );
-                vec![]
-            }
+            _ => vec![],
         };
 
-        // Convert BusterReasoningMessage to BusterReasoningMessageContainer
         let containers: Vec<BusterReasoningMessageContainer> = messages
             .into_iter()
             .map(|reasoning| {
-                let updated_reasoning = if let BusterReasoningMessage::Text(mut text) = reasoning {
-                    if let Some(chunk) = text.message_chunk.clone() {
-                        let filtered_content =
-                            tracker.exclude_chunk(text.id.clone(), chunk.clone());
-                        tracker.add_chunk(text.id.clone(), chunk);
-                        text.message_chunk = Some(filtered_content);
+                let updated_reasoning = match reasoning {
+                    BusterReasoningMessage::Text(mut text) => {
+                        if let Some(chunk) = text.message_chunk.clone() {
+                            println!("CHUNK DEBUG [{}] Before filtering:", text.id);
+                            println!("  Incoming chunk length: {}", chunk.len());
+                            println!("  Incoming chunk: {}", chunk);
+                            
+                            let delta = tracker.add_chunk(text.id.clone(), chunk);
+                            
+                            println!("CHUNK DEBUG [{}] After filtering:", text.id);
+                            println!("  Delta content length: {}", delta.len());
+                            println!("  Delta content: {}", delta);
+                            
+                            if !delta.is_empty() {
+                                text.message_chunk = Some(delta);
+                            } else {
+                                // If there's no new content, don't send a message
+                                return None;
+                            }
+                            
+                            if text.status == Some("completed".to_string()) {
+                                println!("CHUNK DEBUG [{}] Completing message", text.id);
+                                text.message = tracker.get_complete_text(text.id.clone());
+                                text.message_chunk = None;
+                                tracker.clear_chunk(text.id.clone());
+                            }
+                        }
+                        Some(BusterReasoningMessage::Text(text))
                     }
-                    if text.status == Some("completed".to_string()) {
-                        tracker.clear_chunk(text.id.clone());
+                    BusterReasoningMessage::File(mut file) => {
+                        for (file_id, file_content) in file.files.iter_mut() {
+                            if let Some(chunk) = &file_content.file.text_chunk {
+                                let chunk_id = format!("{}_{}", file.id, file_id);
+                                println!("FILE CHUNK DEBUG [{}] Before filtering:", chunk_id);
+                                println!("  Incoming chunk length: {}", chunk.len());
+                                println!("  Incoming chunk: {}", chunk);
+                                
+                                let delta = tracker.add_chunk(chunk_id.clone(), chunk.clone());
+                                
+                                println!("FILE CHUNK DEBUG [{}] After filtering:", chunk_id);
+                                println!("  Delta content length: {}", delta.len());
+                                println!("  Delta content: {}", delta);
+                                
+                                if !delta.is_empty() {
+                                    file_content.file.text_chunk = Some(delta);
+                                }
+                                
+                                if file.status == "completed" {
+                                    println!("FILE CHUNK DEBUG [{}] Completing file", chunk_id);
+                                    file_content.file.text = tracker.get_complete_text(chunk_id.clone());
+                                    file_content.file.text_chunk = None;
+                                    tracker.clear_chunk(chunk_id);
+                                }
+                            }
+                        }
+                        Some(BusterReasoningMessage::File(file))
                     }
-                    BusterReasoningMessage::Text(text)
-                } else {
-                    reasoning
+                    other => Some(other),
                 };
 
-                BusterReasoningMessageContainer {
-                    reasoning: updated_reasoning,
+                updated_reasoning.map(|reasoning| BusterReasoningMessageContainer {
+                    reasoning,
                     chat_id,
                     message_id,
-                }
+                })
             })
+            .filter_map(|container| container)
             .collect();
 
         all_messages.extend(containers);
@@ -1433,12 +1475,14 @@ Return only the title text with no additional formatting, explanation, quotes, n
 
 /// Generates a title for a conversation by processing user and assistant messages.
 /// The function streams the title back as it's being generated.
+type BusterContainerResult = Result<(BusterContainer, ThreadEvent)>;
+
 pub async fn generate_conversation_title(
     messages: &[AgentMessage],
     message_id: &Uuid,
     user_id: &Uuid,
     session_id: &Uuid,
-    tx: Option<mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
+    tx: Option<mpsc::Sender<BusterContainerResult>>,
 ) -> Result<BusterGeneratingTitle> {
     // Format conversation messages for the prompt
     let mut formatted_messages = vec![];
