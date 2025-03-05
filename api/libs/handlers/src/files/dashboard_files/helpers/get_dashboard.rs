@@ -10,7 +10,7 @@ use serde_yaml;
 use crate::files::dashboard_files::types::{
     BusterDashboard, BusterDashboardResponse, DashboardConfig, DashboardRow, DashboardRowItem,
 };
-use crate::files::metric_files::helpers::get_metric;
+use crate::metrics::get_metric_handler;
 use database::enums::{AssetPermissionRole, Verification};
 use database::pool::get_pg_pool;
 use database::schema::dashboard_files;
@@ -90,7 +90,7 @@ pub async fn get_dashboard(dashboard_id: &Uuid, user_id: &Uuid) -> Result<Buster
     // Fetch all metrics concurrently
     let metric_futures: Vec<_> = metric_ids
         .iter()
-        .map(|metric_id| get_metric(metric_id, user_id))
+        .map(|metric_id| get_metric_handler(metric_id, user_id))
         .collect();
 
     let metric_results = join_all(metric_futures).await;

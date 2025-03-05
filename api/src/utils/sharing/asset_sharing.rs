@@ -697,6 +697,7 @@ async fn create_new_users_and_add_permissions(
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
             config: json!({}),
+            avatar_url: None,
         };
 
         let permission = AssetPermission {

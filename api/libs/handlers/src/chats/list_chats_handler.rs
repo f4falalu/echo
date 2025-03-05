@@ -30,9 +30,16 @@ pub struct ChatListItem {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct PaginationInfo {
+    pub has_more: bool,
+    pub next_page_token: Option<String>,
+    pub total_items: i32,  // Number of items in current page
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ListChatsResponse {
     pub items: Vec<ChatListItem>,
-    pub next_page_token: Option<String>,
+    pub pagination: PaginationInfo,
 }
 
 #[derive(Queryable)]
@@ -76,11 +83,8 @@ pub async fn list_chats_handler(
     
     // Add cursor-based pagination if page_token is provided
     if let Some(token) = request.page_token {
-        let decoded_token = base64::decode(&token)
-            .map_err(|_| anyhow!("Invalid page token"))?;
-        let cursor_timestamp = String::from_utf8(decoded_token)
-            .map_err(|_| anyhow!("Invalid page token format"))?;
-        let cursor_dt = DateTime::parse_from_rfc3339(&cursor_timestamp)
+        // Parse the RFC3339 timestamp directly
+        let cursor_dt = DateTime::parse_from_rfc3339(&token)
             .map_err(|_| anyhow!("Invalid timestamp in page token"))?
             .with_timezone(&Utc);
             
@@ -106,9 +110,9 @@ pub async fn list_chats_handler(
         .load::<ChatWithUser>(&mut conn)
         .await?;
     
-    // Check if there are more results
+    // Check if there are more results and prepare pagination info
     let has_more = results.len() > request.page_size as usize;
-    let mut items = results
+    let items: Vec<ChatListItem> = results
         .into_iter()
         .take(request.page_size as usize)
         .map(|chat| {
@@ -130,19 +134,22 @@ pub async fn list_chats_handler(
                 last_edited: chat.updated_at.to_rfc3339(),
             }
         })
-        .collect::<Vec<_>>();
-    
-    // Generate next page token if there are more results
-    let next_page_token = if has_more {
-        items
-            .last()
-            .map(|last_item| base64::encode(&last_item.created_at))
-    } else {
-        None
+        .collect();
+
+    // Create pagination info
+    let pagination = PaginationInfo {
+        has_more,
+        next_page_token: if has_more {
+            // Just use the RFC3339 timestamp directly as the token
+            items.last().map(|last_item| last_item.created_at.clone())
+        } else {
+            None
+        },
+        total_items: items.len() as i32,
     };
     
     Ok(ListChatsResponse {
         items,
-        next_page_token,
+        pagination,
     })
 } 

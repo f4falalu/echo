@@ -3,37 +3,29 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
 
-// Note: BusterChartConfigProps needs to be defined
-// #[derive(Debug, Serialize, Deserialize, Clone)]
-// pub struct BusterChartConfigProps { ... }
-
-// Note: VerificationStatus needs to be defined
-// #[derive(Debug, Serialize, Deserialize, Clone)]
-// pub enum VerificationStatus { ... }
-
-// Note: BusterShare needs to be defined
-// #[derive(Debug, Serialize, Deserialize, Clone)]
-// pub struct BusterShare { ... }
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Dataset {
+    pub name: String,
+    pub id: String,
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BusterMetric {
     pub id: String,
     #[serde(rename = "type")]
-    pub metric_type: String, // Assuming always "metric"
+    pub metric_type: String, // Always "metric"
     pub title: String,
     pub version_number: i32,
     pub description: Option<String>,
     pub file_name: String,
     pub time_frame: String,
-    pub dataset_id: String,
+    pub datasets: Vec<Dataset>,
     pub data_source_id: String,
-    pub dataset_name: Option<String>,
     pub error: Option<String>,
-    pub chart_config: Option<Value>, // Needs to be defined
+    pub chart_config: Option<Value>, // BusterChartConfigProps
     pub data_metadata: Option<DataMetadata>,
-    pub status: Verification, 
-    #[serde(rename = "evaluation_score")]
-    pub evaluation_score: Option<String>,
+    pub status: Verification,
+    pub evaluation_score: Option<String>, // "Moderate" | "High" | "Low"
     pub evaluation_summary: String,
     pub file: String, // yaml file
     pub created_at: String,
@@ -44,7 +36,6 @@ pub struct BusterMetric {
     pub code: Option<String>,
     pub dashboards: Vec<Dashboard>,
     pub collections: Vec<Collection>,
-    // BusterShare fields would be included here
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -99,6 +90,7 @@ pub enum SimpleType {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "lowercase")]
 pub enum ColumnType {
     Text,
     Float,
@@ -141,4 +133,4 @@ pub enum DataValue {
     String(String),
     Number(f64),
     Null,
-}
+} 

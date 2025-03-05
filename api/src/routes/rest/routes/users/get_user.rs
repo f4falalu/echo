@@ -96,6 +96,7 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserInfoObject> {
                 users::created_at,
                 users::updated_at,
                 users::attributes,
+                users::avatar_url,
             ),
             (
                 teams::id,

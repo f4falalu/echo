@@ -1,7 +1,7 @@
 use database::enums::{AssetPermissionRole, Verification};
 use serde::{Deserialize, Serialize};
 
-use crate::files::BusterMetric;
+use crate::metrics::types::BusterMetric;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BusterDashboardListItem {

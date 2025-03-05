@@ -365,6 +365,7 @@ pub struct User {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub attributes: Value,
+    pub avatar_url: Option<String>,
 }
 
 #[derive(

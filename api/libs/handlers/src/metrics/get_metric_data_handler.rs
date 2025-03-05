@@ -5,9 +5,10 @@ use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::files::metric_files::get_metric;
 use query_engine::data_source_helpers;
 use query_engine::data_types::DataType;
+
+use crate::metrics::get_metric_handler;
 
 /// Request structure for the get_metric_data handler
 #[derive(Debug, Deserialize)]
@@ -36,7 +37,7 @@ pub async fn get_metric_data_handler(
     let user_id = user.id;
 
     // Retrieve the metric definition
-    let metric = get_metric(&request.metric_id, &user_id).await?;
+    let metric = get_metric_handler(&request.metric_id, &user_id).await?;
 
     // Parse the metric definition from YAML to get SQL and dataset IDs
     let metric_yml = serde_json::from_str::<MetricYml>(&metric.file)?;
