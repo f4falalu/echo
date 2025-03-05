@@ -20,6 +20,8 @@ export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(({ children })
 
   const { selectedFile, selectedLayout, chatId } = useSelectedFileByParams();
 
+  console.log('---ChatLayout---', selectedFile, selectedLayout, chatId);
+
   const defaultSplitterLayout = useDefaultSplitterLayout({ selectedLayout });
 
   const useChatLayoutProps = useChatLayout({

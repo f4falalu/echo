@@ -17,7 +17,7 @@ export const ReasoningMessage_Text: React.FC<ReasoningMessageProps> = React.memo
 
     return (
       <BarContainer
-        showBar={true}
+        showBar={!!message?.length}
         status={status}
         isCompletedStream={isCompletedStream}
         title={title}

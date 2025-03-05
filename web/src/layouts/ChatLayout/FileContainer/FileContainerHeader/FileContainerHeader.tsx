@@ -37,8 +37,6 @@ export const FileContainerHeader: React.FC = React.memo(() => {
     [selectedFileType]
   );
 
-  console.log('-----', selectedFileType, selectedFileView);
-
   return (
     <>
       <div className="flex items-center gap-1.5">

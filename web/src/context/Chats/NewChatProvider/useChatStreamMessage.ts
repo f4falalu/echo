@@ -192,9 +192,7 @@ export const useChatStreamMessage = () => {
   const _generatingReasoningMessageCallback = useMemoizedFn(
     (_: null, d: ChatEvent_GeneratingReasoningMessage) => {
       const { message_id, reasoning, chat_id } = d;
-      if (!reasoning?.id) {
-        console.log(d);
-      }
+
       const reasoningMessageId = reasoning.id;
       const existingMessage =
         chatRef.current[chat_id]?.messages?.[message_id]?.reasoning_messages?.[reasoningMessageId];

@@ -56,7 +56,7 @@ export const useChatFileLayout = ({
     return (
       fileViews[selectedFileId]?.selectedFileView || defaultFileView[selectedFileType as FileType]
     );
-  }, [fileViews, selectedFileId]);
+  }, [fileViews, selectedFileId, selectedFileType]);
 
   const selectedFileViewConfig: FileViewConfig | undefined = useMemo(() => {
     if (!selectedFileId) return undefined;
@@ -77,8 +77,6 @@ export const useChatFileLayout = ({
       })
     );
   });
-
-  console.log({ selectedFileType, selectedFileView, selectedFileId });
 
   return {
     selectedFileType,

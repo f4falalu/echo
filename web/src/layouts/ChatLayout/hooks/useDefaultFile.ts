@@ -2,13 +2,7 @@
 
 import { useMemo } from 'react';
 import type { SelectedFile } from '../interfaces';
-import {
-  useParams,
-  useSearchParams,
-  usePathname,
-  useSelectedLayoutSegment,
-  useSelectedLayoutSegments
-} from 'next/navigation';
+import { useParams, usePathname, useSelectedLayoutSegments, useRouter } from 'next/navigation';
 
 export const useSelectedFileByParams = () => {
   const { metricId, collectionId, datasetId, dashboardId, chatId, messageId } = useParams() as {
@@ -18,19 +12,34 @@ export const useSelectedFileByParams = () => {
     dashboardId?: string;
     chatId?: string;
     messageId?: string;
-    reasoningMessageId?: string;
   };
 
+  const router = useRouter(); //not sure why... but we need this here...
   const segments = useSelectedLayoutSegments();
+  const pathname = usePathname();
+
+  const isReasoningSegments = useMemo(() => {
+    return segments.some((segment) => segment === 'reasoning');
+  }, [segments]);
 
   const selectedFile: SelectedFile | undefined = useMemo(() => {
     if (metricId) return { id: metricId, type: 'metric' };
     if (dashboardId) return { id: dashboardId, type: 'dashboard' };
-    if (messageId && segments.some((segment) => segment === 'reasoning'))
-      return { id: messageId, type: 'reasoning' };
+    if (messageId && isReasoningSegments) return { id: messageId, type: 'reasoning' };
     // if (collectionId) return { id: collectionId, type: 'collection' };
     // if (datasetId) return { id: datasetId, type: 'dataset' };
-  }, [metricId, collectionId, datasetId, dashboardId, chatId, messageId, segments]);
+  }, [
+    metricId,
+    collectionId,
+    datasetId,
+    dashboardId,
+    chatId,
+    messageId,
+    isReasoningSegments,
+    pathname
+  ]);
+
+  console.log(selectedFile, messageId, isReasoningSegments, segments, pathname);
 
   const selectedLayout: 'chat' | 'file' | 'both' = useMemo(() => {
     const hasFileId = metricId || collectionId || datasetId || dashboardId || messageId;
