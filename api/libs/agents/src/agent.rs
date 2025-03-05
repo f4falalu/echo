@@ -519,7 +519,7 @@ impl Agent {
             for tool_call in tool_calls {
                 if let Some(tool) = self.tools.read().await.get(&tool_call.function.name) {
                     let params: Value = serde_json::from_str(&tool_call.function.arguments)?;
-                    let result = tool.execute(params).await?;
+                    let result = tool.execute(params, tool_call.id.clone()).await?;
                     let result_str = serde_json::to_string(&result)?;
                     let tool_message = AgentMessage::tool(
                         None,
@@ -701,7 +701,7 @@ mod tests {
         type Output = Value;
         type Params = Value;
 
-        async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
+        async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {
             self.send_progress(
                 "Fetching weather data...".to_string(),
                 "123".to_string(),

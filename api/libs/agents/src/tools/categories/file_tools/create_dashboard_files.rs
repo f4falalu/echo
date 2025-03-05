@@ -18,7 +18,7 @@ use crate::{
 };
 
 use super::{
-    common::validate_metric_ids,
+    common::{generate_deterministic_uuid, validate_metric_ids},
     file_types::{
         dashboard_yml::DashboardYml,
         file::{FileEnum, FileWithId},
@@ -67,6 +67,7 @@ impl FileModificationTool for CreateDashboardFilesTool {}
 /// Process a dashboard file creation request
 /// Returns Ok((DashboardFile, DashboardYml)) if successful, or an error message if failed
 async fn process_dashboard_file(
+    tool_call_id: String,
     file: DashboardFileParams,
 ) -> Result<(DashboardFile, DashboardYml), String> {
     debug!("Processing dashboard file creation: {}", file.name);
@@ -74,9 +75,7 @@ async fn process_dashboard_file(
     let dashboard_yml = DashboardYml::new(file.yml_content.clone())
         .map_err(|e| format!("Invalid YAML format: {}", e))?;
 
-    let dashboard_id = dashboard_yml
-        .id
-        .ok_or_else(|| "Missing required field 'id'".to_string())?;
+    let dashboard_id = generate_deterministic_uuid(&tool_call_id, &file.name, "dashboard").unwrap();
 
     // Collect and validate metric IDs from rows
     let metric_ids: Vec<Uuid> = dashboard_yml
@@ -134,7 +133,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
         }
     }
 
-    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {
         let start_time = Instant::now();
 
         let files = params.files;
@@ -148,7 +147,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
 
         // First pass - validate and prepare all records
         for file in files {
-            match process_dashboard_file(file.clone()).await {
+            match process_dashboard_file(tool_call_id.clone(), file.clone()).await {
                 Ok((dashboard_file, dashboard_yml)) => {
                     dashboard_records.push(dashboard_file);
                     dashboard_ymls.push(dashboard_yml);

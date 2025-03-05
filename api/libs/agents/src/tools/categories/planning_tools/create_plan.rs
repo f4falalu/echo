@@ -35,7 +35,7 @@ impl ToolExecutor for CreatePlan {
         "create_plan".to_string()
     }
 
-    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {
         self.agent
             .set_state_value(String::from("plan_available"), Value::Bool(true))
             .await;

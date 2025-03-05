@@ -24,7 +24,7 @@ use crate::{
     },
 };
 
-use super::{common::validate_sql, FileModificationTool};
+use super::{common::{validate_sql, generate_deterministic_uuid}, FileModificationTool};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct MetricFileParams {
@@ -81,7 +81,7 @@ impl ToolExecutor for CreateMetricFilesTool {
         }
     }
 
-    async fn execute(&self, params: Self::Params) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {
         let start_time = Instant::now();
 
         let files = params.files;
@@ -94,7 +94,7 @@ impl ToolExecutor for CreateMetricFilesTool {
         let mut results_vec = vec![];
         // First pass - validate and prepare all records
         for file in files {
-            match process_metric_file(file.name.clone(), file.yml_content.clone()).await {
+            match process_metric_file(tool_call_id.clone(), file.name.clone(), file.yml_content.clone()).await {
                 Ok((metric_file, metric_yml, message, results)) => {
                     metric_records.push(metric_file);
                     metric_ymls.push(metric_yml);
