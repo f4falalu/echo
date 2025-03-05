@@ -3,8 +3,8 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use super::post_chat_handler::{
-    BusterFileLine, BusterReasoningFile, BusterReasoningMessage, BusterReasoningPill,
-    BusterReasoningText, BusterThoughtPill, BusterThoughtPillContainer, BusterFileContent,
+    BusterReasoningFile, BusterReasoningMessage, BusterReasoningPill,
+    BusterReasoningText, BusterThoughtPill, BusterThoughtPillContainer, BusterFile, BusterFileContent,
 };
 
 pub struct StreamingParser {
@@ -245,7 +245,8 @@ impl StreamingParser {
         file_type: String,
     ) -> Result<Option<BusterReasoningMessage>> {
         if let Some(files) = value.get("files").and_then(Value::as_array) {
-            let mut file_contents = Vec::new();
+            let mut files_map = std::collections::HashMap::new();
+            let mut file_ids = Vec::new();
 
             for file in files {
                 if let Some(file_obj) = file.as_object() {
@@ -259,37 +260,38 @@ impl StreamingParser {
                             .and_then(Value::as_str)
                             .unwrap_or("");
 
-                        let mut current_lines = Vec::new();
-                        for (i, line) in yml_content.lines().enumerate() {
-                            current_lines.push(BusterFileLine {
-                                line_number: i + 1,
-                                text: line.to_string(),
-                                modified: Some(false),
-                            });
-                        }
-
-                        file_contents.push(BusterFileContent {
-                            id: Uuid::new_v4().to_string(),
+                        let file_id = Uuid::new_v4().to_string();
+                        
+                        let buster_file = BusterFile {
+                            id: file_id.clone(),
                             file_type: file_type.clone(),
                             file_name: name.to_string(),
                             version_number: 1,
                             version_id: Uuid::new_v4().to_string(),
                             status: "loading".to_string(),
-                            content: current_lines,
+                            file: BusterFileContent {
+                                text: Some(yml_content.to_string()),
+                                text_chunk: None,
+                                modifided: None,
+                            },
                             metadata: None,
-                        });
+                        };
+
+                        file_ids.push(file_id.clone());
+                        files_map.insert(file_id, buster_file);
                     }
                 }
             }
 
-            if !file_contents.is_empty() {
+            if !files_map.is_empty() {
                 return Ok(Some(BusterReasoningMessage::File(BusterReasoningFile {
                     id,
                     message_type: "files".to_string(),
                     title: format!("Creating {} files...", file_type),
                     secondary_title: String::new(),
                     status: "loading".to_string(),
-                    files: file_contents,
+                    file_ids,
+                    files: files_map,
                 })));
             }
         }

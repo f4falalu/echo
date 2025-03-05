@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
@@ -6,9 +9,14 @@ use uuid::Uuid;
 pub struct ChatMessage {
     pub id: Uuid,
     pub request_message: ChatUserMessage,
-    pub response_messages: Vec<Value>,
-    pub reasoning: Vec<Value>,
+    pub response_message_ids: Vec<String>,
+    #[serde(default)]
+    pub response_messages: HashMap<String, Value>,
+    pub reasoning_message_ids: Vec<String>,
+    #[serde(default)]
+    pub reasoning_messages: HashMap<String, Value>,
     pub created_at: String,
+    pub final_reasoning_message: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -17,4 +25,74 @@ pub struct ChatUserMessage {
     pub sender_id: Uuid,
     pub sender_name: String,
     pub sender_avatar: Option<String>,
+}
+
+impl ChatMessage {
+    pub fn new(
+        request: String,
+        sender_id: Uuid,
+        sender_name: String,
+        sender_avatar: Option<String>,
+    ) -> Self {
+        Self {
+            id: Uuid::new_v4(),
+            request_message: ChatUserMessage {
+                request,
+                sender_id,
+                sender_name,
+                sender_avatar,
+            },
+            response_message_ids: Vec::new(),
+            response_messages: HashMap::new(),
+            reasoning_message_ids: Vec::new(),
+            reasoning_messages: HashMap::new(),
+            created_at: Utc::now().to_rfc3339(),
+            final_reasoning_message: None,
+        }
+    }
+
+    pub fn new_with_messages(
+        id: Uuid,
+        request_message: ChatUserMessage,
+        response_messages: Vec<Value>,
+        reasoning_messages: Vec<Value>,
+        final_reasoning_message: Option<String>,
+    ) -> Self {
+        let response_message_ids: Vec<String> = response_messages
+            .iter()
+            .filter_map(|msg| msg.get("id").and_then(|id| id.as_str()).map(String::from))
+            .collect();
+            
+        let reasoning_message_ids: Vec<String> = reasoning_messages
+            .iter()
+            .filter_map(|msg| msg.get("id").and_then(|id| id.as_str()).map(String::from))
+            .collect();
+
+        let response_messages_map: HashMap<String, Value> = response_messages
+            .into_iter()
+            .filter_map(|msg| {
+                let id = msg.get("id").and_then(|id| id.as_str())?;
+                Some((id.to_string(), msg))
+            })
+            .collect();
+
+        let reasoning_messages_map: HashMap<String, Value> = reasoning_messages
+            .into_iter()
+            .filter_map(|msg| {
+                let id = msg.get("id").and_then(|id| id.as_str())?;
+                Some((id.to_string(), msg))
+            })
+            .collect();
+
+        Self {
+            id,
+            request_message,
+            response_message_ids,
+            response_messages: response_messages_map,
+            reasoning_message_ids,
+            reasoning_messages: reasoning_messages_map,
+            created_at: Utc::now().to_rfc3339(),
+            final_reasoning_message,
+        }
+    }
 }

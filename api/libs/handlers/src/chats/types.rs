@@ -16,3 +16,4 @@ pub struct ChatWithMessages {
     pub created_by_name: String,
     pub created_by_avatar: Option<String>,
 }
+

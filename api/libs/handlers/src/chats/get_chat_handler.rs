@@ -8,7 +8,7 @@ use tokio;
 use uuid::Uuid;
 
 use crate::chats::types::ChatWithMessages;
-use crate::messages::types::ChatMessage;
+use crate::messages::types::{ChatMessage, ChatUserMessage};
 use database::pool::get_pg_pool;
 use database::schema::{chats, messages, users};
 
@@ -129,28 +129,34 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
                 .map(String::from);
 
             // Convert response_messages and reasoning to Vec<Value>
-            let response_messages = msg.response_messages
+            let response_messages = msg
+                .response_messages
                 .as_array()
                 .map(|arr| arr.to_vec())
                 .unwrap_or_default();
 
-            let reasoning = msg.reasoning
+            let reasoning = msg
+                .reasoning
                 .as_array()
                 .map(|arr| arr.to_vec())
                 .unwrap_or_default();
 
-            ChatMessage {
-                id: msg.id,
-                request_message: crate::messages::types::ChatUserMessage {
-                    request: msg.request_message,
-                    sender_id: msg.user_id,
-                    sender_name: msg.user_name.unwrap_or_else(|| "Unknown".to_string()),
-                    sender_avatar,
-                },
+            let request_message = ChatUserMessage {
+                request: msg.request_message,
+                sender_id: msg.user_id,
+                sender_name: msg.user_name.unwrap_or_else(|| "Unknown".to_string()),
+                sender_avatar,
+            };
+
+            let chat_message = ChatMessage::new_with_messages(
+                msg.id,
+                request_message,
                 response_messages,
                 reasoning,
-                created_at: msg.created_at.to_string(),
-            }
+                None,
+            );
+
+            chat_message
         })
         .collect();
 
