@@ -92,18 +92,22 @@ impl ChunkTracker {
             } else if new_chunk.starts_with(&state.last_seen_content) {
                 // New chunk contains all previous content at the start, extract only the new part
                 new_chunk[state.last_seen_content.len()..].to_string()
-            } else if state.complete_text.starts_with(&state.last_seen_content) {
-                // Try using complete_text if it contains the last_seen_content
-                let start = state.last_seen_content.len();
-                new_chunk[start.min(new_chunk.len())..].to_string()
             } else {
-                // If we can't find the previous content, return the new chunk
-                new_chunk.clone()
+                // If we can't find the previous content, try to find where the new content starts
+                match new_chunk.find(&state.last_seen_content) {
+                    Some(pos) => new_chunk[pos + state.last_seen_content.len()..].to_string(),
+                    None => {
+                        // If we can't find any overlap, this might be completely new content
+                        new_chunk.clone()
+                    }
+                }
             };
             
-            // Only update the tracking state if we successfully processed the chunk
-            state.complete_text.push_str(&new_chunk);
-            state.last_seen_content = new_chunk;
+            // Update tracking state only if we found new content
+            if !delta.is_empty() {
+                state.complete_text.push_str(&delta);
+                state.last_seen_content = new_chunk;
+            }
             
             delta
         } else {
@@ -1156,6 +1160,7 @@ fn transform_assistant_tool_message(
                             
                             if !delta.is_empty() {
                                 text.message_chunk = Some(delta);
+                                text.message = None; // Clear message field while streaming
                             } else {
                                 // If there's no new content, don't send a message
                                 return None;
@@ -1171,9 +1176,15 @@ fn transform_assistant_tool_message(
                         Some(BusterReasoningMessage::Text(text))
                     }
                     BusterReasoningMessage::File(mut file) => {
-                        for (file_id, file_content) in file.files.iter_mut() {
+                        let mut has_updates = false;
+                        let mut updated_files = std::collections::HashMap::new();
+                        
+                        // Process each file's chunks
+                        for (file_id, file_content) in file.files.iter() {
+                            // Use file_name instead of file_id for chunk tracking
+                            let chunk_id = format!("{}_{}", file.id, file_content.file_name);
+                            
                             if let Some(chunk) = &file_content.file.text_chunk {
-                                let chunk_id = format!("{}_{}", file.id, file_id);
                                 println!("FILE CHUNK DEBUG [{}] Before filtering:", chunk_id);
                                 println!("  Incoming chunk length: {}", chunk.len());
                                 println!("  Incoming chunk: {}", chunk);
@@ -1185,18 +1196,40 @@ fn transform_assistant_tool_message(
                                 println!("  Delta content: {}", delta);
                                 
                                 if !delta.is_empty() {
-                                    file_content.file.text_chunk = Some(delta);
-                                }
-                                
-                                if file.status == "completed" {
-                                    println!("FILE CHUNK DEBUG [{}] Completing file", chunk_id);
-                                    file_content.file.text = tracker.get_complete_text(chunk_id.clone());
-                                    file_content.file.text_chunk = None;
-                                    tracker.clear_chunk(chunk_id);
+                                    // Only include files that have new content
+                                    let mut updated_content = file_content.clone();
+                                    updated_content.file.text_chunk = Some(delta);
+                                    updated_content.file.text = None; // Clear text field while streaming
+                                    updated_files.insert(file_id.clone(), updated_content);
+                                    has_updates = true;
                                 }
                             }
                         }
-                        Some(BusterReasoningMessage::File(file))
+                        
+                        if file.status == "completed" {
+                            // When completed, send all files with their complete text
+                            for (file_id, file_content) in file.files.iter() {
+                                let chunk_id = format!("{}_{}", file.id, file_content.file_name);
+                                let complete_text = tracker.get_complete_text(chunk_id.clone())
+                                    .unwrap_or_else(|| file_content.file.text_chunk.clone().unwrap_or_default());
+                                
+                                let mut completed_content = file_content.clone();
+                                completed_content.file.text = Some(complete_text);
+                                completed_content.file.text_chunk = None;
+                                updated_files.insert(file_id.clone(), completed_content);
+                                
+                                tracker.clear_chunk(chunk_id);
+                            }
+                            has_updates = true;
+                        }
+                        
+                        if has_updates {
+                            let mut updated_file = file.clone();
+                            updated_file.files = updated_files;
+                            Some(BusterReasoningMessage::File(updated_file))
+                        } else {
+                            None
+                        }
                     }
                     other => Some(other),
                 };

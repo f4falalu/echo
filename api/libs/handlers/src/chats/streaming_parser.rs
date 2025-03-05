@@ -270,8 +270,8 @@ impl StreamingParser {
                             version_id: Uuid::new_v4().to_string(),
                             status: "loading".to_string(),
                             file: BusterFileContent {
-                                text: Some(yml_content.to_string()),
-                                text_chunk: None,
+                                text: None,
+                                text_chunk: Some(yml_content.to_string()),
                                 modifided: None,
                             },
                             metadata: None,
