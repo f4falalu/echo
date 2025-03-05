@@ -24,6 +24,7 @@ import { IBusterChat, IBusterChatMessage } from '../interfaces';
 import { queryKeys } from '@/api/query_keys';
 import { useQueryClient } from '@tanstack/react-query';
 import { create } from 'mutative';
+import files from '@/components/ui/icons/NucleoIconOutlined/files';
 
 export const useChatStreamMessage = () => {
   const queryClient = useQueryClient();
@@ -40,9 +41,6 @@ export const useChatStreamMessage = () => {
       const iChatMessage = create(currentChatMessage, (draft) => {
         Object.assign(draft || {}, chatMessage);
       })!;
-
-      const firstReasoningMessage = iChatMessage.reasoning_message_ids[0];
-      console.log(iChatMessage.reasoning_messages[firstReasoningMessage]);
 
       onUpdateChatMessage(iChatMessage!);
 
@@ -241,36 +239,53 @@ export const useChatStreamMessage = () => {
           initializeOrUpdateMessage(chat_id, message_id, (draft) => {
             const chat = draft[chat_id];
             if (!chat?.messages?.[message_id]?.reasoning_messages?.[reasoningMessageId]) return;
-            const messageFiles = chat.messages[message_id].reasoning_messages[
-              reasoningMessageId
-            ] as BusterChatMessageReasoning_files;
-            messageFiles.file_ids = existingReasoningMessageFiles?.file_ids || [];
 
-            for (const fileId of reasoning.file_ids) {
-              if (!messageFiles.files[fileId]) {
-                messageFiles.files[fileId] = {} as BusterChatMessageReasoning_file;
-                messageFiles.file_ids.push(fileId);
+            const messageFiles = create(
+              chat.messages[message_id].reasoning_messages[
+                reasoningMessageId
+              ] as BusterChatMessageReasoning_files,
+              (draft) => {
+                draft.file_ids = existingReasoningMessageFiles?.file_ids || [];
+
+                if (reasoning.status) draft.status = reasoning.status;
+                if (reasoning.title) draft.title = reasoning.title;
+                if (reasoning.secondary_title) draft.secondary_title = reasoning.secondary_title;
+
+                for (const fileId of reasoning.file_ids) {
+                  if (!draft.files[fileId]) {
+                    draft.files[fileId] = {} as BusterChatMessageReasoning_file;
+                    draft.file_ids.push(fileId);
+                  }
+
+                  const existingFile = existingReasoningMessageFiles?.files[fileId];
+                  const newFile = reasoning.files[fileId];
+
+                  if (existingFile) {
+                    draft.files[fileId] = create(draft.files[fileId], (fileDraft) => {
+                      Object.assign(fileDraft, existingFile);
+                    });
+                  }
+
+                  if (existingFile?.file && newFile.file) {
+                    draft.files[fileId].file = create(draft.files[fileId].file, (fileDraft) => {
+                      Object.assign(fileDraft, existingFile.file);
+                      fileDraft.text = newFile.file.text_chunk
+                        ? (existingFile.file.text || '') + newFile.file.text_chunk
+                        : (newFile.file.text ?? existingFile.file.text);
+                      fileDraft.modified = newFile.file.modified ?? existingFile.file.modified;
+                    });
+                  } else {
+                    console.log('newFile', newFile);
+                    draft.files[fileId] = create(draft.files[fileId], (fileDraft) => {
+                      fileDraft.file.text = newFile.file.text_chunk;
+                      Object.assign(fileDraft, newFile);
+                    });
+                  }
+                }
               }
+            );
 
-              const existingFile = existingReasoningMessageFiles?.files[fileId];
-              const newFile = reasoning.files[fileId];
-
-              if (existingFile) {
-                Object.assign(messageFiles.files[fileId], existingFile);
-              }
-
-              if (existingFile?.file && newFile.file) {
-                messageFiles.files[fileId].file = {
-                  ...existingFile.file,
-                  text: newFile.file.text_chunk
-                    ? (existingFile.file.text || '') + newFile.file.text_chunk
-                    : (newFile.file.text ?? existingFile.file.text),
-                  modified: newFile.file.modified ?? existingFile.file.modified
-                };
-              } else {
-                Object.assign(messageFiles.files[fileId], newFile);
-              }
-            }
+            chat.messages[message_id].reasoning_messages[reasoningMessageId] = messageFiles;
           });
           break;
         }
