@@ -12,18 +12,16 @@ interface ReasoningControllerProps {
 
 export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId, messageId }) => {
   const hasChat = useChatIndividualContextSelector((state) => state.hasChat);
-  const message = useMessageIndividual(messageId);
+  const reasoningMessageIds = useMessageIndividual(messageId, (x) => x?.reasoning_message_ids);
+  const isCompletedStream = useMessageIndividual(messageId, (x) => x?.isCompletedStream);
 
-  if (!hasChat || !message) return <></>;
-
-  const reasoningMessageIds = message.reasoning_message_ids;
-  const isCompletedStream = message.isCompletedStream;
+  if (!hasChat || !reasoningMessageIds) return <></>;
 
   return (
     <div className="h-full overflow-y-auto p-5">
       <ReasoningMessageContainer
         reasoningMessageIds={reasoningMessageIds}
-        isCompletedStream={isCompletedStream}
+        isCompletedStream={isCompletedStream ?? false}
         chatId={chatId}
       />
     </div>

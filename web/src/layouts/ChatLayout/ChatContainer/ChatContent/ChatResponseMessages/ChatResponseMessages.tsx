@@ -34,7 +34,6 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
               responseMessageId={responseMessageId}
               messageId={messageId}
               isCompletedStream={isCompletedStream}
-              isLastMessageItem={index === lastMessageIndex}
             />
 
             {index === lastMessageIndex && lastReasoningMessageId && (

@@ -40,7 +40,7 @@ type LineSegment = {
 const HiddenSection: React.FC<{
   numberOfLinesUnmodified: number;
 }> = ({ numberOfLinesUnmodified }) => (
-  <div className="my-2 flex w-full items-center space-x-1">
+  <div className="my-2 flex w-full items-center space-x-1 first:mt-0">
     <div className="bg-border h-[0.5px] w-full" />
     <Text variant="tertiary" size={'sm'} className="whitespace-nowrap">
       {`${numberOfLinesUnmodified} ${pluralize('line', numberOfLinesUnmodified)} unmodified`}

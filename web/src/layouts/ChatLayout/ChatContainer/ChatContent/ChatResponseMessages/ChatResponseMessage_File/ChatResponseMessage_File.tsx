@@ -5,53 +5,40 @@ import type {
   BusterChatResponseMessage_fileMetadata
 } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui/typography';
-import { motion, AnimatePresence } from 'framer-motion';
-import { itemAnimationConfig } from '@/components/ui/streaming/animationConfig';
-import { useMemoizedFn } from 'ahooks';
 import { StatusIndicator } from '@/components/ui/indicators';
-import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 import { VersionPill } from '@/components/ui/tags/VersionPill';
+import { StreamingMessage_File } from '@/components/ui/streaming/StreamingMessage_File';
 import { useMessageIndividual } from '@/context/Chats';
-import { cn } from '@/lib/classMerge';
+import { useMemoizedFn } from 'ahooks';
+import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 
 export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = React.memo(
-  ({ responseMessageId, messageId, isCompletedStream }) => {
-    const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
-    const isSelectedFile = useChatIndividualContextSelector((x) => x.selectedFileId === id);
+  ({ isCompletedStream, responseMessageId, messageId }) => {
     const responseMessage = useMessageIndividual(
       messageId,
       (x) => x?.response_messages?.[responseMessageId]
-    );
-    const {
-      file_name,
-      file_type,
-      version_number,
-      id,
-      metadata = []
-    } = (responseMessage || {}) as BusterChatResponseMessage_file;
+    ) as BusterChatResponseMessage_file;
 
-    const onClickCard = useMemoizedFn(() => {
+    const isSelectedFile = useChatIndividualContextSelector(
+      (x) => x.selectedFileId === responseMessage.id
+    );
+    const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
+
+    const onClick = useMemoizedFn(() => {
       onSetSelectedFile({
-        id,
-        type: file_type
+        id: responseMessage.id,
+        type: responseMessage.file_type
       });
     });
 
     return (
-      <AnimatePresence initial={!isCompletedStream}>
-        <motion.div id={id} {...itemAnimationConfig} className="flex flex-col">
-          <div
-            onClick={onClickCard}
-            className={cn(
-              'border-border hover:border-text-tertiary flex cursor-pointer flex-col items-center overflow-hidden rounded border transition-all duration-200 hover:shadow',
-              isSelectedFile && 'border-black shadow'
-            )}>
-            <ChatResponseMessageHeader file_name={file_name} version_number={version_number} />
-            <ChatResponseMessageBody metadata={metadata} />
-          </div>
-        </motion.div>
-      </AnimatePresence>
+      <StreamingMessage_File
+        isCompletedStream={isCompletedStream}
+        responseMessage={responseMessage}
+        onClick={onClick}
+        isSelectedFile={isSelectedFile}
+      />
     );
   }
 );
