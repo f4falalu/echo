@@ -2,14 +2,12 @@ import { useMemoizedFn } from 'ahooks';
 import { useBusterChatContextSelector } from '../ChatProvider';
 import type {
   BusterChat,
-  BusterChatMessageReasoning,
   BusterChatMessageReasoning_files,
   BusterChatMessageReasoning_text,
   BusterChatMessageReasoning_pills,
   BusterChatResponseMessage_text,
   BusterChatMessageResponse,
-  BusterChatMessageReasoning_file,
-  BusterChatMessage
+  BusterChatMessageReasoning_file
 } from '@/api/asset_interfaces';
 import type {
   ChatEvent_GeneratingReasoningMessage,
@@ -27,9 +25,6 @@ import { queryKeys } from '@/api/query_keys';
 import { useQueryClient } from '@tanstack/react-query';
 import { create } from 'mutative';
 
-type ChatMessageResponseMessagesRef = Record<string, BusterChatMessage>;
-type ChatMessageReasoningMessageRef = Record<string, Record<string, BusterChatMessageReasoning>>;
-
 export const useChatStreamMessage = () => {
   const queryClient = useQueryClient();
   const getChatMessage = useBusterChatContextSelector((x) => x.getChatMessageMemoized);
@@ -40,8 +35,13 @@ export const useChatStreamMessage = () => {
 
   const onUpdateChatMessageTransition = useMemoizedFn(
     (iChatMessage: Parameters<typeof onUpdateChatMessage>[0]) => {
+      onUpdateChatMessage(iChatMessage);
+      console.log(
+        iChatMessage.reasoning_message_ids,
+        Object.keys(iChatMessage.reasoning_messages || {})
+      );
       startTransition(() => {
-        onUpdateChatMessage(iChatMessage);
+        //
       });
     }
   );
@@ -50,12 +50,35 @@ export const useChatStreamMessage = () => {
   We need to use refs here because events stream back faster than the query client can update the data. 
   So we need to store the data in a ref and then update the query client when the data is updated.
   */
-  const chatMessageResponseMessagesRef = useRef<ChatMessageResponseMessagesRef>({});
-  const chatMessageReasoningMessageRef = useRef<ChatMessageReasoningMessageRef>({});
-  const chatMessagesRef = useRef<Record<string, Partial<IBusterChatMessage>>>({});
   const chatRef = useRef<Record<string, Partial<IBusterChat>>>({});
 
   const { autoAppendThought } = useAutoAppendThought();
+
+  const initializeOrUpdateMessage = useMemoizedFn(
+    (
+      chatId: string,
+      messageId: string,
+      updateFn: (draft: Record<string, Partial<IBusterChat>>) => void
+    ) => {
+      chatRef.current = create(chatRef.current, (draft) => {
+        if (!draft[chatId]) draft[chatId] = {};
+        if (!draft[chatId].messages) draft[chatId].messages = {};
+        if (!draft[chatId].messages[messageId]) {
+          draft[chatId].messages[messageId] = {
+            id: messageId,
+            request_message: null,
+            response_message_ids: [],
+            response_messages: {},
+            reasoning_message_ids: [],
+            reasoning_messages: {},
+            created_at: new Date().toISOString(),
+            final_reasoning_message: null
+          };
+        }
+        updateFn(draft);
+      });
+    }
+  );
 
   const normalizeChatMessage = useMemoizedFn(
     (iChatMessages: Record<string, IBusterChatMessage>) => {
@@ -129,7 +152,7 @@ export const useChatStreamMessage = () => {
 
       const responseMessageId = response_message.id;
       const foundResponseMessage: BusterChatMessageResponse | undefined =
-        chatMessageResponseMessagesRef.current[message_id]?.response_messages[responseMessageId];
+        chatRef.current[chat_id]?.messages?.[message_id]?.response_messages?.[responseMessageId];
       const isNewMessage = !foundResponseMessage;
 
       if (response_message.type === 'text') {
@@ -143,19 +166,19 @@ export const useChatStreamMessage = () => {
       }
 
       if (isNewMessage) {
-        chatMessageResponseMessagesRef.current[message_id] = create(
-          chatMessageResponseMessagesRef.current[message_id] || {},
-          (draft) => {
-            if (!draft.response_messages) draft.response_messages = {};
-            draft.response_messages[responseMessageId] = response_message;
-          }
-        );
+        initializeOrUpdateMessage(chat_id, message_id, (draft) => {
+          const chat = draft[chat_id];
+          if (!chat?.messages?.[message_id]) return;
+          if (!chat.messages[message_id].response_messages)
+            chat.messages[message_id].response_messages = {};
+          chat.messages[message_id].response_messages[responseMessageId] = response_message;
+          chat.messages[message_id].response_message_ids.push(responseMessageId);
+        });
       }
 
-      const response_messages =
-        chatMessageResponseMessagesRef.current[message_id]?.response_messages;
+      const response_messages = chatRef.current[chat_id]?.messages?.[message_id]?.response_messages;
       const response_message_ids =
-        chatMessageResponseMessagesRef.current[message_id]?.response_message_ids;
+        chatRef.current[chat_id]?.messages?.[message_id]?.response_message_ids;
 
       onUpdateChatMessageTransition({
         id: message_id,
@@ -170,19 +193,18 @@ export const useChatStreamMessage = () => {
       const { message_id, reasoning, chat_id } = d;
       const reasoningMessageId = reasoning.id;
       const existingMessage =
-        chatMessageReasoningMessageRef.current[message_id]?.[reasoningMessageId];
+        chatRef.current[chat_id]?.messages?.[message_id]?.reasoning_messages?.[reasoningMessageId];
       const isNewMessage = !existingMessage;
-      const currentReasoning = chatMessagesRef.current[message_id]?.reasoning_messages ?? {};
-      const currentReasoningIds = chatMessagesRef.current[message_id]?.reasoning_message_ids ?? [];
 
       if (isNewMessage) {
-        chatMessageReasoningMessageRef.current = create(
-          chatMessageReasoningMessageRef.current,
-          (draft) => {
-            if (!draft[message_id]) draft[message_id] = {};
-            draft[message_id][reasoningMessageId] = reasoning;
-          }
-        );
+        initializeOrUpdateMessage(chat_id, message_id, (draft) => {
+          const chat = draft[chat_id];
+          if (!chat?.messages?.[message_id]) return;
+          if (!chat.messages[message_id].reasoning_messages)
+            chat.messages[message_id].reasoning_messages = {};
+          chat.messages[message_id].reasoning_messages[reasoningMessageId] = reasoning;
+          chat.messages[message_id].reasoning_message_ids.push(reasoningMessageId);
+        });
       }
 
       switch (reasoning.type) {
@@ -191,104 +213,99 @@ export const useChatStreamMessage = () => {
           const isStreaming =
             reasoning.message_chunk !== null || reasoning.message_chunk !== undefined;
 
-          chatMessageReasoningMessageRef.current = create(
-            chatMessageReasoningMessageRef.current,
-            (draft) => {
-              if (!draft[message_id]) return;
-              const messageText = (draft[message_id][reasoningMessageId] =
-                {} as BusterChatMessageReasoning_text);
-              Object.assign(messageText, existingReasoningMessageText);
-              messageText.message = isStreaming
-                ? (existingReasoningMessageText?.message || '') + (reasoning.message_chunk || '')
-                : reasoning.message;
-            }
-          );
+          initializeOrUpdateMessage(chat_id, message_id, (draft) => {
+            const chat = draft[chat_id];
+            if (!chat?.messages?.[message_id]?.reasoning_messages?.[reasoningMessageId]) return;
+            const messageText = chat.messages[message_id].reasoning_messages[
+              reasoningMessageId
+            ] as BusterChatMessageReasoning_text;
+            Object.assign(messageText, existingReasoningMessageText);
+            messageText.message = isStreaming
+              ? (existingReasoningMessageText?.message || '') + (reasoning.message_chunk || '')
+              : reasoning.message;
+          });
+
           break;
         }
         case 'files': {
           const existingReasoningMessageFiles = existingMessage as BusterChatMessageReasoning_files;
 
-          chatMessageReasoningMessageRef.current = create(
-            chatMessageReasoningMessageRef.current,
-            (draft) => {
-              if (!draft[message_id]) return;
-              const messageFiles = (draft[message_id][reasoningMessageId] =
-                {} as BusterChatMessageReasoning_files);
-              messageFiles.file_ids = existingReasoningMessageFiles?.file_ids || [];
+          initializeOrUpdateMessage(chat_id, message_id, (draft) => {
+            const chat = draft[chat_id];
+            if (!chat?.messages?.[message_id]?.reasoning_messages?.[reasoningMessageId]) return;
+            const messageFiles = chat.messages[message_id].reasoning_messages[
+              reasoningMessageId
+            ] as BusterChatMessageReasoning_files;
+            messageFiles.file_ids = existingReasoningMessageFiles?.file_ids || [];
 
-              for (const fileId of reasoning.file_ids) {
-                if (!messageFiles.files[fileId]) {
-                  messageFiles.files[fileId] = {} as BusterChatMessageReasoning_file;
-                  messageFiles.file_ids.push(fileId);
-                }
+            for (const fileId of reasoning.file_ids) {
+              if (!messageFiles.files[fileId]) {
+                messageFiles.files[fileId] = {} as BusterChatMessageReasoning_file;
+                messageFiles.file_ids.push(fileId);
+              }
 
-                const existingFile = existingReasoningMessageFiles?.files[fileId];
-                const newFile = reasoning.files[fileId];
+              const existingFile = existingReasoningMessageFiles?.files[fileId];
+              const newFile = reasoning.files[fileId];
 
-                // Copy all properties from existing file if it exists
-                if (existingFile) {
-                  Object.assign(messageFiles.files[fileId], existingFile);
-                }
+              if (existingFile) {
+                Object.assign(messageFiles.files[fileId], existingFile);
+              }
 
-                // Handle file content updates
-                if (existingFile?.file && newFile.file) {
-                  messageFiles.files[fileId].file = {
-                    ...existingFile.file,
-                    text: newFile.file.text_chunk
-                      ? (existingFile.file.text || '') + newFile.file.text_chunk
-                      : (newFile.file.text ?? existingFile.file.text),
-                    modified: newFile.file.modified ?? existingFile.file.modified
-                  };
-                } else {
-                  // For new files, directly assign the new file data
-                  Object.assign(messageFiles.files[fileId], newFile);
-                }
+              if (existingFile?.file && newFile.file) {
+                messageFiles.files[fileId].file = {
+                  ...existingFile.file,
+                  text: newFile.file.text_chunk
+                    ? (existingFile.file.text || '') + newFile.file.text_chunk
+                    : (newFile.file.text ?? existingFile.file.text),
+                  modified: newFile.file.modified ?? existingFile.file.modified
+                };
+              } else {
+                Object.assign(messageFiles.files[fileId], newFile);
               }
             }
-          );
+          });
           break;
         }
         case 'pills': {
           const existingReasoningMessagePills = existingMessage as BusterChatMessageReasoning_pills;
 
-          chatMessageReasoningMessageRef.current = create(
-            chatMessageReasoningMessageRef.current,
-            (draft) => {
-              if (!draft[message_id]) return;
-              const messagePills = (draft[message_id][reasoningMessageId] =
-                {} as BusterChatMessageReasoning_pills);
-              Object.assign(messagePills, existingReasoningMessagePills);
-              messagePills.pill_containers = [];
+          initializeOrUpdateMessage(chat_id, message_id, (draft) => {
+            const chat = draft[chat_id];
+            if (!chat?.messages?.[message_id]?.reasoning_messages?.[reasoningMessageId]) return;
+            const messagePills = chat.messages[message_id].reasoning_messages[
+              reasoningMessageId
+            ] as BusterChatMessageReasoning_pills;
+            Object.assign(messagePills, existingReasoningMessagePills);
+            messagePills.pill_containers = [];
 
-              if (reasoning.pill_containers) {
-                for (const newContainer of reasoning.pill_containers) {
-                  const existingContainerIndex =
-                    existingReasoningMessagePills.pill_containers?.findIndex(
-                      (c) => c.title === newContainer.title
-                    ) ?? -1;
+            if (reasoning.pill_containers) {
+              for (const newContainer of reasoning.pill_containers) {
+                const existingContainerIndex =
+                  existingReasoningMessagePills.pill_containers?.findIndex(
+                    (c) => c.title === newContainer.title
+                  ) ?? -1;
 
-                  if (
-                    existingContainerIndex !== -1 &&
-                    existingReasoningMessagePills.pill_containers
-                  ) {
-                    const container = {} as typeof newContainer;
-                    Object.assign(
-                      container,
-                      existingReasoningMessagePills.pill_containers[existingContainerIndex]
-                    );
-                    container.pills = [];
-                    container.pills.push(
-                      ...existingReasoningMessagePills.pill_containers[existingContainerIndex].pills
-                    );
-                    container.pills.push(...newContainer.pills);
-                    messagePills.pill_containers.push(container);
-                  } else {
-                    messagePills.pill_containers.push(newContainer);
-                  }
+                if (
+                  existingContainerIndex !== -1 &&
+                  existingReasoningMessagePills.pill_containers
+                ) {
+                  const container = {} as typeof newContainer;
+                  Object.assign(
+                    container,
+                    existingReasoningMessagePills.pill_containers[existingContainerIndex]
+                  );
+                  container.pills = [];
+                  container.pills.push(
+                    ...existingReasoningMessagePills.pill_containers[existingContainerIndex].pills
+                  );
+                  container.pills.push(...newContainer.pills);
+                  messagePills.pill_containers.push(container);
+                } else {
+                  messagePills.pill_containers.push(newContainer);
                 }
               }
             }
-          );
+          });
           break;
         }
         default: {
@@ -297,20 +314,15 @@ export const useChatStreamMessage = () => {
         }
       }
 
-      const messageToUse = chatMessageReasoningMessageRef.current[message_id]?.[reasoningMessageId];
-      if (!messageToUse) return;
-
-      const updatedReasoningIds = isNewMessage
-        ? [...currentReasoningIds, reasoningMessageId]
-        : currentReasoningIds;
+      const reasoning_messages =
+        chatRef.current[chat_id]?.messages?.[message_id]?.reasoning_messages;
+      const reasoning_message_ids =
+        chatRef.current[chat_id]?.messages?.[message_id]?.reasoning_message_ids;
 
       onUpdateChatMessageTransition({
         id: message_id,
-        reasoning_messages: {
-          ...currentReasoning,
-          [reasoningMessageId]: messageToUse
-        },
-        reasoning_message_ids: updatedReasoningIds,
+        reasoning_messages,
+        reasoning_message_ids,
         isCompletedStream: false
       });
     }

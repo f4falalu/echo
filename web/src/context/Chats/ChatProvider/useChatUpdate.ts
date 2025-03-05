@@ -21,10 +21,9 @@ export const useChatUpdate = () => {
       const queryKey = options.queryKey;
       const currentData = queryClient.getQueryData<IBusterChat>(queryKey);
 
-      const iChat = create(currentData!, (draft) => {
+      const iChat = create(currentData || ({} as IBusterChat), (draft) => {
         Object.assign(draft, newChatConfig);
       });
-
       queryClient.setQueryData(queryKey, iChat);
       startTransition(() => {
         //just used to trigger UI update

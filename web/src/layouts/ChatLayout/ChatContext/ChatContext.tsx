@@ -22,9 +22,7 @@ export const useChatIndividualContext = ({
   const selectedFileType = defaultSelectedFile?.type;
 
   //CHAT
-  const { data: chat } = useGetChat({
-    id: chatId || ''
-  });
+  const { data: chat } = useGetChat({ id: chatId || '' });
 
   const hasChat = !!chatId && !!chat;
   const chatTitle = chat?.title;
@@ -42,17 +40,30 @@ export const useChatIndividualContext = ({
     onSetSelectedFile
   });
 
-  return {
-    hasChat,
-    hasFile,
-    selectedFileId,
-    currentMessageId,
-    chatTitle,
-    selectedFileType,
-    chatMessageIds,
-    chatId,
-    isLoading
-  };
+  return React.useMemo(
+    () => ({
+      hasChat,
+      hasFile,
+      selectedFileId,
+      currentMessageId,
+      chatTitle,
+      selectedFileType,
+      chatMessageIds,
+      chatId,
+      isLoading
+    }),
+    [
+      hasChat,
+      hasFile,
+      selectedFileId,
+      currentMessageId,
+      chatTitle,
+      selectedFileType,
+      chatMessageIds,
+      chatId,
+      isLoading
+    ]
+  );
 };
 
 export const IndividualChatContext = createContext<ReturnType<typeof useChatIndividualContext>>(

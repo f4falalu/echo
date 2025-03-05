@@ -15,6 +15,8 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
   const reasoningMessageIds = useMessageIndividual(messageId, (x) => x?.reasoning_message_ids);
   const isCompletedStream = useMessageIndividual(messageId, (x) => x?.isCompletedStream);
 
+  console.log('here!', hasChat, reasoningMessageIds);
+
   if (!hasChat || !reasoningMessageIds) return <></>;
 
   return (
