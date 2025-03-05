@@ -1,6 +1,6 @@
 import { useMemoizedFn } from 'ahooks';
 import { useBusterChatContextSelector } from '../ChatProvider';
-import {
+import type {
   BusterChat,
   BusterChatMessageReasoning,
   BusterChatMessageReasoning_files,
@@ -11,7 +11,7 @@ import {
   BusterChatMessageReasoning_file,
   BusterChatMessage
 } from '@/api/asset_interfaces';
-import {
+import type {
   ChatEvent_GeneratingReasoningMessage,
   ChatEvent_GeneratingResponseMessage,
   ChatEvent_GeneratingTitle
@@ -57,13 +57,15 @@ export const useChatStreamMessage = () => {
 
   const { autoAppendThought } = useAutoAppendThought();
 
-  const normalizeChatMessage = useMemoizedFn((iChatMessages: IBusterChatMessage[]) => {
-    for (const message of iChatMessages) {
-      const options = queryKeys.chatsMessages(message.id);
-      const queryKey = options.queryKey;
-      queryClient.setQueryData(queryKey, message);
+  const normalizeChatMessage = useMemoizedFn(
+    (iChatMessages: Record<string, IBusterChatMessage>) => {
+      for (const message of Object.values(iChatMessages)) {
+        const options = queryKeys.chatsMessages(message.id);
+        const queryKey = options.queryKey;
+        queryClient.setQueryData(queryKey, message);
+      }
     }
-  });
+  );
 
   const completeChatCallback = useMemoizedFn((d: BusterChat) => {
     const { iChat, iChatMessages } = updateChatToIChat(d, false);

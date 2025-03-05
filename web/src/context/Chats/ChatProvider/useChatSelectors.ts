@@ -12,11 +12,6 @@ export const useChatSelectors = () => {
     return queryClient.getQueryData<IBusterChat>(queryKey);
   });
 
-  const getChatMessagesMemoized = useMemoizedFn((chatId: string) => {
-    const chatMessageIds = getChatMemoized(chatId)?.messages || [];
-    return chatMessageIds.map((messageId) => getChatMessageMemoized(messageId));
-  });
-
   const getChatMessageMemoized = useMemoizedFn((messageId: string) => {
     const options = queryKeys['chatsMessages'](messageId);
     const queryKey = options.queryKey;
@@ -25,7 +20,6 @@ export const useChatSelectors = () => {
 
   return {
     getChatMemoized,
-    getChatMessagesMemoized,
     getChatMessageMemoized
   };
 };

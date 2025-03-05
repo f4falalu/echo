@@ -11,7 +11,7 @@ import random from 'lodash/random';
 
 export const useAutoAppendThought = () => {
   const onUpdateChatMessage = useBusterChatContextSelector((x) => x.onUpdateChatMessage);
-  const getChatMessagesMemoized = useBusterChatContextSelector((x) => x.getChatMessagesMemoized);
+  const getChatMessageMemoized = useBusterChatContextSelector((x) => x.getChatMessageMemoized);
 
   const removeAutoThoughts = useMemoizedFn(
     (reasoningMessages: BusterChatMessageReasoning[]): BusterChatMessageReasoning[] => {
