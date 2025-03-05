@@ -1,33 +1,36 @@
 import React from 'react';
 import type { ReasoningMessageProps } from '../ReasoningMessageSelector';
-import type { BusterChatMessageReasoning_files } from '@/api/asset_interfaces/chat';
+import type {
+  BusterChatMessageReasoning_files,
+  BusterChatMessage
+} from '@/api/asset_interfaces/chat';
 import { BarContainer } from '../BarContainer';
 import { ReasoningMessage_File } from './ReasoningMessageFile';
 import { useMessageIndividual } from '@/context/Chats';
+
+const getReasoningMessage = (x: BusterChatMessage | undefined, reasoningMessageId: string) =>
+  x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files;
 
 export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.memo(
   ({ isCompletedStream, chatId, reasoningMessageId, messageId }) => {
     const status = useMessageIndividual(
       messageId,
-      (x) => (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files)?.status
+      (x) => getReasoningMessage(x, reasoningMessageId)?.status
     );
 
     const file_ids = useMessageIndividual(
       messageId,
-      (x) =>
-        (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files)?.file_ids
+      (x) => getReasoningMessage(x, reasoningMessageId)?.file_ids
     );
 
     const title = useMessageIndividual(
       messageId,
-      (x) => (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files)?.title
+      (x) => getReasoningMessage(x, reasoningMessageId)?.title
     );
 
     const secondary_title = useMessageIndividual(
       messageId,
-      (x) =>
-        (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files)
-          ?.secondary_title
+      (x) => getReasoningMessage(x, reasoningMessageId)?.secondary_title
     );
 
     if (!title) return null;
