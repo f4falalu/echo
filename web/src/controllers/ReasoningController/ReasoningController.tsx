@@ -4,6 +4,7 @@ import React from 'react';
 import { useChatIndividualContextSelector } from '@chatLayout/ChatContext';
 import { ReasoningMessageContainer } from './ReasoningMessageContainer';
 import { useMessageIndividual } from '@/context/Chats';
+import { useWhyDidYouUpdate } from 'ahooks';
 
 interface ReasoningControllerProps {
   chatId: string;
@@ -15,7 +16,13 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
   const reasoningMessageIds = useMessageIndividual(messageId, (x) => x?.reasoning_message_ids);
   const isCompletedStream = useMessageIndividual(messageId, (x) => x?.isCompletedStream);
 
-  console.log('here!', hasChat, reasoningMessageIds);
+  useWhyDidYouUpdate('ReasoningController', {
+    hasChat,
+    reasoningMessageIds,
+    isCompletedStream,
+    chatId,
+    messageId
+  });
 
   if (!hasChat || !reasoningMessageIds) return <></>;
 

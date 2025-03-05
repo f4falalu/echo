@@ -30,7 +30,7 @@ const createMockReasoningFile = (
     version_id: 'v1',
     status: 'completed',
     file: {
-      text: 'console.log("Hello World") \nconsole.log("Hello World") \nconsole.log("Hello World") \n',
+      text: 'console.test("Hello World") \nconsole.test("Hello World") \nconsole.test("Hello World") \n',
       modified: [[1, 1]]
     },
     ...overrides
@@ -48,7 +48,7 @@ export const Default: Story = {
 export const Loading: Story = {
   render: () => {
     const [text, setText] = React.useState(
-      'function example() {\n  console.log("Hello, world!");\n'
+      'function example() {\n  console.test("Hello, world!");\n'
     );
 
     const addLine = () => {

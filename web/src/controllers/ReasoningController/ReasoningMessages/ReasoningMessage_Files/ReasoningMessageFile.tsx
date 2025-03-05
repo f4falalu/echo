@@ -130,8 +130,6 @@ export const ReasoningMessage_File: React.FC<ReasoningMessageFileProps> = React.
       processText();
     }, [text, modified]);
 
-    console.log(lineSegments);
-
     return (
       <AppCodeBlockWrapper
         title={<ReasoningFileTitle file_name={file_name} version_number={version_number} />}

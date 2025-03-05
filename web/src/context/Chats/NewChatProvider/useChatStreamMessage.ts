@@ -37,8 +37,8 @@ export const useChatStreamMessage = () => {
     (iChatMessage: Parameters<typeof onUpdateChatMessage>[0]) => {
       onUpdateChatMessage(iChatMessage);
       console.log(
-        iChatMessage.reasoning_message_ids,
-        Object.keys(iChatMessage.reasoning_messages || {})
+        iChatMessage.reasoning_message_ids?.length,
+        Object.keys(iChatMessage.reasoning_messages || {}).length
       );
       startTransition(() => {
         //
@@ -191,6 +191,9 @@ export const useChatStreamMessage = () => {
   const _generatingReasoningMessageCallback = useMemoizedFn(
     (_: null, d: ChatEvent_GeneratingReasoningMessage) => {
       const { message_id, reasoning, chat_id } = d;
+      if (!reasoning?.id) {
+        console.log(d);
+      }
       const reasoningMessageId = reasoning.id;
       const existingMessage =
         chatRef.current[chat_id]?.messages?.[message_id]?.reasoning_messages?.[reasoningMessageId];
