@@ -1168,11 +1168,14 @@ fn transform_assistant_tool_message(
                                     let mut completed_content = file_content.clone();
                                     completed_content.file.text = Some(complete_text);
                                     completed_content.file.text_chunk = None;
+                                    // Ensure each file in the collection is marked as completed
+                                    completed_content.status = "completed".to_string();
                                     updated_files.insert(file_id.clone(), completed_content);
 
                                     tracker.clear_chunk(chunk_id);
                                 }
 
+                                // Mark the overall file container as completed
                                 file.status = "completed".to_string();
                                 file.files = updated_files;
                                 Some(BusterReasoningMessage::File(file))
@@ -1182,8 +1185,6 @@ fn transform_assistant_tool_message(
                                 let mut updated_files = std::collections::HashMap::new();
 
                                 for (file_id, file_content) in file.files.iter() {
-                                    // Use the same temporary ID that was generated in the streaming parser
-                                    // This ensures consistency with the IDs generated earlier
                                     let chunk_id = format!("{}_{}", file.id, file_content.file_name);
 
                                     if let Some(chunk) = &file_content.file.text_chunk {
@@ -1193,8 +1194,8 @@ fn transform_assistant_tool_message(
                                             let mut updated_content = file_content.clone();
                                             updated_content.file.text_chunk = Some(delta);
                                             updated_content.file.text = None;
-                                            // Keep the original ID which should already be the temp ID
                                             updated_content.id = file_id.clone();
+                                            updated_content.status = "loading".to_string();
                                             updated_files.insert(file_id.clone(), updated_content);
                                             has_updates = true;
                                         }
