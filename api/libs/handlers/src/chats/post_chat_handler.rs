@@ -1181,7 +1181,20 @@ fn transform_assistant_tool_message(
                         
                         // Process each file's chunks
                         for (file_id, file_content) in file.files.iter() {
-                            // Use file_name instead of file_id for chunk tracking
+                            // Generate a consistent temporary ID for files during creation
+                            // This ensures the same file gets the same ID throughout the creation process
+                            let temp_file_id = if file.message_type == "files" && file.status != "completed" {
+                                // For files being created, use a hash of the file name as a temporary ID
+                                use std::collections::hash_map::DefaultHasher;
+                                use std::hash::{Hash, Hasher};
+                                let mut hasher = DefaultHasher::new();
+                                file_content.file_name.hash(&mut hasher);
+                                format!("temp_{}", hasher.finish())
+                            } else {
+                                file_id.clone()
+                            };
+                            
+                            // Use consistent ID for chunk tracking
                             let chunk_id = format!("{}_{}", file.id, file_content.file_name);
                             
                             if let Some(chunk) = &file_content.file.text_chunk {
@@ -1200,7 +1213,8 @@ fn transform_assistant_tool_message(
                                     let mut updated_content = file_content.clone();
                                     updated_content.file.text_chunk = Some(delta);
                                     updated_content.file.text = None; // Clear text field while streaming
-                                    updated_files.insert(file_id.clone(), updated_content);
+                                    updated_content.id = temp_file_id.clone(); // Use the consistent temporary ID
+                                    updated_files.insert(temp_file_id, updated_content);
                                     has_updates = true;
                                 }
                             }
