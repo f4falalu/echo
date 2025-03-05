@@ -4,10 +4,7 @@ import type {
 } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
 import sample from 'lodash/sample';
-import last from 'lodash/last';
 import { useBusterChatContextSelector } from '../ChatProvider';
-import { timeout } from '@/lib/timeout';
-import random from 'lodash/random';
 
 export const useAutoAppendThought = () => {
   const onUpdateChatMessage = useBusterChatContextSelector((x) => x.onUpdateChatMessage);

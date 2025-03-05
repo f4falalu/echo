@@ -1,22 +1,21 @@
 import React, { useMemo } from 'react';
-import { useChatIndividualContextSelector } from '../../../ChatContext';
+import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 import { useMemoizedFn } from 'ahooks';
 import { useBusterNewChatContextSelector } from '@/context/Chats';
-import type { TextAreaRef } from 'antd/es/input/TextArea';
 
 type FlowType = 'followup-chat' | 'followup-metric' | 'followup-dashboard' | 'new';
 
 export const useChatInputFlow = ({
-  disableSendButton,
+  disableSubmit,
   inputValue,
   setInputValue,
-  inputRef,
+  textAreaRef,
   loading
 }: {
-  disableSendButton: boolean;
+  disableSubmit: boolean;
   inputValue: string;
   setInputValue: (value: string) => void;
-  inputRef: React.RefObject<TextAreaRef>;
+  textAreaRef: React.RefObject<HTMLTextAreaElement>;
   loading: boolean;
 }) => {
   const hasChat = useChatIndividualContextSelector((x) => x.hasChat);
@@ -37,7 +36,7 @@ export const useChatInputFlow = ({
   }, [hasChat, selectedFileType, selectedFileId]);
 
   const onSubmitPreflight = useMemoizedFn(async () => {
-    if (disableSendButton || !chatId || !currentMessageId) return;
+    if (disableSubmit || !chatId || !currentMessageId) return;
 
     if (loading) {
       onStopChat({ chatId: chatId!, messageId: currentMessageId });
@@ -76,7 +75,7 @@ export const useChatInputFlow = ({
     setInputValue('');
 
     setTimeout(() => {
-      inputRef.current?.focus();
+      textAreaRef.current?.focus();
     }, 50);
   });
 
