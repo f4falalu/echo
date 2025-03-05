@@ -729,54 +729,48 @@ pub async fn transform_message(
                 // Transform tool messages
                 match transform_assistant_tool_message(
                     tool_calls.clone(),
-                    progress,
+                    progress.clone(),
                     initial,
                     *chat_id,
                     *message_id,
                 ) {
                     Ok(messages) => {
                         for reasoning_container in messages {
-                            // If this is a completed file reasoning message, send the file response separately
+                            // Only process file response messages when they're completed
                             match &reasoning_container {
-                                BusterReasoningMessage::File(file) => {
-                                    if file.status == "completed" && file.message_type == "files" {
-                                        // For each completed file, create and send a file response message
-                                        for (file_id, file_content) in &file.files {
-                                            let response_message = BusterChatMessage::File {
-                                                id: file_content.id.clone(),
-                                                file_type: file_content.file_type.clone(),
-                                                file_name: file_content.file_name.clone(),
-                                                version_number: file_content.version_number,
-                                                version_id: file_content.version_id.clone(),
-                                                filter_version_id: None,
-                                                metadata: Some(vec![BusterChatResponseFileMetadata {
-                                                    status: "completed".to_string(),
-                                                    message: format!(
-                                                        "File {} completed",
-                                                        file_content.file_name
-                                                    ),
-                                                    timestamp: Some(Utc::now().timestamp()),
-                                                }]),
-                                            };
+                                BusterReasoningMessage::File(file) if matches!(progress, MessageProgress::Complete) && file.status == "completed" && file.message_type == "files" => {
+                                    // For each completed file, create and send a file response message
+                                    for (file_id, file_content) in &file.files {
+                                        let response_message = BusterChatMessage::File {
+                                            id: file_content.id.clone(),
+                                            file_type: file_content.file_type.clone(),
+                                            file_name: file_content.file_name.clone(),
+                                            version_number: file_content.version_number,
+                                            version_id: file_content.version_id.clone(),
+                                            filter_version_id: None,
+                                            metadata: Some(vec![BusterChatResponseFileMetadata {
+                                                status: "completed".to_string(),
+                                                message: format!(
+                                                    "File {} completed",
+                                                    file_content.file_name
+                                                ),
+                                                timestamp: Some(Utc::now().timestamp()),
+                                            }]),
+                                        };
 
-                                            let file_container = BusterContainer::ChatMessage(
-                                                BusterChatMessageContainer {
-                                                    response_message,
-                                                    chat_id: *chat_id,
-                                                    message_id: *message_id,
-                                                },
-                                            );
-
-                                            containers.push((
-                                                file_container.clone(),
-                                                ThreadEvent::GeneratingResponseMessage,
-                                            ));
-
-                                        }
+                                        containers.push((
+                                            BusterContainer::ChatMessage(BusterChatMessageContainer {
+                                                response_message,
+                                                chat_id: *chat_id,
+                                                message_id: *message_id,
+                                            }),
+                                            ThreadEvent::GeneratingResponseMessage,
+                                        ));
                                     }
                                 }
                                 _ => {}
                             }
+
                             containers.push((
                                 BusterContainer::ReasoningMessage(BusterReasoningMessageContainer {
                                     reasoning: reasoning_container,
@@ -1129,116 +1123,105 @@ fn transform_assistant_tool_message(
             .map(|reasoning| {
                 let updated_reasoning = match reasoning {
                     BusterReasoningMessage::Text(mut text) => {
-                        if let Some(chunk) = text.message_chunk.clone() {
-                            println!("CHUNK DEBUG [{}] Before filtering:", text.id);
-                            println!("  Incoming chunk length: {}", chunk.len());
-                            println!("  Incoming chunk: {}", chunk);
-
-                            let delta = tracker.add_chunk(text.id.clone(), chunk);
-
-                            println!("CHUNK DEBUG [{}] After filtering:", text.id);
-                            println!("  Delta content length: {}", delta.len());
-                            println!("  Delta content: {}", delta);
-
-                            if !delta.is_empty() {
-                                text.message_chunk = Some(delta);
-                                text.message = None; // Clear message field while streaming
-                            } else if text.status != Some("completed".to_string()) {
-                                // If there's no new content and it's not complete, don't send a message
-                                return None;
+                        match progress {
+                            MessageProgress::Complete => {
+                                // For completed messages, use accumulated text or final message
+                                text.message = tracker
+                                    .get_complete_text(text.id.clone())
+                                    .or(text.message)
+                                    .or(text.message_chunk.clone());
+                                text.message_chunk = None;
+                                text.status = Some("completed".to_string());
+                                tracker.clear_chunk(text.id.clone());
+                                Some(BusterReasoningMessage::Text(text))
                             }
-                        }
-
-                        if text.status == Some("completed".to_string()) {
-                            println!("CHUNK DEBUG [{}] Completing message", text.id);
-                            // For completed messages, either use accumulated text or the final message
-                            text.message = tracker
-                                .get_complete_text(text.id.clone())
-                                .or(text.message)
-                                .or(text.message_chunk.clone());
-                            text.message_chunk = None;
-                            tracker.clear_chunk(text.id.clone());
-                        }
-
-                        Some(BusterReasoningMessage::Text(text))
-                    }
-                    BusterReasoningMessage::File(mut file) => {
-                        let mut has_updates = false;
-                        let mut updated_files = std::collections::HashMap::new();
-
-                        // Process each file's chunks
-                        for (file_id, file_content) in file.files.iter() {
-                            // Generate a consistent temporary ID for files during creation
-                            // This ensures the same file gets the same ID throughout the creation process
-                            let temp_file_id =
-                                if file.message_type == "files" && file.status != "completed" {
-                                    // For files being created, use a hash of the file name as a temporary ID
-                                    use std::collections::hash_map::DefaultHasher;
-                                    use std::hash::{Hash, Hasher};
-                                    let mut hasher = DefaultHasher::new();
-                                    file_content.file_name.hash(&mut hasher);
-                                    format!("temp_{}", hasher.finish())
+                            MessageProgress::InProgress => {
+                                if let Some(chunk) = text.message_chunk.clone() {
+                                    let delta = tracker.add_chunk(text.id.clone(), chunk);
+                                    if !delta.is_empty() {
+                                        text.message_chunk = Some(delta);
+                                        text.message = None;
+                                        Some(BusterReasoningMessage::Text(text))
+                                    } else {
+                                        None
+                                    }
                                 } else {
-                                    file_id.clone()
-                                };
-
-                            // Use consistent ID for chunk tracking
-                            let chunk_id = format!("{}_{}", file.id, file_content.file_name);
-
-                            if let Some(chunk) = &file_content.file.text_chunk {
-                                println!("FILE CHUNK DEBUG [{}] Before filtering:", chunk_id);
-                                println!("  Incoming chunk length: {}", chunk.len());
-                                println!("  Incoming chunk: {}", chunk);
-
-                                let delta = tracker.add_chunk(chunk_id.clone(), chunk.clone());
-
-                                println!("FILE CHUNK DEBUG [{}] After filtering:", chunk_id);
-                                println!("  Delta content length: {}", delta.len());
-                                println!("  Delta content: {}", delta);
-
-                                if !delta.is_empty() {
-                                    // Only include files that have new content
-                                    let mut updated_content = file_content.clone();
-                                    updated_content.file.text_chunk = Some(delta);
-                                    updated_content.file.text = None; // Clear text field while streaming
-                                    updated_content.id = temp_file_id.clone(); // Use the consistent temporary ID
-                                    updated_files.insert(temp_file_id, updated_content);
-                                    has_updates = true;
+                                    None
                                 }
                             }
                         }
+                    }
+                    BusterReasoningMessage::File(mut file) => {
+                        match progress {
+                            MessageProgress::Complete => {
+                                // For completed files, only send the final state
+                                let mut updated_files = std::collections::HashMap::new();
+                                
+                                for (file_id, file_content) in file.files.iter() {
+                                    let chunk_id = format!("{}_{}", file.id, file_content.file_name);
+                                    let complete_text = tracker
+                                        .get_complete_text(chunk_id.clone())
+                                        .unwrap_or_else(|| {
+                                            file_content.file.text_chunk.clone().unwrap_or_default()
+                                        });
 
-                        if file.status == "completed" {
-                            // When completed, send all files with their complete text
-                            for (file_id, file_content) in file.files.iter() {
-                                let chunk_id = format!("{}_{}", file.id, file_content.file_name);
-                                let complete_text =
-                                    tracker.get_complete_text(chunk_id.clone()).unwrap_or_else(
-                                        || file_content.file.text_chunk.clone().unwrap_or_default(),
-                                    );
+                                    let mut completed_content = file_content.clone();
+                                    completed_content.file.text = Some(complete_text);
+                                    completed_content.file.text_chunk = None;
+                                    updated_files.insert(file_id.clone(), completed_content);
 
-                                let mut completed_content = file_content.clone();
-                                completed_content.file.text = Some(complete_text);
-                                completed_content.file.text_chunk = None;
-                                updated_files.insert(file_id.clone(), completed_content);
+                                    tracker.clear_chunk(chunk_id);
+                                }
 
-                                tracker.clear_chunk(chunk_id);
+                                file.status = "completed".to_string();
+                                file.files = updated_files;
+                                Some(BusterReasoningMessage::File(file))
                             }
-                            has_updates = true;
-                        }
+                            MessageProgress::InProgress => {
+                                let mut has_updates = false;
+                                let mut updated_files = std::collections::HashMap::new();
 
-                        if has_updates {
-                            let mut updated_file = file.clone();
-                            updated_file.files = updated_files;
-                            Some(BusterReasoningMessage::File(updated_file))
-                        } else {
-                            None
+                                for (file_id, file_content) in file.files.iter() {
+                                    let temp_file_id = if file.message_type == "files" {
+                                        use std::collections::hash_map::DefaultHasher;
+                                        use std::hash::{Hash, Hasher};
+                                        let mut hasher = DefaultHasher::new();
+                                        file_content.file_name.hash(&mut hasher);
+                                        format!("temp_{}", hasher.finish())
+                                    } else {
+                                        file_id.clone()
+                                    };
+
+                                    let chunk_id = format!("{}_{}", file.id, file_content.file_name);
+
+                                    if let Some(chunk) = &file_content.file.text_chunk {
+                                        let delta = tracker.add_chunk(chunk_id.clone(), chunk.clone());
+
+                                        if !delta.is_empty() {
+                                            let mut updated_content = file_content.clone();
+                                            updated_content.file.text_chunk = Some(delta);
+                                            updated_content.file.text = None;
+                                            updated_content.id = temp_file_id.clone();
+                                            updated_files.insert(temp_file_id, updated_content);
+                                            has_updates = true;
+                                        }
+                                    }
+                                }
+
+                                if has_updates {
+                                    file.status = "loading".to_string();
+                                    file.files = updated_files;
+                                    Some(BusterReasoningMessage::File(file))
+                                } else {
+                                    None
+                                }
+                            }
                         }
                     }
                     other => Some(other),
                 };
 
-                updated_reasoning.map(|reasoning| reasoning)
+                updated_reasoning
             })
             .filter_map(|container| container)
             .collect();
