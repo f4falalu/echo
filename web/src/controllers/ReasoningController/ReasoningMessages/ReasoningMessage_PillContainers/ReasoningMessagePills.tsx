@@ -1,4 +1,4 @@
-import type { BusterChatMessageReasoning_Pill } from '@/api/asset_interfaces';
+import type { BusterChatMessageReasoning_pill } from '@/api/asset_interfaces';
 import React, { useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMemoizedFn } from 'ahooks';
@@ -49,7 +49,7 @@ const pillVariants = {
 };
 
 export const ReasoningMessagePills: React.FC<{
-  pills: BusterChatMessageReasoning_Pill[];
+  pills: BusterChatMessageReasoning_pill[];
   isCompletedStream: boolean;
 }> = React.memo(({ pills = [], isCompletedStream }) => {
   const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
@@ -57,7 +57,7 @@ export const ReasoningMessagePills: React.FC<{
   const useAnimation = !isCompletedStream;
 
   const handlePillClick = useMemoizedFn(
-    (pill: Pick<BusterChatMessageReasoning_Pill, 'id' | 'type'>) => {
+    (pill: Pick<BusterChatMessageReasoning_pill, 'id' | 'type'>) => {
       if (isOpenableFile(pill.type)) {
         onSetSelectedFile(pill as SelectedFile);
       }
@@ -90,10 +90,10 @@ ReasoningMessagePills.displayName = 'ReasoningMessagePills';
 const Pill: React.FC<{
   text: string;
   id?: string;
-  type?: BusterChatMessageReasoning_Pill['type'];
+  type?: BusterChatMessageReasoning_pill['type'];
   useAnimation: boolean;
   className?: string;
-  onClick?: (pill: Pick<BusterChatMessageReasoning_Pill, 'id' | 'type'>) => void;
+  onClick?: (pill: Pick<BusterChatMessageReasoning_pill, 'id' | 'type'>) => void;
 }> = React.memo(({ text, type, id, useAnimation, className = '', onClick }) => {
   return (
     <AnimatePresence initial={useAnimation}>
@@ -120,9 +120,9 @@ const OverflowPill = React.memo(
     useAnimation,
     onClickPill
   }: {
-    hiddenPills: BusterChatMessageReasoning_Pill[];
+    hiddenPills: BusterChatMessageReasoning_pill[];
     useAnimation: boolean;
-    onClickPill: (pill: Pick<BusterChatMessageReasoning_Pill, 'id' | 'type'>) => void;
+    onClickPill: (pill: Pick<BusterChatMessageReasoning_pill, 'id' | 'type'>) => void;
   }) => {
     const count = hiddenPills.length;
 

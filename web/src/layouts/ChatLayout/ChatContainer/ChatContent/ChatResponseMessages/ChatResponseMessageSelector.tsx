@@ -1,12 +1,12 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { ChatResponseMessage_File } from './ChatResponseMessage_File';
-import { StreamingMessage_Text } from '@/components/ui/streaming/StreamingMessage_Text';
-import type { BusterChatMessage_text, BusterChatMessageResponse } from '@/api/asset_interfaces';
-import { createStyles } from 'antd-style';
-import { useMemoizedFn } from 'ahooks';
+import type { BusterChatMessageResponse } from '@/api/asset_interfaces';
+import { useMessageIndividual } from '@/context/Chats';
+import { ChatResponseMessage_Text } from './ChatResponseMessage_Text';
 
 export interface ChatResponseMessageProps {
-  responseMessage: BusterChatMessageResponse;
+  responseMessageId: string;
+  messageId: string;
   isCompletedStream: boolean;
   isLastMessageItem: boolean;
 }
@@ -15,96 +15,35 @@ const ChatResponseMessageRecord: Record<
   BusterChatMessageResponse['type'],
   React.FC<ChatResponseMessageProps>
 > = {
-  text: (props) => (
-    <StreamingMessage_Text
-      {...props}
-      message={(props.responseMessage as BusterChatMessage_text).message}
-    />
-  ),
+  text: ChatResponseMessage_Text,
   file: ChatResponseMessage_File
 };
 
 export interface ChatResponseMessageSelectorProps {
-  responseMessage: BusterChatMessageResponse;
+  responseMessageId: string;
   isCompletedStream: boolean;
   isLastMessageItem: boolean;
+  messageId: string;
 }
 
 export const ChatResponseMessageSelector: React.FC<ChatResponseMessageSelectorProps> = React.memo(
-  ({ responseMessage, isCompletedStream, isLastMessageItem }) => {
-    const { cx, styles } = useStyles();
-    const messageType = responseMessage.type;
+  ({ responseMessageId, messageId, isCompletedStream, isLastMessageItem }) => {
+    const messageType = useMessageIndividual(
+      messageId,
+      (x) => x?.response_messages?.[responseMessageId]?.type || 'text'
+    );
+
     const ChatResponseMessage = ChatResponseMessageRecord[messageType];
 
-    const typeClassRecord: Record<BusterChatMessageResponse['type'], string> = useMemo(() => {
-      return {
-        text: cx(styles.textCard, 'text-card'),
-        file: cx(styles.fileCard, 'file-card')
-      };
-    }, []);
-
-    const getContainerClass = useMemoizedFn((item: BusterChatMessageResponse) => {
-      return typeClassRecord[item.type];
-    });
-
     return (
-      <div key={responseMessage.id} className={getContainerClass(responseMessage)}>
-        <ChatResponseMessage
-          responseMessage={responseMessage}
-          isCompletedStream={isCompletedStream}
-          isLastMessageItem={isLastMessageItem}
-        />
-        <VerticalDivider />
-      </div>
+      <ChatResponseMessage
+        responseMessageId={responseMessageId}
+        isCompletedStream={isCompletedStream}
+        isLastMessageItem={isLastMessageItem}
+        messageId={messageId}
+      />
     );
   }
 );
 
 ChatResponseMessageSelector.displayName = 'ChatResponseMessageSelector';
-
-const VerticalDivider: React.FC<{ className?: string }> = React.memo(({ className }) => {
-  const { cx, styles } = useStyles();
-  return <div className={cx(styles.verticalDivider, 'vertical-divider', className)} />;
-});
-VerticalDivider.displayName = 'VerticalDivider';
-
-const useStyles = createStyles(({ token, css }) => ({
-  textCard: css`
-    margin-bottom: 14px;
-
-    &:has(+ .text-card) {
-      margin-bottom: 8px;
-    }
-
-    .vertical-divider {
-      display: none;
-    }
-  `,
-  fileCard: css`
-    &:has(+ .text-card) {
-      .vertical-divider {
-        opacity: 0;
-      }
-    }
-
-    &:has(+ .file-card) {
-      .vertical-divider {
-        opacity: 1;
-      }
-      margin-bottom: 1px;
-    }
-
-    &:last-child {
-      .vertical-divider {
-        opacity: 0;
-      }
-    }
-  `,
-  verticalDivider: css`
-    transition: opacity 0.2s ease-in-out;
-    height: 9px;
-    width: 0.5px;
-    margin: 3px 0 3px 16px;
-    background: ${token.colorTextTertiary};
-  `
-}));

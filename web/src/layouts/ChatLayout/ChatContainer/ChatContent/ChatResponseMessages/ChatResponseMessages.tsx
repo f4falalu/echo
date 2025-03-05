@@ -1,53 +1,45 @@
-import React, { useMemo } from 'react';
-import type {
-  BusterChatMessage_text,
-  BusterChatMessageReasoning,
-  BusterChatMessageResponse
-} from '@/api/asset_interfaces';
+import React from 'react';
 import { MessageContainer } from '../MessageContainer';
 import { ChatResponseMessageSelector } from './ChatResponseMessageSelector';
 import { ChatResponseReasoning } from './ChatResponseReasoning';
 import { ShimmerText } from '@/components/ui/typography/ShimmerText';
+import { useMessageIndividual } from '@/context/Chats';
 
 interface ChatResponseMessagesProps {
-  responseMessages: BusterChatMessageResponse[];
   isCompletedStream: boolean;
-  reasoningMessages: BusterChatMessageReasoning[];
   messageId: string;
 }
 
 export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.memo(
-  ({ responseMessages, reasoningMessages, isCompletedStream, messageId }) => {
-    const lastMessageIndex = responseMessages.length - 1;
+  ({ isCompletedStream, messageId }) => {
+    const responseMessageIds = useMessageIndividual(
+      messageId,
+      (x) => x?.response_message_ids || []
+    );
+    const lastReasoningMessageId = useMessageIndividual(
+      messageId,
+      (x) => x?.reasoning_message_ids?.[x.reasoning_message_ids.length - 1]
+    );
 
-    const showDefaultMessage = responseMessages.length === 0;
-
-    const reasonginStepIndex = useMemo(() => {
-      const lastTextMessage = responseMessages.findLast(
-        (message) => message.type === 'text' && message.is_final_message !== false
-      ) as BusterChatMessage_text;
-
-      if (!lastTextMessage) return -1;
-      if (lastTextMessage?.message_chunk) return -1;
-
-      return responseMessages.findIndex((message) => message.id === lastTextMessage.id);
-    }, [responseMessages]);
+    const lastMessageIndex = responseMessageIds.length - 1;
+    const showDefaultMessage = responseMessageIds.length === 0;
 
     return (
       <MessageContainer className="flex w-full flex-col overflow-hidden">
         {showDefaultMessage && <DefaultFirstMessage />}
 
-        {responseMessages.map((responseMessage, index) => (
-          <React.Fragment key={responseMessage.id}>
+        {responseMessageIds.map((responseMessageId, index) => (
+          <React.Fragment key={responseMessageId}>
             <ChatResponseMessageSelector
-              responseMessage={responseMessage}
+              responseMessageId={responseMessageId}
+              messageId={messageId}
               isCompletedStream={isCompletedStream}
               isLastMessageItem={index === lastMessageIndex}
             />
 
-            {index === reasonginStepIndex && (
+            {index === lastMessageIndex && lastReasoningMessageId && (
               <ChatResponseReasoning
-                reasoningMessages={reasoningMessages}
+                reasoningMessageId={lastReasoningMessageId}
                 isCompletedStream={isCompletedStream}
                 messageId={messageId}
               />

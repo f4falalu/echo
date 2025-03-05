@@ -2,26 +2,36 @@ import React, { useMemo } from 'react';
 import { ChatResponseMessageProps } from '../ChatResponseMessageSelector';
 import { createStyles } from 'antd-style';
 import type {
-  BusterChatMessage_file,
-  BusterChatMessage_fileMetadata
+  BusterChatResponseMessage_file,
+  BusterChatResponseMessage_fileMetadata
 } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui';
 import { motion, AnimatePresence } from 'framer-motion';
 import { itemAnimationConfig } from '@/components/ui/streaming/animationConfig';
 import { useMemoizedFn } from 'ahooks';
 import { StatusIndicator } from '@/components/ui/indicators';
-import { useChatLayoutContextSelector } from '../../../../ChatLayoutContext';
-import { useChatIndividualContextSelector } from '../../../../ChatContext';
+import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
+import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 import { VersionPill } from '@/components/ui/tags/VersionPill';
+import { useMessageIndividual } from '@/context/Chats';
 
 export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = React.memo(
-  ({ responseMessage: responseMessageProp, isCompletedStream }) => {
+  ({ responseMessageId, messageId, isCompletedStream }) => {
     const { cx, styles } = useStyles();
     const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
-    const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId);
-    const responseMessage = responseMessageProp as BusterChatMessage_file;
-    const { file_name, file_type, version_number, id, metadata = [] } = responseMessage;
-    const isSelectedFile = selectedFileId === id;
+    const isSelectedFile = useChatIndividualContextSelector((x) => x.selectedFileId === id);
+
+    const responseMessage = useMessageIndividual(
+      messageId,
+      (x) => x?.response_messages?.[responseMessageId]
+    );
+    const {
+      file_name,
+      file_type,
+      version_number,
+      id,
+      metadata = []
+    } = (responseMessage || {}) as BusterChatResponseMessage_file;
 
     const onClickCard = useMemoizedFn(() => {
       onSetSelectedFile({
@@ -72,7 +82,7 @@ const ChatResponseMessageHeader: React.FC<{ file_name: string; version_number: n
 ChatResponseMessageHeader.displayName = 'ChatResponseMessageHeader';
 
 const ChatResponseMessageBody: React.FC<{
-  metadata: BusterChatMessage_fileMetadata[];
+  metadata: BusterChatResponseMessage_fileMetadata[];
 }> = React.memo(({ metadata }) => {
   return (
     <div className="flex w-full flex-col items-center space-y-0.5 px-2.5 py-2">
@@ -85,7 +95,9 @@ const ChatResponseMessageBody: React.FC<{
 
 ChatResponseMessageBody.displayName = 'ChatResponseMessageBody';
 
-const MetadataItem: React.FC<{ metadata: BusterChatMessage_fileMetadata }> = ({ metadata }) => {
+const MetadataItem: React.FC<{ metadata: BusterChatResponseMessage_fileMetadata }> = ({
+  metadata
+}) => {
   const { cx, styles } = useStyles();
   const { status, message, timestamp } = metadata;
 

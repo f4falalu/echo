@@ -6,12 +6,12 @@ import { ReasoningMessageSelector } from './ReasoningMessages';
 import { createStyles } from 'antd-style';
 
 export const ReasoningMessageContainer: React.FC<{
-  reasoningMessages: BusterChatMessageReasoning[];
+  reasoningMessageIds: string[];
   isCompletedStream: boolean;
   chatId: string;
-}> = React.memo(({ reasoningMessages, isCompletedStream, chatId }) => {
+}> = React.memo(({ reasoningMessageIds, isCompletedStream, chatId }) => {
   const { cx, styles } = useStyles();
-  const lastMessageIndex = reasoningMessages.length - 1;
+  const lastMessageIndex = reasoningMessageIds.length - 1;
 
   const typeClassRecord: Record<BusterChatMessageReasoning['type'], string> = useMemo(() => {
     return {
@@ -27,17 +27,17 @@ export const ReasoningMessageContainer: React.FC<{
 
   return (
     <div className="flex flex-col pb-4">
-      {reasoningMessages?.map((message, index) => (
-        <div key={message.id} className={getContainerClass(message)}>
+      {/* {reasoningMessageIds?.map((messageId, index) => (
+        <div key={messageId} className={getContainerClass(messageId)}>
           <ReasoningMessageSelector
-            key={message.id}
-            reasoningMessage={message}
+            key={messageId}
+            reasoningMessage={messageId}
             isCompletedStream={isCompletedStream}
             isLastMessageItem={index === lastMessageIndex}
             chatId={chatId}
           />
         </div>
-      ))}
+      ))} */}
     </div>
   );
 });

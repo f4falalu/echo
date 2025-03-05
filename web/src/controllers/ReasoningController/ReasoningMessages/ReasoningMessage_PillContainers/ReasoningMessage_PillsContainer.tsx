@@ -1,6 +1,6 @@
 import React from 'react';
-import type { BusterChatMessageReasoning_Pills } from '@/api/asset_interfaces';
-import { ReasoningMessageProps } from '../ReasoningMessageSelector';
+import type { BusterChatMessageReasoning_pills } from '@/api/asset_interfaces';
+import type { ReasoningMessageProps } from '../ReasoningMessageSelector';
 import { ReasoningMessagePillContainer } from './ReasoningMessagePillContainer';
 import { BarContainer } from '../BarContainer';
 import { motion } from 'framer-motion';
@@ -39,10 +39,10 @@ const itemVariants = {
 export const ReasoningMessage_PillsContainer: React.FC<ReasoningMessageProps> = React.memo(
   ({ reasoningMessage, isCompletedStream, isLastMessageItem }) => {
     const { title, secondary_title, pill_containers, status, id } =
-      reasoningMessage as BusterChatMessageReasoning_Pills;
+      reasoningMessage as BusterChatMessageReasoning_pills;
 
     const hasPills = !!pill_containers && pill_containers.length > 0;
-    const loadingStatus: NonNullable<BusterChatMessageReasoning_Pills['status']> =
+    const loadingStatus: NonNullable<BusterChatMessageReasoning_pills['status']> =
       (status ?? (isLastMessageItem && !isCompletedStream)) ? status || 'loading' : 'completed';
 
     return (

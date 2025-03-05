@@ -36,8 +36,7 @@ export const useChatIndividualContext = ({
 
   //MESSAGES
   const currentMessageId = chatMessageIds[chatMessageIds.length - 1];
-  const message = useMessageIndividual(currentMessageId);
-  const isLoading = !message?.isCompletedStream;
+  const isLoading = useMessageIndividual(currentMessageId, (x) => !x?.isCompletedStream);
 
   useAutoChangeLayout({
     lastMessageId: currentMessageId,

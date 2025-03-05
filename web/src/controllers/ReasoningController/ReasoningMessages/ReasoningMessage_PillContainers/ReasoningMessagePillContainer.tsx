@@ -1,10 +1,10 @@
-import { type BusterChatMessageReasoning_PillContainer } from '@/api/asset_interfaces';
+import { type BusterChatMessageReasoning_pillContainer } from '@/api/asset_interfaces';
 import React from 'react';
 import { Text } from '@/components/ui/typography';
 import { ReasoningMessagePills } from './ReasoningMessagePills';
 
 export const ReasoningMessagePillContainer: React.FC<{
-  pillContainer: BusterChatMessageReasoning_PillContainer;
+  pillContainer: BusterChatMessageReasoning_pillContainer;
   isCompletedStream: boolean;
 }> = React.memo(({ pillContainer, isCompletedStream }) => {
   return (

@@ -14,16 +14,15 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
   const hasChat = useChatIndividualContextSelector((state) => state.hasChat);
   const message = useMessageIndividual(messageId);
 
+  if (!hasChat || !message) return <></>;
 
-  if (!hasChat || !message) return <div className="h-full w-full bg-red-500">NUTS</div>;
-
-  const reasoningMessages = message.reasoning;
+  const reasoningMessageIds = message.reasoning_message_ids;
   const isCompletedStream = message.isCompletedStream;
 
   return (
     <div className="h-full overflow-y-auto p-5">
       <ReasoningMessageContainer
-        reasoningMessages={reasoningMessages}
+        reasoningMessageIds={reasoningMessageIds}
         isCompletedStream={isCompletedStream}
         chatId={chatId}
       />

@@ -40,7 +40,7 @@ export const ReasoningFileButtons = React.memo(
 
     return (
       <div>
-        <AppTooltip title="Open file">
+        <AppTooltip title="Open file" sideOffset={12}>
           <Button
             href={link}
             onClick={onOpenFile}

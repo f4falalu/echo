@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { type ReasoningMessageProps } from '../ReasoningMessageSelector';
-import {
-  BusterChatMessageReasoning_file,
-  type BusterChatMessageReasoning_files
-} from '@/api/asset_interfaces';
+import { BusterChatMessageReasoning_file } from '@/api/asset_interfaces';
 import {
   AppCodeBlockWrapper,
   SyntaxHighlighterLightTheme
@@ -13,14 +9,15 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { LoaderDot } from './LoaderDot';
 import { ReasoningFileButtons } from './ReasoningFileButtons';
 import { ReasoningFileTitle } from './ReasoningFileTitle';
+import { Text } from '@/components/ui/typography';
+import pluralize from 'pluralize';
 
 const style = SyntaxHighlighterLightTheme;
 
 const containerVariants = {
-  hidden: { opacity: 0, height: 0 },
+  hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    height: 'auto',
     transition: {
       opacity: { duration: 0.12 },
       staggerChildren: 0.08
@@ -32,6 +29,25 @@ const itemVariants = {
   hidden: { opacity: 0, x: 0 },
   show: { opacity: 1, x: 0 }
 };
+
+type LineSegment = {
+  type: 'text' | 'hidden';
+  content: string;
+  lineNumber: number;
+  numberOfLines?: number;
+};
+
+const HiddenSection: React.FC<{
+  numberOfLinesUnmodified: number;
+}> = ({ numberOfLinesUnmodified }) => (
+  <div className="my-2 flex w-full items-center space-x-1">
+    <div className="bg-border h-[0.5px] w-full" />
+    <Text variant="tertiary" size={'sm'} className="whitespace-nowrap">
+      {`${numberOfLinesUnmodified} ${pluralize('line', numberOfLinesUnmodified)} unmodified`}
+    </Text>
+    <div className="bg-border h-[0.5px] w-4" />
+  </div>
+);
 
 export type ReasoningMessageFileProps = BusterChatMessageReasoning_file & {
   chatId: string;
@@ -51,30 +67,70 @@ export const ReasoningMessage_File: React.FC<ReasoningMessageFileProps> = React.
   }) => {
     const showLoader = status === 'loading';
     const fileButtonType = status === 'loading' || !isCompletedStream ? 'status' : 'file';
+    const { text = '', modified } = file;
 
-    // Initialize with complete file if available
-    const [lineMap, setLineMap] = useState<Map<number, string>>(() => {
-      const initialMap = new Map<number, string>();
-      if (file) {
-        file.forEach((chunk) => {
-          initialMap.set(chunk.line_number, chunk.text);
-        });
-      }
-      return initialMap;
-    });
+    const [lineSegments, setLineSegments] = useState<LineSegment[]>([]);
 
-    // Append new chunks as they arrive
     useEffect(() => {
-      if (file) {
-        setLineMap((prevMap) => {
-          const newMap = new Map(prevMap);
-          file.forEach((chunk) => {
-            newMap.set(chunk.line_number, chunk.text);
+      const processText = () => {
+        // Split the text into lines, keeping empty lines
+        const lines = text.split('\n');
+        const segments: LineSegment[] = [];
+        let currentLine = 1;
+
+        if (!modified || modified.length === 0) {
+          // If no modified ranges, process the entire text as visible
+          lines.forEach((line) => {
+            segments.push({
+              type: 'text',
+              content: line,
+              lineNumber: currentLine++
+            });
           });
-          return newMap;
-        });
-      }
-    }, [file]);
+        } else {
+          // Sort modified ranges to ensure proper processing
+          const sortedModified = [...modified].sort((a, b) => a[0] - b[0]);
+
+          let lastEnd = 0;
+          for (const [start, end] of sortedModified) {
+            // Add visible lines before the hidden section
+            for (let i = lastEnd; i < start - 1; i++) {
+              segments.push({
+                type: 'text',
+                content: lines[i],
+                lineNumber: currentLine++
+              });
+            }
+
+            // Add hidden section
+            const hiddenLineCount = end - start + 1;
+            segments.push({
+              type: 'hidden',
+              content: '',
+              lineNumber: currentLine,
+              numberOfLines: hiddenLineCount
+            });
+            currentLine += hiddenLineCount;
+            lastEnd = end;
+          }
+
+          // Add remaining visible lines after the last hidden section
+          for (let i = lastEnd; i < lines.length; i++) {
+            segments.push({
+              type: 'text',
+              content: lines[i],
+              lineNumber: currentLine++
+            });
+          }
+        }
+
+        setLineSegments(segments);
+      };
+
+      processText();
+    }, [text, modified]);
+
+    console.log(lineSegments);
 
     return (
       <AppCodeBlockWrapper
@@ -95,15 +151,21 @@ export const ReasoningMessage_File: React.FC<ReasoningMessageFileProps> = React.
             variants={containerVariants}
             initial="hidden"
             animate="show">
-            {Array.from(lineMap.entries()).map(([lineNumber, text]) => (
+            {lineSegments.map((segment, index) => (
               <motion.div
-                key={lineNumber}
+                key={`${segment.lineNumber}-${index}`}
                 variants={itemVariants}
-                className="line-number w-fit pr-1">
-                <MemoizedSyntaxHighlighter lineNumber={lineNumber} text={text} />
+                className="line-number pr-1">
+                {segment.type === 'text' ? (
+                  <MemoizedSyntaxHighlighter
+                    lineNumber={segment.lineNumber}
+                    text={segment.content}
+                  />
+                ) : (
+                  <HiddenSection numberOfLinesUnmodified={segment.numberOfLines || 0} />
+                )}
               </motion.div>
             ))}
-
             {showLoader && <LoaderDot />}
           </motion.div>
         </AnimatePresence>
