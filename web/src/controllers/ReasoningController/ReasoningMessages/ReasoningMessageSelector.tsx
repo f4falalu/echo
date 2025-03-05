@@ -1,9 +1,5 @@
 import React from 'react';
-import type {
-  BusterChatMessageReasoning,
-  BusterChatMessageReasoning_text
-} from '@/api/asset_interfaces';
-import { StreamingMessage_Text } from '@/components/ui/streaming/StreamingMessage_Text';
+import type { BusterChatMessageReasoning } from '@/api/asset_interfaces';
 import { ReasoningMessage_PillsContainer } from './ReasoningMessage_PillContainers';
 import { ReasoningMessage_Files } from './ReasoningMessage_Files';
 import { ReasoningMessage_Text } from './ReasoningMessage_Text';
@@ -38,6 +34,7 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
   chatId
 }) => {
   const ReasoningMessage = ReasoningMessageRecord[reasoningMessage.type];
+  console.log(reasoningMessage.type);
   return (
     <ReasoningMessage
       reasoningMessage={reasoningMessage}

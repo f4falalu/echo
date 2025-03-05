@@ -7,7 +7,7 @@ import {
 import type { SelectedFile } from '../interfaces';
 import { useAutoChangeLayout } from './useAutoChangeLayout';
 import { useMessageIndividual } from '@/context/Chats';
-import { useSubscribeIndividualChat } from './useSubscribeIndividualChat';
+import { useGetChat } from '@/api/buster_rest/chats';
 
 export const useChatIndividualContext = ({
   chatId,
@@ -22,22 +22,20 @@ export const useChatIndividualContext = ({
   const selectedFileType = defaultSelectedFile?.type;
 
   //CHAT
-  const chat = useSubscribeIndividualChat({
-    chatId,
-    defaultSelectedFile
+  const { data: chat } = useGetChat({
+    id: chatId || ''
   });
 
   const hasChat = !!chatId && !!chat;
   const chatTitle = chat?.title;
-  const chatMessageIds = chat?.messages ?? [];
+  const chatMessageIds = chat?.message_ids ?? [];
 
   //FILE
   const hasFile = !!defaultSelectedFile?.id;
 
   //MESSAGES
   const currentMessageId = chatMessageIds[chatMessageIds.length - 1];
-  const message = useMessageIndividual(currentMessageId);
-  const isLoading = !message?.isCompletedStream;
+  const isLoading = useMessageIndividual(currentMessageId, (x) => !x?.isCompletedStream);
 
   useAutoChangeLayout({
     lastMessageId: currentMessageId,

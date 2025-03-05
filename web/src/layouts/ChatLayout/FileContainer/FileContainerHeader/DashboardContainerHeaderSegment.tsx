@@ -1,6 +1,6 @@
 import React from 'react';
 import type { FileContainerSegmentProps } from './interfaces';
-import type { DashboardFileView, FileView } from '../../ChatLayoutContext/useChatFileLayout';
+import type { FileView } from '../../ChatLayoutContext/useChatFileLayout';
 import { AppSegmented } from '@/components/ui/segmented';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { useMemoizedFn } from 'ahooks';
@@ -19,7 +19,14 @@ export const DashboardContainerHeaderSegment: React.FC<FileContainerSegmentProps
       onSetFileView({ fileView: fileView.value });
     });
 
-    return <AppSegmented options={segmentOptions} value={selectedFileView} onChange={onChange} />;
+    return (
+      <AppSegmented
+        type="button"
+        options={segmentOptions}
+        value={selectedFileView}
+        onChange={onChange}
+      />
+    );
   }
 );
 

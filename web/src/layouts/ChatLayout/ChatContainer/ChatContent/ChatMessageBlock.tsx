@@ -6,21 +6,15 @@ import { useMessageIndividual } from '@/context/Chats';
 export const ChatMessageBlock: React.FC<{
   messageId: string;
 }> = React.memo(({ messageId }) => {
-  const message = useMessageIndividual(messageId);
+  const requestMessage = useMessageIndividual(messageId, (message) => message?.request_message);
+  const isCompletedStream = useMessageIndividual(messageId, (x) => x?.isCompletedStream);
 
-  if (!message) return null;
-
-  const { request_message, response_messages, id, isCompletedStream, reasoning } = message;
+  if (!requestMessage) return null;
 
   return (
-    <div className={'flex flex-col space-y-3.5 py-2 pl-4 pr-3'} id={id}>
-      <ChatUserMessage requestMessage={request_message} />
-      <ChatResponseMessages
-        responseMessages={response_messages}
-        isCompletedStream={isCompletedStream}
-        reasoningMessages={reasoning}
-        messageId={id}
-      />
+    <div className={'flex flex-col space-y-3.5 py-2 pr-3 pl-4'} id={messageId}>
+      <ChatUserMessage requestMessage={requestMessage} />
+      <ChatResponseMessages isCompletedStream={isCompletedStream!} messageId={messageId} />
     </div>
   );
 });

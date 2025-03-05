@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Input } from 'antd';
-import { Title, Text } from '@/components/ui/typography';
+import { Title, Paragraph } from '@/components/ui/typography';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { inputHasText } from '@/lib/text';
@@ -10,6 +9,8 @@ import { useMemoizedFn } from 'ahooks';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes/busterRoutes';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { Button } from '@/components/ui/buttons';
+import { Input } from '@/components/ui/inputs';
 
 export const NewUserController = () => {
   const [started, setStarted] = useState(false);
@@ -58,10 +59,10 @@ export const NewUserController = () => {
           key={'no-started'}
           className="flex h-full w-full flex-col items-start justify-center space-y-5 p-12">
           <Title as={'h3'}>Welcome to Buster</Title>
-          <Text variant="secondary">
+          <Paragraph variant="secondary">
             With Buster, you can ask data questions in plain english & instantly get back data.
-          </Text>
-          <Button type="primary" onClick={() => setStarted(true)}>
+          </Paragraph>
+          <Button variant="black" onClick={() => setStarted(true)}>
             Get Started
           </Button>
         </motion.div>
@@ -79,8 +80,8 @@ export const NewUserController = () => {
           <Input
             placeholder="What is your full name"
             className="w-full"
-            value={name}
-            defaultValue={user?.name}
+            value={name || ''}
+            defaultValue={user?.name || ''}
             name="name"
             onChange={(e) => setName(e.target.value)}
           />
@@ -89,13 +90,13 @@ export const NewUserController = () => {
             className="w-full"
             name="company"
             disabled={!!userOrganizations?.name}
-            value={company}
+            value={company || ''}
             onChange={(e) => setCompany(e.target.value)}
             onPressEnter={handleSubmit}
-            defaultValue={userOrganizations?.name}
+            defaultValue={userOrganizations?.name || ''}
           />
           <Button
-            type="primary"
+            variant="black"
             loading={submitting}
             onClick={async () => {
               handleSubmit();

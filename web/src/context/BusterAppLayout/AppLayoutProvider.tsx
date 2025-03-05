@@ -19,13 +19,8 @@ export const useAppLayout = () => {
   const currentRoute = pathNameToRoute(pathname, params);
   const previousRoute = usePrevious(currentRoute);
   const previousPath = usePrevious(pathname);
-  const [openChatsModal, setOpenChatsModal] = React.useState(false);
   const [openInviteModal, setOpenInviteModal] = React.useState(false);
   const [openSupportModal, setOpenSupportModal] = React.useState(false);
-
-  const onToggleChatsModal = useMemoizedFn((v?: boolean) => {
-    setOpenChatsModal(v ?? !openChatsModal);
-  });
 
   const onToggleInviteModal = useMemoizedFn((v?: boolean) => {
     setOpenInviteModal(v ?? !openInviteModal);
@@ -48,11 +43,9 @@ export const useAppLayout = () => {
   });
 
   return {
-    onToggleChatsModal,
     createPageLink,
     currentRoute,
     currentSegment,
-    openChatsModal,
     onToggleInviteModal,
     openInviteModal,
     onChangePage,

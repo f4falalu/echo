@@ -18,10 +18,9 @@ import { useCreateListByDate } from '@/components/ui/list/useCreateListByDate';
 export const MetricItemsContainer: React.FC<{
   metrics: BusterMetricListItem[];
   className?: string;
-  openNewMetricModal: () => void;
   type: 'logs' | 'metrics';
   loading: boolean;
-}> = ({ type, metrics = [], className = '', loading, openNewMetricModal }) => {
+}> = ({ type, metrics = [], className = '', loading }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const renderedDates = useRef<Record<string, string>>({});
   const renderedOwners = useRef<Record<string, React.ReactNode>>({});
@@ -119,9 +118,7 @@ export const MetricItemsContainer: React.FC<{
         columns={columns}
         onSelectChange={onSelectChange}
         selectedRowKeys={selectedRowKeys}
-        emptyState={
-          <EmptyState loading={loading} type={type} openNewMetricModal={openNewMetricModal} />
-        }
+        emptyState={<EmptyState loading={loading} type={type} />}
       />
 
       <MetricSelectedOptionPopup
@@ -136,27 +133,18 @@ export const MetricItemsContainer: React.FC<{
 const EmptyState: React.FC<{
   loading: boolean;
   type: 'logs' | 'metrics';
-  openNewMetricModal: () => void;
-}> = React.memo(({ loading, type, openNewMetricModal }) => {
+}> = React.memo(({ loading, type }) => {
   if (loading) {
     return <></>;
   }
 
-  return <MetricsEmptyState openNewMetricModal={openNewMetricModal} type={type} />;
-});
-EmptyState.displayName = 'EmptyState';
-
-const MetricsEmptyState: React.FC<{
-  openNewMetricModal: () => void;
-  type: 'logs' | 'metrics';
-}> = ({ openNewMetricModal, type }) => {
   if (type === 'logs') {
     return (
       <ListEmptyStateWithButton
         title="You don’t have any logs yet."
         description="You don’t have any logs. As soon as you do, they will start to appear here."
         buttonText="New chat"
-        onClick={openNewMetricModal}
+        linkButton={createBusterRoute({ route: BusterRoutes.APP_HOME })}
       />
     );
   }
@@ -166,10 +154,11 @@ const MetricsEmptyState: React.FC<{
       title="You don’t have any metrics yet."
       description="You don’t have any metrics. As soon as you do, they will start to  appear here."
       buttonText="New chat"
-      onClick={openNewMetricModal}
+      linkButton={createBusterRoute({ route: BusterRoutes.APP_HOME })}
     />
   );
-};
+});
+EmptyState.displayName = 'EmptyState';
 
 const TitleCell = React.memo<{ title: string; status: VerificationStatus; metricId: string }>(
   ({ title, status, metricId }) => {

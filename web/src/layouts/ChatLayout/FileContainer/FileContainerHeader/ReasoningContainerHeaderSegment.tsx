@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { FileContainerSegmentProps } from './interfaces';
 import { AppSegmented } from '@/components/ui/segmented';
@@ -18,7 +20,14 @@ export const ReasoningContainerHeaderSegment: React.FC<FileContainerSegmentProps
       onSetFileView({ fileView: fileView.value });
     });
 
-    return <AppSegmented options={segmentOptions} value={selectedFileView} onChange={onChange} />;
+    return (
+      <AppSegmented
+        type="button"
+        options={segmentOptions}
+        value={selectedFileView}
+        onChange={onChange}
+      />
+    );
   }
 );
 

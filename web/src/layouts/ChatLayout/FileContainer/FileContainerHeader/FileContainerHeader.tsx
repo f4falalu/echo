@@ -1,6 +1,8 @@
+'use client';
+
 import React from 'react';
 import { CollapseFileButton } from './CollapseFileButton';
-import { FileType } from '@/api/asset_interfaces';
+import type { FileType } from '@/api/asset_interfaces';
 import { FileContainerSegmentProps, FileContainerButtonsProps } from './interfaces';
 import { DashboardContainerHeaderButtons } from './DashboardContainerHeaderButtons';
 import { DashboardContainerHeaderSegment } from './DashboardContainerHeaderSegment';
@@ -8,7 +10,6 @@ import { MetricContainerHeaderSegment } from './MetricContainerHeaderSegment';
 import { MetricContainerHeaderButtons } from './MetricContainerHeaderButtons';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { ReasoningContainerHeaderSegment } from './ReasoningContainerHeaderSegment';
-import { cn } from '@/lib/utils';
 
 export const FileContainerHeader: React.FC = React.memo(() => {
   const selectedFileType = useChatLayoutContextSelector((x) => x.selectedFileType);
@@ -37,11 +38,7 @@ export const FileContainerHeader: React.FC = React.memo(() => {
   );
 
   return (
-    <div
-      className={cn(
-        'border-b',
-        'flex w-full items-center justify-between space-x-1 overflow-hidden px-3'
-      )}>
+    <>
       <div className="flex items-center gap-1.5">
         <CollapseFileButton
           collapseDirection={collapseDirection}
@@ -52,7 +49,7 @@ export const FileContainerHeader: React.FC = React.memo(() => {
         {selectedFileView && <SelectedFileSegment selectedFileView={selectedFileView} />}
       </div>
       <SelectedFileButtons selectedFileView={selectedFileView} />
-    </div>
+    </>
   );
 });
 

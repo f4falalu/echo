@@ -98,9 +98,7 @@ const PopoverContent = React.forwardRef<
         )}
         {...props}>
         {headerContent && <>{headerContent}</>}
-        <div className={cn(popoverContentVariant({ size }), className)}>
-          <>{children}</>
-        </div>
+        <div className={cn(popoverContentVariant({ size }), className)}>{children}</div>
         {footerContent && <>{footerContent}</>}
       </PopoverPrimitive.Content>
     </PopoverPrimitive.Portal>

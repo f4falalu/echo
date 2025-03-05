@@ -1,17 +1,17 @@
-import {
+import type {
   BusterChatMessageReasoning,
-  BusterChatMessageReasoning_Pills
+  BusterChatMessageReasoning_pills
 } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
 import sample from 'lodash/sample';
 import last from 'lodash/last';
 import { useBusterChatContextSelector } from '../ChatProvider';
-import { timeout } from '@/lib';
+import { timeout } from '@/lib/timeout';
 import random from 'lodash/random';
 
 export const useAutoAppendThought = () => {
   const onUpdateChatMessage = useBusterChatContextSelector((x) => x.onUpdateChatMessage);
-  const getChatMessagesMemoized = useBusterChatContextSelector((x) => x.getChatMessagesMemoized);
+  const getChatMessageMemoized = useBusterChatContextSelector((x) => x.getChatMessageMemoized);
 
   const removeAutoThoughts = useMemoizedFn(
     (reasoningMessages: BusterChatMessageReasoning[]): BusterChatMessageReasoning[] => {
@@ -39,29 +39,27 @@ export const useAutoAppendThought = () => {
   );
 
   const _loopAutoThought = useMemoizedFn(async (chatId: string) => {
-    const randomDelay = random(3000, 5000);
-    await timeout(randomDelay);
-    const chatMessages = getChatMessagesMemoized(chatId);
-    const lastMessage = last(chatMessages);
-    const isCompletedStream = !!lastMessage?.isCompletedStream;
-    const lastReasoningMessage = last(lastMessage?.reasoning);
-    const lastReasoningMessageIsAutoAppended =
-      !lastReasoningMessage || lastReasoningMessage?.id === AUTO_THOUGHT_ID;
-
-    if (!isCompletedStream && lastReasoningMessageIsAutoAppended && lastMessage) {
-      const lastMessageId = lastMessage?.id!;
-      const lastReasoningMessageIndex = lastMessage?.reasoning.length - 1;
-      const updatedReasoning = lastMessage?.reasoning.slice(0, lastReasoningMessageIndex);
-      const newReasoningMessages = [...updatedReasoning, createAutoThought()];
-
-      onUpdateChatMessage({
-        id: lastMessageId,
-        reasoning: newReasoningMessages,
-        isCompletedStream: false
-      });
-
-      _loopAutoThought(chatId);
-    }
+    // const randomDelay = random(3000, 5000);
+    // await timeout(randomDelay);
+    // const chatMessages = getChatMessagesMemoized(chatId);
+    // const lastMessage = last(chatMessages);
+    // const isCompletedStream = !!lastMessage?.isCompletedStream;
+    // const lastReasoningMessageId = last(lastMessage?.reasoning_message_ids) || '';
+    // const lastReasoningMessage = lastMessage?.reasoning_messages[lastReasoningMessageId];
+    // const lastReasoningMessageIsAutoAppended =
+    //   !lastReasoningMessage || lastReasoningMessage?.id === AUTO_THOUGHT_ID;
+    // if (!isCompletedStream && lastReasoningMessageIsAutoAppended && lastMessage) {
+    //   const lastMessageId = lastMessage?.id!;
+    //   const lastReasoningMessageIndex = lastMessage?.reasoning.length - 1;
+    //   const updatedReasoning = lastMessage?.reasoning.slice(0, lastReasoningMessageIndex);
+    //   const newReasoningMessages = [...updatedReasoning, createAutoThought()];
+    //   onUpdateChatMessage({
+    //     id: lastMessageId,
+    //     reasoning: newReasoningMessages,
+    //     isCompletedStream: false
+    //   });
+    //   _loopAutoThought(chatId);
+    // }
   });
 
   return { autoAppendThought, removeAutoThoughts };
@@ -75,7 +73,7 @@ const getRandomThought = (currentThought?: string): string => {
 };
 
 const AUTO_THOUGHT_ID = 'stub-thought-id';
-const createAutoThought = (currentThought?: string): BusterChatMessageReasoning_Pills => {
+const createAutoThought = (currentThought?: string): BusterChatMessageReasoning_pills => {
   return {
     id: AUTO_THOUGHT_ID,
     type: 'pills',

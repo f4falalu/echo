@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useTransition } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { itemAnimationConfig } from './animationConfig';
 import { useMemoizedFn } from 'ahooks';
+import { cn } from '@/lib/classMerge';
 
 interface StreamingMessage_TextProps {
   isCompletedStream: boolean;
@@ -40,13 +39,24 @@ export const StreamingMessage_Text: React.FC<StreamingMessage_TextProps> = React
     return (
       <div className={''}>
         {textChunksRef.current.map((chunk, index) => (
-          <AnimatePresence key={index} initial={!isCompletedStream}>
-            <motion.span {...itemAnimationConfig}>{chunk}</motion.span>
-          </AnimatePresence>
+          <AnimatedSpan key={index} isCompletedStream={isCompletedStream}>
+            {chunk}
+          </AnimatedSpan>
         ))}
       </div>
     );
   }
 );
+
+const AnimatedSpan: React.FC<{ children: React.ReactNode; isCompletedStream: boolean }> = ({
+  children,
+  isCompletedStream
+}) => {
+  return (
+    <span className={cn(!isCompletedStream ? 'animate-in fade-in duration-700' : '')}>
+      {children}
+    </span>
+  );
+};
 
 StreamingMessage_Text.displayName = 'StreamingMessage_Text';

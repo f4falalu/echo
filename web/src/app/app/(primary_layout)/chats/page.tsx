@@ -4,7 +4,7 @@ import { ChatListHeader } from './_ChatsListContainer/ChatListHeader';
 
 export default function ChatsPage() {
   return (
-    <AppPageLayout headerVariant="list" header={<ChatListHeader />}>
+    <AppPageLayout headerSizeVariant="list" header={<ChatListHeader />}>
       <ChatListContainer />
     </AppPageLayout>
   );

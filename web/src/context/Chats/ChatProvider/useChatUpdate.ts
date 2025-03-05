@@ -4,6 +4,7 @@ import type { IBusterChat, IBusterChatMessage } from '../interfaces';
 import { useSocketQueryMutation } from '@/api/buster_socket_query';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
+import { create } from 'mutative';
 
 export const useChatUpdate = () => {
   const [isPending, startTransition] = useTransition();
@@ -16,13 +17,14 @@ export const useChatUpdate = () => {
 
   const onUpdateChat = useMemoizedFn(
     async (newChatConfig: Partial<IBusterChat> & { id: string }, saveToServer: boolean = false) => {
-      const options = queryKeys['chatsGetChat'](newChatConfig.id);
+      const options = queryKeys.chatsGetChat(newChatConfig.id);
       const queryKey = options.queryKey;
       const currentData = queryClient.getQueryData<IBusterChat>(queryKey);
-      const iChat: IBusterChat = {
-        ...currentData!,
-        ...newChatConfig
-      };
+
+      const iChat = create(currentData!, (draft) => {
+        Object.assign(draft, newChatConfig);
+      });
+
       queryClient.setQueryData(queryKey, iChat);
       startTransition(() => {
         //just used to trigger UI update
@@ -41,11 +43,12 @@ export const useChatUpdate = () => {
     async (newMessageConfig: Partial<IBusterChatMessage> & { id: string }) => {
       const options = queryKeys['chatsMessages'](newMessageConfig.id);
       const queryKey = options.queryKey;
-      const currentData = queryClient.getQueryData<IBusterChatMessage>(queryKey);
-      const iChatMessage: IBusterChatMessage = {
-        ...currentData!,
-        ...newMessageConfig
-      };
+      const currentData = queryClient.getQueryData(queryKey);
+
+      const iChatMessage = create(currentData!, (draft) => {
+        Object.assign(draft, newMessageConfig);
+      });
+
       queryClient.setQueryData(queryKey, iChatMessage);
     }
   );

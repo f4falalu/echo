@@ -1,169 +1,168 @@
 import type {
   BusterChat,
-  BusterChatMessage_text,
-  BusterChatMessage_file,
-  BusterChatMessageRequest,
-  BusterChatMessage_fileMetadata,
-  BusterChatMessageReasoning_Pills,
-  BusterChatMessageReasoning_Pill,
-  BusterChatMessageReasoning_files,
-  BusterChatMessageReasoning_text,
-  BusterChatMessageReasoning_file
+  BusterChatMessage,
+  BusterChatMessageReasoning,
+  BusterChatMessageReasoning_file,
+  BusterChatMessageResponse
 } from '@/api/asset_interfaces';
 import { faker } from '@faker-js/faker';
 
-const createMockUserMessage = (
-  message: string = faker.lorem.sentence(12)
-): BusterChatMessageRequest => ({
-  request: message,
-  sender_id: faker.string.uuid(),
-  sender_name: faker.person.fullName(),
-  sender_avatar: faker.image.avatar()
-});
+const MOCK_MESSAGE_RESPONSE = (typeProp?: 'text' | 'file'): BusterChatMessageResponse => {
+  const type = typeProp || faker.helpers.arrayElement(['text', 'file']);
 
-const createMockResponseMessageText = (): BusterChatMessage_text => ({
-  id: faker.string.uuid(),
-  type: 'text',
-  message: '',
-  message_chunk: faker.lorem.sentence({
-    min: 5,
-    max: 35
-  })
-});
-
-const createMockResponseMessagePills = (): BusterChatMessageReasoning_Pills => {
-  const randomPillCount = faker.number.int({ min: 0, max: 10 });
-  const fourRandomPills: BusterChatMessageReasoning_Pill[] = Array.from(
-    { length: randomPillCount },
-    () => {
-      return {
-        text: faker.lorem.word(),
-        type: 'term',
-        id: faker.string.uuid()
-      };
-    }
-  );
-  return {
-    id: faker.string.uuid(),
-    type: 'pills',
-    title: `Found ${faker.number.int(100)} terms`,
-    secondary_title: faker.lorem.word(),
-    pill_containers: [
-      {
-        title: `Found ${faker.number.int(100)} terms`,
-        pills: fourRandomPills
-      },
-      {
-        title: `Found ${faker.number.int(100)} terms 2`,
-        pills: fourRandomPills
-      }
-    ],
-    status: undefined
-  };
-};
-
-const createMockResponseMessageFile = (): BusterChatMessage_file => {
-  const randomMetadataCount = faker.number.int({
-    min: 1,
-    max: 3
-  });
-  const randomMetadata: BusterChatMessage_fileMetadata[] = Array.from(
-    { length: randomMetadataCount },
-    () => {
-      return {
-        status: 'completed',
-        message: faker.lorem.sentence(),
-        timestamp: faker.number.int(100)
-      };
-    }
-  );
+  if (type === 'text') {
+    return {
+      id: faker.string.uuid(),
+      type,
+      message: faker.lorem.sentence()
+    };
+  }
 
   return {
     id: faker.string.uuid(),
     type: 'file',
-    file_type: 'metric',
-    version_number: 1,
-    filter_version_id: null,
+    file_type: faker.helpers.arrayElement(['metric', 'dashboard']),
+    file_name: faker.system.fileName(),
+    version_number: faker.number.int({ min: 1, max: 10 }),
     version_id: faker.string.uuid(),
-    file_name: faker.company.name(),
-    metadata: randomMetadata
+    filter_version_id: faker.string.uuid(),
+    metadata: [
+      {
+        status: 'completed',
+        message: 'Create your file',
+        timestamp: 4200
+      }
+    ]
   };
 };
 
-const createMockReasoningMessageFile = (): BusterChatMessageReasoning_files => {
-  const randomFileCount = faker.number.int({ min: 1, max: 3 });
-  const files: BusterChatMessageReasoning_file[] = Array.from({ length: randomFileCount }, () => {
-    const randomLineCount = faker.number.int({ min: 0, max: 5 });
-    const fileLines =
-      randomLineCount > 0
-        ? Array.from({ length: randomLineCount }, (_, index) => ({
-            text: faker.lorem.sentence(),
-            line_number: index + 1,
-            modified: faker.datatype.boolean()
-          }))
-        : undefined;
+const MOCK_MESSAGE_REASONING = (
+  typeProp?: 'text' | 'files' | 'pills'
+): BusterChatMessageReasoning => {
+  const type = typeProp || faker.helpers.arrayElement(['text', 'files', 'pills']);
+
+  if (type === 'text') {
+    return {
+      id: faker.string.uuid(),
+      type: 'text',
+      title: faker.lorem.sentence(),
+      status: 'completed',
+      message: faker.lorem.sentence(),
+      secondary_title: '4.2 seconds'
+    };
+  }
+
+  if (type === 'files') {
+    const MOCK_FILE = (): BusterChatMessageReasoning_file => {
+      return {
+        id: faker.string.uuid(),
+        file_type: faker.helpers.arrayElement(['metric', 'dashboard']),
+        file_name: faker.system.fileName(),
+        version_number: faker.number.int({ min: 1, max: 10 }),
+        version_id: faker.string.uuid(),
+        status: 'loading',
+        file: {
+          text: faker.lorem.sentence(),
+          modified: [[0, 100]]
+        }
+      };
+    };
+
+    const files = Array.from({ length: 3 }, () => MOCK_FILE());
 
     return {
       id: faker.string.uuid(),
-      file_type: faker.helpers.arrayElement(['metric', 'dashboard', 'reasoning']),
-      file_name: faker.system.fileName(),
-      version_number: faker.number.int({ min: 1, max: 10 }),
-      version_id: faker.string.uuid(),
-      status: faker.helpers.arrayElement(['loading', 'completed', 'failed']),
-      file: fileLines
+      type: 'files',
+      title: faker.lorem.sentence(),
+      secondary_title: faker.lorem.sentence(),
+      status: 'completed',
+      file_ids: files.map((f) => f.id),
+      files: files.reduce<Record<string, BusterChatMessageReasoning_file>>((acc, f) => {
+        acc[f.id] = f;
+        return acc;
+      }, {})
     };
-  });
+  }
 
   return {
     id: faker.string.uuid(),
-    type: 'files',
-    title: faker.lorem.words(3),
-    secondary_title: faker.datatype.boolean() ? faker.lorem.sentence() : undefined,
-    status: faker.helpers.arrayElement(['loading', 'completed', 'failed']),
-    files
+    type: 'pills',
+    title: faker.lorem.sentence(),
+    status: 'completed',
+    secondary_title: '4.2 seconds',
+    pill_containers: [
+      {
+        title: faker.lorem.sentence(),
+        pills: []
+      }
+    ]
   };
 };
 
-const createMockReasoningMessageText = (): BusterChatMessageReasoning_text => {
+const MOCK_MESSAGE = (): BusterChatMessage => {
+  const responseTypes: ('text' | 'file')[] = ['text', 'file', 'file', 'file', 'text'];
+  const responseMessage = Array.from({ length: 5 }, (_, i) =>
+    MOCK_MESSAGE_RESPONSE(responseTypes[i])
+  );
+
+  const reasoningTypes: ('text' | 'files' | 'pills')[] = [
+    'text',
+    'pills',
+    'files',
+    'text',
+    'files'
+  ];
+  const reasoningMessage = Array.from({ length: 5 }, (_, i) =>
+    MOCK_MESSAGE_REASONING(reasoningTypes[i])
+  );
+
   return {
     id: faker.string.uuid(),
-    type: 'text',
-    message: faker.lorem.sentence(),
-    title: faker.lorem.words(4),
-    secondary_title: faker.lorem.sentence(),
-    status: 'loading'
+    created_at: faker.date.past().toISOString(),
+    request_message: {
+      request: faker.lorem.sentence(),
+      sender_id: faker.string.uuid(),
+      sender_name: faker.person.fullName(),
+      sender_avatar: faker.image.avatar()
+    },
+    final_reasoning_message: null,
+    response_message_ids: responseMessage.map((m) => m.id),
+    response_messages: responseMessage.reduce<Record<string, BusterChatMessageResponse>>(
+      (acc, m) => {
+        acc[m.id] = m;
+        return acc;
+      },
+      {}
+    ),
+    reasoning_messages: reasoningMessage.reduce<Record<string, BusterChatMessageReasoning>>(
+      (acc, m) => {
+        acc[m.id] = m;
+        return acc;
+      },
+      {}
+    ),
+    reasoning_message_ids: reasoningMessage.map((m) => m.id)
   };
 };
 
-export const MOCK_CHAT: BusterChat = {
-  id: '0',
-  title: 'Mock Chat',
-  is_favorited: false,
-  messages: [
-    {
-      id: '123',
-      created_at: '2025-01-01',
-      request_message: createMockUserMessage(),
-      final_reasoning_message: null,
-      reasoning: [
-        createMockReasoningMessageText(),
-        createMockReasoningMessageText(),
-        ...Array.from({ length: 1 }, () => createMockResponseMessagePills()),
-        createMockReasoningMessageFile()
-      ],
-      response_messages: [
-        createMockResponseMessageText(),
-        createMockResponseMessageFile(),
-        createMockResponseMessageFile(),
-        createMockResponseMessageText(),
-        createMockResponseMessageText()
-      ]
-    }
-  ],
-  created_at: '2025-01-01',
-  updated_at: '2025-01-01',
-  created_by: 'Mock User',
-  created_by_id: '1',
-  created_by_name: 'Mock User',
-  created_by_avatar: ''
+export const MOCK_CHAT = (): BusterChat => {
+  const messages = Array.from({ length: 3 }, () => MOCK_MESSAGE());
+  const messageIds = messages.map((m) => m.id);
+
+  return {
+    id: faker.string.uuid(),
+    title: faker.lorem.sentence(),
+    is_favorited: faker.datatype.boolean(),
+    message_ids: messageIds,
+    messages: messages.reduce<Record<string, BusterChatMessage>>((acc, m) => {
+      acc[m.id] = m;
+      return acc;
+    }, {}),
+    created_at: faker.date.past().toISOString(),
+    updated_at: faker.date.past().toISOString(),
+    created_by: faker.person.fullName(),
+    created_by_id: faker.string.uuid(),
+    created_by_name: faker.person.fullName(),
+    created_by_avatar: faker.image.avatar()
+  };
 };

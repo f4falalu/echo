@@ -38,15 +38,15 @@ export const prefetchGetListChats = async (
 
 export const useGetChat = (params: Parameters<typeof getChat>[0]) => {
   const queryFn = useMemoizedFn(async () => {
-    const chat = await getChat(params);
-    const iChat = updateChatToIChat(chat, true).iChat;
-    return iChat;
+    return await getChat(params).then((chat) => {
+      return updateChatToIChat(chat, true).iChat;
+    });
   });
 
   return useCreateReactQuery({
     ...queryKeys.chatsGetChat(params.id),
     queryFn,
-    enabled: true
+    enabled: !!params.id
   });
 };
 
@@ -59,9 +59,9 @@ export const prefetchGetChat = async (
   await queryClient.prefetchQuery({
     ...queryKeys.chatsGetChat(params.id),
     queryFn: async () => {
-      const chat = await getChat_server(params);
-      const iChat = updateChatToIChat(chat, true).iChat;
-      return iChat;
+      return await getChat_server(params).then((chat) => {
+        return updateChatToIChat(chat, true).iChat;
+      });
     }
   });
 

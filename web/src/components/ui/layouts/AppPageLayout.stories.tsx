@@ -52,15 +52,16 @@ export const WithCustomClassName: Story = {
 export const LongContent: Story = {
   args: {
     header: <div className="bg-gray-100">Header Content</div>,
+    scrollable: true,
     children: (
-      <div className="">
-        {Array.from({ length: 20 }, (_, i) => (
+      <>
+        {Array.from({ length: 100 }, (_, i) => (
           <p key={i} className="mb-4">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
             incididunt ut labore et dolore magna aliqua.
           </p>
         ))}
-      </div>
+      </>
     )
   }
 };

@@ -39,7 +39,7 @@ export const Tooltip = React.memo(
         <TooltipProvider delayDuration={delayDuration} skipDelayDuration={skipDelayDuration}>
           <TooltipBase open={open}>
             <TooltipTrigger asChild>
-              <span ref={ref} className="inline-block">
+              <span ref={ref} className="">
                 {children}
               </span>
             </TooltipTrigger>

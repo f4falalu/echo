@@ -8,6 +8,8 @@ export const ReasoningMessage_Text: React.FC<ReasoningMessageProps> = React.memo
   ({ reasoningMessage, chatId, isCompletedStream, isLastMessageItem }) => {
     const { message, status, id, type, title, secondary_title } =
       reasoningMessage as BusterChatMessageReasoning_text;
+
+    console.log('here', message?.length);
     return (
       <BarContainer
         showBar={true}

@@ -1,15 +1,13 @@
-import type { BusterChatMessageReasoning } from '@/api/asset_interfaces';
 import React, { useMemo } from 'react';
-import last from 'lodash/last';
 import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 import { useMemoizedFn } from 'ahooks';
 import { motion } from 'framer-motion';
 import { AnimatePresence } from 'framer-motion';
-import { AppMaterialIcons } from '@/components/ui';
 import { Stars } from '@/components/ui/icons';
 import { Text } from '@/components/ui/typography';
-import { createStyles } from 'antd-style';
 import { useChatLayoutContextSelector } from '../../../ChatLayoutContext';
+import { useMessageIndividual } from '@/context/Chats';
+import { cn } from '@/lib/classMerge';
 
 const animations = {
   initial: { opacity: 0 },
@@ -18,30 +16,23 @@ const animations = {
 };
 
 export const ChatResponseReasoning: React.FC<{
-  reasoningMessages: BusterChatMessageReasoning[];
+  reasoningMessageId: string;
   isCompletedStream: boolean;
   messageId: string;
-}> = React.memo(({ reasoningMessages, isCompletedStream, messageId }) => {
-  const lastMessage = last(reasoningMessages);
+}> = React.memo(({ reasoningMessageId, isCompletedStream, messageId }) => {
+  const lastMessageTitle = useMessageIndividual(
+    messageId,
+    (x) => x?.reasoning_messages?.[reasoningMessageId]?.title
+  );
+  const finalReasoningMessage = useMessageIndividual(messageId, (x) => x?.final_reasoning_message);
   const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
   const selectedFileType = useChatLayoutContextSelector((x) => x.selectedFileType);
   const isReasonginFileSelected = selectedFileType === 'reasoning';
 
-  const text = useMemo(() => {
-    if (!lastMessage) return 'Thinking...';
-
-    switch (lastMessage.type) {
-      case 'text':
-        return lastMessage.message;
-      case 'pills':
-        return lastMessage.title;
-      case 'files':
-        return lastMessage.title;
-      default:
-        const _exhaustiveCheck: never = lastMessage;
-        return 'Thinking...';
-    }
-  }, [lastMessage]);
+  const text: string = useMemo(() => {
+    if (finalReasoningMessage) return finalReasoningMessage;
+    return lastMessageTitle || 'Thinking...';
+  }, [lastMessageTitle, finalReasoningMessage]);
 
   const onClickReasoning = useMemoizedFn(() => {
     onSetSelectedFile({
@@ -75,16 +66,14 @@ const ShimmerTextWithIcon = React.memo(
     isCompletedStream: boolean;
     isSelected: boolean;
   }) => {
-    const { cx, styles } = useStyles();
-
     if (isCompletedStream) {
       return (
         <div
-          className={cx(
-            styles.iconContainerCompleted,
-            styles.iconContainer,
+          className={cn(
+            'text-icon-color hover:text-foreground',
+            'cursor-pointer',
             'flex w-fit items-center gap-1',
-            isSelected && 'is-selected'
+            isSelected && 'text-foreground'
           )}>
           <div>
             <Stars />
@@ -95,8 +84,8 @@ const ShimmerTextWithIcon = React.memo(
     }
 
     return (
-      <div className={cx(styles.iconContainer, 'flex items-center gap-1')}>
-        <div className={cx(styles.icon)}>
+      <div className={'text-icon-color flex cursor-pointer items-center gap-1'}>
+        <div className={'text-icon-color'}>
           <Stars />
         </div>
         <ShimmerText text={text} />
@@ -105,21 +94,3 @@ const ShimmerTextWithIcon = React.memo(
   }
 );
 ShimmerTextWithIcon.displayName = 'ShimmerTextWithIcon';
-
-const useStyles = createStyles(({ token, css }) => ({
-  iconContainerCompleted: css`
-    color: ${token.colorIcon};
-    &:hover {
-      color: ${token.colorText};
-    }
-    &.is-selected {
-      color: ${token.colorText};
-    }
-  `,
-  iconContainer: css`
-    cursor: pointer;
-  `,
-  icon: css`
-    color: ${token.colorIcon};
-  `
-}));

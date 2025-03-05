@@ -36,7 +36,7 @@ export const Popover = React.memo<PopoverProps>(
     return (
       <PopoverBase trigger={trigger} {...props}>
         <PopoverTrigger asChild>
-          <span className="inline-block">{children}</span>
+          <span className="">{children}</span>
         </PopoverTrigger>
         <PopoverContent
           align={align}
@@ -45,7 +45,7 @@ export const Popover = React.memo<PopoverProps>(
           size={size}
           headerContent={headerContent && <PopoverHeaderContent title={headerContent} />}
           footerContent={footerContent && <PopoverFooterContent title={footerContent} />}>
-          <>{content}</>
+          {content}
         </PopoverContent>
       </PopoverBase>
     );

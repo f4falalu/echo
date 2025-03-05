@@ -20,7 +20,14 @@ export const MetricContainerHeaderSegment: React.FC<FileContainerSegmentProps> =
       onSetFileView({ fileView: fileView.value });
     });
 
-    return <AppSegmented options={segmentOptions} value={selectedFileView} onChange={onChange} />;
+    return (
+      <AppSegmented
+        type="button"
+        options={segmentOptions}
+        value={selectedFileView}
+        onChange={onChange}
+      />
+    );
   }
 );
 

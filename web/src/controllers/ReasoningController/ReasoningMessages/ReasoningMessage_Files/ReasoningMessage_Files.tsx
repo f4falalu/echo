@@ -18,14 +18,14 @@ export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.mem
         secondaryTitle={secondary_title}
         contentClassName="mb-2">
         <div className="flex flex-col gap-3">
-          {files.map((file) => (
+          {/* {files.map((file) => (
             <ReasoningMessage_File
               key={file.id}
               {...file}
               chatId={chatId}
               isCompletedStream={isCompletedStream}
             />
-          ))}
+          ))} */}
         </div>
       </BarContainer>
     );

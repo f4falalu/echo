@@ -4,7 +4,8 @@ export interface BusterChat {
   id: string;
   title: string;
   is_favorited: boolean;
-  messages: BusterChatMessage[];
+  message_ids: string[];
+  messages: Record<string, BusterChatMessage>;
   created_at: string;
   updated_at: string;
   created_by: string;

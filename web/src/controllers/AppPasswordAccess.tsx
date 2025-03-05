@@ -2,14 +2,12 @@
 
 import { BusterLogo } from '@/assets/svg/BusterLogo';
 import React, { useRef } from 'react';
-import { Title } from '@/components/ui/typography';
-import { Button, Input, InputRef, Typography } from 'antd';
-import { LoginConfigProvider } from '@/app/auth/_LoginComponents/LoginConfigProvider';
-import { ShareAssetType } from '@/api/asset_interfaces';
+import type { ShareAssetType } from '@/api/asset_interfaces';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { useMemoizedFn } from 'ahooks';
-
-const { Text } = Typography;
+import { Title, Text } from '@/components/ui/typography';
+import { Button } from '@/components/ui/buttons';
+import { Input } from '@/components/ui/inputs';
 
 export const AppPasswordAccess: React.FC<{
   metricId?: string;
@@ -43,7 +41,7 @@ const AppPasswordInputComponent: React.FC<{
   dashboardId?: string;
 }> = ({ password, error, metricId, dashboardId }) => {
   const setAssetPassword = useBusterAssetsContextSelector((state) => state.setAssetPassword);
-  const inputRef = useRef<InputRef>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const onEnterPassword = useMemoizedFn((v: string) => {
     setAssetPassword(metricId || dashboardId!, v);
@@ -54,50 +52,48 @@ const AppPasswordInputComponent: React.FC<{
   });
 
   const onEnterButtonPress = useMemoizedFn(() => {
-    const value = inputRef.current?.input?.value;
+    const value = inputRef.current?.value;
     if (!value) return;
     onEnterPassword(value || '');
   });
 
   return (
-    <LoginConfigProvider>
-      <div
-        className="flex h-full min-h-[100vh] w-full justify-center"
-        style={{
-          marginTop: '25vh'
-        }}>
-        <div className="flex max-w-[340px] flex-col items-center space-y-6">
-          <BusterLogo className="h-16 w-16" />
+    <div
+      className="flex h-full min-h-[100vh] w-full justify-center"
+      style={{
+        marginTop: '25vh'
+      }}>
+      <div className="flex max-w-[340px] flex-col items-center space-y-6">
+        <BusterLogo className="h-16 w-16" />
 
-          <div className="text-center">
-            <Title
-              as="h2"
-              className="text-center">{`To access this page, enter the password below`}</Title>
+        <div className="text-center">
+          <Title
+            as="h2"
+            className="text-center">{`To access this page, enter the password below`}</Title>
+        </div>
+
+        <div className="flex w-full flex-col space-y-2 space-x-0">
+          <div className="flex flex-col space-y-1">
+            <Input
+              ref={inputRef}
+              defaultValue={password}
+              onPressEnter={onPressEnter}
+              className="w-full"
+              placeholder="Enter password"
+              type="password"
+            />
+            {error ? (
+              <Text className="mb-1!" variant="danger">
+                {error}
+              </Text>
+            ) : null}
           </div>
 
-          <div className="flex w-full flex-col space-y-2 space-x-0">
-            <div className="flex flex-col space-y-1">
-              <Input
-                ref={inputRef}
-                defaultValue={password}
-                onPressEnter={onPressEnter}
-                className="w-full"
-                placeholder="Enter password"
-                type="password"
-              />
-              {error ? (
-                <Text className="mb-1!" type="danger">
-                  {error}
-                </Text>
-              ) : null}
-            </div>
-
-            <Button block type="primary" onClick={onEnterButtonPress}>
-              Submit
-            </Button>
-          </div>
+          <Button block variant="black" onClick={onEnterButtonPress}>
+            Submit
+          </Button>
         </div>
       </div>
-    </LoginConfigProvider>
+    </div>
   );
 };

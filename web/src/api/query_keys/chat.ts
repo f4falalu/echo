@@ -7,19 +7,22 @@ import { BusterMetricData } from '@/context/MetricData';
 const chatsGetChat = (chatId: string) =>
   queryOptions<IBusterChat>({
     queryKey: ['chats', 'get', chatId] as const,
+    enabled: !!chatId,
     staleTime: 60 * 1000 // 1 minute
   });
 
 const chatsMessages = (messageId: string) =>
   queryOptions<IBusterChatMessage>({
     queryKey: ['chats', 'messages', messageId] as const,
-    staleTime: Infinity
+    staleTime: Infinity,
+    enabled: !!messageId
   });
 
 const chatsMessagesFetchingData = (messageId: string) =>
   queryOptions<BusterMetricData>({
     queryKey: ['chats', 'messages-data', messageId] as const,
-    staleTime: Infinity
+    staleTime: Infinity,
+    enabled: !!messageId
   });
 
 const chatsGetList = (filters?: GetChatListParams) =>
