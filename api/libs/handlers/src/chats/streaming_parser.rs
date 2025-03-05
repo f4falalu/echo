@@ -260,12 +260,13 @@ impl StreamingParser {
                             .and_then(Value::as_str)
                             .unwrap_or("");
 
+                        // Generate a consistent UUID based on the file name
                         let file_id = Uuid::new_v4().to_string();
                         
                         let buster_file = BusterFile {
                             id: file_id.clone(),
                             file_type: file_type.clone(),
-                            file_name: name.to_string(),
+                            file_name: name.clone().to_string(),
                             version_number: 1,
                             version_id: Uuid::new_v4().to_string(),
                             status: "loading".to_string(),
@@ -277,8 +278,8 @@ impl StreamingParser {
                             metadata: None,
                         };
 
-                        file_ids.push(file_id.clone());
-                        files_map.insert(file_id, buster_file);
+                        file_ids.push(name.clone().to_string());
+                        files_map.insert(name.clone().to_string(), buster_file);
                     }
                 }
             }
