@@ -312,8 +312,22 @@ pub async fn post_chat_handler(
         .execute(&mut conn)
         .await?;
 
-    // Process any completed files
-    process_completed_files(&mut conn, &message, &all_messages, &user_org_id, &user.id).await?;
+    // First process completed files (database updates only)
+    let _ = process_completed_files(&mut conn, &message, &all_messages, &user_org_id, &user.id).await?;
+
+    // Then send text response messages
+    if let Some(tx) = &tx {
+        for container in &all_transformed_containers {
+            if let BusterContainer::ChatMessage(chat) = container {
+                if let BusterChatMessage::Text { message: Some(_), message_chunk: None, .. } = &chat.response_message {
+                    tx.send(Ok((
+                        BusterContainer::ChatMessage(chat.clone()),
+                        ThreadEvent::GeneratingResponseMessage,
+                    ))).await?;
+                }
+            }
+        }
+    }
 
     if let Some(title) = title.title {
         chat_with_messages.title = title;
@@ -340,8 +354,21 @@ fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Va
     for container in containers {
         match container {
             BusterContainer::ChatMessage(chat) => {
-                if let Ok(value) = serde_json::to_value(&chat.response_message) {
-                    response_messages.push(value);
+                // For text messages, only include complete ones (message present, chunk absent)
+                match &chat.response_message {
+                    BusterChatMessage::Text { message, message_chunk, .. } => {
+                        if message.is_some() && message_chunk.is_none() {
+                            if let Ok(value) = serde_json::to_value(&chat.response_message) {
+                                response_messages.push(value);
+                            }
+                        }
+                    }
+                    // For non-text messages (like files), keep existing behavior
+                    _ => {
+                        if let Ok(value) = serde_json::to_value(&chat.response_message) {
+                            response_messages.push(value);
+                        }
+                    }
                 }
             }
             BusterContainer::ReasoningMessage(reasoning) => {
@@ -397,137 +424,29 @@ async fn process_completed_files(
         }
     }
 
+    // Process files for database updates only
     for container in transformed_messages {
         match container {
             BusterContainer::ReasoningMessage(msg) => match &msg.reasoning {
                 BusterReasoningMessage::File(file) if file.message_type == "files" => {
                     for file_id in &file.file_ids {
                         if let Some(file_content) = file.files.get(file_id) {
-                            // Create both reasoning and response messages for the completed file
-                            let mut reasoning_messages = message.reasoning.clone();
-                            let mut response_messages = message.response_messages.clone();
+                            // Only process files that have completed reasoning
+                            if file.status == "completed" {
+                                // Create message-to-file association
+                                let message_to_file = MessageToFile {
+                                    id: Uuid::new_v4(),
+                                    message_id: message.id,
+                                    file_id: Uuid::parse_str(&file_id)?,
+                                    created_at: Utc::now(),
+                                    updated_at: Utc::now(),
+                                    deleted_at: None,
+                                };
 
-                            // Update the reasoning message status to completed
-                            if let Value::Array(ref mut arr) = reasoning_messages {
-                                if let Some(reasoning_msg) = arr.iter_mut().find(|msg| {
-                                    msg.get("id").and_then(Value::as_str) == Some(&file.id)
-                                }) {
-                                    if let Some(obj) = reasoning_msg.as_object_mut() {
-                                        obj.insert("status".to_string(), json!("completed"));
-                                    }
-                                }
-                            }
-
-                            // Create and add the response message for the file
-                            let response_message = BusterChatMessage::File {
-                                id: file_content.id.clone(),
-                                file_type: file_content.file_type.clone(),
-                                file_name: file_content.file_name.clone(),
-                                version_number: file_content.version_number,
-                                version_id: file_content.version_id.clone(),
-                                filter_version_id: None,
-                                metadata: file_content.metadata.as_ref().map(|m| {
-                                    m.iter()
-                                        .map(|meta| BusterChatResponseFileMetadata {
-                                            status: meta.status.clone(),
-                                            message: meta.message.clone(),
-                                            timestamp: meta.timestamp,
-                                        })
-                                        .collect()
-                                }),
-                            };
-
-                            if let Value::Array(ref mut arr) = response_messages {
-                                arr.push(serde_json::to_value(&response_message)?);
-                            }
-
-                            // Update both messages in the database
-                            diesel::update(messages::table)
-                                .filter(messages::id.eq(message.id))
-                                .set((
-                                    messages::response_messages.eq(response_messages),
-                                    messages::reasoning.eq(reasoning_messages),
-                                ))
-                                .execute(conn)
-                                .await?;
-
-                            match file_content.file_type.as_str() {
-                                "metric" => {
-                                    let metric_file = MetricFile {
-                                        id: Uuid::new_v4(),
-                                        name: file_content.file_name.clone(),
-                                        file_name: format!(
-                                            "{}",
-                                            file_content.file_name.to_lowercase().replace(' ', "_")
-                                        ),
-                                        content: serde_json::to_value(&file_content.file.text)?,
-                                        verification: Verification::NotRequested,
-                                        evaluation_obj: None,
-                                        evaluation_summary: None,
-                                        evaluation_score: None,
-                                        organization_id: organization_id.clone(),
-                                        created_by: user_id.clone(),
-                                        created_at: Utc::now(),
-                                        updated_at: Utc::now(),
-                                        deleted_at: None,
-                                    };
-
-                                    insert_into(metric_files::table)
-                                        .values(&metric_file)
-                                        .execute(conn)
-                                        .await?;
-
-                                    let message_to_file = MessageToFile {
-                                        id: Uuid::new_v4(),
-                                        message_id: message.id,
-                                        file_id: metric_file.id,
-                                        created_at: Utc::now(),
-                                        updated_at: Utc::now(),
-                                        deleted_at: None,
-                                    };
-
-                                    insert_into(messages_to_files::table)
-                                        .values(&message_to_file)
-                                        .execute(conn)
-                                        .await?;
-                                }
-                                "dashboard" => {
-                                    let dashboard_file = DashboardFile {
-                                        id: Uuid::new_v4(),
-                                        name: file_content.file_name.clone(),
-                                        file_name: format!(
-                                            "{}",
-                                            file_content.file_name.to_lowercase().replace(' ', "_")
-                                        ),
-                                        content: serde_json::to_value(&file_content.file.text)?,
-                                        filter: None,
-                                        organization_id: organization_id.clone(),
-                                        created_by: user_id.clone(),
-                                        created_at: Utc::now(),
-                                        updated_at: Utc::now(),
-                                        deleted_at: None,
-                                    };
-
-                                    insert_into(dashboard_files::table)
-                                        .values(&dashboard_file)
-                                        .execute(conn)
-                                        .await?;
-
-                                    let message_to_file = MessageToFile {
-                                        id: Uuid::new_v4(),
-                                        message_id: message.id,
-                                        file_id: dashboard_file.id,
-                                        created_at: Utc::now(),
-                                        updated_at: Utc::now(),
-                                        deleted_at: None,
-                                    };
-
-                                    insert_into(messages_to_files::table)
-                                        .values(&message_to_file)
-                                        .execute(conn)
-                                        .await?;
-                                }
-                                _ => (),
+                                diesel::insert_into(messages_to_files::table)
+                                    .values(&message_to_file)
+                                    .execute(conn)
+                                    .await?;
                             }
                         }
                     }
@@ -586,6 +505,7 @@ pub struct BusterChatResponseFileMetadata {
 
 #[derive(Debug, Serialize, Clone)]
 #[serde(tag = "type")]
+#[serde(rename_all = "camelCase")]
 pub enum BusterChatMessage {
     Text {
         id: String,
@@ -770,31 +690,72 @@ pub async fn transform_message(
             }
 
             if let Some(tool_calls) = tool_calls {
-                let messages = match transform_assistant_tool_message(
+                let mut containers = Vec::new();
+                
+                // Transform tool messages
+                match transform_assistant_tool_message(
                     tool_calls.clone(),
                     progress,
                     initial,
                     chat_id.clone(),
                     message_id.clone(),
                 ) {
-                    Ok(messages) => messages
-                        .into_iter()
-                        .map(BusterContainer::ReasoningMessage)
-                        .collect(),
+                    Ok(messages) => {
+                        for reasoning_container in messages {
+                            // If this is a completed file reasoning message, send the file response separately
+                            if let BusterReasoningMessage::File(ref file) = reasoning_container.reasoning {
+                                if file.status == "completed" && file.message_type == "files" {
+                                    // For each completed file, create and send a file response message
+                                    for (file_id, file_content) in &file.files {
+                                        let response_message = BusterChatMessage::File {
+                                            id: file_content.id.clone(),
+                                            file_type: file_content.file_type.clone(),
+                                            file_name: file_content.file_name.clone(),
+                                            version_number: file_content.version_number,
+                                            version_id: file_content.version_id.clone(),
+                                            filter_version_id: None,
+                                            metadata: Some(vec![BusterChatResponseFileMetadata {
+                                                status: "completed".to_string(),
+                                                message: format!("File {} completed", file_content.file_name),
+                                                timestamp: Some(Utc::now().timestamp()),
+                                            }]),
+                                        };
+
+                                        let file_container = BusterContainer::ChatMessage(BusterChatMessageContainer {
+                                            response_message,
+                                            chat_id: *chat_id,
+                                            message_id: *message_id,
+                                        });
+
+                                        // Send file response message separately with GeneratingResponseMessage event
+                                        if let Some(tx) = tx {
+                                            let _ = tx.send(Ok((
+                                                file_container.clone(),
+                                                ThreadEvent::GeneratingResponseMessage,
+                                            ))).await;
+                                        }
+
+                                        // Add to containers so it gets saved to the database
+                                        containers.push(file_container);
+                                    }
+                                }
+                            }
+                            containers.push(BusterContainer::ReasoningMessage(reasoning_container));
+                        }
+                    }
                     Err(e) => {
                         tracing::warn!("Error transforming assistant tool message: {:?}", e);
                         println!(
                             "MESSAGE_STREAM: Error transforming assistant tool message: {:?}",
                             e
                         );
-                        vec![] // Return empty vec but warn about the error
                     }
                 };
 
-                return Ok((messages, ThreadEvent::GeneratingReasoningMessage));
+                return Ok((containers, ThreadEvent::GeneratingReasoningMessage));
             }
 
-            Ok((vec![], ThreadEvent::GeneratingResponseMessage)) // Return empty vec instead of error
+            Ok((vec![], ThreadEvent::GeneratingResponseMessage))
         }
         AgentMessage::Tool {
             id,
