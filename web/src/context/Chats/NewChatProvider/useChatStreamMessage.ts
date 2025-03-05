@@ -219,15 +219,18 @@ export const useChatStreamMessage = () => {
             reasoning.message_chunk !== null || reasoning.message_chunk !== undefined;
 
           initializeOrUpdateMessage(chat_id, message_id, (draft) => {
-            if (!draft[chat_id]?.messages?.[message_id]?.reasoning_messages?.[reasoningMessageId])
-              return;
-            const messageText = draft[chat_id].messages[message_id].reasoning_messages[
-              reasoningMessageId
-            ] as BusterChatMessageReasoning_text;
-            Object.assign(messageText, existingReasoningMessageText);
-            messageText.message = isStreaming
-              ? (existingReasoningMessageText?.message || '') + (reasoning.message_chunk || '')
-              : reasoning.message;
+            const reasoningMessage =
+              draft[chat_id]?.messages?.[message_id]?.reasoning_messages?.[reasoningMessageId];
+            if (!reasoningMessage) return;
+            const messageText = reasoningMessage as BusterChatMessageReasoning_text;
+
+            Object.assign(messageText, {
+              ...existingReasoningMessageText,
+              ...reasoning,
+              message: isStreaming
+                ? (existingReasoningMessageText?.message || '') + (reasoning.message_chunk || '')
+                : reasoning.message
+            });
           });
 
           break;
