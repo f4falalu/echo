@@ -1,12 +1,12 @@
-import {
+import type {
   BusterChatMessageReasoning,
-  BusterChatMessageReasoning_Pills
+  BusterChatMessageReasoning_pills
 } from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
 import sample from 'lodash/sample';
 import last from 'lodash/last';
 import { useBusterChatContextSelector } from '../ChatProvider';
-import { timeout } from '@/lib';
+import { timeout } from '@/lib/timeout';
 import random from 'lodash/random';
 
 export const useAutoAppendThought = () => {
@@ -75,7 +75,7 @@ const getRandomThought = (currentThought?: string): string => {
 };
 
 const AUTO_THOUGHT_ID = 'stub-thought-id';
-const createAutoThought = (currentThought?: string): BusterChatMessageReasoning_Pills => {
+const createAutoThought = (currentThought?: string): BusterChatMessageReasoning_pills => {
   return {
     id: AUTO_THOUGHT_ID,
     type: 'pills',

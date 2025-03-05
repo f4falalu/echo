@@ -1,4 +1,4 @@
-export type FileType = 'metric' | 'dashboard' | 'reasoning'; //'dataset' | 'collection' | | 'term' | 'value'
+export type FileType = 'metric' | 'dashboard'; //'dataset' | 'collection' | | 'term' | 'value'
 
 export type ThoughtFileType =
   | 'metric'

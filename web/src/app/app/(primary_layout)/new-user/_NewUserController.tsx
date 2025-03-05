@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Title, Text } from '@/components/ui/typography';
+import { Title, Paragraph } from '@/components/ui/typography';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { inputHasText } from '@/lib/text';
@@ -59,9 +59,9 @@ export const NewUserController = () => {
           key={'no-started'}
           className="flex h-full w-full flex-col items-start justify-center space-y-5 p-12">
           <Title as={'h3'}>Welcome to Buster</Title>
-          <Text variant="secondary">
+          <Paragraph variant="secondary">
             With Buster, you can ask data questions in plain english & instantly get back data.
-          </Text>
+          </Paragraph>
           <Button variant="black" onClick={() => setStarted(true)}>
             Get Started
           </Button>
