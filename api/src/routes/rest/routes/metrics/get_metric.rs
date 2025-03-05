@@ -1,17 +1,25 @@
+use axum::{
+    extract::Path,
+    http::StatusCode,
+    Extension,
+};
 use database::models::User;
-use crate::routes::rest::ApiResponse;
-use axum::extract::Path;
-use axum::http::StatusCode;
-use axum::Extension;
-use handlers::files::metric_files::types::BusterMetric;
-use handlers::files::metric_files::helpers::get_metric::get_metric;
+use handlers::metrics::{get_metric_handler, BusterMetric};
 use uuid::Uuid;
+
+use crate::routes::rest::ApiResponse;
 
 pub async fn get_metric_rest_handler(
     Extension(user): Extension<User>,
     Path(id): Path<Uuid>,
 ) -> Result<ApiResponse<BusterMetric>, (StatusCode, &'static str)> {
-    let metric = match get_metric(&id, &user.id).await {
+    tracing::info!(
+        "Processing GET request for metric with ID: {}, user_id: {}",
+        id,
+        user.id
+    );
+
+    let metric = match get_metric_handler(&id, &user.id).await {
         Ok(response) => response,
         Err(e) => {
             tracing::error!("Error getting metric: {}", e);

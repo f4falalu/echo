@@ -101,6 +101,7 @@ async fn post_user_handler(
             "user_email": email,
             "organization_role": role.to_string(),
         }),
+        avatar_url: None,
     };
 
     let user_to_organization = UserToOrganization {

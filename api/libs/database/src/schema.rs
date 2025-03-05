@@ -564,6 +564,7 @@ diesel::table! {
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
         attributes -> Jsonb,
+        avatar_url -> Nullable<Text>,
     }
 }
 

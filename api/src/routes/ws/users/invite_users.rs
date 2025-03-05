@@ -93,6 +93,7 @@ async fn invite_users_handler(user: &User, req: InviteUsersRequest) -> Result<()
                     "user_email": email,
                     "organization_role": "viewer".to_string(),
                 }),
+                avatar_url: None,
             }
         })
         .collect::<Vec<User>>();
