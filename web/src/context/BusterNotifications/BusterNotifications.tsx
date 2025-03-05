@@ -2,7 +2,7 @@
 
 import React, { PropsWithChildren } from 'react';
 import { toast, type ExternalToast } from 'sonner';
-import { useMemoizedFn } from 'ahooks';
+import {} from 'ahooks';
 import {
   useContextSelector,
   createContext,
@@ -23,157 +23,132 @@ export interface NotificationProps {
   };
 }
 
-// const useStyles = createStyles(({ token, css }) => ({
-//   modal: css`
-//     .busterv2-modal-body {
-//       padding: 0px !important;
-//     }
+const openNotification = (props: NotificationProps) => {
+  const { title, message, type } = props;
 
-//     .busterv2-modal-confirm-body {
-//       padding: 24px 32px 16px 32px !important;
-//     }
+  const hasTitle = !!title;
 
-//     .busterv2-modal-confirm-btns {
-//       margin-top: 0px !important;
-//       padding: 12px 32px !important;
-//       border-top: 0.5px solid ${token.colorBorder};
-//       display: flex;
-//       align-items: center;
-//       justify-content: flex-end;
-//     }
+  const toastOptions: ExternalToast = {
+    ...props,
+    description: !hasTitle && message ? message : message,
+    position: 'top-center'
+  };
 
-//     .busterv2-modal-confirm-content {
-//       color: ${token.colorTextSecondary} !important;
-//     }
-//   `
-// }));
+  switch (type) {
+    case 'success':
+      return toast.success(title, toastOptions);
+    case 'info':
+      return toast.info(title, toastOptions);
+    case 'warning':
+      return toast.warning(title, toastOptions);
+    case 'error':
+      return toast.error(title, toastOptions);
+    default:
+      return toast(title, toastOptions);
+  }
+};
+
+const openErrorNotification = (data: NotificationProps | unknown) => {
+  const values = data || ({} as any);
+  const type = values.type || 'error';
+  const title = values.title || 'Error';
+  const message = values.message || 'Something went wrong. Please try again.';
+  return openNotification({ ...values, message, title, type });
+};
+
+const openInfoNotification = ({
+  type = 'info',
+  message = 'Info',
+  title = 'Info',
+  ...props
+}: NotificationProps) => {
+  return openNotification({ ...props, title, message, type });
+};
+
+const openSuccessNotification = ({
+  type = 'success',
+  title = 'Success',
+  message = 'success',
+  ...props
+}: NotificationProps) => {
+  return openNotification({ ...props, message, title, type });
+};
+
+const openWarningNotification = ({
+  type = 'warning',
+  title = 'Warning',
+  message = 'Warning',
+  ...props
+}: NotificationProps) => {
+  return openNotification({ ...props, message, title, type });
+};
+
+const openMessage = (props: {
+  type: NotificationType;
+  message: string;
+  onClose?: () => void;
+  duration?: number;
+}) => {
+  return openNotification({
+    ...props,
+    title: props.message,
+    message: ''
+  });
+};
+
+const openErrorMessage = (message: string) => {
+  return openMessage({ type: 'error', message });
+};
+
+const openInfoMessage = (message: string, duration?: number) => {
+  return openMessage({ type: 'info', message, duration });
+};
+
+const openSuccessMessage = (message: string) => {
+  return openMessage({ type: 'success', message });
+};
+
+const openConfirmModal = (props: {
+  title: string | React.ReactNode;
+  content: string | React.ReactNode;
+  onOk: () => void;
+  onCancel?: () => void;
+  icon?: React.ReactNode;
+  width?: string | number;
+  useReject?: boolean;
+  cancelButtonProps?: {
+    className?: string;
+  };
+}): Promise<void> => {
+  const useReject = props.useReject ?? true;
+
+  return new Promise((resolve, reject) => {
+    // modal.confirm({
+    //   icon: props.icon || <></>,
+    //   ...props,
+    //   className: cx(styles.modal, ''),
+    //   cancelButtonProps: {
+    //     ...props.cancelButtonProps,
+    //     type: 'text'
+    //   },
+    //   okButtonProps: {
+    //     ...props.okButtonProps,
+    //     type: 'default'
+    //   },
+    //   onOk: async () => {
+    //     await props.onOk();
+    //     resolve();
+    //   },
+    //   onCancel: async () => {
+    //     await props.onCancel?.();
+    //     if (useReject) reject();
+    //     else resolve();
+    //   }
+    // });
+  });
+};
 
 export const useBusterNotificationsInternal = () => {
-  // const { message, notification, modal } = App.useApp();
-  // const { cx, styles } = useStyles();
-
-  const openNotification = useMemoizedFn((props: NotificationProps) => {
-    const { title, message, type } = props;
-
-    const hasTitle = !!title;
-
-    const toastOptions: ExternalToast = {
-      ...props,
-      description: !hasTitle && message ? message : message,
-      position: 'top-center'
-    };
-
-    switch (type) {
-      case 'success':
-        return toast.success(title, toastOptions);
-      case 'info':
-        return toast.info(title, toastOptions);
-      case 'warning':
-        return toast.warning(title, toastOptions);
-      case 'error':
-        return toast.error(title, toastOptions);
-      default:
-        return toast(title, toastOptions);
-    }
-  });
-
-  const openErrorNotification = useMemoizedFn((data: NotificationProps | unknown) => {
-    const values = data || ({} as any);
-    const type = values.type || 'error';
-    const title = values.title || 'Error';
-    const message = values.message || 'Something went wrong. Please try again.';
-    return openNotification({ ...values, message, title, type });
-  });
-
-  const openInfoNotification = useMemoizedFn(
-    ({ type = 'info', message = 'Info', title = 'Info', ...props }: NotificationProps) => {
-      return openNotification({ ...props, title, message, type });
-    }
-  );
-
-  const openSuccessNotification = useMemoizedFn(
-    ({ type = 'success', title = 'Success', message = 'success', ...props }: NotificationProps) => {
-      return openNotification({ ...props, message, title, type });
-    }
-  );
-
-  const openWarningNotification = useMemoizedFn(
-    ({ type = 'warning', title = 'Warning', message = 'Warning', ...props }: NotificationProps) => {
-      return openNotification({ ...props, message, title, type });
-    }
-  );
-
-  //MESSAGES
-
-  const openMessage = useMemoizedFn(
-    (props: {
-      type: NotificationType;
-      message: string;
-      onClose?: () => void;
-      duration?: number;
-    }) => {
-      return openNotification({
-        ...props,
-        title: props.message,
-        message: ''
-      });
-    }
-  );
-
-  const openErrorMessage = useMemoizedFn((message: string) => {
-    return openMessage({ type: 'error', message });
-  });
-
-  const openInfoMessage = useMemoizedFn((message: string, duration?: number) => {
-    return openMessage({ type: 'info', message, duration });
-  });
-
-  const openSuccessMessage = useMemoizedFn((message: string) => {
-    return openMessage({ type: 'success', message });
-  });
-
-  const openConfirmModal = useMemoizedFn(
-    (props: {
-      title: string | React.ReactNode;
-      content: string | React.ReactNode;
-      onOk: () => void;
-      onCancel?: () => void;
-      icon?: React.ReactNode;
-      width?: string | number;
-      useReject?: boolean;
-      cancelButtonProps?: {
-        className?: string;
-      };
-    }): Promise<void> => {
-      const useReject = props.useReject ?? true;
-
-      return new Promise((resolve, reject) => {
-        // modal.confirm({
-        //   icon: props.icon || <></>,
-        //   ...props,
-        //   className: cx(styles.modal, ''),
-        //   cancelButtonProps: {
-        //     ...props.cancelButtonProps,
-        //     type: 'text'
-        //   },
-        //   okButtonProps: {
-        //     ...props.okButtonProps,
-        //     type: 'default'
-        //   },
-        //   onOk: async () => {
-        //     await props.onOk();
-        //     resolve();
-        //   },
-        //   onCancel: async () => {
-        //     await props.onCancel?.();
-        //     if (useReject) reject();
-        //     else resolve();
-        //   }
-        // });
-      });
-    }
-  );
-
   return {
     openErrorNotification,
     openInfoNotification,
@@ -211,3 +186,5 @@ const useBusterNotificationsSelector = <T,>(
 export const useBusterNotifications = () => {
   return useBusterNotificationsSelector((state) => state);
 };
+
+export { openErrorNotification };

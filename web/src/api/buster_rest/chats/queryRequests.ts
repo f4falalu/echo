@@ -1,17 +1,18 @@
-import { useCreateReactQuery } from '@/api/createReactQuery';
 import { useMemoizedFn } from 'ahooks';
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, useQuery } from '@tanstack/react-query';
 import { getListChats, getListChats_server, getChat, getChat_server } from './requests';
 import type { BusterChatListItem } from '@/api/asset_interfaces';
 import { queryKeys } from '@/api/query_keys';
 import { updateChatToIChat } from '@/lib/chat';
+import type { IBusterChat } from '@/context/Chats';
+import { RustApiError } from '@/api/buster_rest/errors';
 
 export const useGetListChats = (params?: Parameters<typeof getListChats>[0]) => {
   const queryFn = useMemoizedFn((): Promise<BusterChatListItem[]> => {
     return getListChats(params);
   });
 
-  const res = useCreateReactQuery({
+  const res = useQuery({
     ...queryKeys.chatsGetList(params),
     queryFn
   });
@@ -43,9 +44,15 @@ export const useGetChat = (params: Parameters<typeof getChat>[0]) => {
     });
   });
 
-  return useCreateReactQuery({
+  useQuery({
     ...queryKeys.chatsGetChat(params.id),
     queryFn,
+    enabled: !!params.id
+  });
+
+  return useQuery<IBusterChat, RustApiError>({
+    ...queryKeys.chatsGetChat(params.id),
+    queryKey: queryKeys.chatsGetChat(params.id).queryKey,
     enabled: !!params.id
   });
 };

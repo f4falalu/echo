@@ -1,8 +1,4 @@
-import {
-  useCreateReactQuery,
-  useCreateReactMutation,
-  PREFETCH_STALE_TIME
-} from '@/api/createReactQuery';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import {
   getPermissionGroup,
   createPermissionGroup,
@@ -29,7 +25,7 @@ import type { ListPermissionGroupsResponse } from '../../asset_interfaces';
 import { queryKeys } from '@/api/query_keys';
 
 export const useListAllPermissionGroups = () => {
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.permissionGroupList,
     queryFn: listAllPermissionGroups
   });
@@ -95,17 +91,16 @@ export const useCreatePermissionGroup = (userId?: string) => {
     }
   );
 
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn
   });
 };
 
 export const useGetPermissionGroup = (permissionGroupId: string) => {
   const queryFn = useMemoizedFn(() => getPermissionGroup({ id: permissionGroupId }));
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.permissionGroup(permissionGroupId),
-    queryFn,
-    staleTime: PREFETCH_STALE_TIME
+    queryFn
   });
 };
 
@@ -123,7 +118,7 @@ export const prefetchPermissionGroup = async (
 
 export const useDeletePermissionGroup = () => {
   const queryClient = useQueryClient();
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn: deletePermissionGroup,
     onSuccess: (data, variables, context) => {
       const options = queryKeys.permissionGroupList;
@@ -145,17 +140,16 @@ export const useUpdatePermissionGroup = () => {
     return res;
   });
 
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn
   });
 };
 
 export const useGetPermissionGroupUsers = (permissionGroupId: string) => {
   const queryFn = useMemoizedFn(() => getPermissionGroupUsers({ id: permissionGroupId }));
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.permissionGroupUsers(permissionGroupId),
-    queryFn,
-    staleTime: PREFETCH_STALE_TIME
+    queryFn
   });
 };
 
@@ -173,10 +167,9 @@ export const prefetchPermissionGroupUsers = async (
 
 export const useGetPermissionGroupDatasets = (permissionGroupId: string) => {
   const queryFn = useMemoizedFn(() => getPermissionGroupDatasets({ id: permissionGroupId }));
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.permissionGroupDatasets(permissionGroupId),
-    queryFn,
-    staleTime: PREFETCH_STALE_TIME
+    queryFn
   });
 };
 
@@ -194,10 +187,9 @@ export const prefetchPermissionGroupDatasets = async (
 
 export const useGetPermissionGroupDatasetGroups = (permissionGroupId: string) => {
   const queryFn = useMemoizedFn(() => getPermissionGroupDatasetGroups({ id: permissionGroupId }));
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.permissionGroupDatasetGroups(permissionGroupId),
-    queryFn,
-    staleTime: PREFETCH_STALE_TIME
+    queryFn
   });
 };
 
@@ -229,7 +221,7 @@ export const useUpdatePermissionGroupUsers = (permissionGroupId: string) => {
 
     return updatePermissionGroupUsers({ id: permissionGroupId, data });
   });
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn
   });
 };
@@ -259,7 +251,7 @@ export const useUpdatePermissionGroupDatasets = () => {
       return updatePermissionGroupDatasets({ id: permissionGroupId, data });
     }
   );
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn
   });
 };
@@ -279,7 +271,7 @@ export const useUpdatePermissionGroupDatasetGroups = (permissionGroupId: string)
     });
     return updatePermissionGroupDatasetGroups({ id: permissionGroupId, data });
   });
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn
   });
 };

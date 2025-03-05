@@ -1,4 +1,4 @@
-import { useCreateReactQuery } from '@/api/createReactQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getOrganizationUsers, getOrganizationUsers_server } from './requests';
 import { useMemoizedFn } from 'ahooks';
 import { QueryClient } from '@tanstack/react-query';
@@ -12,7 +12,7 @@ export const useGetOrganizationUsers = (organizationId: string) => {
   const { queryKey } =
     organizationQueryKeys['/organizations/users:getOrganizationUsers'](organizationId);
 
-  return useCreateReactQuery({
+  return useQuery({
     queryKey,
     staleTime: 10 * 1000,
     queryFn,

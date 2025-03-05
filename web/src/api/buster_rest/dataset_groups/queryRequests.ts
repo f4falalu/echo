@@ -1,4 +1,4 @@
-import { useCreateReactMutation, useCreateReactQuery } from '@/api/createReactQuery';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import {
   listDatasetGroups,
   deleteDatasetGroup,
@@ -28,7 +28,7 @@ import { queryKeys } from '@/api/query_keys';
 
 export const useListDatasetGroups = () => {
   const queryFn = useMemoizedFn(() => listDatasetGroups());
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.datasetGroupsList,
     queryFn
   });
@@ -46,7 +46,7 @@ export const useDeleteDatasetGroup = () => {
     return res;
   });
 
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn
   });
 };
@@ -62,14 +62,14 @@ export const useUpdateDatasetGroup = () => {
     return res;
   });
 
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn
   });
 };
 
 export const useGetDatasetGroup = (datasetId: string) => {
   const queryFn = useMemoizedFn(() => getDatasetGroup(datasetId));
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.datasetGroupsGet(datasetId),
     queryFn
   });
@@ -127,14 +127,14 @@ export const useCreateDatasetGroup = (datasetId?: string, userId?: string) => {
     }
   );
 
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn
   });
 };
 
 export const useGetDatasetGroupUsers = (datasetGroupId: string) => {
   const queryFn = useMemoizedFn(() => getDatasetGroupUsers(datasetGroupId));
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.datasetGroupsGetUsers(datasetGroupId),
     queryFn
   });
@@ -155,7 +155,7 @@ export const prefetchDatasetGroupUsers = async (
 
 export const useGetDatasetGroupDatasets = (datasetGroupId: string) => {
   const queryFn = useMemoizedFn(() => getDatasetGroupDatasets(datasetGroupId));
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.datasetGroupsGetDatasets(datasetGroupId),
     queryFn
   });
@@ -176,7 +176,7 @@ export const prefetchDatasetGroupDatasets = async (
 
 export const useGetDatasetGroupPermissionGroups = (datasetGroupId: string) => {
   const queryFn = useMemoizedFn(() => getDatasetGroupPermissionGroups(datasetGroupId));
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.datasetGroupsGetPermissionGroups(datasetGroupId),
     queryFn
   });
@@ -213,7 +213,7 @@ export const useUpdateDatasetGroupUsers = (datasetGroupId: string) => {
     );
     return updateDatasetGroupUsers(datasetGroupId, data);
   });
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn
   });
 };
@@ -244,7 +244,7 @@ export const useUpdateDatasetGroupDatasets = () => {
       return updateDatasetGroupDatasets(datasetGroupId, groups);
     }
   );
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn
   });
 };
@@ -267,7 +267,7 @@ export const useUpdateDatasetGroupPermissionGroups = (datasetGroupId: string) =>
     );
     return updateDatasetGroupPermissionGroups(datasetGroupId, data);
   });
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn
   });
 };

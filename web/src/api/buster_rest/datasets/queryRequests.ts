@@ -1,4 +1,4 @@
-import { useCreateReactMutation, useCreateReactQuery } from '@/api/createReactQuery';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import {
   createDataset,
   deployDataset,
@@ -23,7 +23,7 @@ export const useGetDatasets = (params?: Parameters<typeof getDatasets>[0]) => {
     return getDatasets(params);
   });
 
-  const res = useCreateReactQuery({
+  const res = useQuery({
     ...queryKeys.datasetsListQueryOptions(params),
     queryFn,
     enabled: true
@@ -51,7 +51,7 @@ export const prefetchGetDatasets = async (
 
 export const useGetDatasetData = (datasetId: string) => {
   const queryFn = useMemoizedFn(() => getDatasetDataSample(datasetId));
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.datasetData(datasetId),
     queryFn,
     enabled: !!datasetId,
@@ -61,7 +61,7 @@ export const useGetDatasetData = (datasetId: string) => {
 
 export const useGetDatasetMetadata = (datasetId: string) => {
   const queryFn = useMemoizedFn(() => getDatasetMetadata(datasetId));
-  const res = useCreateReactQuery({
+  const res = useQuery({
     ...queryKeys.datasetMetadata(datasetId),
     queryFn,
     enabled: !!datasetId
@@ -88,7 +88,7 @@ export const useCreateDataset = () => {
     queryClient.invalidateQueries({ queryKey: baseDatasetQueryKey, exact: true });
   });
 
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn: createDataset,
     onSuccess
   });
@@ -100,7 +100,7 @@ export const useDeployDataset = () => {
     deployDataset(params)
   );
 
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn,
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: baseDatasetQueryKey, exact: true });
@@ -109,7 +109,7 @@ export const useDeployDataset = () => {
 };
 
 export const useUpdateDataset = () => {
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn: updateDataset
   });
 };
@@ -119,7 +119,7 @@ export const useDeleteDataset = () => {
   const onSuccess = useMemoizedFn(() => {
     queryClient.invalidateQueries({ queryKey: baseDatasetQueryKey, exact: true });
   });
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn: deleteDataset,
     onSuccess
   });

@@ -1,8 +1,4 @@
-import {
-  PREFETCH_STALE_TIME,
-  useCreateReactMutation,
-  useCreateReactQuery
-} from '@/api/createReactQuery';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   getUser,
   getUser_server,
@@ -18,10 +14,9 @@ export const useGetMyUserInfo = () => {
   const queryFn = useMemoizedFn(async () => {
     return getMyUserInfo();
   });
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.userGetUserMyself,
     queryFn,
-    staleTime: PREFETCH_STALE_TIME,
     enabled: false //This is a server only query
   });
 };
@@ -43,10 +38,9 @@ export const prefetchGetMyUserInfo = async (
 export const useGetUser = (params: Parameters<typeof getUser>[0]) => {
   const queryFn = useMemoizedFn(() => getUser(params));
 
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.userGetUser(params.userId),
-    queryFn,
-    staleTime: PREFETCH_STALE_TIME
+    queryFn
   });
 };
 
@@ -64,7 +58,7 @@ export const useUpdateUser = () => {
     return res;
   });
 
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn: mutationFn
   });
 };

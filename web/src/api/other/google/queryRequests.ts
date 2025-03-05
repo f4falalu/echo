@@ -1,4 +1,4 @@
-import { useCreateReactQuery } from '@/api/createReactQuery';
+import { useQuery } from '@tanstack/react-query';
 import { listAllGoogleFontsFromGoogle } from './requests';
 
 export enum GOOGLE_QUERY_KEYS {
@@ -6,7 +6,7 @@ export enum GOOGLE_QUERY_KEYS {
 }
 
 export const useGetGoogleFonts = () => {
-  const d = useCreateReactQuery({
+  const d = useQuery({
     queryKey: [GOOGLE_QUERY_KEYS.getGoogleFonts],
     queryFn: listAllGoogleFontsFromGoogle,
     refetchOnWindowFocus: false,
