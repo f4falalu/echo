@@ -1,11 +1,10 @@
 import React, { useMemo } from 'react';
 import { ChatResponseMessageProps } from '../ChatResponseMessageSelector';
-import { createStyles } from 'antd-style';
 import type {
   BusterChatResponseMessage_file,
   BusterChatResponseMessage_fileMetadata
 } from '@/api/asset_interfaces';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 import { motion, AnimatePresence } from 'framer-motion';
 import { itemAnimationConfig } from '@/components/ui/streaming/animationConfig';
 import { useMemoizedFn } from 'ahooks';
@@ -14,13 +13,12 @@ import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 import { VersionPill } from '@/components/ui/tags/VersionPill';
 import { useMessageIndividual } from '@/context/Chats';
+import { cn } from '@/lib/classMerge';
 
 export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = React.memo(
   ({ responseMessageId, messageId, isCompletedStream }) => {
-    const { cx, styles } = useStyles();
     const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
     const isSelectedFile = useChatIndividualContextSelector((x) => x.selectedFileId === id);
-
     const responseMessage = useMessageIndividual(
       messageId,
       (x) => x?.response_messages?.[responseMessageId]
@@ -42,15 +40,12 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
 
     return (
       <AnimatePresence initial={!isCompletedStream}>
-        <motion.div id={id} {...itemAnimationConfig} className={cx('flex flex-col')}>
+        <motion.div id={id} {...itemAnimationConfig} className="flex flex-col">
           <div
             onClick={onClickCard}
-            className={cx(
-              styles.fileContainer,
-              isSelectedFile && 'selected',
-              'transition duration-200',
-              'flex flex-col items-center',
-              'cursor-pointer overflow-hidden'
+            className={cn(
+              'border-border hover:border-text-tertiary flex cursor-pointer flex-col items-center overflow-hidden rounded border transition-all duration-200 hover:shadow',
+              isSelectedFile && 'border-black shadow'
             )}>
             <ChatResponseMessageHeader file_name={file_name} version_number={version_number} />
             <ChatResponseMessageBody metadata={metadata} />
@@ -65,15 +60,9 @@ ChatResponseMessage_File.displayName = 'ChatResponseMessage_File';
 
 const ChatResponseMessageHeader: React.FC<{ file_name: string; version_number: number }> =
   React.memo(({ file_name, version_number }) => {
-    const { cx, styles } = useStyles();
     return (
-      <div
-        className={cx(
-          styles.fileHeader,
-          'file-header',
-          'flex w-full items-center space-x-1.5 overflow-hidden px-2.5'
-        )}>
-        <Text className="truncate">{file_name}</Text>
+      <div className="file-header bg-item-hover border-border flex h-8 w-full items-center space-x-1.5 overflow-hidden border-b px-2.5">
+        <Text truncate>{file_name}</Text>
         <VersionPill version_number={version_number} />
       </div>
     );
@@ -98,7 +87,6 @@ ChatResponseMessageBody.displayName = 'ChatResponseMessageBody';
 const MetadataItem: React.FC<{ metadata: BusterChatResponseMessage_fileMetadata }> = ({
   metadata
 }) => {
-  const { cx, styles } = useStyles();
   const { status, message, timestamp } = metadata;
 
   const timestampFormatted = useMemo(() => {
@@ -108,53 +96,23 @@ const MetadataItem: React.FC<{ metadata: BusterChatResponseMessage_fileMetadata 
 
   return (
     <div
-      className={cx(
-        styles.hideSecondaryText,
-        'flex w-full items-center justify-start space-x-1.5 overflow-hidden'
-      )}>
+      className="@container flex w-full items-center justify-start space-x-1.5 overflow-hidden"
+      style={{
+        containerType: 'inline-size'
+      }}>
       <div>
         <StatusIndicator status={status} />
       </div>
 
-      <Text className="truncate" size="xs" type="secondary">
+      <Text truncate size="xs" variant="secondary">
         {message}
       </Text>
 
       {timestamp && (
-        <Text type="tertiary" className="secondary-text whitespace-nowrap" size="xs">
+        <Text variant="tertiary" className="whitespace-nowrap @[190px]:hidden" size="xs">
           {timestampFormatted}
         </Text>
       )}
     </div>
   );
 };
-
-const useStyles = createStyles(({ token, css }) => ({
-  fileContainer: css`
-    border-radius: ${token.borderRadius}px;
-    border: 0.5px solid ${token.colorBorder};
-
-    &:hover {
-      border-color: ${token.colorTextTertiary};
-      box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.15);
-    }
-
-    &.selected {
-      border-color: black;
-      box-shadow: 0px 0px 5.5px 0px rgba(0, 0, 0, 0.15);
-    }
-  `,
-  fileHeader: css`
-    background: ${token.controlItemBgActive};
-    border-bottom: 0.5px solid ${token.colorBorder};
-    height: 32px;
-  `,
-  hideSecondaryText: css`
-    container-type: inline-size;
-    @container (max-width: 190px) {
-      .secondary-text {
-        display: none;
-      }
-    }
-  `
-}));
