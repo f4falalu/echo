@@ -260,27 +260,22 @@ export const useChatStreamMessage = () => {
                   const existingFile = existingReasoningMessageFiles?.files[fileId];
                   const newFile = reasoning.files[fileId];
 
-                  if (existingFile) {
-                    draft.files[fileId] = create(draft.files[fileId], (fileDraft) => {
-                      Object.assign(fileDraft, existingFile);
-                    });
-                  }
+                  draft.files[fileId] = create(draft.files[fileId], (fileDraft) => {
+                    // Merge existing and new file data
+                    Object.assign(fileDraft, existingFile || {}, newFile);
 
-                  if (existingFile?.file && newFile.file) {
-                    draft.files[fileId].file = create(draft.files[fileId].file, (fileDraft) => {
-                      Object.assign(fileDraft, existingFile.file);
-                      fileDraft.text = newFile.file.text_chunk
-                        ? (existingFile.file.text || '') + newFile.file.text_chunk
-                        : (newFile.file.text ?? existingFile.file.text);
-                      fileDraft.modified = newFile.file.modified ?? existingFile.file.modified;
-                    });
-                  } else {
-                    console.log('newFile', newFile);
-                    draft.files[fileId] = create(draft.files[fileId], (fileDraft) => {
-                      fileDraft.file.text = newFile.file.text_chunk;
-                      Object.assign(fileDraft, newFile);
-                    });
-                  }
+                    // Handle file text specifically
+                    if (newFile.file) {
+                      fileDraft.file = create(fileDraft.file || {}, (fileContentDraft) => {
+                        Object.assign(fileContentDraft, existingFile?.file || {});
+                        fileContentDraft.text = newFile.file.text_chunk
+                          ? (existingFile?.file?.text || '') + newFile.file.text_chunk
+                          : (newFile.file.text ?? existingFile?.file?.text);
+                        fileContentDraft.modified =
+                          newFile.file.modified ?? existingFile?.file?.modified;
+                      });
+                    }
+                  });
                 }
               }
             );
