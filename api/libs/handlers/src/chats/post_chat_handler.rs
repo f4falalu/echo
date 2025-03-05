@@ -1164,18 +1164,22 @@ fn transform_assistant_tool_message(
                             if !delta.is_empty() {
                                 text.message_chunk = Some(delta);
                                 text.message = None; // Clear message field while streaming
-                            } else {
-                                // If there's no new content, don't send a message
+                            } else if text.status != Some("completed".to_string()) {
+                                // If there's no new content and it's not complete, don't send a message
                                 return None;
                             }
-                            
-                            if text.status == Some("completed".to_string()) {
-                                println!("CHUNK DEBUG [{}] Completing message", text.id);
-                                text.message = tracker.get_complete_text(text.id.clone());
-                                text.message_chunk = None;
-                                tracker.clear_chunk(text.id.clone());
-                            }
                         }
+                        
+                        if text.status == Some("completed".to_string()) {
+                            println!("CHUNK DEBUG [{}] Completing message", text.id);
+                            // For completed messages, either use accumulated text or the final message
+                            text.message = tracker.get_complete_text(text.id.clone())
+                                .or(text.message)
+                                .or(text.message_chunk.clone());
+                            text.message_chunk = None;
+                            tracker.clear_chunk(text.id.clone());
+                        }
+                        
                         Some(BusterReasoningMessage::Text(text))
                     }
                     BusterReasoningMessage::File(mut file) => {
