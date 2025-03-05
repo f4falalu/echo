@@ -780,9 +780,6 @@ pub async fn transform_message(
                                                 )))
                                                 .await;
                                         }
-
-                                        // Add to containers so it gets saved to the database
-                                        containers.push(file_container);
                                     }
                                 }
                             }
