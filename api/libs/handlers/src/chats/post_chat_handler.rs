@@ -301,20 +301,23 @@ pub async fn post_chat_handler(
         prepare_final_message_state(&all_transformed_containers)?;
 
     // Update chat_with_messages with final state
-    if let Some(chat_message) = chat_with_messages.messages.first_mut() {
-        *chat_message = ChatMessage::new_with_messages(
-            message_id,
-            chat_message.request_message.clone(),
-            response_messages.clone(),
-            reasoning_messages.clone(),
-            None,
-        );
-    }
-
-    let final_reasoning_message = format!("Reasoned for {} seconds", reasoning_duration);
+    let message = ChatMessage::new_with_messages(
+        message_id,
+        ChatUserMessage {
+            request: request.prompt.clone(),
+            sender_id: user.id.clone(),
+            sender_name: user.name.clone().unwrap_or_default(),
+            sender_avatar: None,
+        },
+        response_messages.clone(),
+        reasoning_messages.clone(),
+        Some(format!("Reasoned for {} seconds", reasoning_duration).to_string()),
+    );
+    
+    chat_with_messages.update_message(message);
 
     // Create and store message in the database with final state
-    let message = Message {
+    let db_message = Message {
         id: message_id,
         request_message: request.prompt,
         chat_id,
@@ -324,20 +327,20 @@ pub async fn post_chat_handler(
         deleted_at: None,
         response_messages: serde_json::to_value(&response_messages)?,
         reasoning: serde_json::to_value(&reasoning_messages)?,
-        final_reasoning_message,
+        final_reasoning_message: format!("Reasoned for {} seconds", reasoning_duration),
         title: title.title.clone().unwrap_or_default(),
         raw_llm_messages: serde_json::to_value(&raw_llm_messages)?,
     };
 
     // Insert message into database
     insert_into(messages::table)
-        .values(&message)
+        .values(&db_message)
         .execute(&mut conn)
         .await?;
 
     // First process completed files (database updates only)
     let _ =
-        process_completed_files(&mut conn, &message, &all_messages, &user_org_id, &user.id).await?;
+        process_completed_files(&mut conn, &db_message, &all_messages, &user_org_id, &user.id).await?;
 
     // Then send text response messages
     if let Some(tx) = &tx {
@@ -1619,8 +1622,8 @@ async fn initialize_chat(
         // Get existing chat - no need to create new chat in DB
         let mut existing_chat = get_chat_handler(&existing_chat_id, &user.id).await?;
 
-        // Add new message to existing chat
-        existing_chat.messages.push(ChatMessage::new_with_messages(
+        // Create new message
+        let message = ChatMessage::new_with_messages(
             message_id,
             ChatUserMessage {
                 request: request.prompt.clone(),
@@ -1631,7 +1634,10 @@ async fn initialize_chat(
             Vec::new(),
             Vec::new(),
             None,
-        ));
+        );
+
+        // Add message to existing chat
+        existing_chat.add_message(message);
 
         Ok((existing_chat_id, message_id, existing_chat))
     } else {
@@ -1648,29 +1654,28 @@ async fn initialize_chat(
             updated_by: user.id.clone(),
         };
 
-        let chat_with_messages = ChatWithMessages {
-            id: chat_id,
-            title: request.prompt.clone(),
-            is_favorited: false,
-            messages: vec![ChatMessage::new_with_messages(
-                message_id,
-                ChatUserMessage {
-                    request: request.prompt.clone(),
-                    sender_id: user.id.clone(),
-                    sender_name: user.name.clone().unwrap_or_default(),
-                    sender_avatar: None,
-                },
-                Vec::new(),
-                Vec::new(),
-                None,
-            )],
-            created_at: Utc::now().to_string(),
-            updated_at: Utc::now().to_string(),
-            created_by: user.id.to_string(),
-            created_by_id: user.id.to_string(),
-            created_by_name: user.name.clone().unwrap_or_default(),
-            created_by_avatar: None,
-        };
+        // Create initial message
+        let message = ChatMessage::new_with_messages(
+            message_id,
+            ChatUserMessage {
+                request: request.prompt.clone(),
+                sender_id: user.id.clone(),
+                sender_name: user.name.clone().unwrap_or_default(),
+                sender_avatar: None,
+            },
+            Vec::new(),
+            Vec::new(),
+            None,
+        );
+
+        let mut chat_with_messages = ChatWithMessages::new(
+            request.prompt.clone(),
+            user.id.to_string(),
+            user.name.clone().unwrap_or_default(),
+            None,
+        );
+        chat_with_messages.id = chat_id;
+        chat_with_messages.add_message(message);
 
         // Only create new chat in DB if this is a new chat
         let mut conn = get_pg_pool().get().await?;

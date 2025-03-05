@@ -119,7 +119,7 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
     )?;
 
     // Transform messages into ThreadMessage format
-    let thread_messages = messages
+    let thread_messages: Vec<ChatMessage> = messages
         .into_iter()
         .map(|msg| {
             let sender_avatar = msg
@@ -148,15 +148,13 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
                 sender_avatar,
             };
 
-            let chat_message = ChatMessage::new_with_messages(
+            ChatMessage::new_with_messages(
                 msg.id,
                 request_message,
                 response_messages,
                 reasoning,
                 None,
-            );
-
-            chat_message
+            )
         })
         .collect();
 
@@ -167,17 +165,14 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
         .and_then(|v| v.as_str())
         .map(String::from);
 
-    // Construct and return the ThreadWithMessages
-    Ok(ChatWithMessages {
-        id: thread.id,
-        title: thread.title,
-        is_favorited: false, // Not implemented in current schema
-        messages: thread_messages,
-        created_at: thread.created_at.to_string(),
-        updated_at: thread.updated_at.to_string(),
-        created_by: thread.user_email,
-        created_by_id: thread.user_id.to_string(),
-        created_by_name: thread.user_name.unwrap_or_else(|| "Unknown".to_string()),
+    // Construct and return the ThreadWithMessages using new_with_messages
+    Ok(ChatWithMessages::new_with_messages(
+        thread.id,
+        thread.title,
+        thread_messages,
+        false, // is_favorited not implemented in current schema
+        thread.user_id.to_string(),
+        thread.user_name.unwrap_or_else(|| "Unknown".to_string()),
         created_by_avatar,
-    })
+    ))
 }
