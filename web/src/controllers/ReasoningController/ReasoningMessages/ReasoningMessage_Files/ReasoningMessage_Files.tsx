@@ -7,10 +7,30 @@ import { useMessageIndividual } from '@/context/Chats';
 
 export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.memo(
   ({ isCompletedStream, chatId, reasoningMessageId, messageId }) => {
-    const { status, id, type, title, secondary_title, file_ids } = useMessageIndividual(
+    const status = useMessageIndividual(
       messageId,
-      (x) => x?.reasoning_messages[reasoningMessageId]
-    ) as BusterChatMessageReasoning_files;
+      (x) => (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files)?.status
+    );
+
+    const file_ids = useMessageIndividual(
+      messageId,
+      (x) =>
+        (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files)?.file_ids
+    );
+
+    const title = useMessageIndividual(
+      messageId,
+      (x) => (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files)?.title
+    );
+
+    const secondary_title = useMessageIndividual(
+      messageId,
+      (x) =>
+        (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files)
+          ?.secondary_title
+    );
+
+    if (!title) return null;
 
     return (
       <BarContainer
