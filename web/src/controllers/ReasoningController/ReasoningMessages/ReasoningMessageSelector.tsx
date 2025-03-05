@@ -45,6 +45,7 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
 
   return (
     <ReasoningMessage
+      key={reasoningMessageId + reasoningMessageType} //force in case the type changes
       reasoningMessageId={reasoningMessageId}
       isCompletedStream={isCompletedStream}
       messageId={messageId}

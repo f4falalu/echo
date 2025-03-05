@@ -41,6 +41,9 @@ export const useChatStreamMessage = () => {
         Object.assign(draft || {}, chatMessage);
       })!;
 
+      const firstReasoningMessage = iChatMessage.reasoning_message_ids[0];
+      console.log(iChatMessage.reasoning_messages[firstReasoningMessage]);
+
       onUpdateChatMessage(iChatMessage!);
 
       startTransition(() => {
@@ -216,9 +219,9 @@ export const useChatStreamMessage = () => {
             reasoning.message_chunk !== null || reasoning.message_chunk !== undefined;
 
           initializeOrUpdateMessage(chat_id, message_id, (draft) => {
-            const chat = draft[chat_id];
-            if (!chat?.messages?.[message_id]?.reasoning_messages?.[reasoningMessageId]) return;
-            const messageText = chat.messages[message_id].reasoning_messages[
+            if (!draft[chat_id]?.messages?.[message_id]?.reasoning_messages?.[reasoningMessageId])
+              return;
+            const messageText = draft[chat_id].messages[message_id].reasoning_messages[
               reasoningMessageId
             ] as BusterChatMessageReasoning_text;
             Object.assign(messageText, existingReasoningMessageText);
@@ -269,45 +272,12 @@ export const useChatStreamMessage = () => {
           break;
         }
         case 'pills': {
-          const existingReasoningMessagePills = existingMessage as BusterChatMessageReasoning_pills;
-
           initializeOrUpdateMessage(chat_id, message_id, (draft) => {
-            const chat = draft[chat_id];
-            if (!chat?.messages?.[message_id]?.reasoning_messages?.[reasoningMessageId]) return;
-            const messagePills = chat.messages[message_id].reasoning_messages[
-              reasoningMessageId
-            ] as BusterChatMessageReasoning_pills;
-            Object.assign(messagePills, existingReasoningMessagePills);
-            messagePills.pill_containers = [];
-
-            if (reasoning.pill_containers) {
-              for (const newContainer of reasoning.pill_containers) {
-                const existingContainerIndex =
-                  existingReasoningMessagePills.pill_containers?.findIndex(
-                    (c) => c.title === newContainer.title
-                  ) ?? -1;
-
-                if (
-                  existingContainerIndex !== -1 &&
-                  existingReasoningMessagePills.pill_containers
-                ) {
-                  const container = {} as typeof newContainer;
-                  Object.assign(
-                    container,
-                    existingReasoningMessagePills.pill_containers[existingContainerIndex]
-                  );
-                  container.pills = [];
-                  container.pills.push(
-                    ...existingReasoningMessagePills.pill_containers[existingContainerIndex].pills
-                  );
-                  container.pills.push(...newContainer.pills);
-                  messagePills.pill_containers.push(container);
-                } else {
-                  messagePills.pill_containers.push(newContainer);
-                }
-              }
-            }
+            if (!draft[chat_id]?.messages?.[message_id]?.reasoning_messages?.[reasoningMessageId])
+              return;
+            draft[chat_id].messages[message_id].reasoning_messages[reasoningMessageId]! = reasoning;
           });
+
           break;
         }
         default: {
