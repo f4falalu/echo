@@ -1,0 +1,148 @@
+use anyhow::{anyhow, Result};
+use chrono::{DateTime, Utc};
+use database::pool::get_pg_pool;
+use diesel::prelude::*;
+use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl};
+use diesel_async::RunQueryDsl;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use uuid::Uuid;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ListChatsRequest {
+    pub page_token: Option<String>,
+    pub page_size: i32,
+    pub admin_view: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ChatListItem {
+    pub id: String,
+    pub title: String,
+    pub is_favorited: bool,
+    pub updated_at: String,
+    pub created_at: String,
+    pub created_by: String,
+    pub created_by_id: String,
+    pub created_by_name: String,
+    pub created_by_avatar: Option<String>,
+    pub last_edited: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ListChatsResponse {
+    pub items: Vec<ChatListItem>,
+    pub next_page_token: Option<String>,
+}
+
+#[derive(Queryable)]
+struct ChatWithUser {
+    // Chat fields
+    pub id: Uuid,
+    pub title: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub created_by: Uuid,
+    // User fields
+    pub user_name: Option<String>,
+    pub user_attributes: Value,
+}
+
+/// List chats with pagination support
+/// 
+/// This function efficiently retrieves a list of chats with their associated user information.
+/// It supports pagination using cursor-based pagination (page_token) and limits results using page_size.
+/// If admin_view is true and the user has admin privileges, it shows all chats; otherwise, only the user's chats.
+/// 
+/// Returns a list of chat items with user information and pagination details.
+pub async fn list_chats_handler(
+    request: ListChatsRequest,
+    user_id: &Uuid,
+) -> Result<ListChatsResponse> {
+    use database::schema::{chats, users};
+    
+    let mut conn = get_pg_pool().get().await?;
+    
+    // Start building the query
+    let mut query = chats::table
+        .inner_join(users::table.on(chats::created_by.eq(users::id)))
+        .filter(chats::deleted_at.is_null())
+        .into_boxed();
+    
+    // Add user filter if not admin view
+    if !request.admin_view {
+        query = query.filter(chats::created_by.eq(user_id));
+    }
+    
+    // Add cursor-based pagination if page_token is provided
+    if let Some(token) = request.page_token {
+        let decoded_token = base64::decode(&token)
+            .map_err(|_| anyhow!("Invalid page token"))?;
+        let cursor_timestamp = String::from_utf8(decoded_token)
+            .map_err(|_| anyhow!("Invalid page token format"))?;
+        let cursor_dt = DateTime::parse_from_rfc3339(&cursor_timestamp)
+            .map_err(|_| anyhow!("Invalid timestamp in page token"))?
+            .with_timezone(&Utc);
+            
+        query = query.filter(chats::created_at.lt(cursor_dt));
+    }
+    
+    // Order by creation date descending and limit results
+    query = query
+        .order_by(chats::created_at.desc())
+        .limit((request.page_size + 1) as i64);
+    
+    // Execute query and select required fields
+    let results: Vec<ChatWithUser> = query
+        .select((
+            chats::id,
+            chats::title,
+            chats::created_at,
+            chats::updated_at,
+            chats::created_by,
+            users::name.nullable(),
+            users::attributes,
+        ))
+        .load::<ChatWithUser>(&mut conn)
+        .await?;
+    
+    // Check if there are more results
+    let has_more = results.len() > request.page_size as usize;
+    let mut items = results
+        .into_iter()
+        .take(request.page_size as usize)
+        .map(|chat| {
+            let created_by_avatar = chat.user_attributes
+                .get("avatar")
+                .and_then(|v| v.as_str())
+                .map(String::from);
+                
+            ChatListItem {
+                id: chat.id.to_string(),
+                title: chat.title,
+                is_favorited: false, // TODO: Implement favorites feature
+                created_at: chat.created_at.to_rfc3339(),
+                updated_at: chat.updated_at.to_rfc3339(),
+                created_by: chat.created_by.to_string(),
+                created_by_id: chat.created_by.to_string(),
+                created_by_name: chat.user_name.unwrap_or_else(|| "Unknown".to_string()),
+                created_by_avatar,
+                last_edited: chat.updated_at.to_rfc3339(),
+            }
+        })
+        .collect::<Vec<_>>();
+    
+    // Generate next page token if there are more results
+    let next_page_token = if has_more {
+        items
+            .last()
+            .map(|last_item| base64::encode(&last_item.created_at))
+    } else {
+        None
+    };
+    
+    Ok(ListChatsResponse {
+        items,
+        next_page_token,
+    })
+} 

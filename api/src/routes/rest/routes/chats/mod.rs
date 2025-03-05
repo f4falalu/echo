@@ -3,15 +3,23 @@ use axum::{
     Router,
 };
 
+mod delete_chats;
 mod get_chat;
+mod list_chats;
 mod post_chat;
 mod update_chats;
-mod delete_chats;
+
+pub use delete_chats::delete_chats_route;
+pub use get_chat::get_chat_route;
+pub use list_chats::list_chats_route;
+pub use post_chat::post_chat_route;
+pub use update_chats::update_chats_route;
 
 pub fn router() -> Router {
     Router::new()
-        .route("/", post(post_chat::post_chat_route))
-        .route("/", put(update_chats::update_chats_route))
-        .route("/", delete(delete_chats::delete_chats_route))
-        .route("/:id", get(get_chat::get_chat_route))
+        .route("/", get(list_chats_route))
+        .route("/", post(post_chat_route))
+        .route("/", put(update_chats_route))
+        .route("/", delete(delete_chats_route))
+        .route("/:id", get(get_chat_route))
 }

@@ -49,7 +49,7 @@ pub async fn update_chats_handler(
     
     // Find all chats that the user has permission to update in one query
     let user_chats: Vec<Chat> = chats::table
-        .filter(chats::id.eq(any(chat_ids.clone())))
+        .filter(chats::id.eq_any(chat_ids.clone()))
         .filter(chats::created_by.eq(user_id))
         .filter(chats::deleted_at.is_null())
         .load::<Chat>(&mut conn)
