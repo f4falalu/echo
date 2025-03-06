@@ -11,7 +11,7 @@ const autoResizeConfig = { minRows: 3, maxRows: 16 };
 
 export const ChatInput: React.FC<{}> = React.memo(({}) => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const loading = useChatIndividualContextSelector((x) => x.isLoading);
+  const loading = useChatIndividualContextSelector((x) => x.isStreamingMessage);
   const [inputValue, setInputValue] = useState('');
 
   const disableSubmit = useMemo(() => {

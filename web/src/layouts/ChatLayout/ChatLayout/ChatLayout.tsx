@@ -2,13 +2,13 @@
 
 import React, { useRef } from 'react';
 import { AppSplitter, AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
-import { ChatContainer } from './ChatContainer';
-import { FileContainer } from './FileContainer';
-import { ChatLayoutContextProvider } from './ChatLayoutContext';
-import { useChatLayout } from './ChatLayoutContext';
-import { useDefaultSplitterLayout, useSelectedFileByParams } from './hooks';
-import { ChatContextProvider, useChatIndividualContext } from './ChatContext/ChatContext';
-import { DEFAULT_CHAT_OPTION_SIDEBAR_SIZE } from './ChatLayoutContext/config';
+import { ChatContainer } from '../ChatContainer';
+import { FileContainer } from '../FileContainer';
+import { ChatLayoutContextProvider } from '../ChatLayoutContext';
+import { useChatLayout } from '../ChatLayoutContext';
+import { useDefaultSplitterLayout, useSelectedFileByParams } from '../hooks';
+import { ChatContextProvider, useChatIndividualContext } from '../ChatContext/ChatContext';
+import { DEFAULT_CHAT_OPTION_SIDEBAR_SIZE } from '../ChatLayoutContext/config';
 
 export interface ChatSplitterProps {
   showChatCollapse?: boolean;

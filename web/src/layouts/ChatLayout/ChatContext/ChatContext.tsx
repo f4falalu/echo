@@ -6,8 +6,8 @@ import {
 } from '@fluentui/react-context-selector';
 import type { SelectedFile } from '../interfaces';
 import { useAutoChangeLayout } from './useAutoChangeLayout';
-import { useMessageIndividual } from '@/context/Chats';
 import { useGetChat } from '@/api/buster_rest/chats';
+import { useMessageIndividual } from '@/context/Chats';
 
 export const useChatIndividualContext = ({
   chatId,
@@ -23,7 +23,6 @@ export const useChatIndividualContext = ({
 
   //CHAT
   const { data: chat } = useGetChat({ id: chatId || '' });
-
   const hasChat = !!chatId && !!chat;
   const chatTitle = chat?.title;
   const chatMessageIds = chat?.message_ids ?? [];
@@ -33,7 +32,7 @@ export const useChatIndividualContext = ({
 
   //MESSAGES
   const currentMessageId = chatMessageIds[chatMessageIds.length - 1];
-  const isLoading = useMessageIndividual(currentMessageId, (x) => !x?.isCompletedStream);
+  const isStreamingMessage = useMessageIndividual(currentMessageId, (x) => !x?.isCompletedStream);
 
   useAutoChangeLayout({
     lastMessageId: currentMessageId,
@@ -50,23 +49,23 @@ export const useChatIndividualContext = ({
       selectedFileType,
       chatMessageIds,
       chatId,
-      isLoading
+      isStreamingMessage
     }),
     [
       hasChat,
       hasFile,
+      isStreamingMessage,
       selectedFileId,
       currentMessageId,
       chatTitle,
       selectedFileType,
       chatMessageIds,
-      chatId,
-      isLoading
+      chatId
     ]
   );
 };
 
-export const IndividualChatContext = createContext<ReturnType<typeof useChatIndividualContext>>(
+const IndividualChatContext = createContext<ReturnType<typeof useChatIndividualContext>>(
   {} as ReturnType<typeof useChatIndividualContext>
 );
 
