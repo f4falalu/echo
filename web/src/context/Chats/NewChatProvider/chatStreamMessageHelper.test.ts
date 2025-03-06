@@ -16,6 +16,26 @@ import type {
   BusterChatMessageReasoning_pillContainer
 } from '@/api/asset_interfaces';
 
+const createBaseMessage = (
+  messageId: string,
+  reasoningMessages: Record<string, any> = {}
+): IBusterChatMessage => ({
+  id: messageId,
+  isCompletedStream: false,
+  request_message: {
+    request: 'test request',
+    sender_id: 'user1',
+    sender_name: 'Test User',
+    sender_avatar: null
+  },
+  response_message_ids: [],
+  reasoning_message_ids: Object.keys(reasoningMessages),
+  response_messages: {},
+  reasoning_messages: reasoningMessages,
+  created_at: new Date().toISOString(),
+  final_reasoning_message: null
+});
+
 describe('initializeOrUpdateMessage', () => {
   it('should initialize a new message when currentMessage is undefined', () => {
     const messageId = 'test-id';
@@ -36,22 +56,7 @@ describe('initializeOrUpdateMessage', () => {
 
   it('should update an existing message', () => {
     const messageId = 'test-id';
-    const currentMessage: IBusterChatMessage = {
-      id: messageId,
-      isCompletedStream: false,
-      request_message: {
-        request: 'original request',
-        sender_id: 'user1',
-        sender_name: 'Test User',
-        sender_avatar: null
-      },
-      response_message_ids: [],
-      reasoning_message_ids: [],
-      response_messages: {},
-      reasoning_messages: {},
-      created_at: new Date().toISOString(),
-      final_reasoning_message: null
-    };
+    const currentMessage = createBaseMessage(messageId);
 
     const updateFn = (draft: IBusterChatMessage) => {
       if (draft.request_message) {
@@ -158,28 +163,15 @@ describe('updateResponseMessage', () => {
   });
 
   it('should update existing message with new response', () => {
-    const currentMessage: IBusterChatMessage = {
-      id: 'test-message-id',
-      isCompletedStream: false,
-      request_message: {
-        request: 'test request',
-        sender_id: 'user1',
-        sender_name: 'Test User',
-        sender_avatar: null
-      },
-      response_message_ids: ['response-1'],
-      reasoning_message_ids: [],
-      response_messages: {
-        'response-1': {
-          id: 'response-1',
-          type: 'text',
-          message: 'Hello',
-          message_chunk: undefined
-        }
-      },
-      reasoning_messages: {},
-      created_at: new Date().toISOString(),
-      final_reasoning_message: null
+    const currentMessage: IBusterChatMessage = createBaseMessage('test-message-id');
+    currentMessage.response_message_ids = ['response-1'];
+    currentMessage.response_messages = {
+      'response-1': {
+        id: 'response-1',
+        type: 'text',
+        message: 'Hello',
+        message_chunk: undefined
+      }
     };
 
     const mockEvent: ChatEvent_GeneratingResponseMessage = {
@@ -317,32 +309,17 @@ describe('updateReasoningMessage', () => {
   });
 
   it('should update existing text reasoning message with streaming chunks', () => {
-    const currentMessage: IBusterChatMessage = {
-      id: 'test-message-id',
-      isCompletedStream: false,
-      request_message: {
-        request: 'test request',
-        sender_id: 'user1',
-        sender_name: 'Test User',
-        sender_avatar: null
-      },
-      response_message_ids: [],
-      reasoning_message_ids: ['reasoning-1'],
-      response_messages: {},
-      reasoning_messages: {
-        'reasoning-1': {
-          id: 'reasoning-1',
-          type: 'text',
-          message: 'Initial reasoning',
-          message_chunk: undefined,
-          title: 'Test Title',
-          secondary_title: 'Test Secondary Title',
-          status: 'loading'
-        }
-      },
-      created_at: new Date().toISOString(),
-      final_reasoning_message: null
-    };
+    const currentMessage = createBaseMessage('test-message-id', {
+      'reasoning-1': {
+        id: 'reasoning-1',
+        type: 'text',
+        message: 'Initial reasoning',
+        message_chunk: undefined,
+        title: 'Test Title',
+        secondary_title: 'Test Secondary Title',
+        status: 'loading'
+      }
+    });
 
     const reasoning: BusterChatMessageReasoning_text = {
       id: 'reasoning-1',
@@ -376,34 +353,19 @@ describe('updateReasoningMessage', () => {
       }
     };
 
-    const currentMessage: IBusterChatMessage = {
-      id: 'test-message-id',
-      isCompletedStream: false,
-      request_message: {
-        request: 'test request',
-        sender_id: 'user1',
-        sender_name: 'Test User',
-        sender_avatar: null
-      },
-      response_message_ids: [],
-      reasoning_message_ids: ['reasoning-1'],
-      response_messages: {},
-      reasoning_messages: {
-        'reasoning-1': {
-          id: 'reasoning-1',
-          type: 'files',
-          file_ids: ['file-1'],
-          files: {
-            'file-1': reasoningFile
-          },
-          title: 'Test Title',
-          secondary_title: 'Test Secondary Title',
-          status: 'loading'
-        }
-      },
-      created_at: new Date().toISOString(),
-      final_reasoning_message: null
-    };
+    const currentMessage = createBaseMessage('test-message-id', {
+      'reasoning-1': {
+        id: 'reasoning-1',
+        type: 'files',
+        file_ids: ['file-1'],
+        files: {
+          'file-1': reasoningFile
+        },
+        title: 'Test Title',
+        secondary_title: 'Test Secondary Title',
+        status: 'loading'
+      }
+    });
 
     const reasoning: BusterChatMessageReasoning_files = {
       id: 'reasoning-1',
@@ -446,31 +408,16 @@ describe('updateReasoningMessage', () => {
       ]
     };
 
-    const currentMessage: IBusterChatMessage = {
-      id: 'test-message-id',
-      isCompletedStream: false,
-      request_message: {
-        request: 'test request',
-        sender_id: 'user1',
-        sender_name: 'Test User',
-        sender_avatar: null
-      },
-      response_message_ids: [],
-      reasoning_message_ids: ['reasoning-1'],
-      response_messages: {},
-      reasoning_messages: {
-        'reasoning-1': {
-          id: 'reasoning-1',
-          type: 'pills',
-          pill_containers: [pillContainer],
-          title: 'Test Title',
-          secondary_title: 'Test Secondary Title',
-          status: 'loading'
-        }
-      },
-      created_at: new Date().toISOString(),
-      final_reasoning_message: null
-    };
+    const currentMessage = createBaseMessage('test-message-id', {
+      'reasoning-1': {
+        id: 'reasoning-1',
+        type: 'pills',
+        pill_containers: [pillContainer],
+        title: 'Test Title',
+        secondary_title: 'Test Secondary Title',
+        status: 'loading'
+      }
+    });
 
     const reasoning: BusterChatMessageReasoning_pills = {
       id: 'reasoning-1',
@@ -528,34 +475,19 @@ describe('updateReasoningMessage', () => {
       }
     };
 
-    const currentMessage: IBusterChatMessage = {
-      id: 'test-message-id',
-      isCompletedStream: false,
-      request_message: {
-        request: 'test request',
-        sender_id: 'user1',
-        sender_name: 'Test User',
-        sender_avatar: null
-      },
-      response_message_ids: [],
-      reasoning_message_ids: ['reasoning-1'],
-      response_messages: {},
-      reasoning_messages: {
-        'reasoning-1': {
-          id: 'reasoning-1',
-          type: 'files',
-          file_ids: ['file-1'],
-          files: {
-            'file-1': reasoningFile1
-          },
-          title: 'Test Title',
-          secondary_title: 'Test Secondary Title',
-          status: 'loading'
-        }
-      },
-      created_at: new Date().toISOString(),
-      final_reasoning_message: null
-    };
+    const currentMessage = createBaseMessage('test-message-id', {
+      'reasoning-1': {
+        id: 'reasoning-1',
+        type: 'files',
+        file_ids: ['file-1'],
+        files: {
+          'file-1': reasoningFile1
+        },
+        title: 'Test Title',
+        secondary_title: 'Test Secondary Title',
+        status: 'loading'
+      }
+    });
 
     const reasoning: BusterChatMessageReasoning_files = {
       id: 'reasoning-1',

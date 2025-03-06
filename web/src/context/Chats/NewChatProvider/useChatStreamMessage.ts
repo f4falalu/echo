@@ -23,7 +23,6 @@ import { queryKeys } from '@/api/query_keys';
 import { useQueryClient } from '@tanstack/react-query';
 import { create } from 'mutative';
 import {
-  initializeOrUpdateMessage,
   updateChatTitle,
   updateResponseMessage,
   updateReasoningMessage
@@ -122,13 +121,11 @@ export const useChatStreamMessage = () => {
   const _generatingResponseMessageCallback = useMemoizedFn(
     (_: null, d: ChatEvent_GeneratingResponseMessage) => {
       const { message_id } = d;
-
       const updatedMessage = updateResponseMessage(
         message_id,
         chatRefMessages.current[message_id],
         d
       );
-
       onUpdateChatMessageTransition({
         id: message_id,
         response_messages: updatedMessage?.response_messages,
