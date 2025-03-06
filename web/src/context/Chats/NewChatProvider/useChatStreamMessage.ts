@@ -157,19 +157,9 @@ export const useChatStreamMessage = () => {
       if (!response_message?.id) return;
 
       const responseMessageId = response_message.id;
-      const foundResponseMessage: BusterChatMessageResponse | undefined =
+      const existingMessage =
         chatRef.current[chat_id]?.messages?.[message_id]?.response_messages?.[responseMessageId];
-      const isNewMessage = !foundResponseMessage;
-
-      if (response_message.type === 'text') {
-        const existingMessage =
-          (foundResponseMessage as BusterChatResponseMessage_text)?.message || '';
-        const isStreaming =
-          response_message.message_chunk !== undefined || response_message.message_chunk !== null;
-        if (isStreaming) {
-          response_message.message = existingMessage + response_message.message_chunk;
-        }
-      }
+      const isNewMessage = !existingMessage;
 
       if (isNewMessage) {
         initializeOrUpdateMessage(chat_id, message_id, (draft) => {
@@ -179,6 +169,28 @@ export const useChatStreamMessage = () => {
             chat.messages[message_id].response_messages = {};
           chat.messages[message_id].response_messages[responseMessageId] = response_message;
           chat.messages[message_id].response_message_ids.push(responseMessageId);
+        });
+      }
+
+      if (response_message.type === 'text') {
+        const existingResponseMessageText = existingMessage as BusterChatResponseMessage_text;
+        const isStreaming =
+          response_message.message_chunk !== undefined || response_message.message_chunk !== null;
+
+        initializeOrUpdateMessage(chat_id, message_id, (draft) => {
+          const responseMessage =
+            draft[chat_id]?.messages?.[message_id]?.response_messages?.[responseMessageId];
+          if (!responseMessage) return;
+          const messageText = responseMessage as BusterChatMessageReasoning_text;
+
+          Object.assign(messageText, {
+            ...existingResponseMessageText,
+            ...response_message,
+            message: isStreaming
+              ? (existingResponseMessageText?.message || '') +
+                (response_message.message_chunk || '')
+              : response_message.message
+          });
         });
       }
 
