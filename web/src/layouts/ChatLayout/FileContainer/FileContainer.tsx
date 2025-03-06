@@ -10,7 +10,6 @@ export const FileContainer: React.FC<FileContainerProps> = ({ children }) => {
   return (
     <AppPageLayout className="flex h-full min-w-[325px] flex-col" header={<FileContainerHeader />}>
       {children}
-      <span className="text-blue-500">SWAG</span>
     </AppPageLayout>
   );
 };

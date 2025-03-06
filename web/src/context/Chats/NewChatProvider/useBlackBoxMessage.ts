@@ -17,6 +17,7 @@ export const useBlackBoxMessage = () => {
   const queryClient = useQueryClient();
 
   const removeAutoThought = useMemoizedFn(({ messageId }: { messageId: string }) => {
+    console.log('removeAutoThought', messageId);
     if (timeoutRef.current[messageId]) {
       clearTimeout(timeoutRef.current[messageId]);
       delete timeoutRef.current[messageId];
@@ -28,13 +29,14 @@ export const useBlackBoxMessage = () => {
 
   const addAutoThought = useMemoizedFn(({ messageId }: { messageId: string }) => {
     const randomThought = getRandomThought();
+    console.log(messageId, randomThought);
     const options = queryKeys.chatsBlackBoxMessages(messageId);
     queryClient.setQueryData(options.queryKey, randomThought);
   });
 
   const checkAutoThought = useMemoizedFn(
     (message: IBusterChatMessage, event: ChatEvent_GeneratingReasoningMessage) => {
-      const isFinishedReasoningMessage = event.progress === 'completed';
+      const isFinishedReasoningMessage = event.reasoning.status !== 'loading';
       if (isFinishedReasoningMessage) {
         addAutoThought({ messageId: message.id });
         _loopAutoThought({ messageId: message.id });
@@ -48,6 +50,7 @@ export const useBlackBoxMessage = () => {
     const randomDelay = random(3000, 5000);
     timeoutRef.current[messageId] = setTimeout(() => {
       const message = getChatMessageMemoized(messageId);
+      console.log('loopAutoThought', messageId, !!message);
       if (!message) return;
       const isMessageCompletedStream = !!message?.isCompletedStream;
       const lastReasoningMessageId = last(message?.reasoning_message_ids) || '';

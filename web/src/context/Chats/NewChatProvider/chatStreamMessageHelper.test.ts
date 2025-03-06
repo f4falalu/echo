@@ -520,4 +520,36 @@ describe('updateReasoningMessage', () => {
     expect(updatedFiles.files['file-1'].file?.text).toBe('Initial content additional content');
     expect(updatedFiles.files['file-2'].file?.text).toBe('New file content');
   });
+
+  it('should handle multiple updates and append text to existing reasoning message', () => {
+    const reasoning: BusterChatMessageReasoning_text = {
+      id: 'reasoning-1',
+      type: 'text',
+      message: '',
+      message_chunk: 'Hello',
+      title: 'Test Title',
+      secondary_title: 'Test Secondary Title',
+      status: 'loading'
+    };
+
+    // First update with "Hello"
+    let result = updateReasoningMessage('test-message-id', undefined, reasoning);
+    expect(
+      (result.reasoning_messages['reasoning-1'] as BusterChatMessageReasoning_text).message
+    ).toBe('Hello');
+
+    // Second update with ", how"
+    reasoning.message_chunk = ', how';
+    result = updateReasoningMessage('test-message-id', result, reasoning);
+    expect(
+      (result.reasoning_messages['reasoning-1'] as BusterChatMessageReasoning_text).message
+    ).toBe('Hello, how');
+
+    // Third update with " are you doing today?"
+    reasoning.message_chunk = ' are you doing today?';
+    result = updateReasoningMessage('test-message-id', result, reasoning);
+    expect(
+      (result.reasoning_messages['reasoning-1'] as BusterChatMessageReasoning_text).message
+    ).toBe('Hello, how are you doing today?');
+  });
 });
