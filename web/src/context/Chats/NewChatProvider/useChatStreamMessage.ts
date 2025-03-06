@@ -24,7 +24,6 @@ import { IBusterChat, IBusterChatMessage } from '../interfaces';
 import { queryKeys } from '@/api/query_keys';
 import { useQueryClient } from '@tanstack/react-query';
 import { create } from 'mutative';
-import files from '@/components/ui/icons/NucleoIconOutlined/files';
 
 export const useChatStreamMessage = () => {
   const queryClient = useQueryClient();
@@ -91,6 +90,10 @@ export const useChatStreamMessage = () => {
 
   const completeChatCallback = useMemoizedFn((d: BusterChat) => {
     const { iChat, iChatMessages } = updateChatToIChat(d, false);
+    chatRef.current = create(chatRef.current, (draft) => {
+      draft[iChat.id] = iChat;
+      draft[iChat.id].messages = iChatMessages;
+    });
     normalizeChatMessage(iChatMessages);
     onUpdateChat(iChat);
   });
@@ -104,6 +107,10 @@ export const useChatStreamMessage = () => {
 
   const initializeNewChatCallback = useMemoizedFn((d: BusterChat) => {
     const { iChat, iChatMessages } = updateChatToIChat(d, true);
+    chatRef.current = create(chatRef.current, (draft) => {
+      draft[iChat.id] = iChat;
+      draft[iChat.id].messages = iChatMessages;
+    });
     normalizeChatMessage(iChatMessages);
     onUpdateChat(iChat);
     onChangePage({
