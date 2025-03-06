@@ -1,10 +1,16 @@
 import { create } from 'mutative';
-import { IBusterChat, IBusterChatMessage } from '../interfaces';
-import {
+import type { IBusterChat, IBusterChatMessage } from '../interfaces';
+import type {
   ChatEvent_GeneratingTitle,
-  ChatEvent_GeneratingResponseMessage
+  ChatEvent_GeneratingResponseMessage,
+  ChatEvent_GeneratingReasoningMessage
 } from '@/api/buster_socket/chats';
-import { BusterChatResponseMessage_text } from '@/api/asset_interfaces';
+import type {
+  BusterChatResponseMessage_text,
+  BusterChatMessageReasoning_text,
+  BusterChatMessageReasoning_files,
+  BusterChatMessageReasoning_file
+} from '@/api/asset_interfaces';
 
 const createInitialMessage = (messageId: string): IBusterChatMessage => ({
   id: messageId,
@@ -93,6 +99,123 @@ export const updateResponseMessage = (
           : response_message.message
       });
     });
+  }
+
+  return updatedMessage;
+};
+
+export const updateReasoningMessage = (
+  messageId: string,
+  currentMessage: IBusterChatMessage | undefined,
+  reasoning: ChatEvent_GeneratingReasoningMessage['reasoning']
+): IBusterChatMessage => {
+  const reasoningMessageId = reasoning.id;
+  const existingReasoningMessage = currentMessage?.reasoning_messages?.[reasoningMessageId];
+  const isNewReasoningMessage = !existingReasoningMessage;
+  let updatedMessage = currentMessage || createInitialMessage(messageId);
+
+  if (isNewReasoningMessage) {
+    updatedMessage = initializeOrUpdateMessage(messageId, updatedMessage, (draft) => {
+      if (!draft.reasoning_messages) {
+        draft.reasoning_messages = {};
+      }
+      draft.reasoning_messages[reasoningMessageId] = reasoning;
+      if (!draft.reasoning_message_ids) {
+        draft.reasoning_message_ids = [];
+      }
+      draft.reasoning_message_ids.push(reasoningMessageId);
+    });
+  }
+
+  switch (reasoning.type) {
+    case 'text': {
+      const existingReasoningMessageText =
+        existingReasoningMessage as BusterChatMessageReasoning_text;
+      const isStreaming = reasoning.message_chunk !== null || reasoning.message_chunk !== undefined;
+
+      updatedMessage = initializeOrUpdateMessage(messageId, updatedMessage, (draft) => {
+        const reasoningMessage = draft.reasoning_messages?.[reasoningMessageId];
+        if (!reasoningMessage) return;
+        const messageText = reasoningMessage as BusterChatMessageReasoning_text;
+
+        Object.assign(messageText, {
+          ...existingReasoningMessageText,
+          ...reasoning,
+          message: isStreaming
+            ? (existingReasoningMessageText?.message || '') + (reasoning.message_chunk || '')
+            : reasoning.message
+        });
+      });
+      break;
+    }
+    case 'files': {
+      const existingReasoningMessageFiles =
+        existingReasoningMessage as BusterChatMessageReasoning_files;
+
+      updatedMessage = initializeOrUpdateMessage(messageId, updatedMessage, (draft) => {
+        const reasoningMessage = draft.reasoning_messages?.[reasoningMessageId];
+        if (!reasoningMessage) return;
+
+        const messageFiles = create(
+          reasoningMessage as BusterChatMessageReasoning_files,
+          (draft) => {
+            draft.file_ids = existingReasoningMessageFiles?.file_ids || [];
+
+            if (reasoning.status) draft.status = reasoning.status;
+            if (reasoning.title) draft.title = reasoning.title;
+            if (reasoning.secondary_title) draft.secondary_title = reasoning.secondary_title;
+
+            for (const fileId of reasoning.file_ids) {
+              if (!draft.file_ids.includes(fileId)) {
+                draft.file_ids.push(fileId);
+              }
+
+              if (!draft.files) {
+                draft.files = {};
+              }
+
+              if (!draft.files[fileId]) {
+                draft.files[fileId] = {} as BusterChatMessageReasoning_file;
+              }
+
+              const existingFile = existingReasoningMessageFiles?.files[fileId];
+              const newFile = reasoning.files[fileId];
+
+              draft.files[fileId] = create(draft.files[fileId], (fileDraft) => {
+                // Merge existing and new file data
+                Object.assign(fileDraft, existingFile || {}, newFile);
+
+                // Handle file text specifically
+                if (newFile.file) {
+                  fileDraft.file = create(fileDraft.file || {}, (fileContentDraft) => {
+                    Object.assign(fileContentDraft, existingFile?.file || {});
+                    fileContentDraft.text = newFile.file.text_chunk
+                      ? (existingFile?.file?.text || '') + newFile.file.text_chunk
+                      : (newFile.file.text ?? existingFile?.file?.text);
+                    fileContentDraft.modified =
+                      newFile.file.modified ?? existingFile?.file?.modified;
+                  });
+                }
+              });
+            }
+          }
+        );
+
+        draft.reasoning_messages[reasoningMessageId] = messageFiles;
+      });
+      break;
+    }
+    case 'pills': {
+      updatedMessage = initializeOrUpdateMessage(messageId, updatedMessage, (draft) => {
+        if (!draft.reasoning_messages?.[reasoningMessageId]) return;
+        draft.reasoning_messages[reasoningMessageId] = reasoning;
+      });
+      break;
+    }
+    default: {
+      const type: never = reasoning;
+      break;
+    }
   }
 
   return updatedMessage;

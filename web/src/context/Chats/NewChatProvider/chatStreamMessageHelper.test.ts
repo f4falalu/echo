@@ -1,13 +1,19 @@
 import {
   initializeOrUpdateMessage,
   updateChatTitle,
-  updateResponseMessage
+  updateResponseMessage,
+  updateReasoningMessage
 } from './chatStreamMessageHelper';
-import { IBusterChatMessage, IBusterChat } from '../interfaces';
-import { ChatEvent_GeneratingResponseMessage } from '@/api/buster_socket/chats';
-import {
+import type { IBusterChatMessage, IBusterChat } from '../interfaces';
+import type { ChatEvent_GeneratingResponseMessage } from '@/api/buster_socket/chats';
+import type {
   BusterChatResponseMessage_file,
-  BusterChatResponseMessage_text
+  BusterChatResponseMessage_text,
+  BusterChatMessageReasoning_text,
+  BusterChatMessageReasoning_files,
+  BusterChatMessageReasoning_pills,
+  BusterChatMessageReasoning_file,
+  BusterChatMessageReasoning_pillContainer
 } from '@/api/asset_interfaces';
 
 describe('initializeOrUpdateMessage', () => {
@@ -286,5 +292,300 @@ describe('updateResponseMessage', () => {
 
     expect(result.response_message_ids).toContain('response-2');
     expect(result.response_messages['response-2']).toEqual(mockEvent.response_message);
+  });
+});
+
+describe('updateReasoningMessage', () => {
+  it('should create a new message when currentMessage is undefined', () => {
+    const reasoning: BusterChatMessageReasoning_text = {
+      id: 'reasoning-1',
+      type: 'text',
+      message: '',
+      message_chunk: 'Initial reasoning',
+      title: 'Test Title',
+      secondary_title: 'Test Secondary Title',
+      status: 'loading'
+    };
+
+    const result = updateReasoningMessage('test-message-id', undefined, reasoning);
+
+    expect(result.id).toBe('test-message-id');
+    expect(result.reasoning_message_ids).toContain('reasoning-1');
+    expect(
+      (result.reasoning_messages['reasoning-1'] as BusterChatMessageReasoning_text).message
+    ).toBe('Initial reasoning');
+  });
+
+  it('should update existing text reasoning message with streaming chunks', () => {
+    const currentMessage: IBusterChatMessage = {
+      id: 'test-message-id',
+      isCompletedStream: false,
+      request_message: {
+        request: 'test request',
+        sender_id: 'user1',
+        sender_name: 'Test User',
+        sender_avatar: null
+      },
+      response_message_ids: [],
+      reasoning_message_ids: ['reasoning-1'],
+      response_messages: {},
+      reasoning_messages: {
+        'reasoning-1': {
+          id: 'reasoning-1',
+          type: 'text',
+          message: 'Initial reasoning',
+          message_chunk: undefined,
+          title: 'Test Title',
+          secondary_title: 'Test Secondary Title',
+          status: 'loading'
+        }
+      },
+      created_at: new Date().toISOString(),
+      final_reasoning_message: null
+    };
+
+    const reasoning: BusterChatMessageReasoning_text = {
+      id: 'reasoning-1',
+      type: 'text',
+      message: '',
+      message_chunk: ' additional text',
+      title: 'Test Title',
+      secondary_title: 'Test Secondary Title',
+      status: 'loading'
+    };
+
+    const result = updateReasoningMessage('test-message-id', currentMessage, reasoning);
+
+    expect(result.reasoning_message_ids).toContain('reasoning-1');
+    expect(
+      (result.reasoning_messages['reasoning-1'] as BusterChatMessageReasoning_text).message
+    ).toBe('Initial reasoning additional text');
+  });
+
+  it('should handle files type reasoning message', () => {
+    const reasoningFile: BusterChatMessageReasoning_file = {
+      id: 'file-1',
+      file_type: 'metric',
+      file_name: 'test.txt',
+      version_number: 1,
+      version_id: 'v1',
+      status: 'loading',
+      file: {
+        text: 'Initial file content',
+        modified: [[0, 0]]
+      }
+    };
+
+    const currentMessage: IBusterChatMessage = {
+      id: 'test-message-id',
+      isCompletedStream: false,
+      request_message: {
+        request: 'test request',
+        sender_id: 'user1',
+        sender_name: 'Test User',
+        sender_avatar: null
+      },
+      response_message_ids: [],
+      reasoning_message_ids: ['reasoning-1'],
+      response_messages: {},
+      reasoning_messages: {
+        'reasoning-1': {
+          id: 'reasoning-1',
+          type: 'files',
+          file_ids: ['file-1'],
+          files: {
+            'file-1': reasoningFile
+          },
+          title: 'Test Title',
+          secondary_title: 'Test Secondary Title',
+          status: 'loading'
+        }
+      },
+      created_at: new Date().toISOString(),
+      final_reasoning_message: null
+    };
+
+    const reasoning: BusterChatMessageReasoning_files = {
+      id: 'reasoning-1',
+      type: 'files',
+      file_ids: ['file-1'],
+      files: {
+        'file-1': {
+          ...reasoningFile,
+          file: {
+            text: 'Initial file content',
+            text_chunk: ' additional content',
+            modified: [[0, 0]]
+          }
+        }
+      },
+      title: 'Test Title',
+      secondary_title: 'Test Secondary Title',
+      status: 'loading'
+    };
+
+    const result = updateReasoningMessage('test-message-id', currentMessage, reasoning);
+
+    expect(result.reasoning_message_ids).toContain('reasoning-1');
+    const updatedFile = result.reasoning_messages[
+      'reasoning-1'
+    ] as BusterChatMessageReasoning_files;
+    expect(updatedFile.files['file-1'].file?.text).toBe('Initial file content additional content');
+    expect(updatedFile.files['file-1'].file?.modified).toEqual([[0, 0]]);
+  });
+
+  it('should handle pills type reasoning message', () => {
+    const pillContainer: BusterChatMessageReasoning_pillContainer = {
+      title: 'Test Container',
+      pills: [
+        {
+          id: 'pill-1',
+          text: 'Test Pill 1',
+          type: null
+        }
+      ]
+    };
+
+    const currentMessage: IBusterChatMessage = {
+      id: 'test-message-id',
+      isCompletedStream: false,
+      request_message: {
+        request: 'test request',
+        sender_id: 'user1',
+        sender_name: 'Test User',
+        sender_avatar: null
+      },
+      response_message_ids: [],
+      reasoning_message_ids: ['reasoning-1'],
+      response_messages: {},
+      reasoning_messages: {
+        'reasoning-1': {
+          id: 'reasoning-1',
+          type: 'pills',
+          pill_containers: [pillContainer],
+          title: 'Test Title',
+          secondary_title: 'Test Secondary Title',
+          status: 'loading'
+        }
+      },
+      created_at: new Date().toISOString(),
+      final_reasoning_message: null
+    };
+
+    const reasoning: BusterChatMessageReasoning_pills = {
+      id: 'reasoning-1',
+      type: 'pills',
+      pill_containers: [
+        pillContainer,
+        {
+          title: 'Test Container 2',
+          pills: [
+            {
+              id: 'pill-2',
+              text: 'Test Pill 2',
+              type: null
+            }
+          ]
+        }
+      ],
+      title: 'Test Title',
+      secondary_title: 'Test Secondary Title',
+      status: 'loading'
+    };
+
+    const result = updateReasoningMessage('test-message-id', currentMessage, reasoning);
+
+    expect(result.reasoning_message_ids).toContain('reasoning-1');
+    expect(
+      (result.reasoning_messages['reasoning-1'] as BusterChatMessageReasoning_pills).pill_containers
+    ).toHaveLength(2);
+  });
+
+  it('should handle multiple file updates in a single reasoning message', () => {
+    const reasoningFile1: BusterChatMessageReasoning_file = {
+      id: 'file-1',
+      file_type: 'metric',
+      file_name: 'test1.txt',
+      version_number: 1,
+      version_id: 'v1',
+      status: 'loading',
+      file: {
+        text: 'Initial content',
+        modified: [[0, 0]]
+      }
+    };
+
+    const reasoningFile2: BusterChatMessageReasoning_file = {
+      id: 'file-2',
+      file_type: 'metric',
+      file_name: 'test2.txt',
+      version_number: 1,
+      version_id: 'v1',
+      status: 'loading',
+      file: {
+        text: 'New file content',
+        modified: [[0, 0]]
+      }
+    };
+
+    const currentMessage: IBusterChatMessage = {
+      id: 'test-message-id',
+      isCompletedStream: false,
+      request_message: {
+        request: 'test request',
+        sender_id: 'user1',
+        sender_name: 'Test User',
+        sender_avatar: null
+      },
+      response_message_ids: [],
+      reasoning_message_ids: ['reasoning-1'],
+      response_messages: {},
+      reasoning_messages: {
+        'reasoning-1': {
+          id: 'reasoning-1',
+          type: 'files',
+          file_ids: ['file-1'],
+          files: {
+            'file-1': reasoningFile1
+          },
+          title: 'Test Title',
+          secondary_title: 'Test Secondary Title',
+          status: 'loading'
+        }
+      },
+      created_at: new Date().toISOString(),
+      final_reasoning_message: null
+    };
+
+    const reasoning: BusterChatMessageReasoning_files = {
+      id: 'reasoning-1',
+      type: 'files',
+      file_ids: ['file-1', 'file-2'],
+      files: {
+        'file-1': {
+          ...reasoningFile1,
+          file: {
+            text: 'Initial content',
+            text_chunk: ' additional content',
+            modified: [[0, 0]]
+          }
+        },
+        'file-2': reasoningFile2
+      },
+      title: 'Test Title',
+      secondary_title: 'Test Secondary Title',
+      status: 'loading'
+    };
+
+    const result = updateReasoningMessage('test-message-id', currentMessage, reasoning);
+
+    expect(result.reasoning_message_ids).toContain('reasoning-1');
+    const updatedFiles = result.reasoning_messages[
+      'reasoning-1'
+    ] as BusterChatMessageReasoning_files;
+    expect(updatedFiles.file_ids).toContain('file-1');
+    expect(updatedFiles.file_ids).toContain('file-2');
+    expect(updatedFiles.files['file-1'].file?.text).toBe('Initial content additional content');
+    expect(updatedFiles.files['file-2'].file?.text).toBe('New file content');
   });
 });
