@@ -199,8 +199,6 @@ export const useChatStreamMessage = () => {
         chatRef.current[chat_id]?.messages?.[message_id]?.reasoning_messages?.[reasoningMessageId];
       const isNewMessage = !existingMessage;
 
-      console.log('isNewMessage', isNewMessage);
-
       if (isNewMessage) {
         initializeOrUpdateMessage(chat_id, message_id, (draft) => {
           const chat = draft[chat_id];

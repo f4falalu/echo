@@ -6,31 +6,17 @@ import {
   useContextSelector
 } from '@fluentui/react-context-selector';
 import React, { PropsWithChildren, useTransition } from 'react';
-import type { SelectedFile } from '../interfaces';
 import { useMemoizedFn } from 'ahooks';
 import type { AppSplitterRef } from '@/components/ui/layouts';
-import { createChatAssetRoute, createFileRoute } from './helpers';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { DEFAULT_CHAT_OPTION_SIDEBAR_SIZE } from './config';
-import { SelectedFileParams, useInitialChatLayout } from '../hooks';
+import { useLayoutCollapse, useSelectedFileAndLayout } from '../hooks';
 import { useChatFileLayout } from './useChatFileLayout';
 
 interface UseChatSplitterProps {
-  selectedLayout: SelectedFileParams['selectedLayout'];
-  selectedFile: SelectedFileParams['selectedFile'];
   appSplitterRef: React.RefObject<AppSplitterRef>;
-  chatId: string | undefined;
 }
 
-export const useChatLayout = ({
-  selectedLayout,
-  selectedFile,
-  appSplitterRef,
-  chatId
-}: UseChatSplitterProps) => {
-  const [isPending, startTransition] = useTransition();
-  const onChangePage = useAppLayoutContextSelector((state) => state.onChangePage);
-
+export const useChatLayout = ({ appSplitterRef }: UseChatSplitterProps) => {
   const animateOpenSplitter = useMemoizedFn((side: 'left' | 'right' | 'both') => {
     if (appSplitterRef.current) {
       const { animateWidth } = appSplitterRef.current;
@@ -47,48 +33,20 @@ export const useChatLayout = ({
     }
   });
 
-  const onSetSelectedFile = useMemoizedFn((file: SelectedFile) => {
-    const isChatView = selectedLayout === 'chat' || selectedLayout === 'both';
-    const fileType = file.type;
-    const fileId = file.id;
-    const route =
-      isChatView && chatId !== undefined
-        ? createChatAssetRoute({ chatId, assetId: fileId, type: fileType })
-        : createFileRoute({ assetId: fileId, type: fileType });
-
-    if (route) {
-      setRenderViewLayoutKey('both');
-      startTransition(() => {
-        onChangePage(route);
-        animateOpenSplitter('both');
-      });
-    }
-  });
-
-  const onCollapseFileClick = useMemoizedFn((close?: boolean) => {
-    const isCloseAction = close ?? isCollapseOpen;
-    const isFileLayout = selectedLayout === 'file';
-
-    setIsCollapseOpen(!isCloseAction);
-
-    if (selectedFile && selectedFile.type === 'reasoning') {
-      animateOpenSplitter(!isCloseAction ? 'both' : 'left');
-    } else if (isFileLayout) {
-      // For file layout, toggle between 'both' and 'right'
-      animateOpenSplitter(!isCloseAction && selectedFile ? 'both' : 'right');
-    } else {
-      // For other layouts, toggle between 'right' and 'both'
-      animateOpenSplitter(isCloseAction ? 'left' : 'both');
-    }
-  });
-
-  const initialChatLayout = useInitialChatLayout({
-    selectedLayout,
+  const {
     selectedFile,
+    selectedLayout,
     chatId,
-    onCollapseFileClick
+    onSetSelectedFile,
+    setRenderViewLayoutKey,
+    renderViewLayoutKey
+  } = useSelectedFileAndLayout({ animateOpenSplitter });
+
+  const { collapseDirection, isCollapseOpen, onCollapseFileClick } = useLayoutCollapse({
+    selectedFile,
+    selectedLayout,
+    animateOpenSplitter
   });
-  const { setIsCollapseOpen, setRenderViewLayoutKey, isCollapseOpen } = initialChatLayout;
 
   const fileLayoutContext = useChatFileLayout({
     selectedFileId: selectedFile?.id,
@@ -97,9 +55,15 @@ export const useChatLayout = ({
 
   return {
     ...fileLayoutContext,
-    ...initialChatLayout,
-    onSetSelectedFile,
+    chatId,
+    selectedLayout,
+    renderViewLayoutKey,
+    selectedFileType: selectedFile?.type,
+    selectedFile,
+    collapseDirection,
+    isCollapseOpen,
     onCollapseFileClick,
+    onSetSelectedFile,
     animateOpenSplitter
   };
 };

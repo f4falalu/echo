@@ -79,7 +79,6 @@ export const useChatFileLayout = ({
   });
 
   return {
-    selectedFileType,
     selectedFileView,
     selectedFileViewSecondary,
     onSetFileView,

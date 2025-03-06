@@ -16,23 +16,17 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
   const reasoningMessageIds = useMessageIndividual(messageId, (x) => x?.reasoning_message_ids);
   const isCompletedStream = useMessageIndividual(messageId, (x) => x?.isCompletedStream);
 
-  useWhyDidYouUpdate('ReasoningController', {
-    hasChat,
-    reasoningMessageIds,
-    isCompletedStream,
-    chatId,
-    messageId
-  });
-
   if (!hasChat || !reasoningMessageIds)
     return (
       <>
-        NO CHAT? {hasChat ? 'true' : 'false'} {reasoningMessageIds ? 'true' : 'false'} {messageId}
+        Has chat? {hasChat ? 'true' : 'false'} Reasoning messages?{' '}
+        {reasoningMessageIds ? 'true' : 'false'} {messageId}
       </>
     );
 
   return (
     <div className="h-full flex-col space-y-2 overflow-y-auto p-5">
+      <div className="bg-red-200">HERE {reasoningMessageIds.length}</div>
       {reasoningMessageIds?.map((reasoningMessageId) => (
         <ReasoningMessageSelector
           key={reasoningMessageId}

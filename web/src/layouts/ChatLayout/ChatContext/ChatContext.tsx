@@ -9,7 +9,7 @@ import { useAutoChangeLayout } from './useAutoChangeLayout';
 import { useGetChat } from '@/api/buster_rest/chats';
 import { useMessageIndividual } from '@/context/Chats';
 
-export const useChatIndividualContext = ({
+const useChatIndividualContext = ({
   chatId,
   selectedFile,
   onSetSelectedFile
@@ -71,11 +71,25 @@ const IndividualChatContext = createContext<ReturnType<typeof useChatIndividualC
 
 export const ChatContextProvider = React.memo(
   ({
-    value,
+    chatId,
+    selectedFile,
+    onSetSelectedFile,
     children
-  }: PropsWithChildren<{ value: ReturnType<typeof useChatIndividualContext> }>) => {
+  }: PropsWithChildren<{
+    chatId: string | undefined;
+    selectedFile: SelectedFile | undefined;
+    onSetSelectedFile: (file: SelectedFile) => void;
+  }>) => {
+    const useChatContextValue = useChatIndividualContext({
+      chatId,
+      selectedFile,
+      onSetSelectedFile
+    });
+
     return (
-      <IndividualChatContext.Provider value={value}>{children}</IndividualChatContext.Provider>
+      <IndividualChatContext.Provider value={useChatContextValue}>
+        {children}
+      </IndividualChatContext.Provider>
     );
   }
 );

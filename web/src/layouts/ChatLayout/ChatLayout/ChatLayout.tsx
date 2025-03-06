@@ -1,58 +1,52 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { AppSplitter, AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
 import { ChatContainer } from '../ChatContainer';
 import { FileContainer } from '../FileContainer';
 import { ChatLayoutContextProvider } from '../ChatLayoutContext';
 import { useChatLayout } from '../ChatLayoutContext';
-import { useDefaultSplitterLayout, useSelectedFileByParams } from '../hooks';
-import { ChatContextProvider, useChatIndividualContext } from '../ChatContext/ChatContext';
+import { ChatContextProvider } from '../ChatContext/ChatContext';
 import { DEFAULT_CHAT_OPTION_SIDEBAR_SIZE } from '../ChatLayoutContext/config';
 
 interface ChatSplitterProps {
-  showChatCollapse?: boolean;
   children?: React.ReactNode;
 }
 
 export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(({ children }) => {
   const appSplitterRef = useRef<AppSplitterRef>(null);
 
-  const { selectedFile, selectedLayout, chatId } = useSelectedFileByParams();
+  const useChatLayoutProps = useChatLayout({ appSplitterRef });
+  const { renderViewLayoutKey, selectedLayout, selectedFile, onSetSelectedFile, chatId } =
+    useChatLayoutProps;
 
-  const defaultSplitterLayout = useDefaultSplitterLayout({ selectedLayout });
+  const defaultSplitterLayout = useMemo(() => {
+    if (selectedLayout === 'chat') return ['100%', '0%'];
+    if (selectedLayout === 'file') return ['0%', '100%'];
+    return ['325px', 'auto'];
+  }, [selectedLayout]);
 
-  const useChatLayoutProps = useChatLayout({
-    appSplitterRef,
-    selectedFile,
-    selectedLayout,
-    chatId
-  });
-  const { renderViewLayoutKey, onSetSelectedFile } = useChatLayoutProps;
+  const rightHidden = renderViewLayoutKey === 'chat';
+  const leftHidden = renderViewLayoutKey === 'file';
 
-  const useChatContextValue = useChatIndividualContext({
-    chatId,
-    selectedFile,
-    onSetSelectedFile
-  });
-
-  const { hasFile } = useChatContextValue;
-
-  console.log('renderViewLayoutKey', renderViewLayoutKey);
+  console.log({ leftHidden, rightHidden });
 
   return (
     <ChatLayoutContextProvider useChatLayoutProps={useChatLayoutProps}>
-      <ChatContextProvider value={useChatContextValue}>
+      <ChatContextProvider
+        chatId={chatId}
+        selectedFile={selectedFile}
+        onSetSelectedFile={onSetSelectedFile}>
         <AppSplitter
           ref={appSplitterRef}
           leftChildren={<ChatContainer />}
-          rightChildren={<FileContainer>{children || <div>No children?</div>}</FileContainer>}
+          rightChildren={<FileContainer>{children}</FileContainer>}
           autoSaveId="chat-splitter"
           defaultLayout={defaultSplitterLayout}
-          rightHidden={false}
-          leftHidden={renderViewLayoutKey === 'file'}
+          rightHidden={rightHidden}
+          leftHidden={leftHidden}
           preserveSide="left"
-          leftPanelMinSize={hasFile ? DEFAULT_CHAT_OPTION_SIDEBAR_SIZE : undefined}
+          leftPanelMinSize={selectedFile ? DEFAULT_CHAT_OPTION_SIDEBAR_SIZE : undefined}
         />
       </ChatContextProvider>
     </ChatLayoutContextProvider>

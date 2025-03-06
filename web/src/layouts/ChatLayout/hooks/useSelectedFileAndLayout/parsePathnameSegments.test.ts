@@ -1,4 +1,4 @@
-import { parsePathnameSegments } from './useDefaultFile';
+import { parsePathnameSegments } from './parsePathnameSegments';
 
 describe('parsePathnameSegments', () => {
   it('should parse chat with reasoning pathname correctly', () => {
