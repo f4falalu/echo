@@ -29,8 +29,6 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
   const rightHidden = renderViewLayoutKey === 'chat';
   const leftHidden = renderViewLayoutKey === 'file';
 
-  console.log(children);
-
   return (
     <ChatLayoutContextProvider useChatLayoutProps={useChatLayoutProps}>
       <ChatContextProvider
@@ -43,7 +41,7 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
           rightChildren={<FileContainer>{children}</FileContainer>}
           autoSaveId="chat-splitter"
           defaultLayout={defaultSplitterLayout}
-          rightHidden={false}
+          rightHidden={rightHidden}
           leftHidden={leftHidden}
           preserveSide="left"
           leftPanelMinSize={selectedFile ? DEFAULT_CHAT_OPTION_SIDEBAR_SIZE : undefined}

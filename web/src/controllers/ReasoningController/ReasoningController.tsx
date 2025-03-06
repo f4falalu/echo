@@ -3,7 +3,6 @@
 import React from 'react';
 import { useChatIndividualContextSelector } from '@chatLayout/ChatContext';
 import { useMessageIndividual } from '@/context/Chats';
-import { useWhyDidYouUpdate } from 'ahooks';
 import { ReasoningMessageSelector } from './ReasoningMessages';
 
 interface ReasoningControllerProps {
@@ -17,16 +16,10 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
   const isCompletedStream = useMessageIndividual(messageId, (x) => x?.isCompletedStream);
 
   if (!hasChat || !reasoningMessageIds)
-    return (
-      <>
-        Has chat? {hasChat ? 'true' : 'false'} Reasoning messages?{' '}
-        {reasoningMessageIds ? 'true' : 'false'} {messageId}
-      </>
-    );
+    return <>If you are seeing this there is probably an error...</>;
 
   return (
     <div className="h-full flex-col space-y-2 overflow-y-auto p-5">
-      <div className="bg-red-200">HERE {reasoningMessageIds.length}</div>
       {reasoningMessageIds?.map((reasoningMessageId) => (
         <ReasoningMessageSelector
           key={reasoningMessageId}

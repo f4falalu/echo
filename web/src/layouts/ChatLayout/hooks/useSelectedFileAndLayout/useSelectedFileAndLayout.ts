@@ -50,7 +50,7 @@ export const useSelectedFileAndLayout = ({
 
     setRenderViewLayoutKey('both');
     setSelectedFile(file);
-    onChangePage(route);
+    await onChangePage(route);
 
     startTransition(() => {
       animateOpenSplitter('both');
