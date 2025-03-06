@@ -19,7 +19,7 @@ export const Avatar: React.FC<AvatarProps> = React.memo(
     const nameLetters = hasName ? createNameLetters(name, image) : '';
 
     return (
-      <Tooltip title={useToolTip ? nameLetters : ''}>
+      <Tooltip delayDuration={550} title={useToolTip ? name || '' : ''}>
         <AvatarBase
           className={className}
           style={{
