@@ -614,6 +614,12 @@ fn create_invitation_email_type(
             thread_name: asset_name,
             thread_id: asset_id,
         }),
+        _ => EmailType::ThreadInvite(ThreadInvite {
+            inviter_name,
+            new_user,
+            thread_name: asset_name,
+            thread_id: asset_id,
+        }),
     };
 
     email_type
@@ -672,6 +678,9 @@ async fn get_asset_name(asset_id: Arc<Uuid>, asset_type: AssetType) -> Result<St
                     return Err(anyhow!("Error getting asset name: {}", e));
                 }
             }
+        }
+        AssetType::Chat => {
+            return Err(anyhow!("Public access is not supported for chats yet"));
         }
     };
 

@@ -283,6 +283,7 @@ pub async fn get_user_dashboard_permission(
             AssetPermissionRole::Owner => 3,
             AssetPermissionRole::Editor => 2,
             AssetPermissionRole::Viewer => 1,
+            _ => 0,
         })
         .ok_or_else(|| anyhow!("No dashboard found with permissions"))?;
 

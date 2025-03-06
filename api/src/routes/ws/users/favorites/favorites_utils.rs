@@ -158,6 +158,7 @@ pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<Favorit
                     favorites.push(FavoriteEnum::Object(thread.clone()));
                 }
             }
+            _ => {}
         }
     }
 
