@@ -3,6 +3,7 @@ use chrono::Utc;
 use diesel::{update, ExpressionMethods};
 use diesel_async::RunQueryDsl;
 
+use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -34,7 +35,7 @@ pub struct DeleteCollectionResponse {
     pub ids: Vec<Uuid>,
 }
 
-pub async fn delete_collection(user: &User, req: DeleteCollectionRequest) -> Result<()> {
+pub async fn delete_collection(user: &AuthenticatedUser, req: DeleteCollectionRequest) -> Result<()> {
     let response = match delete_collection_handler(&user, req.ids).await {
         Ok(response) => response,
         Err(e) => {
@@ -67,7 +68,7 @@ pub async fn delete_collection(user: &User, req: DeleteCollectionRequest) -> Res
 }
 
 async fn delete_collection_handler(
-    user: &User,
+    user: &AuthenticatedUser,
     ids: Vec<Uuid>,
 ) -> Result<DeleteCollectionResponse> {
     let roles = match get_bulk_user_collection_permission(&user.id, &ids).await {

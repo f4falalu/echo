@@ -4,6 +4,7 @@ use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl};
 use diesel_async::RunQueryDsl;
 use serde::Serialize;
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use crate::{
     database::{
@@ -42,7 +43,7 @@ pub struct GetDatasetResponse {
 }
 
 pub async fn get_dataset(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(dataset_id): Path<Uuid>,
 ) -> Result<ApiResponse<GetDatasetResponse>, (axum::http::StatusCode, &'static str)> {
     match get_dataset_handler(&dataset_id, &user).await {
@@ -57,7 +58,7 @@ pub async fn get_dataset(
     }
 }
 
-async fn get_dataset_handler(dataset_id: &Uuid, user: &User) -> Result<GetDatasetResponse> {
+async fn get_dataset_handler(dataset_id: &Uuid, user: &AuthenticatedUser) -> Result<GetDatasetResponse> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => return Err(anyhow!("Unable to get connection from pool: {}", e)),

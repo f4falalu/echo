@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Result};
 use indexmap::IndexMap;
+use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
@@ -43,7 +44,7 @@ pub struct GetMessageDataRequest {
     pub id: Uuid,
 }
 
-pub async fn get_message_data(user: &User, req: GetMessageDataRequest) -> Result<()> {
+pub async fn get_message_data(user: &AuthenticatedUser, req: GetMessageDataRequest) -> Result<()> {
     let (message, _) = match get_message_with_permission(&req.id, &user.id).await {
         Ok(res) => res,
         Err(e) => {
@@ -94,7 +95,7 @@ pub async fn get_message_data(user: &User, req: GetMessageDataRequest) -> Result
 
 async fn send_fetching_data_in_progress_to_sub(
     subscription: &String,
-    user: &User,
+    user: &AuthenticatedUser,
     thread_id: &Uuid,
     message_id: &Uuid,
     sql: &String,
@@ -127,7 +128,7 @@ async fn send_fetching_data_in_progress_to_sub(
 
 async fn fetch_data_handler(
     subscription: &String,
-    user: &User,
+    user: &AuthenticatedUser,
     sql: &String,
     dataset_id: &Uuid,
     thread_id: &Uuid,

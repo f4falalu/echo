@@ -14,9 +14,10 @@ use database::schema::api_keys;
 use database::schema::users;
 use crate::routes::rest::ApiResponse;
 use super::list_api_keys::ApiKeyInfo;
+use middleware::AuthenticatedUser;
 
 pub async fn get_api_key(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(api_key_id): Path<Uuid>,
 ) -> Result<ApiResponse<ApiKeyInfo>, (StatusCode, &'static str)> {
     let api_key = match get_api_key_handler(user, api_key_id).await {
@@ -30,7 +31,7 @@ pub async fn get_api_key(
     Ok(ApiResponse::JsonData(api_key))
 }
 
-async fn get_api_key_handler(user: User, api_key_id: Uuid) -> Result<ApiKeyInfo> {
+async fn get_api_key_handler(user: AuthenticatedUser, api_key_id: Uuid) -> Result<ApiKeyInfo> {
     let mut conn = get_pg_pool().get().await?;
 
     let (api_key, email): (ApiKey, String) = api_keys::table

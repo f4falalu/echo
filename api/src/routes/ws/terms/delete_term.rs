@@ -7,9 +7,6 @@ use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use database::{pool::get_pg_pool,
-        models::User,
-        schema::terms,};
 use crate::{
     routes::ws::{
         ws::{WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
@@ -18,6 +15,8 @@ use crate::{
     },
     utils::clients::sentry_utils::send_sentry_error,
 };
+use database::{models::User, pool::get_pg_pool, schema::terms};
+use middleware::AuthenticatedUser;
 
 use super::terms_router::{TermEvent, TermRoute};
 
@@ -31,7 +30,7 @@ pub struct DeleteTermResponse {
     pub ids: Vec<Uuid>,
 }
 
-pub async fn delete_term(user: &User, req: DeleteTermRequest) -> Result<()> {
+pub async fn delete_term(user: &AuthenticatedUser, req: DeleteTermRequest) -> Result<()> {
     let deleted_term_ids = match delete_term_handler(req.ids).await {
         Ok(ids) => ids,
         Err(e) => {

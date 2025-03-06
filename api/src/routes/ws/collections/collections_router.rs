@@ -4,7 +4,7 @@ use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use database::models::User;
+use middleware::AuthenticatedUser;
 
 use crate::routes::ws::ws::SubscriptionRwLock;
 
@@ -44,7 +44,7 @@ pub async fn collections_router(
     data: Value,
     subscriptions: &Arc<SubscriptionRwLock>,
     user_group: &String,
-    user: &User,
+    user: &AuthenticatedUser,
 ) -> Result<()> {
     match route {
         CollectionRoute::List => {

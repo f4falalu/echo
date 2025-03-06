@@ -6,9 +6,10 @@ use axum::Extension;
 use handlers::chats::get_chat_handler;
 use handlers::chats::types::ChatWithMessages;
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 pub async fn get_chat_route(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(id): Path<Uuid>,
 ) -> Result<ApiResponse<ChatWithMessages>, (StatusCode, &'static str)> {
     let thread_with_messages = match get_chat_handler(&id, &user.id).await {

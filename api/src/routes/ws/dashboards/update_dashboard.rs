@@ -5,6 +5,7 @@ use diesel_async::RunQueryDsl;
 use serde_json::Value;
 use std::sync::Arc;
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use serde::{Deserialize, Serialize};
 
@@ -59,7 +60,7 @@ pub struct UpdateDashboardRequest {
 pub async fn update_dashboard(
     subscriptions: &Arc<SubscriptionRwLock>,
     user_group: &String,
-    user: &User,
+    user: &AuthenticatedUser,
     req: UpdateDashboardRequest,
 ) -> Result<()> {
     println!("Request received in update_dashboard: {:?}", req);

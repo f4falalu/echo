@@ -4,6 +4,7 @@ use anyhow::{anyhow, Result};
 use async_compression::tokio::write::GzipEncoder;
 use diesel::{ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use redis::{streams::StreamMaxlen, AsyncCommands};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -314,7 +315,7 @@ pub async fn send_error_message(
     event: WsEvent,
     code: WsErrorCode,
     message: String,
-    user: &User,
+    user: &AuthenticatedUser,
 ) -> Result<()> {
     let error = WsError {
         code,

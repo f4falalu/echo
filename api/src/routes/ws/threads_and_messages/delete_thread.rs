@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use database::{pool::get_pg_pool,
         models::User,
@@ -32,7 +33,7 @@ pub struct DeleteThreadRes {
 
 pub async fn delete_thread(
     subscriptions: &Arc<SubscriptionRwLock>,
-    user: &User,
+    user: &AuthenticatedUser,
     req: DeleteThreadRequest,
 ) -> Result<()> {
     let mut delete_tasks = Vec::new();
@@ -125,7 +126,7 @@ pub async fn delete_thread(
 }
 
 async fn delete_thread_handler(
-    user: &User,
+    user: &AuthenticatedUser,
     id: &Uuid,
 ) -> Result<tokio::task::JoinHandle<Result<DeleteThreadRes>>> {
     let mut conn = get_pg_pool().get().await.map_err(|e| {

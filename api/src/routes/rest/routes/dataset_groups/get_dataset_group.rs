@@ -13,9 +13,10 @@ use database::models::{DatasetGroup, User};
 use database::schema::dataset_groups;
 use crate::routes::rest::ApiResponse;
 use super::list_dataset_groups::DatasetGroupInfo;
+use middleware::AuthenticatedUser;
 
 pub async fn get_dataset_group(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(dataset_group_id): Path<Uuid>,
 ) -> Result<ApiResponse<DatasetGroupInfo>, (StatusCode, &'static str)> {
     let dataset_group = match get_dataset_group_handler(dataset_group_id).await {

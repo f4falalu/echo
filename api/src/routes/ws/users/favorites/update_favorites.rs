@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Result};
+use middleware::AuthenticatedUser;
 use serde::Deserialize;
 use uuid::Uuid;
 
@@ -20,7 +21,7 @@ pub struct UpdateFavoritesReq {
     pub favorites: Vec<Uuid>,
 }
 
-pub async fn update_favorites_route(user: &User, req: UpdateFavoritesReq) -> Result<()> {
+pub async fn update_favorites_route(user: &AuthenticatedUser, req: UpdateFavoritesReq) -> Result<()> {
     let user_favorites = match update_favorite_handler(&user, &req.favorites).await {
         Ok(res) => res,
         Err(e) => {
@@ -62,7 +63,7 @@ pub async fn update_favorites_route(user: &User, req: UpdateFavoritesReq) -> Res
     Ok(())
 }
 
-async fn update_favorite_handler(user: &User, favorites: &Vec<Uuid>) -> Result<Vec<FavoriteEnum>> {
+async fn update_favorite_handler(user: &AuthenticatedUser, favorites: &Vec<Uuid>) -> Result<Vec<FavoriteEnum>> {
     match update_favorites(user, &favorites).await {
         Ok(_) => (),
         Err(e) => return Err(e),

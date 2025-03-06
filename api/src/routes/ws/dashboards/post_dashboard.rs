@@ -5,6 +5,7 @@ use diesel_async::RunQueryDsl;
 use serde_json::json;
 use std::sync::Arc;
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use serde::{Deserialize, Serialize};
 
@@ -33,7 +34,7 @@ pub struct PostDashboardRequest {
 pub async fn post_dashboard(
     subscriptions: &Arc<SubscriptionRwLock>,
     user_group: &String,
-    user: &User,
+    user: &AuthenticatedUser,
     req: PostDashboardRequest,
 ) -> Result<()> {
     let dashboard_id = Uuid::new_v4();
@@ -110,7 +111,7 @@ pub async fn post_dashboard(
 }
 
 async fn create_dashboad_handler(
-    user: &User,
+    user: &AuthenticatedUser,
     dashboard_id: &Uuid,
     req: PostDashboardRequest,
 ) -> Result<Dashboard> {

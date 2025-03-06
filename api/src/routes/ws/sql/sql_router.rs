@@ -1,9 +1,8 @@
-
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use database::models::User;
+use middleware::AuthenticatedUser;
 
 use super::run_sql::run_sql;
 
@@ -19,14 +18,10 @@ pub enum SqlEvent {
     RunSql,
 }
 
-pub async fn sql_router(route: SqlRoute, data: Value, user: &User) -> Result<()> {
+pub async fn sql_router(route: SqlRoute, data: Value, user: &AuthenticatedUser) -> Result<()> {
     match route {
         SqlRoute::Run => {
-            let req = match serde_json::from_value(data) {
-                Ok(req) => req,
-                Err(e) => return Err(anyhow!("Error parsing request: {}", e)),
-            };
-
+            let req = serde_json::from_value(data)?;
             run_sql(user, req).await?;
         }
     };

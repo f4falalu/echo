@@ -5,6 +5,7 @@ use diesel_async::RunQueryDsl;
 use indexmap::IndexMap;
 use serde::Serialize;
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use crate::{
     database::{
@@ -31,7 +32,7 @@ pub struct GetDatasetDataSource {
 }
 
 pub async fn get_dataset_data_sample(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(dataset_id): Path<Uuid>,
 ) -> Result<ApiResponse<Vec<IndexMap<String, DataType>>>, (axum::http::StatusCode, &'static str)> {
     match get_dataset_data_sample_handler(&dataset_id, &user).await {
@@ -48,7 +49,7 @@ pub async fn get_dataset_data_sample(
 
 async fn get_dataset_data_sample_handler(
     dataset_id: &Uuid,
-    user: &User,
+    user: &AuthenticatedUser,
 ) -> Result<Vec<IndexMap<String, DataType>>> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,

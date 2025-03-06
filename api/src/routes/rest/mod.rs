@@ -1,12 +1,12 @@
 use axum::{
     body::Body,
     http::{Response, StatusCode},
-    middleware,
+    middleware as axum_middleware,
     response::IntoResponse,
     Json, Router,
 };
 
-use crate::buster_middleware::auth::auth;
+use middleware::auth;
 
 mod routes;
 mod webhooks;
@@ -15,7 +15,7 @@ pub fn router() -> Router {
     Router::new().nest("/", routes::router()).merge(
         Router::new()
             .nest("/webhooks", webhooks::router())
-            .route_layer(middleware::from_fn(auth)),
+            .route_layer(axum_middleware::from_fn(auth)),
     )
 }
 

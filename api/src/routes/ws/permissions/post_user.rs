@@ -14,6 +14,7 @@ use crate::{
     },
     utils::{clients::sentry_utils::send_sentry_error, user::user_info::get_user_organization_id},
 };
+use middleware::AuthenticatedUser;
 use database::{
     enums::{SharingSetting, UserOrganizationRole, UserOrganizationStatus},
     models::{User, UserConfig, UserToOrganization},
@@ -32,7 +33,7 @@ pub struct PostUserRequest {
     pub role: UserOrganizationRole,
 }
 
-pub async fn post_user(user: &User, req: PostUserRequest) -> Result<()> {
+pub async fn post_user(user: &AuthenticatedUser, req: PostUserRequest) -> Result<()> {
     let permission_group_state = match post_user_handler(&user.id, req.email, req.role).await {
         Ok(state) => state,
         Err(e) => {

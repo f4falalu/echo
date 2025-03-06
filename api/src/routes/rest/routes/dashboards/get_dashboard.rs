@@ -6,9 +6,10 @@ use axum::Extension;
 use handlers::files::dashboard_files::get_dashboard::get_dashboard;
 use handlers::files::dashboard_files::BusterDashboardResponse;
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 pub async fn get_dashboard_rest_handler(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(id): Path<Uuid>,
 ) -> Result<ApiResponse<BusterDashboardResponse>, (StatusCode, &'static str)> {
     let dashboard = match get_dashboard(&id, &user.id).await {

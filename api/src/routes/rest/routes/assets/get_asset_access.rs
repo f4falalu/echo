@@ -8,6 +8,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use axum::extract::Path;
+use middleware::AuthenticatedUser;
 use axum::http::StatusCode;
 
 use database::enums::{AssetPermissionRole, AssetType, UserOrganizationRole};
@@ -22,7 +23,7 @@ use crate::utils::user::user_info::get_user_organization_id;
 
 pub async fn get_asset_access(
     Path((asset_type, asset_id)): Path<(AssetType, uuid::Uuid)>,
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
 ) -> Result<ApiResponse<AssetRecord>, (StatusCode, &'static str)> {
     let asset_record = match get_asset_access_handler(&user, asset_type, asset_id).await {
         Ok(asset_record) => asset_record,
@@ -47,7 +48,7 @@ pub struct AssetRecord {
 }
 
 async fn get_asset_access_handler(
-    user: &User,
+    user: &AuthenticatedUser,
     asset_type: AssetType,
     asset_id: uuid::Uuid,
 ) -> anyhow::Result<AssetRecord> {

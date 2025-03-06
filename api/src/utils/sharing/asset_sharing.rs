@@ -31,6 +31,7 @@ use crate::{
         sentry_utils::send_sentry_error,
     },
 };
+use middleware::AuthenticatedUser;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ShareWithTeamsReqObject {
@@ -68,7 +69,7 @@ pub struct IndividualPermission {
 }
 
 pub async fn update_asset_permissions(
-    user: Arc<User>,
+    user: Arc<AuthenticatedUser>,
     asset_id: Arc<Uuid>,
     asset_type: AssetType,
     team_permissions: Option<Vec<ShareWithTeamsReqObject>>,
@@ -377,7 +378,7 @@ async fn grant_user_access_to_asset(
     user_permissions: &Vec<ShareWithUsersReqObject>,
     asset_id: Arc<Uuid>,
     asset_type: AssetType,
-    user: Arc<User>,
+    user: Arc<AuthenticatedUser>,
 ) -> Result<()> {
     let mut asset_permissions = Vec::new();
 
@@ -523,7 +524,7 @@ async fn asset_notification_and_invites(
     existing_users: HashSet<String>,
     asset_id: Arc<Uuid>,
     asset_type: AssetType,
-    user: Arc<User>,
+    user: Arc<AuthenticatedUser>,
 ) -> () {
     let asset_name = match get_asset_name(asset_id.clone(), asset_type).await {
         Ok(name) => name,

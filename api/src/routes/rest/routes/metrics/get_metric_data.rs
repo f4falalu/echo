@@ -5,6 +5,7 @@ use axum::Extension;
 use database::models::User;
 use handlers::metrics::get_metric_data_handler::{GetMetricDataRequest, MetricDataResponse};
 use serde::Deserialize;
+use middleware::AuthenticatedUser;
 use uuid::Uuid;
 
 #[derive(Deserialize)]
@@ -13,7 +14,7 @@ pub struct GetMetricDataParams {
 }
 
 pub async fn get_metric_data_rest_handler(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(metric_id): Path<Uuid>,
     Query(params): Query<GetMetricDataParams>,
 ) -> Result<ApiResponse<MetricDataResponse>, (StatusCode, &'static str)> {

@@ -2,6 +2,7 @@ use anyhow::{anyhow, Result};
 use chrono::Utc;
 use diesel::{update, ExpressionMethods};
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use serde::Deserialize;
 use uuid::Uuid;
 
@@ -25,7 +26,7 @@ pub struct CreateFavoriteReq {
     pub id: Uuid,
 }
 
-pub async fn delete_favorite(user: &User, req: CreateFavoriteReq) -> Result<()> {
+pub async fn delete_favorite(user: &AuthenticatedUser, req: CreateFavoriteReq) -> Result<()> {
     let create_favorite_res = match delete_favorite_handler(&user, &req.id).await {
         Ok(res) => res,
         Err(e) => {
@@ -67,7 +68,7 @@ pub async fn delete_favorite(user: &User, req: CreateFavoriteReq) -> Result<()> 
     Ok(())
 }
 
-async fn delete_favorite_handler(user: &User, id: &Uuid) -> Result<Vec<FavoriteEnum>> {
+async fn delete_favorite_handler(user: &AuthenticatedUser, id: &Uuid) -> Result<Vec<FavoriteEnum>> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => return Err(anyhow!("Error getting connection from pool: {:?}", e)),

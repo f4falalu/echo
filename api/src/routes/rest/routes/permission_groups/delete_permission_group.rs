@@ -11,9 +11,10 @@ use database::schema::permission_groups;
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
 use crate::utils::user::user_info::get_user_organization_id;
+use middleware::AuthenticatedUser;
 
 pub async fn delete_permission_group(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(permission_group_id): Path<Uuid>,
 ) -> Result<ApiResponse<()>, (StatusCode, &'static str)> {
     // Check if user is workspace admin or data admin
@@ -46,7 +47,7 @@ pub async fn delete_permission_group(
     }
 }
 
-async fn delete_permission_group_handler(user: User, permission_group_id: Uuid) -> Result<()> {
+async fn delete_permission_group_handler(user: AuthenticatedUser, permission_group_id: Uuid) -> Result<()> {
     let mut conn = get_pg_pool().get().await?;
     let organization_id = get_user_organization_id(&user.id).await?;
 

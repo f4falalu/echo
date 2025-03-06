@@ -21,8 +21,9 @@ use super::permissions_utils::{get_team_permission_group_state, TeamPermissionGr
 pub struct GetTeamPermissionsReq {
     pub id: Uuid,
 }
+use middleware::AuthenticatedUser;
 
-pub async fn get_team_permissions(user: &User, req: GetTeamPermissionsReq) -> Result<()> {
+pub async fn get_team_permissions(user: &AuthenticatedUser, req: GetTeamPermissionsReq) -> Result<()> {
     let team_permission_group_state = match get_team_permissions_handler(&req.id).await {
         Ok(state) => state,
         Err(e) => {

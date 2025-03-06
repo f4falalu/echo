@@ -12,6 +12,7 @@ use database::models::{ApiKey, User};
 use database::schema::api_keys;
 use crate::routes::rest::ApiResponse;
 use database::schema::users;
+use middleware::AuthenticatedUser;
 
 #[derive(Debug, Serialize)]
 pub struct ApiKeyInfo {
@@ -27,7 +28,7 @@ pub struct ListApiKeysResponse {
 }
 
 pub async fn list_api_keys(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
 ) -> Result<ApiResponse<ListApiKeysResponse>, (StatusCode, &'static str)> {
     let api_keys = match list_api_keys_handler(user).await {
         Ok(keys) => keys,
@@ -40,7 +41,7 @@ pub async fn list_api_keys(
     Ok(ApiResponse::JsonData(ListApiKeysResponse { api_keys }))
 }
 
-async fn list_api_keys_handler(user: User) -> Result<Vec<ApiKeyInfo>> {
+async fn list_api_keys_handler(user: AuthenticatedUser) -> Result<Vec<ApiKeyInfo>> {
     let mut conn = get_pg_pool().get().await?;
 
     let api_keys: Vec<(ApiKey, String)> = api_keys::table

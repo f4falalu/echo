@@ -20,8 +20,9 @@ use super::permissions_utils::{get_user_permission_group_state, UserPermissionGr
 pub struct GetUserPermissionsReq {
     pub id: Uuid,
 }
+use middleware::AuthenticatedUser;
 
-pub async fn get_user_permissions(user: &User, req: GetUserPermissionsReq) -> Result<()> {
+pub async fn get_user_permissions(user: &AuthenticatedUser, req: GetUserPermissionsReq) -> Result<()> {
     let user_permission_group_state = match get_user_permissions_handler(&req.id).await {
         Ok(state) => state,
         Err(e) => {

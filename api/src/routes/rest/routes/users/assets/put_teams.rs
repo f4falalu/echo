@@ -16,6 +16,7 @@ use database::schema::teams_to_users;
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
 use crate::utils::user::user_info::get_user_organization_id;
+use middleware::AuthenticatedUser;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -32,7 +33,7 @@ pub struct TeamAssignment {
 }
 
 pub async fn put_teams(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(user_id): Path<Uuid>,
     Json(assignments): Json<Vec<TeamAssignment>>,
 ) -> Result<ApiResponse<()>, (StatusCode, &'static str)> {
@@ -46,7 +47,7 @@ pub async fn put_teams(
 }
 
 async fn put_teams_handler(
-    user: User,
+    user: AuthenticatedUser,
     user_id: Uuid,
     assignments: Vec<TeamAssignment>,
 ) -> Result<()> {

@@ -10,6 +10,7 @@ use database::{enums::{IdentityType, SharingSetting, TeamToUserRole},
         pool::get_pg_pool,
         models::{PermissionGroupToIdentity, TeamToUser, User},
         schema::{permission_groups_to_identities, teams, teams_to_users},};
+        use middleware::AuthenticatedUser;
 use crate::{
     routes::ws::{
         permissions::permissions_router::{PermissionEvent, PermissionRoute},
@@ -49,7 +50,7 @@ pub struct UpdateTeamPermissionRequest {
     pub users: Option<Vec<TeamUser>>,
 }
 
-pub async fn update_team_permission(user: &User, req: UpdateTeamPermissionRequest) -> Result<()> {
+pub async fn update_team_permission(user: &AuthenticatedUser, req: UpdateTeamPermissionRequest) -> Result<()> {
     let team_permission_state = match update_team_permission_handler(
         &user.id,
         &req.id,

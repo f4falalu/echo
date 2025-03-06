@@ -5,6 +5,7 @@ use diesel_async::RunQueryDsl;
 use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
+use middleware::AuthenticatedUser;
 
 use database::{pool::get_pg_pool,
         models::{Term, User},
@@ -39,7 +40,7 @@ pub struct TermListItem {
     pub created_by: TermCreator,
 }
 
-pub async fn list_terms(user: &User, req: ListTermsRequest) -> Result<()> {
+pub async fn list_terms(user: &AuthenticatedUser, req: ListTermsRequest) -> Result<()> {
     let list_terms_res = match list_terms_handler(&user.id, req).await {
         Ok(res) => res,
         Err(e) => {

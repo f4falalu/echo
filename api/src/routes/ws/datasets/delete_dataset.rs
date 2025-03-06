@@ -4,6 +4,7 @@ use diesel::{update, ExpressionMethods};
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use database::{pool::get_pg_pool,
         models::User,
@@ -28,7 +29,7 @@ pub struct DeleteDatasetResponse {
     pub ids: Vec<Uuid>,
 }
 
-pub async fn delete_dataset(user: &User, req: DeleteDatasetRequest) -> Result<()> {
+pub async fn delete_dataset(user: &AuthenticatedUser, req: DeleteDatasetRequest) -> Result<()> {
     let response = match delete_dataset_handler(req.ids).await {
         Ok(response) => response,
         Err(e) => {

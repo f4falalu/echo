@@ -10,6 +10,7 @@ use database::{enums::IdentityType,
         pool::get_pg_pool,
         models::{DatasetToPermissionGroup, User},
         schema::{datasets_to_permission_groups, permission_groups},};
+        use middleware::AuthenticatedUser;
 use crate::{
     routes::ws::{
         permissions::permissions_router::{PermissionEvent, PermissionRoute},
@@ -43,7 +44,7 @@ pub struct UpdatePermissionGroupRequest {
     pub users: Option<Vec<Uuid>>,
 }
 
-pub async fn update_permission_group(user: &User, req: UpdatePermissionGroupRequest) -> Result<()> {
+pub async fn update_permission_group(user: &AuthenticatedUser, req: UpdatePermissionGroupRequest) -> Result<()> {
     let permission_group_state = match update_permission_group_handler(
         &user.id,
         &req.id,

@@ -4,6 +4,7 @@ use diesel::{insert_into, BoolExpressionMethods, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use uuid::Uuid;
 
+use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -39,7 +40,7 @@ pub struct PostDataSourceReq {
     pub credentials: Credential,
 }
 
-pub async fn post_data_source(user: &User, req: PostDataSourceReq) -> Result<()> {
+pub async fn post_data_source(user: &AuthenticatedUser, req: PostDataSourceReq) -> Result<()> {
     match test_data_source_connection(&req.type_, &req.credentials).await {
         Ok(_) => (),
         Err(e) => {

@@ -14,7 +14,7 @@ use crate::routes::ws::threads_and_messages::post_thread::{
 use crate::tests::common::{db::TestDb, env::setup_test_env};
 use crate::utils::clients::ai::litellm::Message as AgentMessage;
 
-async fn setup_test_thread(test_db: &TestDb, user: &User) -> Result<(Thread, Message)> {
+async fn setup_test_thread(test_db: &TestDb, user: &AuthenticatedUser) -> Result<(Thread, Message)> {
     let thread_id = Uuid::new_v4();
     let message_id = Uuid::new_v4();
 

@@ -4,6 +4,7 @@ use database::models::User;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use query_engine::data_source_helpers;
 use query_engine::data_types::DataType;
@@ -26,7 +27,7 @@ pub struct MetricDataResponse {
 /// Handler to retrieve both the metric definition and its associated data
 pub async fn get_metric_data_handler(
     request: GetMetricDataRequest,
-    user: User,
+    user: AuthenticatedUser,
 ) -> Result<MetricDataResponse> {
     tracing::info!(
         "Getting metric data for metric_id: {}, user_id: {}",

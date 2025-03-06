@@ -5,6 +5,7 @@ use diesel::{
     QueryDsl,
 };
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use serde::Deserialize;
 use std::sync::Arc;
 
@@ -64,7 +65,7 @@ pub struct UpdateThreadRequest {
 pub async fn update_thread(
     subscriptions: &Arc<SubscriptionRwLock>,
     user_group: &String,
-    user: &User,
+    user: &AuthenticatedUser,
     req: UpdateThreadRequest,
 ) -> Result<()> {
     let subscription = format!("thread:{}", req.id);

@@ -4,7 +4,7 @@ use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 
 use database::models::User;
-
+use middleware::AuthenticatedUser;
 use crate::{
     routes::ws::{
         data_sources::data_sources_router::{DataSourceEvent, DataSourceRoute},
@@ -22,7 +22,7 @@ pub struct GetDataSourceRequest {
     pub id: Uuid,
 }
 
-pub async fn get_data_source(user: &User, req: GetDataSourceRequest) -> Result<()> {
+pub async fn get_data_source(user: &AuthenticatedUser, req: GetDataSourceRequest) -> Result<()> {
     let list_data_sources_res = match get_data_source_state(&user.id, req.id).await {
         Ok(res) => res,
         Err(e) => {

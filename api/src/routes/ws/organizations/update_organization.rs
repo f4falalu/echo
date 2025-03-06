@@ -17,6 +17,7 @@ use crate::{
     },
     utils::clients::sentry_utils::send_sentry_error,
 };
+use middleware::AuthenticatedUser;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UpdateOrganizationRequest {
@@ -24,7 +25,7 @@ pub struct UpdateOrganizationRequest {
     pub name: String,
 }
 
-pub async fn update_organization(user: &User, req: UpdateOrganizationRequest) -> Result<()> {
+pub async fn update_organization(user: &AuthenticatedUser, req: UpdateOrganizationRequest) -> Result<()> {
     let org_state = match update_organization_handler(user, req.id, req.name).await {
         Ok(state) => state,
         Err(e) => {
@@ -65,7 +66,7 @@ pub async fn update_organization(user: &User, req: UpdateOrganizationRequest) ->
     Ok(())
 }
 
-async fn update_organization_handler(user: &User, id: Uuid, name: String) -> Result<()> {
+async fn update_organization_handler(user: &AuthenticatedUser, id: Uuid, name: String) -> Result<()> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => return Err(anyhow!("Error getting pg connection: {}", e)),

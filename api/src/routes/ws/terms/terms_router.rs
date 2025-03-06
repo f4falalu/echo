@@ -1,9 +1,8 @@
-
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use database::models::User;
+use middleware::AuthenticatedUser;
 
 use super::{
     delete_term::delete_term, get_term::get_term, list_terms::list_terms, post_term::post_term,
@@ -36,7 +35,7 @@ pub enum TermEvent {
 pub async fn terms_router(
     route: TermRoute,
     data: Value,
-    user: &User,
+    user: &AuthenticatedUser,
 ) -> Result<()> {
     match route {
         TermRoute::List => {

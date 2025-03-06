@@ -1,9 +1,8 @@
-
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use database::models::User;
+use middleware::AuthenticatedUser;
 
 use super::{
     delete_dataset::delete_dataset, get_dataset::get_dataset, list_datasets::list_datasets,
@@ -39,7 +38,7 @@ pub enum DatasetEvent {
     UpdateDatasetColumn,
 }
 
-pub async fn datasets_router(route: DatasetRoute, data: Value, user: &User) -> Result<()> {
+pub async fn datasets_router(route: DatasetRoute, data: Value, user: &AuthenticatedUser) -> Result<()> {
     match route {
         DatasetRoute::List => {
             let req = match serde_json::from_value(data) {

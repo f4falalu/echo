@@ -24,6 +24,7 @@ use crate::{
     },
     utils::{clients::sentry_utils::send_sentry_error, user::user_info::get_user_organization_id},
 };
+use middleware::AuthenticatedUser;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct ListPermissionGroupsFilter {
@@ -62,7 +63,7 @@ pub struct PermissionGroupInfo {
     pub belongs_to: Option<bool>,
 }
 
-pub async fn list_permission_groups(user: &User, req: ListPermissionGroupsRequest) -> Result<()> {
+pub async fn list_permission_groups(user: &AuthenticatedUser, req: ListPermissionGroupsRequest) -> Result<()> {
     let permission_groups =
         match list_permission_groups_handler(user, req.page, req.page_size, req.filters).await {
             Ok(groups) => groups,
@@ -105,7 +106,7 @@ pub async fn list_permission_groups(user: &User, req: ListPermissionGroupsReques
 }
 
 async fn list_permission_groups_handler(
-    user: &User,
+    user: &AuthenticatedUser,
     page: Option<i64>,
     page_size: Option<i64>,
     filters: Option<ListPermissionGroupsFilter>,

@@ -33,6 +33,8 @@ use database::{
     schema::{asset_permissions, messages_deprecated, threads_deprecated},
 };
 
+use middleware::AuthenticatedUser;
+
 use super::{
     thread_utils::{get_thread_state_by_id, ThreadState},
     threads_router::{ThreadEvent, ThreadRoute},
@@ -66,7 +68,7 @@ pub struct JoinThreadResponse {
 pub async fn duplicate_thread(
     subscriptions: &Arc<SubscriptionRwLock>,
     user_group: &String,
-    user: &User,
+    user: &AuthenticatedUser,
     req: DuplicateThreadRequest,
 ) -> Result<()> {
     let new_thread_id = Uuid::new_v4();
@@ -234,7 +236,7 @@ pub async fn duplicate_thread(
 
 async fn send_fetching_data_in_progress_to_sub(
     subscription: &String,
-    user: &User,
+    user: &AuthenticatedUser,
     thread_id: &Uuid,
     message_id: &Uuid,
     sql: &String,
@@ -267,7 +269,7 @@ async fn send_fetching_data_in_progress_to_sub(
 
 async fn fetch_data_handler(
     subscription: &String,
-    user: &User,
+    user: &AuthenticatedUser,
     sql: &String,
     dataset_id: &Uuid,
     thread_id: &Uuid,

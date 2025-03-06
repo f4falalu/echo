@@ -4,6 +4,7 @@ use anyhow::{anyhow, Result};
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use database::{enums::AssetPermissionRole,
         models::{StepProgress, User},};
@@ -39,7 +40,7 @@ pub struct GetDashboardRequest {
 pub async fn get_dashboard(
     subscriptions: &Arc<SubscriptionRwLock>,
     user_group: &String,
-    user: &User,
+    user: &AuthenticatedUser,
     req: GetDashboardRequest,
 ) -> Result<()> {
     let dashboard_id = req.id.clone();
@@ -168,7 +169,7 @@ pub async fn get_dashboard(
 }
 
 async fn send_dashboard_skeleton_message(
-    user: &User,
+    user: &AuthenticatedUser,
     dashboard_subscription: &String,
     dashboard_with_metrics: &DashboardState,
 ) -> Result<()> {
@@ -199,7 +200,7 @@ pub struct FetchingData {
     pub metric_id: Uuid,
 }
 
-async fn fetch_data_handler(subscription: &String, metric: &Metric, user: &User) -> Result<()> {
+async fn fetch_data_handler(subscription: &String, metric: &Metric, user: &AuthenticatedUser) -> Result<()> {
     let subscription = subscription.clone();
     let metric = metric.clone();
     let user = user.clone();

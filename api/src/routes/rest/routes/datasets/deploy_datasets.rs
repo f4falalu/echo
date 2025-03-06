@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 use serde_yaml;
 use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use crate::{
     database::{
@@ -195,7 +196,7 @@ pub struct DatasetValidationFailure {
 
 // Main API endpoint function
 pub async fn deploy_datasets(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Json(request): Json<Vec<DeployDatasetsRequest>>,
 ) -> Result<ApiResponse<DeployDatasetsResponse>, (StatusCode, String)> {
     let organization_id = match get_user_organization_id(&user.id).await {

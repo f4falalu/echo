@@ -1,7 +1,7 @@
 use anyhow::Result;
 use async_trait::async_trait;
-use database::models::User;
 use agents::AgentMessage;
+use middleware::AuthenticatedUser;
 use std::sync::Arc;
 use agents::Agent;
 
@@ -15,7 +15,7 @@ pub use dashboard_context::DashboardContextLoader;
 
 #[async_trait]
 pub trait ContextLoader {
-    async fn load_context(&self, user: &User, agent: &Arc<Agent>) -> Result<Vec<AgentMessage>>;
+    async fn load_context(&self, user: &AuthenticatedUser, agent: &Arc<Agent>) -> Result<Vec<AgentMessage>>;
 }
 
 // Validate that only one context type is provided

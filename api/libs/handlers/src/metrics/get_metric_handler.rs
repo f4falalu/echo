@@ -6,6 +6,7 @@ use diesel_async::RunQueryDsl;
 use serde_json::{json, Value};
 use serde_yaml;
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use crate::metrics::types::{
     BusterMetric, ColumnMetaData, ColumnType, DataMetadata, Dataset, MinMaxValue, SimpleType,

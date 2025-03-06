@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Result};
 use chrono::Utc;
 use diesel::{insert_into, upsert::excluded, ExpressionMethods};
+use middleware::AuthenticatedUser;
 use serde_json::json;
 use std::collections::HashSet;
 
@@ -37,7 +38,7 @@ pub struct InviteUsersRequest {
     pub team_ids: Option<Vec<Uuid>>,
 }
 
-pub async fn invite_users(user: &User, req: InviteUsersRequest) -> Result<()> {
+pub async fn invite_users(user: &AuthenticatedUser, req: InviteUsersRequest) -> Result<()> {
     match invite_users_handler(user, req).await {
         Ok(users) => users,
         Err(e) => {
@@ -66,7 +67,7 @@ pub async fn invite_users(user: &User, req: InviteUsersRequest) -> Result<()> {
     Ok(())
 }
 
-async fn invite_users_handler(user: &User, req: InviteUsersRequest) -> Result<()> {
+async fn invite_users_handler(user: &AuthenticatedUser, req: InviteUsersRequest) -> Result<()> {
     let organization = get_user_organization(&user.id).await?;
 
     let users_to_add = req

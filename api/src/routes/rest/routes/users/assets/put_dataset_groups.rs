@@ -14,6 +14,7 @@ use database::schema::dataset_groups_permissions;
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
 use crate::utils::user::user_info::get_user_organization_id;
+use middleware::AuthenticatedUser;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DatasetGroupAssignment {
@@ -22,7 +23,7 @@ pub struct DatasetGroupAssignment {
 }
 
 pub async fn put_dataset_groups(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(user_id): Path<Uuid>,
     Json(assignments): Json<Vec<DatasetGroupAssignment>>,
 ) -> Result<ApiResponse<()>, (StatusCode, &'static str)> {
@@ -39,7 +40,7 @@ pub async fn put_dataset_groups(
 }
 
 async fn put_dataset_groups_handler(
-    user: User,
+    user: AuthenticatedUser,
     user_id: Uuid,
     assignments: Vec<DatasetGroupAssignment>,
 ) -> Result<()> {

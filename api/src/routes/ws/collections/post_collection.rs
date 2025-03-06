@@ -6,6 +6,7 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use middleware::AuthenticatedUser;
 use database::{enums::{AssetPermissionRole, AssetType, IdentityType},
         pool::get_pg_pool,
         models::{AssetPermission, Collection, User},
@@ -33,7 +34,7 @@ pub struct PostCollectionRequest {
 pub async fn post_collection(
     subscriptions: &Arc<SubscriptionRwLock>,
     user_group: &String,
-    user: &User,
+    user: &AuthenticatedUser,
     req: PostCollectionRequest,
 ) -> Result<()> {
     let collection_id = Uuid::new_v4();

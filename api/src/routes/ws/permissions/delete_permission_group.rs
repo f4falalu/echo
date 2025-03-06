@@ -17,6 +17,7 @@ use crate::{
     },
     utils::clients::sentry_utils::send_sentry_error,
 };
+use middleware::AuthenticatedUser;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DeletePermissionGroupsRequest {
@@ -29,7 +30,7 @@ pub struct DeletePermissionGroupsResponse {
 }
 
 pub async fn delete_permission_group(
-    user: &User,
+    user: &AuthenticatedUser,
     req: DeletePermissionGroupsRequest,
 ) -> Result<()> {
     let deleted_ids = match delete_permission_groups_handler(&req.ids).await {

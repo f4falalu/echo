@@ -1,10 +1,9 @@
-
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use uuid::Uuid;
 
-use database::models::User;
+use middleware::AuthenticatedUser;
+use uuid::Uuid;
 
 use super::{
     delete_data_source::delete_data_source, get_data_source::get_data_source,
@@ -51,32 +50,24 @@ pub struct LeftDataSource {
     pub dashboard_id: Uuid,
 }
 
-pub async fn data_sources_router(route: DataSourceRoute, data: Value, user: &User) -> Result<()> {
+pub async fn data_sources_router(
+    route: DataSourceRoute,
+    data: Value,
+    user: &AuthenticatedUser,
+) -> Result<()> {
     match route {
         DataSourceRoute::List => {
-            let req = match serde_json::from_value(data) {
-                Ok(req) => req,
-                Err(e) => return Err(anyhow!("Error parsing request: {}", e)),
-            };
+            let req = serde_json::from_value(data)?;
 
             list_data_sources(user, req).await?;
         }
         DataSourceRoute::Get => {
-            let req = match serde_json::from_value(data) {
-                Ok(req) => req,
-                Err(e) => return Err(anyhow!("Error parsing request: {}", e)),
-            };
+            let req = serde_json::from_value(data)?;
 
             get_data_source(user, req).await?;
         }
         DataSourceRoute::Post => {
-            let req = match serde_json::from_value(data) {
-                Ok(req) => req,
-                Err(e) => {
-                    tracing::error!("Error parsing request: {}", e);
-                    return Err(anyhow!("Error parsing request: {}", e));
-                }
-            };
+            let req = serde_json::from_value(data)?;
 
             post_data_source(user, req).await?;
         }

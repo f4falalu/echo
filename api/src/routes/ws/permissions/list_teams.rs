@@ -20,6 +20,7 @@ use crate::{
     },
     utils::{clients::sentry_utils::send_sentry_error, user::user_info::get_user_organization_id},
 };
+use middleware::AuthenticatedUser;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct ListTeamsFilters {
@@ -49,7 +50,7 @@ pub struct TeamPermissionInfo {
     pub team_role: Option<TeamToUserRole>,
 }
 
-pub async fn list_teams(user: &User, req: ListTeamPermissionsRequest) -> Result<()> {
+pub async fn list_teams(user: &AuthenticatedUser, req: ListTeamPermissionsRequest) -> Result<()> {
     let page = req.page.unwrap_or(0);
     let page_size = req.page_size.unwrap_or(25);
 
@@ -95,7 +96,7 @@ pub async fn list_teams(user: &User, req: ListTeamPermissionsRequest) -> Result<
 }
 
 async fn list_team_permissions_handler(
-    user: &User,
+    user: &AuthenticatedUser,
     page: i64,
     page_size: i64,
     filters: Option<ListTeamsFilters>,

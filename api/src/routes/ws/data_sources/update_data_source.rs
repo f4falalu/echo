@@ -4,6 +4,7 @@ use diesel::{update, BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryD
 use diesel_async::RunQueryDsl;
 use uuid::Uuid;
 
+use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -36,7 +37,7 @@ pub struct UpdateDataSourceReq {
     pub credentials: Credential,
 }
 
-pub async fn update_data_source(user: &User, req: UpdateDataSourceReq) -> Result<()> {
+pub async fn update_data_source(user: &AuthenticatedUser, req: UpdateDataSourceReq) -> Result<()> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => {

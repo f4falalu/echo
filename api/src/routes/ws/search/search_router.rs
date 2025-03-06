@@ -1,9 +1,8 @@
-
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use database::models::User;
+use middleware::AuthenticatedUser;
 
 use super::search::search;
 
@@ -22,7 +21,7 @@ pub enum SearchEvent {
 pub async fn search_router(
     route: SearchRoute,
     data: Value,
-    user: &User,
+    user: &AuthenticatedUser,
 ) -> Result<()> {
     match route {
         SearchRoute::Search => {

@@ -12,6 +12,7 @@ use database::schema::permission_groups;
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
 use crate::utils::user::user_info::get_user_organization_id;
+use middleware::AuthenticatedUser;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct PermissionGroupUpdate {
@@ -20,7 +21,7 @@ pub struct PermissionGroupUpdate {
 }
 
 pub async fn put_permission_group(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Json(request): Json<Vec<PermissionGroupUpdate>>,
 ) -> Result<ApiResponse<()>, (StatusCode, &'static str)> {
     match put_permission_group_handler(user, request).await {
@@ -36,7 +37,7 @@ pub async fn put_permission_group(
 }
 
 async fn put_permission_group_handler(
-    user: User,
+    user: AuthenticatedUser,
     request: Vec<PermissionGroupUpdate>,
 ) -> Result<()> {
     let organization_id = get_user_organization_id(&user.id).await?;

@@ -3,6 +3,7 @@ use chrono::{DateTime, Utc};
 use diesel::{dsl::not, update, AsChangeset, BoolExpressionMethods, ExpressionMethods};
 use diesel_async::RunQueryDsl;
 use std::sync::Arc;
+use middleware::AuthenticatedUser;
 
 use serde::Deserialize;
 
@@ -60,7 +61,7 @@ pub struct UpdateCollectionRequest {
 pub async fn update_collection(
     subscriptions: &Arc<SubscriptionRwLock>,
     user_group: &String,
-    user: &User,
+    user: &AuthenticatedUser,
     req: UpdateCollectionRequest,
 ) -> Result<()> {
     let collection_id = req.id;

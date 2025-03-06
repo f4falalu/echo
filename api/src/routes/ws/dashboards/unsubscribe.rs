@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
 use uuid::Uuid;
-
+use middleware::AuthenticatedUser;
 use database::models::User;
 
 use crate::{
@@ -37,7 +37,7 @@ pub struct LeftDashboardResponse {
 
 pub async fn unsubscribe(
     subscriptions: &Arc<SubscriptionRwLock>,
-    user: &User,
+    user: &AuthenticatedUser,
     user_group: &String,
     req: UnsubscribeFromDashboardRequest,
 ) -> Result<()> {

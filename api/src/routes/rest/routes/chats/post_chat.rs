@@ -5,12 +5,13 @@ use axum::Json;
 use handlers::chats::post_chat_handler;
 use handlers::chats::post_chat_handler::ChatCreateNewChat;
 use handlers::chats::types::ChatWithMessages;
+use middleware::AuthenticatedUser;
 
 use crate::database::models::User;
 use crate::routes::rest::ApiResponse;
 
 pub async fn post_chat_route(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Json(request): Json<ChatCreateNewChat>,
 ) -> Result<ApiResponse<ChatWithMessages>, (StatusCode, &'static str)> {
     match post_chat_handler(request, user, None).await {

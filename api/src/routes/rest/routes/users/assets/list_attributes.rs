@@ -14,6 +14,7 @@ use database::schema::{users, users_to_organizations};
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
 use crate::utils::user::user_info::get_user_organization_id;
+use middleware::AuthenticatedUser;
 
 #[derive(Debug, Serialize)]
 pub struct AttributeInfo {
@@ -23,7 +24,7 @@ pub struct AttributeInfo {
 }
 
 pub async fn list_attributes(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(user_id): Path<Uuid>,
 ) -> Result<ApiResponse<Vec<AttributeInfo>>, (StatusCode, &'static str)> {
     let attributes = match list_attributes_handler(user, user_id).await {
@@ -40,7 +41,7 @@ pub async fn list_attributes(
     Ok(ApiResponse::JsonData(attributes))
 }
 
-async fn list_attributes_handler(user: User, user_id: Uuid) -> Result<Vec<AttributeInfo>> {
+async fn list_attributes_handler(user: AuthenticatedUser, user_id: Uuid) -> Result<Vec<AttributeInfo>> {
     let mut conn = get_pg_pool().get().await?;
 
     let organization_id = get_user_organization_id(&user_id).await?;

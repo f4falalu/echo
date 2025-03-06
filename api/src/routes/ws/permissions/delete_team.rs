@@ -15,6 +15,7 @@ use crate::{
     utils::clients::sentry_utils::send_sentry_error,
 };
 use database::{models::User, pool::get_pg_pool, schema::teams};
+use middleware::AuthenticatedUser;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DeleteTeamsRequest {
@@ -26,7 +27,7 @@ pub struct DeleteTeamsResponse {
     pub ids: Vec<Uuid>,
 }
 
-pub async fn delete_team_permission(user: &User, req: DeleteTeamsRequest) -> Result<()> {
+pub async fn delete_team_permission(user: &AuthenticatedUser, req: DeleteTeamsRequest) -> Result<()> {
     let deleted_ids = match delete_teams_handler(&req.ids).await {
         Ok(ids) => ids,
         Err(e) => {

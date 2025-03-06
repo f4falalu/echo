@@ -7,6 +7,7 @@ use diesel::{
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use database::{
     enums::{IdentityType, UserOrganizationRole},
@@ -67,7 +68,7 @@ pub struct ListDatasetObject {
 }
 
 pub async fn list_datasets(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Query(query): Query<ListDatasetsQuery>,
 ) -> Result<ApiResponse<Vec<ListDatasetObject>>, (axum::http::StatusCode, &'static str)> {
     let datasets = match list_datasets_handler(

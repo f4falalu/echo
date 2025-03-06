@@ -5,12 +5,13 @@ pub mod post_api_key;
 pub mod validate_api_key;
 
 use axum::{
-    middleware,
+    middleware as axum_middleware,
     routing::{delete, get, post},
     Router,
 };
 
-use crate::buster_middleware::auth::auth;
+
+use middleware::auth;
 
 use self::{
     delete_api_key::delete_api_key, get_api_key::get_api_key, list_api_keys::list_api_keys,
@@ -26,6 +27,6 @@ pub fn router() -> Router {
                 .route("/", get(list_api_keys))
                 .route("/:api_key_id", get(get_api_key))
                 .route("/:api_key_id", delete(delete_api_key))
-                .route_layer(middleware::from_fn(auth)),
+                .route_layer(axum_middleware::from_fn(auth)),
         )
 }

@@ -1,9 +1,8 @@
-
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use database::models::User;
+use middleware::AuthenticatedUser;
 
 use super::{
     delete_permission_group::delete_permission_group, delete_team::delete_team_permission,
@@ -65,7 +64,7 @@ pub enum PermissionEvent {
     DeletePermissionGroup,
 }
 
-pub async fn permissions_router(route: PermissionRoute, data: Value, user: &User) -> Result<()> {
+pub async fn permissions_router(route: PermissionRoute, data: Value, user: &AuthenticatedUser) -> Result<()> {
     match route {
         PermissionRoute::GetUserPermissions => {
             let req = match serde_json::from_value(data) {

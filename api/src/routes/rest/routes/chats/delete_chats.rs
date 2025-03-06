@@ -6,11 +6,12 @@ use database::models::User;
 use handlers::chats::delete_chats_handler::{ChatDeleteResult};
 use handlers::chats::delete_chats_handler;
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use crate::routes::rest::ApiResponse;
 
 pub async fn delete_chats_route(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Json(chat_ids): Json<Vec<Uuid>>,
 ) -> Result<ApiResponse<Vec<ChatDeleteResult>>, (StatusCode, &'static str)> {
     match delete_chats_handler(chat_ids, &user.id).await {

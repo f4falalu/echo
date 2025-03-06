@@ -4,6 +4,7 @@ use anyhow::Result;
 use handlers::chats::post_chat_handler::ChatCreateNewChat;
 use handlers::chats::post_chat_handler::{self, ThreadEvent};
 use handlers::chats::types::ChatWithMessages;
+use middleware::AuthenticatedUser;
 use tokio::sync::mpsc;
 
 use crate::{
@@ -20,7 +21,7 @@ use crate::{
 pub async fn post_thread(
     subscriptions: &Arc<SubscriptionRwLock>,
     user_group: &String,
-    user: &User,
+    user: &AuthenticatedUser,
     request: ChatCreateNewChat,
 ) -> Result<()> {
     let (tx, mut rx) = mpsc::channel(1000);

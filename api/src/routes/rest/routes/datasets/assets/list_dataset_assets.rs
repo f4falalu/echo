@@ -5,6 +5,7 @@ use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use serde::Serialize;
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use database::schema::users_to_organizations;
 use database::{
@@ -30,7 +31,7 @@ pub struct AssetWithAssignment {
 // TODO: When we introduce the dataset groups, this list should look for where they are included, not related to permissions.
 
 pub async fn list_assets(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path((dataset_id, permission_type)): Path<(Uuid, String)>,
 ) -> Result<ApiResponse<Vec<AssetWithAssignment>>, (StatusCode, &'static str)> {
     // Check if user is workspace admin or data admin

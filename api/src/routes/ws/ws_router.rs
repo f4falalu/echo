@@ -4,12 +4,10 @@ use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::{
-    database::models::User,
-    routes::ws::{
-        dashboards::dashboards_router::dashboards_router,
-        datasets::datasets_router::datasets_router,
-    },
+use middleware::AuthenticatedUser;
+
+use crate::routes::ws::{
+    dashboards::dashboards_router::dashboards_router, datasets::datasets_router::datasets_router,
 };
 
 use super::{
@@ -75,7 +73,7 @@ pub async fn ws_router(
     payload: Value,
     subscriptions: &Arc<SubscriptionRwLock>,
     user_group: &String,
-    user: &User,
+    user: &AuthenticatedUser,
 ) -> Result<()> {
     let parsed_route: WsRoutes = match WsRoutes::from_str(&route) {
         Ok(parsed_route) => parsed_route,

@@ -17,6 +17,7 @@ use crate::{
     },
     utils::{clients::sentry_utils::send_sentry_error, user::user_info::get_user_organization_id},
 };
+use middleware::AuthenticatedUser;
 
 use super::{
     permissions_router::{PermissionEvent, PermissionRoute},
@@ -28,7 +29,7 @@ pub struct PostTeamRequest {
     pub name: String,
 }
 
-pub async fn post_team(user: &User, req: PostTeamRequest) -> Result<()> {
+pub async fn post_team(user: &AuthenticatedUser, req: PostTeamRequest) -> Result<()> {
     let team_state = match post_team_handler(&user.id, req.name).await {
         Ok(state) => state,
         Err(e) => {

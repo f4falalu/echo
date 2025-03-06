@@ -6,12 +6,12 @@ mod post_dataset_group;
 mod put_dataset_group;
 
 use axum::{
-    middleware,
+    middleware as axum_middleware,
     routing::{delete, get, post, put},
     Router,
 };
 
-use crate::buster_middleware::auth::auth;
+use middleware::auth;
 
 use self::{
     delete_dataset_group::delete_dataset_group, get_dataset_group::get_dataset_group,
@@ -27,5 +27,4 @@ pub fn router() -> Router {
         .route("/:dataset_group_id", delete(delete_dataset_group))
         .route("/", put(put_dataset_group))
         .nest("/:dataset_group_id", assets::router())
-        .route_layer(middleware::from_fn(auth))
 }

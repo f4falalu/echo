@@ -26,7 +26,9 @@ use crate::{
         },
         user::user_info::get_user_organization_id,
     },
+
 };
+use middleware::AuthenticatedUser;
 
 use super::dataset_utils::{
     generate_col_descriptions, generate_dataset_descriptions, get_dataset_state, DatasetState,
@@ -39,7 +41,7 @@ pub struct PostDataSetReq {
     pub dataset_id: Option<Uuid>,
 }
 
-pub async fn post_dataset(user: &User, req: PostDataSetReq) -> Result<()> {
+pub async fn post_dataset(user: &AuthenticatedUser, req: PostDataSetReq) -> Result<()> {
     let name = req.name.unwrap_or_else(|| "Untitled Dataset".to_string());
 
     let post_dataset_res =

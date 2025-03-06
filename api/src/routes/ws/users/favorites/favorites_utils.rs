@@ -9,9 +9,11 @@ use uuid::Uuid;
 use database::{
     enums::AssetType,
     pool::get_pg_pool,
-    models::{User, UserFavorite},
+    models::UserFavorite,
     schema::{collections, collections_to_assets, dashboards, messages_deprecated, threads_deprecated, user_favorites},
 };
+
+use middleware::AuthenticatedUser;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct FavoriteIdAndType {
@@ -49,7 +51,7 @@ pub enum FavoriteEnum {
     Object(FavoriteObject),
 }
 
-pub async fn list_user_favorites(user: &User) -> Result<Vec<FavoriteEnum>> {
+pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<FavoriteEnum>> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => return Err(anyhow!("Error getting connection from pool: {:?}", e)),
@@ -423,7 +425,7 @@ async fn get_threads_from_collections(
     Ok(thread_objects)
 }
 
-pub async fn update_favorites(user: &User, favorites: &Vec<Uuid>) -> Result<()> {
+pub async fn update_favorites(user: &AuthenticatedUser, favorites: &Vec<Uuid>) -> Result<()> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => return Err(anyhow!("Error getting connection from pool: {:?}", e)),

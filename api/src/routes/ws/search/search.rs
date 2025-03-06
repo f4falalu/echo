@@ -8,6 +8,7 @@ use serde::Deserialize;
 
 use database::pool::get_sqlx_pool;
 use database::models::User;
+use middleware::AuthenticatedUser;
 use crate::routes::ws::ws::WsSendMethod;
 use crate::utils::search_engine::search_engine::{
     MessageSearchResult, SearchObject, SearchObjectType,
@@ -41,7 +42,7 @@ use crate::{
     },
 };
 
-pub async fn search(user: &User, req: SearchReq) -> Result<()> {
+pub async fn search(user: &AuthenticatedUser, req: SearchReq) -> Result<()> {
     let search_res = match search_handler(user.id, req).await {
         Ok(res) => res,
         Err(e) => {

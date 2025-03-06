@@ -4,6 +4,7 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use middleware::AuthenticatedUser;
 use database::models::User;
 
 use crate::{
@@ -28,7 +29,7 @@ pub struct GetCollectionRequest {
 pub async fn get_collection(
     subscriptions: &Arc<SubscriptionRwLock>,
     user_group: &String,
-    user: &User,
+    user: &AuthenticatedUser,
     req: GetCollectionRequest,
 ) -> Result<()> {
     let collection_subscription = format!("collection:{}", &req.id);

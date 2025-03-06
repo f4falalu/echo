@@ -2,6 +2,7 @@ use anyhow::{anyhow, Result};
 
 use diesel::{insert_into, update, upsert::excluded, ExpressionMethods};
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use serde::Deserialize;
 use uuid::Uuid;
 
@@ -28,7 +29,7 @@ pub struct CreateFavoriteReq {
     pub index: Option<usize>,
 }
 
-pub async fn create_favorite(user: &User, req: CreateFavoriteReq) -> Result<()> {
+pub async fn create_favorite(user: &AuthenticatedUser, req: CreateFavoriteReq) -> Result<()> {
     let create_favorite_res =
         match create_favorite_handler(&user, &req.id, &req.asset_type, req.index).await {
             Ok(res) => res,
@@ -72,7 +73,7 @@ pub async fn create_favorite(user: &User, req: CreateFavoriteReq) -> Result<()> 
 }
 
 async fn create_favorite_handler(
-    user: &User,
+    user: &AuthenticatedUser,
     id: &Uuid,
     asset_type: &AssetType,
     index: Option<usize>,

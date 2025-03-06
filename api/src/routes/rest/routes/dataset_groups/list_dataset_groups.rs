@@ -12,6 +12,7 @@ use database::models::{DatasetGroup, User};
 use database::schema::dataset_groups;
 use crate::routes::rest::ApiResponse;
 use crate::utils::user::user_info::get_user_organization_id;
+use middleware::AuthenticatedUser;
 
 #[derive(Debug, Serialize)]
 pub struct DatasetGroupInfo {
@@ -22,7 +23,7 @@ pub struct DatasetGroupInfo {
 }
 
 pub async fn list_dataset_groups(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
 ) -> Result<ApiResponse<Vec<DatasetGroupInfo>>, (StatusCode, &'static str)> {
     let dataset_groups = match list_dataset_groups_handler(user).await {
         Ok(groups) => groups,
@@ -38,7 +39,7 @@ pub async fn list_dataset_groups(
     Ok(ApiResponse::JsonData(dataset_groups))
 }
 
-async fn list_dataset_groups_handler(user: User) -> Result<Vec<DatasetGroupInfo>> {
+async fn list_dataset_groups_handler(user: AuthenticatedUser) -> Result<Vec<DatasetGroupInfo>> {
     let mut conn = get_pg_pool().get().await?;
     let organization_id = get_user_organization_id(&user.id).await?;
 

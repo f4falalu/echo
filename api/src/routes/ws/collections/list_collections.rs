@@ -3,6 +3,7 @@ use chrono::{DateTime, Utc};
 use diesel::{
     BoolExpressionMethods, ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl,
 };
+use middleware::AuthenticatedUser;
 use diesel_async::RunQueryDsl;
 use uuid::Uuid;
 
@@ -34,7 +35,7 @@ pub struct ListCollectionsRequest {
     #[serde(flatten)]
     pub filters: Option<ListCollectionsFilter>,
 }
-pub async fn list_collections(user: &User, req: ListCollectionsRequest) -> Result<()> {
+pub async fn list_collections(user: &AuthenticatedUser, req: ListCollectionsRequest) -> Result<()> {
     let list_collections_res = match list_collections_handler(&user.id, req).await {
         Ok(res) => res,
         Err(e) => {

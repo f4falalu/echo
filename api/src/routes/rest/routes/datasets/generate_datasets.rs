@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use uuid::Uuid;
 use regex::Regex;
 use tokio::task::JoinSet;
+use middleware::AuthenticatedUser;
 
 use crate::{
     database::{
@@ -118,7 +119,7 @@ fn map_snowflake_type(type_str: &str) -> ColumnMappingType {
 }
 
 pub async fn generate_datasets(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Json(request): Json<GenerateDatasetRequest>,
 ) -> Result<ApiResponse<GenerateDatasetResponse>, (StatusCode, String)> {
     // Check if user is workspace admin or data admin

@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
+use middleware::AuthenticatedUser;
 
 use crate::{
     routes::ws::{
@@ -39,7 +40,7 @@ pub struct RunSqlRequest {
     pub sql: String,
 }
 
-pub async fn run_sql(user: &User, req: RunSqlRequest) -> Result<()> {
+pub async fn run_sql(user: &AuthenticatedUser, req: RunSqlRequest) -> Result<()> {
     let run_sql_res =
         match run_sql_handler(&req.sql, &req.data_source_id, &req.dataset_id, &user.id).await {
             Ok(res) => res,

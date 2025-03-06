@@ -12,9 +12,9 @@ mod permission_groups;
 mod sql;
 mod users;
 
-use axum::{middleware, Router};
+use axum::{middleware as axum_middleware, Router};
 
-use crate::buster_middleware::auth::auth;
+use middleware::auth;
 
 pub fn router() -> Router {
     Router::new().nest("/api_keys", api_keys::router()).merge(
@@ -31,6 +31,6 @@ pub fn router() -> Router {
             .nest("/metrics", metrics::router())
             .nest("/dashboards", dashboards::router())
             .nest("/users", users::router())
-            .route_layer(middleware::from_fn(auth)),
+            .route_layer(axum_middleware::from_fn(auth)),
     )
 }

@@ -16,6 +16,7 @@ use crate::{
     },
     utils::{clients::sentry_utils::send_sentry_error, user::user_info::get_user_organization_id},
 };
+use middleware::AuthenticatedUser;
 
 use super::{
     permissions_router::{PermissionEvent, PermissionRoute},
@@ -27,7 +28,7 @@ pub struct PostPermissionGroupRequest {
     pub name: String,
 }
 
-pub async fn post_permission_group(user: &User, req: PostPermissionGroupRequest) -> Result<()> {
+pub async fn post_permission_group(user: &AuthenticatedUser, req: PostPermissionGroupRequest) -> Result<()> {
     let permission_group_state = match post_permission_group_handler(&user.id, req.name).await {
         Ok(state) => state,
         Err(e) => {

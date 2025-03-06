@@ -12,6 +12,7 @@ use database::schema::dataset_groups;
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
 use crate::utils::user::user_info::get_user_organization_id;
+use middleware::AuthenticatedUser;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct DatasetGroupUpdate {
@@ -20,7 +21,7 @@ pub struct DatasetGroupUpdate {
 }
 
 pub async fn put_dataset_group(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Json(request): Json<Vec<DatasetGroupUpdate>>,
 ) -> Result<ApiResponse<()>, (StatusCode, &'static str)> {
     // Check if user is workspace admin or data admin

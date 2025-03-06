@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Result};
+use middleware::AuthenticatedUser;
 
 use crate::{
     database::models::User,
@@ -13,7 +14,7 @@ use crate::{
 
 use super::favorites_utils::list_user_favorites;
 
-pub async fn list_favorites(user: &User) -> Result<()> {
+pub async fn list_favorites(user: &AuthenticatedUser) -> Result<()> {
     let list_favorites_res = match list_user_favorites(user).await {
         Ok(res) => res,
         Err(e) => {

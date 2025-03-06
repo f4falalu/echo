@@ -16,6 +16,7 @@ use database::schema::{
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
 use crate::utils::user::user_info::get_user_organization_id;
+use middleware::AuthenticatedUser;
 
 /// Represents permission group information with its assignment status to a dataset group
 #[derive(Debug, Serialize)]
@@ -30,7 +31,7 @@ pub struct PermissionGroupInfo {
 /// Returns permission groups with their current assignment status to the specified dataset group
 /// and the count of users in each permission group
 pub async fn list_permission_groups(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(dataset_group_id): Path<Uuid>,
 ) -> Result<ApiResponse<Vec<PermissionGroupInfo>>, (StatusCode, &'static str)> {
     let permission_groups = match list_permission_groups_handler(user, dataset_group_id).await {
@@ -48,7 +49,7 @@ pub async fn list_permission_groups(
 }
 
 async fn list_permission_groups_handler(
-    user: User,
+    user: AuthenticatedUser,
     dataset_group_id: Uuid,
 ) -> Result<Vec<PermissionGroupInfo>> {
     let mut conn = get_pg_pool().get().await?;

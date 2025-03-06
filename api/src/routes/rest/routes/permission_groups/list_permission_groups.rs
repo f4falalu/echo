@@ -13,6 +13,7 @@ use database::schema::{permission_groups, permission_groups_to_identities, datas
 use database::enums::IdentityType;
 use crate::routes::rest::ApiResponse;
 use crate::utils::user::user_info::get_user_organization_id;
+use middleware::AuthenticatedUser;
 
 #[derive(Debug, Serialize)]
 pub struct PermissionGroupInfo {
@@ -29,7 +30,7 @@ pub struct PermissionGroupInfo {
 }
 
 pub async fn list_permission_groups(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
 ) -> Result<ApiResponse<Vec<PermissionGroupInfo>>, (StatusCode, &'static str)> {
     let permission_groups = match list_permission_groups_handler(user).await {
         Ok(groups) => groups,
@@ -45,7 +46,7 @@ pub async fn list_permission_groups(
     Ok(ApiResponse::JsonData(permission_groups))
 }
 
-async fn list_permission_groups_handler(user: User) -> Result<Vec<PermissionGroupInfo>> {
+async fn list_permission_groups_handler(user: AuthenticatedUser) -> Result<Vec<PermissionGroupInfo>> {
     let mut conn = get_pg_pool().get().await?;
     let organization_id = get_user_organization_id(&user.id).await?;
 

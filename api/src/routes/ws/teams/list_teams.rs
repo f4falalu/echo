@@ -4,6 +4,7 @@ use diesel::{
 };
 use diesel_async::RunQueryDsl;
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use serde::{Deserialize, Serialize};
 
@@ -36,7 +37,7 @@ pub struct ListTeamsRequest {
     #[serde(flatten)]
     pub filters: Option<ListTeamsFilter>,
 }
-pub async fn list_teams(user: &User, req: ListTeamsRequest) -> Result<()> {
+pub async fn list_teams(user: &AuthenticatedUser, req: ListTeamsRequest) -> Result<()> {
     let list_teams_res =
         match list_teams_handler(&user.id, req.page, req.page_size, req.filters).await {
             Ok(res) => res,

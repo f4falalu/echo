@@ -28,6 +28,7 @@ use crate::{
     },
     utils::clients::sentry_utils::send_sentry_error,
 };
+use middleware::AuthenticatedUser;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct ListDatasetsRequest {
@@ -75,7 +76,7 @@ pub struct ListDatasetObject {
     pub belongs_to: Option<bool>,
 }
 
-pub async fn list_datasets(user: &User, req: ListDatasetsRequest) -> Result<()> {
+pub async fn list_datasets(user: &AuthenticatedUser, req: ListDatasetsRequest) -> Result<()> {
     let list_dashboards_res = match list_datasets_handler(
         &user.id,
         req.page,

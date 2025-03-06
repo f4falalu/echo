@@ -7,6 +7,7 @@ use diesel_async::RunQueryDsl;
 use serde::Deserialize;
 use tokio::spawn;
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use database::{
     pool::get_pg_pool,
@@ -26,7 +27,7 @@ pub struct AssetAssignment {
 // TODO: When we introduce the dataset groups, this list should update the datasets_to_dataset_groups table, not related to permissions.
 
 pub async fn put_permissions(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path((dataset_id, permission_type)): Path<(Uuid, String)>,
     Json(assignments): Json<Vec<AssetAssignment>>,
 ) -> Result<ApiResponse<()>, (StatusCode, &'static str)> {
@@ -40,7 +41,7 @@ pub async fn put_permissions(
 }
 
 pub async fn put_permissions_handler(
-    user: User,
+    user: AuthenticatedUser,
     (dataset_id, permission_type): (Uuid, String),
     assignments: Vec<AssetAssignment>,
 ) -> Result<()> {

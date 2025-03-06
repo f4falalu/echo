@@ -4,11 +4,10 @@ use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+use middleware::AuthenticatedUser;
 use uuid::Uuid;
 
-use database::models::User;
-
-use crate::{routes::ws::ws::SubscriptionRwLock};
+use crate::routes::ws::ws::SubscriptionRwLock;
 
 use super::{
     delete_dashboard::delete_dashboard, get_dashboard::get_dashboard,
@@ -67,7 +66,7 @@ pub async fn dashboards_router(
     data: Value,
     subscriptions: &Arc<SubscriptionRwLock>,
     user_group: &String,
-    user: &User,
+    user: &AuthenticatedUser,
 ) -> Result<()> {
     match route {
         DashboardRoute::List => {

@@ -13,6 +13,7 @@ use database::schema::dataset_groups;
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
 use crate::utils::user::user_info::get_user_organization_id;
+use middleware::AuthenticatedUser;
 
 #[derive(Debug, Deserialize)]
 pub struct PostDatasetGroupRequest {
@@ -28,7 +29,7 @@ pub struct PostDatasetGroupResponse {
 }
 
 pub async fn post_dataset_group(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Json(request): Json<PostDatasetGroupRequest>,
 ) -> Result<ApiResponse<PostDatasetGroupResponse>, (StatusCode, &'static str)> {
     // Check if user is workspace admin or data admin
@@ -70,7 +71,7 @@ pub async fn post_dataset_group(
 
 async fn post_dataset_group_handler(
     request: PostDatasetGroupRequest,
-    user: User,
+    user: AuthenticatedUser,
 ) -> Result<DatasetGroup> {
     let mut conn = get_pg_pool().get().await?;
 

@@ -13,6 +13,7 @@ use database::schema::{teams, teams_to_users};
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
 use crate::utils::user::user_info::get_user_organization_id;
+use middleware::AuthenticatedUser;
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -31,7 +32,7 @@ pub struct TeamInfo {
 }
 
 pub async fn list_teams(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(user_id): Path<Uuid>,
 ) -> Result<ApiResponse<Vec<TeamInfo>>, (StatusCode, &'static str)> {
     let teams = match list_teams_handler(user, user_id).await {
@@ -45,7 +46,7 @@ pub async fn list_teams(
     Ok(ApiResponse::JsonData(teams))
 }
 
-async fn list_teams_handler(user: User, user_id: Uuid) -> Result<Vec<TeamInfo>> {
+async fn list_teams_handler(user: AuthenticatedUser, user_id: Uuid) -> Result<Vec<TeamInfo>> {
     let mut conn = get_pg_pool().get().await?;
     let organization_id = get_user_organization_id(&user_id).await?;
 

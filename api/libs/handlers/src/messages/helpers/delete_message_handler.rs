@@ -4,6 +4,7 @@ use database::{models::{Message, User}, pool::get_pg_pool, schema::messages};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use tracing::info;
+use middleware::AuthenticatedUser;
 use uuid::Uuid;
 
 /// Deletes a message and marks all subsequent messages in the same chat as deleted
@@ -13,7 +14,7 @@ use uuid::Uuid;
 ///
 /// # Returns
 /// * `Result<()>` - Success or error
-pub async fn delete_message_handler(user: User, message_id: Uuid) -> Result<()> {
+pub async fn delete_message_handler(user: AuthenticatedUser, message_id: Uuid) -> Result<()> {
     let pool = get_pg_pool();
     let mut conn = pool.get().await?;
 

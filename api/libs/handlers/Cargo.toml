@@ -29,6 +29,7 @@ database = { path = "../database" }
 agents = { path = "../agents" }
 litellm = { path = "../litellm" }
 query_engine = { path = "../query_engine" }
+middleware = { path = "../middleware" }
 
 # Add any handler-specific dependencies here 
 

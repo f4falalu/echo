@@ -21,6 +21,7 @@ use crate::{
         query_engine::values_index::start_stored_values_sync,
     },
 };
+use middleware::AuthenticatedUser;
 
 use super::dataset_utils::get_dataset_state_from_col_id;
 
@@ -31,7 +32,7 @@ pub struct UpdateDatasetColumnReq {
     pub stored_values: Option<bool>,
 }
 
-pub async fn update_dataset_column(user: &User, req: UpdateDatasetColumnReq) -> Result<()> {
+pub async fn update_dataset_column(user: &AuthenticatedUser, req: UpdateDatasetColumnReq) -> Result<()> {
     match update_dataset_column_handler(&req.id, req.description, req.stored_values).await {
         Ok(_) => (),
         Err(e) => {

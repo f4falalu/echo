@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Result};
 use handlers::chats::get_chat_handler;
 use indexmap::IndexMap;
+use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::sync::Arc;
@@ -58,7 +59,7 @@ pub struct JoinThreadResponse {
 pub async fn get_thread_ws(
     subscriptions: &Arc<SubscriptionRwLock>,
     user_group: &String,
-    user: &User,
+    user: &AuthenticatedUser,
     req: GetThreadRequest,
 ) -> Result<()> {
     let subscription = format!("thread:{}", req.id);
@@ -93,7 +94,7 @@ pub async fn get_thread_ws(
 
 async fn send_fetching_data_in_progress_to_sub(
     subscription: &String,
-    user: &User,
+    user: &AuthenticatedUser,
     thread_id: &Uuid,
     message_id: &Uuid,
     sql: &String,
@@ -126,7 +127,7 @@ async fn send_fetching_data_in_progress_to_sub(
 
 async fn fetch_data_handler(
     subscription: &String,
-    user: &User,
+    user: &AuthenticatedUser,
     sql: &String,
     dataset_id: &Uuid,
     thread_id: &Uuid,

@@ -3,6 +3,7 @@ use chrono::Utc;
 use diesel::{update, BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryDsl};
 use diesel_async::RunQueryDsl;
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use serde::{Deserialize, Serialize};
 
@@ -33,7 +34,7 @@ pub struct DeleteDataSourceRes {
     pub id: Uuid,
 }
 
-pub async fn delete_data_source(user: &User, req: DeleteDataSourceReq) -> Result<()> {
+pub async fn delete_data_source(user: &AuthenticatedUser, req: DeleteDataSourceReq) -> Result<()> {
     match delete_data_source_handler(&user.id, req.id).await {
         Ok(res) => res,
         Err(e) => {

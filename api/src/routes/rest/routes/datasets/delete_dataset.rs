@@ -5,11 +5,12 @@ use diesel::{update, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use serde_json::Value;
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use database::{pool::get_pg_pool, models::User, schema::datasets};
 
 pub async fn delete_dataset(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(dataset_id): Path<Uuid>,
 ) -> Result<StatusCode, (StatusCode, String)> {
     match delete_dataset_handler(&user, dataset_id).await {
@@ -21,7 +22,7 @@ pub async fn delete_dataset(
     }
 }
 
-async fn delete_dataset_handler(user: &User, dataset_id: Uuid) -> Result<()> {
+async fn delete_dataset_handler(user: &AuthenticatedUser, dataset_id: Uuid) -> Result<()> {
     let mut conn = get_pg_pool()
         .get()
         .await

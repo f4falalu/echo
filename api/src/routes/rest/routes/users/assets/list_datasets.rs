@@ -13,6 +13,7 @@ use database::schema::{dataset_permissions, datasets};
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
 use crate::utils::user::user_info::get_user_organization_id;
+use middleware::AuthenticatedUser;
 
 #[derive(Debug, Serialize)]
 pub struct DatasetInfo {
@@ -22,7 +23,7 @@ pub struct DatasetInfo {
 }
 
 pub async fn list_datasets(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(user_id): Path<Uuid>,
 ) -> Result<ApiResponse<Vec<DatasetInfo>>, (StatusCode, &'static str)> {
     let datasets = match list_datasets_handler(user, user_id).await {
@@ -36,7 +37,7 @@ pub async fn list_datasets(
     Ok(ApiResponse::JsonData(datasets))
 }
 
-async fn list_datasets_handler(user: User, user_id: Uuid) -> Result<Vec<DatasetInfo>> {
+async fn list_datasets_handler(user: AuthenticatedUser, user_id: Uuid) -> Result<Vec<DatasetInfo>> {
     let mut conn = get_pg_pool().get().await?;
     let organization_id = get_user_organization_id(&user_id).await?;
 

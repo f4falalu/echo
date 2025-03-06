@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use database::models::User;
+use middleware::AuthenticatedUser;
 
 use super::{
     favorites::{
@@ -42,7 +42,7 @@ pub enum UserEvent {
     ListUsers,
 }
 
-pub async fn users_router(route: UserRoute, data: Value, user: &User) -> Result<()> {
+pub async fn users_router(route: UserRoute, data: Value, user: &AuthenticatedUser) -> Result<()> {
     match route {
         UserRoute::Get => {
             // let req = serde_json::from_value(data)?;

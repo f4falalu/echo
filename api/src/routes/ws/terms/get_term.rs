@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use database::models::User;
+use middleware::AuthenticatedUser;
 
 use crate::{
     routes::ws::{
@@ -24,7 +25,7 @@ pub struct GetTermRequest {
     pub id: Uuid,
 }
 
-pub async fn get_term(user: &User, req: GetTermRequest) -> Result<()> {
+pub async fn get_term(user: &AuthenticatedUser, req: GetTermRequest) -> Result<()> {
     let term_state = match get_term_handler(&user.id, &req.id).await {
         Ok(term_state) => term_state,
         Err(e) => {

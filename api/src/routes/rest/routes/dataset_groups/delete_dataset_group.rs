@@ -11,9 +11,10 @@ use database::schema::dataset_groups;
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
 use crate::utils::user::user_info::get_user_organization_id;
+use middleware::AuthenticatedUser;
 
 pub async fn delete_dataset_group(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(dataset_group_id): Path<Uuid>,
 ) -> Result<ApiResponse<()>, (StatusCode, &'static str)> {
     // Check if user is workspace admin or data admin

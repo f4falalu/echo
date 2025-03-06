@@ -6,11 +6,12 @@ use axum::{
 use database::models::User;
 use handlers::metrics::{get_metric_handler, BusterMetric};
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use crate::routes::rest::ApiResponse;
 
 pub async fn get_metric_rest_handler(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(id): Path<Uuid>,
 ) -> Result<ApiResponse<BusterMetric>, (StatusCode, &'static str)> {
     tracing::info!(

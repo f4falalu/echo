@@ -1,3 +1,4 @@
+use middleware::AuthenticatedUser;
 use once_cell::sync::OnceCell;
 use std::{collections::HashMap, sync::Mutex, time::Instant};
 
@@ -132,7 +133,7 @@ impl ChunkTracker {
 
 pub async fn post_chat_handler(
     request: ChatCreateNewChat,
-    user: User,
+    user: AuthenticatedUser,
     tx: Option<mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
 ) -> Result<ChatWithMessages> {
     let reasoning_duration = Instant::now();
@@ -1584,7 +1585,7 @@ pub async fn generate_conversation_title(
 
 async fn initialize_chat(
     request: &ChatCreateNewChat,
-    user: &User,
+    user: &AuthenticatedUser,
     user_org_id: Uuid,
 ) -> Result<(Uuid, Uuid, ChatWithMessages)> {
     let message_id = request.message_id.unwrap_or_else(Uuid::new_v4);

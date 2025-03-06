@@ -4,12 +4,12 @@ use diesel::{
 };
 
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use database::{enums::TeamToUserRole,
         pool::get_pg_pool,
-        models::User,
         schema::{teams_to_users, users, users_to_organizations},};
 use crate::{
     routes::ws::{
@@ -37,7 +37,7 @@ pub struct UserInfo {
     pub role: Option<TeamToUserRole>,
 }
 
-pub async fn list_users(user: &User, req: ListUsersRequest) -> Result<()> {
+pub async fn list_users(user: &AuthenticatedUser, req: ListUsersRequest) -> Result<()> {
     let page = req.page.unwrap_or(0);
     let page_size = req.page_size.unwrap_or(25);
 
@@ -70,7 +70,7 @@ pub async fn list_users(user: &User, req: ListUsersRequest) -> Result<()> {
 }
 
 async fn list_users_handler(
-    user: &User,
+    user: &AuthenticatedUser,
     team_id: Option<Uuid>,
     page: i64,
     page_size: i64,

@@ -15,6 +15,7 @@ use diesel::QueryDsl;
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use crate::routes::rest::ApiResponse;
 use crate::utils::query_engine::credentials::Credential;
@@ -39,7 +40,7 @@ pub struct CreateDataSourceResponse {
 }
 
 pub async fn post_data_sources(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Json(payload): Json<Vec<CreateDataSourceRequest>>,
 ) -> Result<ApiResponse<CreateDataSourceResponse>, (StatusCode, &'static str)> {
     let ids = match post_data_sources_handler(&user.id, payload).await {

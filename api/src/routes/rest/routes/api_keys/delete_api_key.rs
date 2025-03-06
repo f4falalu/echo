@@ -10,12 +10,12 @@ use diesel_async::RunQueryDsl;
 use uuid::Uuid;
 
 use database::pool::get_pg_pool;
-use database::models::User;
 use database::schema::api_keys;
 use crate::routes::rest::ApiResponse;
+use middleware::AuthenticatedUser;
 
 pub async fn delete_api_key(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(api_key_id): Path<Uuid>,
 ) -> Result<ApiResponse<()>, (StatusCode, &'static str)> {
     match delete_api_key_handler(user, api_key_id).await {
@@ -27,7 +27,7 @@ pub async fn delete_api_key(
     }
 }
 
-async fn delete_api_key_handler(user: User, api_key_id: Uuid) -> Result<()> {
+async fn delete_api_key_handler(user: AuthenticatedUser, api_key_id: Uuid) -> Result<()> {
     let mut conn = get_pg_pool()
         .get()
         .await

@@ -8,6 +8,7 @@ use database::{
 };
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use serde_json::Value;
 use std::sync::Arc;
 use uuid::Uuid;
@@ -26,7 +27,7 @@ impl MetricContextLoader {
 
 #[async_trait]
 impl ContextLoader for MetricContextLoader {
-    async fn load_context(&self, user: &User, agent: &Arc<Agent>) -> Result<Vec<AgentMessage>> {
+    async fn load_context(&self, user: &AuthenticatedUser, agent: &Arc<Agent>) -> Result<Vec<AgentMessage>> {
         let mut conn = get_pg_pool().get().await.map_err(|e| {
             anyhow!(
                 "Failed to get database connection for metric context loading: {}",

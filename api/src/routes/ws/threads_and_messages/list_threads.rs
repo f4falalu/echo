@@ -4,6 +4,7 @@ use diesel::{
     BoolExpressionMethods, ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl,
 };
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -80,7 +81,7 @@ pub struct ThreadWithMostRecentMessageAndUserInfo {
     pub dataset_name: String,
 }
 
-pub async fn list_threads(user: &User, req: ListThreadsRequest) -> Result<()> {
+pub async fn list_threads(user: &AuthenticatedUser, req: ListThreadsRequest) -> Result<()> {
     let list_threads_res = match list_threads_handler(
         &user.id,
         req.filters,

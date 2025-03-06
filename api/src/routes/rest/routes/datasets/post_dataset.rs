@@ -5,6 +5,7 @@ use diesel_async::RunQueryDsl;
 use reqwest::StatusCode;
 use serde::Deserialize;
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use crate::{
     database::{
@@ -27,7 +28,7 @@ pub struct PostDatasetReq {
 }
 
 pub async fn post_dataset(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Json(request): Json<PostDatasetReq>,
 ) -> Result<ApiResponse<Dataset>, (axum::http::StatusCode, String)> {
     // Check if user is workspace admin or data admin

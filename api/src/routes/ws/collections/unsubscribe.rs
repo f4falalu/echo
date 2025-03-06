@@ -5,6 +5,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use database::models::User;
+use middleware::AuthenticatedUser;
 
 use crate::{
     routes::ws::{
@@ -37,7 +38,7 @@ pub struct LeftCollectionResponse {
 
 pub async fn unsubscribe(
     subscriptions: &Arc<SubscriptionRwLock>,
-    user: &User,
+    user: &AuthenticatedUser,
     user_group: &String,
     req: UnsubscribeFromCollectionRequest,
 ) -> Result<()> {

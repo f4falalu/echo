@@ -18,13 +18,14 @@ use crate::{
     },
     utils::clients::sentry_utils::send_sentry_error,
 };
+use middleware::AuthenticatedUser;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PostOrganizationRequest {
     pub name: String,
 }
 
-pub async fn post_organization(user: &User, req: PostOrganizationRequest) -> Result<()> {
+pub async fn post_organization(user: &AuthenticatedUser, req: PostOrganizationRequest) -> Result<()> {
     let org_state = match post_organization_handler(user, req.name).await {
         Ok(state) => state,
         Err(e) => {
@@ -65,7 +66,7 @@ pub async fn post_organization(user: &User, req: PostOrganizationRequest) -> Res
     Ok(())
 }
 
-async fn post_organization_handler(user: &User, name: String) -> Result<UserInfoObject> {
+async fn post_organization_handler(user: &AuthenticatedUser, name: String) -> Result<UserInfoObject> {
     let domain = if user.email.contains("@") {
         Some(user.email.split("@").nth(1).unwrap_or("").to_string())
     } else {

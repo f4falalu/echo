@@ -5,6 +5,7 @@ use diesel_async::RunQueryDsl;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use database::{pool::get_pg_pool,
         models::{Term, TermToDataset, User},
@@ -34,7 +35,7 @@ pub struct PostTermRequest {
     pub dataset_ids: Option<Vec<Uuid>>,
 }
 
-pub async fn post_term(user: &User, req: PostTermRequest) -> Result<()> {
+pub async fn post_term(user: &AuthenticatedUser, req: PostTermRequest) -> Result<()> {
     let term = match post_term_handler(&user.id, req).await {
         Ok(term) => term,
         Err(e) => {

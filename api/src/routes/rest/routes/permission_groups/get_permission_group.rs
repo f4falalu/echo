@@ -11,6 +11,7 @@ use database::models::{PermissionGroup, User};
 use database::schema::permission_groups;
 use crate::routes::rest::ApiResponse;
 use crate::utils::user::user_info::get_user_organization_id;
+use middleware::AuthenticatedUser;
 
 #[derive(Debug, Serialize)]
 pub struct PermissionGroupInfo {
@@ -24,7 +25,7 @@ pub struct PermissionGroupInfo {
 }
 
 pub async fn get_permission_group(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(permission_group_id): Path<Uuid>,
 ) -> Result<ApiResponse<PermissionGroupInfo>, (StatusCode, &'static str)> {
     let permission_group = match get_permission_group_handler(user, permission_group_id).await {
@@ -42,7 +43,7 @@ pub async fn get_permission_group(
 }
 
 async fn get_permission_group_handler(
-    user: User,
+    user: AuthenticatedUser,
     permission_group_id: Uuid,
 ) -> Result<PermissionGroupInfo> {
     let mut conn = get_pg_pool().get().await?;

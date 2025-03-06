@@ -1,8 +1,7 @@
 use anyhow::Result;
+use middleware::AuthenticatedUser;
 use serde_json::Value;
 use uuid::Uuid;
-
-use database::models::User;
 
 /// Checks if a user has workspace admin or data admin privileges
 ///
@@ -16,7 +15,7 @@ use database::models::User;
 /// * Database connection errors
 /// * User not found errors
 pub async fn is_user_workspace_admin_or_data_admin(
-    user: &User,
+    user: &AuthenticatedUser,
     organization_id: &Uuid,
 ) -> Result<bool> {
     let user_organization_id = match user.attributes.get("organization_id") {

@@ -6,12 +6,12 @@ mod post_permission_group;
 mod put_permission_group;
 
 use axum::{
-    middleware,
+    middleware as axum_middleware,
     routing::{delete, get, post, put},
     Router,
 };
 
-use crate::buster_middleware::auth::auth;
+use middleware::auth;
 
 use self::{
     delete_permission_group::delete_permission_group, get_permission_group::get_permission_group,
@@ -27,5 +27,4 @@ pub fn router() -> Router {
         .route("/:permission_group_id", delete(delete_permission_group))
         .route("/", put(put_permission_group))
         .nest("/:permission_group_id", assets::router())
-        .route_layer(middleware::from_fn(auth))
 }

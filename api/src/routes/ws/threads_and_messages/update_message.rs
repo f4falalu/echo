@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Result};
 use diesel::{update, ExpressionMethods, JoinOnDsl, QueryDsl};
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use serde::Deserialize;
 use serde_json::Value;
 use std::sync::Arc;
@@ -43,7 +44,7 @@ pub struct UpdateMessageRequest {
 pub async fn update_message(
     subscriptions: &Arc<SubscriptionRwLock>,
     user_group: &String,
-    user: &User,
+    user: &AuthenticatedUser,
     req: UpdateMessageRequest,
 ) -> Result<()> {
     let mut conn = match get_pg_pool().get().await {
@@ -156,7 +157,7 @@ pub async fn update_message(
 
 async fn update_message_handler(
     message_id: &Uuid,
-    user: &User,
+    user: &AuthenticatedUser,
     code: Option<String>,
     title: Option<String>,
     feedback: Option<MessageFeedback>,

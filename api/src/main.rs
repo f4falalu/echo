@@ -1,5 +1,5 @@
-mod buster_middleware;
 mod routes;
+mod buster_middleware;
 mod types;
 pub mod utils;
 
@@ -7,7 +7,7 @@ use std::env;
 use std::sync::Arc;
 
 use axum::{Extension, Router};
-use buster_middleware::cors::cors;
+use middleware::cors::cors;
 use database::{self, pool::init_pools};
 use diesel::{Connection, PgConnection};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};

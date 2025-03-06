@@ -19,6 +19,7 @@ use super::dataset_utils::{get_dataset_state, DatasetState};
 
 use crate::utils::query_engine::{data_types::DataType, query_engine::query_engine};
 use indexmap::IndexMap;
+use middleware::AuthenticatedUser;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GetDatasetReq {
@@ -32,7 +33,7 @@ pub struct GetDatasetResponse {
     pub data: Vec<IndexMap<String, DataType>>,
 }
 
-pub async fn get_dataset(user: &User, req: GetDatasetReq) -> Result<()> {
+pub async fn get_dataset(user: &AuthenticatedUser, req: GetDatasetReq) -> Result<()> {
     let dataset_state = match get_dataset_state(&req.id, &user.id).await {
         Ok(res) => res,
         Err(e) => {

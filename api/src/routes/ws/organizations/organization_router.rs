@@ -1,11 +1,13 @@
-
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use database::models::User;
+use middleware::AuthenticatedUser;
 
-use super::{post_organization::post_organization, update_organization::update_organization};
+use super::{
+    post_organization::post_organization,
+    update_organization::update_organization,
+};
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum OrganizationRoute {
@@ -25,7 +27,7 @@ pub enum OrganizationEvent {
 pub async fn organizations_router(
     route: OrganizationRoute,
     data: Value,
-    user: &User,
+    user: &AuthenticatedUser,
 ) -> Result<()> {
     match route {
         OrganizationRoute::Post => {

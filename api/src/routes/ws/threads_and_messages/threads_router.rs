@@ -4,16 +4,12 @@ use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use database::models::User;
+use middleware::AuthenticatedUser;
 
-use crate::{
-    routes::ws::{threads_and_messages::unsubscribe::unsubscribe, ws::SubscriptionRwLock},
-};
+use crate::routes::ws::ws::SubscriptionRwLock;
 
 use super::{
-    delete_thread::delete_thread, duplicate_thread::duplicate_thread,
-    get_message_data::get_message_data, get_thread::get_thread_ws, list_threads::list_threads,
-    post_thread::post_thread, update_message::update_message, update_thread::update_thread,
+    delete_thread::delete_thread, duplicate_thread::duplicate_thread, get_message_data::get_message_data, get_thread::get_thread_ws, list_threads::list_threads, post_thread::post_thread, unsubscribe::unsubscribe, update_message::update_message, update_thread::update_thread
 };
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -83,7 +79,7 @@ pub async fn threads_router(
     data: Value,
     subscriptions: &Arc<SubscriptionRwLock>,
     user_group: &String,
-    user: &User,
+    user: &AuthenticatedUser,
 ) -> Result<()> {
     match route {
         ThreadRoute::List => {

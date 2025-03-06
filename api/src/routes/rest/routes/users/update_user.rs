@@ -15,6 +15,7 @@ use diesel::{update, ExpressionMethods};
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct UserResponse {
@@ -32,7 +33,7 @@ pub struct UpdateUserRequest {
 }
 
 pub async fn update_user(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(user_id): Path<Uuid>,
     Json(body): Json<UpdateUserRequest>,
 ) -> Result<ApiResponse<()>, (StatusCode, &'static str)> {
@@ -52,7 +53,7 @@ pub async fn update_user(
 }
 
 pub async fn update_user_handler(
-    auth_user: &User,
+    auth_user: &AuthenticatedUser,
     user_id: &Uuid,
     change: UpdateUserRequest,
 ) -> Result<()> {

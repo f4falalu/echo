@@ -13,6 +13,7 @@ use database::{
 };
 
 use crate::{routes::rest::ApiResponse, utils::clients::sentry_utils::send_sentry_error};
+use middleware::AuthenticatedUser;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct UserResponse {
@@ -24,7 +25,7 @@ pub struct UserResponse {
 }
 
 pub async fn list_organization_users(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(organization_id): Path<Uuid>,
 ) -> Result<ApiResponse<Vec<UserResponse>>, (StatusCode, &'static str)> {
     let users = match list_organization_users_handler(organization_id).await {

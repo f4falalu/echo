@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Result};
+use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -37,7 +38,7 @@ pub struct LeftThreadResponse {
 
 pub async fn unsubscribe(
     subscriptions: &Arc<SubscriptionRwLock>,
-    user: &User,
+    user: &AuthenticatedUser,
     user_group: &String,
     req: UnsubscribeFromThreadRequest,
 ) -> Result<()> {

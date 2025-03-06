@@ -3,6 +3,7 @@ use chrono::{DateTime, Utc};
 use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryDsl};
 use diesel_async::RunQueryDsl;
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use serde::{Deserialize, Serialize};
 
@@ -35,7 +36,7 @@ pub struct ListDataSourceObject {
     pub updated_at: DateTime<Utc>,
 }
 
-pub async fn list_data_sources(user: &User, req: ListDataSourcesRequest) -> Result<()> {
+pub async fn list_data_sources(user: &AuthenticatedUser, req: ListDataSourcesRequest) -> Result<()> {
     let list_data_sources_res =
         match list_data_sources_handler(&user.id, req.page, req.page_size).await {
             Ok(res) => res,

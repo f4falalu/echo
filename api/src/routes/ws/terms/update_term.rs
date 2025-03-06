@@ -7,6 +7,7 @@ use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use middleware::AuthenticatedUser;
 use database::{pool::get_pg_pool,
         models::{TermToDataset, User},
         schema::{terms, terms_to_datasets},};
@@ -41,7 +42,7 @@ pub struct UpdateTermRequest {
     pub remove_from_dataset: Option<Vec<Uuid>>,
 }
 
-pub async fn update_term(user: &User, req: UpdateTermRequest) -> Result<()> {
+pub async fn update_term(user: &AuthenticatedUser, req: UpdateTermRequest) -> Result<()> {
     let term_state = match update_term_handler(&user.id, req).await {
         Ok(term_state) => term_state,
         Err(e) => {

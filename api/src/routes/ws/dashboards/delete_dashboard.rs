@@ -3,6 +3,7 @@ use chrono::Utc;
 use diesel::{update, ExpressionMethods};
 use diesel_async::RunQueryDsl;
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use serde::{Deserialize, Serialize};
 
@@ -32,7 +33,7 @@ pub struct DeleteDashboardResponse {
     pub ids: Vec<Uuid>,
 }
 
-pub async fn delete_dashboard(user: &User, req: DeleteDashboardRequest) -> Result<()> {
+pub async fn delete_dashboard(user: &AuthenticatedUser, req: DeleteDashboardRequest) -> Result<()> {
     let response = match delete_dashboard_handler(&user.id, req.ids).await {
         Ok(response) => response,
         Err(e) => {

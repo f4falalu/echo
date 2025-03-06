@@ -5,6 +5,7 @@ use serde_json::Value;
 
 use database::models::User;
 
+use middleware::AuthenticatedUser;
 use super::list_teams::list_teams;
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -19,7 +20,7 @@ pub enum TeamEvent {
     ListTeams,
 }
 
-pub async fn teams_router(route: TeamRoute, data: Value, user: &User) -> Result<()> {
+pub async fn teams_router(route: TeamRoute, data: Value, user: &AuthenticatedUser) -> Result<()> {
     match route {
         TeamRoute::List => {
             let req = serde_json::from_value(data)?;

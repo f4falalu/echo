@@ -13,6 +13,7 @@ use database::schema::permission_groups;
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
 use crate::utils::user::user_info::get_user_organization_id;
+use middleware::AuthenticatedUser;
 
 #[derive(Debug, Deserialize)]
 pub struct PostPermissionGroupRequest {
@@ -31,7 +32,7 @@ pub struct PostPermissionGroupResponse {
 }
 
 pub async fn post_permission_group(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Json(request): Json<PostPermissionGroupRequest>,
 ) -> Result<ApiResponse<PostPermissionGroupResponse>, (StatusCode, &'static str)> {
     // Check if user is workspace admin or data admin
@@ -75,7 +76,7 @@ pub async fn post_permission_group(
 }
 
 async fn post_permission_group_handler(
-    user: User,
+    user: AuthenticatedUser,
     request: PostPermissionGroupRequest,
 ) -> Result<PermissionGroup> {
     let mut conn = get_pg_pool().get().await?;

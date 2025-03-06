@@ -4,13 +4,13 @@ use std::collections::HashSet;
 use anyhow::Result;
 use async_trait::async_trait;
 use database::{
-    models::User,
     pool::get_pg_pool,
     schema::{chats, messages},
 };
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use agents::{Agent, AgentMessage};
+use middleware::AuthenticatedUser;
 use serde_json::Value;
 use uuid::Uuid;
 
@@ -55,7 +55,7 @@ impl ChatContextLoader {
 
 #[async_trait]
 impl ContextLoader for ChatContextLoader {
-    async fn load_context(&self, user: &User, agent: &Arc<Agent>) -> Result<Vec<AgentMessage>> {
+    async fn load_context(&self, user: &AuthenticatedUser, agent: &Arc<Agent>) -> Result<Vec<AgentMessage>> {
         let mut conn = get_pg_pool().get().await?;
 
         // First verify the chat exists and user has access

@@ -5,6 +5,7 @@ use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use serde::Serialize;
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use database::enums::IdentityType;
 use database::schema::{
@@ -45,7 +46,7 @@ pub struct DatasetOverview {
 }
 
 pub async fn get_dataset_overview(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Path(dataset_id): Path<Uuid>,
 ) -> Result<ApiResponse<DatasetOverview>, (StatusCode, &'static str)> {
     // Check if user is workspace admin or data admin

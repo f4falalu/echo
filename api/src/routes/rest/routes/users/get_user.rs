@@ -16,9 +16,10 @@ use diesel::{
 };
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 pub async fn get_user(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
 ) -> Result<ApiResponse<UserInfoObject>, (StatusCode, &'static str)> {
     let user_info_object = match get_user_information(&user.id).await {
         Ok(user_info_object) => user_info_object,

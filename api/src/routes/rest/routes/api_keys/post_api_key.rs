@@ -8,6 +8,7 @@ use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
 use std::env;
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use database::pool::get_pg_pool;
 use database::models::{ApiKey, User};
@@ -29,7 +30,7 @@ struct ApiKeyClaims {
 }
 
 pub async fn post_api_key(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
 ) -> Result<ApiResponse<PostApiKeyResponse>, (StatusCode, &'static str)> {
     let api_key = match post_api_key_handler(user).await {
         Ok(api_key) => api_key,
@@ -42,7 +43,7 @@ pub async fn post_api_key(
     Ok(ApiResponse::JsonData(PostApiKeyResponse { api_key }))
 }
 
-async fn post_api_key_handler(user: User) -> Result<String> {
+async fn post_api_key_handler(user: AuthenticatedUser) -> Result<String> {
     let jwt_secret = env::var("JWT_SECRET").map_err(|_| anyhow::anyhow!("JWT_SECRET not set"))?;
 
     // Create JWT claims

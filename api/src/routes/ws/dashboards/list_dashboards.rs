@@ -5,6 +5,7 @@ use diesel::{
 };
 use diesel_async::RunQueryDsl;
 use uuid::Uuid;
+use middleware::AuthenticatedUser;
 
 use serde::{Deserialize, Serialize};
 
@@ -35,7 +36,7 @@ pub struct ListDashBoardsRequest {
     pub filters: Option<ListDashboardsFilter>,
 }
 
-pub async fn list_dashboards(user: &User, req: ListDashBoardsRequest) -> Result<()> {
+pub async fn list_dashboards(user: &AuthenticatedUser, req: ListDashBoardsRequest) -> Result<()> {
     let list_dashboards_res = match list_dashboards_handler(&user.id, req).await {
         Ok(res) => res,
         Err(e) => {

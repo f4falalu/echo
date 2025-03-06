@@ -1,9 +1,9 @@
 mod rest;
 pub mod ws;
 
-use axum::{middleware, routing::get, Router};
+use axum::{middleware as axum_middleware, routing::get, Router};
 
-use crate::buster_middleware::auth::auth;
+use middleware::auth;
 
 pub fn protected_router() -> Router {
     Router::new()
@@ -12,7 +12,7 @@ pub fn protected_router() -> Router {
         .merge(
             Router::new()
                 .nest("/ws", ws::router())
-                .route_layer(middleware::from_fn(auth)),
+                .route_layer(axum_middleware::from_fn(auth)),
         )
 }
 

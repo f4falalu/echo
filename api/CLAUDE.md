@@ -1315,7 +1315,7 @@ src/routes/ws/
       event: WsEvent,
       code: WsErrorCode,
       message: String,
-      user: &User,
+      user: &AuthenticatedUser,
   )
   ```
 
@@ -1357,7 +1357,7 @@ pub enum SqlEvent {
 
 Example Router Function:
 ```rust
-pub async fn sql_router(route: SqlRoute, data: Value, user: &User) -> Result<()> {
+pub async fn sql_router(route: SqlRoute, data: Value, user: &AuthenticatedUser) -> Result<()> {
     match route {
         SqlRoute::Run => {
             let req = serde_json::from_value(data)?;
@@ -1438,7 +1438,7 @@ pub async fn ws_router(
     payload: Value,
     subscriptions: &Arc<SubscriptionRwLock>,
     user_group: &String,
-    user: &User,
+    user: &AuthenticatedUser,
 ) -> Result<()> {
     let parsed_route = WsRoutes::from_str(&route)?;
     match parsed_route {

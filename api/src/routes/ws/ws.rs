@@ -30,6 +30,8 @@ use tokio::{
 };
 use uuid::Uuid;
 
+use middleware::AuthenticatedUser;
+
 use super::{
     collections::collections_router::CollectionEvent,
     dashboards::dashboards_router::DashboardEvent,
@@ -118,7 +120,7 @@ impl WsResponseMessage {
         event: WsEvent,
         data: T,
         error: Option<WsError>,
-        user: &User,
+        user: &AuthenticatedUser,
         send_method: WsSendMethod,
     ) -> Self {
         let payload = match to_value(data) {
@@ -222,7 +224,7 @@ impl SubscriptionRwLock {
 
 pub async fn ws(
     ws: WebSocketUpgrade,
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Extension(shutdown_tx): Extension<Arc<broadcast::Sender<()>>>,
 ) -> impl IntoResponse {
     ws.on_upgrade(|ws| async move {
@@ -230,7 +232,7 @@ pub async fn ws(
     })
 }
 
-async fn ws_handler(stream: WebSocket, user: User, shutdown_tx: Arc<broadcast::Sender<()>>) {
+async fn ws_handler(stream: WebSocket, user: AuthenticatedUser, shutdown_tx: Arc<broadcast::Sender<()>>) {
     let mut shutdown_rx = shutdown_tx.subscribe();
 
     let (sender, mut receiver) = stream.split();

@@ -1,10 +1,9 @@
 use axum::{
-    middleware,
     routing::{get, put},
     Router,
 };
 
-use crate::buster_middleware::auth::auth;
+use middleware::auth;
 
 mod assets;
 mod get_user;

@@ -9,6 +9,7 @@ use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use agents::{AgentMessage, Agent};
 use litellm::MessageProgress;
+use middleware::AuthenticatedUser;
 use serde_json::Value;
 use std::sync::Arc;
 use uuid::Uuid;
@@ -28,7 +29,7 @@ impl DashboardContextLoader {
 
 #[async_trait]
 impl ContextLoader for DashboardContextLoader {
-    async fn load_context(&self, user: &User, agent: &Arc<Agent>) -> Result<Vec<AgentMessage>> {
+    async fn load_context(&self, user: &AuthenticatedUser, agent: &Arc<Agent>) -> Result<Vec<AgentMessage>> {
         let mut conn = get_pg_pool().get().await.map_err(|e| {
             anyhow!("Failed to get database connection for dashboard context loading: {}", e)
         })?;

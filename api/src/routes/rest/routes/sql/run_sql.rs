@@ -13,6 +13,7 @@ use database::{
     enums::UserOrganizationRole, models::{ColumnMetadata, DataMetadataJsonBody, MinMaxValue, User}, pool::get_pg_pool, schema::{data_sources, datasets, users_to_organizations}
 };
 
+use middleware::AuthenticatedUser;
 use crate::{
     routes::rest::ApiResponse,
     utils::{
@@ -34,7 +35,7 @@ pub struct RunSqlRequest {
 }
 
 pub async fn run_sql(
-    Extension(user): Extension<User>,
+    Extension(user): Extension<AuthenticatedUser>,
     Json(req): Json<RunSqlRequest>,
 ) -> Result<ApiResponse<DataObject>, (StatusCode, &'static str)> {
     let data_object =

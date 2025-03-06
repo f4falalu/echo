@@ -26,6 +26,7 @@ use crate::{
         },
     },
 };
+use middleware::AuthenticatedUser;
 
 use super::dataset_utils::{
     generate_col_descriptions, generate_dataset_descriptions, get_dataset_state,
@@ -52,7 +53,7 @@ pub struct UpdateDatasetReq {
     pub dataset_definition: Option<UpdateDatasetDefReq>,
 }
 
-pub async fn update_dataset(user: &User, req: UpdateDatasetReq) -> Result<()> {
+pub async fn update_dataset(user: &AuthenticatedUser, req: UpdateDatasetReq) -> Result<()> {
     match update_dataset_handler(
         &user.id,
         &req.id,
