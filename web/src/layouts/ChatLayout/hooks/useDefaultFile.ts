@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import type { SelectedFile } from '../interfaces';
+import type { ChatLayoutView, SelectedFile } from '../interfaces';
 import { useParams, usePathname, useSelectedLayoutSegments, useRouter } from 'next/navigation';
 
 export const useSelectedFileByParams = () => {
@@ -14,7 +14,6 @@ export const useSelectedFileByParams = () => {
     messageId?: string;
   };
 
-  const router = useRouter(); //not sure why... but we need this here... or else the selectedFile will be undefined
   const segments = useSelectedLayoutSegments();
   const pathname = usePathname();
 
@@ -39,7 +38,7 @@ export const useSelectedFileByParams = () => {
     pathname
   ]);
 
-  const selectedLayout: 'chat' | 'file' | 'both' = useMemo(() => {
+  const selectedLayout: ChatLayoutView = useMemo(() => {
     const hasFileId = metricId || collectionId || datasetId || dashboardId || messageId;
 
     if (chatId) {

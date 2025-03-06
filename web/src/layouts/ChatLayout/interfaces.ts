@@ -4,3 +4,5 @@ export type SelectedFile = {
   id: string;
   type: FileType;
 };
+
+export type ChatLayoutView = 'chat' | 'file' | 'both';

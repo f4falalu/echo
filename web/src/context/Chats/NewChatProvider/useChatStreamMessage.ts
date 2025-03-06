@@ -199,6 +199,8 @@ export const useChatStreamMessage = () => {
         chatRef.current[chat_id]?.messages?.[message_id]?.reasoning_messages?.[reasoningMessageId];
       const isNewMessage = !existingMessage;
 
+      console.log('isNewMessage', isNewMessage);
+
       if (isNewMessage) {
         initializeOrUpdateMessage(chat_id, message_id, (draft) => {
           const chat = draft[chat_id];
@@ -252,9 +254,16 @@ export const useChatStreamMessage = () => {
                 if (reasoning.secondary_title) draft.secondary_title = reasoning.secondary_title;
 
                 for (const fileId of reasoning.file_ids) {
+                  if (!draft.file_ids.includes(fileId)) {
+                    draft.file_ids.push(fileId);
+                  }
+
+                  if (!draft.files) {
+                    draft.files = {};
+                  }
+
                   if (!draft.files[fileId]) {
                     draft.files[fileId] = {} as BusterChatMessageReasoning_file;
-                    draft.file_ids.push(fileId);
                   }
 
                   const existingFile = existingReasoningMessageFiles?.files[fileId];

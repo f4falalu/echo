@@ -25,7 +25,7 @@ export const FileContainerHeader: React.FC = React.memo(() => {
     () =>
       selectedFileType && SelectedFileSegmentRecord[selectedFileType]
         ? SelectedFileSegmentRecord[selectedFileType]
-        : () => <></>,
+        : () => <>no segment</>,
     [selectedFileType]
   );
 
@@ -33,7 +33,7 @@ export const FileContainerHeader: React.FC = React.memo(() => {
     () =>
       selectedFileType && SelectedFileButtonsRecord[selectedFileType]
         ? SelectedFileButtonsRecord[selectedFileType]
-        : () => <></>,
+        : () => <>no buttons</>,
     [selectedFileType]
   );
 

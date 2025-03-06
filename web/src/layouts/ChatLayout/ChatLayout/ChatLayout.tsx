@@ -10,7 +10,7 @@ import { useDefaultSplitterLayout, useSelectedFileByParams } from '../hooks';
 import { ChatContextProvider, useChatIndividualContext } from '../ChatContext/ChatContext';
 import { DEFAULT_CHAT_OPTION_SIDEBAR_SIZE } from '../ChatLayoutContext/config';
 
-export interface ChatSplitterProps {
+interface ChatSplitterProps {
   showChatCollapse?: boolean;
   children?: React.ReactNode;
 }
@@ -38,16 +38,18 @@ export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(({ children })
 
   const { hasFile } = useChatContextValue;
 
+  console.log('renderViewLayoutKey', renderViewLayoutKey);
+
   return (
     <ChatLayoutContextProvider useChatLayoutProps={useChatLayoutProps}>
       <ChatContextProvider value={useChatContextValue}>
         <AppSplitter
           ref={appSplitterRef}
           leftChildren={<ChatContainer />}
-          rightChildren={<FileContainer>{children}</FileContainer>}
+          rightChildren={<FileContainer>{children || <div>No children?</div>}</FileContainer>}
           autoSaveId="chat-splitter"
           defaultLayout={defaultSplitterLayout}
-          rightHidden={renderViewLayoutKey === 'chat'}
+          rightHidden={false}
           leftHidden={renderViewLayoutKey === 'file'}
           preserveSide="left"
           leftPanelMinSize={hasFile ? DEFAULT_CHAT_OPTION_SIDEBAR_SIZE : undefined}

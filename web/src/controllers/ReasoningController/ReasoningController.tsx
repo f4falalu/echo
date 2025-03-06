@@ -24,7 +24,12 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
     messageId
   });
 
-  if (!hasChat || !reasoningMessageIds) return <></>;
+  if (!hasChat || !reasoningMessageIds)
+    return (
+      <>
+        NO CHAT? {hasChat ? 'true' : 'false'} {reasoningMessageIds ? 'true' : 'false'} {messageId}
+      </>
+    );
 
   return (
     <div className="h-full flex-col space-y-2 overflow-y-auto p-5">

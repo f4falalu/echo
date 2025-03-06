@@ -23,6 +23,7 @@ export const useAutoChangeLayout = ({
   useEffect(() => {
     if (!isCompletedStream && !hasSeeningReasoningPage.current && hasReasoning) {
       hasSeeningReasoningPage.current = true;
+      console.log('setting selected file');
       onSetSelectedFile({ id: lastMessageId, type: 'reasoning' });
     }
   }, [isCompletedStream, hasReasoning]);

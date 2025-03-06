@@ -7,7 +7,6 @@ import {
 } from '@fluentui/react-context-selector';
 import React, { PropsWithChildren, useTransition } from 'react';
 import type { SelectedFile } from '../interfaces';
-import type { ChatSplitterProps } from '../ChatLayout';
 import { useMemoizedFn } from 'ahooks';
 import type { AppSplitterRef } from '@/components/ui/layouts';
 import { createChatAssetRoute, createFileRoute } from './helpers';
@@ -60,7 +59,6 @@ export const useChatLayout = ({
     if (route) {
       setRenderViewLayoutKey('both');
       startTransition(() => {
-        console.log('HERE! FIX THIS HERE!');
         onChangePage(route);
         animateOpenSplitter('both');
       });
@@ -84,18 +82,13 @@ export const useChatLayout = ({
     }
   });
 
-  const {
-    setIsCollapseOpen,
-    setRenderViewLayoutKey,
-    renderViewLayoutKey,
-    collapseDirection,
-    isCollapseOpen
-  } = useInitialChatLayout({
+  const initialChatLayout = useInitialChatLayout({
     selectedLayout,
     selectedFile,
     chatId,
     onCollapseFileClick
   });
+  const { setIsCollapseOpen, setRenderViewLayoutKey, isCollapseOpen } = initialChatLayout;
 
   const fileLayoutContext = useChatFileLayout({
     selectedFileId: selectedFile?.id,
@@ -104,9 +97,7 @@ export const useChatLayout = ({
 
   return {
     ...fileLayoutContext,
-    renderViewLayoutKey,
-    collapseDirection,
-    isCollapseOpen,
+    ...initialChatLayout,
     onSetSelectedFile,
     onCollapseFileClick,
     animateOpenSplitter

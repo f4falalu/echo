@@ -1,8 +1,10 @@
+'use client';
+
 import { useMemoizedFn, useUpdateEffect, useUpdateLayoutEffect } from 'ahooks';
 import { useEffect, useMemo, useState } from 'react';
-import { ChatSplitterProps } from '../ChatLayout';
 import { useBusterChatContextSelector } from '@/context/Chats';
 import { SelectedFileParams } from './useDefaultFile';
+import { ChatLayoutView } from '../interfaces';
 
 export const useInitialChatLayout = ({
   selectedLayout,
@@ -17,7 +19,7 @@ export const useInitialChatLayout = ({
 }) => {
   const getChatMemoized = useBusterChatContextSelector((x) => x.getChatMemoized);
   const isReasoningFile = selectedFile?.type === 'reasoning';
-  const [renderViewLayoutKey, setRenderViewLayoutKey] = useState<'chat' | 'file' | 'both'>(
+  const [renderViewLayoutKey, setRenderViewLayoutKey] = useState<ChatLayoutView>(
     selectedLayout || 'chat'
   );
   const [isCollapseOpen, setIsCollapseOpen] = useState(isReasoningFile ? true : false);
