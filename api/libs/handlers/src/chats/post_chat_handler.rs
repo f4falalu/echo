@@ -224,6 +224,10 @@ pub async fn post_chat_handler(
     // Process all messages from the agent
     while let Ok(message_result) = rx.recv().await {
         match message_result {
+            Ok(AgentMessage::Done) => {
+                // Agent has finished processing, break the loop
+                break;
+            }
             Ok(msg) => {
                 // Store the original message for file processing
                 all_messages.push(msg.clone());
@@ -460,6 +464,8 @@ async fn process_completed_files(
     user_id: &Uuid,
 ) -> Result<()> {
     let mut transformed_messages = Vec::new();
+    let mut processed_file_ids = std::collections::HashSet::new();
+
     for msg in messages {
         if let Ok(containers) =
             transform_message(&message.chat_id, &message.id, msg.clone(), None).await
@@ -474,6 +480,11 @@ async fn process_completed_files(
             BusterContainer::ReasoningMessage(msg) => match &msg.reasoning {
                 BusterReasoningMessage::File(file) if file.message_type == "files" => {
                     for file_id in &file.file_ids {
+                        // Skip if we've already processed this file ID
+                        if !processed_file_ids.insert(file_id.clone()) {
+                            continue;
+                        }
+
                         if let Some(file_content) = file.files.get(file_id) {
                             // Only process files that have completed reasoning
                             if file.status == "completed" {

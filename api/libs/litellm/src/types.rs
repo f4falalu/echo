@@ -149,6 +149,7 @@ pub enum AgentMessage {
         #[serde(skip)]
         progress: MessageProgress,
     },
+    Done
 }
 
 // Helper methods for Message
@@ -213,6 +214,7 @@ impl AgentMessage {
             Self::User { .. } => "user".to_string(),
             Self::Assistant { .. } => "assistant".to_string(),
             Self::Tool { .. } => "tool".to_string(),
+            Self::Done => "done".to_string(),
         }
     }
 
@@ -223,6 +225,7 @@ impl AgentMessage {
             Self::User { content, .. } => Some(content.clone()),
             Self::Assistant { content, .. } => content.clone(),
             Self::Tool { content, .. } => Some(content.clone()),
+            Self::Done => None,
         }
     }
 
@@ -248,6 +251,7 @@ impl AgentMessage {
             Self::Tool { id, .. } => *id = Some(new_id.clone()),
             Self::Developer { id, .. } => *id = Some(new_id.clone()),
             Self::User { id, .. } => *id = Some(new_id),
+            Self::Done => {}
         }
     }
 
@@ -257,6 +261,7 @@ impl AgentMessage {
             Self::Tool { id, .. } => id.clone(),
             Self::Developer { id, .. } => id.clone(),
             Self::User { id, .. } => id.clone(),
+            Self::Done => None,
         }
     }
 }

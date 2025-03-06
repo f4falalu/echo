@@ -352,9 +352,12 @@ impl Agent {
                     if let Err(e) = result {
                         let err_msg = format!("Error processing thread: {:?}", e);
                         let _ = agent_clone.get_stream_sender().await.send(Err(AgentError(err_msg)));
+                        // Send Done message after error
+                        let _ = agent_clone.get_stream_sender().await.send(Ok(AgentMessage::Done));
                     }
                 },
                 _ = shutdown_rx.recv() => {
+                    // Send shutdown notification
                     let _ = agent_clone.get_stream_sender().await.send(
                         Ok(AgentMessage::assistant(
                             Some("shutdown_message".to_string()),
@@ -365,6 +368,8 @@ impl Agent {
                             Some(agent_clone.name.clone()),
                         ))
                     );
+                    // Send Done message after shutdown
+                    let _ = agent_clone.get_stream_sender().await.send(Ok(AgentMessage::Done));
                 }
             }
         });
@@ -507,7 +512,10 @@ impl Agent {
 
         // If this is an auto response without tool calls, it means we're done
         if final_tool_calls.is_none() {
-            self.close().await;
+            // Send Done message and return
+            self.get_stream_sender()
+                .await
+                .send(Ok(AgentMessage::Done))?;
             return Ok(());
         }
 
@@ -547,6 +555,10 @@ impl Agent {
 
             Box::pin(self.process_thread_with_depth(&new_thread, recursion_depth + 1)).await
         } else {
+            // Send Done message and return
+            self.get_stream_sender()
+                .await
+                .send(Ok(AgentMessage::Done))?;
             Ok(())
         }
     }
