@@ -293,7 +293,7 @@ impl StreamingParser {
                     message_type: "files".to_string(),
                     title: format!("Creating {} files...", file_type),
                     secondary_title: String::new(),
-                    status: "loading".to_string(),
+                    status: "completed".to_string(),
                     file_ids,
                     files: files_map,
                 })));
