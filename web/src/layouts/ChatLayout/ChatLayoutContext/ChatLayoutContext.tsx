@@ -59,8 +59,9 @@ export const useChatLayout = ({
 
     if (route) {
       setRenderViewLayoutKey('both');
-      onChangePage(route);
       startTransition(() => {
+        console.log('HERE! FIX THIS HERE!');
+        onChangePage(route);
         animateOpenSplitter('both');
       });
     }

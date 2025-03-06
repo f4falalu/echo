@@ -20,7 +20,6 @@ export const NewDatasetModal: React.FC<{
   afterCreate?: () => void;
   datasourceId?: string;
 }> = React.memo(({ open, onClose, beforeCreate, afterCreate, datasourceId }) => {
-  const router = useRouter();
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
   const { mutateAsync: createDataset, isPending: creatingDataset } = useCreateDataset();
   const [selectedDatasource, setSelectedDatasource] = React.useState<string | null>(
@@ -54,7 +53,7 @@ export const NewDatasetModal: React.FC<{
   });
 
   const onAddDataSourceClick = useMemoizedFn(() => {
-    router.push(createBusterRoute({ route: BusterRoutes.SETTINGS_DATASOURCES_ADD }));
+    onChangePage(createBusterRoute({ route: BusterRoutes.SETTINGS_DATASOURCES_ADD }));
     setTimeout(() => {
       onClose();
     }, 450);
