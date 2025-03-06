@@ -182,7 +182,6 @@ export const useChatStreamMessage = () => {
             draft[chat_id]?.messages?.[message_id]?.response_messages?.[responseMessageId];
           if (!responseMessage) return;
           const messageText = responseMessage as BusterChatMessageReasoning_text;
-
           Object.assign(messageText, {
             ...existingResponseMessageText,
             ...response_message,

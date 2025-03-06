@@ -20,13 +20,19 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
       messageId,
       (x) => x?.reasoning_message_ids?.[x.reasoning_message_ids.length - 1]
     );
-
-    const lastMessageIndex = responseMessageIds.length - 1;
-    const showDefaultMessage = responseMessageIds.length === 0;
+    const finalReasoningMessage = useMessageIndividual(
+      messageId,
+      (x) => x?.final_reasoning_message
+    );
 
     return (
-      <MessageContainer className="flex w-full flex-col overflow-hidden">
-        {showDefaultMessage && <DefaultFirstMessage />}
+      <MessageContainer className="flex w-full flex-col space-y-3 overflow-hidden">
+        <ChatResponseReasoning
+          reasoningMessageId={lastReasoningMessageId}
+          finalReasoningMessage={finalReasoningMessage}
+          isCompletedStream={isCompletedStream}
+          messageId={messageId}
+        />
 
         {responseMessageIds.map((responseMessageId, index) => (
           <React.Fragment key={responseMessageId}>
@@ -35,14 +41,6 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
               messageId={messageId}
               isCompletedStream={isCompletedStream}
             />
-
-            {index === lastMessageIndex && lastReasoningMessageId && (
-              <ChatResponseReasoning
-                reasoningMessageId={lastReasoningMessageId}
-                isCompletedStream={isCompletedStream}
-                messageId={messageId}
-              />
-            )}
           </React.Fragment>
         ))}
       </MessageContainer>
@@ -51,11 +49,3 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
 );
 
 ChatResponseMessages.displayName = 'ChatResponseMessages';
-
-const DefaultFirstMessage: React.FC = () => {
-  return (
-    <div>
-      <ShimmerText text="Thinking..." />
-    </div>
-  );
-};
