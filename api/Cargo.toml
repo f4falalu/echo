@@ -28,7 +28,7 @@ diesel = { version = "2", features = [
 diesel-async = { version = "0.5.2", features = ["postgres", "bb8"] }
 futures = "0.3.30"
 async-trait = "0.1.85"
-thiserror = "1.0.58"
+thiserror = "2.0.12"
 tokio-test = "0.4.3"
 futures-util = "0.3"
 reqwest = { version = "0.12.4", features = ["json", "stream"] }

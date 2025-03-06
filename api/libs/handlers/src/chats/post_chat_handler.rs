@@ -1624,6 +1624,9 @@ async fn initialize_chat(
             updated_at: Utc::now(),
             deleted_at: None,
             updated_by: user.id.clone(),
+            publicly_accessible: false,
+            publicly_enabled_by: None,
+            public_expiry_date: None,
         };
 
         // Create initial message

@@ -92,6 +92,9 @@ diesel::table! {
         deleted_at -> Nullable<Timestamptz>,
         created_by -> Uuid,
         updated_by -> Uuid,
+        publicly_accessible -> Bool,
+        publicly_enabled_by -> Nullable<Uuid>,
+        public_expiry_date -> Nullable<Timestamptz>,
     }
 }
 
@@ -137,6 +140,9 @@ diesel::table! {
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
         deleted_at -> Nullable<Timestamptz>,
+        publicly_accessible -> Bool,
+        publicly_enabled_by -> Nullable<Uuid>,
+        public_expiry_date -> Nullable<Timestamptz>,
     }
 }
 
@@ -390,6 +396,9 @@ diesel::table! {
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
         deleted_at -> Nullable<Timestamptz>,
+        publicly_accessible -> Bool,
+        publicly_enabled_by -> Nullable<Uuid>,
+        public_expiry_date -> Nullable<Timestamptz>,
     }
 }
 
@@ -597,6 +606,7 @@ diesel::joinable!(api_keys -> organizations (organization_id));
 diesel::joinable!(api_keys -> users (owner_id));
 diesel::joinable!(chats -> organizations (organization_id));
 diesel::joinable!(collections -> organizations (organization_id));
+diesel::joinable!(dashboard_files -> users (publicly_enabled_by));
 diesel::joinable!(dashboard_versions -> dashboards (dashboard_id));
 diesel::joinable!(dashboards -> organizations (organization_id));
 diesel::joinable!(data_sources -> organizations (organization_id));
@@ -616,6 +626,7 @@ diesel::joinable!(messages -> users (created_by));
 diesel::joinable!(messages_deprecated -> datasets (dataset_id));
 diesel::joinable!(messages_deprecated -> users (sent_by));
 diesel::joinable!(messages_to_files -> messages (message_id));
+diesel::joinable!(metric_files -> users (publicly_enabled_by));
 diesel::joinable!(permission_groups -> organizations (organization_id));
 diesel::joinable!(permission_groups_to_users -> permission_groups (permission_group_id));
 diesel::joinable!(permission_groups_to_users -> users (user_id));

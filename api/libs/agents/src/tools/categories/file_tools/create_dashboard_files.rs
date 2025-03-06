@@ -109,6 +109,9 @@ async fn process_dashboard_file(
         created_at: Utc::now(),
         updated_at: Utc::now(),
         deleted_at: None,
+        publicly_accessible: false,
+        publicly_enabled_by: None,
+        public_expiry_date: None,
     };
 
     Ok((dashboard_file, dashboard_yml))

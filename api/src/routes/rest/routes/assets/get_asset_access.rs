@@ -56,71 +56,74 @@ async fn get_asset_access_handler(
 
     let (asset_info, user_permission) = match asset_type {
         AssetType::Collection => {
-            return Err(anyhow!(
-                "Public access is not supported for collections yet"
-            ))
-        }
+                        return Err(anyhow!(
+                            "Public access is not supported for collections yet"
+                        ))
+            }
         AssetType::Dashboard => {
-            let mut conn = pg_pool.get().await?;
+                let mut conn = pg_pool.get().await?;
 
-            let dashboard_info = dashboards::table
-                .select((
-                    dashboards::id,
-                    dashboards::publicly_accessible,
-                    dashboards::password_secret_id.is_not_null(),
-                    dashboards::public_expiry_date,
-                ))
-                .filter(dashboards::id.eq(&asset_id))
-                .filter(dashboards::deleted_at.is_null())
-                .first::<(Uuid, bool, bool, Option<DateTime<Utc>>)>(&mut conn)
-                .await?;
+                let dashboard_info = dashboards::table
+                    .select((
+                        dashboards::id,
+                        dashboards::publicly_accessible,
+                        dashboards::password_secret_id.is_not_null(),
+                        dashboards::public_expiry_date,
+                    ))
+                    .filter(dashboards::id.eq(&asset_id))
+                    .filter(dashboards::deleted_at.is_null())
+                    .first::<(Uuid, bool, bool, Option<DateTime<Utc>>)>(&mut conn)
+                    .await?;
 
-            let user_permission = {
-                let pg_pool = pg_pool.clone();
-                let user_id = user.id.clone();
-                let asset_id = asset_id.clone();
-                tokio::spawn(async move {
-                    get_user_dashboard_permission(&pg_pool, &user_id, &asset_id).await
-                })
-            };
+                let user_permission = {
+                    let pg_pool = pg_pool.clone();
+                    let user_id = user.id.clone();
+                    let asset_id = asset_id.clone();
+                    tokio::spawn(async move {
+                        get_user_dashboard_permission(&pg_pool, &user_id, &asset_id).await
+                    })
+                };
 
-            let user_permission = user_permission
-                .await
-                .map_err(|_| anyhow!("Failed to join task"))? // Changed to discard error details
-                .unwrap_or(None); // Use None for both error and no permission cases
+                let user_permission = user_permission
+                    .await
+                    .map_err(|_| anyhow!("Failed to join task"))? // Changed to discard error details
+                    .unwrap_or(None); // Use None for both error and no permission cases
 
-            (dashboard_info, user_permission)
-        }
+                (dashboard_info, user_permission)
+            }
         AssetType::Thread => {
-            let mut conn = pg_pool.get().await?;
+                let mut conn = pg_pool.get().await?;
 
-            let thread_info = threads_deprecated::table
-                .select((
-                    threads_deprecated::id,
-                    threads_deprecated::publicly_accessible,
-                    threads_deprecated::password_secret_id.is_not_null(),
-                    threads_deprecated::public_expiry_date,
-                ))
-                .filter(threads_deprecated::id.eq(&asset_id))
-                .filter(threads_deprecated::deleted_at.is_null())
-                .first::<(Uuid, bool, bool, Option<DateTime<Utc>>)>(&mut conn)
-                .await?;
+                let thread_info = threads_deprecated::table
+                    .select((
+                        threads_deprecated::id,
+                        threads_deprecated::publicly_accessible,
+                        threads_deprecated::password_secret_id.is_not_null(),
+                        threads_deprecated::public_expiry_date,
+                    ))
+                    .filter(threads_deprecated::id.eq(&asset_id))
+                    .filter(threads_deprecated::deleted_at.is_null())
+                    .first::<(Uuid, bool, bool, Option<DateTime<Utc>>)>(&mut conn)
+                    .await?;
 
-            let user_permission = {
-                let pg_pool = pg_pool.clone();
-                let user_id = user.id.clone();
-                let asset_id = asset_id.clone();
-                tokio::spawn(async move {
-                    get_user_thread_permission(&pg_pool, &user_id, &asset_id).await
-                })
-            };
+                let user_permission = {
+                    let pg_pool = pg_pool.clone();
+                    let user_id = user.id.clone();
+                    let asset_id = asset_id.clone();
+                    tokio::spawn(async move {
+                        get_user_thread_permission(&pg_pool, &user_id, &asset_id).await
+                    })
+                };
 
-            let user_permission = user_permission
-                .await
-                .map_err(|_| anyhow!("Failed to join task"))? // Changed to discard error details
-                .unwrap_or(None); // Use None for both error and no permission cases
+                let user_permission = user_permission
+                    .await
+                    .map_err(|_| anyhow!("Failed to join task"))? // Changed to discard error details
+                    .unwrap_or(None); // Use None for both error and no permission cases
 
-            (thread_info, user_permission)
+                (thread_info, user_permission)
+            }
+        AssetType::Chat => {
+            return Err(anyhow!("Public access is not supported for chats yet"));
         }
     };
 
@@ -190,6 +193,10 @@ pub async fn get_user_dashboard_permission(
             AssetPermissionRole::Owner => 3,
             AssetPermissionRole::Editor => 2,
             AssetPermissionRole::Viewer => 1,
+            AssetPermissionRole::CanView => 0,
+            AssetPermissionRole::FullAccess => 0,
+            AssetPermissionRole::CanEdit => 0,
+            AssetPermissionRole::CanFilter => 0,
         })
         .ok_or_else(|| anyhow!("No dashboard found with permissions"))?;
 
@@ -260,6 +267,7 @@ pub async fn get_user_thread_permission(
                 AssetPermissionRole::Owner => 3,
                 AssetPermissionRole::Editor => 2,
                 AssetPermissionRole::Viewer => 1,
+                _ => 0,
             })
             .ok_or_else(|| anyhow!("No thread found with permissions"))?;
 

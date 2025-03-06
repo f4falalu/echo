@@ -32,6 +32,9 @@ pub struct DashboardFile {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
+    pub publicly_accessible: bool,
+    pub publicly_enabled_by: Option<Uuid>,
+    pub public_expiry_date: Option<DateTime<Utc>>,
 }
 
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug, Clone, Serialize)]
@@ -79,6 +82,9 @@ pub struct MetricFile {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
+    pub publicly_accessible: bool,
+    pub publicly_enabled_by: Option<Uuid>,
+    pub public_expiry_date: Option<DateTime<Utc>>,
 }
 
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug, Clone, Serialize)]
@@ -94,6 +100,9 @@ pub struct Chat {
     pub deleted_at: Option<DateTime<Utc>>,
     pub created_by: Uuid,
     pub updated_by: Uuid,
+    pub publicly_accessible: bool,
+    pub publicly_enabled_by: Option<Uuid>,
+    pub public_expiry_date: Option<DateTime<Utc>>,
 }
 
 #[derive(Queryable, Insertable, Associations, Debug)]
