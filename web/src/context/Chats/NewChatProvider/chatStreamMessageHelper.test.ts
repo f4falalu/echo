@@ -522,7 +522,8 @@ describe('updateReasoningMessage', () => {
   });
 
   it('should handle multiple updates and append text to existing reasoning message', () => {
-    const reasoning: BusterChatMessageReasoning_text = {
+    const messageId = 'test-message-id';
+    let reasoning: BusterChatMessageReasoning_text = {
       id: 'reasoning-1',
       type: 'text',
       message: '',
@@ -533,23 +534,46 @@ describe('updateReasoningMessage', () => {
     };
 
     // First update with "Hello"
-    let result = updateReasoningMessage('test-message-id', undefined, reasoning);
+    let result = updateReasoningMessage(messageId, undefined, reasoning);
     expect(
       (result.reasoning_messages['reasoning-1'] as BusterChatMessageReasoning_text).message
     ).toBe('Hello');
 
     // Second update with ", how"
-    reasoning.message_chunk = ', how';
-    result = updateReasoningMessage('test-message-id', result, reasoning);
+    reasoning = {
+      ...reasoning,
+      message_chunk: ', how'
+    };
+    result = updateReasoningMessage(messageId, result, reasoning);
     expect(
       (result.reasoning_messages['reasoning-1'] as BusterChatMessageReasoning_text).message
     ).toBe('Hello, how');
 
     // Third update with " are you doing today?"
-    reasoning.message_chunk = ' are you doing today?';
-    result = updateReasoningMessage('test-message-id', result, reasoning);
+    reasoning = {
+      ...reasoning,
+      message_chunk: ' are you doing today?'
+    };
+    result = updateReasoningMessage(messageId, result, reasoning);
     expect(
       (result.reasoning_messages['reasoning-1'] as BusterChatMessageReasoning_text).message
     ).toBe('Hello, how are you doing today?');
+
+    let reasoning2: BusterChatMessageReasoning_text = {
+      ...reasoning,
+      message_chunk: 'new reasoning message baby',
+      id: 'reasoning-2'
+    };
+
+    result = updateReasoningMessage(messageId, result, reasoning2);
+    expect(
+      (result.reasoning_messages['reasoning-1'] as BusterChatMessageReasoning_text).message
+    ).toBe('Hello, how are you doing today?');
+
+    expect(result.reasoning_message_ids).toContain('reasoning-2');
+    expect(result.reasoning_message_ids.length).toBe(2);
+    expect(
+      (result.reasoning_messages['reasoning-2'] as BusterChatMessageReasoning_text).message
+    ).toBe('new reasoning message baby');
   });
 });

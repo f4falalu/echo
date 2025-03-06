@@ -16,55 +16,63 @@ export const useBlackBoxMessage = () => {
   const getChatMessageMemoized = useBusterChatContextSelector((x) => x.getChatMessageMemoized);
   const queryClient = useQueryClient();
 
-  const removeAutoThought = useMemoizedFn(({ messageId }: { messageId: string }) => {
-    console.log('removeAutoThought', messageId);
+  const clearTimeoutRef = useMemoizedFn((messageId: string) => {
     if (timeoutRef.current[messageId]) {
       clearTimeout(timeoutRef.current[messageId]);
       delete timeoutRef.current[messageId];
     }
+  });
+
+  const removeBlackBoxMessage = useMemoizedFn(({ messageId }: { messageId: string }) => {
+    console.log('removeBlackBoxMessage', messageId);
+    clearTimeoutRef(messageId);
 
     const options = queryKeys.chatsBlackBoxMessages(messageId);
     queryClient.setQueryData(options.queryKey, null);
   });
 
-  const addAutoThought = useMemoizedFn(({ messageId }: { messageId: string }) => {
+  const addBlackBoxMessage = useMemoizedFn(({ messageId }: { messageId: string }) => {
     const randomThought = getRandomThought();
     console.log(messageId, randomThought);
     const options = queryKeys.chatsBlackBoxMessages(messageId);
     queryClient.setQueryData(options.queryKey, randomThought);
   });
 
-  const checkAutoThought = useMemoizedFn(
+  const checkBlackBoxMessage = useMemoizedFn(
     (message: IBusterChatMessage, event: ChatEvent_GeneratingReasoningMessage) => {
       const isFinishedReasoningMessage = event.reasoning.status !== 'loading';
       if (isFinishedReasoningMessage) {
-        addAutoThought({ messageId: message.id });
+        clearTimeoutRef(message.id);
+        addBlackBoxMessage({ messageId: message.id });
         _loopAutoThought({ messageId: message.id });
       } else {
-        removeAutoThought({ messageId: message.id });
+        removeBlackBoxMessage({ messageId: message.id });
       }
     }
   );
 
   const _loopAutoThought = useMemoizedFn(async ({ messageId }: { messageId: string }) => {
-    const randomDelay = random(3000, 5000);
+    const randomDelay = random(5000, 5000);
     timeoutRef.current[messageId] = setTimeout(() => {
       const message = getChatMessageMemoized(messageId);
-      console.log('loopAutoThought', messageId, !!message);
       if (!message) return;
+      if (!timeoutRef.current[messageId]) return;
+
+      console.log('loopAutoThought', messageId, !!message);
+
       const isMessageCompletedStream = !!message?.isCompletedStream;
       const lastReasoningMessageId = last(message?.reasoning_message_ids) || '';
       const lastReasoningMessage = message?.reasoning_messages[lastReasoningMessageId];
       const isLastReasoningMessageCompleted = lastReasoningMessage?.status === 'completed';
 
       if (!isMessageCompletedStream && isLastReasoningMessageCompleted) {
-        addAutoThought({ messageId });
+        addBlackBoxMessage({ messageId });
         _loopAutoThought({ messageId });
       }
     }, randomDelay);
   });
 
-  return { checkAutoThought, removeAutoThought };
+  return { checkBlackBoxMessage, removeBlackBoxMessage };
 };
 
 const getRandomThought = (currentThought?: string): string => {

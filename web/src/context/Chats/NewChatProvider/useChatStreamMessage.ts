@@ -32,7 +32,7 @@ export const useChatStreamMessage = () => {
   const chatRefMessages = useRef<Record<string, IBusterChatMessage>>({});
   const [isPending, startTransition] = useTransition();
 
-  const { checkAutoThought, removeAutoThought } = useBlackBoxMessage();
+  const { checkBlackBoxMessage, removeBlackBoxMessage } = useBlackBoxMessage();
 
   const onUpdateChatMessageTransition = useMemoizedFn(
     (chatMessage: Parameters<typeof onUpdateChatMessage>[0]) => {
@@ -40,6 +40,7 @@ export const useChatStreamMessage = () => {
       const iChatMessage: IBusterChatMessage = create(currentChatMessage, (draft) => {
         Object.assign(draft || {}, chatMessage);
       })!;
+      chatRefMessages.current[chatMessage.id] = iChatMessage;
 
       onUpdateChatMessage(iChatMessage!);
 
@@ -65,7 +66,7 @@ export const useChatStreamMessage = () => {
     chatRef.current[iChat.id] = iChat;
     normalizeChatMessage(iChatMessages);
     onUpdateChat(iChat);
-    removeAutoThought({ messageId: iChat.message_ids[iChat.message_ids.length - 1] });
+    removeBlackBoxMessage({ messageId: iChat.message_ids[iChat.message_ids.length - 1] });
   });
 
   const stopChatCallback = useMemoizedFn((chatId: string) => {
@@ -127,12 +128,13 @@ export const useChatStreamMessage = () => {
   const _generatingReasoningMessageCallback = useMemoizedFn(
     (_: null, d: ChatEvent_GeneratingReasoningMessage) => {
       const { message_id, reasoning } = d;
-      const currentMessage = chatRefMessages.current[message_id];
-      const updatedMessage = updateReasoningMessage(message_id, currentMessage, reasoning);
+      const updatedMessage = updateReasoningMessage(
+        message_id,
+        chatRefMessages.current[message_id],
+        reasoning
+      );
 
-      checkAutoThought(updatedMessage, d);
-
-      //TRIGGER
+      checkBlackBoxMessage(updatedMessage, d); //we only trigger black box message if the reasoning message is completed
 
       onUpdateChatMessageTransition({
         id: message_id,
