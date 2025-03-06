@@ -68,9 +68,7 @@ export const useChatStreamMessage = () => {
 
   const completeChatCallback = useMemoizedFn((d: BusterChat) => {
     const { iChat, iChatMessages } = updateChatToIChat(d, false);
-    chatRef.current = create(chatRef.current, (draft) => {
-      draft[iChat.id] = iChat;
-    });
+    chatRef.current[iChat.id] = iChat;
     normalizeChatMessage(iChatMessages);
     onUpdateChat(iChat);
   });
@@ -84,9 +82,7 @@ export const useChatStreamMessage = () => {
 
   const initializeNewChatCallback = useMemoizedFn((d: BusterChat) => {
     const { iChat, iChatMessages } = updateChatToIChat(d, true);
-    chatRef.current = create(chatRef.current, (draft) => {
-      draft[iChat.id] = iChat;
-    });
+    chatRef.current[iChat.id] = iChat;
     normalizeChatMessage(iChatMessages);
     onUpdateChat(iChat);
     onChangePage({
@@ -99,7 +95,6 @@ export const useChatStreamMessage = () => {
     ({ prompt, messageId }: { prompt: string; messageId: string }) => {
       const currentMessage = getChatMessage(messageId);
       const currentRequestMessage = currentMessage?.request_message!;
-
       onUpdateChatMessage({
         id: messageId,
         request_message: create(currentRequestMessage, (draft) => {
