@@ -5,39 +5,39 @@ import type {
 import { useMemoizedFn } from 'ahooks';
 import sample from 'lodash/sample';
 import { useBusterChatContextSelector } from '../ChatProvider';
+import random from 'lodash/random';
+import last from 'lodash/last';
+import { timeout } from '@/lib/timeout';
+import { useState } from 'react';
 
-export const useAutoAppendThought = () => {
+export const useBlackBoxMessage = () => {
+  const [boxBoxMessages, setBoxBoxMessages] = useState<Record<string, string>>({});
+
   const onUpdateChatMessage = useBusterChatContextSelector((x) => x.onUpdateChatMessage);
   const getChatMessageMemoized = useBusterChatContextSelector((x) => x.getChatMessageMemoized);
 
-  const removeAutoThoughts = useMemoizedFn(
-    (reasoningMessages: BusterChatMessageReasoning[]): BusterChatMessageReasoning[] => {
-      return reasoningMessages.filter((rm) => rm.id !== AUTO_THOUGHT_ID);
-    }
-  );
+  const removeAutoThoughts = useMemoizedFn(() => {
+    //  return reasoningMessages.filter((rm) => rm.id !== AUTO_THOUGHT_ID);
+  });
 
-  const autoAppendThought = useMemoizedFn(
-    (
-      reasoningMessages: BusterChatMessageReasoning[],
-      chatId: string
-    ): BusterChatMessageReasoning[] => {
-      const lastReasoningMessage = reasoningMessages[reasoningMessages.length - 1];
-      const lastMessageIsCompleted =
-        !lastReasoningMessage || lastReasoningMessage?.status === 'completed';
+  const autoAppendThought = useMemoizedFn(({ messageId }: { messageId: string }) => {
+    //
+    // const lastReasoningMessage = reasoningMessages[reasoningMessages.length - 1];
+    // const lastMessageIsCompleted =
+    //   !lastReasoningMessage || lastReasoningMessage?.status === 'completed';
 
-      if (lastMessageIsCompleted) {
-        _loopAutoThought(chatId);
+    // if (lastMessageIsCompleted) {
+    //   _loopAutoThought(chatId);
 
-        return [...reasoningMessages, createAutoThought()];
-      }
+    //   return [...reasoningMessages, createAutoThought()];
+    // }
 
-      return removeAutoThoughts(reasoningMessages);
-    }
-  );
+    return removeAutoThoughts();
+  });
 
   const _loopAutoThought = useMemoizedFn(async (chatId: string) => {
-    // const randomDelay = random(3000, 5000);
-    // await timeout(randomDelay);
+    const randomDelay = random(3000, 5000);
+    await timeout(randomDelay);
     // const chatMessages = getChatMessagesMemoized(chatId);
     // const lastMessage = last(chatMessages);
     // const isCompletedStream = !!lastMessage?.isCompletedStream;
@@ -56,7 +56,6 @@ export const useAutoAppendThought = () => {
     //     isCompletedStream: false
     //   });
     //   _loopAutoThought(chatId);
-    // }
   });
 
   return { autoAppendThought, removeAutoThoughts };
@@ -67,18 +66,6 @@ const getRandomThought = (currentThought?: string): string => {
     ? DEFAULT_THOUGHTS.filter((t) => t !== currentThought)
     : DEFAULT_THOUGHTS;
   return sample(thoughts) ?? DEFAULT_THOUGHTS[0];
-};
-
-const AUTO_THOUGHT_ID = 'stub-thought-id';
-const createAutoThought = (currentThought?: string): BusterChatMessageReasoning_pills => {
-  return {
-    id: AUTO_THOUGHT_ID,
-    type: 'pills',
-    title: getRandomThought(currentThought),
-    secondary_title: '',
-    pill_containers: [],
-    status: 'loading'
-  };
 };
 
 const DEFAULT_THOUGHTS = [

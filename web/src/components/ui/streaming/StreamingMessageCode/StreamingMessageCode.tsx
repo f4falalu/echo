@@ -51,7 +51,7 @@ export const StreamingMessageCode: React.FC<
   version_id,
   buttons
 }) => {
-  const showLoader = status === 'loading';
+  const showLoader = status === 'loading' && !isCompletedStream;
   const { text = '', modified } = file;
 
   const [lineSegments, setLineSegments] = useState<LineSegment[]>([]);

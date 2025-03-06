@@ -4,9 +4,7 @@ import type {
   BusterChat,
   BusterChatMessageReasoning_files,
   BusterChatMessageReasoning_text,
-  BusterChatMessageReasoning_pills,
   BusterChatResponseMessage_text,
-  BusterChatMessageResponse,
   BusterChatMessageReasoning_file
 } from '@/api/asset_interfaces';
 import type {
@@ -15,7 +13,7 @@ import type {
   ChatEvent_GeneratingTitle
 } from '@/api/buster_socket/chats';
 import { updateChatToIChat } from '@/lib/chat';
-import { useAutoAppendThought } from './useAutoAppendThought';
+import { useBlackBoxMessage } from './useBlackBoxMessage';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
 import { useSocketQueryOn } from '@/api/buster_socket_query';
@@ -31,13 +29,16 @@ export const useChatStreamMessage = () => {
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const onUpdateChat = useBusterChatContextSelector((x) => x.onUpdateChat);
   const onUpdateChatMessage = useBusterChatContextSelector((x) => x.onUpdateChatMessage);
-  const chatRef = useRef<Record<string, Partial<IBusterChat>>>({});
+  const chatRef = useRef<Record<string, IBusterChat>>({});
+  const chatRefMessages = useRef<Record<string, IBusterChatMessage>>({});
   const [isPending, startTransition] = useTransition();
 
+  const { autoAppendThought } = useBlackBoxMessage();
+
   const onUpdateChatMessageTransition = useMemoizedFn(
-    (chatMessage: Parameters<typeof onUpdateChatMessage>[0], chatId: string) => {
-      const currentChatMessage = chatRef.current[chatId]?.messages?.[chatMessage.id];
-      const iChatMessage = create(currentChatMessage, (draft) => {
+    (chatMessage: Parameters<typeof onUpdateChatMessage>[0]) => {
+      const currentChatMessage = chatRefMessages.current[chatMessage.id];
+      const iChatMessage: IBusterChatMessage = create(currentChatMessage, (draft) => {
         Object.assign(draft || {}, chatMessage);
       })!;
 
@@ -49,32 +50,14 @@ export const useChatStreamMessage = () => {
     }
   );
 
-  const { autoAppendThought } = useAutoAppendThought();
-
   const initializeOrUpdateMessage = useMemoizedFn(
-    (
-      chatId: string,
-      messageId: string,
-      updateFn: (draft: Record<string, Partial<IBusterChat>>) => void
-    ) => {
-      chatRef.current = create(chatRef.current, (draft) => {
-        if (!draft[chatId]) draft[chatId] = {};
-        if (!draft[chatId].messages) draft[chatId].messages = {};
-        if (!draft[chatId].messages[messageId]) {
-          draft[chatId].messages[messageId] = {
-            id: messageId,
-            request_message: null,
-            response_message_ids: [],
-            response_messages: {},
-            reasoning_message_ids: [],
-            reasoning_messages: {},
-            created_at: new Date().toISOString(),
-            final_reasoning_message: null
-          };
-        }
-
+    (messageId: string, updateFn: (draft: IBusterChatMessage) => void) => {
+      const currentMessage = chatRefMessages.current[messageId];
+      const updatedMessage = create(currentMessage || {}, (draft) => {
         updateFn(draft);
       });
+      chatRefMessages.current[messageId] = updatedMessage;
+      onUpdateChatMessage(updatedMessage);
     }
   );
 
@@ -84,6 +67,7 @@ export const useChatStreamMessage = () => {
         const options = queryKeys.chatsMessages(message.id);
         const queryKey = options.queryKey;
         queryClient.setQueryData(queryKey, message);
+        chatRefMessages.current[message.id] = message;
       }
     }
   );
@@ -92,7 +76,6 @@ export const useChatStreamMessage = () => {
     const { iChat, iChatMessages } = updateChatToIChat(d, false);
     chatRef.current = create(chatRef.current, (draft) => {
       draft[iChat.id] = iChat;
-      draft[iChat.id].messages = iChatMessages;
     });
     normalizeChatMessage(iChatMessages);
     onUpdateChat(iChat);
@@ -109,8 +92,8 @@ export const useChatStreamMessage = () => {
     const { iChat, iChatMessages } = updateChatToIChat(d, true);
     chatRef.current = create(chatRef.current, (draft) => {
       draft[iChat.id] = iChat;
-      draft[iChat.id].messages = iChatMessages;
     });
+
     normalizeChatMessage(iChatMessages);
     onUpdateChat(iChat);
     onChangePage({
@@ -141,8 +124,7 @@ export const useChatStreamMessage = () => {
     const currentTitle = chatRef.current[chat_id]?.title || '';
     const newTitle = isCompleted ? title : currentTitle + title_chunk;
     chatRef.current = create(chatRef.current, (draft) => {
-      if (!draft[chat_id]) draft[chat_id] = {};
-      draft[chat_id].title = newTitle;
+      if (newTitle) draft[chat_id].title = newTitle;
     });
     onUpdateChat({
       id: chat_id,
@@ -158,28 +140,29 @@ export const useChatStreamMessage = () => {
 
       const responseMessageId = response_message.id;
       const existingMessage =
-        chatRef.current[chat_id]?.messages?.[message_id]?.response_messages?.[responseMessageId];
+        chatRefMessages.current[message_id]?.response_messages?.[responseMessageId];
       const isNewMessage = !existingMessage;
 
       if (isNewMessage) {
-        initializeOrUpdateMessage(chat_id, message_id, (draft) => {
-          const chat = draft[chat_id];
-          if (!chat?.messages?.[message_id]) return;
-          if (!chat.messages[message_id].response_messages)
-            chat.messages[message_id].response_messages = {};
-          chat.messages[message_id].response_messages[responseMessageId] = response_message;
-          chat.messages[message_id].response_message_ids.push(responseMessageId);
+        initializeOrUpdateMessage(message_id, (draft) => {
+          if (!draft.response_messages) {
+            draft.response_messages = {};
+          }
+          draft.response_messages[responseMessageId] = response_message;
+          if (!draft.response_message_ids) {
+            draft.response_message_ids = [];
+          }
+          draft.response_message_ids.push(responseMessageId);
         });
       }
 
       if (response_message.type === 'text') {
         const existingResponseMessageText = existingMessage as BusterChatResponseMessage_text;
         const isStreaming =
-          response_message.message_chunk !== undefined || response_message.message_chunk !== null;
+          response_message.message_chunk !== undefined && response_message.message_chunk !== null;
 
-        initializeOrUpdateMessage(chat_id, message_id, (draft) => {
-          const responseMessage =
-            draft[chat_id]?.messages?.[message_id]?.response_messages?.[responseMessageId];
+        initializeOrUpdateMessage(message_id, (draft) => {
+          const responseMessage = draft.response_messages?.[responseMessageId];
           if (!responseMessage) return;
           const messageText = responseMessage as BusterChatMessageReasoning_text;
           Object.assign(messageText, {
@@ -193,18 +176,12 @@ export const useChatStreamMessage = () => {
         });
       }
 
-      const response_messages = chatRef.current[chat_id]?.messages?.[message_id]?.response_messages;
-      const response_message_ids =
-        chatRef.current[chat_id]?.messages?.[message_id]?.response_message_ids;
-
-      onUpdateChatMessageTransition(
-        {
-          id: message_id,
-          response_messages,
-          response_message_ids
-        },
-        chat_id
-      );
+      const currentMessage = chatRefMessages.current[message_id];
+      onUpdateChatMessageTransition({
+        id: message_id,
+        response_messages: currentMessage?.response_messages,
+        response_message_ids: currentMessage?.response_message_ids
+      });
     }
   );
 
@@ -214,17 +191,19 @@ export const useChatStreamMessage = () => {
 
       const reasoningMessageId = reasoning.id;
       const existingMessage =
-        chatRef.current[chat_id]?.messages?.[message_id]?.reasoning_messages?.[reasoningMessageId];
+        chatRefMessages.current[message_id]?.reasoning_messages?.[reasoningMessageId];
       const isNewMessage = !existingMessage;
 
       if (isNewMessage) {
-        initializeOrUpdateMessage(chat_id, message_id, (draft) => {
-          const chat = draft[chat_id];
-          if (!chat?.messages?.[message_id]) return;
-          if (!chat.messages[message_id].reasoning_messages)
-            chat.messages[message_id].reasoning_messages = {};
-          chat.messages[message_id].reasoning_messages[reasoningMessageId] = reasoning;
-          chat.messages[message_id].reasoning_message_ids.push(reasoningMessageId);
+        initializeOrUpdateMessage(message_id, (draft) => {
+          if (!draft.reasoning_messages) {
+            draft.reasoning_messages = {};
+          }
+          draft.reasoning_messages[reasoningMessageId] = reasoning;
+          if (!draft.reasoning_message_ids) {
+            draft.reasoning_message_ids = [];
+          }
+          draft.reasoning_message_ids.push(reasoningMessageId);
         });
       }
 
@@ -234,9 +213,8 @@ export const useChatStreamMessage = () => {
           const isStreaming =
             reasoning.message_chunk !== null || reasoning.message_chunk !== undefined;
 
-          initializeOrUpdateMessage(chat_id, message_id, (draft) => {
-            const reasoningMessage =
-              draft[chat_id]?.messages?.[message_id]?.reasoning_messages?.[reasoningMessageId];
+          initializeOrUpdateMessage(message_id, (draft) => {
+            const reasoningMessage = draft.reasoning_messages?.[reasoningMessageId];
             if (!reasoningMessage) return;
             const messageText = reasoningMessage as BusterChatMessageReasoning_text;
 
@@ -254,14 +232,12 @@ export const useChatStreamMessage = () => {
         case 'files': {
           const existingReasoningMessageFiles = existingMessage as BusterChatMessageReasoning_files;
 
-          initializeOrUpdateMessage(chat_id, message_id, (draft) => {
-            const chat = draft[chat_id];
-            if (!chat?.messages?.[message_id]?.reasoning_messages?.[reasoningMessageId]) return;
+          initializeOrUpdateMessage(message_id, (draft) => {
+            const reasoningMessage = draft.reasoning_messages?.[reasoningMessageId];
+            if (!reasoningMessage) return;
 
             const messageFiles = create(
-              chat.messages[message_id].reasoning_messages[
-                reasoningMessageId
-              ] as BusterChatMessageReasoning_files,
+              reasoningMessage as BusterChatMessageReasoning_files,
               (draft) => {
                 draft.file_ids = existingReasoningMessageFiles?.file_ids || [];
 
@@ -305,15 +281,14 @@ export const useChatStreamMessage = () => {
               }
             );
 
-            chat.messages[message_id].reasoning_messages[reasoningMessageId] = messageFiles;
+            draft.reasoning_messages[reasoningMessageId] = messageFiles;
           });
           break;
         }
         case 'pills': {
-          initializeOrUpdateMessage(chat_id, message_id, (draft) => {
-            if (!draft[chat_id]?.messages?.[message_id]?.reasoning_messages?.[reasoningMessageId])
-              return;
-            draft[chat_id].messages[message_id].reasoning_messages[reasoningMessageId]! = reasoning;
+          initializeOrUpdateMessage(message_id, (draft) => {
+            if (!draft.reasoning_messages?.[reasoningMessageId]) return;
+            draft.reasoning_messages[reasoningMessageId] = reasoning;
           });
 
           break;
@@ -324,20 +299,13 @@ export const useChatStreamMessage = () => {
         }
       }
 
-      const reasoning_messages =
-        chatRef.current[chat_id]?.messages?.[message_id]?.reasoning_messages;
-      const reasoning_message_ids =
-        chatRef.current[chat_id]?.messages?.[message_id]?.reasoning_message_ids;
-
-      onUpdateChatMessageTransition(
-        {
-          id: message_id,
-          reasoning_messages,
-          reasoning_message_ids,
-          isCompletedStream: false
-        },
-        chat_id
-      );
+      const currentMessage = chatRefMessages.current[message_id];
+      onUpdateChatMessageTransition({
+        id: message_id,
+        reasoning_messages: currentMessage?.reasoning_messages,
+        reasoning_message_ids: currentMessage?.reasoning_message_ids,
+        isCompletedStream: false
+      });
     }
   );
 
