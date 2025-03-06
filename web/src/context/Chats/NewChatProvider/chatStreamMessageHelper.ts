@@ -1,6 +1,10 @@
 import { create } from 'mutative';
 import { IBusterChat, IBusterChatMessage } from '../interfaces';
-import { ChatEvent_GeneratingTitle } from '@/api/buster_socket/chats';
+import {
+  ChatEvent_GeneratingTitle,
+  ChatEvent_GeneratingResponseMessage
+} from '@/api/buster_socket/chats';
+import { BusterChatResponseMessage_text } from '@/api/asset_interfaces';
 
 const createInitialMessage = (messageId: string): IBusterChatMessage => ({
   id: messageId,
@@ -40,4 +44,56 @@ export const updateChatTitle = (
   return create(currentChat, (draft) => {
     if (newTitle) draft.title = newTitle;
   });
+};
+
+export const updateResponseMessage = (
+  messageId: string,
+  currentMessage: IBusterChatMessage | undefined,
+  event: ChatEvent_GeneratingResponseMessage
+): IBusterChatMessage => {
+  const { response_message } = event;
+
+  if (!response_message?.id) {
+    return currentMessage || createInitialMessage(messageId);
+  }
+
+  const responseMessageId = response_message.id;
+  const existingResponseMessage = currentMessage?.response_messages?.[responseMessageId];
+  const isNewResponseMessage = !existingResponseMessage;
+
+  let updatedMessage = currentMessage || createInitialMessage(messageId);
+
+  if (isNewResponseMessage) {
+    updatedMessage = initializeOrUpdateMessage(messageId, updatedMessage, (draft) => {
+      if (!draft.response_messages) {
+        draft.response_messages = {};
+      }
+      draft.response_messages[responseMessageId] = response_message;
+      if (!draft.response_message_ids) {
+        draft.response_message_ids = [];
+      }
+      draft.response_message_ids.push(responseMessageId);
+    });
+  }
+
+  if (response_message.type === 'text') {
+    const existingResponseMessageText = existingResponseMessage as BusterChatResponseMessage_text;
+    const isStreaming =
+      response_message.message_chunk !== undefined && response_message.message_chunk !== null;
+
+    updatedMessage = initializeOrUpdateMessage(messageId, updatedMessage, (draft) => {
+      const responseMessage = draft.response_messages?.[responseMessageId];
+      if (!responseMessage) return;
+      const messageText = responseMessage as BusterChatResponseMessage_text;
+      Object.assign(messageText, {
+        ...existingResponseMessageText,
+        ...response_message,
+        message: isStreaming
+          ? (existingResponseMessageText?.message || '') + (response_message.message_chunk || '')
+          : response_message.message
+      });
+    });
+  }
+
+  return updatedMessage;
 };

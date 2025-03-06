@@ -22,7 +22,11 @@ import { IBusterChat, IBusterChatMessage } from '../interfaces';
 import { queryKeys } from '@/api/query_keys';
 import { useQueryClient } from '@tanstack/react-query';
 import { create } from 'mutative';
-import { initializeOrUpdateMessage, updateChatTitle } from './chatStreamMessageHelper';
+import {
+  initializeOrUpdateMessage,
+  updateChatTitle,
+  updateResponseMessage
+} from './chatStreamMessageHelper';
 
 export const useChatStreamMessage = () => {
   const queryClient = useQueryClient();
@@ -116,55 +120,18 @@ export const useChatStreamMessage = () => {
 
   const _generatingResponseMessageCallback = useMemoizedFn(
     (_: null, d: ChatEvent_GeneratingResponseMessage) => {
-      const { message_id, response_message } = d;
+      const { message_id } = d;
 
-      if (!response_message?.id) return;
-
-      const responseMessageId = response_message.id;
-      const existingResponseMessage =
-        chatRefMessages.current[message_id]?.response_messages?.[responseMessageId];
-      const isNewResponseMessage = !existingResponseMessage;
-
-      let currentMessage = chatRefMessages.current[message_id];
-
-      if (isNewResponseMessage) {
-        currentMessage = initializeOrUpdateMessage(message_id, currentMessage, (draft) => {
-          if (!draft.response_messages) {
-            draft.response_messages = {};
-          }
-          draft.response_messages[responseMessageId] = response_message;
-          if (!draft.response_message_ids) {
-            draft.response_message_ids = [];
-          }
-          draft.response_message_ids.push(responseMessageId);
-        });
-      }
-
-      if (response_message.type === 'text') {
-        const existingResponseMessageText =
-          existingResponseMessage as BusterChatResponseMessage_text;
-        const isStreaming =
-          response_message.message_chunk !== undefined && response_message.message_chunk !== null;
-
-        currentMessage = initializeOrUpdateMessage(message_id, currentMessage, (draft) => {
-          const responseMessage = draft.response_messages?.[responseMessageId];
-          if (!responseMessage) return;
-          const messageText = responseMessage as BusterChatMessageReasoning_text;
-          Object.assign(messageText, {
-            ...existingResponseMessageText,
-            ...response_message,
-            message: isStreaming
-              ? (existingResponseMessageText?.message || '') +
-                (response_message.message_chunk || '')
-              : response_message.message
-          });
-        });
-      }
+      const updatedMessage = updateResponseMessage(
+        message_id,
+        chatRefMessages.current[message_id],
+        d
+      );
 
       onUpdateChatMessageTransition({
         id: message_id,
-        response_messages: currentMessage?.response_messages,
-        response_message_ids: currentMessage?.response_message_ids
+        response_messages: updatedMessage?.response_messages,
+        response_message_ids: updatedMessage?.response_message_ids
       });
     }
   );
