@@ -588,7 +588,7 @@ pub async fn process_metric_file(
 
     let metric_file = MetricFile {
         id: metric_id,
-        name: metric_yml.title.clone(),
+        name: file_name.clone(),
         file_name: file_name.clone(),
         content: serde_json::to_value(metric_yml.clone())
             .map_err(|e| format!("Failed to process metric: {}", e))?,
