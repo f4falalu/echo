@@ -1,64 +1,60 @@
-import type {
-  BusterChatMessageReasoning,
-  BusterChatMessageReasoning_pills
-} from '@/api/asset_interfaces';
 import { useMemoizedFn } from 'ahooks';
 import sample from 'lodash/sample';
 import { useBusterChatContextSelector } from '../ChatProvider';
 import random from 'lodash/random';
 import last from 'lodash/last';
-import { timeout } from '@/lib/timeout';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { IBusterChatMessage } from '../interfaces';
+import { ChatEvent_GeneratingReasoningMessage } from '@/api/buster_socket/chats';
 
 export const useBlackBoxMessage = () => {
-  const [boxBoxMessages, setBoxBoxMessages] = useState<Record<string, string>>({});
-
-  const onUpdateChatMessage = useBusterChatContextSelector((x) => x.onUpdateChatMessage);
+  const [boxBoxMessages, setBoxBoxMessages] = useState<Record<string, string | null>>({});
+  const timeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
   const getChatMessageMemoized = useBusterChatContextSelector((x) => x.getChatMessageMemoized);
 
-  const removeAutoThoughts = useMemoizedFn(() => {
-    //  return reasoningMessages.filter((rm) => rm.id !== AUTO_THOUGHT_ID);
+  const removeAutoThought = useMemoizedFn(({ messageId }: { messageId: string }) => {
+    if (timeoutRef.current[messageId]) {
+      clearTimeout(timeoutRef.current[messageId]);
+      delete timeoutRef.current[messageId];
+    }
+    setBoxBoxMessages((x) => ({ ...x, [messageId]: null }));
   });
 
-  const autoAppendThought = useMemoizedFn(({ messageId }: { messageId: string }) => {
-    //
-    // const lastReasoningMessage = reasoningMessages[reasoningMessages.length - 1];
-    // const lastMessageIsCompleted =
-    //   !lastReasoningMessage || lastReasoningMessage?.status === 'completed';
-
-    // if (lastMessageIsCompleted) {
-    //   _loopAutoThought(chatId);
-
-    //   return [...reasoningMessages, createAutoThought()];
-    // }
-
-    return removeAutoThoughts();
+  const addAutoThought = useMemoizedFn(({ messageId }: { messageId: string }) => {
+    const randomThought = getRandomThought();
+    setBoxBoxMessages((x) => ({ ...x, [messageId]: randomThought }));
   });
 
-  const _loopAutoThought = useMemoizedFn(async (chatId: string) => {
+  const checkAutoThought = useMemoizedFn(
+    (message: IBusterChatMessage, event: ChatEvent_GeneratingReasoningMessage) => {
+      const isFinishedReasoningMessage = event.progress === 'completed';
+      if (isFinishedReasoningMessage) {
+        addAutoThought({ messageId: message.id });
+        _loopAutoThought({ messageId: message.id });
+      } else {
+        removeAutoThought({ messageId: message.id });
+      }
+    }
+  );
+
+  const _loopAutoThought = useMemoizedFn(async ({ messageId }: { messageId: string }) => {
     const randomDelay = random(3000, 5000);
-    await timeout(randomDelay);
-    // const chatMessages = getChatMessagesMemoized(chatId);
-    // const lastMessage = last(chatMessages);
-    // const isCompletedStream = !!lastMessage?.isCompletedStream;
-    // const lastReasoningMessageId = last(lastMessage?.reasoning_message_ids) || '';
-    // const lastReasoningMessage = lastMessage?.reasoning_messages[lastReasoningMessageId];
-    // const lastReasoningMessageIsAutoAppended =
-    //   !lastReasoningMessage || lastReasoningMessage?.id === AUTO_THOUGHT_ID;
-    // if (!isCompletedStream && lastReasoningMessageIsAutoAppended && lastMessage) {
-    //   const lastMessageId = lastMessage?.id!;
-    //   const lastReasoningMessageIndex = lastMessage?.reasoning.length - 1;
-    //   const updatedReasoning = lastMessage?.reasoning.slice(0, lastReasoningMessageIndex);
-    //   const newReasoningMessages = [...updatedReasoning, createAutoThought()];
-    //   onUpdateChatMessage({
-    //     id: lastMessageId,
-    //     reasoning: newReasoningMessages,
-    //     isCompletedStream: false
-    //   });
-    //   _loopAutoThought(chatId);
+    timeoutRef.current[messageId] = setTimeout(() => {
+      const message = getChatMessageMemoized(messageId);
+      if (!message) return;
+      const isMessageCompletedStream = !!message?.isCompletedStream;
+      const lastReasoningMessageId = last(message?.reasoning_message_ids) || '';
+      const lastReasoningMessage = message?.reasoning_messages[lastReasoningMessageId];
+      const isLastReasoningMessageCompleted = lastReasoningMessage?.status === 'completed';
+
+      if (!isMessageCompletedStream && isLastReasoningMessageCompleted) {
+        addAutoThought({ messageId });
+        _loopAutoThought({ messageId });
+      }
+    }, randomDelay);
   });
 
-  return { autoAppendThought, removeAutoThoughts };
+  return { checkAutoThought, removeAutoThought };
 };
 
 const getRandomThought = (currentThought?: string): string => {

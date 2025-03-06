@@ -38,7 +38,7 @@ export const useChatStreamMessage = () => {
   const chatRefMessages = useRef<Record<string, IBusterChatMessage>>({});
   const [isPending, startTransition] = useTransition();
 
-  const { autoAppendThought } = useBlackBoxMessage();
+  const { checkAutoThought } = useBlackBoxMessage();
 
   const onUpdateChatMessageTransition = useMemoizedFn(
     (chatMessage: Parameters<typeof onUpdateChatMessage>[0]) => {
@@ -134,6 +134,10 @@ export const useChatStreamMessage = () => {
       const { message_id, reasoning } = d;
       const currentMessage = chatRefMessages.current[message_id];
       const updatedMessage = updateReasoningMessage(message_id, currentMessage, reasoning);
+
+      checkAutoThought(updatedMessage, d);
+
+      //TRIGGER
 
       onUpdateChatMessageTransition({
         id: message_id,
