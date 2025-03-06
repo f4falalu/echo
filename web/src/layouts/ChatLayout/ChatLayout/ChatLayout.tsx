@@ -13,7 +13,7 @@ interface ChatSplitterProps {
   children?: React.ReactNode;
 }
 
-export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(({ children }) => {
+export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
   const appSplitterRef = useRef<AppSplitterRef>(null);
 
   const useChatLayoutProps = useChatLayout({ appSplitterRef });
@@ -29,7 +29,7 @@ export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(({ children })
   const rightHidden = renderViewLayoutKey === 'chat';
   const leftHidden = renderViewLayoutKey === 'file';
 
-  console.log({ leftHidden, rightHidden });
+  console.log(children);
 
   return (
     <ChatLayoutContextProvider useChatLayoutProps={useChatLayoutProps}>
@@ -43,7 +43,7 @@ export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(({ children })
           rightChildren={<FileContainer>{children}</FileContainer>}
           autoSaveId="chat-splitter"
           defaultLayout={defaultSplitterLayout}
-          rightHidden={rightHidden}
+          rightHidden={false}
           leftHidden={leftHidden}
           preserveSide="left"
           leftPanelMinSize={selectedFile ? DEFAULT_CHAT_OPTION_SIDEBAR_SIZE : undefined}
@@ -51,6 +51,6 @@ export const ChatLayout: React.FC<ChatSplitterProps> = React.memo(({ children })
       </ChatContextProvider>
     </ChatLayoutContextProvider>
   );
-});
+};
 
 ChatLayout.displayName = 'ChatLayout';

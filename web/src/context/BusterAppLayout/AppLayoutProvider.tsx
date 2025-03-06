@@ -35,6 +35,7 @@ export const useAppLayout = () => {
   });
 
   const onChangePage = useMemoizedFn((params: BusterRoutesWithArgsRoute | string) => {
+    console.log('onChangePage', params);
     if (typeof params === 'string') {
       push(params);
     } else {
