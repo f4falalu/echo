@@ -31,9 +31,18 @@ const chatsGetList = (filters?: GetChatListParams) =>
     staleTime: 10 * 1000
   });
 
+const chatsBlackBoxMessages = (messageId: string) =>
+  queryOptions<string | null>({
+    queryKey: ['chats', 'messages', messageId, 'black-box'] as const,
+    staleTime: Infinity,
+    enabled: false,
+    queryFn: () => Promise.resolve(null)
+  });
+
 export const chatQueryKeys = {
   chatsGetChat,
   chatsGetList,
   chatsMessages,
-  chatsMessagesFetchingData
+  chatsMessagesFetchingData,
+  chatsBlackBoxMessages
 };

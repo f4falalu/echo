@@ -1,12 +1,6 @@
 import { useMemoizedFn } from 'ahooks';
 import { useBusterChatContextSelector } from '../ChatProvider';
-import type {
-  BusterChat,
-  BusterChatMessageReasoning_files,
-  BusterChatMessageReasoning_text,
-  BusterChatResponseMessage_text,
-  BusterChatMessageReasoning_file
-} from '@/api/asset_interfaces';
+import type { BusterChat } from '@/api/asset_interfaces';
 import type {
   ChatEvent_GeneratingReasoningMessage,
   ChatEvent_GeneratingResponseMessage,
@@ -38,7 +32,7 @@ export const useChatStreamMessage = () => {
   const chatRefMessages = useRef<Record<string, IBusterChatMessage>>({});
   const [isPending, startTransition] = useTransition();
 
-  const { checkAutoThought } = useBlackBoxMessage();
+  const { checkAutoThought, removeAutoThought } = useBlackBoxMessage();
 
   const onUpdateChatMessageTransition = useMemoizedFn(
     (chatMessage: Parameters<typeof onUpdateChatMessage>[0]) => {
@@ -71,6 +65,7 @@ export const useChatStreamMessage = () => {
     chatRef.current[iChat.id] = iChat;
     normalizeChatMessage(iChatMessages);
     onUpdateChat(iChat);
+    removeAutoThought({ messageId: iChat.message_ids[iChat.message_ids.length - 1] });
   });
 
   const stopChatCallback = useMemoizedFn((chatId: string) => {

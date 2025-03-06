@@ -1,28 +1,35 @@
+'use client';
+
 import { useMemoizedFn } from 'ahooks';
 import sample from 'lodash/sample';
 import { useBusterChatContextSelector } from '../ChatProvider';
 import random from 'lodash/random';
 import last from 'lodash/last';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { IBusterChatMessage } from '../interfaces';
 import { ChatEvent_GeneratingReasoningMessage } from '@/api/buster_socket/chats';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/query_keys';
 
 export const useBlackBoxMessage = () => {
-  const [boxBoxMessages, setBoxBoxMessages] = useState<Record<string, string | null>>({});
-  const timeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
+  const timeoutRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const getChatMessageMemoized = useBusterChatContextSelector((x) => x.getChatMessageMemoized);
+  const queryClient = useQueryClient();
 
   const removeAutoThought = useMemoizedFn(({ messageId }: { messageId: string }) => {
     if (timeoutRef.current[messageId]) {
       clearTimeout(timeoutRef.current[messageId]);
       delete timeoutRef.current[messageId];
     }
-    setBoxBoxMessages((x) => ({ ...x, [messageId]: null }));
+
+    const options = queryKeys.chatsBlackBoxMessages(messageId);
+    queryClient.setQueryData(options.queryKey, null);
   });
 
   const addAutoThought = useMemoizedFn(({ messageId }: { messageId: string }) => {
     const randomThought = getRandomThought();
-    setBoxBoxMessages((x) => ({ ...x, [messageId]: randomThought }));
+    const options = queryKeys.chatsBlackBoxMessages(messageId);
+    queryClient.setQueryData(options.queryKey, randomThought);
   });
 
   const checkAutoThought = useMemoizedFn(

@@ -6,6 +6,8 @@ import { AnimatePresence } from 'framer-motion';
 import { Text } from '@/components/ui/typography';
 import { useChatLayoutContextSelector } from '../../../ChatLayoutContext';
 import { useMessageIndividual } from '@/context/Chats';
+import { useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/api/query_keys';
 
 const animations = {
   initial: { opacity: 0 },
@@ -28,11 +30,17 @@ export const ChatResponseReasoning: React.FC<{
   const selectedFileType = useChatLayoutContextSelector((x) => x.selectedFileType);
   const isReasonginFileSelected = selectedFileType === 'reasoning' && isCompletedStream;
 
+  const blackBoxMessage = useQuery({
+    ...queryKeys.chatsBlackBoxMessages(messageId),
+    notifyOnChangeProps: ['data']
+  }).data;
+
   const text: string = useMemo(() => {
     if (finalReasoningMessage) return finalReasoningMessage;
+    if (blackBoxMessage) return blackBoxMessage;
     if (lastMessageTitle) return lastMessageTitle;
     return lastMessageTitle || 'Thinking...';
-  }, [lastMessageTitle, finalReasoningMessage]);
+  }, [lastMessageTitle, finalReasoningMessage, blackBoxMessage]);
 
   const onClickReasoning = useMemoizedFn(() => {
     onSetSelectedFile({
@@ -40,8 +48,6 @@ export const ChatResponseReasoning: React.FC<{
       id: messageId
     });
   });
-
-  console.log(isReasonginFileSelected, isCompletedStream);
 
   return (
     <AnimatePresence initial={!isCompletedStream} mode="wait">
