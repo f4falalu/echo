@@ -158,14 +158,11 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid) -> Result<Bust
     Ok(BusterMetric {
         id: metric_file.id.to_string(),
         metric_type: "metric".to_string(),
-        title: metric_yml.title,
+        title: metric_file.name,
         version_number: 1,
         description: metric_yml.description,
         file_name: metric_file.file_name,
-        time_frame: metric_yml
-            .updated_at
-            .map(|dt| dt.to_rfc3339())
-            .unwrap_or_else(|| "".to_string()),
+        time_frame: metric_yml.time_frame,
         datasets,
         data_source_id: "".to_string(), // This would need to be fetched from another source
         error: None,

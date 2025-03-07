@@ -361,6 +361,8 @@ impl ToolExecutor for ModifyDashboardFilesTool {
                                 yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
                                 result_message: None,
                                 results: None,
+                                created_at: file.created_at,
+                                updated_at: file.updated_at,
                             }),
                     );
                 }

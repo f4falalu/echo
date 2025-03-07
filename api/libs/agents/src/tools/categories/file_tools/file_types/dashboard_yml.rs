@@ -5,9 +5,6 @@ use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DashboardYml {
-    pub id: Option<Uuid>,
-    pub updated_at: Option<DateTime<Utc>>,
-    #[serde(alias = "title")]
     pub name: String,
     pub description: Option<String>,
     pub rows: Vec<Row>,
@@ -36,17 +33,10 @@ impl DashboardYml {
             Err(e) => return Err(anyhow::anyhow!("Error parsing YAML: {}", e)),
         };
 
-        // If the id is not provided, we will generate a new one.
-        if file.id.is_none() {
-            file.id = Some(Uuid::new_v4());
-        }
-
         // If the name is not provided, we will use a default name.
         if file.name.is_empty() {
             file.name = String::from("New Dashboard");
         }
-
-        file.updated_at = Some(Utc::now());
 
         // Validate the file
         match file.validate() {
@@ -58,16 +48,8 @@ impl DashboardYml {
     // TODO: The validate of the dashboard should also be whether metrics exist?
     pub fn validate(&self) -> Result<()> {
         // Validate the id and name
-        if self.id.is_none() {
-            return Err(anyhow::anyhow!("Dashboard file id is required"));
-        }
-
         if self.name.is_empty() {
             return Err(anyhow::anyhow!("Dashboard file name is required"));
-        }
-
-        if self.updated_at.is_none() {
-            return Err(anyhow::anyhow!("Dashboard file updated_at is required"));
         }
 
         // Validate each row

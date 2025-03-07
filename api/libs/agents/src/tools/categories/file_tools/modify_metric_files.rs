@@ -36,7 +36,8 @@ pub struct Modification {
     pub new_content: String,
     /// Array of line numbers where modifications should be applied.
     /// Must contain exactly 2 numbers representing the start and end lines.
-    pub line_numbers: Vec<i64>,
+    pub start_line: i64,
+    pub end_line: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -167,12 +168,12 @@ pub fn apply_modifications_to_content(
 
     // Validate and sort modifications by starting line number
     let mut sorted_modifications = modifications.to_vec();
-    sorted_modifications.sort_by_key(|m| m.line_numbers[0]);
+    sorted_modifications.sort_by_key(|m| m.start_line);
 
     // Check for overlapping modifications
     for window in sorted_modifications.windows(2) {
-        let first_end = window[0].line_numbers[1];
-        let second_start = window[1].line_numbers[0];
+        let first_end = window[0].end_line;
+        let second_start = window[1].start_line;
         if second_start <= first_end {
             return Err(anyhow::anyhow!(
                 "Overlapping modifications in file '{}': line {} overlaps with line {}",
@@ -186,10 +187,10 @@ pub fn apply_modifications_to_content(
     // Apply modifications and track adjustments
     for modification in &sorted_modifications {
         // Validate line numbers
-        validate_line_numbers(&modification.line_numbers)?;
+        validate_line_numbers(&[modification.start_line, modification.end_line])?;
 
         // Expand range into sequential numbers for processing
-        let line_range = expand_line_range(&modification.line_numbers);
+        let line_range = expand_line_range(&[modification.start_line, modification.end_line]);
 
         // Adjust line numbers based on previous modifications
         let original_start = line_range[0] as usize - 1;
@@ -383,6 +384,8 @@ impl ToolExecutor for ModifyMetricFilesTool {
                                 yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
                                 result_message: Some(batch.validation_messages[i].clone()),
                                 results: Some(batch.validation_results[i].clone()),
+                                created_at: file.created_at,
+                                updated_at: file.updated_at,
                             }
                         }));
                 }
@@ -440,7 +443,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
                   "type": "object",
                   "required": [
                     "id",
-                    "file_name",
+                    "file_name", 
                     "modifications"
                   ],
                   "properties": {
@@ -459,19 +462,21 @@ impl ToolExecutor for ModifyMetricFilesTool {
                         "type": "object",
                         "required": [
                           "new_content",
-                          "line_numbers"
+                          "start_line",
+                          "end_line"
                         ],
                         "properties": {
                           "new_content": {
                             "type": "string",
                             "description": "The new content to be inserted at the specified line numbers."
                           },
-                          "line_numbers": {
-                            "type": "array",
-                            "description": "Array of line numbers where modifications should be applied",
-                            "items": {
-                              "type": "integer"
-                            }
+                          "start_line": {
+                            "type": "integer",
+                            "description": "Starting line number for the modification"
+                          },
+                          "end_line": {
+                            "type": "integer", 
+                            "description": "Ending line number for the modification"
                           }
                         },
                         "additionalProperties": false
@@ -528,7 +533,8 @@ mod tests {
         // Test single modification replacing two lines
         let mods1 = vec![Modification {
             new_content: "new line2\nnew line3".to_string(),
-            line_numbers: vec![2, 3], // Replace lines 2-3
+            start_line: 2,
+            end_line: 3, // Replace lines 2-3
         }];
         let result1 = apply_modifications_to_content(original_content, &mods1, "test.yml").unwrap();
         assert_eq!(
@@ -540,11 +546,13 @@ mod tests {
         let mods2 = vec![
             Modification {
                 new_content: "new line2".to_string(),
-                line_numbers: vec![2, 2], // Single line replacement
+                start_line: 2,
+                end_line: 2, // Single line replacement
             },
             Modification {
                 new_content: "new line4".to_string(),
-                line_numbers: vec![4, 4], // Single line replacement
+                start_line: 4,
+                end_line: 4, // Single line replacement
             },
         ];
         let result2 = apply_modifications_to_content(original_content, &mods2, "test.yml").unwrap();
@@ -559,15 +567,18 @@ mod tests {
         let mods_with_shifts = vec![
             Modification {
                 new_content: "new line2\nnew line2.1\nnew line2.2".to_string(),
-                line_numbers: vec![2, 3], // Replace lines 2-3 with 3 lines (net +1 line)
+                start_line: 2,
+                end_line: 3, // Replace lines 2-3 with 3 lines (net +1 line)
             },
             Modification {
                 new_content: "new line6".to_string(),
-                line_numbers: vec![6, 7], // Replace lines 6-7 with 1 line (net -1 line)
+                start_line: 6,
+                end_line: 7, // Replace lines 6-7 with 1 line (net -1 line)
             },
             Modification {
                 new_content: "new line9\nnew line9.1".to_string(),
-                line_numbers: vec![9, 9], // Replace line 9 with 2 lines (net +1 line)
+                start_line: 9,
+                end_line: 9, // Replace line 9 with 2 lines (net +1 line)
             },
         ];
         let result_with_shifts =
@@ -582,11 +593,13 @@ mod tests {
         let mods3 = vec![
             Modification {
                 new_content: "new lines".to_string(),
-                line_numbers: vec![2, 3], // Replace lines 2-3
+                start_line: 2,
+                end_line: 3, // Replace lines 2-3
             },
             Modification {
                 new_content: "overlap".to_string(),
-                line_numbers: vec![3, 4], // Overlaps with previous modification
+                start_line: 3,
+                end_line: 4, // Overlaps with previous modification
             },
         ];
         let result3 = apply_modifications_to_content(original_content, &mods3, "test.yml");
@@ -596,7 +609,8 @@ mod tests {
         // Test out of bounds modification
         let mods4 = vec![Modification {
             new_content: "new line".to_string(),
-            line_numbers: vec![6, 6], // Try to modify line 6 in a 5-line file
+            start_line: 6,
+            end_line: 6, // Try to modify line 6 in a 5-line file
         }];
         let result4 = apply_modifications_to_content(original_content, &mods4, "test.yml");
         assert!(result4.is_err());
@@ -608,11 +622,13 @@ mod tests {
         let broad_range_mods = vec![
             Modification {
                 new_content: "new block 1-6\nnew content".to_string(),
-                line_numbers: vec![1, 6], // Replace lines 1-6 with 2 lines (net -4)
+                start_line: 1,
+                end_line: 6, // Replace lines 1-6 with 2 lines (net -4)
             },
             Modification {
                 new_content: "new block 9-11\nextra line\nmore content".to_string(),
-                line_numbers: vec![9, 11], // Replace lines 9-11 with 3 lines (no net change)
+                start_line: 9,
+                end_line: 11, // Replace lines 9-11 with 3 lines (no net change)
             },
         ];
         let result_broad_range =
@@ -627,11 +643,13 @@ mod tests {
         let overlapping_broad_mods = vec![
             Modification {
                 new_content: "new content 1-6".to_string(),
-                line_numbers: vec![1, 6],
+                start_line: 1,
+                end_line: 6,
             },
             Modification {
                 new_content: "overlap 4-8".to_string(),
-                line_numbers: vec![4, 8],
+                start_line: 4,
+                end_line: 8,
             },
         ];
         let result_overlapping = apply_modifications_to_content(

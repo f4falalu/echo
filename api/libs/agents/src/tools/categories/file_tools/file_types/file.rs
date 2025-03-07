@@ -25,6 +25,8 @@ pub struct FileWithId {
     pub result_message: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub results: Option<Vec<IndexMap<String, DataType>>>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -37,38 +39,8 @@ pub enum FileEnum {
 impl FileEnum {
     pub fn name(&self) -> anyhow::Result<String> {
         match self {
-            Self::Metric(metric) => Ok(metric.title.clone()),
+            Self::Metric(metric) => Ok(metric.name.clone()),
             Self::Dashboard(dashboard) => Ok(dashboard.name.clone()),
-        }
-    }
-
-    pub fn id(&self) -> anyhow::Result<Uuid> {
-        match self {
-            Self::Metric(metric) => match metric.id {
-                Some(id) => Ok(id),
-                None => Err(anyhow::anyhow!("Metric id is required but not found")),
-            },
-            Self::Dashboard(dashboard) => match dashboard.id {
-                Some(id) => Ok(id),
-                None => Err(anyhow::anyhow!("Dashboard id is required but not found")),
-            },
-        }
-    }
-
-    pub fn updated_at(&self) -> anyhow::Result<DateTime<Utc>> {
-        match self {
-            Self::Metric(metric) => match metric.updated_at {
-                Some(dt) => Ok(dt),
-                None => Err(anyhow::anyhow!(
-                    "Metric updated_at is required but not found"
-                )),
-            },
-            Self::Dashboard(dashboard) => match dashboard.updated_at {
-                Some(dt) => Ok(dt),
-                None => Err(anyhow::anyhow!(
-                    "Dashboard updated_at is required but not found"
-                )),
-            },
         }
     }
 }

@@ -128,6 +128,8 @@ impl ToolExecutor for CreateMetricFilesTool {
                             yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
                             result_message: Some(results_vec[i].0.clone()),
                             results: Some(results_vec[i].1.clone()),
+                            created_at: metric_records[i].created_at,
+                            updated_at: metric_records[i].updated_at,
                         });
                     }
                 }
@@ -205,7 +207,7 @@ impl ToolExecutor for CreateMetricFilesTool {
                   "properties": {
                     "name": {
                       "type": "string",
-                      "description": "Name of the file. Do not include the file_extension."
+                      "description": "This is a natural language name/title for the metric. It will be used to identify the metric in the UI."
                     },
                     "yml_content": {
                       "type": "string",

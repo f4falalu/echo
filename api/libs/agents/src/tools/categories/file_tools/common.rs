@@ -102,7 +102,7 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 # -------------------------------------
 # Required top-level fields:
 #
-# title: "Your Metric Title"
+# name: "Your Metric Title"
 # dataset_ids: ["123e4567-e89b-12d3-a456-426614174000"]  # Dataset UUIDs (not names)
 # time_frame: "Last 30 days"  # Human-readable time period covered by the query
 # sql: |
@@ -145,8 +145,8 @@ title: "Metric Configuration Schema"
 description: "Metric definition with SQL query and visualization settings"
 
 properties:
-  # TITLE
-  title:
+  # NAME
+  name:
     type: string
     description: "Human-readable title (e.g., 'Total Sales')"
 
@@ -198,7 +198,7 @@ properties:
         - data_type
 
 required:
-  - title
+  - name
   - dataset_ids
   - time_frame
   - sql
@@ -487,7 +487,7 @@ pub const DASHBOARD_YML_SCHEMA: &str = r##"
 # ----------------------------------------
 # Required fields:
 #
-# title: "Your Dashboard Title"
+# name: "Your Dashboard Title"
 # description: "A description of the dashboard, it's metrics, and its purpose."
 # rows: 
 #   - items:
@@ -509,7 +509,7 @@ type: object
 title: 'Dashboard Configuration Schema'
 description: 'Specifies the structure and constraints of a dashboard config file.'
 properties:
-  title:
+  name:
     type: string
     description: "The title of the dashboard (e.g. 'Sales & Marketing Dashboard')"
   description:
@@ -542,7 +542,7 @@ properties:
       required:
         - items
 required:
-  - title
+  - name
   - description
   - rows
 "##;
@@ -693,7 +693,8 @@ pub async fn process_metric_file_modification(
 
     // Apply modifications
     for m in &modification.modifications {
-        original_lines.extend(m.line_numbers.clone());
+        // Create a sequence of numbers from start_line to end_line
+        original_lines.extend(m.start_line..=m.end_line);
     }
 
     // Apply modifications and track results

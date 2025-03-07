@@ -183,6 +183,8 @@ impl ToolExecutor for CreateDashboardFilesTool {
                             yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
                             result_message: None,
                             results: None,
+                            created_at: dashboard_records[i].created_at,
+                            updated_at: dashboard_records[i].updated_at,
                         });
                     }
                 }

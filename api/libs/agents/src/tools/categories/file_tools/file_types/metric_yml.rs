@@ -5,13 +5,9 @@ use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct MetricYml {
-    #[serde(skip_serializing)]
-    pub id: Option<Uuid>,
-    #[serde(skip_serializing)]
-    pub updated_at: Option<DateTime<Utc>>,
-    #[serde(alias = "name")]
-    pub title: String,
+    pub name: String,
     pub description: Option<String>,
+    pub time_frame: String,
     pub sql: String,
     pub chart_config: ChartConfig,
     pub data_metadata: Option<Vec<DataMetadata>>,
@@ -317,7 +313,7 @@ mod tests {
         let metric = MetricYml::new(yml_content.to_string())?;
 
         // Verify the basic fields
-        assert_eq!(metric.title, "Average Time to Close by Rep");
+        assert_eq!(metric.name, "Average Time to Close by Rep");
 
         // Compare SQL with normalized whitespace
         let expected_sql = normalize_whitespace("SELECT rep_id, AVG(time_to_close) AS average_time_to_close FROM deal_metrics GROUP BY rep_id ORDER BY average_time_to_close DESC");
@@ -329,8 +325,14 @@ mod tests {
             ChartConfig::Bar(config) => {
                 assert!(config.base.column_label_formats.is_empty());
                 assert_eq!(config.bar_and_line_axis.x, vec![String::from("rep_id")]);
-                assert_eq!(config.bar_and_line_axis.y, vec![String::from("average_time_to_close")]);
-                assert_eq!(config.bar_and_line_axis.category, Some(vec![String::from("rep_id")]));
+                assert_eq!(
+                    config.bar_and_line_axis.y,
+                    vec![String::from("average_time_to_close")]
+                );
+                assert_eq!(
+                    config.bar_and_line_axis.category,
+                    Some(vec![String::from("rep_id")])
+                );
                 assert_eq!(config.bar_layout.unwrap(), "vertical");
                 assert_eq!(config.bar_group_type.unwrap(), "group");
                 assert_eq!(
@@ -350,10 +352,6 @@ mod tests {
         assert_eq!(metadata[0].data_type, "string");
         assert_eq!(metadata[1].name, "average_time_to_close");
         assert_eq!(metadata[1].data_type, "number");
-
-        // Verify auto-generated fields
-        assert!(metric.id.is_none());
-        assert!(metric.updated_at.is_none());
 
         Ok(())
     }
