@@ -11,7 +11,7 @@ members = [
 # Define shared dependencies for all workspace members
 [workspace.dependencies]
 anyhow = "1.0.86"
-chrono = { version = "0.4.38", features = ["serde"] }
+chrono = { version = "=0.4.38", features = ["serde"] }
 serde = { version = "1.0.117", features = ["derive"] }
 serde_json = { version = "1.0.117", features = ["preserve_order"] }
 serde_yaml = "0.9.34"
