@@ -13,17 +13,18 @@ export const BlackBoxMessage: React.FC<{ messageId: string }> = React.memo(({ me
   }).data;
 
   if (blackBoxMessage) {
-    <BarContainer
-      showBar={false}
-      status={'loading'}
-      isCompletedStream={false}
-      title={blackBoxMessage}
-      secondaryTitle={''}>
-      <Text>{blackBoxMessage}</Text>
-    </BarContainer>;
+    return (
+      <BarContainer
+        showBar={false}
+        status={'loading'}
+        isCompletedStream={false}
+        title={blackBoxMessage}
+        secondaryTitle={''}
+      />
+    );
   }
 
-  return <span className="text-red-500">no black box</span>;
+  return <span className="text-red-500">no black box {messageId}</span>;
 });
 
 BlackBoxMessage.displayName = 'BlackBoxMessage';

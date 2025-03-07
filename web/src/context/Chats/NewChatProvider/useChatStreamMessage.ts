@@ -43,7 +43,7 @@ export const useChatStreamMessage = () => {
       })!;
       chatRefMessages.current[chatMessage.id] = iChatMessage;
 
-      onUpdateChatMessage(iChatMessage!);
+      onUpdateChatMessage(iChatMessage);
 
       startTransition(() => {
         //

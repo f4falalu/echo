@@ -24,7 +24,6 @@ export const useBlackBoxMessage = () => {
   });
 
   const removeBlackBoxMessage = useMemoizedFn(({ messageId }: { messageId: string }) => {
-    console.log('removeBlackBoxMessage', messageId);
     clearTimeoutRef(messageId);
 
     const options = queryKeys.chatsBlackBoxMessages(messageId);
@@ -57,8 +56,6 @@ export const useBlackBoxMessage = () => {
       const message = getChatMessageMemoized(messageId);
       if (!message) return;
       if (!timeoutRef.current[messageId]) return;
-
-      console.log('loopAutoThought', messageId, !!message);
 
       const isMessageCompletedStream = !!message?.isCompletedStream;
       const lastReasoningMessageId = last(message?.reasoning_message_ids) || '';

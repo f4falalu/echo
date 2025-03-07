@@ -11,7 +11,7 @@ export const BarContainer: React.FC<{
   showBar: boolean;
   status: BusterChatMessageReasoning_status;
   isCompletedStream: boolean;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   title: string;
   secondaryTitle?: string;
   contentClassName?: string;
@@ -41,7 +41,7 @@ const VerticalBarContainer: React.FC<{
   status: BusterChatMessageReasoning_status;
 }> = React.memo(({ showBar, status }) => {
   return (
-    <div className="ml-2 flex w-4 min-w-4 flex-col items-center">
+    <div className="ml-2 flex w-5 min-w-5 flex-col items-center">
       <StatusIndicator status={status} />
       <VerticalBar show={showBar} />
     </div>
@@ -107,13 +107,18 @@ const AnimatedThoughtTitle = React.memo(
     type: 'tertiary' | 'default';
     className?: string;
   }) => {
+    const isSecondaryTitle = type === 'tertiary';
     return (
       <AnimatePresence initial={false} mode="wait">
         {title && (
           <motion.div className="flex" {...animations} key={title}>
             <Text
               size="sm"
-              className={cn(`whitespace-nowrap @[170px]:hidden`, className)}
+              className={cn(
+                `whitespace-nowrap`,
+                isSecondaryTitle ? '@[170px]:hidden' : '',
+                className
+              )}
               variant={type}>
               {title}
             </Text>
