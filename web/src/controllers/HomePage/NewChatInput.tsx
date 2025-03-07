@@ -50,6 +50,7 @@ export const NewChatInput: React.FC<{}> = () => {
 
   return (
     <InputTextAreaButton
+      className="transition-all duration-300 hover:shadow-lg active:shadow-md"
       placeholder="Ask Buster a question..."
       autoResize={autoResizeConfig}
       onSubmit={onSubmit}

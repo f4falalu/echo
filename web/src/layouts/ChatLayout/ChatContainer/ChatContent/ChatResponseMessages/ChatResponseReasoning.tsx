@@ -37,7 +37,7 @@ export const ChatResponseReasoning: React.FC<{
 
   const text: string = useMemo(() => {
     if (finalReasoningMessage) return finalReasoningMessage;
-    if (blackBoxMessage) return blackBoxMessage + '⬛️⬛️';
+    if (blackBoxMessage) return blackBoxMessage + '⬛️';
     if (lastMessageTitle) return lastMessageTitle;
     return lastMessageTitle || 'Thinking...';
   }, [lastMessageTitle, finalReasoningMessage, blackBoxMessage]);

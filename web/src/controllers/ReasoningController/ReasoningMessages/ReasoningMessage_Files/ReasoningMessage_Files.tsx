@@ -35,6 +35,8 @@ export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.mem
 
     if (!title) return null;
 
+    console.log(reasoningMessageId, isCompletedStream);
+
     return (
       <BarContainer
         showBar={true}
