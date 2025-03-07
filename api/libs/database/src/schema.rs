@@ -522,18 +522,6 @@ diesel::table! {
 }
 
 diesel::table! {
-    threads (id) {
-        id -> Uuid,
-        title -> Text,
-        organization_id -> Uuid,
-        created_at -> Timestamptz,
-        updated_at -> Timestamptz,
-        deleted_at -> Nullable<Timestamptz>,
-        created_by -> Uuid,
-    }
-}
-
-diesel::table! {
     threads_deprecated (id) {
         id -> Uuid,
         created_by -> Uuid,
@@ -649,8 +637,6 @@ diesel::joinable!(teams_to_users -> users (user_id));
 diesel::joinable!(terms -> organizations (organization_id));
 diesel::joinable!(terms_to_datasets -> datasets (dataset_id));
 diesel::joinable!(terms_to_datasets -> terms (term_id));
-diesel::joinable!(threads -> organizations (organization_id));
-diesel::joinable!(threads -> users (created_by));
 diesel::joinable!(threads_deprecated -> organizations (organization_id));
 diesel::joinable!(threads_to_dashboards -> dashboards (dashboard_id));
 diesel::joinable!(threads_to_dashboards -> threads_deprecated (thread_id));
@@ -689,7 +675,6 @@ diesel::allow_tables_to_appear_in_same_query!(
     teams_to_users,
     terms,
     terms_to_datasets,
-    threads,
     threads_deprecated,
     threads_to_dashboards,
     user_favorites,

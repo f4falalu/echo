@@ -200,6 +200,7 @@ pub async fn post_chat_handler(
 
     // Initialize raw_llm_messages with initial_messages
     let mut raw_llm_messages = initial_messages.clone();
+    let mut raw_response_message = String::new();
 
     // Initialize the agent thread
     let mut chat = AgentThread::new(Some(chat_id), user.id, initial_messages);
@@ -235,9 +236,26 @@ pub async fn post_chat_handler(
 
                 // Only store completed messages in raw_llm_messages
                 match &msg {
-                    AgentMessage::Assistant { progress, .. } => {
+                    AgentMessage::Assistant {
+                        progress, content, ..
+                    } => {
+                        if let Some(content) = content {
+                            raw_response_message.push_str(&content);
+                        }
+
                         if matches!(progress, MessageProgress::Complete) {
-                            raw_llm_messages.push(msg.clone());
+                            if raw_response_message.is_empty() {
+                                raw_llm_messages.push(msg.clone());
+                            } else {
+                                raw_llm_messages.push(AgentMessage::Assistant {
+                                    id: None,
+                                    content: Some(raw_response_message.clone()),
+                                    name: None,
+                                    tool_calls: None,
+                                    progress: MessageProgress::Complete,
+                                    initial: false,
+                                });
+                            }
                         }
                     }
                     AgentMessage::Tool { progress, .. } => {
@@ -395,7 +413,8 @@ pub async fn post_chat_handler(
 fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Value>, Vec<Value>)> {
     let mut response_messages = Vec::new();
     // Use a HashMap to track the latest reasoning message for each ID
-    let mut reasoning_map: std::collections::HashMap<String, Value> = std::collections::HashMap::new();
+    let mut reasoning_map: std::collections::HashMap<String, Value> =
+        std::collections::HashMap::new();
 
     for container in containers {
         match container {
@@ -426,7 +445,9 @@ fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Va
                 let should_include = match &reasoning.reasoning {
                     BusterReasoningMessage::Pill(thought) => thought.status == "completed",
                     BusterReasoningMessage::File(file) => file.status == "completed",
-                    BusterReasoningMessage::Text(text) => text.status.as_deref() == Some("completed"),
+                    BusterReasoningMessage::Text(text) => {
+                        text.status.as_deref() == Some("completed")
+                    }
                 };
 
                 if should_include {
@@ -703,7 +724,11 @@ pub async fn transform_message(
                         vec![]
                     }
                 };
-                containers.extend(chat_messages.into_iter().map(|container| (container, ThreadEvent::GeneratingResponseMessage)));
+                containers.extend(
+                    chat_messages
+                        .into_iter()
+                        .map(|container| (container, ThreadEvent::GeneratingResponseMessage)),
+                );
 
                 // Add the "Finished reasoning" message if we're just starting
                 if initial {
@@ -724,10 +749,7 @@ pub async fn transform_message(
                             message_id: *message_id,
                         });
 
-                    containers.push((
-                        reasoning_container,
-                        ThreadEvent::GeneratingResponseMessage,
-                    ));
+                    containers.push((reasoning_container, ThreadEvent::GeneratingResponseMessage));
                 }
 
                 Ok(containers)
@@ -746,7 +768,11 @@ pub async fn transform_message(
                         for reasoning_container in messages {
                             // Only process file response messages when they're completed
                             match &reasoning_container {
-                                BusterReasoningMessage::File(file) if matches!(progress, MessageProgress::Complete) && file.status == "completed" && file.message_type == "files" => {
+                                BusterReasoningMessage::File(file)
+                                    if matches!(progress, MessageProgress::Complete)
+                                        && file.status == "completed"
+                                        && file.message_type == "files" =>
+                                {
                                     // For each completed file, create and send a file response message
                                     for (file_id, file_content) in &file.files {
                                         let response_message = BusterChatMessage::File {
@@ -767,11 +793,13 @@ pub async fn transform_message(
                                         };
 
                                         containers.push((
-                                            BusterContainer::ChatMessage(BusterChatMessageContainer {
-                                                response_message,
-                                                chat_id: *chat_id,
-                                                message_id: *message_id,
-                                            }),
+                                            BusterContainer::ChatMessage(
+                                                BusterChatMessageContainer {
+                                                    response_message,
+                                                    chat_id: *chat_id,
+                                                    message_id: *message_id,
+                                                },
+                                            ),
                                             ThreadEvent::GeneratingResponseMessage,
                                         ));
                                     }
@@ -780,11 +808,13 @@ pub async fn transform_message(
                             }
 
                             containers.push((
-                                BusterContainer::ReasoningMessage(BusterReasoningMessageContainer {
-                                    reasoning: reasoning_container,
-                                    chat_id: *chat_id,
-                                    message_id: *message_id,
-                                }),
+                                BusterContainer::ReasoningMessage(
+                                    BusterReasoningMessageContainer {
+                                        reasoning: reasoning_container,
+                                        chat_id: *chat_id,
+                                        message_id: *message_id,
+                                    },
+                                ),
                                 ThreadEvent::GeneratingReasoningMessage,
                             ));
                         }
@@ -822,14 +852,18 @@ pub async fn transform_message(
                 ) {
                     Ok(messages) => messages
                         .into_iter()
-                        .map(|container| (
-                            BusterContainer::ReasoningMessage(BusterReasoningMessageContainer {
-                                reasoning: container,
-                                chat_id: *chat_id,
-                                message_id: *message_id,
-                            }),
-                            ThreadEvent::GeneratingReasoningMessage,
-                        ))
+                        .map(|container| {
+                            (
+                                BusterContainer::ReasoningMessage(
+                                    BusterReasoningMessageContainer {
+                                        reasoning: container,
+                                        chat_id: *chat_id,
+                                        message_id: *message_id,
+                                    },
+                                ),
+                                ThreadEvent::GeneratingReasoningMessage,
+                            )
+                        })
                         .collect(),
                     Err(e) => {
                         tracing::warn!("Error transforming tool message '{}': {:?}", name_str, e);
@@ -1164,9 +1198,10 @@ fn transform_assistant_tool_message(
                             MessageProgress::Complete => {
                                 // For completed files, only send the final state
                                 let mut updated_files = std::collections::HashMap::new();
-                                
+
                                 for (file_id, file_content) in file.files.iter() {
-                                    let chunk_id = format!("{}_{}", file.id, file_content.file_name);
+                                    let chunk_id =
+                                        format!("{}_{}", file.id, file_content.file_name);
                                     let complete_text = tracker
                                         .get_complete_text(chunk_id.clone())
                                         .unwrap_or_else(|| {
@@ -1193,10 +1228,12 @@ fn transform_assistant_tool_message(
                                 let mut updated_files = std::collections::HashMap::new();
 
                                 for (file_id, file_content) in file.files.iter() {
-                                    let chunk_id = format!("{}_{}", file.id, file_content.file_name);
+                                    let chunk_id =
+                                        format!("{}_{}", file.id, file_content.file_name);
 
                                     if let Some(chunk) = &file_content.file.text_chunk {
-                                        let delta = tracker.add_chunk(chunk_id.clone(), chunk.clone());
+                                        let delta =
+                                            tracker.add_chunk(chunk_id.clone(), chunk.clone());
 
                                         if !delta.is_empty() {
                                             let mut updated_content = file_content.clone();
