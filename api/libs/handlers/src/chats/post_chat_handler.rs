@@ -394,7 +394,8 @@ pub async fn post_chat_handler(
 /// Prepares the final message state from transformed containers
 fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Value>, Vec<Value>)> {
     let mut response_messages = Vec::new();
-    let mut reasoning_messages = Vec::new();
+    // Use a HashMap to track the latest reasoning message for each ID
+    let mut reasoning_map: std::collections::HashMap<String, Value> = std::collections::HashMap::new();
 
     for container in containers {
         match container {
@@ -421,37 +422,32 @@ fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Va
                 }
             }
             BusterContainer::ReasoningMessage(reasoning) => {
-                let reasoning_value = match &reasoning.reasoning {
-                    BusterReasoningMessage::Pill(thought) => {
-                        if thought.status == "completed" {
-                            serde_json::to_value(thought).ok()
-                        } else {
-                            None
-                        }
-                    }
-                    BusterReasoningMessage::File(file) => {
-                        if file.status == "completed" {
-                            serde_json::to_value(file).ok()
-                        } else {
-                            None
-                        }
-                    }
-                    BusterReasoningMessage::Text(text) => {
-                        if text.status.as_deref() == Some("completed") {
-                            serde_json::to_value(text).ok()
-                        } else {
-                            None
-                        }
-                    }
+                // Only include reasoning messages that are explicitly marked as completed
+                let should_include = match &reasoning.reasoning {
+                    BusterReasoningMessage::Pill(thought) => thought.status == "completed",
+                    BusterReasoningMessage::File(file) => file.status == "completed",
+                    BusterReasoningMessage::Text(text) => text.status.as_deref() == Some("completed"),
                 };
 
-                if let Some(value) = reasoning_value {
-                    reasoning_messages.push(value);
+                if should_include {
+                    if let Ok(value) = serde_json::to_value(&reasoning.reasoning) {
+                        // Get the ID from the reasoning message
+                        let id = match &reasoning.reasoning {
+                            BusterReasoningMessage::Pill(thought) => thought.id.clone(),
+                            BusterReasoningMessage::File(file) => file.id.clone(),
+                            BusterReasoningMessage::Text(text) => text.id.clone(),
+                        };
+                        // Store or update the message in the map
+                        reasoning_map.insert(id, value);
+                    }
                 }
             }
             _ => {}
         }
     }
+
+    // Convert the map values into the final vector
+    let reasoning_messages: Vec<Value> = reasoning_map.into_values().collect();
 
     Ok((response_messages, reasoning_messages))
 }
