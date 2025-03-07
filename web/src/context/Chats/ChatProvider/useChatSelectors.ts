@@ -13,7 +13,7 @@ export const useChatSelectors = () => {
   });
 
   const getChatMessageMemoized = useMemoizedFn((messageId: string) => {
-    const options = queryKeys['chatsMessages'](messageId);
+    const options = queryKeys.chatsMessages(messageId);
     const queryKey = options.queryKey;
     return queryClient.getQueryData<IBusterChatMessage>(queryKey);
   });

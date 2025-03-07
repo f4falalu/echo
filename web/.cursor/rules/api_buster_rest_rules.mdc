@@ -51,7 +51,7 @@ export const getDatasets_server = async (params?: GetDatasetsParams) => {
 
 # React Query Standards
 - Each namespace must include a `queryRequests.ts` file
-- Use `useCreateReactQuery` and `useCreateReactMutation` from '@/api/createReactQuery'
+- Use `useQuery` and `useCreateReactMutation` from '@/api/createReactQuery'
 - Query hooks should be prefixed with 'useGet', 'useUpdate', 'useDelete', etc.
 - Each GET request should have a corresponding prefetch function
 - Prefetch functions should:
@@ -64,7 +64,7 @@ export const getDatasets_server = async (params?: GetDatasetsParams) => {
 
 Example React Query hook and prefetch:
 ```typescript
-import { useCreateReactQuery } from '@/api/createReactQuery';
+import { useQuery } from '@tanstack/react-query';
 import { QueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
 
@@ -73,7 +73,7 @@ export const useGetDatasets = (params?: Parameters<typeof getDatasets>[0]) => {
     return getDatasets(params);
   });
 
-  const res = useCreateReactQuery({
+  const res = useQuery({
     ...queryKeys.datasetsList(params),
     queryFn
   });

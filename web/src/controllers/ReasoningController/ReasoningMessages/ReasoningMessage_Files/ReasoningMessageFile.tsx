@@ -1,199 +1,87 @@
-import React, { useEffect, useState } from 'react';
-import { BusterChatMessageReasoning_file } from '@/api/asset_interfaces';
+import React, { useMemo } from 'react';
 import {
-  AppCodeBlockWrapper,
-  SyntaxHighlighterLightTheme
-} from '@/components/ui/typography/AppCodeBlock';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { AnimatePresence, motion } from 'framer-motion';
-import { LoaderDot } from './LoaderDot';
+  BusterChatMessageReasoning_file,
+  BusterChatMessageReasoning_files
+} from '@/api/asset_interfaces';
+import { useMessageIndividual } from '@/context/Chats';
 import { ReasoningFileButtons } from './ReasoningFileButtons';
-import { ReasoningFileTitle } from './ReasoningFileTitle';
+import { StreamingMessageCode } from '@/components/ui/streaming/StreamingMessageCode';
+import isEmpty from 'lodash/isEmpty';
 import { Text } from '@/components/ui/typography';
-import pluralize from 'pluralize';
+import { CircleSpinnerLoader } from '@/components/ui/loaders';
+import { CheckDouble, AlertWarning } from '@/components/ui/icons';
+import { AnimatePresence, motion } from 'framer-motion';
 
-const style = SyntaxHighlighterLightTheme;
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      opacity: { duration: 0.12 },
-      staggerChildren: 0.08
-    }
-  }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, x: 0 },
-  show: { opacity: 1, x: 0 }
-};
-
-type LineSegment = {
-  type: 'text' | 'hidden';
-  content: string;
-  lineNumber: number;
-  numberOfLines?: number;
-};
-
-const HiddenSection: React.FC<{
-  numberOfLinesUnmodified: number;
-}> = ({ numberOfLinesUnmodified }) => (
-  <div className="my-2 flex w-full items-center space-x-1 first:mt-0">
-    <div className="bg-border h-[0.5px] w-full" />
-    <Text variant="tertiary" size={'sm'} className="whitespace-nowrap">
-      {`${numberOfLinesUnmodified} ${pluralize('line', numberOfLinesUnmodified)} unmodified`}
-    </Text>
-    <div className="bg-border h-[0.5px] w-4" />
-  </div>
-);
-
-export type ReasoningMessageFileProps = BusterChatMessageReasoning_file & {
+export type ReasoningMessageFileProps = {
   chatId: string;
+  fileId: string;
+  messageId: string;
+  reasoningMessageId: string;
   isCompletedStream: boolean;
 };
 
 export const ReasoningMessage_File: React.FC<ReasoningMessageFileProps> = React.memo(
-  ({
-    file,
-    file_name,
-    chatId,
-    file_type,
-    version_id,
-    version_number,
-    status,
-    isCompletedStream
-  }) => {
-    const showLoader = status === 'loading';
-    const fileButtonType = status === 'loading' || !isCompletedStream ? 'status' : 'file';
-    const { text = '', modified } = file;
+  ({ isCompletedStream, fileId, chatId, messageId, reasoningMessageId }) => {
+    const file: BusterChatMessageReasoning_file | undefined = useMessageIndividual(
+      messageId,
+      (x) =>
+        (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files)?.files?.[
+          fileId
+        ]
+    );
 
-    const [lineSegments, setLineSegments] = useState<LineSegment[]>([]);
+    if (isEmpty(file)) return null;
 
-    useEffect(() => {
-      const processText = () => {
-        // Split the text into lines, keeping empty lines
-        const lines = text.split('\n');
-        const segments: LineSegment[] = [];
-        let currentLine = 1;
-
-        if (!modified || modified.length === 0) {
-          // If no modified ranges, process the entire text as visible
-          lines.forEach((line) => {
-            segments.push({
-              type: 'text',
-              content: line,
-              lineNumber: currentLine++
-            });
-          });
-        } else {
-          // Sort modified ranges to ensure proper processing
-          const sortedModified = [...modified].sort((a, b) => a[0] - b[0]);
-
-          let lastEnd = 0;
-          for (const [start, end] of sortedModified) {
-            // Add visible lines before the hidden section
-            for (let i = lastEnd; i < start - 1; i++) {
-              segments.push({
-                type: 'text',
-                content: lines[i],
-                lineNumber: currentLine++
-              });
-            }
-
-            // Add hidden section
-            const hiddenLineCount = end - start + 1;
-            segments.push({
-              type: 'hidden',
-              content: '',
-              lineNumber: currentLine,
-              numberOfLines: hiddenLineCount
-            });
-            currentLine += hiddenLineCount;
-            lastEnd = end;
-          }
-
-          // Add remaining visible lines after the last hidden section
-          for (let i = lastEnd; i < lines.length; i++) {
-            segments.push({
-              type: 'text',
-              content: lines[i],
-              lineNumber: currentLine++
-            });
-          }
-        }
-
-        setLineSegments(segments);
-      };
-
-      processText();
-    }, [text, modified]);
-
-    console.log(lineSegments);
+    const { status, file_type, version_id } = file;
+    const buttons = !isCompletedStream ? (
+      <StreamingMessageStatus status={status} />
+    ) : (
+      <ReasoningFileButtons fileType={file_type} fileId={version_id} type="file" />
+    );
 
     return (
-      <AppCodeBlockWrapper
-        title={<ReasoningFileTitle file_name={file_name} version_number={version_number} />}
-        language={'yaml'}
-        showCopyButton={false}
-        buttons={
-          <ReasoningFileButtons
-            fileType={file_type}
-            fileId={version_id}
-            type={fileButtonType}
-            chatId={chatId}
-          />
-        }>
-        <AnimatePresence initial={!isCompletedStream}>
-          <motion.div
-            className="w-full overflow-x-auto p-3"
-            variants={containerVariants}
-            initial="hidden"
-            animate="show">
-            {lineSegments.map((segment, index) => (
-              <motion.div
-                key={`${segment.lineNumber}-${index}`}
-                variants={itemVariants}
-                className="line-number pr-1">
-                {segment.type === 'text' ? (
-                  <MemoizedSyntaxHighlighter
-                    lineNumber={segment.lineNumber}
-                    text={segment.content}
-                  />
-                ) : (
-                  <HiddenSection numberOfLinesUnmodified={segment.numberOfLines || 0} />
-                )}
-              </motion.div>
-            ))}
-            {showLoader && <LoaderDot />}
-          </motion.div>
-        </AnimatePresence>
-      </AppCodeBlockWrapper>
+      <StreamingMessageCode {...file} buttons={buttons} isCompletedStream={isCompletedStream} />
     );
   }
 );
 
 ReasoningMessage_File.displayName = 'ReasoningMessage_File';
 
-const lineNumberStyles: React.CSSProperties = {
-  minWidth: '2.25em'
-};
-const MemoizedSyntaxHighlighter = React.memo(
-  ({ lineNumber, text }: { lineNumber: number; text: string }) => {
+const StreamingMessageStatus = React.memo(
+  ({ status }: { status: BusterChatMessageReasoning_file['status'] }) => {
+    const content = useMemo(() => {
+      if (status === 'loading')
+        return (
+          <Text variant={'secondary'} size={'sm'} className="flex gap-1.5">
+            Running SQL... <CircleSpinnerLoader size={9} fill={'var(--color-text-secondary)'} />
+          </Text>
+        );
+      if (status === 'completed')
+        return (
+          <Text variant={'secondary'} size={'sm'} className="flex gap-1.5">
+            Completed <CheckDouble />
+          </Text>
+        );
+      if (status === 'failed')
+        return (
+          <Text variant={'danger'} size={'sm'} className="flex gap-1.5">
+            Failed <AlertWarning />
+          </Text>
+        );
+    }, [status]);
+
     return (
-      <SyntaxHighlighter
-        style={style}
-        language={'yaml'}
-        showLineNumbers
-        startingLineNumber={lineNumber}
-        lineNumberStyle={lineNumberStyles}
-        lineNumberContainerStyle={{ color: 'red' }}
-        className={`m-0! w-fit! border-none! p-0!`}>
-        {text}
-      </SyntaxHighlighter>
+      <AnimatePresence mode="wait">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          key={status}>
+          {content}
+        </motion.div>
+      </AnimatePresence>
     );
   }
 );
 
-MemoizedSyntaxHighlighter.displayName = 'MemoizedSyntaxHighlighter';
+StreamingMessageStatus.displayName = 'StreamingMessageStatus';

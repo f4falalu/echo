@@ -5,12 +5,11 @@ import { useChatIndividualContextSelector } from '../../ChatContext';
 import { ChatMessageBlock } from './ChatMessageBlock';
 import { ChatInput } from './ChatInput';
 
+const autoClass = 'mx-auto max-w-[600px] w-full';
+
 export const ChatContent: React.FC<{ chatContentRef: React.RefObject<HTMLDivElement> }> =
   React.memo(({ chatContentRef }) => {
     const chatMessageIds = useChatIndividualContextSelector((state) => state.chatMessageIds);
-    // const chatMessages = useBusterChatContextSelector((state) => state.chatsMessages);
-
-    const autoClass = 'mx-auto max-w-[600px] w-full';
 
     return (
       <div className="flex h-full w-full flex-col overflow-hidden">

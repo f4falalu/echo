@@ -1,8 +1,4 @@
-import {
-  useCreateReactMutation,
-  PREFETCH_STALE_TIME,
-  useCreateReactQuery
-} from '@/api/createReactQuery';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import {
   getUserDatasetGroups,
   getUserAttributes,
@@ -25,10 +21,9 @@ import { queryKeys } from '@/api/query_keys';
 
 export const useGetUserDatasetGroups = ({ userId }: { userId: string }) => {
   const queryFn = useMemoizedFn(async () => getUserDatasetGroups({ userId }));
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.userGetUserDatasetGroups(userId),
-    queryFn,
-    staleTime: PREFETCH_STALE_TIME
+    queryFn
   });
 };
 
@@ -46,10 +41,9 @@ export const prefetchGetUserDatasetGroups = async (
 
 export const useGetUserDatasets = ({ userId }: { userId: string }) => {
   const queryFn = useMemoizedFn(async () => getUserDatasets({ userId }));
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.userGetUserDatasets(userId),
-    queryFn,
-    staleTime: PREFETCH_STALE_TIME
+    queryFn
   });
 };
 
@@ -64,10 +58,9 @@ export const prefetchGetUserDatasets = async (userId: string, queryClientProp?: 
 
 export const useGetUserAttributes = ({ userId }: { userId: string }) => {
   const queryFn = useMemoizedFn(async () => getUserAttributes({ userId }));
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.userGetUserAttributes(userId),
-    queryFn,
-    staleTime: PREFETCH_STALE_TIME
+    queryFn
   });
 };
 
@@ -82,10 +75,9 @@ export const prefetchGetUserAttributes = async (userId: string, queryClientProp?
 
 export const useGetUserTeams = ({ userId }: { userId: string }) => {
   const queryFn = useMemoizedFn(async () => getUserTeams({ userId }));
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.userGetUserTeams(userId),
-    queryFn,
-    staleTime: PREFETCH_STALE_TIME
+    queryFn
   });
 };
 
@@ -100,10 +92,9 @@ export const prefetchGetUserTeams = async (userId: string, queryClientProp?: Que
 
 export const useGetUserPermissionGroups = ({ userId }: { userId: string }) => {
   const queryFn = useMemoizedFn(async () => getUserPermissionGroups({ userId }));
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.userGetUserPermissionsGroups(userId),
-    queryFn,
-    staleTime: PREFETCH_STALE_TIME
+    queryFn
   });
 };
 
@@ -135,7 +126,7 @@ export const useUpdateUserTeams = ({ userId }: { userId: string }) => {
 
     return result;
   });
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn
   });
 };
@@ -157,7 +148,7 @@ export const useUpdateUserPermissionGroups = ({ userId }: { userId: string }) =>
       return result;
     }
   );
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn
   });
 };
@@ -179,7 +170,7 @@ export const useUpdateUserDatasetGroups = ({ userId }: { userId: string }) => {
       return result;
     }
   );
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn
   });
 };
@@ -199,5 +190,5 @@ export const useUpdateUserDatasets = ({ userId }: { userId: string }) => {
     const result = await updateUserDatasets(userId, datasets);
     return result;
   });
-  return useCreateReactMutation({ mutationFn });
+  return useMutation({ mutationFn });
 };

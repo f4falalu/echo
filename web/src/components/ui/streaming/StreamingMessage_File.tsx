@@ -45,7 +45,7 @@ StreamingMessage_File.displayName = 'StreamingMessage_File';
 const StreamHeader: React.FC<{ file_name: string; version_number: number }> = React.memo(
   ({ file_name, version_number }) => {
     return (
-      <div className="file-header bg-item-hover border-border flex h-8 w-full items-center space-x-1.5 overflow-hidden border-b px-2.5">
+      <div className="file-header bg-item-select border-border flex h-8 w-full items-center space-x-1.5 overflow-hidden border-b px-2.5">
         <Text truncate>{file_name}</Text>
         <VersionPill version_number={version_number} />
       </div>

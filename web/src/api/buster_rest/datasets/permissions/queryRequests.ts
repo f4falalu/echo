@@ -1,8 +1,4 @@
-import {
-  useCreateReactQuery,
-  useCreateReactMutation,
-  PREFETCH_STALE_TIME
-} from '@/api/createReactQuery';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import {
   getDatasetPermissionsOverview,
   listDatasetDatasetGroups,
@@ -22,10 +18,9 @@ export const useGetDatasetPermissionsOverview = (dataset_id: string) => {
     return getDatasetPermissionsOverview({ dataset_id });
   });
 
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.datasetPermissionsOverview(dataset_id),
-    queryFn,
-    staleTime: PREFETCH_STALE_TIME
+    queryFn
   });
 };
 
@@ -46,7 +41,7 @@ export const useDatasetListPermissionGroups = (dataset_id: string) => {
     return listIndividualDatasetPermissionGroups({ dataset_id });
   });
 
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.datasetPermissionGroupsList(dataset_id),
     queryFn,
     enabled: !!dataset_id
@@ -76,7 +71,7 @@ export const useDatasetUpdatePermissionGroups = (dataset_id: string) => {
     return updateDatasetPermissionGroups({ dataset_id, groups });
   });
 
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn
   });
 };
@@ -84,7 +79,7 @@ export const useDatasetUpdatePermissionGroups = (dataset_id: string) => {
 export const useDatasetListDatasetGroups = (dataset_id: string) => {
   const queryFn = useMemoizedFn(() => listDatasetDatasetGroups({ dataset_id }));
 
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.datasetGroupsList,
     queryFn,
     enabled: !!dataset_id
@@ -94,7 +89,7 @@ export const useDatasetListDatasetGroups = (dataset_id: string) => {
 export const useDatasetListPermissionUsers = (dataset_id: string) => {
   const queryFn = useMemoizedFn(() => listDatasetPermissionUsers({ dataset_id }));
 
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.datasetPermissionUsersList(dataset_id),
     queryFn,
     enabled: !!dataset_id
@@ -123,7 +118,7 @@ export const useDatasetUpdateDatasetGroups = (dataset_id: string) => {
     return updateDatasetDatasetGroups({ dataset_id, groups });
   });
 
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn
   });
 };
@@ -150,7 +145,7 @@ export const useDatasetUpdatePermissionUsers = (dataset_id: string) => {
     return updateDatasetPermissionUsers({ dataset_id, users });
   });
 
-  return useCreateReactMutation({
+  return useMutation({
     mutationFn
   });
 };

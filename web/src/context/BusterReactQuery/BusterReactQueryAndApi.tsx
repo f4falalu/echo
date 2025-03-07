@@ -11,7 +11,7 @@ import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
 
 export const BusterReactQueryProvider = ({ children }: { children: React.ReactElement }) => {
   const accessToken = useSupabaseContext((state) => state.accessToken);
-  const queryClient = getQueryClient();
+  const queryClient = getQueryClient(accessToken);
 
   useLayoutEffect(() => {
     //reset all request interceptors
@@ -24,7 +24,7 @@ export const BusterReactQueryProvider = ({ children }: { children: React.ReactEl
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {/* <ReactQueryDevtoolsPanel /> */}
+      <ReactQueryDevtoolsPanel />
     </QueryClientProvider>
   );
 };

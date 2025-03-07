@@ -2,8 +2,9 @@
 
 import React from 'react';
 import { useChatIndividualContextSelector } from '@chatLayout/ChatContext';
-import { ReasoningMessageContainer } from './ReasoningMessageContainer';
 import { useMessageIndividual } from '@/context/Chats';
+import { ReasoningMessageSelector } from './ReasoningMessages';
+import { BlackBoxMessage } from './ReasoningMessages/ReasoningBlackBoxMessage';
 
 interface ReasoningControllerProps {
   chatId: string;
@@ -15,15 +16,22 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
   const reasoningMessageIds = useMessageIndividual(messageId, (x) => x?.reasoning_message_ids);
   const isCompletedStream = useMessageIndividual(messageId, (x) => x?.isCompletedStream);
 
-  if (!hasChat || !reasoningMessageIds) return <></>;
+  if (!hasChat || !reasoningMessageIds)
+    return <>ReasoningController: If you are seeing this there is probably an error...</>;
 
   return (
-    <div className="h-full overflow-y-auto p-5">
-      <ReasoningMessageContainer
-        reasoningMessageIds={reasoningMessageIds}
-        isCompletedStream={isCompletedStream ?? false}
-        chatId={chatId}
-      />
+    <div className="h-full flex-col space-y-2 overflow-y-auto p-5">
+      {reasoningMessageIds?.map((reasoningMessageId) => (
+        <ReasoningMessageSelector
+          key={reasoningMessageId}
+          reasoningMessageId={reasoningMessageId}
+          isCompletedStream={isCompletedStream ?? true}
+          chatId={chatId}
+          messageId={messageId}
+        />
+      ))}
+
+      <BlackBoxMessage messageId={messageId} />
     </div>
   );
 };

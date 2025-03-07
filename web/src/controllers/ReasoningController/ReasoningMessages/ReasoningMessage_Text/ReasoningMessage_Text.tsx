@@ -3,16 +3,21 @@ import { StreamingMessage_Text } from '@/components/ui/streaming/StreamingMessag
 import { ReasoningMessageProps } from '../ReasoningMessageSelector';
 import { type BusterChatMessageReasoning_text } from '@/api/asset_interfaces/chat';
 import { BarContainer } from '../BarContainer';
+import { useMessageIndividual } from '@/context/Chats';
 
 export const ReasoningMessage_Text: React.FC<ReasoningMessageProps> = React.memo(
-  ({ reasoningMessage, chatId, isCompletedStream, isLastMessageItem }) => {
+  ({ reasoningMessageId, messageId, isCompletedStream }) => {
+    const reasoningMessage = useMessageIndividual(
+      messageId,
+      (x) => x?.reasoning_messages[reasoningMessageId]
+    )!;
+
     const { message, status, id, type, title, secondary_title } =
       reasoningMessage as BusterChatMessageReasoning_text;
 
-    console.log('here', message?.length);
     return (
       <BarContainer
-        showBar={true}
+        showBar={!!message?.length}
         status={status}
         isCompletedStream={isCompletedStream}
         title={title}

@@ -17,8 +17,8 @@ export const ChatHeaderTitle: React.FC<{}> = React.memo(() => {
 
   return (
     <AnimatePresence mode="wait" initial={false}>
-      <motion.div {...animation} key={chatTitle} className="flex items-center">
-        <Text>{chatTitle}</Text>
+      <motion.div {...animation} key={chatTitle} className="flex items-center overflow-hidden">
+        <Text truncate>{chatTitle}</Text>
       </motion.div>
     </AnimatePresence>
   );

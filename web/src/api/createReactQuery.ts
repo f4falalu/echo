@@ -1,104 +1,16 @@
 'use client';
 
 import { useSupabaseContext } from '@/context/Supabase/SupabaseContextProvider';
-import {
-  useQueryClient,
-  useMutation,
-  useQuery,
-  UseQueryOptions,
-  keepPreviousData,
-  useInfiniteQuery,
-  QueryKey
-} from '@tanstack/react-query';
-import { useEffect } from 'react';
-import { useBusterNotifications } from '@/context/BusterNotifications';
-import { RustApiError } from './buster_rest/errors';
-import { useMemoizedFn } from 'ahooks';
+import { useQuery, keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 
-type CreateQueryProps<TData = unknown, TError = unknown> = UseQueryOptions<TData, TError, TData> & {
-  useErrorNotification?: boolean;
-  isUseSession?: boolean;
-};
-
-export const PREFETCH_STALE_TIME = 1000 * 10;
-
-export const useCreateReactQuery = <TData = unknown, TError = unknown>({
-  isUseSession = true,
-  enabled = true,
-  refetchOnWindowFocus = false,
-  refetchOnMount = true,
-  useErrorNotification = true,
-  ...options
-}: CreateQueryProps<TData, TError>) => {
-  const { openErrorNotification } = useBusterNotifications();
-  // const accessToken = useSupabaseContext((state) => state.accessToken);
-  //  const baseEnabled = isUseSession ? !!accessToken : true;
-
-  const q = useQuery({
-    enabled: !!enabled,
-    retry: 0,
-    refetchOnWindowFocus,
-    refetchOnMount,
-    ...options
-  });
-
-  useEffect(() => {
-    if (q.error && useErrorNotification) {
-      const errorMessage = q.error as RustApiError;
-      openErrorNotification({
-        message: errorMessage.message
-      });
-    }
-  }, [q.error, useErrorNotification]);
-
-  return q;
-};
-
-export const useResetReactQuery = () => {
-  const queryClient = useQueryClient();
-
-  const run = useMemoizedFn(() => {
-    queryClient.clear();
-  });
-
-  return { run };
-};
-
-interface CreateMutationProps<T, V> {
-  mutationFn: (data: T) => Promise<V>;
-  onSuccess?: Parameters<typeof useMutation>['0']['onSuccess'];
-  onError?: Parameters<typeof useMutation>['0']['onError'];
-  useErrorNotification?: boolean;
-}
-
-export const useCreateReactMutation = <T, V>({
-  mutationFn,
-  onSuccess,
-  onError,
-  useErrorNotification = true
-}: CreateMutationProps<T, V>) => {
-  const { openErrorNotification } = useBusterNotifications();
-  const res = useMutation({ mutationFn, onSuccess, onError });
-
-  useEffect(() => {
-    if (res.error && useErrorNotification) {
-      const errorMessage = res.error as RustApiError;
-      openErrorNotification({
-        message: errorMessage.message
-      });
-    }
-  }, [res.error, useErrorNotification]);
-
-  return res;
-};
-
-interface PaginatedQueryProps<T> extends CreateQueryProps<T> {
+type PaginatedQueryProps<T> = Parameters<typeof useQuery>[0] & {
   page?: number;
   pageSize?: number;
   initialData?: T;
-}
+  isUseSession?: boolean;
+};
 
-export const useCreateReactQueryPaginated = <T>({
+export const useQueryPaginated = <T>({
   queryKey,
   queryFn,
   isUseSession = true,

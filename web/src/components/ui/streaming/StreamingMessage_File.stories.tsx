@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { StreamingMessage_File } from './StreamingMessage_File';
 import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces';
+import { fn } from '@storybook/test';
 
 const meta: Meta<typeof StreamingMessage_File> = {
   title: 'UI/Streaming/StreamingMessage_File',
@@ -48,7 +49,7 @@ export const Default: Story = {
     isSelectedFile: false,
     isCompletedStream: true,
     responseMessage: mockResponseMessage,
-    onClick: () => console.log('File clicked')
+    onClick: fn()
   }
 };
 
@@ -57,7 +58,7 @@ export const Selected: Story = {
     isSelectedFile: true,
     isCompletedStream: true,
     responseMessage: mockResponseMessage,
-    onClick: () => console.log('File clicked')
+    onClick: fn()
   }
 };
 
@@ -66,7 +67,7 @@ export const Streaming: Story = {
     isSelectedFile: false,
     isCompletedStream: false,
     responseMessage: mockResponseMessage,
-    onClick: () => console.log('File clicked')
+    onClick: fn()
   }
 };
 
@@ -78,6 +79,6 @@ export const LongFileName: Story = {
       ...mockResponseMessage,
       file_name: 'very_long_file_name_that_should_truncate_in_the_ui.txt'
     },
-    onClick: () => console.log('File clicked')
+    onClick: fn()
   }
 };

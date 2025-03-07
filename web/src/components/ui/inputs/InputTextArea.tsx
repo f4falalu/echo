@@ -37,6 +37,7 @@ export interface InputTextAreaProps
     VariantProps<typeof textAreaVariants> {
   autoResize?: AutoResizeOptions;
   onPressMetaEnter?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  onPressEnter?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
 }
 
 export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextAreaProps>(
@@ -49,6 +50,7 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
       rows = 1,
       rounding = 'default',
       onPressMetaEnter,
+      onPressEnter,
       ...props
     },
     ref
@@ -120,9 +122,14 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
     });
 
     const handleKeyDown = useMemoizedFn((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        onPressMetaEnter?.(e);
+      if (e.key === 'Enter') {
+        if ((e.metaKey || e.ctrlKey) && onPressMetaEnter) {
+          e.preventDefault();
+          onPressMetaEnter(e);
+        } else if (!e.shiftKey) {
+          e.preventDefault();
+          onPressEnter?.(e);
+        }
       }
       props.onKeyDown?.(e);
     });

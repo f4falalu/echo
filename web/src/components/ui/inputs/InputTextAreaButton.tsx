@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, forwardRef } from 'react';
+import React, { useMemo, forwardRef } from 'react';
 import { InputTextArea, InputTextAreaProps } from './InputTextArea';
 import { cn } from '@/lib/classMerge';
 import { cva } from 'class-variance-authority';
@@ -6,7 +6,6 @@ import { Button } from '../buttons/Button';
 import { ArrowUp } from '../icons/NucleoIconOutlined';
 import { ShapeSquare } from '../icons/NucleoIconFilled';
 import { useMemoizedFn } from 'ahooks';
-import { Tooltip } from '../tooltip';
 
 const inputTextAreaButtonVariants = cva(
   'relative flex w-full items-center overflow-visible rounded-xl border border-border transition-all duration-200',
@@ -53,10 +52,6 @@ export const InputTextAreaButton = forwardRef<HTMLTextAreaElement, InputTextArea
       onSubmit(text);
     });
 
-    const onPressMetaEnter = useMemoizedFn(() => {
-      onSubmitPreflight();
-    });
-
     return (
       <div
         className={cn(
@@ -74,7 +69,8 @@ export const InputTextAreaButton = forwardRef<HTMLTextAreaElement, InputTextArea
           )}
           autoResize={autoResize}
           rounding="xl"
-          onPressMetaEnter={onPressMetaEnter}
+          onPressMetaEnter={onSubmitPreflight}
+          onPressEnter={onSubmitPreflight}
           {...props}
         />
 

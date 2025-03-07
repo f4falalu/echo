@@ -6,66 +6,90 @@ import {
 } from '@fluentui/react-context-selector';
 import type { SelectedFile } from '../interfaces';
 import { useAutoChangeLayout } from './useAutoChangeLayout';
-import { useMessageIndividual } from '@/context/Chats';
 import { useGetChat } from '@/api/buster_rest/chats';
+import { useMessageIndividual } from '@/context/Chats';
 
-export const useChatIndividualContext = ({
+const useChatIndividualContext = ({
   chatId,
-  defaultSelectedFile,
+  selectedFile,
   onSetSelectedFile
 }: {
   chatId?: string;
-  defaultSelectedFile?: SelectedFile;
+  selectedFile?: SelectedFile;
   onSetSelectedFile: (file: SelectedFile) => void;
 }) => {
-  const selectedFileId = defaultSelectedFile?.id;
-  const selectedFileType = defaultSelectedFile?.type;
+  const selectedFileId = selectedFile?.id;
+  const selectedFileType = selectedFile?.type;
 
   //CHAT
-  const { data: chat } = useGetChat({
-    id: chatId || ''
-  });
-
+  const { data: chat } = useGetChat({ id: chatId || '' });
   const hasChat = !!chatId && !!chat;
   const chatTitle = chat?.title;
   const chatMessageIds = chat?.message_ids ?? [];
 
   //FILE
-  const hasFile = !!defaultSelectedFile?.id;
+  const hasFile = !!selectedFileId;
 
   //MESSAGES
   const currentMessageId = chatMessageIds[chatMessageIds.length - 1];
-  const isLoading = useMessageIndividual(currentMessageId, (x) => !x?.isCompletedStream);
+  const isStreamingMessage = useMessageIndividual(currentMessageId, (x) => !x?.isCompletedStream);
 
   useAutoChangeLayout({
     lastMessageId: currentMessageId,
     onSetSelectedFile
   });
 
-  return {
-    hasChat,
-    hasFile,
-    selectedFileId,
-    currentMessageId,
-    chatTitle,
-    selectedFileType,
-    chatMessageIds,
-    chatId,
-    isLoading
-  };
+  return React.useMemo(
+    () => ({
+      hasChat,
+      hasFile,
+      selectedFileId,
+      currentMessageId,
+      chatTitle,
+      selectedFileType,
+      chatMessageIds,
+      chatId,
+      isStreamingMessage
+    }),
+    [
+      hasChat,
+      hasFile,
+      isStreamingMessage,
+      selectedFileId,
+      currentMessageId,
+      chatTitle,
+      selectedFileType,
+      chatMessageIds,
+      chatId
+    ]
+  );
 };
 
-export const IndividualChatContext = createContext<ReturnType<typeof useChatIndividualContext>>(
+const IndividualChatContext = createContext<ReturnType<typeof useChatIndividualContext>>(
   {} as ReturnType<typeof useChatIndividualContext>
 );
 
 export const ChatContextProvider = React.memo(
   ({
-    value,
+    chatId,
+    selectedFile,
+    onSetSelectedFile,
     children
-  }: PropsWithChildren<{ value: ReturnType<typeof useChatIndividualContext> }>) => {
+  }: PropsWithChildren<{
+    chatId: string | undefined;
+    selectedFile: SelectedFile | undefined;
+    onSetSelectedFile: (file: SelectedFile) => void;
+  }>) => {
+    const useChatContextValue = useChatIndividualContext({
+      chatId,
+      selectedFile,
+      onSetSelectedFile
+    });
+
     return (
-      <IndividualChatContext.Provider value={value}>{children}</IndividualChatContext.Provider>
+      <IndividualChatContext.Provider value={useChatContextValue}>
+        {children}
+      </IndividualChatContext.Provider>
     );
   }
 );

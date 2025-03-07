@@ -1,4 +1,4 @@
-import { useCreateReactQuery } from '@/api/createReactQuery';
+import { useQuery } from '@tanstack/react-query';
 import { listAllGoogleFontsFromNext } from './requests';
 
 export enum NEXT_GOOGLE_QUERY_KEYS {
@@ -6,7 +6,7 @@ export enum NEXT_GOOGLE_QUERY_KEYS {
 }
 
 export const useGetGoogleFontsFromNext = ({ enabled = true }: { enabled?: boolean }) => {
-  return useCreateReactQuery({
+  return useQuery({
     queryKey: [NEXT_GOOGLE_QUERY_KEYS.getGoogleFontsFromNext],
     queryFn: listAllGoogleFontsFromNext,
     refetchOnWindowFocus: false,

@@ -59,7 +59,15 @@ const VerticalBar: React.FC<{ show?: boolean }> = ({ show }) => {
         'opacity-0 transition-opacity duration-300',
         show && 'opacity-100!'
       )}>
-      <div className={cx(styles.verticalBar, 'mt-1 overflow-hidden')} />
+      <motion.div
+        className={cx(styles.verticalBar, 'mt-1 overflow-hidden')}
+        initial={{ height: 0 }}
+        animate={{ height: '100%' }}
+        transition={{
+          duration: 0.3,
+          ease: 'easeOut'
+        }}
+      />
     </div>
   );
 };

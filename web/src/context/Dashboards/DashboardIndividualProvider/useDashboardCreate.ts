@@ -1,13 +1,13 @@
 import { queryKeys } from '@/api/query_keys';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
+import { BusterRoutes } from '@/routes/busterRoutes';
 import { useMemoizedFn } from 'ahooks';
-import { useRouter } from 'next/navigation';
 import { useSocketQueryMutation } from '@/api/buster_socket_query';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 
 export const useDashboardCreate = ({}: {}) => {
-  const router = useRouter();
+  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const queryClient = useQueryClient();
   const { mutateAsync: deleteDashboard, isPending: isDeletingDashboard } = useSocketQueryMutation({
     emitEvent: '/dashboards/delete',
@@ -44,12 +44,10 @@ export const useDashboardCreate = ({}: {}) => {
       const res = await createDashboard({ ...rest, name: rest.name || '' });
 
       if (rerouteToDashboard) {
-        router.push(
-          createBusterRoute({
-            route: BusterRoutes.APP_DASHBOARD_ID,
-            dashboardId: res.dashboard.id
-          })
-        );
+        onChangePage({
+          route: BusterRoutes.APP_DASHBOARD_ID,
+          dashboardId: res.dashboard.id
+        });
       }
 
       return res.dashboard;

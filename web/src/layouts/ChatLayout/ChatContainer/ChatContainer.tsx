@@ -4,9 +4,7 @@ import { ChatContent } from './ChatContent';
 import { useScroll } from 'ahooks';
 import { AppPageLayout } from '@/components/ui/layouts';
 
-interface ChatContainerProps {}
-
-export const ChatContainer = React.memo(({}: ChatContainerProps) => {
+export const ChatContainer = React.memo(() => {
   const chatContentRef = useRef<HTMLDivElement>(null);
   const scroll = useScroll(chatContentRef);
 

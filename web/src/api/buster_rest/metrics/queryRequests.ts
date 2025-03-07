@@ -1,4 +1,4 @@
-import { useCreateReactQuery } from '@/api/createReactQuery';
+import { useQuery } from '@tanstack/react-query';
 import { QueryClient } from '@tanstack/react-query';
 import { useMemoizedFn } from 'ahooks';
 import { getMetric, getMetric_server, listMetrics, listMetrics_server } from './requests';
@@ -12,7 +12,7 @@ export const useGetMetric = (params: GetMetricParams) => {
     return upgradeMetricToIMetric(result, null);
   });
 
-  return useCreateReactQuery({
+  return useQuery({
     ...queryKeys.useMetricsGetMetric(params.id),
     queryFn,
     enabled: false //this is handle via a socket query? maybe it should not be?
@@ -37,7 +37,7 @@ export const useGetMetricsList = (params: ListMetricsParams) => {
     return listMetrics(params);
   });
 
-  const res = useCreateReactQuery({
+  const res = useQuery({
     ...queryKeys.metricsGetList(params),
     queryFn
   });

@@ -2,7 +2,7 @@ import React from 'react';
 import { Text } from '@/components/ui/typography';
 import { VersionPill } from '@/components/ui/tags/VersionPill';
 
-export const ReasoningFileTitle = React.memo(
+export const StreamingMessageCodeTitle = React.memo(
   ({ file_name, version_number }: { file_name: string; version_number: number }) => {
     return (
       <div className="flex items-center gap-1.5">
@@ -13,4 +13,4 @@ export const ReasoningFileTitle = React.memo(
   }
 );
 
-ReasoningFileTitle.displayName = 'ReasoningFileTitle';
+StreamingMessageCodeTitle.displayName = 'StreamingMessageCodeTitle';
