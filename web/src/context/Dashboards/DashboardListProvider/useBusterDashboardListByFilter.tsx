@@ -1,8 +1,10 @@
-import type { DashboardListFilters } from './interfaces';
 import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
 import { queryKeys } from '@/api/query_keys';
+import { DashboardsListRequest } from '@/api/request_interfaces/dashboards/interfaces';
 
-export const useBusterDashboardListByFilter = (filters: DashboardListFilters) => {
+export const useBusterDashboardListByFilter = (
+  filters: Omit<DashboardsListRequest, 'page_token' | 'page_size'>
+) => {
   const { data: dashboardsList, isFetched: isFetchedDashboardsList } = useSocketQueryEmitOn({
     emitEvent: {
       route: '/dashboards/list',

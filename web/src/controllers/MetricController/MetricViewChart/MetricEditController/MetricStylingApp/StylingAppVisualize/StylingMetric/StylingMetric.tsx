@@ -2,14 +2,13 @@ import { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces
 import React, { useMemo } from 'react';
 import { EditMetricField } from './EditMetricField';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { EditMetricAggregate } from './EditMetricType';
 import { EditMetricHeader } from './EditMetricHeaderType';
-import { Divider } from 'antd';
+import { Separator } from '@/components/ui/seperator';
 import { DerivedMetricTitle } from '@/components/ui/charts';
 import { EditHeaderTitle } from './EditHeaderTitle';
 import { createColumnFieldOptions } from './helpers';
-import { createStyles } from 'antd-style';
 
 export const StylingMetric: React.FC<{
   className?: string;
@@ -30,8 +29,6 @@ export const StylingMetric: React.FC<{
   metricColumnId,
   columnMetadata
 }) => {
-  const { styles } = useStyles();
-
   const onUpdateMetricChartConfig = useBusterMetricsIndividualContextSelector(
     ({ onUpdateMetricChartConfig }) => onUpdateMetricChartConfig
   );
@@ -41,8 +38,8 @@ export const StylingMetric: React.FC<{
   });
 
   const columnFieldOptions = useMemo(() => {
-    return createColumnFieldOptions(columnMetadata, columnLabelFormats, styles.icon);
-  }, [columnMetadata, columnLabelFormats, styles.icon]);
+    return createColumnFieldOptions(columnMetadata, columnLabelFormats, 'text-icon-color');
+  }, [columnMetadata, columnLabelFormats]);
 
   return (
     <div className="flex flex-col space-y-0">
@@ -57,7 +54,7 @@ export const StylingMetric: React.FC<{
         />
       </div>
 
-      <Divider className="my-3! mb-0!" />
+      <Separator className="my-3! mb-0!" />
 
       <div className={className}>
         <HeaderMetricStyling
@@ -70,7 +67,7 @@ export const StylingMetric: React.FC<{
         />
       </div>
 
-      <Divider className="my-3! mb-0!" />
+      <Separator className="my-3! mb-0!" />
 
       <div className={className}>
         <HeaderMetricStyling
@@ -109,7 +106,7 @@ const PrimaryMetricStyling: React.FC<{
       metricColumnId: string;
       metricValueAggregate?: DerivedMetricTitle['aggregate'];
     }) => {
-      let newConfig: Partial<IBusterMetricChartConfig> = {
+      const newConfig: Partial<IBusterMetricChartConfig> = {
         metricColumnId
       };
       if (metricValueAggregate) {
@@ -270,9 +267,3 @@ const HeaderMetricStyling: React.FC<{
     </div>
   );
 };
-
-const useStyles = createStyles(({ css, token }) => ({
-  icon: css`
-    color: ${token.colorIcon};
-  `
-}));

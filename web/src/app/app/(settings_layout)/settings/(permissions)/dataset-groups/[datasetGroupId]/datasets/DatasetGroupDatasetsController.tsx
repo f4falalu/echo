@@ -4,10 +4,10 @@ import { useGetDatasetGroupDatasets } from '@/api/buster_rest';
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
 import { PermissionSearchAndListWrapper } from '@/components/features/PermissionComponents';
 import React, { useMemo, useState } from 'react';
-import { Button } from 'antd';
-import { AppMaterialIcons } from '@/components/ui';
+import { Button } from '@/components/ui/buttons';
+import { Plus } from '@/components/ui/icons';
 import { DatasetGroupDatasetsListContainer } from './DatasetGroupDatasetsListContainer';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { NewDatasetModal } from '@/components/features/modal/NewDatasetModal';
 
 export const DatasetGroupDatasetsController: React.FC<{
@@ -32,7 +32,7 @@ export const DatasetGroupDatasetsController: React.FC<{
 
   const NewDatasetButton: React.ReactNode = useMemo(() => {
     return (
-      <Button type="default" icon={<AppMaterialIcons icon="add" />} onClick={onOpenNewDatasetModal}>
+      <Button prefix={<Plus />} onClick={onOpenNewDatasetModal}>
         New dataset
       </Button>
     );

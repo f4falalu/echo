@@ -1,8 +1,8 @@
-import { Switch } from 'antd';
+import { Switch } from '@/components/ui/switch';
 import React from 'react';
 import { LabelAndInput } from '../../Common';
 import { LoopTrendline } from './EditTrendline';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 export const EditTrendlineShowLine = React.memo(
   ({
@@ -21,7 +21,7 @@ export const EditTrendlineShowLine = React.memo(
     return (
       <LabelAndInput label="Show trend line">
         <div className="flex w-full justify-end">
-          <Switch defaultChecked={show} onChange={onChange} />
+          <Switch defaultChecked={show} onCheckedChange={onChange} />
         </div>
       </LabelAndInput>
     );

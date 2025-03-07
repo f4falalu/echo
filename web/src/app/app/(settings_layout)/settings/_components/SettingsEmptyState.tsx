@@ -1,10 +1,17 @@
 'use client';
 
-import { Button, Card } from 'antd';
+import { Button } from '@/components/ui/buttons';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardTitle,
+  CardHeader
+} from '@/components/ui/card/CardBase';
 import React from 'react';
-import { Title, Text } from '@/components/ui/typography';
-import { AppMaterialIcons } from '@/components/ui';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { Plus } from '@/components/ui/icons';
 
 export const SettingsEmptyState: React.FC<{
   title?: string;
@@ -18,26 +25,23 @@ export const SettingsEmptyState: React.FC<{
   description = `This page isn’t built yet, but one day it will be.`,
   buttonAction,
   buttonText = 'Request support',
-  buttonIcon = <AppMaterialIcons icon="add" />,
+  buttonIcon = <Plus />,
   showButton = true
 }) => {
   const { openInfoMessage } = useBusterNotifications();
 
   return (
-    <Card
-      classNames={{
-        body: 'flex justify-center items-center flex-col  py-10! '
-      }}>
-      <div className="flex max-w-[300px] flex-col items-center justify-center space-y-5">
-        <div className="flex flex-col items-center space-y-3 text-center">
-          <Title as="h4">{title}</Title>
-          <Text variant="secondary">{description}</Text>
-        </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
 
-        {showButton && (
+      {showButton && (
+        <CardContent>
           <Button
-            type="default"
-            icon={buttonIcon}
+            variant="default"
+            prefix={buttonIcon}
             onClick={() => {
               if (buttonAction) {
                 buttonAction();
@@ -47,8 +51,8 @@ export const SettingsEmptyState: React.FC<{
             }}>
             {buttonText}
           </Button>
-        )}
-      </div>
+        </CardContent>
+      )}
     </Card>
   );
 };

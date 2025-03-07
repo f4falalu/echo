@@ -1,4 +1,4 @@
-import { AppMaterialIcons } from '@/components/ui';
+import { CircleInfo, Code3, SquareMenu } from '@/components/ui/icons';
 import React from 'react';
 
 export enum DatasetApps {
@@ -14,7 +14,7 @@ export const DataSetAppText: Record<DatasetApps, string> = {
 };
 
 export const DataSetAppIcons: Record<DatasetApps, React.ReactNode> = {
-  [DatasetApps.OVERVIEW]: <AppMaterialIcons icon="info" />,
-  [DatasetApps.PERMISSIONS]: <AppMaterialIcons icon="menu_book" />,
-  [DatasetApps.EDITOR]: <AppMaterialIcons icon="data_object" />
+  [DatasetApps.OVERVIEW]: <CircleInfo />,
+  [DatasetApps.PERMISSIONS]: <SquareMenu />,
+  [DatasetApps.EDITOR]: <Code3 />
 };

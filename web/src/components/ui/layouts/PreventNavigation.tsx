@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemoizedFn, useMount } from 'ahooks';
+import { useMemoizedFn, useMount } from '@/hooks';
 import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect, useMemo } from 'react';
 import React from 'react';
@@ -102,7 +102,6 @@ export const PreventNavigation: React.FC<PreventNavigationProps> = React.memo(
         window.removeEventListener('popstate', handlePopState);
         window.removeEventListener('beforeunload', handleBeforeUnload);
       };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isDirty]);
 
     const onClose = useMemoizedFn(async () => {

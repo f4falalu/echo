@@ -1,9 +1,10 @@
-import { Input, Switch } from 'antd';
+import { Input } from '@/components/ui/inputs';
+import { Switch } from '@/components/ui/switch';
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../Common';
 import { LoopTrendline } from './EditTrendline';
 import { trendlineOptions } from './config';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 export const TrendlineLabel = React.memo(
   ({
@@ -16,8 +17,11 @@ export const TrendlineLabel = React.memo(
   }) => {
     const { showTrendlineLabel, trendlineLabel, type } = trend;
 
-    const trendlineLabelPlaceholder = useMemo(() => {
-      return trendlineOptions.find((option) => option.value === type)?.label || 'Trend line label';
+    const trendlineLabelPlaceholder: string = useMemo(() => {
+      return (
+        (trendlineOptions.find((option) => option.value === type)?.label as string) ||
+        'Trend line label'
+      );
     }, [type]);
 
     const onChangeSwitch = useMemoizedFn((checked: boolean) => {
@@ -32,7 +36,7 @@ export const TrendlineLabel = React.memo(
       <>
         <LabelAndInput label="Show label">
           <div className="flex w-full justify-end">
-            <Switch defaultChecked={showTrendlineLabel} onChange={onChangeSwitch} />
+            <Switch defaultChecked={showTrendlineLabel} onCheckedChange={onChangeSwitch} />
           </div>
         </LabelAndInput>
 
@@ -41,7 +45,7 @@ export const TrendlineLabel = React.memo(
             <Input
               defaultValue={trendlineLabel || ''}
               className="w-full"
-              placeholder={trendlineLabelPlaceholder}
+              placeholder={trendlineLabelPlaceholder as string}
               onChange={onChangeInput}
             />
           </LabelAndInput>

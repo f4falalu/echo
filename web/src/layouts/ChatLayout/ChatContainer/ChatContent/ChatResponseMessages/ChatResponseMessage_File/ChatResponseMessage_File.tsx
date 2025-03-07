@@ -10,7 +10,7 @@ import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatConte
 import { VersionPill } from '@/components/ui/tags/VersionPill';
 import { StreamingMessage_File } from '@/components/ui/streaming/StreamingMessage_File';
 import { useMessageIndividual } from '@/context/Chats';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 
 export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = React.memo(

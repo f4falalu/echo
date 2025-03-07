@@ -3,15 +3,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { AppPageLayoutContent } from '@/components/ui/layouts/AppPageLayoutContent';
 import { useBusterTermsIndividualContextSelector, useBusterTermsIndividual } from '@/context/Terms';
-import { Dropdown, Input } from 'antd';
-import { useDebounceFn } from 'ahooks';
+import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
+import { Button } from '@/components/ui/buttons';
+import { useDebounceFn } from '@/hooks';
 import { formatDate } from '@/lib';
-import { AppMaterialIcons } from '@/components/ui/icons';
+import { CircleQuestion, Dots, EditSquare, Trash } from '@/components/ui/icons';
 import { EditableTitle } from '@/components/ui/typography/EditableTitle';
-import { useAntToken } from '@/styles/useAntToken';
 import { AppCodeEditor } from '@/components/ui/inputs/AppCodeEditor';
 import clamp from 'lodash/clamp';
-import { MenuProps } from 'antd/lib';
 import { Text } from '@/components/ui/typography';
 import { BusterRoutes } from '@/routes';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
@@ -23,6 +22,7 @@ import {
   CardDescription,
   CardContent
 } from '@/components/ui/card/CardBase';
+import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
 
 export const TermIndividualContent: React.FC<{
   termId: string;
@@ -108,15 +108,15 @@ export const TermIndividualContent: React.FC<{
           <div className="flex flex-col space-y-4">
             <ItemContainer title="Definition">
               <div className={'overflow-hidden'}>
-                <Input.TextArea
+                <InputTextArea
                   key={selectedTerm?.id || 'default'}
                   defaultValue={selectedTerm?.definition || termDefinition}
-                  autoSize={{ minRows: 3, maxRows: 20 }}
+                  autoResize={{ minRows: 3, maxRows: 20 }}
                   placeholder={'Enter definition...'}
                   onBlur={(e) => {
                     onSetTermDefinition(e.target.value);
                   }}
-                  variant="borderless"
+                  variant="ghost"
                 />
               </div>
             </ItemContainer>
@@ -126,7 +126,9 @@ export const TermIndividualContent: React.FC<{
                 <div className="flex w-full items-center justify-between space-x-2">
                   <Text>SQL Snippet</Text>
 
-                  <AppMaterialIcons className="cursor-pointer" size={18} icon="help" />
+                  <div className="cursor-pointer">
+                    <CircleQuestion />
+                  </div>
                 </div>
               }>
               <div className="relative h-full w-full" style={{ height: sqlHeight }}>
@@ -162,7 +164,6 @@ const MoreDropdown: React.FC<{ termId: string; setEditingTermName: (value: boole
   termId,
   setEditingTermName
 }) => {
-  const token = useAntToken();
   const onDeleteTerm = useBusterTermsIndividualContextSelector((x) => x.onDeleteTerm);
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
 
@@ -178,19 +179,19 @@ const MoreDropdown: React.FC<{ termId: string; setEditingTermName: (value: boole
       });
   };
 
-  const dropdownItems: MenuProps['items'] = useMemo(
+  const dropdownItems: DropdownItems = useMemo(
     () => [
       {
-        key: 'edit',
-        icon: <AppMaterialIcons size={14} icon="edit" />,
+        value: 'edit',
+        icon: <EditSquare />,
         label: 'Edit term title',
         onClick: () => {
           setEditingTermName(true);
         }
       },
       {
-        key: 'delete',
-        icon: <AppMaterialIcons size={14} icon="delete" />,
+        value: 'delete',
+        icon: <Trash />,
         label: 'Delete term',
         onClick: onDeleteTermsPreflight
       }
@@ -198,22 +199,9 @@ const MoreDropdown: React.FC<{ termId: string; setEditingTermName: (value: boole
     [setEditingTermName, onDeleteTermsPreflight]
   );
 
-  const menu = useMemo(() => {
-    return {
-      items: dropdownItems
-    };
-  }, [dropdownItems]);
-
   return (
-    <Dropdown trigger={['click']} menu={menu}>
-      <div
-        className="h-fit! cursor-pointer"
-        style={{
-          height: 18,
-          color: token.colorIcon
-        }}>
-        <AppMaterialIcons size={18} icon="more_horiz" />
-      </div>
+    <Dropdown items={dropdownItems}>
+      <Button variant={'ghost'} prefix={<Dots />} />
     </Dropdown>
   );
 };

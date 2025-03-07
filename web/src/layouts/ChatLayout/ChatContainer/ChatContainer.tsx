@@ -1,7 +1,7 @@
 import React, { useMemo, useRef } from 'react';
 import { ChatHeader } from './ChatHeader';
 import { ChatContent } from './ChatContent';
-import { useScroll } from 'ahooks';
+import { useScroll } from '@/hooks';
 import { AppPageLayout } from '@/components/ui/layouts';
 
 export const ChatContainer = React.memo(() => {

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 import { BusterListRow } from './interfaces';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { CheckboxColumn } from './CheckboxColumn';
 import { getAllIdsInSection } from './helpers';
 import { cn } from '@/lib/classMerge';
@@ -68,7 +68,7 @@ export const BusterListSectionComponent = React.memo(
 
           <div className={cn('flex items-center space-x-2 pl-[0px] leading-none')}>
             <Text size="sm">{rowSection.title}</Text>
-            <Text size="sm" type="tertiary">
+            <Text size="sm" variant="tertiary">
               {rowSection.secondaryTitle}
             </Text>
           </div>

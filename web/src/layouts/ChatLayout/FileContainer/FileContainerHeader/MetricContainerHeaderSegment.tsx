@@ -4,7 +4,7 @@ import { AppSegmented } from '@/components/ui/segmented';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import type { FileView, MetricFileView } from '../../ChatLayoutContext/useChatFileLayout';
 import { type SegmentedItem } from '@/components/ui/segmented';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 const segmentOptions: { label: string; value: MetricFileView }[] = [
   { label: 'Chart', value: 'chart' },

@@ -1,8 +1,8 @@
-import { AppMaterialIcons } from '@/components/ui';
-import { Button } from 'antd';
+import { DoubleChevronRight, DoubleChevronLeft } from '@/components/ui/icons';
+import { Button } from '@/components/ui/buttons';
 import React, { useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 export const CollapseFileButton: React.FC<{
   showCollapseButton: boolean;
@@ -12,9 +12,9 @@ export const CollapseFileButton: React.FC<{
 }> = React.memo(({ showCollapseButton, isOpen, collapseDirection, onCollapseFileClick }) => {
   const icon = useMemo(() => {
     if (collapseDirection === 'left') {
-      return isOpen ? 'keyboard_double_arrow_left' : 'keyboard_double_arrow_right';
+      return isOpen ? <DoubleChevronLeft /> : <DoubleChevronRight />;
     }
-    return isOpen ? 'keyboard_double_arrow_right' : 'keyboard_double_arrow_left';
+    return isOpen ? <DoubleChevronRight /> : <DoubleChevronLeft />;
   }, [isOpen, collapseDirection]);
 
   const onClick = useMemoizedFn(() => {
@@ -35,7 +35,7 @@ export const CollapseFileButton: React.FC<{
     <AnimatePresence mode="wait" initial={false}>
       {showCollapseButton && (
         <motion.div variants={animation}>
-          <Button onClick={onClick} type="text" icon={<AppMaterialIcons icon={icon} />}></Button>
+          <Button onClick={onClick} variant="ghost" prefix={icon}></Button>
         </motion.div>
       )}
     </AnimatePresence>

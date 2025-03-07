@@ -1,7 +1,7 @@
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import React from 'react';
 import { Text } from '@/components/ui/typography';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { Button } from '@/components/ui/buttons';
 import { Copy } from '@/components/ui/icons';
 import { cn } from '@/lib/classMerge';

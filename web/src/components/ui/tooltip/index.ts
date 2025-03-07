@@ -1,4 +1,3 @@
-export * from './AppPopover';
 export * from './Tooltip';
 
 import { Tooltip } from './Tooltip';

@@ -1,3 +1,5 @@
+'use client';
+
 import type { Meta, StoryObj } from '@storybook/react';
 import { StreamingMessage_Text } from './StreamingMessage_Text';
 import { useState } from 'react';

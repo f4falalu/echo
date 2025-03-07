@@ -1,8 +1,8 @@
 import { TeamRole } from '@/api/asset_interfaces';
-import { Select } from 'antd';
+import { Select, SelectItem } from '@/components/ui/select';
 import React from 'react';
 
-export const TEAM_ROLE_OPTIONS: { label: string; value: TeamRole }[] = [
+export const TEAM_ROLE_OPTIONS: SelectItem<TeamRole>[] = [
   {
     label: 'Manager',
     value: TeamRole.MANAGER
@@ -24,17 +24,18 @@ export const PermissionAssignTeamRole: React.FC<{
   children?: React.ReactNode;
 }> = React.memo(({ role, id, onRoleChange, children }) => {
   return (
-    <div className="flex items-center space-x-5">
+    <div
+      className="flex items-center space-x-5"
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+      }}>
       {children}
       <Select
-        options={TEAM_ROLE_OPTIONS}
+        items={TEAM_ROLE_OPTIONS}
         value={role}
         onChange={(v) => {
-          onRoleChange({ id, role: v });
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
+          onRoleChange({ id, role: v as TeamRole });
         }}
       />
     </div>

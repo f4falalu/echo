@@ -16,9 +16,9 @@ import {
   getPermissionGroupDatasetGroups_server,
   getPermissionGroup_server
 } from './requests';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
-import type { GetPermissionGroupResponse } from '@/api/asset_interfaces';
+import type { GetPermissionGroupResponse } from '@/api/asset_interfaces/permission_groups';
 import isEmpty from 'lodash/isEmpty';
 import { updateDatasetPermissionGroups } from '../datasets';
 import type { ListPermissionGroupsResponse } from '../../asset_interfaces';

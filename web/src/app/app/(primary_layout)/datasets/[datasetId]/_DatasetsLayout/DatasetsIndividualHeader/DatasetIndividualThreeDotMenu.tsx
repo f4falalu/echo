@@ -1,9 +1,10 @@
 import { useDeleteDataset } from '@/api/buster_rest';
-import { AppMaterialIcons } from '@/components/ui';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
-import { Button, Dropdown, MenuProps } from 'antd';
+import { Dropdown, DropdownItems, type DropdownProps } from '@/components/ui/dropdown';
+import { Button } from '@/components/ui/buttons';
 import React, { useMemo } from 'react';
+import { DotsVertical, Trash } from '@/components/ui/icons';
 
 export const DatasetIndividualThreeDotMenu: React.FC<{
   datasetId?: string;
@@ -11,29 +12,27 @@ export const DatasetIndividualThreeDotMenu: React.FC<{
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const { mutateAsync: onDeleteDataset } = useDeleteDataset();
 
-  const menu: MenuProps = useMemo(() => {
-    return {
-      items: [
-        {
-          key: '1',
-          label: 'Delete dataset',
-          icon: <AppMaterialIcons icon="delete" />,
-          onClick: datasetId
-            ? async () => {
-                await onDeleteDataset(datasetId);
-                onChangePage({
-                  route: BusterRoutes.APP_DATASETS
-                });
-              }
-            : undefined
-        }
-      ]
-    };
+  const items: DropdownItems = useMemo(() => {
+    return [
+      {
+        value: '1',
+        label: 'Delete dataset',
+        icon: <Trash />,
+        onClick: datasetId
+          ? async () => {
+              await onDeleteDataset(datasetId);
+              onChangePage({
+                route: BusterRoutes.APP_DATASETS
+              });
+            }
+          : undefined
+      }
+    ];
   }, [datasetId, onDeleteDataset]);
 
   return (
-    <Dropdown menu={menu} trigger={['click']}>
-      <Button type="text" icon={<AppMaterialIcons icon="more_horiz" />} />
+    <Dropdown items={items}>
+      <Button variant={'ghost'} prefix={<DotsVertical />} />
     </Dropdown>
   );
 });

@@ -1,10 +1,12 @@
-export const PERMISSION_USERS_OPTIONS = [
+import { SelectItem } from '@/components/ui/select';
+
+export const PERMISSION_USERS_OPTIONS: SelectItem<'true' | 'false'>[] = [
   {
     label: 'Assigned',
-    value: true
+    value: 'true'
   },
   {
     label: 'Not Assigned',
-    value: false
+    value: 'false'
   }
 ];

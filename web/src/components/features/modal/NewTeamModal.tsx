@@ -1,14 +1,14 @@
-import { Input, InputRef } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { AppModal } from '@/components/ui/modal';
 import { useCreateTeam } from '@/api/buster_rest';
+import { Input } from '@/components/ui/inputs';
 
 export const NewTeamModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
 }> = React.memo(({ isOpen, onClose }) => {
-  const inputRef = useRef<InputRef>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const { mutateAsync: createTeam, isPending: creatingTeam } = useCreateTeam();

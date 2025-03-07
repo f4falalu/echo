@@ -1,9 +1,8 @@
-import { ColorPicker } from 'antd';
+import { ColorPicker } from '@/components/ui/color-picker';
 import React from 'react';
 import { LabelAndInput } from '../../Common';
 import { LoopTrendline } from './EditTrendline';
-import { useMemoizedFn } from 'ahooks';
-import { Color } from 'antd/es/color-picker';
+import { useMemoizedFn } from '@/hooks';
 
 export const TrendlineColorPicker = React.memo(
   ({
@@ -13,13 +12,9 @@ export const TrendlineColorPicker = React.memo(
     trend: LoopTrendline;
     onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
   }) => {
-    const onChangeComplete = useMemoizedFn((color: Color) => {
-      const hexColor = color.toHexString();
+    const onChangeComplete = useMemoizedFn((color: string) => {
+      const hexColor = color;
       onUpdateExisitingTrendline({ ...trend, trendLineColor: hexColor });
-    });
-
-    const onClear = useMemoizedFn(() => {
-      onUpdateExisitingTrendline({ ...trend, trendLineColor: null });
     });
 
     return (
@@ -27,9 +22,8 @@ export const TrendlineColorPicker = React.memo(
         <div className="flex w-full items-center justify-end">
           <ColorPicker
             size="small"
-            defaultValue={trend.trendLineColor || 'black'}
+            value={trend.trendLineColor || 'black'}
             onChangeComplete={onChangeComplete}
-            onClear={onClear}
           />
         </div>
       </LabelAndInput>

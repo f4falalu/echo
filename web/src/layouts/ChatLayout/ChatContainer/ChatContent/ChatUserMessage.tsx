@@ -1,5 +1,4 @@
 import type { BusterChatMessageRequest } from '@/api/asset_interfaces';
-import { createStyles } from 'antd-style';
 import React from 'react';
 import { Text } from '@/components/ui/typography';
 import { MessageContainer } from './MessageContainer';
@@ -19,5 +18,3 @@ export const ChatUserMessage: React.FC<{ requestMessage: BusterChatMessageReques
 );
 
 ChatUserMessage.displayName = 'ChatUserMessage';
-
-const useStyles = createStyles(({ token, css }) => ({}));

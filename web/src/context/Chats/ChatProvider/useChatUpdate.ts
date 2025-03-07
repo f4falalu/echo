@@ -1,6 +1,6 @@
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useTransition } from 'react';
-import type { IBusterChat, IBusterChatMessage } from '../interfaces';
+import type { IBusterChat, IBusterChatMessage } from '@/api/asset_interfaces/chat';
 import { useSocketQueryMutation } from '@/api/buster_socket_query';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';

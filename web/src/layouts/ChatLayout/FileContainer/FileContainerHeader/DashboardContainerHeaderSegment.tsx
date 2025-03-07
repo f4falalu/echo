@@ -3,7 +3,7 @@ import type { FileContainerSegmentProps } from './interfaces';
 import type { FileView } from '../../ChatLayoutContext/useChatFileLayout';
 import { AppSegmented } from '@/components/ui/segmented';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { type SegmentedItem } from '@/components/ui/segmented';
 
 const segmentOptions: SegmentedItem<FileView>[] = [

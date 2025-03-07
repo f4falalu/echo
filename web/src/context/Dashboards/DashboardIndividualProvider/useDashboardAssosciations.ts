@@ -1,4 +1,4 @@
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { type BusterDashboardResponse } from '@/api/asset_interfaces';
 import { useDashboardUpdateConfig } from './useDashboardUpdateConfig';
 

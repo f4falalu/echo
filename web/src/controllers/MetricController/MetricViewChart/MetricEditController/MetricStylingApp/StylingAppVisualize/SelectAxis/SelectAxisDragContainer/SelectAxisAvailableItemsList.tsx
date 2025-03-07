@@ -3,8 +3,8 @@ import { SelectAxisItemProps } from './interfaces';
 import { useDroppable } from '@dnd-kit/core';
 import { SelectAxisSortableItem } from './SelectAxisSortableItem';
 import { StylingLabel } from '../../../Common';
-import { createStyles } from 'antd-style';
 import { SelectAxisContainerId } from '../config';
+import { cn } from '@/lib/classMerge';
 
 interface AvailableItemsListProps {
   items: SelectAxisItemProps[];
@@ -23,7 +23,6 @@ export const AvailableItemsList: React.FC<AvailableItemsListProps> = ({
       type: 'zone'
     }
   });
-  const { styles, cx } = useStyles();
 
   const showDeleteHoverState =
     (isOver || isActive) && activeZone !== SelectAxisContainerId.Available;
@@ -31,7 +30,8 @@ export const AvailableItemsList: React.FC<AvailableItemsListProps> = ({
   return (
     <div ref={setNodeRef}>
       <StylingLabel label="Available">
-        <div className={cx(styles.container, showDeleteHoverState ? 'showDelete' : '')}>
+        <div
+          className={cn(showDeleteHoverState ? 'rounded bg-red-100 shadow-xs shadow-red-300' : '')}>
           {items.map((item) => (
             <SelectAxisSortableItem
               key={item.id}
@@ -44,13 +44,3 @@ export const AvailableItemsList: React.FC<AvailableItemsListProps> = ({
     </div>
   );
 };
-
-const useStyles = createStyles(({ css, token }) => ({
-  container: css`
-    &.showDelete {
-      box-shadow: 0 0 3px 1px ${token.colorError};
-      background: ${token.colorErrorBg};
-      border-radius: ${token.borderRadius}px;
-    }
-  `
-}));

@@ -1,14 +1,11 @@
 import React, { useMemo } from 'react';
-import { Select } from 'antd';
+import { Select, SelectItem } from '@/components/ui/select';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { LabelAndInput } from '../Common';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import first from 'lodash/first';
 
-const options: {
-  label: string;
-  value: IBusterMetricChartConfig['showLegendHeadline'] | 'false';
-}[] = [
+const options: SelectItem<IBusterMetricChartConfig['showLegendHeadline'] | 'false'>[] = [
   { label: 'None', value: 'false' },
   { label: 'Total', value: 'total' },
   { label: 'Average', value: 'average' },
@@ -18,10 +15,7 @@ const options: {
   { label: 'Current', value: 'current' }
 ];
 
-const pieOptions: {
-  label: string;
-  value: IBusterMetricChartConfig['showLegendHeadline'] | 'false';
-}[] = [
+const pieOptions: SelectItem<'false' | 'current'>[] = [
   { label: 'None', value: 'false' },
   { label: 'Current', value: 'current' }
 ];
@@ -38,11 +32,11 @@ export const EditShowHeadline: React.FC<{
       (lineGroupType === 'percentage-stack' && selectedChartType === 'line') ||
       (barGroupType === 'percentage-stack' && selectedChartType === 'bar');
 
-    const allOptions = useMemo(() => {
+    const allOptions: SelectItem[] = useMemo(() => {
       if (selectedChartType === 'pie') {
         return pieOptions;
       }
-      return options;
+      return options as SelectItem[];
     }, [selectedChartType]);
 
     const selectedHeadline = useMemo(() => {
@@ -76,8 +70,8 @@ export const EditShowHeadline: React.FC<{
       <LabelAndInput label="Legend headline">
         <Select
           disabled={isStackPercentage}
-          options={allOptions}
-          defaultValue={selectedHeadline}
+          items={allOptions}
+          value={selectedHeadline || 'false'}
           onChange={onChange}
         />
       </LabelAndInput>

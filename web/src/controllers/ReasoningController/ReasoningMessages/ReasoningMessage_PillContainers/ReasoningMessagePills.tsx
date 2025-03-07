@@ -1,7 +1,7 @@
 import type { BusterChatMessageReasoning_pill } from '@/api/asset_interfaces';
 import React, { useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { Popover } from '@/components/ui/tooltip/Popover';
 import {
   isOpenableFile,

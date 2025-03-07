@@ -1,11 +1,11 @@
 import { BusterChatMessageReasoning_status } from '@/api/asset_interfaces';
 import { StatusIndicator } from '@/components/ui/indicators';
-import { createStyles } from 'antd-style';
 import { motion } from 'framer-motion';
 import { AnimatePresence } from 'framer-motion';
 import React from 'react';
 import { itemAnimationConfig } from './animationConfig';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
+import { cn } from '@/lib/classMerge';
 
 export const BarContainer: React.FC<{
   showBar: boolean;
@@ -51,16 +51,15 @@ const VerticalBarContainer: React.FC<{
 VerticalBarContainer.displayName = 'BarContainer';
 
 const VerticalBar: React.FC<{ show?: boolean }> = ({ show }) => {
-  const { styles, cx } = useStyles();
   return (
     <div
-      className={cx(
+      className={cn(
         'flex w-full flex-1 items-center justify-center overflow-hidden',
         'opacity-0 transition-opacity duration-300',
         show && 'opacity-100!'
       )}>
       <motion.div
-        className={cx(styles.verticalBar, 'mt-1 overflow-hidden')}
+        className={cn('bg-text-tertiary w-[0.5px]', 'mt-1 overflow-hidden')}
         initial={{ height: 0 }}
         animate={{ height: '100%' }}
         transition={{
@@ -78,14 +77,8 @@ const TextContainer: React.FC<{
   title: string;
   secondaryTitle?: string;
 }> = React.memo(({ title, secondaryTitle }) => {
-  const { styles, cx } = useStyles();
-
   return (
-    <div
-      className={cx(
-        styles.hideSecondaryText,
-        'flex w-full items-center space-x-1.5 overflow-hidden'
-      )}>
+    <div className={cn('@container', 'flex w-full items-center space-x-1.5 overflow-hidden')}>
       <AnimatedThoughtTitle title={title} type="default" />
       <AnimatedThoughtTitle
         title={secondaryTitle}
@@ -120,9 +113,8 @@ const AnimatedThoughtTitle = React.memo(
           <motion.div className="flex" {...animations} key={title}>
             <Text
               size="sm"
-              className={`whitespace-nowrap ${className}`}
-              type={type}
-              lineHeight={lineHeight}>
+              className={cn(`whitespace-nowrap @[170px]:hidden`, className)}
+              variant={type}>
               {title}
             </Text>
           </motion.div>
@@ -132,22 +124,3 @@ const AnimatedThoughtTitle = React.memo(
   }
 );
 AnimatedThoughtTitle.displayName = 'AnimatedThoughtTitle';
-
-const useStyles = createStyles(({ token, css }) => ({
-  container: css`
-    position: relative;
-  `,
-  verticalBar: css`
-    width: 0.5px;
-    height: 100%;
-    background-color: ${token.colorTextPlaceholder};
-  `,
-  hideSecondaryText: css`
-    container-type: inline-size;
-    @container (max-width: 170px) {
-      .secondary-text {
-        display: none;
-      }
-    }
-  `
-}));

@@ -4,9 +4,9 @@ import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { SelectAxisItemDragContainer } from './SelectAxisDragContainer';
 import { useSelectAxisContextSelector } from './useSelectAxisContext';
 import { SelectAxisItemLabel } from './SelectAxisItemLabel';
-import { AppMaterialIcons } from '@/components/ui';
-import { Button } from 'antd';
-import { useMemoizedFn } from 'ahooks';
+import { DotsVertical } from '@/components/ui/icons';
+import { Button } from '@/components/ui/buttons';
+import { useMemoizedFn } from '@/hooks';
 import { SelectAxisColumnPopover } from './SelectAxisColumnPopover';
 import type { ChartEncodes, IColumnLabelFormat } from '@/components/ui/charts';
 import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
@@ -75,7 +75,7 @@ const ThreeDotMenu: React.FC<{
     }
   );
 
-  const ButtonNode = <Button type="text" icon={<AppMaterialIcons icon="more_vert" />} />;
+  const ButtonNode = <Button variant="ghost" prefix={<DotsVertical />} />;
   const { isDragging } = props;
 
   if (isDragging) {

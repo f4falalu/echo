@@ -1,19 +1,21 @@
+'use client';
+
 import { useUpdateUserDatasetGroups } from '@/api/buster_rest';
 import type { BusterUserDatasetGroup } from '@/api/asset_interfaces';
 import { PermissionAssignedCell } from '@/components/features/PermissionComponents';
 import {
-  BusterInfiniteList,
   BusterListColumn,
   BusterListRowItem,
   EmptyStateList,
   InfiniteListContainer
 } from '@/components/ui/list';
+import { BusterInfiniteList } from '@/components/ui/list/BusterInfiniteList';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import React, { useMemo, useState } from 'react';
 import { UserDatasetGroupSelectedPopup } from './UserDatasetGroupSelectedPopup';
 import pluralize from 'pluralize';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 
 export const UserDatasetGroupListContainer: React.FC<{
   filteredDatasetGroups: BusterUserDatasetGroup[];
@@ -48,7 +50,7 @@ export const UserDatasetGroupListContainer: React.FC<{
                 assigned={assigned}
                 text="assigned"
                 onSelect={onSelectAssigned}>
-                <Text type="secondary">{`${permission_count} ${pluralize('datasets', permission_count)}`}</Text>
+                <Text variant="secondary">{`${permission_count} ${pluralize('datasets', permission_count)}`}</Text>
               </PermissionAssignedCell>
             </div>
           );

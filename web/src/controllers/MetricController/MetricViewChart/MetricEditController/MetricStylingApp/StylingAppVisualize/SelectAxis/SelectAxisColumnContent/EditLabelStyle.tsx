@@ -3,9 +3,8 @@ import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 import { AppSegmented, type SegmentedItem } from '@/components/ui/segmented';
 import { ColumnTypeIcon } from '../config';
-import { createStyles } from 'antd-style';
 import { isDateColumnType, isNumericColumnType } from '@/lib';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 export const EditLabelStyle: React.FC<{
   onUpdateColumnConfig: (columnLabelFormat: Partial<IColumnLabelFormat>) => void;
@@ -13,8 +12,6 @@ export const EditLabelStyle: React.FC<{
   columnType: IColumnLabelFormat['columnType'];
   convertNumberTo: IColumnLabelFormat['convertNumberTo'];
 }> = React.memo(({ onUpdateColumnConfig, style, convertNumberTo, columnType }) => {
-  const { styles, cx } = useStyles();
-
   const enabledOptions: IColumnLabelFormat['style'][] = useMemo(() => {
     if (isNumericColumnType(columnType))
       return ['number', 'percent', 'currency', convertNumberTo ? 'date' : undefined].filter(
@@ -50,9 +47,3 @@ export const EditLabelStyle: React.FC<{
   );
 });
 EditLabelStyle.displayName = 'EditLabelStyle';
-
-const useStyles = createStyles(({ css, token }) => ({
-  icon: css`
-    color: ${token.colorIcon};
-  `
-}));

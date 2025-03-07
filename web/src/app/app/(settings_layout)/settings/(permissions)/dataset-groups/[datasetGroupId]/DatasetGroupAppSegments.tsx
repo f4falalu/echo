@@ -3,8 +3,8 @@
 import { AppSegmented } from '@/components/ui/segmented';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { createBusterRoute, BusterRoutes } from '@/routes/busterRoutes';
-import { useDebounce } from 'ahooks';
-import { Divider } from 'antd';
+import { useDebounce } from '@/hooks';
+import { Separator } from '@/components/ui/seperator';
 import React from 'react';
 
 export enum PermissionSegmentsApps {
@@ -60,7 +60,7 @@ export const DatasetGroupAppSegments: React.FC<{
   return (
     <div className="flex flex-col space-y-2">
       <AppSegmented value={value} options={options} />
-      <Divider />
+      <Separator />
     </div>
   );
 };

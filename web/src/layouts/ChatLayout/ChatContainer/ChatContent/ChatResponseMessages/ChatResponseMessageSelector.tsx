@@ -5,7 +5,7 @@ import { useMessageIndividual } from '@/context/Chats';
 import { ChatResponseMessage_Text } from './ChatResponseMessage_Text';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 const ChatResponseMessageRecord: Record<
   BusterChatMessageResponse['type'],

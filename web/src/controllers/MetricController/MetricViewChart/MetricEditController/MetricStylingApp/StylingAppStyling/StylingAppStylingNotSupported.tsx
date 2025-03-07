@@ -1,7 +1,7 @@
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { ChartType } from '@/components/ui/charts';
 import React, { useMemo } from 'react';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 
 export const StylingAppStylingNotSupported = React.memo(
   ({ selectedChartType }: { selectedChartType: IBusterMetricChartConfig['selectedChartType'] }) => {
@@ -17,7 +17,7 @@ export const StylingAppStylingNotSupported = React.memo(
 
     return (
       <div className="flex h-full w-full items-center justify-center p-5">
-        <Text type="secondary" className="text-center">
+        <Text variant="secondary" className="text-center">
           {title}
         </Text>
       </div>

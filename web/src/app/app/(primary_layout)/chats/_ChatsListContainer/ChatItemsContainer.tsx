@@ -7,15 +7,16 @@ import {
 } from '@/api/asset_interfaces';
 import { makeHumanReadble, formatDate } from '@/lib';
 import React, { memo, useMemo, useRef, useState } from 'react';
-import { FavoriteStar, getShareStatus } from '@/components/features/list';
-import { Text } from '@/components/ui';
+import { FavoriteStar } from '@/components/features/list';
+import { Text } from '@/components/ui/typography';
 import { Avatar } from '@/components/ui/avatar';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { ChatSelectedOptionPopup } from './ChatItemsSelectedPopup';
 import { BusterList, ListEmptyStateWithButton } from '@/components/ui/list';
 import { useCreateListByDate } from '@/components/ui/list/useCreateListByDate';
+import { getShareStatus } from '@/components/features/metrics/StatusBadgeIndicator';
 
 export const ChatItemsContainer: React.FC<{
   chats: BusterChatListItem[];
@@ -152,7 +153,7 @@ const TitleCell = React.memo<{ title: string; status: VerificationStatus; chatId
 
     return (
       <div className="flex w-full items-center space-x-2">
-        <Text ellipsis={true}>{title}</Text>
+        <Text truncate>{title}</Text>
         <div className="flex items-center" onClick={onFavoriteDivClick}>
           <FavoriteStar
             id={chatId}

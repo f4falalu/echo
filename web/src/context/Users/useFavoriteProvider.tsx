@@ -1,7 +1,7 @@
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useSocketQueryEmitOn, useSocketQueryMutation } from '@/api/buster_socket_query';
 import { queryKeys } from '@/api/query_keys';
-import type { BusterUserFavorite } from '@/api/asset_interfaces';
+import type { BusterUserFavorite } from '@/api/asset_interfaces/users';
 import isEmpty from 'lodash/isEmpty';
 
 const DEFAULT_FAVORITES: BusterUserFavorite[] = [];

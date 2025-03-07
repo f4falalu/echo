@@ -14,9 +14,9 @@ import {
 } from '@/components/features/PermissionComponents';
 import React, { useMemo, useState } from 'react';
 import { UserAttributesListContainer } from './UserAttributesListContainer';
-import { Button } from 'antd';
-import { useMemoizedFn } from 'ahooks';
-import { AppMaterialIcons } from '@/components/ui';
+import { Button } from '@/components/ui/buttons';
+import { useMemoizedFn } from '@/hooks';
+import { Plus } from '@/components/ui/icons';
 
 export const UserAttributesController: React.FC<{ userId: string }> = ({ userId }) => {
   const { data: attributes } = useGetUserAttributes({ userId });
@@ -36,10 +36,7 @@ export const UserAttributesController: React.FC<{ userId: string }> = ({ userId 
 
   const NewAttributeButton: React.ReactNode = useMemo(() => {
     return (
-      <Button
-        type="default"
-        icon={<AppMaterialIcons icon="add" />}
-        onClick={onOpenNewAttributeModal}>
+      <Button prefix={<Plus />} onClick={onOpenNewAttributeModal}>
         New attribute
       </Button>
     );

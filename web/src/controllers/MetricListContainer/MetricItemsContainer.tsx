@@ -8,7 +8,7 @@ import {
 import { Text } from '@/components/ui/typography';
 import { Avatar } from '@/components/ui/avatar';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { MetricSelectedOptionPopup } from './MetricItemsSelectedPopup';
 import { BusterList, ListEmptyStateWithButton } from '@/components/ui/list';

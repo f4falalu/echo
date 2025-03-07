@@ -1,5 +1,5 @@
-import type { BusterChartConfigProps } from '@/components/ui/charts/interfaces/chartConfigProps';
 import { type BusterShare, type VerificationStatus } from '../share';
+import type { BusterChartConfigProps } from './charts';
 
 export type BusterMetric = {
   id: string;
@@ -25,7 +25,7 @@ export type BusterMetric = {
   sent_by_name: string;
   sent_by_avatar_url: string | null;
   code: string | null;
-  feedback: 'positive' | 'negative' | null;
+  feedback: 'negative' | null;
   draft_session_id: string | null; //DO WE NEED THIS?
   dashboards: {
     id: string;

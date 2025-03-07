@@ -1,8 +1,8 @@
 import React from 'react';
 import { SelectAxisContainerId } from '../config';
 import { ZoneIdToTitle } from '../helper';
-import { Text } from '@/components/ui';
-import { Divider } from 'antd';
+import { Text } from '@/components/ui/typography';
+import { Separator } from '@/components/ui/seperator';
 import { zoneIdToAxisSettingContent } from './config';
 
 export const SelectAxisSettingContent: React.FC<{ zoneId: SelectAxisContainerId }> = ({
@@ -16,7 +16,7 @@ export const SelectAxisSettingContent: React.FC<{ zoneId: SelectAxisContainerId 
 
       {SettingContentComponent && (
         <>
-          <Divider />
+          <Separator />
 
           <div className="flex flex-col space-y-2 p-3">
             <SettingContentComponent zoneId={zoneId} />

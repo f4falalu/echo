@@ -1,6 +1,7 @@
+'use client';
+
 import React, { useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { TextPulseLoader } from '../..';
 import lightTheme from './light';
 import { AppCodeBlockWrapper } from './AppCodeBlockWrapper';
 import { cn } from '@/lib/classMerge';
@@ -46,7 +47,7 @@ export const AppCodeBlock: React.FC<{
 
           {showLoader && (
             <div className="-mt-2 pl-3">
-              <TextPulseLoader />
+              <PulseLoader />
             </div>
           )}
         </div>
@@ -61,3 +62,21 @@ const CodeInlineWrapper: React.FC<{
 }> = ({ children }) => {
   return <code className={cn('bg-item-active rounded-sm border text-sm', 'px-1')}>{children}</code>;
 };
+
+const PulseLoader = React.memo(({ className, size = 4 }: { className?: string; size?: number }) => {
+  return (
+    <span
+      className={cn(className)}
+      style={{
+        opacity: 0.6,
+        display: 'inline-block',
+        width: size,
+        height: size,
+        backgroundColor: 'var(--color-text-default)',
+        borderRadius: '100%'
+      }}>
+      {/* Pulse animation can be added here if needed */}
+    </span>
+  );
+});
+PulseLoader.displayName = 'PulseLoader';

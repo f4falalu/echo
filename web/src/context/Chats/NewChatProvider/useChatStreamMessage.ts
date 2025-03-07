@@ -1,6 +1,8 @@
-import { useMemoizedFn } from 'ahooks';
+'use client';
+
+import { useMemoizedFn } from '@/hooks';
 import { useBusterChatContextSelector } from '../ChatProvider';
-import type { BusterChat } from '@/api/asset_interfaces';
+import type { BusterChat, IBusterChat, IBusterChatMessage } from '@/api/asset_interfaces/chat';
 import type {
   ChatEvent_GeneratingReasoningMessage,
   ChatEvent_GeneratingResponseMessage,
@@ -12,7 +14,6 @@ import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
 import { useSocketQueryOn } from '@/api/buster_socket_query';
 import { useRef, useTransition } from 'react';
-import { IBusterChat, IBusterChatMessage } from '../interfaces';
 import { queryKeys } from '@/api/query_keys';
 import { useQueryClient } from '@tanstack/react-query';
 import { create } from 'mutative';

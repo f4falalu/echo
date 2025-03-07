@@ -1,6 +1,6 @@
 import React from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
-import { Switch } from 'antd';
+import { Switch } from '@/components/ui/switch';
 
 export const EditShowAxisLabel: React.FC<{
   showAxisLabel: boolean;
@@ -10,7 +10,7 @@ export const EditShowAxisLabel: React.FC<{
     return (
       <LabelAndInput label="Show axis label">
         <div className="flex justify-end">
-          <Switch defaultChecked={showAxisLabel} onChange={onChangeShowAxisLabel} />
+          <Switch defaultChecked={showAxisLabel} onCheckedChange={onChangeShowAxisLabel} />
         </div>
       </LabelAndInput>
     );

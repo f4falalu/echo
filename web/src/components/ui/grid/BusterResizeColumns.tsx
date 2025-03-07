@@ -4,7 +4,7 @@ import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import React, { useLayoutEffect, useMemo, useState } from 'react';
 import { BusterSortableItemDragContainer } from './_BusterSortableItemDragContainer';
 import { ResizeableGridDragItem } from './interfaces';
-import { useMemoizedFn, useMouse } from 'ahooks';
+import { useMemoizedFn, useMouse } from '@/hooks';
 import { BusterDragColumnMarkers } from './_BusterDragColumnMarkers';
 import { calculateColumnSpan, columnSpansToPercent } from './config';
 import SplitPane, { Pane } from '../layouts/AppSplitter/SplitPane';
@@ -29,16 +29,18 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
   items = [],
   fluid = true
 }) => {
-  const mouse = useMouse();
   const { setNodeRef, isOver, active, over } = useSortable({
     id: rowId,
     disabled: !allowEdit
   });
+  const mouse = useMouse({ moveThrottleMs: 50, disabled: !allowEdit || !over });
   const [isDragginResizeColumn, setIsDraggingResizeColumn] = useState<number | null>(null);
-  const columnMarkerColumnIndex =
-    typeof isDragginResizeColumn === 'number' ? isDragginResizeColumn + 1 : null;
-  const canResize = items.length > 1 && items.length < 4;
-  const isDropzoneActives = !!over?.id && canResize;
+  const columnMarkerColumnIndex = useMemo(
+    () => (typeof isDragginResizeColumn === 'number' ? isDragginResizeColumn + 1 : null),
+    [isDragginResizeColumn]
+  );
+  const canResize = useMemo(() => items.length > 1 && items.length < 4, [items.length]);
+  const isDropzoneActives = useMemo(() => !!over?.id && canResize, [over?.id, canResize]);
 
   const insertPosition = useMemoizedFn((itemId: string, _index: number, mouseLeft: number) => {
     const movedIndex = _index;

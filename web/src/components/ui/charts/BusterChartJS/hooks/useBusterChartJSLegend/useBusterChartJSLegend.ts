@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useTransition } from 'react';
 import { ChartJSOrUndefined } from '../../core/types';
 import {
@@ -6,7 +8,7 @@ import {
   ChartType,
   ComboChartAxis
 } from '@/components/ui/charts/interfaces';
-import { useDebounceFn, useMemoizedFn } from 'ahooks';
+import { useDebounceFn, useMemoizedFn } from '@/hooks';
 import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import {
   addLegendHeadlines,
@@ -18,7 +20,7 @@ import { getLegendItems } from './helper';
 import { DatasetOption } from '@/components/ui/charts/chartHooks';
 
 interface UseBusterChartJSLegendProps {
-  chartRef: React.RefObject<ChartJSOrUndefined>;
+  chartRef: React.RefObject<ChartJSOrUndefined | null>;
   colors: NonNullable<BusterChartProps['colors']>;
   showLegend: boolean | null | undefined;
   selectedChartType: ChartType;

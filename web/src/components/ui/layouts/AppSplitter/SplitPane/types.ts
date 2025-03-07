@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { type JSX } from 'react';
 
 export interface HTMLElementProps {
   title?: string;
@@ -22,7 +22,6 @@ export interface ISplitProps extends HTMLElementProps {
 
   initialReady?: boolean;
 
-  // eslint-disable-next-line no-undef
   children: JSX.Element[];
   /**
    * Should allowed to resized
@@ -68,7 +67,6 @@ export interface ISashContentProps {
   className?: string;
   type?: string;
   active?: boolean;
-  // eslint-disable-next-line no-undef
   children?: JSX.Element[];
 }
 

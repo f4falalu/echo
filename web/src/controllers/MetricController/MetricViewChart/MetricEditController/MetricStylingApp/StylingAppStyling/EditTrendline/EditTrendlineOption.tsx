@@ -1,4 +1,4 @@
-import { Select } from 'antd';
+import { Select, SelectItem } from '@/components/ui/select';
 import { LabelAndInput } from '../../Common';
 import { trendlineOptions } from './config';
 import { LoopTrendline } from './EditTrendline';
@@ -6,7 +6,8 @@ import React, { useMemo } from 'react';
 import type { ChartType, Trendline } from '@/components/ui/charts';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { isDateColumnType, isNumericColumnType } from '@/lib';
-import { AppMaterialIcons, AppTooltip } from '@/components/ui';
+import { AppTooltip } from '@/components/ui/tooltip';
+import { TriangleWarning } from '@/components/ui/icons';
 
 export const EditTrendlineOption = React.memo(
   ({
@@ -53,7 +54,7 @@ export const EditTrendlineOption = React.memo(
       );
     }, [xAxisEncodes, columnLabelFormats]);
 
-    const allowedOptions = useMemo(() => {
+    const allowedOptions: SelectItem<NonNullable<Trendline['type']>>[] = useMemo(() => {
       return trendlineOptions
         .map((option) => {
           const disabled = disableTrendlineRecord[option.value](
@@ -69,7 +70,7 @@ export const EditTrendlineOption = React.memo(
               <div className="flex items-center space-x-1">
                 <AppTooltip title={typeof disabled === 'string' ? disabled : ''}>
                   <div className="flex">
-                    <AppMaterialIcons icon="warning" />
+                    <TriangleWarning />
                   </div>
                 </AppTooltip>
                 <span>{option.label}</span>
@@ -98,8 +99,8 @@ export const EditTrendlineOption = React.memo(
         <div className="flex w-full justify-end overflow-hidden">
           <Select
             className="w-full!"
-            options={allowedOptions}
-            defaultValue={selectedType}
+            items={allowedOptions}
+            value={selectedType}
             onChange={onChangeSelect}
           />
         </div>

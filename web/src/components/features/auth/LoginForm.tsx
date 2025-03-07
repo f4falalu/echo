@@ -5,10 +5,12 @@ import { User } from '@supabase/auth-js';
 import { Button } from '@/components/ui/buttons';
 import { Input } from '@/components/ui/inputs';
 import { inputHasText, isValidEmail } from '@/lib';
-import { useKeyPress, useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
-import { BsGithub, BsGoogle, BsMicrosoft } from 'react-icons/bs';
+import Google from '@/components/ui/icons/customIcons/Google';
+import Microsoft from '@/components/ui/icons/customIcons/Microsoft';
+import Github from '@/components/ui/icons/customIcons/Github';
 import { Title, Text } from '@/components/ui/typography';
 import Cookies from 'js-cookie';
 import { PolicyCheck } from './PolicyCheck';
@@ -21,8 +23,8 @@ import {
   signInWithGoogle,
   signUp
 } from '@/server_context/supabaseAuthMethods';
-import { StatusCard } from '@/components/ui/card/StatusCard';
 import { SuccessCard } from '@/components/ui/card/SuccessCard';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 const DEFAULT_CREDENTIALS = {
   email: process.env.NEXT_PUBLIC_USER!,
@@ -195,7 +197,7 @@ const LoginOptions: React.FC<{
     onSubmitClick(d);
   });
 
-  useKeyPress(['meta.shift.b', 'shift.ctrl.b'], async () => {
+  useHotkeys('meta+shift+b', () => {
     setSignUpFlow(false);
     onSubmitClickPreflight({
       email: DEFAULT_CREDENTIALS.email,
@@ -219,7 +221,7 @@ const LoginOptions: React.FC<{
           });
         }}>
         <Button
-          prefix={<BsGoogle size={12} />}
+          prefix={<Google />}
           onClick={() => {
             clearAllCookies();
             onSignInWithGoogle();
@@ -229,7 +231,7 @@ const LoginOptions: React.FC<{
           {hasUser ? `Continue with Google` : `Sign up with Google`}
         </Button>
         <Button
-          prefix={<BsGithub size={12} />}
+          prefix={<Github />}
           onClick={() => {
             clearAllCookies();
             onSignInWithGithub();
@@ -239,7 +241,7 @@ const LoginOptions: React.FC<{
           {hasUser ? `Continue with Github` : `Sign up with Github`}
         </Button>
         <Button
-          prefix={<BsMicrosoft size={12} />}
+          prefix={<Microsoft />}
           onClick={() => {
             clearAllCookies();
             onSignInWithAzure();

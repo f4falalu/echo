@@ -1,5 +1,5 @@
-import { AppMaterialIcons } from '@/components/ui';
-import { Button } from 'antd';
+import { Button } from '@/components/ui/buttons';
+import { Link } from '@/components/ui/icons';
 import React from 'react';
 
 export const CopyLinkButton: React.FC<{
@@ -7,7 +7,7 @@ export const CopyLinkButton: React.FC<{
   text?: string;
 }> = React.memo(({ onCopyLink, text = 'Copy link' }) => {
   return (
-    <Button type="text" onClick={onCopyLink} icon={<AppMaterialIcons icon="link" size={16} />}>
+    <Button variant="ghost" onClick={onCopyLink} prefix={<Link />}>
       {text}
     </Button>
   );

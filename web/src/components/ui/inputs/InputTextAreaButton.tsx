@@ -5,7 +5,7 @@ import { cva } from 'class-variance-authority';
 import { Button } from '../buttons/Button';
 import { ArrowUp } from '../icons/NucleoIconOutlined';
 import { ShapeSquare } from '../icons/NucleoIconFilled';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 const inputTextAreaButtonVariants = cva(
   'relative flex w-full items-center overflow-visible rounded-xl border border-border transition-all duration-200',
@@ -48,7 +48,7 @@ export const InputTextAreaButton = forwardRef<HTMLTextAreaElement, InputTextArea
   ) => {
     const onSubmitPreflight = useMemoizedFn(() => {
       if (disabled) return;
-      const text = (textRef as React.RefObject<HTMLTextAreaElement>).current?.value || '';
+      const text = (textRef as React.RefObject<HTMLTextAreaElement | null>).current?.value || '';
       onSubmit(text);
     });
 

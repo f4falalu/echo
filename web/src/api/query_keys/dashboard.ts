@@ -1,12 +1,11 @@
 import { queryOptions } from '@tanstack/react-query';
 import type {
-  BusterDashboard,
   BusterDashboardListItem,
   BusterDashboardResponse
-} from '@/api/asset_interfaces';
-import { DashboardListFilters } from '@/context/Dashboards/DashboardListProvider/interfaces';
+} from '@/api/asset_interfaces/dashboard';
+import { DashboardsListRequest } from '../request_interfaces/dashboards/interfaces';
 
-const dashboardGetList = (filters: DashboardListFilters) =>
+const dashboardGetList = (filters: Omit<DashboardsListRequest, 'page_token' | 'page_size'>) =>
   queryOptions<BusterDashboardListItem[]>({
     queryKey: ['dashboard', 'list', filters] as const,
     staleTime: 10 * 1000

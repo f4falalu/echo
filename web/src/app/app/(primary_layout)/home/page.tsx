@@ -1,4 +1,4 @@
-import { AppPageLayout } from '@/components/ui';
+import { AppPageLayout } from '@/components/ui/layouts';
 import React from 'react';
 import { HomePageController, HomePageHeader } from '@/controllers/HomePage';
 

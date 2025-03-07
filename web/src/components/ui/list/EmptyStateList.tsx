@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 import { Card } from '@/components/ui/card/CardBase';
 
 interface EmptyStateListProps {
@@ -16,7 +16,7 @@ export const EmptyStateList = React.memo(
       return (
         <div className="mx-[30px] flex w-full items-center justify-center">
           <Card className="w-full py-24 text-center">
-            <Text type="tertiary">{text}</Text>
+            <Text variant="tertiary">{text}</Text>
           </Card>
         </div>
       );
@@ -24,7 +24,7 @@ export const EmptyStateList = React.memo(
 
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <Text type="tertiary">{text}</Text>
+        <Text variant="tertiary">{text}</Text>
       </div>
     );
   }

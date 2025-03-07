@@ -1,8 +1,8 @@
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../Common';
-import { Switch } from 'antd';
-import { useMemoizedFn } from 'ahooks';
+import { Switch } from '@/components/ui/switch';
+import { useMemoizedFn } from '@/hooks';
 import { ENABLED_DOTS_ON_LINE } from '@/api/asset_interfaces';
 
 export const EditDotsOnLineGlobal: React.FC<{
@@ -27,7 +27,7 @@ export const EditDotsOnLineGlobal: React.FC<{
   return (
     <LabelAndInput label="Dot on lines">
       <div className="flex w-full justify-end">
-        <Switch defaultChecked={allDotsOnLine} onChange={onChangeAllSmooth} />
+        <Switch defaultChecked={allDotsOnLine} onCheckedChange={onChangeAllSmooth} />
       </div>
     </LabelAndInput>
   );

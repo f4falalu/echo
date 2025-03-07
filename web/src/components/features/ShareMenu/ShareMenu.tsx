@@ -3,7 +3,7 @@
 import React, { PropsWithChildren, useMemo, useState } from 'react';
 import { Popover } from '@/components/ui/tooltip/Popover';
 import { AppTooltip } from '@/components/ui/tooltip';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { BusterShare, ShareAssetType } from '@/api/asset_interfaces';
 import { ShareMenuContent } from './ShareMenuContent';
 import { isShareMenuVisible } from './publicHelpers';

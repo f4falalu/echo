@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle
 } from './ModalBase';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 
 export interface ModalProps {

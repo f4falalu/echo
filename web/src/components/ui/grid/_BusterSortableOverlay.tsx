@@ -1,3 +1,5 @@
+'use client';
+
 import { DragOverlay, defaultDropAnimationSideEffects } from '@dnd-kit/core';
 import type { DropAnimation, Modifier } from '@dnd-kit/core';
 import { BusterSortableItemContent } from './_BusterSortableItemContent';
@@ -37,7 +39,7 @@ export const BusterSortableOverlay: React.FC<{
     if (r && indexOfItem !== undefined && indexOfItem !== -1) {
       const widthOfGrid = document.querySelector('.buster-resizeable-grid')?.clientWidth!;
       let columnsOfItem = r.columnSizes?.[indexOfItem] || 4;
-      let useSnapToCenter = columnsOfItem === 12;
+      const useSnapToCenter = columnsOfItem === 12;
       if (useSnapToCenter) {
         columnsOfItem = 6;
       }

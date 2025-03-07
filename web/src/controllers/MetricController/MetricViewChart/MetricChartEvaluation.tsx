@@ -1,4 +1,4 @@
-import type { IBusterMetric } from '@/context/Metrics';
+import type { IBusterMetric } from '@/api/asset_interfaces/metric';
 import React, { useMemo } from 'react';
 import { CircleCheck, CircleWarning, CircleDotted } from '@/components/ui/icons';
 import { Popover } from '@/components/ui/tooltip/Popover';

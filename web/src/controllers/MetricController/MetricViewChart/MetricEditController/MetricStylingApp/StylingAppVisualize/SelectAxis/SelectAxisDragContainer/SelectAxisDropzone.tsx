@@ -3,9 +3,9 @@ import type { DraggedItem, DropZoneInternal } from './interfaces';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { SelectAxisSortableItem } from './SelectAxisSortableItem';
-import { createStyles } from 'antd-style';
 import { StylingLabel } from '../../../Common';
 import { SelectAxisSettingsButton } from '../SelectAxisSettingsContent';
+import { cn } from '@/lib/classMerge';
 
 export const SelectAxisDropZone: React.FC<{
   zone: DropZoneInternal;
@@ -14,7 +14,6 @@ export const SelectAxisDropZone: React.FC<{
   activeZone: string | null;
   draggedItem: DraggedItem | null;
 }> = React.memo(({ zone, isError, isOverZone, activeZone, draggedItem }) => {
-  const { styles, cx } = useStyles();
   const { setNodeRef, isOver } = useDroppable({
     id: zone.id,
     data: {
@@ -26,9 +25,9 @@ export const SelectAxisDropZone: React.FC<{
   const isSameZoneDrag = (isOver || isOverZone) && activeZone === zone.id;
 
   const extraClass = useMemo(() => {
-    if (isError) return 'showError';
-    if (isSameZoneDrag) return 'showInternalDrag';
-    if (showHoverState) return 'showAddHover';
+    if (isError) return 'text-danger-foreground shadow-[0_0_3px_1px] bg-red-200 shadow-red-200';
+    if (isSameZoneDrag) return 'text-foreground shadow-[0_0_3px_1px] shadow-primary';
+    if (showHoverState) return 'text-[#32a852] shadow-[0_0_3px_1px_#32a852] bg-[#e6fce6]';
     return '';
   }, [isError, isSameZoneDrag, showHoverState]);
 
@@ -44,7 +43,7 @@ export const SelectAxisDropZone: React.FC<{
           <SortableContext
             items={zone.items.map((item) => item.id)}
             strategy={verticalListSortingStrategy}>
-            <div className={cx(styles.container, 'space-y-0.5 transition', extraClass)}>
+            <div className={cn('space-y-0.5 transition', extraClass)}>
               {zone.items.map((item) => (
                 <SelectAxisSortableItem
                   key={item.originalId}
@@ -67,54 +66,15 @@ SelectAxisDropZone.displayName = 'SelectAxisDropZone';
 const EmptyDropZone: React.FC<{
   className: string;
 }> = React.memo(({ className }) => {
-  const { styles, cx } = useStyles();
-
   return (
     <div
-      className={cx(
-        'flex h-[32px] w-full items-center justify-center rounded-sm',
-        styles.container,
-        className ? className : 'empty'
+      className={cn(
+        'flex h-[32px] w-full items-center justify-center',
+        'rounded transition-all duration-100 ease-in-out',
+        className ? className : 'border-border border border-dashed bg-transparent'
       )}>
-      <span className="dropzone-text select-none">Drag column here</span>
+      <span className="text-text-tertiary text-sm select-none">Drag column here</span>
     </div>
   );
 });
 EmptyDropZone.displayName = 'EmptyDropZone';
-
-const useStyles = createStyles(({ css, token }) => ({
-  container: css`
-    border-radius: ${token.borderRadius}px;
-    transition: all 0.13s ease-in-out;
-
-    &.showError {
-      box-shadow: 0 0 3px 1px ${token.colorError};
-      background: ${token.colorErrorBg};
-      color: ${token.colorError};
-    }
-
-    &.showInternalDrag {
-      box-shadow: 0 0 3px 1px ${token.colorPrimary};
-      color: ${token.colorText};
-    }
-
-    &.showAddHover {
-      box-shadow: 0 0 3px 1px #32a852;
-      background: #e6fce6;
-      color: #32a852;
-    }
-
-    &.empty {
-      background: transparent;
-      border: 0.5px dashed ${token.colorBorder};
-    }
-
-    .dropzone-text {
-      font-size: ${11}px;
-    }
-
-    &.empty span {
-      color: ${token.colorTextPlaceholder};
-    }
-  `
-}));

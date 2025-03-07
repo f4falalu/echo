@@ -1,13 +1,13 @@
-import { AppMaterialIcons } from '@/components/ui/icons';
-import { Button } from 'antd';
 import React from 'react';
+import { ASSET_ICONS } from '../config/assetIcons';
+import { Button } from '@/components/ui/buttons';
 
 export const CollectionButton: React.FC<{
-  buttonType?: 'text' | 'default';
+  buttonType?: 'ghost' | 'default';
   useText?: boolean;
-}> = ({ buttonType = 'text', useText = false }) => {
+}> = ({ buttonType = 'default', useText = false }) => {
   return (
-    <Button icon={<AppMaterialIcons icon="note_stack_add" />} type={buttonType}>
+    <Button prefix={<ASSET_ICONS.collections />} variant={buttonType}>
       {useText ? 'Collections' : ''}
     </Button>
   );

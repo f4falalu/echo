@@ -1,7 +1,7 @@
 import { IColumnLabelFormat } from '@/components/ui/charts';
 import React from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
-import { Input } from 'antd';
+import { Input } from '@/components/ui/inputs';
 
 export const EditTitle: React.FC<{
   displayName: IColumnLabelFormat['displayName'];

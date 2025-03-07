@@ -1,19 +1,21 @@
+'use client';
+
 import { useUpdateUserPermissionGroups } from '@/api/buster_rest';
 import type { BusterUserPermissionGroup } from '@/api/asset_interfaces';
 import { PermissionAssignedCell } from '@/components/features/PermissionComponents';
 import {
-  BusterInfiniteList,
   BusterListColumn,
   BusterListRowItem,
   EmptyStateList,
   InfiniteListContainer
 } from '@/components/ui/list';
+import { BusterInfiniteList } from '@/components/ui/list/BusterInfiniteList';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import React, { useMemo, useState } from 'react';
 import { UserPermissionGroupSelectedPopup } from './UserPermissionGroupSelectedPopup';
 import pluralize from 'pluralize';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 
 export const UserPermissionGroupsListContainer: React.FC<{
   filteredPermissionGroups: BusterUserPermissionGroup[];
@@ -49,7 +51,7 @@ export const UserPermissionGroupsListContainer: React.FC<{
                 assigned={assigned}
                 text="assigned"
                 onSelect={onSelectAssigned}>
-                <Text type="secondary">{`${dataset_count} ${pluralize('datasets', dataset_count)}`}</Text>
+                <Text variant="secondary">{`${dataset_count} ${pluralize('datasets', dataset_count)}`}</Text>
               </PermissionAssignedCell>
             </div>
           );

@@ -1,9 +1,7 @@
 import type { IBusterMetricChartConfig } from './requireInterfaces';
-import type { ColumnSettings } from '../../../components/ui/charts/interfaces/columnInterfaces';
-import { ChartType } from '../../../components/ui/charts/interfaces/enum';
-import { DEFAULT_CHART_THEME } from '../../../components/ui/charts/configColors';
-import type { ColumnLabelFormat } from '../../../components/ui/charts/interfaces/columnLabelInterfaces';
 import type { ColumnMetaData } from './interfaces';
+import { ChartType, ColumnLabelFormat, ColumnSettings } from './charts';
+import { DEFAULT_CHART_THEME } from './charts/configColors';
 
 export const DEFAULT_CHART_CONFIG: IBusterMetricChartConfig = {
   colors: DEFAULT_CHART_THEME,

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
-import { Select } from 'antd';
+import { Select, SelectItem } from '@/components/ui/select';
 import { IColumnLabelFormat } from '@/components/ui/charts/interfaces';
 import {
   getDefaultDateOptions,
@@ -10,7 +10,7 @@ import {
 } from './dateConfig';
 import first from 'lodash/last';
 import { formatDate, getNow } from '@/lib/date';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 export const EditDateFormat: React.FC<{
   dateFormat: IColumnLabelFormat['dateFormat'];
@@ -32,7 +32,7 @@ export const EditDateFormat: React.FC<{
       return getDefaultDateOptions(now);
     }, [useAlternateFormats]);
 
-    const selectOptions = useMemo(() => {
+    const selectOptions: SelectItem[] = useMemo(() => {
       const dateFormatIsInDefaultOptions = defaultOptions.some(({ value }) => value === dateFormat);
       if (!dateFormat || dateFormatIsInDefaultOptions || useAlternateFormats) return defaultOptions;
       return [
@@ -48,10 +48,10 @@ export const EditDateFormat: React.FC<{
     }, [dateFormat, defaultOptions, useAlternateFormats]);
 
     const selectedOption = useMemo(() => {
-      return selectOptions.find((option) => option.value === dateFormat) || first(selectOptions);
+      return selectOptions.find((option) => option.value === dateFormat) || first(selectOptions)!;
     }, [dateFormat, selectOptions]);
 
-    const onChange = useMemoizedFn(({ value }: { value: string }) => {
+    const onChange = useMemoizedFn((value: string) => {
       onUpdateColumnConfig({
         dateFormat: value as IColumnLabelFormat['dateFormat']
       });
@@ -63,10 +63,8 @@ export const EditDateFormat: React.FC<{
           <Select
             key={convertNumberTo}
             className="w-full!"
-            popupMatchSelectWidth={false}
-            options={selectOptions}
-            defaultValue={selectedOption}
-            labelInValue
+            items={selectOptions}
+            value={selectedOption.value}
             onChange={onChange}
           />
         </div>

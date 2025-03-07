@@ -1,19 +1,14 @@
 'use client';
 
-import type { BusterUserResponse } from '@/api/asset_interfaces';
+import type { BusterUserResponse } from '@/api/asset_interfaces/users';
 import React, { PropsWithChildren } from 'react';
 import { useFavoriteProvider } from './useFavoriteProvider';
 import { useGetMyUserInfo } from '@/api/buster_rest/users';
 import { useSupabaseContext } from '../Supabase';
-import {
-  ContextSelector,
-  createContext,
-  useContextSelector
-} from '@fluentui/react-context-selector';
+import { createContext, useContextSelector } from 'use-context-selector';
 import { checkIfUserIsAdmin } from './helpers';
 import { useUserOrganization } from './useUserOrganization';
 import { useInviteUser } from './useInviteUser';
-import { useWhyDidYouUpdate } from 'ahooks';
 
 export const useUserConfigProvider = ({ userInfo }: { userInfo: BusterUserResponse | null }) => {
   const isAnonymousUser = useSupabaseContext((state) => state.isAnonymousUser);
@@ -69,5 +64,5 @@ export const BusterUserConfigProvider = React.memo<
 BusterUserConfigProvider.displayName = 'BusterUserConfigProvider';
 
 export const useUserConfigContextSelector = <T,>(
-  selector: ContextSelector<ReturnType<typeof useUserConfigProvider>, T>
+  selector: (state: ReturnType<typeof useUserConfigProvider>) => T
 ) => useContextSelector(BusterUserConfig, selector);

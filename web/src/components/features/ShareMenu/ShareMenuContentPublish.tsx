@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Divider, DatePicker, Input, Space, Switch } from 'antd';
+import { Button } from '@/components/ui/buttons';
+import { Input } from '@/components/ui/inputs';
+import { Separator } from '@/components/ui/seperator';
+import { Switch } from '@/components/ui/switch';
 import { PulseLoader } from '@/components/ui/loaders';
-import { useMemoizedFn } from 'ahooks';
-import { createStyles } from 'antd-style';
+import { useMemoizedFn } from '@/hooks';
 import { createDayjsDate } from '@/lib/date';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { BusterRoutes, createBusterRoute } from '@/routes';
@@ -12,9 +14,9 @@ import { useBusterCollectionIndividualContextSelector } from '@/context/Collecti
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import type { Dayjs } from 'dayjs';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
-import { Link, ArrowBoldDown, Eye, EyeSlash } from '@/components/ui/icons';
+import { Link, Eye, EyeSlash } from '@/components/ui/icons';
+import { DatePicker } from '@/components/ui/date';
 
 export const ShareMenuContentPublish: React.FC<{
   onCopyLink: () => void;
@@ -127,10 +129,10 @@ export const ShareMenuContentPublish: React.FC<{
             <>
               <IsPublishedInfo isPublished={publicly_accessible} />
 
-              <Space.Compact className="w-full!">
-                <Input className="h-[24px]!" value={url} />
-                <Button type="default" className="flex" icon={<Link />} onClick={onCopyLink} />
-              </Space.Compact>
+              <div className="w-full!">
+                <Input size="small" value={url} />
+                <Button variant="default" className="flex" prefix={<Link />} onClick={onCopyLink} />
+              </div>
 
               <LinkExpiration linkExpiry={linkExpiry} onChangeLinkExpiry={onSetExpirationDate} />
 
@@ -146,7 +148,6 @@ export const ShareMenuContentPublish: React.FC<{
               <Text variant="secondary">Anyone with the link will be able to view.</Text>
 
               <Button
-                type="default"
                 loading={isPublishing}
                 onClick={() => {
                   onTogglePublish(true);
@@ -159,20 +160,17 @@ export const ShareMenuContentPublish: React.FC<{
 
         {publicly_accessible && (
           <>
-            <Divider />
+            <Separator />
 
             <div className="flex justify-end space-x-2 px-3 py-2">
               <Button
-                type="default"
                 loading={isPublishing}
                 onClick={async (v) => {
                   onTogglePublish(false);
                 }}>
                 Unpublish
               </Button>
-              <Button onClick={onCopyLink} type="default">
-                Copy link
-              </Button>
+              <Button onClick={onCopyLink}>Copy link</Button>
             </div>
           </>
         )}
@@ -194,37 +192,10 @@ const IsPublishedInfo: React.FC<{ isPublished: boolean }> = React.memo(({ isPubl
 });
 IsPublishedInfo.displayName = 'IsPublishedInfo';
 
-const useStyles = createStyles(({ token, css }) => {
-  return {
-    datePicker: css`
-      padding-right: 0px;
-      input {
-        text-align: end !important;
-      }
-
-      &:hover {
-        .busterv2-picker-input {
-          cursor: pointer;
-          .busterv2-picker-suffix {
-            color: ${token.colorText};
-          }
-          input {
-            cursor: pointer;
-          }
-          input::placeholder {
-            color: ${token.colorText};
-          }
-        }
-      }
-    `
-  };
-});
-
 const LinkExpiration: React.FC<{
   linkExpiry: Date | null;
   onChangeLinkExpiry: (date: Date | null) => void;
 }> = React.memo(({ onChangeLinkExpiry, linkExpiry }) => {
-  const { cx, styles } = useStyles();
   const dateFormat = 'LL';
 
   const now = useMemo(() => {
@@ -235,33 +206,19 @@ const LinkExpiration: React.FC<{
     return createDayjsDate(new Date()).add(3, 'year');
   }, []);
 
-  const onChangeLinkExpiryPreflight = useMemoizedFn((date: Dayjs | null) => {
-    onChangeLinkExpiry(date ? date.toDate() : null);
-  });
-
-  const memoizedStyle = useMemo(() => {
-    return {
-      minWidth: 160
-    };
-  }, []);
-
   return (
     <div className="flex items-center justify-between space-x-2">
       <Text>Link expiration</Text>
 
       <DatePicker
-        style={memoizedStyle}
-        className={cx(styles.datePicker)}
-        defaultValue={linkExpiry ? createDayjsDate(linkExpiry) : undefined}
-        format={dateFormat}
-        allowClear
-        minDate={now}
-        maxDate={maxDate}
+        date={linkExpiry || new Date()}
+        onSelect={onChangeLinkExpiry}
+        dateFormat={dateFormat}
         placeholder="Never"
-        variant="borderless"
-        suffixIcon={<ArrowBoldDown />}
-        onChange={onChangeLinkExpiryPreflight}
-        inputReadOnly
+        disabled={(date) => {
+          const dateValue = createDayjsDate(date);
+          return dateValue.isBefore(now) || dateValue.isAfter(maxDate);
+        }}
       />
     </div>
   );
@@ -315,30 +272,28 @@ const SetAPassword: React.FC<{
       <div className="flex w-full flex-col space-y-3">
         <div className="flex w-full justify-between">
           <Text>Set a password</Text>
-          <Switch checked={isPasswordProtected} onChange={onChangeChecked} />
+          <Switch checked={isPasswordProtected} onCheckedChange={onChangeChecked} />
         </div>
 
         {isPasswordProtected && (
           <div className="flex w-full items-center space-x-2">
             <div className="flex w-full">
-              <Space.Compact className="w-full">
-                <Input.Password
+              <div className="w-full">
+                <Input
                   value={password}
                   onChange={onChangePassword}
                   placeholder="Password"
-                  iconRender={iconRender}
-                  visibilityToggle={memoizedVisibilityToggle}
+                  type={visibilityToggle ? 'text' : 'password'}
                 />
 
                 <Button
-                  type="default"
                   className="h-full!"
-                  icon={!visibilityToggle ? <Eye /> : <EyeSlash />}
+                  prefix={!visibilityToggle ? <Eye /> : <EyeSlash />}
                   onClick={onClickVisibilityToggle}></Button>
-              </Space.Compact>
+              </div>
             </div>
 
-            <Button type="default" disabled={!isPasswordDifferent} onClick={onClickSave}>
+            <Button disabled={!isPasswordDifferent} onClick={onClickSave}>
               Save
             </Button>
           </div>

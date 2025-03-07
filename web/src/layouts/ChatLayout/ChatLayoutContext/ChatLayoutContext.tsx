@@ -1,19 +1,15 @@
 'use client';
 
-import {
-  ContextSelector,
-  createContext,
-  useContextSelector
-} from '@fluentui/react-context-selector';
+import { createContext, useContextSelector } from 'use-context-selector';
 import React, { PropsWithChildren, useTransition } from 'react';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import type { AppSplitterRef } from '@/components/ui/layouts';
 import { DEFAULT_CHAT_OPTION_SIDEBAR_SIZE } from './config';
 import { useLayoutCollapse, useSelectedFileAndLayout } from '../hooks';
 import { useChatFileLayout } from './useChatFileLayout';
 
 interface UseChatSplitterProps {
-  appSplitterRef: React.RefObject<AppSplitterRef>;
+  appSplitterRef: React.RefObject<AppSplitterRef | null>;
 }
 
 export const useChatLayout = ({ appSplitterRef }: UseChatSplitterProps) => {
@@ -89,5 +85,5 @@ export const ChatLayoutContextProvider: React.FC<
 ChatLayoutContextProvider.displayName = 'ChatLayoutContextProvider';
 
 export const useChatLayoutContextSelector = <T,>(
-  selector: ContextSelector<ReturnType<typeof useChatLayout>, T>
+  selector: (state: ReturnType<typeof useChatLayout>) => T
 ) => useContextSelector(ChatLayoutContext, selector);

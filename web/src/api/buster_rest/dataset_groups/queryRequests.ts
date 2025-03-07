@@ -17,7 +17,7 @@ import {
   getDatasetGroupPermissionGroups_server
 } from './requests';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import type {
   GetDatasetGroupDatasetsResponse,
   GetDatasetGroupPermissionGroupsResponse,

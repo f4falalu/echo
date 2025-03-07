@@ -1,8 +1,7 @@
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { LabelAndInput } from '../../Common';
-import { Input, InputRef } from 'antd';
-import { useTimeout } from 'ahooks';
+import { Input } from '@/components/ui/inputs';
 
 export const EditHeaderTitle: React.FC<{
   value: string | undefined;
@@ -10,7 +9,7 @@ export const EditHeaderTitle: React.FC<{
   onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
 }> = React.memo(
   ({ value, onUpdateChartConfig, type }) => {
-    const inputRef = useRef<InputRef>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
     const key: keyof IBusterMetricChartConfig =
       type === 'header' ? 'metricHeader' : 'metricSubHeader';
     const title = type === 'header' ? 'Header' : 'Sub-header';
@@ -20,11 +19,13 @@ export const EditHeaderTitle: React.FC<{
       onUpdateChartConfig({ [key]: e.target.value });
     };
 
-    useTimeout(() => {
-      if (!value) {
-        inputRef.current?.focus();
-      }
-    }, 150);
+    useEffect(() => {
+      setTimeout(() => {
+        if (!value) {
+          inputRef.current?.focus();
+        }
+      }, 150);
+    }, []);
 
     return (
       <LabelAndInput label={title}>

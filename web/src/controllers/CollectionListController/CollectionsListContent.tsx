@@ -12,7 +12,7 @@ import {
   BusterListRow,
   ListEmptyStateWithButton
 } from '@/components/ui/list';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { NewCollectionModal } from '@/components/features/modal/NewCollectionModal';
 import { BusterCollectionListItem } from '@/api/asset_interfaces';
 import { CollectionListSelectedPopup } from './CollectionListSelectedPopup';

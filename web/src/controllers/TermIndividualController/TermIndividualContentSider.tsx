@@ -1,9 +1,10 @@
-import React from 'react';
+'use client';
 
+import React from 'react';
 import { useBusterTermsIndividualContextSelector, useBusterTermsIndividual } from '@/context/Terms';
 import { Avatar } from '@/components/ui/avatar';
 import { formatDate } from '@/lib';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 import { DatasetList } from './TermDatasetSelect';
 
 export const TermIndividualContentSider: React.FC<{ termId: string }> = ({ termId }) => {
@@ -31,7 +32,7 @@ export const TermIndividualContentSider: React.FC<{ termId: string }> = ({ termI
   return (
     <div className="h-full space-y-5 p-4">
       <div className="flex flex-col space-y-2.5">
-        <Text type="secondary" className="text-sm!">
+        <Text variant="secondary" className="text-sm!">
           Datasets that reference this term
         </Text>
 
@@ -39,14 +40,14 @@ export const TermIndividualContentSider: React.FC<{ termId: string }> = ({ termI
       </div>
 
       <div className="space-y-2.5">
-        <Text type="secondary" className="text-sm!">
+        <Text variant="secondary" className="text-sm!">
           Created by
         </Text>
 
         <div className="flex items-center space-x-1.5">
           <Avatar size={24} name={selectedTerm?.created_by.name} />
           <Text>{selectedTerm?.created_by.name}</Text>
-          <Text type="secondary">
+          <Text variant="secondary">
             (
             {formatDate({
               date: selectedTerm?.created_at!,

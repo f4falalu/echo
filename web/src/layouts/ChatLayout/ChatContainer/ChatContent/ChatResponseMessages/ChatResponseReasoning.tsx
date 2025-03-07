@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { ShimmerText } from '@/components/ui/typography/ShimmerText';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { motion } from 'framer-motion';
 import { AnimatePresence } from 'framer-motion';
 import { Text } from '@/components/ui/typography';

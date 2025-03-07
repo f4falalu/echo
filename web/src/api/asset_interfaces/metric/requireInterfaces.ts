@@ -1,6 +1,5 @@
-import type { IColumnLabelFormat } from '@/components/ui/charts/interfaces/columnLabelInterfaces';
-import type { BusterChartConfigProps } from '@/components/ui/charts/interfaces/chartConfigProps';
-import type { ColumnSettings } from '@/components/ui/charts/interfaces/columnInterfaces';
+import { BusterChartConfigProps, ColumnSettings, IColumnLabelFormat } from './charts';
+import { BusterMetric } from './interfaces';
 
 export type IBusterMetricChartConfig = Required<
   Omit<BusterChartConfigProps, 'columnLabelFormats'>
@@ -8,3 +7,10 @@ export type IBusterMetricChartConfig = Required<
   columnLabelFormats: Record<string, Required<IColumnLabelFormat>>;
   columnSettings: Required<Record<string, Required<ColumnSettings>>>;
 };
+
+export interface IBusterMetric extends Required<BusterMetric> {
+  chart_config: IBusterMetricChartConfig;
+  fetched: boolean;
+  fetching: boolean;
+  fetchedAt: number;
+}

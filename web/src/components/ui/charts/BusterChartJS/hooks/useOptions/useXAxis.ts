@@ -7,7 +7,7 @@ import {
   ComboChartAxis,
   XAxisConfig
 } from '@/components/ui/charts/interfaces';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useMemo } from 'react';
 import { DeepPartial } from 'utility-types';
 import type { ScaleChartOptions, Scale, GridLineOptions } from 'chart.js';

@@ -1,15 +1,17 @@
+'use client';
+
 import type { GetPermissionGroupDatasetGroupsResponse } from '@/api/asset_interfaces';
 import { useUpdatePermissionGroupDatasetGroups } from '@/api/buster_rest';
 import { PermissionAssignedCell } from '@/components/features/PermissionComponents';
 import {
-  BusterInfiniteList,
   BusterListColumn,
   BusterListRowItem,
   EmptyStateList,
   InfiniteListContainer
 } from '@/components/ui/list';
+import { BusterInfiniteList } from '@/components/ui/list/BusterInfiniteList';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import React, { useMemo, useState } from 'react';
 import { PermissionGroupDatasetGroupSelectedPopup } from './PermissionGroupDatasetSelectedPopup';
 

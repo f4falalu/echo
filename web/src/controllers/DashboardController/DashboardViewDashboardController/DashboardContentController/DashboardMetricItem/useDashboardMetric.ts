@@ -1,6 +1,6 @@
 import { useDashboardContentControllerContextSelector } from '../DashboardContentControllerContext';
 import { useEffect, useMemo, useRef } from 'react';
-import { useInViewport } from 'ahooks';
+import { useInViewport } from '@/hooks';
 import { useMetricIndividual } from '@/context/Metrics';
 
 export const useDashboardMetric = ({ metricId }: { metricId: string }) => {

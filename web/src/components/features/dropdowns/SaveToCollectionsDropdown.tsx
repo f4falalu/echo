@@ -3,12 +3,12 @@ import { AppTooltip } from '@/components/ui/tooltip';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useBusterCollectionListContextSelector } from '@/context/Collections';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
-import { useMemoizedFn } from 'ahooks';
-import { Button } from 'antd';
+import { useMemoizedFn } from '@/hooks';
 import React, { useMemo } from 'react';
 import type { BusterCollectionListItem } from '@/api/asset_interfaces';
 import { NewCollectionModal } from '../modal/NewCollectionModal';
 import { Plus } from '@/components/ui/icons';
+import { Button } from '@/components/ui/buttons';
 
 export const SaveToCollectionsDropdown: React.FC<{
   children: React.ReactNode;
@@ -72,7 +72,7 @@ export const SaveToCollectionsDropdown: React.FC<{
 
   const memoizedButton = useMemo(() => {
     return (
-      <Button type="text" block className="justify-start!" icon={<Plus />} onClick={onClick}>
+      <Button variant="ghost" block className="justify-start!" prefix={<Plus />} onClick={onClick}>
         New collection
       </Button>
     );

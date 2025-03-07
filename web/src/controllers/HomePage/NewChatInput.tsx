@@ -4,7 +4,7 @@ import React, { useRef } from 'react';
 import { InputTextAreaButton } from '@/components/ui/inputs/InputTextAreaButton';
 import { useBusterNewChatContextSelector } from '@/context/Chats';
 import { inputHasText } from '@/lib/text';
-import { useMemoizedFn, useMount } from 'ahooks';
+import { useMemoizedFn, useMount } from '@/hooks';
 import { ChangeEvent, useMemo, useState } from 'react';
 
 const autoResizeConfig = {

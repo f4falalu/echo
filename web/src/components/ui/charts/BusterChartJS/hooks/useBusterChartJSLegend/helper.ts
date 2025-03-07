@@ -18,7 +18,7 @@ export const getLegendItems = ({
 }: {
   colors: string[];
   columnSettings: NonNullable<BusterChartProps['columnSettings']>;
-  chartRef: React.RefObject<ChartJSOrUndefined>;
+  chartRef: React.RefObject<ChartJSOrUndefined | null>;
   inactiveDatasets: Record<string, boolean>;
   columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>;
   selectedChartType: ChartType;
@@ -67,7 +67,7 @@ const getType = (
   columnSettings: NonNullable<BusterChartProps['columnSettings']>
 ): ChartType => {
   if (!isComboChart) return globalType;
-  const key = extractFieldsFromChain(dataset.label!).at(-1)!?.key;
+  const key = extractFieldsFromChain(dataset.label!).at(-1)?.key!;
   const columnLabelFormat = columnSettings[key];
   const columnVisualization = columnLabelFormat?.columnVisualization;
   if (columnVisualization === 'dot') return ChartType.Scatter;

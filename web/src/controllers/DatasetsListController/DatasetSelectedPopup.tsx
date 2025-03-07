@@ -1,8 +1,7 @@
 import React from 'react';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
-import { Button } from 'antd';
-import { useMemoizedFn } from 'ahooks';
-import { useDatasetContextSelector } from '@/context/Datasets';
+import { Button } from '@/components/ui/buttons';
+import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useDeleteDataset } from '@/api/buster_rest';
 
@@ -48,9 +47,5 @@ const DeleteButton: React.FC<{
     });
   });
 
-  return (
-    <Button type="default" onClick={onDeleteClick}>
-      Delete
-    </Button>
-  );
+  return <Button onClick={onDeleteClick}>Delete</Button>;
 };

@@ -4,7 +4,7 @@ import { LabelAndInput } from '../Common';
 import { BarSortBy } from '@/components/ui/charts';
 import { AppSegmented, SegmentedItem } from '@/components/ui/segmented';
 import { ChartBarAxisX, ChartBarTrendDown, ChartBarTrendUp } from '@/components/ui/icons';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 const options: SegmentedItem<BarSortBy[0]>[] = [
   {

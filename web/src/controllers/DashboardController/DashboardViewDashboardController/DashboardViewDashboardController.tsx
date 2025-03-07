@@ -8,7 +8,7 @@ import {
   useBusterDashboardIndividual
 } from '@/context/Dashboards';
 import { ShareRole } from '@/api/asset_interfaces';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { DashboardEditTitles } from './DashboardEditTitle';
 import { DashboardContentController } from './DashboardContentController';
 

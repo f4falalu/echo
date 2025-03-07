@@ -1,15 +1,17 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { Breadcrumb, Button } from 'antd';
-import Link from 'next/link';
-import { BusterRoutes, createBusterRoute } from '@/routes';
-import { AppMaterialIcons, AppSegmented, AppTooltip, SegmentedItem } from '@/components/ui';
+import { Breadcrumb, BreadcrumbItem } from '@/components/ui/breadcrumb';
+import { Button } from '@/components/ui/buttons';
+import { BusterRoutes } from '@/routes';
+import { AppSegmented, SegmentedItem } from '@/components/ui/segmented';
+import { AppTooltip } from '@/components/ui/tooltip';
 import { NewDatasetModal } from '@/components/features/modal/NewDatasetModal';
 import { useIndividualDataset } from '@/context/Datasets';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
+import { Plus } from '@/components/ui/icons';
 
 export const DatasetHeader: React.FC<{
   datasetFilter: 'all' | 'published' | 'drafts';
@@ -23,26 +25,18 @@ export const DatasetHeader: React.FC<{
     const { dataset } = useIndividualDataset({ datasetId: datasetId || '' });
     const datasetTitle = dataset?.data?.name || 'Datasets';
 
-    const breadcrumbItems = useMemo(
-      () =>
-        [
-          {
-            title: (
-              <Link
-                suppressHydrationWarning
-                href={
-                  datasetId
-                    ? createBusterRoute({
-                        route: BusterRoutes.APP_DATASETS_ID_OVERVIEW,
-                        datasetId: datasetId
-                      })
-                    : createBusterRoute({ route: BusterRoutes.APP_DATASETS })
-                }>
-                {datasetTitle}
-              </Link>
-            )
-          }
-        ].filter((item) => item.title),
+    const breadcrumbItems: BreadcrumbItem[] = useMemo(
+      () => [
+        {
+          label: datasetTitle,
+          route: datasetId
+            ? {
+                route: BusterRoutes.APP_DATASETS_ID_OVERVIEW,
+                datasetId: datasetId
+              }
+            : { route: BusterRoutes.APP_DATASETS }
+        }
+      ],
       [datasetId, datasetTitle]
     );
 
@@ -59,17 +53,14 @@ export const DatasetHeader: React.FC<{
     return (
       <>
         <div className="flex space-x-3">
-          <Breadcrumb className="flex items-center" items={breadcrumbItems} />
+          <Breadcrumb items={breadcrumbItems} />
           <DatasetFilters datasetFilter={datasetFilter} setDatasetFilter={setDatasetFilter} />
         </div>
 
         <div className="flex items-center">
           {isAdmin && (
             <AppTooltip title={'Create new dashboard'} shortcuts={['D']}>
-              <Button
-                type="default"
-                icon={<AppMaterialIcons icon="add" />}
-                onClick={onOpenNewDatasetModal}>
+              <Button prefix={<Plus />} onClick={onOpenNewDatasetModal}>
                 New Dataset
               </Button>
             </AppTooltip>

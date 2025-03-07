@@ -1,6 +1,6 @@
 import { queryKeys } from '@/api/query_keys';
 import { useQuery } from '@tanstack/react-query';
-import type { IBusterChatMessage } from '../interfaces';
+import type { IBusterChatMessage } from '@/api/asset_interfaces/chat';
 
 type MessageSelector<T> = (message: IBusterChatMessage | undefined) => T;
 

@@ -1,6 +1,7 @@
-import { AppMaterialIcons } from '@/components/ui';
-import { useMemoizedFn } from 'ahooks';
-import { MenuProps, Dropdown, Button } from 'antd';
+import { useMemoizedFn } from '@/hooks';
+import { Dropdown, DropdownItem, DropdownItems, DropdownProps } from '@/components/ui/dropdown';
+import { Button } from '@/components/ui/buttons';
+import { CheckDouble, Xmark } from '@/components/ui/icons';
 import React, { useMemo } from 'react';
 import { PERMISSION_OPTIONS_INCLUDED, PERMISSION_OPTIONS_ASSIGNED } from './PermissionAssignedCell';
 
@@ -15,7 +16,7 @@ export const PermissionAssignedButton: React.FC<{
       text === 'included' ? PERMISSION_OPTIONS_INCLUDED : PERMISSION_OPTIONS_ASSIGNED;
     return selectedOptions.map((v) => ({
       ...v,
-      icon: v.value ? <AppMaterialIcons icon="done_all" /> : <AppMaterialIcons icon="remove_done" />
+      icon: v.value ? <CheckDouble /> : <Xmark />
     }));
   }, [text]);
 
@@ -36,14 +37,14 @@ export const PermissionAssignedButton: React.FC<{
     }
   });
 
-  const menuProps: MenuProps = useMemo(() => {
+  const menuProps: DropdownProps = useMemo(() => {
     return {
       selectable: true,
-      items: options.map((v) => ({
+      items: options.map<DropdownItem>((v) => ({
+        value: v.value ? 'included' : 'not_included',
         icon: v.icon,
         label: v.label,
-        key: v.value ? 'included' : 'not_included',
-        onClick: () => onAssignClick(v.value)
+        onClick: () => onAssignClick(v.value === 'true')
       }))
     };
   }, [selectedRowKeys]);
@@ -54,10 +55,8 @@ export const PermissionAssignedButton: React.FC<{
   });
 
   return (
-    <Dropdown menu={menuProps} trigger={['click']}>
-      <Button type="default" onClick={onButtonClick}>
-        {buttonText}
-      </Button>
+    <Dropdown {...menuProps}>
+      <Button onClick={onButtonClick}>{buttonText}</Button>
     </Dropdown>
   );
 };

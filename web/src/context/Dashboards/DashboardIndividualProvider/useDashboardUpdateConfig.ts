@@ -6,7 +6,7 @@ import {
 import { queryKeys } from '@/api/query_keys';
 import { DashboardUpdate } from '@/api/buster_socket/dashboards';
 import { useSocketQueryMutation } from '@/api/buster_socket_query';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { create } from 'mutative';
 import { useQueryClient } from '@tanstack/react-query';
 

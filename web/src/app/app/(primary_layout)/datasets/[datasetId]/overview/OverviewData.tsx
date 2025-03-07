@@ -2,19 +2,16 @@ import type { IDataResult } from '@/api/asset_interfaces';
 import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 import AppDataGrid from '@/components/ui/table/AppDataGrid';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { useAntToken } from '@/styles/useAntToken';
 import React from 'react';
-import { Text } from '@/components/ui';
-import { useMemoizedFn } from 'ahooks';
+import { Text } from '@/components/ui/typography';
+import { useMemoizedFn } from '@/hooks';
 import isEmpty from 'lodash/isEmpty';
-import { createStyles } from 'antd-style';
 
 export const OverviewData: React.FC<{
   datasetId: string;
   data: IDataResult;
   isFetchedDatasetData: boolean;
 }> = React.memo(({ data, isFetchedDatasetData }) => {
-  const token = useAntToken();
   const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
 
   const defaultCellFormatter = useMemoizedFn((value: any, key: string): string => {
@@ -22,13 +19,7 @@ export const OverviewData: React.FC<{
   });
 
   return (
-    <div
-      className="buster-chart h-full w-full overflow-auto"
-      style={{
-        maxHeight: '70vh',
-        border: `0.5px solid ${token.colorBorder}`,
-        borderRadius: `${token.borderRadius}px`
-      }}>
+    <div className="buster-chart h-full max-h-[70vh] w-full overflow-auto rounded border">
       {!isFetchedDatasetData ? (
         <LoadingState />
       ) : !isEmpty(data) ? (
@@ -50,10 +41,9 @@ export const OverviewData: React.FC<{
 OverviewData.displayName = 'OverviewData';
 
 const EmptyState = () => {
-  const { styles, cx } = useStyles();
   return (
-    <div className={cx(styles.emptyState, 'flex justify-center py-24')}>
-      <Text type="tertiary">No data available</Text>
+    <div className="bg-background flex justify-center py-24">
+      <Text variant="tertiary">No data available</Text>
     </div>
   );
 };
@@ -65,9 +55,3 @@ const LoadingState: React.FC<{}> = () => {
     </div>
   );
 };
-
-const useStyles = createStyles(({ token }) => ({
-  emptyState: {
-    background: token.colorBgBase
-  }
-}));

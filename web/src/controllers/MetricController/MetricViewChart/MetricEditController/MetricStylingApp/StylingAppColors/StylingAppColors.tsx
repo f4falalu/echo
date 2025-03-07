@@ -7,7 +7,7 @@ import { PaletteApp } from './PaletteApp';
 import { ColorsApp } from './ColorsApp';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 export const StylingAppColors: React.FC<{
   className: string;

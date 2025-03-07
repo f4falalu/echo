@@ -8,9 +8,9 @@ import {
 } from '@/components/features/PermissionComponents';
 import React, { useMemo, useState } from 'react';
 import { UserDatasetGroupListContainer } from './UserDatasetGroupListContainer';
-import { Button } from 'antd';
-import { useMemoizedFn } from 'ahooks';
-import { AppMaterialIcons } from '@/components/ui';
+import { Button } from '@/components/ui/buttons';
+import { useMemoizedFn } from '@/hooks';
+import { Plus } from '@/components/ui/icons';
 
 export const UserDatasetGroupsController: React.FC<{ userId: string }> = ({ userId }) => {
   const { data: datasetGroups } = useGetUserDatasetGroups({ userId });
@@ -30,10 +30,7 @@ export const UserDatasetGroupsController: React.FC<{ userId: string }> = ({ user
 
   const NewDatasetGroupButton: React.ReactNode = useMemo(() => {
     return (
-      <Button
-        type="default"
-        icon={<AppMaterialIcons icon="add" />}
-        onClick={onOpenNewDatasetGroupModal}>
+      <Button prefix={<Plus />} onClick={onOpenNewDatasetGroupModal}>
         New dataset group
       </Button>
     );

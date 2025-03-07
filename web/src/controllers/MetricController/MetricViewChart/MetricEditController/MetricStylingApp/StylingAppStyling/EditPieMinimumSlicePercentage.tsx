@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { LabelAndInput } from '../Common';
-import { InputNumber, Slider } from 'antd';
+import { InputNumber } from '@/components/ui/inputs';
+import { Slider } from '@/components/ui/slider';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 export const EditPieMinimumSlicePercentage = React.memo(
   ({
@@ -17,6 +18,10 @@ export const EditPieMinimumSlicePercentage = React.memo(
     const onChange = useMemoizedFn((value: number) => {
       setIntermediateValue(value);
       onUpdateChartConfig({ pieMinimumSlicePercentage: value });
+    });
+
+    const onChangeSlider = useMemoizedFn((value: number[]) => {
+      onChange(value[0]);
     });
 
     return (
@@ -34,8 +39,8 @@ export const EditPieMinimumSlicePercentage = React.memo(
             className="w-full"
             min={0}
             max={100}
-            value={pieMinimumSlicePercentage}
-            onChange={(value) => onChange(value || 0)}
+            value={[pieMinimumSlicePercentage]}
+            onValueChange={onChangeSlider}
           />
         </div>
       </LabelAndInput>

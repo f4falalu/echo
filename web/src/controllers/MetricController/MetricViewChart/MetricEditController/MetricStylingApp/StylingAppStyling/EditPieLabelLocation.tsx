@@ -1,10 +1,11 @@
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../Common';
-import { Select, Switch } from 'antd';
+import { Select, SelectItem } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { type IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
-const options: { label: string; value: IBusterMetricChartConfig['pieLabelPosition'] }[] = [
+const options: SelectItem<NonNullable<IBusterMetricChartConfig['pieLabelPosition']>>[] = [
   { label: 'Outside', value: 'outside' },
   { label: 'Inside', value: 'inside' }
 ];
@@ -36,7 +37,7 @@ export const EditPieLabelLocation = React.memo(
       <>
         <LabelAndInput label="Show label">
           <div className="flex w-full justify-end">
-            <Switch checked={!hideLabel} onChange={onChangeSwitch} />
+            <Switch checked={!hideLabel} onCheckedChange={onChangeSwitch} />
           </div>
         </LabelAndInput>
         {!hideLabel && (
@@ -44,8 +45,8 @@ export const EditPieLabelLocation = React.memo(
             <div className="flex w-full justify-end">
               <Select
                 className="w-full"
-                options={options}
-                defaultValue={selectedLabelPosition}
+                items={options}
+                value={selectedLabelPosition}
                 onChange={onChangeSelect}
               />
             </div>

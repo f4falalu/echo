@@ -67,7 +67,7 @@ export const lineBuilder = (
     yAxisID,
     order
   } = props;
-  const yKey = extractFieldsFromChain(yAxisItem.name).at(-1)!?.key;
+  const yKey = extractFieldsFromChain(yAxisItem.name).at(-1)?.key!;
   const columnSetting = columnSettings[yKey];
   const columnLabelFormat = columnLabelFormats[yKey];
   const {

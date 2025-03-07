@@ -1,4 +1,4 @@
-import { BusterMetric, BusterMetricListItem } from '@/api/asset_interfaces';
+import { BusterMetric, BusterMetricListItem } from '@/api/asset_interfaces/metric';
 import { MetricEvent_fetchingData } from './eventsInterfaces';
 
 export enum MetricResponses {

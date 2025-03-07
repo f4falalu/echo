@@ -20,7 +20,7 @@ import { BusterSortableOverlay } from './_BusterSortableOverlay';
 import { BusterResizeableGridRow } from './interfaces';
 import clsx from 'clsx';
 import { v4 as uuidv4 } from 'uuid';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import isEqual from 'lodash/isEqual';
 import { BusterResizeRows } from './BusterResizeRows';
 import { NUMBER_OF_COLUMNS, NEW_ROW_ID, MIN_ROW_HEIGHT, TOP_SASH_ID } from './config';
@@ -55,7 +55,7 @@ export const BusterResizeableGrid: React.FC<{
   onEndDrag
 }) => {
   const [rows, setRows] = useState<BusterResizeableGridRow[]>(serverRows);
-  const styleRef = useRef<HTMLStyleElement>();
+  const styleRef = useRef<HTMLStyleElement>(undefined);
 
   const onRowLayoutChangePreflight = useMemoizedFn((newLayout: BusterResizeableGridRow[]) => {
     const filteredRows = newRowPreflight(newLayout);

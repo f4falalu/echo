@@ -1,8 +1,9 @@
-import React, { JSX } from 'react';
+import React from 'react';
 import { ExtraProps } from 'react-markdown';
 import { AppCodeBlock } from '../AppCodeBlock/AppCodeBlock';
 import { TextPulseLoader } from '@/components/ui/loaders';
-import { type Element } from 'hast';
+
+type Element = any; //TODO fix this after migration
 
 export const commonStreamingCheck = (
   endLine?: number,

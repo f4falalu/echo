@@ -1,7 +1,7 @@
 import type { ColumnSettings } from '@/components/ui/charts';
 import React from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
-import { Switch } from 'antd';
+import { Switch } from '@/components/ui/switch';
 import { WarningIcon } from '../../../Common/WarningIcon';
 
 export const EditShowDataLabel: React.FC<{
@@ -16,7 +16,7 @@ export const EditShowDataLabel: React.FC<{
           <WarningIcon rowCount={rowCount} />
           <Switch
             defaultChecked={showDataLabels}
-            onChange={(v) => {
+            onCheckedChange={(v) => {
               onUpdateColumnSettingConfig({ showDataLabels: v });
             }}
           />

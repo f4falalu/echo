@@ -1,9 +1,11 @@
-import { useSupabaseServerContext } from '@/context/Supabase/useSupabaseContext';
+import { getSupabaseServerContext } from '@/context/Supabase/getSupabaseServerContext';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { redirect } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Index() {
-  const { user } = await useSupabaseServerContext();
+  const { user } = await getSupabaseServerContext();
 
   if (!user) {
     return redirect(
@@ -21,5 +23,5 @@ export default async function Index() {
     );
   }
 
-  return <></>;
+  return <>testing123</>;
 }

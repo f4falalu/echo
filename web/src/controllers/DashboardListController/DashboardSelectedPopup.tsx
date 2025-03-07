@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { AppMaterialIcons } from '@/components/ui';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
-import { Button, Dropdown, DropdownProps } from 'antd';
+import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
+import { Button } from '@/components/ui/buttons';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
+import { ASSET_ICONS } from '@/components/features/config/assetIcons';
+import { Dots, Star, Trash, Xmark } from '@/components/ui/icons';
 
 export const DashboardSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];
@@ -80,7 +82,7 @@ const CollectionsButton: React.FC<{
       onSaveToCollection={onSaveToCollection}
       onRemoveFromCollection={onRemoveFromCollectionPreflight}
       selectedCollections={selectedCollections}>
-      <Button icon={<AppMaterialIcons icon="note_stack" />} type="default">
+      <Button prefix={<ASSET_ICONS.collections />} type="button">
         Collections
       </Button>
     </SaveToCollectionsDropdown>
@@ -106,7 +108,7 @@ const DeleteButton: React.FC<{
   });
 
   return (
-    <Button icon={<AppMaterialIcons icon="delete" />} type="default" onClick={onDeleteClick}>
+    <Button prefix={<Trash />} onClick={onDeleteClick}>
       Delete
     </Button>
   );
@@ -119,11 +121,11 @@ const ThreeDotButton: React.FC<{
   const bulkEditFavorites = useUserConfigContextSelector((state) => state.bulkEditFavorites);
   const userFavorites = useUserConfigContextSelector((state) => state.userFavorites);
 
-  const dropdownOptions: Required<DropdownProps>['menu']['items'] = [
+  const dropdownOptions: DropdownItems = [
     {
       label: 'Add to favorites',
-      icon: <AppMaterialIcons icon="star" />,
-      key: 'add-to-favorites',
+      icon: <Star />,
+      value: 'add-to-favorites',
       onClick: async () => {
         const allFavorites: string[] = [...userFavorites.map((f) => f.id), ...selectedRowKeys];
         //    bulkEditFavorites(allFavorites);
@@ -132,8 +134,8 @@ const ThreeDotButton: React.FC<{
     },
     {
       label: 'Remove from favorites',
-      icon: <AppMaterialIcons icon="close" />,
-      key: 'remove-from-favorites',
+      icon: <Xmark />,
+      value: 'remove-from-favorites',
       onClick: async () => {
         const allFavorites: string[] = userFavorites
           .map((f) => f.id)
@@ -144,8 +146,8 @@ const ThreeDotButton: React.FC<{
   ];
 
   return (
-    <Dropdown menu={{ items: dropdownOptions }} trigger={['click']}>
-      <Button icon={<AppMaterialIcons icon="more_horiz" />} type="default" />
+    <Dropdown items={dropdownOptions}>
+      <Button prefix={<Dots />} />
     </Dropdown>
   );
 };

@@ -23,7 +23,7 @@ export const BlackBoxMessage: React.FC<{ messageId: string }> = React.memo(({ me
     </BarContainer>;
   }
 
-  return <span>no black box message?</span>;
+  return <span className="text-red-500">no black box</span>;
 });
 
 BlackBoxMessage.displayName = 'BlackBoxMessage';

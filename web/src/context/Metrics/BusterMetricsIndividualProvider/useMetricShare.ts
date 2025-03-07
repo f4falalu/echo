@@ -1,4 +1,4 @@
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import type { MetricUpdateMetric } from '@/api/buster_socket/metrics';
 import { useUpdateMetricConfig } from './useMetricUpdateConfig';
 

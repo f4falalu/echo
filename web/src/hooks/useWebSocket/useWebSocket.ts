@@ -1,13 +1,12 @@
 'use client';
 
-import { useMemoizedFn, useMount, useNetwork, useThrottleFn } from 'ahooks';
+import { useMemoizedFn, useMount, useNetwork, useThrottleFn, useWindowFocus } from '@/hooks';
 import { useEffect, useRef, useState } from 'react';
 import { ReadyState } from './config';
 import type { BusterSocketResponseBase } from '@/api/buster_socket/base_interfaces';
 import { createBusterResponse } from './helpers';
 import { type DeviceCapabilities, getDeviceCapabilities } from './deviceCapabilities';
 import type { SupabaseContextReturnType } from '@/context/Supabase';
-import { useWindowFocus } from '../dom/useWindowFocus';
 
 type WebSocketHookProps = {
   canConnect: boolean;

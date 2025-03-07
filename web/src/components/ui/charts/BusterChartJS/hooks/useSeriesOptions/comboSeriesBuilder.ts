@@ -89,7 +89,7 @@ const comboBuilder = (
   }
 ): ComboSeries[number] => {
   const { yAxisItem, index, columnSettings, isY2 } = props;
-  const yKey = extractFieldsFromChain(yAxisItem.name).at(-1)!?.key;
+  const yKey = extractFieldsFromChain(yAxisItem.name).at(-1)?.key!;
   const columnSetting = columnSettings[yKey];
   const columnVisualization =
     columnSetting?.columnVisualization || DEFAULT_COLUMN_SETTINGS.columnVisualization;
@@ -109,7 +109,7 @@ const dotSeriesBuilder = (
   props: RenderBuilderProps
 ): ChartProps<'line'>['data']['datasets'][number] => {
   const { yAxisItem, columnSettings, index } = props;
-  const yKey = extractFieldsFromChain(yAxisItem.name).at(-1)!?.key;
+  const yKey = extractFieldsFromChain(yAxisItem.name).at(-1)?.key!;
   const uniqueColumnSetting = { ...columnSettings };
   const columnSetting = uniqueColumnSetting[yKey];
   columnSetting.lineWidth = 0;

@@ -4,7 +4,7 @@ import { useMemo, useState, useTransition } from 'react';
 import type { ChatLayoutView, SelectedFile } from '../../interfaces';
 import { usePathname } from 'next/navigation';
 import { parsePathnameSegments } from './parsePathnameSegments';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { createChatAssetRoute, createFileRoute } from '../../ChatLayoutContext/helpers';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { initializeSelectedFile } from './initializeSelectedFile';
@@ -50,10 +50,7 @@ export const useSelectedFileAndLayout = ({
 
     setRenderViewLayoutKey('both');
     setSelectedFile(file);
-    console.log('page', route);
     await onChangePage(route);
-    console.log('page done');
-
     startTransition(() => {
       animateOpenSplitter('both');
     });

@@ -1,6 +1,6 @@
 import { DragStartEvent, DragOverEvent, DragEndEvent, Active, Over } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { useMemoizedFn, useUpdateEffect } from 'ahooks';
+import { useMemoizedFn, useUpdateEffect } from '@/hooks';
 import type {
   DropZone,
   SelectAxisItemProps,

@@ -1,8 +1,7 @@
 import React, { useMemo } from 'react';
-import { createStyles } from 'antd-style';
 import { ChartEncodes, ChartType } from '@/components/ui/charts';
 import { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { AppTooltip } from '@/components/ui';
+import { AppTooltip } from '@/components/ui/tooltip';
 import { CHART_ICON_LIST, ChartIconType, DETERMINE_SELECTED_CHART_TYPE_ORDER } from './config';
 import {
   selectedChartTypeMethod,
@@ -10,8 +9,9 @@ import {
   disableTypeMethod
 } from './SelectedChartTypeMethod';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { addOpacityToColor, NUMBER_TYPES } from '@/lib';
+import { cn } from '@/lib/classMerge';
 
 export interface SelectChartTypeProps {
   selectedChartType: ChartType;
@@ -79,8 +79,6 @@ const SelectedChartTypeContainer: React.FC<{
   colors: string[];
   columnMetadata: ColumnMetaData[];
 }> = React.memo(({ selectedChartTypeIcon, onSelectChartType, colors, columnMetadata }) => {
-  const { styles, cx } = useStyles();
-
   const disabledButtons: Record<ChartIconType, boolean> = useMemo(() => {
     const hasNumericColumn = columnMetadata.some((column) => NUMBER_TYPES.includes(column.type));
     const hasMultipleColumns = columnMetadata.length > 1;
@@ -115,7 +113,7 @@ const SelectedChartTypeContainer: React.FC<{
 
   return (
     <div
-      className={cx(styles.container, 'grid w-full gap-1 p-1')}
+      className={cn('bg-item-active border-border/40 rounded border', 'grid w-full gap-1 p-1')}
       style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(50px, 70px), 1fr))' }}>
       {CHART_ICON_LIST.map(({ id, icon: Icon, tooltipText }) => (
         <ChartButton
@@ -144,18 +142,16 @@ const ChartButton: React.FC<{
   colors?: string[];
 }> = React.memo(
   ({ id, icon: Icon, tooltipText, onSelectChartType, isSelected, disabled, colors }) => {
-    const { styles, cx } = useStyles();
-
     return (
       <AppTooltip title={tooltipText} delayDuration={0.65}>
         <div
           key={id}
           onClick={() => !disabled && onSelectChartType(id)}
-          className={cx(
-            'flex aspect-square h-[35px] w-full items-center justify-center',
-            styles.containerItem,
-            isSelected && 'selected',
-            disabled && 'cursor-not-allowed!'
+          className={cn(
+            'flex aspect-square h-[35px] w-full items-center justify-center hover:transition-none',
+            'hover:bg-item-hover cursor-pointer rounded',
+            isSelected && 'bg-background hover:bg-background border',
+            disabled && 'cursor-not-allowed! bg-transparent!'
           )}>
           <Icon colors={colors} disabled={disabled} />
         </div>
@@ -164,35 +160,3 @@ const ChartButton: React.FC<{
   }
 );
 ChartButton.displayName = 'ChartButton';
-
-const useStyles = createStyles(({ css, token }) => ({
-  container: css`
-    border: 0.5px solid rgba(0, 0, 0, 0.1);
-    background: ${token.controlItemBgActive};
-    border-radius: ${token.borderRadius}px;
-  `,
-  containerItem: css`
-    border-radius: ${token.borderRadius}px;
-    cursor: pointer;
-
-    &:hover {
-      background: ${token.colorBgContainer};
-      transition: all 0s;
-    }
-
-    &.selected {
-      background: ${token.colorBgContainer};
-      border: 0.5px solid ${token.colorBorder};
-
-      &:hover {
-        background: ${token.colorBgContainer};
-      }
-    }
-
-    &.disabled {
-      &:hover {
-        background: transparent;
-      }
-    }
-  `
-}));

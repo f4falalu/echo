@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLegendAutoShow } from './useLegendAutoShow';
 import { BusterChartLegendItem } from './interfaces';

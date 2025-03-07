@@ -1,4 +1,4 @@
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useSocketQueryMutation } from '@/api/buster_socket_query';
 import { queryKeys } from '@/api/query_keys';
 

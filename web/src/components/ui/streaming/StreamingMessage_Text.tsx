@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useEffect, useRef, useTransition } from 'react';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 
 interface StreamingMessage_TextProps {

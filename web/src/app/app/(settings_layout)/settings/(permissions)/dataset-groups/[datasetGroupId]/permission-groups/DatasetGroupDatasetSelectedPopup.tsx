@@ -5,7 +5,7 @@ import {
 } from '@/api/buster_rest';
 import { PermissionAssignedButton } from '@/components/features/PermissionComponents';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import React from 'react';
 
 export const DatasetGroupDatasetGroupSelectedPopup: React.FC<{

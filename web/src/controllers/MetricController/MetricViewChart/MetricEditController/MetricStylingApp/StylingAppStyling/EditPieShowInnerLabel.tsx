@@ -1,8 +1,7 @@
 import React from 'react';
 import { LabelAndInput } from '../Common';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { Switch } from 'antd';
-import { AppTooltip } from '@/components/ui';
+import { Switch } from '@/components/ui/switch';
 
 export const EditPieShowInnerLabel = React.memo(
   ({
@@ -17,7 +16,7 @@ export const EditPieShowInnerLabel = React.memo(
         <div className="flex w-full items-center justify-end space-x-2.5">
           <Switch
             defaultChecked={pieShowInnerLabel}
-            onChange={(value) => onUpdateChartConfig({ pieShowInnerLabel: value })}
+            onCheckedChange={(value) => onUpdateChartConfig({ pieShowInnerLabel: value })}
           />
         </div>
       </LabelAndInput>

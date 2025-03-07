@@ -1,13 +1,12 @@
 import {
-  DataMetadata,
+  ChartType,
+  type DataMetadata,
   DEFAULT_CHART_CONFIG,
-  IBusterMetricChartConfig,
-  ShareRole,
-  VerificationStatus
-} from '@/api/asset_interfaces';
-import { IBusterMetric } from '../interfaces';
+  type IBusterMetricChartConfig,
+  type IBusterMetric
+} from '@/api/asset_interfaces/metric';
+import { ShareRole, VerificationStatus } from '@/api/asset_interfaces/share';
 import { faker } from '@faker-js/faker';
-import { ChartType } from '@/components/ui/charts';
 
 const createMockChartConfig = (): IBusterMetricChartConfig => {
   const chartType = faker.helpers.arrayElement([

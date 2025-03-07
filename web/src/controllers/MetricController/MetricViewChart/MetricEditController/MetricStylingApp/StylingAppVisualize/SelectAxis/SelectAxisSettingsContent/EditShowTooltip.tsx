@@ -1,6 +1,6 @@
 import React from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
-import { Switch } from 'antd';
+import { Switch } from '@/components/ui/switch';
 
 export const EditShowTooltip: React.FC<{
   disableTooltip: boolean;
@@ -10,7 +10,7 @@ export const EditShowTooltip: React.FC<{
     return (
       <LabelAndInput label="Disable tooltip">
         <div className="flex justify-end">
-          <Switch defaultChecked={disableTooltip} onChange={onChangeDisableTooltip} />
+          <Switch defaultChecked={disableTooltip} onCheckedChange={onChangeDisableTooltip} />
         </div>
       </LabelAndInput>
     );

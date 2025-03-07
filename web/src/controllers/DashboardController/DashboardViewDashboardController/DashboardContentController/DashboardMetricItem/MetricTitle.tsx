@@ -1,10 +1,11 @@
 import type { BusterMetric } from '@/api/asset_interfaces';
-import { AppMaterialIcons, Text } from '@/components/ui';
-import { Title } from '@/components/ui/typography';
+import { Title, Text } from '@/components/ui/typography';
+import { DotsVertical, Trash } from '@/components/ui/icons';
 import { SortableItemContext } from '@/components/ui/grid/_BusterSortableItemDragContainer';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
-import { useMemoizedFn } from 'ahooks';
-import { MenuProps, Dropdown, Button } from 'antd';
+import { useMemoizedFn } from '@/hooks';
+import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
+import { Button } from '@/components/ui/buttons';
 import Link from 'next/link';
 import React, { useContext, useMemo } from 'react';
 
@@ -74,8 +75,8 @@ export const MetricTitle: React.FC<{
                 timeFrame || description ? 'visible' : 'hidden'
               }`}
               size="sm"
-              type="secondary"
-              ellipsis={true}>
+              variant="secondary"
+              truncate={true}>
               {timeFrame || '_'}
 
               {description && timeFrame && ' • '}
@@ -114,12 +115,12 @@ const ThreeDotMenu: React.FC<{
     (x) => x.removeMetricFromDashboard
   );
 
-  const dropdownItems: MenuProps['items'] = useMemo(
+  const dropdownItems: DropdownItems = useMemo(
     () => [
       {
-        key: 'delete',
+        value: 'delete',
         label: 'Delete',
-        icon: <AppMaterialIcons icon="delete" />,
+        icon: <Trash />,
         onClick: async () => {
           try {
             await removeMetricFromDashboard({
@@ -135,12 +136,6 @@ const ThreeDotMenu: React.FC<{
     [dashboardId, metricId]
   );
 
-  const dropdownMenu = useMemo(() => {
-    return {
-      items: dropdownItems
-    };
-  }, [dropdownItems]);
-
   const onClick = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
     e.preventDefault();
@@ -148,8 +143,8 @@ const ThreeDotMenu: React.FC<{
 
   return (
     <div onClick={onClick} className={`w-[24px] ${className}`}>
-      <Dropdown trigger={['click']} menu={dropdownMenu}>
-        <Button className="" type="text" icon={<AppMaterialIcons icon="more_vert" />} />
+      <Dropdown items={dropdownItems}>
+        <Button variant="ghost" prefix={<DotsVertical />} />
       </Dropdown>
     </div>
   );

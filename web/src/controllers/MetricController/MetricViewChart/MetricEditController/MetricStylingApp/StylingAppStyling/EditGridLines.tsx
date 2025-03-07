@@ -1,6 +1,6 @@
 import React from 'react';
 import { LabelAndInput } from '../Common';
-import { Switch } from 'antd';
+import { Switch } from '@/components/ui/switch';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 
 export const EditGridLines: React.FC<{
@@ -13,7 +13,7 @@ export const EditGridLines: React.FC<{
         <div className="flex justify-end">
           <Switch
             defaultChecked={gridLines}
-            onChange={(v) => onUpdateChartConfig({ gridLines: v })}
+            onCheckedChange={(v) => onUpdateChartConfig({ gridLines: v })}
           />
         </div>
       </LabelAndInput>

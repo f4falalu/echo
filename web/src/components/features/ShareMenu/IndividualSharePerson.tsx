@@ -3,8 +3,8 @@ import { AccessDropdown } from './AccessDropdown';
 
 import React from 'react';
 import { ShareRole } from '@/api/asset_interfaces';
-import { Text } from '@/components/ui';
-import { useMemoizedFn } from 'ahooks';
+import { Text } from '@/components/ui/typography';
+import { useMemoizedFn } from '@/hooks';
 
 export const IndividualSharePerson: React.FC<{
   name: string;
@@ -30,7 +30,7 @@ export const IndividualSharePerson: React.FC<{
           <Text className="">{name || email}</Text>
 
           {isSameEmailName ? null : (
-            <Text className="text-sm!" type="secondary">
+            <Text size="sm" variant="secondary">
               {email}
             </Text>
           )}

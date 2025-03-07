@@ -1,11 +1,11 @@
-import type { BusterUserAttribute } from '@/api/asset_interfaces';
+import type { BusterUserAttribute } from '@/api/asset_interfaces/users';
 import {
-  BusterInfiniteList,
   BusterListColumn,
   BusterListRowItem,
   EmptyStateList,
   InfiniteListContainer
 } from '@/components/ui/list';
+import { BusterInfiniteList } from '@/components/ui/list/BusterInfiniteList';
 import React, { useMemo } from 'react';
 
 export const UserAttributesListContainer: React.FC<{

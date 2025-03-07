@@ -1,3 +1,5 @@
+'use client';
+
 import { BusterChatMessageReasoning_file } from '@/api/asset_interfaces';
 import {
   AppCodeBlockWrapper,

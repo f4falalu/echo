@@ -1,6 +1,6 @@
 import type { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { formatLabel } from '@/lib';
-import { Select } from 'antd';
+import { Select, SelectItem } from '@/components/ui/select';
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../Common';
 import { LoopTrendline } from './EditTrendline';
@@ -22,7 +22,7 @@ export const TrendlineColumnId = React.memo(
     const options = useMemo(() => {
       return columnMetadata
         .filter((column) => yAxisEncodes.includes(column.name))
-        .map((column) => {
+        .map<SelectItem>((column) => {
           const columnLabelFormat = columnLabelFormats[column.name];
           return {
             label: formatLabel(column.name, columnLabelFormat, true),
@@ -39,8 +39,8 @@ export const TrendlineColumnId = React.memo(
       <LabelAndInput label="Column">
         <Select
           className="w-full overflow-hidden"
-          options={options}
-          defaultValue={defaultSelected?.value}
+          items={options}
+          value={defaultSelected?.value}
           onChange={(value) => onUpdateExisitingTrendline({ ...trend, columnId: value })}
         />
       </LabelAndInput>
