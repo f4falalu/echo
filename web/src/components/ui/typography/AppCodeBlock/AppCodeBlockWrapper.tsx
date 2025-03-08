@@ -1,7 +1,7 @@
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import React from 'react';
 import { Text } from '@/components/ui/typography';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { Button } from '@/components/ui/buttons';
 import { Copy } from '@/components/ui/icons';
 import { cn } from '@/lib/classMerge';
@@ -26,7 +26,7 @@ export const AppCodeBlockWrapper: React.FC<{
     <div className={cn('overflow-hidden rounded border', 'max-h-fit')}>
       <div
         className={cn(
-          'bg-item-active border-border max-h-[32px] min-h-[32px] border-b p-1',
+          'bg-item-active border-border max-h-[32px] min-h-[32px] border-b px-2.5',
           'flex items-center justify-between'
         )}>
         <Text className="pl-2">{title || language}</Text>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { ColorAppSegments } from './config';
 import { type SegmentedItem, AppSegmented } from '@/components/ui/segmented';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 const options: SegmentedItem<ColorAppSegments>[] = [
   {

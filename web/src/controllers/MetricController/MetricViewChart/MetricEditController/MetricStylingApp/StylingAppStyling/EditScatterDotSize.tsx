@@ -1,9 +1,9 @@
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { ScatterAxis } from '@/components/ui/charts';
-import { Slider } from 'antd';
+import { Slider } from '@/components/ui/slider';
 import React from 'react';
 import isEmpty from 'lodash/isEmpty';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { LabelAndInput } from '../Common';
 
 export const EditScatterDotSize: React.FC<{
@@ -30,11 +30,8 @@ export const EditScatterDotSize: React.FC<{
           min={1}
           max={50}
           step={1}
-          range={{
-            draggableTrack: hasSize
-          }}
           defaultValue={defaultValue as number[]}
-          onChange={onChange}
+          onValueChange={onChange}
         />
       </LabelAndInput>
     );

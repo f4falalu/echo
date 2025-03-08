@@ -1,11 +1,8 @@
 import { Trendline } from '@/components/ui/charts/interfaces';
 import { LoopTrendline } from './EditTrendline';
+import { SelectItem } from '@/components/ui/select';
 
-export const trendlineOptions: {
-  label: string;
-  value: LoopTrendline['type'];
-  disabled?: boolean;
-}[] = [
+export const trendlineOptions: SelectItem<LoopTrendline['type']>[] = [
   { label: 'Average', value: 'average' },
   { label: 'Linear', value: 'linear_regression' },
   { label: 'Logarithmic', value: 'logarithmic_regression' },

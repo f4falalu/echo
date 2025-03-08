@@ -4,7 +4,7 @@ import React, { useRef } from 'react';
 import { InputTextAreaButton } from '@/components/ui/inputs/InputTextAreaButton';
 import { useBusterNewChatContextSelector } from '@/context/Chats';
 import { inputHasText } from '@/lib/text';
-import { useMemoizedFn, useMount } from 'ahooks';
+import { useMemoizedFn, useMount } from '@/hooks';
 import { ChangeEvent, useMemo, useState } from 'react';
 
 const autoResizeConfig = {
@@ -50,6 +50,7 @@ export const NewChatInput: React.FC<{}> = () => {
 
   return (
     <InputTextAreaButton
+      className="transition-all duration-300 hover:shadow-lg active:shadow-md"
       placeholder="Ask Buster a question..."
       autoResize={autoResizeConfig}
       onSubmit={onSubmit}

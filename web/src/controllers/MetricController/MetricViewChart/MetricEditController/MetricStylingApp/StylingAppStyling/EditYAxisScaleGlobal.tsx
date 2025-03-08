@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { EditAxisScale } from '../StylingAppVisualize/SelectAxis/SelectAxisSettingsContent/EditAxisScale';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 export const EditYAxisScaleGlobal: React.FC<{
   yAxisScaleType: IBusterMetricChartConfig['yAxisScaleType'];

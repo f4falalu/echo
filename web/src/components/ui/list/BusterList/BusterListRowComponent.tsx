@@ -1,4 +1,4 @@
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import get from 'lodash/get';
 import React, { useMemo } from 'react';
 import { BusterListRow, BusterListColumn, BusterListRowItem, BusterListProps } from './interfaces';

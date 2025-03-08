@@ -1,13 +1,14 @@
 'use client';
 
 import { useGetPermissionGroupUsers } from '@/api/buster_rest';
-import { AppMaterialIcons } from '@/components/ui';
+
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
 import { PermissionSearchAndListWrapper } from '@/components/features/PermissionComponents';
-import { Button } from 'antd';
+import { Button } from '@/components/ui/buttons';
 import React, { useMemo } from 'react';
 import { PermissionGroupUsersListContainer } from './PermissionGroupUsersListContainer';
+import { Plus } from '@/components/ui/icons';
 
 export const PermissionGroupUsersController: React.FC<{
   permissionGroupId: string;
@@ -23,10 +24,7 @@ export const PermissionGroupUsersController: React.FC<{
 
   const NewUserButton: React.ReactNode = useMemo(() => {
     return (
-      <Button
-        type="default"
-        icon={<AppMaterialIcons icon="add" />}
-        onClick={() => onToggleInviteModal(true)}>
+      <Button prefix={<Plus />} onClick={() => onToggleInviteModal(true)}>
         Invite user
       </Button>
     );

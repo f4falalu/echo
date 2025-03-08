@@ -1,10 +1,8 @@
-import { useMemoizedFn } from 'ahooks';
+'use client';
+
+import { useMemoizedFn } from '@/hooks';
 import React, { useCallback } from 'react';
-import {
-  createContext,
-  ContextSelector,
-  useContextSelector
-} from '@fluentui/react-context-selector';
+import { createContext, useContextSelector } from 'use-context-selector';
 
 const useBusterAssets = () => {
   const [assetsToPasswords, setAssetsToPasswords] = React.useState<Record<string, string>>({});
@@ -57,5 +55,5 @@ export const BusterAssetsProvider: React.FC<{
 };
 
 export const useBusterAssetsContextSelector = <T,>(
-  selector: ContextSelector<ReturnType<typeof useBusterAssets>, T>
+  selector: (state: ReturnType<typeof useBusterAssets>) => T
 ) => useContextSelector(BusterAssetsContext, selector);

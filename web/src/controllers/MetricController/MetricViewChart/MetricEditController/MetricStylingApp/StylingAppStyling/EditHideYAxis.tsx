@@ -1,6 +1,6 @@
 import React from 'react';
 import { LabelAndInput } from '../Common';
-import { Switch } from 'antd';
+import { Switch } from '@/components/ui/switch';
 
 export const EditHideYAxis: React.FC<{
   hideYAxis: boolean;
@@ -10,7 +10,7 @@ export const EditHideYAxis: React.FC<{
     return (
       <LabelAndInput label={'Hide y-axis'}>
         <div className="flex justify-end">
-          <Switch defaultChecked={hideYAxis} onChange={onUpdateYAxis} />
+          <Switch defaultChecked={hideYAxis} onCheckedChange={onUpdateYAxis} />
         </div>
       </LabelAndInput>
     );

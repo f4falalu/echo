@@ -1,3 +1,5 @@
+'use client';
+
 import type { ListDatasetGroupsResponse } from '@/api/asset_interfaces';
 import { useDatasetUpdateDatasetGroups } from '@/api/buster_rest';
 import {
@@ -7,7 +9,7 @@ import {
   InfiniteListContainer
 } from '@/components/ui/list';
 import { BusterInfiniteList } from '@/components/ui/list/BusterInfiniteList';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import React, { useMemo, useState } from 'react';
 import { PermissionDatasetGroupSelectedPopup } from './PermissionDatasetGroupSelectedPopup';
 import { PermissionAssignedCell } from '@/components/features/PermissionComponents';

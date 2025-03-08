@@ -1,21 +1,18 @@
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import React, { useMemo, useState } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
-import { Select, SelectProps, Switch } from 'antd';
-import { useMemoizedFn } from 'ahooks';
+import { Select, SelectItem } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { useMemoizedFn } from '@/hooks';
 
-const barGroupingOptions: {
-  label: string;
-  value: IBusterMetricChartConfig['barGroupType'];
-}[] = [
+const barGroupingOptions: SelectItem<NonNullable<IBusterMetricChartConfig['barGroupType']>>[] = [
   { label: 'Grouped', value: 'group' },
   { label: 'Stacked', value: 'stack' }
 ];
 
-const lineGroupingOptions: {
-  label: string;
-  value: IBusterMetricChartConfig['lineGroupType'] | 'default';
-}[] = [
+const lineGroupingOptions: SelectItem<
+  NonNullable<IBusterMetricChartConfig['lineGroupType']> | 'default'
+>[] = [
   { label: 'Default', value: 'default' },
   { label: 'Stacked', value: 'stack' }
 ];
@@ -42,7 +39,7 @@ export const EditGrouping: React.FC<{
       return isBarChart && (value === 'stack' || value === 'percentage-stack');
     }, [isBarChart, value]);
 
-    const options = useMemo(() => {
+    const options: SelectItem[] = useMemo(() => {
       if (selectedChartType === 'bar') {
         return barGroupingOptions;
       }
@@ -77,20 +74,15 @@ export const EditGrouping: React.FC<{
       }
     );
 
-    const onChangeGrouping = (value: { value: string }) => {
-      setValue(value.value as IBusterMetricChartConfig['barGroupType']);
-      onChangeGroupType(value.value as IBusterMetricChartConfig['barGroupType']);
+    const onChangeGrouping = (value: string) => {
+      setValue(value as IBusterMetricChartConfig['barGroupType']);
+      onChangeGroupType(value as IBusterMetricChartConfig['barGroupType']);
     };
 
     return (
       <>
         <LabelAndInput label="Stacking">
-          <Select
-            options={options as SelectProps['options']}
-            labelInValue
-            defaultValue={defaultSelectedValue as any}
-            onChange={onChangeGrouping}
-          />
+          <Select items={options} value={defaultSelectedValue} onChange={onChangeGrouping} />
         </LabelAndInput>
         {showTotal && <StackTotals value={barShowTotalAtTop} onChange={onChangeStackTotals} />}
       </>
@@ -106,7 +98,7 @@ const StackTotals: React.FC<{
   return (
     <LabelAndInput label="Stack totals">
       <div className="flex justify-end">
-        <Switch defaultChecked={value} onChange={onChange} />
+        <Switch defaultChecked={value} onCheckedChange={onChange} />
       </div>
     </LabelAndInput>
   );

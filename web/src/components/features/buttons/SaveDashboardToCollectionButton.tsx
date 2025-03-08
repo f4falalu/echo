@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SaveToCollectionsDropdown } from '../dropdowns/SaveToCollectionsDropdown';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useBusterCollectionListContextSelector } from '@/context/Collections';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
@@ -8,9 +8,9 @@ import { CollectionButton } from './CollectionsButton';
 
 export const SaveDashboardToCollectionButton: React.FC<{
   dashboardIds: string[];
-  buttonType?: 'text' | 'default';
+  buttonType?: 'ghost' | 'default';
   useText?: boolean;
-}> = React.memo(({ dashboardIds, buttonType = 'text', useText = false }) => {
+}> = React.memo(({ dashboardIds, buttonType = 'ghost', useText = false }) => {
   const { openInfoMessage } = useBusterNotifications();
   const collectionsList = useBusterCollectionListContextSelector((state) => state.collectionsList);
 

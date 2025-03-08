@@ -1,3 +1,5 @@
+'use client';
+
 import type { Meta, StoryObj } from '@storybook/react';
 import { SelectMultiple } from './SelectMultiple';
 import { useState } from 'react';

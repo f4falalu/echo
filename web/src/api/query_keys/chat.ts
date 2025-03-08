@@ -1,8 +1,7 @@
 import { queryOptions } from '@tanstack/react-query';
-import type { BusterChatListItem } from '@/api/asset_interfaces';
+import type { BusterMetricData } from '@/api/asset_interfaces/metric';
+import { IBusterChat, BusterChatListItem, IBusterChatMessage } from '@/api/asset_interfaces/chat';
 import type { GetChatListParams } from '@/api/request_interfaces/chats';
-import { IBusterChat, IBusterChatMessage } from '@/context/Chats';
-import { BusterMetricData } from '@/context/MetricData';
 
 const chatsGetChat = (chatId: string) =>
   queryOptions<IBusterChat>({

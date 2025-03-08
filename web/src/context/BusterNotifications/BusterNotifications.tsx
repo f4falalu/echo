@@ -2,13 +2,8 @@
 
 import React, { PropsWithChildren } from 'react';
 import { toast, type ExternalToast } from 'sonner';
-import {} from 'ahooks';
-import {
-  useContextSelector,
-  createContext,
-  ContextSelector
-} from '@fluentui/react-context-selector';
-import { Toaster } from '@/components/ui/toaster/Toaster';
+import { useContextSelector, createContext } from 'use-context-selector';
+// import { Toaster } from '@/components/ui/toaster/Toaster';
 
 export type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
@@ -172,13 +167,13 @@ export const BusterNotificationsProvider: React.FC<PropsWithChildren> = ({ child
   return (
     <BusterNotifications.Provider value={value}>
       {children}
-      <Toaster />
+      {/* <Toaster /> */}
     </BusterNotifications.Provider>
   );
 };
 
 const useBusterNotificationsSelector = <T,>(
-  selector: ContextSelector<ReturnType<typeof useBusterNotificationsInternal>, T>
+  selector: (state: ReturnType<typeof useBusterNotificationsInternal>) => T
 ) => {
   return useContextSelector(BusterNotifications, selector);
 };

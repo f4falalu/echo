@@ -1,10 +1,10 @@
-import { Divider } from 'antd';
+import { Separator } from '@/components/ui/seperator';
 import React, { useMemo } from 'react';
 import { EditShowLegend } from './EditShowLegend';
 import { EditGridLines } from './EditGridLines';
 import { EditHideYAxis } from './EditHideYAxis';
 import { EditShowDataLabels } from './EditShowDataLabels';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { IBusterMetricChartConfig, ColumnMetaData } from '@/api/asset_interfaces';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { EditBarSorting } from './EditBarAxisSorting';
@@ -145,7 +145,7 @@ export const StylingAppStyling: React.FC<{
         rowCount={rowCount}
       />
 
-      <Divider />
+      <Separator />
 
       <ChartSpecificSettings
         columnSettings={columnSettings}
@@ -177,7 +177,7 @@ export const StylingAppStyling: React.FC<{
             onUpdateChartConfig={onUpdateChartConfig}
           />
 
-          <Divider />
+          <Separator />
         </>
       )}
 
@@ -471,7 +471,7 @@ const ChartSpecificSettings: React.FC<{
         })}
       </div>
 
-      {selectedChartType !== 'pie' && <Divider />}
+      {selectedChartType !== 'pie' && <Separator />}
     </>
   );
 };
@@ -582,7 +582,7 @@ const PieSettings: React.FC<{
 
     return (
       <>
-        <Divider />
+        <Separator />
 
         <div className={`${sectionClass} ${className}`}>
           <EditPieShowInnerLabel

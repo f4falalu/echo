@@ -13,7 +13,7 @@ import type {
   BusterSocketResponseRoute
 } from '@/api/buster_socket';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { InferBusterSocketResponseData } from './types';
 
 export function useSocketQueryEmitAndOnce<

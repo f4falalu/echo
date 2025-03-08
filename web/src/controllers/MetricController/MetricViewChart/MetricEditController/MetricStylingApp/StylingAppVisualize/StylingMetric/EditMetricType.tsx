@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
-import { Select } from 'antd';
+import { Select } from '@/components/ui/select';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { LabelAndInput } from '../../Common';
 import last from 'lodash/last';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { isNumericColumnStyle, isNumericColumnType } from '@/lib';
 import { ColumnLabelFormat } from '@/components/ui/charts';
 import { SelectItem } from '@/components/ui/select';
@@ -42,7 +42,7 @@ export const EditMetricAggregate: React.FC<{
   return (
     <LabelAndInput label={'Aggregation'}>
       <Select
-        options={AGGREGATE_OPTIONS}
+        items={AGGREGATE_OPTIONS}
         value={selectedOption}
         onChange={onUpdateMetricValueAggregate}
         disabled={disableOptions}

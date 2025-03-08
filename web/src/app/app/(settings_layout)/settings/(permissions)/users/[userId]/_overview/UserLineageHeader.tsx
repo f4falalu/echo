@@ -1,6 +1,6 @@
 import React from 'react';
 import { HeaderExplanation } from '@/components/features/PermissionComponents';
-import type { OrganizationUser } from '@/api/asset_interfaces';
+import type { OrganizationUser } from '@/api/asset_interfaces/users';
 
 export const UserLineageHeader = React.memo(
   ({ className = '', user }: { className?: string; user: OrganizationUser }) => {

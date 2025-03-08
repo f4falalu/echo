@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemoizedFn } from 'ahooks';
+import './splitterStyles.css';
+import { useMemoizedFn } from '@/hooks';
 import React, {
   useEffect,
   useMemo,

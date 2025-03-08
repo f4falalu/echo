@@ -1,25 +1,25 @@
-import { Select } from 'antd';
+import { Select, SelectItem } from '@/components/ui/select';
 import React from 'react';
 
-export const PERMISSION_OPTIONS_INCLUDED = [
+export const PERMISSION_OPTIONS_INCLUDED: SelectItem<'true' | 'false'>[] = [
   {
     label: 'Included',
-    value: true
+    value: 'true'
   },
   {
     label: 'Not Included',
-    value: false
+    value: 'false'
   }
 ];
 
-export const PERMISSION_OPTIONS_ASSIGNED = [
+export const PERMISSION_OPTIONS_ASSIGNED: SelectItem<'true' | 'false'>[] = [
   {
     label: 'Assigned',
-    value: true
+    value: 'true'
   },
   {
     label: 'Not Assigned',
-    value: false
+    value: 'false'
   }
 ];
 
@@ -30,19 +30,22 @@ export const PermissionAssignedCell: React.FC<{
   onSelect: (params: { id: string; assigned: boolean }) => Promise<void>;
   children?: React.ReactNode;
 }> = React.memo(({ id, text = 'included', assigned, onSelect, children }) => {
+  const assignedValue = assigned ? 'true' : 'false';
+
   return (
-    <div className="flex items-center space-x-5">
+    <div
+      className="flex items-center space-x-5"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}>
       {children}
+
       <Select
-        options={text === 'included' ? PERMISSION_OPTIONS_INCLUDED : PERMISSION_OPTIONS_ASSIGNED}
-        value={assigned || false}
-        popupMatchSelectWidth
-        onSelect={(value) => {
-          onSelect({ id, assigned: value });
-        }}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
+        items={text === 'included' ? PERMISSION_OPTIONS_INCLUDED : PERMISSION_OPTIONS_ASSIGNED}
+        value={assignedValue}
+        onChange={(value) => {
+          onSelect({ id, assigned: value === 'true' });
         }}
       />
     </div>

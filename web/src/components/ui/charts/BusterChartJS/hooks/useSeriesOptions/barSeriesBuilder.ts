@@ -23,7 +23,7 @@ export const barSeriesBuilder = ({
 
   if (barShowTotalAtTop) {
     const yAxis = allYAxisKeysIndexes.map((yAxis) => {
-      const key = extractFieldsFromChain(yAxis.name).at(-1)!?.key;
+      const key = extractFieldsFromChain(yAxis.name).at(-1)?.key!;
       return key;
     });
 
@@ -34,9 +34,7 @@ export const barSeriesBuilder = ({
         const shownDatasets = context.chart.data.datasets.filter(
           (dataset) => !dataset.hidden && !dataset.isTrendline
         );
-
         const canDisplay = context.datasetIndex === shownDatasets.length - 1;
-
         if (canDisplay && !hasBeenDrawn) {
           const chartLayout = context.chart.options.layout;
           const padding = { ...DEFAULT_CHART_LAYOUT.padding, top: 24 };
@@ -46,7 +44,6 @@ export const barSeriesBuilder = ({
           });
           hasBeenDrawn = true;
         }
-
         return canDisplay;
       },
       formatter: function (_, context) {
@@ -120,7 +117,7 @@ export const barBuilder = ({
   xAxisKeys: string[];
   dataLabelOptions?: Options['labels'];
 }): ChartProps<'bar'>['data']['datasets'][number] => {
-  const yKey = extractFieldsFromChain(yAxisItem.name).at(-1)!?.key;
+  const yKey = extractFieldsFromChain(yAxisItem.name).at(-1)?.key!;
   const columnSetting = columnSettings[yKey];
   const columnLabelFormat = columnLabelFormats[yKey];
   const usePercentage = !!columnSetting?.showDataLabelsAsPercentage;

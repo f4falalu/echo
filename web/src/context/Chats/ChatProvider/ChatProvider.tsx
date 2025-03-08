@@ -1,9 +1,7 @@
+'use client';
+
 import React from 'react';
-import {
-  createContext,
-  ContextSelector,
-  useContextSelector
-} from '@fluentui/react-context-selector';
+import { createContext, useContextSelector } from 'use-context-selector';
 import type { BusterChat } from '@/api/asset_interfaces';
 import { useChatAssosciations } from './useChatAssosciations';
 import { useChatSelectors } from './useChatSelectors';
@@ -29,12 +27,14 @@ const BusterChat = createContext<ReturnType<typeof useBusterChat>>(
 
 export const ChatProvider: React.FC<{
   children: React.ReactNode;
-}> = ({ children }) => {
+}> = React.memo(({ children }) => {
   const value = useBusterChat();
 
   return <BusterChat.Provider value={value}>{children}</BusterChat.Provider>;
-};
+});
+
+ChatProvider.displayName = 'ChatProvider';
 
 export const useBusterChatContextSelector = <T,>(
-  selector: ContextSelector<ReturnType<typeof useBusterChat>, T>
+  selector: (state: ReturnType<typeof useBusterChat>) => T
 ) => useContextSelector(BusterChat, selector);

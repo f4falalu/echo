@@ -1,4 +1,4 @@
-import type { BusterOrganization } from '@/api/asset_interfaces';
+import type { BusterOrganization } from '@/api/asset_interfaces/organizations';
 
 export enum OrganizationResponses {
   '/organizations/post:post' = '/organizations/post:post'

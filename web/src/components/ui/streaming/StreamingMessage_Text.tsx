@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useEffect, useRef, useTransition } from 'react';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 
 interface StreamingMessage_TextProps {
@@ -53,7 +55,8 @@ const AnimatedSpan: React.FC<{ children: React.ReactNode; isCompletedStream: boo
   isCompletedStream
 }) => {
   return (
-    <span className={cn(!isCompletedStream ? 'animate-in fade-in duration-700' : '')}>
+    <span
+      className={cn('leading-1.5', !isCompletedStream ? 'animate-in fade-in duration-700' : '')}>
       {children}
     </span>
   );

@@ -58,7 +58,7 @@ export const useDataTrendlineOptions = ({
     const newDataset = { ...lastDataset };
 
     //we need to convert all dates to numbers
-    let newSource = [...(newDataset.source as Array<[string | number, ...number[]]>)];
+    const newSource = [...(newDataset.source as Array<[string | number, ...number[]]>)];
 
     const sorted = newSource.sort((a, b) => {
       const aValue = a[0];

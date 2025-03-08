@@ -3,13 +3,13 @@
 import { useDatasetListDatasetGroups } from '@/api/buster_rest';
 import React, { useState } from 'react';
 import { useDebounceSearch } from '@/hooks';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import {
   PermissionSearchAndListWrapper,
   HeaderExplanation
 } from '@/components/features/PermissionComponents';
-import { Button } from 'antd';
-import { AppMaterialIcons } from '@/components/ui';
+import { Button } from '@/components/ui/buttons';
+import { Plus } from '@/components/ui/icons';
 import { PermissionListDatasetGroupContainer } from './PermissionListDatasetGroupContainer';
 import { NewDatasetGroupModal } from '@/components/features/PermissionComponents';
 
@@ -47,10 +47,7 @@ export const PermissionDatasetGroups: React.FC<{
         searchPlaceholder="Search by permission group"
         searchChildren={React.useMemo(
           () => (
-            <Button
-              type="default"
-              icon={<AppMaterialIcons icon="add" />}
-              onClick={onOpenNewDatasetGroupModal}>
+            <Button prefix={<Plus />} onClick={onOpenNewDatasetGroupModal}>
               New dataset group
             </Button>
           ),

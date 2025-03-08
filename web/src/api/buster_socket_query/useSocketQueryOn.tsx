@@ -11,7 +11,7 @@ import type { BusterSocketResponse, BusterSocketResponseRoute } from '@/api/bust
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useMemo } from 'react';
 import type { InferBusterSocketResponseData } from './types';
-import { useMemoizedFn, useMount, useUnmount } from 'ahooks';
+import { useMemoizedFn, useMount, useUnmount } from '@/hooks';
 
 type UseSocketQueryOnResult<TData, TError> = UseQueryResult<TData, TError>;
 

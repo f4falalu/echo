@@ -1,4 +1,4 @@
-import { BusterMetric, VerificationStatus } from '@/api/asset_interfaces';
+import { VerificationStatus } from '@/api/asset_interfaces/share';
 
 export interface GetMetricParams {
   id: string;

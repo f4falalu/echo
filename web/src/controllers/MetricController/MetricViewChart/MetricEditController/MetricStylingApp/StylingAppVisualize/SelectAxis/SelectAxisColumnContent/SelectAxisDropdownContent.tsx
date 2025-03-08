@@ -1,6 +1,6 @@
 import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import type { IColumnLabelFormat } from '@/components/ui/charts/interfaces/columnLabelInterfaces';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import React, { useMemo } from 'react';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { formatLabel } from '@/lib';
@@ -19,7 +19,7 @@ import { EditSuffix } from './EditSuffix';
 import { EditCurrency } from './EditCurrency';
 import { EditDateType } from './EditDateType';
 import { EditDateFormat } from './EditDateFormat';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 import { SelectAxisContainerId } from '../config';
 import { EditReplaceMissingData } from './EditReplaceMissingData';
 import { EditLineStyle } from './EditLineStyle';

@@ -1,12 +1,12 @@
 'use client';
 
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn, useUnmount } from '@/hooks';
 import sample from 'lodash/sample';
 import { useBusterChatContextSelector } from '../ChatProvider';
 import random from 'lodash/random';
 import last from 'lodash/last';
 import { useRef } from 'react';
-import { IBusterChatMessage } from '../interfaces';
+import { IBusterChatMessage } from '@/api/asset_interfaces/chat';
 import { ChatEvent_GeneratingReasoningMessage } from '@/api/buster_socket/chats';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
@@ -24,7 +24,6 @@ export const useBlackBoxMessage = () => {
   });
 
   const removeBlackBoxMessage = useMemoizedFn(({ messageId }: { messageId: string }) => {
-    console.log('removeBlackBoxMessage', messageId);
     clearTimeoutRef(messageId);
 
     const options = queryKeys.chatsBlackBoxMessages(messageId);
@@ -33,7 +32,6 @@ export const useBlackBoxMessage = () => {
 
   const addBlackBoxMessage = useMemoizedFn(({ messageId }: { messageId: string }) => {
     const randomThought = getRandomThought();
-    console.log(messageId, randomThought);
     const options = queryKeys.chatsBlackBoxMessages(messageId);
     queryClient.setQueryData(options.queryKey, randomThought);
   });
@@ -52,13 +50,11 @@ export const useBlackBoxMessage = () => {
   );
 
   const _loopAutoThought = useMemoizedFn(async ({ messageId }: { messageId: string }) => {
-    const randomDelay = random(5000, 5000);
+    const randomDelay = random(7000, 7000);
     timeoutRef.current[messageId] = setTimeout(() => {
       const message = getChatMessageMemoized(messageId);
       if (!message) return;
       if (!timeoutRef.current[messageId]) return;
-
-      console.log('loopAutoThought', messageId, !!message);
 
       const isMessageCompletedStream = !!message?.isCompletedStream;
       const lastReasoningMessageId = last(message?.reasoning_message_ids) || '';
@@ -70,6 +66,12 @@ export const useBlackBoxMessage = () => {
         _loopAutoThought({ messageId });
       }
     }, randomDelay);
+  });
+
+  useUnmount(() => {
+    Object.values(timeoutRef.current).forEach((timeout) => {
+      clearTimeout(timeout);
+    });
   });
 
   return { checkBlackBoxMessage, removeBlackBoxMessage };

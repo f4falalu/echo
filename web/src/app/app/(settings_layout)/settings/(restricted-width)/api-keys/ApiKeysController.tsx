@@ -2,14 +2,14 @@
 
 import React, { useState } from 'react';
 import { useGetApiKeys, useCreateApiKey, useDeleteApiKey } from '@/api/buster_rest/api_keys';
-import { Button } from 'antd';
+import { Button } from '@/components/ui/buttons';
 import { ApiKeyListItem } from './ApiKeyListItem';
-import { AppMaterialIcons } from '@/components/ui';
 import { ApiKeysLoading } from './ApiKeysLoading';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 import ApiKeyCreatedModal from './ApiKeyCreatedModal';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { Plus } from '@/components/ui/icons';
 
 export const ApiKeysController: React.FC = () => {
   const [newApiKey, setNewApiKey] = useState<string | null>(null);
@@ -61,8 +61,8 @@ export const ApiKeysController: React.FC = () => {
       <div className="mb-6 flex items-center justify-between">
         <div></div>
         <Button
-          type="text"
-          icon={<AppMaterialIcons icon="add" />}
+          variant="ghost"
+          prefix={<Plus />}
           onClick={handleCreateApiKey}
           loading={createApiKeyMutation.isPending}>
           Create New API Key

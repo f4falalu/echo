@@ -4,7 +4,7 @@ import { AppSplitter, AppSplitterRef } from '@/components/ui/layouts';
 import { MetricViewChart } from './MetricViewChart';
 import { MetricEditController } from './MetricEditController';
 import { useMetricLayout } from '../useMetricLayout';
-import { useChatLayoutContextSelector } from '@layouts/ChatLayout';
+import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 
 const autoSaveId = 'metric-edit-chart';
 

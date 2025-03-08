@@ -1,12 +1,14 @@
 import { ShareAssetType } from '@/api/asset_interfaces/share';
-import { Messages, SquareChart, Grid, Folder5 } from '@/components/ui/icons';
+import { Messages, SquareChart, Grid, Folder5, GridPlus, FolderPlus } from '@/components/ui/icons';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 
 export const ASSET_ICONS = {
   metrics: SquareChart,
   chats: Messages,
   dashboards: Grid,
-  collections: Folder5
+  collections: Folder5,
+  dashboardAdd: GridPlus,
+  collectionAdd: FolderPlus
 };
 
 export const assetTypeToIcon = (assetType: ShareAssetType) => {

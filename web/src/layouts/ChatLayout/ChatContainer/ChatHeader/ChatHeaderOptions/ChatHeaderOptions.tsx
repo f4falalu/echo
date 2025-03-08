@@ -1,14 +1,14 @@
 'use client';
 
-import { AppMaterialIcons } from '@/components/ui';
-import { Button } from 'antd';
+import { Dots } from '@/components/ui/icons';
+import { Button } from '@/components/ui/buttons';
 import React from 'react';
 import { ChatContainerHeaderDropdown } from './ChatHeaderDropdown';
 
 export const ChatHeaderOptions: React.FC<{}> = React.memo(() => {
   return (
     <ChatContainerHeaderDropdown>
-      <Button type="text" icon={<AppMaterialIcons icon="more_horiz" />} />
+      <Button variant="ghost" prefix={<Dots />} />
     </ChatContainerHeaderDropdown>
   );
 });

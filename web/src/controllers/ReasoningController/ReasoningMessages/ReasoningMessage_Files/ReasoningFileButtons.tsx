@@ -1,16 +1,16 @@
 import type { FileType } from '@/api/asset_interfaces';
 import { AppTooltip } from '@/components/ui/tooltip';
-import { AppMaterialIcons } from '@/components/ui';
-import { Button } from 'antd';
+import { ArrowUpRight } from '@/components/ui/icons';
+import { Button } from '@/components/ui/buttons';
 import React from 'react';
-import { useChatLayoutContextSelector } from '@chatLayout/ChatLayoutContext';
-import { useMemoizedFn } from 'ahooks';
+import { useChatLayoutContextSelector } from '@/layouts/ChatLayout/ChatLayoutContext';
+import { useMemoizedFn } from '@/hooks';
 
 export const ReasoningFileButtons = React.memo(
   ({ fileType, fileId, type }: { fileType: FileType; fileId: string; type: 'file' | 'status' }) => {
     const onSetSelectedFile = useChatLayoutContextSelector((state) => state.onSetSelectedFile);
 
-    const onOpenFile = useMemoizedFn((e: React.MouseEvent<HTMLAnchorElement>) => {
+    const onOpenFile = useMemoizedFn((e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
       e.stopPropagation();
       onSetSelectedFile({
@@ -24,10 +24,7 @@ export const ReasoningFileButtons = React.memo(
     return (
       <div>
         <AppTooltip title="Open file" sideOffset={12}>
-          <Button
-            onClick={onOpenFile}
-            type="text"
-            icon={<AppMaterialIcons icon="open_in_new" />}></Button>
+          <Button onClick={onOpenFile} variant="ghost" prefix={<ArrowUpRight />}></Button>
         </AppTooltip>
       </div>
     );

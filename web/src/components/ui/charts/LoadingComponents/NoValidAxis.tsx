@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useMount } from 'ahooks';
+import { useMount } from '@/hooks';
 import { type BusterChartProps, ChartType } from '../interfaces';
 
 export const NoValidAxis: React.FC<{

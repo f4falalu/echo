@@ -1,7 +1,7 @@
 import React from 'react';
 import { BusterListColumn } from './interfaces';
 import { CheckboxColumn } from './CheckboxColumn';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 import { cn } from '@/lib/classMerge';
 import { HEIGHT_OF_HEADER } from './config';
 
@@ -62,7 +62,7 @@ export const BusterListHeader: React.FC<{
             {column.headerRender ? (
               column.headerRender(column.title)
             ) : (
-              <Text size="sm" type="secondary" ellipsis>
+              <Text size="sm" variant="secondary" truncate>
                 {column.title}
               </Text>
             )}

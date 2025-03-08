@@ -2,10 +2,10 @@
 
 import { Title } from '@/components/ui/typography';
 import React, { useState } from 'react';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { BusterRoutes } from '@/routes/busterRoutes';
 import type { User } from '@supabase/supabase-js';
-import type { BusterUserResponse } from '@/api/asset_interfaces';
+import type { BusterUserResponse } from '@/api/asset_interfaces/users';
 import { useRouter } from 'next/navigation';
 import { createBusterRoute } from '@/routes';
 import { useBusterNotifications } from '@/context/BusterNotifications';

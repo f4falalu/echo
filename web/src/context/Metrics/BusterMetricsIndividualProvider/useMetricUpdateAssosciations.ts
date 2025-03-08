@@ -1,7 +1,7 @@
-import { useMemoizedFn } from 'ahooks';
-import { IBusterMetric } from '../interfaces';
-import { useUserConfigContextSelector } from '../../Users';
-import { useBusterNotifications } from '../../BusterNotifications';
+import { useMemoizedFn } from '@/hooks';
+import type { IBusterMetric } from '@/api/asset_interfaces/metric';
+import { useUserConfigContextSelector } from '@/context/Users';
+import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useUpdateMetricConfig } from './useMetricUpdateConfig';
 
 export const useUpdateMetricAssosciations = ({

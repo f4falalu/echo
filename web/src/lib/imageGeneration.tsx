@@ -1,10 +1,8 @@
-import type { IBusterMetric } from '@/context/Metrics';
 import { downloadImageData, exportElementToImage } from './exportUtils';
 import { createRoot } from 'react-dom/client';
 import { timeout } from './timeout';
 import React, { useEffect, useRef } from 'react';
-import { BusterChart } from '@/components/ui/charts';
-import type { BusterMetricData } from '@/context/MetricData';
+import type { IBusterMetric, BusterMetricData } from '@/api/asset_interfaces/metric';
 
 export const generateChartDownloadImage = async (
   message: IBusterMetric,
@@ -31,7 +29,7 @@ export const generateChartDownloadImage = async (
       // bg-linear-to-br ${darkClass}
       <div className={`h-[655px] w-[880px]`}>
         <div className="relative flex h-full w-full items-center justify-center p-0">
-          <BusterChart
+          {/* <BusterChart
             data={messageData}
             animate={false}
             onChartMounted={async (chart) => {
@@ -42,7 +40,7 @@ export const generateChartDownloadImage = async (
             }}
             columnMetadata={message?.data_metadata?.column_metadata}
             {...message?.chart_config}
-          />
+          /> */}
         </div>
       </div>
     );

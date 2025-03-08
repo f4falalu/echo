@@ -1,5 +1,6 @@
 import React from 'react';
-import { AppMaterialIcons, Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
+import { Check } from '@/components/ui/icons';
 
 export const DropdownLabel: React.FC<{ title: string; subtitle?: string }> = ({
   title,
@@ -10,14 +11,14 @@ export const DropdownLabel: React.FC<{ title: string; subtitle?: string }> = ({
       <div className="flex flex-col space-y-0.5">
         <Text className="text-sm! font-normal!">{title}</Text>
         {subtitle && (
-          <Text className="subtitle text-sm! font-normal!" type="secondary">
+          <Text className="subtitle text-sm! font-normal!" variant="secondary">
             {subtitle}
           </Text>
         )}
       </div>
 
       <div className="check text-icon-color flex w-full flex-col items-end justify-center">
-        <AppMaterialIcons icon="check" />
+        <Check />
       </div>
     </div>
   );

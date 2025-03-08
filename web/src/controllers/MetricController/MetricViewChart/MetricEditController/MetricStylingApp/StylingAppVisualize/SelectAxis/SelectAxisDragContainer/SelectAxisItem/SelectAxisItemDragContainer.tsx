@@ -1,8 +1,8 @@
 import React from 'react';
 import { DraggableAttributes } from '@dnd-kit/core';
 import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
-import { createStyles } from 'antd-style';
-import { AppMaterialIcons } from '@/components/ui';
+import { GripDotsVertical } from '@/components/ui/icons';
+import { cn } from '@/lib/classMerge';
 
 export const SelectAxisItemDragContainer = React.forwardRef<
   HTMLDivElement,
@@ -15,50 +15,27 @@ export const SelectAxisItemDragContainer = React.forwardRef<
     children: React.ReactNode;
   }
 >(({ style, className = '', children, listeners, attributes, isDragging }, ref) => {
-  const { cx, styles } = useStyles();
-
   return (
     <div
       ref={ref}
       style={style}
-      className={cx(
+      className={cn(
         'flex items-center space-x-1 overflow-hidden rounded-sm',
-        styles.container,
-        isDragging && 'isDragging cursor-grabbing shadow-lg',
+        'h-8',
+        isDragging && 'bg-background cursor-grabbing border shadow-lg',
         className
       )}>
       <div
         {...listeners}
         {...attributes}
-        className={cx(`flex cursor-grab items-center justify-center`, styles.icon)}>
-        <AppMaterialIcons size={20} icon="drag_indicator" />
+        className={cn(
+          `text-icon-color hover:bg-item-active flex h-full w-8 min-w-8 cursor-grab items-center justify-center rounded`
+        )}>
+        <GripDotsVertical />
       </div>
       {children}
     </div>
   );
 });
-
-const useStyles = createStyles(({ css, token }) => ({
-  container: css`
-    height: ${token.controlHeight + 4}px;
-
-    &.isDragging {
-      border: 0.5px solid ${token.colorBorder};
-      background: ${token.colorBgContainer};
-    }
-  `,
-  icon: css`
-    color: ${token.colorIcon};
-    width: 32px;
-    min-width: 32px;
-    height: 100%;
-    border-radius: ${token.borderRadius}px;
-    cursor: grab;
-
-    &:hover {
-      background: ${token.controlItemBgActiveHover};
-    }
-  `
-}));
 
 SelectAxisItemDragContainer.displayName = 'SelectAxisItemDragContainer';

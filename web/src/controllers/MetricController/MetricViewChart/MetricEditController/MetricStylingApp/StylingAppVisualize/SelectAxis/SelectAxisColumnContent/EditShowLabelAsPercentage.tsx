@@ -1,7 +1,7 @@
 import React from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
-import { Switch } from 'antd';
-import { useMemoizedFn } from 'ahooks';
+import { Switch } from '@/components/ui/switch';
+import { useMemoizedFn } from '@/hooks';
 import { ColumnSettings } from '@/components/ui/charts';
 
 export const EditShowBarLabelAsPercentage: React.FC<{
@@ -16,7 +16,7 @@ export const EditShowBarLabelAsPercentage: React.FC<{
     return (
       <LabelAndInput label="Show label as %">
         <div className="flex justify-end">
-          <Switch defaultChecked={showDataLabelsAsPercentage} onChange={onChange} />
+          <Switch defaultChecked={showDataLabelsAsPercentage} onCheckedChange={onChange} />
         </div>
       </LabelAndInput>
     );

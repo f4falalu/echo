@@ -1,6 +1,6 @@
 import { BASE_URL } from '@/api/buster_rest/config';
 import { PublicAssetResponse } from './interface';
-import { FileType } from '@/api/asset_interfaces';
+import { FileType } from '@/api/asset_interfaces/chat';
 
 export const getAssetCheck = async ({
   type,

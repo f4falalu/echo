@@ -1,7 +1,7 @@
 import { mainApi } from '../instances';
 import { serverFetch } from '@/api/createServerInstance';
-import { GetMetricParams, ListMetricsParams } from './interfaces';
-import { BusterMetric, BusterMetricListItem } from '@/api/asset_interfaces';
+import type { GetMetricParams, ListMetricsParams } from './interfaces';
+import type { BusterMetric, BusterMetricListItem } from '@/api/asset_interfaces/metric';
 
 export const getMetric = async ({ id, password }: GetMetricParams) => {
   return mainApi

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 import { DatasetApps, DataSetAppText } from '../config';
 import { createBusterRoute, BusterRoutes } from '@/routes';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 export const DatasetsHeaderOptions: React.FC<{
   selectedApp: DatasetApps;

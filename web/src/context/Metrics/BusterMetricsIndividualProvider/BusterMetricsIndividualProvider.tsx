@@ -1,11 +1,8 @@
+'use client';
+
 import React, { PropsWithChildren } from 'react';
-import {
-  createContext,
-  ContextSelector,
-  useContextSelector
-} from '@fluentui/react-context-selector';
-import { useMemoizedFn } from 'ahooks';
-import type { IBusterMetric } from '../interfaces';
+import { createContext, useContextSelector } from 'use-context-selector';
+import type { IBusterMetric } from '@/api/asset_interfaces/metric';
 import { resolveEmptyMetric } from '../helpers';
 import { useUpdateMetricConfig } from './useMetricUpdateConfig';
 import { useUpdateMetricAssosciations } from './useMetricUpdateAssosciations';
@@ -14,6 +11,7 @@ import { useParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
 import { useMetricDelete } from './useMetricDelete';
+import { useMemoizedFn } from '@/hooks';
 
 const useBusterMetricsIndividual = () => {
   const { metricId: selectedMetricId } = useParams<{ metricId: string }>();
@@ -75,7 +73,7 @@ export const BusterMetricsIndividualProvider: React.FC<PropsWithChildren> = Reac
 BusterMetricsIndividualProvider.displayName = 'BusterMetricsIndividualProvider';
 
 export const useBusterMetricsIndividualContextSelector = <T,>(
-  selector: ContextSelector<ReturnType<typeof useBusterMetricsIndividual>, T>
+  selector: (state: ReturnType<typeof useBusterMetricsIndividual>) => T
 ) => {
   return useContextSelector(BusterMetricsIndividual, selector);
 };

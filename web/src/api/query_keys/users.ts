@@ -8,7 +8,7 @@ import type {
   BusterUserResponse,
   BusterUserTeamListItem,
   OrganizationUser
-} from '@/api/asset_interfaces';
+} from '@/api/asset_interfaces/users';
 
 const favoritesGetList = queryOptions<BusterUserFavorite[]>({
   queryKey: ['users', 'favorites', 'list'] as const

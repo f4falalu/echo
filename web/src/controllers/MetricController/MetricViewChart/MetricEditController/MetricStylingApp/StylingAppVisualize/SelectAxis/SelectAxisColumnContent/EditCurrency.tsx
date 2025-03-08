@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 import type { IColumnLabelFormat } from '@/components/ui/charts/interfaces/columnLabelInterfaces';
-import { Select } from 'antd';
+import { Select, SelectItem } from '@/components/ui/select';
 import { useGetCurrencies } from '@/api/buster_rest/nextjs/currency';
-import { useMemoizedFn } from 'ahooks';
-import { Text } from '@/components/ui';
+import { useMemoizedFn } from '@/hooks';
+import { Text } from '@/components/ui/typography';
 
 export const EditCurrency: React.FC<{
   currency: IColumnLabelFormat['currency'];
@@ -13,9 +13,9 @@ export const EditCurrency: React.FC<{
   ({ currency, onUpdateColumnConfig }) => {
     const { data: currencies, isFetched } = useGetCurrencies({ enabled: true });
 
-    const options = useMemo(() => {
+    const options: SelectItem[] = useMemo(() => {
       return (
-        currencies?.map((currency) => ({
+        currencies?.map<SelectItem<string>>((currency) => ({
           label: (
             <div className="flex items-center gap-1.5 overflow-hidden">
               <div className="rounded-sm">{currency.flag}</div>
@@ -23,7 +23,7 @@ export const EditCurrency: React.FC<{
             </div>
           ),
           value: currency.code,
-          description: currency.description
+          searchLabel: currency.code + ' ' + currency.description
         })) || []
       );
     }, [currencies]);
@@ -32,16 +32,16 @@ export const EditCurrency: React.FC<{
       return options?.find((option) => option.value === currency);
     }, [options, currency]);
 
-    const onFilterOption = useMemoizedFn((input: string, option: any) => {
-      const _option = option as (typeof options)[0];
-      return (
-        !!_option?.description?.toLowerCase().includes(input.toLowerCase()) ||
-        !!_option?.value?.toLowerCase().includes(input.toLowerCase())
-      );
-    });
+    // const onFilterOption = useMemoizedFn((input: string, option: any) => {
+    //   const _option = option as (typeof options)[0];
+    //   return (
+    //     !!_option?.description?.toLowerCase().includes(input.toLowerCase()) ||
+    //     !!_option?.value?.toLowerCase().includes(input.toLowerCase())
+    //   );
+    // });
 
-    const onChange = useMemoizedFn((option: (typeof options)[0]) => {
-      const value = option.value;
+    const onChange = useMemoizedFn((optionValue: string) => {
+      const value = optionValue;
       onUpdateColumnConfig({ currency: value });
     });
 
@@ -50,16 +50,11 @@ export const EditCurrency: React.FC<{
         <div className="w-full overflow-hidden">
           <Select
             key={isFetched ? 'fetched' : 'not-fetched'}
-            loading={!isFetched}
-            options={options}
+            items={options}
             disabled={!isFetched}
             onChange={onChange}
-            defaultValue={selectedCurrency}
             className="w-full!"
-            popupMatchSelectWidth={false}
-            showSearch
-            labelInValue
-            filterOption={onFilterOption}
+            //   filterOption={onFilterOption}
           />
         </div>
       </LabelAndInput>

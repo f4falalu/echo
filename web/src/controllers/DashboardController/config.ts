@@ -1,4 +1,4 @@
-import type { DashboardFileView } from '@chatLayout/ChatLayoutContext';
+import type { DashboardFileView } from '@/layouts/ChatLayout';
 import { DashboardViewDashboardController } from './DashboardViewDashboardController';
 import { DashboardViewFileController } from './DashboardViewFileController';
 import React from 'react';

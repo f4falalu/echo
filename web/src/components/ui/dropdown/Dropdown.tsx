@@ -1,3 +1,5 @@
+'use client';
+
 import { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 import React, { useMemo } from 'react';
 import {
@@ -18,7 +20,7 @@ import {
   DropdownMenuLink
 } from './DropdownBase';
 import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 import { Input } from '../inputs/Input';
 import { useDebounceSearch } from '@/hooks';
@@ -68,7 +70,7 @@ const dropdownItemKey = <T,>(item: DropdownItems<T>[number], index: number): str
   return `item-${index}`;
 };
 
-export const _Dropdown = <T,>({
+export const DropdownBase = <T,>({
   items,
   selectType = 'none',
   menuHeader,
@@ -231,8 +233,8 @@ export const _Dropdown = <T,>({
     </DropdownMenu>
   );
 };
-_Dropdown.displayName = 'Dropdown';
-export const Dropdown = React.memo(_Dropdown) as unknown as typeof _Dropdown;
+DropdownBase.displayName = 'Dropdown';
+export const Dropdown = React.memo(DropdownBase) as unknown as typeof DropdownBase;
 
 const DropdownItemSelector = React.memo(
   <T,>({

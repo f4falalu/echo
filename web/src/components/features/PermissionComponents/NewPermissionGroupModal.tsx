@@ -1,8 +1,8 @@
 import { useCreatePermissionGroup } from '@/api/buster_rest/permission_groups';
 import { AppModal } from '@/components/ui/modal';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import React, { useMemo, useRef, useState } from 'react';
-import { Input, InputRef, Select } from 'antd';
+import { Input } from '@/components/ui/inputs';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { SelectedDatasetInput } from './SelectDatasetInput';
 interface NewPermissionGroupModalProps {
@@ -15,12 +15,12 @@ interface NewPermissionGroupModalProps {
 export const NewPermissionGroupModal: React.FC<NewPermissionGroupModalProps> = React.memo(
   ({ isOpen, onClose, datasetId, userId }) => {
     const { mutateAsync, isPending } = useCreatePermissionGroup(userId);
-    const inputRef = useRef<InputRef>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
     const [datasetsIdsToAssign, setDatasetsIdsToAssign] = useState<string[]>([]);
     const { openInfoMessage } = useBusterNotifications();
 
     const onCreateNewPermissionGroup = useMemoizedFn(async () => {
-      const inputValue = inputRef.current?.input?.value;
+      const inputValue = inputRef.current?.value;
       if (!inputValue || datasetsIdsToAssign.length === 0) {
         openInfoMessage('Please enter a name for the permission group');
         inputRef.current?.focus();

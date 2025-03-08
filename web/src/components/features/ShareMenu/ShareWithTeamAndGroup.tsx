@@ -9,7 +9,7 @@ import {
   useBusterDashboardIndividual
 } from '@/context/Dashboards';
 import type { ShareRequest } from '@/api/buster_socket';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { Text } from '@/components/ui/typography';
 import { UserGroup } from '@/components/ui/icons';
 import { ShareAssetType } from '@/api/asset_interfaces';
@@ -48,7 +48,7 @@ export const ShareWithGroupAndTeam: React.FC<{
 
   const onUpdateShareRole = useMemoizedFn(
     async ({ teamId, role }: { teamId: string; role: ShareRole | null }) => {
-      let payload: ShareRequest = { id: assetId };
+      const payload: ShareRequest = { id: assetId };
       if (!role) {
         payload.remove_teams = [teamId];
       } else {

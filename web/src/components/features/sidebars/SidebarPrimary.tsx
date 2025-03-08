@@ -16,7 +16,7 @@ import { useUserConfigContextSelector } from '@/context/Users';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { SupportModal } from '../modal/SupportModal';
 import { InvitePeopleModal } from '../modal/InvitePeopleModal';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 const topItems: ISidebarList = {
   items: [

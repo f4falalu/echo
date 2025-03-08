@@ -1,4 +1,4 @@
-import type { ShareAssetType } from '@/api/asset_interfaces';
+import type { ShareAssetType } from '@/api/asset_interfaces/share';
 
 export interface UsersFavoritePostPayload {
   id: string;

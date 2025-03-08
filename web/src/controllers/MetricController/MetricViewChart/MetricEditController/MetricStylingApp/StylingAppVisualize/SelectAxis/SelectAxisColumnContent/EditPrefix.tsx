@@ -1,7 +1,7 @@
 import React from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 import type { IColumnLabelFormat } from '@/components/ui/charts/interfaces/columnLabelInterfaces';
-import { Input } from 'antd';
+import { Input } from '@/components/ui/inputs';
 
 export const EditPrefix: React.FC<{
   prefix: IColumnLabelFormat['prefix'];

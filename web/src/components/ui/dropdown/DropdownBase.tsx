@@ -9,7 +9,6 @@ import {
   Check3 as Check,
   ChevronRight
 } from '../icons/NucleoIconOutlined';
-
 import { cn } from '@/lib/classMerge';
 import { Checkbox } from '../checkbox/Checkbox';
 import { Button } from '../buttons/Button';

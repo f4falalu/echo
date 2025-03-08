@@ -4,7 +4,7 @@ import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { ColorAppSegments, COLORFUL_THEMES, MONOCHROME_THEMES } from './config';
 import isEqual from 'lodash/isEqual';
 import { IColorTheme } from '../Common';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { ThemeList } from '../Common/ThemeList';
 
 export const ColorsApp: React.FC<{

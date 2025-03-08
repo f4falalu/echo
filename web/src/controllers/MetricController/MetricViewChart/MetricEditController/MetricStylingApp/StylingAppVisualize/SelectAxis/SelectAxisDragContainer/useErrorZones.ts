@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { SelectAxisContainerId } from '../config';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { DropZoneInternal } from './interfaces';
 import { useSelectAxisContextSelector } from '../useSelectAxisContext';
 import { ChartType, IColumnLabelFormat } from '@/components/ui/charts';

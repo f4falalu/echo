@@ -7,9 +7,9 @@ import { HideButtonContainer } from './HideButtonContainer';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { CreateChatButton } from './CreateChatButtont';
 import { ShareDashboardButton } from '@/components/features/buttons/ShareDashboardButton';
-import { Button, Dropdown } from 'antd';
-import { AppMaterialIcons } from '@/components/ui';
-import { MenuProps } from 'antd/lib';
+import { Button } from '@/components/ui/buttons';
+import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
+import { Dots, Plus, Trash } from '@/components/ui/icons';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
@@ -43,7 +43,7 @@ SaveToCollectionButton.displayName = 'SaveToCollectionButton';
 const AddContentToDashboardButton = React.memo(() => {
   return (
     <div>
-      <Button type="text" icon={<AppMaterialIcons icon="add" />} />
+      <Button variant="ghost" prefix={<Plus />} />
     </div>
   );
 });
@@ -53,25 +53,23 @@ const ThreeDotMenu = React.memo(({ dashboardId }: { dashboardId: string }) => {
   const onDeleteDashboard = useBusterDashboardContextSelector((x) => x.onDeleteDashboard);
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
 
-  const menu: MenuProps = useMemo(() => {
-    return {
-      items: [
-        {
-          label: 'Delete',
-          key: 'delete',
-          icon: <AppMaterialIcons icon="delete" />,
-          onClick: async () => {
-            await onDeleteDashboard(dashboardId);
-            onChangePage({ route: BusterRoutes.APP_DASHBOARDS });
-          }
+  const items: DropdownItems = useMemo(() => {
+    return [
+      {
+        label: 'Delete',
+        value: 'delete',
+        icon: <Trash />,
+        onClick: async () => {
+          await onDeleteDashboard(dashboardId);
+          onChangePage({ route: BusterRoutes.APP_DASHBOARDS });
         }
-      ]
-    };
+      }
+    ];
   }, [dashboardId, onDeleteDashboard, onChangePage]);
 
   return (
-    <Dropdown menu={menu}>
-      <Button type="text" icon={<AppMaterialIcons icon="more_horiz" />} />
+    <Dropdown items={items}>
+      <Button variant="ghost" prefix={<Dots />} />
     </Dropdown>
   );
 });

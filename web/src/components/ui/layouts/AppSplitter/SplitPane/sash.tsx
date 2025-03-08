@@ -1,7 +1,9 @@
+'use client';
+
 import React, { useRef, useState } from 'react';
 import { classNames, sashClassName } from './base';
 import { ISashProps } from './types';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 export default function Sash({
   className,

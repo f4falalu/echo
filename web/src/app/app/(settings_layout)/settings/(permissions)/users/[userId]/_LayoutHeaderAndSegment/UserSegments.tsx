@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { AppSegmented } from '@/components/ui/segmented';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { type SegmentedItem } from '@/components/ui/segmented';
-import { Divider } from 'antd';
+import { Separator } from '@/components/ui/seperator';
 import { createBusterRoute, BusterRoutes } from '@/routes';
 
 export enum UserSegmentsApps {
@@ -83,7 +83,7 @@ export const UserSegments: React.FC<{
   return (
     <div className="flex flex-col space-y-2">
       <AppSegmented options={options} value={selectedApp} onChange={onChange} />
-      <Divider />
+      <Separator />
     </div>
   );
 });

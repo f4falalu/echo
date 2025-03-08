@@ -4,6 +4,7 @@ import { rustErrorHandler } from './buster_rest/errors';
 import { AxiosRequestHeaders } from 'axios';
 import { isServer } from '@tanstack/react-query';
 import { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
+import { getSupabaseTokenFromCookies } from './createServerInstance';
 
 const AXIOS_TIMEOUT = 120000; // 2 minutes
 
@@ -42,11 +43,7 @@ export const defaultRequestHandler = async (
 ) => {
   let token = '';
   if (isServer) {
-    const { cookies } = require('next/headers');
-    const cookiesManager = cookies() as ReadonlyRequestCookies;
-    const tokenCookie =
-      cookiesManager.get('sb-127-auth-token') || cookiesManager.get('next-sb-access-token');
-    token = tokenCookie?.value || '';
+    token = await getSupabaseTokenFromCookies();
   } else {
     token = options?.accessToken || '';
   }

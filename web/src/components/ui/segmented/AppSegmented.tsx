@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
 import { useEffect, useState, useLayoutEffect, useTransition } from 'react';
 import { cva } from 'class-variance-authority';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { Tooltip } from '../tooltip/Tooltip';
 
 export interface SegmentedItem<T extends string | number = string> {
@@ -94,7 +94,7 @@ const gliderVariants = cva('absolute border-border rounded border', {
 // Create a type for the forwardRef component that includes displayName
 type AppSegmentedComponent = (<T extends string = string>(
   props: AppSegmentedProps<T> & { ref?: React.ForwardedRef<HTMLDivElement> }
-) => React.ReactElement) & {
+) => React.ReactElement<any>) & {
   displayName?: string;
 };
 

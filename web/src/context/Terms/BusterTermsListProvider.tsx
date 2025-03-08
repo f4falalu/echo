@@ -1,11 +1,9 @@
+'use client';
+
 import React from 'react';
 import { queryKeys } from '@/api/query_keys';
 import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
-import {
-  createContext,
-  useContextSelector,
-  ContextSelector
-} from '@fluentui/react-context-selector';
+import { createContext, useContextSelector } from 'use-context-selector';
 import { useAppLayoutContextSelector } from '../BusterAppLayout';
 
 export const useBusterTermsList = () => {
@@ -42,5 +40,5 @@ export const BusterTermsListProvider: React.FC<{ children: React.ReactNode }> = 
 };
 
 export const useBusterTermsListContextSelector = <T,>(
-  selector: ContextSelector<ReturnType<typeof useBusterTermsList>, T>
+  selector: (state: ReturnType<typeof useBusterTermsList>) => T
 ) => useContextSelector(BusterTermsListContext, selector);

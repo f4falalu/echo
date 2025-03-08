@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useMemoizedFn } from 'ahooks';
-import { Button } from 'antd';
-import { AppMaterialIcons } from '@/components/ui';
+import { useMemoizedFn } from '@/hooks';
+import { Button } from '@/components/ui/buttons';
+import { Plus } from '@/components/ui/icons';
 import { PermissionListPermissionGroupContainer } from './PermissionListPermissionGroupContainer';
 import {
   PermissionSearchAndListWrapper,
@@ -46,10 +46,7 @@ export const PermissionPermissionGroup: React.FC<{
         searchPlaceholder="Search by permission group"
         searchChildren={React.useMemo(
           () => (
-            <Button
-              type="default"
-              icon={<AppMaterialIcons icon="add" />}
-              onClick={onOpenNewPermissionGroupModal}>
+            <Button prefix={<Plus />} onClick={onOpenNewPermissionGroupModal}>
               New permission group
             </Button>
           ),

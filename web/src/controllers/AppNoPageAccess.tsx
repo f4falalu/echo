@@ -3,11 +3,10 @@
 import React from 'react';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { BusterLogo } from '@/assets/svg/BusterLogo';
-import { asset_typeToTranslation } from '@/components/ui';
 import { Title } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { Button } from 'antd';
+import { Button } from '@/components/ui/buttons';
 import Link from 'next/link';
 
 export const AppNoPageAccess: React.FC<{
@@ -24,7 +23,7 @@ export const AppNoPageAccess: React.FC<{
       <div className="max-w-[340px] text-center">
         <Title
           as="h2"
-          className="text-center">{`It looks like you don’t have access to this ${asset_typeToTranslation(asset_type)}.`}</Title>
+          className="text-center">{`It looks like you don’t have access to this file...`}</Title>
       </div>
 
       <div className="flex space-x-2">

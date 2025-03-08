@@ -25,7 +25,7 @@ export const useInteractions = ({ selectedChartType, barLayout }: UseInteraction
         intersect: false,
         mode: 'index',
         includeInvisible: false,
-        axis: isHorizontalBar ? ('y' as 'y') : 'x'
+        axis: isHorizontalBar ? 'y' : 'x'
       } as CoreInteractionOptions;
     }
 

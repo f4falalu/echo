@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { VerificationStatus } from '@/api/asset_interfaces';
+import { VerificationStatus } from '@/api/asset_interfaces/share';
 import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
 import { queryKeys } from '@/api/query_keys';
 

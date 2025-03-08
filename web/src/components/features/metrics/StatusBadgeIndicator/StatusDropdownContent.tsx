@@ -1,7 +1,7 @@
 import { VerificationStatus } from '@/api/asset_interfaces';
 import React, { useMemo } from 'react';
 import { getTooltipText } from './helpers';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { StatusBadgeIndicator } from './StatusBadgeIndicator';
 import { Dropdown, DropdownItem } from '@/components/ui/dropdown';
 

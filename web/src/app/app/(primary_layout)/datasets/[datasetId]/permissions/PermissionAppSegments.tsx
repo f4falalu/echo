@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useMemo, useRef } from 'react';
-import { AppSegmented } from '@/components/ui';
+import { AppSegmented } from '@/components/ui/segmented';
 import { PermissionApps } from './config';
-import { useMemoizedFn, useSet } from 'ahooks';
-import { Divider } from 'antd';
+import { useMemoizedFn, useSet } from '@/hooks';
+import { Separator } from '@/components/ui/seperator';
 import {
   useDatasetListDatasetGroups,
   useDatasetListPermissionGroups,
@@ -70,7 +70,7 @@ export const PermissionAppSegments: React.FC<{
   return (
     <div ref={ref} className="flex flex-col justify-center space-y-2 space-x-0">
       <AppSegmented options={options} value={selectedApp} />
-      <Divider className="" />
+      <Separator />
     </div>
   );
 });

@@ -1,13 +1,15 @@
 import { queryOptions } from '@tanstack/react-query';
 import type {
   DatasetGroup,
-  DatasetPermissionsOverviewResponse,
   GetDatasetGroupDatasetsResponse,
   GetDatasetGroupPermissionGroupsResponse,
-  GetDatasetGroupUsersResponse,
+  GetDatasetGroupUsersResponse
+} from '@/api/asset_interfaces/dataset_groups';
+import {
+  DatasetPermissionsOverviewResponse,
   ListDatasetGroupsResponse,
   ListPermissionUsersResponse
-} from '@/api/asset_interfaces';
+} from '@/api/asset_interfaces/datasets';
 
 const datasetGroupsList = queryOptions<ListDatasetGroupsResponse[]>({
   queryKey: ['dataset_groups'] as const,

@@ -2,15 +2,15 @@ import { ShareAssetType } from '@/api/asset_interfaces';
 import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { Divider, Space } from 'antd';
 import { Button } from '@/components/ui/buttons';
 import { Text } from '@/components/ui/typography';
 import { Input } from '@/components/ui/inputs';
 import React, { useMemo } from 'react';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { Link, BracketsCurly } from '@/components/ui/icons';
+import { Separator } from '@/components/ui/seperator';
 
 export const ShareMenuContentEmbed: React.FC<{
   assetType: ShareAssetType;
@@ -54,10 +54,10 @@ export const ShareMenuContentEmbed: React.FC<{
   return (
     <div className="flex flex-col">
       <div className="w-full p-3">
-        <Space.Compact className="w-full">
-          <Input className="h-[24px]!" value={createIframe(embedURL)} />
+        <div className="w-full">
+          <Input size="small" value={createIframe(embedURL)} />
           <Button prefix={<Link />} className="flex" onClick={onCopyLink} />
-        </Space.Compact>
+        </div>
 
         <div className="mt-3 flex justify-end">
           <Button prefix={<BracketsCurly />} onClick={onCopyLink}>
@@ -66,7 +66,7 @@ export const ShareMenuContentEmbed: React.FC<{
         </div>
       </div>
 
-      <Divider />
+      <Separator />
     </div>
   );
 });

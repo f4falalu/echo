@@ -3,13 +3,13 @@ import {
   useBusterDashboardContextSelector,
   useBusterDashboardListByFilter
 } from '@/context/Dashboards';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import React, { useMemo, useState } from 'react';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
-import { Button } from 'antd';
+import { Button } from '@/components/ui/buttons';
 import { Dropdown, type DropdownProps } from '@/components/ui/dropdown/Dropdown';
 import { AppTooltip } from '@/components/ui/tooltip';
-import { AppMaterialIcons } from '@/components/ui';
+import { Plus } from '@/components/ui/icons';
 import type { BusterMetric, BusterDashboardListItem } from '@/api/asset_interfaces';
 
 export const SaveToDashboardDropdown: React.FC<{
@@ -82,11 +82,11 @@ export const SaveToDashboardDropdown: React.FC<{
   const memoizedButton = useMemo(() => {
     return (
       <Button
-        type="text"
+        variant="ghost"
         className="justify-start!"
         loading={isCreatingDashboard}
         block
-        icon={<AppMaterialIcons icon="add" />}
+        prefix={<Plus />}
         onClick={onClickNewDashboardButton}>
         New dashboard
       </Button>

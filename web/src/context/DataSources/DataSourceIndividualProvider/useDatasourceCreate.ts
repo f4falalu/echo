@@ -3,7 +3,7 @@ import { queryKeys } from '@/api/query_keys';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { BusterRoutes } from '@/routes';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 
 export const useDatasourceCreate = () => {

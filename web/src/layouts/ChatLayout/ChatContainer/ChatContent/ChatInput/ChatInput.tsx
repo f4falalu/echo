@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useMemo, useRef, useState } from 'react';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { inputHasText } from '@/lib/text';
 import { AIWarning } from './AIWarning';
 import { useChatInputFlow } from './useChatInputFlow';

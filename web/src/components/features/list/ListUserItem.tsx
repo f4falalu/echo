@@ -1,4 +1,4 @@
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 import { Avatar } from '@/components/ui/avatar';
 import React from 'react';
 
@@ -12,7 +12,7 @@ export const ListUserItem = React.memo(({ name, email }: { name: string; email: 
       <div className="flex flex-col space-y-0">
         <Text>{name}</Text>
         {email && (
-          <Text type="secondary" style={{ fontSize: 12 }}>
+          <Text variant="secondary" style={{ fontSize: 12 }}>
             {email}
           </Text>
         )}

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../Common';
 
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { AppSegmented, SegmentedItem } from '@/components/ui/segmented';
 

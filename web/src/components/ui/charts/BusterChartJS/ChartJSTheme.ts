@@ -27,10 +27,7 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 import 'chartjs-adapter-dayjs-4';
 
-import { busterAppStyleConfig } from '@/styles/busterAntDStyleConfig';
 import { DEFAULT_CHART_THEME } from '../configColors';
-
-const token = busterAppStyleConfig.token!;
 
 ChartJS.register(
   LineController,
@@ -64,10 +61,10 @@ ChartJS.register(
 
 ChartJS.defaults.responsive = true;
 ChartJS.defaults.maintainAspectRatio = false;
-ChartJS.defaults.color = token.colorTextSecondary!;
+ChartJS.defaults.color = 'var(--text-secondary)';
 ChartJS.defaults.backgroundColor = DEFAULT_CHART_THEME;
 ChartJS.defaults.font = {
-  family: token.fontFamily,
+  family: 'var(--font-sans)',
   size: 10,
   weight: 'normal'
 };
@@ -101,7 +98,7 @@ ChartJS.defaults.plugins = {
     font: {
       weight: 'normal',
       size: 10,
-      family: token.fontFamily
+      family: 'var(--font-sans)'
     }
   },
   tooltipHoverBar: {

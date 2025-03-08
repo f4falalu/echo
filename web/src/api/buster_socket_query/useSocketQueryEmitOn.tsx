@@ -12,7 +12,7 @@ import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useEffect, useMemo, useRef } from 'react';
 import { useSocketQueryOn } from './useSocketQueryOn';
 import { timeout } from '@/lib';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 export const useSocketQueryEmitOn = <
   TRoute extends BusterSocketResponseRoute,

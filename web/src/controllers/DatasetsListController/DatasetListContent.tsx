@@ -8,7 +8,7 @@ import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/lis
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import type { BusterDatasetListItem } from '@/api/asset_interfaces';
 import { ListEmptyStateWithButton } from '@/components/ui/list';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { DatasetSelectedOptionPopup } from './DatasetSelectedPopup';
 
 const columns: BusterListColumn[] = [

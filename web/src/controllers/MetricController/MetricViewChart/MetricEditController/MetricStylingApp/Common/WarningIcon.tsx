@@ -1,5 +1,4 @@
 import { AlertWarning } from '@/components/ui/icons';
-import { createStyles } from 'antd-style';
 import React from 'react';
 import { cn } from '@/lib/classMerge';
 import { Popover } from '@/components/ui/tooltip/Popover';
@@ -15,8 +14,6 @@ export const WarningIcon: React.FC<{
     rowCountThreshold = 35,
     warningText = 'Data labels will be hidden if there are too many.'
   }) => {
-    const { styles, cx } = useStyles();
-
     if (rowCount <= rowCountThreshold) {
       return null;
     }
@@ -25,7 +22,7 @@ export const WarningIcon: React.FC<{
         side="left"
         align="center"
         content={<div className="max-w-[200px]">{warningText}</div>}>
-        <div className={cn(styles.warningIcon, 'cursor-pointer')}>
+        <div className={cn('text-text-tertiary hover:text-text-secondary', 'cursor-pointer')}>
           <AlertWarning />
         </div>
       </Popover>
@@ -33,13 +30,3 @@ export const WarningIcon: React.FC<{
   }
 );
 WarningIcon.displayName = 'WarningIcon';
-
-const useStyles = createStyles(({ css, token }) => ({
-  warningIcon: css`
-    color: ${token.colorTextTertiary};
-
-    &:hover {
-      color: ${token.colorTextSecondary};
-    }
-  `
-}));

@@ -1,18 +1,19 @@
+'use client';
+
 import type { DataSource, DataSourceTypes } from '@/api/asset_interfaces';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useDataSourceIndividualContextSelector } from '@/context/DataSources/DataSourceIndividualProvider';
 import { BusterRoutes } from '@/routes';
-import { useAntToken } from '@/styles/useAntToken';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import React, { useState } from 'react';
 import { PostgresForm } from './_forms/PostgresForm';
-import { DatasourceCreateCredentials } from '@/api/buster_socket/datasources/interface';
+import { DatasourceCreateCredentials } from '@/api/request_interfaces/datasources';
 import { MySqlForm } from './_forms/MySqlForm';
 import { BigQueryForm } from './_forms/BigQueryForm';
 import { SnowflakeForm } from './_forms/SnowflakeForm';
 import { RedshiftForm } from './_forms/RedshiftForm';
 import { DataBricksForm } from './_forms/DataBricksForm';
-import { useConfetti } from '@/hooks/dom/useConfetti';
+import { useConfetti } from '@/hooks/useConfetti';
 import { SqlServerForm } from './_forms/SqlServerForm';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 
@@ -44,7 +45,6 @@ export const DataSourceFormContent: React.FC<{
   type: DataSourceTypes;
 }> = ({ dataSource, type, useConnection = false }) => {
   const SelectedForm = FormRecord[type];
-  const token = useAntToken();
   const onUpdateDataSource = useDataSourceIndividualContextSelector(
     (state) => state.onUpdateDataSource
   );
@@ -98,15 +98,7 @@ export const DataSourceFormContent: React.FC<{
 
   return (
     <div>
-      <div
-        className="flex items-center px-4 py-2.5"
-        style={{
-          background: token.controlItemBgActive,
-          border: `0.5px solid ${token.colorBorder}`,
-          borderBottom: 'none',
-          borderTopLeftRadius: `${token.borderRadius}px`,
-          borderTopRightRadius: `${token.borderRadius}px`
-        }}>
+      <div className="bg-item-hover flex items-center rounded-tl-lg rounded-tr-lg border px-4 py-2.5">
         Datasource credentials
       </div>
 

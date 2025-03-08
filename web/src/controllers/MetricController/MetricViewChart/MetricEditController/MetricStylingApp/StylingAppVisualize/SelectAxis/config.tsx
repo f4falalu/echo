@@ -1,5 +1,5 @@
-import { AppMaterialIcons } from '@/components/ui';
 import { ChartType, type IColumnLabelFormat } from '@/components/ui/charts';
+import { Calendar, MoneyBillsDollar, TextA, Numbers, Percentage } from '@/components/ui/icons';
 import React from 'react';
 
 export const ColumnTypeIcon: Record<
@@ -11,27 +11,27 @@ export const ColumnTypeIcon: Record<
   }
 > = {
   string: {
-    icon: <AppMaterialIcons data-value="string" icon="text_fields" />,
+    icon: <TextA />,
     value: 'string',
     tooltip: 'Text'
   },
   number: {
-    icon: <AppMaterialIcons data-value="number" icon="numbers" />,
+    icon: <Numbers />,
     value: 'number',
     tooltip: 'Number'
   },
   date: {
-    icon: <AppMaterialIcons data-value="date" icon="calendar_today" />,
+    icon: <Calendar />,
     value: 'date',
     tooltip: 'Date'
   },
   currency: {
-    icon: <AppMaterialIcons data-value="currency" icon="attach_money" />,
+    icon: <MoneyBillsDollar />,
     value: 'currency',
     tooltip: 'Currency'
   },
   percent: {
-    icon: <AppMaterialIcons data-value="percent" icon="percent" />,
+    icon: <Percentage />,
     value: 'percent',
     tooltip: 'Percent'
   }

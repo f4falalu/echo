@@ -1,3 +1,5 @@
+'use client';
+
 import { BusterChatMessageReasoning_file } from '@/api/asset_interfaces';
 import {
   AppCodeBlockWrapper,
@@ -149,9 +151,9 @@ export const StreamingMessageCode: React.FC<
 const HiddenSection: React.FC<{
   numberOfLinesUnmodified: number;
 }> = ({ numberOfLinesUnmodified }) => (
-  <div className="my-2 flex w-full items-center space-x-1 first:mt-0">
+  <div className="my-2! flex w-full items-center space-x-1 first:mt-0">
     <div className="bg-border h-[0.5px] w-full" />
-    <Text variant="tertiary" size={'sm'} className="whitespace-nowrap">
+    <Text variant="tertiary" size={'xs'} className="whitespace-nowrap">
       {`${numberOfLinesUnmodified} ${pluralize('line', numberOfLinesUnmodified)} unmodified`}
     </Text>
     <div className="bg-border h-[0.5px] w-4" />

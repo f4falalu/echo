@@ -1,8 +1,9 @@
+'use client';
+
 import React from 'react';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
-import { Button } from 'antd';
-import { useMemoizedFn } from 'ahooks';
-import { useBusterNotifications } from '@/context/BusterNotifications';
+import { Button } from '@/components/ui/buttons';
+import { useMemoizedFn } from '@/hooks';
 import { useBusterTermsIndividualContextSelector } from '@/context/Terms';
 
 export const TermListSelectedOptionPopup: React.FC<{
@@ -36,9 +37,5 @@ const DeleteButton: React.FC<{
     onSelectChange([]);
   });
 
-  return (
-    <Button type="default" onClick={onDeleteClick}>
-      Delete
-    </Button>
-  );
+  return <Button onClick={onDeleteClick}>Delete</Button>;
 };

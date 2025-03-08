@@ -1,12 +1,12 @@
 import { Command, Xmark, CircleWarning, ReturnKey } from '@/components/ui/icons';
 import { AppCodeEditor } from '@/components/ui/inputs/AppCodeEditor';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMemoizedFn } from 'ahooks';
-import { createStyles } from 'antd-style';
+import { useMemoizedFn } from '@/hooks';
 import { Button } from '@/components/ui/buttons/Button';
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { AppVerticalCodeSplitterProps } from './AppVerticalCodeSplitter';
+import { cn } from '@/lib/classMerge';
 
 export const SQLContainer: React.FC<{
   className?: string;
@@ -18,7 +18,6 @@ export const SQLContainer: React.FC<{
   error?: string | null;
 }> = React.memo(
   ({ disabledSave, className = '', sql, setDatasetSQL, onRunQuery, onSaveSQL, error }) => {
-    const { styles, cx } = useStyles();
     const [isRunning, setIsRunning] = useState(false);
     const [isError, setIsError] = useState(false);
     const { openInfoMessage } = useBusterNotifications();
@@ -40,7 +39,11 @@ export const SQLContainer: React.FC<{
 
     return (
       <div
-        className={cx(styles.container, 'flex h-full w-full flex-col overflow-hidden', className)}>
+        className={cn(
+          'flex h-full w-full flex-col overflow-hidden',
+          'bg-background rounded border',
+          className
+        )}>
         <AppCodeEditor
           className="overflow-hidden"
           value={sql}
@@ -94,8 +97,6 @@ const ErrorContainer: React.FC<{
   onClose: () => void;
   isError: boolean;
 }> = React.memo(({ error, onClose, isError }) => {
-  const { styles, cx } = useStyles();
-
   return (
     <AnimatePresence mode="wait">
       {isError && (
@@ -103,7 +104,10 @@ const ErrorContainer: React.FC<{
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 0 }}
-          className={cx(styles.errorContainer, 'absolute right-0 bottom-full left-0 mx-4 mb-2')}>
+          className={cn(
+            'bg-danger-background text-danger-foreground border-danger-foreground rounded-sm px-2 py-3 shadow',
+            'absolute right-0 bottom-full left-0 mx-4 mb-2'
+          )}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <CircleWarning />
@@ -111,9 +115,9 @@ const ErrorContainer: React.FC<{
             </div>
             <button
               onClick={() => onClose()}
-              className={cx(
-                styles.closeButton,
-                'rounded-sm p-0.5 transition-colors hover:bg-black/5'
+              className={cn(
+                'text-danger-foreground flex items-center justify-center border-none bg-none hover:opacity-80',
+                'cursor-pointer rounded-sm p-0.5 transition-colors hover:bg-black/5'
               )}>
               <Xmark />
             </button>
@@ -125,32 +129,3 @@ const ErrorContainer: React.FC<{
 });
 
 ErrorContainer.displayName = 'ErrorContainer';
-
-const useStyles = createStyles(({ css, token }) => ({
-  container: css`
-    background: ${token.colorBgBase};
-    border-radius: ${token.borderRadius}px;
-    border: 0.5px solid ${token.colorBorder};
-  `,
-  errorContainer: css`
-    background: ${token.colorErrorBg};
-    color: ${token.colorError};
-    border: 0.5px solid ${token.colorError};
-    padding: 8px 12px;
-    border-radius: ${token.borderRadius}px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  `,
-  closeButton: css`
-    color: ${token.colorError};
-    cursor: pointer;
-    border: none;
-    background: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    &:hover {
-      opacity: 0.8;
-    }
-  `
-}));

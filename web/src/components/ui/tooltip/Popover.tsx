@@ -18,6 +18,7 @@ export interface PopoverProps
   footerContent?: string | React.ReactNode;
   trigger?: PopoverTriggerType;
   size?: PopoverContentVariant['size'];
+  sideOffset?: number;
 }
 
 export const Popover = React.memo<PopoverProps>(
@@ -31,6 +32,7 @@ export const Popover = React.memo<PopoverProps>(
     trigger = 'click',
     size = 'default',
     footerContent,
+    sideOffset,
     ...props
   }) => {
     return (
@@ -43,6 +45,7 @@ export const Popover = React.memo<PopoverProps>(
           side={side}
           className={className}
           size={size}
+          sideOffset={sideOffset}
           headerContent={headerContent && <PopoverHeaderContent title={headerContent} />}
           footerContent={footerContent && <PopoverFooterContent title={footerContent} />}>
           {content}

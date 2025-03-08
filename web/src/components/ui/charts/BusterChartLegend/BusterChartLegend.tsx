@@ -5,7 +5,7 @@ import { BusterChartLegendProps } from './interfaces';
 import { LegendItem } from './LegendItem';
 import { OverflowButton } from './OverflowContainer';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { computeHiddenShowItems } from './helpers';
 
 export const BusterChartLegend: React.FC<BusterChartLegendProps> = React.memo(

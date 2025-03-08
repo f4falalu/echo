@@ -98,6 +98,10 @@ export const Loading: Story = {
   render: () => <InteractiveLoadingWrapper />
 };
 
+export const LoadingTextThenPills: Story = {
+  render: () => <InteractiveLoadingWrapper />
+};
+
 export const Failed: Story = {
   args: {
     ...mockReasoningMessage,

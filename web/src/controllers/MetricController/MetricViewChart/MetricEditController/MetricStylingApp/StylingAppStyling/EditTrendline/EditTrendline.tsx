@@ -2,10 +2,11 @@ import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import React, { useMemo, useState } from 'react';
 import type { ChartEncodes, Trendline } from '@/components/ui/charts';
 import { v4 as uuidv4 } from 'uuid';
-import { useSet, useMemoizedFn } from 'ahooks';
+import { useSet, useMemoizedFn } from '@/hooks';
 import { LabelAndInput } from '../../Common';
-import { Button, Divider } from 'antd';
-import { AppMaterialIcons } from '@/components/ui';
+import { Button } from '@/components/ui/buttons';
+import { Separator } from '@/components/ui/seperator';
+import { Plus } from '@/components/ui/icons';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CollapseDelete } from '../../Common/CollapseDelete';
 import { formatLabel } from '@/lib';
@@ -122,7 +123,7 @@ export const EditTrendline: React.FC<{
       <div className="flex flex-col space-y-2.5">
         <LabelAndInput label="Trend line">
           <div className="flex items-center justify-end">
-            <Button onClick={onAddTrendline} type="text" icon={<AppMaterialIcons icon="add" />}>
+            <Button onClick={onAddTrendline} variant="ghost" prefix={<Plus />}>
               Add trend line
             </Button>
           </div>
@@ -263,7 +264,7 @@ const TrendlineItemContent: React.FC<{
 
         {show && (
           <>
-            <Divider className="mb-1!" />
+            <Separator className="mb-1!" />
 
             <div className="flex flex-col space-y-2.5 p-2.5">
               <TrendlineLabel

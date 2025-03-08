@@ -1,12 +1,12 @@
 import React from 'react';
 
 import { validate } from 'email-validator';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { BusterShare, ShareRole, ShareAssetType } from '@/api/asset_interfaces';
 import type { ShareRequest } from '@/api/buster_socket/shared_interfaces';
 import { Input } from '@/components/ui/inputs';
 import { Button } from '@/components/ui/buttons';
-import { Text } from '@/components/ui/text';
+import { Text } from '@/components/ui/typography';
 import { AccessDropdown } from './AccessDropdown';
 import { IndividualSharePerson } from './IndividualSharePerson';
 import { ShareMenuContentEmbed } from './ShareMenuContentEmbed';
@@ -122,7 +122,7 @@ const ShareMenuContentShare: React.FC<{
 
   const onUpdateShareRole = useMemoizedFn(
     async (userId: string, email: string, role: ShareRole | null) => {
-      let payload: ShareRequest = { id: assetId };
+      const payload: ShareRequest = { id: assetId };
 
       if (!role) {
         payload.remove_users = [userId];
@@ -149,7 +149,7 @@ const ShareMenuContentShare: React.FC<{
   });
 
   const onChangeAccessDropdown = useMemoizedFn((level: ShareRole | null) => {
-    level && setDefaultPermissionLevel(level);
+    if (level) setDefaultPermissionLevel(level);
   });
 
   const onOpenShareWithGroupAndTeam = useMemoizedFn(() => {

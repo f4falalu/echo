@@ -1,7 +1,7 @@
-import { Dropdown, MenuProps } from 'antd';
+import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import React, { useMemo } from 'react';
 import { useChatIndividualContextSelector } from '../../../ChatContext';
-import { AppMaterialIcons } from '@/components/ui';
+import { Trash } from '@/components/ui/icons';
 import { useBusterChatContextSelector } from '@/context/Chats';
 
 export const ChatContainerHeaderDropdown: React.FC<{
@@ -10,28 +10,20 @@ export const ChatContainerHeaderDropdown: React.FC<{
   const chatId = useChatIndividualContextSelector((state) => state.chatId);
   const onDeleteChat = useBusterChatContextSelector((x) => x.onDeleteChat);
 
-  const menuItem: MenuProps['items'] = useMemo(() => {
+  const menuItem: DropdownItems = useMemo(() => {
     return [
       {
         label: 'Delete chat',
-        key: 'delete',
-        icon: <AppMaterialIcons icon="delete" />,
+        value: 'delete',
+        icon: <Trash />,
         onClick: () => chatId && onDeleteChat(chatId)
       }
     ];
   }, []);
 
-  const menu = useMemo(() => {
-    return {
-      items: menuItem
-    };
-  }, [menuItem]);
-
   return (
     <div>
-      <Dropdown menu={menu} trigger={['click']}>
-        {chatId ? children : null}
-      </Dropdown>
+      <Dropdown items={menuItem}>{chatId ? children : null}</Dropdown>
     </div>
   );
 });

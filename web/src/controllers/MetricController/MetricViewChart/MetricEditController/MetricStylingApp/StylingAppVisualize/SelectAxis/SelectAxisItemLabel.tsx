@@ -1,10 +1,10 @@
 import { IColumnLabelFormat } from '@/components/ui/charts';
 import { formatLabel } from '@/lib';
 import React, { useMemo } from 'react';
-import { Text } from '@/components/ui';
-import { createStyles } from 'antd-style';
+import { Text } from '@/components/ui/typography';
 import { ColumnTypeIcon } from './config';
 import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces';
+import { cn } from '@/lib/classMerge';
 
 export const SelectAxisItemLabel = React.memo(
   ({
@@ -16,7 +16,6 @@ export const SelectAxisItemLabel = React.memo(
     columnLabelFormat: IColumnLabelFormat | undefined;
     onClick?: () => void;
   }) => {
-    const { styles, cx } = useStyles();
     const { style } = columnLabelFormat || DEFAULT_COLUMN_LABEL_FORMAT;
 
     const label = useMemo(() => {
@@ -29,18 +28,10 @@ export const SelectAxisItemLabel = React.memo(
       <div
         className={`flex items-center space-x-1.5 overflow-hidden whitespace-nowrap ${onClick ? 'cursor-pointer' : ''}`}
         onClick={onClick}>
-        <div className={cx('flex', styles.icon)}>{Icon.icon}</div>
-        <Text type="default" className="truncate">
-          {label}
-        </Text>
+        <div className={cn('text-icon-color flex')}>{Icon.icon}</div>
+        <Text className="truncate">{label}</Text>
       </div>
     );
   }
 );
 SelectAxisItemLabel.displayName = 'SelectAxisItemLabel';
-
-const useStyles = createStyles(({ css, token }) => ({
-  icon: css`
-    color: ${token.colorIcon};
-  `
-}));

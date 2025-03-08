@@ -5,7 +5,7 @@ import { EditShowAxisTitle } from './EditShowAxisTitle';
 import type { ColumnLabelFormat, ComboChartAxis } from '@/components/ui/charts/interfaces';
 import { AXIS_TITLE_SEPARATOR } from '@/components/ui/charts/commonHelpers';
 import { formatLabel } from '@/lib';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { EditShowAxisLabel } from './EditShowAxisLabel';
 import { EditAxisScale } from './EditAxisScale';

@@ -2,7 +2,7 @@
 
 import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import React, { useMemo, useState } from 'react';
-import { AppMaterialIcons } from '@/components/ui';
+import {} from '@/components/ui/icons';
 import { Avatar } from '@/components/ui/avatar';
 import { createBusterRoute, BusterRoutes } from '@/routes';
 import { formatDate } from '@/lib';
@@ -11,13 +11,14 @@ import {
   BusterCollectionItemAsset,
   BusterCollectionListItem
 } from '@/api/asset_interfaces';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 import { ListEmptyStateWithButton } from '@/components/ui/list';
 import { AddTypeModal } from '@/components/features/modal/AddTypeModal';
 import { ShareAssetType } from '@/api/asset_interfaces';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { CollectionIndividualSelectedPopup } from './CollectionsIndividualPopup';
+import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 
 export const CollectionIndividualContent: React.FC<{
   collection: BusterCollection | undefined;
@@ -66,7 +67,7 @@ const columns: BusterListColumn[] = [
       return (
         <div className="flex w-full items-center space-x-2 overflow-hidden">
           {Icon}
-          <Text type="secondary" ellipsis>
+          <Text variant="secondary" truncate>
             {name}
           </Text>
         </div>
@@ -175,8 +176,8 @@ const CollectionList: React.FC<{
 CollectionList.displayName = 'CollectionList';
 
 const CollectionIconRecord: Record<string, React.ReactNode> = {
-  dashboard: <AppMaterialIcons icon="grid_view" />,
-  metric: <AppMaterialIcons icon="monitoring" />
+  dashboard: <ASSET_ICONS.dashboards />,
+  metric: <ASSET_ICONS.metrics />
 };
 
 const createAssetLink = (asset: BusterCollectionItemAsset, collectionId: string) => {

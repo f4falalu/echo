@@ -1,3 +1,5 @@
+'use client';
+
 export const configureMonacoToUseYaml = async (monaco: typeof import('monaco-editor')) => {
   const { configureMonacoYaml } = await import('monaco-yaml');
 

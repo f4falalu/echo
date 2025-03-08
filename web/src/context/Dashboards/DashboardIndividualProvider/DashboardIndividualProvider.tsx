@@ -1,10 +1,8 @@
-import React, { PropsWithChildren, useState } from 'react';
-import { useMemoizedFn } from 'ahooks';
-import {
-  useContextSelector,
-  createContext,
-  ContextSelector
-} from '@fluentui/react-context-selector';
+'use client';
+
+import React, { PropsWithChildren } from 'react';
+import { useMemoizedFn } from '@/hooks';
+import { createContext, useContextSelector } from 'use-context-selector';
 import { queryKeys } from '@/api/query_keys';
 import { useDashboardAssosciations } from './useDashboardAssosciations';
 import { useDashboardCreate } from './useDashboardCreate';
@@ -52,5 +50,5 @@ export const BusterDashboardIndividualProvider: React.FC<PropsWithChildren> = ({
 };
 
 export const useBusterDashboardContextSelector = <T,>(
-  selector: ContextSelector<ReturnType<typeof useBusterDashboards>, T>
+  selector: (state: ReturnType<typeof useBusterDashboards>) => T
 ) => useContextSelector(BusterDashboards, selector);

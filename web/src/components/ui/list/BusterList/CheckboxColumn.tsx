@@ -1,4 +1,4 @@
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import React from 'react';
 import { MemoizedCheckbox } from './MemoizedCheckbox';
 import { WIDTH_OF_CHECKBOX_COLUMN } from './config';

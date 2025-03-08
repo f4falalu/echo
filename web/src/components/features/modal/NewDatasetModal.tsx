@@ -1,11 +1,13 @@
 import React, { useLayoutEffect, useMemo } from 'react';
-import { Input, Select, SelectProps } from 'antd';
-import { useMemoizedFn, useMount } from 'ahooks';
+import { Input } from '@/components/ui/inputs';
+import { Select, SelectItem } from '@/components/ui/select';
+import { useMemoizedFn, useMount } from '@/hooks';
 import { useCreateDataset } from '@/api/buster_rest/datasets';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useRouter } from 'next/navigation';
-import { AppModal, Text } from '@/components/ui';
+import { AppModal } from '@/components/ui/modal';
+import { Text } from '@/components/ui/typography';
 import { useDataSourceListContextSelector } from '@/context/DataSources';
 
 const headerConfig = {
@@ -110,7 +112,7 @@ const SelectDataSourceDropdown: React.FC<{
   const dataSourcesList = useDataSourceListContextSelector((x) => x.dataSourcesList);
   const refetchDatasourcesList = useDataSourceListContextSelector((x) => x.refetchDatasourcesList);
 
-  const selectOptions: SelectProps['options'] = useMemo(() => {
+  const selectOptions: SelectItem[] = useMemo(() => {
     return (dataSourcesList || []).map((dataSource) => ({
       label: dataSource.name,
       value: dataSource.id
@@ -138,10 +140,9 @@ const SelectDataSourceDropdown: React.FC<{
   return (
     <Select
       className="w-full"
-      options={selectOptions}
-      value={selectedOption}
+      items={selectOptions}
+      value={selectedOption?.value}
       placeholder="Select datasources that this term pertains to"
-      popupMatchSelectWidth={true}
       onChange={onSelect}
     />
   );

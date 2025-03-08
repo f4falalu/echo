@@ -1,8 +1,6 @@
 import React from 'react';
-import { Alert } from 'antd';
-import { AppModal } from '@/components/ui';
 import { Paragraph } from '@/components/ui/typography';
-
+import { AppModal } from '@/components/ui/modal';
 interface ApiKeyCreatedModalProps {
   apiKey: string | null;
   onCopy: () => void;
@@ -28,10 +26,10 @@ const ApiKeyCreatedModal = React.memo(({ apiKey, onCopy, onClose }: ApiKeyCreate
       }}
       onClose={onClose}>
       <div className="space-y-4">
-        <Alert
-          type="warning"
-          message="Important: This API key will only be shown once. Please copy it now and store it safely."
-        />
+        <div className="mb-4 rounded-lg bg-yellow-100 p-4 text-sm text-yellow-700" role="alert">
+          <span className="font-medium">Important:</span> This API key will only be shown once.
+          Please copy it now and store it safely.
+        </div>
         <Paragraph className="mt-4 rounded-sm border bg-gray-50 p-4 font-mono break-all">
           {apiKey}
         </Paragraph>

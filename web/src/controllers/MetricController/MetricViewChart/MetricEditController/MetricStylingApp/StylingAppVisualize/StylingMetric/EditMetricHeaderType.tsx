@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../Common';
 import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { useMemoizedFn } from 'ahooks';
-import { Select } from 'antd';
+import { useMemoizedFn } from '@/hooks';
+import { Select, SelectItem } from '@/components/ui/select';
 
-const allOptions = [
+const allOptions: SelectItem<'custom' | 'columnTitle' | 'columnValue' | 'none'>[] = [
   {
     label: 'None',
     value: 'none'
@@ -82,7 +82,7 @@ export const EditMetricHeader: React.FC<{
 
   return (
     <LabelAndInput label={title}>
-      <Select options={options} value={selectedOption} onChange={onUpdateMetricHeader} />
+      <Select items={options} value={selectedOption} onChange={onUpdateMetricHeader} />
     </LabelAndInput>
   );
 });

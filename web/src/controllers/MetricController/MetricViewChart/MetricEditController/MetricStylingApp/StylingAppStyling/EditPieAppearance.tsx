@@ -5,8 +5,9 @@ import {
   DEFAULT_CHART_CONFIG,
   MIN_DONUT_WIDTH
 } from '@/api/asset_interfaces';
-import { InputNumber, Slider } from 'antd';
-import { useMemoizedFn } from 'ahooks';
+import { InputNumber } from '@/components/ui/inputs';
+import { Slider } from '@/components/ui/slider';
+import { useMemoizedFn } from '@/hooks';
 import { AppSegmented, SegmentedItem } from '@/components/ui/segmented';
 
 const options: SegmentedItem<'donut' | 'pie'>[] = [
@@ -51,6 +52,10 @@ export const EditPieAppearance = React.memo(
       }
     });
 
+    const onChangeSlider = useMemoizedFn((value: number[]) => {
+      setPieDonutWidth(value[0]);
+    });
+
     return (
       <>
         <LabelAndInput label="Appearance">
@@ -78,8 +83,8 @@ export const EditPieAppearance = React.memo(
                 className="w-full"
                 min={DONUT_WIDTH_MIN}
                 max={DONUT_WIDTH_MAX}
-                value={value}
-                onChange={setPieDonutWidth}
+                defaultValue={[value]}
+                onValueChange={onChangeSlider}
               />
             </div>
           </LabelAndInput>

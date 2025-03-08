@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useBusterTermsIndividualContextSelector } from '@/context/Terms';
 import { Text } from '@/components/ui/typography';
 import { AppModal } from '@/components/ui/modal';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useGetDatasets } from '@/api/buster_rest/datasets';
 import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
 import { Input } from '@/components/ui/inputs/Input';

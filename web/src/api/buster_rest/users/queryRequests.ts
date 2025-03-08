@@ -6,7 +6,7 @@ import {
   getMyUserInfo,
   getMyUserInfo_server
 } from './requests';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
 

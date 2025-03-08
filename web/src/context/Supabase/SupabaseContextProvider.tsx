@@ -1,15 +1,11 @@
 'use client';
 
 import React, { PropsWithChildren, useLayoutEffect, useRef, useState } from 'react';
-import { UseSupabaseContextType } from './useSupabaseContext';
-import { useMemoizedFn } from 'ahooks';
+import { UseSupabaseContextType } from './getSupabaseServerContext';
+import { useMemoizedFn } from '@/hooks';
 import { User } from '@supabase/supabase-js';
 import { millisecondsFromUnixTimestamp } from '@/lib';
-import {
-  createContext,
-  useContextSelector,
-  ContextSelector
-} from '@fluentui/react-context-selector';
+import { createContext, useContextSelector } from 'use-context-selector';
 import { checkTokenValidityFromServer as checkTokenValidityFromServerApiCall } from '@/api/buster_rest/nextjs/auth';
 import { jwtDecode } from 'jwt-decode';
 
@@ -28,7 +24,7 @@ const useSupabaseContextInternal = ({
 }: {
   supabaseContext: UseSupabaseContextType;
 }) => {
-  const refreshTimerRef = useRef<any>();
+  const refreshTimerRef = useRef<any>(undefined);
   const refreshToken = useRef(supabaseContext.refreshToken || '');
   const expiresAt = useRef(supabaseContext.expiresAt || 5000);
   const isRefreshing = useRef(false);
@@ -125,7 +121,7 @@ const SupabaseContext = createContext<ReturnType<typeof useSupabaseContextIntern
 );
 export type SupabaseContextReturnType = ReturnType<typeof useSupabaseContextInternal>;
 
-export const useSupabaseContext = <T,>(selector: ContextSelector<SupabaseContextReturnType, T>) => {
+export const useSupabaseContext = <T,>(selector: (state: SupabaseContextReturnType) => T) => {
   return useContextSelector(SupabaseContext, selector);
 };
 

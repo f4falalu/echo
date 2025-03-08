@@ -4,6 +4,8 @@ import { ReasoningMessage_PillsContainer } from './ReasoningMessage_PillContaine
 import { ReasoningMessage_Files } from './ReasoningMessage_Files';
 import { ReasoningMessage_Text } from './ReasoningMessage_Text';
 import { useMessageIndividual } from '@/context/Chats';
+import { AnimatePresence, motion } from 'framer-motion';
+import { BarContainer } from './BarContainer';
 
 export interface ReasoningMessageProps {
   reasoningMessageId: string;
@@ -11,6 +13,34 @@ export interface ReasoningMessageProps {
   isCompletedStream: boolean;
   chatId: string;
 }
+
+const itemAnimationConfig = {
+  initial: { opacity: 0, height: 0 },
+  animate: {
+    opacity: 1,
+    height: 'auto',
+    transition: {
+      height: {
+        type: 'spring',
+        stiffness: 400,
+        damping: 32
+      },
+      opacity: { duration: 0.16 }
+    }
+  },
+  exit: {
+    opacity: 0,
+    height: 0,
+    transition: {
+      height: {
+        type: 'spring',
+        stiffness: 450,
+        damping: 35
+      },
+      opacity: { duration: 0.12 }
+    }
+  }
+};
 
 const ReasoningMessageRecord: Record<
   BusterChatMessageReasoning['type'],
@@ -34,22 +64,35 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
   chatId,
   messageId
 }) => {
-  const reasoningMessageType = useMessageIndividual(
-    messageId,
-    (x) => x?.reasoning_messages[reasoningMessageId]?.type
-  );
+  const { title, type, secondary_title, status } = useMessageIndividual(messageId, (x) => ({
+    title: x?.reasoning_messages[reasoningMessageId]?.title,
+    secondary_title: x?.reasoning_messages[reasoningMessageId]?.secondary_title,
+    type: x?.reasoning_messages[reasoningMessageId]?.type,
+    status: x?.reasoning_messages[reasoningMessageId]?.status
+  }));
 
-  if (!reasoningMessageType) return null;
+  if (!title || !secondary_title || !type || !status) return null;
 
-  const ReasoningMessage = ReasoningMessageRecord[reasoningMessageType];
+  const ReasoningMessage = ReasoningMessageRecord[type];
+  const animationKey = reasoningMessageId + type;
 
   return (
-    <ReasoningMessage
-      key={reasoningMessageId + reasoningMessageType} //force in case the type changes
-      reasoningMessageId={reasoningMessageId}
+    <BarContainer
+      showBar={true}
+      status={status}
       isCompletedStream={isCompletedStream}
-      messageId={messageId}
-      chatId={chatId}
-    />
+      title={title}
+      secondaryTitle={secondary_title}>
+      <AnimatePresence mode="wait">
+        <motion.div key={animationKey} {...itemAnimationConfig} className="overflow-hidden" layout>
+          <ReasoningMessage
+            reasoningMessageId={reasoningMessageId}
+            isCompletedStream={isCompletedStream}
+            messageId={messageId}
+            chatId={chatId}
+          />
+        </motion.div>
+      </AnimatePresence>
+    </BarContainer>
   );
 };

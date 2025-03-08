@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { type BusterChartLegendItem } from './interfaces';
 import { ChartType } from '../interfaces';
 import { Target } from '../../icons';

@@ -1,4 +1,4 @@
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { timeout } from '@/lib';
 import { useBusterNotifications } from '../BusterNotifications';
 import { inviteUser as inviteUserRest } from '@/api/buster_rest';

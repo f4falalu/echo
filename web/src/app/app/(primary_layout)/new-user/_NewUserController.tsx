@@ -5,7 +5,7 @@ import { Title, Paragraph } from '@/components/ui/typography';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { inputHasText } from '@/lib/text';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes/busterRoutes';
 import { useBusterNotifications } from '@/context/BusterNotifications';

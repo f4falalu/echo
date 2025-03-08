@@ -1,9 +1,10 @@
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
-import { Button, Dropdown, MenuProps } from 'antd';
+import { Button } from '@/components/ui/buttons';
+import { Dropdown, DropdownItem } from '@/components/ui/dropdown';
 import React, { useMemo } from 'react';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useDatasetUpdatePermissionGroups } from '@/api/buster_rest';
-import { AppMaterialIcons } from '@/components/ui';
+import { CheckDouble, Xmark } from '@/components/ui/icons';
 import { PERMISSION_OPTIONS_ASSIGNED } from '@/components/features/PermissionComponents';
 
 export const PermissionGroupSelectedPopup: React.FC<{
@@ -51,25 +52,19 @@ const PermissionGroupAssignButton: React.FC<{
     }
   });
 
-  const menu: MenuProps = useMemo(() => {
-    return {
-      items: PERMISSION_OPTIONS_ASSIGNED.map((option) => ({
-        label: option.label,
-        key: option.value ? 'true' : 'false',
-        icon: option.value ? (
-          <AppMaterialIcons icon="done_all" />
-        ) : (
-          <AppMaterialIcons icon="remove_done" />
-        ),
-        onClick: () => {
-          onClickItem(option.value);
-        }
-      }))
-    };
+  const items: DropdownItem<'true' | 'false'>[] = useMemo(() => {
+    return PERMISSION_OPTIONS_ASSIGNED.map((option) => ({
+      label: option.label,
+      value: option.value ? 'true' : 'false',
+      icon: option.value ? <CheckDouble /> : <Xmark />,
+      onClick: () => {
+        onClickItem(option.value === 'true');
+      }
+    }));
   }, []);
 
   return (
-    <Dropdown menu={menu} trigger={['click']}>
+    <Dropdown items={items}>
       <Button loading={isPending}>Assign</Button>
     </Dropdown>
   );

@@ -1,8 +1,9 @@
 import React, { useLayoutEffect, useMemo, useRef } from 'react';
-import { Modal, Button, Divider, Input, InputRef } from 'antd';
-import { AppMaterialIcons, AppSegmented, asset_typeToIcon, Text } from '@/components/ui';
+import { Input } from '@/components/ui/inputs';
+import { AppSegmented } from '@/components/ui/segmented';
+import { Text } from '@/components/ui/typography';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';
-import { useMemoizedFn, useThrottleFn } from 'ahooks';
+import { useMemoizedFn, useThrottleFn } from '@/hooks';
 import { boldHighlights, formatDate } from '@/lib';
 import {
   type BusterDashboardResponse,
@@ -17,9 +18,10 @@ import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { type SegmentedItem } from '@/components/ui/segmented';
 import { BusterSearchRequest } from '@/api/buster_socket/search';
-import { busterAppStyleConfig } from '@/styles/busterAntDStyleConfig';
-
-const token = busterAppStyleConfig.token!;
+import { Speaker, Xmark } from '@/components/ui/icons';
+import { AppModal } from '@/components/ui/modal';
+import { Button } from '@/components/ui/buttons';
+import { Separator } from '@/components/ui/seperator';
 
 const filterOptions = [
   { label: 'All', value: 'all' },
@@ -48,8 +50,8 @@ export const AddTypeModal: React.FC<{
   const [loadedInitialSearchItems, setLoadedInitialSearchItems] = React.useState(false);
   const [selectedItemIds, setSelectedItemIds] = React.useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = React.useState(false);
-  const inputRef = useRef<InputRef>(null);
-  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const allSeenItems = useRef<Record<string, BusterSearchResult>>({});
 
   const mountedInitial = useRef(false);
@@ -76,9 +78,7 @@ export const AddTypeModal: React.FC<{
         dataIndex: 'name',
         render: (_, record: BusterSearchResult) => {
           const { name, type, highlights } = record;
-          const icon = asset_typeToIcon(type, {
-            size: 17
-          });
+          const icon = <Speaker />;
           const boldedText = boldHighlights(fallbackName(name, type), highlights);
 
           return (
@@ -237,25 +237,6 @@ export const AddTypeModal: React.FC<{
     onSearchInput.run(value.target.value);
   });
 
-  const memoizedModalStyle = useMemo(() => {
-    return {
-      footer: { borderTop: `0.5px solid ${token.colorBorder}` }
-    };
-  }, [token.colorBorder]);
-
-  const memoizedModalClassNames = useMemo(() => {
-    return {
-      body: 'p-0! mb-[-1px]',
-      footer: 'mt-0! px-3! py-3!'
-    };
-  }, []);
-
-  const memoizedCancelButtonProps = useMemo(() => {
-    return {
-      type: 'text' as 'text'
-    };
-  }, []);
-
   useLayoutEffect(() => {
     if (open) {
       setInputValue('');
@@ -275,26 +256,19 @@ export const AddTypeModal: React.FC<{
   }, [open]);
 
   return (
-    <Modal
+    <AppModal
       open={open}
-      closeIcon={type === 'collection' ? null : undefined}
-      onCancel={onClose}
       onClose={onClose}
       width={800}
-      footer={
-        <ModalFooter
-          type={type}
-          onOk={onModalOkay}
-          selectedItemIds={selectedItemIds}
-          submitting={submitting}
-          onCancel={onClose}
-          dashboardResponse={dashboardResponse}
-          collection={collection}
-        />
-      }
-      styles={memoizedModalStyle}
-      classNames={memoizedModalClassNames}
-      cancelButtonProps={memoizedCancelButtonProps}>
+      header={{
+        title: 'Add Metrics & Dashboards'
+      }}
+      footer={{
+        primaryButton: {
+          text: 'Apply',
+          onClick: onModalOkay
+        }
+      }}>
       <ModalContent
         type={type}
         dashboardResponse={dashboardResponse}
@@ -312,7 +286,17 @@ export const AddTypeModal: React.FC<{
         onSelectChange={onSelectChange}
         onClose={onClose}
       />
-    </Modal>
+
+      <ModalFooter
+        type={type}
+        onOk={onModalOkay}
+        selectedItemIds={selectedItemIds}
+        submitting={submitting}
+        onCancel={onClose}
+        dashboardResponse={dashboardResponse}
+        collection={collection}
+      />
+    </AppModal>
   );
 });
 
@@ -326,7 +310,7 @@ const ModalContent: React.FC<{
   onSetSelectedFilter: (value: string) => void;
   inputValue: string;
   onChangeSearchInput: (value: React.ChangeEvent<HTMLInputElement>) => void;
-  inputRef: React.RefObject<InputRef>;
+  inputRef: React.RefObject<HTMLInputElement>;
   scrollContainerRef: React.RefObject<HTMLDivElement>;
   rows: BusterListRow[];
   columns: BusterListColumn[];
@@ -354,6 +338,11 @@ const ModalContent: React.FC<{
       onSetSelectedFilter(value.value as string);
     });
 
+    const placeholder =
+      type === 'collection'
+        ? 'Search for existing metrics and dashboards...'
+        : 'Search for existing metrics...';
+
     return (
       <>
         {type === 'collection' && (
@@ -364,30 +353,25 @@ const ModalContent: React.FC<{
               onChange={onSetSelectedFiltersPreflight}
             />
 
-            <Button type="text" onClick={onClose} icon={<AppMaterialIcons icon="close" />} />
+            <Button variant="ghost" onClick={onClose} prefix={<Xmark />} />
           </div>
         )}
 
-        <Divider className="my-0!" />
+        <Separator className="my-0!" />
 
         <div className="flex h-[48px] items-center space-x-2">
           <Input
             ref={inputRef}
-            prefix={<AppMaterialIcons icon="search" size={22} />}
-            size="large"
+            size="tall"
             className=""
-            variant="borderless"
-            placeholder={
-              type === 'collection'
-                ? 'Search for existing metrics and dashboards...'
-                : 'Search for existing metrics...'
-            }
+            variant="ghost"
+            placeholder={placeholder}
             value={inputValue}
             onChange={onChangeSearchInput}
           />
         </div>
 
-        {<Divider />}
+        {<Separator />}
 
         <div
           className="max-h-[57vh] overflow-auto"
@@ -404,7 +388,7 @@ const ModalContent: React.FC<{
             emptyState={
               loadedInitialSearchItems ? (
                 <div className="flex h-[200px] min-h-[200px] items-center justify-center">
-                  <Text type="tertiary">No metrics or dashboards found</Text>
+                  <Text variant="tertiary">No metrics or dashboards found</Text>
                 </div>
               ) : (
                 <div className="min-h-[200px flex h-[200px] items-center justify-center">
@@ -452,13 +436,13 @@ const ModalFooter: React.FC<{
 
   return (
     <div className="flex w-full items-center justify-between">
-      <Text type="secondary">{copyText}</Text>
+      <Text variant="secondary">{copyText}</Text>
 
       <div className="flex space-x-2">
-        <Button type="text" onClick={onCancel}>
+        <Button variant="ghost" onClick={onCancel}>
           Cancel
         </Button>
-        <Button disabled={disabled} loading={submitting} type="primary" onClick={onOk}>
+        <Button disabled={disabled} loading={submitting} variant="primary" onClick={onOk}>
           Apply
         </Button>
       </div>

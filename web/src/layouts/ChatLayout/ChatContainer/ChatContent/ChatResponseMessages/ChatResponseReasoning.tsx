@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { ShimmerText } from '@/components/ui/typography/ShimmerText';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { motion } from 'framer-motion';
 import { AnimatePresence } from 'framer-motion';
 import { Text } from '@/components/ui/typography';
@@ -12,7 +12,8 @@ import { queryKeys } from '@/api/query_keys';
 const animations = {
   initial: { opacity: 0 },
   animate: { opacity: 1 },
-  exit: { opacity: 0 }
+  exit: { opacity: 0 },
+  transition: { delay: 0.125 }
 };
 
 export const ChatResponseReasoning: React.FC<{
@@ -51,9 +52,13 @@ export const ChatResponseReasoning: React.FC<{
 
   return (
     <AnimatePresence initial={!isCompletedStream} mode="wait">
-      <motion.div {...animations} key={text} className="mb-3.5 w-fit" onClick={onClickReasoning}>
+      <motion.div
+        {...animations}
+        key={text}
+        className="mb-3.5 w-fit cursor-pointer"
+        onClick={onClickReasoning}>
         {isReasonginFileSelected ? (
-          <Text className="cursor-pointer hover:underline">{text}</Text>
+          <Text className="hover:underline">{text}</Text>
         ) : (
           <ShimmerText text={text ?? ''} />
         )}

@@ -6,7 +6,7 @@ import { BusterResizeColumns } from './BusterResizeColumns';
 import { BusterNewItemDropzone } from './_BusterBusterNewItemDropzone';
 import { MIN_ROW_HEIGHT, TOP_SASH_ID, NEW_ROW_ID, MAX_ROW_HEIGHT } from './config';
 import clamp from 'lodash/clamp';
-import { useDebounceFn, useMemoizedFn, useUpdateLayoutEffect } from 'ahooks';
+import { useDebounceFn, useMemoizedFn, useUpdateLayoutEffect } from '@/hooks';
 import { useDroppable } from '@dnd-kit/core';
 import { cn } from '@/lib/classMerge';
 

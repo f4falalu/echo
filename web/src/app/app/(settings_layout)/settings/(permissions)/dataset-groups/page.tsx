@@ -5,9 +5,9 @@ import { PermissionSearch, NewDatasetGroupModal } from '@/components/features/Pe
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
 import { useListDatasetGroups } from '@/api/buster_rest';
 import { ListDatasetGroupsComponent } from './ListDatasetGroupsComponent';
-import { useMemoizedFn } from 'ahooks';
-import { Button } from 'antd';
-import { AppMaterialIcons } from '@/components/ui';
+import { useMemoizedFn } from '@/hooks';
+import { Button } from '@/components/ui/buttons';
+import { Plus } from '@/components/ui/icons';
 
 export default function Page() {
   const { data: datasetGroups, isFetched } = useListDatasetGroups();
@@ -38,18 +38,15 @@ export default function Page() {
           />
           <div className="flex justify-between space-x-3">
             <PermissionSearch searchText={searchText} setSearchText={handleSearchChange} />
-            <Button
-              onClick={onOpenNewDatasetGroupModal}
-              type="default"
-              icon={<AppMaterialIcons icon="add" />}>
+            <Button onClick={onOpenNewDatasetGroupModal} variant="default" prefix={<Plus />}>
               New dataset group
             </Button>
           </div>
         </div>
-
         <div className="">
           <ListDatasetGroupsComponent datasetGroups={filteredItems} isFetched={isFetched} />
         </div>
+        z
       </div>
 
       <NewDatasetGroupModal

@@ -1,16 +1,15 @@
-import { createStyles } from 'antd-style';
 import React, { useMemo } from 'react';
 import { MetricViewChartContent } from './MetricViewChartContent';
 import { MetricViewChartHeader } from './MetricViewChartHeader';
 import { useMetricIndividual, useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { inputHasText } from '@/lib/text';
 import { MetricChartEvaluation } from './MetricChartEvaluation';
 import { ChartType } from '@/components/ui/charts/interfaces/enum';
 import { AnimatePresence, motion } from 'framer-motion';
+import { cn } from '@/lib/classMerge';
 
 export const MetricViewChart: React.FC<{ metricId: string }> = React.memo(({ metricId }) => {
-  const { styles, cx } = useStyles();
   const onUpdateMetric = useBusterMetricsIndividualContextSelector((x) => x.onUpdateMetric);
   const { metric, metricData, metricDataError, isFetchedMetricData } = useMetricIndividual({
     metricId
@@ -31,12 +30,7 @@ export const MetricViewChart: React.FC<{ metricId: string }> = React.memo(({ met
   });
 
   return (
-    <div
-      className={cx(
-        styles.container,
-        'm-5 flex h-full flex-col justify-between space-y-3.5',
-        'overflow-hidden'
-      )}>
+    <div className={cn('m-5 flex h-full flex-col justify-between space-y-3.5', 'overflow-hidden')}>
       <MetricViewChartCard loadingData={loadingData} errorData={errorData} isTable={isTable}>
         <MetricViewChartHeader
           className="px-4"
@@ -45,7 +39,7 @@ export const MetricViewChart: React.FC<{ metricId: string }> = React.memo(({ met
           timeFrame={time_frame}
           onSetTitle={onSetTitle}
         />
-        <div className={cx(styles.divider)} />
+        <div className={'border-border border-b'} />
         <MetricViewChartContent
           chartConfig={metric.chart_config}
           metricData={metricData?.data || []}
@@ -73,15 +67,17 @@ const MetricViewChartCard: React.FC<{
   errorData: boolean;
   isTable: boolean;
 }> = ({ children, loadingData, errorData, isTable }) => {
-  const { styles, cx } = useStyles();
-
   const cardClass = useMemo(() => {
     if (loadingData || errorData) return 'h-full max-h-[600px]';
     if (isTable) return '';
     return 'h-full max-h-[600px]';
   }, [isTable, loadingData, errorData]);
 
-  return <div className={cx(styles.chartCard, cardClass, 'flex flex-col')}>{children}</div>;
+  return (
+    <div className={cn(cardClass, 'bg-background flex flex-col overflow-hidden rounded border')}>
+      {children}
+    </div>
+  );
 };
 
 const animation = {
@@ -101,16 +97,3 @@ const AnimatePresenceWrapper: React.FC<{
     </AnimatePresence>
   );
 };
-
-const useStyles = createStyles(({ css, token }) => ({
-  container: css``,
-  chartCard: css`
-    border-radius: ${token.borderRadiusLG}px;
-    border: 0.5px solid ${token.colorBorder};
-    background-color: ${token.colorBgContainer};
-    overflow: hidden;
-  `,
-  divider: css`
-    border-bottom: 0.5px solid ${token.colorBorder};
-  `
-}));

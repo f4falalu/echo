@@ -1,7 +1,7 @@
 import React from 'react';
-import { Input } from 'antd';
-import { AppMaterialIcons } from '@/components/ui';
-import { useMemoizedFn } from 'ahooks';
+import { Input } from '@/components/ui/inputs';
+import { Magnifier } from '@/components/ui/icons';
+import { useMemoizedFn } from '@/hooks';
 
 export const PermissionSearch: React.FC<{
   className?: string;
@@ -20,8 +20,6 @@ export const PermissionSearch: React.FC<{
         placeholder={placeholder}
         value={searchText}
         onChange={onChange}
-        allowClear
-        prefix={<AppMaterialIcons icon={'search'} />}
       />
     </div>
   );

@@ -1,4 +1,4 @@
-import { BusterDataset, BusterDatasetListItem } from '@/api/asset_interfaces';
+import { BusterDataset, BusterDatasetListItem } from '@/api/asset_interfaces/datasets';
 
 export enum DatasetResponses {
   '/datasets/list:listDatasetsAdmin' = '/datasets/list:listDatasetsAdmin',

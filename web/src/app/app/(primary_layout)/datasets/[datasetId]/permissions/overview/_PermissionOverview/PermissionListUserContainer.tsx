@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useMemo, useState } from 'react';
 import type { DatasetPermissionOverviewUser } from '@/api/asset_interfaces';
 import {
@@ -6,7 +8,7 @@ import {
   EmptyStateList,
   InfiniteListContainer
 } from '@/components/ui/list';
-import { BusterInfiniteList } from '@/components/ui/list';
+import { BusterInfiniteList } from '@/components/ui/list/BusterInfiniteList';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { PermissionLineageBreadcrumb } from '@/components/features/PermissionComponents';
 import { ListUserItem } from '@/components/features/list';

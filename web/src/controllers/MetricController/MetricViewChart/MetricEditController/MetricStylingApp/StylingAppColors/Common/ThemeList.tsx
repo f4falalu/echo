@@ -1,8 +1,8 @@
 import React from 'react';
 import { IColorTheme } from './interfaces';
-import { Text } from '@/components/ui';
-import { createStyles } from 'antd-style';
+import { Text } from '@/components/ui/typography';
 import { ThemeColorDots } from './ThemeColorDots';
+import { cn } from '@/lib/classMerge';
 
 export const ThemeList: React.FC<{
   themes: {
@@ -12,10 +12,12 @@ export const ThemeList: React.FC<{
   }[];
   onChangeColorTheme: (theme: IColorTheme) => void;
 }> = ({ themes, onChangeColorTheme }) => {
-  const { styles, cx } = useStyles();
-
   return (
-    <div className={cx(styles.container, 'flex w-full flex-col space-y-0 overflow-y-auto')}>
+    <div
+      className={cn(
+        'bg-item-active rounded-sm border px-1',
+        'flex w-full flex-col space-y-0 overflow-y-auto'
+      )}>
       {themes.map((theme) => (
         <ColorOption
           key={theme.name}
@@ -33,15 +35,16 @@ const ColorOption: React.FC<{
   selected: boolean;
   onChangeColorTheme: (theme: IColorTheme) => void;
 }> = React.memo(({ theme, selected, onChangeColorTheme }) => {
-  const { styles, cx } = useStyles();
   const { name, colors } = theme;
 
   return (
     <div
       onClick={() => onChangeColorTheme(theme)}
-      className={cx(
-        styles.itemContainer,
-        selected && 'selected',
+      className={cn(
+        'bg-item-active rounded-sm border p-1',
+        'cursor-pointer px-1.5 py-3',
+        'bg-item-hover hover:shadow-[inset_0_0_0_0.5px]',
+        selected && 'bg-item-active hover:bg-item-active border shadow-[inset_0_0_0_0.5px]',
         'flex w-full items-center justify-between'
       )}>
       <div className="flex items-center space-x-2">
@@ -53,39 +56,3 @@ const ColorOption: React.FC<{
   );
 });
 ColorOption.displayName = 'ColorOption';
-
-const useStyles = createStyles(({ css, token }) => ({
-  container: css`
-    padding: 4px;
-    border: 0.5px solid ${token.colorBorder};
-    border-radius: 4px;
-    background-color: ${token.controlItemBgActive};
-  `,
-  itemContainer: css`
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-
-    &.selected {
-      box-shadow: inset 0 0 0 0.5px ${token.colorBorder};
-      background-color: ${token.colorBgContainer};
-
-      .ball {
-        box-shadow: 0 0 0 0.75px ${token.colorBgContainer};
-      }
-
-      &:hover {
-        background-color: ${token.colorBgContainer};
-      }
-    }
-
-    &:hover {
-      background-color: ${token.controlItemBgHover};
-      box-shadow: inset 0 0 0 0.5px ${token.colorBorder};
-
-      .ball {
-        box-shadow: 0 0 0 0.75px ${token.controlItemBgHover};
-      }
-    }
-  `
-}));

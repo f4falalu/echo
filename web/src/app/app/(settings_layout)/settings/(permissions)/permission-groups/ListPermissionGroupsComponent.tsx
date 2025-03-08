@@ -1,10 +1,10 @@
 import {
-  BusterInfiniteList,
   BusterListColumn,
   BusterListRowItem,
   EmptyStateList,
   InfiniteListContainer
 } from '@/components/ui/list';
+import { BusterInfiniteList } from '@/components/ui/list/BusterInfiniteList';
 import React, { useMemo } from 'react';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import type { ListPermissionGroupsResponse } from '@/api/asset_interfaces';

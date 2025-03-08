@@ -1,3 +1,5 @@
+'use client';
+
 import type {
   BusterChartProps,
   ChartEncodes,
@@ -6,17 +8,14 @@ import type {
 import { DeepPartial } from 'utility-types';
 import type { TooltipOptions } from 'chart.js';
 import { useEffect, useMemo, useRef } from 'react';
-import { useMemoizedFn, useUnmount } from 'ahooks';
+import { useMemoizedFn, useUnmount } from '@/hooks';
 import { ChartJSOrUndefined } from '../../../core/types';
 
 import { renderToString } from 'react-dom/server';
 import { BusterChartJSTooltip } from './BusterChartJSTooltip';
-import { busterAppStyleConfig } from '@/styles';
 import { DatasetOption, extractFieldsFromChain } from '@/components/ui/charts/chartHooks';
 import React from 'react';
 import { isNumericColumnType } from '@/lib';
-
-const token = busterAppStyleConfig.token!;
 
 type TooltipContext = Parameters<TooltipOptions['external']>[0];
 
@@ -194,7 +193,7 @@ const getOrCreateInitialTooltipContainer = (chart: ChartJSOrUndefined) => {
 
     tooltipEl.innerHTML = `
       <div class="tooltip-caret" ></div>
-      <div class="tooltip-content bg-background" style="position: relative; z-index: 2; border: 0.5px solid ${token.colorBorder}; border-radius: 4px"></div>
+      <div class="tooltip-content bg-background" style="position: relative; z-index: 2; border: 0.5px solid var(--color-border); border-radius: 4px"></div>
     `;
 
     const caretEl = tooltipEl.querySelector('.tooltip-caret')! as HTMLDivElement;
@@ -203,7 +202,7 @@ const getOrCreateInitialTooltipContainer = (chart: ChartJSOrUndefined) => {
     caretEl.style.height = '8px';
     caretEl.style.transform = 'rotate(45deg)';
     caretEl.style.backgroundColor = 'inherit';
-    caretEl.style.border = `0.5px solid ${token.colorBorder}`;
+    caretEl.style.border = `0.5px solid var(--color-border)`;
     caretEl.style.borderRadius = '1px';
     caretEl.style.zIndex = '1';
     caretEl.style.display = isPieChart ? 'none' : '';
@@ -259,7 +258,7 @@ const externalTooltip = (
   let left = chartRect.left + tooltip.caretX + tooltipOffset;
   let top = chartRect.top + tooltip.caretY - tooltipEl.offsetHeight / 2;
   let caretLeft = '-0px';
-  let caretTop = '50%';
+  const caretTop = '50%';
   let caretBorder = 'border-left-0 border-top-0';
 
   const chartRight = chartRect.right;

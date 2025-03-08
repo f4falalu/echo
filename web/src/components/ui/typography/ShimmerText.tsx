@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/classMerge';
 import { motion } from 'framer-motion';
 import React, { useMemo } from 'react';
 
@@ -8,6 +9,7 @@ interface ShimmerText2Props {
   colors?: string[];
   duration?: number;
   fontSize?: number;
+  className?: string;
 }
 
 const animate = {
@@ -19,7 +21,8 @@ export const ShimmerText: React.FC<ShimmerText2Props> = React.memo(
     text,
     colors = ['var(--color-foreground)', 'var(--color-text-tertiary)'],
     duration = 1.5,
-    fontSize = 13
+    fontSize = 13,
+    className = ''
   }) => {
     if (colors.length < 2) {
       throw new Error('ShimmerText requires at least 2 colors');
@@ -51,7 +54,7 @@ export const ShimmerText: React.FC<ShimmerText2Props> = React.memo(
     return (
       <>
         <motion.div
-          className="shimmer-text"
+          className={cn('shimmer-text leading-1.3', className)}
           style={memoizedStyle}
           animate={animate}
           transition={memoizedTransition}>

@@ -1,11 +1,12 @@
 'use client';
 
 import { queryOptions } from '@tanstack/react-query';
-import type { BusterMetricListItem } from '@/api/asset_interfaces';
+import type {
+  BusterMetricData,
+  BusterMetricListItem,
+  IBusterMetric
+} from '@/api/asset_interfaces/metric';
 import type { MetricListRequest } from '@/api/request_interfaces/metrics';
-import type { BusterMetricData } from '@/context/MetricData';
-import type { IBusterMetric } from '@/context/Metrics';
-import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 
 export const metricsGetMetric = (metricId: string) => {
   return queryOptions<IBusterMetric>({
@@ -16,15 +17,15 @@ export const metricsGetMetric = (metricId: string) => {
 };
 
 export const useMetricsGetMetric = (metricId: string) => {
-  const setAssetPasswordError = useBusterAssetsContextSelector(
-    (state) => state.setAssetPasswordError
-  );
+  // const setAssetPasswordError = useBusterAssetsContextSelector(
+  //   (state) => state.setAssetPasswordError
+  // );
   return queryOptions<IBusterMetric>({
-    ...metricsGetMetric(metricId),
-    throwOnError: (error, query) => {
-      setAssetPasswordError(metricId, error.message || 'An error occurred');
-      return false;
-    }
+    ...metricsGetMetric(metricId)
+    // throwOnError: (error, query) => {
+    //   setAssetPasswordError(metricId, error.message || 'An error occurred');
+    //   return false;
+    // }
   });
 };
 

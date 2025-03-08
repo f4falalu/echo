@@ -3,11 +3,16 @@ import React, { useState } from 'react';
 import { LabelAndInput } from '../Common';
 import { CollapseDelete } from '../Common/CollapseDelete';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Button, ColorPicker, Divider, Input, InputNumber, Switch } from 'antd';
-import { AppMaterialIcons } from '@/components/ui';
+import { Button } from '@/components/ui/buttons';
+import { ColorPicker } from '@/components/ui/color-picker';
+import { Separator } from '@/components/ui/seperator';
+import { Input } from '@/components/ui/inputs';
+import { InputNumber } from '@/components/ui/inputs';
+import { Switch } from '@/components/ui/switch';
+import { Plus } from '@/components/ui/icons';
 import { ChartEncodes, GoalLine } from '@/components/ui/charts';
 import { v4 as uuidv4 } from 'uuid';
-import { useMemoizedFn, useSet } from 'ahooks';
+import { useMemoizedFn, useSet } from '@/hooks';
 import { ColumnMetaData } from '@/api/asset_interfaces';
 
 interface LoopGoalLine extends GoalLine {
@@ -83,7 +88,7 @@ export const EditGoalLine: React.FC<{
       <div className="flex flex-col space-y-2.5">
         <LabelAndInput label="Goal line">
           <div className="flex items-center justify-end">
-            <Button onClick={onAddGoalLine} type="text" icon={<AppMaterialIcons icon="add" />}>
+            <Button onClick={onAddGoalLine} variant="ghost" prefix={<Plus />}>
               Add goal line
             </Button>
           </div>
@@ -162,7 +167,7 @@ const GoalLineItemContent: React.FC<{
           <div className="flex w-full justify-end">
             <Switch
               defaultChecked={show}
-              onChange={(checked) => onUpdateExisitingGoalLine({ ...goal, show: checked })}
+              onCheckedChange={(checked) => onUpdateExisitingGoalLine({ ...goal, show: checked })}
             />
           </div>
         </LabelAndInput>
@@ -182,27 +187,23 @@ const GoalLineItemContent: React.FC<{
             <ColorPicker
               size="small"
               value={goalLineColor}
-              defaultValue={'#000000'}
               onChangeComplete={(color) => {
-                const hexColor = color.toHexString();
+                const hexColor = color;
                 onUpdateExisitingGoalLine({ ...goal, goalLineColor: hexColor });
-              }}
-              onClear={() => {
-                onUpdateExisitingGoalLine({ ...goal, goalLineColor: null });
               }}
             />
           </div>
         </LabelAndInput>
       </div>
 
-      <Divider />
+      <Separator />
 
       <div className="flex flex-col space-y-2.5 p-2.5">
         <LabelAndInput label="Show line label">
           <div className="flex w-full justify-end">
             <Switch
               defaultChecked={showGoalLineLabel}
-              onChange={(checked) =>
+              onCheckedChange={(checked) =>
                 onUpdateExisitingGoalLine({ ...goal, showGoalLineLabel: checked })
               }
             />

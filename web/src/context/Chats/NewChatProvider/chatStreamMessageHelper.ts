@@ -1,5 +1,5 @@
 import { create } from 'mutative';
-import type { IBusterChat, IBusterChatMessage } from '../interfaces';
+import type { IBusterChat, IBusterChatMessage } from '@/api/asset_interfaces/chat';
 import type {
   ChatEvent_GeneratingTitle,
   ChatEvent_GeneratingResponseMessage,
@@ -187,7 +187,7 @@ export const updateReasoningMessage = (
 
                 // Handle file text specifically
                 if (newFile.file) {
-                  fileDraft.file = create(fileDraft.file || {}, (fileContentDraft) => {
+                  fileDraft.file = create(fileDraft.file, (fileContentDraft) => {
                     Object.assign(fileContentDraft, existingFile?.file || {});
                     fileContentDraft.text = newFile.file.text_chunk
                       ? (existingFile?.file?.text || '') + newFile.file.text_chunk

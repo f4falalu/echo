@@ -1,4 +1,4 @@
-import { getNow, formatDate } from '@/lib';
+import { formatDate } from '@/lib';
 
 export const getDefaultDateOptions = (now: Date) => {
   return [

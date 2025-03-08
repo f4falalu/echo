@@ -1,1 +1,1 @@
-export * from './AppSwitch';
+export * from './Switch';

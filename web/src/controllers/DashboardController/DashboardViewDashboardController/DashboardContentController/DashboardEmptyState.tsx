@@ -1,5 +1,5 @@
-import { AppMaterialIcons } from '@/components/ui';
-import { Button } from 'antd';
+import { Button } from '@/components/ui/buttons';
+import { Plus } from '@/components/ui/icons';
 import React from 'react';
 
 export const DashboardEmptyState: React.FC<{
@@ -7,7 +7,7 @@ export const DashboardEmptyState: React.FC<{
 }> = React.memo(({ onOpenAddContentModal }) => {
   return (
     <div className="-ml-1.5">
-      <Button type="text" icon={<AppMaterialIcons icon="add" />} onClick={onOpenAddContentModal}>
+      <Button variant="ghost" prefix={<Plus />} onClick={onOpenAddContentModal}>
         Add content
       </Button>
     </div>

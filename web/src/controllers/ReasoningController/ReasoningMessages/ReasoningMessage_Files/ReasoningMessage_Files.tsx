@@ -13,49 +13,26 @@ const getReasoningMessage = (x: BusterChatMessage | undefined, reasoningMessageI
 
 export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.memo(
   ({ isCompletedStream, chatId, reasoningMessageId, messageId }) => {
-    const status = useMessageIndividual(
-      messageId,
-      (x) => getReasoningMessage(x, reasoningMessageId)?.status
-    );
-
     const file_ids = useMessageIndividual(
       messageId,
       (x) => getReasoningMessage(x, reasoningMessageId)?.file_ids
     );
 
-    const title = useMessageIndividual(
-      messageId,
-      (x) => getReasoningMessage(x, reasoningMessageId)?.title
-    );
-
-    const secondary_title = useMessageIndividual(
-      messageId,
-      (x) => getReasoningMessage(x, reasoningMessageId)?.secondary_title
-    );
-
-    if (!title) return null;
+    if (!file_ids || file_ids.length === 0) return null;
 
     return (
-      <BarContainer
-        showBar={true}
-        status={status}
-        isCompletedStream={isCompletedStream}
-        title={title}
-        secondaryTitle={secondary_title}
-        contentClassName="mb-2">
-        <div className="flex flex-col gap-3">
-          {file_ids.map((fileId) => (
-            <ReasoningMessage_File
-              key={fileId}
-              fileId={fileId}
-              chatId={chatId}
-              messageId={messageId}
-              reasoningMessageId={reasoningMessageId}
-              isCompletedStream={isCompletedStream}
-            />
-          ))}
-        </div>
-      </BarContainer>
+      <div className="flex flex-col gap-3">
+        {file_ids.map((fileId) => (
+          <ReasoningMessage_File
+            key={fileId}
+            fileId={fileId}
+            chatId={chatId}
+            messageId={messageId}
+            reasoningMessageId={reasoningMessageId}
+            isCompletedStream={isCompletedStream}
+          />
+        ))}
+      </div>
     );
   }
 );

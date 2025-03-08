@@ -3,7 +3,7 @@ import { SelectAxisContainerId } from '../config';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { EditShowTooltip } from './EditShowTooltip';
 import { useSelectAxisContextSelector } from '../useSelectAxisContext';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 export const TooltipAxisSettingContent: React.FC<{
   zoneId: SelectAxisContainerId;

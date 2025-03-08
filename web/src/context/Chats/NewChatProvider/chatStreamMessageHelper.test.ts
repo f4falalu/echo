@@ -4,7 +4,7 @@ import {
   updateResponseMessage,
   updateReasoningMessage
 } from './chatStreamMessageHelper';
-import type { IBusterChatMessage, IBusterChat } from '../interfaces';
+import type { IBusterChatMessage, IBusterChat } from '@/api/asset_interfaces/chat';
 import type { ChatEvent_GeneratingResponseMessage } from '@/api/buster_socket/chats';
 import type {
   BusterChatResponseMessage_file,
@@ -559,7 +559,7 @@ describe('updateReasoningMessage', () => {
       (result.reasoning_messages['reasoning-1'] as BusterChatMessageReasoning_text).message
     ).toBe('Hello, how are you doing today?');
 
-    let reasoning2: BusterChatMessageReasoning_text = {
+    const reasoning2: BusterChatMessageReasoning_text = {
       ...reasoning,
       message_chunk: 'new reasoning message baby',
       id: 'reasoning-2'

@@ -1,5 +1,5 @@
 import { Avatar } from '@/components/ui/avatar';
-import { createStyles } from 'antd-style';
+import { cn } from '@/lib/classMerge';
 import React from 'react';
 
 export const MessageContainer: React.FC<{
@@ -9,19 +9,16 @@ export const MessageContainer: React.FC<{
   senderAvatar?: string | null;
   className?: string;
 }> = React.memo(({ children, senderName, senderId, senderAvatar, className = '' }) => {
-  const { cx } = useStyles();
   return (
-    <div className={cx('flex w-full space-x-2 overflow-hidden')}>
+    <div className={'flex w-full space-x-2 overflow-hidden'}>
       {senderName ? (
         <Avatar size={24} name={senderName} image={senderAvatar || ''} useToolTip={true} />
       ) : (
         <Avatar size={24} />
       )}
-      <div className={cx(className, 'px-1')}>{children}</div>
+      <div className={cn('mt-1 px-1', className)}>{children}</div>
     </div>
   );
 });
 
 MessageContainer.displayName = 'MessageContainer';
-
-const useStyles = createStyles(({ token, css }) => ({}));

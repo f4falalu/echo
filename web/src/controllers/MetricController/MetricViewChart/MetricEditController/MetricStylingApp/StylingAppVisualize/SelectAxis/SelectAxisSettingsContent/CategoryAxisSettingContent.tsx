@@ -1,7 +1,7 @@
 import React from 'react';
 import { EditGrouping } from './EditGrouping';
 import { useSelectAxisContextSelector } from '../useSelectAxisContext';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { EditAxisTitle } from './EditShowAxisTitle';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';

@@ -1,12 +1,9 @@
 import React, { useMemo } from 'react';
 import type { IColumnLabelFormat } from '@/components/ui/charts/interfaces/columnLabelInterfaces';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
-import { Select } from 'antd';
+import { Select, SelectItem } from '@/components/ui/select';
 
-const options: {
-  label: string;
-  value: string;
-}[] = [
+const options: SelectItem[] = [
   {
     label: '100,000',
     value: ','
@@ -32,7 +29,7 @@ export const EditSeparator: React.FC<{
   return (
     <LabelAndInput label="Separator">
       <Select
-        options={options}
+        items={options}
         value={selectedSeparator}
         onChange={(value: string) =>
           onUpdateColumnConfig({ numberSeparatorStyle: value === '✂' ? null : (value as ',') })

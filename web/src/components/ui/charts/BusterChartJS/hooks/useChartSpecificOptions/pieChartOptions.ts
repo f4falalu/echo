@@ -6,7 +6,6 @@ import type { PluginChartOptions } from 'chart.js';
 import { AnnotationPluginOptions } from 'chartjs-plugin-annotation';
 import { ArrayOperations } from '@/lib/math';
 import { formatLabel } from '@/lib/columnFormatter';
-import { busterAppStyleConfig } from '@/styles/busterAntDStyleConfig';
 import { getPieInnerLabelTitle } from '../../../commonHelpers';
 import { ChartJSOrUndefined } from '../../core/types';
 import {
@@ -16,7 +15,6 @@ import {
 } from '@/components/ui/charts/interfaces';
 import { determineFontColorContrast } from '@/lib/colors';
 import { Context } from 'chartjs-plugin-datalabels';
-const token = busterAppStyleConfig.token!;
 
 type PieOptions = ChartProps<'pie'>['options'] | ChartProps<'doughnut'>['options'];
 
@@ -64,7 +62,7 @@ export const piePluginsHandler = ({
             ];
           },
           font: [{ size: 14 }, { size: 22 }],
-          color: [token.colorTextTertiary!, token.colorTextBase!]
+          color: ['var(--color-text-tertiary)', 'var(--color-text-default)']
         }
       }
     };

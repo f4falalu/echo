@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Button, Divider } from 'antd';
+import { Button } from '@/components/ui/buttons';
+import { Separator } from '@/components/ui/seperator';
 import { PreventNavigation } from '@/components/ui/layouts/PreventNavigation';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { DatasetsHeaderOptions } from './DatasetHeaderOptions';
 import { DatasetBreadcrumb } from './DatasetBreadcrumb';
@@ -53,14 +54,17 @@ export const DatasetsIndividualHeader: React.FC<{}> = React.memo(({}) => {
           <div className="flex items-center">
             <DatasetIndividualThreeDotMenu datasetId={datasetId} />
 
-            <Divider type="vertical" className="h-4!" />
+            <Separator orientation="vertical" className="h-4!" />
 
             <div className="flex items-center space-x-2">
-              <Button type="text" onClick={onReset} disabled={!isChangedSQL || isDeployingDataset}>
+              <Button
+                variant="ghost"
+                onClick={onReset}
+                disabled={!isChangedSQL || isDeployingDataset}>
                 Reset
               </Button>
               <Button
-                type="primary"
+                variant="primary"
                 disabled={disablePublish}
                 onClick={onPublishDataset}
                 loading={isDeployingDataset}>

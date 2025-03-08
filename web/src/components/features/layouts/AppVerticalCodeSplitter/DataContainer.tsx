@@ -1,22 +1,26 @@
 import type { IDataResult } from '@/api/asset_interfaces';
-import { createStyles } from 'antd-style';
 import React from 'react';
 import isEmpty from 'lodash/isEmpty';
 import { AppDataGrid } from '@/components/ui/table/AppDataGrid';
 import { IndeterminateLinearLoader } from '@/components/ui/loaders/IndeterminateLinearLoader';
+import { cn } from '@/lib/classMerge';
 
 export const DataContainer: React.FC<{
   data: IDataResult;
   fetchingData: boolean;
   className?: string;
 }> = React.memo(({ data, fetchingData, className }) => {
-  const { styles, cx } = useStyles();
   const hasData = data && !isEmpty(data);
 
   return (
-    <div className={cx(styles.container, 'relative h-full w-full overflow-hidden', className)}>
+    <div
+      className={cn(
+        'bg-background rounded border',
+        'relative h-full w-full overflow-hidden',
+        className
+      )}>
       <IndeterminateLinearLoader
-        className={cx(
+        className={cn(
           'absolute top-0 left-0 z-10 w-full',
           fetchingData && hasData ? 'block' : 'hidden!'
         )}
@@ -34,11 +38,3 @@ export const DataContainer: React.FC<{
 });
 
 DataContainer.displayName = 'DataContainer';
-
-const useStyles = createStyles(({ css, token }) => ({
-  container: css`
-    background: ${token.colorBgBase};
-    border-radius: ${token.borderRadius}px;
-    border: 0.5px solid ${token.colorBorder};
-  `
-}));

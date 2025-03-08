@@ -5,7 +5,7 @@ import {
   ChartType,
   IColumnLabelFormat
 } from '@/components/ui/charts/interfaces';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import type { DeepPartial } from 'utility-types';
 import type { ScaleChartOptions, Scale, GridLineOptions } from 'chart.js';
 import { useMemo } from 'react';

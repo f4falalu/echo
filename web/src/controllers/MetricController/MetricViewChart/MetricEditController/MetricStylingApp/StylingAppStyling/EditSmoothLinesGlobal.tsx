@@ -1,8 +1,8 @@
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../Common';
-import { Switch } from 'antd';
-import { useMemoizedFn } from 'ahooks';
+import { Switch } from '@/components/ui/switch';
+import { useMemoizedFn } from '@/hooks';
 
 export const EditSmoothLinesGlobal: React.FC<{
   columnSettings: IBusterMetricChartConfig['columnSettings'];
@@ -26,7 +26,7 @@ export const EditSmoothLinesGlobal: React.FC<{
   return (
     <LabelAndInput label="Smooth lines">
       <div className="flex w-full justify-end">
-        <Switch defaultChecked={allSmooth} onChange={onChangeAllSmooth} />
+        <Switch defaultChecked={allSmooth} onCheckedChange={onChangeAllSmooth} />
       </div>
     </LabelAndInput>
   );

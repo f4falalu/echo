@@ -9,7 +9,7 @@ export const formatChartLabelDelimiter = (
   text: string,
   columnLabelFormats: Record<string, ColumnLabelFormat>
 ): string => {
-  let fields = extractFieldsFromChain(text);
+  const fields = extractFieldsFromChain(text);
 
   if (!fields || fields.length === 0) {
     return ''; //I used to return text? Maybe I should?

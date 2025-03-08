@@ -3,7 +3,7 @@ import type {
   BusterUserListItem,
   BusterUserPalette,
   BusterUserResponse
-} from '@/api/asset_interfaces';
+} from '@/api/asset_interfaces/users';
 
 export enum UserResponses {
   '/users/favorites/list:listFavorites' = '/users/favorites/list:listFavorites',

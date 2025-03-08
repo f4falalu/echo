@@ -1,4 +1,3 @@
-import { useMemoizedFn } from 'ahooks';
 import { useSocketQueryMutation } from '@/api/buster_socket_query';
 import { queryKeys } from '@/api/query_keys';
 import { useQueryClient } from '@tanstack/react-query';

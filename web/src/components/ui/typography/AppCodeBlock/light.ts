@@ -1,8 +1,11 @@
-import { busterAppStyleConfig } from '@/styles/busterAntDStyleConfig';
 import React from 'react';
 
-const token = busterAppStyleConfig.token!;
 const magneta5 = '#08979c';
+const token = {
+  colorTextTertiary: 'var(--color-text-tertiary)',
+  colorPrimary: 'var(--color-primary)',
+  green3: '#08979c'
+};
 
 export default {
   'code[class*="language-"]': {

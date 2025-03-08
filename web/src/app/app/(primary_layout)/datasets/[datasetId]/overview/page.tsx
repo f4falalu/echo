@@ -4,7 +4,7 @@ import React from 'react';
 import { useDatasetPageContextSelector } from '../_DatasetsLayout/DatasetPageContext';
 import { OverviewHeader } from './OverviewHeader';
 import { OverviewData } from './OverviewData';
-import { Divider } from 'antd';
+import { Separator } from '@/components/ui/seperator';
 
 export default function Page() {
   const datasetRes = useDatasetPageContextSelector((state) => state.dataset);
@@ -30,7 +30,7 @@ export default function Page() {
               name={dataset.name}
             />
 
-            <Divider />
+            <Separator />
 
             <OverviewData
               datasetId={dataset.id}

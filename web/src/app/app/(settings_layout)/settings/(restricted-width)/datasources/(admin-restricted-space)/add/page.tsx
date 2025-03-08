@@ -5,13 +5,12 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 import { HeaderContainer } from '../../_HeaderContainer';
 import { useState } from 'react';
 import { DatabaseNames, DataSourceTypes, SUPPORTED_DATASOURCES } from '@/api/asset_interfaces';
-
-import { AppDataSourceIcon } from '@/components/ui';
-import { useAntToken } from '@/styles/useAntToken';
-import { createStyles } from 'antd-style';
 import { DataSourceFormContent } from '../[datasourceId]/_DatasourceFormContent';
 import { Title, Text } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { Plus } from '@/components/ui/icons';
+import { cn } from '@/lib/classMerge';
+import { AppDataSourceIcon } from '@/components/ui/icons/AppDataSourceIcons';
 
 export default function Page() {
   const [selectedDataSource, setSelectedDataSource] = useState<DataSourceTypes | null>(null);
@@ -60,21 +59,9 @@ const ConnectHeader: React.FC<{}> = ({}) => {
   );
 };
 
-const useStyles = createStyles(({ css, token }) => ({
-  item: css`
-    background: ${token.colorBgBase};
-    &:hover {
-      background: ${token.controlItemBgHover};
-    }
-  `
-}));
-
 const DataSourceList: React.FC<{
   onSelect: (dataSource: DataSourceTypes) => void;
 }> = ({ onSelect }) => {
-  const token = useAntToken();
-  const { styles, cx } = useStyles();
-
   return (
     <div className="grid grid-cols-3 gap-4">
       {Object.values(DataSourceTypes).map((dataSource) => {
@@ -83,15 +70,11 @@ const DataSourceList: React.FC<{
           <div
             onClick={() => onSelect(dataSource)}
             key={dataSource}
-            className={cx(
+            className={cn(
               'flex cursor-pointer items-center space-x-4 px-4 py-3 transition',
-              styles.item
-            )}
-            style={{
-              maxHeight: 48,
-              borderRadius: token.borderRadius,
-              border: `0.5px solid ${token.colorBorder}`
-            }}>
+              'bg-background hover:bg-item-hover',
+              'border-border max-h-[48px] rounded border'
+            )}>
             <AppDataSourceIcon size={28} type={dataSource} />
             <Text>{name}</Text>
           </div>

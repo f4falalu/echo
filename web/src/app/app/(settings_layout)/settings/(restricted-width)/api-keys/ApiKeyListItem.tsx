@@ -1,10 +1,11 @@
 import React, { useMemo } from 'react';
-import { Button } from 'antd';
+import { Button } from '@/components/ui/buttons';
 import type { BusterApiKeyListItem } from '@/api/asset_interfaces';
-import { AppMaterialIcons } from '@/components/ui';
+
 import { formatDate } from '@/lib/date';
-import { Text } from '@/components/ui';
-import { useMemoizedFn } from 'ahooks';
+import { Text } from '@/components/ui/typography';
+import { useMemoizedFn } from '@/hooks';
+import { Trash } from '@/components/ui/icons';
 
 interface ApiKeyListItemProps {
   apiKey: BusterApiKeyListItem;
@@ -26,12 +27,12 @@ export const ApiKeyListItem: React.FC<ApiKeyListItemProps> = ({ apiKey, onDelete
       <div className="flex flex-col">
         <Text>{apiKey.owner_email}</Text>
         <div className="flex items-center gap-1">
-          <Text type="secondary" size="sm">
+          <Text variant="secondary" size="sm">
             {`Created at: ${date}`}
           </Text>
         </div>
       </div>
-      <Button danger type="text" icon={<AppMaterialIcons icon="delete" />} onClick={handleDelete}>
+      <Button variant="danger" prefix={<Trash />} onClick={handleDelete}>
         Delete
       </Button>
     </div>
