@@ -79,7 +79,7 @@ export const SameIdDifferentTypes: Story = {
   args: {
     reasoningMessageId: 'reasoning-1',
     messageId: 'message-1',
-    isCompletedStream: true,
+    isCompletedStream: false,
     chatId: 'chat-1'
   },
   decorators: [

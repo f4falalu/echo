@@ -54,7 +54,7 @@ const VerticalBar: React.FC<{ show?: boolean }> = ({ show }) => {
       <motion.div
         className={cn('bg-text-tertiary w-[0.5px]', 'mt-1 overflow-hidden')}
         initial={{ height: 0 }}
-        animate={{ height: '100%' }}
+        animate={{ height: 'auto' }}
         transition={{
           duration: 0.3,
           ease: 'easeInOut'
