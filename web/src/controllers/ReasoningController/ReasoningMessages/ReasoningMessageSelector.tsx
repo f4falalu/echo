@@ -10,6 +10,7 @@ export interface ReasoningMessageProps {
   messageId: string;
   isCompletedStream: boolean;
   chatId: string;
+  animationKey?: string;
 }
 
 const ReasoningMessageRecord: Record<
@@ -45,7 +46,8 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
 
   return (
     <ReasoningMessage
-      key={reasoningMessageId + reasoningMessageType} //force in case the type changes
+      key={reasoningMessageId} //force in case the type changes
+      animationKey={reasoningMessageId + reasoningMessageType}
       reasoningMessageId={reasoningMessageId}
       isCompletedStream={isCompletedStream}
       messageId={messageId}

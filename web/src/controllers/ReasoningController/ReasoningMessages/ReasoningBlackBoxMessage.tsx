@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { queryKeys } from '@/api/query_keys';
 import { BarContainer } from './BarContainer';
-import { Text } from '@/components/ui/typography';
 
 export const BlackBoxMessage: React.FC<{ messageId: string }> = React.memo(({ messageId }) => {
   const blackBoxMessage = useQuery({
@@ -24,7 +23,7 @@ export const BlackBoxMessage: React.FC<{ messageId: string }> = React.memo(({ me
     );
   }
 
-  return <span className="text-red-500">no black box {messageId}</span>;
+  return null;
 });
 
 BlackBoxMessage.displayName = 'BlackBoxMessage';

@@ -12,22 +12,19 @@ const getReasoningMessage = (x: BusterChatMessage | undefined, reasoningMessageI
   x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files;
 
 export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.memo(
-  ({ isCompletedStream, chatId, reasoningMessageId, messageId }) => {
+  ({ isCompletedStream, chatId, reasoningMessageId, messageId, animationKey }) => {
     const status = useMessageIndividual(
       messageId,
       (x) => getReasoningMessage(x, reasoningMessageId)?.status
     );
-
     const file_ids = useMessageIndividual(
       messageId,
       (x) => getReasoningMessage(x, reasoningMessageId)?.file_ids
     );
-
     const title = useMessageIndividual(
       messageId,
       (x) => getReasoningMessage(x, reasoningMessageId)?.title
     );
-
     const secondary_title = useMessageIndividual(
       messageId,
       (x) => getReasoningMessage(x, reasoningMessageId)?.secondary_title
@@ -35,14 +32,13 @@ export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.mem
 
     if (!title) return null;
 
-    console.log(reasoningMessageId, isCompletedStream);
-
     return (
       <BarContainer
         showBar={true}
         status={status}
         isCompletedStream={isCompletedStream}
         title={title}
+        animationKey={animationKey}
         secondaryTitle={secondary_title}
         contentClassName="mb-2">
         <div className="flex flex-col gap-3">

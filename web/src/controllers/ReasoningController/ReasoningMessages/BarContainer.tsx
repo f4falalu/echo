@@ -15,13 +15,24 @@ export const BarContainer: React.FC<{
   title: string;
   secondaryTitle?: string;
   contentClassName?: string;
+  animationKey?: string;
 }> = React.memo(
-  ({ showBar, status, isCompletedStream, children, title, secondaryTitle, contentClassName }) => {
+  ({
+    showBar,
+    status,
+    isCompletedStream,
+    children,
+    title,
+    secondaryTitle,
+    contentClassName,
+    animationKey
+  }) => {
     return (
-      <AnimatePresence initial={!isCompletedStream}>
+      <AnimatePresence initial={!isCompletedStream} mode="wait">
         <motion.div
           className={'relative flex space-x-1.5 overflow-hidden'}
-          {...itemAnimationConfig}>
+          {...itemAnimationConfig}
+          key={animationKey}>
           <VerticalBarContainer showBar={showBar} status={status} />
 
           <div className={`flex w-full flex-col space-y-2 overflow-hidden ${contentClassName}`}>

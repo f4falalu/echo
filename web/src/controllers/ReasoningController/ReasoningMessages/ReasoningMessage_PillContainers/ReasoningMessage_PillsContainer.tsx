@@ -5,7 +5,7 @@ import { useMessageIndividual } from '@/context/Chats';
 import { ReasoningMessagePillsContainer } from './ReasoningMessagePillsContainer';
 
 export const ReasoningMessage_PillsContainer: React.FC<ReasoningMessageProps> = React.memo(
-  ({ reasoningMessageId, messageId, isCompletedStream }) => {
+  ({ reasoningMessageId, messageId, isCompletedStream, animationKey }) => {
     const reasoningMessage = useMessageIndividual(
       messageId,
       (x) => x?.reasoning_messages[reasoningMessageId]
@@ -19,6 +19,7 @@ export const ReasoningMessage_PillsContainer: React.FC<ReasoningMessageProps> = 
         {...reasoningMessagePills}
         status={status}
         isCompletedStream={isCompletedStream}
+        animationKey={animationKey}
       />
     );
   }
