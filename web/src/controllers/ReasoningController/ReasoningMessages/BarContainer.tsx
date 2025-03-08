@@ -5,7 +5,6 @@ import { AnimatePresence } from 'framer-motion';
 import React from 'react';
 import { Text } from '@/components/ui/typography';
 import { cn } from '@/lib/classMerge';
-import { itemAnimationConfig } from './animationConfig';
 
 export const BarContainer: React.FC<{
   showBar: boolean;
@@ -96,7 +95,12 @@ const AnimatedThoughtTitle = React.memo(
     return (
       <AnimatePresence initial={false} mode="wait">
         {title && (
-          <motion.div className="flex" {...itemAnimationConfig} key={title}>
+          <motion.div
+            className="flex"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            key={title}>
             <Text
               size="sm"
               className={cn(

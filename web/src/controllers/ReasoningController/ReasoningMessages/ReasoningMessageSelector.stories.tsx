@@ -100,7 +100,7 @@ export const SameIdDifferentTypes: Story = {
           title: 'Text Type',
           secondary_title: 'This is a text message',
           message:
-            'This is a text message that can change types. The message can be a long message that can be scrolled. The message can be a short message that can be displayed in a single line. The message can be a long message that can be scrolled. The message can be a short message that can be displayed in a single line.',
+            'This is a text message that can change types. The message can be a long message that can be scrolled. The message can be a short message that can be displayed in a single line. The message can be a long message that can be scrolled. The message can be a short message that.',
           status: 'completed'
         },
         pills: {
@@ -133,6 +133,13 @@ export const SameIdDifferentTypes: Story = {
                 { text: 'Pill 8', type: 'dashboard', id: 'pill-8' },
                 { text: 'Pill 9', type: 'dashboard', id: 'pill-9' },
                 { text: 'Pill 10', type: 'dashboard', id: 'pill-10' }
+              ]
+            },
+            {
+              title: 'Dynamic Pills Quaternary',
+              pills: [
+                { text: 'Pill 11', type: 'metric', id: 'pill-11' },
+                { text: 'Pill 12', type: 'dashboard', id: 'pill-12' }
               ]
             }
           ]

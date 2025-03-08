@@ -16,17 +16,15 @@ const containerVariants = {
   hidden: {
     opacity: 0,
     transition: {
-      height: { duration: duration, ease: 'easeInOut' },
       opacity: { duration: duration * 0.5, ease: 'easeOut' }
     }
   },
   visible: {
     opacity: 1,
     transition: {
-      height: { duration: duration, ease: 'easeInOut' },
-      opacity: { duration: duration * 0.5, ease: 'easeIn' },
-      staggerChildren: 0.125,
-      delayChildren: 0.075
+      opacity: { duration: duration * 0.5, ease: 'easeIn' }
+      // staggerChildren: 0.125,
+      //  delayChildren: 0
     }
   }
 };

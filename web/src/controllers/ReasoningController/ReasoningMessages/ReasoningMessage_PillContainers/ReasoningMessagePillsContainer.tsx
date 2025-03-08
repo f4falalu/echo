@@ -41,7 +41,6 @@ export const ReasoningMessagePillsContainer: React.FC<
   }
 > = ({ pill_containers, status, isCompletedStream }) => {
   const hasPills = !!pill_containers && pill_containers.length > 0;
-  const loadingStatus: NonNullable<BusterChatMessageReasoning_pills['status']> = status;
 
   if (!hasPills) return null;
 
