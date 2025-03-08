@@ -7,7 +7,7 @@ const containerVariants = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.15,
+      staggerChildren: 0.1,
       delayChildren: 0.1
     }
   }
@@ -15,17 +15,11 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: {
-    opacity: 0,
-    height: 0
+    opacity: 0
   },
   visible: {
-    height: 'auto',
     opacity: 1,
     transition: {
-      height: {
-        duration: 0.15,
-        ease: [0.4, 0, 0.2, 1] // Smooth easeInOutQuart
-      },
       opacity: {
         duration: 0.62,
         ease: [0.34, 1.56, 0.64, 1] // Bouncy easeOutBack

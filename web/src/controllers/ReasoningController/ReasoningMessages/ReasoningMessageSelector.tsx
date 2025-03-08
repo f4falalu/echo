@@ -5,7 +5,6 @@ import { ReasoningMessage_Files } from './ReasoningMessage_Files';
 import { ReasoningMessage_Text } from './ReasoningMessage_Text';
 import { useMessageIndividual } from '@/context/Chats';
 import { AnimatePresence, motion } from 'framer-motion';
-import { itemAnimationConfig } from './animationConfig';
 import { BarContainer } from './BarContainer';
 
 export interface ReasoningMessageProps {
@@ -14,6 +13,34 @@ export interface ReasoningMessageProps {
   isCompletedStream: boolean;
   chatId: string;
 }
+
+const itemAnimationConfig = {
+  initial: { opacity: 0, height: 0 },
+  animate: {
+    opacity: 1,
+    height: 'auto',
+    transition: {
+      height: {
+        type: 'spring',
+        stiffness: 360,
+        damping: 30
+      },
+      opacity: { duration: 0.2 }
+    }
+  },
+  exit: {
+    opacity: 0,
+    height: 0,
+    transition: {
+      height: {
+        type: 'spring',
+        stiffness: 400,
+        damping: 35
+      },
+      opacity: { duration: 0.15 }
+    }
+  }
+};
 
 const ReasoningMessageRecord: Record<
   BusterChatMessageReasoning['type'],

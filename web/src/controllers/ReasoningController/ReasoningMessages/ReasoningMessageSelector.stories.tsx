@@ -190,7 +190,6 @@ export const SameIdDifferentTypes: Story = {
               defaultValue="text">
               <option value="text">Text Type</option>
               <option value="pills">Pills Type</option>
-              <option value="files">Files Type</option>
             </select>
             <div className="h-full w-full max-w-[400px] min-w-[400px]">
               <Story />
