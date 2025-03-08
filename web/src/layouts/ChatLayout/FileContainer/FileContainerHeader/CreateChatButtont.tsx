@@ -1,9 +1,9 @@
-import { AppMaterialIcons } from '@/components/ui';
-import { Button } from 'antd';
+import { Stars } from '@/components/ui/icons';
+import { Button } from '@/components/ui/buttons';
 import React from 'react';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { AppTooltip } from '@/components/ui/tooltip';
 
 export const CreateChatButton = React.memo(() => {
@@ -19,11 +19,9 @@ export const CreateChatButton = React.memo(() => {
     <AppTooltip title={'Start chat'} shortcuts={['e']}>
       <Button
         onClick={onCollapseFileClickPreflight}
-        color="default"
-        variant="solid"
-        type="primary"
+        variant="black"
         className="ml-1.5"
-        icon={<AppMaterialIcons icon="stars" />}>
+        prefix={<Stars />}>
         Edit
       </Button>
     </AppTooltip>

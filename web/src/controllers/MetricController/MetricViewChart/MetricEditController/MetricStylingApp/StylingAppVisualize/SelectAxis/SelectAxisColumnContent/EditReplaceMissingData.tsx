@@ -1,13 +1,10 @@
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../../Common';
-import { Select } from 'antd';
+import { Select, SelectItem } from '@/components/ui/select';
 import { IColumnLabelFormat } from '@/components/ui/charts';
 
-export const MISSING_VALUES_OPTIONS: {
-  label: string;
-  value: IColumnLabelFormat['replaceMissingDataWith'];
-}[] = [
-  { label: 'Zero', value: 0 },
+export const MISSING_VALUES_OPTIONS: SelectItem[] = [
+  { label: 'Zero', value: '0' },
   { label: 'Do not replace', value: '🧸✂️' }
 ];
 
@@ -24,8 +21,8 @@ export const EditReplaceMissingData: React.FC<{
     return (
       <LabelAndInput label="Missing values">
         <Select
-          options={MISSING_VALUES_OPTIONS}
-          defaultValue={selectedValue}
+          items={MISSING_VALUES_OPTIONS}
+          value={selectedValue || '0'}
           onChange={(v) => {
             let value: IColumnLabelFormat['replaceMissingDataWith'];
             if (v === '🧸✂️') value = null;

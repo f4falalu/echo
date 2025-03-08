@@ -1,7 +1,7 @@
 import React from 'react';
 import { SelectAxisItemLabel } from './SelectAxisItemLabel';
 import { useSelectAxisContextSelector } from './useSelectAxisContext';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { chartTypeToAxis, SelectAxisContainerId, zoneIdToAxis } from './config';
 import { SelectAxisDropdownContent } from './SelectAxisColumnContent';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';

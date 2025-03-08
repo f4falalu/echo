@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useEffect, useMemo } from 'react';
-import { Input, InputRef } from 'antd';
-import { AppModal } from '@/components/ui';
+import { AppModal } from '@/components/ui/modal';
 import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
-import { inputHasText } from '@/lib';
-import { useMemoizedFn } from 'ahooks';
+import { inputHasText } from '@/lib/text';
+import { useMemoizedFn } from '@/hooks';
+import { Input } from '@/components/ui/inputs';
 
 export const NewCollectionModal: React.FC<{
   open: boolean;
@@ -23,7 +23,7 @@ export const NewCollectionModal: React.FC<{
   const isCreatingCollection = useBusterCollectionIndividualContextSelector(
     (x) => x.isCreatingCollection
   );
-  const inputRef = React.useRef<InputRef>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
   const disableSubmit = !inputHasText(title);
 
   const memoizedHeader = useMemo(() => {

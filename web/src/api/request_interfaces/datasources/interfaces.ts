@@ -1,4 +1,4 @@
-import type { DatasourceCreateCredentials } from '../../buster_socket/datasources/interface';
+import type { DatasourceCreateCredentials } from './datasourceCredentialsInterfaces';
 
 export interface DatasourceListParams {
   /** The page number for pagination */

@@ -1,30 +1,29 @@
 import { ShareAssetType } from '@/api/asset_interfaces';
-import { AppMaterialIcons, AppTooltip } from '@/components/ui';
+import { AppTooltip } from '@/components/ui/tooltip';
 import { useUserConfigContextSelector } from '@/context/Users';
 import React, { useMemo } from 'react';
-import { gold } from '@ant-design/colors/es/presets';
-import { css } from 'antd-style';
-import { createStyles } from 'antd-style';
-import { useMemoizedFn } from 'ahooks';
-import { Button } from 'antd';
+import { useMemoizedFn } from '@/hooks';
+import { Button } from '@/components/ui/buttons';
+import { cn } from '@/lib/classMerge';
+import { Star } from '@/components/ui/icons';
+import { cva } from 'class-variance-authority';
 
-const useStyles = createStyles(({ token }) => ({
-  icon: css`
-    color: ${token.colorIcon};
-
-    &.tertiary {
-      color: ${token.colorTextTertiary};
+const favoriteStarVariants = cva('transition-colors', {
+  variants: {
+    variant: {
+      default: 'text-icon-color hover:text-foreground',
+      tertiary: 'text-text-tertiary hover:text-icon-color'
+    },
+    isFavorited: {
+      true: 'text-yellow-500! hover:text-yellow-500!',
+      false: ''
     }
-
-    &.is-favorited {
-      color: ${gold[4]} !important;
-    }
-
-    &:not(.is-favorited):hover {
-      color: ${token.colorIconHover};
-    }
-  `
-}));
+  },
+  defaultVariants: {
+    variant: 'default',
+    isFavorited: false
+  }
+});
 
 export const FavoriteStar: React.FC<{
   id: string;
@@ -38,7 +37,6 @@ export const FavoriteStar: React.FC<{
     (state) => state.removeItemFromFavorite
   );
   const addItemToFavorite = useUserConfigContextSelector((state) => state.addItemToFavorite);
-  const { cx, styles } = useStyles();
 
   const isFavorited = useMemo(() => {
     return userFavorites?.some((favorite) => favorite.id === id || favorite.collection_id === id);
@@ -65,15 +63,20 @@ export const FavoriteStar: React.FC<{
   return (
     <AppTooltip title={tooltipText} key={tooltipText}>
       <Button
-        classNames={{
-          icon: 'text-inherit! mt-[-2px]!'
-        }}
-        className={cx(className, 'flex', styles.icon, iconStyle, {
-          'is-favorited opacity-100 transition-none!': isFavorited
-        })}
+        className={cn(className, 'flex')}
         onClick={onFavoriteClick}
-        type="text"
-        icon={<AppMaterialIcons icon="star" fill={isFavorited} />}
+        variant="ghost"
+        prefix={
+          <div
+            className={cn(
+              favoriteStarVariants({
+                variant: iconStyle === 'tertiary' ? 'tertiary' : 'default',
+                isFavorited
+              })
+            )}>
+            <Star />
+          </div>
+        }
       />
     </AppTooltip>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useMemoizedFn, useMount } from 'ahooks';
+import { useMemoizedFn, useMount } from '@/hooks';
 import { VerificationStatus } from '@/api/asset_interfaces';
 import { useBusterMetricListByFilter } from '@/context/Metrics';
 import { MetricListHeader } from './MetricListHeader';

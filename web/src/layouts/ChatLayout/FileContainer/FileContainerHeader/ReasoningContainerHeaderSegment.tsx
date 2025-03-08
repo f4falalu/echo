@@ -6,7 +6,7 @@ import { AppSegmented } from '@/components/ui/segmented';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import type { FileView, ReasoningFileView } from '../../ChatLayoutContext/useChatFileLayout';
 import { type SegmentedItem } from '@/components/ui/segmented';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 const segmentOptions: { label: string; value: ReasoningFileView }[] = [
   { label: 'Reasoning', value: 'reasoning' }

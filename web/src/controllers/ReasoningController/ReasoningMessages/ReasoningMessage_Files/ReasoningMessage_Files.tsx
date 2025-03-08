@@ -17,17 +17,14 @@ export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.mem
       messageId,
       (x) => getReasoningMessage(x, reasoningMessageId)?.status
     );
-
     const file_ids = useMessageIndividual(
       messageId,
       (x) => getReasoningMessage(x, reasoningMessageId)?.file_ids
     );
-
     const title = useMessageIndividual(
       messageId,
       (x) => getReasoningMessage(x, reasoningMessageId)?.title
     );
-
     const secondary_title = useMessageIndividual(
       messageId,
       (x) => getReasoningMessage(x, reasoningMessageId)?.secondary_title
@@ -35,27 +32,21 @@ export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.mem
 
     if (!title) return null;
 
+    console.log(status);
+
     return (
-      <BarContainer
-        showBar={true}
-        status={status}
-        isCompletedStream={isCompletedStream}
-        title={title}
-        secondaryTitle={secondary_title}
-        contentClassName="mb-2">
-        <div className="flex flex-col gap-3">
-          {file_ids.map((fileId) => (
-            <ReasoningMessage_File
-              key={fileId}
-              fileId={fileId}
-              chatId={chatId}
-              messageId={messageId}
-              reasoningMessageId={reasoningMessageId}
-              isCompletedStream={isCompletedStream}
-            />
-          ))}
-        </div>
-      </BarContainer>
+      <div className="flex flex-col gap-3">
+        {file_ids.map((fileId) => (
+          <ReasoningMessage_File
+            key={fileId}
+            fileId={fileId}
+            chatId={chatId}
+            messageId={messageId}
+            reasoningMessageId={reasoningMessageId}
+            isCompletedStream={isCompletedStream}
+          />
+        ))}
+      </div>
     );
   }
 );

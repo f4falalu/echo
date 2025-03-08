@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { Input, Switch } from 'antd';
-import { useMemoizedFn } from 'ahooks';
+import { Input } from '@/components/ui/inputs';
+import { Switch } from '@/components/ui/switch';
+import { useMemoizedFn } from '@/hooks';
 
 export const EditShowAxisTitle: React.FC<{
   axisTitle:
@@ -57,7 +58,7 @@ const EditToggleAxisTitle: React.FC<{
   return (
     <LabelAndInput label="Show axis title">
       <div className="flex justify-end">
-        <Switch checked={useAxisTitleInput} onChange={onToggleAxisTitle} />
+        <Switch checked={useAxisTitleInput} onCheckedChange={onToggleAxisTitle} />
       </div>
     </LabelAndInput>
   );

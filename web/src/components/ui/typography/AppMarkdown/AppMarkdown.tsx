@@ -10,11 +10,10 @@ import {
   CustomBlockquote,
   CustomSpan
 } from './AppMarkdownCommon';
-import { useMemoizedFn } from 'ahooks';
-import { cn } from '@/lib/classMerge';
+import { useMemoizedFn } from '@/hooks';
 import styles from './AppMarkdown.module.css';
 
-const _AppMarkdown: React.FC<{
+const AppMarkdownBase: React.FC<{
   markdown: string | null;
   showLoader?: boolean;
   className?: string;
@@ -72,12 +71,13 @@ const _AppMarkdown: React.FC<{
       skipHtml={true}
       components={memoizedComponents}
       rehypePlugins={[rehypeRaw]} //rehypeSanitize we will assume that the markdown is safe? If we use it we cant do web components
-      className={cn(styles.container, 'space-y-2.5', className)}>
+      //   className={cn(styles.container, 'space-y-2.5', className)}
+    >
       {currentMarkdown}
     </ReactMarkdown>
   );
 };
 
-export const AppMarkdown = memo(_AppMarkdown);
+export const AppMarkdown = memo(AppMarkdownBase);
 
 export default AppMarkdown;

@@ -27,7 +27,7 @@ export const isStringifiedJson = (value: string): boolean => {
   }
 };
 
-export const extractStringToJSON = (value: string): Object | false => {
+export const extractStringToJSON = (value: string): object | false => {
   try {
     const parsedValue = JSON.parse(value);
     if (typeof parsedValue === 'object') {
@@ -39,15 +39,15 @@ export const extractStringToJSON = (value: string): Object | false => {
   } catch (error) {
     return false;
   }
-  return value;
+  return false;
 };
 
-export const getChangedValues = <T>(
+export const getChangedValues = <T extends object>(
   object1: T,
   object2: T,
   keysToCheck: (keyof T)[]
 ): Partial<T> => {
-  return pickBy(object2!, (value, key) => {
+  return pickBy(object2, (value, key) => {
     if (!keysToCheck.includes(key as any)) {
       return false; // Ignore keys not in the specified list
     }

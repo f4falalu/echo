@@ -10,15 +10,15 @@ import isNaN from 'lodash/isNaN';
 import { isNumeric } from './numbers';
 import { getBrowserLanguage } from './language';
 import { SupportedLanguages } from '../config/languages';
-import type { ColumnLabelFormat } from '../components/ui/charts';
 
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 import {
+  ColumnLabelFormat,
   DEFAULT_DATE_FORMAT_MONTH_OF_YEAR,
   DEFAULT_DATE_FORMAT_QUARTER,
   DEFAULT_DAY_OF_WEEK_FORMAT
-} from '@/api/asset_interfaces';
+} from '@/api/asset_interfaces/metric';
 
 dayjs.extend(relativeTime);
 dayjs.extend(customParseFormat);

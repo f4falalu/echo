@@ -1,17 +1,14 @@
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
-import { Select } from 'antd';
+import { Select, SelectItem } from '@/components/ui/select';
 import { IColumnLabelFormat } from '@/components/ui/charts/interfaces';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import last from 'lodash/last';
 import first from 'lodash/first';
 import { getDefaultQuarterOptions } from './dateConfig';
 import { DEFAULT_DAY_OF_WEEK_FORMAT } from '@/api/asset_interfaces';
 
-const options: {
-  label: string;
-  value: IColumnLabelFormat['convertNumberTo'];
-}[] = [
+const options: SelectItem<NonNullable<IColumnLabelFormat['convertNumberTo']>>[] = [
   { label: 'Day of Week', value: 'day_of_week' },
   { label: 'Month of Year', value: 'month_of_year' },
   { label: 'Quarter', value: 'quarter' },
@@ -24,10 +21,10 @@ export const EditDateType: React.FC<{
 }> = React.memo(
   ({ convertNumberTo, onUpdateColumnConfig }) => {
     const selectedOption = useMemo(() => {
-      return options.find((option) => option.value === convertNumberTo) || last(options);
+      return options.find((option) => option.value === convertNumberTo) || last(options)!;
     }, [convertNumberTo]);
 
-    const onChange = useMemoizedFn(({ value }: (typeof options)[number]) => {
+    const onChange = useMemoizedFn((value: IColumnLabelFormat['convertNumberTo']) => {
       if (value === 'day_of_week') {
         return onUpdateColumnConfig({
           dateFormat: DEFAULT_DAY_OF_WEEK_FORMAT,
@@ -59,10 +56,9 @@ export const EditDateType: React.FC<{
         <div className="w-full overflow-hidden">
           <Select
             className="w-full!"
-            options={options}
-            defaultValue={selectedOption}
+            items={options}
+            value={selectedOption.value}
             onChange={onChange}
-            labelInValue
           />
         </div>
       </LabelAndInput>

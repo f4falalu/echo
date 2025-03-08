@@ -6,7 +6,7 @@ import {
   DropdownMenuTrigger
 } from './DropdownBase';
 import { cn } from '@/lib/classMerge';
-import { ArrowRight, ChevronRight } from '../icons';
+import { ArrowRight } from '../icons';
 
 export interface SearchDropdownItem {
   label: string;

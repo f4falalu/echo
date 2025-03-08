@@ -1,6 +1,6 @@
 import React from 'react';
-import { AppCodeEditor } from '../inputs/AppCodeEditor';
-import { useMemoizedFn } from 'ahooks';
+import { AppCodeEditor } from '@/components/ui/inputs/AppCodeEditor';
+import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { cn } from '@/lib/classMerge';
 import { Button } from '../buttons/Button';

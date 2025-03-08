@@ -2,15 +2,14 @@
 
 import React from 'react';
 import {
-  PermissionSearch,
   PermissionSearchAndListWrapper,
   HeaderExplanation
 } from '@/components/features/PermissionComponents';
 import { useDatasetListPermissionUsers } from '@/api/buster_rest';
 import { useDebounceSearch } from '@/hooks';
-import { Button } from 'antd';
-import { AppMaterialIcons } from '@/components/ui';
-import { useMemoizedFn } from 'ahooks';
+import { Button } from '@/components/ui/buttons';
+import { Plus } from '@/components/ui/icons';
+import { useMemoizedFn } from '@/hooks';
 import { PermissionListUsersContainer } from './PermissionListUsersContainer';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 
@@ -50,10 +49,7 @@ export const PermissionUsers: React.FC<{
         searchPlaceholder="Search by permission group"
         searchChildren={React.useMemo(
           () => (
-            <Button
-              type="default"
-              icon={<AppMaterialIcons icon="add" />}
-              onClick={openInviteUserModal}>
+            <Button prefix={<Plus />} onClick={openInviteUserModal}>
               Invite user
             </Button>
           ),

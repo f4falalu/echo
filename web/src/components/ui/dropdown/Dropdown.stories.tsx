@@ -1,3 +1,5 @@
+'use client';
+
 import type { Meta, StoryObj } from '@storybook/react';
 import { Dropdown, DropdownItems } from './Dropdown';
 import { Button } from '../buttons/Button';

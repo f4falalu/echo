@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 import {
-  BusterInfiniteList,
   BusterListColumn,
   BusterListRowItem,
   EmptyStateList,
   InfiniteListContainer
 } from '@/components/ui/list';
+import { BusterInfiniteList } from '@/components/ui/list/BusterInfiniteList';
 import type { OrganizationUserDataset } from '@/api/asset_interfaces';
 import { PermissionLineageBreadcrumb } from '@/components/features/PermissionComponents';
 

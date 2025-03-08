@@ -1,3 +1,5 @@
+'use client';
+
 import { isServer } from '@tanstack/react-query';
 
 if (!isServer && typeof window !== 'undefined') {

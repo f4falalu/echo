@@ -3,12 +3,12 @@ import {
   DEFAULT_CHART_CONFIG_ENTRIES,
   DEFAULT_COLUMN_LABEL_FORMAT,
   DEFAULT_COLUMN_SETTINGS,
-  IBusterMetricChartConfig
-} from '@/api/asset_interfaces';
+  type IBusterMetricChartConfig
+} from '@/api/asset_interfaces/metric';
 import { getChangedValues } from '@/lib/objects';
-import { IBusterMetric } from '../interfaces';
+import type { IBusterMetric } from '@/api/asset_interfaces/metric';
 import isEqual from 'lodash/isEqual';
-import {
+import type {
   BarAndLineAxis,
   BusterChartConfigProps,
   ColumnLabelFormat,
@@ -16,7 +16,7 @@ import {
   ComboChartAxis,
   PieChartAxis,
   ScatterAxis
-} from '@/components/ui/charts';
+} from '@/api/asset_interfaces/metric/charts';
 
 const DEFAULT_COLUMN_SETTINGS_ENTRIES = Object.entries(DEFAULT_COLUMN_SETTINGS);
 const DEFAULT_COLUMN_LABEL_FORMATS_ENTRIES = Object.entries(DEFAULT_COLUMN_LABEL_FORMAT);
@@ -45,6 +45,7 @@ const keySpecificHandlers: Partial<Record<keyof IBusterMetricChartConfig, (value
       for (const [settingKey, defaultValue] of DEFAULT_COLUMN_SETTINGS_ENTRIES) {
         const columnSettingValue = value[settingKey as keyof ColumnSettings];
         if (!isEqual(defaultValue, columnSettingValue)) {
+          //@ts-ignore
           changedSettings[settingKey as keyof ColumnSettings] = columnSettingValue as any;
           hasChanges = true;
         }
@@ -72,7 +73,8 @@ const keySpecificHandlers: Partial<Record<keyof IBusterMetricChartConfig, (value
       for (const [settingKey, defaultValue] of DEFAULT_COLUMN_LABEL_FORMATS_ENTRIES) {
         const columnSettingValue = value[settingKey as keyof ColumnLabelFormat];
         if (!isEqual(defaultValue, columnSettingValue)) {
-          changedSettings[settingKey as keyof ColumnLabelFormat] = columnSettingValue as any;
+          //@ts-ignore
+          changedSettings[settingKey as keyof ColumnLabelFormat] = columnSettingValue;
           hasChanges = true;
         }
       }
@@ -100,12 +102,14 @@ const getChangesFromDefaultChartConfig = (newMetric: IBusterMetric) => {
     if (handler) {
       const valueToUse = handler(chartConfigValue);
       if (valueToUse && Object.keys(valueToUse).length > 0) {
+        //@ts-ignore
         diff[key] = valueToUse;
       }
       continue;
     }
 
     if (!isEqual(chartConfigValue, defaultValue)) {
+      //@ts-ignore
       diff[key] = chartConfigValue as any;
     }
   }
@@ -117,9 +121,10 @@ export const prepareMetricUpdateMetric = (
   newMetric: IBusterMetric,
   oldMetric: IBusterMetric
 ): MetricUpdateMetric['payload'] | null => {
-  const changedTopLevelValues = getChangedTopLevelMessageValues(newMetric, oldMetric) as Partial<
-    MetricUpdateMetric['payload']
-  >;
+  const changedTopLevelValues = getChangedTopLevelMessageValues(
+    newMetric,
+    oldMetric
+  ) as unknown as MetricUpdateMetric['payload'];
 
   const changedChartConfig = getChangesFromDefaultChartConfig(newMetric);
 

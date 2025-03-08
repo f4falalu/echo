@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { Button } from 'antd';
+import { Button } from '@/components/ui/buttons';
 import { BusterRoutes } from '@/routes';
-import { AppMaterialIcons, AppTooltip } from '@/components/ui';
+import { AppTooltip } from '@/components/ui/tooltip';
+import { Plus } from '@/components/ui/icons';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useBusterTermsIndividual } from '@/context/Terms';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { NewTermModal } from '@/components/features/modal/NewTermModal';
 import { type BreadcrumbItem, Breadcrumb } from '@/components/ui/breadcrumb';
 
@@ -37,7 +38,7 @@ export const TermsHeader: React.FC<{
         <div className="flex items-center space-x-0">
           {isAdmin && (
             <AppTooltip title={'Create a new term'} shortcuts={['t']}>
-              <Button onClick={onOpenNewTermsModal} icon={<AppMaterialIcons icon="add" />}>
+              <Button onClick={onOpenNewTermsModal} prefix={<Plus />}>
                 New term
               </Button>
             </AppTooltip>

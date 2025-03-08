@@ -1,5 +1,4 @@
-import type { BusterChartConfigProps } from '@/components/ui/charts/interfaces';
-import type { DataMetadata, IDataResult } from '../../asset_interfaces';
+import type { BusterChartConfigProps, DataMetadata, IDataResult } from '../../asset_interfaces';
 import type { EventBase } from '../base_interfaces';
 
 export type MetricEvent_fetchingData = {

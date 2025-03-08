@@ -1,9 +1,7 @@
+'use client';
+
 import React from 'react';
-import {
-  createContext,
-  useContextSelector,
-  ContextSelector
-} from '@fluentui/react-context-selector';
+import { createContext, useContextSelector } from 'use-context-selector';
 import { useBusterTermsCreate } from './useBusterTermsCreate';
 import { useBusterTermsUpdate } from './useBusterTermsUpdate';
 
@@ -32,5 +30,5 @@ export const BusterTermsIndividualProvider: React.FC<{ children: React.ReactNode
 };
 
 export const useBusterTermsIndividualContextSelector = <T,>(
-  selector: ContextSelector<ReturnType<typeof useBusterTermsIndividual>, T>
+  selector: (state: ReturnType<typeof useBusterTermsIndividual>) => T
 ) => useContextSelector(BusterTermsIndividualContext, selector);

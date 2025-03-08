@@ -11,8 +11,8 @@ import {
   BusterListRow
 } from '@/components/ui/list';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { BusterTermListItem } from '@/api/buster_rest';
-import { useMemoizedFn, useMount } from 'ahooks';
+import type { BusterTermListItem } from '@/api/asset_interfaces/terms';
+import { useMemoizedFn } from '@/hooks';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { TermListSelectedOptionPopup } from './TermListSelectedPopup';
 import { useBusterTermsListContextSelector } from '@/context/Terms';

@@ -1,5 +1,5 @@
-import type { IBusterChat, IBusterChatMessage } from '../interfaces';
-import { useMemoizedFn } from 'ahooks';
+import type { IBusterChat, IBusterChatMessage } from '@/api/asset_interfaces/chat';
+import { useMemoizedFn } from '@/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
 

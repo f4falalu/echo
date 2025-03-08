@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue
 } from './SelectBase';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 interface SelectItemGroup<T = string> {
   label: string;
@@ -17,7 +17,7 @@ interface SelectItemGroup<T = string> {
 
 export interface SelectItem<T = string> {
   value: T;
-  label: string; //this will be used in the select item text
+  label: string | React.ReactNode; //this will be used in the select item text
   secondaryLabel?: string;
   icon?: React.ReactNode;
   searchLabel?: string; // Used for filtering
@@ -29,14 +29,15 @@ export interface SelectProps<T> {
   disabled?: boolean;
   onChange: (value: T) => void;
   placeholder?: string;
-  value?: string;
+  value?: string | undefined;
   onOpenChange?: (open: boolean) => void;
   open?: boolean;
   showIndex?: boolean;
   className?: string;
+  defaultValue?: string;
 }
 
-const _Select = <T extends string>({
+export const Select = <T extends string>({
   items,
   showIndex,
   disabled,
@@ -45,7 +46,8 @@ const _Select = <T extends string>({
   value,
   onOpenChange,
   open,
-  className = ''
+  className = '',
+  defaultValue
 }: SelectProps<T>) => {
   const onValueChange = useMemoizedFn((value: string) => {
     onChange(value as T);
@@ -55,9 +57,10 @@ const _Select = <T extends string>({
       disabled={disabled}
       onOpenChange={onOpenChange}
       open={open}
+      value={value || defaultValue}
       onValueChange={onValueChange}>
       <SelectTrigger className={className}>
-        <SelectValue placeholder={placeholder} defaultValue={value} />
+        <SelectValue placeholder={placeholder} defaultValue={value || defaultValue} />
       </SelectTrigger>
       <SelectContent>
         {items.map((item, index) => (
@@ -67,8 +70,7 @@ const _Select = <T extends string>({
     </SelectBase>
   );
 };
-_Select.displayName = 'Select';
-export const Select = _Select;
+Select.displayName = 'Select';
 
 const SelectItemSelector = <T,>({
   item,

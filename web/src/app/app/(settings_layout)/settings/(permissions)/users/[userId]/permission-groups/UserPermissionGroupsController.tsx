@@ -8,9 +8,9 @@ import {
 } from '@/components/features/PermissionComponents';
 import React, { useMemo, useState } from 'react';
 import { UserPermissionGroupsListContainer } from './UserPermissionGroupsListContainer';
-import { Button } from 'antd';
-import { useMemoizedFn } from 'ahooks';
-import { AppMaterialIcons } from '@/components/ui';
+import { Button } from '@/components/ui/buttons';
+import { useMemoizedFn } from '@/hooks';
+import { Plus } from '@/components/ui/icons';
 
 export const UserPermissionGroupsController: React.FC<{ userId: string }> = ({ userId }) => {
   const { data: permissionGroups } = useGetUserPermissionGroups({ userId });
@@ -30,10 +30,7 @@ export const UserPermissionGroupsController: React.FC<{ userId: string }> = ({ u
 
   const NewPermissionGroupButton: React.ReactNode = useMemo(() => {
     return (
-      <Button
-        type="default"
-        icon={<AppMaterialIcons icon="add" />}
-        onClick={onOpenNewPermissionGroupModal}>
+      <Button prefix={<Plus />} onClick={onOpenNewPermissionGroupModal}>
         New permission group
       </Button>
     );

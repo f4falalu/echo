@@ -51,6 +51,7 @@ export const useTrendlines = ({
         const labelContent = trendlineLabel
           ? `${trendlineLabel}: ${formattedValue}`
           : formattedValue;
+
         return {
           ...acc,
           [name]: {

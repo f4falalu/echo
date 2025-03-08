@@ -1,6 +1,6 @@
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useBusterCollectionListContextSelector } from '@/context/Collections';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import React, { useState } from 'react';
 import { SaveToCollectionsDropdown } from '../dropdowns/SaveToCollectionsDropdown';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
@@ -8,9 +8,9 @@ import { CollectionButton } from './CollectionsButton';
 
 export const SaveMetricToCollectionButton: React.FC<{
   metricIds: string[];
-  buttonType?: 'text' | 'default';
+  buttonType?: 'ghost' | 'default';
   useText?: boolean;
-}> = ({ metricIds, buttonType = 'text', useText = false }) => {
+}> = ({ metricIds, buttonType = 'ghost', useText = false }) => {
   const { openInfoMessage } = useBusterNotifications();
   const saveMetricToCollection = useBusterMetricsIndividualContextSelector(
     (state) => state.saveMetricToCollection

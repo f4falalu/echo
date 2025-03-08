@@ -1,9 +1,7 @@
 import React from 'react';
-import { createStyles } from 'antd-style';
 import { Text } from '@/components/ui/typography';
 import { EditableTitle } from '@/components/ui/typography/EditableTitle';
-
-import { ConfigProvider, Skeleton } from 'antd';
+import { cn } from '@/lib/classMerge';
 
 export const MetricViewChartHeader: React.FC<{
   className?: string;
@@ -12,12 +10,10 @@ export const MetricViewChartHeader: React.FC<{
   timeFrame: string | undefined;
   onSetTitle: (value: string) => void;
 }> = React.memo(({ className, title = '', description, timeFrame, onSetTitle }) => {
-  const { styles, cx } = useStyles();
-
   const hasTitleOrDescription = !!title || !!description;
 
   return (
-    <div className={cx('flex flex-col space-y-0 py-2', styles.header, className)}>
+    <div className={cn('flex min-h-[52px] flex-col space-y-0 py-2', className)}>
       {hasTitleOrDescription ? (
         <>
           <EditableTitle level={4} className="mb-0" inputClassName="text-md!" onChange={onSetTitle}>
@@ -41,65 +37,10 @@ export const MetricViewChartHeader: React.FC<{
           </div>
         </>
       ) : (
-        <SkeletonText />
+        <></>
       )}
     </div>
   );
 });
 
 MetricViewChartHeader.displayName = 'MetricViewChartHeader';
-
-const SkeletonText: React.FC = () => {
-  return (
-    <div className="flex w-full flex-col space-y-1 overflow-hidden">
-      <ConfigProvider
-        theme={{
-          components: {
-            Skeleton: {
-              titleHeight: 15
-            }
-          }
-        }}>
-        <Skeleton
-          title={{
-            width: '45%'
-          }}
-          active
-          paragraph={false}
-        />
-      </ConfigProvider>
-      <ConfigProvider
-        theme={{
-          components: {
-            Skeleton: {
-              titleHeight: 12
-            }
-          }
-        }}>
-        <Skeleton
-          active
-          title={{
-            width: '75%'
-          }}
-          paragraph={false}
-        />
-      </ConfigProvider>
-      {/* <Skeleton.Input
-        active
-        className="h-4! w-1/2! overflow-hidden rounded-md"
-        rootClassName="w-full!"
-      />
-      <Skeleton.Input
-        active
-        className="h-2! w-3/4! overflow-hidden rounded-md"
-        rootClassName="w-full!"
-      /> */}
-    </div>
-  );
-};
-
-const useStyles = createStyles(({ css, token }) => ({
-  header: css`
-    min-height: 52px;
-  `
-}));

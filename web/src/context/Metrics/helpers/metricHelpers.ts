@@ -1,9 +1,8 @@
 import isEmpty from 'lodash/isEmpty';
-import { IBusterMetric } from '../interfaces';
-import { isNumericColumnType } from '@/lib';
-import { BusterChartConfigProps } from '@/components/ui/charts';
+import type { IBusterMetric, BusterMetricData } from '@/api/asset_interfaces/metric';
+import { isNumericColumnType } from '@/lib/messages';
+import type { BusterChartConfigProps } from '@/api/asset_interfaces/metric/charts';
 import { defaultIBusterMetric } from '../config';
-import { BusterMetricData } from '@/context/MetricData';
 
 export const canEditChart = (
   metricId: string | undefined | null,

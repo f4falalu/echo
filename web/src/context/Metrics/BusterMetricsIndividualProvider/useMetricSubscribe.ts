@@ -1,13 +1,8 @@
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useBusterAssetsContextSelector } from '../../Assets/BusterAssetsProvider';
-import { IBusterMetric } from '../interfaces';
-import { useBusterWebSocket } from '../../BusterWebSocket';
-import { BusterMetric } from '@/api/asset_interfaces';
-import { RustApiError } from '@/api/buster_rest/errors';
-import { resolveEmptyMetric, upgradeMetricToIMetric } from '../helpers';
-import React from 'react';
+import type { BusterMetric, IBusterMetric } from '@/api/asset_interfaces/metric';
+import type { RustApiError } from '@/api/buster_rest/errors';
 import { useSocketQueryMutation } from '@/api/buster_socket_query';
-import { queryKeys } from '@/api/query_keys';
 import { useQueryClient } from '@tanstack/react-query';
 
 export const useMetricSubscribe = ({

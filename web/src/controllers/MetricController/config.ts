@@ -1,5 +1,5 @@
 import React from 'react';
-import type { MetricFileView } from '@chatLayout/ChatLayoutContext';
+import type { MetricFileView } from '@/layouts/ChatLayout';
 import { MetricViewChartController } from './MetricViewChart';
 import { MetricViewFile } from './MetricViewFile';
 import { MetricViewResults } from './MetricViewResults';

@@ -1,21 +1,23 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { Breadcrumb, Button } from 'antd';
-import Link from 'next/link';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import { Breadcrumb, BreadcrumbItem } from '@/components/ui/breadcrumb';
+import { Button } from '@/components/ui/buttons';
+import { BusterRoutes } from '@/routes';
 import {
   useBusterCollectionListContextSelector,
   useCollectionIndividual,
   useCollectionLists
 } from '@/context/Collections';
-import { AppMaterialIcons, AppSegmented, AppTooltip } from '@/components/ui';
+import { AppTooltip } from '@/components/ui/tooltip';
+import { AppSegmented } from '@/components/ui/segmented';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { CollectionsListEmit } from '@/api/buster_socket/collections';
 import isEmpty from 'lodash/isEmpty';
 import omit from 'lodash/omit';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { type SegmentedItem } from '@/components/ui/segmented';
+import { Plus } from '@/components/ui/icons';
 
 export const CollectionListHeader: React.FC<{
   collectionId?: string;
@@ -43,23 +45,16 @@ export const CollectionListHeader: React.FC<{
     [isCollectionListFetched, collectionsList?.length, collectionListFilters]
   );
 
-  const breadcrumbItems = useMemo(
+  const breadcrumbItems: BreadcrumbItem[] = useMemo(
     () => [
       {
-        title: (
-          <Link
-            suppressHydrationWarning
-            href={
-              collectionId
-                ? createBusterRoute({
-                    route: BusterRoutes.APP_COLLECTIONS_ID,
-                    collectionId: collectionId
-                  })
-                : createBusterRoute({ route: BusterRoutes.APP_COLLECTIONS })
-            }>
-            {collectionTitle}
-          </Link>
-        )
+        label: collectionTitle,
+        route: collectionId
+          ? {
+              route: BusterRoutes.APP_COLLECTIONS_ID,
+              collectionId: collectionId
+            }
+          : { route: BusterRoutes.APP_COLLECTIONS }
       }
     ],
     [collectionId, collectionTitle]
@@ -72,7 +67,7 @@ export const CollectionListHeader: React.FC<{
   return (
     <>
       <div className="flex space-x-1">
-        <Breadcrumb className="flex items-center" items={breadcrumbItems} />
+        <Breadcrumb items={breadcrumbItems} />
         {showFilters && (
           <CollectionFilters
             collectionListFilters={collectionListFilters}
@@ -83,10 +78,7 @@ export const CollectionListHeader: React.FC<{
 
       <div className="flex items-center">
         <AppTooltip title={'Create new collection'} shortcuts={['N']}>
-          <Button
-            type="default"
-            icon={<AppMaterialIcons icon="add" />}
-            onClick={() => setOpenNewCollectionModal(true)}>
+          <Button prefix={<Plus />} onClick={() => setOpenNewCollectionModal(true)}>
             New Collection
           </Button>
         </AppTooltip>

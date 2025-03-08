@@ -1,9 +1,9 @@
-import { AppMaterialIcons } from '@/components/ui';
-import { Button } from 'antd';
+import { Button } from '@/components/ui/buttons';
+import { ShareRight3 } from '@/components/ui/icons';
 import React from 'react';
 
 export const ShareButton = React.memo(() => {
-  return <Button type="text" icon={<AppMaterialIcons icon="share_windows" />} />;
+  return <Button variant="ghost" prefix={<ShareRight3 />} />;
 });
 
 ShareButton.displayName = 'ShareButton';

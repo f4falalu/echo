@@ -1,5 +1,6 @@
-import type { DashboardConfig, VerificationStatus } from '@/api/asset_interfaces';
-import type { ShareRequest } from '@/api/buster_socket/shared_interfaces';
+import type { DashboardConfig } from '@/api/asset_interfaces/dashboard';
+import { VerificationStatus } from '@/api/asset_interfaces/share';
+import { ShareRequest } from '@/api/asset_interfaces/shared_interfaces';
 
 /**
  * Interface for dashboard list request parameters

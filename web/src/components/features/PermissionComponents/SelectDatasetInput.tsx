@@ -1,7 +1,7 @@
 import { useGetDatasets } from '@/api/buster_rest';
 import { SelectMultiple } from '@/components/ui/select/SelectMultiple';
 import { Select, SelectItem } from '@/components/ui/select/Select';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import React, { useMemo, useState } from 'react';
 
 export const SelectedDatasetInput: React.FC<{

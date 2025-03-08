@@ -1,11 +1,11 @@
 import { useDatasetUpdatePermissionUsers } from '@/api/buster_rest';
-import { AppMaterialIcons } from '@/components/ui';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
-import { useMemoizedFn } from 'ahooks';
-import { Button, Dropdown } from 'antd';
-import { MenuProps } from 'antd/lib';
+import { useMemoizedFn } from '@/hooks';
+import { Dropdown, DropdownProps } from '@/components/ui/dropdown';
+import { Button } from '@/components/ui/buttons';
 import React, { useMemo } from 'react';
 import { PERMISSION_USERS_OPTIONS } from './config';
+import { CheckDouble, Xmark } from '@/components/ui/icons';
 
 export const PermissionUsersSelectedPopup: React.FC<{
   selectedRowKeys: string[];
@@ -35,7 +35,7 @@ PermissionUsersSelectedPopup.displayName = 'PermissionUsersSelectedPopup';
 const options = PERMISSION_USERS_OPTIONS.map((v) => ({
   label: v.label,
   value: v.value,
-  icon: v.value ? <AppMaterialIcons icon="done_all" /> : <AppMaterialIcons icon="remove_done" />
+  icon: v.value ? <CheckDouble /> : <Xmark />
 }));
 
 const PermissionUsersAssignButton: React.FC<{
@@ -54,14 +54,14 @@ const PermissionUsersAssignButton: React.FC<{
     }
   });
 
-  const menuProps: MenuProps = useMemo(() => {
+  const menuProps: DropdownProps = useMemo(() => {
     return {
       selectable: true,
       items: options.map((v) => ({
         icon: v.icon,
         label: v.label,
-        key: v.value ? 'included' : 'not_included',
-        onClick: () => onAssignClick(v.value)
+        value: v.value ? 'included' : 'not_included',
+        onClick: () => onAssignClick(v.value === 'true')
       }))
     };
   }, [selectedRowKeys]);
@@ -72,8 +72,8 @@ const PermissionUsersAssignButton: React.FC<{
   });
 
   return (
-    <Dropdown menu={menuProps} trigger={['click']}>
-      <Button icon={<AppMaterialIcons icon="done_all" />} type="default" onClick={onButtonClick}>
+    <Dropdown {...menuProps}>
+      <Button prefix={<CheckDouble />} type="button" onClick={onButtonClick}>
         {options[0].label}
       </Button>
     </Dropdown>

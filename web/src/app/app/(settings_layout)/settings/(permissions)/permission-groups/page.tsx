@@ -9,9 +9,9 @@ import {
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
 import { useListAllPermissionGroups } from '@/api/buster_rest';
 import { ListPermissionGroupsComponent } from './ListPermissionGroupsComponent';
-import { useMemoizedFn } from 'ahooks';
-import { Button } from 'antd';
-import { AppMaterialIcons } from '@/components/ui';
+import { useMemoizedFn } from '@/hooks';
+import { Button } from '@/components/ui/buttons';
+import { Plus } from '@/components/ui/icons';
 
 export default function Page() {
   const { data: permissionGroups, isFetched, refetch } = useListAllPermissionGroups();
@@ -43,10 +43,7 @@ export default function Page() {
           />
           <div className="flex justify-between space-x-3">
             <PermissionSearch searchText={searchText} setSearchText={handleSearchChange} />
-            <Button
-              onClick={onOpenNewPermissionGroupModal}
-              type="default"
-              icon={<AppMaterialIcons icon="add" />}>
+            <Button onClick={onOpenNewPermissionGroupModal} prefix={<Plus />}>
               New Permission Group
             </Button>
           </div>

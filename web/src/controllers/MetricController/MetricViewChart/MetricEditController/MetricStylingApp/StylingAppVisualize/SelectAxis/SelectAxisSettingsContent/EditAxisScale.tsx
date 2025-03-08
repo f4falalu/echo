@@ -1,7 +1,7 @@
 import React from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { Select } from 'antd';
+import { Select } from '@/components/ui/select';
 
 const options: { label: string; value: IBusterMetricChartConfig['yAxisScaleType'] }[] = [
   { label: 'Linear', value: 'linear' },
@@ -17,7 +17,7 @@ export const EditAxisScale: React.FC<{
   ({ scaleType, onChangeAxisScale }) => {
     return (
       <LabelAndInput label="Scale">
-        <Select options={options} defaultValue={scaleType} onChange={onChangeAxisScale} />
+        <Select items={options} value={scaleType} onChange={onChangeAxisScale} />
       </LabelAndInput>
     );
   },

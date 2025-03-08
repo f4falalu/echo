@@ -1,7 +1,7 @@
 import { useUpdateUserTeams } from '@/api/buster_rest';
 import type { TeamRole } from '@/api/asset_interfaces';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import React from 'react';
 import { PermissionAssignTeamRoleButton } from '@/components/features/PermissionComponents';
 

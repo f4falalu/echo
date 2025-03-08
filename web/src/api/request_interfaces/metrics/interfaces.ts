@@ -1,6 +1,6 @@
-import { BusterChartConfigProps } from '@/components/ui/charts/interfaces/chartConfigProps';
-import { ShareRequest } from '../../buster_socket/shared_interfaces';
-import { VerificationStatus } from '@/api/asset_interfaces';
+import type { BusterChartConfigProps } from '@/api/asset_interfaces/metric/charts';
+import type { VerificationStatus } from '@/api/asset_interfaces/share';
+import type { ShareRequest } from '@/api/asset_interfaces/shared_interfaces';
 
 /**
  * Request payload for listing metrics with pagination and filtering options

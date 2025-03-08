@@ -1,5 +1,8 @@
-import { useDebounceFn, useMemoizedFn } from 'ahooks';
-import { useEffect, useLayoutEffect, useState, useTransition } from 'react';
+'use client';
+
+import { useDebounceFn } from './useDebounce';
+import { useMemoizedFn } from './useMemoizedFn';
+import { useLayoutEffect, useState, useTransition } from 'react';
 import isEqual from 'lodash/isEqual';
 
 interface UseDebounceSearchProps<T> {

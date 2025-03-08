@@ -1,21 +1,17 @@
-import { busterAppStyleConfig } from '@/styles/busterAntDStyleConfig';
-
-const token = busterAppStyleConfig.token!;
-
 export const defaultLabelOptionConfig = {
-  backgroundColor: token.colorBgContainerDisabled,
+  backgroundColor: 'var(--color-disabled)',
   borderWidth: 0.5,
-  borderColor: token.colorBorder,
-  borderRadius: token.borderRadius,
+  borderColor: 'var(--color-border)',
+  borderRadius: 6,
   padding: {
     top: 3,
     bottom: 3,
     left: 6,
     right: 6
   },
-  color: token.colorTextSecondary,
+  color: 'var(--color-text-secondary)',
   font: {
     size: 10,
-    weight: 'normal' as 'normal'
+    weight: 'normal' as const
   }
 };

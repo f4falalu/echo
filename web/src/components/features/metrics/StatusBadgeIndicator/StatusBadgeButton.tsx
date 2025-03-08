@@ -1,6 +1,6 @@
 import { type BusterMetricListItem, VerificationStatus } from '@/api/asset_interfaces';
 import React from 'react';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/buttons';
 import { StatusBadgeIndicator } from './StatusBadgeIndicator';

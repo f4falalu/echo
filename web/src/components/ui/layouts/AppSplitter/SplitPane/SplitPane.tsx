@@ -95,7 +95,11 @@ const SplitPane = ({
       let curSum = 0;
       const res = children.map((_, index) => {
         const size = assertsSize(propSizes[index], wrapSize);
-        size === Infinity ? count++ : (curSum += size);
+        if (size === Infinity) {
+          count++;
+        } else {
+          curSum += size;
+        }
         return size;
       });
 

@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { Breadcrumb, Button } from 'antd';
+import { Breadcrumb, BreadcrumbItem } from '@/components/ui/breadcrumb';
+import { Button } from '@/components/ui/buttons';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { DashboardsListEmitPayload } from '@/api/buster_socket/dashboards';
 import { AppSegmented, SegmentedItem } from '@/components/ui/segmented';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { Plus } from '@/components/ui/icons';
 
 export const DashboardHeader: React.FC<{
@@ -29,16 +30,13 @@ export const DashboardHeader: React.FC<{
   const dashboardTitle = 'Dashboards';
   const showFilters = true;
 
-  const breadcrumbItems = useMemo(
+  const breadcrumbItems: BreadcrumbItem[] = useMemo(
     () => [
       {
-        title: (
-          <Link
-            suppressHydrationWarning
-            href={createBusterRoute({ route: BusterRoutes.APP_DASHBOARDS })}>
-            {dashboardTitle}
-          </Link>
-        )
+        label: dashboardTitle,
+        route: {
+          route: BusterRoutes.APP_DASHBOARDS
+        }
       }
     ],
     [dashboardTitle]
@@ -51,7 +49,7 @@ export const DashboardHeader: React.FC<{
   return (
     <>
       <div className="flex space-x-3">
-        <Breadcrumb className="flex items-center" items={breadcrumbItems} />
+        <Breadcrumb items={breadcrumbItems} />
         {showFilters && (
           <DashboardFilters
             activeFilters={dashboardFilters}
@@ -61,11 +59,7 @@ export const DashboardHeader: React.FC<{
       </div>
 
       <div className="flex items-center">
-        <Button
-          type="default"
-          icon={<Plus />}
-          loading={isCreatingDashboard}
-          onClick={onClickNewDashboardButton}>
+        <Button prefix={<Plus />} loading={isCreatingDashboard} onClick={onClickNewDashboardButton}>
           New Dashboard
         </Button>
       </div>

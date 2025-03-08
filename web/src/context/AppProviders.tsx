@@ -1,16 +1,10 @@
-'use client';
-//import { scan } from 'react-scan'; // import this BEFORE react
-
 import React, { PropsWithChildren } from 'react';
 import { BusterWebSocketProvider } from './BusterWebSocket';
 import { SupabaseContextProvider } from './Supabase/SupabaseContextProvider';
-import { UseSupabaseContextType } from './Supabase/useSupabaseContext';
+import { UseSupabaseContextType } from './Supabase/getSupabaseServerContext';
 import { BusterReactQueryProvider } from './BusterReactQuery/BusterReactQueryAndApi';
-import { useMount } from 'ahooks';
 import { DatasetProviders } from './Datasets';
-import { AppHotKeysProvider } from './AppHotKeys';
 import { AppLayoutProvider } from './BusterAppLayout';
-import { isDev } from '@/config';
 import { BusterDashboardProvider } from './Dashboards/DashboardProvider';
 import { BusterUserConfigProvider } from './Users/UserConfigProvider';
 import { BusterCollectionsProvider } from './Collections/CollectionsProvider';
@@ -37,19 +31,6 @@ export const AppProviders: React.FC<
     userInfo: BusterUserResponse | undefined;
   }>
 > = ({ children, supabaseContext, userInfo }) => {
-  useMount(() => {
-    if (!isDev) {
-      console.log(`
-██████╗ ██╗   ██╗███████╗████████╗███████╗██████╗
-██╔══██╗██║   ██║██╔════╝╚══██╔══╝██╔════╝██╔══██╗
-██████╔╝██║   ██║███████╗   ██║   █████╗  ██████╔╝
-██╔══██╗██║   ██║╚════██║   ██║   ██╔══╝  ██╔══██╗
-██████╔╝╚██████╔╝███████║   ██║   ███████╗██║  ██║
-  ╚═════╝  ╚═════╝ ╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
-`);
-    }
-  });
-
   return (
     <SupabaseContextProvider supabaseContext={supabaseContext}>
       <BusterReactQueryProvider>
@@ -66,12 +47,10 @@ export const AppProviders: React.FC<
                             <BusterSQLProvider>
                               <BusterTermsProvider>
                                 <BusterChatProvider>
-                                  <AppHotKeysProvider>
-                                    <BusterPosthogProvider>
-                                      {children}
-                                      <RoutePrefetcher />
-                                    </BusterPosthogProvider>
-                                  </AppHotKeysProvider>
+                                  <BusterPosthogProvider>
+                                    {children}
+                                    <RoutePrefetcher />
+                                  </BusterPosthogProvider>
                                 </BusterChatProvider>
                               </BusterTermsProvider>
                             </BusterSQLProvider>

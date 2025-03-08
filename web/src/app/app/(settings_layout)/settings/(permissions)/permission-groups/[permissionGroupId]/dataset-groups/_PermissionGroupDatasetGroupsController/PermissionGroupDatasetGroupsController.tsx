@@ -7,10 +7,10 @@ import {
   PermissionSearchAndListWrapper
 } from '@/components/features/PermissionComponents';
 import React, { useMemo, useState } from 'react';
-import { Button } from 'antd';
-import { AppMaterialIcons } from '@/components/ui';
+import { Button } from '@/components/ui/buttons';
 import { PermissionGroupDatasetGroupsListContainer } from './PermissionGroupDatasetsListContainer';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
+import { Plus } from '@/components/ui/icons';
 
 export const PermissionGroupDatasetGroupsController: React.FC<{
   permissionGroupId: string;
@@ -34,10 +34,7 @@ export const PermissionGroupDatasetGroupsController: React.FC<{
 
   const NewDatasetGroupButton: React.ReactNode = useMemo(() => {
     return (
-      <Button
-        type="default"
-        icon={<AppMaterialIcons icon="add" />}
-        onClick={onOpenNewDatasetGroupModal}>
+      <Button prefix={<Plus />} onClick={onOpenNewDatasetGroupModal}>
         New dataset group
       </Button>
     );

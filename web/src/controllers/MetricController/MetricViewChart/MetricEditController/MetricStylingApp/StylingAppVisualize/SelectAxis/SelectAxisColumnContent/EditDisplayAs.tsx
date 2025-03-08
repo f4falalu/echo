@@ -1,18 +1,20 @@
 import { type IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
-import { AppMaterialIcons, AppSegmented, AppTooltip, SegmentedItem } from '@/components/ui';
+import { AppSegmented, SegmentedItem } from '@/components/ui/segmented';
+import { AppTooltip } from '@/components/ui/tooltip';
 import { ChartType, type ColumnSettings } from '@/components/ui/charts/interfaces';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
+import { ChartBarAxisX, ChartLine, ChartScatter } from '@/components/ui/icons';
 
 const options = [
   {
-    icon: <AppMaterialIcons icon="bar_chart" data-value="bar" />,
+    icon: <ChartBarAxisX />,
     value: 'bar',
     tooltip: 'Bar'
   },
   {
-    icon: <AppMaterialIcons icon="show_chart" data-value="line" />,
+    icon: <ChartLine />,
     value: 'line',
     tooltip: 'Line'
   },
@@ -22,7 +24,7 @@ const options = [
   //   tooltip: 'Area'
   // },
   {
-    icon: <AppMaterialIcons icon="scatter_plot" data-value="dot" />,
+    icon: <ChartScatter />,
     value: 'dot',
     tooltip: 'Dot'
   }

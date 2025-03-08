@@ -1,4 +1,3 @@
-import { BusterSocketResponseRoute } from '@/api/buster_socket';
 import { DashboardResponses } from '@/api/buster_socket/dashboards';
 import { isDev } from '@/config';
 import { DatasetResponses } from '@/api/buster_socket/datasets';
@@ -15,6 +14,7 @@ import type {
   BusterSocketResponseMessage
 } from '@/api/buster_socket/base_interfaces';
 import { ChatsResponses } from '@/api/buster_socket/chats';
+import type { BusterSocketResponseRoute } from '@/api/buster_socket';
 
 export const createBusterResponse = (
   message: BusterSocketResponseMessage

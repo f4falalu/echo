@@ -1,11 +1,12 @@
 'use client';
 
 import type { DataSource } from '@/api/asset_interfaces';
-import { AppMaterialIcons, PulseLoader } from '@/components/ui';
-import { AppDataSourceIcon } from '@/components/ui';
-import { useAntToken } from '@/styles/useAntToken';
+import { PulseLoader } from '@/components/ui/loaders';
+import { AppDataSourceIcon } from '@/components/ui/icons/AppDataSourceIcons';
 import { formatDate } from '@/lib';
-import { Button, Divider, Dropdown, MenuProps } from 'antd';
+import { Button } from '@/components/ui/buttons';
+import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
+import { Separator } from '@/components/ui/seperator';
 import React from 'react';
 import { DataSourceFormContent } from './_DatasourceFormContent';
 import { Title, Text } from '@/components/ui/typography';
@@ -13,6 +14,7 @@ import {
   useDataSourceIndividual,
   useDataSourceIndividualContextSelector
 } from '@/context/DataSources';
+import { Trash } from '@/components/ui/icons';
 
 export const DatasourceForm: React.FC<{ datasourceId: string }> = ({ datasourceId }) => {
   const { dataSource } = useDataSourceIndividual(datasourceId);
@@ -56,68 +58,16 @@ const DataSourceFormHeader: React.FC<{ dataSource: DataSource }> = ({ dataSource
   );
 };
 
-const ThreeDotsMenu: React.FC<{ dataSource: DataSource }> = ({ dataSource }) => {
-  const onDeleteDataSource = useDataSourceIndividualContextSelector(
-    (state) => state.onDeleteDataSource
-  );
-  const token = useAntToken();
-  const items: MenuProps['items'] = [
-    {
-      key: 'delete',
-      label: 'Delete',
-      icon: <AppMaterialIcons icon="delete" />,
-      onClick: async () => {
-        await onDeleteDataSource(dataSource.id);
-      }
-    }
-  ];
-  const contentStyle: React.CSSProperties = {
-    backgroundColor: token.colorBgElevated,
-    borderRadius: token.borderRadiusLG,
-    boxShadow: token.boxShadowSecondary
-  };
-
-  const menuStyle: React.CSSProperties = {
-    boxShadow: 'none'
-  };
-
-  return (
-    <Dropdown
-      trigger={['click']}
-      menu={{
-        items
-      }}
-      dropdownRender={(menu) => (
-        <div style={contentStyle}>
-          <div
-            style={{
-              height: 38
-            }}
-            className="flex items-center space-x-2 px-3.5">
-            <PulseLoader color={token.colorSuccess} size={10} />
-            <Text>Connection status</Text>
-          </div>
-          <Divider style={{ margin: 0 }} />
-          {React.cloneElement(menu as React.ReactElement, { style: menuStyle })}
-        </div>
-      )}>
-      <Button type="text" icon={<AppMaterialIcons icon="more_horiz" />}></Button>
-    </Dropdown>
-  );
-};
-
 const DataSourceFormStatus: React.FC<{ dataSource: DataSource }> = ({ dataSource }) => {
-  const token = useAntToken();
-  const [isOpenDropdown, setIsOpenDropdown] = React.useState(false);
   const onDeleteDataSource = useDataSourceIndividualContextSelector(
     (state) => state.onDeleteDataSource
   );
 
-  const dropdownItems: MenuProps['items'] = [
+  const dropdownItems: DropdownItems = [
     {
-      key: 'delete',
+      value: 'delete',
       label: 'Delete',
-      icon: <AppMaterialIcons icon="delete" />,
+      icon: <Trash />,
       onClick: async () => {
         await onDeleteDataSource(dataSource.id);
       }
@@ -125,14 +75,7 @@ const DataSourceFormStatus: React.FC<{ dataSource: DataSource }> = ({ dataSource
   ];
 
   return (
-    <div
-      className="flex w-full items-center justify-between space-x-3"
-      style={{
-        background: token.colorBgBase,
-        border: `0.5px solid ${token.colorBorder}`,
-        borderRadius: `${token.borderRadius}px`,
-        padding: `${token.paddingContentVertical}px ${token.paddingContentHorizontal}px`
-      }}>
+    <div className="flex w-full items-center justify-between space-x-3 rounded border border-gray-300 bg-gray-100 p-4">
       <div className="flex flex-col">
         <Text>Connection status</Text>
         <Text variant="secondary">{`Connected on ${formatDate({
@@ -142,23 +85,10 @@ const DataSourceFormStatus: React.FC<{ dataSource: DataSource }> = ({ dataSource
       </div>
 
       <div className="">
-        <Dropdown
-          trigger={['click']}
-          menu={{
-            items: dropdownItems
-          }}
-          onOpenChange={(open) => setIsOpenDropdown(open)}>
+        <Dropdown items={dropdownItems}>
           <div className="flex! cursor-pointer items-center space-x-2 pl-2">
-            <PulseLoader color={token.colorSuccess} size={10} />
+            <PulseLoader className="text-success-foreground" size={10} />
             <Text className="select-none">Connected</Text>
-            <AppMaterialIcons
-              size={16}
-              icon="keyboard_arrow_down"
-              className="transition"
-              style={{
-                transform: `rotate(${isOpenDropdown ? 180 : 0}deg)`
-              }}
-            />
           </div>
         </Dropdown>
       </div>

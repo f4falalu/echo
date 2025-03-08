@@ -36,7 +36,7 @@ const sizeVariants = {
 };
 
 export const buttonVariants = cva(
-  'inline-flex items-center overflow-hidden text-base justify-center gap-[5px] shadow rounded transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:cursor-not-allowed data-[loading=true]:cursor-progress',
+  'inline-flex items-center overflow-hidden text-base justify-center gap-1.5 shadow rounded transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:cursor-not-allowed data-[loading=true]:cursor-progress',
   {
     variants: {
       variant: buttonTypeClasses,

@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { QueryClient } from '@tanstack/react-query';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { getMetric, getMetric_server, listMetrics, listMetrics_server } from './requests';
 import type { GetMetricParams, ListMetricsParams } from './interfaces';
-import { upgradeMetricToIMetric } from '@/context/Metrics/helpers';
+import { upgradeMetricToIMetric } from '@/lib/chat';
 import { queryKeys } from '@/api/query_keys';
 
 export const useGetMetric = (params: GetMetricParams) => {

@@ -1,4 +1,4 @@
-import type { ShareRole } from '@/api/asset_interfaces';
+import type { ShareRole } from '@/api/asset_interfaces/share';
 
 /**
  * Type defining the sharing permissions and settings for a dashboard

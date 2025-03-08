@@ -1,7 +1,7 @@
-import { AppMaterialIcons } from '@/components/ui';
+import { Plus, Trash } from '@/components/ui/icons';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
-import { Button } from 'antd';
+import { Button } from '@/components/ui/buttons';
 import React from 'react';
 
 export const CollectionIndividualSelectedPopup: React.FC<{
@@ -38,7 +38,7 @@ const CollectionDeleteButton: React.FC<{
   );
 
   return (
-    <Button icon={<AppMaterialIcons icon="delete" />} type="default" onClick={onDeleteClick}>
+    <Button prefix={<Trash />} onClick={onDeleteClick}>
       Delete
     </Button>
   );

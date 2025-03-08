@@ -1,10 +1,11 @@
 import {
+  type ColumnLabelFormat,
   DEFAULT_COLUMN_LABEL_FORMAT,
   DEFAULT_DATE_FORMAT_DAY_OF_WEEK,
   DEFAULT_DATE_FORMAT_MONTH_OF_YEAR,
-  DEFAULT_DATE_FORMAT_QUARTER
-} from '@/api/asset_interfaces';
-import type { ColumnLabelFormat, IColumnLabelFormat } from '@/components/ui/charts';
+  DEFAULT_DATE_FORMAT_QUARTER,
+  IColumnLabelFormat
+} from '@/api/asset_interfaces/metric';
 import { formatDate } from './date';
 import { formatNumber, roundNumber } from './numbers';
 import { makeHumanReadble } from './text';
@@ -72,8 +73,8 @@ export const formatLabel = (
     style === 'currency' ||
     style === 'percent'
   ) {
-    let newNumber = Number(text) * multiplier;
-    let roundedNumber = roundNumber(newNumber, minimumFractionDigits, maximumFractionDigits);
+    const newNumber = Number(text) * multiplier;
+    const roundedNumber = roundNumber(newNumber, minimumFractionDigits, maximumFractionDigits);
     if (style === 'currency') {
       formattedText = formatNumber(roundedNumber, {
         currency,

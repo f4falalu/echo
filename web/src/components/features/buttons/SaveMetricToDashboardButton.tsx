@@ -1,10 +1,10 @@
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import React from 'react';
 import { SaveToDashboardDropdown } from '../dropdowns/SaveToDashboardDropdown';
-import { Button } from 'antd';
-import { AppMaterialIcons } from '@/components/ui';
 import type { BusterMetric } from '@/api/asset_interfaces';
+import { Button } from '@/components/ui/buttons';
+import { ASSET_ICONS } from '../config/assetIcons';
 
 const EMPTY_SELECTED_DASHBOARDS: BusterMetric['dashboards'] = [];
 
@@ -36,11 +36,7 @@ export const SaveMetricToDashboardButton: React.FC<{
         selectedDashboards={selectedDashboards}
         onSaveToDashboard={onSaveToDashboard}
         onRemoveFromDashboard={onRemoveFromDashboard}>
-        <Button
-          type="text"
-          disabled={disabled}
-          icon={<AppMaterialIcons icon="dashboard_customize" />}
-        />
+        <Button variant="ghost" disabled={disabled} prefix={<ASSET_ICONS.dashboardAdd />} />
       </SaveToDashboardDropdown>
     );
   }

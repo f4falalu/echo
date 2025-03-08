@@ -1,7 +1,7 @@
 import React from 'react';
 import { FileContainerButtonsProps } from './interfaces';
 import { MetricFileViewSecondary, useChatLayoutContextSelector } from '../../ChatLayoutContext';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useChatIndividualContextSelector } from '../../ChatContext';
 import { HideButtonContainer } from './HideButtonContainer';
 import { FileButtonContainer } from './FileButtonContainer';

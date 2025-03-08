@@ -1,6 +1,5 @@
 import { createDefaultChartConfig } from './messageAutoChartHandler';
-import { IBusterMetric } from '../interfaces';
-import { BusterMetric } from '@/api/asset_interfaces';
+import type { IBusterMetric, BusterMetric } from '@/api/asset_interfaces/metric';
 
 export const upgradeMetricToIMetric = (
   metric: BusterMetric,

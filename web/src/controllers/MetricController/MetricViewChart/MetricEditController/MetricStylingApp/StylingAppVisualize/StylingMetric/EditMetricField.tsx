@@ -5,7 +5,7 @@ import { LabelAndInput } from '../../Common';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/buttons';
 import { DEFAULT_COLUMN_SETTINGS } from '@/api/asset_interfaces';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { createColumnFieldOptions } from './helpers';
 import { Popover } from '@/components/ui/tooltip/Popover';
 import { SelectAxisDropdownContent } from '../SelectAxis/SelectAxisColumnContent';

@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import { cn } from '@/lib/classMerge';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { inputVariants } from './Input';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 const inputTextAreaVariants = inputVariants;
 

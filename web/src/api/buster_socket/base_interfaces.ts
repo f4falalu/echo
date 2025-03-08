@@ -3,7 +3,7 @@
  * @template R - The route type, defaults to string
  * @template T - The payload type, defaults to Object
  */
-export interface BusterSocketRequestBase<R = string, T = Object> {
+export interface BusterSocketRequestBase<R = string, T = object> {
   route: R;
   payload: T;
 }

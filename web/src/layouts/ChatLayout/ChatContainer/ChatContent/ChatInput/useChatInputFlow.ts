@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useBusterNewChatContextSelector } from '@/context/Chats';
 
 type FlowType = 'followup-chat' | 'followup-metric' | 'followup-dashboard' | 'new';
@@ -15,7 +15,7 @@ export const useChatInputFlow = ({
   disableSubmit: boolean;
   inputValue: string;
   setInputValue: (value: string) => void;
-  textAreaRef: React.RefObject<HTMLTextAreaElement>;
+  textAreaRef: React.RefObject<HTMLTextAreaElement | null>;
   loading: boolean;
 }) => {
   const hasChat = useChatIndividualContextSelector((x) => x.hasChat);

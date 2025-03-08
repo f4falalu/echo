@@ -3,7 +3,7 @@ import { DropZone, SelectAxisDropzones, SelectAxisItem } from './SelectAxisDragC
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { getChartTypeDropZones } from './helper';
 import { ISelectAxisContext, SelectAxisProvider } from './useSelectAxisContext';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { chartTypeToAxis, zoneIdToAxis } from './config';
 import {
@@ -39,7 +39,6 @@ export const SelectAxis: React.FC<
   }, [selectedAxis, selectedChartType, items]);
 
   const onChange = useMemoizedFn((dropZones: DropZone[]) => {
-    chartTypeToAxis;
     const selectedAxisToEdit = chartTypeToAxis[selectedChartType];
     if (!selectedAxisToEdit) return;
 

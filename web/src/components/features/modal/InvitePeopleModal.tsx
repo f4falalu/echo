@@ -1,9 +1,8 @@
 import React, { useMemo } from 'react';
-import { useMemoizedFn } from 'ahooks';
-import { AppModal } from '@/components/ui';
+import { useMemoizedFn } from '@/hooks';
+import { AppModal } from '@/components/ui/modal';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { AppSelectTagInput } from '@/components/ui/select/AppSelectTagInput';
-import { Tag } from 'antd';
+import { TagInput } from '@/components/ui/inputs/InputTagInput';
 
 export const InvitePeopleModal: React.FC<{
   open: boolean;
@@ -44,27 +43,17 @@ export const InvitePeopleModal: React.FC<{
     };
   }, [inviting, emails.length]);
 
-  const tagRender = useMemoizedFn((v) => {
-    return (
-      <Tag
-        closable
-        onClose={() => {
-          onCloseEmail(v.label as string);
-        }}>
-        {v.label}
-      </Tag>
-    );
-  });
-
   return (
     <AppModal open={open} onClose={onClose} header={memoizedHeader} footer={memoizedFooter}>
       <div className="flex flex-col">
-        <AppSelectTagInput
-          useTagRenderer={false}
+        <TagInput
           value={emails}
-          inputType="textarea"
-          tagRender={tagRender}
-          onChange={setEmails}
+          onTagAdd={(v) => {
+            setEmails([...emails, v]);
+          }}
+          onTagRemove={(index) => {
+            setEmails(emails.filter((_, i) => i !== index));
+          }}
           placeholder="buster@bluthbananas.com, tobias@bluthbananas.com..."
         />
       </div>

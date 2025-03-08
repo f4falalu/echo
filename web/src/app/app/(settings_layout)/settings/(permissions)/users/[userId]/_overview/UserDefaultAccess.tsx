@@ -1,9 +1,17 @@
 import { type BusterUser, type OrganizationUser } from '@/api/asset_interfaces';
 import React from 'react';
 import { Title, Text } from '@/components/ui/typography';
-import { Card, Select } from 'antd';
-import { useMemoizedFn } from 'ahooks';
-import { AppTooltip } from '@/components/ui';
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardDescription,
+  CardTitle,
+  CardFooter
+} from '@/components/ui/card/CardBase';
+import { Select, SelectItem } from '@/components/ui/select';
+import { useMemoizedFn } from '@/hooks';
+import { AppTooltip } from '@/components/ui/tooltip';
 import { useUpdateUser } from '@/api/buster_rest';
 
 export const UserDefaultAccess: React.FC<{
@@ -36,7 +44,7 @@ export const UserDefaultAccess: React.FC<{
   );
 };
 
-const accessOptions: { label: string; value: OrganizationUser['role'] }[] = [
+const accessOptions: SelectItem<OrganizationUser['role']>[] = [
   { label: 'Data Admin', value: 'dataAdmin' },
   { label: 'Workspace Admin', value: 'workspaceAdmin' },
   { label: 'Querier', value: 'querier' },
@@ -60,7 +68,7 @@ const DefaultAccessCard = React.memo(
     const isDisabled = !isAdmin || userIsMe;
 
     return (
-      <Card size="small">
+      <Card>
         <div className="flex items-center justify-between">
           <Text>Default Access</Text>
 
@@ -72,13 +80,7 @@ const DefaultAccessCard = React.memo(
                   : 'Only admins can change access'
                 : undefined
             }>
-            <Select
-              options={accessOptions}
-              value={role}
-              onChange={onChange}
-              loading={isLoading}
-              disabled={isDisabled}
-            />
+            <Select items={accessOptions} value={role} onChange={onChange} disabled={isDisabled} />
           </AppTooltip>
         </div>
       </Card>

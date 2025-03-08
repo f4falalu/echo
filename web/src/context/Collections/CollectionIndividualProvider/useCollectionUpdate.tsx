@@ -1,6 +1,6 @@
 import type { CollectionUpdateCollection } from '@/api/buster_socket/collections';
 import { useSocketQueryMutation } from '@/api/buster_socket_query';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import type { BusterCollection, BusterCollectionListItem } from '@/api/asset_interfaces';
 import { queryKeys } from '@/api/query_keys';
 import { useQueryClient } from '@tanstack/react-query';
@@ -20,7 +20,7 @@ export const useCollectionUpdate = () => {
         if (collection) {
           const newCollection: BusterCollection = {
             ...collection!,
-            ...(variables as Partial<BusterCollection>)
+            ...(variables as unknown as Partial<BusterCollection>)
           };
           queryClient.setQueryData(queryKey, newCollection);
         }

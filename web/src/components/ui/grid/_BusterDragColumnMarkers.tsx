@@ -112,10 +112,10 @@ const hackForTesting = (
         DEFAULT: 0
       }
     };
-    const offsetRecord = dragIndexRecord[isDraggingIndex as 1] || {};
+    const offsetRecord = dragIndexRecord[isDraggingIndex as 1]!;
 
     return {
-      left: `calc(${((dotIndex + 0) / NUMBER_OF_COLUMNS) * 100}% - ${offsetRecord[dotIndex as 4] || offsetRecord.DEFAULT}px)`
+      left: `calc(${((dotIndex + 0) / NUMBER_OF_COLUMNS) * 100}% - ${offsetRecord?.[dotIndex as 4] || offsetRecord?.DEFAULT}px)`
     };
   }
 

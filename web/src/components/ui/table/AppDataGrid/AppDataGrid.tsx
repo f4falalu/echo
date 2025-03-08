@@ -12,7 +12,7 @@ import type {
 import isNumber from 'lodash/isNumber';
 import isDate from 'lodash/isDate';
 import isString from 'lodash/isString';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 import round from 'lodash/round';
 import { ErrorBoundary } from '@/components/ui/error';
 import { CaretDown } from '../../icons/NucleoIconFilled';
@@ -26,7 +26,7 @@ import {
   useMemoizedFn,
   useMount,
   useSize
-} from 'ahooks';
+} from '@/hooks';
 import sampleSize from 'lodash/sampleSize';
 import isEmpty from 'lodash/isEmpty';
 import {
@@ -86,10 +86,10 @@ export const AppDataGrid: React.FC<AppDataGridProps> = React.memo(
     const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
 
     const hasErroredOnce = useRef(false);
-    const containerRef = useRef<HTMLDivElement | null>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     const widthOfContainer = useDebounce(useSize(containerRef)?.width ?? initialWidth, {
-      wait: 20,
+      wait: 25,
       maxWait: 500,
       leading: true
     });
@@ -392,7 +392,7 @@ const HeaderCell: React.FC<
   const { name, sortable, key } = column;
   return (
     <div className="flex items-center overflow-hidden">
-      <Text className="block!" ellipsis>
+      <Text className="block!" truncate>
         {headerFormat(name, key)}
       </Text>
       {sortable && sortDirection && (

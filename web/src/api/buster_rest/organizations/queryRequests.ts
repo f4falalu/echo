@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getOrganizationUsers, getOrganizationUsers_server } from './requests';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { QueryClient } from '@tanstack/react-query';
 import { organizationQueryKeys } from '@/api/query_keys/organization';
 

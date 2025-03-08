@@ -1,6 +1,6 @@
 import React from 'react';
 import { LabelAndInput } from '../Common';
-import { Switch } from 'antd';
+import { Switch } from '@/components/ui/switch';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { ChartEncodes, ScatterAxis } from '@/components/ui/charts';
 import { useLegendAutoShow } from '@/components/ui/charts/BusterChartLegend';
@@ -27,8 +27,8 @@ export const EditShowLegend: React.FC<{
         <div className="flex justify-end">
           <Switch
             defaultChecked={showLegend ?? false}
-            defaultValue={showLegend}
-            onChange={(v) => onUpdateChartConfig({ showLegend: v })}
+            checked={showLegend}
+            onCheckedChange={(v) => onUpdateChartConfig({ showLegend: v })}
           />
         </div>
       </LabelAndInput>

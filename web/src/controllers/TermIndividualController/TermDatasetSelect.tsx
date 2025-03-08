@@ -1,49 +1,42 @@
-import { BusterTerm } from '@/api/buster_rest';
-import { AppTooltip, AppMaterialIcons } from '@/components/ui';
+import { BusterTerm } from '@/api/asset_interfaces/terms';
+import { AppTooltip } from '@/components/ui/tooltip';
+import { Plus, Table } from '@/components/ui/icons';
 import { Dropdown, type DropdownProps } from '@/components/ui/dropdown';
-import { createStyles } from 'antd-style';
 import React, { useMemo } from 'react';
-import { Button } from 'antd';
-import { Text } from '@/components/ui';
+import { Button } from '@/components/ui/buttons';
+import { Text } from '@/components/ui/typography';
 import { useGetDatasets } from '@/api/buster_rest/datasets';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
+import { cn } from '@/lib/classMerge';
 
-const useStyles = createStyles(({ token, css }) => ({
-  datasetItem: css`
-    border: 0.5px solid ${token.colorBorder};
-    background: ${token.controlItemBgActive};
-    cursor: pointer;
-    overflow: hidden;
-    &:hover {
-      background: ${token.controlItemBgHover};
-    }
-  `,
-  addButton: css`
-    background: ${token.colorBgBase};
-    color: ${token.colorIcon};
-    cursor: pointer;
-    border: 0.5px solid ${token.colorBorder};
-    height: ${token.controlHeight}px;
-    width: ${token.controlHeight}px;
-    &:hover {
-      background: ${token.controlItemBgHover};
-      color: ${token.colorIconHover};
-    }
-  `
-}));
+// const useStyles = createStyles(({ token, css }) => ({
+//   addButton: css`
+//     background: ${token.colorBgBase};
+//     color: ${token.colorIcon};
+//     cursor: pointer;
+//     border: 0.5px solid ${token.colorBorder};
+//     height: ${token.controlHeight}px;
+//     width: ${token.controlHeight}px;
+//     &:hover {
+//       background: ${token.controlItemBgHover};
+//       color: ${token.colorIconHover};
+//     }
+//   `
+// }));
 
 export const DatasetList: React.FC<{
   termId?: string;
   selectedDatasets: BusterTerm['datasets'];
   onChange: (datasets: string[]) => void;
 }> = React.memo(({ onChange, termId, selectedDatasets }) => {
-  const { styles, cx } = useStyles();
-
   return (
     <div className="flex flex-wrap gap-2">
       {selectedDatasets.map((item) => (
         <DropdownSelect key={item.id} onChange={onChange} datasets={selectedDatasets}>
-          <div className={cx(styles.datasetItem, 'flex items-center rounded-full px-2 py-1')}>
+          <div
+            className={cn(
+              'border-default-border bg-item-active hover:bg-item-hover flex cursor-pointer items-center overflow-hidden rounded-full border px-2 py-1'
+            )}>
             <Text>{item.name}</Text>
           </div>
         </DropdownSelect>
@@ -54,8 +47,11 @@ export const DatasetList: React.FC<{
           {selectedDatasets.length === 0 ? (
             <DropdownEmptyButton />
           ) : (
-            <div className={cx(styles.addButton, 'flex items-center justify-center rounded-full')}>
-              <AppMaterialIcons size={18} icon="add" />
+            <div
+              className={cn(
+                'bg-background text-icon-color border-border hover:bg-item-hover hover:text-foreground flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border'
+              )}>
+              <Plus />
             </div>
           )}
         </AppTooltip>
@@ -106,11 +102,7 @@ const DropdownSelect: React.FC<{
 
 const DropdownEmptyButton: React.FC<{ onClick?: () => void }> = React.memo(({ onClick }) => {
   return (
-    <Button
-      onClick={onClick}
-      type="default"
-      icon={<AppMaterialIcons size={18} icon="table_view" />}
-      className="">
+    <Button onClick={onClick} prefix={<Table />} className="">
       Datasets
     </Button>
   );

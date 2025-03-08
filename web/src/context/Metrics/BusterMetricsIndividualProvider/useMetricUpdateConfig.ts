@@ -1,14 +1,14 @@
-import { useDebounceFn, useMemoizedFn } from 'ahooks';
-import type { IBusterMetric } from '../interfaces';
-import {
+import { useMemoizedFn, useDebounceFn } from '@/hooks';
+import type {
+  IBusterMetric,
   BusterMetric,
-  DEFAULT_CHART_CONFIG,
-  type IBusterMetricChartConfig,
-  ShareRole,
-  VerificationStatus
-} from '@/api/asset_interfaces';
+  ColumnSettings,
+  IBusterMetricChartConfig,
+  IColumnLabelFormat
+} from '@/api/asset_interfaces/metric';
+import { DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces/metric/defaults';
+import { ShareRole, VerificationStatus } from '@/api/asset_interfaces/share';
 import { prepareMetricUpdateMetric, upgradeMetricToIMetric } from '../helpers';
-import { ColumnSettings, IColumnLabelFormat } from '@/components/ui/charts';
 import { useTransition } from 'react';
 import { queryKeys } from '@/api/query_keys';
 import { useQueryClient } from '@tanstack/react-query';

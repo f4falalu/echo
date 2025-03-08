@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Title, Text } from '@/components/ui/typography';
-import { Divider } from 'antd';
+import { Separator } from '@/components/ui/seperator';
 
 export const SettingsPageHeader: React.FC<{
   title: string;
@@ -16,7 +16,7 @@ export const SettingsPageHeader: React.FC<{
         <Text variant="secondary">{description}</Text>
       </div>
 
-      <Divider className="my-6!" />
+      <Separator className="my-6!" />
     </div>
   );
 });

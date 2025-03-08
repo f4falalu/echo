@@ -1,9 +1,9 @@
 'use client';
 
-import { PropsWithChildren, useContext, useEffect } from 'react';
+import { PropsWithChildren, useEffect } from 'react';
 import { PostHogProvider } from 'posthog-js/react';
 import React from 'react';
-import { PostHogConfig } from 'posthog-js';
+import type { PostHogConfig } from 'posthog-js';
 import { isDev } from '@/config';
 import posthog from 'posthog-js';
 import { useUserConfigContextSelector } from '../Users';

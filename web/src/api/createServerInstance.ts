@@ -3,6 +3,7 @@
 import { BASE_URL } from './buster_rest/config';
 import type { RequestInit } from 'next/dist/server/web/spec-extension/request';
 import { createClient } from '../context/Supabase/server';
+import { cookies } from 'next/headers';
 
 export interface FetchConfig extends RequestInit {
   baseURL?: string;
@@ -47,4 +48,11 @@ export const serverFetch = async <T>(url: string, config: FetchConfig = {}): Pro
     console.error('Fetch error:', error);
     throw error;
   }
+};
+
+export const getSupabaseTokenFromCookies = async () => {
+  const cookiesManager = await cookies();
+  const tokenCookie =
+    cookiesManager.get('sb-127-auth-token') || cookiesManager.get('next-sb-access-token');
+  return tokenCookie?.value || '';
 };

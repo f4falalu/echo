@@ -1,10 +1,9 @@
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { getListChats, getListChats_server, getChat, getChat_server } from './requests';
-import type { BusterChatListItem } from '@/api/asset_interfaces';
+import type { BusterChatListItem, IBusterChat } from '@/api/asset_interfaces/chat';
 import { queryKeys } from '@/api/query_keys';
 import { updateChatToIChat } from '@/lib/chat';
-import type { IBusterChat } from '@/context/Chats';
 import { RustApiError } from '@/api/buster_rest/errors';
 
 export const useGetListChats = (params?: Parameters<typeof getListChats>[0]) => {

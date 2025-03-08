@@ -10,8 +10,8 @@ import {
   InfiniteListContainer
 } from '@/components/ui/list';
 import { BusterInfiniteList } from '@/components/ui/list/BusterInfiniteList';
-import { useMemoizedFn } from 'ahooks';
-import { Select } from 'antd';
+import { useMemoizedFn } from '@/hooks';
+import { Select } from '@/components/ui/select';
 import React, { useMemo, useState } from 'react';
 import { PermissionUsersSelectedPopup } from './PermissionUsersSelectedPopup';
 import { PERMISSION_USERS_OPTIONS } from './config';
@@ -149,17 +149,14 @@ const PermissionGroupAssignedCell: React.FC<{
   onSelect: (value: { id: string; assigned: boolean }) => void;
 }> = ({ id, assigned, onSelect }) => {
   return (
-    <Select
-      options={PERMISSION_USERS_OPTIONS}
-      value={assigned}
-      popupMatchSelectWidth
-      onSelect={(value) => {
-        onSelect({ id, assigned: value });
-      }}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
-    />
+    <div className="flex" onClick={(e) => e.stopPropagation()}>
+      <Select
+        items={PERMISSION_USERS_OPTIONS}
+        value={assigned ? 'true' : 'false'}
+        onChange={(value) => {
+          onSelect({ id, assigned: value === 'true' });
+        }}
+      />
+    </div>
   );
 };

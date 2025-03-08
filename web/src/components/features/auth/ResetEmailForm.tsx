@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/inputs';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { Title, Text } from '@/components/ui/typography';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { cn } from '@/lib/classMerge';
 import { SuccessCard } from '@/components/ui/card/SuccessCard';

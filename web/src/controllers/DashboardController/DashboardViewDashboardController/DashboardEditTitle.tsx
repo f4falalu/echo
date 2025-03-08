@@ -1,6 +1,6 @@
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { EditableTitle } from '@/components/ui/typography/EditableTitle';
-import { Input } from 'antd';
+import { Input } from '@/components/ui/inputs';
 import React from 'react';
 import { useBusterDashboards } from '@/context/Dashboards';
 
@@ -38,7 +38,7 @@ export const DashboardEditTitles: React.FC<{
 
       {(description || allowEdit) && (
         <Input
-          variant="borderless"
+          variant="ghost"
           className={'pl-0!'}
           disabled={!allowEdit}
           onChange={onChangeDashboardDescription}

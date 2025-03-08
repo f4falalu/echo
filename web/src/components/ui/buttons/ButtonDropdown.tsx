@@ -12,7 +12,7 @@ import { ChevronDown } from '../icons/NucleoIconOutlined';
 import { cn } from '@/lib/classMerge';
 import { cva } from 'class-variance-authority';
 import { type DropdownProps, Dropdown } from '../dropdown/Dropdown';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 
 interface ButtonDropdownProps {
   icon?: React.ReactNode;

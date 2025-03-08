@@ -1,10 +1,9 @@
 'use client';
 
 import React, { useMemo, useRef, useState } from 'react';
-import { useMemoizedFn, useRequest } from 'ahooks';
+import { useMemoizedFn, useRequest } from '@/hooks';
 import type { IDataResult } from '@/api/asset_interfaces';
 import { EditorApps, EditorContainerSubHeader } from './EditorContainerSubHeader';
-import { createStyles } from 'antd-style';
 import { MetadataContainer } from './MetadataContainer';
 import { runSQL } from '@/api/buster_rest';
 import type { RustApiError } from '@/api/buster_rest/errors';
@@ -12,11 +11,11 @@ import isEmpty from 'lodash/isEmpty';
 import type { AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
 import { useDatasetPageContextSelector } from '../_DatasetsLayout/DatasetPageContext';
 import { AppVerticalCodeSplitter } from '@/components/features/layouts/AppVerticalCodeSplitter';
+import { cn } from '@/lib/classMerge';
 
 export const EditorContent: React.FC<{
   defaultLayout: [string, string];
 }> = ({ defaultLayout }) => {
-  const { styles, cx } = useStyles();
   const ref = useRef<HTMLDivElement>(null);
   const splitterRef = useRef<AppSplitterRef>(null);
   const [selectedApp, setSelectedApp] = useState<EditorApps>(EditorApps.PREVIEW);
@@ -71,7 +70,7 @@ export const EditorContent: React.FC<{
   return (
     <div className="flex h-full w-full flex-col overflow-hidden" ref={ref}>
       <EditorContainerSubHeader selectedApp={selectedApp} setSelectedApp={setSelectedApp} />
-      <div className={cx('h-full w-full overflow-hidden p-5', styles.container)}>
+      <div className={cn('h-full w-full overflow-hidden p-5', 'bg-item-hover')}>
         {selectedApp === EditorApps.PREVIEW && (
           <AppVerticalCodeSplitter
             autoSaveId="dataset-editor"
@@ -93,9 +92,3 @@ export const EditorContent: React.FC<{
     </div>
   );
 };
-
-const useStyles = createStyles(({ token, css }) => ({
-  container: css`
-    background: ${token.controlItemBgHover};
-  `
-}));

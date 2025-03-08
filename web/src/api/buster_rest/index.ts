@@ -1,5 +1,4 @@
 export * from './users';
-export * from '../asset_interfaces/terms';
 export * from './assets';
 export * from './api_keys';
 export * from './sql';

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useMount } from 'ahooks';
+import { useMount } from '@/hooks';
 import { formatLabel, JsonDataFrameOperationsSingle, timeout } from '@/lib';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Title } from '@/components/ui/typography';

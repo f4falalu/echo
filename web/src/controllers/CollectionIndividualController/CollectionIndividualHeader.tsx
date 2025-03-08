@@ -5,19 +5,19 @@ import {
   canEditCollection,
   useBusterCollectionIndividualContextSelector
 } from '@/context/Collections';
-import { Button, Dropdown, MenuProps } from 'antd';
+import { Button } from '@/components/ui/buttons';
+import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
-import { AppMaterialIcons } from '@/components/ui';
 import { EditableTitle } from '@/components/ui/typography/EditableTitle';
 import { FavoriteStar } from '@/components/features/list/FavoriteStar';
 import { ShareMenu } from '@/components/features/ShareMenu';
 import { BusterCollection, ShareAssetType } from '@/api/asset_interfaces';
-import { Text } from '@/components/ui';
-import { useAntToken } from '@/styles/useAntToken';
-import { useMemoizedFn } from 'ahooks';
+import { Text } from '@/components/ui/typography';
+import { useMemoizedFn } from '@/hooks';
 import { measureTextWidth } from '@/lib/canvas';
 import { type BreadcrumbItem, Breadcrumb } from '@/components/ui/breadcrumb';
+import { Dots, Pencil, Plus, ShareAllRight, Trash } from '@/components/ui/icons';
 
 export const CollectionsIndividualHeader: React.FC<{
   openAddTypeModal: boolean;
@@ -56,12 +56,7 @@ export const CollectionsIndividualHeader: React.FC<{
           {collectionTitle}
         </EditableTitle>
       ) : (
-        <Text
-          ellipsis={{
-            tooltip: true
-          }}>
-          {collectionTitle}
-        </Text>
+        <Text truncate>{collectionTitle}</Text>
       )
     };
   }, [collectionTitle, editingTitle, textWidth.width, onSetTitleValue, setEditingTitle, isFetched]);
@@ -110,9 +105,9 @@ const ContentRight: React.FC<{
         assetType={ShareAssetType.COLLECTION}
         assetId={collection.id}
         shareAssetConfig={collection}>
-        <Button type="text" icon={<AppMaterialIcons icon="share_windows" size={16} />} />
+        <Button variant="ghost" prefix={<ShareAllRight />} />
       </ShareMenu>
-      <Button icon={<AppMaterialIcons icon="add" />} onClick={onButtonClick} type="default">
+      <Button prefix={<Plus />} onClick={onButtonClick}>
         Add to collection
       </Button>
     </div>
@@ -126,14 +121,13 @@ const ThreeDotDropdown: React.FC<{
 }> = React.memo(({ collection, setEditingTitle }) => {
   const deleteCollection = useBusterCollectionIndividualContextSelector((x) => x.deleteCollection);
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
-  const token = useAntToken();
 
-  const items: MenuProps['items'] = useMemo(
+  const items: DropdownItems = useMemo(
     () => [
       {
-        key: 'delete',
+        value: 'delete',
         label: 'Delete collection',
-        icon: <AppMaterialIcons icon="delete" />,
+        icon: <Trash />,
         onClick: async () => {
           try {
             await deleteCollection(collection.id);
@@ -144,9 +138,9 @@ const ThreeDotDropdown: React.FC<{
         }
       },
       {
-        key: 'rename',
+        value: 'rename',
         label: 'Rename collection',
-        icon: <AppMaterialIcons icon="edit" />,
+        icon: <Pencil />,
         onClick: () => {
           setEditingTitle(true);
         }
@@ -155,26 +149,10 @@ const ThreeDotDropdown: React.FC<{
     [collection.id, deleteCollection, onChangePage, setEditingTitle]
   );
 
-  const memoizedMenu = useMemo(() => {
-    return {
-      items
-    };
-  }, [items]);
-
   return (
     <div className="flex items-center">
-      <Dropdown trigger={['click']} menu={memoizedMenu}>
-        <Button
-          type="text"
-          icon={
-            <AppMaterialIcons
-              style={{
-                color: token.colorIcon
-              }}
-              icon="more_horiz"
-              size={16}
-            />
-          }></Button>
+      <Dropdown items={items}>
+        <Button variant="ghost" prefix={<Dots />}></Button>
       </Dropdown>
     </div>
   );

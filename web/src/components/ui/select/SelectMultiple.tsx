@@ -6,7 +6,7 @@ import { selectVariants } from './SelectBase';
 import { cn } from '@/lib/classMerge';
 import { Dropdown, type DropdownItem } from '../dropdown/Dropdown';
 import { VariantProps } from 'class-variance-authority';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { InputTag } from '../inputs/InputTag';
 
 interface SelectMultipleProps extends VariantProps<typeof selectVariants> {

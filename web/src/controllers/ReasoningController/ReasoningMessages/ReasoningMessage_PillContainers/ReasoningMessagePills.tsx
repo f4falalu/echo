@@ -1,7 +1,7 @@
 import type { BusterChatMessageReasoning_pill } from '@/api/asset_interfaces';
 import React, { useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { Popover } from '@/components/ui/tooltip/Popover';
 import {
   isOpenableFile,
@@ -14,33 +14,26 @@ const duration = 0.25;
 
 const containerVariants = {
   hidden: {
-    //  height: 0,
     opacity: 0,
     transition: {
-      height: { duration: duration, ease: 'easeInOut' },
       opacity: { duration: duration * 0.5, ease: 'easeOut' }
     }
   },
   visible: {
-    //   height: 'auto',
     opacity: 1,
     transition: {
-      height: { duration: duration, ease: 'easeInOut' },
       opacity: { duration: duration * 0.5, ease: 'easeIn' },
-      staggerChildren: 0.075,
-      delayChildren: 0.075
+      staggerChildren: 0.08
     }
   }
 };
 
 const pillVariants = {
   hidden: {
-    opacity: 0,
-    scale: 0.97
+    opacity: 0
   },
   visible: {
     opacity: 1,
-    scale: 1,
     transition: {
       duration: duration * 0.85,
       ease: 'easeOut'

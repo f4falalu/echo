@@ -1,16 +1,18 @@
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 import { BusterChartConfigProps, ColumnSettings } from '@/components/ui/charts';
-import { AppMaterialIcons, AppSegmented, AppTooltip } from '@/components/ui';
+import { AppTooltip } from '@/components/ui/tooltip';
+import { AppSegmented } from '@/components/ui/segmented';
 import { ENABLED_DOTS_ON_LINE_SIZE } from '@/api/asset_interfaces';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { type SegmentedItem } from '@/components/ui/segmented';
+import { ChartLine, ChartArea, ChartActivity3, ChartCombo } from '@/components/ui/icons';
 
 const options: { icon: React.ReactNode; value: LineValue }[] = [
   {
     icon: (
       <AppTooltip title="Area chart">
-        <AppMaterialIcons icon="line_chart_area" data-value="area" />
+        <ChartArea />
       </AppTooltip>
     ),
     value: 'area'
@@ -18,7 +20,7 @@ const options: { icon: React.ReactNode; value: LineValue }[] = [
   {
     icon: (
       <AppTooltip title="Dots on line">
-        <AppMaterialIcons icon="line_chart_dot_line" data-value="dot-line" />
+        <ChartCombo />
       </AppTooltip>
     ),
     value: 'dot-line'
@@ -26,7 +28,7 @@ const options: { icon: React.ReactNode; value: LineValue }[] = [
   {
     icon: (
       <AppTooltip title="Line chart">
-        <AppMaterialIcons icon="show_chart" data-value="line" />
+        <ChartLine />
       </AppTooltip>
     ),
     value: 'line'
@@ -34,7 +36,7 @@ const options: { icon: React.ReactNode; value: LineValue }[] = [
   {
     icon: (
       <AppTooltip title="Step chart">
-        <AppMaterialIcons icon="stairs" data-value="step" />
+        <ChartActivity3 />
       </AppTooltip>
     ),
     value: 'step'

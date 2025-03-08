@@ -1,5 +1,5 @@
 import mainApi from '@/api/buster_rest/instances';
-import { BusterApiKeyListItem } from '@/api/asset_interfaces';
+import type { BusterApiKeyListItem } from '@/api/asset_interfaces/api_keys';
 
 export const getApiKeys = async () => {
   return mainApi.get<{ api_keys: BusterApiKeyListItem[] }>(`/api_keys`).then((res) => res.data);

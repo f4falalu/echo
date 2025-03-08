@@ -3,7 +3,7 @@ import { DotsVertical } from '@/components/ui/icons';
 import { Title, Text } from '@/components/ui/typography';
 import { Avatar } from '@/components/ui/avatar';
 import type { OrganizationUser } from '@/api/asset_interfaces';
-import { Button } from 'antd';
+import { Button } from '@/components/ui/buttons';
 
 export const UserHeader = React.memo(({ user }: { user: OrganizationUser }) => {
   return (
@@ -31,5 +31,5 @@ const UserInfo: React.FC<{ user: OrganizationUser }> = ({ user }) => {
 };
 
 const ThreeDotMenu: React.FC<{ user: OrganizationUser }> = ({ user }) => {
-  return <Button type="text" icon={<DotsVertical />} size="small" />;
+  return <Button variant="ghost" prefix={<DotsVertical />} size="small" />;
 };

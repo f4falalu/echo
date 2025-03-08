@@ -4,11 +4,12 @@ import { useGetUserTeams } from '@/api/buster_rest';
 import { useDebounceSearch } from '@/hooks';
 import { PermissionSearchAndListWrapper } from '@/components/features/PermissionComponents';
 import React, { useMemo, useState } from 'react';
-import { Button } from 'antd';
-import { useMemoizedFn } from 'ahooks';
-import { AppMaterialIcons } from '@/components/ui';
+import { Button } from '@/components/ui/buttons';
+import { useMemoizedFn } from '@/hooks';
+
 import { UserTeamsListContainer } from './UserTeamsListContainer';
 import { NewTeamModal } from '@/components/features/modal/NewTeamModal';
+import { Plus } from '@/components/ui/icons';
 
 export const UserTeamsController: React.FC<{ userId: string }> = ({ userId }) => {
   const { data: teams, refetch } = useGetUserTeams({ userId });
@@ -30,7 +31,7 @@ export const UserTeamsController: React.FC<{ userId: string }> = ({ userId }) =>
 
   const NewTeamButton: React.ReactNode = useMemo(() => {
     return (
-      <Button type="default" icon={<AppMaterialIcons icon="add" />} onClick={onOpenNewTeamModal}>
+      <Button prefix={<Plus />} onClick={onOpenNewTeamModal}>
         New team
       </Button>
     );

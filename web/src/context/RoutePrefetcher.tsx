@@ -1,8 +1,10 @@
+'use client';
+
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { createBusterRoute } from '@/routes';
 import { type BusterRoutes, BusterRoutes as BusterRouteEnum } from '@/routes/busterRoutes';
-import { useAsyncEffect } from 'ahooks';
+import { useAsyncEffect } from '@/hooks';
 
 const PRIORITY_ROUTES: Array<BusterRoutes> = [
   BusterRouteEnum.APP_HOME,
@@ -18,7 +20,7 @@ const PRIORITY_ROUTES: Array<BusterRoutes> = [
   BusterRouteEnum.APP_CHAT_ID_METRIC_ID
 ];
 
-export const RoutePrefetcher: React.FC<{}> = () => {
+export const RoutePrefetcher: React.FC = React.memo(() => {
   const router = useRouter();
 
   useAsyncEffect(async () => {
@@ -64,4 +66,6 @@ export const RoutePrefetcher: React.FC<{}> = () => {
   }, [router]);
 
   return null;
-};
+});
+
+RoutePrefetcher.displayName = 'RoutePrefetcher';

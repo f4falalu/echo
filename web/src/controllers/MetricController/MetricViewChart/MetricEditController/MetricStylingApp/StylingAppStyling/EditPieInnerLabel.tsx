@@ -1,7 +1,8 @@
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../Common';
-import { Input, Select } from 'antd';
+import { Input } from '@/components/ui/inputs';
+import { Select, SelectItem } from '@/components/ui/select';
 
 export const EditPieInnerLabel = React.memo(
   ({
@@ -30,10 +31,7 @@ export const EditPieInnerLabel = React.memo(
 );
 EditPieInnerLabel.displayName = 'EditPieInnerLabel';
 
-const options: {
-  label: string;
-  value: IBusterMetricChartConfig['pieInnerLabelAggregate'];
-}[] = [
+const options: SelectItem<IBusterMetricChartConfig['pieInnerLabelAggregate']>[] = [
   { label: 'Sum', value: 'sum' },
   { label: 'Average', value: 'average' },
   { label: 'Median', value: 'median' },
@@ -53,13 +51,13 @@ const EditPieInnerLabelAggregate: React.FC<{
   return (
     <LabelAndInput label="Aggregation">
       <Select
-        options={options}
-        defaultValue={selectedOption.value}
+        items={options}
+        value={selectedOption.value}
         onChange={(value) => {
           const label = options.find((option) => option.value === value)?.label;
           onUpdateChartConfig({
             pieInnerLabelAggregate: value as IBusterMetricChartConfig['pieInnerLabelAggregate'],
-            pieInnerLabelTitle: label
+            pieInnerLabelTitle: label as string
           });
         }}
       />

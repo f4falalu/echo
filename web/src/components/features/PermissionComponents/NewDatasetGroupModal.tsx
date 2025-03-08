@@ -1,7 +1,7 @@
-import { AppModal } from '@/components/ui';
-import { useMemoizedFn } from 'ahooks';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Input, InputRef } from 'antd';
+import { AppModal } from '@/components/ui/modal';
+import { useMemoizedFn } from '@/hooks';
+import React, { useMemo, useRef, useState } from 'react';
+import { Input } from '@/components/ui/inputs';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useCreateDatasetGroup } from '@/api/buster_rest/dataset_groups';
 import { SelectedDatasetInput } from './SelectDatasetInput';
@@ -18,7 +18,7 @@ export const NewDatasetGroupModal: React.FC<NewDatasetGroupModalProps> = React.m
     const [datasetsToAdd, setDatasetsToAdd] = useState<string[]>([]);
 
     const { mutateAsync, isPending } = useCreateDatasetGroup(datasetId || undefined, userId);
-    const inputRef = useRef<InputRef>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
     const { openInfoMessage } = useBusterNotifications();
 
     const onSetDatasetId = useMemoizedFn((datasetIds: string[]) => {
@@ -26,7 +26,7 @@ export const NewDatasetGroupModal: React.FC<NewDatasetGroupModalProps> = React.m
     });
 
     const onCreateNewDatasetGroup = useMemoizedFn(async () => {
-      const inputValue = inputRef.current?.input?.value;
+      const inputValue = inputRef.current?.value;
       if (!inputValue) {
         openInfoMessage('Please enter a name for the dataset group');
         inputRef.current?.focus();

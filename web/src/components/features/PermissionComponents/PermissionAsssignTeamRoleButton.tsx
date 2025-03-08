@@ -1,19 +1,20 @@
 import { TeamRole } from '@/api/asset_interfaces';
 import { TEAM_ROLE_OPTIONS } from './PermissionAssignTeamRole';
 import React, { useMemo } from 'react';
-import { Button, Dropdown, MenuProps } from 'antd';
-import { useMemoizedFn } from 'ahooks';
-import { AppMaterialIcons } from '@/components/ui';
+import { useMemoizedFn } from '@/hooks';
+import { Button } from '@/components/ui/buttons';
+import { Dropdown, DropdownItem, DropdownItems, DropdownProps } from '@/components/ui/dropdown';
+import { CheckDouble } from '@/components/ui/icons';
 
 export const PermissionAssignTeamRoleButton: React.FC<{
   onRoleChange: (role: TeamRole) => void;
 }> = React.memo(({ onRoleChange }) => {
-  const menuProps: MenuProps = useMemo(() => {
+  const menuProps: DropdownProps = useMemo(() => {
     return {
       selectable: true,
       items: TEAM_ROLE_OPTIONS.map(({ label, value }) => ({
         label,
-        key: value,
+        value,
         onClick: () => onRoleChange(value)
       }))
     };
@@ -25,8 +26,8 @@ export const PermissionAssignTeamRoleButton: React.FC<{
   });
 
   return (
-    <Dropdown menu={menuProps} trigger={['click']}>
-      <Button icon={<AppMaterialIcons icon="done_all" />} type="default" onClick={onButtonClick}>
+    <Dropdown {...menuProps}>
+      <Button prefix={<CheckDouble />} onClick={onButtonClick}>
         Assign Team Role
       </Button>
     </Dropdown>

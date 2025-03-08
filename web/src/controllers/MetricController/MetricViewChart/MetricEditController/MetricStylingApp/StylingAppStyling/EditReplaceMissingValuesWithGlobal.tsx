@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { IColumnLabelFormat } from '@/components/ui/charts';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { EditReplaceMissingData } from '../StylingAppVisualize/SelectAxis/SelectAxisColumnContent/EditReplaceMissingData';
 
 export const EditReplaceMissingValuesWithGlobal: React.FC<{
@@ -14,7 +14,7 @@ export const EditReplaceMissingValuesWithGlobal: React.FC<{
         ({ replaceMissingDataWith }) => replaceMissingDataWith === null
       )
         ? null
-        : 0;
+        : (0 as const);
     }, [columnLabelFormats]);
 
     const onUpdateColumnLabel = useMemoizedFn((config: Partial<IColumnLabelFormat>) => {

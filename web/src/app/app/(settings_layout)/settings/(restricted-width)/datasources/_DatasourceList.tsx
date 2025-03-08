@@ -5,20 +5,18 @@ import {
   useDataSourceListContextSelector
 } from '@/context/DataSources';
 import React from 'react';
-import { Button, Dropdown, Skeleton } from 'antd';
-import { AppMaterialIcons } from '@/components/ui';
-import { useAntToken } from '@/styles/useAntToken';
-import { AppDataSourceIcon } from '@/components/ui';
+import { AppDataSourceIcon } from '@/components/ui/icons/AppDataSourceIcons';
 import type { DataSourceListItem } from '@/api/asset_interfaces';
-import { createStyles } from 'antd-style';
-import { MenuProps } from 'antd/lib';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { useMount } from 'ahooks';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 import { SettingsEmptyState } from '../../_components/SettingsEmptyState';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useUserConfigContextSelector } from '@/context/Users';
+import { Button } from '@/components/ui/buttons';
+import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
+import { Plus, Dots, Trash } from '@/components/ui/icons';
+import { cn } from '@/lib/classMerge';
 
 export const DatasourceList: React.FC = () => {
   const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
@@ -44,7 +42,7 @@ export const DatasourceList: React.FC = () => {
           title={`You don't have any data sources yet.`}
           description={`You don’t have any datasources. As soon as you do, they will start to  appear here.`}
           buttonText="New datasource"
-          buttonIcon={<AppMaterialIcons icon="add" />}
+          buttonIcon={<Plus />}
           buttonAction={() =>
             onChangePage({
               route: BusterRoutes.SETTINGS_DATASOURCES_ADD
@@ -65,7 +63,7 @@ const AddSourceHeader: React.FC<{ isAdmin: boolean }> = ({ isAdmin }) => {
           route: BusterRoutes.SETTINGS_DATASOURCES_ADD
         })}>
         {isAdmin && (
-          <Button type="text" icon={<AppMaterialIcons icon="add" />}>
+          <Button variant="ghost" prefix={<Plus />}>
             New datasource
           </Button>
         )}
@@ -73,17 +71,6 @@ const AddSourceHeader: React.FC<{ isAdmin: boolean }> = ({ isAdmin }) => {
     </div>
   );
 };
-
-const useStyle = createStyles(({ css, token }) => {
-  return {
-    item: css`
-      background: ${token.colorBgBase};
-      &:hover {
-        background: ${token.controlItemBgHover};
-      }
-    `
-  };
-});
 
 const DataSourceItems: React.FC<{ sources: DataSourceListItem[] }> = ({ sources }) => {
   return (
@@ -98,15 +85,13 @@ const DataSourceItems: React.FC<{ sources: DataSourceListItem[] }> = ({ sources 
 const ListItem: React.FC<{
   source: DataSourceListItem;
 }> = ({ source }) => {
-  const token = useAntToken();
-  const { styles, cx } = useStyle();
   const onDeleteDataSource = useDataSourceIndividualContextSelector((x) => x.onDeleteDataSource);
 
-  const dropdownItems: MenuProps['items'] = [
+  const dropdownItems: DropdownItems = [
     {
-      key: 'delete',
       label: 'Delete',
-      icon: <AppMaterialIcons icon="delete" />,
+      value: 'delete',
+      icon: <Trash />,
       onClick: async () => {
         await onDeleteDataSource(source.id);
       }
@@ -121,34 +106,26 @@ const ListItem: React.FC<{
       })}
       key={source.id}>
       <div
-        className={cx(
+        className={cn(
           'flex w-full items-center justify-between space-x-4',
           'cursor-pointer',
-          styles.item
-        )}
-        style={{
-          borderRadius: `${token.borderRadius}px`,
-          border: `0.5px solid ${token.colorBorder}`,
-          padding: `${token.paddingContentVertical}px ${token.paddingContentHorizontal}px`
-        }}>
+          'bg-background hover:bg-item-hover rounded border px-4 py-2'
+        )}>
         <div className="flex items-center space-x-4">
           <AppDataSourceIcon type={source.type} size={24} />
-          <Text type="secondary">{source.name}</Text>
+          <Text variant="secondary">{source.name}</Text>
         </div>
 
-        <div
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-          }}>
-          <Dropdown
-            trigger={['click']}
-            menu={{
-              items: dropdownItems
-            }}>
-            <AppMaterialIcons icon="more_horiz" />
-          </Dropdown>
-        </div>
+        <Dropdown items={dropdownItems}>
+          <Button
+            variant="ghost"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+            prefix={<Dots />}
+          />
+        </Dropdown>
       </div>
     </Link>
   );
@@ -157,9 +134,11 @@ const ListItem: React.FC<{
 const SkeletonLoader: React.FC<{}> = () => {
   return (
     <div className="flex flex-col space-y-4">
-      <Skeleton.Input className="h-[50px]! w-full!" />
-      <Skeleton.Input className="h-[50px]! w-full!" />
-      <Skeleton.Input className="h-[50px]! w-full!" />
+      <div className="flex flex-col space-y-4">
+        <div className="h-[50px] w-full animate-pulse rounded bg-gray-200" />
+        <div className="h-[50px] w-full animate-pulse rounded bg-gray-200" />
+        <div className="h-[50px] w-full animate-pulse rounded bg-gray-200" />
+      </div>
     </div>
   );
 };

@@ -1,11 +1,12 @@
 import React, { useLayoutEffect, useMemo, useState } from 'react';
-import { Text } from '@/components/ui';
-import { Input } from 'antd';
-import { useMemoizedFn } from 'ahooks';
+import { Text } from '@/components/ui/typography';
+import { Input } from '@/components/ui/inputs';
+import { useMemoizedFn } from '@/hooks';
 import { submitAppSupportRequest } from '@/api/buster_rest/nextjs/support';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { AppModal } from '@/components/ui';
+import { AppModal } from '@/components/ui/modal';
+import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
 
 export const SupportModal: React.FC<{
   open: boolean;
@@ -53,12 +54,12 @@ export const SupportModal: React.FC<{
       left:
         selectedForm === 'feedback' ? (
           <div className="flex items-center space-x-1">
-            <Text size="md" type="secondary">
+            <Text size="md" variant="secondary">
               Looking for help?
             </Text>
             <Text
               size="md"
-              type="link"
+              variant="link"
               onClick={() => {
                 setSelectedForm('help');
               }}>
@@ -134,7 +135,7 @@ const FeedbackForm = React.memo(
   }) => {
     return (
       <div className="flex flex-col space-y-4">
-        <Input.TextArea
+        <InputTextArea
           rows={5}
           value={feedback}
           autoFocus
@@ -166,7 +167,7 @@ const HelpRequestForm = React.memo(
     return (
       <div className="flex flex-col space-y-4">
         <div className="flex flex-col space-y-1.5">
-          <Text size="sm" type="secondary">
+          <Text size="sm" variant="secondary">
             Subject
           </Text>
           <Input
@@ -177,10 +178,10 @@ const HelpRequestForm = React.memo(
           />
         </div>
         <div className="flex flex-col space-y-1.5">
-          <Text size="sm" type="secondary">
+          <Text size="sm" variant="secondary">
             Message
           </Text>
-          <Input.TextArea
+          <InputTextArea
             rows={5}
             value={helpRequest}
             onChange={(e) => setHelpRequest(e.target.value)}

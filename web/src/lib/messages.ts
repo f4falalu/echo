@@ -1,5 +1,5 @@
-import type { ColumnMetaData, SimplifiedColumnType } from '@/api/asset_interfaces';
-import type { ColumnLabelFormat } from '@/components/ui/charts/interfaces';
+import type { ColumnMetaData, SimplifiedColumnType } from '@/api/asset_interfaces/metric/';
+import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 
 type ColumnDataType = ColumnMetaData['type'];
 

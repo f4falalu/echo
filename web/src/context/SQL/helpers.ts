@@ -1,10 +1,13 @@
-import type { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import type { IBusterMetric } from '../Metrics';
+import type {
+  IBusterMetric,
+  ColumnMetaData,
+  IBusterMetricChartConfig
+} from '@/api/asset_interfaces/metric';
 import type {
   BusterChartConfigProps,
   ColumnLabelFormat,
   IColumnLabelFormat
-} from '@/components/ui/charts';
+} from '@/api/asset_interfaces/metric/charts';
 import { createDefaultChartConfig } from '../Metrics/helpers';
 
 export const didColumnDataChange = (

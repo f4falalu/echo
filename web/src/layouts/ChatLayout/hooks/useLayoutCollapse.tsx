@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { SelectedFileParams } from './useSelectedFileAndLayout';
 import { ChatLayoutView } from '../interfaces';

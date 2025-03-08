@@ -1,7 +1,7 @@
 import type { BusterDashboardResponse } from '@/api/asset_interfaces';
 import { queryKeys } from '@/api/query_keys';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
 

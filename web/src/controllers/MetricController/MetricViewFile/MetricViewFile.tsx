@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import type { MetricViewProps } from '../config';
 import { CodeCard } from '@/components/ui/card';
 import { useMetricIndividual, useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { SaveResetFilePopup } from '@/components/features/popups/SaveResetFilePopup';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 

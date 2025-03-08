@@ -5,23 +5,13 @@ import { formatLabel } from '@/lib/columnFormatter';
 import isEqual from 'lodash/isEqual';
 import type { BusterChartPropsBase } from '../interfaces';
 import { type IBusterMetricChartConfig, DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces';
-import { useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from '@/hooks';
 import { useChartWrapperContextSelector } from '../chartHooks/useChartWrapperProvider';
 import AppDataGrid from '@/components/ui/table/AppDataGrid/AppDataGrid';
 
-//I decided to remove this to make it a little faster?
-// const AppDataGrid = dynamic(() => import('@/components/table/AppDataGrid'), {
-//   ssr: false,
-//   loading: () => (
-//     <div className="h-full max-h-[600px] min-h-[500px]">
-//       {/* <CircleSpinnerLoaderContainer /> */}
-//     </div>
-//   )
-// });
-
 export interface BusterTableChartProps extends BusterTableChartConfig, BusterChartPropsBase {}
 
-const _BusterTableChart: React.FC<BusterTableChartProps> = ({
+const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
   className = '',
   onMounted,
   data,
@@ -106,7 +96,7 @@ const _BusterTableChart: React.FC<BusterTableChartProps> = ({
   );
 };
 
-export const BusterTableChart = React.memo(_BusterTableChart, (prev, next) => {
+export const BusterTableChart = React.memo(BusterTableChartBase, (prev, next) => {
   return (
     isEqual(prev.data, next.data) &&
     isEqual(JSON.stringify(prev.columnLabelFormats), JSON.stringify(next.columnLabelFormats)) &&

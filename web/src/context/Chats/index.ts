@@ -10,4 +10,3 @@ export {
   useBusterChatListByFilter,
   useMessageIndividual
 };
-export * from './interfaces';

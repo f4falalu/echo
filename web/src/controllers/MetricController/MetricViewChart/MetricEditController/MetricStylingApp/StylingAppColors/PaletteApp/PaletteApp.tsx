@@ -1,6 +1,6 @@
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import React from 'react';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 
 export const PaletteApp: React.FC<{
   colors: IBusterMetricChartConfig['colors'];

@@ -1,14 +1,16 @@
-import type { OrganizationUser } from '@/api/asset_interfaces';
+'use client';
+
+import type { OrganizationUser } from '@/api/asset_interfaces/users';
 import {
-  BusterInfiniteList,
   BusterListColumn,
   BusterListRowItem,
   EmptyStateList,
   InfiniteListContainer
 } from '@/components/ui/list';
+import { BusterInfiniteList } from '@/components/ui/list/BusterInfiniteList';
 import { ListUserItem } from '@/components/features/list/ListUserItem';
 import React, { useMemo, useState } from 'react';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/typography';
 import { OrganizationUserRoleText } from './config';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 
@@ -32,7 +34,7 @@ export const ListUsersComponent: React.FC<{
         dataIndex: 'role',
         width: 165,
         render: (role: OrganizationUser['role']) => {
-          return <Text type="secondary">{OrganizationUserRoleText[role]}</Text>;
+          return <Text variant="secondary">{OrganizationUserRoleText[role]}</Text>;
         }
       }
     ],

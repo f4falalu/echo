@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useChatIndividualContextSelector } from '@chatLayout/ChatContext';
+import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 import { useMessageIndividual } from '@/context/Chats';
 import { ReasoningMessageSelector } from './ReasoningMessages';
 import { BlackBoxMessage } from './ReasoningMessages/ReasoningBlackBoxMessage';

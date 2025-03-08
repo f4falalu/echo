@@ -1,6 +1,4 @@
 import {
-  conf,
-  language,
   conf as pgConf,
   language as pgLanguage
 } from 'monaco-sql-languages/esm/languages/pgsql/pgsql.js';
