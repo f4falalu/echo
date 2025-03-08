@@ -23,7 +23,7 @@ const containerVariants = {
     opacity: 1,
     transition: {
       opacity: { duration: duration * 0.5, ease: 'easeIn' },
-      staggerChildren: 0.12
+      staggerChildren: 0.08
     }
   }
 };

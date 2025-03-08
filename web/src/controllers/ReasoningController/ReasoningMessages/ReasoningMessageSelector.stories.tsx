@@ -40,7 +40,8 @@ const meta: Meta<typeof ReasoningMessageSelector> = {
       options: ['reasoning-1', 'reasoning-2', 'reasoning-3']
     },
     isCompletedStream: {
-      control: 'boolean'
+      control: 'boolean',
+      defaultValue: false
     }
   }
 };
@@ -52,7 +53,7 @@ export const TextReasoning: Story = {
   args: {
     reasoningMessageId: 'reasoning-1',
     messageId: 'message-1',
-    isCompletedStream: true,
+    isCompletedStream: false,
     chatId: 'chat-1'
   }
 };
@@ -61,7 +62,7 @@ export const PillsReasoning: Story = {
   args: {
     reasoningMessageId: 'reasoning-2',
     messageId: 'message-2',
-    isCompletedStream: true,
+    isCompletedStream: false,
     chatId: 'chat-1'
   }
 };
@@ -70,7 +71,7 @@ export const FilesReasoning: Story = {
   args: {
     reasoningMessageId: 'reasoning-3',
     messageId: 'message-3',
-    isCompletedStream: true,
+    isCompletedStream: false,
     chatId: 'chat-1'
   }
 };

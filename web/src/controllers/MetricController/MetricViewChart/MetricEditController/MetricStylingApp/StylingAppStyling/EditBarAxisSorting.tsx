@@ -3,12 +3,15 @@ import React, { useMemo } from 'react';
 import { LabelAndInput } from '../Common';
 import { BarSortBy } from '@/components/ui/charts';
 import { AppSegmented, SegmentedItem } from '@/components/ui/segmented';
-import { ChartBarAxisX, ChartBarTrendDown, ChartBarTrendUp } from '@/components/ui/icons';
+import {
+  ChartBarAxisX,
+  ChartBarTrendDown,
+  ChartBarTrendUp
+} from '@/components/ui/icons/NucleoIconFilled';
 import { useMemoizedFn } from '@/hooks';
 
 const options: SegmentedItem<BarSortBy[0]>[] = [
   {
-    label: 'None',
     value: 'none',
     tooltip: 'No sorting',
     icon: <ChartBarAxisX />
@@ -43,7 +46,9 @@ export const EditBarSorting: React.FC<{
 
   return (
     <LabelAndInput label="Sorting">
-      <AppSegmented options={options} value={selectedOption} onChange={onChange} block />
+      <div className="flex justify-end">
+        <AppSegmented options={options} value={selectedOption} onChange={onChange} block={false} />
+      </div>
     </LabelAndInput>
   );
 });

@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { ReasoningMessagePillsContainer } from './ReasoningMessagePillsContainer';
-import { ReasoningMessage_Text } from '../ReasoningMessage_Text';
 import type { BusterChatMessageReasoning_pills, ThoughtFileType } from '@/api/asset_interfaces';
 import { useState } from 'react';
 import { Button } from '@/components/ui/buttons';

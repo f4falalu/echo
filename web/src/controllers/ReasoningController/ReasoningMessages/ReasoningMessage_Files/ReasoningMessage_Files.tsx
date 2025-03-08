@@ -32,6 +32,8 @@ export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.mem
 
     if (!title) return null;
 
+    console.log(status);
+
     return (
       <div className="flex flex-col gap-3">
         {file_ids.map((fileId) => (
