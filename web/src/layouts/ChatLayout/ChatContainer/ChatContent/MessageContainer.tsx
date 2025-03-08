@@ -16,7 +16,7 @@ export const MessageContainer: React.FC<{
       ) : (
         <Avatar size={24} />
       )}
-      <div className={cn('px-1', className)}>{children}</div>
+      <div className={cn('mt-1 px-1', className)}>{children}</div>
     </div>
   );
 });
