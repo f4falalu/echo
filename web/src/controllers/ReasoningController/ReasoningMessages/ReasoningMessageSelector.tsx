@@ -22,10 +22,10 @@ const itemAnimationConfig = {
     transition: {
       height: {
         type: 'spring',
-        stiffness: 360,
-        damping: 30
+        stiffness: 400,
+        damping: 32
       },
-      opacity: { duration: 0.2 }
+      opacity: { duration: 0.16 }
     }
   },
   exit: {
@@ -34,10 +34,10 @@ const itemAnimationConfig = {
     transition: {
       height: {
         type: 'spring',
-        stiffness: 400,
+        stiffness: 450,
         damping: 35
       },
-      opacity: { duration: 0.15 }
+      opacity: { duration: 0.12 }
     }
   }
 };
