@@ -13,26 +13,12 @@ const getReasoningMessage = (x: BusterChatMessage | undefined, reasoningMessageI
 
 export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.memo(
   ({ isCompletedStream, chatId, reasoningMessageId, messageId }) => {
-    const status = useMessageIndividual(
-      messageId,
-      (x) => getReasoningMessage(x, reasoningMessageId)?.status
-    );
     const file_ids = useMessageIndividual(
       messageId,
       (x) => getReasoningMessage(x, reasoningMessageId)?.file_ids
     );
-    const title = useMessageIndividual(
-      messageId,
-      (x) => getReasoningMessage(x, reasoningMessageId)?.title
-    );
-    const secondary_title = useMessageIndividual(
-      messageId,
-      (x) => getReasoningMessage(x, reasoningMessageId)?.secondary_title
-    );
 
-    if (!title) return null;
-
-    console.log(status);
+    if (!file_ids || file_ids.length === 0) return null;
 
     return (
       <div className="flex flex-col gap-3">

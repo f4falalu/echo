@@ -38,7 +38,6 @@ export const useChatStreamMessage = () => {
   const onUpdateChatMessageTransition = useMemoizedFn(
     (chatMessage: Parameters<typeof onUpdateChatMessage>[0]) => {
       const currentChatMessage = chatRefMessages.current[chatMessage.id];
-      console.log('currentChatMessage', currentChatMessage, 'updatingTo', chatMessage);
       const iChatMessage: IBusterChatMessage = create(currentChatMessage, (draft) => {
         Object.assign(draft || {}, chatMessage);
         if (chatMessage.id) draft.id = chatMessage.id;

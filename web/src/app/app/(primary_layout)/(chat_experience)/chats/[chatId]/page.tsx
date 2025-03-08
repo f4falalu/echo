@@ -8,9 +8,6 @@ export default function Page(params: { params: { chatId: string } }) {
   const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId);
   const selectedFileType = useChatIndividualContextSelector((x) => x.selectedFileType);
 
-  console.log('selectedFileId', selectedFileId);
-  console.log('selectedFileType', selectedFileType);
-
   if (selectedFileId && selectedFileType === 'reasoning') {
     return <ReasoningController chatId={params.params.chatId} messageId={selectedFileId} />;
   }

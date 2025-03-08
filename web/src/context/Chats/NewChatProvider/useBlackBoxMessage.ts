@@ -32,7 +32,6 @@ export const useBlackBoxMessage = () => {
 
   const addBlackBoxMessage = useMemoizedFn(({ messageId }: { messageId: string }) => {
     const randomThought = getRandomThought();
-    console.log(messageId, randomThought);
     const options = queryKeys.chatsBlackBoxMessages(messageId);
     queryClient.setQueryData(options.queryKey, randomThought);
   });

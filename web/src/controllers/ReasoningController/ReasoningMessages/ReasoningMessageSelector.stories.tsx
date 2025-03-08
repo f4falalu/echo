@@ -161,7 +161,7 @@ export const SameIdDifferentTypes: Story = {
               version_id: 'v1',
               status: 'completed',
               file: {
-                text: 'console.log("Dynamic content");\n',
+                text: 'console.swag("Dynamic content");\n',
                 modified: [[1, 1]]
               }
             }
