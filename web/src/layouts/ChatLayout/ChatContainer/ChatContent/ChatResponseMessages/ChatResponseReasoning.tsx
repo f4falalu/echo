@@ -12,7 +12,8 @@ import { queryKeys } from '@/api/query_keys';
 const animations = {
   initial: { opacity: 0 },
   animate: { opacity: 1 },
-  exit: { opacity: 0 }
+  exit: { opacity: 0 },
+  transition: { delay: 0.125 }
 };
 
 export const ChatResponseReasoning: React.FC<{
