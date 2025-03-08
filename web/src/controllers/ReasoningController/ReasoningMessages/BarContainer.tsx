@@ -3,7 +3,6 @@ import { StatusIndicator } from '@/components/ui/indicators';
 import { motion } from 'framer-motion';
 import { AnimatePresence } from 'framer-motion';
 import React from 'react';
-import { itemAnimationConfig } from './animationConfig';
 import { Text } from '@/components/ui/typography';
 import { cn } from '@/lib/classMerge';
 
@@ -14,36 +13,18 @@ export const BarContainer: React.FC<{
   children?: React.ReactNode;
   title: string;
   secondaryTitle?: string;
-  contentClassName?: string;
-  animationKey?: string;
-}> = React.memo(
-  ({
-    showBar,
-    status,
-    isCompletedStream,
-    children,
-    title,
-    secondaryTitle,
-    contentClassName,
-    animationKey
-  }) => {
-    return (
-      <AnimatePresence initial={!isCompletedStream} mode="wait">
-        <motion.div
-          className={'relative flex space-x-1.5 overflow-hidden'}
-          {...itemAnimationConfig}
-          key={animationKey}>
-          <VerticalBarContainer showBar={showBar} status={status} />
+}> = React.memo(({ showBar, status, children, title, secondaryTitle }) => {
+  return (
+    <div className={'relative flex space-x-1.5 overflow-hidden'}>
+      <VerticalBarContainer showBar={showBar} status={status} />
 
-          <div className={`flex w-full flex-col space-y-2 overflow-hidden ${contentClassName}`}>
-            <TextContainer title={title} secondaryTitle={secondaryTitle} />
-            {children}
-          </div>
-        </motion.div>
-      </AnimatePresence>
-    );
-  }
-);
+      <div className={`mb-2 flex w-full flex-col space-y-2 overflow-hidden`}>
+        <TitleContainer title={title} secondaryTitle={secondaryTitle} />
+        {children}
+      </div>
+    </div>
+  );
+});
 
 BarContainer.displayName = 'BarContainer';
 
@@ -65,7 +46,7 @@ const VerticalBar: React.FC<{ show?: boolean }> = ({ show }) => {
   return (
     <div
       className={cn(
-        'flex w-full flex-1 items-center justify-center overflow-hidden',
+        'flex w-full flex-1 justify-center overflow-hidden',
         'opacity-0 transition-opacity duration-300',
         show && 'opacity-100!'
       )}>
@@ -82,9 +63,7 @@ const VerticalBar: React.FC<{ show?: boolean }> = ({ show }) => {
   );
 };
 
-const lineHeight = 13;
-
-const TextContainer: React.FC<{
+const TitleContainer: React.FC<{
   title: string;
   secondaryTitle?: string;
 }> = React.memo(({ title, secondaryTitle }) => {
@@ -100,7 +79,7 @@ const TextContainer: React.FC<{
   );
 });
 
-TextContainer.displayName = 'TextContainer';
+TitleContainer.displayName = 'TitleContainer';
 
 const animations = {
   initial: { opacity: 0 },

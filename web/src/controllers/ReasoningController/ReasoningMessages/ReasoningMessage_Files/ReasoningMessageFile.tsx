@@ -34,8 +34,6 @@ export const ReasoningMessage_File: React.FC<ReasoningMessageFileProps> = React.
 
     const { status, file_type, version_id } = file;
 
-    console.log(fileId, status, isCompletedStream);
-
     const buttons = !isCompletedStream ? (
       <StreamingMessageStatus status={status} />
     ) : (

@@ -12,7 +12,7 @@ const getReasoningMessage = (x: BusterChatMessage | undefined, reasoningMessageI
   x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files;
 
 export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.memo(
-  ({ isCompletedStream, chatId, reasoningMessageId, messageId, animationKey }) => {
+  ({ isCompletedStream, chatId, reasoningMessageId, messageId }) => {
     const status = useMessageIndividual(
       messageId,
       (x) => getReasoningMessage(x, reasoningMessageId)?.status
@@ -33,27 +33,18 @@ export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.mem
     if (!title) return null;
 
     return (
-      <BarContainer
-        showBar={true}
-        status={status}
-        isCompletedStream={isCompletedStream}
-        title={title}
-        animationKey={animationKey}
-        secondaryTitle={secondary_title}
-        contentClassName="mb-2">
-        <div className="flex flex-col gap-3">
-          {file_ids.map((fileId) => (
-            <ReasoningMessage_File
-              key={fileId}
-              fileId={fileId}
-              chatId={chatId}
-              messageId={messageId}
-              reasoningMessageId={reasoningMessageId}
-              isCompletedStream={isCompletedStream}
-            />
-          ))}
-        </div>
-      </BarContainer>
+      <div className="flex flex-col gap-3">
+        {file_ids.map((fileId) => (
+          <ReasoningMessage_File
+            key={fileId}
+            fileId={fileId}
+            chatId={chatId}
+            messageId={messageId}
+            reasoningMessageId={reasoningMessageId}
+            isCompletedStream={isCompletedStream}
+          />
+        ))}
+      </div>
     );
   }
 );

@@ -4,13 +4,16 @@ import { ReasoningMessage_PillsContainer } from './ReasoningMessage_PillContaine
 import { ReasoningMessage_Files } from './ReasoningMessage_Files';
 import { ReasoningMessage_Text } from './ReasoningMessage_Text';
 import { useMessageIndividual } from '@/context/Chats';
+import { AnimatePresence, motion } from 'framer-motion';
+import { itemAnimationConfig } from './animationConfig';
+import { BarContainer } from './BarContainer';
 
 export interface ReasoningMessageProps {
   reasoningMessageId: string;
   messageId: string;
   isCompletedStream: boolean;
   chatId: string;
-  animationKey?: string;
+  animationKey: string;
 }
 
 const ReasoningMessageRecord: Record<
@@ -35,23 +38,36 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
   chatId,
   messageId
 }) => {
-  const reasoningMessageType = useMessageIndividual(
-    messageId,
-    (x) => x?.reasoning_messages[reasoningMessageId]?.type
-  );
+  const { title, type, secondary_title, status } = useMessageIndividual(messageId, (x) => ({
+    title: x?.reasoning_messages[reasoningMessageId]?.title,
+    secondary_title: x?.reasoning_messages[reasoningMessageId]?.secondary_title,
+    type: x?.reasoning_messages[reasoningMessageId]?.type,
+    status: x?.reasoning_messages[reasoningMessageId]?.status
+  }));
 
-  if (!reasoningMessageType) return null;
+  if (!title || !secondary_title || !type || !status) return null;
 
-  const ReasoningMessage = ReasoningMessageRecord[reasoningMessageType];
+  const ReasoningMessage = ReasoningMessageRecord[type];
+  const animationKey = reasoningMessageId + type;
 
   return (
-    <ReasoningMessage
-      key={reasoningMessageId} //force in case the type changes
-      animationKey={reasoningMessageId + reasoningMessageType}
-      reasoningMessageId={reasoningMessageId}
+    <BarContainer
+      showBar={true}
+      status={status}
       isCompletedStream={isCompletedStream}
-      messageId={messageId}
-      chatId={chatId}
-    />
+      title={title}
+      secondaryTitle={secondary_title}>
+      <AnimatePresence mode="wait">
+        <motion.div key={animationKey} {...itemAnimationConfig}>
+          <ReasoningMessage
+            reasoningMessageId={reasoningMessageId}
+            isCompletedStream={isCompletedStream}
+            messageId={messageId}
+            chatId={chatId}
+            animationKey={animationKey}
+          />
+        </motion.div>
+      </AnimatePresence>
+    </BarContainer>
   );
 };
