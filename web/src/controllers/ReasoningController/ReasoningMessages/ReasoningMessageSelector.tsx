@@ -13,7 +13,6 @@ export interface ReasoningMessageProps {
   messageId: string;
   isCompletedStream: boolean;
   chatId: string;
-  animationKey: string;
 }
 
 const ReasoningMessageRecord: Record<
@@ -64,7 +63,6 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
             isCompletedStream={isCompletedStream}
             messageId={messageId}
             chatId={chatId}
-            animationKey={animationKey}
           />
         </motion.div>
       </AnimatePresence>

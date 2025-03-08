@@ -38,9 +38,8 @@ export const ReasoningMessagePillsContainer: React.FC<
   BusterChatMessageReasoning_pills & {
     status: NonNullable<BusterChatMessageReasoning_pills['status']>;
     isCompletedStream: boolean;
-    animationKey?: string;
   }
-> = ({ title, secondary_title, pill_containers, status, isCompletedStream, animationKey }) => {
+> = ({ pill_containers, status, isCompletedStream }) => {
   const hasPills = !!pill_containers && pill_containers.length > 0;
   const loadingStatus: NonNullable<BusterChatMessageReasoning_pills['status']> = status;
 

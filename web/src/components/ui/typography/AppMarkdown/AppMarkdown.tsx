@@ -11,7 +11,6 @@ import {
   CustomSpan
 } from './AppMarkdownCommon';
 import { useMemoizedFn } from '@/hooks';
-import { cn } from '@/lib/classMerge';
 import styles from './AppMarkdown.module.css';
 
 const AppMarkdownBase: React.FC<{

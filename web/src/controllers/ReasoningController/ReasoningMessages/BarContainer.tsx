@@ -5,6 +5,7 @@ import { AnimatePresence } from 'framer-motion';
 import React from 'react';
 import { Text } from '@/components/ui/typography';
 import { cn } from '@/lib/classMerge';
+import { itemAnimationConfig } from './animationConfig';
 
 export const BarContainer: React.FC<{
   showBar: boolean;
@@ -56,7 +57,7 @@ const VerticalBar: React.FC<{ show?: boolean }> = ({ show }) => {
         animate={{ height: '100%' }}
         transition={{
           duration: 0.3,
-          ease: 'easeOut'
+          ease: 'easeInOut'
         }}
       />
     </div>
@@ -81,12 +82,6 @@ const TitleContainer: React.FC<{
 
 TitleContainer.displayName = 'TitleContainer';
 
-const animations = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 }
-};
-
 const AnimatedThoughtTitle = React.memo(
   ({
     title,
@@ -101,7 +96,7 @@ const AnimatedThoughtTitle = React.memo(
     return (
       <AnimatePresence initial={false} mode="wait">
         {title && (
-          <motion.div className="flex" {...animations} key={title}>
+          <motion.div className="flex" {...itemAnimationConfig} key={title}>
             <Text
               size="sm"
               className={cn(
