@@ -83,7 +83,7 @@
     "ts-jest": "^29.2.6",
     "use-context-selector": "^2.0.0",
     "utility-types": "^3.11.0",
-    "virtua": "^0.40.1"
+    "virtua": "^0.40.3"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^3.2.5",

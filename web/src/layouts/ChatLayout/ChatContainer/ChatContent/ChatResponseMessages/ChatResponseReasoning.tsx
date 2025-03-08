@@ -37,7 +37,7 @@ export const ChatResponseReasoning: React.FC<{
 
   const text: string = useMemo(() => {
     if (finalReasoningMessage) return finalReasoningMessage;
-    if (blackBoxMessage) return blackBoxMessage + '⬛️';
+    if (blackBoxMessage) return blackBoxMessage;
     if (lastMessageTitle) return lastMessageTitle;
     return lastMessageTitle || 'Thinking...';
   }, [lastMessageTitle, finalReasoningMessage, blackBoxMessage]);
@@ -51,9 +51,13 @@ export const ChatResponseReasoning: React.FC<{
 
   return (
     <AnimatePresence initial={!isCompletedStream} mode="wait">
-      <motion.div {...animations} key={text} className="mb-3.5 w-fit" onClick={onClickReasoning}>
+      <motion.div
+        {...animations}
+        key={text}
+        className="mb-3.5 w-fit cursor-pointer"
+        onClick={onClickReasoning}>
         {isReasonginFileSelected ? (
-          <Text className="cursor-pointer hover:underline">{text}</Text>
+          <Text className="hover:underline">{text}</Text>
         ) : (
           <ShimmerText text={text ?? ''} />
         )}
