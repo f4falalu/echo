@@ -21,12 +21,10 @@ use super::{
     common::{generate_deterministic_uuid, validate_metric_ids},
     file_types::{
         dashboard_yml::DashboardYml,
-        file::{FileEnum, FileWithId},
+        file::{FileWithId},
     },
     FileModificationTool,
 };
-
-use litellm::ToolCall;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DashboardFileParams {
