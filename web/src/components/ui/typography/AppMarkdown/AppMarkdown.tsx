@@ -12,21 +12,25 @@ import {
 } from './AppMarkdownCommon';
 import { useMemoizedFn } from '@/hooks';
 import styles from './AppMarkdown.module.css';
+import { cn } from '@/lib/classMerge';
 
 const AppMarkdownBase: React.FC<{
   markdown: string | null;
   showLoader?: boolean;
   className?: string;
-}> = ({ markdown = '', showLoader = false, className = '' }) => {
+  stripFormatting?: boolean;
+}> = ({ markdown = '', showLoader = false, className = '', stripFormatting = false }) => {
   const currentMarkdown = markdown || '';
+
   const commonProps = useMemo(() => {
     const numberOfLineMarkdown = currentMarkdown.split('\n').length;
     return {
       markdown: currentMarkdown,
       showLoader,
-      numberOfLineMarkdown
+      numberOfLineMarkdown,
+      stripFormatting
     };
-  }, [currentMarkdown, showLoader]);
+  }, [currentMarkdown, showLoader, stripFormatting]);
 
   const text = useMemoizedFn((props: React.SVGTextElementAttributes<SVGTextElement>) => (
     <CustomParagraph {...props} {...commonProps} />
@@ -38,10 +42,10 @@ const AppMarkdownBase: React.FC<{
   const span = useMemoizedFn((props) => <CustomSpan {...props} {...commonProps} />);
   const li = useMemoizedFn((props) => <CustomListItem {...props} {...commonProps} />);
   const p = useMemoizedFn((props) => <CustomParagraph {...props} {...commonProps} />);
-  const h1 = useMemoizedFn((props) => <CustomHeading as="h1" {...props} {...commonProps} />);
-  const h2 = useMemoizedFn((props) => <CustomHeading as="h2" {...props} {...commonProps} />);
-  const h3 = useMemoizedFn((props) => <CustomHeading as="h3" {...props} {...commonProps} />);
-  const h4 = useMemoizedFn((props) => <CustomHeading as="h4" {...props} {...commonProps} />);
+  const h1 = useMemoizedFn((props) => <CustomHeading level={1} {...props} {...commonProps} />);
+  const h2 = useMemoizedFn((props) => <CustomHeading level={2} {...props} {...commonProps} />);
+  const h3 = useMemoizedFn((props) => <CustomHeading level={3} {...props} {...commonProps} />);
+  const h4 = useMemoizedFn((props) => <CustomHeading level={4} {...props} {...commonProps} />);
   const h5 = useMemoizedFn((props) => <CustomHeading level={5} {...props} {...commonProps} />);
   const h6 = useMemoizedFn((props) => <CustomHeading level={6} {...props} {...commonProps} />);
 
@@ -66,15 +70,15 @@ const AppMarkdownBase: React.FC<{
   }, []);
 
   return (
-    <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
-      skipHtml={true}
-      components={memoizedComponents}
-      rehypePlugins={[rehypeRaw]} //rehypeSanitize we will assume that the markdown is safe? If we use it we cant do web components
-      //   className={cn(styles.container, 'space-y-2.5', className)}
-    >
-      {currentMarkdown}
-    </ReactMarkdown>
+    <div className={cn('leading-1.3 gap-1', styles.container, className)}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        skipHtml={true}
+        components={memoizedComponents}
+        rehypePlugins={[rehypeRaw]}>
+        {currentMarkdown}
+      </ReactMarkdown>
+    </div>
   );
 };
 

@@ -16,6 +16,10 @@ const meta: Meta<typeof AppMarkdown> = {
     className: {
       control: 'text',
       description: 'Additional CSS class names'
+    },
+    stripFormatting: {
+      control: 'boolean',
+      description: 'Whether to strip formatting'
     }
   }
 };

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { AppCodeBlock } from './AppCodeBlock';
 
 const meta: Meta<typeof AppCodeBlock> = {
-  title: 'UI/Typography/AppMarkdown/AppCodeBlock',
+  title: 'UI/Typography/AppCodeBlock',
   component: AppCodeBlock,
   tags: ['autodocs'],
   args: {

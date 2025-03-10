@@ -1,7 +1,8 @@
 import React from 'react';
 import { ExtraProps } from 'react-markdown';
 import { AppCodeBlock } from '../AppCodeBlock/AppCodeBlock';
-import { TextPulseLoader } from '@/components/ui/loaders';
+import { TextDotLoader } from '@/components/ui/loaders';
+import { cva } from 'class-variance-authority';
 
 type Element = any; //TODO fix this after migration
 
@@ -33,7 +34,7 @@ export const CommonPulseLoader: React.FC<{
     );
 
   if (showStreamingLoader) {
-    return <TextPulseLoader />;
+    return <TextDotLoader />;
   }
   return null;
 };
@@ -51,7 +52,11 @@ export const CustomCode: React.FC<
   const showStreamingLoader = showLoader && node?.position?.end.line === rest.numberOfLineMarkdown;
 
   return (
-    <AppCodeBlock language={language} showLoader={showStreamingLoader}>
+    <AppCodeBlock
+      wrapperClassName="my-2.5"
+      className="leading-1.3"
+      language={language}
+      showLoader={showStreamingLoader}>
       {children}
     </AppCodeBlock>
   );
@@ -66,7 +71,7 @@ export const CustomParagraph: React.FC<
 > = ({ children, markdown, ...rest }) => {
   if (Array.isArray(children)) {
     return (
-      <p className="nate-rulez">
+      <p className="leading-1.3">
         {children}
         <CommonPulseLoader {...rest} />
       </p>
@@ -80,13 +85,26 @@ export const CustomParagraph: React.FC<
   }
 
   return (
-    <p className="">
+    <p className="leading-1.3">
       {children}
       <CommonPulseLoader {...rest} />
     </p>
   );
 };
 
+const headingVariants = cva('leading-1.3 my-2', {
+  variants: {
+    level: {
+      1: 'text-3xl ',
+      2: 'text-2xl',
+      3: 'text-xl',
+      4: 'text-lg',
+      5: 'text-md',
+      6: 'text-sm',
+      base: ''
+    }
+  }
+});
 export const CustomHeading: React.FC<
   {
     level: 1 | 2 | 3 | 4 | 5 | 6;
@@ -94,11 +112,13 @@ export const CustomHeading: React.FC<
     markdown: string;
     showLoader: boolean;
     numberOfLineMarkdown: number;
+    stripFormatting?: boolean;
   } & ExtraPropsExtra
-> = ({ level, children, markdown, ...rest }) => {
+> = ({ level, children, markdown, stripFormatting = false, ...rest }) => {
   const HeadingTag = `h${level}` as any;
+  console.log('heading', HeadingTag, level, children);
   return (
-    <HeadingTag>
+    <HeadingTag className={headingVariants({ level: stripFormatting ? 'base' : level })}>
       {children}
       <CommonPulseLoader {...rest} />
     </HeadingTag>
@@ -115,7 +135,7 @@ export const CustomList: React.FC<
 > = ({ ordered, children, markdown, ...rest }) => {
   const ListTag = ordered ? 'ol' : 'ul';
   return (
-    <ListTag>
+    <ListTag className="leading-1.3">
       {children}
       <CommonPulseLoader {...rest} />
     </ListTag>
@@ -130,7 +150,7 @@ export const CustomListItem: React.FC<
   } & ExtraPropsExtra
 > = ({ children, markdown, ...rest }) => {
   return (
-    <li>
+    <li className="leading-1.3">
       {children}
       <CommonPulseLoader {...rest} />
     </li>
@@ -145,7 +165,7 @@ export const CustomBlockquote: React.FC<
   } & ExtraPropsExtra
 > = ({ children, markdown, ...rest }) => {
   return (
-    <blockquote>
+    <blockquote className="leading-1.3">
       {children}
       <CommonPulseLoader {...rest} />
     </blockquote>
@@ -160,7 +180,7 @@ export const CustomTable: React.FC<
   } & ExtraPropsExtra
 > = ({ children, markdown, ...rest }) => {
   return (
-    <table>
+    <table className="leading-1.3">
       {children}
       <CommonPulseLoader {...rest} />
     </table>
@@ -174,5 +194,5 @@ export const CustomSpan: React.FC<
     showLoader: boolean;
   } & ExtraPropsExtra
 > = ({ children, markdown, ...rest }) => {
-  return <span>{children}</span>;
+  return <span className="leading-1.3">{children}</span>;
 };
