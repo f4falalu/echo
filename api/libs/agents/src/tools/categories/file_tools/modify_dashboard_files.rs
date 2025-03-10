@@ -3,21 +3,20 @@ use std::time::Instant;
 
 use anyhow::Result;
 use async_trait::async_trait;
-use chrono::Utc;
 use database::{models::DashboardFile, pool::get_pg_pool, schema::dashboard_files};
-use diesel::{insert_into, upsert::excluded, ExpressionMethods, QueryDsl};
+use diesel::{upsert::excluded, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
-use serde::{Deserialize, Serialize};
+use indexmap::IndexMap;
+use query_engine::data_types::DataType;
 use serde_json::Value;
-use tracing::{debug, error, info, warn};
-use uuid::Uuid;
+use tracing::{debug, error, info};
 
 use super::{
-    common::{FileModification, Modification, ModificationResult, apply_modifications_to_content, validate_metric_ids},
-    file_types::{
-        dashboard_yml::DashboardYml,
-        file::{FileEnum, FileWithId},
+    common::{
+        apply_modifications_to_content, process_dashboard_file_modification, FileModificationBatch,
+        ModificationResult, ModifyFilesOutput, ModifyFilesParams,
     },
+    file_types::{dashboard_yml::DashboardYml, file::FileWithId},
     FileModificationTool,
 };
 use crate::{
@@ -25,27 +24,14 @@ use crate::{
     tools::{file_tools::common::DASHBOARD_YML_SCHEMA, ToolExecutor},
 };
 
-use litellm::ToolCall;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ModifyFilesParams {
-    /// List of files to modify with their corresponding modifications
-    pub files: Vec<FileModification>,
-}
-
 #[derive(Debug)]
-struct FileModificationBatch {
-    dashboard_files: Vec<DashboardFile>,
-    dashboard_ymls: Vec<DashboardYml>,
-    failed_modifications: Vec<(String, String)>,
-    modification_results: Vec<ModificationResult>,
-}
-
-#[derive(Debug, Serialize)]
-pub struct ModifyFilesOutput {
-    message: String,
-    duration: i64,
-    files: Vec<FileWithId>,
+struct DashboardModificationBatch {
+    pub files: Vec<DashboardFile>,
+    pub ymls: Vec<DashboardYml>,
+    pub failed_modifications: Vec<(String, String)>,
+    pub modification_results: Vec<ModificationResult>,
+    pub validation_messages: Vec<String>,
+    pub validation_results: Vec<Vec<IndexMap<String, DataType>>>,
 }
 
 pub struct ModifyDashboardFilesTool {
@@ -71,11 +57,10 @@ impl ToolExecutor for ModifyDashboardFilesTool {
 
     async fn is_enabled(&self) -> bool {
         match (
-            self.agent.get_state_value("metrics_available").await,
             self.agent.get_state_value("dashboards_available").await,
             self.agent.get_state_value("plan_available").await,
         ) {
-            (Some(_), Some(_), Some(_)) => true,
+            (Some(_), Some(_)) => true,
             _ => false,
         }
     }
@@ -88,151 +73,118 @@ impl ToolExecutor for ModifyDashboardFilesTool {
         info!("Processing {} files for modification", params.files.len());
 
         // Initialize batch processing structures
-        let mut batch = FileModificationBatch {
-            dashboard_files: Vec::new(),
-            dashboard_ymls: Vec::new(),
+        let mut batch = DashboardModificationBatch {
+            files: Vec::new(),
+            ymls: Vec::new(),
             failed_modifications: Vec::new(),
             modification_results: Vec::new(),
+            validation_messages: Vec::new(),
+            validation_results: Vec::new(),
         };
-
-        // Collect file IDs and create map
-        let dashboard_ids: Vec<Uuid> = params.files.iter().map(|f| f.id).collect();
-        let file_map: std::collections::HashMap<_, _> =
-            params.files.iter().map(|f| (f.id, f)).collect();
 
         // Get database connection
-        let mut conn = match get_pg_pool().get().await {
-            Ok(conn) => conn,
-            Err(e) => {
-                let duration = start_time.elapsed().as_millis() as i64;
-                return Ok(ModifyFilesOutput {
-                    message: format!("Failed to connect to database: {}", e),
-                    files: Vec::new(),
-                    duration,
-                });
-            }
-        };
+        let mut conn = get_pg_pool().get().await?;
 
-        // Fetch dashboard files
-        if !dashboard_ids.is_empty() {
+        // Process each file modification
+        for modification in params.files {
+            // Get the dashboard file from database
             match dashboard_files::table
-                .filter(dashboard_files::id.eq_any(dashboard_ids))
+                .filter(dashboard_files::id.eq(modification.id))
                 .filter(dashboard_files::deleted_at.is_null())
-                .load::<DashboardFile>(&mut conn)
+                .first::<DashboardFile>(&mut conn)
                 .await
             {
-                Ok(files) => {
-                    for file in files {
-                        if let Some(modifications) = file_map.get(&file.id) {
-                            match process_dashboard_file(
-                                file,
-                                modifications,
-                                start_time.elapsed().as_millis() as i64,
-                            )
-                            .await
-                            {
-                                Ok((dashboard_file, dashboard_yml, results)) => {
-                                    batch.dashboard_files.push(dashboard_file);
-                                    batch.dashboard_ymls.push(dashboard_yml);
-                                    batch.modification_results.extend(results);
-                                }
-                                Err(e) => {
-                                    batch
-                                        .failed_modifications
-                                        .push((modifications.file_name.clone(), e.to_string()));
-                                }
-                            }
+                Ok(dashboard_file) => {
+                    let duration = start_time.elapsed().as_millis() as i64;
+
+                    // Process the modification
+                    match process_dashboard_file_modification(
+                        dashboard_file,
+                        &modification,
+                        duration,
+                    )
+                    .await
+                    {
+                        Ok((
+                            dashboard_file,
+                            dashboard_yml,
+                            results,
+                            validation_message,
+                            validation_results,
+                        )) => {
+                            batch.files.push(dashboard_file);
+                            batch.ymls.push(dashboard_yml);
+                            batch.modification_results.extend(results);
+                            batch.validation_messages.push(validation_message);
+                            batch.validation_results.push(validation_results);
+                        }
+                        Err(e) => {
+                            batch
+                                .failed_modifications
+                                .push((modification.file_name.clone(), e.to_string()));
                         }
                     }
                 }
                 Err(e) => {
-                    let duration = start_time.elapsed().as_millis() as i64;
-                    return Ok(ModifyFilesOutput {
-                        message: format!("Failed to fetch dashboard files: {}", e),
-                        files: Vec::new(),
-                        duration,
-                    });
-                }
-            }
-        }
-
-        // Process results and generate output message
-        let duration = start_time.elapsed().as_millis() as i64;
-        let mut output = ModifyFilesOutput {
-            message: String::new(),
-            files: Vec::new(),
-            duration,
-        };
-
-        // Update dashboard files in database
-        if !batch.dashboard_files.is_empty() {
-            match insert_into(dashboard_files::table)
-                .values(&batch.dashboard_files)
-                .on_conflict(dashboard_files::id)
-                .do_update()
-                .set((
-                    dashboard_files::content.eq(excluded(dashboard_files::content)),
-                    dashboard_files::updated_at.eq(Utc::now()),
-                ))
-                .execute(&mut conn)
-                .await
-            {
-                Ok(_) => {
-                    output.files.extend(
-                        batch
-                            .dashboard_files
-                            .iter()
-                            .zip(batch.dashboard_ymls.iter())
-                            .map(|(file, yml)| FileWithId {
-                                id: file.id,
-                                name: file.name.clone(),
-                                file_type: "dashboard".to_string(),
-                                yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
-                                result_message: None,
-                                results: None,
-                                created_at: file.created_at,
-                                updated_at: file.updated_at,
-                            }),
-                    );
-                }
-                Err(e) => {
                     batch.failed_modifications.push((
-                        "dashboard_files".to_string(),
-                        format!("Failed to update dashboard files: {}", e),
+                        modification.file_name.clone(),
+                        format!("Failed to find dashboard file: {}", e),
                     ));
                 }
             }
         }
 
-        // Generate final message
-        if batch.failed_modifications.is_empty() {
-            output.message = format!(
-                "Successfully modified {} dashboard files.",
-                output.files.len()
-            );
-        } else {
-            let success_msg = if !output.files.is_empty() {
-                format!(
-                    "Successfully modified {} dashboard files. ",
-                    output.files.len()
-                )
-            } else {
-                String::new()
-            };
-
-            let failures: Vec<String> = batch
-                .failed_modifications
-                .iter()
-                .map(|(name, error)| format!("Failed to modify '{}': {}", name, error))
-                .collect();
-
-            output.message = format!(
-                "{}Failed to modify {} dashboard files: {}",
-                success_msg,
-                batch.failed_modifications.len(),
-                failures.join("; ")
-            );
+        // Update dashboard files in database
+        if !batch.files.is_empty() {
+            use diesel::insert_into;
+            match insert_into(dashboard_files::table)
+                .values(&batch.files)
+                .on_conflict(dashboard_files::id)
+                .do_update()
+                .set((
+                    dashboard_files::content.eq(excluded(dashboard_files::content)),
+                    dashboard_files::updated_at.eq(excluded(dashboard_files::updated_at)),
+                ))
+                .execute(&mut conn)
+                .await
+            {
+                Ok(_) => {
+                    debug!("Successfully updated dashboard files in database");
+                }
+                Err(e) => {
+                    error!("Failed to update dashboard files in database: {}", e);
+                    return Err(anyhow::anyhow!(
+                        "Failed to update dashboard files in database: {}",
+                        e
+                    ));
+                }
+            }
         }
+
+        // Generate output
+        let duration = start_time.elapsed().as_millis() as i64;
+        let mut output = ModifyFilesOutput {
+            message: format!("Modified {} dashboard files", batch.files.len()),
+            duration,
+            files: Vec::new(),
+        };
+
+        // Add files to output
+        output
+            .files
+            .extend(batch.files.iter().enumerate().map(|(i, file)| {
+                let yml = &batch.ymls[i];
+                FileWithId {
+                    id: file.id,
+                    name: file.name.clone(),
+                    file_type: "dashboard".to_string(),
+                    yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
+                    result_message: Some(batch.validation_messages[i].clone()),
+                    results: Some(batch.validation_results[i].clone()),
+                    created_at: file.created_at,
+                    updated_at: file.updated_at,
+                }
+            }));
 
         Ok(output)
     }
@@ -291,208 +243,22 @@ impl ToolExecutor for ModifyDashboardFilesTool {
     }
 }
 
-async fn process_dashboard_file(
-    mut file: DashboardFile,
-    modification: &FileModification,
-    duration: i64,
-) -> Result<(DashboardFile, DashboardYml, Vec<ModificationResult>)> {
-    debug!(
-        file_id = %file.id,
-        file_name = %modification.file_name,
-        "Processing dashboard file modifications"
-    );
-
-    let mut results = Vec::new();
-
-    // Parse existing content
-    let current_yml: DashboardYml = match serde_json::from_value(file.content.clone()) {
-        Ok(yml) => yml,
-        Err(e) => {
-            let error = format!("Failed to parse existing dashboard YAML: {}", e);
-            error!(
-                file_id = %file.id,
-                file_name = %modification.file_name,
-                error = %error,
-                "YAML parsing error"
-            );
-            results.push(ModificationResult {
-                file_id: file.id,
-                file_name: modification.file_name.clone(),
-                success: false,
-                error: Some(error.clone()),
-                modification_type: "parsing".to_string(),
-                timestamp: Utc::now(),
-                duration,
-            });
-            return Err(anyhow::anyhow!(error));
-        }
-    };
-
-    // Convert to YAML string for line modifications
-    let current_content = match serde_yaml::to_string(&current_yml) {
-        Ok(content) => content,
-        Err(e) => {
-            let error = format!("Failed to serialize dashboard YAML: {}", e);
-            error!(
-                file_id = %file.id,
-                file_name = %modification.file_name,
-                error = %error,
-                "YAML serialization error"
-            );
-            results.push(ModificationResult {
-                file_id: file.id,
-                file_name: modification.file_name.clone(),
-                success: false,
-                error: Some(error.clone()),
-                modification_type: "serialization".to_string(),
-                timestamp: Utc::now(),
-                duration,
-            });
-            return Err(anyhow::anyhow!(error));
-        }
-    };
-
-    // Apply modifications and track results
-    match apply_modifications_to_content(
-        &current_content,
-        &modification.modifications,
-        &modification.file_name,
-    ) {
-        Ok(modified_content) => {
-            // Create and validate new YML object
-            match DashboardYml::new(modified_content) {
-                Ok(new_yml) => {
-                    debug!(
-                        file_id = %file.id,
-                        file_name = %modification.file_name,
-                        "Successfully modified and validated dashboard file"
-                    );
-
-                    // Collect all metric IDs from rows
-                    let metric_ids: Vec<Uuid> = new_yml
-                        .rows
-                        .iter()
-                        .flat_map(|row| row.items.iter())
-                        .map(|item| item.id)
-                        .collect();
-
-                    // Validate metric IDs if any exist
-                    if !metric_ids.is_empty() {
-                        match validate_metric_ids(&metric_ids).await {
-                            Ok(missing_ids) if !missing_ids.is_empty() => {
-                                let error =
-                                    format!("Referenced metrics not found: {:?}", missing_ids);
-                                error!(
-                                    file_id = %file.id,
-                                    file_name = %modification.file_name,
-                                    error = %error,
-                                    "Metric validation error"
-                                );
-                                results.push(ModificationResult {
-                                    file_id: file.id,
-                                    file_name: modification.file_name.clone(),
-                                    success: false,
-                                    error: Some(error.clone()),
-                                    modification_type: "metric_validation".to_string(),
-                                    timestamp: Utc::now(),
-                                    duration,
-                                });
-                                return Err(anyhow::anyhow!(error));
-                            }
-                            Err(e) => {
-                                let error = format!("Failed to validate metric IDs: {}", e);
-                                error!(
-                                    file_id = %file.id,
-                                    file_name = %modification.file_name,
-                                    error = %error,
-                                    "Metric validation error"
-                                );
-                                results.push(ModificationResult {
-                                    file_id: file.id,
-                                    file_name: modification.file_name.clone(),
-                                    success: false,
-                                    error: Some(error.clone()),
-                                    modification_type: "metric_validation".to_string(),
-                                    timestamp: Utc::now(),
-                                    duration,
-                                });
-                                return Err(anyhow::anyhow!(error));
-                            }
-                            Ok(_) => (), // All metrics exist
-                        }
-                    }
-
-                    // Update file record
-                    file.content = serde_json::to_value(&new_yml)?;
-                    file.updated_at = Utc::now();
-
-                    // Track successful modification
-                    results.push(ModificationResult {
-                        file_id: file.id,
-                        file_name: modification.file_name.clone(),
-                        success: true,
-                        error: None,
-                        modification_type: "content".to_string(),
-                        timestamp: Utc::now(),
-                        duration,
-                    });
-
-                    Ok((file, new_yml, results))
-                }
-                Err(e) => {
-                    let error = format!("Failed to validate modified YAML: {}", e);
-                    error!(
-                        file_id = %file.id,
-                        file_name = %modification.file_name,
-                        error = %error,
-                        "YAML validation error"
-                    );
-                    results.push(ModificationResult {
-                        file_id: file.id,
-                        file_name: modification.file_name.clone(),
-                        success: false,
-                        error: Some(error.clone()),
-                        modification_type: "validation".to_string(),
-                        timestamp: Utc::now(),
-                        duration,
-                    });
-                    Err(anyhow::anyhow!(error))
-                }
-            }
-        }
-        Err(e) => {
-            let error = format!("Failed to apply modifications: {}", e);
-            error!(
-                file_id = %file.id,
-                file_name = %modification.file_name,
-                error = %error,
-                "Modification application error"
-            );
-            results.push(ModificationResult {
-                file_id: file.id,
-                file_name: modification.file_name.clone(),
-                success: false,
-                error: Some(error.clone()),
-                modification_type: "modification".to_string(),
-                timestamp: Utc::now(),
-                duration,
-            });
-            Err(anyhow::anyhow!(error))
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
 
     use super::*;
+    use crate::tools::categories::file_tools::common::{
+        Modification, ModificationResult, apply_modifications_to_content,
+    };
     use chrono::Utc;
     use serde_json::json;
+    use uuid::Uuid;
 
     #[test]
     fn test_apply_modifications_to_content() {
-        let original_content = "name: test_dashboard\ntype: dashboard\ndescription: A test dashboard";
+        let original_content =
+            "name: test_dashboard\ntype: dashboard\ndescription: A test dashboard";
 
         // Test single modification
         let mods1 = vec![Modification {
@@ -529,7 +295,10 @@ mod tests {
         }];
         let result3 = apply_modifications_to_content(original_content, &mods3, "test.yml");
         assert!(result3.is_err());
-        assert!(result3.unwrap_err().to_string().contains("Content to replace not found"));
+        assert!(result3
+            .unwrap_err()
+            .to_string()
+            .contains("Content to replace not found"));
     }
 
     #[test]

@@ -1,12 +1,12 @@
+use agents::tools::categories::file_tools::common::generate_deterministic_uuid;
 use anyhow::Result;
 use serde_json::Value;
+use sha2::{Digest, Sha256};
 use uuid::Uuid;
-use sha2::{Sha256, Digest};
-use agents::tools::categories::file_tools::common::generate_deterministic_uuid;
 
 use super::post_chat_handler::{
-    BusterReasoningFile, BusterReasoningMessage, BusterReasoningPill,
-    BusterReasoningText, BusterThoughtPill, BusterThoughtPillContainer, BusterFile, BusterFileContent,
+    BusterFile, BusterFileContent, BusterReasoningFile, BusterReasoningMessage,
+    BusterReasoningPill, BusterReasoningText, BusterThoughtPill, BusterThoughtPillContainer,
 };
 
 pub struct StreamingParser {
@@ -127,8 +127,11 @@ impl StreamingParser {
     }
 
     // Internal function to process file data (shared by metric and dashboard processing)
-    pub fn process_file_data(&mut self, id: String, file_type: String) -> Result<Option<BusterReasoningMessage>> {
-        
+    pub fn process_file_data(
+        &mut self,
+        id: String,
+        file_type: String,
+    ) -> Result<Option<BusterReasoningMessage>> {
         // Extract and replace yml_content with placeholders
         let mut yml_contents = Vec::new();
         let mut positions = Vec::new();
@@ -265,13 +268,13 @@ impl StreamingParser {
 
                         // Generate deterministic UUID based on tool call ID, file name, and type
                         let file_id = generate_deterministic_uuid(&id, name, &file_type)?;
-                        
+
                         let buster_file = BusterFile {
                             id: file_id.to_string(),
                             file_type: file_type.clone(),
                             file_name: name.to_string(),
                             version_number: 1,
-                            version_id: Uuid::new_v4().to_string(),
+                            version_id: String::from("0203f597-5ec5-4fd8-86e2-8587fe1c23b6"),
                             status: "loading".to_string(),
                             file: BusterFileContent {
                                 text: None,
@@ -293,7 +296,7 @@ impl StreamingParser {
                     message_type: "files".to_string(),
                     title: format!("Creating {} files...", file_type),
                     secondary_title: String::new(),
-                    status: "completed".to_string(),
+                    status: "loading".to_string(),
                     file_ids,
                     files: files_map,
                 })));

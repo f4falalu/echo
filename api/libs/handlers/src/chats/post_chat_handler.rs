@@ -3,8 +3,10 @@ use once_cell::sync::OnceCell;
 use std::{collections::HashMap, sync::Mutex, time::Instant};
 
 use agents::{
-    tools::file_tools::search_data_catalog::SearchDataCatalogOutput, AgentExt, AgentMessage,
-    AgentThread, BusterSuperAgent,
+    tools::file_tools::{
+        common::ModifyFilesOutput, create_dashboard_files::CreateDashboardFilesOutput, create_metric_files::CreateMetricFilesOutput, search_data_catalog::SearchDataCatalogOutput
+    },
+    AgentExt, AgentMessage, AgentThread, BusterSuperAgent,
 };
 
 use anyhow::{anyhow, Result};
@@ -941,88 +943,229 @@ fn transform_tool_message(
 fn tool_create_metrics(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
     println!("MESSAGE_STREAM: Processing tool create metrics message");
 
-    let mut parser = StreamingParser::new();
+    // Parse the CreateMetricFilesOutput from content
+    let create_metrics_result = match serde_json::from_str::<CreateMetricFilesOutput>(&content) {
+        Ok(result) => result,
+        Err(e) => {
+            println!("Failed to parse CreateMetricFilesOutput: {:?}", e);
+            return Ok(vec![]);
+        }
+    };
 
-    match parser.process_metric_chunk(id, &content)? {
-        Some(message) => {
-            println!(
-                "MESSAGE_STREAM: StreamingParser produced create metrics message: {:?}",
-                message
-            );
-            Ok(vec![message])
-        }
-        None => {
-            println!("MESSAGE_STREAM: No valid metrics data found in content");
-            Err(anyhow::anyhow!("Failed to parse metrics data from content"))
-        }
+    let duration = (create_metrics_result.duration as f64 / 1000.0 * 10.0).round() / 10.0;
+    let files_count = create_metrics_result.files.len();
+
+    // Create a map of files
+    let mut files_map = std::collections::HashMap::new();
+    let mut file_ids = Vec::new();
+
+    // Process each file
+    for file in create_metrics_result.files {
+        let file_id = file.id.to_string();
+        file_ids.push(file_id.clone());
+
+        let buster_file = BusterFile {
+            id: file_id.clone(),
+            file_type: "metric".to_string(),
+            file_name: file.name.clone(),
+            version_number: 1,
+            version_id: file.id.to_string(),
+            status: "completed".to_string(),
+            file: BusterFileContent {
+                text: Some(file.yml_content),
+                text_chunk: None,
+                modifided: None,
+            },
+            metadata: Some(vec![]),
+        };
+
+        files_map.insert(file_id, buster_file);
     }
+
+    // Create the BusterReasoningFile
+    let buster_file = BusterReasoningMessage::File(BusterReasoningFile {
+        id,
+        message_type: "files".to_string(),
+        title: format!("Created {} metric files", files_count),
+        secondary_title: format!("{} seconds", duration),
+        status: "completed".to_string(),
+        file_ids,
+        files: files_map,
+    });
+
+    Ok(vec![buster_file])
 }
 
 // Update tool_modify_metrics to require ID
 fn tool_modify_metrics(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
     println!("MESSAGE_STREAM: Processing tool modify metrics message");
 
-    let mut parser = StreamingParser::new();
+    // Parse the ModifyFilesOutput from content
+    let modify_metrics_result = match serde_json::from_str::<ModifyFilesOutput>(&content) {
+        Ok(result) => result,
+        Err(e) => {
+            println!("Failed to parse ModifyFilesOutput: {:?}", e);
+            return Ok(vec![]);
+        }
+    };
 
-    match parser.process_metric_chunk(id, &content)? {
-        Some(message) => {
-            println!(
-                "MESSAGE_STREAM: StreamingParser produced modify metrics message: {:?}",
-                message
-            );
-            Ok(vec![message])
-        }
-        None => {
-            println!("MESSAGE_STREAM: No valid metrics data found in content");
-            Err(anyhow::anyhow!("Failed to parse metrics data from content"))
-        }
+    let duration = (modify_metrics_result.duration as f64 / 1000.0 * 10.0).round() / 10.0;
+    let files_count = modify_metrics_result.files.len();
+
+    // Create a map of files
+    let mut files_map = std::collections::HashMap::new();
+    let mut file_ids = Vec::new();
+
+    // Process each file
+    for file in modify_metrics_result.files {
+        let file_id = file.id.to_string();
+        file_ids.push(file_id.clone());
+
+        let buster_file = BusterFile {
+            id: file_id.clone(),
+            file_type: "metric".to_string(),
+            file_name: file.name.clone(),
+            version_number: 1,
+            version_id: file.id.to_string(),
+            status: "completed".to_string(),
+            file: BusterFileContent {
+                text: Some(file.yml_content),
+                text_chunk: None,
+                modifided: None,
+            },
+            metadata: Some(vec![]),
+        };
+
+        files_map.insert(file_id, buster_file);
     }
+
+    // Create the BusterReasoningFile
+    let buster_file = BusterReasoningMessage::File(BusterReasoningFile {
+        id,
+        message_type: "files".to_string(),
+        title: format!("Modified {} metric files", files_count),
+        secondary_title: format!("{} seconds", duration),
+        status: "completed".to_string(),
+        file_ids,
+        files: files_map,
+    });
+
+    Ok(vec![buster_file])
 }
 
 // Update tool_create_dashboards to require ID
 fn tool_create_dashboards(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
     println!("MESSAGE_STREAM: Processing tool create dashboards message");
 
-    let mut parser = StreamingParser::new();
+    // Parse the CreateDashboardFilesOutput from content
+    let create_dashboards_result =
+        match serde_json::from_str::<CreateDashboardFilesOutput>(&content) {
+            Ok(result) => result,
+            Err(e) => {
+                println!("Failed to parse CreateDashboardFilesOutput: {:?}", e);
+                return Ok(vec![]);
+            }
+        };
 
-    match parser.process_dashboard_chunk(id, &content)? {
-        Some(message) => {
-            println!(
-                "MESSAGE_STREAM: StreamingParser produced create dashboards message: {:?}",
-                message
-            );
-            Ok(vec![message])
-        }
-        None => {
-            println!("MESSAGE_STREAM: No valid dashboard data found in content");
-            Err(anyhow::anyhow!(
-                "Failed to parse dashboard data from content"
-            ))
-        }
+    let duration = (create_dashboards_result.duration as f64 / 1000.0 * 10.0).round() / 10.0;
+    let files_count = create_dashboards_result.files.len();
+
+    // Create a map of files
+    let mut files_map = std::collections::HashMap::new();
+    let mut file_ids = Vec::new();
+
+    // Process each file
+    for file in create_dashboards_result.files {
+        let file_id = file.id.to_string();
+        file_ids.push(file_id.clone());
+
+        let buster_file = BusterFile {
+            id: file_id.clone(),
+            file_type: "dashboard".to_string(),
+            file_name: file.name.clone(),
+            version_number: 1,
+            version_id: file.id.to_string(),
+            status: "completed".to_string(),
+            file: BusterFileContent {
+                text: Some(file.yml_content),
+                text_chunk: None,
+                modifided: None,
+            },
+            metadata: Some(vec![]),
+        };
+
+        files_map.insert(file_id, buster_file);
     }
+
+    // Create the BusterReasoningFile
+    let buster_file = BusterReasoningMessage::File(BusterReasoningFile {
+        id,
+        message_type: "files".to_string(),
+        title: format!("Created {} dashboard files", files_count),
+        secondary_title: format!("{} seconds", duration),
+        status: "completed".to_string(),
+        file_ids,
+        files: files_map,
+    });
+
+    Ok(vec![buster_file])
 }
 
 // Update tool_modify_dashboards to require ID
 fn tool_modify_dashboards(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
     println!("MESSAGE_STREAM: Processing tool modify dashboards message");
 
-    let mut parser = StreamingParser::new();
+    // Parse the ModifyFilesOutput from content
+    let modify_dashboards_result = match serde_json::from_str::<ModifyFilesOutput>(&content) {
+        Ok(result) => result,
+        Err(e) => {
+            println!("Failed to parse ModifyFilesOutput: {:?}", e);
+            return Ok(vec![]);
+        }
+    };
 
-    match parser.process_dashboard_chunk(id, &content)? {
-        Some(message) => {
-            println!(
-                "MESSAGE_STREAM: StreamingParser produced modify dashboard message: {:?}",
-                message
-            );
-            Ok(vec![message])
-        }
-        None => {
-            println!("MESSAGE_STREAM: No valid dashboard data found in content");
-            Err(anyhow::anyhow!(
-                "Failed to parse dashboard data from content"
-            ))
-        }
+    let duration = (modify_dashboards_result.duration as f64 / 1000.0 * 10.0).round() / 10.0;
+    let files_count = modify_dashboards_result.files.len();
+
+    // Create a map of files
+    let mut files_map = std::collections::HashMap::new();
+    let mut file_ids = Vec::new();
+
+    // Process each file
+    for file in modify_dashboards_result.files {
+        let file_id = file.id.to_string();
+        file_ids.push(file_id.clone());
+
+        let buster_file = BusterFile {
+            id: file_id.clone(),
+            file_type: "dashboard".to_string(),
+            file_name: file.name.clone(),
+            version_number: 1,
+            version_id: file.id.to_string(),
+            status: "completed".to_string(),
+            file: BusterFileContent {
+                text: Some(file.yml_content),
+                text_chunk: None,
+                modifided: None,
+            },
+            metadata: Some(vec![]),
+        };
+
+        files_map.insert(file_id, buster_file);
     }
+
+    // Create the BusterReasoningFile
+    let buster_file = BusterReasoningMessage::File(BusterReasoningFile {
+        id,
+        message_type: "files".to_string(),
+        title: format!("Modified {} dashboard files", files_count),
+        secondary_title: format!("{} seconds", duration),
+        status: "completed".to_string(),
+        file_ids,
+        files: files_map,
+    });
+
+    Ok(vec![buster_file])
 }
 
 // Restore the original tool_data_catalog_search function
@@ -1173,7 +1316,7 @@ fn transform_assistant_tool_message(
                                     .or(text.message)
                                     .or(text.message_chunk.clone());
                                 text.message_chunk = None;
-                                text.status = Some("completed".to_string());
+                                text.status = Some("loading".to_string());
                                 tracker.clear_chunk(text.id.clone());
                                 Some(BusterReasoningMessage::Text(text))
                             }
@@ -1212,14 +1355,14 @@ fn transform_assistant_tool_message(
                                     completed_content.file.text = Some(complete_text);
                                     completed_content.file.text_chunk = None;
                                     // Ensure each file in the collection is marked as completed
-                                    completed_content.status = "completed".to_string();
+                                    completed_content.status = "loading".to_string();
                                     updated_files.insert(file_id.clone(), completed_content);
 
                                     tracker.clear_chunk(chunk_id);
                                 }
 
                                 // Mark the overall file container as completed
-                                file.status = "completed".to_string();
+                                file.status = "loading".to_string();
                                 file.files = updated_files;
                                 Some(BusterReasoningMessage::File(file))
                             }
@@ -1350,16 +1493,10 @@ fn assistant_create_metrics(
 
     match parser.process_metric_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
-            let status = match progress {
-                MessageProgress::InProgress => "loading",
-                MessageProgress::Complete => "completed",
-                _ => "loading",
-            };
-
-            // Update status in the message if it's a File type
+            // Always set status to loading, regardless of progress
             match message {
                 BusterReasoningMessage::File(mut file) => {
-                    file.status = status.to_string();
+                    file.status = "loading".to_string();
                     Ok(vec![BusterReasoningMessage::File(file)])
                 }
                 _ => Ok(vec![message]),
@@ -1380,15 +1517,10 @@ fn assistant_modify_metrics(
 
     match parser.process_metric_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
-            let status = match progress {
-                MessageProgress::InProgress => "loading",
-                MessageProgress::Complete => "completed",
-            };
-
-            // Update status in the message if it's a File type
+            // Always set status to loading, regardless of progress
             match message {
                 BusterReasoningMessage::File(mut file) => {
-                    file.status = status.to_string();
+                    file.status = "loading".to_string();
                     Ok(vec![BusterReasoningMessage::File(file)])
                 }
                 _ => Ok(vec![message]),
@@ -1409,15 +1541,10 @@ fn assistant_create_dashboards(
 
     match parser.process_dashboard_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
-            let status = match progress {
-                MessageProgress::InProgress => "loading",
-                MessageProgress::Complete => "completed",
-            };
-
-            // Update status in the message if it's a File type
+            // Always set status to loading, regardless of progress
             match message {
                 BusterReasoningMessage::File(mut file) => {
-                    file.status = status.to_string();
+                    file.status = "loading".to_string();
                     Ok(vec![BusterReasoningMessage::File(file)])
                 }
                 _ => Ok(vec![message]),
@@ -1439,16 +1566,10 @@ fn assistant_modify_dashboards(
 
     match parser.process_dashboard_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
-            let status = match progress {
-                MessageProgress::InProgress => "loading",
-                MessageProgress::Complete => "completed",
-                _ => "loading",
-            };
-
-            // Update status in the message if it's a File type
+            // Always set status to loading, regardless of progress
             match message {
                 BusterReasoningMessage::File(mut file) => {
-                    file.status = status.to_string();
+                    file.status = "loading".to_string();
                     Ok(vec![BusterReasoningMessage::File(file)])
                 }
                 _ => Ok(vec![message]),

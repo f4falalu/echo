@@ -15,7 +15,7 @@ pub struct File {
     pub yml_content: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct FileWithId {
     pub id: Uuid,
     pub name: String,

@@ -37,7 +37,7 @@ pub struct CreateDashboardFilesParams {
     pub files: Vec<DashboardFileParams>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CreateDashboardFilesOutput {
     pub message: String,
     pub duration: i64,

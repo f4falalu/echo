@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use chrono::Utc;
 use database::{
     enums::Verification,
-    models::MetricFile,
+    models::{DashboardFile, MetricFile},
     pool::get_pg_pool,
     schema::{datasets, metric_files},
 };
@@ -18,7 +18,7 @@ use diesel_async::RunQueryDsl;
 
 use serde::{Deserialize, Serialize};
 
-use super::file_types::metric_yml::MetricYml;
+use super::file_types::{dashboard_yml::DashboardYml, file::FileWithId, metric_yml::MetricYml};
 
 // Import the types needed for the modification function
 
@@ -857,6 +857,228 @@ pub fn apply_modifications_to_content(
     }
 
     Ok(modified_content)
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ModifyFilesParams {
+    /// List of files to modify with their corresponding modifications
+    pub files: Vec<FileModification>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ModifyFilesOutput {
+    pub message: String,
+    pub duration: i64,
+    pub files: Vec<FileWithId>,
+}
+
+#[derive(Debug)]
+pub struct FileModificationBatch<T> {
+    pub files: Vec<T>,
+    pub failed_modifications: Vec<(String, String)>,
+    pub modification_results: Vec<ModificationResult>,
+}
+
+/// Process a dashboard file modification request
+/// Returns Ok((DashboardFile, DashboardYml, Vec<ModificationResult>, String, Vec<IndexMap<String, DataType>>)) if successful, or an error if failed
+/// The string is a message about the number of records returned by the SQL query
+/// The vector of IndexMap<String, DataType> is the results of the SQL query. Returns empty vector if more than 13 records or no results.
+pub async fn process_dashboard_file_modification(
+    mut file: DashboardFile,
+    modification: &FileModification,
+    duration: i64,
+) -> Result<(
+    DashboardFile,
+    DashboardYml,
+    Vec<ModificationResult>,
+    String,
+    Vec<IndexMap<String, DataType>>,
+)> {
+    debug!(
+        file_id = %file.id,
+        file_name = %modification.file_name,
+        "Processing dashboard file modifications"
+    );
+
+    let mut results = Vec::new();
+
+    // Parse existing content
+    let current_yml: DashboardYml = match serde_json::from_value(file.content.clone()) {
+        Ok(yml) => yml,
+        Err(e) => {
+            let error = format!("Failed to parse existing dashboard YAML: {}", e);
+            error!(
+                file_id = %file.id,
+                file_name = %modification.file_name,
+                error = %error,
+                "YAML parsing error"
+            );
+            results.push(ModificationResult {
+                file_id: file.id,
+                file_name: modification.file_name.clone(),
+                success: false,
+                error: Some(error.clone()),
+                modification_type: "parsing".to_string(),
+                timestamp: Utc::now(),
+                duration,
+            });
+            return Err(anyhow::anyhow!(error));
+        }
+    };
+
+    // Convert to YAML string for content modifications
+    let current_content = match serde_yaml::to_string(&current_yml) {
+        Ok(content) => content,
+        Err(e) => {
+            let error = format!("Failed to serialize dashboard YAML: {}", e);
+            error!(
+                file_id = %file.id,
+                file_name = %modification.file_name,
+                error = %error,
+                "YAML serialization error"
+            );
+            results.push(ModificationResult {
+                file_id: file.id,
+                file_name: modification.file_name.clone(),
+                success: false,
+                error: Some(error.clone()),
+                modification_type: "serialization".to_string(),
+                timestamp: Utc::now(),
+                duration,
+            });
+            return Err(anyhow::anyhow!(error));
+        }
+    };
+
+    // Apply modifications and track results
+    match apply_modifications_to_content(
+        &current_content,
+        &modification.modifications,
+        &modification.file_name,
+    ) {
+        Ok(modified_content) => {
+            // Create and validate new YML object
+            match DashboardYml::new(modified_content) {
+                Ok(new_yml) => {
+                    debug!(
+                        file_id = %file.id,
+                        file_name = %modification.file_name,
+                        "Successfully modified and validated dashboard file"
+                    );
+
+                    // Collect all metric IDs from rows
+                    let metric_ids: Vec<Uuid> = new_yml
+                        .rows
+                        .iter()
+                        .flat_map(|row| row.items.iter())
+                        .map(|item| item.id)
+                        .collect();
+
+                    // Validate metric IDs if any exist
+                    if !metric_ids.is_empty() {
+                        match validate_metric_ids(&metric_ids).await {
+                            Ok(missing_ids) if !missing_ids.is_empty() => {
+                                let error =
+                                    format!("Referenced metrics not found: {:?}", missing_ids);
+                                error!(
+                                    file_id = %file.id,
+                                    file_name = %modification.file_name,
+                                    error = %error,
+                                    "Metric validation error"
+                                );
+                                results.push(ModificationResult {
+                                    file_id: file.id,
+                                    file_name: modification.file_name.clone(),
+                                    success: false,
+                                    error: Some(error.clone()),
+                                    modification_type: "metric_validation".to_string(),
+                                    timestamp: Utc::now(),
+                                    duration,
+                                });
+                                return Err(anyhow::anyhow!(error));
+                            }
+                            Err(e) => {
+                                let error = format!("Failed to validate metric IDs: {}", e);
+                                error!(
+                                    file_id = %file.id,
+                                    file_name = %modification.file_name,
+                                    error = %error,
+                                    "Metric validation error"
+                                );
+                                results.push(ModificationResult {
+                                    file_id: file.id,
+                                    file_name: modification.file_name.clone(),
+                                    success: false,
+                                    error: Some(error.clone()),
+                                    modification_type: "metric_validation".to_string(),
+                                    timestamp: Utc::now(),
+                                    duration,
+                                });
+                                return Err(anyhow::anyhow!(error));
+                            }
+                            Ok(_) => (), // All metrics exist
+                        }
+                    }
+
+                    // Update file record
+                    file.content = serde_json::to_value(&new_yml)?;
+                    file.updated_at = Utc::now();
+
+                    // Track successful modification
+                    results.push(ModificationResult {
+                        file_id: file.id,
+                        file_name: modification.file_name.clone(),
+                        success: true,
+                        error: None,
+                        modification_type: "content".to_string(),
+                        timestamp: Utc::now(),
+                        duration,
+                    });
+
+                    // Return success with empty validation results since dashboards don't have SQL
+                    Ok((file, new_yml, results, String::new(), Vec::new()))
+                }
+                Err(e) => {
+                    let error = format!("Failed to validate modified YAML: {}", e);
+                    error!(
+                        file_id = %file.id,
+                        file_name = %modification.file_name,
+                        error = %error,
+                        "YAML validation error"
+                    );
+                    results.push(ModificationResult {
+                        file_id: file.id,
+                        file_name: modification.file_name.clone(),
+                        success: false,
+                        error: Some(error.clone()),
+                        modification_type: "validation".to_string(),
+                        timestamp: Utc::now(),
+                        duration,
+                    });
+                    Err(anyhow::anyhow!(error))
+                }
+            }
+        }
+        Err(e) => {
+            let error = format!("Failed to apply modifications: {}", e);
+            error!(
+                file_id = %file.id,
+                file_name = %modification.file_name,
+                error = %error,
+                "Modification application error"
+            );
+            results.push(ModificationResult {
+                file_id: file.id,
+                file_name: modification.file_name.clone(),
+                success: false,
+                error: Some(error.clone()),
+                modification_type: "modification".to_string(),
+                timestamp: Utc::now(),
+                duration,
+            });
+            Err(anyhow::anyhow!(error))
+        }
+    }
 }
 
 #[cfg(test)]

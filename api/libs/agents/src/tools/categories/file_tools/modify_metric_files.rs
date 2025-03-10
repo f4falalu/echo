@@ -11,11 +11,11 @@ use indexmap::IndexMap;
 use query_engine::data_types::DataType;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use tracing::{debug, info};
+use tracing::{debug, info, error};
 use uuid::Uuid;
 
 use super::{
-    common::{FileModification, Modification, ModificationResult, apply_modifications_to_content, process_metric_file_modification},
+    common::{FileModification, Modification, ModificationResult, process_metric_file_modification, ModifyFilesParams, ModifyFilesOutput, FileModificationBatch, apply_modifications_to_content},
     file_types::{file::FileWithId, metric_yml::MetricYml},
     FileModificationTool,
 };
@@ -24,27 +24,14 @@ use crate::{
     tools::{file_tools::common::METRIC_YML_SCHEMA, ToolExecutor},
 };
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ModifyFilesParams {
-    /// List of files to modify with their corresponding modifications
-    pub files: Vec<FileModification>,
-}
-
 #[derive(Debug)]
-struct FileModificationBatch {
-    metric_files: Vec<MetricFile>,
-    metric_ymls: Vec<MetricYml>,
-    failed_modifications: Vec<(String, String)>,
-    modification_results: Vec<ModificationResult>,
-    validation_messages: Vec<String>,
-    validation_results: Vec<Vec<IndexMap<String, DataType>>>,
-}
-
-#[derive(Debug, Serialize)]
-pub struct ModifyFilesOutput {
-    message: String,
-    duration: i64,
-    files: Vec<FileWithId>,
+struct MetricModificationBatch {
+    pub files: Vec<MetricFile>,
+    pub ymls: Vec<MetricYml>,
+    pub failed_modifications: Vec<(String, String)>,
+    pub modification_results: Vec<ModificationResult>,
+    pub validation_messages: Vec<String>,
+    pub validation_results: Vec<Vec<IndexMap<String, DataType>>>,
 }
 
 pub struct ModifyMetricFilesTool {
@@ -86,9 +73,9 @@ impl ToolExecutor for ModifyMetricFilesTool {
         info!("Processing {} files for modification", params.files.len());
 
         // Initialize batch processing structures
-        let mut batch = FileModificationBatch {
-            metric_files: Vec::new(),
-            metric_ymls: Vec::new(),
+        let mut batch = MetricModificationBatch {
+            files: Vec::new(),
+            ymls: Vec::new(),
             failed_modifications: Vec::new(),
             modification_results: Vec::new(),
             validation_messages: Vec::new(),
@@ -138,8 +125,8 @@ impl ToolExecutor for ModifyMetricFilesTool {
                                     validation_message,
                                     validation_results,
                                 )) => {
-                                    batch.metric_files.push(metric_file);
-                                    batch.metric_ymls.push(metric_yml);
+                                    batch.files.push(metric_file);
+                                    batch.ymls.push(metric_yml);
                                     batch.modification_results.extend(results);
                                     batch.validation_messages.push(validation_message);
                                     batch.validation_results.push(validation_results);
@@ -173,69 +160,54 @@ impl ToolExecutor for ModifyMetricFilesTool {
         };
 
         // Update metric files in database
-        if !batch.metric_files.is_empty() {
+        if !batch.files.is_empty() {
             use diesel::insert_into;
             match insert_into(metric_files::table)
-                .values(&batch.metric_files)
+                .values(&batch.files)
                 .on_conflict(metric_files::id)
                 .do_update()
                 .set((
                     metric_files::content.eq(excluded(metric_files::content)),
-                    metric_files::updated_at.eq(Utc::now()),
-                    metric_files::verification.eq(Verification::NotRequested),
+                    metric_files::updated_at.eq(excluded(metric_files::updated_at)),
                 ))
                 .execute(&mut conn)
                 .await
             {
                 Ok(_) => {
-                    output
-                        .files
-                        .extend(batch.metric_files.iter().enumerate().map(|(i, file)| {
-                            let yml = &batch.metric_ymls[i];
-                            FileWithId {
-                                id: file.id,
-                                name: file.name.clone(),
-                                file_type: "metric".to_string(),
-                                yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
-                                result_message: Some(batch.validation_messages[i].clone()),
-                                results: Some(batch.validation_results[i].clone()),
-                                created_at: file.created_at,
-                                updated_at: file.updated_at,
-                            }
-                        }));
+                    debug!("Successfully updated metric files in database");
                 }
                 Err(e) => {
-                    batch.failed_modifications.push((
-                        "metric_files".to_string(),
-                        format!("Failed to update metric files: {}", e),
+                    error!("Failed to update metric files in database: {}", e);
+                    return Err(anyhow::anyhow!(
+                        "Failed to update metric files in database: {}",
+                        e
                     ));
                 }
             }
         }
 
-        // Generate final message
-        if batch.failed_modifications.is_empty() {
-            output.message = format!("Successfully modified {} files.", output.files.len());
-        } else {
-            let success_msg = if !output.files.is_empty() {
-                format!("Successfully modified {} files. ", output.files.len())
-            } else {
-                String::new()
-            };
+        // Generate output
+        let duration = start_time.elapsed().as_millis() as i64;
+        let mut output = ModifyFilesOutput {
+            message: format!("Modified {} metric files", batch.files.len()),
+            duration,
+            files: Vec::new(),
+        };
 
-            let failures: Vec<String> = batch
-                .failed_modifications
-                .iter()
-                .map(|(name, error)| format!("Failed to modify '{}': {}", name, error))
-                .collect();
-
-            output.message = format!(
-                "{}Failed to modify {} files: {}",
-                success_msg,
-                batch.failed_modifications.len(),
-                failures.join("; ")
-            );
-        }
+        // Add files to output
+        output.files.extend(batch.files.iter().enumerate().map(|(i, file)| {
+            let yml = &batch.ymls[i];
+            FileWithId {
+                id: file.id,
+                name: file.name.clone(),
+                file_type: "metric".to_string(),
+                yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
+                result_message: Some(batch.validation_messages[i].clone()),
+                results: Some(batch.validation_results[i].clone()),
+                created_at: file.created_at,
+                updated_at: file.updated_at,
+            }
+        }));
 
         Ok(output)
     }

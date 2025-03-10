@@ -37,7 +37,7 @@ pub struct CreateMetricFilesParams {
     pub files: Vec<MetricFileParams>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CreateMetricFilesOutput {
     pub message: String,
     pub duration: i64,
