@@ -66,7 +66,6 @@ export const useChatStreamMessage = () => {
   const completeChatCallback = useMemoizedFn((d: BusterChat) => {
     const { iChat, iChatMessages } = updateChatToIChat(d, false);
     chatRef.current[iChat.id] = iChat;
-    console.log(iChatMessages);
     normalizeChatMessage(iChatMessages);
     onUpdateChat(iChat);
     removeBlackBoxMessage({ messageId: iChat.message_ids[iChat.message_ids.length - 1] });

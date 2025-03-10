@@ -67,7 +67,7 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
   chatId,
   messageId
 }) => {
-  const { title, hasMessage, type, secondary_title, status } = useMessageIndividual(
+  const { title, type, secondary_title, status, hasMessage } = useMessageIndividual(
     messageId,
     (x) => ({
       title: x?.reasoning_messages[reasoningMessageId]?.title,
@@ -92,7 +92,7 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
 
   return (
     <BarContainer
-      showBar={showBar}
+      showBar={true}
       status={status}
       isCompletedStream={isCompletedStream}
       title={title ?? ''}
