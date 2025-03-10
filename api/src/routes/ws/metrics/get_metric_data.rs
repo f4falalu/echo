@@ -34,7 +34,7 @@ pub async fn get_metric_data(user: &AuthenticatedUser, request: GetMetricDataWsR
             tracing::error!("Error getting metric data: {}", e);
             send_error_message(
                 &user.id.to_string(),
-                WsRoutes::Metrics(MetricRoute::GetData),
+                WsRoutes::Metrics(MetricRoute::Data),
                 WsEvent::Metrics(MetricEvent::FetchingData),
                 WsErrorCode::InternalServerError,
                 "Failed to get metric data.".to_string(),
@@ -46,7 +46,7 @@ pub async fn get_metric_data(user: &AuthenticatedUser, request: GetMetricDataWsR
     };
 
     let response_message = WsResponseMessage::new(
-        WsRoutes::Metrics(MetricRoute::GetData),
+        WsRoutes::Metrics(MetricRoute::Get),
         WsEvent::Metrics(MetricEvent::FetchingData),
         response,
         None,

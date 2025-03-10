@@ -1,6 +1,5 @@
 use agents::tools::file_tools::file_types::metric_yml::MetricYml;
 use anyhow::{anyhow, Result};
-use database::models::User;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -41,7 +40,7 @@ pub async fn get_metric_data_handler(
     let metric = get_metric_handler(&request.metric_id, &user_id).await?;
 
     // Parse the metric definition from YAML to get SQL and dataset IDs
-    let metric_yml = serde_json::from_str::<MetricYml>(&metric.file)?;
+    let metric_yml = serde_yaml::from_str::<MetricYml>(&metric.file)?;
     let sql = metric_yml.sql;
     let dataset_ids = metric_yml.dataset_ids;
 

@@ -1,7 +1,6 @@
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use uuid::Uuid;
 
 use middleware::AuthenticatedUser;
 
@@ -14,8 +13,8 @@ use super::{
 pub enum MetricRoute {
     #[serde(rename = "/metrics/get")]
     Get,
-    #[serde(rename = "/metrics/get_data")]
-    GetData,
+    #[serde(rename = "/metrics/data")]
+    Data,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -39,7 +38,7 @@ pub async fn metrics_router(
 
             get_metric(user, request).await?;
         }
-        MetricRoute::GetData => {
+        MetricRoute::Data => {
             let req = match serde_json::from_value(data) {
                 Ok(req) => req,
                 Err(e) => return Err(anyhow!("Error parsing request: {}", e)),
@@ -56,7 +55,7 @@ impl MetricRoute {
     pub fn from_str(path: &str) -> Result<Self> {
         match path {
             "/metrics/get" => Ok(Self::Get),
-            "/metrics/get_data" => Ok(Self::GetData),
+            "/metrics/data" => Ok(Self::Data),
             _ => Err(anyhow!("Invalid path")),
         }
     }

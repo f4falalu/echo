@@ -8,6 +8,7 @@ mod search;
 mod sql;
 mod teams;
 mod terms;
+mod metrics;
 pub mod threads_and_messages;
 mod users;
 pub mod ws;

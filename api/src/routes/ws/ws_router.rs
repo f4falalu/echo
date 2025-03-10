@@ -11,19 +11,7 @@ use crate::routes::ws::{
 };
 
 use super::{
-    collections::collections_router::{collections_router, CollectionRoute},
-    dashboards::dashboards_router::DashboardRoute,
-    data_sources::data_sources_router::{data_sources_router, DataSourceRoute},
-    datasets::datasets_router::DatasetRoute,
-    organizations::organization_router::{organizations_router, OrganizationRoute},
-    permissions::permissions_router::{permissions_router, PermissionRoute},
-    search::search_router::{search_router, SearchRoute},
-    sql::sql_router::{sql_router, SqlRoute},
-    teams::teams_routes::{teams_router, TeamRoute},
-    terms::terms_router::{terms_router, TermRoute},
-    threads_and_messages::threads_router::{threads_router, ThreadRoute},
-    users::users_router::{users_router, UserRoute},
-    ws::SubscriptionRwLock,
+    collections::collections_router::{collections_router, CollectionRoute}, dashboards::dashboards_router::DashboardRoute, data_sources::data_sources_router::{data_sources_router, DataSourceRoute}, datasets::datasets_router::DatasetRoute, metrics::{metrics_router, MetricRoute}, organizations::organization_router::{organizations_router, OrganizationRoute}, permissions::permissions_router::{permissions_router, PermissionRoute}, search::search_router::{search_router, SearchRoute}, sql::sql_router::{sql_router, SqlRoute}, teams::teams_routes::{teams_router, TeamRoute}, terms::terms_router::{terms_router, TermRoute}, threads_and_messages::threads_router::{threads_router, ThreadRoute}, users::users_router::{users_router, UserRoute}, ws::SubscriptionRwLock
 };
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -41,6 +29,7 @@ pub enum WsRoutes {
     Terms(TermRoute),
     Search(SearchRoute),
     Organizations(OrganizationRoute),
+    Metrics(MetricRoute),
 }
 
 impl WsRoutes {
@@ -63,6 +52,7 @@ impl WsRoutes {
             "terms" => Ok(Self::Terms(TermRoute::from_str(path)?)),
             "search" => Ok(Self::Search(SearchRoute::from_str(path)?)),
             "organizations" => Ok(Self::Organizations(OrganizationRoute::from_str(path)?)),
+            "metrics" => Ok(Self::Metrics(MetricRoute::from_str(path)?)),
             _ => Err(anyhow!("Invalid path")),
         }
     }
@@ -107,6 +97,7 @@ pub async fn ws_router(
         WsRoutes::Organizations(organizations_route) => {
             organizations_router(organizations_route, payload, user).await
         }
+        WsRoutes::Metrics(metrics_route) => metrics_router(metrics_route, payload, user).await,
     };
 
     if let Err(e) = result {
