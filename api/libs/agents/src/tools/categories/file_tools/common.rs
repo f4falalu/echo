@@ -100,6 +100,7 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 # Required top-level fields:
 #
 # name: "Your Metric Title"
+# description: "A detailed description of what this metric measures and how it should be interpreted"  # Optional
 # dataset_ids: ["123e4567-e89b-12d3-a456-426614174000"]  # Dataset UUIDs (not names)
 # time_frame: "Last 30 days"  # Human-readable time period covered by the query
 # sql: |
@@ -146,6 +147,11 @@ properties:
   name:
     type: string
     description: "Human-readable title (e.g., 'Total Sales')"
+
+  # DESCRIPTION
+  description:
+    type: string
+    description: "A detailed description of what this metric measures and how it should be interpreted"
 
   # DATASET IDS
   dataset_ids:
