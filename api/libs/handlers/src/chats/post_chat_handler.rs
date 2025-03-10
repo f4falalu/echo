@@ -3,9 +3,10 @@ use once_cell::sync::OnceCell;
 use std::{collections::HashMap, sync::Mutex, time::Instant};
 
 use agents::{
-    tools::file_tools::{
-        common::ModifyFilesOutput, create_dashboard_files::CreateDashboardFilesOutput, create_metric_files::CreateMetricFilesOutput, search_data_catalog::SearchDataCatalogOutput
-    },
+    tools::{file_tools::{
+        common::ModifyFilesOutput, create_dashboard_files::CreateDashboardFilesOutput,
+        create_metric_files::CreateMetricFilesOutput, search_data_catalog::SearchDataCatalogOutput,
+    }, planning_tools::CreatePlanOutput},
     AgentExt, AgentMessage, AgentThread, BusterSuperAgent,
 };
 
@@ -932,11 +933,27 @@ fn transform_tool_message(
         "modify_metrics" => tool_modify_metrics(id.clone(), content)?,
         "create_dashboards" => tool_create_dashboards(id.clone(), content)?,
         "modify_dashboards" => tool_modify_dashboards(id.clone(), content)?,
-        "create_plan" => return Ok(vec![]), // Return empty vec wrapped in Ok
+        "create_plan" => tool_create_plan(id.clone(), content)?,
         _ => return Err(anyhow::anyhow!("Unknown tool name: {}", name)),
     };
 
     Ok(messages)
+}
+
+fn tool_create_plan(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
+    println!("MESSAGE_STREAM: Processing tool create plan message");
+
+    let buster_file = BusterReasoningMessage::Text(BusterReasoningText {
+        id,
+        reasoning_type: "text".to_string(),
+        title: "Plan".to_string(),
+        secondary_title: "".to_string(),
+        message: None,
+        message_chunk: None,
+        status: Some("completed".to_string()),
+    });
+
+    Ok(vec![buster_file])
 }
 
 // Update tool_create_metrics to require ID
@@ -1316,14 +1333,9 @@ fn transform_assistant_tool_message(
                                     .or(text.message)
                                     .or(text.message_chunk.clone());
                                 text.message_chunk = None;
-                                
-                                // Only set completed status for create_plan when message is present
-                                if tool_call.function.name == "create_plan" && text.message.is_some() {
-                                    text.status = Some("completed".to_string());
-                                } else {
-                                    text.status = Some("loading".to_string());
-                                }
-                                
+
+                                text.status = Some("loading".to_string());
+
                                 tracker.clear_chunk(text.id.clone());
                                 Some(BusterReasoningMessage::Text(text))
                             }

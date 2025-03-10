@@ -8,7 +8,7 @@ use crate::{agent::Agent, tools::ToolExecutor};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CreatePlanOutput {
-    message: String,
+    pub message: String,
 }
 
 #[derive(Debug, Deserialize)]
