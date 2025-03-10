@@ -12,7 +12,7 @@ import { prepareMetricUpdateMetric, upgradeMetricToIMetric } from '../helpers';
 import { useTransition } from 'react';
 import { queryKeys } from '@/api/query_keys';
 import { useQueryClient } from '@tanstack/react-query';
-import { useSocketQueryMutation } from '@/api/buster_socket_query';
+import { useUpdateMetric } from '@/api/buster_rest/metrics';
 
 export const useUpdateMetricConfig = ({
   getMetricId,
@@ -23,6 +23,8 @@ export const useUpdateMetricConfig = ({
 }) => {
   const [isPending, startTransition] = useTransition();
   const queryClient = useQueryClient();
+
+  const { mutateAsync: updateMetricMutation } = useUpdateMetric();
 
   const setMetricToState = useMemoizedFn((metric: IBusterMetric) => {
     const metricId = getMetricId(metric.id);
@@ -49,25 +51,6 @@ export const useUpdateMetricConfig = ({
       return newMetric;
     }
   );
-
-  const { mutateAsync: updateMetricMutation } = useSocketQueryMutation({
-    emitEvent: '/metrics/update',
-    responseEvent: '/metrics/update:updateMetricState',
-    callback: (metric, currentData, variables) => {
-      const draftSessionId = metric.draft_session_id;
-      const currentMessage = getMetricMemoized({ metricId: metric.id });
-      if (draftSessionId && !currentMessage?.draft_session_id) {
-        onUpdateMetric(
-          {
-            id: metric.id,
-            draft_session_id: draftSessionId
-          },
-          false
-        );
-      }
-      return metric;
-    }
-  });
 
   const { run: _prepareMetricAndSaveToServer } = useDebounceFn(
     useMemoizedFn((newMetric: IBusterMetric, oldMetric: IBusterMetric) => {

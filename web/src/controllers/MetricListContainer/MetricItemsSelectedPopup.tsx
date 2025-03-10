@@ -11,6 +11,7 @@ import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { StatusBadgeButton } from '@/components/features/metrics/StatusBadgeIndicator';
 import { Dots, Star, Trash, Xmark } from '@/components/ui/icons';
+import { useDeleteMetric } from '@/api/buster_rest/metrics';
 
 export const MetricSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];
@@ -147,7 +148,7 @@ const DeleteButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
-  const deleteMetric = useBusterMetricsIndividualContextSelector((state) => state.deleteMetric);
+  const { mutateAsync: deleteMetric } = useDeleteMetric();
   const { openConfirmModal } = useBusterNotifications();
 
   const onDeleteClick = async () => {

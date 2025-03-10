@@ -6,7 +6,8 @@ import type {
   BusterMetricListItem,
   IBusterMetric
 } from '@/api/asset_interfaces/metric';
-import type { MetricListRequest } from '@/api/request_interfaces/metrics';
+import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
+import { ListMetricsParams } from '../buster_rest/metrics';
 
 export const metricsGetMetric = (metricId: string) => {
   return queryOptions<IBusterMetric>({
@@ -17,19 +18,19 @@ export const metricsGetMetric = (metricId: string) => {
 };
 
 export const useMetricsGetMetric = (metricId: string) => {
-  // const setAssetPasswordError = useBusterAssetsContextSelector(
-  //   (state) => state.setAssetPasswordError
-  // );
+  const setAssetPasswordError = useBusterAssetsContextSelector(
+    (state) => state.setAssetPasswordError
+  );
   return queryOptions<IBusterMetric>({
-    ...metricsGetMetric(metricId)
-    // throwOnError: (error, query) => {
-    //   setAssetPasswordError(metricId, error.message || 'An error occurred');
-    //   return false;
-    // }
+    ...metricsGetMetric(metricId),
+    throwOnError: (error, query) => {
+      setAssetPasswordError(metricId, error.message || 'An error occurred');
+      return false;
+    }
   });
 };
 
-export const metricsGetList = (filters?: MetricListRequest) =>
+export const metricsGetList = (filters?: ListMetricsParams) =>
   queryOptions<BusterMetricListItem[]>({
     queryKey: ['metrics', 'list', filters] as const,
     staleTime: 10 * 1000

@@ -1,12 +1,14 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { QueryClient } from '@tanstack/react-query';
 import { useMemoizedFn } from '@/hooks';
 import {
+  deleteMetrics,
   getMetric,
   getMetric_server,
   getMetricData,
   listMetrics,
-  listMetrics_server
+  listMetrics_server,
+  updateMetric
 } from './requests';
 import type { GetMetricParams, ListMetricsParams } from './interfaces';
 import { upgradeMetricToIMetric } from '@/lib/chat';
@@ -77,5 +79,44 @@ export const useGetMetricData = (params: { id: string }) => {
     ...queryKeys.metricsGetData(params.id),
     queryFn,
     enabled: !!params.id
+  });
+};
+
+export const useUpdateMetric = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateMetric,
+    onSuccess: (data, variables, context) => {
+      const hasDraftSessionId = data.draft_session_id;
+      const metricId = data.id;
+      const options = queryKeys.metricsGetMetric(metricId);
+      const currentMetric = queryClient.getQueryData(options.queryKey);
+      if (hasDraftSessionId && !currentMetric?.draft_session_id && currentMetric) {
+        queryClient.setQueryData(options.queryKey, {
+          ...currentMetric,
+          draft_session_id: data.draft_session_id
+        });
+      }
+    }
+  });
+};
+
+export const useDeleteMetric = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteMetrics,
+    onMutate: async (variables) => {
+      const metricIds = variables.ids;
+      const options = queryKeys.metricsGetList();
+      queryClient.setQueryData(options.queryKey, (oldData) => {
+        return oldData?.filter((metric) => !metricIds.includes(metric.id));
+      });
+      for (const metricId of metricIds) {
+        queryClient.removeQueries({
+          queryKey: queryKeys.metricsGetMetric(metricId).queryKey,
+          exact: true
+        });
+      }
+    }
   });
 };

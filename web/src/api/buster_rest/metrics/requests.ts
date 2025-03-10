@@ -1,6 +1,6 @@
 import { mainApi } from '../instances';
 import { serverFetch } from '@/api/createServerInstance';
-import type { GetMetricParams, ListMetricsParams } from './interfaces';
+import type { GetMetricParams, ListMetricsParams, UpdateMetricParams } from './interfaces';
 import type {
   BusterMetric,
   BusterMetricData,
@@ -31,4 +31,24 @@ export const listMetrics_server = async (params: ListMetricsParams) => {
 
 export const getMetricData = async (params: { id: string }) => {
   return mainApi.get<BusterMetricData>(`/metrics/data`, { params }).then((res) => res.data);
+};
+
+export const updateMetric = async (params: UpdateMetricParams) => {
+  return mainApi.put<BusterMetric>(`/metrics/update`, { params }).then((res) => res.data);
+};
+
+export const deleteMetrics = async (params: { ids: string[] }) => {
+  return mainApi
+    .delete<BusterMetricListItem[]>(`/metrics/delete`, { params })
+    .then((res) => res.data);
+};
+
+export const duplicateMetrics = async (params: {
+  id: string;
+  message_id: string;
+  share_with_same_people: boolean;
+}) => {
+  return mainApi
+    .post<BusterMetricListItem[]>(`/metrics/duplicate`, { params })
+    .then((res) => res.data);
 };

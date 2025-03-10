@@ -121,15 +121,15 @@ const useBusterSocketListeners = (props: {
     return new Promise((resolve, reject) => {
       const onceCallback = (payload: any) => {
         callback(payload);
-        off({ route: route as '/metrics/list:getMetricList', callback: onceCallback });
+        off({ route: route as '/chats/post:initializeChat', callback: onceCallback });
         resolve(payload);
       };
       const onError = (error: any) => {
-        off({ route: route as '/metrics/list:getMetricList', callback: onceCallback });
+        off({ route: route as '/chats/post:initializeChat', callback: onceCallback });
         reject(error);
       };
       on({
-        route: route as '/metrics/list:getMetricList',
+        route: route as '/chats/post:initializeChat',
         callback: onceCallback,
         onError
       });
@@ -150,7 +150,7 @@ const useBusterSocketListeners = (props: {
         reject(d);
       };
       once({
-        route: route as '/metrics/list:getMetricList',
+        route: route as '/chats/post:initializeChat',
         callback: promiseCallback,
         onError: onErrorCallback
       }).catch((e) => {

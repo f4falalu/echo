@@ -10,8 +10,8 @@ import { useShareMetric } from './useMetricShare';
 import { useParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
-import { useMetricDelete } from './useMetricDelete';
 import { useMemoizedFn } from '@/hooks';
+import { useDeleteMetric } from '@/api/buster_rest/metrics';
 
 const useBusterMetricsIndividual = () => {
   const { metricId: selectedMetricId } = useParams<{ metricId: string }>();
@@ -45,13 +45,10 @@ const useBusterMetricsIndividual = () => {
 
   const metricShare = useShareMetric({ updateMetricMutation });
 
-  const metricDelete = useMetricDelete();
-
   return {
     ...metricAssosciations,
     ...metricShare,
     ...metricUpdateConfig,
-    ...metricDelete,
     onInitializeMetric,
     getMetricMemoized
   };

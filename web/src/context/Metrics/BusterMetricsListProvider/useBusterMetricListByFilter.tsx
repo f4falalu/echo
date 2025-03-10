@@ -2,37 +2,23 @@
 
 import React, { useMemo } from 'react';
 import { VerificationStatus } from '@/api/asset_interfaces/share';
-import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
-import { queryKeys } from '@/api/query_keys';
+import { type ListMetricsParams, useGetMetricsList } from '@/api/buster_rest/metrics';
 
 export const useBusterMetricListByFilter = (params: {
   filters: VerificationStatus[];
   admin_view: boolean;
 }) => {
-  const metricListFilters = useMemo(
+  const metricListFilters: ListMetricsParams = useMemo(
     () => ({
       filters: params.filters,
-      admin_view: params.admin_view
+      admin_view: params.admin_view,
+      page_token: 0,
+      page_size: 3000
     }),
     [params.filters.join(','), params.admin_view]
   );
 
-  const {
-    data: metricList,
-    isFetching,
-    isFetched
-  } = useSocketQueryEmitOn({
-    emitEvent: {
-      route: '/metrics/list',
-      payload: {
-        page_token: 0,
-        page_size: 3000, //TODO: make a pagination,
-        ...metricListFilters
-      }
-    },
-    responseEvent: '/metrics/list:getMetricList',
-    options: queryKeys.metricsGetList()
-  });
+  const { data: metricList, isFetching, isFetched } = useGetMetricsList(metricListFilters);
 
   return {
     metricList,

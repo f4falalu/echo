@@ -1,6 +1,6 @@
 import { useMemoizedFn } from '@/hooks';
-import type { MetricUpdateMetric } from '@/api/buster_socket/metrics';
-import { useUpdateMetricConfig } from './useMetricUpdateConfig';
+import type { useUpdateMetricConfig } from './useMetricUpdateConfig';
+import type { UpdateMetricParams } from '@/api/buster_rest/metrics';
 
 export const useShareMetric = ({
   updateMetricMutation
@@ -10,7 +10,7 @@ export const useShareMetric = ({
   const onShareMetric = useMemoizedFn(
     async (
       payload: Pick<
-        MetricUpdateMetric['payload'],
+        UpdateMetricParams,
         | 'id'
         | 'publicly_accessible'
         | 'public_password'

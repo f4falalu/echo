@@ -8,7 +8,6 @@ import { useBusterNotifications } from '../BusterNotifications';
 import { didColumnDataChange, simplifyChatConfigForSQLChange } from './helpers';
 import { type IBusterMetricChartConfig, type RunSQLResponse } from '@/api/asset_interfaces';
 import { queryKeys } from '@/api/query_keys';
-import { MetricUpdateMetric } from '@/api/buster_socket/metrics';
 import { runSQL as runSQLRest } from '@/api/buster_rest';
 import type { BusterMetricData } from '@/api/asset_interfaces/metric';
 import { useQueryClient } from '@tanstack/react-query';
@@ -180,12 +179,10 @@ export const useSQLProvider = () => {
         }
       }
 
-      const payload: MetricUpdateMetric['payload'] = {
+      await updateMetricMutation({
         id: metricId,
         sql: sql
-      };
-
-      await updateMetricMutation(payload);
+      });
       await onSaveMetricChanges({
         metricId,
         save_draft: true,

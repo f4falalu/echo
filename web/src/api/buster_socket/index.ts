@@ -1,4 +1,3 @@
-import type { MetricResponses, MetricEmits, MetricResponseTypes } from './metrics';
 import type { DashboardResponseTypes, DashboardEmits, DashboardResponses } from './dashboards';
 import type { DatasetEmits, DatasetResponseTypes, DatasetResponses } from './datasets';
 import type { SQLEmits, SQLResponses, SQLResponsesTypes } from './sql';
@@ -16,7 +15,6 @@ import type {
 import type { ChatEmits, ChatResponseTypes, ChatsResponses } from './chats';
 
 export type BusterSocketRequest =
-  | MetricEmits
   | DashboardEmits
   | DatasetEmits
   | UserEmits
@@ -30,7 +28,6 @@ export type BusterSocketRequest =
   | ChatEmits;
 
 export type BusterSocketResponse =
-  | MetricResponseTypes
   | DashboardResponseTypes
   | DatasetResponseTypes
   | UserResponsesTypes
@@ -44,7 +41,6 @@ export type BusterSocketResponse =
   | ChatResponseTypes;
 
 export type BusterSocketResponseRoute =
-  | keyof typeof MetricResponses
   | keyof typeof DashboardResponses
   | keyof typeof DatasetResponses
   | keyof typeof UserResponses

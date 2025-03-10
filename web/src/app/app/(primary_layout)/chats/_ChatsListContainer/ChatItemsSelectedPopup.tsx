@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Dots, Star, Trash, Xmark } from '@/components/ui/icons';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
-import { Dropdown, DropdownItems, DropdownProps } from '@/components/ui/dropdown';
+import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { Button } from '@/components/ui/buttons';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useUserConfigContextSelector } from '@/context/Users';
@@ -12,6 +12,7 @@ import { useMemoizedFn } from '@/hooks';
 import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
+import { useDeleteMetric } from '@/api/buster_rest/metrics';
 
 export const ChatSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];
@@ -120,7 +121,7 @@ const DeleteButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
-  const deleteMetric = useBusterMetricsIndividualContextSelector((state) => state.deleteMetric);
+  const { mutateAsync: deleteMetric } = useDeleteMetric();
 
   const onDeleteClick = async () => {
     await deleteMetric({ ids: selectedRowKeys });
