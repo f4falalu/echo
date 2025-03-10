@@ -41,9 +41,16 @@ export const metricsGetDataByMessageId = (messageId: string) =>
     staleTime: 60 * 60 * 1000 // 1 hour
   });
 
+export const metricsGetData = (id: string) =>
+  queryOptions<BusterMetricData>({
+    queryKey: ['metrics', 'data', id] as const,
+    staleTime: 3 * 60 * 60 * 1000 // 3 hours,
+  });
+
 export const metricsQueryKeys = {
   metricsGetMetric,
   useMetricsGetMetric,
   metricsGetList,
-  metricsGetDataByMessageId
+  metricsGetDataByMessageId,
+  metricsGetData
 };

@@ -12,11 +12,11 @@ export const AppCodeBlock: React.FC<{
   wrapperClassName?: string;
   children?: React.ReactNode;
   style?: React.CSSProperties;
-
   showCopyButton?: boolean;
   title?: string;
   buttons?: React.ReactNode;
-}> = React.memo(({ title, buttons, ...props }) => {
+  showLoader?: boolean;
+}> = React.memo(({ title, buttons, showLoader, ...props }) => {
   const {
     children,
     className = '',

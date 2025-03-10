@@ -71,14 +71,6 @@ export type MetricDeleteRequest = {
 };
 
 /**
- * Request payload for retrieving metric data by message ID
- */
-export type MetricGetDataByMessageIdRequest = {
-  /** Message ID to retrieve metric data for */
-  id: string;
-};
-
-/**
  * Request payload for searching metrics
  */
 export type MetricSearchRequest = {

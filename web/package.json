@@ -96,6 +96,7 @@
     "@storybook/react": "^8.6.4",
     "@storybook/test": "^8.6.4",
     "@tailwindcss/postcss": "4.0.12",
+    "@testing-library/react": "^16.2.0",
     "@types/canvas-confetti": "^1.9.0",
     "@types/js-cookie": "^3.0.6",
     "@types/lodash": "^4.17.16",

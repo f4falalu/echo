@@ -1,4 +1,4 @@
-import type { ColumnMetaData } from '@/api/asset_interfaces';
+import type { ColumnMetaData } from '@/api/asset_interfaces/metric';
 import type { BusterChartConfigProps } from './chartConfigProps';
 
 export type BusterChartProps = {

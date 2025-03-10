@@ -1,7 +1,11 @@
 import { mainApi } from '../instances';
 import { serverFetch } from '@/api/createServerInstance';
 import type { GetMetricParams, ListMetricsParams } from './interfaces';
-import type { BusterMetric, BusterMetricListItem } from '@/api/asset_interfaces/metric';
+import type {
+  BusterMetric,
+  BusterMetricData,
+  BusterMetricListItem
+} from '@/api/asset_interfaces/metric';
 
 export const getMetric = async ({ id, password }: GetMetricParams) => {
   return mainApi
@@ -23,4 +27,8 @@ export const listMetrics = async (params: ListMetricsParams) => {
 
 export const listMetrics_server = async (params: ListMetricsParams) => {
   return await serverFetch<BusterMetricListItem[]>('/metrics/list', { params });
+};
+
+export const getMetricData = async (params: { id: string }) => {
+  return mainApi.get<BusterMetricData>(`/metrics/data`, { params }).then((res) => res.data);
 };

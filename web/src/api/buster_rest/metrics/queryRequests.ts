@@ -1,7 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { QueryClient } from '@tanstack/react-query';
 import { useMemoizedFn } from '@/hooks';
-import { getMetric, getMetric_server, listMetrics, listMetrics_server } from './requests';
+import {
+  getMetric,
+  getMetric_server,
+  getMetricData,
+  listMetrics,
+  listMetrics_server
+} from './requests';
 import type { GetMetricParams, ListMetricsParams } from './interfaces';
 import { upgradeMetricToIMetric } from '@/lib/chat';
 import { queryKeys } from '@/api/query_keys';
@@ -60,4 +66,16 @@ export const prefetchGetMetricsList = async (
   });
 
   return queryClient;
+};
+
+export const useGetMetricData = (params: { id: string }) => {
+  const queryFn = useMemoizedFn(() => {
+    return getMetricData(params);
+  });
+
+  return useQuery({
+    ...queryKeys.metricsGetData(params.id),
+    queryFn,
+    enabled: !!params.id
+  });
 };

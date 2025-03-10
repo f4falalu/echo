@@ -5,7 +5,6 @@ import {
   MetricSubscribeRequest,
   MetricUpdateRequest,
   MetricDeleteRequest,
-  MetricGetDataByMessageIdRequest,
   MetricSearchRequest,
   MetricDuplicateRequest
 } from '@/api/request_interfaces/metrics';
@@ -42,14 +41,6 @@ export type MetricUpdateMetric = BusterSocketRequestBase<'/metrics/update', Metr
 export type MetricDelete = BusterSocketRequestBase<'/metrics/delete', MetricDeleteRequest>;
 
 /**
- * Request payload for retrieving metric data by message ID
- */
-export type MetricGetDataByMessageId = BusterSocketRequestBase<
-  '/metrics/data',
-  MetricGetDataByMessageIdRequest
->;
-
-/**
  * Request payload for searching metrics
  */
 export type MetricSearch = BusterSocketRequestBase<'/metrics/search', MetricSearchRequest>;
@@ -69,5 +60,4 @@ export type MetricEmits =
   | MetricUpdateMetric
   | MetricSubscribeToMetric
   | MetricDelete
-  | MetricGetDataByMessageId
   | MetricSearch;

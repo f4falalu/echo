@@ -1,5 +1,4 @@
 import { BusterMetric, BusterMetricListItem } from '@/api/asset_interfaces/metric';
-import { MetricEvent_fetchingData } from './eventsInterfaces';
 
 export enum MetricResponses {
   '/metrics/list:getMetricList' = '/metrics/list:getMetricList',
@@ -29,12 +28,6 @@ export type Metric_Unsubscribe = {
   onError?: (d: unknown) => void;
 };
 
-export type MetricGet_fetchingData = {
-  route: '/metrics/get:fetchingData';
-  callback: (d: MetricEvent_fetchingData) => void;
-  onError?: (d: unknown) => void;
-};
-
 export type MetricList_updateMetricList = {
   route: '/metrics/list:updateMetricList';
   callback: (d: BusterMetricListItem[]) => void;
@@ -61,5 +54,4 @@ export type MetricResponseTypes =
   | MetricGet_updateMetricState
   | MetricList_updateMetricList
   | MetricDelete_deleteMetricState
-  | MetricUpdate_updateMetricState
-  | MetricGet_fetchingData;
+  | MetricUpdate_updateMetricState;

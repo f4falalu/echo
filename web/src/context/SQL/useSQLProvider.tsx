@@ -51,7 +51,6 @@ export const useSQLProvider = () => {
     metricId,
     data,
     data_metadata,
-    code,
     isDataFromRerun
   }: {
     metricId: string;
@@ -66,8 +65,7 @@ export const useSQLProvider = () => {
     queryClient.setQueryData(options.queryKey, {
       ...currentData!,
       [setter]: data,
-      data_metadata,
-      code
+      data_metadata
     });
   };
 
@@ -80,7 +78,7 @@ export const useSQLProvider = () => {
         if (!originalConfigs.current[metricId]) {
           originalConfigs.current[metricId] = {
             chartConfig: metricMessage?.chart_config!,
-            code: currentMessageData?.code!,
+            code: metricMessage?.code!,
             data: currentMessageData?.data!,
             dataMetadata: currentMessageData?.data_metadata!
           };

@@ -6,9 +6,9 @@ import { useFavoriteProvider } from './useFavoriteProvider';
 import { useGetMyUserInfo } from '@/api/buster_rest/users';
 import { useSupabaseContext } from '../Supabase';
 import { createContext, useContextSelector } from 'use-context-selector';
-import { checkIfUserIsAdmin } from './helpers';
 import { useUserOrganization } from './useUserOrganization';
 import { useInviteUser } from './useInviteUser';
+import { checkIfUserIsAdmin } from '@/lib/user';
 
 export const useUserConfigProvider = ({ userInfo }: { userInfo: BusterUserResponse | null }) => {
   const isAnonymousUser = useSupabaseContext((state) => state.isAnonymousUser);
