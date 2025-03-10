@@ -32,6 +32,12 @@ export default async function Layout({
     pathname !== newUserRoute &&
     !!accessToken //added to avoid bug with anon user
   ) {
+    console.log('redirecting to new user route', userInfo?.organizations?.[0]?.id);
+    console.log(userInfo?.user?.name);
+    console.log(cookiePathname);
+    console.log(pathname);
+    console.log(newUserRoute);
+    console.log(accessToken);
     return <ClientRedirect to={newUserRoute} />;
   }
 

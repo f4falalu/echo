@@ -30,7 +30,7 @@ export const signInWithEmailAndPassword = async ({
 
   return redirect(
     createBusterRoute({
-      route: BusterRoutes.APP_METRIC
+      route: BusterRoutes.APP_HOME
     })
   );
 };

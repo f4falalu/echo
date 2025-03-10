@@ -1,22 +1,22 @@
 import { NextResponse, type NextRequest } from 'next/server';
-// import { updateSession } from './middleware/supabaseMiddleware';
-// import { isPublicPage } from './middleware/publicPageMiddleware';
-// import { BusterRoutes, createBusterRoute } from './routes';
-// import { cspPolicyMiddleware } from './middleware/cspPolicyMiddleware';
-// import { nextPathnameMiddleware } from './middleware/nextPathnameMiddleware';
+import { updateSession } from './middleware/supabaseMiddleware';
+import { isPublicPage } from './middleware/publicPageMiddleware';
+import { BusterRoutes, createBusterRoute } from './routes';
+import { cspPolicyMiddleware } from './middleware/cspPolicyMiddleware';
+import { nextPathnameMiddleware } from './middleware/nextPathnameMiddleware';
 
 export async function middleware(request: NextRequest) {
   try {
-    // const [supabaseResponse, user] = await updateSession(request);
-    // const performUserCheck = !isPublicPage(request);
-    // cspPolicyMiddleware(request);
-    // nextPathnameMiddleware(request, supabaseResponse);
-    // if (performUserCheck && !user && !request.nextUrl.pathname.includes('/test/')) {
-    //   return NextResponse.redirect(
-    //     new URL(createBusterRoute({ route: BusterRoutes.AUTH_LOGIN }), process.env.NEXT_PUBLIC_URL)
-    //   );
-    // }
-    // return supabaseResponse;
+    const [supabaseResponse, user] = await updateSession(request);
+    const performUserCheck = !isPublicPage(request);
+    cspPolicyMiddleware(request);
+    nextPathnameMiddleware(request, supabaseResponse);
+    if (performUserCheck && !user && !request.nextUrl.pathname.includes('/test/')) {
+      return NextResponse.redirect(
+        new URL(createBusterRoute({ route: BusterRoutes.AUTH_LOGIN }), process.env.NEXT_PUBLIC_URL)
+      );
+    }
+    return supabaseResponse;
   } catch (error) {
     console.error('Error in middleware:', error);
     return NextResponse.next();
