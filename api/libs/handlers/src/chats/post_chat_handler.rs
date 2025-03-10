@@ -845,6 +845,7 @@ pub async fn transform_message(
         } => {
             if let Some(name) = name {
                 let name_str = name.clone();
+                let mut containers = Vec::new();
 
                 let messages = match transform_tool_message(
                     tool_call_id,
@@ -853,21 +854,62 @@ pub async fn transform_message(
                     *chat_id,
                     *message_id,
                 ) {
-                    Ok(messages) => messages
-                        .into_iter()
-                        .map(|container| {
-                            (
+                    Ok(messages) => {
+                        for reasoning_container in messages {
+                            // Only process file response messages when they're completed
+                            match &reasoning_container {
+                                BusterReasoningMessage::File(file)
+                                    if matches!(progress, MessageProgress::Complete)
+                                        && file.status == "completed"
+                                        && file.message_type == "files" =>
+                                {
+                                    // For each completed file, create and send a file response message
+                                    for (file_id, file_content) in &file.files {
+                                        let response_message = BusterChatMessage::File {
+                                            id: file_content.id.clone(),
+                                            file_type: file_content.file_type.clone(),
+                                            file_name: file_content.file_name.clone(),
+                                            version_number: file_content.version_number,
+                                            version_id: file_content.version_id.clone(),
+                                            filter_version_id: None,
+                                            metadata: Some(vec![BusterChatResponseFileMetadata {
+                                                status: "completed".to_string(),
+                                                message: format!(
+                                                    "File {} completed",
+                                                    file_content.file_name
+                                                ),
+                                                timestamp: Some(Utc::now().timestamp()),
+                                            }]),
+                                        };
+
+                                        containers.push((
+                                            BusterContainer::ChatMessage(
+                                                BusterChatMessageContainer {
+                                                    response_message,
+                                                    chat_id: *chat_id,
+                                                    message_id: *message_id,
+                                                },
+                                            ),
+                                            ThreadEvent::GeneratingResponseMessage,
+                                        ));
+                                    }
+                                }
+                                _ => {}
+                            }
+
+                            containers.push((
                                 BusterContainer::ReasoningMessage(
                                     BusterReasoningMessageContainer {
-                                        reasoning: container,
+                                        reasoning: reasoning_container,
                                         chat_id: *chat_id,
                                         message_id: *message_id,
                                     },
                                 ),
                                 ThreadEvent::GeneratingReasoningMessage,
-                            )
-                        })
-                        .collect(),
+                            ));
+                        }
+                        containers
+                    }
                     Err(e) => {
                         tracing::warn!("Error transforming tool message '{}': {:?}", name_str, e);
                         println!("MESSAGE_STREAM: Error transforming tool message: {:?}", e);
