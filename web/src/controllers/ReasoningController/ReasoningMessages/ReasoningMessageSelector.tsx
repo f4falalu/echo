@@ -71,7 +71,7 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
     status: x?.reasoning_messages[reasoningMessageId]?.status
   }));
 
-  if (!title || !secondary_title || !type || !status) return null;
+  if (!type || !status) return null;
 
   const ReasoningMessage = ReasoningMessageRecord[type];
   const animationKey = reasoningMessageId + type;
@@ -81,8 +81,8 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
       showBar={true}
       status={status}
       isCompletedStream={isCompletedStream}
-      title={title}
-      secondaryTitle={secondary_title}>
+      title={title ?? ''}
+      secondaryTitle={secondary_title ?? ''}>
       <AnimatePresence mode="wait">
         <motion.div key={animationKey} {...itemAnimationConfig} className="overflow-hidden" layout>
           <ReasoningMessage
