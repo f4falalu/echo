@@ -960,10 +960,14 @@ fn transform_text_message(
             }])
         }
         MessageProgress::Complete => {
+            // First try to get the complete accumulated text from the tracker
             let complete_text = tracker
                 .get_complete_text(id.clone())
-                .unwrap_or(content.clone());
+                .unwrap_or_else(|| content.clone());
+            
+            // Clear the tracker for this chunk
             tracker.clear_chunk(id.clone());
+            
             Ok(vec![BusterChatMessage::Text {
                 id: id.clone(),
                 message: Some(complete_text),
@@ -1045,7 +1049,7 @@ fn tool_create_metrics(id: String, content: String) -> Result<Vec<BusterReasonin
             version_id: file.id.to_string(),
             status: "completed".to_string(),
             file: BusterFileContent {
-                text: Some(file.yml_content),
+                text: None,
                 text_chunk: None,
                 modifided: None,
             },
