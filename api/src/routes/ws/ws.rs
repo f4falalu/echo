@@ -33,20 +33,7 @@ use uuid::Uuid;
 use middleware::AuthenticatedUser;
 
 use super::{
-    collections::collections_router::CollectionEvent,
-    dashboards::dashboards_router::DashboardEvent,
-    data_sources::data_sources_router::DataSourceEvent,
-    datasets::datasets_router::DatasetEvent,
-    organizations::organization_router::OrganizationEvent,
-    permissions::permissions_router::PermissionEvent,
-    search::search_router::SearchEvent,
-    sql::sql_router::SqlEvent,
-    teams::teams_routes::TeamEvent,
-    terms::terms_router::TermEvent,
-    threads_and_messages::threads_router::ThreadEvent,
-    users::users_router::UserEvent,
-    ws_router::{ws_router, WsRoutes},
-    ws_utils::{subscribe_to_stream, unsubscribe_from_stream},
+    collections::collections_router::CollectionEvent, dashboards::dashboards_router::DashboardEvent, data_sources::data_sources_router::DataSourceEvent, datasets::datasets_router::DatasetEvent, metrics::MetricEvent, organizations::organization_router::OrganizationEvent, permissions::permissions_router::PermissionEvent, search::search_router::SearchEvent, sql::sql_router::SqlEvent, teams::teams_routes::TeamEvent, terms::terms_router::TermEvent, threads_and_messages::threads_router::ThreadEvent, users::users_router::UserEvent, ws_router::{ws_router, WsRoutes}, ws_utils::{subscribe_to_stream, unsubscribe_from_stream}
 };
 
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(300);
@@ -74,6 +61,7 @@ pub enum WsEvent {
     Terms(TermEvent),
     Search(SearchEvent),
     Organizations(OrganizationEvent),
+    Metrics(MetricEvent),
 }
 
 #[derive(Serialize, Deserialize, Clone)]

@@ -147,12 +147,12 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid) -> Result<Bust
     }
 
     // Get user information
-    let user_info = users::table
-        .filter(users::id.eq(metric_file.created_by))
-        .select((users::name, users::avatar_url))
-        .first::<UserInfo>(&mut conn)
-        .await
-        .map_err(|e| anyhow!("Failed to get user information: {}", e))?;
+    // let user_info = users::table
+    //     .filter(users::id.eq(metric_file.created_by))
+    //     .select((users::name, users::avatar_url))
+    //     .first::<UserInfo>(&mut conn)
+    //     .await
+    //     .map_err(|e| anyhow!("Failed to get user information: {}", e))?;
 
     // Construct BusterMetric
     Ok(BusterMetric {
@@ -175,8 +175,8 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid) -> Result<Bust
         created_at: metric_file.created_at.to_rfc3339(),
         updated_at: metric_file.updated_at.to_rfc3339(),
         sent_by_id: metric_file.created_by.to_string(),
-        sent_by_name: user_info.name.unwrap_or("".to_string()),
-        sent_by_avatar_url: user_info.avatar_url,
+        sent_by_name: "".to_string(),
+        sent_by_avatar_url: None,
         code: None,
         dashboards: vec![],  // TODO: Get associated dashboards
         collections: vec![], // TODO: Get associated collections
