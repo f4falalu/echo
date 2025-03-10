@@ -59,7 +59,7 @@ pub struct Metadata {
     pub generation_name: String,
     pub user_id: String,
     pub session_id: String,
-    pub trace_id: String,
+    pub trace_id: Option<String>,
 }
 
 impl Default for ChatCompletionRequest {
@@ -149,7 +149,7 @@ pub enum AgentMessage {
         #[serde(skip)]
         progress: MessageProgress,
     },
-    Done
+    Done,
 }
 
 // Helper methods for Message
