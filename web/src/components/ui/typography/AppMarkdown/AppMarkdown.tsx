@@ -70,7 +70,7 @@ const AppMarkdownBase: React.FC<{
   }, []);
 
   return (
-    <div className={cn('leading-1.3 gap-1', styles.container, className)}>
+    <div className={cn('flex', styles.container, className)}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         skipHtml={true}
