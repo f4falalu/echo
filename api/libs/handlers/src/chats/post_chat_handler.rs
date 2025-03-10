@@ -1316,7 +1316,14 @@ fn transform_assistant_tool_message(
                                     .or(text.message)
                                     .or(text.message_chunk.clone());
                                 text.message_chunk = None;
-                                text.status = Some("loading".to_string());
+                                
+                                // Only set completed status for create_plan when message is present
+                                if tool_call.function.name == "create_plan" && text.message.is_some() {
+                                    text.status = Some("completed".to_string());
+                                } else {
+                                    text.status = Some("loading".to_string());
+                                }
+                                
                                 tracker.clear_chunk(text.id.clone());
                                 Some(BusterReasoningMessage::Text(text))
                             }
@@ -1326,6 +1333,7 @@ fn transform_assistant_tool_message(
                                     if !delta.is_empty() {
                                         text.message_chunk = Some(delta);
                                         text.message = None;
+                                        text.status = Some("loading".to_string());
                                         Some(BusterReasoningMessage::Text(text))
                                     } else {
                                         None
@@ -1354,14 +1362,14 @@ fn transform_assistant_tool_message(
                                     let mut completed_content = file_content.clone();
                                     completed_content.file.text = Some(complete_text);
                                     completed_content.file.text_chunk = None;
-                                    // Ensure each file in the collection is marked as completed
+                                    // Always set status to loading
                                     completed_content.status = "loading".to_string();
                                     updated_files.insert(file_id.clone(), completed_content);
 
                                     tracker.clear_chunk(chunk_id);
                                 }
 
-                                // Mark the overall file container as completed
+                                // Always set status to loading
                                 file.status = "loading".to_string();
                                 file.files = updated_files;
                                 Some(BusterReasoningMessage::File(file))
@@ -1591,16 +1599,22 @@ fn assistant_create_plan(
     // Process both in-progress and complete messages for plan creation
     match parser.process_plan_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
-            let status = match progress {
-                MessageProgress::InProgress => "loading",
-                MessageProgress::Complete => "completed",
-                _ => "loading",
-            };
-
-            // Update status based on message type
             match message {
                 BusterReasoningMessage::Text(mut text) => {
-                    text.status = Some(status.to_string());
+                    // For text messages, set status based on whether we have a complete message
+                    match progress {
+                        MessageProgress::Complete => {
+                            // Only set completed if we have a message and no chunk
+                            if text.message.is_some() && text.message_chunk.is_none() {
+                                text.status = Some("completed".to_string());
+                            } else {
+                                text.status = Some("loading".to_string());
+                            }
+                        }
+                        MessageProgress::InProgress => {
+                            text.status = Some("loading".to_string());
+                        }
+                    }
                     Ok(vec![BusterReasoningMessage::Text(text)])
                 }
                 _ => Ok(vec![message]),
