@@ -74,9 +74,8 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
       secondary_title: x?.reasoning_messages[reasoningMessageId]?.secondary_title,
       type: x?.reasoning_messages[reasoningMessageId]?.type,
       status: x?.reasoning_messages[reasoningMessageId]?.status,
-      hasMessage:
-        (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_text)?.message !==
-        ''
+      hasMessage: !!(x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_text)
+        ?.message
     })
   );
 
@@ -99,12 +98,14 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
       secondaryTitle={secondary_title ?? ''}>
       <AnimatePresence mode="wait">
         <motion.div key={animationKey} {...itemAnimationConfig} className="overflow-hidden" layout>
-          <ReasoningMessage
-            reasoningMessageId={reasoningMessageId}
-            isCompletedStream={isCompletedStream}
-            messageId={messageId}
-            chatId={chatId}
-          />
+          <div className="min-h-[1px]">
+            <ReasoningMessage
+              reasoningMessageId={reasoningMessageId}
+              isCompletedStream={isCompletedStream}
+              messageId={messageId}
+              chatId={chatId}
+            />
+          </div>
         </motion.div>
       </AnimatePresence>
     </BarContainer>
