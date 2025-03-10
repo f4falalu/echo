@@ -12,7 +12,7 @@ export const AppCodeBlock: React.FC<{
   wrapperClassName?: string;
   children?: React.ReactNode;
   style?: React.CSSProperties;
-  showLoader?: boolean;
+
   showCopyButton?: boolean;
   title?: string;
   buttons?: React.ReactNode;
@@ -22,13 +22,10 @@ export const AppCodeBlock: React.FC<{
     className = '',
     wrapperClassName = '',
     language,
-    showLoader,
     showCopyButton = true,
     ...rest
   } = props;
-  const [style, setStyle] = useState<{
-    [key: string]: React.CSSProperties;
-  }>(lightTheme);
+  const style = lightTheme;
   const code = String(children).replace(/\n$/, '');
 
   //this is a huge assumption, but if there is no language, it is probably an inline code block
@@ -56,12 +53,6 @@ export const AppCodeBlock: React.FC<{
             <code {...rest} className={className}>
               {children}
             </code>
-          )}
-
-          {showLoader && (
-            <div className="-mt-2 pl-3">
-              <PulseLoader />
-            </div>
           )}
         </div>
       </div>

@@ -179,14 +179,14 @@ export const updateReasoningMessage = (
               }
 
               const existingFile = existingReasoningMessageFiles?.files[fileId];
-              const newFile = reasoning.files[fileId];
+              const newFile: BusterChatMessageReasoning_file | undefined = reasoning.files[fileId];
 
               draft.files[fileId] = create(draft.files[fileId], (fileDraft) => {
                 // Merge existing and new file data
                 Object.assign(fileDraft, existingFile || {}, newFile);
 
                 // Handle file text specifically
-                if (newFile.file) {
+                if (newFile?.file) {
                   fileDraft.file = create(fileDraft.file, (fileContentDraft) => {
                     Object.assign(fileContentDraft, existingFile?.file || {});
                     fileContentDraft.text = newFile.file.text_chunk

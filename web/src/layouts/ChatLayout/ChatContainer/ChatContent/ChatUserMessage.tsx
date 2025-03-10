@@ -1,6 +1,6 @@
 import type { BusterChatMessageRequest } from '@/api/asset_interfaces';
 import React from 'react';
-import { Text } from '@/components/ui/typography';
+import { Paragraph } from '@/components/ui/typography';
 import { MessageContainer } from './MessageContainer';
 
 export const ChatUserMessage: React.FC<{ requestMessage: BusterChatMessageRequest }> = React.memo(
@@ -11,7 +11,7 @@ export const ChatUserMessage: React.FC<{ requestMessage: BusterChatMessageReques
 
     return (
       <MessageContainer senderName={sender_name} senderId={sender_id} senderAvatar={sender_avatar}>
-        <Text>{request}</Text>
+        <Paragraph className="text-sm">{request}</Paragraph>
       </MessageContainer>
     );
   }

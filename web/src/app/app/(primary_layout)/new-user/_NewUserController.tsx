@@ -93,7 +93,6 @@ export const NewUserController = () => {
             value={company || ''}
             onChange={(e) => setCompany(e.target.value)}
             onPressEnter={handleSubmit}
-            defaultValue={userOrganizations?.name || ''}
           />
           <Button
             variant="black"

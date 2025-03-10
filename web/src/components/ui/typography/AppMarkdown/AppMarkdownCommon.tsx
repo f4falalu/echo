@@ -18,14 +18,9 @@ export const CustomCode: React.FC<
 > = ({ children, markdown, showLoader, className, node, ...rest }) => {
   const matchRegex = /language-(\w+)/.exec(className || '');
   const language = matchRegex ? matchRegex[1] : undefined;
-  const showStreamingLoader = showLoader && node?.position?.end.line === rest.numberOfLineMarkdown;
 
   return (
-    <AppCodeBlock
-      wrapperClassName="my-2.5"
-      className="leading-1.3"
-      language={language}
-      showLoader={showStreamingLoader}>
+    <AppCodeBlock wrapperClassName="my-2.5" className="leading-1.3" language={language}>
       {children}
     </AppCodeBlock>
   );

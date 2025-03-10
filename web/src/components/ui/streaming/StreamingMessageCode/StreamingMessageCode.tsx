@@ -47,6 +47,7 @@ export const StreamingMessageCode: React.FC<
   status,
   isCompletedStream,
   file,
+  id,
   file_name,
   version_number,
   file_type,
