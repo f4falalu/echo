@@ -13,7 +13,7 @@ use tracing::{debug, error, info, warn};
 use uuid::Uuid;
 
 use super::{
-    common::validate_metric_ids,
+    common::{FileModification, Modification, ModificationResult, apply_modifications_to_content, validate_metric_ids},
     file_types::{
         dashboard_yml::DashboardYml,
         file::{FileEnum, FileWithId},
@@ -27,35 +27,10 @@ use crate::{
 
 use litellm::ToolCall;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Modification {
-    pub new_content: String,
-    pub line_numbers: Vec<i64>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct FileModification {
-    pub id: Uuid,
-    pub file_name: String,
-    pub modifications: Vec<Modification>,
-}
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ModifyFilesParams {
+    /// List of files to modify with their corresponding modifications
     pub files: Vec<FileModification>,
-}
-
-#[derive(Debug, Serialize)]
-struct ModificationResult {
-    file_id: Uuid,
-    file_name: String,
-    success: bool,
-    original_lines: Vec<i64>,
-    adjusted_lines: Vec<i64>,
-    error: Option<String>,
-    modification_type: String,
-    timestamp: chrono::DateTime<Utc>,
-    duration: i64,
 }
 
 #[derive(Debug)]
@@ -64,152 +39,6 @@ struct FileModificationBatch {
     dashboard_ymls: Vec<DashboardYml>,
     failed_modifications: Vec<(String, String)>,
     modification_results: Vec<ModificationResult>,
-}
-
-#[derive(Debug)]
-struct LineAdjustment {
-    original_start: i64,
-    original_end: i64,
-    new_length: i64,
-    offset: i64,
-}
-
-impl LineAdjustment {
-    fn new(original_start: i64, original_end: i64, new_length: i64) -> Self {
-        let original_length = original_end - original_start + 1;
-        let offset = new_length - original_length;
-
-        Self {
-            original_start,
-            original_end,
-            new_length,
-            offset,
-        }
-    }
-
-    fn adjust_line_number(&self, line: i64) -> i64 {
-        if line < self.original_start {
-            line
-        } else {
-            line + self.offset
-        }
-    }
-}
-
-// Helper functions for line number validation and modification
-fn validate_line_numbers(line_numbers: &[i64]) -> Result<()> {
-    // Check if empty
-    if line_numbers.is_empty() {
-        return Err(anyhow::anyhow!("Line numbers array cannot be empty"));
-    }
-
-    // Check if we have exactly 2 numbers for the range
-    if line_numbers.len() != 2 {
-        return Err(anyhow::anyhow!(
-            "Line numbers must specify a range with exactly 2 numbers [start,end], got {} numbers",
-            line_numbers.len()
-        ));
-    }
-
-    let start = line_numbers[0];
-    let end = line_numbers[1];
-
-    // Check if starts with at least 1
-    if start < 1 {
-        return Err(anyhow::anyhow!(
-            "Line numbers must be 1-indexed, got starting line {}",
-            start
-        ));
-    }
-
-    // Check if end is greater than or equal to start
-    if end < start {
-        return Err(anyhow::anyhow!(
-            "End line {} must be greater than or equal to start line {}",
-            end,
-            start
-        ));
-    }
-
-    Ok(())
-}
-
-// Helper function to expand range into sequential numbers
-fn expand_line_range(line_numbers: &[i64]) -> Vec<i64> {
-    if line_numbers.len() != 2 {
-        return line_numbers.to_vec();
-    }
-    let start = line_numbers[0];
-    let end = line_numbers[1];
-    (start..=end).collect()
-}
-
-fn apply_modifications_to_content(
-    content: &str,
-    modifications: &[Modification],
-    file_name: &str,
-) -> Result<String> {
-    let mut lines: Vec<&str> = content.lines().collect();
-    let mut modified_lines = lines.clone();
-    let mut total_offset = 0;
-
-    // Validate and sort modifications by starting line number
-    let mut sorted_modifications = modifications.to_vec();
-    sorted_modifications.sort_by_key(|m| m.line_numbers[0]);
-
-    // Check for overlapping modifications
-    for window in sorted_modifications.windows(2) {
-        let first_end = window[0].line_numbers[1];
-        let second_start = window[1].line_numbers[0];
-        if second_start <= first_end {
-            return Err(anyhow::anyhow!(
-                "Overlapping modifications in file '{}': line {} overlaps with line {}",
-                file_name,
-                first_end,
-                second_start
-            ));
-        }
-    }
-
-    // Apply modifications and track adjustments
-    for modification in &sorted_modifications {
-        // Validate line numbers
-        validate_line_numbers(&modification.line_numbers)?;
-
-        // Expand range into sequential numbers for processing
-        let line_range = expand_line_range(&modification.line_numbers);
-
-        // Adjust line numbers based on previous modifications
-        let original_start = line_range[0] as usize - 1;
-        let original_end = line_range[line_range.len() - 1] as usize - 1;
-        let adjusted_start = (original_start as i64 + total_offset) as usize;
-
-        // Validate line numbers are within bounds
-        if original_end >= lines.len() {
-            return Err(anyhow::anyhow!(
-                "Line numbers out of bounds in file '{}': file has {} lines, but modification attempts to modify line {}",
-                file_name,
-                lines.len(),
-                original_end + 1
-            ));
-        }
-
-        // Split new content into lines
-        let new_lines: Vec<&str> = modification.new_content.lines().collect();
-
-        // Calculate the change in number of lines
-        let old_length = original_end - original_start + 1;
-        let new_length = new_lines.len();
-        total_offset += new_length as i64 - old_length as i64;
-
-        // Apply the modification
-        let prefix = modified_lines[..adjusted_start].to_vec();
-        let suffix = modified_lines[adjusted_start + old_length..].to_vec();
-
-        modified_lines = [prefix, new_lines, suffix].concat();
-    }
-
-    Ok(modified_lines.join("\n"))
 }
 
 #[derive(Debug, Serialize)]
@@ -434,23 +263,20 @@ impl ToolExecutor for ModifyDashboardFilesTool {
                                     "type": "array",
                                     "items": {
                                         "type": "object",
-                                        "required": ["new_content", "line_numbers"],
+                                        "required": ["content_to_replace", "new_content"],
                                         "properties": {
+                                            "content_to_replace": {
+                                                "type": "string",
+                                                "description": "The exact content in the file that should be replaced. Must match exactly."
+                                            },
                                             "new_content": {
                                                 "type": "string",
-                                                "description": "The new content that will replace the existing lines. If continuous line changes are made, then you should keep them together."
-                                            },
-                                            "line_numbers": {
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "number"
-                                                },
-                                                "description": "Array containing exactly 2 numbers [start,end] specifying the range of lines to replace. For example, [1,5] replaces lines 1 through 5. For a single line, use [n,n] (e.g., [3,3] for line 3)."
+                                                "description": "The new content that will replace the matched content. Make sure to include proper indentation and formatting."
                                             }
                                         },
                                         "additionalProperties": false
                                     },
-                                    "description": "List of modifications to be made to the file."
+                                    "description": "List of content replacements to apply to the file."
                                 }
                             },
                             "additionalProperties": false
@@ -460,7 +286,7 @@ impl ToolExecutor for ModifyDashboardFilesTool {
                 },
                 "additionalProperties": false
             },
-            "description": "Makes multiple line-level modifications to one or more existing dashboard YAML files in a single call. Line numbers are specified as [start,end] ranges. If you need to update chart config or other sections within a file, use this. Guard Rail: Do not execute any file creation or modifications until a thorough data catalog search has been completed and reviewed."
+            "description": "Makes content-based modifications to one or more existing dashboard YAML files in a single call. Each modification specifies the exact content to replace and its replacement. If you need to update chart config or other sections within a file, use this. Guard Rail: Do not execute any file creation or modifications until a thorough data catalog search has been completed and reviewed."
         })
     }
 }
@@ -493,8 +319,6 @@ async fn process_dashboard_file(
                 file_id: file.id,
                 file_name: modification.file_name.clone(),
                 success: false,
-                original_lines: vec![],
-                adjusted_lines: vec![],
                 error: Some(error.clone()),
                 modification_type: "parsing".to_string(),
                 timestamp: Utc::now(),
@@ -519,8 +343,6 @@ async fn process_dashboard_file(
                 file_id: file.id,
                 file_name: modification.file_name.clone(),
                 success: false,
-                original_lines: vec![],
-                adjusted_lines: vec![],
                 error: Some(error.clone()),
                 modification_type: "serialization".to_string(),
                 timestamp: Utc::now(),
@@ -529,15 +351,6 @@ async fn process_dashboard_file(
             return Err(anyhow::anyhow!(error));
         }
     };
-
-    // Track original line numbers before modifications
-    let mut original_lines = Vec::new();
-    let mut adjusted_lines = Vec::new();
-
-    // Apply modifications
-    for m in &modification.modifications {
-        original_lines.extend(m.line_numbers.clone());
-    }
 
     // Apply modifications and track results
     match apply_modifications_to_content(
@@ -579,8 +392,6 @@ async fn process_dashboard_file(
                                     file_id: file.id,
                                     file_name: modification.file_name.clone(),
                                     success: false,
-                                    original_lines: original_lines.clone(),
-                                    adjusted_lines: adjusted_lines.clone(),
                                     error: Some(error.clone()),
                                     modification_type: "metric_validation".to_string(),
                                     timestamp: Utc::now(),
@@ -600,8 +411,6 @@ async fn process_dashboard_file(
                                     file_id: file.id,
                                     file_name: modification.file_name.clone(),
                                     success: false,
-                                    original_lines: original_lines.clone(),
-                                    adjusted_lines: adjusted_lines.clone(),
                                     error: Some(error.clone()),
                                     modification_type: "metric_validation".to_string(),
                                     timestamp: Utc::now(),
@@ -622,8 +431,6 @@ async fn process_dashboard_file(
                         file_id: file.id,
                         file_name: modification.file_name.clone(),
                         success: true,
-                        original_lines: original_lines.clone(),
-                        adjusted_lines: adjusted_lines.clone(),
                         error: None,
                         modification_type: "content".to_string(),
                         timestamp: Utc::now(),
@@ -644,8 +451,6 @@ async fn process_dashboard_file(
                         file_id: file.id,
                         file_name: modification.file_name.clone(),
                         success: false,
-                        original_lines,
-                        adjusted_lines: vec![],
                         error: Some(error.clone()),
                         modification_type: "validation".to_string(),
                         timestamp: Utc::now(),
@@ -667,8 +472,6 @@ async fn process_dashboard_file(
                 file_id: file.id,
                 file_name: modification.file_name.clone(),
                 success: false,
-                original_lines,
-                adjusted_lines: vec![],
                 error: Some(error.clone()),
                 modification_type: "modification".to_string(),
                 timestamp: Utc::now(),
@@ -688,85 +491,45 @@ mod tests {
     use serde_json::json;
 
     #[test]
-    fn test_validate_line_numbers() {
-        // Test valid range
-        assert!(validate_line_numbers(&[1, 5]).is_ok());
-        assert!(validate_line_numbers(&[1, 1]).is_ok()); // Single line
-
-        // Test empty array
-        let empty_err = validate_line_numbers(&[]).unwrap_err();
-        assert!(empty_err.to_string().contains("cannot be empty"));
-
-        // Test wrong number of elements
-        let wrong_len_err = validate_line_numbers(&[1, 2, 3]).unwrap_err();
-        assert!(wrong_len_err.to_string().contains("exactly 2 numbers"));
-
-        // Test invalid range (end < start)
-        let invalid_range_err = validate_line_numbers(&[5, 3]).unwrap_err();
-        assert!(invalid_range_err
-            .to_string()
-            .contains("must be greater than or equal to"));
-
-        // Test starting below 1
-        let invalid_start_err = validate_line_numbers(&[0, 2]).unwrap_err();
-        assert!(invalid_start_err.to_string().contains("must be 1-indexed"));
-    }
-
-    #[test]
     fn test_apply_modifications_to_content() {
-        let original_content = "line1\nline2\nline3\nline4\nline5";
+        let original_content = "name: test_dashboard\ntype: dashboard\ndescription: A test dashboard";
 
-        // Test single modification replacing two lines
+        // Test single modification
         let mods1 = vec![Modification {
-            new_content: "new line2\nnew line3".to_string(),
-            line_numbers: vec![2, 3], // Replace lines 2-3
+            content_to_replace: "type: dashboard".to_string(),
+            new_content: "type: custom_dashboard".to_string(),
         }];
         let result1 = apply_modifications_to_content(original_content, &mods1, "test.yml").unwrap();
         assert_eq!(
-            result1.trim_end(),
-            "line1\nnew line2\nnew line3\nline4\nline5"
+            result1,
+            "name: test_dashboard\ntype: custom_dashboard\ndescription: A test dashboard"
         );
 
         // Test multiple non-overlapping modifications
         let mods2 = vec![
             Modification {
-                new_content: "new line2".to_string(),
-                line_numbers: vec![2, 2], // Single line replacement
+                content_to_replace: "test_dashboard".to_string(),
+                new_content: "new_dashboard".to_string(),
             },
             Modification {
-                new_content: "new line4".to_string(),
-                line_numbers: vec![4, 4], // Single line replacement
+                content_to_replace: "A test dashboard".to_string(),
+                new_content: "An updated dashboard".to_string(),
             },
         ];
         let result2 = apply_modifications_to_content(original_content, &mods2, "test.yml").unwrap();
         assert_eq!(
-            result2.trim_end(),
-            "line1\nnew line2\nline3\nnew line4\nline5"
+            result2,
+            "name: new_dashboard\ntype: dashboard\ndescription: An updated dashboard"
         );
 
-        // Test overlapping modifications (should fail)
-        let mods3 = vec![
-            Modification {
-                new_content: "new lines".to_string(),
-                line_numbers: vec![2, 3],
-            },
-            Modification {
-                new_content: "overlap".to_string(),
-                line_numbers: vec![3, 4],
-            },
-        ];
+        // Test content not found
+        let mods3 = vec![Modification {
+            content_to_replace: "nonexistent content".to_string(),
+            new_content: "new content".to_string(),
+        }];
         let result3 = apply_modifications_to_content(original_content, &mods3, "test.yml");
         assert!(result3.is_err());
-        assert!(result3.unwrap_err().to_string().contains("overlaps"));
-
-        // Test out of bounds modification
-        let mods4 = vec![Modification {
-            new_content: "new line".to_string(),
-            line_numbers: vec![6, 6],
-        }];
-        let result4 = apply_modifications_to_content(original_content, &mods4, "test.yml");
-        assert!(result4.is_err());
-        assert!(result4.unwrap_err().to_string().contains("out of bounds"));
+        assert!(result3.unwrap_err().to_string().contains("Content to replace not found"));
     }
 
     #[test]
@@ -775,8 +538,6 @@ mod tests {
             file_id: Uuid::new_v4(),
             file_name: "test.yml".to_string(),
             success: true,
-            original_lines: vec![1, 2, 3],
-            adjusted_lines: vec![1, 2],
             error: None,
             modification_type: "content".to_string(),
             timestamp: Utc::now(),
@@ -784,8 +545,6 @@ mod tests {
         };
 
         assert!(result.success);
-        assert_eq!(result.original_lines, vec![1, 2, 3]);
-        assert_eq!(result.adjusted_lines, vec![1, 2]);
         assert!(result.error.is_none());
 
         let error_result = ModificationResult {
@@ -816,8 +575,8 @@ mod tests {
                 "id": Uuid::new_v4().to_string(),
                 "file_name": "test.yml",
                 "modifications": [{
-                    "new_content": "test content",
-                    "line_numbers": [1, 2]
+                    "content_to_replace": "old content",
+                    "new_content": "new content"
                 }]
             }]
         });
@@ -828,8 +587,9 @@ mod tests {
         // Test missing required fields
         let missing_fields_params = json!({
             "files": [{
-                "id": Uuid::new_v4().to_string()
-                // missing file_name and modifications
+                "id": Uuid::new_v4().to_string(),
+                "file_name": "test.yml"
+                // missing modifications
             }]
         });
         let missing_args = serde_json::to_string(&missing_fields_params).unwrap();

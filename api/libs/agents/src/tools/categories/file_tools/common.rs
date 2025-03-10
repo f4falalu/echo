@@ -16,12 +16,9 @@ use uuid::Uuid;
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 
-use crate::tools::file_tools::modify_metric_files::apply_modifications_to_content;
+use serde::{Deserialize, Serialize};
 
-use super::{
-    file_types::metric_yml::MetricYml,
-    modify_metric_files::{FileModification, ModificationResult},
-};
+use super::file_types::metric_yml::MetricYml;
 
 // Import the types needed for the modification function
 
@@ -617,16 +614,13 @@ pub async fn process_metric_file_modification(
     mut file: MetricFile,
     modification: &FileModification,
     duration: i64,
-) -> Result<
-    (
-        MetricFile,
-        MetricYml,
-        Vec<ModificationResult>,
-        String,
-        Vec<IndexMap<String, DataType>>,
-    ),
-    anyhow::Error,
-> {
+) -> Result<(
+    MetricFile,
+    MetricYml,
+    Vec<ModificationResult>,
+    String,
+    Vec<IndexMap<String, DataType>>,
+)> {
     debug!(
         file_id = %file.id,
         file_name = %modification.file_name,
@@ -650,18 +644,16 @@ pub async fn process_metric_file_modification(
                 file_id: file.id,
                 file_name: modification.file_name.clone(),
                 success: false,
-                original_lines: vec![],
-                adjusted_lines: vec![],
                 error: Some(error.clone()),
                 modification_type: "parsing".to_string(),
                 timestamp: Utc::now(),
                 duration,
             });
-            return Err(anyhow!(error));
+            return Err(anyhow::anyhow!(error));
         }
     };
 
-    // Convert to YAML string for line modifications
+    // Convert to YAML string for content modifications
     let current_content = match serde_yaml::to_string(&current_yml) {
         Ok(content) => content,
         Err(e) => {
@@ -676,26 +668,14 @@ pub async fn process_metric_file_modification(
                 file_id: file.id,
                 file_name: modification.file_name.clone(),
                 success: false,
-                original_lines: vec![],
-                adjusted_lines: vec![],
                 error: Some(error.clone()),
                 modification_type: "serialization".to_string(),
                 timestamp: Utc::now(),
                 duration,
             });
-            return Err(anyhow!(error));
+            return Err(anyhow::anyhow!(error));
         }
     };
-
-    // Track original line numbers before modifications
-    let mut original_lines = Vec::new();
-    let mut adjusted_lines = Vec::new();
-
-    // Apply modifications
-    for m in &modification.modifications {
-        // Create a sequence of numbers from start_line to end_line
-        original_lines.extend(m.start_line..=m.end_line);
-    }
 
     // Apply modifications and track results
     match apply_modifications_to_content(
@@ -713,76 +693,61 @@ pub async fn process_metric_file_modification(
                         "Successfully modified and validated metric file"
                     );
 
-                    // Check if dataset_ids is empty
+                    // Validate SQL and get dataset_id from the first dataset
                     if new_yml.dataset_ids.is_empty() {
                         let error = "Missing required field 'dataset_ids'".to_string();
-                        error!(
-                            file_id = %file.id,
-                            file_name = %modification.file_name,
-                            error = %error,
-                            "Validation error"
-                        );
                         results.push(ModificationResult {
                             file_id: file.id,
                             file_name: modification.file_name.clone(),
                             success: false,
-                            original_lines: original_lines.clone(),
-                            adjusted_lines: adjusted_lines.clone(),
                             error: Some(error.clone()),
                             modification_type: "validation".to_string(),
                             timestamp: Utc::now(),
                             duration,
                         });
-                        return Err(anyhow!(error));
+                        return Err(anyhow::anyhow!(error));
                     }
 
-                    // Validate SQL with the selected dataset_id and get results
                     let dataset_id = new_yml.dataset_ids[0];
-                    let (message, validation_results) =
-                        match validate_sql(&new_yml.sql, &dataset_id).await {
-                            Ok(results) => results,
-                            Err(e) => {
-                                let error = format!("Invalid SQL query: {}", e);
-                                error!(
-                                    file_id = %file.id,
-                                    file_name = %modification.file_name,
-                                    error = %error,
-                                    "SQL validation error"
-                                );
-                                results.push(ModificationResult {
-                                    file_id: file.id,
-                                    file_name: modification.file_name.clone(),
-                                    success: false,
-                                    original_lines: original_lines.clone(),
-                                    adjusted_lines: adjusted_lines.clone(),
-                                    error: Some(error.clone()),
-                                    modification_type: "sql_validation".to_string(),
-                                    timestamp: Utc::now(),
-                                    duration,
-                                });
-                                return Err(anyhow!(error));
-                            }
-                        };
+                    match validate_sql(&new_yml.sql, &dataset_id).await {
+                        Ok((message, validation_results)) => {
+                            // Update file record
+                            file.content = serde_json::to_value(&new_yml)?;
+                            file.updated_at = Utc::now();
 
-                    // Update file record
-                    file.content = serde_json::to_value(&new_yml)?;
-                    file.updated_at = Utc::now();
-                    file.verification = Verification::NotRequested;
+                            // Track successful modification
+                            results.push(ModificationResult {
+                                file_id: file.id,
+                                file_name: modification.file_name.clone(),
+                                success: true,
+                                error: None,
+                                modification_type: "content".to_string(),
+                                timestamp: Utc::now(),
+                                duration,
+                            });
 
-                    // Track successful modification
-                    results.push(ModificationResult {
-                        file_id: file.id,
-                        file_name: modification.file_name.clone(),
-                        success: true,
-                        original_lines: original_lines.clone(),
-                        adjusted_lines: adjusted_lines.clone(),
-                        error: None,
-                        modification_type: "content".to_string(),
-                        timestamp: Utc::now(),
-                        duration,
-                    });
-
-                    Ok((file, new_yml, results, message, validation_results))
+                            Ok((file, new_yml, results, message, validation_results))
+                        }
+                        Err(e) => {
+                            let error = format!("SQL validation failed: {}", e);
+                            error!(
+                                file_id = %file.id,
+                                file_name = %modification.file_name,
+                                error = %error,
+                                "SQL validation error"
+                            );
+                            results.push(ModificationResult {
+                                file_id: file.id,
+                                file_name: modification.file_name.clone(),
+                                success: false,
+                                error: Some(error.clone()),
+                                modification_type: "sql_validation".to_string(),
+                                timestamp: Utc::now(),
+                                duration,
+                            });
+                            Err(anyhow::anyhow!(error))
+                        }
+                    }
                 }
                 Err(e) => {
                     let error = format!("Failed to validate modified YAML: {}", e);
@@ -796,14 +761,12 @@ pub async fn process_metric_file_modification(
                         file_id: file.id,
                         file_name: modification.file_name.clone(),
                         success: false,
-                        original_lines,
-                        adjusted_lines: vec![],
                         error: Some(error.clone()),
                         modification_type: "validation".to_string(),
                         timestamp: Utc::now(),
                         duration,
                     });
-                    Err(anyhow!(error))
+                    Err(anyhow::anyhow!(error))
                 }
             }
         }
@@ -819,14 +782,12 @@ pub async fn process_metric_file_modification(
                 file_id: file.id,
                 file_name: modification.file_name.clone(),
                 success: false,
-                original_lines,
-                adjusted_lines: vec![],
                 error: Some(error.clone()),
                 modification_type: "modification".to_string(),
                 timestamp: Utc::now(),
                 duration,
             });
-            Err(anyhow!(error))
+            Err(anyhow::anyhow!(error))
         }
     }
 }
@@ -845,6 +806,57 @@ pub fn generate_deterministic_uuid(
 
     // Generate v5 UUID (SHA1 based)
     Ok(Uuid::new_v5(&namespace_uuid, name.as_bytes()))
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Modification {
+    /// The content to be replaced in the file
+    pub content_to_replace: String,
+    /// The new content that will replace the existing content
+    pub new_content: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FileModification {
+    /// UUID of the file to modify
+    pub id: Uuid,
+    /// Name of the file to modify
+    pub file_name: String,
+    /// List of modifications to apply to the file
+    pub modifications: Vec<Modification>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct ModificationResult {
+    pub file_id: Uuid,
+    pub file_name: String,
+    pub success: bool,
+    pub error: Option<String>,
+    pub modification_type: String,
+    pub timestamp: chrono::DateTime<Utc>,
+    pub duration: i64,
+}
+
+pub fn apply_modifications_to_content(
+    content: &str,
+    modifications: &[Modification],
+    file_name: &str,
+) -> Result<String> {
+    let mut modified_content = content.to_string();
+
+    for modification in modifications {
+        if !modified_content.contains(&modification.content_to_replace) {
+            return Err(anyhow::anyhow!(
+                "Content to replace not found in file '{}': '{}'",
+                file_name,
+                modification.content_to_replace
+            ));
+        }
+        modified_content =
+            modified_content.replace(&modification.content_to_replace, &modification.new_content);
+    }
+
+    Ok(modified_content)
 }
 
 #[cfg(test)]
