@@ -33,7 +33,7 @@ export const PulseLoader: React.FC<{
   );
 };
 
-export const TextPulseLoader: React.FC<{
+export const TextDotLoader: React.FC<{
   showPulseLoader?: boolean;
   size?: number;
   className?: string;
@@ -50,9 +50,8 @@ export const TextPulseLoader: React.FC<{
             height: size,
             backgroundColor: 'var(--color-text-default)',
             borderRadius: '100%'
-          }}>
-          {/* Pulse animation can be added here if needed */}
-        </span>
+          }}
+        />
       )}
     </>
   );

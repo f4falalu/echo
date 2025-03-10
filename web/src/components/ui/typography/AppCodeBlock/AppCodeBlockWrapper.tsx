@@ -13,42 +13,45 @@ export const AppCodeBlockWrapper: React.FC<{
   showCopyButton?: boolean;
   buttons?: React.ReactNode;
   title?: string | React.ReactNode;
-}> = React.memo(({ children, code, showCopyButton = true, language, buttons, title }) => {
-  const { openSuccessMessage } = useBusterNotifications();
+  className?: string;
+}> = React.memo(
+  ({ children, code, showCopyButton = true, language, buttons, title, className }) => {
+    const { openSuccessMessage } = useBusterNotifications();
 
-  const copyCode = useMemoizedFn(() => {
-    if (!code) return;
-    navigator.clipboard.writeText(code);
-    openSuccessMessage('Copied to clipboard');
-  });
+    const copyCode = useMemoizedFn(() => {
+      if (!code) return;
+      navigator.clipboard.writeText(code);
+      openSuccessMessage('Copied to clipboard');
+    });
 
-  return (
-    <div className={cn('overflow-hidden rounded border', 'max-h-fit')}>
-      <div
-        className={cn(
-          'bg-item-active border-border max-h-[32px] min-h-[32px] border-b px-2.5',
-          'flex items-center justify-between'
-        )}>
-        <Text className="pl-2">{title || language}</Text>
-        <div className="flex items-center space-x-1">
-          {showCopyButton && (
-            <Button
-              variant="ghost"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                copyCode();
-              }}
-              prefix={<Copy />}>
-              Copy
-            </Button>
-          )}
-          {buttons}
+    return (
+      <div className={cn('overflow-hidden rounded border', 'max-h-fit', className)}>
+        <div
+          className={cn(
+            'bg-item-active border-border max-h-[32px] min-h-[32px] border-b px-2.5',
+            'flex items-center justify-between'
+          )}>
+          <Text className="pl-2">{title || language}</Text>
+          <div className="flex items-center space-x-1">
+            {showCopyButton && (
+              <Button
+                variant="ghost"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  copyCode();
+                }}
+                prefix={<Copy />}>
+                Copy
+              </Button>
+            )}
+            {buttons}
+          </div>
         </div>
-      </div>
 
-      {children}
-    </div>
-  );
-});
+        {children}
+      </div>
+    );
+  }
+);
 AppCodeBlockWrapper.displayName = 'CodeBlockWrapper';

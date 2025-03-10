@@ -25,16 +25,15 @@ export const useChatUpdate = () => {
         Object.assign(draft, newChatConfig);
       });
       queryClient.setQueryData(queryKey, iChat);
-      startTransition(() => {
-        //just used to trigger UI update
-        if (saveToServer) {
-          updateChat({
-            id: iChat.id,
-            title: iChat.title,
-            is_favorited: iChat.is_favorited
-          });
-        }
-      });
+
+      //just used to trigger UI update
+      if (saveToServer) {
+        updateChat({
+          id: iChat.id,
+          title: iChat.title,
+          is_favorited: iChat.is_favorited
+        });
+      }
     }
   );
 

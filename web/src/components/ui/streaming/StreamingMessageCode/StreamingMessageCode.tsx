@@ -11,7 +11,7 @@ import { Text } from '@/components/ui/typography';
 import pluralize from 'pluralize';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { StreamingMessageCodeTitle } from './StreamingMessageCodeTitle';
-import { TextPulseLoader } from '../../loaders/PulseLoader';
+import { TextDotLoader } from '../../loaders/PulseLoader';
 
 const style = SyntaxHighlighterLightTheme;
 
@@ -141,7 +141,7 @@ export const StreamingMessageCode: React.FC<
               )}
             </motion.div>
           ))}
-          {showLoader && <TextPulseLoader className="pl-2" />}
+          {showLoader && <TextDotLoader className="pl-2" />}
         </motion.div>
       </AnimatePresence>
     </AppCodeBlockWrapper>

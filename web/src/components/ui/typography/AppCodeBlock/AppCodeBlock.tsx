@@ -9,6 +9,7 @@ import { cn } from '@/lib/classMerge';
 export const AppCodeBlock: React.FC<{
   language?: string;
   className?: string;
+  wrapperClassName?: string;
   children?: React.ReactNode;
   style?: React.CSSProperties;
   showLoader?: boolean;
@@ -16,7 +17,15 @@ export const AppCodeBlock: React.FC<{
   title?: string;
   buttons?: React.ReactNode;
 }> = React.memo(({ title, buttons, ...props }) => {
-  const { children, className = '', language, showLoader, showCopyButton = true, ...rest } = props;
+  const {
+    children,
+    className = '',
+    wrapperClassName = '',
+    language,
+    showLoader,
+    showCopyButton = true,
+    ...rest
+  } = props;
   const [style, setStyle] = useState<{
     [key: string]: React.CSSProperties;
   }>(lightTheme);
@@ -28,7 +37,11 @@ export const AppCodeBlock: React.FC<{
   }
 
   return (
-    <AppCodeBlockWrapper code={code} language={title || language} showCopyButton={showCopyButton}>
+    <AppCodeBlockWrapper
+      className={wrapperClassName}
+      code={code}
+      language={title || language}
+      showCopyButton={showCopyButton}>
       <div className="w-full overflow-x-auto">
         <div className="code-wrapper">
           {language ? (

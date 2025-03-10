@@ -106,7 +106,7 @@ const AnimatedThoughtTitle = React.memo(
               size="sm"
               className={cn(
                 `whitespace-nowrap`,
-                isSecondaryTitle ? '@[170px]:hidden' : '',
+                isSecondaryTitle ? 'hidden @[170px]:flex!' : '',
                 className
               )}
               variant={type}>
