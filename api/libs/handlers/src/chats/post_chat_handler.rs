@@ -415,9 +415,9 @@ pub async fn post_chat_handler(
 /// Prepares the final message state from transformed containers
 fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Value>, Vec<Value>)> {
     let mut response_messages = Vec::new();
-    // Use a HashMap to track the latest reasoning message for each ID
-    let mut reasoning_map: std::collections::HashMap<String, Value> =
-        std::collections::HashMap::new();
+    // Use a Vec to maintain order, with a HashMap to track latest version of each message
+    let mut reasoning_map: std::collections::HashMap<String, (usize, Value)> = std::collections::HashMap::new();
+    let mut reasoning_order = Vec::new();
 
     for container in containers {
         match container {
@@ -461,8 +461,14 @@ fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Va
                             BusterReasoningMessage::File(file) => file.id.clone(),
                             BusterReasoningMessage::Text(text) => text.id.clone(),
                         };
-                        // Store or update the message in the map
-                        reasoning_map.insert(id, value);
+
+                        // If this is a new message ID, add it to the order tracking
+                        if !reasoning_map.contains_key(&id) {
+                            reasoning_order.push(id.clone());
+                        }
+                        
+                        // Store or update the message in the map with its position
+                        reasoning_map.insert(id, (reasoning_order.len() - 1, value));
                     }
                 }
             }
@@ -470,8 +476,16 @@ fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Va
         }
     }
 
-    // Convert the map values into the final vector
-    let reasoning_messages: Vec<Value> = reasoning_map.into_values().collect();
+    // Convert the map values into the final vector, maintaining order
+    let mut reasoning_messages = vec![Value::Null; reasoning_order.len()];
+    for id in reasoning_order {
+        if let Some((pos, value)) = reasoning_map.get(&id) {
+            reasoning_messages[*pos] = value.clone();
+        }
+    }
+
+    // Remove any null values (shouldn't happen, but just in case)
+    reasoning_messages.retain(|v| !v.is_null());
 
     Ok((response_messages, reasoning_messages))
 }
@@ -1375,9 +1389,8 @@ fn transform_assistant_tool_message(
                                     .or(text.message)
                                     .or(text.message_chunk.clone());
                                 text.message_chunk = None;
-
+                                // Always set status to loading for assistant messages
                                 text.status = Some("loading".to_string());
-
                                 tracker.clear_chunk(text.id.clone());
                                 Some(BusterReasoningMessage::Text(text))
                             }
@@ -1401,12 +1414,10 @@ fn transform_assistant_tool_message(
                     BusterReasoningMessage::File(mut file) => {
                         match progress {
                             MessageProgress::Complete => {
-                                // For completed files, only send the final state
                                 let mut updated_files = std::collections::HashMap::new();
 
                                 for (file_id, file_content) in file.files.iter() {
-                                    let chunk_id =
-                                        format!("{}_{}", file.id, file_content.file_name);
+                                    let chunk_id = format!("{}_{}", file.id, file_content.file_name);
                                     let complete_text = tracker
                                         .get_complete_text(chunk_id.clone())
                                         .unwrap_or_else(|| {
@@ -1433,12 +1444,10 @@ fn transform_assistant_tool_message(
                                 let mut updated_files = std::collections::HashMap::new();
 
                                 for (file_id, file_content) in file.files.iter() {
-                                    let chunk_id =
-                                        format!("{}_{}", file.id, file_content.file_name);
+                                    let chunk_id = format!("{}_{}", file.id, file_content.file_name);
 
                                     if let Some(chunk) = &file_content.file.text_chunk {
-                                        let delta =
-                                            tracker.add_chunk(chunk_id.clone(), chunk.clone());
+                                        let delta = tracker.add_chunk(chunk_id.clone(), chunk.clone());
 
                                         if !delta.is_empty() {
                                             let mut updated_content = file_content.clone();
@@ -1462,7 +1471,11 @@ fn transform_assistant_tool_message(
                             }
                         }
                     }
-                    other => Some(other),
+                    BusterReasoningMessage::Pill(mut pill) => {
+                        // Always set status to loading for pills
+                        pill.status = "loading".to_string();
+                        Some(BusterReasoningMessage::Pill(pill))
+                    }
                 };
 
                 updated_reasoning
@@ -1487,7 +1500,8 @@ fn assistant_data_catalog_search(
 
     if let Ok(Some(message)) = parser.process_search_data_catalog_chunk(id.clone(), &content) {
         match message {
-            BusterReasoningMessage::Text(text) => {
+            BusterReasoningMessage::Text(mut text) => {
+                text.status = Some("loading".to_string());
                 return Ok(vec![BusterReasoningMessage::Text(text)]);
             }
             _ => unreachable!("Data catalog search should only return Text type"),
@@ -1522,7 +1536,7 @@ fn assistant_data_catalog_search(
             title: format!("Found {} results", result_count),
             secondary_title: format!("{} seconds", duration),
             pill_containers: Some(thought_pill_containers),
-            status: "completed".to_string(),
+            status: "loading".to_string(),
         })
     } else {
         BusterReasoningMessage::Pill(BusterReasoningPill {
@@ -1538,7 +1552,7 @@ fn assistant_data_catalog_search(
                     thought_file_type: "empty".to_string(),
                 }],
             }]),
-            status: "completed".to_string(),
+            status: "loading".to_string(),
         })
     };
 
@@ -1650,25 +1664,12 @@ fn assistant_create_plan(
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
 
-    // Process both in-progress and complete messages for plan creation
     match parser.process_plan_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
             match message {
                 BusterReasoningMessage::Text(mut text) => {
-                    // For text messages, set status based on whether we have a complete message
-                    match progress {
-                        MessageProgress::Complete => {
-                            // Only set completed if we have a message and no chunk
-                            if text.message.is_some() && text.message_chunk.is_none() {
-                                text.status = Some("completed".to_string());
-                            } else {
-                                text.status = Some("loading".to_string());
-                            }
-                        }
-                        MessageProgress::InProgress => {
-                            text.status = Some("loading".to_string());
-                        }
-                    }
+                    // Always set status to loading for assistant messages
+                    text.status = Some("loading".to_string());
                     Ok(vec![BusterReasoningMessage::Text(text)])
                 }
                 _ => Ok(vec![message]),
