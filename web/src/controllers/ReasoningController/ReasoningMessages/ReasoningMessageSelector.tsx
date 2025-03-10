@@ -92,7 +92,7 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
 
   return (
     <BarContainer
-      showBar={true}
+      showBar={showBar}
       status={status}
       isCompletedStream={isCompletedStream}
       title={title ?? ''}
