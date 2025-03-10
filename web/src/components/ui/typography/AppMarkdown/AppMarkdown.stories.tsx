@@ -1,5 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { AppMarkdown } from './AppMarkdown';
+import { Button } from '@/components/ui/buttons';
+import { useState } from 'react';
+import { Checkbox } from '../../checkbox';
+import { Switch } from '../../switch/Switch';
 
 const meta: Meta<typeof AppMarkdown> = {
   title: 'UI/Typography/AppMarkdown',
@@ -215,9 +219,42 @@ export const WithCustomClass: Story = {
   }
 };
 
+const randomMarkdownContent = [
+  '# New Section\n\nThis is a new section with some content.',
+  '## Subheading\n\nHere is a paragraph with **bold** and *italic* text.',
+  '### Smaller Heading\n\n- List item 1\n- List item 2\n- List item 3',
+  '#### Tiny Heading\n\n> This is a blockquote with some important information.',
+  '##### Micro Heading\n\n1. Numbered item 1\n2. Numbered item 2',
+  '###### Nano Heading\n\n`code example` and more text here.',
+  '## Table Example\n\n| Header 1 | Header 2 |\n|----------|----------|\n| Cell 1   | Cell 2   |',
+  '### Mixed Content\n\nHere is some text with [a link](https://example.com) and `inline code`.'
+];
+
+const InteractiveMarkdown = () => {
+  const [markdown, setMarkdown] = useState(
+    '# Interactive Markdown\n\nClick the button to add more content!'
+  );
+  const [stripFormatting, setStripFormatting] = useState(false);
+
+  const addRandomContent = () => {
+    const randomContent =
+      randomMarkdownContent[Math.floor(Math.random() * randomMarkdownContent.length)];
+    setMarkdown((prev) => `${prev}\n\n${randomContent}`);
+  };
+
+  return (
+    <div className="space-y-4">
+      <Button onClick={addRandomContent}>Add Random Content</Button>
+
+      <div className="flex items-center gap-2">
+        <span>Strip Formatting</span>
+        <Switch checked={stripFormatting} onCheckedChange={setStripFormatting}></Switch>
+      </div>
+      <AppMarkdown markdown={markdown} showLoader stripFormatting={stripFormatting} />
+    </div>
+  );
+};
+
 export const WithLoader: Story = {
-  args: {
-    markdown: '# Loading Example\n\nThis example shows the loader state.',
-    showLoader: true
-  }
+  render: () => <InteractiveMarkdown />
 };

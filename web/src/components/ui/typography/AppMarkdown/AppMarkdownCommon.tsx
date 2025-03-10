@@ -1,43 +1,12 @@
 import React from 'react';
 import { ExtraProps } from 'react-markdown';
 import { AppCodeBlock } from '../AppCodeBlock/AppCodeBlock';
-import { TextDotLoader } from '@/components/ui/loaders';
 import { cva } from 'class-variance-authority';
-
-type Element = any; //TODO fix this after migration
-
-export const commonStreamingCheck = (
-  endLine?: number,
-  startLine?: number,
-  lastTrackedLine?: number
-): boolean => {
-  const isLineNumber = typeof endLine === 'number' && typeof lastTrackedLine === 'number';
-  return isLineNumber && endLine === lastTrackedLine && startLine === lastTrackedLine;
-};
+import { cn } from '@/lib/classMerge';
 
 export interface ExtraPropsExtra extends ExtraProps {
   numberOfLineMarkdown: number;
 }
-
-export const CommonPulseLoader: React.FC<{
-  showLoader: boolean;
-  numberOfLineMarkdown: number;
-  node?: Element;
-}> = ({ showLoader, numberOfLineMarkdown, node }) => {
-  const showStreamingLoader =
-    node &&
-    showLoader &&
-    commonStreamingCheck(
-      node?.position?.end.line,
-      node?.position?.start.line,
-      numberOfLineMarkdown
-    );
-
-  if (showStreamingLoader) {
-    return <TextDotLoader />;
-  }
-  return null;
-};
 
 export const CustomCode: React.FC<
   {
@@ -68,12 +37,11 @@ export const CustomParagraph: React.FC<
     markdown: string;
     showLoader: boolean;
   } & ExtraPropsExtra
-> = ({ children, markdown, ...rest }) => {
+> = ({ children, markdown, showLoader, ...rest }) => {
   if (Array.isArray(children)) {
     return (
-      <p className="leading-1.3">
+      <p className={cn('leading-1.3', showLoader && 'animate-in fade-in duration-700')}>
         {children}
-        <CommonPulseLoader {...rest} />
       </p>
     );
   }
@@ -85,10 +53,7 @@ export const CustomParagraph: React.FC<
   }
 
   return (
-    <p className="leading-1.3">
-      {children}
-      <CommonPulseLoader {...rest} />
-    </p>
+    <p className={cn('leading-1.3', showLoader && 'animate-in fade-in duration-700')}>{children}</p>
   );
 };
 
@@ -105,6 +70,7 @@ const headingVariants = cva('leading-1.3 my-2', {
     }
   }
 });
+
 export const CustomHeading: React.FC<
   {
     level: 1 | 2 | 3 | 4 | 5 | 6;
@@ -114,13 +80,15 @@ export const CustomHeading: React.FC<
     numberOfLineMarkdown: number;
     stripFormatting?: boolean;
   } & ExtraPropsExtra
-> = ({ level, children, markdown, stripFormatting = false, ...rest }) => {
+> = ({ level, children, markdown, stripFormatting = false, showLoader, ...rest }) => {
   const HeadingTag = `h${level}` as any;
-  console.log('heading', HeadingTag, level, children);
   return (
-    <HeadingTag className={headingVariants({ level: stripFormatting ? 'base' : level })}>
+    <HeadingTag
+      className={cn(
+        headingVariants({ level: stripFormatting ? 'base' : level }),
+        showLoader && 'animate-in fade-in duration-700'
+      )}>
       {children}
-      <CommonPulseLoader {...rest} />
     </HeadingTag>
   );
 };
@@ -132,12 +100,11 @@ export const CustomList: React.FC<
     markdown: string;
     showLoader: boolean;
   } & ExtraPropsExtra
-> = ({ ordered, children, markdown, ...rest }) => {
+> = ({ ordered, children, markdown, showLoader, ...rest }) => {
   const ListTag = ordered ? 'ol' : 'ul';
   return (
-    <ListTag className="leading-1.3">
+    <ListTag className={cn('leading-1.3', showLoader && 'animate-in fade-in duration-700')}>
       {children}
-      <CommonPulseLoader {...rest} />
     </ListTag>
   );
 };
@@ -148,11 +115,10 @@ export const CustomListItem: React.FC<
     markdown: string;
     showLoader: boolean;
   } & ExtraPropsExtra
-> = ({ children, markdown, ...rest }) => {
+> = ({ children, markdown, showLoader, ...rest }) => {
   return (
-    <li className="leading-1.3">
+    <li className={cn('leading-1.3', showLoader && 'animate-in fade-in duration-700')}>
       {children}
-      <CommonPulseLoader {...rest} />
     </li>
   );
 };
@@ -163,11 +129,10 @@ export const CustomBlockquote: React.FC<
     markdown: string;
     showLoader: boolean;
   } & ExtraPropsExtra
-> = ({ children, markdown, ...rest }) => {
+> = ({ children, markdown, showLoader, ...rest }) => {
   return (
-    <blockquote className="leading-1.3">
+    <blockquote className={cn('leading-1.3', showLoader && 'animate-in fade-in duration-700')}>
       {children}
-      <CommonPulseLoader {...rest} />
     </blockquote>
   );
 };
@@ -178,11 +143,10 @@ export const CustomTable: React.FC<
     markdown: string;
     showLoader: boolean;
   } & ExtraPropsExtra
-> = ({ children, markdown, ...rest }) => {
+> = ({ children, markdown, showLoader, ...rest }) => {
   return (
-    <table className="leading-1.3">
+    <table className={cn('leading-1.3', showLoader && 'animate-in fade-in duration-700')}>
       {children}
-      <CommonPulseLoader {...rest} />
     </table>
   );
 };
@@ -193,6 +157,10 @@ export const CustomSpan: React.FC<
     markdown: string;
     showLoader: boolean;
   } & ExtraPropsExtra
-> = ({ children, markdown, ...rest }) => {
-  return <span className="leading-1.3">{children}</span>;
+> = ({ children, markdown, showLoader, ...rest }) => {
+  return (
+    <span className={cn('leading-1.3', showLoader && 'animate-in fade-in duration-700')}>
+      {children}
+    </span>
+  );
 };
