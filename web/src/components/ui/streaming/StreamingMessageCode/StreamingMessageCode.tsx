@@ -142,7 +142,6 @@ export const StreamingMessageCode: React.FC<
               )}
             </motion.div>
           ))}
-          {showLoader && <TextDotLoader className="pl-2" />}
         </motion.div>
       </AnimatePresence>
     </AppCodeBlockWrapper>

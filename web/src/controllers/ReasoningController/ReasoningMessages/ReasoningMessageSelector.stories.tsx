@@ -24,6 +24,19 @@ const meta: Meta<typeof ReasoningMessageSelector> = {
       queryClient.setQueryData(['chats', 'messages', 'message-1'], mockBusterChatMessage);
       queryClient.setQueryData(['chats', 'messages', 'message-2'], mockBusterChatMessage);
       queryClient.setQueryData(['chats', 'messages', 'message-3'], mockBusterChatMessage);
+      queryClient.setQueryData(['chats', 'messages', 'empty-message'], {
+        ...mockBusterChatMessage,
+        reasoning_messages: {
+          'reasoning-1': {
+            id: 'reasoning-1',
+            type: 'text',
+            title: 'Text Reasoning',
+            secondary_title: 'Additional Context',
+            message: '',
+            status: 'completed'
+          }
+        }
+      });
 
       return (
         <QueryClientProvider client={queryClient}>
@@ -53,6 +66,15 @@ export const TextReasoning: Story = {
   args: {
     reasoningMessageId: 'reasoning-1',
     messageId: 'message-1',
+    isCompletedStream: false,
+    chatId: 'chat-1'
+  }
+};
+
+export const TextEmptyReasoning: Story = {
+  args: {
+    reasoningMessageId: 'reasoning-1',
+    messageId: 'empty-message',
     isCompletedStream: false,
     chatId: 'chat-1'
   }

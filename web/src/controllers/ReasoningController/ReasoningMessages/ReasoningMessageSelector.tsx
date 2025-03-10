@@ -1,5 +1,8 @@
-import React from 'react';
-import type { BusterChatMessageReasoning } from '@/api/asset_interfaces';
+import React, { useMemo } from 'react';
+import type {
+  BusterChatMessageReasoning,
+  BusterChatMessageReasoning_text
+} from '@/api/asset_interfaces/chat';
 import { ReasoningMessage_PillsContainer } from './ReasoningMessage_PillContainers';
 import { ReasoningMessage_Files } from './ReasoningMessage_Files';
 import { ReasoningMessage_Text } from './ReasoningMessage_Text';
@@ -64,12 +67,23 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
   chatId,
   messageId
 }) => {
-  const { title, type, secondary_title, status } = useMessageIndividual(messageId, (x) => ({
-    title: x?.reasoning_messages[reasoningMessageId]?.title,
-    secondary_title: x?.reasoning_messages[reasoningMessageId]?.secondary_title,
-    type: x?.reasoning_messages[reasoningMessageId]?.type,
-    status: x?.reasoning_messages[reasoningMessageId]?.status
-  }));
+  const { title, hasMessage, type, secondary_title, status } = useMessageIndividual(
+    messageId,
+    (x) => ({
+      title: x?.reasoning_messages[reasoningMessageId]?.title,
+      secondary_title: x?.reasoning_messages[reasoningMessageId]?.secondary_title,
+      type: x?.reasoning_messages[reasoningMessageId]?.type,
+      status: x?.reasoning_messages[reasoningMessageId]?.status,
+      hasMessage:
+        (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_text)?.message !==
+        ''
+    })
+  );
+
+  const showBar = useMemo(() => {
+    if (type === 'text') return hasMessage;
+    return true;
+  }, [type, hasMessage]);
 
   if (!type || !status) return null;
 
@@ -78,7 +92,7 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
 
   return (
     <BarContainer
-      showBar={true}
+      showBar={showBar}
       status={status}
       isCompletedStream={isCompletedStream}
       title={title ?? ''}
@@ -95,4 +109,13 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
       </AnimatePresence>
     </BarContainer>
   );
+};
+
+const showBarHelper = (
+  type: BusterChatMessageReasoning['type'],
+  status: BusterChatMessageReasoning['status']
+) => {
+  if (type === 'pills') return false;
+  if (status === 'loading') return false;
+  return true;
 };
