@@ -3,13 +3,12 @@
 import React, { useMemo } from 'react';
 import { Breadcrumb, BreadcrumbItem } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/buttons';
-import Link from 'next/link';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import { BusterRoutes } from '@/routes';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
-import { DashboardsListEmitPayload } from '@/api/buster_socket/dashboards';
 import { AppSegmented, SegmentedItem } from '@/components/ui/segmented';
 import { useMemoizedFn } from '@/hooks';
 import { Plus } from '@/components/ui/icons';
+import type { DashboardsListRequest } from '@/api/request_interfaces/dashboards';
 
 export const DashboardHeader: React.FC<{
   dashboardFilters: {
@@ -20,7 +19,7 @@ export const DashboardHeader: React.FC<{
     shared_with_me?: boolean;
     only_my_dashboards?: boolean;
   }) => void;
-}> = ({ dashboardFilters, onSetDashboardListFilters }) => {
+}> = React.memo(({ dashboardFilters, onSetDashboardListFilters }) => {
   const onCreateNewDashboard = useBusterDashboardContextSelector(
     (state) => state.onCreateNewDashboard
   );
@@ -65,13 +64,13 @@ export const DashboardHeader: React.FC<{
       </div>
     </>
   );
-};
+});
+
+DashboardHeader.displayName = 'DashboardHeader';
 
 const DashboardFilters: React.FC<{
   onChangeFilter: (v: { shared_with_me?: boolean; only_my_dashboards?: boolean }) => void;
-  activeFilters?: NonNullable<
-    Omit<DashboardsListEmitPayload['payload'], 'page_token' | 'page_size'>
-  >;
+  activeFilters?: NonNullable<Omit<DashboardsListRequest, 'page_token' | 'page_size'>>;
 }> = ({ onChangeFilter, activeFilters }) => {
   const filters: SegmentedItem<string>[] = [
     {

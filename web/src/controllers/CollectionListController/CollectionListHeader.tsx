@@ -12,12 +12,12 @@ import {
 import { AppTooltip } from '@/components/ui/tooltip';
 import { AppSegmented } from '@/components/ui/segmented';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { CollectionsListEmit } from '@/api/buster_socket/collections';
 import isEmpty from 'lodash/isEmpty';
 import omit from 'lodash/omit';
 import { useMemoizedFn } from '@/hooks';
 import { type SegmentedItem } from '@/components/ui/segmented';
 import { Plus } from '@/components/ui/icons';
+import { GetCollectionListParams } from '@/api/request_interfaces/collections';
 
 export const CollectionListHeader: React.FC<{
   collectionId?: string;
@@ -105,7 +105,7 @@ const filters: SegmentedItem<string>[] = [
 
 const CollectionFilters: React.FC<{
   setCollectionListFilters: ReturnType<typeof useCollectionLists>['setCollectionListFilters'];
-  collectionListFilters?: Omit<CollectionsListEmit['payload'], 'page' | 'page_size'>;
+  collectionListFilters?: Omit<GetCollectionListParams, 'page' | 'page_size'>;
 }> = React.memo(({ setCollectionListFilters, collectionListFilters }) => {
   const value = useMemo(() => {
     const activeFiltersValue = JSON.stringify(collectionListFilters);

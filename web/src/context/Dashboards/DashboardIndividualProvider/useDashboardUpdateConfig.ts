@@ -3,12 +3,11 @@ import {
   type BusterDashboardResponse,
   type VerificationStatus
 } from '@/api/asset_interfaces';
-import { queryKeys } from '@/api/query_keys';
-import { DashboardUpdate } from '@/api/buster_socket/dashboards';
-import { useSocketQueryMutation } from '@/api/buster_socket_query';
 import { useMemoizedFn } from '@/hooks';
 import { create } from 'mutative';
 import { useQueryClient } from '@tanstack/react-query';
+import { useUpdateDashboard } from '@/api/buster_rest/dashboards';
+import type { DashboardUpdateRequest } from '@/api/request_interfaces/dashboards/interfaces';
 
 export const useDashboardUpdateConfig = ({
   getDashboardMemoized
@@ -18,37 +17,7 @@ export const useDashboardUpdateConfig = ({
   const queryClient = useQueryClient();
 
   const { mutateAsync: updateDashboardMutation, isPending: isUpdatingDashboard } =
-    useSocketQueryMutation({
-      emitEvent: '/dashboards/update',
-      responseEvent: '/dashboards/update:updateDashboard',
-      preCallback: (_, variables) => {
-        const options = queryKeys.dashboardGetDashboard(variables.id);
-        const queryKey = options.queryKey;
-        const currentData = getDashboardMemoized(variables.id);
-        if (currentData) {
-          const newObject: BusterDashboardResponse = create(currentData, (draft) => {
-            Object.assign(draft.dashboard, variables, {
-              config: { ...draft.dashboard.config, ...variables.config }
-            });
-          });
-
-          if (variables.add_to_collections) {
-            // currentData.collections.push({
-            //   id: collectionId,
-            //   name: 'New Collection'
-            // });
-            // queryClient.setQueryData(queryKey, currentData);
-          }
-
-          if (variables.remove_from_collections) {
-            //
-          }
-
-          queryClient.setQueryData(queryKey, newObject);
-        }
-        return null;
-      }
-    });
+    useUpdateDashboard();
 
   const onUpdateDashboard = useMemoizedFn(
     (newDashboard: Partial<BusterDashboard> & { id: string }) => {
@@ -68,7 +37,7 @@ export const useDashboardUpdateConfig = ({
   const onShareDashboard = useMemoizedFn(
     async (
       props: Pick<
-        DashboardUpdate['payload'],
+        DashboardUpdateRequest,
         | 'id'
         | 'publicly_accessible'
         | 'public_password'

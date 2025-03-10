@@ -1,16 +1,14 @@
 import React, { useMemo, useState } from 'react';
-import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
-import type { CollectionsListEmit } from '@/api/buster_socket/collections';
 import { createContext, useContextSelector } from 'use-context-selector';
-import { queryKeys } from '@/api/query_keys';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { useGetCollectionsList } from '@/api/buster_rest/collections';
+import type { GetCollectionListParams } from '@/api/request_interfaces/collections';
 
-type CollectionListFilters = Omit<CollectionsListEmit['payload'], 'page' | 'page_size'>;
+type CollectionListFilters = Omit<GetCollectionListParams, 'page' | 'page_size'>;
 
 export const useCollectionLists = () => {
   const [collectionListFilters, setCollectionListFilters] = useState<CollectionListFilters>({});
   const currentSegment = useAppLayoutContextSelector((x) => x.currentSegment);
-  const enabled = currentSegment === 'collections';
 
   const payload = useMemo(() => {
     return { page: 0, page_size: 1000, ...collectionListFilters };
@@ -20,15 +18,7 @@ export const useCollectionLists = () => {
     data: collectionsList,
     isFetched: isCollectionListFetched,
     refetch: refetchCollectionList
-  } = useSocketQueryEmitOn({
-    emitEvent: {
-      route: '/collections/list',
-      payload
-    },
-    responseEvent: '/collections/list:listCollections',
-    options: queryKeys.collectionsGetList(payload),
-    enabledTrigger: enabled
-  });
+  } = useGetCollectionsList(payload);
 
   return {
     collectionsList,

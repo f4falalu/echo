@@ -1,9 +1,8 @@
 import type { BusterDashboardResponse } from '@/api/asset_interfaces';
-import { queryKeys } from '@/api/query_keys';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { useMemoizedFn } from '@/hooks';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
-import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
+import { useGetDashboard } from '@/api/buster_rest/dashboards';
 
 export const useBusterDashboardIndividual = ({
   dashboardId = ''
@@ -16,19 +15,7 @@ export const useBusterDashboardIndividual = ({
   const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
   const { password } = getAssetPassword(dashboardId);
 
-  const { data: dashboardResponse, refetch: refreshDashboard } = useSocketQueryEmitOn({
-    emitEvent: {
-      route: '/dashboards/get',
-      payload: { id: dashboardId, password }
-    },
-    responseEvent: '/dashboards/get:getDashboardState',
-    options: queryKeys.dashboardGetDashboard(dashboardId || ''),
-    callback: (_, newData) => {
-      initializeDashboardMetrics(newData.metrics);
-      return newData;
-    },
-    enabledTrigger: !!dashboardId
-  });
+  const { data: dashboardResponse, refetch: refreshDashboard } = useGetDashboard(dashboardId);
 
   const initializeDashboardMetrics = useMemoizedFn(
     (metrics: BusterDashboardResponse['metrics']) => {

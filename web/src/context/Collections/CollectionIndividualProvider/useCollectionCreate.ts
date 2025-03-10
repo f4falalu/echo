@@ -3,16 +3,12 @@ import { useSocketQueryMutation } from '@/api/buster_socket_query';
 import { timeout } from '@/lib';
 import { useMemoizedFn } from '@/hooks';
 import { queryKeys } from '@/api/query_keys';
+import { useCreateCollection, useDeleteCollection } from '@/api/buster_rest/collections';
 
 export const useCollectionCreate = () => {
   const { openConfirmModal } = useBusterNotifications();
 
-  const { mutateAsync: createCollection, isPending: isCreatingCollection } = useSocketQueryMutation(
-    {
-      emitEvent: '/collections/post',
-      responseEvent: '/collections/post:collectionState'
-    }
-  );
+  const { mutateAsync: createCollection, isPending: isCreatingCollection } = useCreateCollection();
 
   const createNewCollection = useMemoizedFn(
     async ({
@@ -30,14 +26,7 @@ export const useCollectionCreate = () => {
   );
 
   const { mutateAsync: deleteCollectionMutation, isPending: isDeletingCollection } =
-    useSocketQueryMutation({
-      emitEvent: '/collections/delete',
-      responseEvent: '/collections/delete:deleteCollections',
-      options: queryKeys.collectionsGetList(),
-      preCallback: (data, variables) => {
-        return data?.filter((collection) => !variables.ids.includes(collection.id)) || [];
-      }
-    });
+    useDeleteCollection();
 
   const deleteCollection = useMemoizedFn(async (id: string | string[], useConfirmModal = true) => {
     const ids = Array.isArray(id) ? id : [id];

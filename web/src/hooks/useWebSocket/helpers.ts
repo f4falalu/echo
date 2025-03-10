@@ -1,8 +1,6 @@
-import { DashboardResponses } from '@/api/buster_socket/dashboards';
 import { isDev } from '@/config';
 import { DatasetResponses } from '@/api/buster_socket/datasets';
 import { UserResponses } from '@/api/buster_socket/user';
-import { CollectionResponses } from '@/api/buster_socket/collections';
 import { DatasourceResponses } from '@/api/buster_socket/datasources/datasourceResponses';
 import { TermsResponses } from '@/api/buster_socket/terms/termsResponses';
 import { TeamResponses } from '@/api/buster_socket/teams/teamResponses';
@@ -35,10 +33,8 @@ export const createBusterResponse = (
 
 const isKnownMessageRoute = (parsedMessage: BusterSocketResponseMessage) => {
   const allResponses = {
-    ...DashboardResponses,
     ...DatasetResponses,
     ...UserResponses,
-    ...CollectionResponses,
     ...DatasourceResponses,
     ...SQLResponses,
     ...TermsResponses,

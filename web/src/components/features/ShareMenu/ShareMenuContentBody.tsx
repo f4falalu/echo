@@ -20,6 +20,7 @@ import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { inputHasText } from '@/lib/text';
 import { UserGroup, ChevronRight } from '@/components/ui/icons';
 import { cn } from '@/lib/classMerge';
+import { UpdateMetricParams } from '@/api/buster_rest/metrics';
 
 export const ShareMenuContentBody: React.FC<{
   selectedOptions: ShareMenuTopBarOptions;

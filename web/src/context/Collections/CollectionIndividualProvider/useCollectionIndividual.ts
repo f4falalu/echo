@@ -1,19 +1,9 @@
-import { queryKeys } from '@/api/query_keys';
-import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
+import { useGetCollection } from '@/api/buster_rest/collections';
 
 export const useCollectionIndividual = ({ collectionId }: { collectionId: string | undefined }) => {
   const id = collectionId || '';
 
-  const { data: collection, isFetched: isCollectionFetched } = useSocketQueryEmitOn({
-    emitEvent: {
-      route: '/collections/get',
-      payload: { id }
-    },
-    responseEvent: '/collections/get:collectionState',
-    options: queryKeys.collectionsGetCollection(id),
-    callback: undefined,
-    enabledTrigger: !!id
-  });
+  const { data: collection, isFetched: isCollectionFetched } = useGetCollection(id);
 
   return {
     collection,

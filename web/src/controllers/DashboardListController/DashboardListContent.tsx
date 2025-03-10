@@ -57,7 +57,7 @@ export const DashboardListContent: React.FC<{
   loading: boolean;
   dashboardsList: BusterDashboardListItem[];
   className?: string;
-}> = ({ loading, dashboardsList, className = '' }) => {
+}> = React.memo(({ loading, dashboardsList, className = '' }) => {
   const onCreateNewDashboard = useBusterDashboardContextSelector(
     (state) => state.onCreateNewDashboard
   );
@@ -112,4 +112,6 @@ export const DashboardListContent: React.FC<{
       />
     </div>
   );
-};
+});
+
+DashboardListContent.displayName = 'DashboardListContent';

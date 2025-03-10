@@ -1,4 +1,5 @@
-import { ShareAssetType } from '../../asset_interfaces';
+import type { ShareRequest } from '@/api/buster_socket/shared_interfaces';
+import type { ShareAssetType } from '../../asset_interfaces';
 
 export interface GetCollectionListParams {
   /** Current page number (1-based indexing) */
@@ -23,7 +24,7 @@ export interface CreateCollectionParams {
   description: string;
 }
 
-export interface UpdateCollectionParams {
+export type UpdateCollectionParams = {
   /** Unique identifier of the collection to update */
   id: string;
   /** Optional new name for the collection */
@@ -38,7 +39,7 @@ export interface UpdateCollectionParams {
   /** Share request parameters */
   share_with?: string[];
   share_type?: string;
-}
+} & ShareRequest;
 
 export interface DeleteCollectionParams {
   /** Array of collection IDs to be deleted */

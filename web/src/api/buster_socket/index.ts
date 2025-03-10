@@ -1,8 +1,6 @@
-import type { DashboardResponseTypes, DashboardEmits, DashboardResponses } from './dashboards';
 import type { DatasetEmits, DatasetResponseTypes, DatasetResponses } from './datasets';
 import type { SQLEmits, SQLResponses, SQLResponsesTypes } from './sql';
 import type { UserEmits, UserResponses, UserResponsesTypes } from './user';
-import type { CollectionResponseTypes, CollectionResponses, CollectionsEmit } from './collections';
 import type { TeamEmits, TeamResponses, TeamResponsesTypes } from './teams';
 import type { DatasourceResponseTypes, DatasourceResponses, DatasourceEmits } from './datasources';
 import type { TermsEmits, TermsResponses, TermsResponseTypes } from './terms';
@@ -15,10 +13,8 @@ import type {
 import type { ChatEmits, ChatResponseTypes, ChatsResponses } from './chats';
 
 export type BusterSocketRequest =
-  | DashboardEmits
   | DatasetEmits
   | UserEmits
-  | CollectionsEmit
   | TeamEmits
   | DatasourceEmits
   | SQLEmits
@@ -28,10 +24,8 @@ export type BusterSocketRequest =
   | ChatEmits;
 
 export type BusterSocketResponse =
-  | DashboardResponseTypes
   | DatasetResponseTypes
   | UserResponsesTypes
-  | CollectionResponseTypes
   | TeamResponsesTypes
   | DatasourceResponseTypes
   | SQLResponsesTypes
@@ -41,10 +35,8 @@ export type BusterSocketResponse =
   | ChatResponseTypes;
 
 export type BusterSocketResponseRoute =
-  | keyof typeof DashboardResponses
   | keyof typeof DatasetResponses
   | keyof typeof UserResponses
-  | keyof typeof CollectionResponses
   | keyof typeof TeamResponses
   | keyof typeof DatasourceResponses
   | keyof typeof SQLResponses
