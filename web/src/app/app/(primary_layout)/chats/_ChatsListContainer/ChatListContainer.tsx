@@ -1,15 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useBusterChatListByFilter } from '@/context/Chats';
 import { ChatItemsContainer } from './ChatItemsContainer';
+import { useGetListChats } from '@/api/buster_rest/chats';
+import { GetChatListParams } from '@/api/request_interfaces/chats';
 
 export const ChatListContainer: React.FC<{}> = ({}) => {
-  const [filters, setFilters] = useState<Parameters<typeof useBusterChatListByFilter>[0]>({
+  const [filters, setFilters] = useState<Partial<GetChatListParams>>({
     admin_view: false
   });
 
-  const { list, isFetched } = useBusterChatListByFilter(filters);
+  const { data: list, isFetched } = useGetListChats(filters);
 
   return <ChatItemsContainer chats={list} loading={!isFetched} />;
 };

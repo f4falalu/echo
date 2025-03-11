@@ -3,7 +3,6 @@ import { createContext, useContextSelector } from 'use-context-selector';
 import type { SelectedFile } from '../interfaces';
 import { useAutoChangeLayout } from './useAutoChangeLayout';
 import { useGetChat } from '@/api/buster_rest/chats';
-import { useMessageIndividual } from '@/context/Chats';
 import { useQueries } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
 import { IBusterChatMessage } from '@/api/asset_interfaces/chat';
@@ -40,10 +39,9 @@ const useChatIndividualContext = ({
         select: (data: IBusterChatMessage | undefined) => !data?.isCompletedStream,
         enabled: false
       };
-    })
-  }).some((query) => query.data);
-
-  console.log('isCompletedStreamQueries', isStreamingMessage);
+    }),
+    combine: (result) => result.some((res) => res.data)
+  });
 
   useAutoChangeLayout({
     lastMessageId: currentMessageId,

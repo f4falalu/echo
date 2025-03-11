@@ -12,12 +12,20 @@ import type { IBusterChat } from '@/api/asset_interfaces/chat';
 import { queryKeys } from '@/api/query_keys';
 import { updateChatToIChat } from '@/lib/chat';
 import { RustApiError } from '@/api/buster_rest/errors';
+import { useMemo } from 'react';
 
-export const useGetListChats = (params?: Parameters<typeof getListChats>[0]) => {
-  const queryFn = useMemoizedFn(() => getListChats(params));
+export const useGetListChats = (
+  filters?: Omit<Parameters<typeof getListChats>[0], 'page_token' | 'page_size'>
+) => {
+  const filtersCompiled: Parameters<typeof getListChats>[0] = useMemo(
+    () => ({ admin_view: false, page_token: 0, page_size: 3000, ...filters }),
+    [filters]
+  );
+
+  const queryFn = useMemoizedFn(() => getListChats(filtersCompiled));
 
   return useQuery({
-    ...queryKeys.chatsGetList(params),
+    ...queryKeys.chatsGetList(filtersCompiled),
     queryFn
   });
 };

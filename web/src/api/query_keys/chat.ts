@@ -27,7 +27,7 @@ const chatsMessagesFetchingData = (messageId: string) =>
 const chatsGetList = (filters?: GetChatListParams) =>
   queryOptions<BusterChatListItem[]>({
     queryKey: ['chats', 'list', filters] as const,
-    staleTime: 10 * 1000,
+    staleTime: 0,
     initialData: []
   });
 

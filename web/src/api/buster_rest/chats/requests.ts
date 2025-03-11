@@ -13,7 +13,7 @@ const CHATS_BASE = '/chats';
 export const getListChats = async (params?: GetChatListParams): Promise<BusterChatListItem[]> => {
   const { page_token = 0, page_size = 1000, admin_view = false } = params || {};
   return mainApi
-    .get<BusterChatListItem[]>(`${CHATS_BASE}/list`, {
+    .get<BusterChatListItem[]>(`${CHATS_BASE}`, {
       params: { page_token, page_size, admin_view }
     })
     .then((res) => res.data);
@@ -24,7 +24,7 @@ export const getListChats_server = async (
   params?: GetChatListParams
 ): Promise<BusterChatListItem[]> => {
   const { page_token = 0, page_size = 1000, admin_view = false } = params || {};
-  return await serverFetch<BusterChatListItem[]>(`${CHATS_BASE}/list`, {
+  return await serverFetch<BusterChatListItem[]>(`${CHATS_BASE}`, {
     params: { page_token, page_size, admin_view }
   });
 };
