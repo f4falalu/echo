@@ -1,5 +1,7 @@
 -- Your SQL goes here
 ALTER TYPE asset_type_enum ADD VALUE IF NOT EXISTS 'chat';
+ALTER TYPE asset_type_enum ADD VALUE IF NOT EXISTS 'metric_file';
+ALTER TYPE asset_type_enum ADD VALUE IF NOT EXISTS 'dashboard_file';
 
 ALTER TYPE asset_permission_role_enum ADD VALUE IF NOT EXISTS 'owner';
 ALTER TYPE asset_permission_role_enum ADD VALUE IF NOT EXISTS 'full_access';

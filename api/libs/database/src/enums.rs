@@ -102,17 +102,37 @@ pub enum AssetPermissionRole {
 impl AssetPermissionRole {
     pub fn max(self, other: Self) -> Self {
         match (self, other) {
-            (AssetPermissionRole::Owner, _) | (_, AssetPermissionRole::Owner) => AssetPermissionRole::Owner,
-            (AssetPermissionRole::FullAccess, _) | (_, AssetPermissionRole::FullAccess) => AssetPermissionRole::FullAccess,
-            (AssetPermissionRole::CanEdit, _) | (_, AssetPermissionRole::CanEdit) => AssetPermissionRole::CanEdit,
-            (AssetPermissionRole::CanFilter, _) | (_, AssetPermissionRole::CanFilter) => AssetPermissionRole::CanFilter,
+            (AssetPermissionRole::Owner, _) | (_, AssetPermissionRole::Owner) => {
+                AssetPermissionRole::Owner
+            }
+            (AssetPermissionRole::FullAccess, _) | (_, AssetPermissionRole::FullAccess) => {
+                AssetPermissionRole::FullAccess
+            }
+            (AssetPermissionRole::CanEdit, _) | (_, AssetPermissionRole::CanEdit) => {
+                AssetPermissionRole::CanEdit
+            }
+            (AssetPermissionRole::CanFilter, _) | (_, AssetPermissionRole::CanFilter) => {
+                AssetPermissionRole::CanFilter
+            }
             (AssetPermissionRole::CanView, _) => AssetPermissionRole::CanView,
-            (AssetPermissionRole::Editor, AssetPermissionRole::Editor) => AssetPermissionRole::Editor,
-            (AssetPermissionRole::Editor, AssetPermissionRole::Viewer) => AssetPermissionRole::Viewer,
-            (AssetPermissionRole::Editor, AssetPermissionRole::CanView) => AssetPermissionRole::CanView,
-            (AssetPermissionRole::Viewer, AssetPermissionRole::Editor) => AssetPermissionRole::Editor,
-            (AssetPermissionRole::Viewer, AssetPermissionRole::Viewer) => AssetPermissionRole::Viewer,
-            (AssetPermissionRole::Viewer, AssetPermissionRole::CanView) => AssetPermissionRole::CanView,
+            (AssetPermissionRole::Editor, AssetPermissionRole::Editor) => {
+                AssetPermissionRole::Editor
+            }
+            (AssetPermissionRole::Editor, AssetPermissionRole::Viewer) => {
+                AssetPermissionRole::Viewer
+            }
+            (AssetPermissionRole::Editor, AssetPermissionRole::CanView) => {
+                AssetPermissionRole::CanView
+            }
+            (AssetPermissionRole::Viewer, AssetPermissionRole::Editor) => {
+                AssetPermissionRole::Editor
+            }
+            (AssetPermissionRole::Viewer, AssetPermissionRole::Viewer) => {
+                AssetPermissionRole::Viewer
+            }
+            (AssetPermissionRole::Viewer, AssetPermissionRole::CanView) => {
+                AssetPermissionRole::CanView
+            }
         }
     }
 }
@@ -214,13 +234,14 @@ impl FromSql<sql_types::StoredValuesStatusEnum, Pg> for StoredValuesStatus {
     diesel::FromSqlRow,
 )]
 #[diesel(sql_type = sql_types::AssetTypeEnum)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 pub enum AssetType {
     Dashboard,
     Thread,
     Collection,
     Chat,
-    Metric,
+    MetricFile,
+    DashboardFile,
 }
 
 #[derive(
@@ -537,7 +558,8 @@ impl ToSql<sql_types::AssetTypeEnum, Pg> for AssetType {
             AssetType::Thread => out.write_all(b"thread")?,
             AssetType::Collection => out.write_all(b"collection")?,
             AssetType::Chat => out.write_all(b"chat")?,
-            AssetType::Metric => out.write_all(b"metric")?,
+            AssetType::DashboardFile => out.write_all(b"dashboard_file")?,
+            AssetType::MetricFile => out.write_all(b"metric_file")?,
         }
         Ok(IsNull::No)
     }
@@ -550,6 +572,8 @@ impl FromSql<sql_types::AssetTypeEnum, Pg> for AssetType {
             b"thread" => Ok(AssetType::Thread),
             b"collection" => Ok(AssetType::Collection),
             b"chat" => Ok(AssetType::Chat),
+            b"dashboard_file" => Ok(AssetType::DashboardFile),
+            b"metric_file" => Ok(AssetType::MetricFile),
             _ => Err("Unrecognized enum variant".into()),
         }
     }

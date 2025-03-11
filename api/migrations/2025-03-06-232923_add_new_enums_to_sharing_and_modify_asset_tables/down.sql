@@ -26,3 +26,11 @@ AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'asset_permission_role_
 DELETE FROM pg_enum 
 WHERE enumlabel = 'chat'
 AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'asset_type_enum');
+
+DELETE FROM pg_enum 
+WHERE enumlabel = 'metric_file'
+AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'asset_type_enum');
+
+DELETE FROM pg_enum 
+WHERE enumlabel = 'dashboard_file'
+AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'asset_type_enum');
