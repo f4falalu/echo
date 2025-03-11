@@ -107,6 +107,10 @@ export const useBusterNewChat = () => {
 
   const onFollowUpChat = useMemoizedFn(
     async ({ prompt, chatId }: { prompt: string; chatId: string }) => {
+      busterSocket.once({
+        route: '/chats/post:initializeChat',
+        callback: initializeNewChatCallback
+      });
       await busterSocket.emitAndOnce({
         emitEvent: {
           route: '/chats/post',

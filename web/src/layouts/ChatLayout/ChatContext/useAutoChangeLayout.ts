@@ -19,8 +19,6 @@ export const useAutoChangeLayout = ({
   const isCompletedStream = useMessageIndividual(lastMessageId, (x) => x?.isCompletedStream);
   const hasReasoning = !!reasoningMessagesLength;
 
-  console.log('lastMessageId', lastMessageId, hasReasoning);
-
   //change the page to reasoning file if we get a reasoning message
   useEffect(() => {
     if (!isCompletedStream && hasReasoning && previousLastMessageId.current !== lastMessageId) {

@@ -11,7 +11,7 @@ export const ChatUserMessage: React.FC<{ requestMessage: BusterChatMessageReques
 
     return (
       <MessageContainer senderName={sender_name} senderId={sender_id} senderAvatar={sender_avatar}>
-        <Paragraph className="text-sm">{request}</Paragraph>
+        <Paragraph>{request}</Paragraph>
       </MessageContainer>
     );
   }

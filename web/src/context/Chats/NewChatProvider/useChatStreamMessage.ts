@@ -37,10 +37,12 @@ export const useChatStreamMessage = () => {
 
   const onUpdateChatMessageTransition = useMemoizedFn(
     (chatMessage: Parameters<typeof onUpdateChatMessage>[0]) => {
-      const currentChatMessage = chatRefMessages.current[chatMessage.id];
+      const currentChatMessage = chatRefMessages.current[chatMessage.id] || {};
       const iChatMessage: IBusterChatMessage = create(currentChatMessage, (draft) => {
         Object.assign(draft || {}, chatMessage);
-        if (chatMessage.id) draft.id = chatMessage.id;
+        if (chatMessage.id) {
+          draft.id = chatMessage.id;
+        }
       })!;
       chatRefMessages.current[chatMessage.id] = iChatMessage;
 
@@ -106,9 +108,12 @@ export const useChatStreamMessage = () => {
 
   const _generatingTitleCallback = useMemoizedFn((_: null, newData: ChatEvent_GeneratingTitle) => {
     const { chat_id } = newData;
-    const updatedChat = updateChatTitle(chatRef.current[chat_id], newData);
-    chatRef.current[chat_id] = updatedChat;
-    onUpdateChat(updatedChat);
+    const currentChat = chatRef.current[chat_id];
+    if (currentChat) {
+      const updatedChat = updateChatTitle(currentChat, newData);
+      chatRef.current[chat_id] = updatedChat;
+      onUpdateChat(updatedChat);
+    }
   });
 
   const _generatingResponseMessageCallback = useMemoizedFn(

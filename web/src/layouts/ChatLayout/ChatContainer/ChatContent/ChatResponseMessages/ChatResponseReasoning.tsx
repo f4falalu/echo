@@ -55,10 +55,12 @@ export const ChatResponseReasoning: React.FC<{
       <motion.div
         {...animations}
         key={text}
-        className="mb-3.5 w-fit cursor-pointer"
+        className="mb-3.5 h-[14px] max-h-[14px] w-fit cursor-pointer"
         onClick={onClickReasoning}>
         {isReasonginFileSelected ? (
-          <Text className="hover:underline">{text}</Text>
+          <Text className="text-text-secondary hover:text-text-default hover:underline">
+            {text}
+          </Text>
         ) : (
           <ShimmerText text={text ?? ''} />
         )}

@@ -2,7 +2,6 @@ import React from 'react';
 import { MessageContainer } from '../MessageContainer';
 import { ChatResponseMessageSelector } from './ChatResponseMessageSelector';
 import { ChatResponseReasoning } from './ChatResponseReasoning';
-import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 import { useMessageIndividual } from '@/context/Chats';
 
 interface ChatResponseMessagesProps {
