@@ -43,8 +43,7 @@ const dataMetadata: DataMetadata = {
 const MOCK_DATA: Required<BusterMetricData> = {
   data: mockData(),
   metricId: faker.string.uuid(),
-  data_metadata: dataMetadata,
-  dataFromRerun: null
+  data_metadata: dataMetadata
 };
 
 export const createMockData = (metricId: string): Required<BusterMetricData> => {

@@ -28,9 +28,8 @@ export const useSQLProvider = () => {
 
   const getDataByMetricIdMemoized = useMemoizedFn(
     (metricId: string): BusterMetricData | undefined => {
-      const options = queryKeys.metricsGetDataByMessageId(metricId);
-      const metricData = queryClient.getQueryData(options.queryKey);
-      return metricData;
+      const options = queryKeys.metricsGetData(metricId);
+      return queryClient.getQueryData(options.queryKey);
     }
   );
 
@@ -58,7 +57,7 @@ export const useSQLProvider = () => {
     code: string;
     isDataFromRerun: boolean;
   }) => {
-    const options = queryKeys.metricsGetDataByMessageId(metricId);
+    const options = queryKeys.metricsGetData(metricId);
     const currentData = getDataByMetricIdMemoized(metricId);
     const setter = isDataFromRerun ? 'dataFromRerun' : 'data';
     queryClient.setQueryData(options.queryKey, {

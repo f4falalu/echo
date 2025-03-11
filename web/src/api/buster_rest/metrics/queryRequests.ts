@@ -74,7 +74,6 @@ export const useGetMetricData = (params: { id: string }) => {
   const queryFn = useMemoizedFn(() => {
     return getMetricData(params);
   });
-
   return useQuery({
     ...queryKeys.metricsGetData(params.id),
     queryFn,

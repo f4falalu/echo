@@ -4,7 +4,8 @@ import { queryOptions } from '@tanstack/react-query';
 import type {
   BusterMetricData,
   BusterMetricListItem,
-  IBusterMetric
+  IBusterMetric,
+  IBusterMetricData
 } from '@/api/asset_interfaces/metric';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { ListMetricsParams } from '../buster_rest/metrics';
@@ -36,14 +37,8 @@ export const metricsGetList = (filters?: ListMetricsParams) =>
     staleTime: 10 * 1000
   });
 
-export const metricsGetDataByMessageId = (messageId: string) =>
-  queryOptions<BusterMetricData>({
-    queryKey: ['metrics', 'data', messageId] as const,
-    staleTime: 60 * 60 * 1000 // 1 hour
-  });
-
 export const metricsGetData = (id: string) =>
-  queryOptions<BusterMetricData>({
+  queryOptions<IBusterMetricData>({
     queryKey: ['metrics', 'data', id] as const,
     staleTime: 3 * 60 * 60 * 1000 // 3 hours,
   });
@@ -52,6 +47,5 @@ export const metricsQueryKeys = {
   metricsGetMetric,
   useMetricsGetMetric,
   metricsGetList,
-  metricsGetDataByMessageId,
   metricsGetData
 };
