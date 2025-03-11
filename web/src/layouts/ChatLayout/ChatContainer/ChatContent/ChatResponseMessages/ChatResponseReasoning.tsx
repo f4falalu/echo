@@ -55,7 +55,7 @@ export const ChatResponseReasoning: React.FC<{
       <motion.div
         {...animations}
         key={text}
-        className="mb-3.5 h-[14px] max-h-[14px] w-fit cursor-pointer"
+        className="mb-3.5 flex h-[14px] max-h-[14px] w-fit cursor-pointer items-center"
         onClick={onClickReasoning}>
         {isReasonginFileSelected ? (
           <Text className="text-text-secondary hover:text-text-default hover:underline">

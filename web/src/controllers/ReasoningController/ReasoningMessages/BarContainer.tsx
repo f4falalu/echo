@@ -112,14 +112,14 @@ const AnimatedThoughtTitle = React.memo(
   }) => {
     const isSecondaryTitle = type === 'tertiary';
     return (
-      <AnimatePresence initial={!isCompletedStream && !isSecondaryTitle} mode="wait">
+      <AnimatePresence initial={!isCompletedStream && isSecondaryTitle} mode="wait">
         {title && (
           <motion.div
             className="flex"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ delay: isSecondaryTitle ? 0.3 : 0.125 }}
+            transition={{ delay: isSecondaryTitle ? 0.5 : 0.125 }}
             key={title}>
             <Text
               size="sm"
