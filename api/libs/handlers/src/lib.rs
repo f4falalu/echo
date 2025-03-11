@@ -1,6 +1,7 @@
 pub mod messages;
 pub mod chats;
 pub mod files;
+pub mod favorites;
 pub mod metrics;
 
 // Re-export commonly used types and functions
