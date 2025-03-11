@@ -3,7 +3,9 @@ import type { BusterTerm, BusterTermListItem } from '@/api/asset_interfaces/term
 
 export const termsGetList = queryOptions<BusterTermListItem[]>({
   queryKey: ['terms', 'list'] as const,
-  staleTime: 10 * 1000
+  staleTime: 10 * 1000,
+  initialData: [],
+  initialDataUpdatedAt: 0
 });
 
 export const termsGetTerm = (termId: string) =>

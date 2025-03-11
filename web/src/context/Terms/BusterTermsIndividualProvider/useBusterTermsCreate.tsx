@@ -1,7 +1,6 @@
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks';
 import type { TermDeleteParams } from '@/api/request_interfaces/terms';
-import { useBusterTermsListContextSelector } from '../BusterTermsListProvider';
 import { useCreateTerm, useDeleteTerm } from '@/api/buster_rest/terms';
 
 export const useBusterTermsCreate = () => {

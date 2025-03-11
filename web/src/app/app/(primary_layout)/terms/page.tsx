@@ -1,5 +1,22 @@
+'use client';
+
+import { AppPageLayout } from '@/components/ui/layouts';
 import { TermsListController } from '@/controllers/TermsListController';
+import { TermsHeader } from '@/controllers/TermsListController/TermsHeader';
+import { useState } from 'react';
 
 export default function TermsPage() {
-  return <TermsListController />;
+  const [openNewTermsModal, setOpenNewTermsModal] = useState(false);
+
+  return (
+    <AppPageLayout
+      header={
+        <TermsHeader
+          openNewTermsModal={openNewTermsModal}
+          setOpenNewTermsModal={setOpenNewTermsModal}
+        />
+      }>
+      <TermsListController setOpenNewTermsModal={setOpenNewTermsModal} />
+    </AppPageLayout>
+  );
 }

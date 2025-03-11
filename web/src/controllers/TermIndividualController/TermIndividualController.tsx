@@ -5,14 +5,14 @@ import { TermIndividualHeader } from './TermIndividualHeader';
 import { AppPageLayout, AppSplitter } from '@/components/ui/layouts';
 import { TermIndividualHeaderSider } from './TermIndividualHeaderSider';
 import { TermIndividualContentSider } from './TermIndividualContentSider';
-import { useBusterTermsListContextSelector } from '@/context/Terms';
 import { TermIndividualContent } from './TermIndividualContent';
+import { useGetTermsList } from '@/api/buster_rest/terms';
 
 export const TermIndividualController: React.FC<{
   termPageIdLayout: string[];
   termId: string;
 }> = ({ termPageIdLayout, termId }) => {
-  const isFetchedTermsList = useBusterTermsListContextSelector((x) => x.isFetchedTermsList);
+  const { isFetched: isFetchedTermsList } = useGetTermsList();
 
   return (
     <AppSplitter

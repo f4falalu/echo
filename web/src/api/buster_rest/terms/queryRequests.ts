@@ -3,11 +3,17 @@ import { createTerm, deleteTerms, getTerm, getTermsList, updateTerm } from './re
 import { TermsListParams } from '@/api/request_interfaces/terms';
 import { queryKeys } from '@/api/query_keys';
 import { BusterTerm } from '@/api/asset_interfaces/terms';
+import { useMemo } from 'react';
 
-export const useGetTermsList = (params: TermsListParams) => {
+export const useGetTermsList = (params?: Omit<TermsListParams, 'page' | 'page_size'>) => {
+  const compiledParams: TermsListParams = useMemo(
+    () => ({ page: 0, page_size: 3000, ...params }),
+    [params]
+  );
+
   return useQuery({
     ...queryKeys.termsGetList,
-    queryFn: () => getTermsList(params)
+    queryFn: () => getTermsList(compiledParams)
   });
 };
 
