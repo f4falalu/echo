@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { AppPageLayout } from './AppPageLayout';
+import React from 'react';
 
 const meta: Meta<typeof AppPageLayout> = {
   title: 'UI/Layouts/AppPageLayout',
@@ -53,6 +54,7 @@ export const LongContent: Story = {
   args: {
     header: <div className="bg-gray-100">Header Content</div>,
     scrollable: true,
+    headerBorderVariant: 'ghost',
     children: (
       <>
         {Array.from({ length: 100 }, (_, i) => (
