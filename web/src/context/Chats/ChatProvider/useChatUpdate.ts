@@ -1,19 +1,14 @@
 import { useMemoizedFn } from '@/hooks';
-import { useTransition } from 'react';
 import type { IBusterChat, IBusterChatMessage } from '@/api/asset_interfaces/chat';
-import { useSocketQueryMutation } from '@/api/buster_socket_query';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
 import { create } from 'mutative';
+import { useUpdateChat } from '@/api/buster_rest/chats';
 
 export const useChatUpdate = () => {
-  const [isPending, startTransition] = useTransition();
   const queryClient = useQueryClient();
 
-  const { mutate: updateChat } = useSocketQueryMutation({
-    emitEvent: '/chats/update',
-    responseEvent: '/chats/update:updateChat'
-  });
+  const { mutate: updateChat } = useUpdateChat();
 
   const onUpdateChat = useMemoizedFn(
     async (newChatConfig: Partial<IBusterChat> & { id: string }, saveToServer: boolean = false) => {
@@ -27,6 +22,7 @@ export const useChatUpdate = () => {
       queryClient.setQueryData(queryKey, iChat);
 
       //just used to trigger UI update
+      //TODO: reevaluate if this is needed and if we should should
       if (saveToServer) {
         updateChat({
           id: iChat.id,

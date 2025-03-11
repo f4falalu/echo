@@ -70,7 +70,7 @@ const AppMarkdownBase: React.FC<{
   }, []);
 
   return (
-    <div className={cn('flex', styles.container, className)}>
+    <div className={cn(styles.container, className)}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         skipHtml={true}

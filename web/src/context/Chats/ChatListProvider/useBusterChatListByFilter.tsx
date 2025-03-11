@@ -1,5 +1,4 @@
-import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
-import { queryKeys } from '@/api/query_keys';
+import { useGetListChats } from '@/api/buster_rest/chats';
 import { GetChatListParams } from '@/api/request_interfaces/chats';
 import { useMemo } from 'react';
 
@@ -11,14 +10,7 @@ export const useBusterChatListByFilter = (
     [filtersProp]
   );
 
-  const { data: chatsList, isFetched: isFetchedChatsList } = useSocketQueryEmitOn({
-    emitEvent: {
-      route: '/chats/list',
-      payload: filters
-    },
-    responseEvent: '/chats/list:getChatsList',
-    options: queryKeys.chatsGetList(filters)
-  });
+  const { data: chatsList, isFetched: isFetchedChatsList } = useGetListChats(filters);
 
   //ACTIONS
 

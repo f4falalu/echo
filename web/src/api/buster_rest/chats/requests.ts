@@ -1,7 +1,11 @@
 import { mainApi } from '../instances';
 import { serverFetch } from '../../createServerInstance';
 import type { BusterChatListItem, BusterChat } from '@/api/asset_interfaces/chat';
-import type { GetChatListParams, GetChatParams } from '../../request_interfaces/chats';
+import type {
+  GetChatListParams,
+  GetChatParams,
+  UpdateChatParams
+} from '../../request_interfaces/chats';
 
 const CHATS_BASE = '/chats';
 
@@ -33,4 +37,12 @@ export const getChat = async ({ id }: GetChatParams): Promise<BusterChat> => {
 // Server-side fetch version
 export const getChat_server = async ({ id }: GetChatParams): Promise<BusterChat> => {
   return await serverFetch<BusterChat>(`${CHATS_BASE}/${id}`);
+};
+
+export const updateChat = async ({ id, ...data }: UpdateChatParams): Promise<BusterChat> => {
+  return mainApi.put<BusterChat>(`${CHATS_BASE}/${id}`, data).then((res) => res.data);
+};
+
+export const deleteChat = async (ids: string[]): Promise<void> => {
+  return mainApi.delete(`${CHATS_BASE}`, { data: { ids } }).then((res) => res.data);
 };

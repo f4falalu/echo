@@ -1,6 +1,13 @@
 import { useMemoizedFn } from '@/hooks';
-import { QueryClient, useQuery } from '@tanstack/react-query';
-import { getListChats, getListChats_server, getChat, getChat_server } from './requests';
+import { QueryClient, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  getListChats,
+  getListChats_server,
+  getChat,
+  getChat_server,
+  updateChat,
+  deleteChat
+} from './requests';
 import type { BusterChatListItem, IBusterChat } from '@/api/asset_interfaces/chat';
 import { queryKeys } from '@/api/query_keys';
 import { updateChatToIChat } from '@/lib/chat';
@@ -74,4 +81,25 @@ export const prefetchGetChat = async (
   });
 
   return queryClient;
+};
+
+export const useUpdateChat = () => {
+  return useMutation({
+    mutationFn: updateChat,
+    onMutate: () => {
+      //this is actually handled in @useChatUpdate file
+    }
+  });
+};
+
+export const useDeleteChat = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteChat,
+    onSuccess(data, variables, context) {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.chatsGetList().queryKey
+      });
+    }
+  });
 };
