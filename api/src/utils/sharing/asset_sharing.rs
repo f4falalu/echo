@@ -18,17 +18,17 @@ use std::{
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use database::{enums::{AssetPermissionRole, AssetType, IdentityType},
-        pool::get_pg_pool,
-        models::{AssetPermission, CollectionToAsset, User},
-        schema::{
-            asset_permissions, collections, collections_to_assets, dashboards, messages_deprecated,
-            organizations, teams, teams_to_users, threads_deprecated, user_favorites, users,
-        },};
-use crate::{
-    utils::clients::{
-        email::resend::{send_email, CollectionInvite, DashboardInvite, EmailType, ThreadInvite},
-        sentry_utils::send_sentry_error,
+use crate::utils::clients::{
+    email::resend::{send_email, CollectionInvite, DashboardInvite, EmailType, ThreadInvite},
+    sentry_utils::send_sentry_error,
+};
+use database::{
+    enums::{AssetPermissionRole, AssetType, IdentityType},
+    models::{AssetPermission, CollectionToAsset, User},
+    pool::get_pg_pool,
+    schema::{
+        asset_permissions, collections, collections_to_assets, dashboards, messages_deprecated,
+        organizations, teams, teams_to_users, threads_deprecated, user_favorites, users,
     },
 };
 use middleware::AuthenticatedUser;
@@ -664,7 +664,10 @@ async fn get_asset_name(asset_id: Arc<Uuid>, asset_type: AssetType) -> Result<St
         }
         AssetType::Thread => {
             match messages_deprecated::table
-                .inner_join(threads_deprecated::table.on(messages_deprecated::thread_id.eq(threads_deprecated::id)))
+                .inner_join(
+                    threads_deprecated::table
+                        .on(messages_deprecated::thread_id.eq(threads_deprecated::id)),
+                )
                 .filter(threads_deprecated::id.eq(asset_id.as_ref()))
                 .select(messages_deprecated::title.nullable())
                 .order(messages_deprecated::created_at.desc())
@@ -681,6 +684,9 @@ async fn get_asset_name(asset_id: Arc<Uuid>, asset_type: AssetType) -> Result<St
         }
         AssetType::Chat => {
             return Err(anyhow!("Public access is not supported for chats yet"));
+        }
+        AssetType::Metric => {
+            return Err(anyhow!("Public access is not supported for metrics yet"));
         }
     };
 
