@@ -61,11 +61,23 @@ export const useGetListLogs = (
   });
 };
 
-export const useGetChat = (params: Parameters<typeof getChat>[0]) => {
-  const queryFn = useMemoizedFn(async () => {
-    return await getChat(params).then((chat) => {
-      console.log('TODO move this to put message in a better spot');
-      return updateChatToIChat(chat, true).iChat;
+export const useGetChat = <TData = IBusterChat>(
+  params: Parameters<typeof getChat>[0],
+  select?: (chat: IBusterChat) => TData
+) => {
+  const queryClient = useQueryClient();
+  const queryFn = useMemoizedFn(() => {
+    return getChat(params).then((chat) => {
+      const { iChat, iChatMessages } = updateChatToIChat(chat, false);
+
+      iChat.message_ids.forEach((messageId) => {
+        queryClient.setQueryData(
+          queryKeys.chatsMessages(messageId).queryKey,
+          iChatMessages[messageId]
+        );
+      });
+
+      return iChat;
     });
   });
 
@@ -75,10 +87,11 @@ export const useGetChat = (params: Parameters<typeof getChat>[0]) => {
     enabled: !!params.id
   });
 
-  return useQuery<IBusterChat, RustApiError>({
+  return useQuery({
     ...queryKeys.chatsGetChat(params.id),
-    queryKey: queryKeys.chatsGetChat(params.id).queryKey,
-    enabled: !!params.id
+    enabled: !!params.id,
+    queryFn,
+    select
   });
 };
 

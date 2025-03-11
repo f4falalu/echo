@@ -81,14 +81,17 @@ export const useChatStreamMessage = () => {
   });
 
   const initializeNewChatCallback = useMemoizedFn((d: BusterChat) => {
+    const hasMultipleMessages = d.message_ids.length > 1;
     const { iChat, iChatMessages } = updateChatToIChat(d, true);
     chatRef.current[iChat.id] = iChat;
     normalizeChatMessage(iChatMessages);
     onUpdateChat(iChat);
-    onChangePage({
-      route: BusterRoutes.APP_CHAT_ID,
-      chatId: iChat.id
-    });
+    if (!hasMultipleMessages) {
+      onChangePage({
+        route: BusterRoutes.APP_CHAT_ID,
+        chatId: iChat.id
+      });
+    }
   });
 
   const replaceMessageCallback = useMemoizedFn(

@@ -96,7 +96,7 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
       isCompletedStream={isCompletedStream}
       title={title ?? ''}
       secondaryTitle={secondary_title ?? ''}>
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait" initial={!isCompletedStream}>
         <motion.div key={animationKey} {...itemAnimationConfig} className="overflow-hidden" layout>
           <div className="min-h-[1px]">
             <ReasoningMessage

@@ -20,8 +20,12 @@ const useChatIndividualContext = ({
   const selectedFileType = selectedFile?.type;
 
   //CHAT
-  const { data: chat } = useGetChat({ id: chatId || '' });
-  const hasChat = !!chatId && !!chat;
+  const { data: chat } = useGetChat({ id: chatId || '' }, (x) => ({
+    title: x.title,
+    message_ids: x.message_ids,
+    id: x.id
+  }));
+  const hasChat = !!chatId && !!chat?.id;
   const chatTitle = chat?.title;
   const chatMessageIds = chat?.message_ids ?? [];
 

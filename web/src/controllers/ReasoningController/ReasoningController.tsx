@@ -1,10 +1,11 @@
 'use client';
 
 import React from 'react';
-import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 import { useMessageIndividual } from '@/context/Chats';
 import { ReasoningMessageSelector } from './ReasoningMessages';
 import { BlackBoxMessage } from './ReasoningMessages/ReasoningBlackBoxMessage';
+import { useGetChat } from '@/api/buster_rest/chats';
+import { FileIndeterminateLoader } from '@/components/features/FileIndeterminateLoader';
 
 interface ReasoningControllerProps {
   chatId: string;
@@ -12,12 +13,12 @@ interface ReasoningControllerProps {
 }
 
 export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId, messageId }) => {
-  const hasChat = useChatIndividualContextSelector((state) => state.hasChat);
+  const { data: hasChat } = useGetChat({ id: chatId || '' }, (x) => !!x.id);
+
   const reasoningMessageIds = useMessageIndividual(messageId, (x) => x?.reasoning_message_ids);
   const isCompletedStream = useMessageIndividual(messageId, (x) => x?.isCompletedStream);
 
-  if (!hasChat || !reasoningMessageIds)
-    return <>ReasoningController: If you are seeing this there is probably an error...</>;
+  if (!hasChat || !reasoningMessageIds) return <FileIndeterminateLoader />;
 
   return (
     <div className="h-full flex-col space-y-2 overflow-y-auto p-5">
