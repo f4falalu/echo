@@ -63,6 +63,5 @@ node_modules/
 
 prds/completed/*
 prds/deprecated/* 
-docs/
 
 .cargo/
