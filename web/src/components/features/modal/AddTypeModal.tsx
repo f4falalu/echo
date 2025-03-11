@@ -17,11 +17,11 @@ import isEmpty from 'lodash/isEmpty';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { type SegmentedItem } from '@/components/ui/segmented';
-import { BusterSearchRequest } from '@/api/buster_socket/search';
 import { Speaker, Xmark } from '@/components/ui/icons';
 import { AppModal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/buttons';
 import { Separator } from '@/components/ui/seperator';
+import { SearchParams } from '@/api/request_interfaces/search/interfaces';
 
 const filterOptions = [
   { label: 'All', value: 'all' },
@@ -146,7 +146,7 @@ export const AddTypeModal: React.FC<{
   const onSearchInput = useThrottleFn(
     async (query: string, params?: 'useMetrics' | 'useDashboards') => {
       let results: BusterSearchResult[] = [];
-      let include: (keyof BusterSearchRequest['payload'])[] = [];
+      let include: (keyof SearchParams)[] = [];
 
       if (type === 'collection') {
         include = ['exclude_dashboards', 'exclude_metrics'];

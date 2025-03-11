@@ -1,16 +1,13 @@
 'use client';
 
+import type { SearchParams } from '@/api/request_interfaces/search';
 import { useMemoizedFn } from '@/hooks';
 import React from 'react';
-import { useBusterWebSocket } from '../BusterWebSocket';
-import type { BusterSearchResult } from '@/api/asset_interfaces';
-import { BusterSearchRequest } from '@/api/buster_socket/search';
-import { allBusterSearchRequestKeys } from './config';
 import { createContext, useContextSelector } from 'use-context-selector';
 
 export const useBusterSearch = () => {
   const onBusterSearch = useMemoizedFn(async ({ query }: { query: string }) => {
-    const payload: BusterSearchRequest['payload'] = {
+    const payload: SearchParams = {
       query
     };
 

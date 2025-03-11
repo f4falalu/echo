@@ -1,8 +1,8 @@
-import { BusterSearchRequest } from '@/api/buster_socket/search';
+import type { SearchParams } from '@/api/request_interfaces/search';
 
 export const allBusterSearchRequestKeys = [
   // 'query',
-  //  'num_results',
+  // 'num_results',
   'exclude_metrics',
   'exclude_collections',
   'exclude_dashboards',
@@ -11,4 +11,4 @@ export const allBusterSearchRequestKeys = [
   'exclude_permission_groups',
   'exclude_teams',
   'exclude_terms'
-] as (keyof BusterSearchRequest['payload'])[];
+] as (keyof SearchParams)[];
