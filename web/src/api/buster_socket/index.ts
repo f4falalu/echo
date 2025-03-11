@@ -1,18 +1,8 @@
 import type { UserEmits, UserResponses, UserResponsesTypes } from './user';
-import type { TeamEmits, TeamResponses, TeamResponsesTypes } from './teams';
-import type { TermsEmits, TermsResponses, TermsResponseTypes } from './terms';
 import type { ChatEmits, ChatResponseTypes, ChatsResponses } from './chats';
 
-export type BusterSocketRequest = UserEmits | TeamEmits | TermsEmits | ChatEmits;
+export type BusterSocketRequest = UserEmits | ChatEmits;
 
-export type BusterSocketResponse =
-  | UserResponsesTypes
-  | TeamResponsesTypes
-  | TermsResponseTypes
-  | ChatResponseTypes;
+export type BusterSocketResponse = UserResponsesTypes | ChatResponseTypes;
 
-export type BusterSocketResponseRoute =
-  | keyof typeof UserResponses
-  | keyof typeof TeamResponses
-  | keyof typeof TermsResponses
-  | keyof typeof ChatsResponses;
+export type BusterSocketResponseRoute = keyof typeof UserResponses | keyof typeof ChatsResponses;

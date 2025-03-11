@@ -1,14 +1,16 @@
-import { CreateTeamParams } from '@/api/request_interfaces/teams/interfaces';
-import { createTeam } from './requests';
-import { useMemoizedFn } from '@/hooks';
-import { useMutation } from '@tanstack/react-query';
+import type { TeamListParams } from '@/api/request_interfaces/teams';
+import { createTeam, getTeamsList } from './requests';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 export const useCreateTeam = () => {
-  const mutationFn = useMemoizedFn((params: CreateTeamParams) => {
-    return createTeam(params);
-  });
-
   return useMutation({
-    mutationFn
+    mutationFn: createTeam
+  });
+};
+
+export const useGetTeamsList = (params: TeamListParams) => {
+  return useQuery({
+    queryKey: ['teams'],
+    queryFn: () => getTeamsList(params)
   });
 };

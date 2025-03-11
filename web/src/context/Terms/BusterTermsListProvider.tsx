@@ -1,24 +1,15 @@
 'use client';
 
 import React from 'react';
-import { queryKeys } from '@/api/query_keys';
-import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
 import { createContext, useContextSelector } from 'use-context-selector';
-import { useAppLayoutContextSelector } from '../BusterAppLayout';
+import { useGetTermsList } from '@/api/buster_rest/terms';
 
 export const useBusterTermsList = () => {
-  const currentSegment = useAppLayoutContextSelector((x) => x.currentSegment);
-  const enabled = currentSegment === 'terms';
   const {
     data: termsList,
     refetch: refetchTermsList,
     isFetched: isFetchedTermsList
-  } = useSocketQueryEmitOn({
-    emitEvent: { route: '/terms/list', payload: { page: 0, page_size: 3000 } },
-    responseEvent: '/terms/list:ListTerms',
-    options: queryKeys.termsGetList,
-    enabledTrigger: enabled
-  });
+  } = useGetTermsList({ page: 0, page_size: 3000 });
 
   return {
     termsList,
