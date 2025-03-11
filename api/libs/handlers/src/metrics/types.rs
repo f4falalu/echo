@@ -1,4 +1,4 @@
-use database::enums::Verification;
+use database::{enums::Verification, types::VersionHistory};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -7,6 +7,12 @@ use std::collections::HashMap;
 pub struct Dataset {
     pub name: String,
     pub id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Version {
+    pub version_number: i32,
+    pub updated_at: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -36,6 +42,7 @@ pub struct BusterMetric {
     pub code: Option<String>,
     pub dashboards: Vec<Dashboard>,
     pub collections: Vec<Collection>,
+    pub versions: VersionHistory,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -133,4 +140,4 @@ pub enum DataValue {
     String(String),
     Number(f64),
     Null,
-} 
+}

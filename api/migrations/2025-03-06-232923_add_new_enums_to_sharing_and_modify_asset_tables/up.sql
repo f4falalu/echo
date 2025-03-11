@@ -26,3 +26,11 @@ ALTER TABLE dashboard_files
 ADD COLUMN publicly_accessible boolean NOT NULL DEFAULT false,
 ADD COLUMN publicly_enabled_by uuid NULL REFERENCES users(id),
 ADD COLUMN public_expiry_date timestamp with time zone NULL;
+
+-- Add version_history column to metric_files table
+ALTER TABLE metric_files
+ADD COLUMN version_history JSONB NOT NULL DEFAULT '{}'::jsonb;
+
+-- Add version_history column to dashboard_files table
+ALTER TABLE dashboard_files
+ADD COLUMN version_history JSONB NOT NULL DEFAULT '{}'::jsonb;

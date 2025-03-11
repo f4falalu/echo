@@ -143,6 +143,7 @@ diesel::table! {
         publicly_accessible -> Bool,
         publicly_enabled_by -> Nullable<Uuid>,
         public_expiry_date -> Nullable<Timestamptz>,
+        version_history -> Jsonb,
     }
 }
 
@@ -399,6 +400,7 @@ diesel::table! {
         publicly_accessible -> Bool,
         publicly_enabled_by -> Nullable<Uuid>,
         public_expiry_date -> Nullable<Timestamptz>,
+        version_history -> Jsonb,
     }
 }
 

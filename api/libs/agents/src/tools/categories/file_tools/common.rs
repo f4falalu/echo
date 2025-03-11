@@ -5,10 +5,11 @@ use database::{
     models::{DashboardFile, MetricFile},
     pool::get_pg_pool,
     schema::{datasets, metric_files},
+    types::VersionHistory,
 };
 use indexmap::IndexMap;
 use query_engine::{data_source_query_routes::query_engine::query_engine, data_types::DataType};
-use serde_json;
+use serde_json::{self};
 use serde_yaml;
 use tracing::{debug, error};
 use uuid::Uuid;
@@ -589,12 +590,16 @@ pub async fn process_metric_file(
         Err(e) => return Err(format!("Invalid SQL query: {}", e)),
     };
 
+    let metric_yml_json = match serde_json::to_value(metric_yml.clone()) {
+        Ok(json) => json,
+        Err(e) => return Err(format!("Failed to process metric: {}", e)),
+    };
+
     let metric_file = MetricFile {
         id: metric_id,
         name: file_name.clone(),
         file_name: file_name.clone(),
-        content: serde_json::to_value(metric_yml.clone())
-            .map_err(|e| format!("Failed to process metric: {}", e))?,
+        content: metric_yml_json.clone(),
         created_by: Uuid::new_v4(),
         verification: Verification::NotRequested,
         evaluation_obj: None,
@@ -607,6 +612,7 @@ pub async fn process_metric_file(
         publicly_accessible: false,
         publicly_enabled_by: None,
         public_expiry_date: None,
+        version_history: VersionHistory::new(1, metric_yml_json),
     };
 
     Ok((metric_file, metric_yml, message, results))
