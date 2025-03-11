@@ -8,24 +8,21 @@ import { useMemoizedFn } from '@/hooks';
 import { type SegmentedItem } from '@/components/ui/segmented';
 
 export const MetricListHeader: React.FC<{
-  type: 'logs' | 'metrics';
   filters: VerificationStatus[];
   onSetFilters: (filters: VerificationStatus[]) => void;
-}> = ({ type, filters, onSetFilters }) => {
-  const title = type === 'logs' ? 'Logs' : 'Metrics';
+}> = React.memo(({ filters, onSetFilters }) => {
   const showFilters: boolean = true;
 
   return (
     <div className="flex w-full items-center justify-between">
       <div className="flex items-center space-x-2">
-        <Text>{title}</Text>
-        {showFilters && (
-          <MetricsFilters type={type} filters={filters} onSetFilters={onSetFilters} />
-        )}
+        <Text>{'Metrics'}</Text>
+        {showFilters && <MetricsFilters filters={filters} onSetFilters={onSetFilters} />}
       </div>
     </div>
   );
-};
+});
+MetricListHeader.displayName = 'MetricListHeader';
 
 const options: SegmentedItem<VerificationStatus | 'all'>[] = [
   {
@@ -43,10 +40,9 @@ const options: SegmentedItem<VerificationStatus | 'all'>[] = [
 ];
 
 const MetricsFilters: React.FC<{
-  type: 'logs' | 'metrics';
   filters: VerificationStatus[];
   onSetFilters: (filters: VerificationStatus[]) => void;
-}> = React.memo(({ type, filters, onSetFilters }) => {
+}> = React.memo(({ filters, onSetFilters }) => {
   const selectedOption: SegmentedItem<VerificationStatus | 'all'> | undefined = useMemo(() => {
     return (
       options.find((option) => {
