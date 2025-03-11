@@ -1,4 +1,4 @@
-import type { ShareRequest } from '@/api/buster_socket/shared_interfaces';
+import type { ShareRequest } from '@/api/asset_interfaces/shared_interfaces';
 import type { ShareAssetType } from '../../asset_interfaces';
 
 export interface GetCollectionListParams {

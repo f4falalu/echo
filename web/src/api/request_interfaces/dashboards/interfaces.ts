@@ -1,6 +1,6 @@
 import type { DashboardConfig } from '@/api/asset_interfaces/dashboard';
 import { VerificationStatus } from '@/api/asset_interfaces/share';
-import { ShareRequest } from '@/api/asset_interfaces/shared_interfaces';
+import type { ShareRequest } from '@/api/asset_interfaces/shared_interfaces';
 
 /**
  * Interface for dashboard list request parameters
@@ -47,7 +47,7 @@ export interface DashboardCreateRequest {
 /**
  * Interface for updating a dashboard
  */
-export interface DashboardUpdateRequest extends ShareRequest {
+export type DashboardUpdateRequest = {
   /** The unique identifier of the dashboard */
   id: string;
   /** New name for the dashboard */
@@ -66,7 +66,7 @@ export interface DashboardUpdateRequest extends ShareRequest {
   remove_users?: string[];
   /** Array of metric IDs associated with the dashboard */
   metrics?: string[];
-}
+} & ShareRequest;
 
 /**
  * Interface for deleting dashboards

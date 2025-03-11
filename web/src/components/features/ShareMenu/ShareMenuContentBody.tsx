@@ -3,7 +3,6 @@ import React from 'react';
 import { validate } from 'email-validator';
 import { useMemoizedFn } from '@/hooks';
 import { BusterShare, ShareRole, ShareAssetType } from '@/api/asset_interfaces';
-import type { ShareRequest } from '@/api/buster_socket/shared_interfaces';
 import { Input } from '@/components/ui/inputs';
 import { Button } from '@/components/ui/buttons';
 import { Text } from '@/components/ui/typography';
@@ -20,7 +19,7 @@ import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { inputHasText } from '@/lib/text';
 import { UserGroup, ChevronRight } from '@/components/ui/icons';
 import { cn } from '@/lib/classMerge';
-import { UpdateMetricParams } from '@/api/buster_rest/metrics';
+import type { ShareRequest } from '@/api/asset_interfaces/shared_interfaces';
 
 export const ShareMenuContentBody: React.FC<{
   selectedOptions: ShareMenuTopBarOptions;

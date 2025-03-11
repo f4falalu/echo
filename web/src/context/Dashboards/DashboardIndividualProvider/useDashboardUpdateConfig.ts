@@ -14,8 +14,6 @@ export const useDashboardUpdateConfig = ({
 }: {
   getDashboardMemoized: (dashboardId: string) => BusterDashboardResponse | undefined;
 }) => {
-  const queryClient = useQueryClient();
-
   const { mutateAsync: updateDashboardMutation, isPending: isUpdatingDashboard } =
     useUpdateDashboard();
 

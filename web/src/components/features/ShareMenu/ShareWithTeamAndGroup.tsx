@@ -8,7 +8,6 @@ import {
   useBusterDashboardContextSelector,
   useBusterDashboardIndividual
 } from '@/context/Dashboards';
-import type { ShareRequest } from '@/api/buster_socket';
 import { useMemoizedFn } from '@/hooks';
 import { Text } from '@/components/ui/typography';
 import { UserGroup } from '@/components/ui/icons';
@@ -18,6 +17,7 @@ import {
   useBusterCollectionIndividualContextSelector,
   useCollectionIndividual
 } from '@/context/Collections';
+import type { ShareRequest } from '@/api/asset_interfaces/shared_interfaces';
 
 export const ShareWithGroupAndTeam: React.FC<{
   goBack: () => void;

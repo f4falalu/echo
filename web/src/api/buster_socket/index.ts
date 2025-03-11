@@ -19,5 +19,3 @@ export type BusterSocketResponseRoute =
   | keyof typeof SQLResponses
   | keyof typeof TermsResponses
   | keyof typeof ChatsResponses;
-
-export type * from './shared_interfaces';
