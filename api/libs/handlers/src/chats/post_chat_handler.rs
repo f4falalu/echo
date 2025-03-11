@@ -990,9 +990,9 @@ fn transform_tool_message(
     let messages = match name.as_str() {
         "search_data_catalog" => tool_data_catalog_search(id.clone(), content)?,
         "create_metrics" => tool_create_metrics(id.clone(), content)?,
-        "modify_metrics" => tool_modify_metrics(id.clone(), content)?,
+        "update_metrics" => tool_modify_metrics(id.clone(), content)?,
         "create_dashboards" => tool_create_dashboards(id.clone(), content)?,
-        "modify_dashboards" => tool_modify_dashboards(id.clone(), content)?,
+        "update_dashboards" => tool_modify_dashboards(id.clone(), content)?,
         "create_plan" => tool_create_plan(id.clone(), content)?,
         _ => return Err(anyhow::anyhow!("Unknown tool name: {}", name)),
     };
@@ -1361,7 +1361,7 @@ fn transform_assistant_tool_message(
                 progress.clone(),
                 initial,
             )?,
-            "modify_metrics" => assistant_modify_metrics(
+            "update_metrics" => assistant_modify_metrics(
                 tool_id,
                 tool_call.function.arguments.clone(),
                 progress.clone(),
@@ -1373,7 +1373,7 @@ fn transform_assistant_tool_message(
                 progress.clone(),
                 initial,
             )?,
-            "modify_dashboards" => assistant_modify_dashboards(
+            "update_dashboards" => assistant_modify_dashboards(
                 tool_id,
                 tool_call.function.arguments.clone(),
                 progress.clone(),

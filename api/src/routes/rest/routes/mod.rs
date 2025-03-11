@@ -11,6 +11,7 @@ mod organizations;
 mod permission_groups;
 mod sql;
 mod users;
+mod collections;
 
 use axum::{middleware as axum_middleware, Router};
 
@@ -31,6 +32,7 @@ pub fn router() -> Router {
             .nest("/metrics", metrics::router())
             .nest("/dashboards", dashboards::router())
             .nest("/users", users::router())
+            .nest("/collections", collections::router())
             .route_layer(axum_middleware::from_fn(auth)),
     )
 }
