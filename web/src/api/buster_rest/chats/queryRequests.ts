@@ -8,25 +8,18 @@ import {
   updateChat,
   deleteChat
 } from './requests';
-import type { BusterChatListItem, IBusterChat } from '@/api/asset_interfaces/chat';
+import type { IBusterChat } from '@/api/asset_interfaces/chat';
 import { queryKeys } from '@/api/query_keys';
 import { updateChatToIChat } from '@/lib/chat';
 import { RustApiError } from '@/api/buster_rest/errors';
 
 export const useGetListChats = (params?: Parameters<typeof getListChats>[0]) => {
-  const queryFn = useMemoizedFn((): Promise<BusterChatListItem[]> => {
-    return getListChats(params);
-  });
+  const queryFn = useMemoizedFn(() => getListChats(params));
 
-  const res = useQuery({
+  return useQuery({
     ...queryKeys.chatsGetList(params),
     queryFn
   });
-
-  return {
-    ...res,
-    data: res.data || []
-  };
 };
 
 export const prefetchGetListChats = async (

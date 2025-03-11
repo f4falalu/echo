@@ -12,10 +12,8 @@ export const useBusterChatListByFilter = (
 
   const { data: chatsList, isFetched: isFetchedChatsList } = useGetListChats(filters);
 
-  //ACTIONS
-
   return {
-    list: chatsList || [],
+    list: chatsList,
     isFetched: isFetchedChatsList
   };
 };
