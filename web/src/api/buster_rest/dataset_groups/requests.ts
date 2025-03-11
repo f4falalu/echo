@@ -27,8 +27,8 @@ export const updateDatasetGroup = async (data: UpdateDatasetGroupRequest[]) => {
   return mainApi.put(`/dataset_groups`, data).then((res) => res.data);
 };
 
-export const deleteDatasetGroup = async (id: string) => {
-  return mainApi.delete(`/dataset_groups/${id}`).then((res) => res.data);
+export const deleteDatasetGroup = async (ids: string[]) => {
+  return mainApi.delete(`/dataset_groups`, { data: { ids } }).then((res) => res.data);
 };
 
 export const getDatasetGroup = async (id: string) => {
@@ -71,20 +71,34 @@ export const getDatasetGroupPermissionGroups_server = async (id: string) => {
   );
 };
 
-export const updateDatasetGroupUsers = async (id: string, data: UpdateDatasetGroupUsersRequest) => {
-  return mainApi.put(`/dataset_groups/${id}/users`, data).then((res) => res.data);
+export const updateDatasetGroupUsers = async ({
+  datasetGroupId,
+  data
+}: {
+  datasetGroupId: string;
+  data: UpdateDatasetGroupUsersRequest;
+}) => {
+  return mainApi.put(`/dataset_groups/${datasetGroupId}/users`, data).then((res) => res.data);
 };
 
-export const updateDatasetGroupDatasets = async (
-  id: string,
-  data: UpdateDatasetGroupDatasetsRequest
-) => {
-  return mainApi.put(`/dataset_groups/${id}/datasets`, data).then((res) => res.data);
+export const updateDatasetGroupDatasets = async ({
+  datasetGroupId,
+  groups
+}: {
+  datasetGroupId: string;
+  groups: UpdateDatasetGroupDatasetsRequest;
+}) => {
+  return mainApi.put(`/dataset_groups/${datasetGroupId}/datasets`, groups).then((res) => res.data);
 };
 
-export const updateDatasetGroupPermissionGroups = async (
-  id: string,
-  data: UpdateDatasetGroupPermissionGroupsRequest
-) => {
-  return mainApi.put(`/dataset_groups/${id}/permission_groups`, data).then((res) => res.data);
+export const updateDatasetGroupPermissionGroups = async ({
+  datasetGroupId,
+  data
+}: {
+  datasetGroupId: string;
+  data: UpdateDatasetGroupPermissionGroupsRequest;
+}) => {
+  return mainApi
+    .put(`/dataset_groups/${datasetGroupId}/permission_groups`, data)
+    .then((res) => res.data);
 };

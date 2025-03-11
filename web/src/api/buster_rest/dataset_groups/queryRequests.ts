@@ -36,34 +36,27 @@ export const useListDatasetGroups = () => {
 
 export const useDeleteDatasetGroup = () => {
   const queryClient = useQueryClient();
-  const mutationFn = useMemoizedFn(async (id: string) => {
-    const res = await deleteDatasetGroup(id);
-    queryClient.invalidateQueries({
-      queryKey: queryKeys.datasetGroupsList.queryKey,
-      exact: true
-    });
-
-    return res;
-  });
-
   return useMutation({
-    mutationFn
+    mutationFn: deleteDatasetGroup,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.datasetGroupsList.queryKey,
+        exact: true
+      });
+    }
   });
 };
 
 export const useUpdateDatasetGroup = () => {
   const queryClient = useQueryClient();
-  const mutationFn = useMemoizedFn(async (data: Parameters<typeof updateDatasetGroup>[0]) => {
-    const res = await updateDatasetGroup(data);
-    queryClient.invalidateQueries({
-      queryKey: queryKeys.datasetGroupsList.queryKey,
-      exact: true
-    });
-    return res;
-  });
-
   return useMutation({
-    mutationFn
+    mutationFn: updateDatasetGroup,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.datasetGroupsList.queryKey,
+        exact: true
+      });
+    }
   });
 };
 
@@ -195,39 +188,34 @@ export const prefetchDatasetGroupPermissionGroups = async (
   return queryClient;
 };
 
-export const useUpdateDatasetGroupUsers = (datasetGroupId: string) => {
+export const useUpdateDatasetGroupUsers = () => {
   const queryClient = useQueryClient();
-  const mutationFn = useMemoizedFn((data: { id: string; assigned: boolean }[]) => {
-    queryClient.setQueryData(
-      queryKeys.datasetGroupsGetUsers(datasetGroupId).queryKey,
-      (oldData: GetDatasetGroupUsersResponse[] | undefined) => {
-        if (!oldData) return [];
-        return oldData.map((user) => {
-          const userToUpdate = data.find((d) => d.id === user.id);
-          if (userToUpdate) {
-            return { ...user, assigned: userToUpdate.assigned };
-          }
-          return user;
-        });
-      }
-    );
-    return updateDatasetGroupUsers(datasetGroupId, data);
-  });
   return useMutation({
-    mutationFn
+    mutationFn: updateDatasetGroupUsers,
+    onMutate: ({ data, datasetGroupId }) => {
+      queryClient.setQueryData(
+        queryKeys.datasetGroupsGetUsers(datasetGroupId).queryKey,
+        (oldData: GetDatasetGroupUsersResponse[] | undefined) => {
+          if (!oldData) return [];
+          return oldData.map((user) => {
+            const userToUpdate = data.find((d) => d.id === user.id);
+            if (userToUpdate) {
+              return { ...user, assigned: userToUpdate.assigned };
+            }
+            return user;
+          });
+        }
+      );
+    }
   });
 };
 
 export const useUpdateDatasetGroupDatasets = () => {
   const queryClient = useQueryClient();
-  const mutationFn = useMemoizedFn(
-    ({
-      datasetGroupId,
-      groups
-    }: {
-      datasetGroupId: string;
-      groups: { id: string; assigned: boolean }[];
-    }) => {
+
+  return useMutation({
+    mutationFn: updateDatasetGroupDatasets,
+    onMutate: ({ groups, datasetGroupId }) => {
       queryClient.setQueryData(
         queryKeys.datasetGroupsGetDatasets(datasetGroupId).queryKey,
         (oldData: GetDatasetGroupDatasetsResponse[] | undefined) => {
@@ -241,33 +229,29 @@ export const useUpdateDatasetGroupDatasets = () => {
           });
         }
       );
-      return updateDatasetGroupDatasets(datasetGroupId, groups);
     }
-  );
-  return useMutation({
-    mutationFn
   });
 };
 
-export const useUpdateDatasetGroupPermissionGroups = (datasetGroupId: string) => {
+export const useUpdateDatasetGroupPermissionGroups = () => {
   const queryClient = useQueryClient();
-  const mutationFn = useMemoizedFn((data: { id: string; assigned: boolean }[]) => {
-    queryClient.setQueryData(
-      queryKeys.datasetGroupsGetPermissionGroups(datasetGroupId).queryKey,
-      (oldData: GetDatasetGroupPermissionGroupsResponse[] | undefined) => {
-        if (!oldData) return [];
-        return oldData.map((permissionGroup) => {
-          const permissionGroupToUpdate = data.find((d) => d.id === permissionGroup.id);
-          if (permissionGroupToUpdate) {
-            return { ...permissionGroup, assigned: permissionGroupToUpdate.assigned };
-          }
-          return permissionGroup;
-        });
-      }
-    );
-    return updateDatasetGroupPermissionGroups(datasetGroupId, data);
-  });
+
   return useMutation({
-    mutationFn
+    mutationFn: updateDatasetGroupPermissionGroups,
+    onMutate: ({ data, datasetGroupId }) => {
+      queryClient.setQueryData(
+        queryKeys.datasetGroupsGetPermissionGroups(datasetGroupId).queryKey,
+        (oldData: GetDatasetGroupPermissionGroupsResponse[] | undefined) => {
+          if (!oldData) return [];
+          return oldData.map((permissionGroup) => {
+            const permissionGroupToUpdate = data.find((d) => d.id === permissionGroup.id);
+            if (permissionGroupToUpdate) {
+              return { ...permissionGroup, assigned: permissionGroupToUpdate.assigned };
+            }
+            return permissionGroup;
+          });
+        }
+      );
+    }
   });
 };

@@ -1,8 +1,4 @@
-import {
-  updatePermissionGroupDatasetGroups,
-  useUpdateDatasetGroupPermissionGroups,
-  useUpdatePermissionGroupDatasetGroups
-} from '@/api/buster_rest';
+import { useUpdateDatasetGroupPermissionGroups } from '@/api/buster_rest';
 import { PermissionAssignedButton } from '@/components/features/PermissionComponents';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { useMemoizedFn } from '@/hooks';
@@ -13,11 +9,13 @@ export const DatasetGroupDatasetGroupSelectedPopup: React.FC<{
   onSelectChange: (selectedRowKeys: string[]) => void;
   datasetGroupId: string;
 }> = React.memo(({ selectedRowKeys, onSelectChange, datasetGroupId }) => {
-  const { mutateAsync: updateDatasetGroupDatasetGroups } =
-    useUpdateDatasetGroupPermissionGroups(datasetGroupId);
+  const { mutateAsync: updateDatasetGroupDatasetGroups } = useUpdateDatasetGroupPermissionGroups();
 
-  const onSelectAssigned = useMemoizedFn(async (params: { id: string; assigned: boolean }[]) => {
-    await updateDatasetGroupDatasetGroups(params);
+  const onSelectAssigned = useMemoizedFn(async (data: { id: string; assigned: boolean }[]) => {
+    await updateDatasetGroupDatasetGroups({
+      datasetGroupId,
+      data
+    });
   });
 
   return (

@@ -24,10 +24,13 @@ export const DatasetGroupUsersListContainer: React.FC<{
   datasetGroupId: string;
 }> = React.memo(({ filteredUsers, datasetGroupId }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
-  const { mutateAsync: updateDatasetGroupUsers } = useUpdateDatasetGroupUsers(datasetGroupId);
+  const { mutateAsync: updateDatasetGroupUsers } = useUpdateDatasetGroupUsers();
 
   const onSelectAssigned = useMemoizedFn(async (params: { id: string; assigned: boolean }) => {
-    await updateDatasetGroupUsers([params]);
+    await updateDatasetGroupUsers({
+      datasetGroupId,
+      data: [params]
+    });
   });
 
   const columns: BusterListColumn[] = useMemo(
