@@ -20,7 +20,7 @@ export const AppNoPageAccess: React.FC<{
     <div className="flex h-[85vh] w-full flex-col items-center justify-center space-y-6">
       <BusterLogo className="h-16 w-16" />
 
-      <div className="max-w-[340px] text-center">
+      <div className="max-w-[440px] text-center">
         <Title
           as="h2"
           className="text-center">{`It looks like you don’t have access to this file...`}</Title>

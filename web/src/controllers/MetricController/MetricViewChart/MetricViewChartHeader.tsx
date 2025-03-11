@@ -19,7 +19,7 @@ export const MetricViewChartHeader: React.FC<{
           <EditableTitle level={4} className="mb-0" inputClassName="text-md!" onChange={onSetTitle}>
             {title}
           </EditableTitle>
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-1 whitespace-nowrap">
             {!!timeFrame && (
               <>
                 <Text size={'sm'} variant="secondary">

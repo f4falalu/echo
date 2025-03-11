@@ -13,10 +13,11 @@ export default function Page(params: { params: { chatId: string } }) {
   }
 
   return (
-    <StatusCard
-      className="text-red-500"
-      title="Error"
-      message="If you are seeing this, tell Nate and screenshot this whole page including the URL and logs..."
-    />
+    <div className="p-5">
+      <StatusCard
+        title="Error"
+        message="If you are seeing this, tell Nate and screenshot this whole page including the URL and logs..."
+      />
+    </div>
   );
 }

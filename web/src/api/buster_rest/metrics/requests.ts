@@ -9,16 +9,20 @@ import type {
 
 export const getMetric = async ({ id, password }: GetMetricParams) => {
   return mainApi
-    .get<BusterMetric>(`/metrics/get`, {
+    .get<BusterMetric>(`/metrics/${id}`, {
       params: { id, ...(password && { password }) }
     })
     .then((res) => res.data);
 };
 
 export const getMetric_server = async ({ id, password }: GetMetricParams) => {
-  return await serverFetch<BusterMetric>(`/metrics/get`, {
-    params: { id, ...(password && { password }) }
+  return await serverFetch<BusterMetric>(`/metrics/${id}`, {
+    params: { ...(password && { password }) }
   });
+};
+
+export const getMetricData = async ({ id }: { id: string }) => {
+  return mainApi.get<BusterMetricData>(`/metrics/${id}/data`).then((res) => res.data);
 };
 
 export const listMetrics = async (params: ListMetricsParams) => {
@@ -27,10 +31,6 @@ export const listMetrics = async (params: ListMetricsParams) => {
 
 export const listMetrics_server = async (params: ListMetricsParams) => {
   return await serverFetch<BusterMetricListItem[]>('/metrics/list', { params });
-};
-
-export const getMetricData = async ({ id }: { id: string }) => {
-  return mainApi.get<BusterMetricData>(`/metrics/${id}/data`).then((res) => res.data);
 };
 
 export const updateMetric = async (params: UpdateMetricParams) => {

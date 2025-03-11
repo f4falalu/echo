@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { CollapseFileButton } from './CollapseFileButton';
-import type { FileType } from '@/api/asset_interfaces';
+import type { FileType } from '@/api/asset_interfaces/chat';
 import { FileContainerSegmentProps, FileContainerButtonsProps } from './interfaces';
 import { DashboardContainerHeaderButtons } from './DashboardContainerHeaderButtons';
 import { DashboardContainerHeaderSegment } from './DashboardContainerHeaderSegment';
@@ -15,8 +15,6 @@ export const FileContainerHeader: React.FC = React.memo(() => {
   const selectedFileType = useChatLayoutContextSelector((x) => x.selectedFileType);
   const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView);
   const onCollapseFileClick = useChatLayoutContextSelector((state) => state.onCollapseFileClick);
-  const collapseDirection = useChatLayoutContextSelector((state) => state.collapseDirection);
-  const isCollapseOpen = useChatLayoutContextSelector((state) => state.isCollapseOpen);
   const renderViewLayoutKey = useChatLayoutContextSelector((state) => state.renderViewLayoutKey);
 
   const showCollapseButton = renderViewLayoutKey !== 'file';
@@ -33,7 +31,7 @@ export const FileContainerHeader: React.FC = React.memo(() => {
     () =>
       selectedFileType && SelectedFileButtonsRecord[selectedFileType]
         ? SelectedFileButtonsRecord[selectedFileType]
-        : () => <>no buttons</>,
+        : () => null,
     [selectedFileType]
   );
 
@@ -41,9 +39,7 @@ export const FileContainerHeader: React.FC = React.memo(() => {
     <>
       <div className="flex items-center gap-1.5">
         <CollapseFileButton
-          collapseDirection={collapseDirection}
           showCollapseButton={showCollapseButton}
-          isOpen={isCollapseOpen}
           onCollapseFileClick={onCollapseFileClick}
         />
         {selectedFileView && <SelectedFileSegment selectedFileView={selectedFileView} />}

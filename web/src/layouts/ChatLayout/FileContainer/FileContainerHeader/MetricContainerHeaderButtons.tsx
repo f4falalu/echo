@@ -11,6 +11,7 @@ import { useMetricIndividual } from '@/context/Metrics';
 import { SaveMetricToCollectionButton } from '../../../../components/features/buttons/SaveMetricToCollectionButton';
 import { SaveMetricToDashboardButton } from '../../../../components/features/buttons/SaveMetricToDashboardButton';
 import { ShareMetricButton } from '../../../../components/features/buttons/ShareMetricButton';
+import { Code3, SquareChartPen } from '@/components/ui/icons';
 
 export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(() => {
   const renderViewLayoutKey = useChatLayoutContextSelector((x) => x.renderViewLayoutKey);
@@ -52,7 +53,7 @@ const EditChartButton = React.memo(() => {
   return (
     <SelectableButton
       tooltipText="Edit chart"
-      icon="chart_edit"
+      icon={<SquareChartPen />}
       onClick={onClickButton}
       selected={isSelectedView}
     />
@@ -76,7 +77,7 @@ const EditSQLButton = React.memo(() => {
   return (
     <SelectableButton
       tooltipText="Edit SQL"
-      icon="code_blocks"
+      icon={<Code3 />}
       onClick={onClickButton}
       selected={isSelectedView}
     />

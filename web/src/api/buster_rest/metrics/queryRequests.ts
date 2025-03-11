@@ -14,24 +14,34 @@ import type { GetMetricParams, ListMetricsParams } from './interfaces';
 import { upgradeMetricToIMetric } from '@/lib/chat';
 import { queryKeys } from '@/api/query_keys';
 import { useMemo } from 'react';
+import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 
 export const useGetMetric = (params: GetMetricParams) => {
+  const queryClient = useQueryClient();
+  const setAssetPasswordError = useBusterAssetsContextSelector(
+    (state) => state.setAssetPasswordError
+  );
+
   const queryFn = useMemoizedFn(async () => {
     const result = await getMetric(params);
-    return upgradeMetricToIMetric(result, null);
+    const oldMetric = queryClient.getQueryData(queryKeys.metricsGetMetric(params.id).queryKey);
+    return upgradeMetricToIMetric(result, oldMetric || null);
   });
 
   return useQuery({
-    ...queryKeys.useMetricsGetMetric(params.id),
-    queryFn,
-    enabled: false //this is handle via a socket query? maybe it should not be?
+    ...queryKeys.metricsGetMetric(params.id),
+    throwOnError: (error, query) => {
+      setAssetPasswordError(params.id, error.message || 'An error occurred');
+      return false;
+    },
+    queryFn
   });
 };
 
 export const prefetchGetMetric = async (params: GetMetricParams, queryClientProp?: QueryClient) => {
   const queryClient = queryClientProp || new QueryClient();
   await queryClient.prefetchQuery({
-    ...queryKeys.useMetricsGetMetric(params.id),
+    ...queryKeys.metricsGetMetric(params.id),
     queryFn: async () => {
       const result = await getMetric_server(params);
       return upgradeMetricToIMetric(result, null);

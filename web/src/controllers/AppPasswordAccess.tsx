@@ -63,7 +63,7 @@ const AppPasswordInputComponent: React.FC<{
       style={{
         marginTop: '25vh'
       }}>
-      <div className="flex max-w-[340px] flex-col items-center space-y-6">
+      <div className="flex max-w-[440px] flex-col items-center space-y-6">
         <BusterLogo className="h-16 w-16" />
 
         <div className="text-center">

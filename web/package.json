@@ -70,7 +70,7 @@
     "prettier-plugin-tailwindcss": "^0.6.11",
     "react": "^18",
     "react-color": "^2.19.3",
-    "react-data-grid": "^7.0.0-beta.48",
+    "react-data-grid": "^7.0.0-beta.47",
     "react-day-picker": "^9.6.1",
     "react-dom": "^18",
     "react-hotkeys-hook": "^4.6.1",

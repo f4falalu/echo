@@ -35,7 +35,6 @@ import {
   defaultHeaderFormat,
   MIN_WIDTH
 } from './helpers';
-import styles from './AppDataGrid.module.css';
 
 type Row = Record<string, string | number | null | Date>;
 
@@ -339,6 +338,19 @@ export const AppDataGrid: React.FC<AppDataGridProps> = React.memo(
       });
     });
 
+    const columnsX = [
+      { key: 'id', name: 'ID' },
+      { key: 'title', name: 'Title' }
+    ];
+
+    const rowsX = [
+      { id: 0, title: 'Example' },
+      { id: 1, title: 'Demo' }
+    ];
+
+    console.log('columnsX', columnsX);
+    console.log('rowsX', rowsX);
+
     return (
       <React.Fragment key={forceRenderId}>
         <ErrorBoundary onError={handleErrorBoundary}>
@@ -348,7 +360,9 @@ export const AppDataGrid: React.FC<AppDataGridProps> = React.memo(
             style={{
               transition: animate ? 'opacity 0.25s' : undefined
             }}>
-            <DataGrid
+            <DataGrid columns={columnsX} rows={rowsX} />
+
+            {/* <DataGrid
               className={styles.dataGrid}
               columns={reorderedColumns}
               rows={sortedRows}
@@ -363,7 +377,7 @@ export const AppDataGrid: React.FC<AppDataGridProps> = React.memo(
               onColumnsReorder={onColumnsReorder}
               defaultColumnOptions={DEFAULT_COLUMN_WIDTH}
               direction={'ltr'}
-            />
+            /> */}
             <div style={{ width: '100%' }}></div>
           </div>
         </ErrorBoundary>
