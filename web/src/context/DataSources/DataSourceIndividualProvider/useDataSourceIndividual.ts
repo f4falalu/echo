@@ -1,15 +1,7 @@
-import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
-import { queryKeys } from '@/api/query_keys';
+import { useGetDatasource } from '@/api/buster_rest/datasource';
 
 export const useDataSourceIndividual = (id: string) => {
-  const { data: dataSource, isFetched: isFetchedDataSource } = useSocketQueryEmitOn({
-    emitEvent: {
-      route: '/data_sources/get',
-      payload: { id }
-    },
-    responseEvent: '/data_sources/get:getDataSource',
-    options: queryKeys.datasourceGet(id)
-  });
+  const { data: dataSource, isFetched: isFetchedDataSource } = useGetDatasource(id);
 
   return {
     dataSource,

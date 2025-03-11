@@ -1,26 +1,15 @@
 'use client';
 
 import React from 'react';
-import { useSocketQueryEmitOn } from '@/api/buster_socket_query';
-import { queryKeys } from '@/api/query_keys';
 import { createContext, useContextSelector } from 'use-context-selector';
+import { useListDatasources } from '@/api/buster_rest/datasource';
 
 export const useDataSourceList = () => {
   const {
     data: dataSourcesList,
     isFetched: isFetchedDatasourcesList,
     refetch: refetchDatasourcesList
-  } = useSocketQueryEmitOn({
-    emitEvent: {
-      route: '/data_sources/list',
-      payload: {
-        page_size: 1000,
-        page: 0
-      }
-    },
-    responseEvent: '/data_sources/list:listDataSources',
-    options: queryKeys.datasourceGetList
-  });
+  } = useListDatasources();
 
   return {
     dataSourcesList,

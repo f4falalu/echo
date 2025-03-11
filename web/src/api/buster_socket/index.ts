@@ -1,7 +1,6 @@
 import type { SQLEmits, SQLResponses, SQLResponsesTypes } from './sql';
 import type { UserEmits, UserResponses, UserResponsesTypes } from './user';
 import type { TeamEmits, TeamResponses, TeamResponsesTypes } from './teams';
-import type { DatasourceResponseTypes, DatasourceResponses, DatasourceEmits } from './datasources';
 import type { TermsEmits, TermsResponses, TermsResponseTypes } from './terms';
 import type { BusterSearchEmits, SearchResponses, SearchResponseTypes } from './search';
 import type {
@@ -14,7 +13,6 @@ import type { ChatEmits, ChatResponseTypes, ChatsResponses } from './chats';
 export type BusterSocketRequest =
   | UserEmits
   | TeamEmits
-  | DatasourceEmits
   | SQLEmits
   | TermsEmits
   | BusterSearchEmits
@@ -24,7 +22,6 @@ export type BusterSocketRequest =
 export type BusterSocketResponse =
   | UserResponsesTypes
   | TeamResponsesTypes
-  | DatasourceResponseTypes
   | SQLResponsesTypes
   | TermsResponseTypes
   | SearchResponseTypes
@@ -34,7 +31,6 @@ export type BusterSocketResponse =
 export type BusterSocketResponseRoute =
   | keyof typeof UserResponses
   | keyof typeof TeamResponses
-  | keyof typeof DatasourceResponses
   | keyof typeof SQLResponses
   | keyof typeof TermsResponses
   | keyof typeof SearchResponses
