@@ -7,7 +7,6 @@ use uuid::Uuid;
 use serde::Deserialize;
 
 use database::pool::get_sqlx_pool;
-use database::models::User;
 use middleware::AuthenticatedUser;
 use crate::routes::ws::ws::WsSendMethod;
 use crate::utils::search_engine::search_engine::{

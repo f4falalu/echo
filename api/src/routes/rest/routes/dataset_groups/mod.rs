@@ -6,12 +6,10 @@ mod post_dataset_group;
 mod put_dataset_group;
 
 use axum::{
-    middleware as axum_middleware,
     routing::{delete, get, post, put},
     Router,
 };
 
-use middleware::auth;
 
 use self::{
     delete_dataset_group::delete_dataset_group, get_dataset_group::get_dataset_group,

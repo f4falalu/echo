@@ -9,7 +9,6 @@ use serde::{Deserialize, Serialize};
 
 use database::{enums::DatasetType,
         pool::get_pg_pool,
-        models::User,
         schema::{dataset_columns, datasets},};
 use crate::{
     routes::ws::{

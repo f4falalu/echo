@@ -10,7 +10,7 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 
 use database::{
-    enums::UserOrganizationRole, models::{ColumnMetadata, DataMetadataJsonBody, MinMaxValue, User}, pool::get_pg_pool, schema::{data_sources, datasets, users_to_organizations}
+    enums::UserOrganizationRole, models::{ColumnMetadata, DataMetadataJsonBody, MinMaxValue}, pool::get_pg_pool, schema::{data_sources, datasets, users_to_organizations}
 };
 
 use middleware::AuthenticatedUser;

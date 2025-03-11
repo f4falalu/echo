@@ -1,4 +1,3 @@
-use database::models::User;
 use crate::routes::rest::ApiResponse;
 use axum::extract::Path;
 use axum::http::StatusCode;

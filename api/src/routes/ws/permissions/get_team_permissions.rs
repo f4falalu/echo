@@ -3,7 +3,6 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use database::models::User;
 
 use crate::{
     routes::ws::{

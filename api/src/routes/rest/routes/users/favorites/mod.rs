@@ -1,13 +1,7 @@
 use axum::{
-    extract::{Json, Path, State},
     routing::{get, post, put, delete},
     Router,
 };
-use uuid::Uuid;
-use handlers::favorites::{
-    FavoriteEnum, FavoriteIdAndType, UserFavoritesReq
-};
-use middleware::AuthenticatedUser;
 
 // Import handlers
 mod list_favorites;

@@ -9,7 +9,6 @@ use serde::{Deserialize, Serialize};
 
 use database::{enums::AssetPermissionRole,
         pool::get_pg_pool,
-        models::User,
         schema::dashboards,};
 use crate::{
     routes::ws::{

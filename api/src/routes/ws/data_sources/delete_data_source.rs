@@ -18,7 +18,6 @@ use crate::{
 };
 use database::{
     enums::UserOrganizationRole,
-    models::User,
     pool::get_pg_pool,
     schema::{data_sources, users_to_organizations},
     vault::delete_secret,

@@ -9,7 +9,7 @@ use uuid::Uuid;
 
 use middleware::AuthenticatedUser;
 use database::{pool::get_pg_pool,
-        models::{TermToDataset, User},
+        models::TermToDataset,
         schema::{terms, terms_to_datasets},};
 use crate::{
     routes::ws::{

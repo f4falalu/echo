@@ -22,7 +22,7 @@ use crate::{
         query_engine::{data_types::DataType, query_engine::query_engine},
     },
 };
-use database::models::{StepProgress, User};
+use database::models::StepProgress;
 
 use super::{
     messages_utils::get_message_with_permission,

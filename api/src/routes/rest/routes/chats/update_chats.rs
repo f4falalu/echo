@@ -2,7 +2,6 @@ use anyhow::Result;
 use axum::http::StatusCode;
 use axum::Extension;
 use axum::Json;
-use database::models::User;
 use handlers::chats::update_chats_handler::{ChatUpdate, ChatUpdateResult};
 use handlers::chats::update_chats_handler;
 use middleware::AuthenticatedUser;

@@ -5,7 +5,6 @@ use std::sync::Arc;
 
 use uuid::Uuid;
 
-use database::models::User;
 
 use crate::{
     routes::ws::{

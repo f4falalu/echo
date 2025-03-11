@@ -10,7 +10,6 @@ use serde::{Deserialize, Serialize};
 
 use database::{enums::IdentityType,
         pool::get_pg_pool,
-        models::User,
         schema::{permission_groups_to_identities, teams, teams_to_users},};
 use crate::{
     routes::ws::{

@@ -10,7 +10,6 @@ use uuid::Uuid;
 
 use database::{enums::IdentityType,
         pool::get_pg_pool,
-        models::User,
         schema::{
             datasets_to_permission_groups, permission_groups, permission_groups_to_identities,
             teams, teams_to_users, users,

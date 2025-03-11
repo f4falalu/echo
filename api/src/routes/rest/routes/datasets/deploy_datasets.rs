@@ -1,11 +1,10 @@
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use axum::{extract::Json, Extension};
 use chrono::{DateTime, Utc};
-use diesel::{upsert::excluded, ExpressionMethods, QueryDsl, SelectableHelper};
+use diesel::{upsert::excluded, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
-use serde_yaml;
 use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
 use middleware::AuthenticatedUser;
@@ -14,22 +13,18 @@ use crate::{
     database::{
         enums::DatasetType,
         pool::get_pg_pool,
-        models::{DataSource, Dataset, DatasetColumn, EntityRelationship, User},
-        schema::{data_sources, dataset_columns, datasets, entity_relationship},
+        models::{DataSource, Dataset, DatasetColumn},
+        schema::{data_sources, dataset_columns, datasets},
     },
     routes::rest::ApiResponse,
     utils::{
-        dataset::column_management::{get_column_types, update_dataset_columns},
         query_engine::{
             credentials::get_data_source_credentials,
-            import_dataset_columns::{retrieve_dataset_columns, retrieve_dataset_columns_batch},
-            write_query_engine::write_query_engine,
+            import_dataset_columns::retrieve_dataset_columns_batch,
         },
         security::checks::is_user_workspace_admin_or_data_admin,
-        stored_values::{process_stored_values_background, store_column_values, StoredValueColumn},
         user::user_info::get_user_organization_id,
-        validation::{dataset_validation::validate_model, ValidationError, ValidationResult},
-        ColumnUpdate, ValidationErrorType,
+        validation::{ValidationError, ValidationResult},
     },
 };
 

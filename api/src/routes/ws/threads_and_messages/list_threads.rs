@@ -10,7 +10,6 @@ use uuid::Uuid;
 
 use database::{enums::{AssetType, IdentityType, Verification},
         pool::get_pg_pool,
-        models::User,
         schema::{
             asset_permissions, datasets, messages_deprecated, teams_to_users, threads_deprecated, users,
         },};

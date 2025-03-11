@@ -7,7 +7,6 @@ use serde::Deserialize;
 use uuid::Uuid;
 
 use database::{pool::get_pg_pool,
-        models::User,
         schema::user_favorites,};
 use crate::{
     routes::ws::{

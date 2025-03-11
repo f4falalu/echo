@@ -24,7 +24,7 @@ use crate::{
 };
 use database::{
     enums::{DataSourceOnboardingStatus, DataSourceType, UserOrganizationRole},
-    models::{DataSource, User},
+    models::DataSource,
     pool::get_pg_pool,
     schema::{data_sources, users_to_organizations},
     vault::create_secret,

@@ -9,7 +9,6 @@ use uuid::Uuid;
 
 use database::enums::IdentityType;
 use database::pool::get_pg_pool;
-use database::models::User;
 use database::schema::{
     dataset_permissions, permission_groups, permission_groups_to_identities,
 };

@@ -28,7 +28,7 @@ use crate::{
 use database::{
     enums::{AssetPermissionRole, AssetType, IdentityType},
     models::StepProgress,
-    models::{AssetPermission, MessageDeprecated, User},
+    models::{AssetPermission, MessageDeprecated},
     pool::get_pg_pool,
     schema::{asset_permissions, messages_deprecated, threads_deprecated},
 };

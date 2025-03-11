@@ -10,7 +10,6 @@ use uuid::Uuid;
 
 use database::{enums::{AssetPermissionRole, MessageFeedback, Verification},
         pool::get_pg_pool,
-        models::User,
         schema::{messages_deprecated, threads_deprecated},};
 use crate::{
     routes::ws::{

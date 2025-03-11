@@ -15,7 +15,6 @@ use database::schema::{
 use database::{
     enums::{UserOrganizationRole, UserOrganizationStatus},
     pool::get_pg_pool,
-    models::User,
     schema::{users, users_to_organizations},
 };
 use crate::routes::rest::ApiResponse;

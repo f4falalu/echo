@@ -7,7 +7,6 @@ use uuid::Uuid;
 use middleware::AuthenticatedUser;
 
 use database::{pool::get_pg_pool,
-        models::User,
         schema::datasets,};
 use crate::{
     routes::ws::{

@@ -1,5 +1,5 @@
 use axum::{
-    extract::{Query, State},
+    extract::Query,
     http::StatusCode,
     Extension, Json,
 };
@@ -7,7 +7,6 @@ use handlers::collections::{
     list_collections_handler, ListCollectionsCollection, ListCollectionsRequest,
 };
 use middleware::AuthenticatedUser;
-use uuid::Uuid;
 
 /// List collections
 ///

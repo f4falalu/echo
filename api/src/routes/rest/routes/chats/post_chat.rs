@@ -7,7 +7,6 @@ use handlers::chats::post_chat_handler::ChatCreateNewChat;
 use handlers::chats::types::ChatWithMessages;
 use middleware::AuthenticatedUser;
 
-use crate::database::models::User;
 use crate::routes::rest::ApiResponse;
 
 pub async fn post_chat_route(

@@ -1,6 +1,6 @@
 use axum::{extract::Query, http::StatusCode, Extension};
 use handlers::logs::list_logs_handler::{
-    list_logs_handler, ListLogsRequest, ListLogsResponse, LogListItem,
+    list_logs_handler, ListLogsRequest, LogListItem,
 };
 use middleware::AuthenticatedUser;
 use serde::Deserialize;

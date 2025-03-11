@@ -3,7 +3,6 @@ use axum::{
     http::StatusCode,
     Extension,
 };
-use database::models::User;
 use handlers::metrics::{get_metric_handler, BusterMetric};
 use uuid::Uuid;
 use middleware::AuthenticatedUser;

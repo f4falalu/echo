@@ -11,7 +11,7 @@ use uuid::Uuid;
 
 use database::enums::TeamToUserRole;
 use database::pool::get_pg_pool;
-use database::models::{TeamToUser, User};
+use database::models::TeamToUser;
 use database::schema::teams_to_users;
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;

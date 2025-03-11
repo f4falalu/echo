@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 use database::{enums::{IdentityType, SharingSetting, TeamToUserRole},
         pool::get_pg_pool,
-        models::{PermissionGroupToIdentity, TeamToUser, User},
+        models::{PermissionGroupToIdentity, TeamToUser},
         schema::{permission_groups_to_identities, teams, teams_to_users},};
         use middleware::AuthenticatedUser;
 use crate::{

@@ -3,7 +3,6 @@ use axum::{
     Router,
 };
 
-use middleware::auth;
 
 mod assets;
 mod favorites;

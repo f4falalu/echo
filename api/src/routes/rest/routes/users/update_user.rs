@@ -3,7 +3,6 @@ use axum::extract::Path;
 use axum::{Extension, Json};
 
 use database::enums::UserOrganizationStatus;
-use database::models::User;
 use database::schema::{users, users_to_organizations};
 use database::{enums::UserOrganizationRole, pool::get_pg_pool};
 use crate::routes::rest::ApiResponse;

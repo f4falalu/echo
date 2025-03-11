@@ -23,7 +23,6 @@ use crate::{
 };
 use database::{
     enums::{DataSourceType, UserOrganizationRole},
-    models::User,
     pool::get_pg_pool,
     schema::{data_sources, users_to_organizations},
     vault::update_secret,

@@ -13,7 +13,7 @@ use uuid::Uuid;
 
 use database::{
     enums::AssetType,
-    models::{MessageDeprecated, ThreadToDashboard, User},
+    models::{MessageDeprecated, ThreadToDashboard},
     pool::get_pg_pool,
     schema::{messages_deprecated, threads_deprecated, threads_to_dashboards},
     vault::create_secret,

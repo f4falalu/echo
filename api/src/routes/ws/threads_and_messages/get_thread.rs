@@ -12,25 +12,16 @@ use crate::{
     routes::ws::{
         ws::{SubscriptionRwLock, WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
         ws_router::WsRoutes,
-        ws_utils::{get_key_value, send_error_message, send_ws_message, subscribe_to_stream},
+        ws_utils::{send_error_message, send_ws_message, subscribe_to_stream},
     },
     utils::{
-        clients::{
-            posthog::{
-                send_posthog_event_handler, MetricViewedProperties, PosthogEventProperties,
-                PosthogEventType,
-            },
-            sentry_utils::send_sentry_error,
-        },
+        clients::sentry_utils::send_sentry_error,
         query_engine::{data_types::DataType, query_engine::query_engine},
     },
 };
-use database::{enums::AssetPermissionRole, models::StepProgress, models::User};
+use database::models::StepProgress;
 
-use super::{
-    thread_utils::get_thread_state_by_id,
-    threads_router::{ThreadEvent, ThreadRoute},
-};
+use super::threads_router::{ThreadEvent, ThreadRoute};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FetchingData {

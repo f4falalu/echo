@@ -7,7 +7,6 @@ use uuid::Uuid;
 
 use database::{enums::StoredValuesStatus,
         pool::get_pg_pool,
-        models::User,
         schema::dataset_columns,};
 use crate::{
     routes::ws::{

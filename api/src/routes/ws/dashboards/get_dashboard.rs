@@ -7,7 +7,7 @@ use uuid::Uuid;
 use middleware::AuthenticatedUser;
 
 use database::{enums::AssetPermissionRole,
-        models::{StepProgress, User},};
+        models::StepProgress,};
 use crate::{
     routes::ws::{
         ws::{SubscriptionRwLock, WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},

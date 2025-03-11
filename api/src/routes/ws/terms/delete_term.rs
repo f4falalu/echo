@@ -15,7 +15,7 @@ use crate::{
     },
     utils::clients::sentry_utils::send_sentry_error,
 };
-use database::{models::User, pool::get_pg_pool, schema::terms};
+use database::{pool::get_pg_pool, schema::terms};
 use middleware::AuthenticatedUser;
 
 use super::terms_router::{TermEvent, TermRoute};

@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 use database::{enums::{SharingSetting, UserOrganizationRole, UserOrganizationStatus},
         pool::get_pg_pool,
-        models::{Organization, User, UserToOrganization},
+        models::{Organization, UserToOrganization},
         schema::{organizations, users_to_organizations},};
 use crate::{
     routes::ws::{

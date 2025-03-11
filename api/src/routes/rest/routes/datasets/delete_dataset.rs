@@ -7,7 +7,7 @@ use serde_json::Value;
 use uuid::Uuid;
 use middleware::AuthenticatedUser;
 
-use database::{pool::get_pg_pool, models::User, schema::datasets};
+use database::{pool::get_pg_pool, schema::datasets};
 
 pub async fn delete_dataset(
     Extension(user): Extension<AuthenticatedUser>,

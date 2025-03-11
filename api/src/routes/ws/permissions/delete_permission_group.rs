@@ -6,7 +6,6 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use database::{pool::get_pg_pool,
-        models::User,
         schema::permission_groups,};
 use crate::{
     routes::ws::{

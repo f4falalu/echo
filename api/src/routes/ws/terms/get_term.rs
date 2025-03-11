@@ -3,7 +3,6 @@ use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use database::models::User;
 use middleware::AuthenticatedUser;
 
 use crate::{

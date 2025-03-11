@@ -1,8 +1,6 @@
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use diesel::{
-    dsl::sql,
-    sql_types::{Nullable, Timestamptz},
     BoolExpressionMethods, ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl,
 };
 use diesel_async::RunQueryDsl;
@@ -13,7 +11,7 @@ use serde::{Deserialize, Serialize};
 
 use database::{enums::{IdentityType, UserOrganizationRole},
         pool::get_pg_pool,
-        models::{User, UserToOrganization},
+        models::UserToOrganization,
         schema::{
             data_sources, dataset_permissions, datasets, datasets_to_permission_groups, messages_deprecated,
             permission_groups_to_identities, permission_groups_to_users, teams_to_users, users,

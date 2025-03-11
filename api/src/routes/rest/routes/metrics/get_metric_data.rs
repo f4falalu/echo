@@ -2,7 +2,6 @@ use crate::routes::rest::ApiResponse;
 use axum::extract::{Path, Query};
 use axum::http::StatusCode;
 use axum::Extension;
-use database::models::User;
 use handlers::metrics::get_metric_data_handler::{GetMetricDataRequest, MetricDataResponse};
 use serde::Deserialize;
 use middleware::AuthenticatedUser;

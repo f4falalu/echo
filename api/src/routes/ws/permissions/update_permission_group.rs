@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 use database::{enums::IdentityType,
         pool::get_pg_pool,
-        models::{DatasetToPermissionGroup, User},
+        models::DatasetToPermissionGroup,
         schema::{datasets_to_permission_groups, permission_groups},};
         use middleware::AuthenticatedUser;
 use crate::{

@@ -9,7 +9,7 @@ use diesel_async::RunQueryDsl;
 use uuid::Uuid;
 
 use database::pool::get_pg_pool;
-use database::models::{ApiKey, User};
+use database::models::ApiKey;
 use database::schema::api_keys;
 use database::schema::users;
 use crate::routes::rest::ApiResponse;

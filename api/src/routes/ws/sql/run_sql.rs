@@ -26,7 +26,7 @@ use crate::{
 };
 use database::{
     enums::UserOrganizationRole,
-    models::{ColumnMetadata, DataMetadataJsonBody, MinMaxValue, User},
+    models::{ColumnMetadata, DataMetadataJsonBody, MinMaxValue},
     pool::get_pg_pool,
     schema::{data_sources, datasets, users_to_organizations},
 };

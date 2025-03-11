@@ -11,7 +11,7 @@ use uuid::Uuid;
 
 use database::{enums::{AssetPermissionRole, AssetType},
         pool::get_pg_pool,
-        models::{CollectionToAsset, User},
+        models::CollectionToAsset,
         schema::{collections, collections_to_assets},};
 use crate::{
     routes::ws::{

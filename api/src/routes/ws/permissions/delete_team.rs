@@ -14,7 +14,7 @@ use crate::{
     },
     utils::clients::sentry_utils::send_sentry_error,
 };
-use database::{models::User, pool::get_pg_pool, schema::teams};
+use database::{pool::get_pg_pool, schema::teams};
 use middleware::AuthenticatedUser;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

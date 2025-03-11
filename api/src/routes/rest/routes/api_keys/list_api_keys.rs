@@ -8,7 +8,7 @@ use serde::Serialize;
 use uuid::Uuid;
 
 use database::pool::get_pg_pool;
-use database::models::{ApiKey, User};
+use database::models::ApiKey;
 use database::schema::api_keys;
 use crate::routes::rest::ApiResponse;
 use database::schema::users;

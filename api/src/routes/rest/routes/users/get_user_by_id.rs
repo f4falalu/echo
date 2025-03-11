@@ -6,7 +6,6 @@ use uuid::Uuid;
 
 use database::{
     enums::{IdentityType, UserOrganizationRole, UserOrganizationStatus},
-    models::User,
     pool::get_pg_pool,
     schema::{
         dataset_groups, dataset_groups_permissions, dataset_permissions, datasets,

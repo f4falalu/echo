@@ -9,7 +9,7 @@ use uuid::Uuid;
 use middleware::AuthenticatedUser;
 use database::{enums::{AssetPermissionRole, AssetType, IdentityType},
         pool::get_pg_pool,
-        models::{AssetPermission, Collection, User},
+        models::{AssetPermission, Collection},
         schema::{asset_permissions, collections},};
 use crate::{
     routes::ws::{

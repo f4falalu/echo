@@ -9,7 +9,6 @@ use uuid::Uuid;
 
 use database::{enums::AssetPermissionRole,
         pool::get_pg_pool,
-        models::User,
         schema::collections,};
 use crate::{
     routes::ws::{

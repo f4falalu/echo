@@ -11,7 +11,7 @@ use middleware::AuthenticatedUser;
 
 use database::{
     enums::{IdentityType, UserOrganizationRole},
-    models::{User, UserToOrganization},
+    models::UserToOrganization,
     pool::get_pg_pool,
     schema::{
         data_sources, dataset_groups, dataset_groups_permissions, dataset_permissions, datasets,

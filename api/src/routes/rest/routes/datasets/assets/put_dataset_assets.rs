@@ -11,7 +11,7 @@ use middleware::AuthenticatedUser;
 
 use database::{
     pool::get_pg_pool,
-    models::{DatasetPermission, User},
+    models::DatasetPermission,
     schema::dataset_permissions,
 };
 use crate::routes::rest::ApiResponse;

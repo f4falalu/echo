@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 use database::{enums::SharingSetting,
         pool::get_pg_pool,
-        models::{Team, User},
+        models::Team,
         schema::teams,};
 use crate::{
     routes::ws::{

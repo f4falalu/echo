@@ -7,15 +7,12 @@ use handlers::chats::types::ChatWithMessages;
 use middleware::AuthenticatedUser;
 use tokio::sync::mpsc;
 
-use crate::{
-    database::models::User,
-    routes::ws::{
+use crate::routes::ws::{
         threads_and_messages::threads_router::{ThreadEvent as WSThreadEvent, ThreadRoute},
         ws::{SubscriptionRwLock, WsEvent, WsResponseMessage, WsSendMethod},
         ws_router::WsRoutes,
         ws_utils::send_ws_message,
-    },
-};
+    };
 
 /// Creates a new thread for a user and processes their request using the shared handler
 pub async fn post_thread(

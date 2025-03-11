@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use middleware::AuthenticatedUser;
 
 use database::{pool::get_pg_pool,
-        models::{Term, User},
+        models::Term,
         schema::{terms, terms_to_datasets, users},};
 use crate::{
     routes::ws::{

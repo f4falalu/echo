@@ -21,7 +21,7 @@ use crate::routes::rest::ApiResponse;
 use crate::utils::query_engine::credentials::Credential;
 use database::enums::DataSourceOnboardingStatus;
 use database::enums::UserOrganizationRole;
-use database::models::{DataSource, User};
+use database::models::DataSource;
 use database::pool::get_pg_pool;
 use database::schema::data_sources;
 use database::schema::users_to_organizations;

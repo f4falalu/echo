@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use axum::{extract::Json, Extension};
-use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl};
+use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
@@ -14,8 +14,8 @@ use middleware::AuthenticatedUser;
 use crate::{
     database::{
         pool::get_pg_pool,
-        models::{Dataset, DataSource, User},
-        schema::{data_sources, datasets},
+        models::DataSource,
+        schema::data_sources,
     },
     routes::rest::ApiResponse,
     utils::{
@@ -26,7 +26,7 @@ use crate::{
             import_dataset_columns::{retrieve_dataset_columns_batch, DatasetColumnRecord},
         },
         clients::ai::{
-            openai::{OpenAiChatModel, OpenAiChatRole, OpenAiChatContent, OpenAiChatMessage},
+            openai::OpenAiChatModel,
             llm_router::{llm_chat, LlmModel, LlmMessage},
         },
     },

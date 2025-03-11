@@ -7,7 +7,6 @@ use uuid::Uuid;
 
 use database::{
     enums::{UserOrganizationRole, UserOrganizationStatus},
-    models::User,
     pool::get_pg_pool,
     schema::{users, users_to_organizations},
 };

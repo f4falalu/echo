@@ -11,7 +11,7 @@ use crate::{
     database::{
         enums::UserOrganizationRole,
         pool::get_pg_pool,
-        models::{Dataset, User},
+        models::Dataset,
         schema::{datasets, users_to_organizations},
     },
     routes::rest::ApiResponse,

@@ -5,7 +5,6 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use middleware::AuthenticatedUser;
-use database::models::User;
 
 use crate::{
     routes::ws::{

@@ -7,7 +7,6 @@ use serde::Deserialize;
 use uuid::Uuid;
 
 use database::pool::get_pg_pool;
-use database::models::User;
 use database::schema::permission_groups;
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;

@@ -1,7 +1,6 @@
 use axum::{extract::Query, http::StatusCode, Extension};
-use database::models::User;
 use handlers::chats::list_chats_handler::{
-    list_chats_handler, ChatListItem, ListChatsRequest, ListChatsResponse,
+    list_chats_handler, ChatListItem, ListChatsRequest,
 };
 use middleware::AuthenticatedUser;
 use serde::Deserialize;

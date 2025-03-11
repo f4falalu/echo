@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use database::pool::get_pg_pool;
-use database::models::{PermissionGroup, User};
+use database::models::PermissionGroup;
 use database::schema::permission_groups;
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;

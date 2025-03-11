@@ -26,7 +26,7 @@ use crate::{
 };
 use database::{
     enums::{AssetPermissionRole, AssetType},
-    models::{ThreadToDashboard, User},
+    models::ThreadToDashboard,
     pool::get_pg_pool,
     schema::{dashboards, threads_to_dashboards},
     vault::create_secret,

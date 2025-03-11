@@ -1,7 +1,6 @@
 use sqlparser::dialect::GenericDialect;
-use sqlparser::parser::{Parser, ParserError};
+use sqlparser::parser::Parser;
 use sqlparser::ast::{Statement, SetExpr, Query};
-use once_cell::sync::Lazy;
 
 /// Checks if a SQL query is safe to execute by parsing it and ensuring it only contains
 /// SELECT statements.

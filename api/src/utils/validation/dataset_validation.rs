@@ -7,10 +7,7 @@ use crate::utils::query_engine::{
     import_dataset_columns::retrieve_dataset_columns_batch,
 };
 
-use crate::utils::validation::{
-    type_mapping::{normalize_type, types_compatible},
-    types::{ValidationError, ValidationResult},
-};
+use crate::utils::validation::types::{ValidationError, ValidationResult};
 
 pub async fn validate_model(
     model_name: &str,

@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 use database::{enums::AssetType,
         pool::get_pg_pool,
-        models::{User, UserFavorite},
+        models::UserFavorite,
         schema::user_favorites,};
 use crate::{
     routes::ws::{

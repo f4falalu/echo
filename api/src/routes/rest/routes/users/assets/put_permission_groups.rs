@@ -10,7 +10,7 @@ use uuid::Uuid;
 
 use database::enums::IdentityType;
 use database::pool::get_pg_pool;
-use database::models::{PermissionGroupToIdentity, User};
+use database::models::PermissionGroupToIdentity;
 use database::schema::permission_groups_to_identities;
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;

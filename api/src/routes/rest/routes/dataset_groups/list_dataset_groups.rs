@@ -8,7 +8,7 @@ use serde::Serialize;
 use uuid::Uuid;
 
 use database::pool::get_pg_pool;
-use database::models::{DatasetGroup, User};
+use database::models::DatasetGroup;
 use database::schema::dataset_groups;
 use crate::routes::rest::ApiResponse;
 use crate::utils::user::user_info::get_user_organization_id;

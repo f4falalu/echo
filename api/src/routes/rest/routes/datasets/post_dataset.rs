@@ -11,7 +11,7 @@ use crate::{
     database::{
         enums::DatasetType,
         pool::get_pg_pool,
-        models::{DataSource, Dataset, User},
+        models::{DataSource, Dataset},
         schema::{data_sources, datasets},
     },
     routes::rest::ApiResponse,

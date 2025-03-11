@@ -2,7 +2,6 @@ use anyhow::Result;
 use axum::http::StatusCode;
 use axum::Extension;
 use axum::Json;
-use database::models::User;
 use handlers::chats::delete_chats_handler::{ChatDeleteResult};
 use handlers::chats::delete_chats_handler;
 use uuid::Uuid;

@@ -6,12 +6,10 @@ mod post_permission_group;
 mod put_permission_group;
 
 use axum::{
-    middleware as axum_middleware,
     routing::{delete, get, post, put},
     Router,
 };
 
-use middleware::auth;
 
 use self::{
     delete_permission_group::delete_permission_group, get_permission_group::get_permission_group,

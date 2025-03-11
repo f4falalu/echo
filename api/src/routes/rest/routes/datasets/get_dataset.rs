@@ -10,7 +10,6 @@ use crate::{
     database::{
         enums::UserOrganizationRole,
         pool::get_pg_pool,
-        models::User,
         schema::{data_sources, datasets, users_to_organizations},
     },
     routes::rest::ApiResponse,

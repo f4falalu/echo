@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Result};
-use handlers::metrics::get_metric_data_handler::{GetMetricDataRequest, MetricDataResponse};
+use handlers::metrics::get_metric_data_handler::GetMetricDataRequest;
 use middleware::AuthenticatedUser;
 use serde::Deserialize;
 use uuid::Uuid;

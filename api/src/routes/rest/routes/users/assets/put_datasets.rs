@@ -9,7 +9,7 @@ use tokio::spawn;
 use uuid::Uuid;
 
 use database::pool::get_pg_pool;
-use database::models::{DatasetPermission, User};
+use database::models::DatasetPermission;
 use database::schema::dataset_permissions;
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;

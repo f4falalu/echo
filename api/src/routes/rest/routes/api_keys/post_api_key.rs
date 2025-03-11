@@ -11,7 +11,7 @@ use uuid::Uuid;
 use middleware::AuthenticatedUser;
 
 use database::pool::get_pg_pool;
-use database::models::{ApiKey, User};
+use database::models::ApiKey;
 use database::schema::api_keys;
 use crate::routes::rest::ApiResponse;
 use crate::utils::user::user_info::get_user_organization_id;
