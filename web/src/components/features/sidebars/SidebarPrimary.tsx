@@ -17,6 +17,7 @@ import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { SupportModal } from '../modal/SupportModal';
 import { InvitePeopleModal } from '../modal/InvitePeopleModal';
 import { useMemoizedFn } from '@/hooks';
+import { SidebarUserFooter } from './SidebarUserFooter/SidebarUserFooter';
 
 const topItems: ISidebarList = {
   items: [
@@ -130,7 +131,12 @@ export const SidebarPrimary = React.memo(() => {
 
   return (
     <>
-      <Sidebar content={sidebarItems} header={<SidebarPrimaryHeader />} activeItem={currentRoute} />
+      <Sidebar
+        content={sidebarItems}
+        header={<SidebarPrimaryHeader />}
+        activeItem={currentRoute}
+        footer={<SidebarUserFooter />}
+      />
 
       <GlobalModals />
     </>
