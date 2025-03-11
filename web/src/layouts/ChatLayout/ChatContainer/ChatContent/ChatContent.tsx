@@ -16,10 +16,8 @@ export const ChatContent: React.FC<{ chatContentRef: React.RefObject<HTMLDivElem
         <div ref={chatContentRef} className="h-full w-full overflow-y-auto">
           <div className="pb-8">
             {chatMessageIds?.map((messageId) => (
-              <div key={messageId} className={'hover:bg-item-hover'}>
-                <div className={autoClass}>
-                  <ChatMessageBlock key={messageId} messageId={messageId} />
-                </div>
+              <div key={messageId} className={autoClass}>
+                <ChatMessageBlock key={messageId} messageId={messageId} />
               </div>
             ))}
           </div>

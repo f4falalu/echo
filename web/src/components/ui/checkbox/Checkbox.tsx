@@ -72,7 +72,7 @@ const Checkbox = React.forwardRef<React.ElementRef<typeof CheckboxPrimitive.Root
         ref={ref}
         disabled={disabled || false}
         className={cn(checkboxVariants({ variant, size, disabled, checked }), className)}
-        checked={checked || undefined}
+        checked={checked || false}
         {...props}>
         <CheckboxPrimitive.Indicator
           className={cn('absolute inset-0 flex items-center justify-center')}>

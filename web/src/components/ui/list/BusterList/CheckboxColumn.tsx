@@ -13,6 +13,11 @@ export const CheckboxColumn: React.FC<{
 
   const onClickStopPropagation = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
+    e.preventDefault();
+  });
+
+  const onChangePreflight = useMemoizedFn((e: boolean) => {
+    onChange(e);
   });
 
   return (
@@ -24,13 +29,13 @@ export const CheckboxColumn: React.FC<{
       }}
       className={cn(
         className,
-        'flex items-center justify-center pr-0 pl-1 opacity-0 group-hover:opacity-100',
+        'flex items-center justify-center pr-1 pl-1 opacity-0 group-hover:opacity-100',
         showBox ? 'opacity-100' : ''
       )}>
       <MemoizedCheckbox
         checked={checkStatus === 'checked'}
         indeterminate={checkStatus === 'indeterminate'}
-        onChange={onChange}
+        onChange={onChangePreflight}
       />
     </div>
   );

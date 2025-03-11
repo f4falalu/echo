@@ -123,7 +123,7 @@ const BusterListCellComponent: React.FC<{
   return (
     <div
       className={cn(
-        'row-cell flex h-full items-center overflow-hidden px-1',
+        'row-cell flex h-full items-center overflow-hidden px-0',
         isFirstCell ? 'text-text-default text-base' : 'text-text-tertiary text-sm'
       )}
       style={memoizedStyle}>

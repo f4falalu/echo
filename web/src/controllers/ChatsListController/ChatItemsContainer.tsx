@@ -170,7 +170,7 @@ const TitleCell = React.memo<{ title: string; status: VerificationStatus; chatId
             type={ShareAssetType.METRIC}
             iconStyle="tertiary"
             title={title}
-            className="opacity-0 group-hover:opacity-100"
+            className="hidden! group-hover:flex!"
           />
         </div>
       </div>
@@ -181,7 +181,7 @@ TitleCell.displayName = 'TitleCell';
 
 const OwnerCell = memo<{ name: string; image: string | undefined }>(({ name, image }) => (
   <div className="flex pl-0">
-    <Avatar image={image} name={name} className="h-[18px] w-[18px]" />
+    <Avatar image={image} name={name} size={18} fallbackClassName="text-2xs" />
   </div>
 ));
 OwnerCell.displayName = 'OwnerCell';

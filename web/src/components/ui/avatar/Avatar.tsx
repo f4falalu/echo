@@ -9,12 +9,13 @@ export interface AvatarProps {
   image?: string;
   name?: string | null;
   className?: string;
+  fallbackClassName?: string;
   useToolTip?: boolean;
   size?: number;
 }
 
 export const Avatar: React.FC<AvatarProps> = React.memo(
-  ({ image, name, className, useToolTip, size }) => {
+  ({ image, name, className, useToolTip, size, fallbackClassName }) => {
     const hasName = !!name;
     const nameLetters = hasName ? createNameLetters(name, image) : '';
 
@@ -27,7 +28,8 @@ export const Avatar: React.FC<AvatarProps> = React.memo(
             height: size
           }}>
           {image && <AvatarImage src={image} />}
-          <AvatarFallback className={cn(!hasName && !image && 'border bg-white')}>
+          <AvatarFallback
+            className={cn(!hasName && !image && 'border bg-white', fallbackClassName)}>
             {nameLetters || <BusterAvatarFallback />}
           </AvatarFallback>
         </AvatarBase>

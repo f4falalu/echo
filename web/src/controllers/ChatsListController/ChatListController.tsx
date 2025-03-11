@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { ChatItemsContainer } from './ChatItemsContainer';
 import { useGetListChats, useGetListLogs } from '@/api/buster_rest/chats';
-import { GetChatListParams } from '@/api/request_interfaces/chats';
+import type { GetChatListParams } from '@/api/request_interfaces/chats';
 import { useUserConfigContextSelector } from '@/context/Users';
 
 export const ChatListContainer: React.FC<{
