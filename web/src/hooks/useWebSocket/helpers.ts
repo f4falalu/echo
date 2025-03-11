@@ -3,7 +3,6 @@ import { UserResponses } from '@/api/buster_socket/user';
 import { TermsResponses } from '@/api/buster_socket/terms/termsResponses';
 import { TeamResponses } from '@/api/buster_socket/teams/teamResponses';
 import { SearchResponses } from '@/api/buster_socket/search';
-import { OrganizationResponses } from '@/api/buster_socket/organizations';
 import { SQLResponses } from '@/api/buster_socket/sql';
 import type {
   BusterSocketResponseBase,
@@ -36,7 +35,6 @@ const isKnownMessageRoute = (parsedMessage: BusterSocketResponseMessage) => {
     ...TermsResponses,
     ...TeamResponses,
     ...SearchResponses,
-    ...OrganizationResponses,
     ...ChatsResponses
   };
   const event = parsedMessage?.event;

@@ -1,7 +1,6 @@
 import { useMemoizedFn } from '@/hooks';
-import { useSocketQueryMutation } from '@/api/buster_socket_query';
 import type { BusterUserResponse } from '@/api/asset_interfaces/users';
-import { useUpdateUser } from '@/api/buster_rest';
+import { useCreateOrganization, useUpdateUser } from '@/api/buster_rest';
 
 export const useUserOrganization = ({
   userResponse,
@@ -10,10 +9,7 @@ export const useUserOrganization = ({
   userResponse: BusterUserResponse | null | undefined;
   refetchUserResponse: () => Promise<unknown>;
 }) => {
-  const { mutateAsync: createOrganization } = useSocketQueryMutation({
-    emitEvent: '/organizations/post',
-    responseEvent: '/organizations/post:post'
-  });
+  const { mutateAsync: createOrganization } = useCreateOrganization();
 
   const { mutateAsync: updateUserInfo } = useUpdateUser();
 
