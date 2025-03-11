@@ -21,8 +21,8 @@ function makeQueryClient(params?: {
         enabled: (params?.enabled ?? true) && baseEnabled,
         queryFn: () => Promise.resolve(),
         retry: (failureCount, error) => {
-          if (params?.openErrorNotification && failureCount > 0) {
-            params.openErrorNotification(error);
+          if (params?.openErrorNotification) {
+            //    params.openErrorNotification(error);
           }
           return false;
         }

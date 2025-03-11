@@ -1,5 +1,6 @@
 'use client';
 
+import { Toaster } from '@/components/ui/toaster/Toaster';
 import React, { PropsWithChildren } from 'react';
 import { toast, type ExternalToast } from 'sonner';
 import { useContextSelector, createContext } from 'use-context-selector';
@@ -167,7 +168,7 @@ export const BusterNotificationsProvider: React.FC<PropsWithChildren> = ({ child
   return (
     <BusterNotifications.Provider value={value}>
       {children}
-      {/* <Toaster /> */}
+      <Toaster />
     </BusterNotifications.Provider>
   );
 };
