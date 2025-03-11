@@ -30,7 +30,7 @@ export const listMetrics_server = async (params: ListMetricsParams) => {
 };
 
 export const getMetricData = async ({ id }: { id: string }) => {
-  return mainApi.get<BusterMetricData>(`/metrics/data/${id}`).then((res) => res.data);
+  return mainApi.get<BusterMetricData>(`/metrics/${id}/data`).then((res) => res.data);
 };
 
 export const updateMetric = async (params: UpdateMetricParams) => {
