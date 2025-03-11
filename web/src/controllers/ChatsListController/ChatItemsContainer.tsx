@@ -22,7 +22,8 @@ export const ChatItemsContainer: React.FC<{
   chats: BusterChatListItem[];
   className?: string;
   loading: boolean;
-}> = ({ chats = [], className = '', loading }) => {
+  type: 'logs' | 'chats';
+}> = ({ chats = [], className = '', loading, type }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const renderedDates = useRef<Record<string, string>>({});
   const renderedOwners = useRef<Record<string, React.ReactNode>>({});
@@ -117,7 +118,7 @@ export const ChatItemsContainer: React.FC<{
         columns={columns}
         onSelectChange={onSelectChange}
         selectedRowKeys={selectedRowKeys}
-        emptyState={<EmptyState loading={loading} />}
+        emptyState={<EmptyState loading={loading} type={type} />}
       />
 
       <ChatSelectedOptionPopup
@@ -131,13 +132,22 @@ export const ChatItemsContainer: React.FC<{
 
 const EmptyState: React.FC<{
   loading: boolean;
-}> = React.memo(({ loading }) => {
+  type: 'logs' | 'chats';
+}> = React.memo(({ loading, type }) => {
   if (loading) return <></>;
 
   return (
     <ListEmptyStateWithButton
-      title="You don't have any chats yet."
-      description="You don't have any chats. As soon as you do, they will start to appear here."
+      title={
+        type === 'logs'
+          ? "You're organization doesn't have any logs yet."
+          : "You don't have any chats yet."
+      }
+      description={
+        type === 'logs'
+          ? "You don't have any logs... As soon as you do, they will start to appear here."
+          : "You don't have any chats. As soon as you do, they will start to appear here."
+      }
       buttonText="New chat"
       linkButton={createBusterRoute({ route: BusterRoutes.APP_HOME })}
     />
