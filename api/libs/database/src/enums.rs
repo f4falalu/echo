@@ -240,7 +240,9 @@ pub enum AssetType {
     Thread,
     Collection,
     Chat,
+    #[serde(alias = "metric")]
     MetricFile,
+    #[serde(alias = "dashboard")]
     DashboardFile,
 }
 

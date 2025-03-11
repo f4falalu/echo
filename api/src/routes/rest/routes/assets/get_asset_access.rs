@@ -8,17 +8,17 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use axum::extract::Path;
-use middleware::AuthenticatedUser;
 use axum::http::StatusCode;
+use middleware::AuthenticatedUser;
 
+use crate::routes::rest::ApiResponse;
+use crate::utils::user::user_info::get_user_organization_id;
 use database::enums::{AssetPermissionRole, AssetType, UserOrganizationRole};
 use database::pool::{get_pg_pool, PgPool};
 use database::schema::{
-    asset_permissions, collections_to_assets, dashboards, teams_to_users, threads_deprecated,
-    threads_to_dashboards, users_to_organizations,
+    asset_permissions, collections_to_assets, dashboards, metric_files, teams_to_users,
+    threads_deprecated, threads_to_dashboards, users_to_organizations,
 };
-use crate::routes::rest::ApiResponse;
-use crate::utils::user::user_info::get_user_organization_id;
 
 pub async fn get_asset_access(
     Path((asset_type, asset_id)): Path<(AssetType, uuid::Uuid)>,
@@ -55,76 +55,98 @@ async fn get_asset_access_handler(
 
     let (asset_info, user_permission) = match asset_type {
         AssetType::Collection => {
-                        return Err(anyhow!(
-                            "Public access is not supported for collections yet"
-                        ))
-            }
+            return Err(anyhow!(
+                "Public access is not supported for collections yet"
+            ))
+        }
         AssetType::Dashboard => {
-                let mut conn = pg_pool.get().await?;
+            let mut conn = pg_pool.get().await?;
 
-                let dashboard_info = dashboards::table
-                    .select((
-                        dashboards::id,
-                        dashboards::publicly_accessible,
-                        dashboards::password_secret_id.is_not_null(),
-                        dashboards::public_expiry_date,
-                    ))
-                    .filter(dashboards::id.eq(&asset_id))
-                    .filter(dashboards::deleted_at.is_null())
-                    .first::<(Uuid, bool, bool, Option<DateTime<Utc>>)>(&mut conn)
-                    .await?;
+            let dashboard_info = dashboards::table
+                .select((
+                    dashboards::id,
+                    dashboards::publicly_accessible,
+                    dashboards::password_secret_id.is_not_null(),
+                    dashboards::public_expiry_date,
+                ))
+                .filter(dashboards::id.eq(&asset_id))
+                .filter(dashboards::deleted_at.is_null())
+                .first::<(Uuid, bool, bool, Option<DateTime<Utc>>)>(&mut conn)
+                .await?;
 
-                let user_permission = {
-                    let pg_pool = pg_pool.clone();
-                    let user_id = user.id.clone();
-                    let asset_id = asset_id.clone();
-                    tokio::spawn(async move {
-                        get_user_dashboard_permission(&pg_pool, &user_id, &asset_id).await
-                    })
-                };
+            let user_permission = {
+                let pg_pool = pg_pool.clone();
+                let user_id = user.id.clone();
+                let asset_id = asset_id.clone();
+                tokio::spawn(async move {
+                    get_user_dashboard_permission(&pg_pool, &user_id, &asset_id).await
+                })
+            };
 
-                let user_permission = user_permission
-                    .await
-                    .map_err(|_| anyhow!("Failed to join task"))? // Changed to discard error details
-                    .unwrap_or(None); // Use None for both error and no permission cases
+            let user_permission = user_permission
+                .await
+                .map_err(|_| anyhow!("Failed to join task"))? // Changed to discard error details
+                .unwrap_or(None); // Use None for both error and no permission cases
 
-                (dashboard_info, user_permission)
-            }
+            (dashboard_info, user_permission)
+        }
         AssetType::Thread => {
-                let mut conn = pg_pool.get().await?;
+            let mut conn = pg_pool.get().await?;
 
-                let thread_info = threads_deprecated::table
-                    .select((
-                        threads_deprecated::id,
-                        threads_deprecated::publicly_accessible,
-                        threads_deprecated::password_secret_id.is_not_null(),
-                        threads_deprecated::public_expiry_date,
-                    ))
-                    .filter(threads_deprecated::id.eq(&asset_id))
-                    .filter(threads_deprecated::deleted_at.is_null())
-                    .first::<(Uuid, bool, bool, Option<DateTime<Utc>>)>(&mut conn)
-                    .await?;
+            let thread_info = threads_deprecated::table
+                .select((
+                    threads_deprecated::id,
+                    threads_deprecated::publicly_accessible,
+                    threads_deprecated::password_secret_id.is_not_null(),
+                    threads_deprecated::public_expiry_date,
+                ))
+                .filter(threads_deprecated::id.eq(&asset_id))
+                .filter(threads_deprecated::deleted_at.is_null())
+                .first::<(Uuid, bool, bool, Option<DateTime<Utc>>)>(&mut conn)
+                .await?;
 
-                let user_permission = {
-                    let pg_pool = pg_pool.clone();
-                    let user_id = user.id.clone();
-                    let asset_id = asset_id.clone();
-                    tokio::spawn(async move {
-                        get_user_thread_permission(&pg_pool, &user_id, &asset_id).await
-                    })
-                };
+            let user_permission = {
+                let pg_pool = pg_pool.clone();
+                let user_id = user.id.clone();
+                let asset_id = asset_id.clone();
+                tokio::spawn(async move {
+                    get_user_thread_permission(&pg_pool, &user_id, &asset_id).await
+                })
+            };
 
-                let user_permission = user_permission
-                    .await
-                    .map_err(|_| anyhow!("Failed to join task"))? // Changed to discard error details
-                    .unwrap_or(None); // Use None for both error and no permission cases
+            let user_permission = user_permission
+                .await
+                .map_err(|_| anyhow!("Failed to join task"))? // Changed to discard error details
+                .unwrap_or(None); // Use None for both error and no permission cases
 
-                (thread_info, user_permission)
-            }
+            (thread_info, user_permission)
+        }
+        AssetType::MetricFile => {
+            let mut conn = pg_pool.get().await?;
+
+            let metric_info = metric_files::table
+                .select((
+                    metric_files::id,
+                    metric_files::publicly_accessible,
+                    metric_files::public_expiry_date,
+                ))
+                .filter(metric_files::id.eq(&asset_id))
+                .filter(metric_files::deleted_at.is_null())
+                .first::<(Uuid, bool, Option<DateTime<Utc>>)>(&mut conn)
+                .await?;
+
+            let metric_info = (
+                metric_info.0,
+                metric_info.1,
+                false,
+                metric_info.2,
+            );
+
+            (metric_info, Some(AssetPermissionRole::Owner))
+        }
         _ => {
             return Err(anyhow!("Public access is not supported for chats yet"));
         }
-        
     };
 
     let (id, public, password_required, public_expiry_date) = asset_info;
