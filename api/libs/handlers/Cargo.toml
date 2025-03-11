@@ -30,6 +30,7 @@ agents = { path = "../agents" }
 litellm = { path = "../litellm" }
 query_engine = { path = "../query_engine" }
 middleware = { path = "../middleware" }
+sharing = { path = "../sharing" }
 
 # Add any handler-specific dependencies here 
 
