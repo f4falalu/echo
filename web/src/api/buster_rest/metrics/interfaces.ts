@@ -12,8 +12,6 @@ export interface ListMetricsParams {
   page_token: number;
   /** The number of items to return per page */
   page_size: number;
-  /** Flag to enable admin view with additional permissions and data */
-  admin_view?: boolean;
   /** Filtering options for metrics based on verification status */
   status?: VerificationStatus[] | null;
 }

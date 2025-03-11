@@ -13,6 +13,7 @@ import {
 import type { GetMetricParams, ListMetricsParams } from './interfaces';
 import { upgradeMetricToIMetric } from '@/lib/chat';
 import { queryKeys } from '@/api/query_keys';
+import { useMemo } from 'react';
 
 export const useGetMetric = (params: GetMetricParams) => {
   const queryFn = useMemoizedFn(async () => {
@@ -40,13 +41,18 @@ export const prefetchGetMetric = async (params: GetMetricParams, queryClientProp
   return queryClient;
 };
 
-export const useGetMetricsList = (params: ListMetricsParams) => {
+export const useGetMetricsList = (params: Omit<ListMetricsParams, 'page_token' | 'page_size'>) => {
+  const compiledParams: ListMetricsParams = useMemo(
+    () => ({ ...params, page_token: 0, page_size: 3000 }),
+    [params]
+  );
+
   const queryFn = useMemoizedFn(() => {
-    return listMetrics(params);
+    return listMetrics(compiledParams);
   });
 
   const res = useQuery({
-    ...queryKeys.metricsGetList(params),
+    ...queryKeys.metricsGetList(compiledParams),
     queryFn
   });
 

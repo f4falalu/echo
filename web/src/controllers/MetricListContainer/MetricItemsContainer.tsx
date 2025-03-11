@@ -18,9 +18,8 @@ import { useCreateListByDate } from '@/components/ui/list/useCreateListByDate';
 export const MetricItemsContainer: React.FC<{
   metrics: BusterMetricListItem[];
   className?: string;
-  type: 'logs' | 'metrics';
   loading: boolean;
-}> = ({ type, metrics = [], className = '', loading }) => {
+}> = React.memo(({ metrics = [], className = '', loading }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const renderedDates = useRef<Record<string, string>>({});
   const renderedOwners = useRef<Record<string, React.ReactNode>>({});
@@ -118,7 +117,7 @@ export const MetricItemsContainer: React.FC<{
         columns={columns}
         onSelectChange={onSelectChange}
         selectedRowKeys={selectedRowKeys}
-        emptyState={<EmptyState loading={loading} type={type} />}
+        emptyState={<EmptyState loading={loading} />}
       />
 
       <MetricSelectedOptionPopup
@@ -128,25 +127,13 @@ export const MetricItemsContainer: React.FC<{
       />
     </div>
   );
-};
-
+});
+MetricItemsContainer.displayName = 'MetricItemsContainer';
 const EmptyState: React.FC<{
   loading: boolean;
-  type: 'logs' | 'metrics';
-}> = React.memo(({ loading, type }) => {
+}> = React.memo(({ loading }) => {
   if (loading) {
     return <></>;
-  }
-
-  if (type === 'logs') {
-    return (
-      <ListEmptyStateWithButton
-        title="You don’t have any logs yet."
-        description="You don’t have any logs. As soon as you do, they will start to appear here."
-        buttonText="New chat"
-        linkButton={createBusterRoute({ route: BusterRoutes.APP_HOME })}
-      />
-    );
   }
 
   return (

@@ -27,8 +27,9 @@ const chatsMessagesFetchingData = (messageId: string) =>
 const chatsGetList = (filters?: GetChatListParams) =>
   queryOptions<BusterChatListItem[]>({
     queryKey: ['chats', 'list', filters] as const,
-    staleTime: 0,
-    initialData: []
+    staleTime: 60 * 1000, // 1 minute
+    initialData: [],
+    initialDataUpdatedAt: 0
   });
 
 const chatsBlackBoxMessages = (messageId: string) =>
@@ -39,10 +40,19 @@ const chatsBlackBoxMessages = (messageId: string) =>
     queryFn: () => Promise.resolve(null)
   });
 
+const logsGetList = (filters?: GetChatListParams) =>
+  queryOptions<BusterChatListItem[]>({
+    queryKey: ['logs', 'list', filters] as const,
+    staleTime: 60 * 1000, // 1 minute
+    initialData: [],
+    initialDataUpdatedAt: 0
+  });
+
 export const chatQueryKeys = {
   chatsGetChat,
   chatsGetList,
   chatsMessages,
   chatsMessagesFetchingData,
-  chatsBlackBoxMessages
+  chatsBlackBoxMessages,
+  logsGetList
 };

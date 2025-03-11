@@ -6,7 +6,8 @@ import {
   getChat,
   getChat_server,
   updateChat,
-  deleteChat
+  deleteChat,
+  getListLogs
 } from './requests';
 import type { IBusterChat } from '@/api/asset_interfaces/chat';
 import { queryKeys } from '@/api/query_keys';
@@ -42,6 +43,22 @@ export const prefetchGetListChats = async (
   });
 
   return queryClient;
+};
+
+export const useGetListLogs = (
+  filters?: Omit<Parameters<typeof getListLogs>[0], 'page_token' | 'page_size'>
+) => {
+  const filtersCompiled: Parameters<typeof getListLogs>[0] = useMemo(
+    () => ({ page_token: 0, page_size: 3000, ...filters }),
+    [filters]
+  );
+
+  const queryFn = useMemoizedFn(() => getListLogs(filtersCompiled));
+
+  return useQuery({
+    ...queryKeys.logsGetList(filtersCompiled),
+    queryFn
+  });
 };
 
 export const useGetChat = (params: Parameters<typeof getChat>[0]) => {

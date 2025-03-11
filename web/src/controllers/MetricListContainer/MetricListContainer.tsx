@@ -1,36 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useMemoizedFn, useMount } from '@/hooks';
 import { VerificationStatus } from '@/api/asset_interfaces';
-import { useBusterMetricListByFilter } from '@/context/Metrics';
 import { MetricListHeader } from './MetricListHeader';
 import { MetricItemsContainer } from './MetricItemsContainer';
 import { AppPageLayout } from '@/components/ui/layouts';
+import { useGetMetricsList } from '@/api/buster_rest/metrics';
 
-export const MetricListContainer: React.FC<{
-  type: 'logs' | 'metrics';
-}> = ({ type }) => {
+export const MetricListContainer: React.FC<{}> = ({}) => {
   const [filters, setFilters] = useState<VerificationStatus[]>([]);
-  const adminView = type === 'logs';
-  const { metricList, isFetched } = useBusterMetricListByFilter({
-    filters,
-    admin_view: adminView
-  });
-
-  const onSetFilters = useMemoizedFn((newFilters: VerificationStatus[]) => {
-    setFilters(newFilters);
-  });
-
-  useMount(async () => {
-    onSetFilters([]);
-  });
+  const { data: metricList, isFetching, isFetched } = useGetMetricsList({ status: filters });
 
   return (
-    <AppPageLayout
-      header={<MetricListHeader type={type} filters={filters} onSetFilters={onSetFilters} />}>
+    <AppPageLayout header={<MetricListHeader filters={filters} onSetFilters={setFilters} />}>
       <MetricItemsContainer
-        type={type}
         metrics={metricList || []}
         loading={!isFetched}
         className="flex-col overflow-hidden"
