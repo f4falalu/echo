@@ -13,10 +13,14 @@ export const BarContainer: React.FC<{
   children?: React.ReactNode;
   title: string;
   secondaryTitle?: string;
-}> = React.memo(({ showBar, status, children, title, secondaryTitle }) => {
+}> = React.memo(({ showBar, isCompletedStream, status, children, title, secondaryTitle }) => {
   return (
     <div className={'relative flex space-x-1.5 overflow-hidden'}>
-      <VerticalBarContainer showBar={showBar} status={status} />
+      <VerticalBarContainer
+        showBar={showBar}
+        status={status}
+        isCompletedStream={isCompletedStream}
+      />
 
       <div className={`mb-2 flex w-full flex-col space-y-2 overflow-hidden`}>
         <TitleContainer title={title} secondaryTitle={secondaryTitle} />
@@ -31,37 +35,44 @@ BarContainer.displayName = 'BarContainer';
 const VerticalBarContainer: React.FC<{
   showBar: boolean;
   status: BusterChatMessageReasoning_status;
-}> = React.memo(({ showBar, status }) => {
+  isCompletedStream: boolean;
+}> = React.memo(({ showBar, isCompletedStream, status }) => {
   return (
     <div className="ml-2 flex w-5 min-w-5 flex-col items-center">
       <StatusIndicator status={status} />
-      <VerticalBar show={showBar} />
+      <VerticalBar show={showBar} isCompletedStream={isCompletedStream} />
     </div>
   );
 });
 
 VerticalBarContainer.displayName = 'BarContainer';
 
-const VerticalBar: React.FC<{ show?: boolean }> = ({ show }) => {
-  return (
-    <div
-      className={cn(
-        'flex w-full flex-1 justify-center overflow-hidden',
-        'opacity-0 transition-opacity duration-300',
-        show && 'opacity-100!'
-      )}>
-      <motion.div
-        className={cn('bg-text-tertiary w-[0.5px]', 'mt-1 overflow-hidden')}
-        initial={{ height: 0 }}
-        animate={{ height: 'auto' }}
-        transition={{
-          duration: 0.3,
-          ease: 'easeInOut'
-        }}
-      />
-    </div>
-  );
-};
+const VerticalBar: React.FC<{ show?: boolean; isCompletedStream: boolean }> = React.memo(
+  ({ show, isCompletedStream }) => {
+    return (
+      <div
+        className={cn(
+          'flex w-full flex-1 justify-center overflow-hidden',
+          'opacity-0 transition-opacity duration-300',
+          show && 'opacity-100!'
+        )}>
+        <AnimatePresence initial={!isCompletedStream}>
+          <motion.div
+            className={cn('bg-text-tertiary w-[0.5px]', 'mt-1 overflow-hidden')}
+            initial={{ height: 0 }}
+            animate={{ height: 'auto' }}
+            transition={{
+              duration: 0.3,
+              ease: 'easeInOut'
+            }}
+          />
+        </AnimatePresence>
+      </div>
+    );
+  }
+);
+
+VerticalBar.displayName = 'VerticalBar';
 
 const TitleContainer: React.FC<{
   title: string;
