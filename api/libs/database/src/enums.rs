@@ -220,6 +220,7 @@ pub enum AssetType {
     Thread,
     Collection,
     Chat,
+    Metric,
 }
 
 #[derive(
@@ -536,6 +537,7 @@ impl ToSql<sql_types::AssetTypeEnum, Pg> for AssetType {
             AssetType::Thread => out.write_all(b"thread")?,
             AssetType::Collection => out.write_all(b"collection")?,
             AssetType::Chat => out.write_all(b"chat")?,
+            AssetType::Metric => out.write_all(b"metric")?,
         }
         Ok(IsNull::No)
     }

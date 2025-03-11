@@ -13,7 +13,6 @@ use axum::http::StatusCode;
 
 use database::enums::{AssetPermissionRole, AssetType, UserOrganizationRole};
 use database::pool::{get_pg_pool, PgPool};
-use database::models::User;
 use database::schema::{
     asset_permissions, collections_to_assets, dashboards, teams_to_users, threads_deprecated,
     threads_to_dashboards, users_to_organizations,
@@ -124,6 +123,9 @@ async fn get_asset_access_handler(
             }
         AssetType::Chat => {
             return Err(anyhow!("Public access is not supported for chats yet"));
+        }
+        AssetType::Metric => {
+            return Err(anyhow!("Public access is not supported for metrics yet"));
         }
     };
 

@@ -1,0 +1,33 @@
+use anyhow::{anyhow, Result};
+use chrono::Utc;
+use diesel::{update, ExpressionMethods};
+use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
+use uuid::Uuid;
+
+use database::{
+    pool::get_pg_pool,
+    schema::user_favorites,
+};
+
+use super::favorites_utils::{list_user_favorites, FavoriteEnum};
+
+pub async fn delete_favorite(user: &AuthenticatedUser, id: &Uuid) -> Result<Vec<FavoriteEnum>> {
+    let mut conn = match get_pg_pool().get().await {
+        Ok(conn) => conn,
+        Err(e) => return Err(anyhow!("Error getting connection from pool: {:?}", e)),
+    };
+
+    match update(user_favorites::table)
+        .set(user_favorites::deleted_at.eq(Some(Utc::now())))
+        .filter(user_favorites::user_id.eq(user.id))
+        .filter(user_favorites::asset_id.eq(id))
+        .execute(&mut conn)
+        .await
+    {
+        Ok(_) => (),
+        Err(e) => return Err(anyhow!("Error deleting favorite: {:?}", e)),
+    };
+
+    list_user_favorites(user).await
+}

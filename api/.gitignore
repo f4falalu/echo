@@ -61,7 +61,8 @@ Cargo.lock
 # Node.js dependencies
 node_modules/
 
-prds/
+prds/completed/*
+prds/deprecated/* 
 docs/
 
 .cargo/
