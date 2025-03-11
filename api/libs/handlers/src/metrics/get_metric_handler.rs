@@ -14,6 +14,8 @@ use database::enums::Verification;
 use database::pool::get_pg_pool;
 use database::schema::{datasets, metric_files};
 
+use super::Version;
+
 #[derive(Queryable, Selectable)]
 #[diesel(table_name = metric_files)]
 struct QueryableMetricFile {
@@ -154,6 +156,16 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid) -> Result<Bust
     //     .await
     //     .map_err(|e| anyhow!("Failed to get user information: {}", e))?;
 
+    let versions = metric_file
+        .version_history
+        .0
+        .values()
+        .map(|v| Version {
+            version_number: v.version_number,
+            updated_at: v.updated_at,
+        })
+        .collect();
+
     // Construct BusterMetric
     Ok(BusterMetric {
         id: metric_file.id.to_string(),
@@ -180,6 +192,6 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid) -> Result<Bust
         code: None,
         dashboards: vec![],  // TODO: Get associated dashboards
         collections: vec![], // TODO: Get associated collections
-        versions: metric_file.version_history,
+        versions,
     })
 }

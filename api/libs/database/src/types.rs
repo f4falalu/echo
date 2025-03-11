@@ -1,5 +1,6 @@
 use std::io::Write;
 
+use chrono::{DateTime, Utc};
 use diesel::{
     deserialize::FromSql,
     pg::Pg,
@@ -18,6 +19,7 @@ pub struct VersionHistory(pub std::collections::HashMap<String, Version>);
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Version {
     pub version_number: i32,
+    pub updated_at: DateTime<Utc>,
     pub content: Value,
 }
 
@@ -28,6 +30,7 @@ impl VersionHistory {
             Version {
                 content,
                 version_number,
+                updated_at: Utc::now(),
             },
         )]))
     }
@@ -38,6 +41,7 @@ impl VersionHistory {
             Version {
                 content,
                 version_number,
+                updated_at: Utc::now(),
             },
         );
     }
