@@ -3,7 +3,6 @@
 import { Text } from '@/components/ui/typography';
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useChatIndividualContextSelector } from '../../ChatContext';
 
 const animation = {
   initial: { opacity: 0 },
@@ -12,8 +11,10 @@ const animation = {
   transition: { duration: 0.25 }
 };
 
-export const ChatHeaderTitle: React.FC<{}> = React.memo(() => {
-  const chatTitle = useChatIndividualContextSelector((state) => state.chatTitle);
+export const ChatHeaderTitle: React.FC<{
+  chatTitle: string;
+}> = React.memo(({ chatTitle }) => {
+  if (!chatTitle) return <div></div>;
 
   return (
     <AnimatePresence mode="wait" initial={false}>

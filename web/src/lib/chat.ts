@@ -4,6 +4,7 @@ import { create } from 'mutative';
 import omit from 'lodash/omit';
 import { BusterMetric, IBusterMetric } from '@/api/asset_interfaces/metric';
 import { createDefaultChartConfig } from './messageAutoChartHandler';
+import last from 'lodash/last';
 
 const chatUpgrader = (chat: BusterChat, { isNewChat }: { isNewChat: boolean }): IBusterChat => {
   return {
@@ -20,7 +21,7 @@ const chatMessageUpgrader = (
   return messageIds.reduce(
     (acc, messageId) => {
       acc[messageId] = create(message[messageId] as IBusterChatMessage, (draft) => {
-        draft.isCompletedStream = streamingMessageId !== messageId;
+        draft.isCompletedStream = !streamingMessageId || streamingMessageId !== messageId;
         return draft;
       });
       return acc;
@@ -37,7 +38,7 @@ export const updateChatToIChat = (
   const iChatMessages = chatMessageUpgrader(
     chat.message_ids,
     chat.messages,
-    isNewChat ? chat.message_ids[0] : undefined
+    isNewChat ? last(chat.message_ids) : undefined
   );
   return {
     iChat,

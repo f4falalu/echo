@@ -35,7 +35,11 @@ export const CustomParagraph: React.FC<
 > = ({ children, markdown, showLoader, ...rest }) => {
   if (Array.isArray(children)) {
     return (
-      <p className={cn('leading-1.3', showLoader && 'animate-in fade-in duration-700')}>
+      <p
+        className={cn(
+          'leading-1.3 text-size-inherit!',
+          showLoader && 'animate-in fade-in duration-700'
+        )}>
         {children}
       </p>
     );
@@ -48,7 +52,13 @@ export const CustomParagraph: React.FC<
   }
 
   return (
-    <p className={cn('leading-1.3', showLoader && 'animate-in fade-in duration-700')}>{children}</p>
+    <p
+      className={cn(
+        'leading-1.3 text-size-inherit!',
+        showLoader && 'animate-in fade-in duration-700'
+      )}>
+      {children}
+    </p>
   );
 };
 
@@ -112,7 +122,11 @@ export const CustomListItem: React.FC<
   } & ExtraPropsExtra
 > = ({ children, markdown, showLoader, ...rest }) => {
   return (
-    <li className={cn('leading-1.3', showLoader && 'animate-in fade-in duration-700')}>
+    <li
+      className={cn(
+        'leading-1.3 list-inside list-disc',
+        showLoader && 'animate-in fade-in duration-700'
+      )}>
       {children}
     </li>
   );

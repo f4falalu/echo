@@ -38,12 +38,12 @@ export const useChatUpdate = () => {
       const options = queryKeys.chatsMessages(newMessageConfig.id);
       const queryKey = options.queryKey;
       const currentData = queryClient.getQueryData(queryKey);
-
-      const iChatMessage = create(currentData!, (draft) => {
-        Object.assign(draft, newMessageConfig);
-      });
-
-      queryClient.setQueryData(queryKey, iChatMessage);
+      if (currentData) {
+        const iChatMessage = create(currentData, (draft) => {
+          Object.assign(draft, newMessageConfig);
+        });
+        queryClient.setQueryData(queryKey, iChatMessage);
+      }
     }
   );
 

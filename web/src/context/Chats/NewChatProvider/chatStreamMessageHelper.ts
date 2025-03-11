@@ -191,7 +191,7 @@ export const updateReasoningMessage = (
                     Object.assign(fileContentDraft, existingFile?.file || {});
                     fileContentDraft.text = newFile.file.text_chunk
                       ? (existingFile?.file?.text || '') + newFile.file.text_chunk
-                      : (newFile.file.text ?? existingFile?.file?.text);
+                      : (existingFile?.file?.text ?? newFile.file.text); //we are going to ignore newfile text in favor of existing... this is because Dallin is having a tough time keep yaml in order
                     fileContentDraft.modified =
                       newFile.file.modified ?? existingFile?.file?.modified;
                   });
