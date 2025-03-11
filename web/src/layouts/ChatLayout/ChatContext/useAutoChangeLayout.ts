@@ -11,7 +11,7 @@ export const useAutoChangeLayout = ({
   lastMessageId: string;
   onSetSelectedFile: (file: SelectedFile) => void;
 }) => {
-  const hasSeeningReasoningPage = useRef(false); //used when there is a delay in page load
+  const previousLastMessageId = useRef<string | null>(null);
   const reasoningMessagesLength = useMessageIndividual(
     lastMessageId,
     (x) => x?.reasoning_message_ids?.length || 0
@@ -19,11 +19,14 @@ export const useAutoChangeLayout = ({
   const isCompletedStream = useMessageIndividual(lastMessageId, (x) => x?.isCompletedStream);
   const hasReasoning = !!reasoningMessagesLength;
 
+  console.log('lastMessageId', lastMessageId, hasReasoning);
+
   //change the page to reasoning file if we get a reasoning message
   useEffect(() => {
-    if (!isCompletedStream && !hasSeeningReasoningPage.current && hasReasoning) {
-      hasSeeningReasoningPage.current = true;
+    if (!isCompletedStream && hasReasoning && previousLastMessageId.current !== lastMessageId) {
+      // hasSeeningReasoningPage.current = true;
       onSetSelectedFile({ id: lastMessageId, type: 'reasoning' });
+      previousLastMessageId.current = lastMessageId;
     }
-  }, [isCompletedStream, hasReasoning]);
+  }, [isCompletedStream, hasReasoning, lastMessageId]);
 };

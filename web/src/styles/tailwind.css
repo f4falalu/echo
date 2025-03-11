@@ -40,6 +40,7 @@
   --text-3xl--line-height: 1;
   --text-4xl: 30px;
   --text-4xl--line-height: 1;
+  --text-size-inherit: inherit;
 
   --text-icon-size: 16px;
   --text-icon-size--line-height: 1.05;
