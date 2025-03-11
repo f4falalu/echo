@@ -25,7 +25,7 @@ export const useChatInputFlow = ({
   const onStartNewChat = useBusterNewChatContextSelector((state) => state.onStartNewChat);
   const onFollowUpChat = useBusterNewChatContextSelector((state) => state.onFollowUpChat);
   const onStartChatFromFile = useBusterNewChatContextSelector((state) => state.onStartChatFromFile);
-  const onStopChat = useBusterNewChatContextSelector((state) => state.onStopChat);
+  const onStopChatContext = useBusterNewChatContextSelector((state) => state.onStopChat);
   const currentMessageId = useChatIndividualContextSelector((x) => x.currentMessageId);
 
   const flow: FlowType = useMemo(() => {
@@ -39,7 +39,7 @@ export const useChatInputFlow = ({
     if (disableSubmit || !chatId || !currentMessageId) return;
 
     if (loading) {
-      onStopChat({ chatId: chatId!, messageId: currentMessageId });
+      onStopChat();
       return;
     }
 
@@ -79,5 +79,11 @@ export const useChatInputFlow = ({
     }, 50);
   });
 
-  return { onSubmitPreflight };
+  const onStopChat = useMemoizedFn(() => {
+    onStopChatContext({ chatId: chatId!, messageId: currentMessageId });
+    textAreaRef.current?.focus();
+    textAreaRef.current?.select();
+  });
+
+  return { onSubmitPreflight, onStopChat };
 };

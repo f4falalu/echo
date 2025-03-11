@@ -18,7 +18,7 @@ export const ChatInput: React.FC<{}> = React.memo(({}) => {
     return !inputHasText(inputValue);
   }, [inputValue]);
 
-  const { onSubmitPreflight } = useChatInputFlow({
+  const { onSubmitPreflight, onStopChat } = useChatInputFlow({
     disableSubmit,
     inputValue,
     setInputValue,
@@ -28,10 +28,6 @@ export const ChatInput: React.FC<{}> = React.memo(({}) => {
 
   const onChange = useMemoizedFn((e: ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(e.target.value);
-  });
-
-  const onStop = useMemoizedFn(() => {
-    // setInputValue('');
   });
 
   return (
@@ -45,7 +41,7 @@ export const ChatInput: React.FC<{}> = React.memo(({}) => {
         autoResize={autoResizeConfig}
         onSubmit={onSubmitPreflight}
         onChange={onChange}
-        onStop={onStop}
+        onStop={onStopChat}
         loading={loading}
         disabledSubmit={disableSubmit}
         autoFocus

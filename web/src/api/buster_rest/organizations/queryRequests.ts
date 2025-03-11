@@ -16,8 +16,7 @@ export const useGetOrganizationUsers = (organizationId: string) => {
     queryKey,
     staleTime: 10 * 1000,
     queryFn,
-    enabled: !!organizationId,
-    initialData: []
+    enabled: !!organizationId
   });
 };
 

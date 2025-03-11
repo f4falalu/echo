@@ -3,7 +3,9 @@ import { createContext, useContextSelector } from 'use-context-selector';
 import type { SelectedFile } from '../interfaces';
 import { useAutoChangeLayout } from './useAutoChangeLayout';
 import { useGetChat } from '@/api/buster_rest/chats';
-import { useMessageIndividual } from '@/context/Chats';
+import { useQueries } from '@tanstack/react-query';
+import { queryKeys } from '@/api/query_keys';
+import { IBusterChatMessage } from '@/api/asset_interfaces/chat';
 
 const useChatIndividualContext = ({
   chatId,
@@ -28,7 +30,18 @@ const useChatIndividualContext = ({
 
   //MESSAGES
   const currentMessageId = chatMessageIds[chatMessageIds.length - 1];
-  const isStreamingMessage = useMessageIndividual(currentMessageId, (x) => !x?.isCompletedStream);
+
+  const isStreamingMessage = useQueries({
+    queries: chatMessageIds.map((messageId) => {
+      const queryKey = queryKeys.chatsMessages(messageId);
+      return {
+        ...queryKey,
+        select: (data: IBusterChatMessage | undefined) => !data?.isCompletedStream,
+        enabled: false
+      };
+    }),
+    combine: (result) => result.some((res) => res.data)
+  });
 
   useAutoChangeLayout({
     lastMessageId: currentMessageId,
