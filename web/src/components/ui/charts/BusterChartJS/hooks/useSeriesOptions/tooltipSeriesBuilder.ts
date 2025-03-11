@@ -1,4 +1,4 @@
-import type { DatasetOption } from '@/components/ui/charts/chartHooks';
+import type { DatasetOption } from '../../../chartHooks';
 import type { ChartProps } from '../../core/types';
 import type { ChartType as ChartJSChartType } from 'chart.js';
 

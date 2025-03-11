@@ -1,15 +1,15 @@
-import {
+import type {
   BusterChartConfigProps,
   ChartType,
   ColumnLabelFormat,
   GoalLine
-} from '@/components/ui/charts/interfaces';
+} from '@/api/asset_interfaces/metric/charts';
 import { AnnotationOptions, AnnotationPluginOptions } from 'chartjs-plugin-annotation';
 import { useMemo } from 'react';
 import { formatLabel } from '@/lib/columnFormatter';
-import { yAxisSimilar } from '@/components/ui/charts/commonHelpers';
-import { extractFieldsFromChain } from '@/components/ui/charts/chartHooks';
+import { extractFieldsFromChain } from '../../../chartHooks';
 import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOptionConfig';
+import { yAxisSimilar } from '../../../commonHelpers';
 
 export const useGoalLines = ({
   goalLines,

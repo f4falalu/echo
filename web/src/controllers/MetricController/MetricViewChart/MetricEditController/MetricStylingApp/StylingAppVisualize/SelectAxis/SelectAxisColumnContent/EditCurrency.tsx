@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
-import type { IColumnLabelFormat } from '@/components/ui/charts/interfaces/columnLabelInterfaces';
+import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
 import { Select, SelectItem } from '@/components/ui/select';
 import { useGetCurrencies } from '@/api/buster_rest/nextjs/currency';
 import { useMemoizedFn } from '@/hooks';

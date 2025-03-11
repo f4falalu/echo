@@ -1,9 +1,9 @@
 import {
-  BusterChartProps,
-  ChartEncodes,
+  type BusterChartProps,
+  type ChartEncodes,
   ChartType,
-  ComboChartAxis
-} from '@/components/ui/charts/interfaces';
+  type ComboChartAxis
+} from '@/api/asset_interfaces/metric/charts';
 import React, { useMemo } from 'react';
 import { useXAxisTitle } from './useXAxisTitle';
 import { useYAxisTitle } from './useYAxisTitle';

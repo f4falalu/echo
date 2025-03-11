@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useMemoizedFn } from '@/hooks';
 import { type BusterChartLegendItem } from './interfaces';
-import { ChartType } from '../interfaces';
+import { ChartType } from '@/api/asset_interfaces/metric/charts';
 import { Target } from '../../icons';
 import { cn } from '@/lib/classMerge';
 import { cva, type VariantProps } from 'class-variance-authority';

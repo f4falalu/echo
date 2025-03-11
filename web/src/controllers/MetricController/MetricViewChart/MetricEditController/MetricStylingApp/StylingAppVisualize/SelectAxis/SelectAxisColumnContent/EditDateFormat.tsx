@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 import { Select, SelectItem } from '@/components/ui/select';
-import { IColumnLabelFormat } from '@/components/ui/charts/interfaces';
+import { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import {
   getDefaultDateOptions,
   getDefaultDayOfWeekOptions,

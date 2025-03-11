@@ -1,5 +1,8 @@
-import { BusterChartProps, ColumnLabelFormat } from '../../interfaces';
-import { ScatterAxis } from '../../interfaces/axisInterfaces';
+import {
+  type BusterChartProps,
+  type ColumnLabelFormat,
+  type ScatterAxis
+} from '@/api/asset_interfaces/metric/charts';
 import { createDimension } from './datasetHelpers_BarLinePie';
 import { appendToKeyValueChain } from './groupingHelpers';
 import { DatasetOption } from './interfaces';

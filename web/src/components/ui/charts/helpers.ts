@@ -1,5 +1,4 @@
-import { ChartEncodes } from './interfaces';
-import { ChartType } from './interfaces/enum';
+import { type ChartEncodes, ChartType } from '@/api/asset_interfaces/metric/charts';
 import isEmpty from 'lodash/isEmpty';
 
 const defaultAxisCheck = (selectedAxis: ChartEncodes) => {

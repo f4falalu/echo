@@ -1,13 +1,13 @@
 import type { ChartProps } from '../../core';
 import { LabelBuilderProps } from './useSeriesOptions';
 import { SeriesBuilderProps } from './interfaces';
-import { extractFieldsFromChain } from '@/components/ui/charts/chartHooks';
+import { extractFieldsFromChain } from '../../../chartHooks';
 import { DEFAULT_COLUMN_SETTINGS, ENABLED_DOTS_ON_LINE_SIZE } from '@/api/asset_interfaces';
 import { barBuilder } from './barSeriesBuilder';
 import { createDayjsDate } from '@/lib/date';
-import { formatChartLabelDelimiter } from '@/components/ui/charts/commonHelpers';
+import { formatChartLabelDelimiter } from '../../../commonHelpers';
 import { lineBuilder } from './lineSeriesBuilder';
-import { ColumnSettings } from '@/components/ui/charts/interfaces';
+import { ColumnSettings } from '@/api/asset_interfaces/metric/charts';
 
 type ComboSeries = Array<
   ChartProps<'bar'>['data']['datasets'][number] | ChartProps<'line'>['data']['datasets'][number]

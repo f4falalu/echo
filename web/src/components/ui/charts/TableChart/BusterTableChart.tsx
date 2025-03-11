@@ -1,10 +1,13 @@
 import React, { useCallback } from 'react';
-import { BusterTableChartConfig } from './interfaces';
+import type { BusterTableChartConfig } from './interfaces';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { formatLabel } from '@/lib/columnFormatter';
 import isEqual from 'lodash/isEqual';
-import type { BusterChartPropsBase } from '../interfaces';
-import { type IBusterMetricChartConfig, DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces';
+import {
+  type IBusterMetricChartConfig,
+  type BusterChartPropsBase,
+  DEFAULT_CHART_CONFIG
+} from '@/api/asset_interfaces/metric';
 import { useMemoizedFn } from '@/hooks';
 import { useChartWrapperContextSelector } from '../chartHooks/useChartWrapperProvider';
 import AppDataGrid from '@/components/ui/table/AppDataGrid/AppDataGrid';

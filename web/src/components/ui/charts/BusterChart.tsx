@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { BusterChartProps, ChartEncodes, ChartType } from './interfaces';
 import isEmpty from 'lodash/isEmpty';
 import { doesChartHaveValidAxis } from './helpers';
 import { useMemoizedFn } from '@/hooks';
@@ -10,7 +9,7 @@ import {
   PreparingYourRequestLoader
 } from './LoadingComponents/ChartLoadingComponents';
 import BusterTableChart from './TableChart';
-import { DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces';
+import { BusterChartProps, ChartEncodes, ChartType } from '@/api/asset_interfaces/metric/charts';
 import { DEFAULT_DATA } from './BusterChartLegend/config';
 import { NoValidAxis } from './LoadingComponents';
 import BusterMetricChart from './MetricChart';
@@ -18,6 +17,7 @@ import { BusterChartErrorWrapper } from './BusterChartErrorWrapper';
 import { BusterChartWrapper } from './BusterChartWrapper';
 import { BusterChartRenderComponentProps } from './interfaces/chartComponentInterfaces';
 import { BusterChartComponent } from './BusterChartComponent';
+import { DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces/metric/defaults';
 
 export const BusterChart: React.FC<BusterChartProps> = React.memo(
   ({

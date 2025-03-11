@@ -1,12 +1,17 @@
 import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import type { IColumnLabelFormat } from '@/components/ui/charts/interfaces/columnLabelInterfaces';
+import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
 import { useMemoizedFn } from '@/hooks';
 import React, { useMemo } from 'react';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { formatLabel } from '@/lib';
 import { EditTitle } from './EditTitle';
 import { EditDisplayAs } from './EditDisplayAs';
-import { BarAndLineAxis, ChartEncodes, ChartType, ColumnSettings } from '@/components/ui/charts';
+import {
+  BarAndLineAxis,
+  ChartEncodes,
+  ChartType,
+  ColumnSettings
+} from '@/api/asset_interfaces/metric/charts';
 import { EditBarRoundness } from './EditBarRoundness';
 import { EditShowDataLabel } from './EditShowDataLabel';
 import { EditShowBarLabelAsPercentage } from './EditShowLabelAsPercentage';

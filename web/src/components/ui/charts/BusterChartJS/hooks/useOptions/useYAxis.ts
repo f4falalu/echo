@@ -4,14 +4,14 @@ import {
   ChartEncodes,
   ChartType,
   IColumnLabelFormat
-} from '@/components/ui/charts/interfaces';
+} from '@/api/asset_interfaces/metric/charts';
 import { useMemoizedFn } from '@/hooks';
 import type { DeepPartial } from 'utility-types';
 import type { ScaleChartOptions, Scale, GridLineOptions } from 'chart.js';
 import { useMemo } from 'react';
-import { yAxisSimilar, formatYAxisLabel } from '@/components/ui/charts/commonHelpers';
+import { yAxisSimilar, formatYAxisLabel } from '../../../commonHelpers';
 import { useIsStacked } from './useIsStacked';
-import { useYAxisTitle } from '@/components/ui/charts/commonHelpers/useYAxisTitle';
+import { useYAxisTitle } from '../../../commonHelpers/useYAxisTitle';
 
 export const useYAxis = ({
   columnLabelFormats,

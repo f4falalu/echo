@@ -1,8 +1,12 @@
-import { determineFontColorContrast, formatLabel } from '@/lib';
+import { formatLabel } from '@/lib/columnFormatter';
 import type { Context } from 'chartjs-plugin-datalabels';
 import { formatChartLabelDelimiter } from '../../commonHelpers';
 import { extractFieldsFromChain, appendToKeyValueChain } from '../../chartHooks';
-import { BusterChartProps, ColumnLabelFormat } from '../../interfaces';
+import {
+  type BusterChartProps,
+  type ColumnLabelFormat
+} from '@/api/asset_interfaces/metric/charts';
+import { determineFontColorContrast } from '@/lib/colors';
 
 export const dataLabelFontColorContrast = (context: Context) => {
   const color = context.dataset.backgroundColor as string;

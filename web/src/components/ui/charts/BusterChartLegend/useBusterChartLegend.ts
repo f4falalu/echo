@@ -8,8 +8,8 @@ import {
   ChartEncodes,
   ChartType,
   ComboChartAxis,
-  ScatterAxis
-} from '../interfaces';
+  type ScatterAxis
+} from '@/api/asset_interfaces/metric/charts';
 import {
   DEFAULT_CATEGORY_AXIS_COLUMN_NAMES,
   DEFAULT_X_AXIS_COLUMN_NAMES,

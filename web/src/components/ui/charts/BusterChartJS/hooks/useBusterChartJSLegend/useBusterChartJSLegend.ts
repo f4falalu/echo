@@ -7,7 +7,7 @@ import {
   ChartEncodes,
   ChartType,
   ComboChartAxis
-} from '@/components/ui/charts/interfaces';
+} from '@/api/asset_interfaces/metric/charts';
 import { useDebounceFn, useMemoizedFn } from '@/hooks';
 import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import {
@@ -15,9 +15,9 @@ import {
   BusterChartLegendItem,
   useBusterChartLegend,
   UseChartLengendReturnValues
-} from '@/components/ui/charts/BusterChartLegend';
+} from '../../../BusterChartLegend';
 import { getLegendItems } from './helper';
-import { DatasetOption } from '@/components/ui/charts/chartHooks';
+import { DatasetOption } from '../../../chartHooks';
 
 interface UseBusterChartJSLegendProps {
   chartRef: React.RefObject<ChartJSOrUndefined | null>;

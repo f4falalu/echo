@@ -4,7 +4,7 @@ import type { DeepPartial } from 'utility-types';
 import type { PluginChartOptions } from 'chart.js';
 import { ChartSpecificOptionsProps } from './interfaces';
 import { AnnotationPluginOptions } from 'chartjs-plugin-annotation';
-import { ChartEncodes } from '@/components/ui/charts/interfaces';
+import { ChartEncodes } from '@/api/asset_interfaces/metric/charts';
 
 export const barOptionsHandler = (
   props: ChartSpecificOptionsProps

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { BusterChartTooltip } from './BusterChartTooltip';
-
+import React from 'react';
 const meta: Meta<typeof BusterChartTooltip> = {
   title: 'UI/Charts/BusterChartTooltip',
   component: BusterChartTooltip,

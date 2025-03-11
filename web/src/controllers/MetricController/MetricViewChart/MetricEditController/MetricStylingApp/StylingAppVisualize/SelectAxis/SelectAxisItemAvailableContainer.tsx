@@ -8,7 +8,7 @@ import { DotsVertical } from '@/components/ui/icons';
 import { Button } from '@/components/ui/buttons';
 import { useMemoizedFn } from '@/hooks';
 import { SelectAxisColumnPopover } from './SelectAxisColumnPopover';
-import type { ChartEncodes, IColumnLabelFormat } from '@/components/ui/charts';
+import type { ChartEncodes, IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { SelectAxisContainerId } from './config';
 

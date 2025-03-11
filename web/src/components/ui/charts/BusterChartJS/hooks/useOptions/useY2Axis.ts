@@ -4,13 +4,13 @@ import {
   ChartEncodes,
   ChartType,
   ComboChartAxis
-} from '@/components/ui/charts/interfaces';
+} from '@/api/asset_interfaces/metric/charts';
 import { useMemoizedFn } from '@/hooks';
 import type { DeepPartial } from 'utility-types';
 import type { ScaleChartOptions, Scale } from 'chart.js';
 import { useMemo } from 'react';
-import { yAxisSimilar, formatYAxisLabel } from '@/components/ui/charts/commonHelpers';
-import { useY2AxisTitle } from '@/components/ui/charts/commonHelpers/useY2AxisTitle';
+import { yAxisSimilar, formatYAxisLabel } from '../../../commonHelpers';
+import { useY2AxisTitle } from '../../../commonHelpers/useY2AxisTitle';
 import { DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces';
 
 export const useY2Axis = ({

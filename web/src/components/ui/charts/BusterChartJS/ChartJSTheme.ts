@@ -26,8 +26,7 @@ import ChartJsAnnotationPlugin from 'chartjs-plugin-annotation';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 import 'chartjs-adapter-dayjs-4';
-
-import { DEFAULT_CHART_THEME } from '../configColors';
+import { DEFAULT_CHART_THEME } from '@/api/asset_interfaces/metric/charts/configColors';
 
 ChartJS.register(
   LineController,

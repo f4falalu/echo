@@ -4,7 +4,7 @@ import { BusterChartLegendItem, BusterChartLegendProps } from './interfaces';
 import { LegendItem } from './LegendItem';
 import { cn } from '@/lib/classMerge';
 import { LegendItemDot } from './LegendDot';
-import { ChartType } from '../interfaces';
+import { ChartType } from '@/api/asset_interfaces/metric/charts';
 
 export const OverflowButton: React.FC<{
   legendItems: BusterChartLegendItem[];

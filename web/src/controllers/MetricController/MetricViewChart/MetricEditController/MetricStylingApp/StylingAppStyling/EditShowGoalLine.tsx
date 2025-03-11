@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/inputs';
 import { InputNumber } from '@/components/ui/inputs';
 import { Switch } from '@/components/ui/switch';
 import { Plus } from '@/components/ui/icons';
-import { ChartEncodes, GoalLine } from '@/components/ui/charts';
+import { ChartEncodes, GoalLine } from '@/api/asset_interfaces/metric/charts';
 import { v4 as uuidv4 } from 'uuid';
 import { useMemoizedFn, useSet } from '@/hooks';
 import { ColumnMetaData } from '@/api/asset_interfaces';

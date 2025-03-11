@@ -6,7 +6,7 @@ import { useMemoizedFn } from '@/hooks';
 import { EditMetricAggregate } from './EditMetricType';
 import { EditMetricHeader } from './EditMetricHeaderType';
 import { Separator } from '@/components/ui/seperator';
-import { DerivedMetricTitle } from '@/components/ui/charts';
+import { DerivedMetricTitle } from '@/api/asset_interfaces/metric/charts';
 import { EditHeaderTitle } from './EditHeaderTitle';
 import { createColumnFieldOptions } from './helpers';
 

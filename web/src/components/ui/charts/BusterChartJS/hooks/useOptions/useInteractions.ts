@@ -1,6 +1,6 @@
 import type { DeepPartial } from 'utility-types'; // Add this import
 import type { CoreInteractionOptions } from 'chart.js';
-import { BusterChartConfigProps } from '@/components/ui/charts/interfaces';
+import type { BusterChartConfigProps } from '@/api/asset_interfaces/metric/charts';
 import { useMemo } from 'react';
 
 interface UseInteractionsProps {

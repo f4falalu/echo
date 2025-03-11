@@ -2,7 +2,7 @@ import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import React, { useMemo } from 'react';
 import { EditBarRoundness } from '../StylingAppVisualize/SelectAxis/SelectAxisColumnContent/EditBarRoundness';
 import { useMemoizedFn } from '@/hooks';
-import type { ColumnSettings } from '@/components/ui/charts';
+import type { ColumnSettings } from '@/api/asset_interfaces/metric/charts';
 
 export const EditBarRoundnessGlobal: React.FC<{
   columnSettings: IBusterMetricChartConfig['columnSettings'];

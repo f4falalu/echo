@@ -1,7 +1,7 @@
-import { formatLabel } from '@/lib';
+import { formatLabel } from '@/lib/columnFormatter';
 import { useMemo } from 'react';
-import { AXIS_TITLE_SEPARATOR } from '@/components/ui/charts/commonHelpers/axisHelper';
-import { BusterChartConfigProps } from '../interfaces';
+import { AXIS_TITLE_SEPARATOR } from '../commonHelpers/axisHelper';
+import type { BusterChartConfigProps } from '@/api/asset_interfaces/metric/charts';
 import { truncateWithEllipsis } from './titleHelpers';
 
 export const useY2AxisTitle = ({

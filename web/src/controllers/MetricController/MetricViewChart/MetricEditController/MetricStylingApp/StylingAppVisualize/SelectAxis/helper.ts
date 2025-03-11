@@ -1,6 +1,6 @@
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import type { DropZone } from './SelectAxisDragContainer/interfaces';
-import { ChartType } from '@/components/ui/charts';
+import { ChartType } from '@/api/asset_interfaces/metric/charts';
 import { SelectAxisContainerId } from './config';
 import isEmpty from 'lodash/isEmpty';
 

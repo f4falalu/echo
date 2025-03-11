@@ -1,4 +1,4 @@
-import { extractFieldsFromChain } from '@/components/ui/charts/chartHooks';
+import { extractFieldsFromChain } from '../../../chartHooks';
 import { Chart, Filler, ScriptableContext } from 'chart.js';
 import type { ChartProps } from '../../core';
 import { SeriesBuilderProps } from './interfaces';
@@ -7,7 +7,7 @@ import { formatChartLabelDelimiter } from '../../../commonHelpers';
 import { addOpacityToColor, createDayjsDate } from '@/lib';
 import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOptionConfig';
 import { DEFAULT_COLUMN_SETTINGS } from '@/api/asset_interfaces';
-import type { ColumnSettings } from '@/components/ui/charts/interfaces';
+import type { ColumnSettings } from '@/api/asset_interfaces/metric/charts';
 import { formatBarAndLineDataLabel } from '../../helpers';
 
 Chart.register(Filler);

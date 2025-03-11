@@ -6,12 +6,12 @@ import {
   IColumnLabelFormat,
   ComboChartAxis,
   XAxisConfig
-} from '@/components/ui/charts/interfaces';
+} from '@/api/asset_interfaces/metric/charts';
 import { useMemoizedFn } from '@/hooks';
 import { useMemo } from 'react';
 import { DeepPartial } from 'utility-types';
 import type { ScaleChartOptions, Scale, GridLineOptions } from 'chart.js';
-import { useXAxisTitle } from '@/components/ui/charts/commonHelpers/useXAxisTitle';
+import { useXAxisTitle } from '../../../commonHelpers/useXAxisTitle';
 import { useIsStacked } from './useIsStacked';
 import { formatLabel, isNumericColumnType } from '@/lib';
 import isDate from 'lodash/isDate';

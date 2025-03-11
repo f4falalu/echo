@@ -1,6 +1,6 @@
 import React from 'react';
 import { BusterChartLegend, BusterChartLegendItem } from '.';
-import { ShowLegendHeadline } from '../interfaces';
+import { ShowLegendHeadline } from '@/api/asset_interfaces/metric/charts';
 import {
   ChartLegendWrapperProvider,
   useChartWrapperContextSelector

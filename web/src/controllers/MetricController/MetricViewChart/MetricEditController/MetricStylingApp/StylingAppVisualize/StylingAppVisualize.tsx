@@ -10,7 +10,7 @@ import {
   ChartType,
   MetricChartProps,
   ChartEncodes
-} from '@/components/ui/charts';
+} from '@/api/asset_interfaces/metric/charts';
 import { ISelectAxisContext } from './SelectAxis/useSelectAxisContext';
 import { StylingMetric } from './StylingMetric';
 

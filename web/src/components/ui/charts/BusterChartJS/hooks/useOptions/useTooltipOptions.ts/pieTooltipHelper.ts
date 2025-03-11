@@ -1,5 +1,8 @@
-import { ITooltipItem } from '@/components/ui/charts/BusterChartTooltip/interfaces';
-import { BusterChartConfigProps, BusterChartProps } from '@/components/ui/charts/interfaces';
+import type { ITooltipItem } from '../../../../BusterChartTooltip/interfaces';
+import type {
+  BusterChartConfigProps,
+  BusterChartProps
+} from '@/api/asset_interfaces/metric/charts';
 import type { Chart, ChartDataset, TooltipItem, ChartTypeRegistry } from 'chart.js';
 import { formatChartLabelDelimiter, formatChartValueDelimiter } from '../../../../commonHelpers';
 import { percentageFormatter } from './helper';

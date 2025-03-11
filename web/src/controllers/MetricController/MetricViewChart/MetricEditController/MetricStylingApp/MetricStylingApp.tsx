@@ -4,7 +4,12 @@ import { MetricStylingAppSegment } from './MetricStylingAppSegment';
 import { StylingAppColors } from './StylingAppColors';
 import { StylingAppStyling } from './StylingAppStyling';
 import { StylingAppVisualize } from './StylingAppVisualize';
-import { BarAndLineAxis, ChartEncodes, ChartType, ScatterAxis } from '@/components/ui/charts';
+import {
+  BarAndLineAxis,
+  ChartEncodes,
+  ChartType,
+  ScatterAxis
+} from '@/api/asset_interfaces/metric/charts';
 import { useMetricIndividual } from '@/context/Metrics';
 
 export const MetricStylingApp: React.FC<{

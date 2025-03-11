@@ -23,7 +23,12 @@ import { EditPieAppearance } from './EditPieAppearance';
 import { EditPieMinimumSlicePercentage } from './EditPieMinimumSlicePercentage';
 import { EditPieInnerLabel } from './EditPieInnerLabel';
 import { EditPieShowInnerLabel } from './EditPieShowInnerLabel';
-import { BarAndLineAxis, ChartEncodes, ChartType, ScatterAxis } from '@/components/ui/charts';
+import {
+  BarAndLineAxis,
+  ChartEncodes,
+  ChartType,
+  ScatterAxis
+} from '@/api/asset_interfaces/metric/charts';
 import { StylingAppStylingNotSupported } from './StylingAppStylingNotSupported';
 import { EditScatterDotSize } from './EditScatterDotSize';
 

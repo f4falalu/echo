@@ -1,4 +1,4 @@
-import { Trendline } from '@/components/ui/charts/interfaces';
+import { Trendline } from '@/api/asset_interfaces/metric/charts';
 import { LoopTrendline } from './EditTrendline';
 import { SelectItem } from '@/components/ui/select';
 

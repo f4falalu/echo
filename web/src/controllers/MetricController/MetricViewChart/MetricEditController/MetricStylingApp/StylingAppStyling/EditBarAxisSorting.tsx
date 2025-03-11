@@ -1,7 +1,7 @@
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../Common';
-import { BarSortBy } from '@/components/ui/charts';
+import { BarSortBy } from '@/api/asset_interfaces/metric/charts';
 import { AppSegmented, SegmentedItem } from '@/components/ui/segmented';
 import {
   ChartBarAxisX,

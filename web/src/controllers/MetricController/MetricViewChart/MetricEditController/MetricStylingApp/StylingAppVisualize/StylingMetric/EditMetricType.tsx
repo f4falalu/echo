@@ -5,7 +5,7 @@ import { LabelAndInput } from '../../Common';
 import last from 'lodash/last';
 import { useMemoizedFn } from '@/hooks';
 import { isNumericColumnStyle, isNumericColumnType } from '@/lib';
-import { ColumnLabelFormat } from '@/components/ui/charts';
+import { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import { SelectItem } from '@/components/ui/select';
 
 export const AGGREGATE_OPTIONS: SelectItem<IBusterMetricChartConfig['metricValueAggregate']>[] = [

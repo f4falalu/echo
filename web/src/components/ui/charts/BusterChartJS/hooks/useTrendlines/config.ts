@@ -1,4 +1,4 @@
-import type { Trendline } from '@/components/ui/charts/interfaces';
+import type { Trendline } from '@/api/asset_interfaces/metric/charts';
 
 type TrendlineType = Trendline['type'];
 

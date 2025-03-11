@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 import { Card, CardHeader } from '@/components/ui/card/CardBase';
 import { useDashboardMetric } from './useDashboardMetric';
-import { BusterChart } from '@/components/ui/charts';
 import { MetricTitle } from './MetricTitle';
 import { createBusterRoute, BusterRoutes } from '@/routes';
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
+import { BusterChart } from '@/components/ui/charts/BusterChart';
 
 const DashboardMetricItemBase: React.FC<{
   metricId: string;

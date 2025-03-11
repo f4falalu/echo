@@ -3,7 +3,7 @@ import { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { MetricStylingAppSegment } from './MetricStylingAppSegment';
 import { MetricStylingAppSegments } from './config';
-import { ChartType } from '@/components/ui/charts/interfaces/enum';
+import { ChartType } from '@/api/asset_interfaces/metric/charts/enum';
 
 const meta: Meta<typeof MetricStylingAppSegment> = {
   title: 'Controllers/EditMetricController/MetricStylingAppSegment',

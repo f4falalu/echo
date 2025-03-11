@@ -1,9 +1,9 @@
-import { ITooltipItem } from '@/components/ui/charts/BusterChartTooltip/interfaces';
-import { BusterChartConfigProps } from '@/components/ui/charts/interfaces';
+import type { ITooltipItem } from '../../../../BusterChartTooltip/interfaces';
 import type { Chart, ChartDataset, TooltipItem, ChartTypeRegistry } from 'chart.js';
 import { formatChartLabel } from '../../../helpers';
-import { formatChartValueDelimiter } from '@/components/ui/charts/commonHelpers';
 import { getPercentage } from './helper';
+import type { BusterChartConfigProps } from '@/api/asset_interfaces/metric/charts';
+import { formatChartValueDelimiter } from '@/components/ui/charts/commonHelpers';
 
 export const barAndLineTooltipHelper = (
   datasets: ChartDataset[],

@@ -1,4 +1,3 @@
-import { extractFieldsFromChain } from '@/components/ui/charts/chartHooks';
 import type { ChartProps } from '../../core';
 import { SeriesBuilderProps } from './interfaces';
 import { LabelBuilderProps } from './useSeriesOptions';
@@ -9,6 +8,7 @@ import { Context } from 'chartjs-plugin-datalabels';
 import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOptionConfig';
 import type { Options } from 'chartjs-plugin-datalabels/types/options';
 import { DEFAULT_CHART_LAYOUT } from '../../ChartJSTheme';
+import { extractFieldsFromChain } from '../../../chartHooks';
 
 export const barSeriesBuilder = ({
   selectedDataset,

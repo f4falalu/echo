@@ -12,7 +12,7 @@ import {
   XAxisConfig,
   Y2AxisConfig,
   YAxisConfig
-} from '@/components/ui/charts';
+} from '@/api/asset_interfaces/metric/charts';
 import isEmpty from 'lodash/isEmpty';
 import { SelectAxisEmptyState } from './SelectAxisEmptyState';
 

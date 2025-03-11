@@ -1,4 +1,8 @@
-import type { BusterChartConfigProps, ChartType, IColumnLabelFormat } from '../interfaces';
+import type {
+  BusterChartConfigProps,
+  ChartType,
+  IColumnLabelFormat
+} from '@/api/asset_interfaces/metric/charts';
 
 export type BusterTableChartConfig = {
   type: ChartType.Table;

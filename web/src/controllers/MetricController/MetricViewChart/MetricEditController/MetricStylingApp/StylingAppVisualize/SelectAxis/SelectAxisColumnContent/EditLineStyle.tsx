@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
-import { BusterChartConfigProps, ColumnSettings } from '@/components/ui/charts';
+import { BusterChartConfigProps, ColumnSettings } from '@/api/asset_interfaces/metric/charts';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { AppSegmented } from '@/components/ui/segmented';
 import { ENABLED_DOTS_ON_LINE_SIZE } from '@/api/asset_interfaces';

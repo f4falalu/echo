@@ -1,4 +1,4 @@
-import type { ColumnSettings } from '@/components/ui/charts';
+import type { ColumnSettings } from '@/api/asset_interfaces/metric/charts';
 import React from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 import { Switch } from '@/components/ui/switch';

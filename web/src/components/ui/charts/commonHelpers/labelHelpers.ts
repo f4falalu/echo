@@ -1,6 +1,6 @@
 import { formatLabel } from '@/lib';
 import isEmpty from 'lodash/isEmpty';
-import type { ColumnLabelFormat } from '../interfaces';
+import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import { extractFieldsFromChain } from '../chartHooks';
 
 export const JOIN_CHARACTER = ' | ';

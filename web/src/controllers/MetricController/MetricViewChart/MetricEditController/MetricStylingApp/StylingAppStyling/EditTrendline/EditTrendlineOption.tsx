@@ -3,7 +3,7 @@ import { LabelAndInput } from '../../Common';
 import { trendlineOptions } from './config';
 import { LoopTrendline } from './EditTrendline';
 import React, { useMemo } from 'react';
-import type { ChartType, Trendline } from '@/components/ui/charts';
+import type { ChartType, Trendline } from '@/api/asset_interfaces/metric/charts';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { isDateColumnType, isNumericColumnType } from '@/lib';
 import { AppTooltip } from '@/components/ui/tooltip';

@@ -1,9 +1,9 @@
-import { DATASET_IDS, TrendlineDataset } from '@/components/ui/charts/chartHooks';
+import { DATASET_IDS, TrendlineDataset } from '../../../chartHooks';
 import type {
   BusterChartConfigProps,
   ChartType,
   Trendline
-} from '@/components/ui/charts/interfaces';
+} from '@/api/asset_interfaces/metric/charts';
 import { AnnotationOptions, AnnotationPluginOptions } from 'chartjs-plugin-annotation';
 import { useMemo } from 'react';
 import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOptionConfig';

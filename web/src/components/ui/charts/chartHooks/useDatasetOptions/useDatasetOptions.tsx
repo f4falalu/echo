@@ -10,8 +10,8 @@ import {
   ScatterAxis,
   Trendline,
   ComboChartAxis,
-  IColumnLabelFormat
-} from '../../interfaces';
+  type IColumnLabelFormat
+} from '@/api/asset_interfaces/metric/charts';
 import uniq from 'lodash/uniq';
 import {
   getLineBarPieDatasetOptions,

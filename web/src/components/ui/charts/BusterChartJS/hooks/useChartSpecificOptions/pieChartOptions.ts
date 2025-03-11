@@ -12,7 +12,7 @@ import {
   BusterChartConfigProps,
   BusterChartProps,
   ColumnLabelFormat
-} from '@/components/ui/charts/interfaces';
+} from '@/api/asset_interfaces/metric/charts';
 import { determineFontColorContrast } from '@/lib/colors';
 import { Context } from 'chartjs-plugin-datalabels';
 

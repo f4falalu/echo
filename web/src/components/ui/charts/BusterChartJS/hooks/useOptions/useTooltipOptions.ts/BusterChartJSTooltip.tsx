@@ -1,11 +1,11 @@
-import { BusterChartTooltip } from '@/components/ui/charts/BusterChartTooltip';
-import { BusterChartProps, ChartType } from '@/components/ui/charts/interfaces';
+import { BusterChartTooltip } from '../../../../BusterChartTooltip';
+import { type BusterChartProps, ChartType } from '@/api/asset_interfaces/metric/charts';
 import React, { useMemo } from 'react';
 import type { Chart, TooltipItem, ChartType as ChartJSChartType } from 'chart.js';
-import type { ITooltipItem } from '@/components/ui/charts/BusterChartTooltip/interfaces';
+import type { ITooltipItem } from '../../../../BusterChartTooltip/interfaces';
 import { barAndLineTooltipHelper } from './barAndLineTooltipHelper';
 import { pieTooltipHelper } from './pieTooltipHelper';
-import { formatLabel } from '@/lib';
+import { formatLabel } from '@/lib/columnFormatter';
 import { scatterTooltipHelper } from './scatterTooltipHelper';
 
 export const BusterChartJSTooltip: React.FC<{

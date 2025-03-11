@@ -1,5 +1,5 @@
-import { BusterChartLegendItem } from '@/components/ui/charts/BusterChartLegend';
-import { BusterChartProps, ShowLegendHeadline } from '@/components/ui/charts/interfaces';
+import { BusterChartLegendItem } from './interfaces';
+import { BusterChartProps, ShowLegendHeadline } from '@/api/asset_interfaces/metric/charts';
 import { DataFrameOperations } from '@/lib/math';
 import { formatLabel } from '@/lib/columnFormatter';
 import { DatasetOption, extractFieldsFromChain } from '../chartHooks';

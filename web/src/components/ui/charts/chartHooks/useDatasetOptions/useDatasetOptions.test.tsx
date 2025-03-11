@@ -1,6 +1,9 @@
 import { renderHook } from '@testing-library/react';
 import { useDatasetOptions } from './useDatasetOptions';
-import { ChartType, IColumnLabelFormat } from '../../interfaces';
+import {
+  type ChartType,
+  type IColumnLabelFormat
+} from '../../../../../api/asset_interfaces/metric/charts';
 
 describe('useDatasetOptions - bar chart - all values are present', () => {
   const mockData = [

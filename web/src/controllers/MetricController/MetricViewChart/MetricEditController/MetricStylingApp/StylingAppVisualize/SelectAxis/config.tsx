@@ -1,4 +1,4 @@
-import { ChartType, type IColumnLabelFormat } from '@/components/ui/charts';
+import { ChartType, type IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import { Calendar, MoneyBillsDollar, TextA, Numbers, Percentage } from '@/components/ui/icons';
 import React from 'react';
 

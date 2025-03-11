@@ -14,7 +14,7 @@ import { useGoalLines, useOptions, useSeriesOptions } from './hooks';
 import { useChartSpecificOptions } from './hooks/useChartSpecificOptions';
 import { BusterChartTypeComponentProps } from '../interfaces/chartComponentInterfaces';
 import { useTrendlines } from './hooks/useTrendlines';
-import { ScatterAxis } from '../interfaces';
+import { ScatterAxis } from '@/api/asset_interfaces/metric/charts';
 
 export const BusterChartJSComponent = React.memo(
   React.forwardRef<ChartJSOrUndefined, BusterChartTypeComponentProps>(

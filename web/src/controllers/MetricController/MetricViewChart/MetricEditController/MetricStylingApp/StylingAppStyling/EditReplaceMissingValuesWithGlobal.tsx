@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { IColumnLabelFormat } from '@/components/ui/charts';
+import { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import { useMemoizedFn } from '@/hooks';
 import { EditReplaceMissingData } from '../StylingAppVisualize/SelectAxis/SelectAxisColumnContent/EditReplaceMissingData';
 

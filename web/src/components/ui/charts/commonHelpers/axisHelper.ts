@@ -4,8 +4,13 @@ import isEqual from 'lodash/isEqual';
 import isNumber from 'lodash/isNumber';
 import type { ColumnMetaData } from '@/api/asset_interfaces';
 import { formatChartLabelDelimiter } from './labelHelpers';
-import type { ChartEncodes, BusterChartProps, BarAndLineAxis, ScatterAxis } from '../interfaces';
-import { ChartType } from '../interfaces';
+import {
+  type ChartEncodes,
+  type BusterChartProps,
+  type BarAndLineAxis,
+  type ScatterAxis,
+  ChartType
+} from '@/api/asset_interfaces/metric/charts';
 
 export const AXIS_TITLE_SEPARATOR = ' | ';
 

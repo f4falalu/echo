@@ -1,10 +1,10 @@
 import React from 'react';
-import { BusterChartLegendItem } from '@/components/ui/charts/BusterChartLegend';
-import { ChartJSOrUndefined } from '../../core/types';
-import { BusterChartProps, ChartType } from '@/components/ui/charts/interfaces';
+import { BusterChartLegendItem } from '../../../BusterChartLegend';
+import type { ChartJSOrUndefined } from '../../core/types';
+import { type BusterChartProps, ChartType } from '@/api/asset_interfaces/metric/charts';
 import { formatChartLabel } from '../../helpers';
 import type { ChartDataset } from 'chart.js';
-import { extractFieldsFromChain } from '@/components/ui/charts/chartHooks';
+import { extractFieldsFromChain } from '../../../chartHooks';
 
 export const getLegendItems = ({
   chartRef,

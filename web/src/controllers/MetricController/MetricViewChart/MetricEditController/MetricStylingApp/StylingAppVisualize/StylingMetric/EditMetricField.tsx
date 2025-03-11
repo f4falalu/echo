@@ -9,7 +9,7 @@ import { useMemoizedFn } from '@/hooks';
 import { createColumnFieldOptions } from './helpers';
 import { Popover } from '@/components/ui/tooltip/Popover';
 import { SelectAxisDropdownContent } from '../SelectAxis/SelectAxisColumnContent';
-import { ChartType, DerivedMetricTitle } from '@/components/ui/charts';
+import { ChartType, DerivedMetricTitle } from '@/api/asset_interfaces/metric/charts';
 import { SelectAxisContainerId } from '../SelectAxis/config';
 import { Dots } from '@/components/ui/icons';
 

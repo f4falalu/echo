@@ -1,9 +1,9 @@
 import {
-  ChartEncodes,
+  type ChartEncodes,
   ChartType,
-  IColumnLabelFormat,
-  Trendline
-} from '@/components/ui/charts/interfaces';
+  type IColumnLabelFormat,
+  type Trendline
+} from '@/api/asset_interfaces/metric/charts';
 import { useMemo } from 'react';
 import { DATASET_IDS } from './config';
 import {

@@ -1,4 +1,4 @@
-import { ChartType, ShowLegendHeadline } from '../interfaces';
+import { type ChartType, type ShowLegendHeadline } from '@/api/asset_interfaces/metric/charts';
 
 export interface BusterChartLegendProps {
   animateLegend: boolean;

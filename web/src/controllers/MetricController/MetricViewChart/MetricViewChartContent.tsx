@@ -1,5 +1,6 @@
 import type { BusterMetricData, DataMetadata, IBusterMetric } from '@/api/asset_interfaces/metric';
-import { BusterChart, ChartType } from '@/components/ui/charts';
+import { ChartType } from '@/api/asset_interfaces/metric/charts';
+import { BusterChart } from '@/components/ui/charts';
 import { cn } from '@/lib/classMerge';
 import React, { useMemo } from 'react';
 

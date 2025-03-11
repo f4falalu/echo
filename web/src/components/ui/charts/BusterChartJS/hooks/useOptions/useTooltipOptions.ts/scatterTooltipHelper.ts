@@ -1,9 +1,9 @@
-import { ITooltipItem } from '@/components/ui/charts/BusterChartTooltip/interfaces';
-import { BusterChartConfigProps } from '@/components/ui/charts/interfaces';
+import type { ITooltipItem } from '../../../../BusterChartTooltip/interfaces';
+import type { BusterChartConfigProps } from '@/api/asset_interfaces/metric/charts';
 import type { ChartDataset, TooltipItem, ChartTypeRegistry } from 'chart.js';
-import { appendToKeyValueChain, extractFieldsFromChain } from '@/components/ui/charts/chartHooks';
+import { appendToKeyValueChain, extractFieldsFromChain } from '../../../../chartHooks';
 import { formatChartLabel } from '../../../helpers';
-import { formatLabel } from '@/lib';
+import { formatLabel } from '@/lib/columnFormatter';
 
 export const scatterTooltipHelper = (
   datasets: ChartDataset[],

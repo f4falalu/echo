@@ -1,4 +1,4 @@
-import { ChartType } from '@/components/ui/charts/interfaces';
+import { ChartType } from '@/api/asset_interfaces/metric/charts';
 import { ChartProps } from '../../core';
 import type { ChartType as ChartJSChartType, PluginChartOptions } from 'chart.js';
 import type { DeepPartial } from 'utility-types';

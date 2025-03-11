@@ -5,7 +5,7 @@ import { useMetricIndividual, useBusterMetricsIndividualContextSelector } from '
 import { useMemoizedFn } from '@/hooks';
 import { inputHasText } from '@/lib/text';
 import { MetricChartEvaluation } from './MetricChartEvaluation';
-import { ChartType } from '@/components/ui/charts/interfaces/enum';
+import { ChartType } from '@/api/asset_interfaces/metric/charts/enum';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
 

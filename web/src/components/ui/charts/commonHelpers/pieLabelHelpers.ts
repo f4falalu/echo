@@ -1,4 +1,4 @@
-import { BusterChartConfigProps } from '../interfaces';
+import type { BusterChartConfigProps } from '@/api/asset_interfaces/metric/charts';
 
 export const InnerLabelTitleRecord: Record<
   NonNullable<BusterChartConfigProps['pieInnerLabelAggregate']>,

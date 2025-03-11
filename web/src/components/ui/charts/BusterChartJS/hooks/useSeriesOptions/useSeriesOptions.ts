@@ -1,22 +1,22 @@
-import type { ColumnMetaData } from '@/api/asset_interfaces';
-import { DatasetOption } from '../../../chartHooks';
-import {
+import type {
   BusterChartConfigProps,
   BusterChartProps,
   ChartEncodes,
   ChartType,
   ScatterAxis
-} from '../../../interfaces';
+} from '@/api/asset_interfaces/metric/charts';
+import { DatasetOption } from '../../../chartHooks';
 import { ChartProps } from '../../core';
 import type { ChartType as ChartJSChartType } from 'chart.js';
 import { useMemo } from 'react';
 import { pieSeriesBuilder_data, pieSeriesBuilder_labels } from './pieSeriesBuilder';
 import { barSeriesBuilder, barSeriesBuilder_labels } from './barSeriesBuilder';
-import { SeriesBuilderProps } from './interfaces';
+import type { SeriesBuilderProps } from './interfaces';
 import { lineSeriesBuilder, lineSeriesBuilder_labels } from './lineSeriesBuilder';
 import { scatterSeriesBuilder_data, scatterSeriesBuilder_labels } from './scatterSeriesBuilder';
 import { defaultTooltipSeriesBuilder, scatterTooltipSeriesBuilder } from './tooltipSeriesBuilder';
 import { comboSeriesBuilder_data, comboSeriesBuilder_labels } from './comboSeriesBuilder';
+import type { ColumnMetaData } from '@/api/asset_interfaces/metric/interfaces';
 
 export interface UseSeriesOptionsProps {
   selectedChartType: ChartType;

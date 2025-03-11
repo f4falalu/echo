@@ -5,7 +5,7 @@ import type {
   XAxisConfig,
   CategoryAxisStyleConfig,
   Y2AxisConfig
-} from '@/components/ui/charts/interfaces';
+} from '@/api/asset_interfaces/metric/charts';
 import { createContext, useContextSelector } from 'use-context-selector';
 import { PropsWithChildren } from 'react';
 import React from 'react';

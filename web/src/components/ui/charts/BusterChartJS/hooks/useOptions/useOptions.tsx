@@ -1,21 +1,21 @@
 import { useMemo } from 'react';
 import type { ChartProps } from '../../core';
-import type { ChartType as ChartJSChartType, Scale } from 'chart.js';
+import type { ChartType as ChartJSChartType } from 'chart.js';
 import type {
   BusterChartConfigProps,
   BusterChartProps,
   ChartEncodes
-} from '@/components/ui/charts/interfaces';
+} from '@/api/asset_interfaces/metric/charts';
 import { useInteractions } from './useInteractions';
 import { useXAxis } from './useXAxis';
 import { useYAxis } from './useYAxis';
 import { DeepPartial } from 'utility-types';
 import type { PluginChartOptions } from 'chart.js';
 import { useTooltipOptions } from './useTooltipOptions.ts/useTooltipOptions';
-import { DatasetOption } from '@/components/ui/charts/chartHooks';
+import { DatasetOption } from '../../../chartHooks';
 import { useY2Axis } from './useY2Axis';
 import { AnnotationPluginOptions } from 'chartjs-plugin-annotation';
-import { BusterChartTypeComponentProps } from '@/components/ui/charts/interfaces/chartComponentInterfaces';
+import type { BusterChartTypeComponentProps } from '../../../interfaces';
 
 interface UseOptionsProps {
   colors: string[];

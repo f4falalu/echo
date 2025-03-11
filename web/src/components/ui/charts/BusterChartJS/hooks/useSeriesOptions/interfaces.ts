@@ -1,11 +1,10 @@
-import type { DatasetOption, TrendlineDataset } from '@/components/ui/charts/chartHooks';
 import type {
   BusterChartProps,
   ChartEncodes,
   IColumnLabelFormat,
-  ScatterAxis,
-  Trendline
-} from '@/components/ui/charts/interfaces';
+  ScatterAxis
+} from '@/api/asset_interfaces/metric/charts';
+import type { DatasetOption } from '../../../chartHooks';
 
 export interface SeriesBuilderProps {
   selectedDataset: DatasetOption;
