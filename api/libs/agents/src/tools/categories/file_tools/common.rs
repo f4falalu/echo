@@ -95,8 +95,6 @@ pub async fn validate_metric_ids(ids: &[Uuid]) -> Result<Vec<Uuid>> {
 }
 
 pub const METRIC_YML_SCHEMA: &str = r##"
-Please output in the order specified below.
-
 # METRIC CONFIGURATION - YML STRUCTURE
 # -------------------------------------
 # Required top-level fields:
@@ -488,8 +486,6 @@ definitions:
 "##;
 
 pub const DASHBOARD_YML_SCHEMA: &str = r##"
-Please output in the order specified below.
-
 # DASHBOARD CONFIGURATION - YML STRUCTURE
 # ----------------------------------------
 # Required fields:
