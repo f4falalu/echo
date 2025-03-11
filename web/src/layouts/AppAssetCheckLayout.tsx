@@ -52,6 +52,8 @@ export const AppAssetCheckLayout: React.FC<
 
   const { has_access, password_required, public: pagePublic } = res;
 
+  console.log('has_access', has_access, password_required, res);
+
   if (has_access || (pagePublic && !password_required)) {
     return <ClientSideAnonCheck jwtToken={jwtToken}>{children}</ClientSideAnonCheck>;
   }

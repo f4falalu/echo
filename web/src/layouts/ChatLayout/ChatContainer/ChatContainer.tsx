@@ -1,25 +1,15 @@
-import React, { useMemo, useRef } from 'react';
+import React from 'react';
 import { ChatHeader } from './ChatHeader';
 import { ChatContent } from './ChatContent';
-import { useScroll } from '@/hooks';
 import { AppPageLayout } from '@/components/ui/layouts';
 
 export const ChatContainer = React.memo(() => {
-  const chatContentRef = useRef<HTMLDivElement>(null);
-  const scroll = useScroll(chatContentRef);
-
-  const showScrollOverflow = useMemo(() => {
-    if (!chatContentRef.current || !scroll) return false;
-    const trigger = 25;
-    return scroll.top > trigger;
-  }, [chatContentRef, scroll?.top]);
-
   return (
     <AppPageLayout
       header={<ChatHeader />}
       headerBorderVariant="ghost"
       className="flex h-full w-full min-w-[295px] flex-col">
-      <ChatContent chatContentRef={chatContentRef} />
+      <ChatContent />
     </AppPageLayout>
   );
 });

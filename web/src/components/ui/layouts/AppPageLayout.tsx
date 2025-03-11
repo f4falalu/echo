@@ -18,6 +18,7 @@ export const AppPageLayout: React.FC<
     className?: string;
     headerSizeVariant?: 'default' | 'list';
     headerBorderVariant?: 'default' | 'ghost';
+    headerClassName?: string;
   }>
 > = ({
   children,
@@ -25,7 +26,8 @@ export const AppPageLayout: React.FC<
   scrollable = false,
   className = '',
   headerSizeVariant = 'default',
-  headerBorderVariant = 'default'
+  headerBorderVariant = 'default',
+  headerClassName = ''
 }) => {
   return (
     <div
@@ -35,7 +37,10 @@ export const AppPageLayout: React.FC<
         className
       )}>
       {header && (
-        <AppPageLayoutHeader sizeVariant={headerSizeVariant} borderVariant={headerBorderVariant}>
+        <AppPageLayoutHeader
+          className={headerClassName}
+          sizeVariant={headerSizeVariant}
+          borderVariant={headerBorderVariant}>
           {header}
         </AppPageLayoutHeader>
       )}

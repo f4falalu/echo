@@ -8,6 +8,9 @@ export default async function Page(props: {
 
   const { chatId, metricId } = params;
 
+  console.log('chatId', chatId);
+  console.log('metricId', metricId);
+
   return (
     <AppAssetCheckLayout metricId={metricId} type="metric">
       <MetricController metricId={metricId} />
