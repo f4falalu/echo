@@ -7,11 +7,14 @@ import type {
   BusterUserPermissionGroup,
   BusterUserResponse,
   BusterUserTeamListItem,
-  OrganizationUser
+  OrganizationUser,
+  BusterUserListItem
 } from '@/api/asset_interfaces/users';
+import type { UserRequestUserListPayload } from '@/api/request_interfaces/user/interfaces';
 
 const favoritesGetList = queryOptions<BusterUserFavorite[]>({
-  queryKey: ['users', 'favorites', 'list'] as const
+  queryKey: ['users', 'favorites', 'list'] as const,
+  staleTime: 1000 * 60 * 60 // 1 hour
 });
 
 const userGetUserMyself = queryOptions<BusterUserResponse>({
@@ -48,6 +51,11 @@ const userGetUserDatasetGroups = (userId: string) =>
     queryKey: ['users', userId, 'datasetGroups'] as const
   });
 
+const userGetUserList = (params: UserRequestUserListPayload) =>
+  queryOptions<BusterUserListItem[]>({
+    queryKey: ['users', 'list', params] as const
+  });
+
 export const userQueryKeys = {
   favoritesGetList,
   userGetUserMyself,
@@ -56,5 +64,6 @@ export const userQueryKeys = {
   userGetUserTeams,
   userGetUserAttributes,
   userGetUserDatasets,
-  userGetUserDatasetGroups
+  userGetUserDatasetGroups,
+  userGetUserList
 };

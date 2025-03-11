@@ -4,11 +4,24 @@ import {
   getUser_server,
   updateOrganizationUser,
   getMyUserInfo,
-  getMyUserInfo_server
+  getMyUserInfo_server,
+  getUserFavorites,
+  getUserFavorites_server,
+  createUserFavorite,
+  deleteUserFavorite,
+  updateUserFavorites,
+  getUserList,
+  getUserList_server
 } from './requests';
 import { useMemoizedFn } from '@/hooks';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
+import type {
+  UsersFavoritePostPayload,
+  UserFavoriteDeletePayload,
+  UserUpdateFavoritesPayload,
+  UserRequestUserListPayload
+} from '@/api/request_interfaces/user/interfaces';
 
 export const useGetMyUserInfo = () => {
   const queryFn = useMemoizedFn(async () => {
@@ -68,6 +81,91 @@ export const prefetchGetUser = async (userId: string, queryClientProp?: QueryCli
   await queryClient.prefetchQuery({
     ...queryKeys.userGetUser(userId),
     queryFn: () => getUser_server({ userId })
+  });
+  return queryClient;
+};
+
+export const useGetUserFavorites = () => {
+  const queryFn = useMemoizedFn(async () => getUserFavorites());
+  return useQuery({
+    ...queryKeys.favoritesGetList,
+    queryFn
+  });
+};
+
+export const prefetchGetUserFavorites = async (queryClientProp?: QueryClient) => {
+  const queryClient = queryClientProp || new QueryClient();
+  await queryClient.prefetchQuery({
+    ...queryKeys.favoritesGetList,
+    queryFn: () => getUserFavorites_server()
+  });
+  return queryClient;
+};
+
+export const useAddUserFavorite = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createUserFavorite,
+    onMutate: (params) => {
+      queryClient.setQueryData(queryKeys.favoritesGetList.queryKey, (prev) => {
+        return [params, ...(prev || [])];
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKeys.favoritesGetList);
+    }
+  });
+};
+
+export const useDeleteUserFavorite = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteUserFavorite,
+    onMutate: (params) => {
+      queryClient.setQueryData(queryKeys.favoritesGetList.queryKey, (prev) => {
+        return prev?.filter((fav) => fav.id !== params.id);
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKeys.favoritesGetList);
+    }
+  });
+};
+
+export const useUpdateUserFavorites = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateUserFavorites,
+    onMutate: (params) => {
+      queryClient.setQueryData(queryKeys.favoritesGetList.queryKey, (prev) => {
+        return prev?.filter((fav, index) => {
+          const id = fav.id || fav.collection_id;
+          const favorite = (prev || []).find((f) => f.id === id || f.collection_id === id)!;
+          return { ...favorite, index };
+        });
+      });
+    }
+  });
+};
+
+export const useGetUserList = (params: UserRequestUserListPayload) => {
+  const queryFn = useMemoizedFn(() => getUserList(params));
+
+  return useQuery({
+    ...queryKeys.userGetUserList(params),
+    queryFn
+  });
+};
+
+export const prefetchGetUserList = async (
+  params: UserRequestUserListPayload,
+  queryClientProp?: QueryClient
+) => {
+  const queryClient = queryClientProp || new QueryClient();
+  await queryClient.prefetchQuery({
+    ...queryKeys.userGetUserList(params),
+    queryFn: () => getUserList_server(params)
   });
   return queryClient;
 };
