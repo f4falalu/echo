@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use database::{enums::Verification, types::VersionHistory};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -12,7 +13,7 @@ pub struct Dataset {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Version {
     pub version_number: i32,
-    pub updated_at: String,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -42,7 +43,7 @@ pub struct BusterMetric {
     pub code: Option<String>,
     pub dashboards: Vec<Dashboard>,
     pub collections: Vec<Collection>,
-    pub versions: VersionHistory,
+    pub versions: Vec<Version>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
