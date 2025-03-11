@@ -5,6 +5,7 @@ mod dashboards;
 mod data_sources;
 mod dataset_groups;
 mod datasets;
+mod logs;
 mod messages;
 mod metrics;
 mod organizations;
@@ -33,6 +34,7 @@ pub fn router() -> Router {
             .nest("/dashboards", dashboards::router())
             .nest("/users", users::router())
             .nest("/collections", collections::router())
+            .nest("/logs", logs::router())
             .route_layer(axum_middleware::from_fn(auth)),
     )
 }

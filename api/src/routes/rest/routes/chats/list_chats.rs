@@ -1,16 +1,16 @@
 use axum::{extract::Query, http::StatusCode, Extension};
 use database::models::User;
 use handlers::chats::list_chats_handler::{
-    list_chats_handler, ListChatsRequest, ListChatsResponse,
+    list_chats_handler, ChatListItem, ListChatsRequest, ListChatsResponse,
 };
-use serde::Deserialize;
 use middleware::AuthenticatedUser;
+use serde::Deserialize;
 
 use crate::routes::rest::ApiResponse;
 
 #[derive(Debug, Deserialize)]
 pub struct ListChatsQuery {
-    pub page_token: Option<String>,
+    pub page: Option<i32>,
     #[serde(default = "default_page_size")]
     pub page_size: i32,
     #[serde(default)]
@@ -24,9 +24,9 @@ fn default_page_size() -> i32 {
 pub async fn list_chats_route(
     Extension(user): Extension<AuthenticatedUser>,
     Query(query): Query<ListChatsQuery>,
-) -> Result<ApiResponse<ListChatsResponse>, (StatusCode, &'static str)> {
+) -> Result<ApiResponse<Vec<ChatListItem>>, (StatusCode, &'static str)> {
     let request = ListChatsRequest {
-        page_token: query.page_token,
+        page: query.page,
         page_size: query.page_size,
         admin_view: query.admin_view,
     };

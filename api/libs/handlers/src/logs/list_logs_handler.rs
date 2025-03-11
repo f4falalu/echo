@@ -1,4 +1,3 @@
-use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use database::pool::get_pg_pool;
 use diesel::prelude::*;
@@ -9,17 +8,15 @@ use serde_json::Value;
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ListChatsRequest {
+pub struct ListLogsRequest {
     pub page: Option<i32>,
     pub page_size: i32,
-    pub admin_view: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ChatListItem {
+pub struct LogListItem {
     pub id: String,
     pub title: String,
-    pub is_favorited: bool,
     pub updated_at: String,
     pub created_at: String,
     pub created_by: String,
@@ -37,8 +34,8 @@ pub struct PaginationInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ListChatsResponse {
-    pub items: Vec<ChatListItem>,
+pub struct ListLogsResponse {
+    pub items: Vec<LogListItem>,
     pub pagination: PaginationInfo,
 }
 
@@ -55,17 +52,16 @@ struct ChatWithUser {
     pub user_attributes: Value,
 }
 
-/// List chats with pagination support
+/// List logs with pagination support
 /// 
-/// This function efficiently retrieves a list of chats with their associated user information.
+/// This function efficiently retrieves a list of chats (logs) with their associated user information.
 /// It supports pagination using page number and limits results using page_size.
-/// If admin_view is true and the user has admin privileges, it shows all chats; otherwise, only the user's chats.
+/// Unlike the regular chats endpoint, logs are not restricted to the user and are visible to everyone.
 /// 
-/// Returns a list of chat items with user information and pagination details.
-pub async fn list_chats_handler(
-    request: ListChatsRequest,
-    user_id: &Uuid,
-) -> Result<Vec<ChatListItem>> {
+/// Returns a list of log items with user information and pagination details.
+pub async fn list_logs_handler(
+    request: ListLogsRequest,
+) -> Result<Vec<LogListItem>, anyhow::Error> {
     use database::schema::{chats, users};
     
     let mut conn = get_pg_pool().get().await?;
@@ -75,11 +71,6 @@ pub async fn list_chats_handler(
         .inner_join(users::table.on(chats::created_by.eq(users::id)))
         .filter(chats::deleted_at.is_null())
         .into_boxed();
-    
-    // Add user filter if not admin view
-    if !request.admin_view {
-        query = query.filter(chats::created_by.eq(user_id));
-    }
     
     // Calculate offset based on page number
     let page = request.page.unwrap_or(1);
@@ -107,7 +98,7 @@ pub async fn list_chats_handler(
     
     // Check if there are more results and prepare pagination info
     let has_more = results.len() > request.page_size as usize;
-    let items: Vec<ChatListItem> = results
+    let items: Vec<LogListItem> = results
         .into_iter()
         .take(request.page_size as usize)
         .map(|chat| {
@@ -116,10 +107,9 @@ pub async fn list_chats_handler(
                 .and_then(|v| v.as_str())
                 .map(String::from);
                 
-            ChatListItem {
+            LogListItem {
                 id: chat.id.to_string(),
                 title: chat.title,
-                is_favorited: false, // TODO: Implement favorites feature
                 created_at: chat.created_at.to_rfc3339(),
                 updated_at: chat.updated_at.to_rfc3339(),
                 created_by: chat.created_by.to_string(),
