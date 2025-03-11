@@ -38,10 +38,7 @@ const DeleteButton: React.FC<{
       title: 'Delete dataset',
       content: 'Are you sure you want to delete this dataset?',
       onOk: async () => {
-        const promises = selectedRowKeys.map((v) => {
-          return onDeleteDataset(v);
-        });
-        await Promise.all(promises);
+        await onDeleteDataset(selectedRowKeys);
         onSelectChange([]);
       }
     });

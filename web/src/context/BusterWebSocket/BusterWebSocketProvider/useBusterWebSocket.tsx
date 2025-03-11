@@ -136,30 +136,35 @@ const useBusterSocketListeners = (props: {
     });
   });
 
-  const emitAndOnce: BusterSocket['emitAndOnce'] = useMemoizedFn(async (params) => {
-    const { emitEvent, responseEvent } = params;
-    const { route, callback, onError } = responseEvent;
-    const promise = new Promise((resolve, reject) => {
-      const promiseCallback = (d: any) => {
-        callback(d);
-        resolve(d);
-      };
-      const onErrorCallback = (d: any) => {
-        if (!onError) openErrorNotification(d);
-        else onError?.(d);
-        reject(d);
-      };
-      once({
-        route: route as '/chats/post:initializeChat',
-        callback: promiseCallback,
-        onError: onErrorCallback
-      }).catch((e) => {
-        onErrorCallback(e);
+  const emitAndOnce: BusterSocket['emitAndOnce'] = useMemoizedFn(
+    async <T extends BusterSocketResponse>(params: {
+      emitEvent: BusterSocketRequest;
+      responseEvent: T;
+    }) => {
+      const { emitEvent, responseEvent } = params;
+      const { route, callback, onError } = responseEvent;
+      const promise = new Promise<Parameters<T['callback']>[0]>((resolve, reject) => {
+        const promiseCallback = (d: any) => {
+          callback(d);
+          resolve(d);
+        };
+        const onErrorCallback = (d: any) => {
+          if (!onError) openErrorNotification(d);
+          else onError?.(d);
+          reject(d);
+        };
+        once({
+          route: route as '/chats/post:initializeChat',
+          callback: promiseCallback,
+          onError: onErrorCallback
+        }).catch((e) => {
+          onErrorCallback(e);
+        });
       });
-    });
-    emit(emitEvent);
-    return promise;
-  });
+      emit(emitEvent);
+      return promise;
+    }
+  );
 
   const getCurrentListeners = useMemoizedFn((route: BusterSocketResponseRoute | string) => {
     return listeners.current[route] || [];

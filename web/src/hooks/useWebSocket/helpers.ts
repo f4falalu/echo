@@ -1,5 +1,4 @@
 import { isDev } from '@/config';
-import { DatasetResponses } from '@/api/buster_socket/datasets';
 import { UserResponses } from '@/api/buster_socket/user';
 import { DatasourceResponses } from '@/api/buster_socket/datasources/datasourceResponses';
 import { TermsResponses } from '@/api/buster_socket/terms/termsResponses';
@@ -33,7 +32,6 @@ export const createBusterResponse = (
 
 const isKnownMessageRoute = (parsedMessage: BusterSocketResponseMessage) => {
   const allResponses = {
-    ...DatasetResponses,
     ...UserResponses,
     ...DatasourceResponses,
     ...SQLResponses,

@@ -1,7 +1,7 @@
 import { useDeleteDataset } from '@/api/buster_rest';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
-import { Dropdown, DropdownItems, type DropdownProps } from '@/components/ui/dropdown';
+import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { Button } from '@/components/ui/buttons';
 import React, { useMemo } from 'react';
 import { DotsVertical, Trash } from '@/components/ui/icons';
@@ -20,7 +20,7 @@ export const DatasetIndividualThreeDotMenu: React.FC<{
         icon: <Trash />,
         onClick: datasetId
           ? async () => {
-              await onDeleteDataset(datasetId);
+              await onDeleteDataset([datasetId]);
               onChangePage({
                 route: BusterRoutes.APP_DATASETS
               });
