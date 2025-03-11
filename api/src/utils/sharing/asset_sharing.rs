@@ -682,11 +682,8 @@ async fn get_asset_name(asset_id: Arc<Uuid>, asset_type: AssetType) -> Result<St
                 }
             }
         }
-        AssetType::Chat => {
+        _ => {
             return Err(anyhow!("Public access is not supported for chats yet"));
-        }
-        AssetType::Metric => {
-            return Err(anyhow!("Public access is not supported for metrics yet"));
         }
     };
 

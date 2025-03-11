@@ -121,12 +121,10 @@ async fn get_asset_access_handler(
 
                 (thread_info, user_permission)
             }
-        AssetType::Chat => {
+        _ => {
             return Err(anyhow!("Public access is not supported for chats yet"));
         }
-        AssetType::Metric => {
-            return Err(anyhow!("Public access is not supported for metrics yet"));
-        }
+        
     };
 
     let (id, public, password_required, public_expiry_date) = asset_info;

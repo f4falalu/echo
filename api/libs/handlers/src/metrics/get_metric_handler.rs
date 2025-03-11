@@ -1,12 +1,10 @@
 use anyhow::{anyhow, Result};
-use diesel::{
-    ExpressionMethods, NullableExpressionMethods, QueryDsl, Queryable, Selectable, SelectableHelper,
-};
+use database::types::VersionHistory;
+use diesel::{ExpressionMethods, QueryDsl, Queryable, Selectable, SelectableHelper};
 use diesel_async::RunQueryDsl;
-use serde_json::{json, Value};
+use serde_json::Value;
 use serde_yaml;
 use uuid::Uuid;
-use middleware::AuthenticatedUser;
 
 use crate::metrics::types::{
     BusterMetric, ColumnMetaData, ColumnType, DataMetadata, Dataset, MinMaxValue, SimpleType,
@@ -14,7 +12,7 @@ use crate::metrics::types::{
 use agents::tools::file_tools::file_types::metric_yml::MetricYml;
 use database::enums::Verification;
 use database::pool::get_pg_pool;
-use database::schema::{datasets, metric_files, users};
+use database::schema::{datasets, metric_files};
 
 #[derive(Queryable, Selectable)]
 #[diesel(table_name = metric_files)]
@@ -30,6 +28,7 @@ struct QueryableMetricFile {
     created_by: Uuid,
     created_at: chrono::DateTime<chrono::Utc>,
     updated_at: chrono::DateTime<chrono::Utc>,
+    version_history: VersionHistory,
 }
 
 #[derive(Queryable)]
@@ -70,6 +69,7 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid) -> Result<Bust
             metric_files::created_by,
             metric_files::created_at,
             metric_files::updated_at,
+            metric_files::version_history,
         ))
         .first::<QueryableMetricFile>(&mut conn)
         .await
@@ -180,5 +180,6 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid) -> Result<Bust
         code: None,
         dashboards: vec![],  // TODO: Get associated dashboards
         collections: vec![], // TODO: Get associated collections
+        versions: metric_file.version_history,
     })
 }

@@ -5,6 +5,7 @@ use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
+use crate::types::VersionHistory;
 
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug)]
 #[diesel(belongs_to(User, foreign_key = owner_id))]
@@ -35,6 +36,7 @@ pub struct DashboardFile {
     pub publicly_accessible: bool,
     pub publicly_enabled_by: Option<Uuid>,
     pub public_expiry_date: Option<DateTime<Utc>>,
+    pub version_history: VersionHistory,
 }
 
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug, Clone, Serialize)]
@@ -85,6 +87,7 @@ pub struct MetricFile {
     pub publicly_accessible: bool,
     pub publicly_enabled_by: Option<Uuid>,
     pub public_expiry_date: Option<DateTime<Utc>>,
+    pub version_history: VersionHistory,
 }
 
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug, Clone, Serialize)]
