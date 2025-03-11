@@ -1003,12 +1003,20 @@ fn transform_tool_message(
 fn tool_create_plan(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
     println!("MESSAGE_STREAM: Processing tool create plan message");
 
+    let plan_markdown = match serde_json::from_str::<CreatePlanOutput>(&content) {
+        Ok(result) => result.plan_markdown,
+        Err(e) => {
+            println!("Failed to parse CreatePlanOutput: {:?}", e);
+            return Ok(vec![]);
+        }
+    };
+
     let buster_file = BusterReasoningMessage::Text(BusterReasoningText {
         id,
         reasoning_type: "text".to_string(),
         title: "Plan".to_string(),
         secondary_title: "".to_string(),
-        message: None,
+        message: Some(plan_markdown),
         message_chunk: None,
         status: Some("completed".to_string()),
     });
@@ -1049,7 +1057,7 @@ fn tool_create_metrics(id: String, content: String) -> Result<Vec<BusterReasonin
             version_id: file.id.to_string(),
             status: "completed".to_string(),
             file: BusterFileContent {
-                text: None,
+                text: Some(file.yml_content),
                 text_chunk: None,
                 modifided: None,
             },

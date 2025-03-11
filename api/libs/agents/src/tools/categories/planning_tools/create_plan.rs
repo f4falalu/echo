@@ -9,6 +9,7 @@ use crate::{agent::Agent, tools::ToolExecutor};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CreatePlanOutput {
     pub message: String,
+    pub plan_markdown: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -42,6 +43,7 @@ impl ToolExecutor for CreatePlan {
 
         Ok(CreatePlanOutput {
             message: "Plan created successfully".to_string(),
+            plan_markdown: params.plan_markdown,
         })
     }
 

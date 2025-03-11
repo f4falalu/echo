@@ -153,7 +153,7 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
                 request_message,
                 response_messages,
                 reasoning,
-                None,
+                Some(msg.final_reasoning_message),
             )
         })
         .collect();
