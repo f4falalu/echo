@@ -18,7 +18,8 @@ const favoritesGetList = queryOptions<BusterUserFavorite[]>({
 });
 
 const userGetUserMyself = queryOptions<BusterUserResponse>({
-  queryKey: ['users', 'myself'] as const
+  queryKey: ['users', 'myself'] as const,
+  staleTime: 1000 * 60 * 60 // 1 hour
 });
 
 const userGetUser = (userId: string) =>

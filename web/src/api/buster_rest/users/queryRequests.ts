@@ -16,20 +16,12 @@ import {
 import { useMemoizedFn } from '@/hooks';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
-import type {
-  UsersFavoritePostPayload,
-  UserFavoriteDeletePayload,
-  UserUpdateFavoritesPayload,
-  UserRequestUserListPayload
-} from '@/api/request_interfaces/user/interfaces';
+import type { UserRequestUserListPayload } from '@/api/request_interfaces/user/interfaces';
 
 export const useGetMyUserInfo = () => {
-  const queryFn = useMemoizedFn(async () => {
-    return getMyUserInfo();
-  });
   return useQuery({
     ...queryKeys.userGetUserMyself,
-    queryFn,
+    queryFn: getMyUserInfo,
     enabled: false //This is a server only query
   });
 };

@@ -23,7 +23,11 @@ export const BarContainer: React.FC<{
       />
 
       <div className={`mb-2 flex w-full flex-col space-y-2 overflow-hidden`}>
-        <TitleContainer title={title} secondaryTitle={secondaryTitle} />
+        <TitleContainer
+          title={title}
+          secondaryTitle={secondaryTitle}
+          isCompletedStream={isCompletedStream}
+        />
         {children}
       </div>
     </div>
@@ -77,12 +81,14 @@ VerticalBar.displayName = 'VerticalBar';
 const TitleContainer: React.FC<{
   title: string;
   secondaryTitle?: string;
-}> = React.memo(({ title, secondaryTitle }) => {
+  isCompletedStream: boolean;
+}> = React.memo(({ title, secondaryTitle, isCompletedStream }) => {
   return (
     <div className={cn('@container', 'flex w-full items-center space-x-1.5 overflow-hidden')}>
-      <AnimatedThoughtTitle title={title} type="default" />
+      <AnimatedThoughtTitle title={title} type="default" isCompletedStream={isCompletedStream} />
       <AnimatedThoughtTitle
         title={secondaryTitle}
+        isCompletedStream={isCompletedStream}
         type="tertiary"
         className="secondary-text truncate"
       />
@@ -96,15 +102,17 @@ const AnimatedThoughtTitle = React.memo(
   ({
     title,
     type,
+    isCompletedStream,
     className = ''
   }: {
     title: string | undefined;
     type: 'tertiary' | 'default';
     className?: string;
+    isCompletedStream: boolean;
   }) => {
     const isSecondaryTitle = type === 'tertiary';
     return (
-      <AnimatePresence initial={false} mode="wait">
+      <AnimatePresence initial={!isCompletedStream && !isSecondaryTitle} mode="wait">
         {title && (
           <motion.div
             className="flex"
